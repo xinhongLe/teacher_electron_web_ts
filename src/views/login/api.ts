@@ -1,39 +1,45 @@
 import request from "@/utils/request";
 import { AI_XUE_SHI_API } from "@/config";
-import { ILoginData, ILoginResponse } from "@/types/login";
-import { IResponse } from "@/types/response";
+import {
+    IBasicTagResponse,
+    IGradeClassTreeResponse,
+    ILessonManagerResponse,
+    ILoginData,
+    ILoginResponse
+} from "@/types/login";
 
 export function Login(data: ILoginData): Promise<ILoginResponse> {
     return request({
         baseURL: AI_XUE_SHI_API,
-        url: `/Api/W4/Teach/Login`,
+        url: "/Api/W4/Teach/Login",
         method: "post",
-        data,
+        data
     });
 }
 
-export function LessonManager() {
+export function LessonManager(): Promise<ILessonManagerResponse> {
     return request({
         baseURL: AI_XUE_SHI_API,
-        url: `/Api/W4/Teach/GetInfo/LessonManager`,
+        url: "/Api/W4/Teach/GetInfo/LessonManager",
         method: "post"
     });
 }
 
-//获取老师的班级年级树形
-export function GetGradeClassTree() {
+// 获取老师的班级年级树形
+export function GetGradeClassTree(): Promise<IGradeClassTreeResponse> {
     return request({
         baseURL: AI_XUE_SHI_API,
-        url: `/Api/W3/Temporary/GetGradeClassTree`,
-        method: "post"
+        url: "/Api/W3/Temporary/GetGradeClassTree",
+        method: "post",
+        data: {}
     });
 }
 
-//学生标签配置
-export function GetBasicTag() {
+// 学生标签配置
+export function GetBasicTag(): Promise<IBasicTagResponse> {
     return request({
         baseURL: AI_XUE_SHI_API,
-        url: `Api/V2/Universal/BaseData/GetBasicTag`,
+        url: "Api/V2/Universal/BaseData/GetBasicTag",
         method: "post"
     });
 }

@@ -1,12 +1,18 @@
 const PREFIX = "VUE";
 
-export const set = (name: string, value: string) => {
-    localStorage.setItem(`${PREFIX}_${name}`, JSON.stringify(value));
+export const set = (name: string, value: any) => {
+    localStorage.setItem(`${PREFIX}_${name}`, typeof value === "string" ? value : JSON.stringify(value));
 };
 
 export const get = (name: string) => {
     const item = localStorage.getItem(`${PREFIX}_${name}`);
-    return item === null ? null : JSON.parse(item);
+    let result;
+    try {
+        result = item === null ? null : JSON.parse(item);
+    } catch {
+        result = item;
+    }
+    return result;
 };
 
 export const remove = (name: string) => {
@@ -24,3 +30,20 @@ export const clear = () => {
         remove(name.substring(4));
     });
 };
+
+export enum STORAGE_TYPES {
+    // 储存token
+    SET_TOKEN = "SET_TOKEN",
+
+    // 年级班级列表
+    GRADE_CLASS_TREE_LIST = "GRADE_CLASS_TREE_LIST",
+
+    // 学生标签配置
+    STUDENT_TAGS = "STUDENT_TAGS",
+
+    // 用户信息存储
+    USER_INFO = "USER_INFO",
+
+    // 登录历史
+    RECORD_LOGIN_LIST = "RECORD_LOGIN_LIST"
+}

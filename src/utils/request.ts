@@ -1,24 +1,23 @@
 import axios, { AxiosRequestConfig, Method } from "axios";
-import { ElMessage, ElLoading, ILoadingInstance, ElTreeV2 } from "element-plus";
-import { clear, get } from "./storage";
+import { ElMessage, ElLoading, ILoadingInstance } from "element-plus";
+import { clear, get, STORAGE_TYPES } from "./storage";
 import router from "@/router/index";
-import { IResponse } from "@/types/response";
 
 const http = axios.create({
     baseURL: "/",
-    timeout: 150000,
+    timeout: 150000
 });
 
 let loadingInstance: ILoadingInstance;
 
 http.interceptors.request.use(
     (config: AxiosRequestConfig) => {
-        if (get("SET_TOKEN")) {
+        if (get(STORAGE_TYPES.SET_TOKEN)) {
             config.headers = {
                 "Content-Type": "application/json-patch+json",
                 ...config.headers,
-                Token: get("SET_TOKEN"),
-                Authorization: "Bearer" + " " + get("SET_TOKEN"),
+                Token: get(STORAGE_TYPES.SET_TOKEN),
+                Authorization: "Bearer" + " " + get(STORAGE_TYPES.SET_TOKEN)
             };
         }
         if (!config.headers?.noLoading) loadingInstance = ElLoading.service({});
@@ -38,7 +37,7 @@ http.interceptors.response.use(
             ElMessage({
                 message: "登录超时请重新登录",
                 type: "error",
-                duration: 5 * 1000,
+                duration: 5 * 1000
             });
             clear();
             router.push("/login");
@@ -46,7 +45,7 @@ http.interceptors.response.use(
             ElMessage({
                 message: res.resultDesc,
                 type: "error",
-                duration: 5 * 1000,
+                duration: 5 * 1000
             });
         }
         return response;
@@ -56,13 +55,11 @@ http.interceptors.response.use(
         ElMessage({
             message: "请求失败",
             type: "error",
-            duration: 5 * 1000,
+            duration: 5 * 1000
         });
         return Promise.reject(error);
     }
 );
-
-
 
 interface IRequest<T> {
     baseURL: string | undefined;
@@ -71,12 +68,12 @@ interface IRequest<T> {
     data?: T
 }
 
-function request<T, U>(options: IRequest<T>) : Promise<U> {
+function request<T, U>(options: IRequest<T>): Promise<U> {
     return new Promise(resolve => {
         http(options).then(res => {
             resolve(res.data);
-        })
-    })
+        });
+    });
 }
 
 export default request;

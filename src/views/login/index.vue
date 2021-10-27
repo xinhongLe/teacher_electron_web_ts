@@ -50,83 +50,56 @@
                 <p>违法和不良信息举报电话：0512-65520773</p>
                 <p>举报邮箱：zhangyunlong@upplus.net</p>
             </div>
-            <div class="version-text">版本:{{ packageInfo.version }}</div>
+            <div class="version-text">版本:{{ version }}</div>
         </div>
     </div>
 </template>
 
-<script>
-import { get, set } from "@/utils/storage.js";
-import { Login, LessonManager, GetGradeClassTree, GetBasicTag } from "./api";
+<script lang="ts">
 import isElectron from "is-electron";
-export default {
-    name: "index",
-    data() {
-        this.packageInfo = require("../../../package.json");
-        return {
-            form: {
-                account: "",
-                password: ""
-            },
-            recordAccountList: [],
-            loading: false
-        };
-    },
-    methods: {
-        async login() {
-            const { account, password } = this.form;
+import { defineComponent, reactive, ref } from "vue";
+import useLogin from "@/hooks/useLogin";
+import { useRouter } from "vue-router";
+import { ILoginData } from "@/types/login";
+import { STORAGE_TYPES, get } from "@/utils/storage";
+export default defineComponent({
+    setup() {
+        const router = useRouter();
+
+        const form = reactive({
+            account: "",
+            password: ""
+        });
+
+        const loading = ref(false);
+        const recordAccountList = ref([]);
+        recordAccountList.value = get(STORAGE_TYPES.RECORD_LOGIN_LIST) || [];
+
+        const { userLogin, recordAccount } = useLogin();
+
+        const login = async () => {
+            const { account, password } = form;
             if (account.length === 0 || password.length === 0) return false;
-            this.loading = true;
-            const res = await Login({ account, password });
-            this.loading = false;
-            if (res.resultCode === 200) {
-                set("SET_TOKEN", res.result.token);
-                this.recordAccount();
-                const userinfo = await LessonManager();
-                if (userinfo.resultCode === 200) {
-                    set("USER_INFO", userinfo.result);
-                }
-                const GetGradeClassList = await GetGradeClassTree();
-                if (GetGradeClassList.resultCode === 200) {
-                    set("GradeClassList", GetGradeClassList.result);
-                }
-                const GetBasicTagList = await GetBasicTag();
-                if (GetBasicTagList.resultCode === 200) {
-                    set("GetBasicTagList", GetBasicTagList.result);
-                }
-                if (isElectron()) {
-                    ipcRenderer.send("maximizeWindow");
-                }
-                this.$router.push("home");
-            }
-        },
-        handleChange(account) {
-            this.recordAccountList.forEach((item) => {
+            loading.value = true;
+            await userLogin(account, password);
+            recordAccount(form);
+            loading.value = false;
+            router.push("/");
+        };
+
+        const handleChange = (account: string) => {
+            recordAccountList.value.forEach((item: ILoginData) => {
                 if (item.account === account) {
-                    this.form.password = item.password;
+                    form.password = item.password;
                 }
             });
-        },
-        // 记录账号
-        recordAccount() {
-            const { account } = this.form;
-            const recordList = get("RECORD_LOGIN_LIST") || [];
-            const index = recordList.findIndex(
-                (item) => item.account === account
-            );
-            index > -1
-                ? (recordList[index] = this.form)
-                : recordList.unshift(this.form);
-            set("RECORD_LOGIN_LIST", recordList);
-        },
-        getRecordAccount() {
-            this.recordAccountList = get("RECORD_LOGIN_LIST") || [];
-        }
-    },
-    mounted() {
-        this.getRecordAccount();
+        };
+
+        const version = ref("");
+
+        return { form, recordAccountList, loading, login, version, handleChange };
     }
-};
+});
 </script>
 
 <style scoped lang="scss">
@@ -203,6 +176,10 @@ $btn_color: #4b71ee;
                     background: $btn_color;
                     border: $btn_color;
                 }
+            }
+            .el-input__suffix {
+                display: flex;
+                align-items: center;
             }
         }
         .prompt-text {

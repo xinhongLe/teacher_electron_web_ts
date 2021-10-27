@@ -1,3 +1,9 @@
-export interface State {}
+import { IUserInfo } from "@/types/user";
 
-export const state: State = {};
+export interface State {
+    userInfo: IUserInfo;
+}
+
+export const state: State = {
+    userInfo: {}
+};

@@ -1,15 +1,15 @@
 module.exports = {
     root: true,
     env: {
-        node: true
+        node: true,
     },
     extends: [
         "plugin:vue/vue3-essential",
         "@vue/standard",
-        "@vue/typescript/recommended"
+        "@vue/typescript/recommended",
     ],
     parserOptions: {
-        ecmaVersion: 2020
+        ecmaVersion: 2020,
     },
     rules: {
         "no-console": process.env.NODE_ENV === "production" ? "warn" : "off",
@@ -17,16 +17,10 @@ module.exports = {
         indent: ["error", 4],
         semi: ["error", "always"],
         quotes: [2, "double"],
-        "space-before-function-paren": [
-            "error",
-            {
-                named: "none",
-                anonymous: "none",
-                asyncArrow: "always"
-            }
-        ],
+        "space-before-function-paren": 0,
         "dot-notation": [0, { allowKeywords: false, allowPattern: "" }],
         "@typescript-eslint/explicit-module-boundary-types": "off",
-        "no-unmodified-loop-condition": "off"
+        "no-unmodified-loop-condition": "off",
+        "no-tabs": "off"
     }
 };

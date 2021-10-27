@@ -5,10 +5,18 @@ export interface ILoginData {
     password: string;
 }
 
-export interface ILoginResult {
+interface ILoginResult {
     token: string;
 }
 
-export type ILoginResponse = IResponse<ILoginResult>
+interface ILessonManagerResult {
+    Name: string;
+}
 
-// export interface IGradeClassTreeResponse extends IResponse<IGradeClassTreeResponse>
+export type ILoginResponse = IResponse<ILoginResult>;
+
+export type IGradeClassTreeResponse = IResponse<[]>;
+
+export type IBasicTagResponse = IResponse<[]>;
+
+export type ILessonManagerResponse = IResponse<ILessonManagerResult>;
