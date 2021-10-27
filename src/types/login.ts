@@ -9,10 +9,6 @@ export interface ILoginResult {
     token: string;
 }
 
-export interface ILoginResponse extends IResponse {
-    result: ILoginResult;
-}
+export type ILoginResponse = IResponse<ILoginResult>
 
-export interface IGradeClassTreeResponse extends IResponse {
-    result: [];
-}
+// export interface IGradeClassTreeResponse extends IResponse<IGradeClassTreeResponse>

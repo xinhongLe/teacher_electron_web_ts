@@ -1,4 +1,4 @@
-import axios, { AxiosRequestConfig } from "axios";
+import axios, { AxiosRequestConfig, Method } from "axios";
 import { ElMessage, ElLoading, ILoadingInstance, ElTreeV2 } from "element-plus";
 import { clear, get } from "./storage";
 import router from "@/router/index";
@@ -62,14 +62,16 @@ http.interceptors.response.use(
     }
 );
 
+
+
 interface IRequest<T> {
     baseURL: string | undefined;
     url: string;
-    method: string;
+    method: Method;
     data?: T
 }
 
-function request(options: IRequest<T>) : Promise<> {
+function request<T, U>(options: IRequest<T>) : Promise<U> {
     return new Promise(resolve => {
         http(options).then(res => {
             resolve(res.data);

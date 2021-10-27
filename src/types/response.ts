@@ -1,4 +1,4 @@
 export interface IResponse<T> {
-    resultCode: string;
+    resultCode: number;
     result: T;
 }

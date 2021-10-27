@@ -17,7 +17,7 @@ router.beforeEach((to, from, next) => {
             account: to.query.account.toString(),
             password: to.query.password.toString(),
         }).then((res) => {
-            if (res.data.resultCode === 200) {
+            if (res.resultCode === 200) {
                 set("SET_TOKEN", res.result.token);
                 GetGradeClassTree().then((res) => {
                     if (res.resultCode === 200) {

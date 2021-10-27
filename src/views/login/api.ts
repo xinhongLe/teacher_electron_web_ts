@@ -1,9 +1,9 @@
 import request from "@/utils/request";
 import { AI_XUE_SHI_API } from "@/config";
-import { ILoginData } from "@/types/login";
+import { ILoginData, ILoginResponse } from "@/types/login";
 import { IResponse } from "@/types/response";
 
-export function Login(data: ILoginData) {
+export function Login(data: ILoginData): Promise<ILoginResponse> {
     return request({
         baseURL: AI_XUE_SHI_API,
         url: `/Api/W4/Teach/Login`,
