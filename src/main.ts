@@ -9,5 +9,6 @@ import "element-plus/dist/index.css";
 
 import "@/utils/flexible";
 import "./permission";
+import "./styles/index.scss";
 
 createApp(App).use(ElementPlus).use(store, key).use(router).mount("#app");

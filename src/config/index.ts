@@ -6,7 +6,7 @@ export const ADD_STUDENT_TEMPLATE = "https://wechat.aixueshi.top/学生信息表
 // 注册老师模板下载地址
 export const ADD_TEACHER_TEMPLATE = "https://wechat.aixueshi.top/批量注册教师模板.xlsx";
 
-//所有的科目列表及id
+// 所有的科目列表及id
 export const ALL_SUBJECT_LIST = [
     {
         subjectName: "语文",

@@ -56,7 +56,7 @@
 </template>
 
 <script lang="ts">
-import isElectron from "is-electron";
+// import isElectron from "is-electron";
 import { defineComponent, reactive, ref } from "vue";
 import useLogin from "@/hooks/useLogin";
 import { useRouter } from "vue-router";
