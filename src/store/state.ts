@@ -5,5 +5,7 @@ export interface State {
 }
 
 export const state: State = {
-    userInfo: {}
+    userInfo: {
+        Schools: []
+    }
 };

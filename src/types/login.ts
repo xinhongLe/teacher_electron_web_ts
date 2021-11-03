@@ -11,6 +11,11 @@ interface ILoginResult {
 
 interface ILessonManagerResult {
     Name: string;
+    Account: string;
+    Schools: {
+        ID: string,
+        Name: string
+    }[]
 }
 
 export type ILoginResponse = IResponse<ILoginResult>;

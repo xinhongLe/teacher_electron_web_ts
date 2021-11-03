@@ -1,5 +1,5 @@
 <template>
-    <div class="c-header" v-if="$route.name != 'wpf班级管理' && $route.name != 'wpf管理标签' && $route.name != 'wpf学习记录'">
+    <div class="c-header">
         <div class="tab-box">
             <div
                 class="tab-item"
@@ -25,7 +25,7 @@
                 >
                     <div class="avatar-wrapper">
                         <span>{{
-                            userInfo.Name
+                            name
                         }}</span>
                         <i
                             style="margin-left: 10px"
@@ -60,10 +60,10 @@
                                                 text-align: left;
                                             "
                                         >
-                                            {{ userInfo.Name }}
+                                            {{ name }}
                                         </p>
                                         <p style="height: 20px; line-height: 20px">
-                                            {{ userInfo.Account }}
+                                            {{ account }}
                                         </p>
                                     </div>
                                 </div>
@@ -86,52 +86,41 @@
         <div class="header-window-control">
             <div class="hwc-minimize" @click="useMinimizeWindow()"></div>
             <div class="hwc-maximize" @click="useMaximizeWindow()"></div>
-            <div class="hwc-close" @click="closeWindow()" v-if="isElectron()">
+            <!-- <div class="hwc-close" @click="closeWindow()" v-if="isElectron()">
                 <i class="el-icon-close"></i>
-            </div>
+            </div> -->
         </div>
-        <!-- <feedback ref="feedbackRef" :name="userInfo.Name"/> -->
+        <Feedback ref="feedbackRef"/>
     </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, reactive, watch, ref } from "vue";
+import { defineComponent, computed, ref } from "vue";
 import useMaximizeWindow from "../../hooks/useMaximizeWindow";
 import useMinimizeWindow from "../../hooks/useMinimizeWindow";
 import isElectron from "is-electron";
 import { useRoute, useRouter } from "vue-router";
-import { get } from "@/utils/storage";
 import useBreadList from "./useBreadList";
 import { Bread } from "./interface";
+import useOutLogin from "@/hooks/useOutLogin";
+import { store } from "@/store";
+import Feedback from "../feedback/index.vue";
 
 export default defineComponent({
     name: "NavBar",
+    components: {
+        Feedback
+    },
     setup() {
         const route = useRoute();
         const router = useRouter();
-
         const { breadList, closeTab } = useBreadList();
-
-        const userInfo = reactive({
-            Name: "",
-            Account: ""
-        });
-        onMounted(() => {
-            const { Account, Name } = get("USER_INFO");
-            userInfo.Account = Account;
-            userInfo.Name = Name;
-        });
+        const account = computed(() => store.state.userInfo.account);
+        const name = computed(() => store.state.userInfo.name);
+        const feedbackRef = ref<InstanceType<typeof Feedback>>();
 
         const showFeedBack = () => {
-            console.log("111");
-        };
-
-        const outlogin = () => {
-            console.log("111");
-        };
-
-        const closeWindow = () => {
-            console.log("111");
+            feedbackRef!.value!.show();
         };
 
         const go = (item: Bread) => {
@@ -143,11 +132,12 @@ export default defineComponent({
         return {
             isElectron,
             breadList,
-            userInfo,
+            account,
+            name,
             go,
-            outlogin,
+            feedbackRef,
+            outlogin: useOutLogin,
             closeTab,
-            closeWindow,
             showFeedBack,
             useMinimizeWindow,
             useMaximizeWindow

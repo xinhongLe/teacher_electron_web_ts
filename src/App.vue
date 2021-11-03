@@ -4,8 +4,18 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
+import { getOssPaths } from "./api";
+import { set, STORAGE_TYPES } from "./utils/storage";
 
-export default defineComponent({});
+export default defineComponent({
+    setup() {
+        getOssPaths().then(res => {
+            if (res.resultCode === 200) {
+                set(STORAGE_TYPES.OSS_PATHS, res.result);
+            }
+        });
+    }
+});
 </script>
 
 <style lang="scss">

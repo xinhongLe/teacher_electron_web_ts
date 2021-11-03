@@ -20,6 +20,7 @@ module.exports = {
         "space-before-function-paren": 0,
         "dot-notation": [0, { allowKeywords: false, allowPattern: "" }],
         "@typescript-eslint/explicit-module-boundary-types": "off",
+        "@typescript-eslint/no-non-null-assertion": "off",
         "no-unmodified-loop-condition": "off",
         "no-tabs": "off"
     }

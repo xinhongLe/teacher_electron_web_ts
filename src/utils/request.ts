@@ -1,4 +1,4 @@
-import axios, { AxiosRequestConfig, Method } from "axios";
+import axios, { AxiosRequestConfig, AxiosRequestHeaders, Method } from "axios";
 import { ElMessage, ElLoading, ILoadingInstance } from "element-plus";
 import { clear, get, STORAGE_TYPES } from "./storage";
 import router from "@/router/index";
@@ -31,7 +31,7 @@ http.interceptors.request.use(
 
 http.interceptors.response.use(
     (response) => {
-        loadingInstance.close();
+        loadingInstance?.close && loadingInstance.close();
         const res = response.data;
         if (res.resultCode === 103) {
             ElMessage({
@@ -51,7 +51,7 @@ http.interceptors.response.use(
         return response;
     },
     (error) => {
-        loadingInstance.close();
+        loadingInstance?.close && loadingInstance.close();
         ElMessage({
             message: "请求失败",
             type: "error",
@@ -65,6 +65,7 @@ interface IRequest<T> {
     baseURL: string | undefined;
     url: string;
     method: Method;
+    headers?: AxiosRequestHeaders
     data?: T
 }
 
