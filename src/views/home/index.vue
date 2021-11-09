@@ -53,13 +53,13 @@
                         <span>直播课堂</span>
                     </div>
                 </div>
-                <div class="item" @click="go('my-student')">
+                <div class="item" @click="go('class-manage')">
                     <div class="item_div">
                         <img
                             src="../../assets/indexImages/card_xuesheng.png"
                             alt=""
                         />
-                        <span>我的学生</span>
+                        <span>班级管理</span>
                     </div>
                 </div>
             </div>

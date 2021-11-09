@@ -1,20 +1,19 @@
 import { createStore, Store, useStore as baseUseStore } from "vuex";
 import { InjectionKey } from "vue";
-import { State, state } from "./state";
-import { getters } from "./getters";
-import { actions } from "./actions";
-import { mutations } from "./mutations";
 import { MutationTypes, ActionTypes } from "./constants";
+import myStudent from "./modules/myStudent";
+import userInfo from "./modules/userInfo";
+import { RootState } from "@/types/store";
 
 export { MutationTypes, ActionTypes };
 
-export const key: InjectionKey<Store<State>> = Symbol("");
+export const key: InjectionKey<Store<RootState>> = Symbol("");
 
-export const store = createStore<State>({
-    state,
-    getters,
-    mutations,
-    actions
+export const store = createStore<RootState>({
+    modules: {
+        myStudent,
+        userInfo
+    }
 });
 
 export const useStore = () => baseUseStore(key);

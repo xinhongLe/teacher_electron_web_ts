@@ -21,9 +21,9 @@ const routes: Array<RouteRecordRaw> = [
                 component: () => import("@/views/home/index.vue")
             },
             {
-                path: "my-student",
-                name: "我的学生",
-                component: () => import("@/views/myStudent/index.vue")
+                path: "class-manage",
+                name: "班级管理",
+                component: () => import("@/views/classManage/index.vue")
             }
         ]
     }

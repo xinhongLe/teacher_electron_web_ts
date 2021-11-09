@@ -21,6 +21,7 @@ module.exports = {
         "dot-notation": [0, { allowKeywords: false, allowPattern: "" }],
         "@typescript-eslint/explicit-module-boundary-types": "off",
         "@typescript-eslint/no-non-null-assertion": "off",
+        "@typescript-eslint/no-var-requires": "off",
         "no-unmodified-loop-condition": "off",
         "no-tabs": "off"
     }

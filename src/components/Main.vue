@@ -15,20 +15,21 @@ import { defineComponent, ref, watch } from "vue";
 import NavBar from "./navBar/index.vue";
 import isElectron from "is-electron";
 import { useRoute } from "vue-router";
-import { MutationTypes, useStore } from "@/store";
-import { GetBasicTag, GetGradeClassTree, LessonManager } from "@/views/login/api";
-import { IBasicTagResponse, IGradeClassTreeResponse, ILessonManagerResponse } from "@/types/login";
+import { GetBasicTag, GetGradeClassTree } from "@/views/login/api";
+import { IBasicTagResponse, IGradeClassTreeResponse } from "@/types/login";
 import { set, STORAGE_TYPES } from "@/utils/storage";
+import useUserInfo from "@/hooks/useUserInfo";
 
 export default defineComponent({
     components: {
         NavBar
     },
     setup() {
-        const store = useStore();
         const route = useRoute();
         const isShowNarBar = ref(true);
         const wpfNames = ["wpf班级管理", "wpf管理标签", "wpf学习记录"];
+        const { queryUserInfo } = useUserInfo();
+
         watch(() => ({ query: route.query, name: route.name }), ({ query, name }) => {
             isShowNarBar.value = !query.head && !wpfNames.includes(name as string);
         });
@@ -45,12 +46,7 @@ export default defineComponent({
             }
         });
 
-        LessonManager().then((res: ILessonManagerResponse) => {
-            if (res.resultCode === 200) {
-                set(STORAGE_TYPES.USER_INFO, res.result);
-                store.commit(MutationTypes.UPDATE_USERINFO, { name: res.result.Name, account: res.result.Account, Schools: res.result.Schools });
-            }
-        });
+        queryUserInfo();
 
         return {
             isElectron: isElectron(),

@@ -1,8 +1,7 @@
 import { CourseBag, fetchClassTime, fetchTeachClassSchedule, fetchWeekSchedule, GetClassTimeRes, GetTeachClassScheduleRes } from "@/api";
 import { store } from "@/store";
-import { get, STORAGE_TYPES } from "@/utils/storage";
 import moment from "moment";
-import { ref, Ref, watch } from "vue";
+import { ref, Ref, watchEffect } from "vue";
 
 enum CourseBgColor {
     "语文" = "#4FCC94",
@@ -75,7 +74,7 @@ export default (days: Ref<string[]>) => {
             return;
         }
         const data = {
-            schoolID: get(STORAGE_TYPES.USER_INFO).Schools[0].ID
+            schoolID: schoolId
         };
         const res = await fetchClassTime(data);
         if (res.resultCode === 200) {
@@ -125,7 +124,12 @@ export default (days: Ref<string[]>) => {
         dealSchedules();
     };
 
-    watch(() => store.state.userInfo.Schools![0]?.ID, initSchedules);
+    watchEffect(() => {
+        const id = store.state.userInfo.Schools![0]?.ID;
+        if (id) {
+            initSchedules();
+        }
+    });
 
     return {
         teachClassScheduleArr,

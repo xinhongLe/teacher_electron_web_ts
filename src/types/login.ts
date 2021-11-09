@@ -9,13 +9,14 @@ interface ILoginResult {
     token: string;
 }
 
-interface ILessonManagerResult {
+export interface ILessonManagerResult {
     Name: string;
     Account: string;
     Schools: {
         ID: string,
         Name: string
-    }[]
+    }[],
+    ID: string
 }
 
 export type ILoginResponse = IResponse<ILoginResult>;
