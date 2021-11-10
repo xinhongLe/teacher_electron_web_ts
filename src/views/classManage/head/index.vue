@@ -19,7 +19,7 @@
                     </el-form-item>
                 </el-form>
             </div>
-            <span class="btn">管理标签</span>
+            <span class="btn" @click="goLabel">管理标签</span>
             <span class="btn" @click="showAddStudent = true">添加学生</span>
         </div>
         <AddStudent v-model:visible="showAddStudent" v-if="showAddStudent"/>
@@ -29,21 +29,34 @@
 <script lang="ts">
 import { MutationTypes, store } from "@/store";
 import { defineComponent, reactive, ref } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import AddStudent from "../addStudent/index.vue";
 
 export default defineComponent({
     name: "Head",
     setup() {
         const showAddStudent = ref(false);
+        const route = useRoute();
+        const router = useRouter();
         const form = reactive({
             studentName: ""
         });
         const searchStudent = () => {
             store.commit(MutationTypes.UPDATE_SEARCH_STUDENT, form.studentName);
         };
+        const goLabel = () => {
+            const id = store.state.myStudent.selectClassInfo.ID;
+            if (route.name === "wpf班级管理") {
+                router.push("/label-no-header/" + id);
+            } else {
+                router.push("/label/" + id);
+            }
+        };
+
         return {
             form,
             searchStudent,
+            goLabel,
             showAddStudent
         };
     },

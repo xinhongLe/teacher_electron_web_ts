@@ -12,7 +12,7 @@
                         </div>
                     </el-dropdown-item>
                     <el-dropdown-item>
-                        <div class="popover-item">
+                        <div class="popover-item" @click="showDetail = true">
                             <img src="@/assets/my-student/icon_xinxi@2x.png" />
                             <span>个人信息</span>
                         </div>
@@ -30,23 +30,29 @@
                 </div>
             </div>
         </el-dropdown>
+        <StudentDetail v-model:visible="showDetail" v-if="showDetail" :studentId="item.ID"/>
     </el-col>
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from "vue";
+import { defineComponent, PropType, ref } from "vue";
 import Avatar from "@/components/avatar/index.vue";
 import { Student } from "@/types/myStudent";
+import StudentDetail from "../studentDetail/index.vue";
 export default defineComponent({
-    components: { Avatar },
+    components: { Avatar, StudentDetail },
     props: {
         item: {
             type: Object as PropType<Student>,
             required: true
         }
+    },
+    setup() {
+        const showDetail = ref(false);
+        return {
+            showDetail
+        };
     }
-    // setup() {
-    // }
 });
 </script>
 

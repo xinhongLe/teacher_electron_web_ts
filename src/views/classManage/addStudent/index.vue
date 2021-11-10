@@ -25,6 +25,7 @@
             </StudentForm>
         </div>
         <Import v-show="tabIndex === 1" v-model:isDisabledBtn="isDisabledBtn" @successCallback="successCallback" ref="uploadRef"/>
+        <StudentInfo v-if="tabIndex === 2" @successCallback="successCallback" ref="studentRef"/>
         <div class="btns">
             <span @click="handleClose">取消</span>
             <span  @click="save" :class="tabIndex === 1 && isDisabledBtn ? 'disable' : ''">保存</span>
@@ -39,6 +40,7 @@ import { defineComponent, ref } from "vue";
 import StudentForm from "../studentForm/index.vue";
 import useStudentForm from "./useStudentForm";
 import Import from "./Import.vue";
+import StudentInfo from "./StudentInfo.vue";
 export default defineComponent({
     name: "addStudent",
     props: {
@@ -51,6 +53,7 @@ export default defineComponent({
         const tabIndex = ref(0);
         const formRef = ref<InstanceType<typeof StudentForm>>();
         const uploadRef = ref<InstanceType<typeof Import>>();
+        const studentRef = ref<InstanceType<typeof StudentInfo>>();
         const isDisabledBtn = ref(true);
         const { formData, saveForm } = useStudentForm();
 
@@ -75,6 +78,8 @@ export default defineComponent({
                 });
             } else if (tabIndex.value === 1) {
                 uploadRef.value!.uploadRef!.submit();
+            } else {
+                studentRef.value!.save();
             }
         };
         return {
@@ -85,10 +90,11 @@ export default defineComponent({
             save,
             isDisabledBtn,
             uploadRef,
+            studentRef,
             formData
         };
     },
-    components: { StudentForm, Import }
+    components: { StudentForm, Import, StudentInfo }
 });
 </script>
 

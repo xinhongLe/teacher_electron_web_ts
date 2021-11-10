@@ -24,6 +24,16 @@ const routes: Array<RouteRecordRaw> = [
                 path: "class-manage",
                 name: "班级管理",
                 component: () => import("@/views/classManage/index.vue")
+            },
+            {
+                path: "label/:classId",
+                name: "管理标签",
+                component: () => import("@/views/labelManage/index.vue")
+            },
+            {
+                path: "label-no-header/:classId",
+                name: "wpf管理标签",
+                component: () => import("@/views/labelManage/index.vue")
             }
         ]
     }

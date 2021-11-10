@@ -10,7 +10,7 @@ export default () => {
         phone: "",
         account: "",
         password: "",
-        sex: "1",
+        sex: 1,
         birthday: "",
         num: 10,
         className: "",

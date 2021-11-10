@@ -33,14 +33,14 @@
             </el-input>
         </el-form-item>
         <el-form-item label="性别：">
-            <el-radio  v-model="formData.sex" label="1">男孩</el-radio>
-            <el-radio  v-model="formData.sex" label="2">女孩</el-radio>
+            <el-radio  v-model="formData.sex" :label="1">男孩</el-radio>
+            <el-radio  v-model="formData.sex" :label="2">女孩</el-radio>
         </el-form-item>
         <el-form-item label="生日：">
             <el-date-picker
                  v-model="formData.birthday"
                 type="date"
-                value-format="yyyy-MM-dd"
+                value-format="YYYY-MM-DD"
                 placeholder="选择日期"
             >
             </el-date-picker>
@@ -85,7 +85,7 @@ interface From {
     phone: string,
     account: string,
     password: string,
-    sex: string,
+    sex: number,
     birthday: string,
     num: number,
 }

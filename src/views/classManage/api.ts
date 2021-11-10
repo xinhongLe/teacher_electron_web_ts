@@ -4,7 +4,7 @@ import { IResponse } from "@/types/response";
 
 import {
     FetchSchoolClassPage, FetchClassStudentsData,
-    FetchClassStudentsRes, FetchSchoolClassRes, Grade, FetchClassTeachersData, FetchClassTeachersRes, UpdateClassNameTeachersData, AddSingleClassData, FetchTeacherListData, FetchTeacherListRes, AddStudentData, GetAccountPasswordData, GetAccountPasswordRes
+    FetchClassStudentsRes, FetchSchoolClassRes, Grade, FetchClassTeachersData, FetchClassTeachersRes, UpdateClassNameTeachersData, AddSingleClassData, FetchTeacherListData, FetchTeacherListRes, AddStudentData, GetAccountPasswordData, GetAccountPasswordRes, FetchStudentData, FetchStudentRes, AssignClassStudentData, FetchStudentInfoData, FetchStudentInfoRes, FetchStudentClassesBeforeDistributeData, FetchStudentClassesBeforeDistributeRes, UpdateStudentInfoData
 } from "@/types/myStudent";
 import { ILessonManagerResponse } from "@/types/login";
 
@@ -113,6 +113,56 @@ export function batchAddStudent(data: FormData): Promise<IResponse<null>> {
     return request({
         baseURL: AI_XUE_SHI_API,
         url: "/Api/Web/Student/BatchAddStudent/V210918",
+        method: "post",
+        data
+    });
+}
+
+// 获取校区学生列表
+export function fetchStudent(data: FetchStudentData): Promise<IResponse<FetchStudentRes>> {
+    return request({
+        baseURL: AI_XUE_SHI_API,
+        url: "/Api/Web/Class/GetClassStudentsBeforeDistribute",
+        method: "post",
+        data
+    });
+}
+
+// 学生进班
+export function assignClassStudent(data: AssignClassStudentData): Promise<IResponse<null>> {
+    return request({
+        baseURL: AI_XUE_SHI_API,
+        url: "/Api/Web/Class/AssignClassStudent/V211019",
+        method: "post",
+        data
+    });
+}
+
+// 获取学生详情
+export function fetchStudentInfo(data: FetchStudentInfoData): Promise<IResponse<FetchStudentInfoRes>> {
+    return request({
+        baseURL: AI_XUE_SHI_API,
+        url: "/Api/V2/Teacher/Student/GetInfo/V210918",
+        method: "post",
+        data
+    });
+}
+
+// 获取学生所在班级和全部班级
+export function fetchStudentClassesBeforeDistribute(data: FetchStudentClassesBeforeDistributeData): Promise<IResponse<FetchStudentClassesBeforeDistributeRes>> {
+    return request({
+        baseURL: AI_XUE_SHI_API,
+        url: "/Api/Web/Class/GetStudentClassesBeforeDistribute",
+        method: "post",
+        data
+    });
+}
+
+// 编辑学生信息
+export function updateStudentInfo(data: UpdateStudentInfoData): Promise<IResponse<null>> {
+    return request({
+        baseURL: AI_XUE_SHI_API,
+        url: "/Api/V2/Teacher/Student/UpdateNew/V210925",
         method: "post",
         data
     });

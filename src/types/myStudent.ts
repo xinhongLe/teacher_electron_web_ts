@@ -1,4 +1,4 @@
-import { Pager } from "./response";
+import { Pager } from "./pager";
 
 export interface FetchSchoolClassPage {
     teacherId: string
@@ -100,7 +100,7 @@ export interface AddStudentData {
     studentName: string,
     parentMobile: string,
     birthday: string,
-    sex: string,
+    sex: number,
     account: string,
     password: string,
     classIds: string[],
@@ -117,4 +117,80 @@ export interface GetAccountPasswordData {
 export interface GetAccountPasswordRes {
     account: string,
     password: string
+}
+
+export interface FetchStudentData {
+    classId: string,
+    pager?: Pager
+}
+
+export interface FetchStudentRes {
+    AllStudents: Student[],
+    InClassStudents: Student[]
+}
+
+export interface AssignClassStudentData {
+    classID: string,
+    teacherId: string,
+    studentIDs: string[]
+}
+
+export interface FetchStudentInfoData {
+    id: string,
+    teacherId: string
+}
+
+export interface HeadPortrait {
+    Bucket: string,
+    Extention: string,
+    FileMD5: string,
+    FileName: string,
+    FilePath: string,
+    ID: string,
+    SN: number,
+    Type: number,
+}
+
+export interface FetchStudentInfoRes {
+    Account: string,
+    Address: string,
+    Birthday: string,
+    ClassIDs: string[],
+    CreateTime: string,
+    HeadPortrait: HeadPortrait,
+    ErrorQuestionPushCount: number,
+    Name: string,
+    NickName: string,
+    Phone: string,
+    PublicSchoolClass: string,
+    Resources: {
+        Count: number,
+        ID: string,
+        Name: string
+    }[],
+    School: string,
+    Sexual: 1|2
+}
+
+export interface FetchStudentClassesBeforeDistributeData {
+    studentID: string
+}
+
+export type StudentClass = Pick<Class, "ID" | "Name" | "StudentCount" | "TeacherCount">
+
+export interface FetchStudentClassesBeforeDistributeRes {
+    AllClasss: StudentClass[],
+    InClasss: StudentClass[],
+    TeacherNames: string,
+    TeacherNum: number
+}
+
+export interface UpdateStudentInfoData {
+    id: string,
+    studentName: string,
+    birthday: string,
+    sex: number,
+    classIds: string[],
+    errorQuestionPushCount: number,
+    teacherId: string
 }
