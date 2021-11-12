@@ -6,7 +6,7 @@
             <template #dropdown>
                 <el-dropdown-menu class="popover-content">
                     <el-dropdown-item>
-                        <div class="popover-item">
+                        <div class="popover-item" @click="goRecord">
                             <img src="@/assets/my-student/icon_jilu@2x.png" />
                             <span>学习记录</span>
                         </div>
@@ -39,6 +39,8 @@ import { defineComponent, PropType, ref } from "vue";
 import Avatar from "@/components/avatar/index.vue";
 import { ClassStudent } from "@/types/myStudent";
 import StudentDetail from "../studentDetail/index.vue";
+import { useRoute, useRouter } from "vue-router";
+import { store } from "@/store";
 export default defineComponent({
     components: { Avatar, StudentDetail },
     props: {
@@ -47,10 +49,23 @@ export default defineComponent({
             required: true
         }
     },
-    setup() {
+    setup(props) {
         const showDetail = ref(false);
+        const route = useRoute();
+        const router = useRouter();
+
+        const goRecord = () => {
+            const { GradeAlbum, Name } = store.state.myStudent.selectClassInfo;
+            const className = GradeAlbum + Name;
+            if (route.name === "wpf班级管理") {
+                router.push(`/record-no-header/${props.item.ID}/${className}`);
+            } else {
+                router.push(`/record/${props.item.ID}/${className}`);
+            }
+        };
         return {
-            showDetail
+            showDetail,
+            goRecord
         };
     }
 });

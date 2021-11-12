@@ -4,7 +4,7 @@ import { IResponse } from "@/types/response";
 
 import {
     FetchSchoolClassPage, FetchClassStudentsData,
-    FetchClassStudentsRes, FetchSchoolClassRes, Grade, FetchClassTeachersData, FetchClassTeachersRes, UpdateClassNameTeachersData, AddSingleClassData, FetchTeacherListData, FetchTeacherListRes, AddStudentData, GetAccountPasswordData, GetAccountPasswordRes, FetchStudentData, FetchStudentRes, AssignClassStudentData, FetchStudentInfoData, FetchStudentInfoRes, FetchStudentClassesBeforeDistributeData, FetchStudentClassesBeforeDistributeRes, UpdateStudentInfoData
+    FetchClassStudentsRes, FetchSchoolClassRes, Grade, FetchClassTeachersData, FetchClassTeachersRes, UpdateClassNameTeachersData, AddSingleClassData, FetchTeacherListData, FetchTeacherListRes, AddStudentData, GetAccountPasswordData, GetAccountPasswordRes, FetchStudentData, FetchStudentRes, AssignClassStudentData, FetchStudentInfoData, FetchStudentInfoRes, FetchStudentClassesBeforeDistributeData, FetchStudentClassesBeforeDistributeRes, UpdateStudentInfoData, ResetStudentPasswordData
 } from "@/types/myStudent";
 import { ILessonManagerResponse } from "@/types/login";
 
@@ -163,6 +163,16 @@ export function updateStudentInfo(data: UpdateStudentInfoData): Promise<IRespons
     return request({
         baseURL: AI_XUE_SHI_API,
         url: "/Api/V2/Teacher/Student/UpdateNew/V210925",
+        method: "post",
+        data
+    });
+}
+
+// 修改学生密码
+export function resetStudentPassword(data: ResetStudentPasswordData): Promise<IResponse<null>> {
+    return request({
+        baseURL: AI_XUE_SHI_API,
+        url: "/Api/Web/Student/ResetStudentPassword/V210918",
         method: "post",
         data
     });

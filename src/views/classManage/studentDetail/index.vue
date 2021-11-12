@@ -9,7 +9,7 @@
                 <StudentForm
                     @showRestPass="showRestPass = true"
                     :form="formData"
-                    type="edit"
+                    :isEdit="true"
                 >
                     <el-form-item label="年级和班级：">
                         <div class="grade-list">
@@ -55,14 +55,15 @@
                     <span @click="save">保存</span>
                 </div>
             </div>
-            <!-- <RestPass
+            <RestPass
+                v-if="showRestPass"
                 v-model:visible="showRestPass"
                 :info="{
-                    name: form.name,
-                    account: form.account,
+                    name: formData.name,
+                    account: formData.account,
                     id: studentId
                 }"
-            ></RestPass> -->
+            ></RestPass>
     </el-dialog>
 </template>
 
@@ -74,6 +75,7 @@ import moment from "moment";
 import { computed, defineComponent, reactive, ref } from "vue";
 import { fetchStudentClassesBeforeDistribute, fetchStudentInfo, updateStudentInfo } from "../api";
 import StudentForm from "../studentForm/index.vue";
+import RestPass from "./RestPass.vue";
 export default defineComponent({
     name: "StudentDetail",
     props: {
@@ -211,7 +213,7 @@ export default defineComponent({
             showRestPass
         };
     },
-    components: { StudentForm }
+    components: { StudentForm, RestPass }
 });
 </script>
 

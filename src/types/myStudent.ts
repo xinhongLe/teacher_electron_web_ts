@@ -194,3 +194,9 @@ export interface UpdateStudentInfoData {
     errorQuestionPushCount: number,
     teacherId: string
 }
+
+export interface ResetStudentPasswordData {
+    studentId: string,
+    password: string,
+    teacherId: string
+}

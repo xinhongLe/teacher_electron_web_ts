@@ -21,7 +21,8 @@
         "vue": "^3.0.0",
         "vue-router": "^4.0.0-0",
         "moment": "^2.29.1",
-        "vuex": "^4.0.0-0"
+        "vuex": "^4.0.0-0",
+        "echarts": "^5.1.2"
     },
     "devDependencies": {
         "@types/lodash": "^4.14.176",
