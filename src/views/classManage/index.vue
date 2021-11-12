@@ -9,15 +9,16 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent, onUnmounted } from "vue";
 import Head from "./head/index.vue";
 import GradeList from "./gradeList/index.vue";
 import StudentList from "./studentList/index.vue";
 import { useRoute } from "vue-router";
 import useUserInfo from "@/hooks/useUserInfo";
+import { MutationTypes, store } from "@/store";
 
 export default defineComponent({
-    name: "MyStudent",
+    name: "classManage",
     components: {
         Head,
         GradeList,
@@ -29,6 +30,10 @@ export default defineComponent({
         if (route.query.teacherId) {
             queryUserInfoByTeacherId(route.query.teacherId as string);
         }
+
+        onUnmounted(() => {
+            store.commit(MutationTypes.UPDATE_SELECT_CLASS_INFO, {});
+        });
     }
 });
 </script>

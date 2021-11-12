@@ -1,18 +1,11 @@
-import { ref, watch, onBeforeMount } from "vue";
-import { Student } from "@/types/myStudent";
+import { ref, watch } from "vue";
+import { ClassStudent } from "@/types/myStudent";
 import { ActionTypes, store } from "@/store";
 export default () => {
-    const studentList = ref<Student[]>([]);
+    const studentList = ref<ClassStudent[]>([]);
 
     watch(() => store.state.myStudent.allStudentList, (allStudentList) => {
         studentList.value = allStudentList;
-    });
-
-    onBeforeMount(() => {
-        const classId = store.state.myStudent.selectClassInfo.ID;
-        if (classId) {
-            store.dispatch(ActionTypes.FETCH_STUDENT_LIST, classId);
-        }
     });
 
     watch(() => store.state.myStudent.selectClassInfo.ID, (classId) => {

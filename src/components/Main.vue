@@ -15,10 +15,11 @@ import { defineComponent, ref, watch } from "vue";
 import NavBar from "./navBar/index.vue";
 import isElectron from "is-electron";
 import { useRoute } from "vue-router";
-import { GetBasicTag, GetGradeClassTree } from "@/views/login/api";
-import { IBasicTagResponse, IGradeClassTreeResponse } from "@/types/login";
+import { GetGradeClassTree } from "@/views/login/api";
+import { IGradeClassTreeResponse } from "@/types/login";
 import { set, STORAGE_TYPES } from "@/utils/storage";
 import useUserInfo from "@/hooks/useUserInfo";
+import useTagList from "@/hooks/useTagList";
 
 export default defineComponent({
     components: {
@@ -29,6 +30,7 @@ export default defineComponent({
         const isShowNarBar = ref(true);
         const wpfNames = ["wpf班级管理", "wpf管理标签", "wpf学习记录"];
         const { queryUserInfo } = useUserInfo();
+        const { getTagList } = useTagList();
 
         watch(() => ({ query: route.query, name: route.name }), ({ query, name }) => {
             isShowNarBar.value = !query.head && !wpfNames.includes(name as string);
@@ -40,11 +42,7 @@ export default defineComponent({
             }
         });
 
-        GetBasicTag().then((res: IBasicTagResponse) => {
-            if (res.resultCode === 200) {
-                set(STORAGE_TYPES.STUDENT_TAGS, res.result);
-            }
-        });
+        getTagList();
 
         queryUserInfo();
 

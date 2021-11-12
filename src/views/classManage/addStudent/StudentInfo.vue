@@ -28,16 +28,16 @@
 
 <script lang="ts">
 import { store } from "@/store";
-import { AssignClassStudentData, Student } from "@/types/myStudent";
+import { AssignClassStudentData, ClassStudent } from "@/types/myStudent";
 import { ElMessage } from "element-plus";
 import { defineComponent, ref } from "vue";
 import { assignClassStudent, fetchStudent } from "../api";
 export default defineComponent({
     setup(props, { emit }) {
-        const allTableData = ref<Student[]>([]);
-        const tableList = ref<Student[]>([]);
-        const alreadyStudent = ref<Student[]>([]);
-        const selectStudent = ref<Student[]>([]);
+        const allTableData = ref<ClassStudent[]>([]);
+        const tableList = ref<ClassStudent[]>([]);
+        const alreadyStudent = ref<ClassStudent[]>([]);
+        const selectStudent = ref<ClassStudent[]>([]);
         const name = ref("");
 
         const searchStudent = () => {
@@ -58,7 +58,7 @@ export default defineComponent({
 
         getStudent();
 
-        const handleSelectionChange = (v: Student[]) => {
+        const handleSelectionChange = (v: ClassStudent[]) => {
             selectStudent.value = v;
         };
 

@@ -1,4 +1,4 @@
-import { Class, Student } from "./myStudent";
+import { Class, ClassStudent } from "./myStudent";
 
 export interface UserInfoState {
     name?: string;
@@ -13,7 +13,7 @@ export interface UserInfoState {
 export interface MyStudentState {
     selectClassInfo: Class,
     classList: Class[],
-    allStudentList: Student[],
+    allStudentList: ClassStudent[],
     isShowClassDialog: boolean,
     isEditClassDialog: boolean,
     classDialogInfo?: Class,

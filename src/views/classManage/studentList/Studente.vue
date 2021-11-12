@@ -37,13 +37,13 @@
 <script lang="ts">
 import { defineComponent, PropType, ref } from "vue";
 import Avatar from "@/components/avatar/index.vue";
-import { Student } from "@/types/myStudent";
+import { ClassStudent } from "@/types/myStudent";
 import StudentDetail from "../studentDetail/index.vue";
 export default defineComponent({
     components: { Avatar, StudentDetail },
     props: {
         item: {
-            type: Object as PropType<Student>,
+            type: Object as PropType<ClassStudent>,
             required: true
         }
     },

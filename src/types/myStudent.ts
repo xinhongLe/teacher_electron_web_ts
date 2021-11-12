@@ -22,7 +22,7 @@ export interface FetchClassStudentsData {
     classId: string
 }
 
-export interface Student {
+export interface ClassStudent {
     Account: string,
     ClassCount: number,
     GradeName: string,
@@ -34,7 +34,7 @@ export interface Student {
 }
 
 export interface FetchClassStudentsRes {
-    list: Student[]
+    list: ClassStudent[]
 }
 
 export interface Grade {
@@ -125,8 +125,8 @@ export interface FetchStudentData {
 }
 
 export interface FetchStudentRes {
-    AllStudents: Student[],
-    InClassStudents: Student[]
+    AllStudents: ClassStudent[],
+    InClassStudents: ClassStudent[]
 }
 
 export interface AssignClassStudentData {

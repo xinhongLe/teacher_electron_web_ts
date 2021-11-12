@@ -25,7 +25,10 @@
                     >
                         <template #append>
                             <el-button
-                            >搜索</el-button>
+                                @click="$emit('searchStudent', formData.subject, formData.studentName)"
+                            >
+                            搜索
+                            </el-button>
                         </template>
                         >
                     </el-input>
@@ -57,7 +60,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, ref } from "vue";
+import { get, STORAGE_TYPES } from "@/utils/storage";
+import { defineComponent, reactive, ref, watch } from "vue";
 export default defineComponent({
     name: "Head",
     props: {
@@ -70,7 +74,7 @@ export default defineComponent({
             required: true
         }
     },
-    setup() {
+    setup(props, { emit }) {
         const formData = reactive({
             subject: "",
             studentName: ""
@@ -80,6 +84,13 @@ export default defineComponent({
             { Name: "全部学科", ID: "" }
         ]);
 
+        watch(() => formData.subject, (subject) => {
+            emit("update:selectSubjectId", subject);
+            emit("searchStudent", subject, formData.studentName);
+        });
+
+        subjectList.value = subjectList.value.concat(get(STORAGE_TYPES.USER_INFO).Subjects);
+        formData.subject = subjectList.value[1].ID;
         return {
             formData,
             subjectList
