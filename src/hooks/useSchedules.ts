@@ -19,12 +19,13 @@ interface WeekSchedule extends CourseBag {
     fontShowTime: string
 }
 
-type ColData = {
+export type ColData = {
     colDate: string,
     bgColor?: CourseBgColor,
+    index: number,
 } & Partial<WeekSchedule & TeachClassSchedule>
 
-interface Schedule extends GetClassTimeRes{
+export interface Schedule extends GetClassTimeRes{
     fontShowTime: string,
     colData: ColData[]
 }
@@ -84,8 +85,9 @@ export default (days: Ref<string[]>) => {
 
     const dealSchedules = () => {
         schedules.value = classTimeArr.map(classTime => {
-            const colData: ColData[] = days.value.map((day) => ({
-                colDate: day
+            const colData: ColData[] = days.value.map((day, index) => ({
+                colDate: day,
+                index
             }));
             const fontShowTime =
                 moment(classTime.StartTime).format("HH:mm") +
@@ -124,6 +126,11 @@ export default (days: Ref<string[]>) => {
         dealSchedules();
     };
 
+    const updateClassSchedule = async () => {
+        await getTeachClassSchedule();
+        dealSchedules();
+    };
+
     watchEffect(() => {
         const id = store.state.userInfo.Schools![0]?.ID;
         if (id) {
@@ -135,6 +142,7 @@ export default (days: Ref<string[]>) => {
         teachClassScheduleArr,
         getWeekSchedule,
         initSchedules,
+        updateClassSchedule,
         updateSchedules,
         schedules
     };

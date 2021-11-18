@@ -21,6 +21,11 @@ const routes: Array<RouteRecordRaw> = [
                 component: () => import("@/views/home/index.vue")
             },
             {
+                path: "preparation",
+                name: "备课",
+                component: () => import("@/views/preparation/index.vue")
+            },
+            {
                 path: "class-manage",
                 name: "班级管理",
                 component: () => import("@/views/classManage/index.vue")

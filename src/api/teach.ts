@@ -43,7 +43,7 @@ interface UpdateClassData {
     courseBagTeacherLogID: string
 }
 
-interface HaveClassWithDefaultBagData {
+export interface HaveClassWithDefaultBagData {
     courseBagID: string,
     className: string,
     classPlanStartTime: string,
@@ -52,7 +52,7 @@ interface HaveClassWithDefaultBagData {
     classIDs: string[],
 }
 
-interface HaveClassData {
+export interface HaveClassData {
     courseBagTeacherID: string,
     className: string,
     classPlanStartTime: string,
@@ -131,6 +131,21 @@ export interface GetClassTimeRes {
     Type: number
 }
 
+export interface CourseWares {
+    ID: string,
+    Process: number
+}
+
+export interface getCourseByCourseBag {
+    AlbumName: string,
+    BagName: string,
+    ChapterName: string,
+    LessonName: string,
+    PublishName: string,
+    CourseWares: CourseWares[],
+    SubjectName: string
+}
+
 // 获取学校时间课表安排
 export function fetchClassTime(data: GetClassTimeData): Promise<IResponse<GetClassTimeRes[]>> {
     return request({
@@ -171,7 +186,7 @@ export function fetchWeekSchedule(data: GetWeekScheduleData): Promise<GetWeekSch
 }
 
 // 获取课包详情 系统1 / 自定义2
-export function getCourseByCourseBag(type: number, data: GetCourseWareByCourseBagData | GetCourseWareTeacherByCourseBagData) {
+export function getCourseByCourseBag(type: number, data: GetCourseWareByCourseBagData | GetCourseWareTeacherByCourseBagData): Promise<IResponse<getCourseByCourseBag>> {
     const url =
         type === 1
             ? "API/W4/Teach/GetCourseWareByCourseBag"
@@ -188,7 +203,7 @@ export function getCourseByCourseBag(type: number, data: GetCourseWareByCourseBa
 }
 
 // 更新排课
-export function updateClass(type: number, data: UpdateClassWithDefaultBagData| UpdateClassData) {
+export function updateClass(type: number, data: UpdateClassWithDefaultBagData| UpdateClassData): Promise<IResponse<null>> {
     const url =
         type === 1
             ? "Api/W4/Teach/UpdateClassWithDefaultBag"
@@ -205,7 +220,7 @@ export function updateClass(type: number, data: UpdateClassWithDefaultBagData| U
 }
 
 // 保存课包
-export function haveClass(type: number, data: HaveClassWithDefaultBagData|HaveClassData) {
+export function haveClass(type: number, data: HaveClassWithDefaultBagData|HaveClassData): Promise<IResponse<null>> {
     const url =
         type === 1
             ? "Api/W4/Teach/HaveClassWithDefaultBag"

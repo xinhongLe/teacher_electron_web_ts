@@ -20,7 +20,31 @@ export interface MyStudentState {
     searchStudent: string
 }
 
+export interface PreparationState {
+    /**
+     * 是否显示去排课按钮
+     */
+    isShowCourseBtn: boolean,
+    /**
+     * 选择的章节id
+     */
+    selectChapterID: string,
+    /**
+     * 选择的教材
+     */
+    subjectPublisherBookValue: string[]
+}
+
+export interface CommonState {
+    /**
+     * 是否在拖拽
+     */
+    isDragging: boolean
+}
+
 export interface RootState {
     userInfo: UserInfoState,
+    preparation: PreparationState,
+    common: CommonState,
     myStudent: MyStudentState
 }

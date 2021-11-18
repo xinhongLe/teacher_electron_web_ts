@@ -21,13 +21,20 @@ export default defineComponent({
 <style lang="scss">
 html,
 body {
-    margin: 0;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    -khtml-user-select: none;
+    user-select: none;
 }
 
 * {
     box-sizing: border-box;
 }
 
+img {
+    -webkit-user-drag: none;
+}
 #app {
     font-family: Avenir, Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;

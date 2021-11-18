@@ -13,7 +13,13 @@
                     </div>
                 </div>
                 <div class="right">
-                    <Calendar />
+                    <Calendar :days="days">
+                        <header class="header">
+                            <div @click="weekPre"><i class="el-icon-arrow-left"></i>上周</div>
+                            <div>上课</div>
+                            <div @click="weekNext">下周<i class="el-icon-arrow-right"></i></div>
+                        </header>
+                    </Calendar>
                 </div>
             </div>
             <div class="bottom">
@@ -68,10 +74,11 @@
 </template>
 
 <script lang="ts">
+import useTime from "@/hooks/useTime";
 import { ElMessage } from "element-plus";
 import { defineComponent } from "vue";
 import { useRouter } from "vue-router";
-import Calendar from "./calendar/index.vue";
+import Calendar from "../../components/calendar/index.vue";
 
 export default defineComponent({
     components: {
@@ -79,6 +86,9 @@ export default defineComponent({
     },
     setup() {
         const router = useRouter();
+        const { weekNext, weekPre, initDays, days } = useTime();
+        initDays();
+
         const go = (val: string) => {
             if (val === "") {
                 ElMessage.warning({
@@ -89,7 +99,10 @@ export default defineComponent({
             }
         };
         return {
-            go
+            go,
+            weekNext,
+            weekPre,
+            days
         };
     }
 });
@@ -112,6 +125,31 @@ export default defineComponent({
         flex-direction: column;
         flex: 1;
         min-height: 0px;
+        .header {
+            width: 100%;
+            height: 50px;
+            display: flex;
+            padding: 20px;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 20px;
+            background: #a0b7ff;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            color: #ffffff;
+            div {
+                font-size: 18px;
+                font-family: PingFangSC-Regular, PingFang SC;
+                font-weight: 400;
+                color: #ffffff;
+            }
+            div:nth-of-type(2) {
+                font-size: 22px;
+                font-family: PingFang-SC-Heavy, PingFang-SC;
+                font-weight: 800;
+                color: #ffffff;
+            }
+        }
         .top {
             width: 100%;
             display: flex;

@@ -9,6 +9,14 @@ interface ILoginResult {
     token: string;
 }
 
+export interface Classes {
+    GradeID: string,
+    GradeName: string,
+    GradeSort: number,
+    ID: string,
+    Name: string
+}
+
 export interface ILessonManagerResult {
     Name: string;
     Account: string;
@@ -16,6 +24,7 @@ export interface ILessonManagerResult {
         ID: string,
         Name: string
     }[],
+    Classes: Classes[],
     ID: string
 }
 

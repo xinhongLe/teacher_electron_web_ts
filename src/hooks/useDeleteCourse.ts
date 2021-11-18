@@ -8,7 +8,6 @@ export default (updateSchedules: () => Promise<void>) => {
             cancelButtonText: "取消",
             type: "warning"
         }).then(async () => {
-            console.log("fsfsf");
             const res = await delHaveClass({
                 courseBagTeacherLogID: id!
             });
