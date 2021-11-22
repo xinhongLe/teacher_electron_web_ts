@@ -4,19 +4,21 @@
     >
         <div
             v-for="(j, i) in item.CourseBags"
-            :key="i"
+            :key="j.ID"
+            class="course-item"
             :class="[
                 j.ID ? '' : 'noClassBag',
-                leftActiveIndex === index && bagIndex === i
+
+                selectCourseId ? selectCourseId === j.ID
                     ? 'active'
-                    : ''
+                    : '' : i === 0 && index === 0 ? 'active' : ''
             ]"
             :draggable="!isShowCourseBtn"
             :data-id="'course-' + index + '-' + i"
-            @dragstart="onDragstart($event, j)"
+            @dragstart="onDragStart($event, j)"
             @dragend="onDragEnd($event)"
-            @drag="ondrag($event)"
-            @click="handleClickClassBag(j, i, index)"
+            @drag="onDrag($event)"
+            @click="handleClickClassBag(j)"
         >
             <span>{{ `课时${index + 1}` }}</span>
             <p>{{ j.Name }}</p>
@@ -39,10 +41,10 @@
 </template>
 
 <script lang="ts">
-import { store } from "@/store";
+import { MutationTypes, store } from "@/store";
 import { Course, CourseBag } from "@/types/preparation";
 import { computed, defineComponent, PropType, ref } from "vue";
-import ClassBagDialog from "./ClassBagDialog.vue";
+import ClassBagDialog from "../ClassBagDialog.vue";
 import useDrag from "@/hooks/useDrag";
 export default defineComponent({
     props: {
@@ -53,32 +55,25 @@ export default defineComponent({
         index: {
             type: Number,
             required: true
-        },
-        leftActiveIndex: {
-            type: Number,
-            required: true
-        },
-        bagIndex: {
-            type: Number,
-            required: true
         }
     },
-    setup(props, { emit }) {
+    setup() {
         const dialogVisible = ref(false);
-        const { onDragstart, ondrag, onDragEnd } = useDrag();
+        const { onDragStart, onDrag, onDragEnd } = useDrag();
 
-        const handleClickClassBag = (value: CourseBag, i: number, index: number) => {
+        const handleClickClassBag = (value: CourseBag) => {
             if (value.Name === "无课包") { return; }
-            emit("update:leftActiveIndex", index);
-            emit("update:bagIndex", i);
+            store.commit(MutationTypes.SET_SELECT_COURSE_BAG, value);
+            store.commit(MutationTypes.SET_SHOW_COURSE_BTN, true);
         };
 
         return {
-            onDragstart,
+            onDragStart,
             onDragEnd,
-            ondrag,
+            onDrag,
             dialogVisible,
             isShowCourseBtn: computed(() => store.state.preparation.isShowCourseBtn),
+            selectCourseId: computed(() => store.state.preparation.selectCourseBag.ID),
             handleClickClassBag
         };
     },

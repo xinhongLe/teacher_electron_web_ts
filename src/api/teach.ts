@@ -133,6 +133,17 @@ export interface GetClassTimeRes {
 
 export interface CourseWares {
     ID: string,
+    HasVideo: string,
+    AlbumName: string,
+    Name: string,
+    ChapterName: string,
+    LessonName: string,
+    FileID?:string,
+    File?:{
+        Duration: string
+    },
+    QuestionCount: number,
+    CopyType?: number,
     Process: number
 }
 

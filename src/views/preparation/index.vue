@@ -10,12 +10,17 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from "vue";
+import { MutationTypes, store } from "@/store";
+import { defineComponent, onUnmounted, ref } from "vue";
 import Head from "./head/index.vue";
 import ScheduleManagement from "./scheduleManagement/index.vue";
 export default defineComponent({
     setup() {
         const tabIndex = ref(0);
+
+        onUnmounted(() => {
+            store.commit(MutationTypes.PREPARATION_STUDENT_RESET_STATE);
+        });
 
         return {
             tabIndex

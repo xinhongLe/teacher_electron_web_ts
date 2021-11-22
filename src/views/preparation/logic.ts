@@ -1,5 +1,7 @@
 import { Course, CourseBag } from "@/types/preparation";
 
+import isElectron from "is-electron";
+
 // 过滤课包
 export function teacherLessonAndBagFilter(arr: Course[]) {
     const newArr = arr.map((item) => {
@@ -44,3 +46,17 @@ export function teacherLessonAndBagFilter(arr: Course[]) {
     });
     return newArr;
 }
+
+export const lookVideo = (id: string | undefined) => {
+    if (isElectron()) {
+        // return ipcRenderer.send("openVideo", id);
+    }
+    window.open(`${location.origin}/#/look-video/${id}`);
+};
+
+export const lookQuestions = ({ id = "", type = 1, courseBagId = "" }) => {
+    if (isElectron()) {
+        // return ipcRenderer.send("openQuestion", id, type, courseBagId);
+    }
+    window.open(`${location.origin}/#/look-question/${id}/${type}?courseBagId=${courseBagId}`);
+};

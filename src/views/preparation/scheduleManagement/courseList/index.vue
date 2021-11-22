@@ -6,8 +6,6 @@
                 :key="item.ID"
                 :item="item"
                 :index="index"
-                v-model:leftActiveIndex="leftActiveIndex"
-                v-model:bagIndex="bagIndex"
             />
         </div>
         <p class="add-ks" @click="dialogVisible = true">
@@ -26,15 +24,14 @@
 import { store } from "@/store";
 import { Course } from "@/types/preparation";
 import { defineComponent, provide, ref, watchEffect } from "vue";
-import { fetchTeacherLessonAndBagByChapter } from "../api";
-import { teacherLessonAndBagFilter } from "../logic";
+import { fetchTeacherLessonAndBagByChapter } from "../../api";
+import { teacherLessonAndBagFilter } from "../../logic";
 import CourseItem from "./CourseItem.vue";
 import LessonDialog from "./LessonDialog.vue";
 export default defineComponent({
+    name: "courseList",
     setup() {
         const courseList = ref<Course[]>([]);
-        const leftActiveIndex = ref(0);
-        const bagIndex = ref(0);
         const dialogVisible = ref(false);
 
         const getTeacherLessonAndBag = () => {
@@ -56,8 +53,7 @@ export default defineComponent({
 
         return {
             courseList,
-            leftActiveIndex,
-            bagIndex,
+            getTeacherLessonAndBag,
             dialogVisible
         };
     },

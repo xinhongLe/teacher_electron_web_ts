@@ -1,19 +1,31 @@
 <template>
-    <CourseList/>
+    <CourseList ref="courseListRef"/>
     <div class="right">
-        <Schedule/>
+        <PackageManagement v-if="isSelectCourse"/>
+        <Schedule v-else/>
     </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
-import CourseList from "./CourseList.vue";
-import Schedule from "./Schedule.vue";
+import { store } from "@/store";
+import { computed, defineComponent, provide, ref } from "vue";
+import CourseList from "./courseList/index.vue";
+import Schedule from "./schedule/index.vue";
+import PackageManagement from "./packageManagement/index.vue";
 export default defineComponent({
     name: "scheduleManagement",
-    // setup() {
-    // },
-    components: { CourseList, Schedule }
+    setup() {
+        const courseListRef = ref<InstanceType<typeof CourseList>>();
+        const getTeacherLessonAndBag = () => {
+            courseListRef.value!.getTeacherLessonAndBag();
+        };
+        provide("getTeacherLessonAndBag", getTeacherLessonAndBag);
+        return {
+            isSelectCourse: computed(() => !!store.state.preparation.selectCourseBag.ID),
+            courseListRef
+        };
+    },
+    components: { CourseList, Schedule, PackageManagement }
 });
 </script>
 

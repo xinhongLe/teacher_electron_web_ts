@@ -33,7 +33,7 @@ import { store } from "@/store";
 import { ElFormType } from "@/types/elementType";
 import { AddCustomBookLessonData } from "@/types/preparation";
 import { defineComponent, inject, reactive, ref } from "vue";
-import { addCustomBookLesson } from "../api";
+import { addCustomBookLesson } from "../../api";
 export default defineComponent({
     props: {
         dialogVisible: {

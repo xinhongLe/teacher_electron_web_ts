@@ -93,6 +93,7 @@ export default defineComponent({
         const clickBtn = () => {
             tabIndex.value = 0;
             store.commit(MutationTypes.SET_SHOW_COURSE_BTN, false);
+            store.commit(MutationTypes.SET_SELECT_COURSE_BAG, {});
         };
 
         watch(teacherBookChapter, (value) => {
@@ -101,6 +102,12 @@ export default defineComponent({
 
         watch(tabIndex, (value) => {
             emit("update:tabIndex", value);
+        });
+
+        watch(subjectPublisherBookValue, (value) => {
+            store.commit(MutationTypes.SET_SUBJECT_PUBLISHER_BOOK_VALUE, value);
+        }, {
+            deep: true
         });
 
         return {

@@ -11,6 +11,7 @@ export default (ossPathKey: OssName) => {
         objectKey: "",
         name: "",
         md5: "",
+        fileName: "",
         fileExtension: ""
     });
 
@@ -27,6 +28,7 @@ export default (ossPathKey: OssName) => {
             fileInfo.name = name;
             fileInfo.objectKey = objectKey;
             fileInfo.md5 = md5;
+            fileInfo.fileName = file.name.substring(0, file.name.lastIndexOf("."));
         }
         loadingShow.value = false;
     };

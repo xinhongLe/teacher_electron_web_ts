@@ -1,4 +1,5 @@
 import { Class, ClassStudent } from "./myStudent";
+import { CourseBag } from "./preparation";
 
 export interface UserInfoState {
     name?: string;
@@ -33,6 +34,10 @@ export interface PreparationState {
      * 选择的教材
      */
     subjectPublisherBookValue: string[]
+    /**
+     * 选择的课时
+     */
+    selectCourseBag: CourseBag
 }
 
 export interface CommonState {

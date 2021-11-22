@@ -43,5 +43,6 @@ export interface IOssFileInfo {
     objectKey: string,
     name: string,
     md5: string,
+    fileName: string,
     fileExtension: string
 }
