@@ -109,6 +109,10 @@
                 </div>
             </div>
         </div>
+        <div class="no-data" v-else>
+            <img src="@/assets/images/preparation/pic_noclass@2x.png" />
+            <p>未选择课包</p>
+        </div>
         <ClassBagDialog
             v-model:dialogVisible="dialogVisible"
             v-if="dialogVisible"
@@ -158,7 +162,7 @@ export default defineComponent({
                     getTeacherLessonAndBag();
                     ElMessage.success("删除成功!");
                     store.commit(MutationTypes.SET_SELECT_COURSE_BAG, {});
-                    store.commit(MutationTypes.SET_SHOW_COURSE_BTN, false);
+                    store.commit(MutationTypes.SET_VIEW_COURSE_DETAIL_ING, false);
                 }
             }).catch(() => {
                 ElMessage.info("已取消删除");

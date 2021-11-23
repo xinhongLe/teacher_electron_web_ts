@@ -35,7 +35,6 @@
         <ClassBagDialog
             v-model:dialogVisible="dialogVisible"
             v-if="dialogVisible"
-            :lessonOrBagValue="item"
         />
     </div>
 </template>
@@ -64,7 +63,7 @@ export default defineComponent({
         const handleClickClassBag = (value: CourseBag) => {
             if (value.Name === "无课包") { return; }
             store.commit(MutationTypes.SET_SELECT_COURSE_BAG, value);
-            store.commit(MutationTypes.SET_SHOW_COURSE_BTN, true);
+            store.commit(MutationTypes.SET_VIEW_COURSE_DETAIL_ING, true);
         };
 
         return {
@@ -72,7 +71,7 @@ export default defineComponent({
             onDragEnd,
             onDrag,
             dialogVisible,
-            isShowCourseBtn: computed(() => store.state.preparation.isShowCourseBtn),
+            isShowCourseBtn: computed(() => store.state.preparation.isViewCourseDetailIng),
             selectCourseId: computed(() => store.state.preparation.selectCourseBag.ID),
             handleClickClassBag
         };

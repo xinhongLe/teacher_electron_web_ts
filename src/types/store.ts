@@ -23,9 +23,9 @@ export interface MyStudentState {
 
 export interface PreparationState {
     /**
-     * 是否显示去排课按钮
+     * 是否正在查看课包详情
      */
-    isShowCourseBtn: boolean,
+    isViewCourseDetailIng: boolean,
     /**
      * 选择的章节id
      */

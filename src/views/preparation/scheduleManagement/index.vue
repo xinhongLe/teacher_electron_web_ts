@@ -1,7 +1,7 @@
 <template>
     <CourseList ref="courseListRef"/>
     <div class="right">
-        <PackageManagement v-if="isSelectCourse"/>
+        <PackageManagement v-if="isViewCourseDetailIng"/>
         <Schedule v-else/>
     </div>
 </template>
@@ -21,7 +21,7 @@ export default defineComponent({
         };
         provide("getTeacherLessonAndBag", getTeacherLessonAndBag);
         return {
-            isSelectCourse: computed(() => !!store.state.preparation.selectCourseBag.ID),
+            isViewCourseDetailIng: computed(() => store.state.preparation.isViewCourseDetailIng),
             courseListRef
         };
     },

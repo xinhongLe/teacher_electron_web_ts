@@ -21,7 +21,7 @@
 </template>
 
 <script lang="ts">
-import { store } from "@/store";
+import { MutationTypes, store } from "@/store";
 import { Course } from "@/types/preparation";
 import { defineComponent, provide, ref, watchEffect } from "vue";
 import { fetchTeacherLessonAndBagByChapter } from "../../api";
@@ -42,6 +42,10 @@ export default defineComponent({
                 }).then(res => {
                     if (res.resultCode === 200) {
                         courseList.value = teacherLessonAndBagFilter(res.result);
+                        const { isViewCourseDetailIng } = store.state.preparation;
+                        if (isViewCourseDetailIng) {
+                            store.commit(MutationTypes.SET_SELECT_COURSE_BAG, courseList.value[0]?.CourseBags[0] || {});
+                        }
                     }
                 });
             }

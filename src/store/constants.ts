@@ -51,9 +51,9 @@ export const enum MutationTypes {
      */
     SET_SELECT_CHAPTER_ID = "SET_SELECT_CHAPTER_ID",
     /**
-     * 设置备课页面去排课按钮的显示
+     * 设置是否在查看课包详情
      */
-    SET_SHOW_COURSE_BTN = "SET_SHOW_COURSE_BTN",
+    SET_VIEW_COURSE_DETAIL_ING = "SET_VIEW_COURSE_DETAIL_ING",
     /**
      * 备课页面的教材iD
      */

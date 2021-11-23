@@ -17,6 +17,7 @@
                     :colData="item"
                     :isDrop="isDrop"
                     :isShowText="isShowText"
+                    :isShowDetailBtn="isShowDetailBtn"
                 />
             </div>
         </div>
@@ -41,6 +42,10 @@ export default defineComponent({
             default: false
         },
         isDrop: {
+            type: Boolean,
+            default: false
+        },
+        isShowDetailBtn: {
             type: Boolean,
             default: false
         }
