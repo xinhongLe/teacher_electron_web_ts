@@ -6,8 +6,6 @@
                 :key="item.ID"
                 :item="item"
                 :index="index"
-                v-model:leftActiveIndex="leftActiveIndex"
-                v-model:bagIndex="bagIndex"
             />
         </div>
         <p class="add-ks" @click="dialogVisible = true">
@@ -23,18 +21,17 @@
 </template>
 
 <script lang="ts">
-import { store } from "@/store";
+import { MutationTypes, store } from "@/store";
 import { Course } from "@/types/preparation";
 import { defineComponent, provide, ref, watchEffect } from "vue";
-import { fetchTeacherLessonAndBagByChapter } from "../api";
-import { teacherLessonAndBagFilter } from "../logic";
+import { fetchTeacherLessonAndBagByChapter } from "../../api";
+import { teacherLessonAndBagFilter } from "../../logic";
 import CourseItem from "./CourseItem.vue";
 import LessonDialog from "./LessonDialog.vue";
 export default defineComponent({
+    name: "courseList",
     setup() {
         const courseList = ref<Course[]>([]);
-        const leftActiveIndex = ref(0);
-        const bagIndex = ref(0);
         const dialogVisible = ref(false);
 
         const getTeacherLessonAndBag = () => {
@@ -45,6 +42,10 @@ export default defineComponent({
                 }).then(res => {
                     if (res.resultCode === 200) {
                         courseList.value = teacherLessonAndBagFilter(res.result);
+                        const { isViewCourseDetailIng } = store.state.preparation;
+                        if (isViewCourseDetailIng) {
+                            store.commit(MutationTypes.SET_SELECT_COURSE_BAG, courseList.value[0]?.CourseBags[0] || {});
+                        }
                     }
                 });
             }
@@ -56,8 +57,7 @@ export default defineComponent({
 
         return {
             courseList,
-            leftActiveIndex,
-            bagIndex,
+            getTeacherLessonAndBag,
             dialogVisible
         };
     },

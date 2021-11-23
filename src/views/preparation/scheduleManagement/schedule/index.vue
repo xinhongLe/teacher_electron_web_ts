@@ -5,6 +5,7 @@
             ref="calendarRef"
             :isShowText="true"
             :isDrop="true"
+            :isShowDetailBtn="true"
         >
             <header>
                 <div>

@@ -117,7 +117,7 @@ import useSchedules from "@/hooks/useSchedules";
 import useTime from "@/hooks/useTime";
 import { SaveTeacherClassScheduleData } from "@/types/preparation";
 import { defineComponent, ref } from "vue";
-import { saveTeacherClassSchedule } from "../api";
+import { saveTeacherClassSchedule } from "../../api";
 import useLessonList from "./hooks/useLessonList";
 export default defineComponent({
     props: {

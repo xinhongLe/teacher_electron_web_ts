@@ -17,7 +17,6 @@ export default (tagList: Ref<Tag[]>, selectSubjectId: Ref<string>) => {
     const allSubjectStudentList = ref<Student[][]>([]);
 
     const dealStudentList = (students: Student[]) => {
-        console.log(selectSubjectId, "selectSubjectId");
         const newStudentList:StudentTag[] = [];
         tagList.value.map((v) => {
             const obj: StudentTag = {

@@ -1,4 +1,5 @@
 import { Class, ClassStudent } from "./myStudent";
+import { CourseBag } from "./preparation";
 
 export interface UserInfoState {
     name?: string;
@@ -22,9 +23,9 @@ export interface MyStudentState {
 
 export interface PreparationState {
     /**
-     * 是否显示去排课按钮
+     * 是否正在查看课包详情
      */
-    isShowCourseBtn: boolean,
+    isViewCourseDetailIng: boolean,
     /**
      * 选择的章节id
      */
@@ -33,6 +34,10 @@ export interface PreparationState {
      * 选择的教材
      */
     subjectPublisherBookValue: string[]
+    /**
+     * 选择的课时
+     */
+    selectCourseBag: CourseBag
 }
 
 export interface CommonState {

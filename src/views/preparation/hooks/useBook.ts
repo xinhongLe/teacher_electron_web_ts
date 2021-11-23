@@ -1,7 +1,7 @@
 import { MutationTypes, store } from "@/store";
-import { BookChapter, BookList } from "@/types/preparation";
+import { BookChapter, BookList, Lesson } from "@/types/preparation";
 import { ref, watch } from "vue";
-import { fetchSubjectPublisherBookList, fetchTeacherBookChapters } from "../api";
+import { fetchLessons, fetchSubjectPublisherBookList, fetchTeacherBookChapters } from "../api";
 
 const findFirstId = (tree: BookList[], ids: string[]) => {
     tree.forEach((item) => {
@@ -18,6 +18,8 @@ export default () => {
     const teacherBookChapter = ref("");
     const subjectPublisherBookValue = ref([]);
     const cascaderProps = { value: "Value", children: "Children", label: "Lable" };
+    const lessonID = ref<string | null>(null);
+    const lessons = ref<Lesson[]>([]);
 
     const getTeacherBookChapters = async (bookID: string) => {
         const res = await fetchTeacherBookChapters({ bookID });
@@ -34,6 +36,18 @@ export default () => {
             findFirstId([res.result[0]], subjectPublisherBookValue.value);
         }
     };
+
+    const getLessons = async (id: string) => {
+        const res = await fetchLessons({
+            chapterID: id,
+            type: 1
+        });
+        if (res.resultCode === 200) {
+            lessons.value = res.result;
+            lessonID.value = null;
+        }
+    };
+
     watch(subjectPublisherBookValue, (value) => {
         getTeacherBookChapters(value[2]);
         store.commit(MutationTypes.SET_SUBJECT_PUBLISHER_BOOK_VALUE, value);
@@ -48,6 +62,9 @@ export default () => {
         teacherBookChapterList,
         teacherBookChapter,
         cascaderProps,
+        getLessons,
+        lessonID,
+        lessons,
         getTeacherBookChapters
     };
 };

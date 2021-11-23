@@ -87,12 +87,13 @@ export default defineComponent({
 
         const clickTab = (index: number) => {
             tabIndex.value = index;
-            store.commit(MutationTypes.SET_SHOW_COURSE_BTN, index === 1);
+            store.commit(MutationTypes.SET_VIEW_COURSE_DETAIL_ING, false);
         };
 
         const clickBtn = () => {
             tabIndex.value = 0;
-            store.commit(MutationTypes.SET_SHOW_COURSE_BTN, false);
+            store.commit(MutationTypes.SET_VIEW_COURSE_DETAIL_ING, false);
+            store.commit(MutationTypes.SET_SELECT_COURSE_BAG, {});
         };
 
         watch(teacherBookChapter, (value) => {
@@ -101,6 +102,12 @@ export default defineComponent({
 
         watch(tabIndex, (value) => {
             emit("update:tabIndex", value);
+        });
+
+        watch(subjectPublisherBookValue, (value) => {
+            store.commit(MutationTypes.SET_SUBJECT_PUBLISHER_BOOK_VALUE, value);
+        }, {
+            deep: true
         });
 
         return {
@@ -117,7 +124,7 @@ export default defineComponent({
             }]),
             clickTab,
             tabIndex,
-            isShowCourseBtn: computed(() => store.state.preparation.isShowCourseBtn),
+            isShowCourseBtn: computed(() => store.state.preparation.isViewCourseDetailIng || tabIndex.value === 1),
             dialogVisible,
             clickBtn,
             teacherBookChapter,

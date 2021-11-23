@@ -9,11 +9,14 @@ export default () => {
     };
 
     const dragStartIndex = ref();
-    const onDragstart = (event: DragEvent, info: unknown) => {
+    const onDragStart = (event: DragEvent, info: unknown) => {
         store.commit(MutationTypes.SET_IS_DRAGGING, true);
         const target = event.target as HTMLElement;
         dragStartIndex.value = target.getAttribute("data-id");
-        dragDom = target.cloneNode(true) as HTMLElement;
+        dragDom = document.createElement("div");
+        dragDom.classList.add("dragging-dom-ele");
+        dragDom.style.width = target.offsetWidth + "px";
+        dragDom.appendChild(target.cloneNode(true));
         document.body.appendChild(dragDom);
 
         const img = new Image();
@@ -22,16 +25,15 @@ export default () => {
 
         origin.layerX = event.offsetX;
         origin.layerY = event.offsetY;
-        dragDom.style.position = "absolute";
+        dragDom.style.position = "fixed";
         dragDom.style.left = event.clientX - event.offsetX + "px";
         dragDom.style.top = event.clientY - event.offsetY + "px";
-        dragDom.classList.add("dragging-dom-ele");
         event.dataTransfer!.setData("dragInfo", JSON.stringify(info));
     };
 
-    const ondrag = (event: DragEvent) => {
-        dragDom!.style.left = event.clientX - origin.layerX + "px";
-        dragDom!.style.top = event.clientY - origin.layerY + "px";
+    const onDrag = (event: DragEvent) => {
+        dragDom!.style.left = event.clientX + "px";
+        dragDom!.style.top = event.clientY - (event.target as HTMLElement).offsetHeight + "px";
     };
 
     const onDragEnd = (event: DragEvent) => {
@@ -42,8 +44,8 @@ export default () => {
     };
 
     return {
-        onDragstart,
+        onDragStart,
         onDragEnd,
-        ondrag
+        onDrag
     };
 };

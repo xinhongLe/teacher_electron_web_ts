@@ -9,6 +9,9 @@ const initState = (): CommonState => ({
 const mutations:MutationTree<CommonState> = {
     [MutationTypes.SET_IS_DRAGGING](state, flag) {
         state.isDragging = flag;
+    },
+    [MutationTypes.COMMON_RESET_STATE](state) {
+        Object.assign(state, initState());
     }
 };
 
