@@ -3,162 +3,174 @@ import { AI_XUE_SHI_API } from "@/config";
 import { IResponse } from "@/types/response";
 
 interface GetClassTimeData {
-    schoolID: string
+    schoolID: string;
 }
 
 interface GetTeachClassScheduleData {
-    classID: string,
-    subjectID: string
+    classID: string;
+    subjectID: string;
 }
 
 interface GetWeekScheduleData {
-    firstDayOfWeek: string
+    firstDayOfWeek: string;
 }
 
 interface GetCourseWareByCourseBagData {
-    courseBagID: string
+    courseBagID: string;
 }
 
 interface GetCourseWareTeacherByCourseBagData {
-    courseBagTeacherID: string
+    courseBagTeacherID: string;
 }
 
 interface UpdateClassWithDefaultBagData {
-    courseBagID: string,
-    className: string,
-    classPlanStartTime: string,
-    classPlanEndTime: string,
-    subjectID: string,
-    classIDs: string[],
-    courseBagTeacherLogID: string
+    courseBagID: string;
+    className: string;
+    classPlanStartTime: string;
+    classPlanEndTime: string;
+    subjectID: string;
+    classIDs: string[];
+    courseBagTeacherLogID: string;
 }
 
 interface UpdateClassData {
-    courseBagTeacherID: string,
-    className: string,
-    classPlanStartTime: string,
-    classPlanEndTime: string,
-    subjectID: string,
-    classIDs: string[],
-    courseBagTeacherLogID: string
+    courseBagTeacherID: string;
+    className: string;
+    classPlanStartTime: string;
+    classPlanEndTime: string;
+    subjectID: string;
+    classIDs: string[];
+    courseBagTeacherLogID: string;
 }
 
 export interface HaveClassWithDefaultBagData {
-    courseBagID: string,
-    className: string,
-    classPlanStartTime: string,
-    classPlanEndTime: string,
-    subjectID: string,
-    classIDs: string[],
+    courseBagID: string;
+    className: string;
+    classPlanStartTime: string;
+    classPlanEndTime: string;
+    subjectID: string;
+    classIDs: string[];
 }
 
 export interface HaveClassData {
-    courseBagTeacherID: string,
-    className: string,
-    classPlanStartTime: string,
-    classPlanEndTime: string,
-    subjectID: string,
-    classIDs: string[],
+    courseBagTeacherID: string;
+    className: string;
+    classPlanStartTime: string;
+    classPlanEndTime: string;
+    subjectID: string;
+    classIDs: string[];
 }
 
 interface CancelClassData {
-    courseBagTeacherLogID: string,
-    windowScheduleLogID?: string
+    courseBagTeacherLogID: string;
+    windowScheduleLogID?: string;
 }
 
 export interface GetTeachClassScheduleRes {
-    BeginTime: string,
-    ClassID: string,
-    ClassName: string,
-    DayOfWeek: number,
-    EndTime: string,
-    GradeID: string,
-    GradeName: string,
-    SubjectID: string,
-    SubjectName: string
+    BeginTime: string;
+    ClassID: string;
+    ClassName: string;
+    DayOfWeek: number;
+    EndTime: string;
+    GradeID: string;
+    GradeName: string;
+    SubjectID: string;
+    SubjectName: string;
 }
 
-type GetTeachClassScheduleResponse = IResponse<GetTeachClassScheduleRes[]>
+type GetTeachClassScheduleResponse = IResponse<GetTeachClassScheduleRes[]>;
 
-export interface CourseBag {
-    AfterAssigned: boolean,
-    AfterAssignedTime: string,
-    AlbumName: string,
-    BeforeAssigned: boolean,
-    BeforeAssignedTime: string,
-    Changed: number,
-    ChapterName: string,
-    ClassName: string,
-    ClassPlanEndTime: string,
-    ClassPlanStartTime: string,
-    Classes: {
-        ClassName: string,
-        ClassID: string
-    }[],
-    CourseBagTeacherID: string,
-    HaveAfterCourseWare: true,
-    HaveBeforeCourseWare: true,
-    ID: string,
-    LessonID: string,
-    LessonName: string,
-    Name: string,
-    OnSale: number,
-    PublisherName: string,
-    ClassActualEndTime: string,
-    SubjectID: string,
-    SubjectName: string,
-    TeacherID: string,
-    TotalAfterComplate: number,
-    TotalAfterStudent: number,
-    TotalBeforeComplate: number,
-    TotalBeforeStudent: number,
-    Type: 1 | 2,
-    Version: string
-}
-
-export interface GetWeekScheduleRes {
-    Classes: CourseBag[],
-    windowClasses: []
-}
-
-type GetWeekScheduleResponse = IResponse<GetWeekScheduleRes>
-
-export interface GetClassTimeRes {
-    ClassIndex: number,
-    EndTime: string,
-    ShowType: number,
-    StartTime: string,
-    Type: number
+export interface CourseBagClasses {
+    ClassName: string;
+    ClassID: string;
 }
 
 export interface CourseWares {
-    ID: string,
-    HasVideo: string,
-    AlbumName: string,
-    Name: string,
-    ChapterName: string,
-    LessonName: string,
-    FileID?:string,
-    File?:{
-        Duration: string
-    },
-    QuestionCount: number,
-    CopyType?: number,
-    Process: number
+    ID: string;
+    HasVideo: string;
+    AlbumName: string;
+    Name: string;
+    ChapterName: string;
+    LessonName: string;
+    FileID?: string;
+    PaperID?: string;
+    File?: {
+        Duration: string;
+    };
+    QuestionCount: number;
+    CopyType?: number;
+    VideoDuration: number;
+    Process: number;
+    MidHomeworkAssigned?: boolean;
+}
+
+export interface CourseBag {
+    AfterAssigned: boolean;
+    AfterAssignedTime: string;
+    AlbumName: string;
+    BeforeAssigned: boolean;
+    BeforeAssignedTime: string;
+    Changed: number;
+    ChapterName: string;
+    ClassName: string;
+    ClassPlanEndTime: string;
+    ClassPlanStartTime: string;
+    Classes: CourseBagClasses[];
+    CourseBagTeacherID: string;
+    HaveAfterCourseWare: true;
+    HaveBeforeCourseWare: true;
+    CourseWares: CourseWares[];
+    BeforeHomeworkStudent?: {
+        Total: number;
+        Finish: number;
+    };
+    ID: string;
+    LessonID: string;
+    LessonName: string;
+    Name: string;
+    OnSale: number;
+    PublisherName: string;
+    ClassActualEndTime: string;
+    SubjectID: string;
+    SubjectName: string;
+    TeacherID: string;
+    TotalAfterComplate: number;
+    TotalAfterStudent: number;
+    TotalBeforeComplate: number;
+    TotalBeforeStudent: number;
+    Type: 1 | 2;
+    Version: string;
+}
+
+export interface GetWeekScheduleRes {
+    Classes: CourseBag[];
+    windowClasses: [];
+}
+
+type GetWeekScheduleResponse = IResponse<GetWeekScheduleRes>;
+
+export interface GetClassTimeRes {
+    ClassIndex: number;
+    EndTime: string;
+    ShowType: number;
+    StartTime: string;
+    Type: number;
 }
 
 export interface getCourseByCourseBag {
-    AlbumName: string,
-    BagName: string,
-    ChapterName: string,
-    LessonName: string,
-    PublishName: string,
-    CourseWares: CourseWares[],
-    SubjectName: string
+    AlbumName: string;
+    BagName: string;
+    ChapterName: string;
+    LessonName: string;
+    PublishName: string;
+    CourseWares: CourseWares[];
+    SubjectName: string;
 }
 
 // 获取学校时间课表安排
-export function fetchClassTime(data: GetClassTimeData): Promise<IResponse<GetClassTimeRes[]>> {
+export function fetchClassTime(
+    data: GetClassTimeData
+): Promise<IResponse<GetClassTimeRes[]>> {
     return request({
         baseURL: AI_XUE_SHI_API,
         url: "/Api/W4/Teach/GetClassTime",
@@ -171,7 +183,9 @@ export function fetchClassTime(data: GetClassTimeData): Promise<IResponse<GetCla
 }
 
 // 获取老师的排版模板
-export function fetchTeachClassSchedule(data: GetTeachClassScheduleData): Promise<GetTeachClassScheduleResponse> {
+export function fetchTeachClassSchedule(
+    data: GetTeachClassScheduleData
+): Promise<GetTeachClassScheduleResponse> {
     return request({
         baseURL: AI_XUE_SHI_API,
         url: "/Api/W4/Teach/GetTeachClassSchedule",
@@ -184,7 +198,9 @@ export function fetchTeachClassSchedule(data: GetTeachClassScheduleData): Promis
 }
 
 // 获取老师当前周的排课
-export function fetchWeekSchedule(data: GetWeekScheduleData): Promise<GetWeekScheduleResponse> {
+export function fetchWeekSchedule(
+    data: GetWeekScheduleData
+): Promise<GetWeekScheduleResponse> {
     return request({
         baseURL: AI_XUE_SHI_API,
         url: "/Api/W4/Teach/GetWeekSchedule",
@@ -197,7 +213,10 @@ export function fetchWeekSchedule(data: GetWeekScheduleData): Promise<GetWeekSch
 }
 
 // 获取课包详情 系统1 / 自定义2
-export function getCourseByCourseBag(type: number, data: GetCourseWareByCourseBagData | GetCourseWareTeacherByCourseBagData): Promise<IResponse<getCourseByCourseBag>> {
+export function getCourseByCourseBag(
+    type: number,
+    data: GetCourseWareByCourseBagData | GetCourseWareTeacherByCourseBagData
+): Promise<IResponse<getCourseByCourseBag>> {
     const url =
         type === 1
             ? "API/W4/Teach/GetCourseWareByCourseBag"
@@ -214,7 +233,10 @@ export function getCourseByCourseBag(type: number, data: GetCourseWareByCourseBa
 }
 
 // 更新排课
-export function updateClass(type: number, data: UpdateClassWithDefaultBagData| UpdateClassData): Promise<IResponse<null>> {
+export function updateClass(
+    type: number,
+    data: UpdateClassWithDefaultBagData | UpdateClassData
+): Promise<IResponse<null>> {
     const url =
         type === 1
             ? "Api/W4/Teach/UpdateClassWithDefaultBag"
@@ -231,7 +253,10 @@ export function updateClass(type: number, data: UpdateClassWithDefaultBagData| U
 }
 
 // 保存课包
-export function haveClass(type: number, data: HaveClassWithDefaultBagData|HaveClassData): Promise<IResponse<null>> {
+export function haveClass(
+    type: number,
+    data: HaveClassWithDefaultBagData | HaveClassData
+): Promise<IResponse<null>> {
     const url =
         type === 1
             ? "Api/W4/Teach/HaveClassWithDefaultBag"
@@ -248,7 +273,9 @@ export function haveClass(type: number, data: HaveClassWithDefaultBagData|HaveCl
 }
 
 // 删除排课
-export function delHaveClass(data: CancelClassData): Promise<IResponse<number>> {
+export function delHaveClass(
+    data: CancelClassData
+): Promise<IResponse<number>> {
     return request({
         baseURL: AI_XUE_SHI_API,
         url: "Api/W4/Teach/CancelClass",

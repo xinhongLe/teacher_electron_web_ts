@@ -169,6 +169,7 @@ export default defineComponent({
                     position: relative;
                     box-sizing: border-box;
                     padding-bottom: 14px;
+                    cursor: pointer;
                     img {
                         // width: 100%;
                         height: 100%;
@@ -188,6 +189,7 @@ export default defineComponent({
                     height: 50%;
                     box-sizing: border-box;
                     position: relative;
+                    cursor: pointer;
                     padding-top: 14px;
                     img {
                         // width: 100%;
