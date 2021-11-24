@@ -1,7 +1,7 @@
-import { useStore } from "@/store";
 import isElectron from "is-electron";
 
 const exitFullscreen = () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const doc: any = document;
     if (doc.exitFullscreen) {
         doc.exitFullscreen();

@@ -22,7 +22,7 @@ export enum STORAGE_TYPES {
     OSS_PATHS = "OSS_PATHS"
 }
 
-export const set = (name: STORAGE_TYPES, value: any) => {
+export const set = (name: STORAGE_TYPES, value: unknown) => {
     localStorage.setItem(`${PREFIX}_${name}`, typeof value === "string" ? value : JSON.stringify(value));
 };
 

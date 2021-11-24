@@ -135,7 +135,7 @@ $btn_color: #4b71ee;
                 line-height: 45px;
             }
         }
-        /deep/.el-form {
+        :deep(.el-form) {
             .el-form-item {
                 position: relative;
                 margin-bottom: 32px;

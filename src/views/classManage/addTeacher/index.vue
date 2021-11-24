@@ -1,71 +1,87 @@
 <template>
-  <el-dialog
-    title="添加老师"
-    width="820px"
-    :model-value="visible"
-    append-to-body
-    :before-close="handleClose"
-  >
-    <div class="form-box">
-      <el-form ref="form" :model="formData" label-width="80px" label-position="top">
-        <el-form-item label="教师信息">
-          <el-input
-            v-model="formData.name"
-            placeholder="请输入要搜索的老师姓名或账号"
-          >
-            <template #append>
-                <el-button type="primary" @click="getTeacherList">搜索</el-button>
-            </template>
-          </el-input>
-          <el-table
-            :data="tableData"
-            :header-cell-style="{ 'text-align': 'center' }"
-            :cell-style="{ 'text-align': 'center' }"
-            style="width: 100%; margin-top: 16px"
-            @selection-change="handleSelectionChange"
-            max-height="480px"
-          >
-            <el-table-column
-              type="selection"
-              height="200"
-              label="选择"
-            ></el-table-column>
-            <el-table-column prop="UserName" label="教师姓名">
-            </el-table-column>
-            <!-- <el-table-column prop="address" label="教师手机号">
+    <div class="container">
+        <el-dialog
+            title="添加老师"
+            width="820px"
+            :model-value="visible"
+            :before-close="handleClose"
+        >
+            <div class="form-box">
+                <el-form
+                    ref="form"
+                    :model="formData"
+                    label-width="80px"
+                    label-position="top"
+                >
+                    <el-form-item label="教师信息">
+                        <el-input
+                            v-model="formData.name"
+                            placeholder="请输入要搜索的老师姓名或账号"
+                        >
+                            <template #append>
+                                <el-button
+                                    type="primary"
+                                    @click="getTeacherList"
+                                    >搜索</el-button
+                                >
+                            </template>
+                        </el-input>
+                        <el-table
+                            :data="tableData"
+                            :header-cell-style="{ 'text-align': 'center' }"
+                            :cell-style="{ 'text-align': 'center' }"
+                            style="width: 100%; margin-top: 16px"
+                            @selection-change="handleSelectionChange"
+                            max-height="480px"
+                        >
+                            <el-table-column
+                                type="selection"
+                                height="200"
+                                label="选择"
+                            ></el-table-column>
+                            <el-table-column prop="UserName" label="教师姓名">
+                            </el-table-column>
+                            <!-- <el-table-column prop="address" label="教师手机号">
                         </el-table-column> -->
-            <el-table-column label="执教学科">
-              <template #default="scope">
-                {{ scope.row.SubjectList.map((v) => v.ResultValue).join(",") }}
-              </template>
-            </el-table-column>
-          </el-table>
-          <el-pagination
-            style="
-              float: right;
-              background: #fff;
-              width: 100%;
-              text-align: center;
-              padding-top: 5px;
-              height: 35px;
-            "
-            :current-page="page.pageNumber"
-            :page-sizes="page.pageChoose"
-            :page-size="page.pageSize"
-            layout="total, sizes, prev, pager, next, jumper"
-            :total="page.total"
-            @size-change="handleSizeChange"
-            @current-change="handleCurrentChange"
-          >
-          </el-pagination>
-        </el-form-item>
-      </el-form>
-      <div class="btns">
-        <span @click="handleClose">取消</span>
-        <span :class="{ active: btnActive }" @click="save">保存</span>
-      </div>
+                            <el-table-column label="执教学科">
+                                <template v-slot="scope">
+                                    {{
+                                        scope.row.SubjectList.map(
+                                            (v) => v.ResultValue
+                                        ).join(",")
+                                    }}
+                                </template>
+                            </el-table-column>
+                        </el-table>
+                        <el-pagination
+                            style="
+                                float: right;
+                                background: #fff;
+                                width: 100%;
+                                text-align: center;
+                                padding-top: 5px;
+                                height: 35px;
+                            "
+                            :current-page="page.pageNumber"
+                            :page-sizes="page.pageChoose"
+                            :page-size="page.pageSize"
+                            layout="total, sizes, prev, pager, next, jumper"
+                            :total="page.total"
+                            @size-change="handleSizeChange"
+                            @current-change="handleCurrentChange"
+                        >
+                        </el-pagination>
+                    </el-form-item>
+                </el-form>
+                <div class="btns">
+                    <span @click="handleClose">取消</span>
+                    <span :class="{ active: btnActive }" @click="save"
+                        >保存</span
+                    >
+                </div>
+            </div>
+        </el-dialog>
     </div>
-  </el-dialog>
 </template>
 
 <script lang="ts">
@@ -88,13 +104,20 @@ export default defineComponent({
     setup(props, { emit }) {
         const selectTeacher = ref<Teacher[]>([]);
         const btnActive = ref(false);
-        const { getTeacherList, page, tableData, formData, handleCurrentChange, handleSizeChange } = useAddTeacher();
+        const {
+            getTeacherList,
+            page,
+            tableData,
+            formData,
+            handleCurrentChange,
+            handleSizeChange
+        } = useAddTeacher();
 
         const handleClose = () => {
             emit("update:visible", false);
         };
 
-        const handleSelectionChange = (v:Teacher[]) => {
+        const handleSelectionChange = (v: Teacher[]) => {
             selectTeacher.value = v;
             btnActive.value = v.length !== 0;
         };
@@ -103,7 +126,10 @@ export default defineComponent({
             if (selectTeacher.value.length === 0) {
                 return ElMessage.warning("尚未选择老师！！");
             }
-            emit("update:selectedTeacher", [...props.selectedTeacher, ...selectTeacher.value]);
+            emit("update:selectedTeacher", [
+                ...props.selectedTeacher,
+                ...selectTeacher.value
+            ]);
             handleClose();
         };
         getTeacherList();
@@ -125,15 +151,18 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-/deep/.el-dialog__body {
-    padding: 0;
+.container {
+    :deep(.el-dialog__body) {
+        padding: 0;
+    }
+    :deep(.el-table) th {
+        padding: 0;
+    }
+    :deep(.el-table) td {
+        padding: 10px 0;
+    }
 }
-/deep/.el-table th {
-    padding: 0;
-}
-/deep/.el-table td {
-    padding: 10px 0;
-}
+
 .form-box {
     background: #f5f6fa;
     padding: 24px 32px;
@@ -208,7 +237,7 @@ export default defineComponent({
             background: #fef2f6;
         }
         .active {
-            background: #4B71EE!important;
+            background: #4b71ee !important;
         }
     }
     .subject-list {

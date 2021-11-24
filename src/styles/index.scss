@@ -172,7 +172,7 @@ html {
 
 // 备课单元下拉框
 .chapter-class {
-    /deep/.el-select-dropdown__list {
+    :deep(.el-select-dropdown__list) {
         .el-select-dropdown__item.is-disabled {
             cursor: pointer;
             text-align: center;

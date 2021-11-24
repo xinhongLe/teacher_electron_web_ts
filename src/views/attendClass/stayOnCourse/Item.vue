@@ -357,7 +357,7 @@ export default defineComponent({
             }
             .btns {
                 position: relative;
-                /deep/.el-button {
+                :deep(.el-button) {
                     line-height: 30px;
                     padding: 0 20px;
                     margin-top: 3px;

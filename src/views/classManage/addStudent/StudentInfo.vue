@@ -63,7 +63,7 @@ export default defineComponent({
         };
 
         const save = async () => {
-            const { userInfo: { id }, myStudent: { selectClassInfo: { ID } } } = store.state;
+            const { userInfo: { id } } = store.state;
             const data: AssignClassStudentData = {
                 classID: store.state.myStudent.selectClassInfo.ID,
                 teacherId: id,

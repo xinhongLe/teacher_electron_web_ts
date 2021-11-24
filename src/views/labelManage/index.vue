@@ -131,7 +131,7 @@ export default defineComponent({
             margin-left: 24px;
             margin-top: 16px;
         }
-        /deep/ .el-input-group__append {
+        :deep(.el-input-group__append){
             background: none;
             font-size: 14px;
             font-weight: 500;

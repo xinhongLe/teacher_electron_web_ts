@@ -1,6 +1,7 @@
 import isElectron from "is-electron";
 
 const fullScreen = () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const element: any = document.documentElement;
     if (element.requestFullscreen) {
         element.requestFullscreen();

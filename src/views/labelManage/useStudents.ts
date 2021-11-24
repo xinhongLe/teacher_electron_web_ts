@@ -7,6 +7,7 @@ import { fetchAllStudents } from "./api";
 
 const getSubjectName = (SelectSubjectId: string) => {
     const subjectList = get(STORAGE_TYPES.USER_INFO).Subjects;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return subjectList.filter((v: any) => v.ID === SelectSubjectId)[0]
         .Name;
 };

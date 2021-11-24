@@ -1,108 +1,125 @@
 <template>
-    <el-dialog
-        v-model="show"
-        :before-close="close"
-        width="820px"
-        :title="isEdit ? '班级详情' : '创建班级'"
-    >
-        <div class="form-box">
-            <el-form
-                :rules="rules"
-                ref="formRef"
-                :model="formData"
-                label-width="80px"
-                label-position="top"
-            >
-                <el-row :gutter="20">
-                    <el-col :span="8">
-                        <el-form-item label="校区" prop="schoolId">
-                            <el-select
-                                style="width: 100%"
-                                v-model="formData.schoolId"
-                                placeholder="请选择校区"
-                                :disabled="isEdit"
-                            >
-                                <el-option
-                                    v-for="(item, index) in campusList"
-                                    :key="index"
-                                    :label="item.Name"
-                                    :value="item.ID"
-                                ></el-option>
-                            </el-select>
-                        </el-form-item>
-                    </el-col>
-                    <el-col :span="8">
-                        <el-form-item label="年级" prop="gradeId">
-                            <el-select
-                                :disabled="isEdit"
-                                style="width: 100%"
-                                v-model="formData.gradeId"
-                                placeholder="请选择年级"
-                            >
-                                <el-option
-                                    v-for="(item, index) in gradeList"
-                                    :key="index"
-                                    :label="item.ResultValue"
-                                    :value="item.ResultKey"
-                                ></el-option>
-                            </el-select>
-                        </el-form-item>
-                    </el-col>
-                    <el-col :span="8">
-                        <el-form-item label="班级名称" prop="name">
-                            <el-input
-                                v-model="formData.name"
-                                placeholder="请输入班级名称"
-                            ></el-input>
-                        </el-form-item>
-                    </el-col>
-                </el-row>
-                <el-form-item label="班级老师" style="position: relative">
-                    <div
-                        class="no-data"
-                        v-if="Object.keys(subjectList).length == 0"
-                    >
-                        <img src="@/assets/my-student/pic_wuxuesheng@2x.png" />
-                        <p>还没有班级老师</p>
-                        <p>您可以点击【添加老师】进行设置</p>
-                    </div>
-                    <div class="btn" @click="showTeacher = true">
-                        <i class="el-icon-plus"></i>添加老师
-                    </div>
-                    <div class="subject-list">
+    <div class="container">
+        <el-dialog
+            v-model="show"
+            :before-close="close"
+            width="820px"
+            :title="isEdit ? '班级详情' : '创建班级'"
+        >
+            <div class="form-box">
+                <el-form
+                    :rules="rules"
+                    ref="formRef"
+                    :model="formData"
+                    label-width="80px"
+                    label-position="top"
+                >
+                    <el-row :gutter="20">
+                        <el-col :span="8">
+                            <el-form-item label="校区" prop="schoolId">
+                                <el-select
+                                    style="width: 100%"
+                                    v-model="formData.schoolId"
+                                    placeholder="请选择校区"
+                                    :disabled="isEdit"
+                                >
+                                    <el-option
+                                        v-for="(item, index) in campusList"
+                                        :key="index"
+                                        :label="item.Name"
+                                        :value="item.ID"
+                                    ></el-option>
+                                </el-select>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="8">
+                            <el-form-item label="年级" prop="gradeId">
+                                <el-select
+                                    :disabled="isEdit"
+                                    style="width: 100%"
+                                    v-model="formData.gradeId"
+                                    placeholder="请选择年级"
+                                >
+                                    <el-option
+                                        v-for="(item, index) in gradeList"
+                                        :key="index"
+                                        :label="item.ResultValue"
+                                        :value="item.ResultKey"
+                                    ></el-option>
+                                </el-select>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="8">
+                            <el-form-item label="班级名称" prop="name">
+                                <el-input
+                                    v-model="formData.name"
+                                    placeholder="请输入班级名称"
+                                ></el-input>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-form-item label="班级老师" style="position: relative">
                         <div
-                            v-for="(item, index) in Object.keys(subjectList)"
-                            :key="index"
+                            class="no-data"
+                            v-if="Object.keys(subjectList).length == 0"
                         >
-                            <span>{{ item }}</span>
-                            <div>
-                                <span
-                                    v-for="(item1, index1) in subjectList[item]"
-                                    :key="index1"
-                                    ><i class="el-icon-s-custom"></i
-                                    >{{ item1.Name }}<i
-                                        class="el-icon-remove" @click="delTeacher(item1.ID)"
-                                    ></i
-                                ></span>
+                            <img
+                                src="@/assets/my-student/pic_wuxuesheng@2x.png"
+                            />
+                            <p>还没有班级老师</p>
+                            <p>您可以点击【添加老师】进行设置</p>
+                        </div>
+                        <div class="btn" @click="showTeacher = true">
+                            <i class="el-icon-plus"></i>添加老师
+                        </div>
+                        <div class="subject-list">
+                            <div
+                                v-for="(item, index) in Object.keys(
+                                    subjectList
+                                )"
+                                :key="index"
+                            >
+                                <span>{{ item }}</span>
+                                <div>
+                                    <span
+                                        v-for="(item1, index1) in subjectList[
+                                            item
+                                        ]"
+                                        :key="index1"
+                                        ><i class="el-icon-s-custom"></i
+                                        >{{ item1.Name
+                                        }}<i
+                                            class="el-icon-remove"
+                                            @click="delTeacher(item1.ID)"
+                                        ></i
+                                    ></span>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </el-form-item>
-            </el-form>
-            <div class="btns">
-                <span @click="close">取消</span>
-                <span
-                    :class="{
-                        active: formData.schoolId && formData.gradeId && formData.name
-                    }"
-                    @click="save"
-                    >保存</span
-                >
-                <!-- <span v-if="classType == 'edit'" @click="delClass">解散班级</span> -->
+                    </el-form-item>
+                </el-form>
+                <div class="btns">
+                    <span @click="close">取消</span>
+                    <span
+                        :class="{
+                            active:
+                                formData.schoolId &&
+                                formData.gradeId &&
+                                formData.name,
+                        }"
+                        @click="save"
+                        >保存</span
+                    >
+                    <!-- <span v-if="classType == 'edit'" @click="delClass">解散班级</span> -->
+                </div>
             </div>
-        </div>
-        <AddTeacher v-model:visible="showTeacher" v-model:selectedTeacher="selectTeacher" v-if="showTeacher"/>
-    </el-dialog>
+            <AddTeacher
+                v-model:visible="showTeacher"
+                v-model:selectedTeacher="selectTeacher"
+                v-if="showTeacher"
+            />
+        </el-dialog>
+    </div>
 </template>
 
 <script lang="ts">
@@ -115,23 +132,33 @@ import AddTeacher from "../addTeacher/index.vue";
 export default defineComponent({
     name: "AddOrEditClass",
     setup() {
-        const { subjectList, selectTeacher, getClassTeachers, delTeacher } = useTeachers();
-        const { rules, formData, formRef, close, save } = useForm(selectTeacher);
+        const { subjectList, selectTeacher, getClassTeachers, delTeacher } =
+            useTeachers();
+        const { rules, formData, formRef, close, save } =
+            useForm(selectTeacher);
         const { gradeList, getGradeList } = useGradeList();
         const showTeacher = ref(false);
         const show = computed(() => store.state.myStudent.isShowClassDialog);
-        watch(() => show.value, async (newShow) => {
-            if (newShow) {
-                await getGradeList();
-                const { isEditClassDialog: isEdit, classDialogInfo: classInfo } = store.state.myStudent;
-                if (isEdit) {
-                    formData.name = classInfo!.Name;
-                    formData.schoolId = classInfo!.SchoolId;
-                    formData.gradeId = gradeList.value.find(item => item.ResultValue === classInfo!.GradeAlbum)!.ResultValue;
-                    getClassTeachers(classInfo!.ID);
+        watch(
+            () => show.value,
+            async (newShow) => {
+                if (newShow) {
+                    await getGradeList();
+                    const {
+                        isEditClassDialog: isEdit,
+                        classDialogInfo: classInfo
+                    } = store.state.myStudent;
+                    if (isEdit) {
+                        formData.name = classInfo!.Name;
+                        formData.schoolId = classInfo!.SchoolId;
+                        formData.gradeId = gradeList.value.find(
+                            (item) => item.ResultValue === classInfo!.GradeAlbum
+                        )!.ResultValue;
+                        getClassTeachers(classInfo!.ID);
+                    }
                 }
             }
-        });
+        );
         return {
             show,
             close,
@@ -153,9 +180,12 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-/deep/.el-dialog__body {
-    padding: 0;
+.container {
+    :deep(.el-dialog__body) {
+        padding: 0;
+    }
 }
+
 .form-box {
     background: #f5f6fa;
     padding: 24px 32px;

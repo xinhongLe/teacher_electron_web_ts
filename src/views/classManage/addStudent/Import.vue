@@ -262,7 +262,7 @@ export default defineComponent({
             }
         }
     }
-    ::v-deep.el-link.el-link--primary {
+    :deep(.el-link.el-link--primary) {
         color: #4b71ee;
     }
 }

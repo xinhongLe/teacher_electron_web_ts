@@ -159,7 +159,7 @@ export default defineComponent({
                 margin-right: 16px;
                 display: flex;
                 align-items: center;
-                /deep/.el-checkbox {
+                :deep(.el-checkbox) {
                     margin-right: 20px;
                 }
                 > div {
