@@ -131,7 +131,7 @@ import useClassContentList from "./hooks/useClassContentList";
 import ClassBagDialog from "../ClassBagDialog.vue";
 import useDrag from "@/hooks/useDrag";
 import useDrop from "./hooks/useDrop";
-import { lookVideo, lookQuestions } from "../../logic";
+import { lookVideo, lookQuestions } from "@/utils";
 export default defineComponent({
     setup() {
         const dialogVisible = ref(false);

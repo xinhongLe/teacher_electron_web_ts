@@ -62,7 +62,7 @@ import { store } from "@/store";
 import { BagChapter, BagLessons, BagPapers } from "@/types/preparation";
 import { fetchBagChapter } from "@/views/preparation/api";
 import { computed, defineComponent, PropType, ref, watch } from "vue";
-import { lookVideo, lookQuestions } from "../../../logic";
+import { lookVideo, lookQuestions } from "@/utils";
 export default defineComponent({
     props: {
         subjectPublisherBookValue: {

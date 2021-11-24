@@ -179,9 +179,8 @@
 <script lang="ts">
 import { CourseBag, CourseBagClasses } from "@/api";
 import useTime from "@/hooks/useTime";
-import { lookQuestions, lookVideo } from "@/views/preparation/logic";
 import { defineComponent, inject, PropType, ref } from "vue";
-import { formatClass, formatDuration } from "@/utils";
+import { formatClass, formatDuration, lookQuestions, lookVideo } from "@/utils";
 import moment from "moment";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { IResponse } from "@/types/response";

@@ -87,8 +87,7 @@ import { CourseBagClasses, CourseWares } from "@/api";
 import { ElMessage } from "element-plus";
 import { defineComponent, inject, ref } from "vue";
 import { assignDefaultHomework, fetchCourseBagTeachingLogsByID } from "./api";
-import { formatDuration } from "@/utils";
-import { lookQuestions, lookVideo } from "@/views/preparation/logic";
+import { formatDuration, lookQuestions, lookVideo } from "@/utils";
 
 export default defineComponent({
     props: {

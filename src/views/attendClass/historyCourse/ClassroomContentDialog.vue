@@ -80,8 +80,7 @@
 
 <script lang="ts">
 import { CourseWares } from "@/api";
-import { formatDuration } from "@/utils";
-import { lookQuestions, lookVideo } from "@/views/preparation/logic";
+import { formatDuration, lookQuestions, lookVideo } from "@/utils";
 import { ElMessage } from "element-plus";
 import { defineComponent, ref } from "vue";
 import { assignPaperHomework, fetchCourseBagTeachingLogsByID } from "../api";

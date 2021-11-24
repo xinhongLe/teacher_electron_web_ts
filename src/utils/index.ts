@@ -1,5 +1,6 @@
 import { CourseBagClasses } from "@/api";
 import moment from "moment";
+import isElectron from "is-electron";
 
 export function formatClass(v: CourseBagClasses[]) {
     return v ? v.map((e) => e.ClassName).join(",") : "";
@@ -60,3 +61,17 @@ export function formatDate(v: string) {
 export function formatTime(v:string) {
     return moment(v).format("hh:mm");
 }
+
+export const lookVideo = (id: string | undefined) => {
+    if (isElectron()) {
+        // return ipcRenderer.send("openVideo", id);
+    }
+    window.open(`${location.origin}/look-video/${id}`);
+};
+
+export const lookQuestions = ({ id = "", type = 1, courseBagId = "" }) => {
+    if (isElectron()) {
+        // return ipcRenderer.send("openQuestion", id, type, courseBagId);
+    }
+    window.open(`${location.origin}/look-question/${id}/${type}?courseBagId=${courseBagId}`);
+};
