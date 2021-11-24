@@ -1,6 +1,7 @@
 <template>
     <div class="main-container">
         <NavBar v-if="isShowNarBar"/>
+        <Suspension />
         <div class="main-body">
             <keep-alive>
                 <router-view v-if="$route.meta.keepAlive"></router-view>
@@ -13,6 +14,7 @@
 <script lang="ts">
 import { defineComponent, ref, watch } from "vue";
 import NavBar from "./navBar/index.vue";
+import Suspension from "./suspension/index.vue";
 import isElectron from "is-electron";
 import { useRoute } from "vue-router";
 import { GetGradeClassTree } from "@/views/login/api";
@@ -23,7 +25,8 @@ import useTagList from "@/hooks/useTagList";
 
 export default defineComponent({
     components: {
-        NavBar
+        NavBar,
+        Suspension
     },
     setup() {
         const route = useRoute();

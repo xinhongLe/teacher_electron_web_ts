@@ -1,6 +1,8 @@
 import request from "@/utils/request";
 import { AI_XUE_SHI_API } from "@/config";
 import { IOssPathsRes, IOssTokenRes } from "@/types/oss";
+import { Tools } from "@/types/tools";
+import { IResponse } from "@/types/response";
 
 export * from "./teach";
 
@@ -21,5 +23,16 @@ export function getOssToken(): Promise<IOssTokenRes> {
         headers: { DeviceID: "Franchisee", noLoading: "true" },
         method: "post",
         data: {}
+    });
+}
+
+export function getToolList(): Promise<IResponse<Tools[]>> {
+    return request({
+        baseURL: AI_XUE_SHI_API,
+        url: "API/W1/TeachingMiniTool/ToolManage/GetToolList",
+        method: "post",
+        data: {
+            State: 2
+        }
     });
 }

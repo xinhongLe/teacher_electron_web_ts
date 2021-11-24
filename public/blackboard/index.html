@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>爱学仕校园教师端</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="./fabric.min.js"></script>
+</head>
+
+<body>
+    <canvas id="canvas"></canvas>
+    <div id="move" class="move"></div>
+    <div class="btnBar">
+        <ul>
+            <li id="rescindOn">
+                <img id="rescindImg" src="./ico/icon_chexiao_disabled.png" alt="">
+                <span id="rescind">撤销</span></li>
+            <li id="regainOn">
+                <img id="regainImg" src="./ico/icon_huifu_disabled.png" alt="">
+                <span id="regain">恢复</span></li>
+            <li id="moveOn">
+                <img id="movetoImg" src="./ico/icon_moveto.png" alt="">
+                <span id="moveto">移动</span></li>    
+            <li id="chooseOn">
+                <img id="chooseImg" src="./ico/icon_choose.png" alt="">
+                <span id="choose">选择</span>
+                <div></div>
+            </li>
+            <li id="brushOn" style="position: relative;">
+                <img id="brushImg" src="./ico/icon_brush_selected.png" alt="">
+                <span id="brush" class="active">画笔 <img id="brush_Du" class="ico_Du" src="./ico/arrow_down.png"
+                        alt=""></span>
+                <div id="brushPopup" class="brushPopup">
+                    <div class="colorbox">
+                        <span>画笔颜色：</span>
+                        <ul class="colorList">
+                            <li id="white" class="white active"></li>
+                            <li id="black" class="black"></li>
+                            <li id="red" class="red"></li>
+                            <li id="orange" class="orange"></li>
+                            <li id="blue" class="blue"></li>
+                        </ul>
+                    </div>
+                    <div class="sizebox">
+                        <span>画笔大小：</span>
+                        <ul class="sizesList">
+                            <li id="small" class="small active"></li>
+                            <li id="medium" class="medium"></li>
+                            <li id="max" class="max"></li>
+
+                        </ul>
+                    </div>
+                </div>
+            </li>
+            <li id="eraserOn" style="position: relative;">
+                <img id="eraserImg" src="./ico/icon_eraser.png" alt="">
+                <span id="eraser">橡皮 <img id="eraser_Du" class="ico_Du" src="./ico/arrow_down.png" alt=""></span>
+                <div id="eraserPopup" class="eraserPopup">
+                    <ul>
+                        <li id="erasure"><img src="./ico/icon_cachu_selected.png" alt=""><span>擦除</span></li>
+                        <li id="clearOn"><img src="./ico/icon_qingchu.png" alt=""><span>清屏</span></li>
+                    </ul>
+                </div>
+            </li>
+        </ul>
+
+        <ul class="rightBar">
+            <li>
+                <img id="arrowLast" src="./ico/arrow_last_disabled.png" alt="">
+                <div id="openBroadList" class="Broadnumber">1</div>
+                <img id="arrowNext" src="./ico/arrow_next_disabled.png" alt="">
+            </li>
+            <li><img id="addBtn" src="./ico/icon_add.png" alt=""></li>
+            <li id="SwitchTheme"><img src="./ico/icon_qiehuan_selected.png" alt=""></li>
+            <li id="smallBtn"><img src="./ico/btn_zuixiaohua.png" alt=""></li>
+            <li id="closeBtn"><img src="./ico/close.png" alt="" /></li>
+        </ul>
+    </div>
+    <div id="broadList" class="broadList">
+        <div class="headline">
+            <p>黑板列表</p>
+            <img id="btn_close" src="./ico/btn_close.png" alt="">
+        </div>
+        <div id="imgList" class="imgList">
+            <div id="broad_1" class="canvas_broad">
+                <img id="broaddel_1" style="display: none;" class="canvas_broad_del" src="./ico/btn_delete.png" alt="">
+                <div id="broadindex_1" class="canvas_broad_index">1</div>
+            </div>
+        </div>
+        <div id="addBroadBtn" class="footerBtn">
+            <span>+新建黑板</span>
+        </div>
+    </div>
+
+    <script src="index.js"></script>
+    <script>
+        var electron = require("electron");
+        var ipcRenderer = electron.ipcRenderer;
+
+        window.onload = function (){
+            document.getElementById("white").click();
+            // document.getElementById("medium").click();
+            const smallBtn = document.getElementById('smallBtn')
+            smallBtn.onclick = () => {
+                ipcRenderer.send('smallBlackboard')
+            }
+            const closeBtn = document.getElementById('closeBtn')
+            closeBtn.onclick = () => {
+                window.close();
+                ipcRenderer.send('closeBlackboard')
+            }
+        }
+
+    </script>
+</body>
+
+</html>
