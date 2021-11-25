@@ -1,14 +1,14 @@
 import router from "@/router";
 import { Student, StudentTag, Tag } from "@/types/labelManage";
+import { LessonSubject } from "@/types/login";
 import { get, STORAGE_TYPES } from "@/utils/storage";
 import { groupBy } from "lodash";
 import { ref, Ref } from "vue";
 import { fetchAllStudents } from "./api";
 
 const getSubjectName = (SelectSubjectId: string) => {
-    const subjectList = get(STORAGE_TYPES.USER_INFO).Subjects;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return subjectList.filter((v: any) => v.ID === SelectSubjectId)[0]
+    const subjectList: LessonSubject[] = get(STORAGE_TYPES.USER_INFO).Subjects;
+    return subjectList.filter((v) => v.ID === SelectSubjectId)[0]
         .Name;
 };
 

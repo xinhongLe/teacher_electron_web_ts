@@ -93,7 +93,6 @@ export default defineComponent({
             uploadRef.value && uploadRef.value.clearFiles(["ready"]);
         };
         const onChangeFile = (file: UploadFile) => {
-            console.log(file);
             emit("update:isDisabledBtn", false);
             fileInfo.value = file;
         };

@@ -7,7 +7,7 @@
                         <img src="@/assets/indexImages/card_beike.png" alt="" />
                         <span>备课</span>
                     </div>
-                    <div class="left-two" @click="go('homeworkNew')">
+                    <div class="left-two" @click="go('homework')">
                         <img src="@/assets/indexImages/card_zuoye.png" alt="" />
                         <span>作业</span>
                     </div>

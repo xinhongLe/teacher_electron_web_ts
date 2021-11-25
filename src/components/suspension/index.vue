@@ -48,8 +48,6 @@ export default defineComponent({
         const isMove = ref(false);
         const susDom = ref(null);
         const mouseDown = (event:MouseEvent) => {
-            console.log(event);
-            console.log(isStartMove.value);
             isStartMove.value = true;
             const { clientX, clientY } = event;
             dragePosition.x = clientX;

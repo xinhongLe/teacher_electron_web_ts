@@ -27,15 +27,6 @@ export default defineComponent({
             type: Number,
             default: 0
         }
-    },
-    setup() {
-        const refresh = () => {
-            console.log();
-        };
-
-        return {
-            refresh
-        };
     }
 });
 </script>

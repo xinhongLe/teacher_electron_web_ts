@@ -67,7 +67,6 @@ export default defineComponent({
             window.open("/blackboard/");
         };
         const opentTimer = () => {
-            console.log("打开定时器");
             emit("close-helper");
         };
         const getGradeList = async () => {
