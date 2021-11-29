@@ -166,7 +166,7 @@ export interface BagLessons {
 }
 
 export interface BagChapter {
-    Detail: string;
+    Detial: string;
     ID: string;
     Name: string;
     Sort: number;

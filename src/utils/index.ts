@@ -75,3 +75,34 @@ export const lookQuestions = ({ id = "", type = 1, courseBagId = "" }) => {
     }
     window.open(`${location.origin}/look-question/${id}/${type}?courseBagId=${courseBagId}`);
 };
+
+export const getCourseBagType = (type: number) => {
+    let typeNme = "课前";
+    switch (type) {
+    case 1:
+        typeNme = "拓展延伸";
+        break;
+    case 2:
+        typeNme = "课前预习";
+        break;
+    case 3:
+        typeNme = "课中小练";
+        break;
+    case 4:
+        typeNme = "课后作业";
+        break;
+    case 5:
+        typeNme = "名师专题";
+        break;
+    case 6:
+        typeNme = "单元考试";
+        break;
+    case 7:
+        typeNme = "重点巩固";
+        break;
+    case 8:
+        typeNme = "难点突破";
+        break;
+    }
+    return typeNme;
+};

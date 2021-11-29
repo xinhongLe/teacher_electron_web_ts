@@ -31,7 +31,7 @@
                             info.WorkbookPaperPageNum
                         }}页
                     </template>
-                    <template v-else-if="info.HomeworkPaperType == 0">
+                    <template v-else-if="info.HomeworkPaperType == 0 || info.HomeworkPaperType === 1">
                         {{ info.PaperName }}
                     </template>
                     <template v-else-if="info.HomeworkPaperType == 99">
@@ -43,7 +43,7 @@
                         info.HomeworkPaperType == 1 ||
                         info.HomeworkPaperType == 0
                     "
-                    >{{ courseBagType }}</span
+                    >{{ getCourseBagType(info.ClassifyType) }}</span
                 >
             </div>
             <span style="color: #000; flex: 1.5">
@@ -146,6 +146,7 @@
 
 <script lang="ts">
 import { Homework } from "@/types/homework";
+import { getCourseBagType } from "@/utils";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { computed, defineComponent, PropType } from "vue";
 import { rebackHomeworkPaper } from "./api";
@@ -158,38 +159,6 @@ export default defineComponent({
         }
     },
     setup(props, { emit }) {
-        const courseBagType = computed(() => {
-            const type = props.info.ClassifyType;
-            let typeNme = "课前";
-            switch (type) {
-            case 1:
-                typeNme = "拓展延伸";
-                break;
-            case 2:
-                typeNme = "课前预习";
-                break;
-            case 3:
-                typeNme = "课中小练";
-                break;
-            case 4:
-                typeNme = "课后作业";
-                break;
-            case 5:
-                typeNme = "名师专题";
-                break;
-            case 6:
-                typeNme = "单元考试";
-                break;
-            case 7:
-                typeNme = "重点巩固";
-                break;
-            case 8:
-                typeNme = "难点突破";
-                break;
-            }
-            return typeNme;
-        });
-
         const washDurationTrans = computed(() => {
             const duration = props.info.VideoDurationTick;
             let b = "";
@@ -245,7 +214,7 @@ export default defineComponent({
         };
 
         return {
-            courseBagType,
+            getCourseBagType,
             probability,
             review,
             deleteHomework,

@@ -5,4 +5,4 @@ export interface IResponse<T> {
     resultDesc: string;
 }
 
-export type RequestFun<T, U> = (data: T) => Promise<IResponse<U>>
+export type RequestFun<T, U> = (data?: T) => Promise<IResponse<U>>
