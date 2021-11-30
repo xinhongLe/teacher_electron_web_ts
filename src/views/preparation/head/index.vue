@@ -133,7 +133,7 @@ export default defineComponent({
     width: 100%;
     height: 58px;
     padding: 10px 20px;
-    margin-bottom: 10px;
+    // margin-bottom: 10px;
     user-select: none;
     background-color: #fff;
     .header-title {

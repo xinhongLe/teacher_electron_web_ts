@@ -5,6 +5,7 @@
         />
         <div class="content-wrapper">
             <ScheduleManagement v-if="tabIndex === 0"/>
+            <IntelligenceClassroom v-if="tabIndex ===1"/>
         </div>
     </div>
 </template>
@@ -13,6 +14,7 @@
 import { defineComponent, ref } from "vue";
 import Head from "./head/index.vue";
 import ScheduleManagement from "./scheduleManagement/index.vue";
+import IntelligenceClassroom from "./intelligenceClassroom/index.vue";
 export default defineComponent({
     setup() {
         const tabIndex = ref(0);
@@ -21,7 +23,7 @@ export default defineComponent({
             tabIndex
         };
     },
-    components: { Head, ScheduleManagement }
+    components: { Head, ScheduleManagement, IntelligenceClassroom }
 });
 </script>
 

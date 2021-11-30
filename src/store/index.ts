@@ -6,11 +6,9 @@ import userInfo from "./modules/userInfo";
 import common from "./modules/common";
 import preparation from "./modules/preparation";
 import { RootState } from "@/types/store";
-
 export { MutationTypes, ActionTypes };
 
 export const key: InjectionKey<Store<RootState>> = Symbol("");
-
 export const store = createStore<RootState>({
     modules: {
         myStudent,
