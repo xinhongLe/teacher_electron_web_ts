@@ -115,7 +115,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from "vue";
+import { defineComponent, ref, watchEffect } from "vue";
 import { changeResult, fetchDetailByMissionStudyID } from "../api";
 import Avatar from "@/components/avatar/index.vue";
 import { QuestionDetail } from "@/types/checkHomework";
@@ -174,7 +174,7 @@ export default defineComponent({
             }
         };
 
-        getData();
+        watchEffect(getData);
         return {
             enlargeRef,
             detail,
