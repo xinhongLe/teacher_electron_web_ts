@@ -320,5 +320,6 @@ export default defineComponent({
     margin-top: -10px;
     padding: 0 20px !important;
     border-top: 1px solid #e9ecf0;
+    flex-wrap: wrap;
 }
 </style>
