@@ -57,6 +57,7 @@
                             v-for="item in homeworkListMap[selectClassId]"
                             :key="item.HomeworkPaperID"
                             :info="item"
+                            :homeworkListMap="homeworkListMap"
                             @getTaskList="getTaskList"
                         />
                     </template>

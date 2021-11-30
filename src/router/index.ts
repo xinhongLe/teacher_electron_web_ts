@@ -64,6 +64,11 @@ const routes: Array<RouteRecordRaw> = [
                 path: "assignHomework/:subjectId/:subjectName",
                 name: "布置作业",
                 component: () => import("@/views/assignHomework/index.vue")
+            },
+            {
+                path: "check-homework/:classHomeworkPaperID",
+                name: "查阅作业",
+                component: () => import("@/views/checkHomework/index.vue")
             }
         ]
     },

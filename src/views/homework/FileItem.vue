@@ -1,9 +1,9 @@
 <template>
     <div class="file-info">
-        <p @click="viewInfo">
+        <p @click="viewInfo(file.File)">
             <img
                 :src="
-                    require(`@/assets/images/homeworkNew/${showImg(
+                    require(`@/assets/images/homeworkNew/${showFileIcon(
                         file.File.Extention
                     )}.png`)
                 "
@@ -22,9 +22,10 @@
 
 <script lang="ts">
 import { HomeworkPaperFile } from "@/types/homework";
-import { downloadFile } from "@/utils/oss";
-import { defineComponent, PropType, ref } from "vue";
+import { defineComponent, PropType } from "vue";
 import Enlarge from "@/components/enlarge/index.vue";
+import { showFileIcon } from "@/utils";
+import useViewHomeworkFile from "@/hooks/useViewHomeworkFile";
 export default defineComponent({
     props: {
         file: {
@@ -33,59 +34,9 @@ export default defineComponent({
         }
     },
     setup(props) {
-        const extentionArr = [
-            "png",
-            "jpg",
-            "jpeg",
-            "ico",
-            "mp3",
-            "wav",
-            "aac",
-            "mp4"
-        ];
-        const src = ref("");
-        const visible = ref(false);
-        const showImg = (extention: string) => {
-            switch (extention) {
-            case "doc":
-            case "docx":
-                return "icon_word@2x";
-            case "png":
-            case "jpg":
-            case "jpge":
-            case "pdf":
-                return "icon_pic@2x";
-            case "mp3":
-            case "mkv":
-            case "flv":
-                return "icon_music@2x";
-            case "mp4":
-                return "icon_video@2x";
-            default:
-                return "icon_other@2x";
-            }
-        };
-        const viewInfo = async () => {
-            const file = props.file.File;
-            if (file) {
-                const { Extention, FilePath, FileName, Bucket } = file;
-                if (Extention) {
-                    const key = FilePath + "/" + FileName + "." + Extention;
-                    src.value = await downloadFile(key, Bucket);
-                    if (extentionArr.includes(Extention)) {
-                        visible.value = true;
-                    } else {
-                        window.open(src.value);
-                    }
-                } else {
-                    const key = FilePath + "/" + FileName;
-                    src.value = await downloadFile(key, Bucket);
-                    visible.value = true;
-                }
-            }
-        };
+        const { src, visible, viewInfo } = useViewHomeworkFile();
         return {
-            showImg,
+            showFileIcon,
             src,
             visible,
             viewInfo

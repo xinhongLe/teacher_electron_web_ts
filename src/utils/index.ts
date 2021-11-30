@@ -106,3 +106,24 @@ export const getCourseBagType = (type: number) => {
     }
     return typeNme;
 };
+
+export const showFileIcon = (extention: string) => {
+    switch (extention) {
+    case "doc":
+    case "docx":
+        return "icon_word@2x";
+    case "png":
+    case "jpg":
+    case "jpge":
+    case "pdf":
+        return "icon_pic@2x";
+    case "mp3":
+    case "mkv":
+    case "flv":
+        return "icon_music@2x";
+    case "mp4":
+        return "icon_video@2x";
+    default:
+        return "icon_other@2x";
+    }
+};
