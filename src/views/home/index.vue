@@ -39,7 +39,7 @@
                         <span>考试中心</span>
                     </div>
                 </div>
-                <div class="item" @click="go('')">
+                <div class="item" @click="go('course-time')">
                     <div class="item_div">
                         <img
                             src="../../assets/indexImages/card_kaoshi.png"

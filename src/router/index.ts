@@ -69,6 +69,16 @@ const routes: Array<RouteRecordRaw> = [
                 path: "check-homework/:classHomeworkPaperID",
                 name: "查阅作业",
                 component: () => import("@/views/checkHomework/index.vue")
+            },
+            {
+                path: "report-center",
+                name: "报表中心",
+                component: () => import("@/views/reportCenter/index.vue")
+            },
+            {
+                path: "course-time",
+                name: "课时延后",
+                component: () => import("@/views/courseTime/index.vue")
             }
         ]
     },
