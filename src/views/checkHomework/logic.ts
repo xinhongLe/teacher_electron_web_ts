@@ -1,13 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 let circleR = 20;
+interface Point {
+    x: number,
+    y: number
+}
 export function dealPoints(operations: any[], scale: number) {
     circleR = 20;
     circleR = circleR * scale;
-    let allPoints: { points: never[]; mode: any; }[] = [];
-    console.log(operations, "operations");
+    let allPoints: { points: Point[]; mode: any; }[] = [];
     operations.map((element) => {
         const note = {
-            points: [],
+            points: [] as Point[],
             mode: element.mode
         };
         if (element.mode === 1) {

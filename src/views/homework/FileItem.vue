@@ -33,7 +33,7 @@ export default defineComponent({
             default: () => ({})
         }
     },
-    setup(props) {
+    setup() {
         const { src, visible, viewInfo } = useViewHomeworkFile();
         return {
             showFileIcon,
