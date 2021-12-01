@@ -76,7 +76,7 @@ import ChapterDialog from "./chapterDialog.vue";
 export default defineComponent({
     name: "head",
     setup(props, { emit }) {
-        const titleList = [{ title: "课表管理" }, { title: "数智课堂" }];
+        const titleList = [{ title: "翻转课堂" }, { title: "数智课堂" }];
         const tabIndex = ref(0);
         const {
             subjectPublisherBookList, subjectPublisherBookValue,
