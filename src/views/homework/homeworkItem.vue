@@ -26,9 +26,16 @@
                     alt=""
                 />
                 <p>
-                    {{ name }}
                     <template v-if="info.HomeworkPaperType == 2">
-                        &nbsp; 第{{ info.WorkbookPaperPageNum }}页
+                        {{ info.WorkbookName }}&nbsp; 第{{
+                            info.WorkbookPaperPageNum
+                        }}页
+                    </template>
+                    <template v-else-if="info.HomeworkPaperType == 0 || info.HomeworkPaperType === 1">
+                        {{ info.PaperName }}
+                    </template>
+                    <template v-else-if="info.HomeworkPaperType == 99">
+                        {{ info.HomeworkName }}
                     </template>
                 </p>
                 <span
@@ -44,9 +51,7 @@
                     >{{ info.AllQuestionCount }}题</template
                 >
                 <template v-if="info.HomeworkPaperType == 1"
-                    >时长：{{
-                        formatDuration(info.VideoDurationTick)
-                    }}</template
+                    >时长：{{ washDurationTrans }}</template
                 >
             </span>
             <span>
@@ -134,21 +139,14 @@
             </div>
         </div>
         <div v-if="info.HomeworkPaperFiles.length > 0" class="file">
-            <FileItem
-                v-for="(file, j) in info.HomeworkPaperFiles"
-                :key="j"
-                :file="file"
-            />
+            <FileItem v-for="(file, j) in info.HomeworkPaperFiles" :key="j" :file="file"/>
         </div>
     </div>
 </template>
 
 <script lang="ts">
-import router from "@/router";
-import { HomeworkDetail } from "@/types/checkHomework";
 import { Homework } from "@/types/homework";
-import { getCourseBagType, formatDuration } from "@/utils";
-import { set, STORAGE_TYPES } from "@/utils/storage";
+import { getCourseBagType } from "@/utils";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { computed, defineComponent, PropType } from "vue";
 import { rebackHomeworkPaper } from "./api";
@@ -158,84 +156,43 @@ export default defineComponent({
         info: {
             type: Object as PropType<Homework>,
             default: () => ({})
-        },
-        homeworkListMap: {
-            type: Object as PropType<Record<string, Homework[]>>,
-            default: () => ({})
         }
     },
     setup(props, { emit }) {
-        const probability = computed(() => {
-            return Number(
-                (
-                    (props.info.RightCount /
-                        (props.info.RightCount + props.info.WrongCount)) *
-                    100
-                ).toFixed(2)
-            );
+        const washDurationTrans = computed(() => {
+            const duration = props.info.VideoDurationTick;
+            let b = "";
+            let h: string | number = Math.floor((duration % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            let m: string | number = Math.floor((duration % (1000 * 60 * 60)) / (1000 * 60));
+            let s: string | number = Math.floor((duration % (1000 * 60)) / 1000);
+            if (h > 0) {
+                h = h < 10 ? "0" + h : h;
+                b += h + ":";
+            }
+            m = m < 10 ? "0" + m : m;
+            s = s < 10 ? "0" + s : s;
+            b += m + ":" + s;
+            return b;
         });
 
-        const name = computed(() => {
-            const { HomeworkPaperType, WorkbookName, PaperName, HomeworkName } =
-                props.info;
-            let name = HomeworkName;
-            if (HomeworkPaperType === 2) {
-                name = WorkbookName!;
-            } else if (HomeworkPaperType === 0 || HomeworkPaperType === 1) {
-                name = PaperName;
-            }
-            return name;
+        const probability = computed(() => {
+            return Number(((props.info.RightCount /
+                (props.info.RightCount + props.info.WrongCount)) *
+                100).toFixed(2));
         });
 
         const probability1 = computed(() => {
             return props.info.ReviewQuestionCount
-                ? (
-                    (props.info.ReviewQuestionCount /
-                          (props.info.RightCount +
-                              props.info.WrongCount +
-                              props.info.NoSureCount)) *
-                      100
-                ).toFixed(2)
+                ? ((props.info.ReviewQuestionCount /
+                    (props.info.RightCount +
+                        props.info.WrongCount +
+                        props.info.NoSureCount)) *
+                    100).toFixed(2)
                 : 0;
         });
 
         const review = () => {
-            const {
-                ClassHomeworkPaperID,
-                AllQuestionCount,
-                NeedSubmit,
-                VideoDurationTick,
-                VideoID,
-                HomeworkID,
-                HomeworkPaperType,
-                HomeworkPaperFiles
-            } = props.info;
-            const classInfo = Object.values(props.homeworkListMap)
-                .flat()
-                .filter(
-                    (v) =>
-                        v.HomeworkID === HomeworkID &&
-                        v.HomeworkPaperType === HomeworkPaperType
-                )
-                .map((v) => ({
-                    name: v.ClassName,
-                    classHomeworkPaperID: v.ClassHomeworkPaperID
-                }));
-            const homeworkDetail: HomeworkDetail = {
-                classHomeworkPaperID: ClassHomeworkPaperID,
-                name: name.value,
-                count: AllQuestionCount,
-                needSubmit: NeedSubmit,
-                videoDurationTick: VideoDurationTick,
-                videoID: VideoID,
-                type: HomeworkPaperType,
-                classInfo,
-                homeworkPaperFiles: HomeworkPaperFiles
-            };
-            set(STORAGE_TYPES.HOMEWORK_DETAIL, homeworkDetail);
-            router.push({
-                path: `/check-homework/${props.info.ClassHomeworkPaperID}`
-            });
+            console.log(props.info);
         };
 
         const deleteHomework = () => {
@@ -243,31 +200,26 @@ export default defineComponent({
                 confirmButtonText: "确定",
                 cancelButtonText: "取消",
                 type: "warning"
-            })
-                .then(async () => {
-                    const res = await rebackHomeworkPaper({
-                        classHomeworkPaperIDs: [
-                            props.info.ClassHomeworkPaperID
-                        ]
-                    });
-                    if (res.resultCode === 200) {
-                        ElMessage.success("删除成功");
-                        emit("getTaskList");
-                    }
-                })
-                .catch(() => {
-                    ElMessage.info("已取消删除");
+            }).then(async () => {
+                const res = await rebackHomeworkPaper({
+                    classHomeworkPaperIDs: [props.info.ClassHomeworkPaperID]
                 });
+                if (res.resultCode === 200) {
+                    ElMessage.success("删除成功");
+                    emit("getTaskList");
+                }
+            }).catch(() => {
+                ElMessage.info("已取消删除");
+            });
         };
 
         return {
             getCourseBagType,
             probability,
             review,
-            formatDuration,
             deleteHomework,
-            name,
-            probability1
+            probability1,
+            washDurationTrans
         };
     },
     components: { FileItem }
@@ -368,5 +320,6 @@ export default defineComponent({
     margin-top: -10px;
     padding: 0 20px !important;
     border-top: 1px solid #e9ecf0;
+    flex-wrap: wrap;
 }
 </style>

@@ -4,11 +4,9 @@
             <div class="top">
                 <div class="left">
                     <div class="left-one" @click="go('preparation')">
-                        <img src="@/assets/indexImages/card_beike.png" alt="" />
                         <span>备课</span>
                     </div>
                     <div class="left-two" @click="go('homework')">
-                        <img src="@/assets/indexImages/card_zuoye.png" alt="" />
                         <span>作业</span>
                     </div>
                 </div>
@@ -155,26 +153,30 @@ export default defineComponent({
             display: flex;
             flex: 1;
             min-height: 0px;
+            justify-content: space-between;
             padding: 18px 18px 18px 18px;
             .left {
                 height: 100%;
+                flex: 1;
                 padding-right: 28px;
-                div img:hover {
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                div:hover {
                     margin-top: 0px; /*和hover的margin-top有对比，原无30,现在0，相当于上移了,30px*/
                     box-shadow: 0 0 25px 4px #918f8f; /*盒子阴影*/
                     transition: all 0.5s; /*持续时间*/
                 }
                 .left-one {
-                    height: 50%;
                     position: relative;
+                    flex: 1;
                     box-sizing: border-box;
-                    padding-bottom: 14px;
+                    margin-bottom: 28px;
                     cursor: pointer;
-                    img {
-                        // width: 100%;
-                        height: 100%;
-                        border-radius: 15px;
-                    }
+                    background: url('./../../assets/indexImages/card_beike.png') no-repeat;
+                    background-position: center center;
+                    background-size: cover;
+                    border-radius: 15px;
                     span {
                         position: absolute;
                         top: 10%;
@@ -186,11 +188,14 @@ export default defineComponent({
                     }
                 }
                 .left-two {
-                    height: 50%;
                     box-sizing: border-box;
                     position: relative;
                     cursor: pointer;
-                    padding-top: 14px;
+                    flex: 1;
+                    background: url('./../../assets/indexImages/card_zuoye.png') no-repeat;
+                    background-position: center center;
+                    background-size: cover;
+                    border-radius: 15px;
                     img {
                         // width: 100%;
                         height: 100%;
@@ -209,7 +214,7 @@ export default defineComponent({
             }
             .right {
                 flex: 1;
-                min-width: 0px;
+                min-width: 300px;
                 overflow-y: auto;
             }
         }
@@ -219,7 +224,6 @@ export default defineComponent({
             .item {
                 width: 25%;
                 padding: 20px;
-                background-image: none;
                 .item_div {
                     cursor: pointer;
                     position: relative;
@@ -235,24 +239,17 @@ export default defineComponent({
                         top: 18%;
                         left: 12%;
                         z-index: 10;
-                        font-size: 32px;
+                        font-size: 1.4vw;
                         font-family: PingFang-SC-Heavy, PingFang-SC;
                         font-weight: 800;
                         color: #ffffff;
                     }
                 }
             }
-            .item:nth-of-type(1):hover {
-                background-image: url(../../assets/indexImages/shadow_small_1.png);
-                background-repeat: no-repeat;
-                background-size: 100% 100%;
-                background-position: 0px 0px;
-            }
             .item:hover {
-                background-image: url(../../assets/indexImages/shadow_small_2_hover@2x.png);
-                background-repeat: no-repeat;
-                background-size: 100% 100%;
-                background-position: 0px 0px;
+                img {
+                    filter: drop-shadow(0 0 15px #928c8c);
+                }
             }
         }
     }

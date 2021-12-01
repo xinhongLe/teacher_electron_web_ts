@@ -154,6 +154,7 @@ export default defineComponent({
         overflow: hidden;
         background-color: #fff;
         display: flex;
+        flex-wrap: wrap;
         p {
             display: flex;
             height: 40px;
