@@ -1,7 +1,7 @@
 <template>
     <div class="write-box">
         <canvas
-            ref="canvas"
+            ref="canvasRef"
             :width="width + 'px'"
             :height="height + 'px'"
         ></canvas>
@@ -9,17 +9,43 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, nextTick, toRefs, watch } from "vue";
+import { defineComponent, ref, nextTick, watch } from "vue";
 import { dealPoints } from "../logic";
 export default defineComponent({
+    props: {
+        width: {
+            type: Number,
+            default: 900
+        },
+        height: {
+            type: Number,
+            default: 612
+        },
+        data: {
+            type: Array,
+            default: () => []
+        },
+        scale: {
+            type: Number,
+            default: 0.87890625
+        },
+        isWrite: {
+            type: Boolean,
+            default: true
+        },
+        isRead: {
+            type: Boolean,
+            default: true
+        }
+    },
     setup(props) {
-        let ctx = ref(null);
+        const ctx = ref<CanvasRenderingContext2D>();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let notePoints: any[] = [];
-        const canvas = ref(null);
-        const { width, height, data, scale } = toRefs(props);
+        const canvasRef = ref<HTMLCanvasElement>();
 
-        watch(data, () => {
-            if (data.value.length > 0) {
+        watch(() => props.data, () => {
+            if (props.data.length > 0) {
                 init();
             } else {
                 canvasClear();
@@ -27,46 +53,45 @@ export default defineComponent({
         });
 
         nextTick(() => {
-            ctx.value = canvas.value.getContext("2d");
+            ctx.value = canvasRef.value!.getContext("2d")!;
         });
 
         const init = () => {
             canvasClear();
-            notePoints = dealPoints(data.value, scale.value);
+            notePoints = dealPoints(props.data, props.scale);
             draw();
         };
         const canvasClear = () => {
             ctx.value && ctx.value.clearRect(
                 0,
                 0,
-                canvas.value.clientWidth,
-                canvas.value.clientHeight
+                canvasRef.value!.clientWidth,
+                canvasRef.value!.clientHeight
             );
         };
         const draw = () => {
             notePoints.map((note) => {
                 nextTick(() => {
-                    ctx.value.strokeStyle = note.mode === "0-1" ? "blue" : "red";
-                    ctx.value.lineWidth = 1;
-                    ctx.value.beginPath();
-                    ctx.value.moveTo(note.points[0].x, note.points[0].y);
+                    ctx.value!.strokeStyle = note.mode === "0-1" ? "blue" : "red";
+                    ctx.value!.lineWidth = 1;
+                    ctx.value!.beginPath();
+                    ctx.value!.moveTo(note.points[0].x, note.points[0].y);
                     let i = 1;
                     for (; i < note.points.length; i++) {
-                        ctx.value.lineTo(note.points[i].x, note.points[i].y);
+                        ctx.value!.lineTo(note.points[i].x, note.points[i].y);
                     }
-                    ctx.value.stroke();
+                    ctx.value!.stroke();
                 });
             });
         };
 
-        if (data.value.length > 0) {
+        if (props.data.length > 0) {
             init();
         } else {
             canvasClear();
         }
         return {
-            width,
-            height
+            canvasRef
         };
     }
 });
