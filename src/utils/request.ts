@@ -2,6 +2,7 @@ import axios, { AxiosRequestConfig, AxiosRequestHeaders, Method } from "axios";
 import { ElMessage, ElLoading, ILoadingInstance } from "element-plus";
 import { clear, get, STORAGE_TYPES } from "./storage";
 import router from "@/router/index";
+import { initAllState } from "@/store";
 
 const http = axios.create({
     baseURL: "/",
@@ -40,6 +41,7 @@ http.interceptors.response.use(
                 duration: 5 * 1000
             });
             clear();
+            initAllState();
             router.push("/login");
         } else if (res.resultCode !== 200) {
             ElMessage({
