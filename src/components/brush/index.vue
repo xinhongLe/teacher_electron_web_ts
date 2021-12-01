@@ -1,5 +1,5 @@
 <template>
-    <div class="write-box black_cursor">
+    <div class="write-box black_cursor" ref="boxRef">
         <canvas
             ref="canvasRef"
             @mousedown="mousedown"
@@ -15,6 +15,7 @@ export default defineComponent({
     name: "brush",
     setup() {
         const canvasRef = ref<HTMLCanvasElement>();
+        const boxRef = ref<HTMLDivElement>();
         const ctx = ref<CanvasRenderingContext2D>();
         const painting = ref(false);
         const eraserEnabled = ref(false);
@@ -26,8 +27,8 @@ export default defineComponent({
         onMounted(() => {
             nextTick(() => {
                 ctx.value = canvasRef.value!.getContext("2d")!;
-                canvasRef.value!.width = window.innerWidth - 50;
-                canvasRef.value!.height = window.innerHeight - 200;
+                canvasRef.value!.width = Number(boxRef.value?.offsetWidth);
+                canvasRef.value!.height = Number(boxRef.value?.offsetHeight);
             });
         });
 
@@ -121,6 +122,7 @@ export default defineComponent({
             eraserOn,
             clearBrush,
             brushOn,
+            boxRef,
             mousedown
         };
     }

@@ -3,9 +3,9 @@ import { FileInfo, Question } from "@/types/lookQuestion";
 import { downloadFile } from "@/utils/oss";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { ref } from "vue";
-import { getCourseBagQuestionsByIds, getQuestionsByIds } from "../api";
+import { fetchPureQuestionByQuestionID, getCourseBagQuestionsByIds, getQuestionsByIds } from "../api";
 
-export default () => {
+export default (isPureQuestion: boolean, questionId = "") => {
     const imageUrl = ref<string[]>([]);
     const voiceUrl = ref<string[]>([]);
     const sum = ref(0);
@@ -61,17 +61,24 @@ export default () => {
         const id = router.currentRoute.value.params.id as string;
         const questionID = router.currentRoute.value.query.questionID;
         let res;
-        if (type === 3) {
-            res = await getCourseBagQuestionsByIds({
-                courseWareTeacherID: id
+        if (isPureQuestion) {
+            res = await fetchPureQuestionByQuestionID({
+                questionID: questionId
             });
         } else {
-            const data = {
-                paperID: type === 0 ? null : id,
-                questionIDs: [id]
-            };
-            res = await getQuestionsByIds(data);
+            if (type === 3) {
+                res = await getCourseBagQuestionsByIds({
+                    courseWareTeacherID: id
+                });
+            } else {
+                const data = {
+                    paperID: type === 0 ? null : id,
+                    questionIDs: [id]
+                };
+                res = await getQuestionsByIds(data);
+            }
         }
+
         if (res.resultCode === 200) {
             if (type === 2) {
                 questionList.value = res.result.filter(

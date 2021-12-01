@@ -213,7 +213,7 @@ export default defineComponent({
                 }
             }
             .right {
-                flex: 1;
+                flex: 2;
                 min-width: 300px;
                 overflow-y: auto;
             }

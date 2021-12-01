@@ -41,3 +41,7 @@ export interface Question {
     SN: string;
     UpdateTime: string;
 }
+
+export interface CheckPureQuestionByQuestionIDData {
+    questionID: string
+}

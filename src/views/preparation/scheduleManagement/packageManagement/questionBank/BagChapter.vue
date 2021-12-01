@@ -32,6 +32,7 @@
                         icon="el-icon-video-play"
                         type="primary"
                         size="mini"
+                        v-if="cont.HasVideo"
                         plain
                         @click="lookVideo(cont.FileID)"
                         >查看视频</el-button
