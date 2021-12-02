@@ -16,10 +16,10 @@
             v-if="hideTool"
             :showRemark="showRemark"
             @toggleRemark="toggleRemark"
+            @prevStep="prevStep"
+            @nextStep="nextStep"
         />
         <!--
-        @prevStep="prevStep"
-        @nextStep="nextStep"
         :isLast="isLast"
         :isFirst="isFirst" -->
     </div>
@@ -37,7 +37,7 @@ export default defineComponent({
     },
     props: ["options", "hideTools"],
     setup(props) {
-        const { data, showRemark, selectCard, toggleRemark } = preventRemark();
+        const { data, showRemark, selectCard, toggleRemark, prevStep, nextStep } = preventRemark();
         const pageList = computed(() => props.options.pages);
         const hideTool = computed(() => props.hideTools);
         selectCard(0);
@@ -46,7 +46,9 @@ export default defineComponent({
             showRemark,
             pageList,
             hideTool,
-            toggleRemark
+            toggleRemark,
+            prevStep,
+            nextStep
         };
     }
 });

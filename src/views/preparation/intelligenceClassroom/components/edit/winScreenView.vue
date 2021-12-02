@@ -36,6 +36,7 @@ export default defineComponent({
                 return ElMessage({ type: "warning", message: "已经是第一页" });
             }
             index.value--;
+            console.log(pageList.value[index.value], "111111111111111111")
             slideView.value = await getPageDetail(pageList.value[index.value]);
         };
 

@@ -139,6 +139,12 @@ export default defineComponent({
                 showremark.value = props.showRemark;
             }
         );
+        const prevStep = () => {
+            emit("prevStep");
+        };
+        const nextStep = () => {
+            emit("nextStep");
+        };
         return {
             type,
             showremark,
@@ -147,7 +153,9 @@ export default defineComponent({
             mouseup,
             mousemove,
             clear,
-            toggleRemark
+            toggleRemark,
+            prevStep,
+            nextStep
         };
     }
 });

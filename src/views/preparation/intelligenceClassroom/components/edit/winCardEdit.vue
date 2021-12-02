@@ -50,6 +50,7 @@ export default defineComponent({
                 if (val && val !== oldVal) {
                     page.value = val;
                     state.slide = await getPageDetail(page.value);
+                    console.log(state.slide, "ppppppppppppppp");
                 }
             }
         );

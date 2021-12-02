@@ -1,77 +1,85 @@
 <template>
     <div>
         <div class="me-work">
-        <ViewArea
-            :pageData="page"
-            :width="page.pageSetting ? page.pageSetting.width : 1280"
-            :height="page.pageSetting ? page.pageSetting.height : 720"
-            ref="work"
-        />
-        <!-- @updateCurrentStep="updateCurrentStep"
-        @nextPage="nextPage"
-        @prevPage="prevPage" -->
-        <div
-            class="me-page"
-            :style="{ paddingBottom: hasCheck ? '40px' : '15px' }"
-        >
+            <ScreenView
+                class="me-work-screen"
+                :inline="true"
+                ref="screenRef"
+                :slide="page"
+            />
             <div
-                class="me-page-item"
-                :class="selected === index && 'active'"
-                v-for="(item, index) in pageList"
-                :key="index"
-                @click="selectPage(index)"
+                class="me-page"
+                :style="{ paddingBottom: hasCheck ? '40px' : '15px' }"
             >
-                {{ item.name }}
                 <div
-                    class="page-checkbox"
-                    v-if="hasCheck"
-                    @click.stop="() => null"
+                    class="me-page-item"
+                    :class="selected === index && 'active'"
+                    v-for="(item, index) in pageList"
+                    :key="index"
+                    @click="selectPage(index)"
                 >
-                    <el-checkbox v-model="item.isChecked"></el-checkbox>
+                    {{ item.Name }}
+                    <div
+                        class="page-checkbox"
+                        v-if="hasCheck"
+                        @click.stop="() => null"
+                    >
+                        <el-checkbox v-model="item.isChecked"></el-checkbox>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-    </div>
 </template>
 
 <script>
-import { computed, defineComponent, onMounted, ref } from "vue-demi";
+import { computed, defineComponent, onMounted, ref, watch } from "vue-demi";
 import pageListServer from "../../hooks/pageList";
-import ViewArea from "./viewArea.vue";
+import useHome from "@/hooks/useHome";
+// import ViewArea from "./viewArea.vue";
+// import { originType } from "@/config/index";
 export default defineComponent({
     props: ["pageListOption"],
-    components: { ViewArea },
+    // components: { ViewArea },
     setup(props) {
+        const { getPageDetail } = useHome();
         const pageList = computed(() => props.pageListOption);
         const page = ref({});
-        const { hasCheck, selected, getPageData } = pageListServer();
+        const { hasCheck, selected } = pageListServer();
         onMounted(() => {
             selectPage(0);
         });
+        watch(
+            () => props.pageListOption,
+            () => {
+                selectPage(0);
+            }
+        );
         const selectPage = async (index) => {
             selected.value = index;
-            const newPage = pageList.value.length > 0 ? pageList.value[index] : {};
+            const newPage =
+                pageList.value.length > 0 ? pageList.value[index] : {};
             if (pageList.value.length > 0) {
                 if (newPage.isGetData) {
                     page.value = newPage;
                 } else {
-                    const { elements, steps, pageSetting } = await getPageData({ pageID: newPage.id, type: newPage.type, originType: 1 });
-                    newPage.isGetData = true;
-                    newPage.elements = elements;
-                    newPage.steps = steps;
-                    newPage.pageSetting = pageSetting || {};
-                    page.value = newPage;
+                    console.log(newPage, "newpage");
+                    console.log(pageList.value[index]);
+                    page.value = await getPageDetail(pageList.value[index]);
                 }
             } else {
                 page.value = {};
             }
+        };
+        const prevStep = () => {
+            console.log("上一步触发");
         };
         return {
             page,
             hasCheck,
             selected,
             pageList,
+            prevStep,
             selectPage
         };
     }
@@ -85,7 +93,10 @@ export default defineComponent({
     display: flex;
     flex-direction: column;
 }
-
+.me-work-screen {
+    width: 1280px;
+    height: 720px;
+}
 .me-page {
     min-width: 0;
     background-color: #fff;
@@ -99,7 +110,7 @@ export default defineComponent({
 
 .me-page-item {
     background-color: #f0f3ff;
-    color:#5560f1;
+    color: #5560f1;
     padding: 14px 10px;
     box-sizing: border-box;
     text-align: center;

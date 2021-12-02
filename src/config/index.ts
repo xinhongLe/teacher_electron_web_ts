@@ -25,11 +25,6 @@ export const ALL_SUBJECT_LIST = [
         subjectId: "39F766472E16DFF69031FA194C9A33B8"
     }
 ];
-/**
- * originType 请求来源 0窗卡页   1备教端
- * pageType 11素材页   12 听写页   13跟读页  16教具页
- */
-
 export const pageTypeList = [
     { name: "素材页", value: 11, type: "element" },
     { name: "听写页", value: 12, type: "listen" },
@@ -42,4 +37,4 @@ export const pageType = {
     follow: 13,
     teach: 16
 };
-export const originType = 0;
+export const originType = 1;

@@ -23,7 +23,7 @@
             <!-- @eventAction="eventAction"
             :element="element" -->
         </div>
-        <Dictation v-if="page.type === 12" :source="source.elements" />
+        <!-- <Dictation v-if="page.type === 12" :source="source.elements" /> -->
         <FollowPreview v-if="page.type === 13" :source="source.elements" />
         <!-- <el-dialog
             :visible="showCard"
