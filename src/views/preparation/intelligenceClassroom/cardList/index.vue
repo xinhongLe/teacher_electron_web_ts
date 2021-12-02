@@ -22,26 +22,27 @@ export default defineComponent({
         }
     },
     setup(props, { emit }) {
+        const { dealCardData } = cardList();
         const currentCardList = ref([]);
-        const cardIndex = ref(0);
-        const handleClick = (index, item) => {
-            const pageDate = dealCardData(item);
-            // getPageDate({ id: pageDate.pages[0].id, type: pageDate.pages[0].type });
-            cardIndex.value = index;
-            emit("updatePageList", pageDate);
-        };
-        const { getPageDate, dealCardData } = cardList();
         watch(
             () => props.cardList,
             () => {
                 currentCardList.value = props.cardList;
+                console.log(currentCardList, "currentCardList");
             }
         );
+        const cardIndex = ref(0);
+        const handleClick = (index, item) => {
+            cardIndex.value = index;
+            const pageDate = dealCardData(item);
+            // getPageDate({ id: pageDate.pages[0].id, type: pageDate.pages[0].type });
+            emit("updatePageList", pageDate);
+            console.log(index, item, pageDate);
+        };
         return {
             currentCardList,
             cardIndex,
-            handleClick,
-            getPageDate
+            handleClick
         };
     }
 });
@@ -49,11 +50,11 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .me-card {
+    position: relative;
     width: 100%;
     padding: 0 15px;
     box-sizing: border-box;
 }
-
 .me-card-item {
     border: 1px solid #ddd;
     background-color: #fff;

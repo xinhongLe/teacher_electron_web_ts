@@ -4,12 +4,6 @@
             <div class="me-tool-btn" @click="goback">
                 <img src="../../images/home_rest.png" alt="" />
             </div>
-            <div class="me-tool-btn">
-                <img src="../../images/zuixiaohua_rest.png" alt="" />
-            </div>
-            <div class="me-tool-btn close">
-                <img src="../../images/guanbi_rest.png" alt="" />
-            </div>
         </div>
         <div class="me-tools-canvas">
             <div
@@ -73,12 +67,12 @@
             </div>
             <div class="me-tool-btn" @click="toggleRemark">
                 <img
-                    v-if="showRemark"
+                    v-if="!showremark"
                     src="../../images/xianshibeizhu_rest.png"
                     alt=""
                 />
                 <img
-                    v-if="!showRemark"
+                    v-if="showremark"
                     src="../../images/yincangbeizhu_rest.png"
                     alt=""
                 />
@@ -121,7 +115,8 @@
                     type
                 ]
             "
-            ref="board"
+            ref="canvas"
+            id="canvas"
             width="1280"
             height="720"
             :style="`transform:scale(${scale}) translate(83px, -43px)`"
@@ -134,8 +129,34 @@
 </template>
 
 <script>
-import { defineComponent } from "vue-demi";
-export default defineComponent({});
+import { ref, defineComponent, watch } from "vue-demi";
+import tools from "../../hooks/tools";
+export default defineComponent({
+    props: ["showRemark"],
+    setup(props, { emit }) {
+        const { type, goback, mousedown, mouseup, mousemove, clear } = tools();
+        const toggleRemark = () => {
+            emit("toggleRemark");
+        };
+        const showremark = ref(true);
+        watch(
+            () => props.showRemark,
+            () => {
+                showremark.value = props.showRemark;
+            }
+        );
+        return {
+            type,
+            showremark,
+            goback,
+            mousedown,
+            mouseup,
+            mousemove,
+            clear,
+            toggleRemark
+        };
+    }
+});
 </script>
 
 <style lang="scss" scoped>

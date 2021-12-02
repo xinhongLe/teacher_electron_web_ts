@@ -89,6 +89,7 @@ export default () => {
                 isGetData: false
             };
         });
+        console.log(pages, "pages");
         return {
             id: card.ID,
             name: card.Name,

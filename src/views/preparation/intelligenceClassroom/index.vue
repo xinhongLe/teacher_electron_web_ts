@@ -1,6 +1,6 @@
 <template>
     <div class="intelligence">
-        <div class="left">
+        <div class="left" v-if="showList">
             <div>
                 <div class="left-content">
                     <div
@@ -37,6 +37,10 @@
         </div>
         <div class="right">
             <div class="right-bottom">
+                 <div class="card-box-away" @click="showList = !showList">
+                    <span v-if="showList">《</span>
+                    <span v-if="!showList">》</span>
+                </div>
                 <div class="card-box-left">
                     <CardList
                         ref="cardListComponents"
@@ -51,7 +55,7 @@
                             :hideTools="hideTools"
                             :uuid="cardUuid"
                             :isPreview="isPreview"
-                            :options="new Array(previewOptions)"
+                            :options="previewOptions"
                         />
                     </div>
                 </div>
@@ -72,6 +76,7 @@ export default defineComponent({
     },
     setup() {
         const chapterID = ref(store.state.preparation.selectChapterID);
+        const showList = ref(true);
         const { activeIndex, allData, cardListComponents, _getSchoolLessonWindow, handleClickWin, _getWindowCards, updatePageList } = userSelectBookInfo();
         watch(
             () => store.state.preparation.selectChapterID,
@@ -94,6 +99,7 @@ export default defineComponent({
             _getSchoolLessonWindow(obj);
         });
         return {
+            showList,
             ...toRefs(allData),
             ...toRefs(activeIndex),
             handleClickWin,
@@ -265,10 +271,21 @@ $border-color: #f5f6fa;
         }
 
         .right-bottom {
-            // height: calc(100% - 70px);
+            position: relative;
             display: flex;
             flex: 1;
             justify-content: space-between;
+            .card-box-away{
+                position: absolute;
+                top: calc(50% - 60px);
+                left: -20px;
+                width: 20px;
+                height: 120px;
+                background: #fff;
+                display: flex;
+                align-items: center;
+                font-size: 20px;
+            }
             .card-box-left {
                 height: 100%;
                 overflow-y: auto;

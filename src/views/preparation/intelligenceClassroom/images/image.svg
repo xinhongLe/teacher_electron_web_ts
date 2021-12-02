@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="480px" height="270px" viewBox="0 0 480 270" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>编组 5</title>
+    <g id="页面-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="编组-5">
+            <rect id="矩形" fill="#DDDDDD" x="0" y="0" width="480" height="270"></rect>
+            <polygon id="矩形" fill="#EEEEEE" points="20 20 460 20 460 250 20 250"></polygon>
+            <circle id="椭圆形" fill="#DDDDDD" cx="85.5" cy="85.5" r="29.5"></circle>
+            <path d="M370.675903,96.7822731 L460,186.10637 L460,186.10637 L460,250 L80.544,250 L176.851757,153.754619 C183.106641,147.518463 193.231622,147.518459 199.486511,153.75461 L245.010165,199.248712 L245.010165,199.248712 L348.080009,96.7508379 C354.333435,90.5321144 364.439804,90.5461743 370.675903,96.7822731 Z" id="路径" fill="#DDDDDD"></path>
+        </g>
+    </g>
+</svg>

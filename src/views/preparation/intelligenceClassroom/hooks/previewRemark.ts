@@ -1,10 +1,21 @@
-import { reactive } from "vue-demi";
+import { reactive, ref } from "vue-demi";
 export default () => {
+    const showRemark = ref(true);
     const data = reactive({
         remark: "",
-        showRemark: true
+        selectedCard: -1,
+        hideTools: false
     });
+    const selectCard = (index: number) => {
+        data.selectedCard = index;
+    };
+    const toggleRemark = () => {
+        showRemark.value = !showRemark.value;
+    };
     return {
-        data
+        data,
+        showRemark,
+        selectCard,
+        toggleRemark
     };
 };

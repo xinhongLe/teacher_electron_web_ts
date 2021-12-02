@@ -3,22 +3,20 @@
         <div class="mep-container" :style="{ margin: hideTools ? '0' : '0' }">
             <PageList
                 style="margin-right: 15px"
-                :pageList="pageList"
+                :pageListOption="pageList"
                 ref="pageList"
             />
             <!-- @nextCard="nextCard"
             @prevCard="prevCard"
-            :pageList="pageList"
-            :selectedPage.sync="selectedPage"
             :currentStep.sync="currentStep" -->
             <Remark :value="remark" v-if="showRemark" />
         </div>
         <Tools
             class="tools"
+            :showRemark="showRemark"
+            @toggleRemark="toggleRemark"
         />
         <!-- v-if="hideTools"
-        @toggleRemark="toggleRemark"
-        :showRemark="showRemark"
         @prevStep="prevStep"
         @nextStep="nextStep"
         :isLast="isLast"
@@ -27,7 +25,7 @@
 </template>
 
 <script>
-import { defineComponent, ref, toRefs } from "vue-demi";
+import { computed, defineComponent, toRefs, watch } from "vue-demi";
 import preventRemark from "../../hooks/previewRemark";
 import Remark from "./remark.vue";
 import Tools from "./tools.vue";
@@ -38,12 +36,14 @@ export default defineComponent({
     },
     props: ["options"],
     setup(props) {
-        const { data } = preventRemark();
-        const option = ref({});
-        console.log(option, "option", props.options);
+        const { data, showRemark, selectCard, toggleRemark } = preventRemark();
+        const pageList = computed(() => props.options.pages);
+        selectCard(0);
         return {
             ...toRefs(data),
-            option
+            showRemark,
+            pageList,
+            toggleRemark
         };
     }
 });
