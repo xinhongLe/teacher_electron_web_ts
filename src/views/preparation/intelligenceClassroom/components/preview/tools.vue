@@ -1,9 +1,6 @@
 <template>
     <div class="me-tools" ref="metools">
         <div class="me-tools-screen">
-            <div class="me-tool-btn" @click="goback">
-                <img src="../../images/home_rest.png" alt="" />
-            </div>
         </div>
         <div class="me-tools-canvas">
             <div
@@ -61,9 +58,6 @@
         <div class="me-tools-system">
             <div class="me-tool-btn">
                 <img src="../../images/quanping_rest.png" alt="" />
-            </div>
-            <div class="me-tool-btn">
-                <img src="../../images/jingyin_rest.png" alt="" />
             </div>
             <div class="me-tool-btn" @click="toggleRemark">
                 <img

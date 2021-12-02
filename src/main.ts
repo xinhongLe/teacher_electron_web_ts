@@ -12,4 +12,7 @@ import "@/utils/flexible";
 import "./permission";
 import "./styles/index.scss";
 
-createApp(App).use(ElementPlus, { locale: zhCn }).use(store, key).use(router).mount("#app");
+import WinCard from "wincard";
+import "wincard/dist/wincard.css";
+
+createApp(App).use(WinCard, process.env.VUE_APP_AI_XUE_SHI_API, "https://wincard.lyx-edu.com/swf2canvas.html").use(ElementPlus, { locale: zhCn }).use(store, key).use(router).mount("#app");

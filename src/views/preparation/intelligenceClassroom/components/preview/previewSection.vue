@@ -13,10 +13,11 @@
         </div>
         <Tools
             class="tools"
+            v-if="hideTool"
             :showRemark="showRemark"
             @toggleRemark="toggleRemark"
         />
-        <!-- v-if="hideTools"
+        <!--
         @prevStep="prevStep"
         @nextStep="nextStep"
         :isLast="isLast"
@@ -25,7 +26,7 @@
 </template>
 
 <script>
-import { computed, defineComponent, toRefs, watch } from "vue-demi";
+import { computed, defineComponent, toRefs } from "vue-demi";
 import preventRemark from "../../hooks/previewRemark";
 import Remark from "./remark.vue";
 import Tools from "./tools.vue";
@@ -34,15 +35,17 @@ export default defineComponent({
     components: {
         Remark, Tools, PageList
     },
-    props: ["options"],
+    props: ["options", "hideTools"],
     setup(props) {
         const { data, showRemark, selectCard, toggleRemark } = preventRemark();
         const pageList = computed(() => props.options.pages);
+        const hideTool = computed(() => props.hideTools);
         selectCard(0);
         return {
             ...toRefs(data),
             showRemark,
             pageList,
+            hideTool,
             toggleRemark
         };
     }

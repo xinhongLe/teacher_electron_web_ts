@@ -74,7 +74,7 @@ export default () => {
         cardList: []
     });
     const activeIndex = reactive({
-        hideTools: false,
+        hideTools: true,
         isPreview: false,
         previewOptions: {},
         cardUuid: "",

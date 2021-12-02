@@ -41,7 +41,6 @@ export interface CommonState {
      */
     isDragging: boolean
 }
-
 export interface RootState {
     userInfo: UserInfoState,
     preparation: PreparationState,

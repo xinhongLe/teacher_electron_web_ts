@@ -49,6 +49,11 @@ const routes: Array<RouteRecordRaw> = [
                 path: "record/:studentId/:className",
                 name: "学习记录",
                 component: () => import("@/views/record/index.vue")
+            },
+            {
+                path: "windowcard-edit",
+                name: "编辑",
+                component: () => import("@/views/preparation/intelligenceClassroom/edit/index.vue")
             }
         ]
     }

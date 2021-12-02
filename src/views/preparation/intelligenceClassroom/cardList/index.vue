@@ -35,7 +35,6 @@ export default defineComponent({
         const handleClick = (index, item) => {
             cardIndex.value = index;
             const pageDate = dealCardData(item);
-            // getPageDate({ id: pageDate.pages[0].id, type: pageDate.pages[0].type });
             emit("updatePageList", pageDate);
             console.log(index, item, pageDate);
         };

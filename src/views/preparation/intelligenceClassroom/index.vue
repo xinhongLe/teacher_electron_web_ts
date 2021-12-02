@@ -29,6 +29,9 @@
                                 >
                                     <div>{{ j.WindowName }}</div>
                                 </el-tooltip>
+                                <div class="win-bottom-edit">
+                                    <i class="el-icon-edit-outline" @click="windowEdit(item)"></i>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -64,17 +67,19 @@
     </div>
 </template>
 
-<script lang="ts">
+<script>
 import { store } from "@/store";
 import { defineComponent, onMounted, ref, toRefs, watch } from "vue";
 import userSelectBookInfo from "./hooks/userSelectBookInfo";
 import CardList from "./cardList/index.vue";
 import PreviewSection from "./components/preview/previewSection.vue";
+import { useRouter } from "vue-router";
 export default defineComponent({
     components: {
         CardList, PreviewSection
     },
     setup() {
+        const router = useRouter();
         const chapterID = ref(store.state.preparation.selectChapterID);
         const showList = ref(true);
         const { activeIndex, allData, cardListComponents, _getSchoolLessonWindow, handleClickWin, _getWindowCards, updatePageList } = userSelectBookInfo();
@@ -98,12 +103,19 @@ export default defineComponent({
             const obj = { chapterID: chapterID.value };
             _getSchoolLessonWindow(obj);
         });
+        const windowEdit = (item) => {
+            console.log(item);
+            router.push({
+                path: "/windowcard-edit"
+            });
+        };
         return {
             showList,
             ...toRefs(allData),
             ...toRefs(activeIndex),
             handleClickWin,
             updatePageList,
+            windowEdit,
             cardListComponents
         };
     }
@@ -196,6 +208,12 @@ $border-color: #f5f6fa;
                             white-space: nowrap;
                             margin-bottom: 20px;
                         }
+                    }
+                    .win-bottom-edit{
+                        position: absolute;
+                        bottom: 0;
+                        right: 10px;
+                        color:white;
                     }
 
                     .active {
