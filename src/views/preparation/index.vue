@@ -2,9 +2,10 @@
     <div class="preparation">
         <Head
             v-model:tabIndex="tabIndex"
+            :reload="reload"
         />
         <div class="content-wrapper">
-            <keep-alive>
+            <keep-alive v-if="isRouterAlive">
                 <ScheduleManagement v-if="tabIndex === 0"/>
             </keep-alive>
         </div>
@@ -13,19 +14,29 @@
 
 <script lang="ts">
 import { MutationTypes, store } from "@/store";
-import { defineComponent, onUnmounted, ref } from "vue";
+import { defineComponent, onUnmounted, ref, nextTick } from "vue";
 import Head from "./head/index.vue";
 import ScheduleManagement from "./scheduleManagement/index.vue";
 export default defineComponent({
     setup() {
         const tabIndex = ref(0);
+        const isRouterAlive = ref(true);
+
+        const reload = () => {
+            isRouterAlive.value = false;
+            nextTick(() => {
+                isRouterAlive.value = true;
+            });
+        };
 
         onUnmounted(() => {
             store.commit(MutationTypes.PREPARATION_STUDENT_RESET_STATE);
         });
 
         return {
-            tabIndex
+            tabIndex,
+            isRouterAlive,
+            reload
         };
     },
     components: { Head, ScheduleManagement }

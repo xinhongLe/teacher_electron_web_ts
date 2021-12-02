@@ -54,7 +54,7 @@
                 alt=""
             />
             <span @click="$router.go(0)">刷新</span> -->
-            <el-button type="primary" @click="$router.go(0)">刷新</el-button>
+            <el-button type="primary" @click="reload">刷新</el-button>
             <el-button type="primary" v-if="isShowCourseBtn" @click="clickBtn">去排课</el-button>
         </div>
         <ChapterDialog
@@ -75,6 +75,11 @@ import useBook from "../hooks/useBook";
 import ChapterDialog from "./chapterDialog.vue";
 export default defineComponent({
     name: "head",
+    props: {
+        reload: {
+            type: Function
+        }
+    },
     setup(props, { emit }) {
         const titleList = [{ title: "翻转课堂" }, { title: "数智课堂" }];
         const tabIndex = ref(0);
