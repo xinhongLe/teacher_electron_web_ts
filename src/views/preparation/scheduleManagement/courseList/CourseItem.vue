@@ -11,7 +11,7 @@
 
                 selectCourseId ? selectCourseId === j.ID
                     ? 'active'
-                    : '' : i === 0 && index === 0 ? 'active' : ''
+                    : '' : i === 0 && index === startActiveIndex ? 'active' : ''
             ]"
             :draggable="!isShowCourseBtn"
             :data-id="'course-' + index + '-' + i"
@@ -35,6 +35,7 @@
         <ClassBagDialog
             v-model:dialogVisible="dialogVisible"
             v-if="dialogVisible"
+            :lessonOrBagValue="item"
         />
     </div>
 </template>
@@ -54,9 +55,13 @@ export default defineComponent({
         index: {
             type: Number,
             required: true
+        },
+        startActiveIndex: {
+            type: Number,
+            required: true
         }
     },
-    setup() {
+    setup(props, { emit }) {
         const dialogVisible = ref(false);
         const { onDragStart, onDrag, onDragEnd } = useDrag();
 
@@ -64,6 +69,7 @@ export default defineComponent({
             if (value.Name === "无课包") { return; }
             store.commit(MutationTypes.SET_SELECT_COURSE_BAG, value);
             store.commit(MutationTypes.SET_VIEW_COURSE_DETAIL_ING, true);
+            emit("update:startActiveIndex", props.index);
         };
 
         return {

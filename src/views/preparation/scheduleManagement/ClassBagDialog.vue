@@ -56,7 +56,7 @@ export default defineComponent({
             name: [{ required: true, message: "课包名称", trigger: "blur" }]
         };
         const formData = reactive({
-            name: props.lessonOrBagValue.Name!
+            name: props.isEdit ? props.lessonOrBagValue.Name! : ""
         });
 
         const getTeacherLessonAndBag = inject("getTeacherLessonAndBag") as () => void;

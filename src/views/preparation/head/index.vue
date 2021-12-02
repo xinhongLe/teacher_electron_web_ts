@@ -87,7 +87,6 @@ export default defineComponent({
 
         const clickTab = (index: number) => {
             tabIndex.value = index;
-            store.commit(MutationTypes.SET_VIEW_COURSE_DETAIL_ING, false);
         };
 
         const clickBtn = () => {

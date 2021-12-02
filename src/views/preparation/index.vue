@@ -4,7 +4,9 @@
             v-model:tabIndex="tabIndex"
         />
         <div class="content-wrapper">
-            <ScheduleManagement v-if="tabIndex === 0"/>
+            <keep-alive>
+                <ScheduleManagement v-if="tabIndex === 0"/>
+            </keep-alive>
         </div>
     </div>
 </template>

@@ -162,7 +162,6 @@ export default defineComponent({
                     getTeacherLessonAndBag();
                     ElMessage.success("删除成功!");
                     store.commit(MutationTypes.SET_SELECT_COURSE_BAG, {});
-                    store.commit(MutationTypes.SET_VIEW_COURSE_DETAIL_ING, false);
                 }
             }).catch(() => {
                 ElMessage.info("已取消删除");
