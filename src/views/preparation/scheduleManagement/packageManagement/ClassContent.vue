@@ -16,8 +16,16 @@
         </div>
         <div class="title-bar">
             课包内容
-            <i class="el-icon-edit-outline" @click="dialogVisible = true" v-if="selectCourseBag.ID"></i>
-            <i class="el-icon-delete" @click="delCourse" v-if="selectCourseBag.ID"></i>
+            <i
+                class="el-icon-edit-outline"
+                @click="dialogVisible = true"
+                v-if="selectCourseBag.ID"
+            ></i>
+            <i
+                class="el-icon-delete"
+                @click="delCourse"
+                v-if="selectCourseBag.ID"
+            ></i>
         </div>
         <div class="contentBox" v-if="selectCourseBag.ID">
             <div
@@ -31,16 +39,17 @@
                         class="problem question-before question-after"
                         v-for="(data, i) in item.content"
                         :key="i"
-                        draggable="true"
+                        :draggable="true"
                         @drop="onDrop($event, index, data)"
-                        @dragover.prevent="onDragOver($event, i)"
-                        @dragstart="onDragStart($event,data)"
+                        @dragover="onDragOver($event, i, index)"
+                        @dragstart="onDragStart($event, data)"
                         @drag="onDrag"
                         @dragend="onDragEnd"
+                        @dragleave="onDragleave"
                     >
                         <div
                             class="problem_item"
-                            :class="isDragging ? 'drag': ''"
+                            :class="isDragging ? 'drag' : ''"
                             @click="lookVideo(data.FileID)"
                             v-if="data.HasVideo"
                         >
@@ -58,13 +67,16 @@
                                     >
                                 </p>
                             </div>
-                            <span>{{ data.File?.Duration && data.File.Duration.substring(3, 8) }}</span>
+                            <span>{{
+                                data.File?.Duration &&
+                                data.File.Duration.substring(3, 8)
+                            }}</span>
                             <div class="problem_border"></div>
                         </div>
                         <div
                             class="problem_item"
-                            @click="lookQuestions({id: data.ID, type: 3})"
-                            :class="isDragging ? 'drag': ''"
+                            @click="lookQuestions({ id: data.ID, type: 3 })"
+                            :class="isDragging ? 'drag' : ''"
                         >
                             <div>
                                 <img
@@ -95,7 +107,7 @@
                     class="problem_null"
                     v-else
                     @drop="onDrop($event, index)"
-                    @dragover.prevent="clearStyle"
+                    @dragover="dragoverEmpty($event, index)"
                 >
                     <img
                         :src="
@@ -136,10 +148,15 @@ export default defineComponent({
     setup() {
         const dialogVisible = ref(false);
 
-        const selectCourseBag = computed(() => store.state.preparation.selectCourseBag);
+        const selectCourseBag = computed(
+            () => store.state.preparation.selectCourseBag
+        );
 
-        const { classContentList, queryClassContentList } = useClassContentList();
-        const { onDragOver, onDrop, clearStyle, btnListRef, exit, copy, move } = useDrop(queryClassContentList, classContentList);
+        const { classContentList, queryClassContentList } =
+            useClassContentList();
+        const { onDragOver, onDrop, clearStyle, btnListRef, exit, copy, move, onDragleave } =
+            useDrop(queryClassContentList, classContentList);
+
         const { onDragEnd, onDragStart, onDrag } = useDrag();
 
         const _onDragEnd = (e: DragEvent) => {
@@ -147,25 +164,33 @@ export default defineComponent({
             onDragEnd(e);
         };
 
-        const getTeacherLessonAndBag = inject("getTeacherLessonAndBag") as () => void;
+        const getTeacherLessonAndBag = inject(
+            "getTeacherLessonAndBag"
+        ) as () => void;
 
         const delCourse = () => {
-            ElMessageBox.confirm(`确认要删除此课包[${selectCourseBag.value.Name}]?`, "提示", {
-                confirmButtonText: "确定",
-                cancelButtonText: "取消",
-                type: "warning"
-            }).then(async () => {
-                const res = await delCourseBagTeacher({
-                    id: selectCourseBag.value.ID!
-                });
-                if (res.resultCode === 200) {
-                    getTeacherLessonAndBag();
-                    ElMessage.success("删除成功!");
-                    store.commit(MutationTypes.SET_SELECT_COURSE_BAG, {});
+            ElMessageBox.confirm(
+                `确认要删除此课包[${selectCourseBag.value.Name}]?`,
+                "提示",
+                {
+                    confirmButtonText: "确定",
+                    cancelButtonText: "取消",
+                    type: "warning"
                 }
-            }).catch(() => {
-                ElMessage.info("已取消删除");
-            });
+            )
+                .then(async () => {
+                    const res = await delCourseBagTeacher({
+                        id: selectCourseBag.value.ID!
+                    });
+                    if (res.resultCode === 200) {
+                        getTeacherLessonAndBag();
+                        ElMessage.success("删除成功!");
+                        store.commit(MutationTypes.SET_SELECT_COURSE_BAG, {});
+                    }
+                })
+                .catch(() => {
+                    ElMessage.info("已取消删除");
+                });
         };
 
         const delCourseware = (id: string) => {
@@ -173,17 +198,25 @@ export default defineComponent({
                 confirmButtonText: "确定",
                 cancelButtonText: "取消",
                 type: "warning"
-            }).then(async () => {
-                const data = {
-                    deletedCourseWareTeacherIDs: [id]
-                };
-                const res = await updateCourseWareListOfTeacher(data);
-                if (res.resultCode === 200) {
-                    queryClassContentList();
-                    ElMessage.success("删除成功!");
-                }
-            }).catch(() => ElMessage.info("已取消删除"));
+            })
+                .then(async () => {
+                    const data = {
+                        deletedCourseWareTeacherIDs: [id]
+                    };
+                    const res = await updateCourseWareListOfTeacher(data);
+                    if (res.resultCode === 200) {
+                        queryClassContentList();
+                        ElMessage.success("删除成功!");
+                    }
+                })
+                .catch(() => ElMessage.info("已取消删除"));
         };
+
+        const dragoverEmpty = (e: DragEvent, index: number) => {
+            if (store.state.preparation.isDraggingElement && index !== 1) return;
+            e.preventDefault();
+        };
+
         return {
             classContentList,
             selectCourseBag,
@@ -197,7 +230,9 @@ export default defineComponent({
             dialogVisible,
             onDragStart,
             onDrag,
+            onDragleave,
             onDragOver,
+            dragoverEmpty,
             isDragging: computed(() => store.state.common.isDragging),
             onDragEnd: _onDragEnd,
             lookVideo,

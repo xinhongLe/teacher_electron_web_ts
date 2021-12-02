@@ -237,3 +237,13 @@ export interface Material {
     Sort: number;
     Type: number;
 }
+
+export type AddCourseWareTeacherElementFileData = {
+    courseBagTeacherID: string;
+    name: string;
+    fileName: string;
+    sort: number;
+    process: number;
+    courseBagID: null;
+    videoDuration: null;
+}[];

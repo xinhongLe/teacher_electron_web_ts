@@ -1,8 +1,8 @@
 import request from "@/utils/request";
 import { AI_XUE_SHI_API } from "@/config";
-import { IResponse } from "@/types/response";
+import { IResponse, RequestFun } from "@/types/response";
 import {
-    AddChapterData, AddCustomBookLessonData, AddMaterialData, AddOrUpdateCourseBagTeacherData, BagChapter, BookChapter, BookList, CloneCourseBagToTeacherData, Course,
+    AddChapterData, AddCourseWareTeacherElementFileData, AddCustomBookLessonData, AddMaterialData, AddOrUpdateCourseBagTeacherData, BagChapter, BookChapter, BookList, CloneCourseBagToTeacherData, Course,
     DelCourseBagTeacherData,
     DeleteMaterialData,
     EditMaterialData,
@@ -249,6 +249,18 @@ export const editMaterial = (data: EditMaterialData): Promise<IResponse<null>> =
     return request({
         baseURL: AI_XUE_SHI_API,
         url: "API/W4/Element/EditElement",
+        headers: {
+            "Content-Type": "application/json-patch+json"
+        },
+        method: "post",
+        data
+    });
+};
+
+export const addCourseWareTeacherElementFile: RequestFun<AddCourseWareTeacherElementFileData, null> = (data) => {
+    return request({
+        baseURL: AI_XUE_SHI_API,
+        url: "Api/W4/Teach/AddCourseWareTeacherElementFile",
         headers: {
             "Content-Type": "application/json-patch+json"
         },

@@ -12,6 +12,10 @@
                 class="material-item"
                 v-for="item in materialList"
                 :key="item.ID"
+                draggable="true"
+                @dragstart="onDragStart($event, item)"
+                @drag="onDrag"
+                @dragend="onDragEnd"
             >
                 <img
                     src="@/assets/images/attend-class/icon_yidong@2x.png"
@@ -73,6 +77,8 @@ import { defineComponent, PropType, ref, watchEffect } from "vue";
 import FileType from "./FileType.vue";
 import AddOrEditMaterial from "./AddOrEditMaterial.vue";
 import useMaterialDialog from "./hooks/useMaterialDialog";
+import useDrag from "@/hooks/useDrag";
+import { MutationTypes, store } from "@/store";
 export default defineComponent({
     props: {
         lessonID: {
@@ -91,6 +97,7 @@ export default defineComponent({
     setup(props) {
         const materialList = ref<Material[]>([]);
         const { dialogVisible, isEdit, editInfo, editMaterial, addMaterial } = useMaterialDialog();
+        const { onDrag, onDragEnd, onDragStart } = useDrag();
 
         const _queryMaterialList = async () => {
             const res = await queryMaterialList({
@@ -128,6 +135,15 @@ export default defineComponent({
             _queryMaterialList();
         };
 
+        const _onDragStart = (e: DragEvent, info: Material) => {
+            const data = {
+                info,
+                isElement: true
+            };
+            store.commit(MutationTypes.SET_IS_DRAGGING_ELEMENT, true);
+            onDragStart(e, data);
+        };
+
         watchEffect(_queryMaterialList);
 
         return {
@@ -139,6 +155,9 @@ export default defineComponent({
             dialogVisible,
             editInfo,
             isEdit,
+            onDragStart: _onDragStart,
+            onDrag,
+            onDragEnd,
             editMaterial,
             getFileName
         };

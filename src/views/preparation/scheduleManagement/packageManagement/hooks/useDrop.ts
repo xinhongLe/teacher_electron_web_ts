@@ -1,7 +1,7 @@
 import { CourseWares } from "@/api";
 import { store } from "@/store";
-import { BagPapers, UpdateCourseWareListOfTeacherData } from "@/types/preparation";
-import { updateCourseWareListOfTeacher, updateCourseWareTeacherSort } from "@/views/preparation/api";
+import { AddCourseWareTeacherElementFileData, BagPapers, Material, UpdateCourseWareListOfTeacherData } from "@/types/preparation";
+import { addCourseWareTeacherElementFile, updateCourseWareListOfTeacher, updateCourseWareTeacherSort } from "@/views/preparation/api";
 import { ElMessage } from "element-plus";
 import { Ref, ref } from "vue";
 import { ClassContent } from "./useClassContentList";
@@ -48,6 +48,25 @@ export default (callback: () => Promise<void>, classContentList: Ref<ClassConten
         clearStyle();
         toSortIndex = index;
         const dragInfo = JSON.parse(e.dataTransfer?.getData("dragInfo") as string);
+        if (dragInfo.isElement) { // 拖拽精品素材
+            const info: Material = dragInfo.info;
+            if (isExit(info.ElementName)) return;
+            const courseBagTeacherID = store.state.preparation.selectCourseBag.ID || "";
+            const data: AddCourseWareTeacherElementFileData = [{
+                courseBagID: null,
+                courseBagTeacherID,
+                name: info.ElementName,
+                fileName: `${info.ElementFile.FileName}.${info.ElementFile.Extention}`,
+                process: 2,
+                sort: toSortI + 1,
+                videoDuration: null
+            }];
+            const res = await addCourseWareTeacherElementFile(data);
+            if (res.resultCode === 200) {
+                callback();
+            }
+            return;
+        }
         if (dragInfo.ID) {
             moveInfo = dragInfo as CourseWares;
             if (moveInfo.Process === data?.Process) {
@@ -89,7 +108,11 @@ export default (callback: () => Promise<void>, classContentList: Ref<ClassConten
         }
     };
 
-    const onDragOver = (e: DragEvent, index: number) => {
+    const onDragOver = (e: DragEvent, index: number, i: number) => {
+        if (store.state.preparation.isDraggingElement && i !== 1) {
+            return;
+        }
+        e.preventDefault();
         clearStyle();
         const target = e.target as HTMLElement;
         if (e.offsetY >= target.offsetHeight / 2) {
@@ -106,6 +129,10 @@ export default (callback: () => Promise<void>, classContentList: Ref<ClassConten
                 );
             }
         }
+    };
+
+    const onDragleave = () => {
+        clearStyle();
     };
 
     const exit = () => {
@@ -142,6 +169,7 @@ export default (callback: () => Promise<void>, classContentList: Ref<ClassConten
         exit,
         copy,
         move,
+        onDragleave,
         clearStyle
     };
 };

@@ -32,12 +32,13 @@ export default () => {
     };
 
     const onDrag = (event: DragEvent) => {
-        dragDom!.style.left = event.clientX + "px";
-        dragDom!.style.top = event.clientY - (event.target as HTMLElement).offsetHeight + "px";
+        dragDom!.style.left = event.clientX - origin.layerX + "px";
+        dragDom!.style.top = event.clientY - origin.layerY + "px";
     };
 
     const onDragEnd = (event: DragEvent) => {
         store.commit(MutationTypes.SET_IS_DRAGGING, false);
+        store.commit(MutationTypes.SET_IS_DRAGGING_ELEMENT, false);
         document.body.removeChild(dragDom!);
         dragDom = null;
         event.dataTransfer!.clearData("dragInfo");

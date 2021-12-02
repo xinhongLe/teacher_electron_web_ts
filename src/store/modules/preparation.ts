@@ -7,6 +7,7 @@ const initState = (): PreparationState => ({
     isViewCourseDetailIng: false,
     selectChapterID: "",
     selectCourseBag: {},
+    isDraggingElement: false,
     subjectPublisherBookValue: []
 });
 
@@ -22,6 +23,9 @@ const mutations:MutationTree<PreparationState> = {
     },
     [MutationTypes.SET_SELECT_COURSE_BAG](state, info: CourseBag) {
         state.selectCourseBag = info;
+    },
+    [MutationTypes.SET_IS_DRAGGING_ELEMENT](state, flag) {
+        state.isDraggingElement = flag;
     },
     [MutationTypes.PREPARATION_STUDENT_RESET_STATE](state) {
         Object.assign(state, initState());

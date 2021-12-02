@@ -33,11 +33,15 @@ export interface PreparationState {
     /**
      * 选择的教材
      */
-    subjectPublisherBookValue: string[]
+    subjectPublisherBookValue: string[],
     /**
      * 选择的课时
      */
-    selectCourseBag: CourseBag
+    selectCourseBag: CourseBag,
+    /**
+     * 是否在拖拽精品素材
+     */
+    isDraggingElement: boolean
 }
 
 export interface CommonState {
