@@ -45,7 +45,7 @@
                                         justify-content: space-around;
                                     "
                                 >
-                                    <div style="display: flex; align-item: center">
+                                    <div style="display: flex">
                                         <img
                                             style="width: 43px"
                                             src="@/assets/indexImages/touxiang.png"

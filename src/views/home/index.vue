@@ -13,9 +13,9 @@
                 <div class="right">
                     <Calendar :days="days">
                         <header class="header">
-                            <div @click="weekPre"><i class="el-icon-arrow-left"></i>上周</div>
+                            <div @click="weekPre" class="week"><i class="el-icon-arrow-left"></i>上周</div>
                             <div>上课</div>
-                            <div @click="weekNext">下周<i class="el-icon-arrow-right"></i></div>
+                            <div @click="weekNext" class="week">下周<i class="el-icon-arrow-right"></i></div>
                         </header>
                     </Calendar>
                 </div>
@@ -135,15 +135,14 @@ export default defineComponent({
             border-top-left-radius: 20px;
             border-top-right-radius: 20px;
             color: #ffffff;
-            div {
+            .week {
                 font-size: 18px;
-                font-family: PingFangSC-Regular, PingFang SC;
                 font-weight: 400;
                 color: #ffffff;
+                cursor: pointer;
             }
             div:nth-of-type(2) {
                 font-size: 22px;
-                font-family: PingFang-SC-Heavy, PingFang-SC;
                 font-weight: 800;
                 color: #ffffff;
             }

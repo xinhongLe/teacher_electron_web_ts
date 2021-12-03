@@ -343,6 +343,7 @@ export default defineComponent({
                 background: #000000;
                 border-radius: 2px;
                 opacity: 0.2;
+                cursor: pointer;
             }
         }
         .class-name {

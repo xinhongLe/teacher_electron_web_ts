@@ -8,7 +8,7 @@
             :isShowDetailBtn="true"
         >
             <header>
-                <div>
+                <div class="left">
                     <div>
                         <div></div>
                         <span>历史课程</span>
@@ -22,7 +22,7 @@
                         <span>缺课包</span>
                     </div>
                 </div>
-                <div>
+                <div class="date">
                     <span @click="weekPre"
                         ><i class="el-icon-arrow-left"></i
                     ></span>
@@ -31,7 +31,7 @@
                         ><i class="el-icon-arrow-right"></i
                     ></span>
                 </div>
-                <div @click="templatesVisible = true">
+                <div @click="templatesVisible = true" >
                     <img
                         src="~@/assets/indexImages/icon_guanlimuban.png"
                         alt=""
@@ -126,6 +126,17 @@ header {
             }
         }
     }
+    .left {
+        span {
+            color: #6b8bf1;
+            display: block;
+        }
+    }
+    .date {
+        span {
+            cursor: pointer;
+        }
+    }
     > div {
         display: flex;
         justify-content: space-around;
@@ -141,7 +152,6 @@ header {
         span:nth-of-type(1) {
             color: #6b8bf1;
             display: block;
-            cursor: pointer;
         }
         span:nth-of-type(3) {
             color: #6b8bf1;
@@ -156,6 +166,7 @@ header {
         font-size: 12px;
         font-weight: 400;
         color: #4b71ee;
+        cursor: pointer;
         span {
             padding: 0;
         }

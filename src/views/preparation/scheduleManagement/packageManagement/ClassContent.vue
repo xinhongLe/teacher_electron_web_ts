@@ -306,6 +306,7 @@ export default defineComponent({
             right: 20px;
             font-size: 18px;
             top: 9px;
+            cursor: pointer;
         }
         i:nth-of-type(2) {
             right: 50px;
@@ -352,6 +353,7 @@ export default defineComponent({
                 position: absolute;
                 right: 0px;
                 top: 0px;
+                cursor: pointer;
             }
             .problem_border {
                 width: 92%;
