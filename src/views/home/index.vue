@@ -36,7 +36,7 @@
                             src="../../assets/indexImages/card_kaoshi.png"
                             alt=""
                         />
-                        <span>考试中心</span>
+                        <span>测评中心</span>
                     </div>
                 </div>
                 <div class="item" @click="go('course-time')">

@@ -57,7 +57,7 @@
 
 <script lang="ts">
 // import isElectron from "is-electron";
-import { defineComponent, reactive, ref } from "vue";
+import { defineComponent, onMounted, onUnmounted, reactive, ref } from "vue";
 import useLogin from "@/hooks/useLogin";
 import { useRouter } from "vue-router";
 import { ILoginData } from "@/types/login";
@@ -95,7 +95,21 @@ export default defineComponent({
             });
         };
 
+        const onEnter = (e: KeyboardEvent) => {
+            if (e.key === "Enter") {
+                login();
+            }
+        };
+
         const version = ref("");
+
+        onMounted(() => {
+            document.addEventListener("keyup", onEnter);
+        });
+
+        onUnmounted(() => {
+            document.removeEventListener("keyup", onEnter);
+        });
 
         return { form, recordAccountList, loading, login, version, handleChange };
     }
