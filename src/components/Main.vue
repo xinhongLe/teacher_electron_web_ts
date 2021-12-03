@@ -2,6 +2,8 @@
     <div class="main-container">
         <NavBar v-if="isShowNarBar"/>
         <Suspension />
+        <LookQuestion v-if="isShowQuestion"/>
+        <LookVideo v-if="isShowVideo"/>
         <div class="main-body">
             <keep-alive v-if="$route.meta.keepAlive">
                 <router-view></router-view>
@@ -12,7 +14,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, watch } from "vue";
+import { computed, defineComponent, ref, watch } from "vue";
 import NavBar from "./navBar/index.vue";
 import Suspension from "./suspension/index.vue";
 import isElectron from "is-electron";
@@ -22,11 +24,16 @@ import { IGradeClassTreeResponse } from "@/types/login";
 import { set, STORAGE_TYPES } from "@/utils/storage";
 import useUserInfo from "@/hooks/useUserInfo";
 import useTagList from "@/hooks/useTagList";
+import LookQuestion from "./lookQuestion/index.vue";
+import { store } from "@/store";
+import LookVideo from "./lookVideo/index.vue";
 
 export default defineComponent({
     components: {
         NavBar,
-        Suspension
+        Suspension,
+        LookQuestion,
+        LookVideo
     },
     setup() {
         const route = useRoute();
@@ -51,6 +58,8 @@ export default defineComponent({
 
         return {
             isElectron: isElectron(),
+            isShowQuestion: computed(() => store.state.common.isShowQuestion),
+            isShowVideo: computed(() => store.state.common.isShowVideo),
             isShowNarBar
         };
     }

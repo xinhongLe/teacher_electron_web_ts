@@ -48,7 +48,28 @@ export interface CommonState {
     /**
      * 是否在拖拽
      */
-    isDragging: boolean
+    isDragging: boolean,
+    /**
+     * 是否显示查看题目弹框
+     */
+    isShowQuestion: boolean,
+    /**
+     * 是否显示查看视频弹框
+     */
+    isShowVideo: boolean,
+    /**
+     * 查看题目的信息
+     */
+    viewQuestionInfo: {
+        type: number,
+        id: string
+    }
+    /**
+     * 查看视频的信息
+     */
+    viewVideoInfo: {
+        id: string
+    }
 }
 
 export interface RootState {

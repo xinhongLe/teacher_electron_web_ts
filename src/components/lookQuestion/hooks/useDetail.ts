@@ -1,4 +1,4 @@
-import router from "@/router";
+import { store } from "@/store";
 import { FileInfo, Question } from "@/types/lookQuestion";
 import { downloadFile } from "@/utils/oss";
 import { ElMessage, ElMessageBox } from "element-plus";
@@ -57,9 +57,7 @@ export default (isPureQuestion: boolean, questionId = "") => {
     }
 
     const getDetail = async () => {
-        const type = Number(router.currentRoute.value.params.type);
-        const id = router.currentRoute.value.params.id as string;
-        const questionID = router.currentRoute.value.query.questionID;
+        const { type, id } = store.state.common.viewQuestionInfo;
         let res;
         if (isPureQuestion) {
             res = await fetchPureQuestionByQuestionID({
@@ -80,16 +78,9 @@ export default (isPureQuestion: boolean, questionId = "") => {
         }
 
         if (res.resultCode === 200) {
-            if (type === 2) {
-                questionList.value = res.result.filter(
-                    ({ QuestionID }) => QuestionID !== questionID
-                );
-                sum.value = questionList.value.length;
-            } else {
-                const { result } = res;
-                sum.value = result.length;
-                questionList.value = result;
-            }
+            const { result } = res;
+            sum.value = result.length;
+            questionList.value = result;
             getFileList(questionList.value[0].QuestionFiles, 1);
             getFileList(questionList.value[0].AnswerFiles[0].Files, 2);
             nowQuestionID.value = questionList.value[0].QuestionID;

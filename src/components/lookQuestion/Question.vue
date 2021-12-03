@@ -1,8 +1,7 @@
 <template>
-    <div>
+    <div class="warp">
         <div class="frames-box">
             <slot name="title" />
-            <p></p>
             <div class="count">{{ number }} / {{ sum }}</div>
             <div class="material-box">
                 <Brush ref="childRef" v-if="isBlackboard"></Brush>
@@ -100,8 +99,8 @@
 import { computed, defineComponent, inject, Ref, ref, watch } from "vue";
 import isElectronFun from "is-electron";
 import useDetail from "./hooks/useDetail";
-import { useRoute } from "vue-router";
 import Brush from "@/components/brush/index.vue";
+import { store } from "@/store";
 export default defineComponent({
     props: {
         close: {
@@ -114,15 +113,13 @@ export default defineComponent({
         }
     },
     setup(props, { emit }) {
-        const route = useRoute();
-        const type = computed(() => Number(route.params.type));
+        const type = computed(() => store.state.common.viewQuestionInfo.type);
         const switchValue = ref(true);
         const btnType = ref(1);
         const childRef = ref<InstanceType<typeof Brush>>();
         const isElectron = isElectronFun();
 
         const questionID = inject("nowQuestionID") as Ref<string>;
-        console.log(questionID.value);
         const {
             imageUrl,
             voiceUrl,
@@ -228,10 +225,18 @@ export default defineComponent({
     border: 3px solid #4b71ee;
     border-radius: 10px;
 }
+.warp {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
 .frames-box {
     width: 100%;
     height: 100%;
     position: relative;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
     > p {
         font-size: 20px;
         font-weight: 600;
@@ -247,14 +252,16 @@ export default defineComponent({
     }
     .material-box {
         width: 90%;
-        height: calc(100% - 220px);
-        margin: 20px auto 0;
+        margin: 36px auto 0;
         border: solid 1px #ccc;
         position: relative;
+        flex: 1;
+        min-height: 580px;
         .question-img {
             width: 100%;
             height: 100%;
             min-height: 572px;
+            position: absolute;
         }
     }
 }
@@ -263,11 +270,6 @@ export default defineComponent({
     height: 80px;
     padding: 12px;
     background: rgb(125, 164, 236);
-    position: absolute;
-    bottom: 0;
-    left: 0px;
-    right: 0px;
-    z-index: 3;
     display: flex;
     align-items: center;
     .switch-box {

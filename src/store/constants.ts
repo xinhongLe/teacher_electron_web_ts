@@ -6,6 +6,14 @@ export const enum MutationTypes {
      */
     SET_IS_DRAGGING = "SET_IS_DRAGGING",
     /**
+     * 设置显示或隐藏查看题目弹框
+     */
+    SET_IS_SHOW_QUESTION = "SET_IS_SHOW_QUESTION",
+    /**
+     * 设置显示或隐藏查看视频弹框
+     */
+    SET_IS_SHOW_VIDEO = "SET_IS_SHOW_VIDEO",
+    /**
      * 重置common module
      */
     COMMON_RESET_STATE = "COMMON_RESET_STATE",
@@ -44,7 +52,7 @@ export const enum MutationTypes {
      * 重置preparation module
      */
 
-     PREPARATION_STUDENT_RESET_STATE = "PREPARATION_STUDENT_RESET_STATE",
+    PREPARATION_STUDENT_RESET_STATE = "PREPARATION_STUDENT_RESET_STATE",
 
     /**
      * 设置备课页面选择的章节id
@@ -65,7 +73,7 @@ export const enum MutationTypes {
     /**
      * 设置是否在拖拽精品素材
      */
-    SET_IS_DRAGGING_ELEMENT = "SET_IS_DRAGGING_ELEMENT"
+    SET_IS_DRAGGING_ELEMENT = "SET_IS_DRAGGING_ELEMENT",
 }
 
 export const enum ActionTypes {
@@ -76,5 +84,5 @@ export const enum ActionTypes {
     /**
      * 请求学生列表
      */
-    FETCH_STUDENT_LIST = "FETCH_STUDENT_LIST"
+    FETCH_STUDENT_LIST = "FETCH_STUDENT_LIST",
 }

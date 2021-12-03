@@ -1,6 +1,7 @@
 import { CourseBagClasses } from "@/api";
 import moment from "moment";
 import isElectron from "is-electron";
+import { MutationTypes, store } from "@/store";
 
 export function formatClass(v: CourseBagClasses[]) {
     return v ? v.map((e) => e.ClassName).join(",") : "";
@@ -66,14 +67,21 @@ export const lookVideo = (id: string | undefined) => {
     if (isElectron()) {
         // return ipcRenderer.send("openVideo", id);
     }
-    window.open(`${location.origin}/look-video/${id}`);
+    // window.open(`${location.origin}/look-video/${id}`);
+    store.commit(MutationTypes.SET_IS_SHOW_VIDEO, { flag: true, info: { id } });
 };
 
 export const lookQuestions = ({ id = "", type = 1, courseBagId = "" }) => {
+    const info = {
+        id,
+        courseBagId,
+        type
+    };
     if (isElectron()) {
         // return ipcRenderer.send("openQuestion", id, type, courseBagId);
     }
-    window.open(`${location.origin}/look-question/${id}/${type}?courseBagId=${courseBagId}`);
+    store.commit(MutationTypes.SET_IS_SHOW_QUESTION, { flag: true, info });
+    // window.open(`${location.origin}/look-question/${id}/${type}?courseBagId=${courseBagId}`);
 };
 
 export const getCourseBagType = (type: number) => {

@@ -86,16 +86,6 @@ const routes: Array<RouteRecordRaw> = [
                 component: () => import("@/views/assessmentCenter/index.vue")
             }
         ]
-    },
-    {
-        path: "/look-question/:id/:type", // type 1查看题目  2查看同类题
-        name: "查看题目",
-        component: () => import("@/views/lookQuestion/index.vue")
-    },
-    {
-        path: "/look-video/:id",
-        name: "查看视频",
-        component: () => import("@/views/lookVideo/index.vue")
     }
 ];
 

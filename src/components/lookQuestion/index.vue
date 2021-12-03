@@ -33,15 +33,14 @@
 <script lang="ts">
 import { computed, defineComponent, provide, ref } from "vue";
 import isElectronFun from "is-electron";
-import { useRoute } from "vue-router";
 import Question from "./Question.vue";
 import PureQuestionDialog from "./PureQuestionDialog.vue";
 import { checkPureQuestionByQuestionID } from "./api";
 import { ElMessage } from "element-plus";
+import { MutationTypes, store } from "@/store";
 export default defineComponent({
     setup() {
-        const route = useRoute();
-        const type = computed(() => Number(route.params.type));
+        const type = computed(() => store.state.common.viewQuestionInfo.type);
         const isElectron = isElectronFun();
         const dialogVisible = ref(false);
         const nowQuestionID = ref("");
@@ -65,7 +64,7 @@ export default defineComponent({
         };
 
         const close = () => {
-            window.close();
+            store.commit(MutationTypes.SET_IS_SHOW_QUESTION, { flag: false, info: {} });
             // if (isElectron) {
             //     type.value === 2
             //         ? ipcRenderer.send("closeSQuestion")
@@ -94,6 +93,10 @@ export default defineComponent({
     width: 100vw;
     height: 100vh;
     overflow: hidden;
+    position: fixed;
+    z-index: 9999;
+    background: #fff;
+    padding-top: 16px;
     .btn-list {
         display: flex;
     }
@@ -125,7 +128,6 @@ export default defineComponent({
         color: #19203d;
         line-height: 28px;
         text-align: center;
-        margin-top: 16px;
     }
 }
 </style>
