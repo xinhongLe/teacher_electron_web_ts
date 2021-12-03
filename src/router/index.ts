@@ -79,6 +79,11 @@ const routes: Array<RouteRecordRaw> = [
                 path: "course-time",
                 name: "课时延后",
                 component: () => import("@/views/courseTime/index.vue")
+            },
+            {
+                path: "assessment-center",
+                name: "测评中心",
+                component: () => import("@/views/assessmentCenter/index.vue")
             }
         ]
     },

@@ -30,7 +30,7 @@
                         <span>报表中心</span>
                     </div>
                 </div>
-                <div class="item" @click="go('')">
+                <div class="item" @click="go('assessment-center')">
                     <div class="item_div">
                         <img
                             src="../../assets/indexImages/card_kaoshi.png"
