@@ -78,6 +78,7 @@ export default (callback: () => Promise<void>, classContentList: Ref<ClassConten
                         ? (addIndex = toSortI + 1)
                         : (addIndex = toSortI);
                 }
+                if (list.length === 1 || addIndex === sortI) return; // 只有一个时或拖动的序号和增加的序号一致
                 list.splice(sortI, 1);
                 list.splice(addIndex, 0, { ...moveInfo });
                 updateSort(list, index);

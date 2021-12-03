@@ -55,7 +55,7 @@
             />
             <span @click="$router.go(0)">刷新</span> -->
             <el-button type="primary" @click="reload">刷新</el-button>
-            <el-button type="primary" v-if="isShowCourseBtn" @click="clickBtn">去排课</el-button>
+            <el-button type="primary" v-show="isShowCourseBtn" @click="clickBtn">去排课</el-button>
         </div>
         <ChapterDialog
             v-model:dialogVisible="dialogVisible"
@@ -168,6 +168,8 @@ export default defineComponent({
         display: flex;
         align-content: center;
         line-height: 14px;
+        width: 460px;
+        justify-content: flex-end;
         img {
             width: 13px;
             height: 13px;
