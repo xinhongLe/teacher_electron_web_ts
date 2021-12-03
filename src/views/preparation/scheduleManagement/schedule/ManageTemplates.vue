@@ -7,6 +7,7 @@
         :before-close="handleClose"
         center
         :close-on-click-modal="false"
+        top="32px"
     >
         <header>
             <div class="left" @click="prePage">
