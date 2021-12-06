@@ -62,11 +62,11 @@ export default defineComponent({
             const newPage =
                 pageList.value.length > 0 ? pageList.value[index] : {};
             if (pageList.value.length > 0) {
-                console.log(newPage, "newpage");
                 if (newPage.isGetData) {
                     page.value = newPage;
                 } else {
-                    page.value = await getPageDetail(pageList.value[index]);
+                    console.log(pageList.value[index], "1111");
+                    page.value = await getPageDetail(pageList.value[index], pageList.value[index].originType);
                 }
             } else {
                 page.value = {};
@@ -77,7 +77,7 @@ export default defineComponent({
                 return ElMessage({ type: "warning", message: "已经是第一页" });
             }
             selected.value--;
-            page.value = await getPageDetail(pageList.value[selected.value]);
+            page.value = await getPageDetail(pageList.value[selected.value], pageList.value[selected.value].originType);
         };
         const nextCard = async () => {
             console.log(selected.value, pageList.value.length, "pagelength");
@@ -85,7 +85,7 @@ export default defineComponent({
                 return ElMessage({ type: "warning", message: "已经是最后一页" });
             }
             selected.value++;
-            page.value = await getPageDetail(pageList.value[selected.value]);
+            page.value = await getPageDetail(pageList.value[selected.value], pageList.value[selected.value].originType);
         };
         return {
             page,

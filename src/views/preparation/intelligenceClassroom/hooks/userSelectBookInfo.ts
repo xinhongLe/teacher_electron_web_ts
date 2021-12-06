@@ -7,7 +7,8 @@ interface CardList {
     ID: string,
     Name: string,
     NickName?: string,
-    OriginType?: number
+    OriginType?: number,
+    originType?: number
 }
 interface LessonList {
     ID: string,
@@ -81,7 +82,8 @@ export default () => {
         leftActiveIndex: 0,
         winIndex: 0,
         winActiveId: "",
-        winActiveValue: {}
+        winActiveValue: {},
+        originType: 0
     });
     const cardListComponents = ref();
     const _getSchoolLessonWindow = (data: IGetLessonWindows) => {
@@ -95,6 +97,7 @@ export default () => {
                 ) {
                     activeIndex.winActiveId = allData.winList[0].TeachPageList[0].WindowID;
                     activeIndex.winActiveValue = allData.winList[0].TeachPageList[0];
+                    activeIndex.originType = allData.winList[0].TeachPageList[0].OriginType;
                     activeIndex.leftActiveIndex = 0;
                     activeIndex.winIndex = 0;
                     allData.cardList = allData.winList[0].TeachPageList[0].CardList;
@@ -111,12 +114,12 @@ export default () => {
         activeIndex.winIndex = i;
         activeIndex.winActiveId = j.WindowID;
         activeIndex.winActiveValue = j;
+        activeIndex.originType = j.OriginType;
     };
     const _getWindowCards = (ID: string) => {
-        getWindowCards({ WindowID: ID, OriginType: 1 }).then((res) => {
+        getWindowCards({ WindowID: ID, OriginType: activeIndex.originType }).then((res) => {
             if (res.resultCode === 200) {
-                console.log(res);
-                allData.cardList = res.result || [];
+                allData.cardList = detailData(res.result);
                 if (allData.cardList.length > 0) {
                     cardListComponents.value.handleClick(0, allData.cardList[0]);
                 }
@@ -126,6 +129,32 @@ export default () => {
     const updatePageList = (card: cardList) => {
         console.log(card, "card");
         activeIndex.previewOptions = card;
+    };
+    interface winListItem {
+        ContentType: number,
+        Height: number,
+        ID: string,
+        Name: string,
+        NickName: string,
+        OriginType: number,
+        Sort: number,
+        State: boolean,
+        TeachPageRelationID: string,
+        Type: number,
+        Width: number,
+        originType?: number
+    }
+    const detailData = (data: any) => {
+        console.log(data, data.length, "data", activeIndex.originType);
+        if (data.length === 0) return [];
+        const winList = data.map((item:winListItem) => {
+            return {
+                ...item,
+                originType: activeIndex.originType
+            };
+        });
+        console.log(winList, "qweqwe");
+        return winList;
     };
     return {
         _getSchoolLessonWindow,

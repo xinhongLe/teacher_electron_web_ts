@@ -6,9 +6,9 @@ import { IPageValue } from "@/types/home";
 import { Slide } from "wincard/src/types/slides";
 import { ElMessage } from "element-plus";
 import { dealSaveDataWord, dealSaveDataVideo, dealSaveDataTeach, dealSaveDataElement } from "@/utils/savePageDataParse";
-import { originType, pageType } from "@/config/index";
+import { pageType } from "@/config/index";
 interface PageData {
-    originType: number,
+    originType?: number,
     pageID: string
 }
 
@@ -31,13 +31,12 @@ export default () => {
             return -1;
         }
     };
-    const getPageDetail = async (page: IPageValue) => {
+    const getPageDetail = async (page: IPageValue, originType:number) => {
         const data: PageData = {
             originType: originType,
             pageID: page.ID
         };
         const type: number = transformType(page.Type);
-
         let newSlide:any = {};
         if (type < 0) {
             ElMessage({ type: "warning", message: "暂不支持该页面类型" });

@@ -11,7 +11,9 @@ export interface IPageValue {
     Type: number,
     TeachPageRelationID: string,
     Name?: string,
-    Remark?: string
+    Remark?: string,
+    originType?: number,
+    OriginType?: number
 }
 
 export interface ICardList {

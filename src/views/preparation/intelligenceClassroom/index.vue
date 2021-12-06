@@ -106,7 +106,7 @@ export default defineComponent({
         });
         const windowEdit = async (item) => {
             console.log(item, "item");
-            if (item.Type === 0) {
+            if (item.TeachPageList[0].OriginType === 0) {
                 const obj = {
                     id: item.TeachPageList[0].WindowID,
                     originType: 1,
@@ -117,10 +117,19 @@ export default defineComponent({
                     router.push({
                         path: "/windowcard-edit",
                         query: {
-                            winValue: res.result.ID
+                            winValue: res.result.ID,
+                            originType: 1
                         }
                     });
                 }
+            } else {
+                router.push({
+                    path: "/windowcard-edit",
+                    query: {
+                        winValue: item.TeachPageList[0].WindowID,
+                        originType: 1
+                    }
+                });
             }
         };
         return {

@@ -27,6 +27,7 @@ import { Slide, IWin } from "wincard/src/types/slides";
 import CardSelectDialog from "./cardSelectDialog.vue";
 import { IPageValue, ICards } from "@/types/home";
 import SelectVideoDialog from "./selectVideoDialog.vue";
+import { useRoute } from "vue-router";
 export default defineComponent({
     name: "winCardEdit",
     components: { SelectVideoDialog, CardSelectDialog },
@@ -37,20 +38,21 @@ export default defineComponent({
         }
     },
     setup(props) {
+        const route = useRoute();
         const state = reactive({
             dialogVisible: false,
             dialogVisibleVideo: false,
             slide: {}
         });
         const page = ref<IPageValue>();
+        const originType: any = route.query.originType;
         const { getPageDetail, savePage } = useHome();
         watch(
             () => props.pageValue,
             async (val: IPageValue, oldVal) => {
                 if (val && val !== oldVal) {
                     page.value = val;
-                    state.slide = await getPageDetail(page.value);
-                    console.log(state.slide, "ppppppppppppppp");
+                    state.slide = await getPageDetail(page.value, originType);
                 }
             }
         );

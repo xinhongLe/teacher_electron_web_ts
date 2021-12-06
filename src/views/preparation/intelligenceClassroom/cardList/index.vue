@@ -33,7 +33,7 @@ export default defineComponent({
         const cardIndex = ref(0);
         const handleClick = (index, item) => {
             cardIndex.value = index;
-            const pageDate = dealCardData(item);
+            const pageDate = dealCardData(item, item.originType);
             emit("updatePageList", pageDate);
         };
         return {

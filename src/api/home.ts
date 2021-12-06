@@ -175,7 +175,7 @@ export async function getPageDetailRes(data:IGetPageData, type: number): Promise
             headers: { DeviceID: "Franchisee", ...dbResArr.length > 0 ? { noLoading: "ok" } : {} },
             method: "post",
             baseURL: WINDOW_CRAD_API,
-            data: Object.assign(data, { OriginType: originType })
+            data
         }).then((res:any) => {
             if (res.success) {
                 resolve(res);

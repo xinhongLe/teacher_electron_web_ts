@@ -1,6 +1,3 @@
-import { ElMessage } from "element-plus";
-import { getPageDetailRes } from "../api/index";
-import { originType } from "@/config/index";
 export default () => {
     interface getPage {
         id:string,
@@ -45,7 +42,7 @@ export default () => {
             return -1;
         }
     };
-    const dealCardData = (card:CardList) => {
+    const dealCardData = (card:CardList, originType: number) => {
         const pages = card.PageList.map(page => {
             return {
                 ID: page.ID,
@@ -57,7 +54,8 @@ export default () => {
                 Height: page.Height || 678,
                 BindId: page.TeachPageRelationID,
                 Remark: page.Remark || "",
-                IsGetData: false
+                IsGetData: false,
+                originType
             };
         });
         console.log(pages, "pages");

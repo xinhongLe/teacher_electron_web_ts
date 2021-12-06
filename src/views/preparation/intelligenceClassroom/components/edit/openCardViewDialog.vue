@@ -21,6 +21,7 @@
 <script lang="ts">
 import { defineComponent, ref, onMounted, computed } from "vue";
 import useHome from "@/hooks/useHome";
+import { useRoute } from "vue-router";
 export default defineComponent({
     name: "openCardViewDia",
     props: {
@@ -35,22 +36,23 @@ export default defineComponent({
     },
     emits: ["update:dialogVisible"],
     setup(props, { emit }) {
+        const route = useRoute();
         const visible = computed(() => props.dialogVisible);
         const slideView = ref({});
         const cardList = ref<any[]>([]);
         const selected = ref(0);
-        console.log(cardList);
         const { getPageDetail } = useHome();
+        const originType: any = route.query.originType;
         onMounted(async() => {
             cardList.value = props.cardList;
-            slideView.value = await getPageDetail(cardList.value[0]);
+            slideView.value = await getPageDetail(cardList.value[0], originType);
         });
         const close = () => {
             emit("update:dialogVisible", false);
         };
         const checkPage = async (index: number) => {
             selected.value = index;
-            slideView.value = await getPageDetail(cardList.value[index]);
+            slideView.value = await getPageDetail(cardList.value[index], originType);
         };
         return {
             visible,
