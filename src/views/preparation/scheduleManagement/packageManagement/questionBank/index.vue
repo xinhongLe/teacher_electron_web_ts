@@ -56,7 +56,7 @@
 
 <script lang="ts">
 import useBook from "@/views/preparation/hooks/useBook";
-import { defineComponent, ref, watch } from "vue";
+import { defineComponent, onMounted, ref, watch } from "vue";
 import BagChapter from "./BagChapter.vue";
 import Material from "./Material.vue";
 export default defineComponent({
@@ -72,13 +72,28 @@ export default defineComponent({
             lessonID,
             lessons,
             getLessons,
+            getSubjectPublisherBookList,
             teacherBookChapter
         } = useBook();
+
+        const startGetSubjectPublisherBookList = () => {
+            setTimeout(() => {
+                getSubjectPublisherBookList().then(() => {
+                    window.removeEventListener("subjectPublisherBookListLoaded", startGetSubjectPublisherBookList);
+                });
+            }, 300); // 后期优化 -- 封装接口请求处增加请求队列
+        };
+
         watch([teacherBookChapter, titleIndex], ([value, index]) => {
             if (index === 1) {
                 getLessons(value);
             }
         });
+
+        onMounted(() => {
+            window.addEventListener("subjectPublisherBookListLoaded", startGetSubjectPublisherBookList);
+        });
+
         return {
             titleIndex,
             titleList,

@@ -54,7 +54,6 @@ export default () => {
     }, {
         deep: true
     });
-    getSubjectPublisherBookList();
 
     return {
         subjectPublisherBookValue,
@@ -65,6 +64,7 @@ export default () => {
         getLessons,
         lessonID,
         lessons,
+        getSubjectPublisherBookList,
         getTeacherBookChapters
     };
 };

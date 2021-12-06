@@ -50,8 +50,8 @@ export default defineComponent({
                     if (res.resultCode === 200) {
                         startActiveIndex.value = res.result.findIndex(({ CourseBags }) => CourseBags.length !== 0);
                         courseList.value = teacherLessonAndBagFilter(res.result);
-                        const { isViewCourseDetailIng, selectCourseBag } = store.state.preparation;
-                        if (isViewCourseDetailIng && startActiveIndex.value !== -1 && !selectCourseBag?.ID) { // 当正在查看课包内容且课包列表中有课包且当前选中的课包为空时
+                        const { selectCourseBag } = store.state.preparation;
+                        if (startActiveIndex.value !== -1 && !selectCourseBag?.ID) { // 当正在查看课包内容且课包列表中有课包且当前选中的课包为空时
                             const info = courseList.value[startActiveIndex.value]?.CourseBags[0] || {};
                             store.commit(MutationTypes.SET_SELECT_COURSE_BAG, info);
                         }

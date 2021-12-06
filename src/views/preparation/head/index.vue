@@ -55,7 +55,6 @@
             />
             <span @click="$router.go(0)">刷新</span> -->
             <el-button type="primary" @click="reload">刷新</el-button>
-            <el-button type="primary" v-show="isShowCourseBtn" @click="clickBtn">去排课</el-button>
         </div>
         <ChapterDialog
             v-model:dialogVisible="dialogVisible"
@@ -86,7 +85,7 @@ export default defineComponent({
         const {
             subjectPublisherBookList, subjectPublisherBookValue,
             teacherBookChapterList, cascaderProps, teacherBookChapter,
-            getTeacherBookChapters
+            getTeacherBookChapters, getSubjectPublisherBookList
         } = useBook();
         const dialogVisible = ref(false);
 
@@ -114,6 +113,10 @@ export default defineComponent({
             deep: true
         });
 
+        getSubjectPublisherBookList().then(() => {
+            window.dispatchEvent(new Event("subjectPublisherBookListLoaded"));
+        });
+
         return {
             titleList,
             subjectPublisherBookValue,
@@ -128,7 +131,6 @@ export default defineComponent({
             }]),
             clickTab,
             tabIndex,
-            isShowCourseBtn: computed(() => store.state.preparation.isViewCourseDetailIng || tabIndex.value === 1),
             dialogVisible,
             clickBtn,
             teacherBookChapter,

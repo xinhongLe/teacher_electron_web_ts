@@ -13,7 +13,7 @@
                     ? 'active'
                     : '' : i === 0 && index === startActiveIndex ? 'active' : ''
             ]"
-            :draggable="!isShowCourseBtn"
+            :draggable="false"
             :data-id="'course-' + index + '-' + i"
             @dragstart="onDragStart($event, j)"
             @dragend="onDragEnd($event)"
@@ -77,7 +77,6 @@ export default defineComponent({
             onDragEnd,
             onDrag,
             dialogVisible,
-            isShowCourseBtn: computed(() => store.state.preparation.isViewCourseDetailIng),
             selectCourseId: computed(() => store.state.preparation.selectCourseBag.ID),
             handleClickClassBag
         };

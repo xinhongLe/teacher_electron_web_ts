@@ -1,16 +1,13 @@
 <template>
     <CourseList ref="courseListRef"/>
     <div class="right">
-        <PackageManagement v-if="isViewCourseDetailIng"/>
-        <Schedule v-else/>
+        <PackageManagement/>
     </div>
 </template>
 
 <script lang="ts">
-import { store } from "@/store";
-import { computed, defineComponent, provide, ref } from "vue";
+import { defineComponent, provide, ref } from "vue";
 import CourseList from "./courseList/index.vue";
-import Schedule from "./schedule/index.vue";
 import PackageManagement from "./packageManagement/index.vue";
 export default defineComponent({
     name: "scheduleManagement",
@@ -21,11 +18,10 @@ export default defineComponent({
         };
         provide("getTeacherLessonAndBag", getTeacherLessonAndBag);
         return {
-            isViewCourseDetailIng: computed(() => store.state.preparation.isViewCourseDetailIng),
             courseListRef
         };
     },
-    components: { CourseList, Schedule, PackageManagement }
+    components: { CourseList, PackageManagement }
 });
 </script>
 
