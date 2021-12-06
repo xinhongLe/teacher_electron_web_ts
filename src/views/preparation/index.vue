@@ -9,6 +9,7 @@
             <IntelligenceClassroom v-if="tabIndex ===1"/> -->
             <keep-alive v-if="isRouterAlive">
                 <ScheduleManagement v-if="tabIndex === 0"/>
+                <IntelligenceClassroom v-else-if="tabIndex ===1"/>
             </keep-alive>
         </div>
     </div>
@@ -19,7 +20,7 @@ import { MutationTypes, store } from "@/store";
 import { defineComponent, onUnmounted, ref, nextTick } from "vue";
 import Head from "./head/index.vue";
 import ScheduleManagement from "./scheduleManagement/index.vue";
-// import IntelligenceClassroom from "./intelligenceClassroom/index.vue";
+import IntelligenceClassroom from "./intelligenceClassroom/index.vue";
 export default defineComponent({
     setup() {
         const tabIndex = ref(0);
@@ -42,7 +43,7 @@ export default defineComponent({
             reload
         };
     },
-    components: { Head, ScheduleManagement }
+    components: { Head, ScheduleManagement, IntelligenceClassroom }
 });
 </script>
 
