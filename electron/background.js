@@ -4,6 +4,11 @@ import { app, protocol, BrowserWindow, ipcMain, Menu } from "electron";
 import { createProtocol } from "vue-cli-plugin-electron-builder/lib";
 const isDevelopment = process.env.NODE_ENV !== "production";
 const path = require("path");
+
+protocol.registerSchemesAsPrivileged([
+    { scheme: "app", privileges: { secure: true, standard: true } }
+]);
+
 let mainWindow;
 
 async function createWindow() {
@@ -32,7 +37,6 @@ async function createWindow() {
     } else {
         createProtocol("app");
         await mainWindow.loadURL("app://./index.html");
-        // mainWindow.webContents.openDevTools();
     }
 
     mainWindow.on("closed", () => {

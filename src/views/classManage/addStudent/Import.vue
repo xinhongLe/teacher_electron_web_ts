@@ -109,6 +109,8 @@ export default defineComponent({
                 ElMessage.success("批量注册成功!");
                 emit("successCallback");
                 fileInfo.value = {};
+            } else {
+                delFile();
             }
         };
         return {

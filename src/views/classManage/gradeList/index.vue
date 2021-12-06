@@ -17,7 +17,7 @@
             <img src="@/assets/my-student/icon_add_rest@2x.png" />
             <span>创建班级</span>
         </div>
-        <AddOrEditClass/>
+        <AddOrEditClass v-if="isShowClassDialog"/>
     </div>
 </template>
 
@@ -33,6 +33,7 @@ export default defineComponent({
         store.dispatch(ActionTypes.FETCH_CLASS_LIST, true);
         return {
             classList: computed(() => store.state.myStudent.classList),
+            isShowClassDialog: computed(() => store.state.myStudent.isShowClassDialog),
             showDialog: () => store.commit(MutationTypes.SHOW_CLASS_DIALOG, { isEdit: false })
         };
     },

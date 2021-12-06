@@ -60,7 +60,7 @@ export function updateClassNameTeachers(data: UpdateClassNameTeachersData): Prom
 export function addSingleClass(data: AddSingleClassData): Promise<IResponse<null>> {
     return request({
         baseURL: AI_XUE_SHI_API,
-        url: "/Api/Web/Class/AddSingleClass/V210918",
+        url: "/Api/Web/Class/AddSingleClass/V210925",
         method: "post",
         data
     });

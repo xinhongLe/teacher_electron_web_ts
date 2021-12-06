@@ -90,6 +90,7 @@
                                         >{{ item1.Name
                                         }}<i
                                             class="el-icon-remove"
+                                            v-if="isEdit || ownerId !== item1.ID"
                                             @click="delTeacher(item1.ID)"
                                         ></i
                                     ></span>
@@ -124,7 +125,7 @@
 
 <script lang="ts">
 import { store } from "@/store";
-import { computed, defineComponent, watch, ref } from "vue";
+import { computed, defineComponent, ref } from "vue";
 import useGradeList from "./useGradeList";
 import useForm from "./useForm";
 import useTeachers from "./useTeachers";
@@ -139,31 +140,27 @@ export default defineComponent({
         const { gradeList, getGradeList } = useGradeList();
         const showTeacher = ref(false);
         const show = computed(() => store.state.myStudent.isShowClassDialog);
-        watch(
-            () => show.value,
-            async (newShow) => {
-                if (newShow) {
-                    await getGradeList();
-                    const {
-                        isEditClassDialog: isEdit,
-                        classDialogInfo: classInfo
-                    } = store.state.myStudent;
-                    if (isEdit) {
-                        formData.name = classInfo!.Name;
-                        formData.schoolId = classInfo!.SchoolId;
-                        formData.gradeId = gradeList.value.find(
-                            (item) => item.ResultValue === classInfo!.GradeAlbum
-                        )!.ResultValue;
-                        getClassTeachers(classInfo!.ID);
-                    }
-                }
+
+        getGradeList().then(() => {
+            const {
+                isEditClassDialog: isEdit,
+                classDialogInfo: classInfo
+            } = store.state.myStudent;
+            if (isEdit) {
+                formData.name = classInfo!.Name;
+                formData.schoolId = classInfo!.SchoolId;
+                formData.gradeId = gradeList.value.find(
+                    (item) => item.ResultValue === classInfo!.GradeAlbum
+                )!.ResultValue;
+                getClassTeachers(classInfo!.ID);
             }
-        );
+        });
         return {
             show,
             close,
             campusList: computed(() => store.state.userInfo.Schools),
             isEdit: computed(() => store.state.myStudent.isEditClassDialog),
+            ownerId: computed(() => store.state.userInfo.id),
             gradeList,
             formData,
             formRef,

@@ -39,7 +39,13 @@ export default (selectTeacher: Ref<ClassTeacher[]>) => {
             if (valid) {
                 const { isEditClassDialog, classDialogInfo } = store.state.myStudent;
                 const teacherID = store.state.userInfo.id;
-                const teacherIDs = selectTeacher.value.map(v => v.ID);
+                const teacherIDs: string[] = [];
+                const ownerId = store.state.userInfo.id;
+                selectTeacher.value.forEach(({ ID }) => {
+                    if (ownerId !== ID) {
+                        teacherIDs.push(ID);
+                    }
+                });
                 let message = "";
                 let flag = false;
                 let isActiveFirst = false;
