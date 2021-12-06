@@ -4,11 +4,10 @@
             <PageList
                 style="margin-right: 15px"
                 :pageListOption="pageList"
-                ref="pageList"
+                ref="PageList"
+                @nextCard="nextCard()"
+                @prevCard="prevCard()"
             />
-            <!-- @nextCard="nextCard"
-            @prevCard="prevCard"
-            :currentStep.sync="currentStep" -->
             <Remark :value="remark" v-if="showRemark" />
         </div>
         <Tools
@@ -19,14 +18,11 @@
             @prevStep="prevStep"
             @nextStep="nextStep"
         />
-        <!--
-        :isLast="isLast"
-        :isFirst="isFirst" -->
     </div>
 </template>
 
 <script>
-import { computed, defineComponent, toRefs } from "vue-demi";
+import { computed, defineComponent, onMounted, toRefs } from "vue-demi";
 import preventRemark from "../../hooks/previewRemark";
 import Remark from "./remark.vue";
 import Tools from "./tools.vue";
@@ -37,14 +33,21 @@ export default defineComponent({
     },
     props: ["options", "hideTools"],
     setup(props) {
-        const { data, showRemark, selectCard, toggleRemark, prevStep, nextStep } = preventRemark();
+        const { remark, PageList, data, showRemark, toggleRemark, prevStep, nextStep } = preventRemark();
         const pageList = computed(() => props.options.pages);
         const hideTool = computed(() => props.hideTools);
-        selectCard(0);
+        onMounted(() => {
+            selectCard(0);
+        });
+        const selectCard = (index) => {
+            data.selectedCard = index;
+        };
         return {
+            PageList,
             ...toRefs(data),
             showRemark,
             pageList,
+            remark,
             hideTool,
             toggleRemark,
             prevStep,

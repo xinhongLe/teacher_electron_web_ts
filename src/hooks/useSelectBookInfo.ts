@@ -1,5 +1,5 @@
 import {
-    getSubjectPublisherBookList, getChapters, getWindowCards, deleteCardOrPage, addPage,
+    getSubjectPublisherBookList, getChapters, getWindowCard, deleteCardOrPage, addPage,
     renameCardOrPage, setCardOrPageState, updateCardSort, movePage, addCard,
     IGetChapters, IGetWindowCards, IDelCardOrPage, IAddPage, IRenameCardOrPage,
     ICardOrPageState, ICardSortRes, IAddCard, IMovePage
@@ -87,7 +87,7 @@ export default () => {
     };
 
     const _getWindowCards = (data: IGetWindowCards) => {
-        getWindowCards(data).then(res => {
+        getWindowCard(data).then(res => {
             if (res.resultCode === 200) {
                 state.windowCards = res.result;
                 state.oldWindowCards = JSON.parse(JSON.stringify(res.result));

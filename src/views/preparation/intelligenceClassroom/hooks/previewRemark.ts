@@ -1,28 +1,28 @@
 import { reactive, ref } from "vue-demi";
 export default () => {
     const showRemark = ref(true);
-    const pageList = ref();
+    const PageList = ref();
+    const remark = ref("");
     const data = reactive({
-        remark: "",
         selectedCard: -1,
         hideTools: false
     });
-    const selectCard = (index: number) => {
-        data.selectedCard = index;
-    };
     const toggleRemark = () => {
         showRemark.value = !showRemark.value;
     };
     const prevStep = () => {
-        pageList.value.prevStep();
+        console.log("preview触发");
+        PageList.value.prevCard();
     };
     const nextStep = () => {
-        pageList.value.nextStep();
+        console.log("preview触发");
+        PageList.value.nextCard();
     };
     return {
         data,
+        PageList,
         showRemark,
-        selectCard,
+        remark,
         toggleRemark,
         prevStep,
         nextStep

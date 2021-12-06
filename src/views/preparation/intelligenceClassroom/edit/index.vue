@@ -4,7 +4,7 @@
         padding: showCollapse ? '0px' : '0px 9px'}">
            <div class="left-content">
                <div>
-                   <el-cascader v-model="subjectPublisherBookValue" :options="subjectPublisherBookList"
+                   <!-- <el-cascader v-model="subjectPublisherBookValue" :options="subjectPublisherBookList"
                                 :props="{  value: 'ID', children: 'Children', label: 'Name' }">
                    </el-cascader>
                    <el-select v-model="chaptersValue" placeholder="Select">
@@ -13,7 +13,7 @@
                    </el-select>
                    <el-cascader v-model="winValue" :options="winList"
                                 :props="{ value: 'ID', children: 'Children', label: 'Name' }">
-                   </el-cascader>
+                   </el-cascader> -->
                    <el-button
                        class="add-card"
                        v-if="winValue.length > 0"
@@ -87,7 +87,7 @@
 </template>
 
 <script lang="ts">
-import { onMounted, onUnmounted, defineComponent, toRefs, watch, ref } from "vue";
+import { onMounted, onUnmounted, defineComponent, toRefs, ref } from "vue";
 import WinCardEdit from "../components/edit/winCardEdit.vue";
 import { IPageValue, ICardList } from "@/types/home";
 import Node from "element-plus/es/components/tree/src/model/node";
@@ -98,6 +98,7 @@ import AddPageDialog from "../components/edit/addPageDialog.vue";
 import UpdateNameCardOrPage from "../components/edit/updateNameCardOrPage.vue";
 import WinCardView from "../components/edit/winScreenView.vue";
 import AddCardDialog from "../components/edit/addCardDialog.vue";
+import { useRoute } from "vue-router";
 export default defineComponent({
     components: { AddCardDialog, WinCardView, UpdateNameCardOrPage, AddPageDialog, WinCardEdit, MoreFilled },
     setup() {
@@ -129,8 +130,9 @@ export default defineComponent({
             }
         };
         const {
-            state, defaultProps, pageValue, _getSubjectPublisherBookList,
-            _getChapters, _getWindowCards, _getWinList, _deleteCardOrPage, _addPage, _renameCardOrPage,
+            // _getChapters, _getWindowCards, _getWinList,
+            state, defaultProps, pageValue, _getSubjectPublisherBookList, _getWindowCards,
+            _deleteCardOrPage, _addPage, _renameCardOrPage,
             _setCardOrPageState, _addCard, dragDealData
         } = useSelectBookInfo();
         const handleNodeClick = (data :IPageValue, Node: Node) => {
@@ -156,17 +158,21 @@ export default defineComponent({
 
         _getSubjectPublisherBookList();
 
-        watch(() => state.subjectPublisherBookValue, (curVal) => {
-            _getChapters({ id: curVal[2] });
-        });
+        // watch(() => state.subjectPublisherBookValue, (curVal) => {
+        //     _getChapters({ id: curVal[2] });
+        // });
 
-        watch(() => state.chaptersValue, (curVal) => {
-            _getWinList(curVal);
+        // watch(() => state.chaptersValue, (curVal) => {
+        //     _getWinList(curVal);
+        // });
+        const route = useRoute();
+        onMounted(() => {
+            console.log(route.query.winValue, "route");
+            _getWindowCards({ WindowID: `${route.query.winValue}` });
         });
-
-        watch(() => state.winValue, (curVal) => {
-            _getWindowCards({ WindowID: curVal[1] });
-        });
+        // watch(() => state.winValue, (curVal) => {
+        //     _getWindowCards({ WindowID: curVal[1] });
+        // });
 
         const handleAddCard = (name:string) => {
             _addCard({ WindowID: state.winValue[1], Sort: 0, Name: name });

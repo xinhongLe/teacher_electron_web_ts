@@ -40,7 +40,23 @@ interface IAddPage{
     Type: number,
     Name: string
 }
-
+interface CopyWindow {
+    id: string,
+    originType: number,
+    sourceLessonID: string
+}
+// 复制窗
+export function CopyWindow(data:CopyWindow) {
+    return request({
+        baseURL: AI_XUE_SHI_API,
+        url: "/Api/WCP/Teacher/CopyWindow",
+        headers: {
+            "Content-Type": "application/json-patch+json"
+        },
+        method: "post",
+        data
+    });
+}
 // 获取书本信息
 export function getSubjectPublisherBookList(): Promise<BookListResponse> {
     return request({

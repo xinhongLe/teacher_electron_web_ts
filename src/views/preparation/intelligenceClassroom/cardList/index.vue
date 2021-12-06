@@ -28,7 +28,6 @@ export default defineComponent({
             () => props.cardList,
             () => {
                 currentCardList.value = props.cardList;
-                console.log(currentCardList, "currentCardList");
             }
         );
         const cardIndex = ref(0);
@@ -36,7 +35,6 @@ export default defineComponent({
             cardIndex.value = index;
             const pageDate = dealCardData(item);
             emit("updatePageList", pageDate);
-            console.log(index, item, pageDate);
         };
         return {
             currentCardList,

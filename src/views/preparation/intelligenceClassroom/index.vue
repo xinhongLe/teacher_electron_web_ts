@@ -74,6 +74,7 @@ import userSelectBookInfo from "./hooks/userSelectBookInfo";
 import CardList from "./cardList/index.vue";
 import PreviewSection from "./components/preview/previewSection.vue";
 import { useRouter } from "vue-router";
+import { CopyWindow } from "./api/index";
 export default defineComponent({
     components: {
         CardList, PreviewSection
@@ -103,11 +104,24 @@ export default defineComponent({
             const obj = { chapterID: chapterID.value };
             _getSchoolLessonWindow(obj);
         });
-        const windowEdit = (item) => {
-            console.log(item);
-            router.push({
-                path: "/windowcard-edit"
-            });
+        const windowEdit = async (item) => {
+            console.log(item, "item");
+            if (item.Type === 0) {
+                const obj = {
+                    id: item.TeachPageList[0].WindowID,
+                    originType: 1,
+                    sourceLessonID: item.Lesson.ID
+                };
+                const res = await CopyWindow(obj);
+                if (res.resultCode === 200) {
+                    router.push({
+                        path: "/windowcard-edit",
+                        query: {
+                            winValue: res.result.ID
+                        }
+                    });
+                }
+            }
         };
         return {
             showList,

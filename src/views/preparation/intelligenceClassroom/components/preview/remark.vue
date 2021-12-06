@@ -3,7 +3,7 @@
         <div class="me-remark-title">教学建议</div>
         <div class="me-remark-content">
             <ul v-if="value">
-                <li v-for="(item, index) in value.split('\n')" :key="index">
+                <li v-for="(item, index) in remark.split('\n')" :key="index">
                     {{ item }}
                 </li>
             </ul>
@@ -12,8 +12,17 @@
 </template>
 
 <script>
-import { defineComponent } from "vue-demi";
-export default defineComponent({});
+import { computed, defineComponent } from "vue-demi";
+export default defineComponent({
+    props: ["value"],
+    setup(props) {
+        console.log(props.value, "111111111111111111111112");
+        const remark = computed(() => props.value);
+        return {
+            remark
+        };
+    }
+});
 </script>
 
 <style lang="scss" scoped>

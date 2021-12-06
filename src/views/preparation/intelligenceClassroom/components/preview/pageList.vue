@@ -1,11 +1,13 @@
 <template>
-    <div>
+    <div class="pageListComponents">
         <div class="me-work">
             <ScreenView
                 class="me-work-screen"
                 :inline="true"
                 ref="screenRef"
                 :slide="page"
+                @pagePrev="pagePrev()"
+                @pageNext="pageNext()"
             />
             <div
                 class="me-page"
@@ -33,17 +35,15 @@
 </template>
 
 <script>
-import { computed, defineComponent, onMounted, ref, watch } from "vue-demi";
+import { defineComponent, onMounted, ref, watch } from "vue-demi";
 import pageListServer from "../../hooks/pageList";
+import { ElMessage } from "element-plus";
 import useHome from "@/hooks/useHome";
-// import ViewArea from "./viewArea.vue";
-// import { originType } from "@/config/index";
 export default defineComponent({
     props: ["pageListOption"],
-    // components: { ViewArea },
     setup(props) {
         const { getPageDetail } = useHome();
-        const pageList = computed(() => props.pageListOption);
+        const pageList = ref([]);
         const page = ref({});
         const { hasCheck, selected } = pageListServer();
         onMounted(() => {
@@ -52,6 +52,8 @@ export default defineComponent({
         watch(
             () => props.pageListOption,
             () => {
+                console.log(props.pageListOption, "11111111111111111");
+                pageList.value = props.pageListOption;
                 selectPage(0);
             }
         );
@@ -60,33 +62,57 @@ export default defineComponent({
             const newPage =
                 pageList.value.length > 0 ? pageList.value[index] : {};
             if (pageList.value.length > 0) {
+                console.log(newPage, "newpage");
                 if (newPage.isGetData) {
                     page.value = newPage;
                 } else {
-                    console.log(newPage, "newpage");
-                    console.log(pageList.value[index]);
                     page.value = await getPageDetail(pageList.value[index]);
                 }
             } else {
                 page.value = {};
             }
         };
-        const prevStep = () => {
-            console.log("上一步触发");
+        const prevCard = async () => {
+            if (selected.value === 0) {
+                return ElMessage({ type: "warning", message: "已经是第一页" });
+            }
+            selected.value--;
+            page.value = await getPageDetail(pageList.value[selected.value]);
+        };
+        const nextCard = async () => {
+            console.log(selected.value, pageList.value.length, "pagelength");
+            if (selected.value === pageList.value.length - 1) {
+                return ElMessage({ type: "warning", message: "已经是最后一页" });
+            }
+            selected.value++;
+            page.value = await getPageDetail(pageList.value[selected.value]);
         };
         return {
             page,
             hasCheck,
             selected,
             pageList,
-            prevStep,
-            selectPage
+            prevCard,
+            selectPage,
+            nextCard
         };
     }
 });
 </script>
 
 <style lang="scss" scoped>
+.pageListComponents{
+    display: flex;
+    flex: 1;
+    ::v-deep .slide-content{
+        width: 100% !important;
+        height: 100% !important;
+    }
+    ::v-deep .scale-content{
+        width: 100% !important;
+        height: 100% !important;
+    }
+}
 .me-work {
     flex: 1;
     min-width: 0;
@@ -94,8 +120,8 @@ export default defineComponent({
     flex-direction: column;
 }
 .me-work-screen {
-    width: 1280px;
-    height: 720px;
+    width: 100%;
+    height: 100%;
 }
 .me-page {
     min-width: 0;

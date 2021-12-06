@@ -132,6 +132,8 @@ export default defineComponent({
         const toggleRemark = () => {
             emit("toggleRemark");
         };
+        const isLast = ref(false);
+        const isFirst = ref(false);
         const showremark = ref(true);
         watch(
             () => props.showRemark,
@@ -140,13 +142,17 @@ export default defineComponent({
             }
         );
         const prevStep = () => {
+            console.log("tools触发");
             emit("prevStep");
         };
         const nextStep = () => {
+            console.log("tools触发");
             emit("nextStep");
         };
         return {
             type,
+            isLast,
+            isFirst,
             showremark,
             goback,
             mousedown,

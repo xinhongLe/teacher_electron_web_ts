@@ -2,7 +2,7 @@ import request from "@/utils/request";
 import { IResponse } from "@/types/response";
 import { ICardList, ITreeList } from "@/types/home";
 import { Slide } from "wincard/src/types/slides";
-import { AI_XUE_SHI_API, originType } from "@/config/index";
+import { WINDOW_CRAD_API, originType } from "@/config/index";
 import { getWinCardDB } from "@/utils/database";
 type BookListResponse = IResponse<ITreeList[]>
 export interface IGetChapters {
@@ -85,7 +85,7 @@ export function getSubjectPublisherBookList(): Promise<BookListResponse> {
         },
         method: "post",
         data: {},
-        baseURL: AI_XUE_SHI_API
+        baseURL: WINDOW_CRAD_API
     });
 }
 
@@ -98,14 +98,14 @@ export function getChapters(data: IGetChapters): Promise<ChaptersResponse> {
         },
         method: "post",
         data,
-        baseURL: AI_XUE_SHI_API
+        baseURL: WINDOW_CRAD_API
     });
 }
 
 // 选择跟读页视频 书本信息
 export function getSubjectPublisherBookListVideo(): Promise<GetPageResponse> {
     return request({
-        baseURL: AI_XUE_SHI_API,
+        baseURL: WINDOW_CRAD_API,
         url: "/Api/W1/Book/GetSubjectPublisherBookListStaff",
         method: "post",
         data: {}
@@ -115,7 +115,7 @@ export function getSubjectPublisherBookListVideo(): Promise<GetPageResponse> {
 // 选择跟读页视频 单元
 export function getChaptersVideo(data: IGetChaptersVideo): Promise<GetPageResponse> {
     return request({
-        baseURL: AI_XUE_SHI_API,
+        baseURL: WINDOW_CRAD_API,
         url: "/API/W1/Card/GetChapters",
         method: "post",
         data: Object.assign(data, { OriginType: originType })
@@ -127,11 +127,22 @@ export function getElementsVideo(data: IElementsVideo): Promise<GetPageResponse>
     return request({
         url: "/API/W1/Chapter/GetElements",
         method: "post",
-        baseURL: AI_XUE_SHI_API,
+        baseURL: WINDOW_CRAD_API,
         data: Object.assign(data, { OriginType: originType })
     });
 }
-
+// 获取复制窗下的卡、页
+export function getWindowCard(data: IGetWindowCards): Promise<GetWindowCardsResponse> {
+    return request({
+        url: "API/W1/Card/GetWindowCards",
+        headers: {
+            "Content-Type": "application/json-patch+json"
+        },
+        method: "post",
+        baseURL: WINDOW_CRAD_API,
+        data: Object.assign(data, { OriginType: originType })
+    });
+}
 // 获取窗下的卡、页
 export function getWindowCards(data: IGetWindowCards): Promise<GetWindowCardsResponse> {
     return request({
@@ -140,7 +151,7 @@ export function getWindowCards(data: IGetWindowCards): Promise<GetWindowCardsRes
             "Content-Type": "application/json-patch+json"
         },
         method: "post",
-        baseURL: AI_XUE_SHI_API,
+        baseURL: WINDOW_CRAD_API,
         data
     });
 }
@@ -163,7 +174,7 @@ export async function getPageDetailRes(data:IGetPageData, type: number): Promise
             url: urlList[type],
             headers: { DeviceID: "Franchisee", ...dbResArr.length > 0 ? { noLoading: "ok" } : {} },
             method: "post",
-            baseURL: AI_XUE_SHI_API,
+            baseURL: WINDOW_CRAD_API,
             data: Object.assign(data, { OriginType: originType })
         }).then((res:any) => {
             if (res.success) {
@@ -196,7 +207,7 @@ export function updatePageRes(data: Slide, type:number) : Promise<GetPageRespons
         url: urlList[type],
         headers: { DeviceID: "Franchisee" },
         method: "post",
-        baseURL: AI_XUE_SHI_API,
+        baseURL: WINDOW_CRAD_API,
         data: Object.assign(data, { OriginType: originType })
     });
 }
@@ -207,7 +218,7 @@ export function deleteCardOrPage(data:IDelCardOrPage): Promise<GetPageResponse> 
         url: "/Api/WCP/Window/DelCardOrPage",
         headers: { DeviceID: "Franchisee" },
         method: "post",
-        baseURL: AI_XUE_SHI_API,
+        baseURL: WINDOW_CRAD_API,
         data: Object.assign(data, { OriginType: originType })
     });
 }
@@ -218,7 +229,7 @@ export function addCard(data: IAddCard) : Promise<GetPageResponse> {
         url: "/Api/WCP/Window/AddCard",
         headers: { DeviceID: "Franchisee" },
         method: "post",
-        baseURL: AI_XUE_SHI_API,
+        baseURL: WINDOW_CRAD_API,
         data: Object.assign(data, { OriginType: originType })
     });
 }
@@ -229,7 +240,7 @@ export function addPage(data: IAddPage) : Promise<GetPageResponse> {
         url: "/Api/WCP/Window/AddPage",
         headers: { DeviceID: "Franchisee" },
         method: "post",
-        baseURL: AI_XUE_SHI_API,
+        baseURL: WINDOW_CRAD_API,
         data: Object.assign(data, { OriginType: originType })
     });
 }
@@ -240,7 +251,7 @@ export function renameCardOrPage(data : IRenameCardOrPage) : Promise<GetPageResp
         url: "/Api/WCP/Window/EditCardOrPageName",
         headers: { DeviceID: "Franchisee" },
         method: "post",
-        baseURL: AI_XUE_SHI_API,
+        baseURL: WINDOW_CRAD_API,
         data: Object.assign(data, { OriginType: originType })
     });
 }
@@ -251,7 +262,7 @@ export function getVideoQuoteInfo(data : IVideoQuoteInfo) : Promise<GetPageRespo
         url: "Api/WCP/Window/GetVideoQuoteInfo",
         headers: { DeviceID: "Franchisee" },
         method: "post",
-        baseURL: AI_XUE_SHI_API,
+        baseURL: WINDOW_CRAD_API,
         data: Object.assign(data, { OriginType: originType })
     });
 }
@@ -262,7 +273,7 @@ export function updateCardSort(data : ICardSortRes) : Promise<GetPageResponse> {
         url: "Api/WCP/Window/UpdateCardSort",
         headers: { DeviceID: "Franchisee" },
         method: "post",
-        baseURL: AI_XUE_SHI_API,
+        baseURL: WINDOW_CRAD_API,
         data: Object.assign(data, { OriginType: originType })
     });
 }
@@ -273,7 +284,7 @@ export function movePage(data : IMovePage) : Promise<GetPageResponse> {
         url: "/Api/WCP/Window/MovePage",
         headers: { DeviceID: "Franchisee" },
         method: "post",
-        baseURL: AI_XUE_SHI_API,
+        baseURL: WINDOW_CRAD_API,
         data: Object.assign(data, { OriginType: originType })
     });
 }
@@ -284,7 +295,7 @@ export function getCardDetail(data: string[]): Promise<GetPageResponse> {
         url: "/Api/WCP/Window/GetPageInfos",
         headers: { DeviceID: "Franchisee" },
         method: "post",
-        baseURL: AI_XUE_SHI_API,
+        baseURL: WINDOW_CRAD_API,
         data: Object.assign(data, { OriginType: originType })
     });
 }
@@ -294,7 +305,7 @@ export function setCardOrPageState(data: ICardOrPageState) : Promise<GetPageResp
     return request({
         url: "/Api/WCP/Window/SetCardOrPageState",
         method: "post",
-        baseURL: AI_XUE_SHI_API,
+        baseURL: WINDOW_CRAD_API,
         data: Object.assign(data, { OriginType: originType })
     });
 }
