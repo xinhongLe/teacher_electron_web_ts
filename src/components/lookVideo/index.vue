@@ -4,7 +4,7 @@
             <div class="frames-box">
                 <p>查看视频</p>
                 <div class="content">
-                    <Brush ref="child"></Brush>
+                    <Brush ref="childRef"></Brush>
                     <div class="material-box">
                         <video
                             ref="videoRef"
@@ -155,6 +155,7 @@ export default defineComponent({
             changeVideoTime,
             brushHandle,
             isElectron,
+            childRef,
             formateSeconds
         };
     },
