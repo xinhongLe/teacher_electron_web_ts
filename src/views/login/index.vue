@@ -57,7 +57,7 @@
 
 <script lang="ts">
 // import isElectron from "is-electron";
-import { defineComponent, reactive, ref } from "vue";
+import { defineComponent, onMounted, onUnmounted, reactive, ref } from "vue";
 import useLogin from "@/hooks/useLogin";
 import { useRouter } from "vue-router";
 import { ILoginData } from "@/types/login";
@@ -95,7 +95,21 @@ export default defineComponent({
             });
         };
 
+        const onEnter = (e: KeyboardEvent) => {
+            if (e.key === "Enter") {
+                login();
+            }
+        };
+
         const version = ref("");
+
+        onMounted(() => {
+            document.addEventListener("keyup", onEnter);
+        });
+
+        onUnmounted(() => {
+            document.removeEventListener("keyup", onEnter);
+        });
 
         return { form, recordAccountList, loading, login, version, handleChange };
     }
@@ -135,7 +149,7 @@ $btn_color: #4b71ee;
                 line-height: 45px;
             }
         }
-        /deep/.el-form {
+        :deep(.el-form) {
             .el-form-item {
                 position: relative;
                 margin-bottom: 32px;

@@ -33,7 +33,7 @@
 import { HaveClassData, HaveClassWithDefaultBagData } from "@/api";
 import { ColData, Schedule } from "@/hooks/useSchedules";
 import { store } from "@/store";
-import { Classes } from "@/types/login";
+import { LessonClasses } from "@/types/login";
 import { CourseBag } from "@/types/preparation";
 import { get, STORAGE_TYPES } from "@/utils/storage";
 import { ElMessage } from "element-plus";
@@ -60,7 +60,7 @@ export default defineComponent({
         }
     },
     setup(props, { emit }) {
-        const allClass = ref<Classes[][]>([]);
+        const allClass = ref<LessonClasses[][]>([]);
         const checkList = ref<string[]>([]);
 
         const updateSchedules = inject("updateSchedules") as () => Promise<void>;
@@ -93,7 +93,7 @@ export default defineComponent({
             addClasses(props.courseBag.Type!, data as HaveClassWithDefaultBagData | HaveClassData, callback);
         };
 
-        const arr = get(STORAGE_TYPES.USER_INFO).Classes as Classes[];
+        const arr = get(STORAGE_TYPES.USER_INFO).Classes as LessonClasses[];
         allClass.value = chunk(arr, 2);
 
         return {

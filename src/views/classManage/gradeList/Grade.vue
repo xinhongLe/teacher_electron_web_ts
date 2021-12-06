@@ -17,7 +17,7 @@
 
 <script lang="ts">
 import { MutationTypes, store } from "@/store";
-import { Class, Grade } from "@/types/myStudent";
+import { Class } from "@/types/myStudent";
 import { computed, defineComponent, PropType } from "vue";
 export default defineComponent({
     props: {

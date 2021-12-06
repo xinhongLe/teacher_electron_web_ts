@@ -21,16 +21,10 @@
             <span class="dialog-footer">
                 <el-button @click="handleClose">取 消</el-button>
                 <el-button
-                    v-if="!isEdit"
                     type="primary"
                     @click="handleConfirm"
-                    >确 定</el-button
+                    > {{isEdit ? "编辑" : "确 定"}}</el-button
                 >
-                <div v-else class="footerBtn">
-                    <el-button type="primary" @click="handleConfirm"
-                        >编辑</el-button
-                    >
-                </div>
             </span>
         </template>
     </el-dialog>
@@ -38,7 +32,7 @@
 
 <script lang="ts">
 import { ElFormType } from "@/types/elementType";
-import { Course } from "@/types/preparation";
+import { CourseBag } from "@/types/preparation";
 import { defineComponent, inject, PropType, reactive, ref } from "vue";
 import { addCourseBagTeacher, updateCourseBagTeacher } from "../api";
 export default defineComponent({
@@ -52,7 +46,7 @@ export default defineComponent({
             default: false
         },
         lessonOrBagValue: {
-            type: Object as PropType<Course>,
+            type: Object as PropType<CourseBag>,
             default: () => ({})
         }
     },
@@ -62,7 +56,7 @@ export default defineComponent({
             name: [{ required: true, message: "课包名称", trigger: "blur" }]
         };
         const formData = reactive({
-            name: ""
+            name: props.isEdit ? props.lessonOrBagValue.Name! : ""
         });
 
         const getTeacherLessonAndBag = inject("getTeacherLessonAndBag") as () => void;
@@ -75,13 +69,18 @@ export default defineComponent({
             formRef.value!.validate(async valid => {
                 if (valid) {
                     let res;
-                    const data = {
-                        name: formData.name,
-                        lessonID: props.lessonOrBagValue.ID
-                    };
+
                     if (props.isEdit) {
+                        const data = {
+                            name: formData.name,
+                            id: props.lessonOrBagValue.ID!
+                        };
                         res = await updateCourseBagTeacher(data);
                     } else {
+                        const data = {
+                            name: formData.name,
+                            lessonID: props.lessonOrBagValue.ID!
+                        };
                         res = await addCourseBagTeacher(data);
                     }
                     if (res?.resultCode === 200) {

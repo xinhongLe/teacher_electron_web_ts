@@ -64,7 +64,7 @@
 import { ElFormType } from "@/types/elementType";
 import { defineComponent, PropType, reactive, ref } from "vue";
 import { getAccountPassword } from "../api";
-const checkPassword = (rule: any, value: string, callback: (error?: Error) => void) => {
+const checkPassword = (rule: unknown, value: string, callback: (error?: Error) => void) => {
     const reg = new RegExp(
         "[`~!@\\-_#$^&*()=|{}':;',\\[\\].<>/?~！@#￥……&*（）——|{}【】‘；：”“'。，、？]"
     );

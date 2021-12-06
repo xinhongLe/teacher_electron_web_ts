@@ -45,7 +45,7 @@
                                         justify-content: space-around;
                                     "
                                 >
-                                    <div style="display: flex; align-item: center">
+                                    <div style="display: flex">
                                         <img
                                             style="width: 43px"
                                             src="@/assets/indexImages/touxiang.png"
@@ -174,15 +174,18 @@ export default defineComponent({
     overflow-y: hidden;
     padding-top: 10px;
     white-space: nowrap;
+    display: flex;
 }
 
 .tab-item {
-    display: inline-block;
+    display: flex;
     margin-right: 10px;
     padding: 11px 20px;
     background-color: #313451;
     color: #aeb1bb;
-    font-size: 18px;
+    font-size: 16px;
+    align-items: center;
+    justify-content: space-between;
     line-height: 25px;
     min-width: 140px;
     border-top-left-radius: 10px;
@@ -196,9 +199,6 @@ export default defineComponent({
 }
 
 .tab-item i {
-    position: absolute;
-    right: 8px;
-    top: 10px;
     font-size: 18px;
 }
 

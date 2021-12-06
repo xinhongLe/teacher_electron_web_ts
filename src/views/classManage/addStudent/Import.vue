@@ -93,7 +93,6 @@ export default defineComponent({
             uploadRef.value && uploadRef.value.clearFiles(["ready"]);
         };
         const onChangeFile = (file: UploadFile) => {
-            console.log(file);
             emit("update:isDisabledBtn", false);
             fileInfo.value = file;
         };
@@ -110,6 +109,8 @@ export default defineComponent({
                 ElMessage.success("批量注册成功!");
                 emit("successCallback");
                 fileInfo.value = {};
+            } else {
+                delFile();
             }
         };
         return {
@@ -262,7 +263,7 @@ export default defineComponent({
             }
         }
     }
-    ::v-deep.el-link.el-link--primary {
+    :deep(.el-link.el-link--primary) {
         color: #4b71ee;
     }
 }

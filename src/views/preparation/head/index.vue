@@ -54,8 +54,7 @@
                 alt=""
             />
             <span @click="$router.go(0)">刷新</span> -->
-            <el-button type="primary" @click="$router.go(0)">刷新</el-button>
-            <el-button type="primary" v-if="isShowCourseBtn" @click="clickBtn">去排课</el-button>
+            <el-button type="primary" @click="reload">刷新</el-button>
         </div>
         <ChapterDialog
             v-model:dialogVisible="dialogVisible"
@@ -75,24 +74,29 @@ import useBook from "../hooks/useBook";
 import ChapterDialog from "./chapterDialog.vue";
 export default defineComponent({
     name: "head",
+    props: {
+        reload: {
+            type: Function
+        }
+    },
     setup(props, { emit }) {
-        const titleList = [{ title: "课表管理" }, { title: "数智课堂" }];
+        const titleList = [{ title: "翻转课堂" }, { title: "数智课堂" }];
         const tabIndex = ref(0);
         const {
             subjectPublisherBookList, subjectPublisherBookValue,
             teacherBookChapterList, cascaderProps, teacherBookChapter,
-            getTeacherBookChapters
+            getTeacherBookChapters, getSubjectPublisherBookList
         } = useBook();
         const dialogVisible = ref(false);
 
         const clickTab = (index: number) => {
             tabIndex.value = index;
-            store.commit(MutationTypes.SET_SHOW_COURSE_BTN, index === 1);
         };
 
         const clickBtn = () => {
             tabIndex.value = 0;
-            store.commit(MutationTypes.SET_SHOW_COURSE_BTN, false);
+            store.commit(MutationTypes.SET_VIEW_COURSE_DETAIL_ING, false);
+            store.commit(MutationTypes.SET_SELECT_COURSE_BAG, {});
         };
 
         watch(teacherBookChapter, (value) => {
@@ -101,6 +105,16 @@ export default defineComponent({
 
         watch(tabIndex, (value) => {
             emit("update:tabIndex", value);
+        });
+
+        watch(subjectPublisherBookValue, (value) => {
+            store.commit(MutationTypes.SET_SUBJECT_PUBLISHER_BOOK_VALUE, value);
+        }, {
+            deep: true
+        });
+
+        getSubjectPublisherBookList().then(() => {
+            window.dispatchEvent(new Event("subjectPublisherBookListLoaded"));
         });
 
         return {
@@ -117,7 +131,6 @@ export default defineComponent({
             }]),
             clickTab,
             tabIndex,
-            isShowCourseBtn: computed(() => store.state.preparation.isShowCourseBtn),
             dialogVisible,
             clickBtn,
             teacherBookChapter,
@@ -157,6 +170,8 @@ export default defineComponent({
         display: flex;
         align-content: center;
         line-height: 14px;
+        width: 460px;
+        justify-content: flex-end;
         img {
             width: 13px;
             height: 13px;

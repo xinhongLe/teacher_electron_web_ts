@@ -1,4 +1,5 @@
 import { Class, ClassStudent } from "./myStudent";
+import { CourseBag } from "./preparation";
 
 export interface UserInfoState {
     name?: string;
@@ -22,9 +23,9 @@ export interface MyStudentState {
 
 export interface PreparationState {
     /**
-     * 是否显示去排课按钮
+     * 是否正在查看课包详情
      */
-    isShowCourseBtn: boolean,
+    isViewCourseDetailIng: boolean,
     /**
      * 选择的章节id
      */
@@ -32,14 +33,43 @@ export interface PreparationState {
     /**
      * 选择的教材
      */
-    subjectPublisherBookValue: string[]
+    subjectPublisherBookValue: string[],
+    /**
+     * 选择的课时
+     */
+    selectCourseBag: CourseBag,
+    /**
+     * 是否在拖拽精品素材
+     */
+    isDraggingElement: boolean
 }
 
 export interface CommonState {
     /**
      * 是否在拖拽
      */
-    isDragging: boolean
+    isDragging: boolean,
+    /**
+     * 是否显示查看题目弹框
+     */
+    isShowQuestion: boolean,
+    /**
+     * 是否显示查看视频弹框
+     */
+    isShowVideo: boolean,
+    /**
+     * 查看题目的信息
+     */
+    viewQuestionInfo: {
+        type: number,
+        id: string
+    }
+    /**
+     * 查看视频的信息
+     */
+    viewVideoInfo: {
+        id: string
+    }
 }
 export interface RootState {
     userInfo: UserInfoState,

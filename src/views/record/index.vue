@@ -2,6 +2,12 @@
     <div class="record">
         <div class="student-info">
             <i v-if="$route.name == 'wpf学习记录'" style="font-size: 24px; margin: 20px 20px 20px 0; cursor: pointer" class="el-icon-arrow-left" @click="$router.go(-1)"></i>
+            <img
+                class="goback"
+                @click="$router.push('/class-manage')"
+                src="@/assets/images/homeworkNew/icon_back.png"
+                alt=""
+            />
             <Avatar :file="studentInfo?.HeadPortrait" :size="66"></Avatar>
             <div>
                 <p>{{ studentInfo?.Name }}</p>
@@ -144,6 +150,13 @@ export default defineComponent({
         padding: 19px 27px;
         box-sizing: border-box;
         display: flex;
+        .goback {
+            width: 9px;
+            height: 16px;
+            cursor: pointer;
+            align-self: center;
+            margin-right: 24px;
+        }
         img {
             width: 66px;
             height: 66px;

@@ -1,9 +1,14 @@
 import request from "@/utils/request";
 import { AI_XUE_SHI_API } from "@/config";
-import { IResponse } from "@/types/response";
+import { IResponse, RequestFun } from "@/types/response";
 import {
-    AddChapterData, AddCustomBookLessonData, AddOrUpdateCourseBagTeacherData, BookChapter, BookList, Course,
-    FetchTeacherBookChaptersData, FetchTeacherLessonAndBagByChapterData, SaveTeacherClassScheduleData, UpdateCustomBookLessonData
+    AddChapterData, AddCourseWareTeacherElementFileData, AddCustomBookLessonData, AddMaterialData, AddOrUpdateCourseBagTeacherData, BagChapter, BookChapter, BookList, CloneCourseBagToTeacherData, Course,
+    DelCourseBagTeacherData,
+    DeleteMaterialData,
+    EditMaterialData,
+    FetchBagChapterData,
+    FetchLessonsData,
+    FetchTeacherBookChaptersData, FetchTeacherLessonAndBagByChapterData, Lesson, Material, QueryMaterialListData, SaveTeacherClassScheduleData, UpdateCourseBagTeacherData, UpdateCourseWareListOfTeacherData, UpdateCourseWareTeacherSortData, UpdateCustomBookLessonData
 } from "@/types/preparation";
 
 // 获取科目出版社集合
@@ -71,7 +76,7 @@ export function addCourseBagTeacher(data:AddOrUpdateCourseBagTeacherData): Promi
 }
 
 // 编辑自定义课包
-export function updateCourseBagTeacher(data:AddOrUpdateCourseBagTeacherData): Promise<IResponse<null>> {
+export function updateCourseBagTeacher(data:UpdateCourseBagTeacherData): Promise<IResponse<null>> {
     return request({
         baseURL: AI_XUE_SHI_API,
         url: "/Api/W4/Teach/UpdateCourseBagTeacher",
@@ -121,3 +126,145 @@ export function saveTeacherClassSchedule(data: SaveTeacherClassScheduleData): Pr
         data
     });
 }
+
+// 克隆系统课包
+export function cloneCourseBagToTeacher(data: CloneCourseBagToTeacherData): Promise<IResponse<null>> {
+    return request({
+        baseURL: AI_XUE_SHI_API,
+        url: "API/W4/Teach/CloneCourseBagToTeacher",
+        headers: {
+            "Content-Type": "application/json-patch+json"
+        },
+        method: "post",
+        data
+    });
+}
+
+// 删除自定义课包
+export function delCourseBagTeacher(data: DelCourseBagTeacherData): Promise<IResponse<null>> {
+    return request({
+        baseURL: AI_XUE_SHI_API,
+        url: "/Api/W4/Teach/DeleteCourseBagTeacher",
+        headers: {
+            "Content-Type": "application/json-patch+json"
+        },
+        method: "post",
+        data
+    });
+}
+
+// 批量老师课包内的课件资源
+export function updateCourseWareListOfTeacher(data: UpdateCourseWareListOfTeacherData): Promise<IResponse<null>> {
+    return request({
+        baseURL: AI_XUE_SHI_API,
+        url: "/Api/W4/Teach/UpdateCourseWareListOfTeacher",
+        headers: {
+            "Content-Type": "application/json-patch+json"
+        },
+        method: "post",
+        data
+    });
+}
+
+// 修改老师课包课件排序
+export function updateCourseWareTeacherSort(data: UpdateCourseWareTeacherSortData[]): Promise<IResponse<null>> {
+    return request({
+        baseURL: AI_XUE_SHI_API,
+        url: "/API/W4/Teach/UpdateCourseWareTeacherSort",
+        headers: {
+            "Content-Type": "application/json-patch+json"
+        },
+        method: "post",
+        data
+    });
+}
+
+/**
+ * 请求课时
+ * @param {*} data
+ * @returns
+ */
+export const fetchLessons = (data: FetchLessonsData): Promise<IResponse<Lesson[]>> => {
+    return request({
+        baseURL: AI_XUE_SHI_API,
+        url: "Api/W4/Teach/GetLessons",
+        headers: {
+            "Content-Type": "application/json-patch+json"
+        },
+        method: "post",
+        data
+    });
+};
+
+// 获取练习卷列表
+export function fetchBagChapter(data: FetchBagChapterData): Promise<IResponse<BagChapter[]>> {
+    return request({
+        baseURL: AI_XUE_SHI_API,
+        url: "api/w4/ChapterChoice/GetBagChapter",
+        headers: {
+            "Content-Type": "application/json-patch+json"
+        },
+        method: "post",
+        data
+    });
+}
+
+export const queryMaterialList = (data: QueryMaterialListData): Promise<IResponse<Material[]>> => {
+    return request({
+        baseURL: AI_XUE_SHI_API,
+        url: "API/W4/Element/GetElements",
+        headers: {
+            "Content-Type": "application/json-patch+json"
+        },
+        method: "post",
+        data
+    });
+};
+
+export const deleteMaterial = (data: DeleteMaterialData): Promise<IResponse<null>> => {
+    return request({
+        baseURL: AI_XUE_SHI_API,
+        url: "API/W4/Element/DeleteElement",
+        headers: {
+            "Content-Type": "application/json-patch+json"
+        },
+        method: "post",
+        data
+    });
+};
+
+export const addMaterial = (data: AddMaterialData): Promise<IResponse<null>> => {
+    return request({
+        baseURL: AI_XUE_SHI_API,
+        url: "API/W4/Element/AddElement",
+        headers: {
+            "Content-Type": "application/json-patch+json"
+        },
+        method: "post",
+        data
+    });
+};
+
+export const editMaterial = (data: EditMaterialData): Promise<IResponse<null>> => {
+    return request({
+        baseURL: AI_XUE_SHI_API,
+        url: "API/W4/Element/EditElement",
+        headers: {
+            "Content-Type": "application/json-patch+json"
+        },
+        method: "post",
+        data
+    });
+};
+
+export const addCourseWareTeacherElementFile: RequestFun<AddCourseWareTeacherElementFileData, null> = (data) => {
+    return request({
+        baseURL: AI_XUE_SHI_API,
+        url: "Api/W4/Teach/AddCourseWareTeacherElementFile",
+        headers: {
+            "Content-Type": "application/json-patch+json"
+        },
+        method: "post",
+        data
+    });
+};

@@ -1,5 +1,5 @@
 import router from "@/router";
-import { MutationTypes, store } from "@/store";
+import { initAllState } from "@/store";
 import { remove } from "@/utils/storage";
 import isElectron from "is-electron";
 
@@ -12,5 +12,5 @@ export default () => {
         // ipcRenderer.send("unmaximizeWindow");
     }
     router.push("login");
-    store.commit(MutationTypes.RESET_STATE);
+    initAllState();
 };

@@ -219,15 +219,15 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 
-/deep/.el-form-item__label {
+:deep(.el-form-item__label) {
     padding-right: 30px;
 }
-/deep/.el-input-number {
+:deep(.el-input-number) {
     float: left;
     width: 150px;
     margin-left: 30px;
 }
-/deep/.el-date-editor {
+:deep(.el-date-editor) {
     width: 100%;
 }
 .student-detail {
@@ -306,7 +306,7 @@ export default defineComponent({
     }
     .add-class-box {
         display: flex;
-        /deep/.el-select {
+        :deep(.el-select) {
             margin-right: 10px;
         }
     }

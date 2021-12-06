@@ -38,8 +38,7 @@ export const cooOss = function(file: UploadFile & Blob, OssPaths: IOssPaths): Pr
                     md5
                 });
             }).catch((err: Error) => {
-                console.log(err);
-                console.error("上传出错了");
+                console.error("上传出错了", err);
             });
         });
     });

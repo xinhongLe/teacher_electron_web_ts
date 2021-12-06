@@ -9,12 +9,18 @@ interface ILoginResult {
     token: string;
 }
 
-export interface Classes {
+export interface LessonClasses {
     GradeID: string,
     GradeName: string,
     GradeSort: number,
     ID: string,
     Name: string
+}
+
+export interface LessonSubject {
+    ID: string
+    Name: string
+    OldID: number
 }
 
 export interface ILessonManagerResult {
@@ -24,7 +30,8 @@ export interface ILessonManagerResult {
         ID: string,
         Name: string
     }[],
-    Classes: Classes[],
+    Classes: LessonClasses[],
+    Subjects: LessonSubject[],
     ID: string
 }
 

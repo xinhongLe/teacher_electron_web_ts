@@ -13,7 +13,7 @@ const mutations: MutationTree<UserInfoState> = {
     [MutationTypes.UPDATE_USERINFO](state, userInfo: UserInfoState) {
         Object.assign(state, userInfo);
     },
-    [MutationTypes.RESET_STATE](state) {
+    [MutationTypes.USER_INFO_RESET_STATE](state) {
         Object.assign(state, initState());
     }
 };

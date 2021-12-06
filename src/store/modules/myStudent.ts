@@ -28,8 +28,8 @@ const mutations:MutationTree<MyStudentState> = {
     [MutationTypes.UPDATE_SEARCH_STUDENT](state, content: string) {
         state.searchStudent = content;
     },
-    [MutationTypes.RESET_STATE](state) {
-        Object.assign(state, initState);
+    [MutationTypes.MY_STUDENT_RESET_STATE](state) {
+        Object.assign(state, initState());
     },
     [MutationTypes.UPDATE_GRADE_LIST](state, gradeList) {
         state.classList = gradeList;

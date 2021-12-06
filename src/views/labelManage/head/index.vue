@@ -1,5 +1,11 @@
 <template>
     <div class="search-box">
+        <img
+            class="goback"
+            @click="$router.push('/class-manage')"
+            src="@/assets/images/homeworkNew/icon_back.png"
+            alt=""
+        />
         <div class="form-warp">
             <el-form ref="form" :model="formData" :inline="true">
                 <i v-if="$route.name == 'wpf管理标签'" style="font-size: 20px; margin: 10px 10px 10px 0; cursor: pointer" class="el-icon-arrow-left" @click="$router.go(-1)"></i>
@@ -104,13 +110,20 @@ export default defineComponent({
         height: 72px;
         display: flex;
         justify-content: space-between;
+        .goback {
+            width: 9px;
+            height: 16px;
+            cursor: pointer;
+            align-self: center;
+            margin-left: 24px;
+        }
         .form-warp {
             float: left;
             flex: 1;
             margin-left: 24px;
             margin-top: 16px;
         }
-        /deep/ .el-input-group__append {
+        :deep(.el-input-group__append) {
             background: none;
             font-size: 14px;
             font-weight: 500;

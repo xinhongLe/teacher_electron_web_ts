@@ -1,37 +1,54 @@
 <template>
-    <el-dialog
-        title="添加老师"
-        :model-value="visible"
-        width="820px"
-        append-to-body
-        :before-close="handleClose"
-    >
-        <div class="tab">
-            <span :class="{ active: tabIndex == 0 }" @click="tabIndex = 0"
-                >注册单个学生</span
-            >
-            <span :class="{ active: tabIndex == 1 }" @click="tabIndex = 1"
-                >表格批量导入</span
-            >
-            <span :class="{ active: tabIndex == 2 }" @click="tabIndex = 2"
-                >添加已有学生</span
-            >
-        </div>
-        <div class="form" v-if="tabIndex === 0">
-            <StudentForm ref="formRef" :form="formData">
-                <el-form-item label="班级和年级：">
-                    <el-input v-model="formData.className" disabled></el-input>
-                </el-form-item>
-            </StudentForm>
-        </div>
-        <Import v-show="tabIndex === 1" v-model:isDisabledBtn="isDisabledBtn" @successCallback="successCallback" ref="uploadRef"/>
-        <StudentInfo v-if="tabIndex === 2" @successCallback="successCallback" ref="studentRef"/>
-        <div class="btns">
-            <span @click="handleClose">取消</span>
-            <span  @click="save" :class="tabIndex === 1 && isDisabledBtn ? 'disable' : ''">保存</span>
-            <!-- <span v-if="tabIndex == 1 && !fileList.name" style="background: #D4D6D9;color: #fff">保存</span> -->
-        </div>
-    </el-dialog>
+    <div class="container">
+        <el-dialog
+            title="添加学生"
+            :model-value="visible"
+            width="820px"
+            :before-close="handleClose"
+        >
+            <div class="tab">
+                <span :class="{ active: tabIndex == 0 }" @click="tabIndex = 0"
+                    >注册单个学生</span
+                >
+                <span :class="{ active: tabIndex == 1 }" @click="tabIndex = 1"
+                    >表格批量导入</span
+                >
+                <span :class="{ active: tabIndex == 2 }" @click="tabIndex = 2"
+                    >添加已有学生</span
+                >
+            </div>
+            <div class="form" v-if="tabIndex === 0">
+                <StudentForm ref="formRef" :form="formData">
+                    <el-form-item label="班级和年级：">
+                        <el-input
+                            v-model="formData.className"
+                            disabled
+                        ></el-input>
+                    </el-form-item>
+                </StudentForm>
+            </div>
+            <Import
+                v-show="tabIndex === 1"
+                v-model:isDisabledBtn="isDisabledBtn"
+                @successCallback="successCallback"
+                ref="uploadRef"
+            />
+            <StudentInfo
+                v-if="tabIndex === 2"
+                @successCallback="successCallback"
+                ref="studentRef"
+            />
+            <div class="btns">
+                <span @click="handleClose">取消</span>
+                <span
+                    @click="save"
+                    :class="tabIndex === 1 && isDisabledBtn ? 'disable' : ''"
+                    >保存</span
+                >
+                <!-- <span v-if="tabIndex == 1 && !fileList.name" style="background: #D4D6D9;color: #fff">保存</span> -->
+            </div>
+        </el-dialog>
+    </div>
 </template>
 
 <script lang="ts">
@@ -71,7 +88,7 @@ export default defineComponent({
 
         const save = () => {
             if (tabIndex.value === 0) {
-                formRef.value!.formRef!.validate(valid => {
+                formRef.value!.formRef!.validate((valid) => {
                     if (valid) {
                         saveForm(successCallback);
                     }
@@ -99,9 +116,12 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-/deep/.el-dialog__body {
-    padding: 0;
+.container {
+    :deep(.el-dialog__body) {
+        padding: 0;
+    }
 }
+
 .tab {
     display: flex;
     justify-content: center;
@@ -146,7 +166,7 @@ export default defineComponent({
     }
     span:nth-of-type(2) {
         &.disable {
-            background: #D4D6D9;
+            background: #d4d6d9;
         }
         background: #4b71ee;
         color: #fff;

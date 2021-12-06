@@ -1,19 +1,27 @@
 <template>
-    <CourseList/>
+    <CourseList ref="courseListRef"/>
     <div class="right">
-        <Schedule/>
+        <PackageManagement/>
     </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
-import CourseList from "./CourseList.vue";
-import Schedule from "./Schedule.vue";
+import { defineComponent, provide, ref } from "vue";
+import CourseList from "./courseList/index.vue";
+import PackageManagement from "./packageManagement/index.vue";
 export default defineComponent({
     name: "scheduleManagement",
-    // setup() {
-    // },
-    components: { CourseList, Schedule }
+    setup() {
+        const courseListRef = ref<InstanceType<typeof CourseList>>();
+        const getTeacherLessonAndBag = () => {
+            courseListRef.value!.getTeacherLessonAndBag();
+        };
+        provide("getTeacherLessonAndBag", getTeacherLessonAndBag);
+        return {
+            courseListRef
+        };
+    },
+    components: { CourseList, PackageManagement }
 });
 </script>
 

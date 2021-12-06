@@ -1,7 +1,9 @@
 import axios, { AxiosRequestConfig, AxiosRequestHeaders, Method } from "axios";
-import { ElMessage, ElLoading, ILoadingInstance } from "element-plus";
+import { ElMessage, ILoadingInstance } from "element-plus";
 import { clear, get, STORAGE_TYPES } from "./storage";
 import router from "@/router/index";
+import { initAllState } from "@/store";
+import loading from "@/components/loading";
 
 const http = axios.create({
     baseURL: "/",
@@ -20,7 +22,9 @@ http.interceptors.request.use(
                 Authorization: "Bearer" + " " + get(STORAGE_TYPES.SET_TOKEN)
             };
         }
-        if (!config.headers?.noLoading) loadingInstance = ElLoading.service({});
+        if (!config.headers?.noLoading) {
+            loading.show();
+        }
 
         return config;
     },
@@ -31,7 +35,7 @@ http.interceptors.request.use(
 
 http.interceptors.response.use(
     (response) => {
-        loadingInstance?.close && loadingInstance.close();
+        loading.hide();
         const res = response.data;
         if (res.resultCode === 103) {
             ElMessage({
@@ -41,6 +45,7 @@ http.interceptors.response.use(
             });
             clear();
             router.push("/login");
+            initAllState();
         } else if (res.resultCode !== 200) {
             ElMessage({
                 message: res.resultDesc,

@@ -14,6 +14,11 @@ export default () => {
         }
     ]);
 
+    const value = sessionStorage.getItem("breadList");
+    if (value) {
+        breadList.value = JSON.parse(value);
+    }
+
     watch(() => ({ name: router.currentRoute.value.name, path: router.currentRoute.value.path }), ({ name, path }) => {
         if (
             breadList.value.findIndex((r) => {
@@ -37,6 +42,10 @@ export default () => {
             router.back();
         }
     };
+
+    watch(breadList, () => {
+        sessionStorage.setItem("breadList", JSON.stringify(breadList.value));
+    }, { deep: true });
 
     return {
         breadList,

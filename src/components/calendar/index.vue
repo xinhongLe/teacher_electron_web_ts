@@ -17,6 +17,7 @@
                     :colData="item"
                     :isDrop="isDrop"
                     :isShowText="isShowText"
+                    :isShowDetailBtn="isShowDetailBtn"
                 />
             </div>
         </div>
@@ -41,6 +42,10 @@ export default defineComponent({
             default: false
         },
         isDrop: {
+            type: Boolean,
+            default: false
+        },
+        isShowDetailBtn: {
             type: Boolean,
             default: false
         }
@@ -78,7 +83,10 @@ export default defineComponent({
         align-items: center;
         .item {
             flex: 1;
-            padding: 20px 6px 20px 6px;
+            height: 54px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             color: #5f626f;
             user-select: none;
             cursor: default;
@@ -93,6 +101,7 @@ export default defineComponent({
     }
     .content {
         display: flex;
+        flex: 1;
         flex-direction: column;
         overflow-y:overlay;
         border-left: 2px solid #e0e2e7;

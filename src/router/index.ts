@@ -54,6 +54,41 @@ const routes: Array<RouteRecordRaw> = [
                 path: "windowcard-edit",
                 name: "编辑",
                 component: () => import("@/views/preparation/intelligenceClassroom/edit/index.vue")
+            },
+            {
+                path: "attend-class",
+                name: "上课",
+                component: () => import("@/views/attendClass/index.vue")
+            },
+            {
+                path: "homework",
+                name: "作业",
+                component: () => import("@/views/homework/index.vue")
+            },
+            {
+                path: "assignHomework/:subjectId/:subjectName",
+                name: "布置作业",
+                component: () => import("@/views/assignHomework/index.vue")
+            },
+            {
+                path: "check-homework/:classHomeworkPaperID",
+                name: "查阅作业",
+                component: () => import("@/views/checkHomework/index.vue")
+            },
+            {
+                path: "report-center",
+                name: "报表中心",
+                component: () => import("@/views/reportCenter/index.vue")
+            },
+            {
+                path: "course-time",
+                name: "课时延后",
+                component: () => import("@/views/courseTime/index.vue")
+            },
+            {
+                path: "assessment-center",
+                name: "测评中心",
+                component: () => import("@/views/assessmentCenter/index.vue")
             }
         ]
     }

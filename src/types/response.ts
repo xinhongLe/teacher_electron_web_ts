@@ -4,3 +4,5 @@ export interface IResponse<T> {
     success: boolean;
     resultDesc: string;
 }
+
+export type RequestFun<T, U> = (data?: T) => Promise<IResponse<U>>

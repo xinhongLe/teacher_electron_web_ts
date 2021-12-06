@@ -19,10 +19,14 @@ export enum STORAGE_TYPES {
     /**
      * oss存储路径
     */
-    OSS_PATHS = "OSS_PATHS"
+    OSS_PATHS = "OSS_PATHS",
+    /**
+     * 查阅作业的详情
+     */
+    HOMEWORK_DETAIL = "HOMEWORK_DETAIL"
 }
 
-export const set = (name: STORAGE_TYPES, value: any) => {
+export const set = (name: STORAGE_TYPES, value: unknown) => {
     localStorage.setItem(`${PREFIX}_${name}`, typeof value === "string" ? value : JSON.stringify(value));
 };
 

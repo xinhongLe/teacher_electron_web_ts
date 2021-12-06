@@ -9,11 +9,14 @@ export default () => {
     };
 
     const dragStartIndex = ref();
-    const onDragstart = (event: DragEvent, info: unknown) => {
+    const onDragStart = (event: DragEvent, info: unknown) => {
         store.commit(MutationTypes.SET_IS_DRAGGING, true);
         const target = event.target as HTMLElement;
         dragStartIndex.value = target.getAttribute("data-id");
-        dragDom = target.cloneNode(true) as HTMLElement;
+        dragDom = document.createElement("div");
+        dragDom.classList.add("dragging-dom-ele");
+        dragDom.style.width = target.offsetWidth + "px";
+        dragDom.appendChild(target.cloneNode(true));
         document.body.appendChild(dragDom);
 
         const img = new Image();
@@ -22,28 +25,29 @@ export default () => {
 
         origin.layerX = event.offsetX;
         origin.layerY = event.offsetY;
-        dragDom.style.position = "absolute";
+        dragDom.style.position = "fixed";
         dragDom.style.left = event.clientX - event.offsetX + "px";
         dragDom.style.top = event.clientY - event.offsetY + "px";
-        dragDom.classList.add("dragging-dom-ele");
         event.dataTransfer!.setData("dragInfo", JSON.stringify(info));
     };
 
-    const ondrag = (event: DragEvent) => {
+    const onDrag = (event: DragEvent) => {
+        if (event.clientX === 0 && event.clientY === 0) return;
         dragDom!.style.left = event.clientX - origin.layerX + "px";
         dragDom!.style.top = event.clientY - origin.layerY + "px";
     };
 
     const onDragEnd = (event: DragEvent) => {
-        store.commit(MutationTypes.SET_IS_DRAGGING, false);
         document.body.removeChild(dragDom!);
+        store.commit(MutationTypes.SET_IS_DRAGGING, false);
+        store.commit(MutationTypes.SET_IS_DRAGGING_ELEMENT, false);
         dragDom = null;
         event.dataTransfer!.clearData("dragInfo");
     };
 
     return {
-        onDragstart,
+        onDragStart,
         onDragEnd,
-        ondrag
+        onDrag
     };
 };

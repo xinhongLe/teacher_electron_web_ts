@@ -17,4 +17,11 @@ export const store = createStore<RootState>({
     }
 });
 
+export const initAllState = () => {
+    store.commit(MutationTypes.PREPARATION_STUDENT_RESET_STATE);
+    store.commit(MutationTypes.MY_STUDENT_RESET_STATE);
+    store.commit(MutationTypes.USER_INFO_RESET_STATE);
+    store.commit(MutationTypes.COMMON_RESET_STATE);
+};
+
 export const useStore = () => baseUseStore(key);
