@@ -111,14 +111,15 @@
             "
             ref="canvas"
             id="canvas"
-            width="1280"
-            height="720"
-            :style="`transform:scale(${scale}) translate(83px, -43px)`"
+            width="1725"
+            height="1002"
+            :style="`transform:scale(1) translate(83px, -43px)`"
             disable-scroll="true"
             @mousedown="mousedown"
             @mousemove="mousemove"
             @mouseup="mouseup"
         ></canvas>
+        <!-- :style="`transform:scale(${scale}) translate(83px, -43px)`" -->
     </div>
 </template>
 
@@ -142,11 +143,9 @@ export default defineComponent({
             }
         );
         const prevStep = () => {
-            console.log("tools触发");
             emit("prevStep");
         };
         const nextStep = () => {
-            console.log("tools触发");
             emit("nextStep");
         };
         return {

@@ -167,7 +167,6 @@ export default defineComponent({
         // });
         const route = useRoute();
         onMounted(() => {
-            console.log(route.query.winValue, "route");
             _getWindowCards({ WindowID: `${route.query.winValue}` });
         });
         // watch(() => state.winValue, (curVal) => {

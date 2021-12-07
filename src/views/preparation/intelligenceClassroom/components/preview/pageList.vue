@@ -6,8 +6,8 @@
                 :inline="true"
                 ref="screenRef"
                 :slide="page"
-                @pagePrev="pagePrev()"
-                @pageNext="pageNext()"
+                @pagePrev="prevCard()"
+                @pageNext="nextCard()"
             />
             <div
                 class="me-page"
@@ -41,7 +41,7 @@ import { ElMessage } from "element-plus";
 import useHome from "@/hooks/useHome";
 export default defineComponent({
     props: ["pageListOption"],
-    setup(props) {
+    setup(props, { emit }) {
         const { getPageDetail } = useHome();
         const pageList = ref([]);
         const page = ref({});
@@ -52,7 +52,6 @@ export default defineComponent({
         watch(
             () => props.pageListOption,
             () => {
-                console.log(props.pageListOption, "11111111111111111");
                 pageList.value = props.pageListOption;
                 selectPage(0);
             }
@@ -65,7 +64,7 @@ export default defineComponent({
                 if (newPage.isGetData) {
                     page.value = newPage;
                 } else {
-                    console.log(pageList.value[index], "1111");
+                    emit("changeRemark", pageList.value[index].Remark);
                     page.value = await getPageDetail(pageList.value[index], pageList.value[index].originType);
                 }
             } else {
@@ -77,14 +76,16 @@ export default defineComponent({
                 return ElMessage({ type: "warning", message: "已经是第一页" });
             }
             selected.value--;
+            emit("changeRemark", pageList.value[selected.value].Remark);
             page.value = await getPageDetail(pageList.value[selected.value], pageList.value[selected.value].originType);
         };
         const nextCard = async () => {
-            console.log(selected.value, pageList.value.length, "pagelength");
             if (selected.value === pageList.value.length - 1) {
                 return ElMessage({ type: "warning", message: "已经是最后一页" });
             }
             selected.value++;
+            console.log(pageList.value[selected.value], "vvvvv");
+            emit("changeRemark", pageList.value[selected.value].Remark);
             page.value = await getPageDetail(pageList.value[selected.value], pageList.value[selected.value].originType);
         };
         return {
@@ -109,6 +110,28 @@ export default defineComponent({
         height: 100% !important;
     }
     ::v-deep .scale-content{
+        width: 100% !important;
+        height: 100% !important;
+    }
+    ::v-deep .screen-slide{
+        width: 100% !important;
+        height: 100% !important;
+        transform: scale(1) !important;
+        >div:nth-of-type(1){
+            width: 100% !important;
+            height: 100% !important;
+            >.screen-element{
+                width: 100% !important;
+                height: 100% !important;
+            }
+        }
+    }
+    ::v-deep .element-content> .player{
+        width: 100% !important;
+        height: 100% !important;
+        transform: scale(1) !important;
+    }
+    ::v-deep .base-element-video{
         width: 100% !important;
         height: 100% !important;
     }

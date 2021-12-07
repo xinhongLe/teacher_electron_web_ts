@@ -73,7 +73,6 @@ export default () => {
         } else if (slide.type === "teach") {
             newSlide = dealSaveDataTeach(slide);
         }
-        console.log(newSlide);
         const res = await updatePageRes(newSlide, type);
         if (res.resultCode === 200) {
             ElMessage({ type: "success", message: "保存成功" });

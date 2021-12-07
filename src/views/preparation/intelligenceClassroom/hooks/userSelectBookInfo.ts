@@ -127,7 +127,6 @@ export default () => {
         });
     };
     const updatePageList = (card: cardList) => {
-        console.log(card, "card");
         activeIndex.previewOptions = card;
     };
     interface winListItem {
@@ -145,7 +144,6 @@ export default () => {
         originType?: number
     }
     const detailData = (data: any) => {
-        console.log(data, data.length, "data", activeIndex.originType);
         if (data.length === 0) return [];
         const winList = data.map((item:winListItem) => {
             return {
@@ -153,7 +151,6 @@ export default () => {
                 originType: activeIndex.originType
             };
         });
-        console.log(winList, "qweqwe");
         return winList;
     };
     return {

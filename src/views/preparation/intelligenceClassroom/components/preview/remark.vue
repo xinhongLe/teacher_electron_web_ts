@@ -16,7 +16,6 @@ import { computed, defineComponent } from "vue-demi";
 export default defineComponent({
     props: ["value"],
     setup(props) {
-        console.log(props.value, "111111111111111111111112");
         const remark = computed(() => props.value);
         return {
             remark

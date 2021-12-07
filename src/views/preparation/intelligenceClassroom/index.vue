@@ -105,7 +105,6 @@ export default defineComponent({
             _getSchoolLessonWindow(obj);
         });
         const windowEdit = async (item) => {
-            console.log(item, "item");
             if (item.TeachPageList[0].OriginType === 0) {
                 const obj = {
                     id: item.TeachPageList[0].WindowID,

@@ -5,8 +5,7 @@
                 style="margin-right: 15px"
                 :pageListOption="pageList"
                 ref="PageList"
-                @nextCard="nextCard()"
-                @prevCard="prevCard()"
+                @changeRemark="changeRemark"
             />
             <Remark :value="remark" v-if="showRemark" />
         </div>
@@ -22,36 +21,50 @@
 </template>
 
 <script>
-import { computed, defineComponent, onMounted, toRefs } from "vue-demi";
+import { computed, defineComponent, ref, toRefs, watch } from "vue-demi";
 import preventRemark from "../../hooks/previewRemark";
 import Remark from "./remark.vue";
 import Tools from "./tools.vue";
 import PageList from "./pageList.vue";
 export default defineComponent({
     components: {
-        Remark, Tools, PageList
+        Remark,
+        Tools,
+        PageList
     },
     props: ["options", "hideTools"],
     setup(props) {
-        const { remark, PageList, data, showRemark, toggleRemark, prevStep, nextStep } = preventRemark();
+        const { data, showRemark, toggleRemark } = preventRemark();
         const pageList = computed(() => props.options.pages);
         const hideTool = computed(() => props.hideTools);
-        onMounted(() => {
-            selectCard(0);
-        });
-        const selectCard = (index) => {
-            data.selectedCard = index;
+        const remark = ref("");
+        const PageList = ref();
+        const prevStep = () => {
+            PageList.value.prevCard();
         };
+        const nextStep = () => {
+            PageList.value.nextCard();
+        };
+        const changeRemark = (value) => {
+            remark.value = value;
+        };
+        watch(
+            () => props.options.pages,
+            () => {
+                remark.value = props.options.pages[0].Remark;
+            }
+        );
         return {
+            remark,
             PageList,
             ...toRefs(data),
             showRemark,
             pageList,
-            remark,
             hideTool,
             toggleRemark,
             prevStep,
-            nextStep
+            nextStep,
+            changeRemark
         };
     }
 });
@@ -72,7 +85,7 @@ export default defineComponent({
     min-height: 0;
     margin: 0;
     justify-content: space-between;
-    div{
+    div {
         margin: 0;
         padding: 0;
     }

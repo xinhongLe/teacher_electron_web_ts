@@ -1,6 +1,5 @@
 <template>
     <div class="view-box">
-        <div style="width: 200px;height: 200px;background-color: red">9999</div>
         <ScreenView ref="screenRef" :slide="slideView"  @openCard="openCard"  @pagePrev="pagePrev()" @pageNext="pageNext()"/>
        <!-- 弹卡-->
         <open-card-view-dialog v-if="dialogVisible" :cardList="cardList" v-model:dialogVisible="dialogVisible"></open-card-view-dialog>
@@ -36,7 +35,6 @@ export default defineComponent({
                 return ElMessage({ type: "warning", message: "已经是第一页" });
             }
             index.value--;
-            console.log(pageList.value[index.value], "111111111111111111");
             slideView.value = await getPageDetail(pageList.value[index.value]);
         };
 
