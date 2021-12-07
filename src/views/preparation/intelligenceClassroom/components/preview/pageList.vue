@@ -6,8 +6,8 @@
                 :inline="true"
                 ref="screenRef"
                 :slide="page"
-                @pagePrev="prevCard()"
-                @pageNext="nextCard()"
+                @pagePrev="pagePrev"
+                @pageNext="pageNext"
             />
             <div
                 class="me-page"
@@ -71,7 +71,13 @@ export default defineComponent({
                 page.value = {};
             }
         };
-        const prevCard = async () => {
+        const screenRef = ref();
+
+        const prevCard = () => {
+            screenRef.value.execPrev();
+        };
+
+        const pagePrev = async () => {
             if (selected.value === 0) {
                 return ElMessage({ type: "warning", message: "已经是第一页" });
             }
@@ -79,23 +85,30 @@ export default defineComponent({
             emit("changeRemark", pageList.value[selected.value].Remark);
             page.value = await getPageDetail(pageList.value[selected.value], pageList.value[selected.value].originType);
         };
-        const nextCard = async () => {
+
+        const nextCard = () => {
+            screenRef.value.execNext();
+        };
+
+        const pageNext = async () => {
             if (selected.value === pageList.value.length - 1) {
                 return ElMessage({ type: "warning", message: "已经是最后一页" });
             }
             selected.value++;
-            console.log(pageList.value[selected.value], "vvvvv");
             emit("changeRemark", pageList.value[selected.value].Remark);
             page.value = await getPageDetail(pageList.value[selected.value], pageList.value[selected.value].originType);
         };
         return {
+            screenRef,
             page,
             hasCheck,
             selected,
             pageList,
             prevCard,
+            pagePrev,
             selectPage,
-            nextCard
+            nextCard,
+            pageNext
         };
     }
 });
