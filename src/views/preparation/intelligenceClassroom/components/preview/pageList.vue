@@ -1,6 +1,6 @@
 <template>
     <div class="pageListComponents">
-        <div class="me-work">
+        <div :class=" fullscreenStyle ? 'me-work fullscreen' : 'me-work'">
             <ScreenView
                 class="me-work-screen"
                 :inline="true"
@@ -10,6 +10,7 @@
                 @pageNext="nextCard()"
             />
             <div
+                v-if="!fullscreenStyle"
                 class="me-page"
                 :style="{ paddingBottom: hasCheck ? '40px' : '15px' }"
             >
@@ -88,6 +89,10 @@ export default defineComponent({
             emit("changeRemark", pageList.value[selected.value].Remark);
             page.value = await getPageDetail(pageList.value[selected.value], pageList.value[selected.value].originType);
         };
+        const fullscreenStyle = ref(false);
+        const fullScreen = () => {
+            fullscreenStyle.value = !fullscreenStyle.value;
+        };
         return {
             page,
             hasCheck,
@@ -95,7 +100,9 @@ export default defineComponent({
             pageList,
             prevCard,
             selectPage,
-            nextCard
+            nextCard,
+            fullScreen,
+            fullscreenStyle
         };
     }
 });
@@ -105,36 +112,16 @@ export default defineComponent({
 .pageListComponents{
     display: flex;
     flex: 1;
-    ::v-deep .slide-content{
-        width: 100% !important;
-        height: 100% !important;
+    ::v-deep .slide-list{
+        background-color: #fff;
     }
-    ::v-deep .scale-content{
-        width: 100% !important;
-        height: 100% !important;
-    }
-    ::v-deep .screen-slide{
-        width: 100% !important;
-        height: 100% !important;
-        transform: scale(1) !important;
-        >div:nth-of-type(1){
-            width: 100% !important;
-            height: 100% !important;
-            >.screen-element{
-                width: 100% !important;
-                height: 100% !important;
-            }
-        }
-    }
-    ::v-deep .element-content> .player{
-        width: 100% !important;
-        height: 100% !important;
-        transform: scale(1) !important;
-    }
-    ::v-deep .base-element-video{
-        width: 100% !important;
-        height: 100% !important;
-    }
+}
+.fullscreen{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: calc(100% - 56px);
 }
 .me-work {
     flex: 1;

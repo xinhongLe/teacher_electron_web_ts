@@ -56,7 +56,7 @@
             </div>
         </div>
         <div class="me-tools-system">
-            <div class="me-tool-btn">
+            <div class="me-tool-btn" @click="fullScreen">
                 <img src="../../images/quanping_rest.png" alt="" />
             </div>
             <div class="me-tool-btn" @click="toggleRemark">
@@ -148,6 +148,9 @@ export default defineComponent({
         const nextStep = () => {
             emit("nextStep");
         };
+        const fullScreen = () => {
+            emit("fullScreen");
+        };
         return {
             type,
             isLast,
@@ -160,7 +163,8 @@ export default defineComponent({
             clear,
             toggleRemark,
             prevStep,
-            nextStep
+            nextStep,
+            fullScreen
         };
     }
 });

@@ -2,6 +2,7 @@
     <div class="me-preview">
         <div class="mep-container" :style="{ margin: hideTools ? '0' : '0' }">
             <PageList
+                class="preview-pagelist"
                 style="margin-right: 15px"
                 :pageListOption="pageList"
                 ref="PageList"
@@ -10,12 +11,13 @@
             <Remark :value="remark" v-if="showRemark" />
         </div>
         <Tools
-            class="tools"
+            :class="fullScreenStyle ? 'tools tools-fullSrceen' : 'tools'"
             v-if="hideTool"
             :showRemark="showRemark"
             @toggleRemark="toggleRemark"
             @prevStep="prevStep"
             @nextStep="nextStep"
+            @fullScreen="fullScreen"
         />
     </div>
 </template>
@@ -48,6 +50,11 @@ export default defineComponent({
         const changeRemark = (value) => {
             remark.value = value;
         };
+        const fullScreenStyle = ref(false);
+        const fullScreen = () => {
+            fullScreenStyle.value = !fullScreenStyle.value;
+            PageList.value.fullScreen();
+        };
         watch(
             () => props.options.pages,
             () => {
@@ -57,6 +64,7 @@ export default defineComponent({
         return {
             remark,
             PageList,
+            fullScreenStyle,
             ...toRefs(data),
             showRemark,
             pageList,
@@ -64,13 +72,20 @@ export default defineComponent({
             toggleRemark,
             prevStep,
             nextStep,
-            changeRemark
+            changeRemark,
+            fullScreen
         };
     }
 });
 </script>
 
 <style lang="scss" scoped>
+.tools-fullSrceen{
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+}
 .me-preview {
     flex: 1;
     display: flex;
