@@ -73,7 +73,8 @@ module.exports = {
                     icon: "./public/icon.icns",
                     target: ["dmg", "zip"]
                 }
-            }
+            },
+            externals: ["clipboard"]
         }
     }
 };

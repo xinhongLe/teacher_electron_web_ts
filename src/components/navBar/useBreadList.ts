@@ -23,7 +23,7 @@ export default () => {
         if (
             breadList.value.findIndex((r) => {
                 return r.name === name;
-            }) > -1
+            }) > -1 || path === "/login"
         ) {
             return;
         }
