@@ -7,6 +7,8 @@
                 :pageListOption="pageList"
                 ref="PageList"
                 @changeRemark="changeRemark"
+                @lastPage="lastPage"
+                @firstPage="firstPage"
             />
             <Remark :value="remark" v-if="showRemark" />
         </div>
@@ -35,7 +37,7 @@ export default defineComponent({
         PageList
     },
     props: ["options", "hideTools"],
-    setup(props) {
+    setup(props, { emit }) {
         const { data, showRemark, toggleRemark } = preventRemark();
         const pageList = computed(() => props.options.pages);
         const hideTool = computed(() => props.hideTools);
@@ -49,6 +51,12 @@ export default defineComponent({
         };
         const changeRemark = (value) => {
             remark.value = value;
+        };
+        const lastPage = () => {
+            emit("lastPage");
+        };
+        const firstPage = () => {
+            emit("firstPage");
         };
         const fullScreenStyle = ref(false);
         const fullScreen = () => {
@@ -73,7 +81,9 @@ export default defineComponent({
             prevStep,
             nextStep,
             changeRemark,
-            fullScreen
+            fullScreen,
+            lastPage,
+            firstPage
         };
     }
 });

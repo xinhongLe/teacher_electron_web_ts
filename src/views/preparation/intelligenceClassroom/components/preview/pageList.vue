@@ -6,8 +6,8 @@
                 :inline="true"
                 ref="screenRef"
                 :slide="page"
-                @pagePrev="prevCard()"
-                @pageNext="nextCard()"
+                @pagePrev="pagePrev"
+                @pageNext="pageNext"
             />
             <div
                 v-if="!fullscreenStyle"
@@ -48,13 +48,15 @@ export default defineComponent({
         const page = ref({});
         const { hasCheck, selected } = pageListServer();
         onMounted(() => {
-            selectPage(0);
+            selected.value = 0;
+            selectPage(selected.value);
         });
         watch(
             () => props.pageListOption,
             () => {
                 pageList.value = props.pageListOption;
-                selectPage(0);
+                selected.value = 0;
+                selectPage(selected.value);
             }
         );
         const selectPage = async (index) => {
@@ -72,37 +74,57 @@ export default defineComponent({
                 page.value = {};
             }
         };
-        const prevCard = async () => {
-            if (selected.value === 0) {
-                return ElMessage({ type: "warning", message: "已经是第一页" });
-            }
-            selected.value--;
-            emit("changeRemark", pageList.value[selected.value].Remark);
-            page.value = await getPageDetail(pageList.value[selected.value], pageList.value[selected.value].originType);
+        const screenRef = ref();
+
+        const prevCard = () => {
+            screenRef.value.execPrev();
         };
-        const nextCard = async () => {
-            if (selected.value === pageList.value.length - 1) {
-                return ElMessage({ type: "warning", message: "已经是最后一页" });
+
+        const pagePrev = async () => {
+            if (selected.value > 0) {
+                selected.value--;
+                emit("changeRemark", pageList.value[selected.value].Remark);
+                page.value = await getPageDetail(pageList.value[selected.value], pageList.value[selected.value].originType);
             }
-            selected.value++;
-            console.log(pageList.value[selected.value], "vvvvv");
-            emit("changeRemark", pageList.value[selected.value].Remark);
-            page.value = await getPageDetail(pageList.value[selected.value], pageList.value[selected.value].originType);
+            if (selected.value === 0) {
+                emit("firstPage");
+            }
+        };
+
+        const nextCard = () => {
+            screenRef.value.execNext();
+        };
+
+        const pageNext = async () => {
+            if (selected.value === pageList.value.length - 1) {
+                emit("lastPage");
+            }
+            if (selected.value === 0) {
+                selected.value++;
+                emit("changeRemark", pageList.value[selected.value].Remark);
+            } else {
+                selected.value++;
+                emit("changeRemark", pageList.value[selected.value].Remark);
+                page.value = await getPageDetail(pageList.value[selected.value], pageList.value[selected.value].originType);
+            }
         };
         const fullscreenStyle = ref(false);
         const fullScreen = () => {
             fullscreenStyle.value = !fullscreenStyle.value;
         };
         return {
+            screenRef,
             page,
             hasCheck,
             selected,
             pageList,
             prevCard,
+            pagePrev,
             selectPage,
             nextCard,
             fullScreen,
-            fullscreenStyle
+            fullscreenStyle,
+            pageNext
         };
     }
 });
