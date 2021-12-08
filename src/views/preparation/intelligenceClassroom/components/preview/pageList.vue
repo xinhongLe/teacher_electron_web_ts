@@ -1,15 +1,16 @@
 <template>
     <div class="pageListComponents">
-        <div class="me-work">
+        <div :class=" fullscreenStyle ? 'me-work fullscreen' : 'me-work'">
             <ScreenView
                 class="me-work-screen"
                 :inline="true"
                 ref="screenRef"
                 :slide="page"
-                @pagePrev="pagePrev()"
-                @pageNext="pageNext()"
+                @pagePrev="pagePrev"
+                @pageNext="pageNext"
             />
             <div
+                v-if="!fullscreenStyle"
                 class="me-page"
                 :style="{ paddingBottom: hasCheck ? '40px' : '15px' }"
             >
@@ -41,20 +42,17 @@ import { ElMessage } from "element-plus";
 import useHome from "@/hooks/useHome";
 export default defineComponent({
     props: ["pageListOption"],
-    setup(props) {
+    setup(props, { emit }) {
         const { getPageDetail } = useHome();
         const pageList = ref([]);
         const page = ref({});
         const { hasCheck, selected } = pageListServer();
-        onMounted(() => {
-            selectPage(0);
-        });
         watch(
             () => props.pageListOption,
             () => {
-                console.log(props.pageListOption, "11111111111111111");
                 pageList.value = props.pageListOption;
-                selectPage(0);
+                selected.value = -1;
+                pageNext(selected.value);
             }
         );
         const selectPage = async (index) => {
@@ -65,36 +63,61 @@ export default defineComponent({
                 if (newPage.isGetData) {
                     page.value = newPage;
                 } else {
-                    console.log(pageList.value[index], "1111");
+                    emit("changeRemark", pageList.value[index].Remark);
                     page.value = await getPageDetail(pageList.value[index], pageList.value[index].originType);
                 }
             } else {
                 page.value = {};
             }
         };
-        const prevCard = async () => {
-            if (selected.value === 0) {
-                return ElMessage({ type: "warning", message: "已经是第一页" });
-            }
-            selected.value--;
-            page.value = await getPageDetail(pageList.value[selected.value], pageList.value[selected.value].originType);
+        const screenRef = ref();
+
+        const prevCard = () => {
+            screenRef.value.execPrev();
         };
-        const nextCard = async () => {
-            console.log(selected.value, pageList.value.length, "pagelength");
-            if (selected.value === pageList.value.length - 1) {
-                return ElMessage({ type: "warning", message: "已经是最后一页" });
+
+        const pagePrev = async () => {
+            if (selected.value > 0) {
+                selected.value--;
+                emit("changeRemark", pageList.value[selected.value].Remark);
+                page.value = await getPageDetail(pageList.value[selected.value], pageList.value[selected.value].originType);
+                return;
             }
-            selected.value++;
-            page.value = await getPageDetail(pageList.value[selected.value], pageList.value[selected.value].originType);
+            if (selected.value === 0) {
+                emit("firstPage");
+            }
+        };
+
+        const nextCard = () => {
+            screenRef.value.execNext();
+        };
+
+        const pageNext = async () => {
+            if (selected.value === pageList.value.length - 1) {
+                emit("lastPage");
+            } else {
+                selected.value++;
+                emit("changeRemark", pageList.value[selected.value].Remark);
+                page.value = await getPageDetail(pageList.value[selected.value], pageList.value[selected.value].originType);
+            }
+        };
+        const fullscreenStyle = ref(false);
+        const fullScreen = () => {
+            fullscreenStyle.value = !fullscreenStyle.value;
         };
         return {
+            screenRef,
             page,
             hasCheck,
             selected,
             pageList,
             prevCard,
+            pagePrev,
             selectPage,
-            nextCard
+            nextCard,
+            fullScreen,
+            fullscreenStyle,
+            pageNext
         };
     }
 });
@@ -104,14 +127,16 @@ export default defineComponent({
 .pageListComponents{
     display: flex;
     flex: 1;
-    ::v-deep .slide-content{
-        width: 100% !important;
-        height: 100% !important;
+    ::v-deep .slide-list{
+        background-color: #fff;
     }
-    ::v-deep .scale-content{
-        width: 100% !important;
-        height: 100% !important;
-    }
+}
+.fullscreen{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: calc(100% - 56px);
 }
 .me-work {
     flex: 1;

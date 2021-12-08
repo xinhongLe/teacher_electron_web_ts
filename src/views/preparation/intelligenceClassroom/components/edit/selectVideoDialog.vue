@@ -156,7 +156,6 @@ export default defineComponent({
             getElementsVideo(data).then(res => {
                 if (res.resultCode === 200) {
                     state.videoList = res.result;
-                    console.log(res.result);
                 }
             });
         };

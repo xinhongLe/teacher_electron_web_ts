@@ -59,6 +59,8 @@
                             :uuid="cardUuid"
                             :isPreview="isPreview"
                             :options="previewOptions"
+                            @lastPage="lastPage"
+                            @firstPage="firstPage"
                         />
                     </div>
                 </div>
@@ -105,7 +107,6 @@ export default defineComponent({
             _getSchoolLessonWindow(obj);
         });
         const windowEdit = async (item) => {
-            console.log(item, "item");
             if (item.TeachPageList[0].OriginType === 0) {
                 const obj = {
                     id: item.TeachPageList[0].WindowID,
@@ -132,6 +133,14 @@ export default defineComponent({
                 });
             }
         };
+        const lastPage = () => {
+            console.log("改切换下一页了");
+            cardListComponents.value.changeReducePage();
+        };
+        const firstPage = () => {
+            console.log("切换上一页");
+            cardListComponents.value.changeAddPage();
+        };
         return {
             showList,
             ...toRefs(allData),
@@ -139,7 +148,9 @@ export default defineComponent({
             handleClickWin,
             updatePageList,
             windowEdit,
-            cardListComponents
+            cardListComponents,
+            lastPage,
+            firstPage
         };
     }
 });

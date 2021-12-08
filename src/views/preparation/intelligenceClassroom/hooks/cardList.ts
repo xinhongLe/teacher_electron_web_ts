@@ -58,7 +58,6 @@ export default () => {
                 originType
             };
         });
-        console.log(pages, "pages");
         return {
             id: card.ID,
             name: card.Name,
