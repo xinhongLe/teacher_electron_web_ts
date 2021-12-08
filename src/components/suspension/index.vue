@@ -179,10 +179,6 @@ export default defineComponent({
 .suspension-container {
     position: fixed;
     z-index: 9999;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    right: 0;
     .timer {
         width: 75px;
         height: 75px;
