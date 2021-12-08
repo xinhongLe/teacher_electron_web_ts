@@ -13,13 +13,15 @@
             <Remark :value="remark" v-if="showRemark" />
         </div>
         <Tools
-            :class="fullScreenStyle ? 'tools tools-fullSrceen' : 'tools'"
+            :class="fullScreenStyle ? 'tools-fullSrceen' : ''"
+            class="tools"
             v-if="hideTool"
             :showRemark="showRemark"
             @toggleRemark="toggleRemark"
             @prevStep="prevStep"
             @nextStep="nextStep"
             @fullScreen="fullScreen"
+            @clockFullScreen="clockFullScreen"
         />
     </div>
 </template>
@@ -60,8 +62,12 @@ export default defineComponent({
         };
         const fullScreenStyle = ref(false);
         const fullScreen = () => {
-            fullScreenStyle.value = !fullScreenStyle.value;
+            fullScreenStyle.value = true;
             PageList.value.fullScreen();
+        };
+        const clockFullScreen = () => {
+            fullScreenStyle.value = false;
+            PageList.value.clockFullScreen();
         };
         watch(
             () => props.options.pages,
@@ -83,7 +89,8 @@ export default defineComponent({
             changeRemark,
             fullScreen,
             lastPage,
-            firstPage
+            firstPage,
+            clockFullScreen
         };
     }
 });

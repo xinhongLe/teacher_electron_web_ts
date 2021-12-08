@@ -1,6 +1,6 @@
 <template>
     <div class="pageListComponents">
-        <div :class=" fullscreenStyle ? 'me-work fullscreen' : 'me-work'">
+        <div class="me-work" :class=" fullscreenStyle ? 'fullscreen' : ''">
             <ScreenView
                 class="me-work-screen"
                 :inline="true"
@@ -38,7 +38,6 @@
 <script>
 import { defineComponent, onMounted, ref, watch } from "vue-demi";
 import pageListServer from "../../hooks/pageList";
-import { ElMessage } from "element-plus";
 import useHome from "@/hooks/useHome";
 export default defineComponent({
     props: ["pageListOption"],
@@ -110,7 +109,10 @@ export default defineComponent({
         };
         const fullscreenStyle = ref(false);
         const fullScreen = () => {
-            fullscreenStyle.value = !fullscreenStyle.value;
+            fullscreenStyle.value = true;
+        };
+        const clockFullScreen = () => {
+            fullscreenStyle.value = false;
         };
         return {
             screenRef,
@@ -124,7 +126,8 @@ export default defineComponent({
             nextCard,
             fullScreen,
             fullscreenStyle,
-            pageNext
+            pageNext,
+            clockFullScreen
         };
     }
 });

@@ -115,30 +115,16 @@ export default defineComponent({
                 };
                 const res = await CopyWindow(obj);
                 if (res.resultCode === 200) {
-                    router.push({
-                        path: "/windowcard-edit",
-                        query: {
-                            winValue: res.result.ID,
-                            originType: 1
-                        }
-                    });
+                    router.push(`/windowcard-edit/${res.result.ID}/1`);
                 }
             } else {
-                router.push({
-                    path: "/windowcard-edit",
-                    query: {
-                        winValue: item.TeachPageList[0].WindowID,
-                        originType: 1
-                    }
-                });
+                router.push(`/windowcard-edit/${item.TeachPageList[0].WindowID}/1`);
             }
         };
         const lastPage = () => {
-            console.log("改切换下一页了");
             cardListComponents.value.changeReducePage();
         };
         const firstPage = () => {
-            console.log("切换上一页");
             cardListComponents.value.changeAddPage();
         };
         return {

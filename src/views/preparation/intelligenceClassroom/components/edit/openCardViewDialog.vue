@@ -42,7 +42,7 @@ export default defineComponent({
         const cardList = ref<any[]>([]);
         const selected = ref(0);
         const { getPageDetail } = useHome();
-        const originType: any = route.query.originType;
+        const originType: any = route.params.originType as string;
         onMounted(async() => {
             cardList.value = props.cardList;
             slideView.value = await getPageDetail(cardList.value[0], originType);

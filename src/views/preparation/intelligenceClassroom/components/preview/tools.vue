@@ -1,7 +1,6 @@
 <template>
     <div class="me-tools" ref="metools">
-        <div class="me-tools-screen">
-        </div>
+        <div class="me-tools-screen"></div>
         <div class="me-tools-canvas">
             <div
                 class="me-tool-btn"
@@ -56,8 +55,11 @@
             </div>
         </div>
         <div class="me-tools-system">
-            <div class="me-tool-btn" @click="fullScreen">
+            <div class="me-tool-btn" @click="fullScreen" v-if="!activeFlag">
                 <img src="../../images/quanping_rest.png" alt="" />
+            </div>
+            <div class="me-tool-btn" @click="fillScreen" v-else>
+                <img src="../../images/tuichuquanping_rest.png" alt="" />
             </div>
             <div class="me-tool-btn" @click="toggleRemark">
                 <img
@@ -111,37 +113,112 @@
             "
             ref="canvas"
             id="canvas"
-            width="1725"
-            height="1002"
-            :style="`transform:scale(1) translate(83px, -43px)`"
             disable-scroll="true"
             @mousedown="mousedown"
             @mousemove="mousemove"
             @mouseup="mouseup"
         ></canvas>
-        <!-- :style="`transform:scale(${scale}) translate(83px, -43px)`" -->
     </div>
 </template>
 
-<script>
-import { ref, defineComponent, watch } from "vue-demi";
-import tools from "../../hooks/tools";
+<script lang="ts">
+import { ref, defineComponent, watch, onMounted } from "vue-demi";
+import { enterFullscreen, exitFullscreen, isFullscreen } from "@/utils/fullscreen";
+import { useRouter } from "vue-router";
 export default defineComponent({
     props: ["showRemark"],
     setup(props, { emit }) {
-        const { type, goback, mousedown, mouseup, mousemove, clear } = tools();
-        const toggleRemark = () => {
-            emit("toggleRemark");
-        };
+        const router = useRouter();
+        const type = ref("mouse");
+        const painting = ref(false);
+        const lastPoint = ref({ x: 0, y: 0 });
+        const ctx = ref();
+        const canvas = ref();
         const isLast = ref(false);
         const isFirst = ref(false);
         const showremark = ref(true);
+        const scale = ref(1);
+        const goback = () => {
+            router.push("/");
+        };
+        const switchFlag = ref(false);
+        const activeFlag = ref(false);
         watch(
             () => props.showRemark,
             () => {
                 showremark.value = props.showRemark;
             }
         );
+        onMounted(() => {
+            window.addEventListener("resize", onResize);
+            canvas.value = document.getElementById("canvas");
+            canvas.value.setAttribute("width", document.getElementsByClassName("main-body")[0].clientWidth);
+            canvas.value.setAttribute("height", document.getElementsByClassName("me-work")[0].clientHeight);
+            ctx.value = canvas.value.getContext("2d");
+        });
+        const onResize = () => {
+            canvas.value.setAttribute("width", document.getElementsByClassName("main-body")[0].clientWidth);
+            canvas.value.setAttribute("height", document.getElementsByClassName("me-work")[0].clientHeight);
+            if (switchFlag.value && isFullscreen()) {
+                switchFlag.value = false;
+            } else if (!switchFlag.value && isFullscreen()) {
+            } else {
+                activeFlag.value = false;
+                emit("clockFullScreen");
+            }
+        };
+        const mousedown = (e: any) => {
+            if (type.value !== "mouse") {
+                painting.value = true;
+                const x = e.offsetX;
+                const y = e.offsetY;
+                lastPoint.value = { x, y };
+                ctx.value.strokeStyle = "red";
+                ctx.value.beginPath();
+            }
+        };
+        const mousemove = (e: any) => {
+            if (painting.value) {
+                const x = e.offsetX;
+                const y = e.offsetY;
+                const newPoint = { x, y };
+                type.value === "pen"
+                    ? drawLine(
+                        lastPoint.value.x,
+                        lastPoint.value.y,
+                        newPoint.x,
+                        newPoint.y
+                    )
+                    : setDrawPathForEraser(x, y);
+                lastPoint.value = newPoint;
+            }
+        };
+        const mouseup = () => {
+            painting.value = false;
+        };
+        const drawLine = (x1: number, y1: number, x2: number, y2: number) => {
+            ctx.value.lineWidth = 3;
+            ctx.value.lineCap = "round";
+            ctx.value.lineJoin = "round";
+            ctx.value.moveTo(x1, y1);
+            ctx.value.lineTo(x2, y2);
+            ctx.value.stroke();
+            ctx.value.closePath();
+        };
+        const setDrawPathForEraser = (x: number, y: number) => {
+            ctx.value.save();
+            ctx.value.beginPath();
+            ctx.value.arc(x + 10, y + 10, 30 / 2, 0, Math.PI * 2, false);
+            ctx.value.clip();
+            clear();
+            ctx.value.restore();
+        };
+        const clear = () => {
+            ctx.value.clearRect(0, 0, canvas.value.width, canvas.value.height);
+        };
+        const toggleRemark = () => {
+            emit("toggleRemark");
+        };
         const prevStep = () => {
             emit("prevStep");
         };
@@ -149,13 +226,22 @@ export default defineComponent({
             emit("nextStep");
         };
         const fullScreen = () => {
+            activeFlag.value = true;
+            switchFlag.value = true;
             emit("fullScreen");
+            enterFullscreen();
+        };
+        const fillScreen = () => {
+            activeFlag.value = false;
+            exitFullscreen();
+            emit("clockFullScreen");
         };
         return {
+            scale,
             type,
             isLast,
             isFirst,
-            showremark,
+            activeFlag,
             goback,
             mousedown,
             mouseup,
@@ -164,7 +250,8 @@ export default defineComponent({
             toggleRemark,
             prevStep,
             nextStep,
-            fullScreen
+            fullScreen,
+            fillScreen
         };
     }
 });

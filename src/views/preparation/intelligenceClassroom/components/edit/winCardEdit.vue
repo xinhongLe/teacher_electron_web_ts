@@ -45,7 +45,7 @@ export default defineComponent({
             slide: {}
         });
         const page = ref<IPageValue>();
-        const originType: any = route.query.originType;
+        const originType: any = route.params.originType as string;
         const { getPageDetail, savePage } = useHome();
         watch(
             () => props.pageValue,
