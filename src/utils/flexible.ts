@@ -105,7 +105,7 @@ interface Win extends Window {
         }
 
         if (width / dpr < 1400) {
-            width = 900 * dpr;
+            width = 1200 * dpr;
         }
 
         if (width / dpr >= 1400) {

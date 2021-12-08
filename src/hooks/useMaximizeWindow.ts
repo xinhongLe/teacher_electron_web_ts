@@ -16,14 +16,8 @@ const fullScreen = () => {
 
 export default () => {
     if (isElectron()) {
-        // const currentWindow = remote.getCurrentWindow();
-        // if (currentWindow.isFullScreen()) {
-        //     currentWindow.setFullScreen(false);
-        // } else if (currentWindow.isMaximized()) {
-        //     currentWindow.setFullScreen(true);
-        // } else {
-        //     currentWindow.maximize();
-        // }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (window as any).electron.maximizeWindow();
     } else {
         fullScreen();
     }

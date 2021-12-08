@@ -1,7 +1,7 @@
 <template>
     <div class="main-container">
         <NavBar v-if="isShowNarBar"/>
-        <Suspension />
+        <Suspension v-if="!isElectron"/>
         <LookQuestion v-if="isShowQuestion"/>
         <LookVideo v-if="isShowVideo"/>
         <div class="main-body">
@@ -55,6 +55,11 @@ export default defineComponent({
         getTagList();
 
         queryUserInfo();
+
+        if (isElectron()) {
+            window.electron.ipcRenderer.invoke("openSuspension");
+            window.electron.maximizeWindow();
+        }
 
         return {
             isElectron: isElectron(),

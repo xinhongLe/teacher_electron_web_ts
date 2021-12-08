@@ -46,16 +46,12 @@ export default defineComponent({
         const pageList = ref([]);
         const page = ref({});
         const { hasCheck, selected } = pageListServer();
-        onMounted(() => {
-            selected.value = 0;
-            selectPage(selected.value);
-        });
         watch(
             () => props.pageListOption,
             () => {
                 pageList.value = props.pageListOption;
-                selected.value = 0;
-                selectPage(selected.value);
+                selected.value = -1;
+                pageNext(selected.value);
             }
         );
         const selectPage = async (index) => {
@@ -84,6 +80,7 @@ export default defineComponent({
                 selected.value--;
                 emit("changeRemark", pageList.value[selected.value].Remark);
                 page.value = await getPageDetail(pageList.value[selected.value], pageList.value[selected.value].originType);
+                return;
             }
             if (selected.value === 0) {
                 emit("firstPage");
@@ -97,10 +94,6 @@ export default defineComponent({
         const pageNext = async () => {
             if (selected.value === pageList.value.length - 1) {
                 emit("lastPage");
-            }
-            if (selected.value === 0) {
-                selected.value++;
-                emit("changeRemark", pageList.value[selected.value].Remark);
             } else {
                 selected.value++;
                 emit("changeRemark", pageList.value[selected.value].Remark);

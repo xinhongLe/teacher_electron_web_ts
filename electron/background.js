@@ -2,8 +2,11 @@
 
 import { app, protocol, BrowserWindow, ipcMain, Menu } from "electron";
 import { createProtocol } from "vue-cli-plugin-electron-builder/lib";
+import { initialize } from "@electron/remote/main";
+import { createSuspensionWindow, registerEvent } from "./suspension";
 const isDevelopment = process.env.NODE_ENV !== "production";
 const path = require("path");
+initialize();
 
 protocol.registerSchemesAsPrivileged([
     { scheme: "app", privileges: { secure: true, standard: true } }
@@ -21,6 +24,8 @@ async function createWindow() {
         useContentSize: true,
         width: 1000,
         frame: false,
+        minWidth: 1000,
+        minHeight: 563,
         webPreferences: {
             webSecurity: false, // 取消跨域限制
             enableRemoteModule: true, // Electron10以后的版本，取消 Remote 模块警告
@@ -31,19 +36,25 @@ async function createWindow() {
         }
     });
 
+    createSuspensionWindow();
+    registerEvent();
+
     if (process.env.WEBPACK_DEV_SERVER_URL) {
+        require("@electron/remote/main").enable(mainWindow.webContents);
         await mainWindow.loadURL(process.env.WEBPACK_DEV_SERVER_URL);
         if (!process.env.IS_TEST) mainWindow.webContents.openDevTools();
     } else {
         createProtocol("app");
+        require("@electron/remote/main").enable(mainWindow.webContents);
         await mainWindow.loadURL("app://./index.html");
     }
 
     mainWindow.on("closed", () => {
+        if (process.platform !== "darwin") {
+            app.quit();
+        }
         mainWindow = null;
     });
-
-    // createSuspensionWindow();
 
     ipcMain.on("maximizeWindow", (e) => {
         mainWindow.maximize();

@@ -97,9 +97,15 @@
 
     <script src="index.js"></script>
     <script>
-        var electron = require("electron");
-        var ipcRenderer = electron.ipcRenderer;
-
+        var electron;
+        var ipcRenderer;
+        try {
+            electron = require("electron");
+            ipcRenderer = electron.ipcRenderer;
+        } catch (error) {
+            
+        }
+        
         window.onload = function (){
             document.getElementById("white").click();
             // document.getElementById("medium").click();
@@ -110,7 +116,7 @@
             const closeBtn = document.getElementById('closeBtn')
             closeBtn.onclick = () => {
                 window.close();
-                ipcRenderer.send('closeBlackboard')
+                ipcRenderer && ipcRenderer.send('closeBlackboard')
             }
         }
 
