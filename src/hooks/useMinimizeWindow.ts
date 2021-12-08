@@ -16,11 +16,8 @@ const exitFullscreen = () => {
 
 export default () => {
     if (isElectron()) {
-        // if (currentWindow.isFullScreen()) {
-        //     currentWindow.setFullScreen(false);
-        // } else {
-        //     currentWindow.minimize();
-        // }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (window as any).electron.minimizeWindow();
     } else {
         exitFullscreen();
     }

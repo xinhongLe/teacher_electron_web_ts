@@ -46,6 +46,9 @@
                     >
                 </el-form-item>
             </el-form>
+            <div class="close-icon" v-if="isElectron" @click="close">
+                <i class="el-icon-close"></i>
+            </div>
             <div class="prompt-text">
                 <p>违法和不良信息举报电话：0512-65520773</p>
                 <p>举报邮箱：zhangyunlong@upplus.net</p>
@@ -56,12 +59,12 @@
 </template>
 
 <script lang="ts">
-// import isElectron from "is-electron";
 import { defineComponent, onMounted, onUnmounted, reactive, ref } from "vue";
 import useLogin from "@/hooks/useLogin";
 import { useRouter } from "vue-router";
 import { ILoginData } from "@/types/login";
 import { STORAGE_TYPES, get } from "@/utils/storage";
+import isElectron from "is-electron";
 export default defineComponent({
     setup() {
         const router = useRouter();
@@ -101,17 +104,34 @@ export default defineComponent({
             }
         };
 
-        const version = ref("");
+        const close = () => {
+            window.electron.exit();
+        };
+
+        const version = ref(require("../../../package.json").version);
 
         onMounted(() => {
             document.addEventListener("keyup", onEnter);
+            if (isElectron()) {
+                window.electron.ipcRenderer.invoke("closeSuspension");
+                window.electron.unmaximizeWindow();
+            }
         });
 
         onUnmounted(() => {
             document.removeEventListener("keyup", onEnter);
         });
 
-        return { form, recordAccountList, loading, login, version, handleChange };
+        return {
+            form,
+            recordAccountList,
+            loading,
+            login,
+            close,
+            version,
+            handleChange,
+            isElectron: isElectron()
+        };
     }
 });
 </script>
@@ -122,6 +142,7 @@ $btn_color: #4b71ee;
     display: flex;
     width: 100%;
     height: 100%;
+    -webkit-app-region: drag;
     .left-content {
         width: 50%;
         background: url("../../assets/images/login/bg_login.png") no-repeat
@@ -149,10 +170,21 @@ $btn_color: #4b71ee;
                 line-height: 45px;
             }
         }
+        .close-icon {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            cursor: pointer;
+            -webkit-app-region: no-drag;
+            .el-icon-close {
+                font-size: 30px;
+            }
+        }
         :deep(.el-form) {
             .el-form-item {
                 position: relative;
                 margin-bottom: 32px;
+                -webkit-app-region: no-drag;
                 img {
                     position: absolute;
                     left: 12px;
@@ -189,6 +221,7 @@ $btn_color: #4b71ee;
                     letter-spacing: 4px;
                     background: $btn_color;
                     border: $btn_color;
+                    -webkit-app-region: no-drag;
                 }
             }
             .el-input__suffix {
@@ -201,7 +234,7 @@ $btn_color: #4b71ee;
             bottom: 10px;
             text-align: center;
             color: #9c9faa;
-            font-size: 10px;
+            font-size: 12px;
             p {
                 margin-bottom: 10px;
             }

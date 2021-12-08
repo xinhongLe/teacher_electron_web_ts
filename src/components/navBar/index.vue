@@ -86,11 +86,12 @@
         <div class="header-window-control">
             <div class="hwc-minimize" @click="useMinimizeWindow()"></div>
             <div class="hwc-maximize" @click="useMaximizeWindow()"></div>
-            <!-- <div class="hwc-close" @click="closeWindow()" v-if="isElectron()">
+            <div class="hwc-close"  v-if="isElectron()" @click="close">
                 <i class="el-icon-close"></i>
-            </div> -->
+            </div>
         </div>
         <Feedback ref="feedbackRef"/>
+        <ExitDialog v-model:visible="visible"/>
     </div>
 </template>
 
@@ -105,11 +106,13 @@ import { Bread } from "./interface";
 import useOutLogin from "@/hooks/useOutLogin";
 import { store } from "@/store";
 import Feedback from "../feedback/index.vue";
+import ExitDialog from "./ExitDialog.vue";
 
 export default defineComponent({
     name: "NavBar",
     components: {
-        Feedback
+        Feedback,
+        ExitDialog
     },
     setup() {
         const route = useRoute();
@@ -118,6 +121,7 @@ export default defineComponent({
         const account = computed(() => store.state.userInfo.account);
         const name = computed(() => store.state.userInfo.name);
         const feedbackRef = ref<InstanceType<typeof Feedback>>();
+        const visible = ref(false);
 
         const showFeedBack = () => {
             feedbackRef!.value!.show();
@@ -127,6 +131,10 @@ export default defineComponent({
             if (route.name !== item.name) {
                 router.push(item.path);
             }
+        };
+
+        const close = () => {
+            visible.value = true;
         };
 
         return {
@@ -139,6 +147,8 @@ export default defineComponent({
             outlogin: useOutLogin,
             closeTab,
             showFeedBack,
+            close,
+            visible,
             useMinimizeWindow,
             useMaximizeWindow
         };
@@ -167,6 +177,7 @@ export default defineComponent({
     display: flex;
     justify-content: center;
     align-items: center;
+    -webkit-app-region: no-drag;
 }
 .tab-box {
     flex: 1;

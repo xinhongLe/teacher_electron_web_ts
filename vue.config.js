@@ -1,5 +1,61 @@
+const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
+
 module.exports = {
     productionSourceMap: false,
+    pages: {
+        index: {
+            entry: "src/main.ts",
+            template: "public/index.html"
+        },
+        suspension: {
+            entry: "src/childWindow/suspension/main.ts",
+            template: "public/index.html",
+            filename: "suspension.html",
+            chunks: ["suspension"]
+        },
+        unfoldSuspension: {
+            entry: "src/childWindow/unfoldSuspension/main.ts",
+            template: "public/index.html",
+            filename: "unfoldSuspension.html",
+            chunks: ["unfoldSuspension"]
+        },
+        timer: {
+            entry: "src/childWindow/timer/main.ts",
+            template: "public/index.html",
+            filename: "timer.html",
+            title: "计时器",
+            chunks: ["timer"]
+        }
+    },
+    configureWebpack: {
+        plugins: [
+            /**
+             * 查看包大小
+             */
+            // new BundleAnalyzerPlugin()
+        ]
+    },
+    chainWebpack(config) {
+        config.optimization.splitChunks({
+            cacheGroups: {
+                suspension: {
+                    name: "suspension",
+                    priority: 10,
+                    test: "src/suspension/main.ts"
+                },
+                unfoldSuspension: {
+                    name: "unfoldSuspension",
+                    priority: 10,
+                    test: "src/unfoldSuspension/main.ts"
+                },
+                timer: {
+                    name: "timer",
+                    priority: 10,
+                    test: "src/timer/main.ts"
+                }
+            }
+        });
+    },
     pwa: {
         iconPaths: {
             favicon32: "favicon.ico",
@@ -13,7 +69,8 @@ module.exports = {
         electronBuilder: {
             nodeIntegration: true,
             mainProcessFile: "electron/background.js",
-            preload: { preload: "electron/preload.js" },
+            preload: { preload: "electron/preload.ts" },
+            mainProcessWatch: ["electron/**/*"],
             files: ["dist_electron/**/*"],
             builderOptions: {
                 appId: "com.leyixue.teacher",
@@ -22,7 +79,7 @@ module.exports = {
                 directories: {
                     output: "./dist_electron" // 输出文件路径
                 },
-                asar: false,
+                asar: true,
                 files: ["**/*", "public/*"],
                 publish: [
                     {

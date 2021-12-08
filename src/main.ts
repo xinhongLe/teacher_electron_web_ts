@@ -11,6 +11,7 @@ import "element-plus/dist/index.css";
 import "@/utils/flexible";
 import "./permission";
 import "./styles/index.scss";
+import "./types";
 
 import WinCard from "wincard";
 import "wincard/dist/wincard.css";
