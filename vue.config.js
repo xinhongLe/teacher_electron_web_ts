@@ -68,7 +68,7 @@ module.exports = {
     pluginOptions: {
         electronBuilder: {
             nodeIntegration: true,
-            mainProcessFile: "electron/background.js",
+            mainProcessFile: "electron/background.ts",
             preload: { preload: "electron/preload.ts" },
             mainProcessWatch: ["electron/**/*"],
             files: ["dist_electron/**/*"],
