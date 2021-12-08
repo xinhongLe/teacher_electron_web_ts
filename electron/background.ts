@@ -26,9 +26,9 @@ async function createWindow() {
         frame: false,
         minWidth: 1000,
         minHeight: 563,
+        show: false,
         webPreferences: {
             webSecurity: false, // 取消跨域限制
-            enableRemoteModule: true, // Electron10以后的版本，取消 Remote 模块警告
             nodeIntegration: true,
             contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
             preload: path.join(__dirname, "preload.js"),
@@ -41,13 +41,17 @@ async function createWindow() {
 
     if (process.env.WEBPACK_DEV_SERVER_URL) {
         require("@electron/remote/main").enable(mainWindow.webContents);
-        await mainWindow.loadURL(process.env.WEBPACK_DEV_SERVER_URL);
+        mainWindow.loadURL(process.env.WEBPACK_DEV_SERVER_URL);
         if (!process.env.IS_TEST) mainWindow.webContents.openDevTools();
     } else {
         createProtocol("app");
         require("@electron/remote/main").enable(mainWindow.webContents);
-        await mainWindow.loadURL("app://./index.html");
+        mainWindow.loadURL("app://./index.html");
     }
+
+    mainWindow.on("ready-to-show", () => {
+        mainWindow.show();
+    });
 
     mainWindow.on("closed", () => {
         if (process.platform !== "darwin") {
