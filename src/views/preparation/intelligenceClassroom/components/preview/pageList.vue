@@ -125,6 +125,7 @@ export default defineComponent({
 .pageListComponents{
     display: flex;
     flex: 1;
+    min-width: 0;
     ::v-deep .slide-list{
         background-color: #fff;
     }
@@ -154,7 +155,7 @@ export default defineComponent({
     padding: 15px;
     background-color: #fff;
     border-top: 1px solid #ccc;
-    overflow-x: auto;
+    overflow-x: scroll;
 }
 
 .me-page-item {
@@ -163,8 +164,8 @@ export default defineComponent({
     padding: 14px 10px;
     box-sizing: border-box;
     text-align: center;
-    /*min-width: 100px;*/
-    font-size: 20px;
+    // min-width: 100px;
+    font-size: 16px;
     white-space: nowrap;
     margin-right: 10px;
     border: 2px solid #f0f3ff;

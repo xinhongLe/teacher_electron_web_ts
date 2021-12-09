@@ -146,13 +146,13 @@ $border-color: #f5f6fa;
 .intelligence {
     display: flex;
     flex: 1;
+    min-width: 0;
     padding: 20px 0px 0px 0px;
     background-color: #f5f6fa;
     .left {
         position: relative;
         width: 280px;
-        height: calc(100vh - 170px);
-        padding-bottom: 40px;
+        padding-bottom: 20px;
         background-color: #fff;
         > div {
             height: 100%;
@@ -220,7 +220,7 @@ $border-color: #f5f6fa;
                         }
                         div {
                             padding-top: 5px;
-                            font-size: 20px;
+                            font-size: 16px;
                             color: #000;
                             overflow: hidden;
                             text-overflow: ellipsis;
@@ -311,6 +311,7 @@ $border-color: #f5f6fa;
             position: relative;
             display: flex;
             flex: 1;
+            min-width: 0;
             justify-content: space-between;
             .card-box-away{
                 position: absolute;
@@ -342,6 +343,7 @@ $border-color: #f5f6fa;
                     height: 100%;
                     display: flex;
                     flex: 1;
+                    min-width: 0;
                     justify-content: space-between;
                 }
 
