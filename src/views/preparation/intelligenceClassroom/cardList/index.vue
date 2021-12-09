@@ -38,14 +38,12 @@ export default defineComponent({
             emit("updatePageList", pageDate);
         };
         const changeReducePage = () => {
-            console.log(cardIndex.value + 1, currentCardList.value.length);
             if (cardIndex.value + 1 === currentCardList.value.length) {
                 return ElMessage({ type: "warning", message: "已经是最后一页" });
             }
             handleClick(cardIndex.value + 1, currentCardList.value[cardIndex.value + 1]);
         };
         const changeAddPage = () => {
-            console.log(cardIndex.value);
             if (cardIndex.value === 0) {
                 return ElMessage({ type: "warning", message: "已经是第一页了" });
             }

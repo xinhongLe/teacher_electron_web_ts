@@ -37,7 +37,7 @@ window.electron = {
         return currentWindow.isFullScreen();
     },
     setFullScreen: () => {
-        const currentWindow = remote.getCurrentWindow();
+        const currentWindow = getCurrentWindow();
         currentWindow.setFullScreen(true);
     },
     hideWindow: () => {

@@ -56,7 +56,6 @@ export default () => {
             } else if (page.Type === pageType.teach) {
                 newSlide = dealOldDataTeach(page.ID, res.result);
             }
-
             return Object.assign(newSlide, { remark: page.Remark || "" });
         }
     };

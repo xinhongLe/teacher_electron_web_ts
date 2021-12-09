@@ -83,14 +83,13 @@ export default defineComponent({
     },
     setup() {
         const router = useRouter();
-        const chapterID = ref(store.state.preparation.selectChapterID);
         const showList = ref(true);
         const { activeIndex, allData, cardListComponents, _getSchoolLessonWindow, handleClickWin, _getWindowCards, updatePageList } = userSelectBookInfo();
         watch(
             () => store.state.preparation.selectChapterID,
             () => {
-                chapterID.value = store.state.preparation.selectChapterID;
-                const obj = { chapterID: chapterID.value };
+                if (!store.state.preparation.selectChapterID) return false;
+                const obj = { chapterID: store.state.preparation.selectChapterID };
                 _getSchoolLessonWindow(obj);
             }
         );
@@ -103,7 +102,7 @@ export default defineComponent({
             }
         );
         onMounted(() => {
-            const obj = { chapterID: chapterID.value };
+            const obj = { chapterID: store.state.preparation.selectChapterID };
             _getSchoolLessonWindow(obj);
         });
         const windowEdit = async (item) => {
@@ -147,7 +146,7 @@ $border-color: #f5f6fa;
 .intelligence {
     display: flex;
     flex: 1;
-    padding: 20px;
+    padding: 20px 0px 0px 0px;
     background-color: #f5f6fa;
     .left {
         position: relative;

@@ -64,13 +64,9 @@ export const dealOldData = async (pageID: string, oldSlide: IOldSlide) => {
         viewportRatio: 0.5625,
         elements: []
     };
-
     slide.background = getSlideData(oldSlide.PageSetting || "{}");
-
     slide.steps = getSlideStepData(oldSlide.Steps || []);
-
     const sortOldElenents = sortElementsByZIndex(oldSlide.Elements || []);
-
     slide.elements = await getElementsData(sortOldElenents, oldSlide.Events || []);
     return slide;
 };

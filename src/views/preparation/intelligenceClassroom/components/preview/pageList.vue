@@ -36,7 +36,7 @@
 </template>
 
 <script>
-import { defineComponent, onMounted, ref, watch } from "vue-demi";
+import { defineComponent, ref, watch } from "vue-demi";
 import pageListServer from "../../hooks/pageList";
 import useHome from "@/hooks/useHome";
 export default defineComponent({
@@ -56,17 +56,9 @@ export default defineComponent({
         );
         const selectPage = async (index) => {
             selected.value = index;
-            const newPage =
-                pageList.value.length > 0 ? pageList.value[index] : {};
             if (pageList.value.length > 0) {
-                if (newPage.isGetData) {
-                    page.value = newPage;
-                } else {
-                    emit("changeRemark", pageList.value[index].Remark);
-                    page.value = await getPageDetail(pageList.value[index], pageList.value[index].originType);
-                }
-            } else {
-                page.value = {};
+                emit("changeRemark", pageList.value[index].Remark);
+                page.value = await getPageDetail(pageList.value[index], pageList.value[index].originType);
             }
         };
         const screenRef = ref();
@@ -92,6 +84,9 @@ export default defineComponent({
         };
 
         const pageNext = async () => {
+            if (pageList.value.length === 0) {
+                page.value = {};
+            }
             if (selected.value === pageList.value.length - 1) {
                 emit("lastPage");
             } else {

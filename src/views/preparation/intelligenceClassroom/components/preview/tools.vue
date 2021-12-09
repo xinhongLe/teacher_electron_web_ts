@@ -122,9 +122,11 @@
 </template>
 
 <script lang="ts">
-import { ref, defineComponent, watch, onMounted } from "vue-demi";
+import { ref, defineComponent, watch, onMounted, onUnmounted } from "vue-demi";
 import { enterFullscreen, exitFullscreen, isFullscreen } from "@/utils/fullscreen";
 import { useRouter } from "vue-router";
+// import isElectron from "is-electron";
+import { sleep } from "@/utils/common";
 export default defineComponent({
     props: ["showRemark"],
     setup(props, { emit }) {
@@ -150,11 +152,16 @@ export default defineComponent({
             }
         );
         onMounted(() => {
-            window.addEventListener("resize", onResize);
+            document.addEventListener("keydown", keyDown);
+            document.addEventListener("resize", onResize);
             canvas.value = document.getElementById("canvas");
             canvas.value.setAttribute("width", document.getElementsByClassName("main-body")[0].clientWidth);
             canvas.value.setAttribute("height", document.getElementsByClassName("me-work")[0].clientHeight);
             ctx.value = canvas.value.getContext("2d");
+        });
+        onUnmounted(() => {
+            document.removeEventListener("resize", onResize);
+            document.removeEventListener("keydown", keyDown);
         });
         const onResize = () => {
             canvas.value.setAttribute("width", document.getElementsByClassName("main-body")[0].clientWidth);
@@ -225,9 +232,22 @@ export default defineComponent({
         const nextStep = () => {
             emit("nextStep");
         };
-        const fullScreen = () => {
+        const keyDown = async (e:any) => {
+            if (e.keyCode === 27) {
+                if (!activeFlag.value) return false;
+                activeFlag.value = false;
+                exitFullscreen();
+                emit("clockFullScreen");
+            }
+        };
+        const fullScreen = async () => {
+            if ((window as any).electron && !(window as any).electron.isFullScreen() && !(window as any).electron.isMac()) {
+                (window as any).electron.setFullScreen();
+                await sleep(300);
+            }
             activeFlag.value = true;
             switchFlag.value = true;
+            type.value = "mouse";
             emit("fullScreen");
             enterFullscreen();
         };
@@ -242,6 +262,7 @@ export default defineComponent({
             isLast,
             isFirst,
             activeFlag,
+            showremark,
             goback,
             mousedown,
             mouseup,

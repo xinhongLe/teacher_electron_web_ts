@@ -105,6 +105,7 @@ export default () => {
                     allData.cardList = [];
                     activeIndex.winActiveValue = "";
                     activeIndex.winActiveId = "";
+                    activeIndex.previewOptions = {};
                 }
             }
         });
