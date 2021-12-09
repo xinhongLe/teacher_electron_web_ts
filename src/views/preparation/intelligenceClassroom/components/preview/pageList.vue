@@ -84,13 +84,15 @@ export default defineComponent({
         };
 
         const pageNext = async () => {
+            if (pageList.value.length === 0) {
+                page.value = {};
+            }
             if (selected.value === pageList.value.length - 1) {
                 emit("lastPage");
             } else {
                 selected.value++;
                 emit("changeRemark", pageList.value[selected.value].Remark);
                 page.value = await getPageDetail(pageList.value[selected.value], pageList.value[selected.value].originType);
-                console.log(page.value, "page");
             }
         };
         const fullscreenStyle = ref(false);

@@ -41,7 +41,7 @@ export default defineComponent({
     props: ["options", "hideTools"],
     setup(props, { emit }) {
         const { data, showRemark, toggleRemark } = preventRemark();
-        const pageList = computed(() => props.options.pages);
+        const pageList = ref({});
         const hideTool = computed(() => props.hideTools);
         const remark = ref("");
         const PageList = ref();
@@ -70,9 +70,10 @@ export default defineComponent({
             PageList.value.clockFullScreen();
         };
         watch(
-            () => props.options.pages,
+            () => props.options,
             () => {
-                remark.value = props.options.pages[0].Remark;
+                remark.value = props.options.pages ? props.options.pages[0].Remark : "";
+                pageList.value = props.options.pages ? props.options.pages : [];
             }
         );
         return {
