@@ -5,6 +5,7 @@ import { createProtocol } from "vue-cli-plugin-electron-builder/lib";
 import { initialize } from "@electron/remote/main";
 import { createSuspensionWindow, registerEvent } from "./suspension";
 import downloadFile from "./downloadFile";
+import autoUpdater from "./autoUpdater";
 const isDevelopment = process.env.NODE_ENV !== "production";
 const path = require("path");
 initialize();
@@ -37,6 +38,7 @@ async function createWindow() {
         }
     });
     downloadFile(mainWindow);
+    autoUpdater(mainWindow!);
     createSuspensionWindow();
     registerEvent();
 
