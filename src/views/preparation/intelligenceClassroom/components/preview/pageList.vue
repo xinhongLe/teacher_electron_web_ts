@@ -36,7 +36,7 @@
 </template>
 
 <script>
-import { defineComponent, onMounted, ref, watch } from "vue-demi";
+import { defineComponent, ref, watch } from "vue-demi";
 import pageListServer from "../../hooks/pageList";
 import useHome from "@/hooks/useHome";
 export default defineComponent({
@@ -56,17 +56,9 @@ export default defineComponent({
         );
         const selectPage = async (index) => {
             selected.value = index;
-            const newPage =
-                pageList.value.length > 0 ? pageList.value[index] : {};
             if (pageList.value.length > 0) {
-                if (newPage.isGetData) {
-                    page.value = newPage;
-                } else {
-                    emit("changeRemark", pageList.value[index].Remark);
-                    page.value = await getPageDetail(pageList.value[index], pageList.value[index].originType);
-                }
-            } else {
-                page.value = {};
+                emit("changeRemark", pageList.value[index].Remark);
+                page.value = await getPageDetail(pageList.value[index], pageList.value[index].originType);
             }
         };
         const screenRef = ref();
@@ -98,6 +90,7 @@ export default defineComponent({
                 selected.value++;
                 emit("changeRemark", pageList.value[selected.value].Remark);
                 page.value = await getPageDetail(pageList.value[selected.value], pageList.value[selected.value].originType);
+                console.log(page.value, "page");
             }
         };
         const fullscreenStyle = ref(false);

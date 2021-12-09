@@ -228,6 +228,7 @@ export default defineComponent({
         const fullScreen = () => {
             activeFlag.value = true;
             switchFlag.value = true;
+            type.value = "mouse";
             emit("fullScreen");
             enterFullscreen();
         };

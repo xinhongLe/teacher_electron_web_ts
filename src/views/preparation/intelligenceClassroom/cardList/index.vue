@@ -33,6 +33,7 @@ export default defineComponent({
         );
         const cardIndex = ref(0);
         const handleClick = (index, item) => {
+            console.log(index, item, "value", currentCardList.value);
             cardIndex.value = index;
             const pageDate = dealCardData(item, item.originType);
             emit("updatePageList", pageDate);
