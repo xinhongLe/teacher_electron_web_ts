@@ -2,7 +2,7 @@ import remote, { getCurrentWindow, app } from "@electron/remote";
 import electron from "electron";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-(window as any).electron = {
+window.electron = {
     maximizeWindow: () => {
         const currentWindow = getCurrentWindow();
         if (currentWindow.isFullScreen()) {

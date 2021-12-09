@@ -4,6 +4,7 @@ import { app, protocol, BrowserWindow, ipcMain, Menu } from "electron";
 import { createProtocol } from "vue-cli-plugin-electron-builder/lib";
 import { initialize } from "@electron/remote/main";
 import { createSuspensionWindow, registerEvent } from "./suspension";
+import downloadFile from "./downloadFile";
 const isDevelopment = process.env.NODE_ENV !== "production";
 const path = require("path");
 initialize();
@@ -12,7 +13,7 @@ protocol.registerSchemesAsPrivileged([
     { scheme: "app", privileges: { secure: true, standard: true } }
 ]);
 
-let mainWindow;
+let mainWindow: BrowserWindow | null;
 
 async function createWindow() {
     if (!process.env.WEBPACK_DEV_SERVER_URL) {
@@ -35,7 +36,7 @@ async function createWindow() {
             devTools: !!process.env.WEBPACK_DEV_SERVER_URL
         }
     });
-
+    downloadFile(mainWindow);
     createSuspensionWindow();
     registerEvent();
 
@@ -50,7 +51,7 @@ async function createWindow() {
     }
 
     mainWindow.on("ready-to-show", () => {
-        mainWindow.show();
+        mainWindow!.show();
     });
 
     mainWindow.on("closed", () => {
@@ -61,11 +62,11 @@ async function createWindow() {
     });
 
     ipcMain.on("maximizeWindow", (e) => {
-        mainWindow.maximize();
+        mainWindow!.maximize();
     });
 
     ipcMain.on("unmaximizeWindow", (e) => {
-        mainWindow.unmaximize();
+        mainWindow!.unmaximize();
     });
 }
 
@@ -84,7 +85,7 @@ app.on("ready", async () => {
         try {
             // await installExtension(VUEJS_DEVTOOLS);
         } catch (e) {
-            console.error("Vue Devtools failed to install:", e.toString());
+            console.error("Vue Devtools failed to install:", e);
         }
     }
     createWindow();

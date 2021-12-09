@@ -1,4 +1,5 @@
 import { FileInfo } from "@/types/lookQuestion";
+import { openFile } from "@/utils";
 import { downloadFile } from "@/utils/oss";
 import { ref } from "vue";
 
@@ -24,7 +25,7 @@ export default () => {
                 if (extentionArr.includes(Extention)) {
                     visible.value = true;
                 } else {
-                    window.open(src.value);
+                    openFile(src.value, FileName + "." + Extention);
                 }
             } else {
                 const key = FilePath + "/" + FileName;
