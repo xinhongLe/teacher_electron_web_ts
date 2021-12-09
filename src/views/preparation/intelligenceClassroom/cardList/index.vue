@@ -73,7 +73,7 @@ export default defineComponent({
     margin-bottom: 15px;
     box-sizing: border-box;
     border-radius: 5px;
-    font-size: 15px;
+    font-size: 14px;
     color: #444;
     white-space: nowrap;
     text-overflow: ellipsis;
@@ -84,7 +84,7 @@ export default defineComponent({
 .me-card-item p{
   padding: 17px 10px;
   overflow: hidden;
-  font-size: 18px;
+  font-size: 16px;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
