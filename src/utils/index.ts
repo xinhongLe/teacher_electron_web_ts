@@ -64,10 +64,6 @@ export function formatTime(v:string) {
 }
 
 export const lookVideo = (id: string | undefined) => {
-    if (isElectron()) {
-        // return ipcRenderer.send("openVideo", id);
-    }
-    // window.open(`${location.origin}/look-video/${id}`);
     store.commit(MutationTypes.SET_IS_SHOW_VIDEO, { flag: true, info: { id } });
 };
 
@@ -77,11 +73,7 @@ export const lookQuestions = ({ id = "", type = 1, courseBagId = "" }) => {
         courseBagId,
         type
     };
-    if (isElectron()) {
-        // return ipcRenderer.send("openQuestion", id, type, courseBagId);
-    }
     store.commit(MutationTypes.SET_IS_SHOW_QUESTION, { flag: true, info });
-    // window.open(`${location.origin}/look-question/${id}/${type}?courseBagId=${courseBagId}`);
 };
 
 export const getCourseBagType = (type: number) => {
@@ -134,4 +126,11 @@ export const showFileIcon = (extention: string) => {
     default:
         return "icon_other@2x";
     }
+};
+
+export const openFile = (url: string, fileName = "") => {
+    if (isElectron()) {
+        return window.electron.ipcRenderer.invoke("downloadFile", url, fileName);
+    }
+    window.open(url);
 };

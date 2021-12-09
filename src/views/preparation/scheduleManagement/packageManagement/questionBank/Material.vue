@@ -79,6 +79,7 @@ import AddOrEditMaterial from "./AddOrEditMaterial.vue";
 import useMaterialDialog from "./hooks/useMaterialDialog";
 import useDrag from "@/hooks/useDrag";
 import { MutationTypes, store } from "@/store";
+import { openFile } from "@/utils";
 export default defineComponent({
     props: {
         lessonID: {
@@ -116,11 +117,12 @@ export default defineComponent({
             return info.ElementName;
         };
 
-        const openFile = async (file: ElementFile) => {
+        const _openFile = async (file: ElementFile) => {
             if (file) {
-                const key = `${file.FilePath}/${file.FileName}.${file.Extention}`;
+                const name = `${file.FileName}.${file.Extention}`;
+                const key = `${file.FilePath}/${name}`;
                 const url = await downloadFile(key, file.Bucket);
-                window.open(url);
+                openFile(url, name);
             }
         };
 
@@ -148,7 +150,7 @@ export default defineComponent({
 
         return {
             materialList,
-            openFile,
+            openFile: _openFile,
             _deleteMaterial,
             addMaterial,
             addSuccess,

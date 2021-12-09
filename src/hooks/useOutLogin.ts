@@ -7,6 +7,7 @@ export default () => {
     remove("USER_INFO");
     remove("GetBasicTagList");
     remove("GradeClassList");
+    sessionStorage.removeItem("breadList");
     router.push("login");
     initAllState();
 };

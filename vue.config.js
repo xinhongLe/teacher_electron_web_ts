@@ -28,6 +28,7 @@ module.exports = {
         }
     },
     configureWebpack: {
+        devtool: "source-map",
         plugins: [
             /**
              * 查看包大小
