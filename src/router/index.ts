@@ -23,7 +23,10 @@ const routes: Array<RouteRecordRaw> = [
             {
                 path: "preparation",
                 name: "备课",
-                component: () => import("@/views/preparation/index.vue")
+                component: () => import("@/views/preparation/index.vue"),
+                meta: {
+                    keepAlive: true
+                }
             },
             {
                 path: "class-manage",
@@ -53,7 +56,10 @@ const routes: Array<RouteRecordRaw> = [
             {
                 path: "windowcard-edit/:winValue/:originType",
                 name: "编辑",
-                component: () => import("@/views/preparation/intelligenceClassroom/edit/index.vue")
+                component: () => import("@/views/preparation/intelligenceClassroom/edit/index.vue"),
+                meta: {
+                    keepAlive: true
+                }
             },
             {
                 path: "attend-class",
