@@ -372,4 +372,11 @@ export default defineComponent({
         background-color: #fff;
     }
 }
+.operation-box{
+    text-align: center;
+    div{
+        cursor: pointer;
+        padding: 4px 0;
+    }
+}
 </style>

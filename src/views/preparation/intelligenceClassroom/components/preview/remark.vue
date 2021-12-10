@@ -26,7 +26,7 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .me-remark {
-    width: 300px;
+    width: 260px;
     background-color: #fff;
     box-sizing: border-box;
     padding: 20px !important;
