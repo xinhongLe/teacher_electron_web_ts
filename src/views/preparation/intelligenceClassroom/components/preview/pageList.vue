@@ -12,8 +12,8 @@
             <div
                 v-if="!fullscreenStyle"
                 class="me-page"
-                :style="{ paddingBottom: hasCheck ? '40px' : '15px' }"
             >
+                <!-- :style="{ paddingBottom: hasCheck ? '40px' : '15px' }" -->
                 <div
                     class="me-page-item"
                     :class="selected === index && 'active'"
@@ -154,22 +154,25 @@ export default defineComponent({
     flex-wrap: nowrap;
     padding: 15px;
     background-color: #fff;
-    border-top: 1px solid #ccc;
+    overflow-y: hidden;
     overflow-x: auto;
 }
 
 .me-page-item {
     background-color: #f0f3ff;
     color: #5560f1;
-    padding: 14px 10px;
+    padding: 0px 10px;
     box-sizing: border-box;
     text-align: center;
+    height: 32px;
+    display: flex;
+    align-items: center;
     // min-width: 100px;
     font-size: 16px;
     white-space: nowrap;
     margin-right: 10px;
-    border: 2px solid #f0f3ff;
-    border-radius: 10px;
+    border: 1px solid #f0f3ff;
+    border-radius: 5px;
     cursor: pointer;
     position: relative;
 }
