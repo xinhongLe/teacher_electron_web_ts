@@ -76,7 +76,6 @@ export default defineComponent({
 
         getTagList().then(() => {
             tagList.value.push({ TagName: "未标记", ID: "", Level: 0 });
-            tagList.value.push({ TagName: "未开通", ID: "", Level: 0 });
             getAllStudents();
         });
 

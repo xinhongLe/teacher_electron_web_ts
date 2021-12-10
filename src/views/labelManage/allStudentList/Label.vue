@@ -1,9 +1,6 @@
 <template>
     <div class="label">
         <div class="type type4" v-if="info.TagName == '未标记'">未标记</div>
-        <div class="type type5" v-else-if="info.TagName == '未开通' || !info.TagName">
-            未开通
-        </div>
         <div class="type" v-else>
             <div :class="classMap[levalMap[info.TagName]]">{{ info.TagName }}</div>
         </div>
