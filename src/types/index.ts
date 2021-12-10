@@ -8,7 +8,7 @@ type Electron = typeof electron & {
     isFullScreen: () => void,
     setFullScreen: () => void,
     getVersion: () => void,
-    isMac: () => void,
+    isMac: () => boolean,
     registerEscKeyUp: (callback: () => void) => void,
     unRegisterEscKeyUp: () => void,
     hideWindow: () => void,

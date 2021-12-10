@@ -68,12 +68,6 @@
                                     >
                                     </el-option>
                                 </el-select> -->
-                                <el-checkbox
-                                    :true-label="1"
-                                    :false-label="0"
-                                    v-model="item.needSubmit"
-                                    >需要在线提交作业</el-checkbox
-                                >
                                 <el-upload
                                     class="upload-demo"
                                     ref="upload"
@@ -180,7 +174,6 @@ export default defineComponent({
             commonList.value.push({
                 name: "",
                 type: 0,
-                needSubmit: 1,
                 files: [],
                 students: []
             });

@@ -55,4 +55,5 @@ export const clear = () => {
         }
         remove(name.substring(4));
     });
+    sessionStorage.removeItem("breadList");
 };

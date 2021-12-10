@@ -6,7 +6,6 @@ export interface HomeworkDetail {
     classHomeworkPaperID: string;
     name: string;
     count: number;
-    needSubmit: number;
     videoDurationTick: number;
     videoID: string;
     homeworkPaperFiles: HomeworkPaperFile[];

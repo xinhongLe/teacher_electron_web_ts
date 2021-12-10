@@ -20,32 +20,7 @@
                             >
                         </p>
                     </template>
-                    <div
-                        class="general-reference-student"
-                        v-if="homeworkDetail.needSubmit != 1"
-                    >
-                        <div
-                            class="student-once"
-                            v-for="(item, index) in doneStudentList"
-                            :key="index"
-                        >
-                            <div class="student-useravator">
-                                <img
-                                    src="@/assets/images/attend-class/touxiang_student.png"
-                                    alt=""
-                                />
-                            </div>
-                            <div class="student-userinfo">
-                                <p class="student-name">
-                                    {{ item.StudentName }}
-                                </p>
-                                <p class="student-classname">
-                                    {{ classInfo?.name }}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="has-submit-student" v-else>
+                    <div class="has-submit-student">
                         <div
                             class="list"
                             v-for="(item, index) in doneStudentList"
