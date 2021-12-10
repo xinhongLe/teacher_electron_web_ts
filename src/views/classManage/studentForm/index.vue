@@ -4,6 +4,7 @@
             <el-input
                 v-model="formData.name"
                 @change="getSystemAccountPwd"
+                :maxlength="20"
             ></el-input>
         </el-form-item>
         <el-form-item label="手机号：" prop="phone">
