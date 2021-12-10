@@ -138,12 +138,6 @@ export default defineComponent({
             nextPage
         } = useDetail(props.isPureQuestion, questionID.value);
 
-        const closeSmall = () => {
-            if (isElectron) {
-                // type.value === 2 && ipcRenderer.send("closeSQuestion");
-            }
-        };
-
         const brushHandle = () => {
             btnType.value = 1;
             childRef.value!.brushOn();
@@ -161,14 +155,6 @@ export default defineComponent({
 
         const lookSimilarQuestions = () => {
             audioRef.value!.pause();
-            if (isElectron) {
-                // ipcRenderer.send(
-                //     "openSQuestion",
-                //     route.params.id,
-                //     2,
-                //     nowQuestionID.value
-                // );
-            }
         };
 
         const closeQuestion = () => {
@@ -178,13 +164,14 @@ export default defineComponent({
 
         const smallQuestion = () => {
             audioRef.value!.pause();
-            // if (isElectron) {
-            //     ipcRenderer.send("smallQuestion");
-            // }
         };
 
         watch(nowQuestionID, (v) => {
             emit("update:nowQuestionID", v);
+        });
+
+        watch(number, () => {
+            childRef.value!.clearBrush();
         });
 
         return {
@@ -208,7 +195,6 @@ export default defineComponent({
             clearBoard,
             eraserHandle,
             lookSimilarQuestions,
-            closeSmall,
             smallQuestion,
             removeQuestion,
             imageRef,
@@ -256,11 +242,9 @@ export default defineComponent({
         border: solid 1px #ccc;
         position: relative;
         flex: 1;
-        min-height: 580px;
         .question-img {
             width: 100%;
             height: 100%;
-            min-height: 572px;
             position: absolute;
         }
     }
@@ -272,6 +256,7 @@ export default defineComponent({
     background: rgb(125, 164, 236);
     display: flex;
     align-items: center;
+    position: relative;
     .switch-box {
         margin-right: 100px;
         > div {

@@ -27,6 +27,15 @@ module.exports = {
             chunks: ["timer"]
         }
     },
+    css: {
+        loaderOptions: {
+            scss: {
+                prependData: `
+                    @import "~@/styles/mixin.scss";
+                `
+            }
+        }
+    },
     configureWebpack: {
         devtool: "source-map",
         plugins: [

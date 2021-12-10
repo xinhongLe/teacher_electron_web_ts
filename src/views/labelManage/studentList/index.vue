@@ -22,23 +22,25 @@
                         :key="index1"
                     >
                         <div
-                            :class="selectStudentId.includes(item1.StudentID) ? 'item item-active' : 'item'"
-                            :style="{ cursor: canEdit ? 'pointer' : '' }"
-                            @click="
-                                checkStudent(
-                                    item1.StudentID
-                                )
+                            :class="
+                                selectStudentId.includes(item1.StudentID)
+                                    ? 'item item-active'
+                                    : 'item'
                             "
+                            :style="{ cursor: canEdit ? 'pointer' : '' }"
+                            @click="checkStudent(item1.StudentID)"
                         >
-                        <div style="position: relative">
-                            <el-checkbox
-                                v-if="canEdit"
-                                :model-value="selectStudentId.includes(item1.StudentID)"
-                            ></el-checkbox>
-                            <div style="position: absolute; left: 0; right: 0;width: 100%; height:100%;top: 0; z-index: 1"></div>
-                        </div>
+                            <div v-if="canEdit">
+                                <el-checkbox
+                                    :model-value="
+                                        selectStudentId.includes(
+                                            item1.StudentID
+                                        )
+                                    "
+                                ></el-checkbox>
+                            </div>
                             <Avatar :file="item1.HeadPortrait"></Avatar>
-                            <div>
+                            <div class="content">
                                 <p>{{ item1.Name }}</p>
                                 <p>{{ item1.Phone }}</p>
                                 <p>{{ item1.Account }}</p>
@@ -68,17 +70,22 @@ export default defineComponent({
         },
         selectStudent: {
             type: Array as PropType<string[]>,
-            default: () => ([])
+            default: () => []
         }
     },
     setup(props, { emit }) {
         const showAll = ref(true);
         const selectStudentId = ref(props.selectStudent);
-        watch(() => props.selectStudent, (v: string[]) => {
-            selectStudentId.value = v;
-        });
+        watch(
+            () => props.selectStudent,
+            (v: string[]) => {
+                selectStudentId.value = v;
+            }
+        );
         const checkStudent = (studentId: string) => {
-            if (!props.canEdit) { return; }
+            if (!props.canEdit) {
+                return;
+            }
             const index = props.selectStudent.indexOf(studentId);
             if (index === -1) {
                 selectStudentId.value.push(studentId);
@@ -164,6 +171,10 @@ export default defineComponent({
                 }
                 > div {
                     margin-left: 16px;
+                    &.content {
+                        @include text-ellipsis;
+                        flex: 1;
+                    }
                     p:nth-of-type(1) {
                         height: 22px;
                         font-size: 16px;
@@ -171,6 +182,7 @@ export default defineComponent({
                         color: #19203d;
                         line-height: 22px;
                         margin-bottom: 4px;
+                        @include text-ellipsis;
                     }
                     p:nth-of-type(2),
                     p:nth-of-type(3) {
@@ -180,6 +192,7 @@ export default defineComponent({
                         color: #727b91;
                         line-height: 17px;
                         margin-bottom: 2px;
+                        @include text-ellipsis;
                     }
                 }
             }
