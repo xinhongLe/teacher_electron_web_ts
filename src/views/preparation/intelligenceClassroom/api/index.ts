@@ -76,7 +76,8 @@ export function getChapters(data: IGetChapters): Promise<ChaptersResponse> {
         baseURL: AI_XUE_SHI_API,
         url: "/Api/WCP/Window/GetChapterLessonWindow",
         headers: {
-            "Content-Type": "application/json-patch+json"
+            "Content-Type": "application/json-patch+json",
+            noLoading: "true"
         },
         method: "post",
         data
@@ -107,7 +108,7 @@ export function getPageDetailRes(data:GetPageData, type: number): Promise<GetPag
     return request({
         baseURL: AI_XUE_SHI_API,
         url: urlList[type],
-        headers: { DeviceID: "Franchisee" },
+        headers: { DeviceID: "Franchisee", noLoading: "true" },
         method: "post",
         data
     });

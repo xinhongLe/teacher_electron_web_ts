@@ -51,6 +51,7 @@
                         :cardList="cardList"
                         @updatePageList="updatePageList"
                     />
+                    <div class="card-box-outbottom"></div>
                 </div>
                 <div class="card-detail">
                     <div class="card-detail-content">
@@ -325,13 +326,22 @@ $border-color: #f5f6fa;
                 font-size: 20px;
             }
             .card-box-left {
+                position: relative;
                 height: 100%;
                 overflow-y: auto;
                 width: 180px;
                 text-align: center;
                 padding: 20px 0;
                 box-sizing: border-box;
-                border-right: 1px solid $border-color;
+                // border-right: 1px solid $border-color;
+            }
+            .card-box-outbottom{
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                height: 84px;
+                background: #bccfff;
             }
 
             .card-detail {
