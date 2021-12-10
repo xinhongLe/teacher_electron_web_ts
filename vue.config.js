@@ -84,12 +84,12 @@ module.exports = {
             files: ["dist_electron/**/*"],
             builderOptions: {
                 appId: "com.leyixue.teacher",
-                productName: "aixueshi", // 项目名
+                productName: "爱学仕校园教师端", // 项目名
                 copyright: "Copyright © 2021", // 版权信息
                 directories: {
                     output: "./dist_electron" // 输出文件路径
                 },
-                asar: false,
+                asar: true,
                 files: ["**/*", "public/*"],
                 publish: [
                     {

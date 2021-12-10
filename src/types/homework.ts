@@ -42,7 +42,6 @@ export interface Homework {
     HomeworkPaperType: number;
     LessonID: string;
     LessonName: string;
-    NeedSubmit: number;
     NoSureCount: number;
     PaperID: string;
     PaperName: string;

@@ -134,7 +134,6 @@ export default defineComponent({
                 return {
                     type: 99,
                     name: v.name,
-                    needSubmit: v.needSubmit,
                     students,
                     files
                 };
@@ -176,7 +175,7 @@ export default defineComponent({
                 ElMessage.success("布置作业成功");
                 setTimeout(() => {
                     router.push("/homework");
-                }, 100);
+                }, 500); // 延时跳转，确保服务器数据已刷新
             }
         };
 

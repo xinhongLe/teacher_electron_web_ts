@@ -92,14 +92,6 @@
                     <span>待审阅</span>&nbsp;
                     <span class="text-color">{{ info.NoSureCount }}</span>
                 </template>
-                <template
-                    v-if="info.HomeworkPaperType == 99 && info.NeedSubmit == 1"
-                    ><span class="text-color">需在线提交</span></template
-                >
-                <template
-                    v-if="info.HomeworkPaperType == 99 && info.NeedSubmit != 1"
-                    ><span class="text-color">无需提交</span></template
-                >
             </div>
             <div class="people">
                 <span>已完成人数：</span>
@@ -203,7 +195,6 @@ export default defineComponent({
             const {
                 ClassHomeworkPaperID,
                 AllQuestionCount,
-                NeedSubmit,
                 VideoDurationTick,
                 VideoID,
                 HomeworkID,
@@ -225,7 +216,6 @@ export default defineComponent({
                 classHomeworkPaperID: ClassHomeworkPaperID,
                 name: name.value,
                 count: AllQuestionCount,
-                needSubmit: NeedSubmit,
                 videoDurationTick: VideoDurationTick,
                 videoID: VideoID,
                 type: HomeworkPaperType,

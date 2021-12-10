@@ -24,7 +24,7 @@
 </template>
 
 <script lang="ts">
-import useOutLogin from "@/hooks/useOutLogin";
+// import useOutLogin from "@/hooks/useOutLogin";
 import isElectron from "is-electron";
 import { defineComponent } from "vue";
 export default defineComponent({
@@ -41,7 +41,7 @@ export default defineComponent({
 
         const sure = () => {
             cancel();
-            useOutLogin();
+            // useOutLogin();
             if (isElectron()) {
                 window.electron.exit();
             }

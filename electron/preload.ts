@@ -54,7 +54,7 @@ window.electron = {
     getVersion: () => {
         return remote.app.getVersion();
     },
-    isMac: () => {
+    isMac: (): boolean => {
         return process.platform === "darwin";
     },
     registerEscKeyUp: (callback: () => void) => {

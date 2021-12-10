@@ -39,7 +39,6 @@ export interface CommHomework {
     students: Student[];
     name: string;
     files: CommHomeworkFile[];
-    needSubmit: number;
 }
 
 export interface SystemHomework extends BagPapers {
@@ -64,7 +63,6 @@ export interface Paper {
         studentID: string;
         classID: string;
     }[];
-    needSubmit?: number;
     name?: string;
     files?: {
         fileName: string;
