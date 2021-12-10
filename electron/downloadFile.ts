@@ -3,7 +3,7 @@ import { resolve } from "path";
 import { access } from "fs/promises";
 
 const downloadingFileList: string[] = []; // 下载中的文件列表
-const appPath = resolve(process.env.APPDATA!, "Aixueshi/files/");
+const appPath = process.platform === "darwin" ? (process.env.HOME || process.env.USERPROFILE) + "/.aixueshi_teacher_files/" : resolve(process.env.APPDATA!, "Aixueshi/files/");
 const isExistFile = (filePath: string): Promise<boolean> => {
     return new Promise(resolve => {
         access(filePath).then(() => resolve(true)).catch(() => resolve(false));
@@ -12,11 +12,11 @@ const isExistFile = (filePath: string): Promise<boolean> => {
 
 export default (win: BrowserWindow) => {
     const downloadFile = async (url: string, fileName: string) => {
-        const filePath = resolve(appPath, fileName);
+        const filePath = process.platform === "darwin" ? appPath + fileName : resolve(appPath, fileName);
         if (downloadingFileList.includes(fileName)) return;
         const isExist = await isExistFile(filePath);
         if (isExist) {
-            shell.openExternal(filePath);
+            shell.openPath(filePath);
         } else {
             if (!downloadingFileList.includes(fileName)) {
                 win.webContents.downloadURL(url);
@@ -39,7 +39,7 @@ export default (win: BrowserWindow) => {
             const index = downloadingFileList.indexOf(fileName);
             downloadingFileList.splice(index, 1);
             if (state === "completed") {
-                shell.openExternal(filePath);
+                shell.openPath(filePath);
             }
         });
     });
