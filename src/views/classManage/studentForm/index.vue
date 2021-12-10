@@ -22,6 +22,8 @@
                 :disabled="isEdit"
                  v-model="formData.password"
                 :type="isEdit ? 'password' : ''"
+                :maxlength="20"
+                @input="onPasInput"
             >
                 <template v-slot:append v-if="isEdit"
                     ><div
@@ -53,8 +55,10 @@
                 <el-input-number
                      v-model="formData.num"
                     :min="0"
+                    :max="50"
                     label="描述文字"
                     size="medium"
+                    :precision="0"
                 ></el-input-number>
             </div>
         </el-form-item>
@@ -71,6 +75,8 @@ const checkPassword = (rule: unknown, value: string, callback: (error?: Error) =
     );
     if (value.length < 8) {
         callback(new Error("密码至少8个字符"));
+    } else if (value.length > 20) {
+        callback(new Error("密码最多20个字符"));
     } else if (
         !(/^(?![0-9]+$)/.test(value) || !/^(?![a-zA-Z]+$)/.test(value)) ||
         !reg.test(value)
@@ -146,10 +152,17 @@ export default defineComponent({
             }
         };
 
+        const onPasInput = (value:string) => {
+            if (value) {
+                formData.password = value.replace(/[\u4E00-\u9FA5]|\s+/g, "");
+            }
+        };
+
         return {
             formData,
             formRef,
             getSystemAccountPwd,
+            onPasInput,
             rules
         };
     }
