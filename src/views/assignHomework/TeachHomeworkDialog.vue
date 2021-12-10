@@ -76,7 +76,7 @@
                             :model-value="getIsSelect(item)"
                             @change="flag =>  handleRightClick(flag, item)"
                         >
-                            {{ item.UnitName + " " + item.WorkbookPaperName }}
+                            {{`${item.UnitName} ${item.WorkbookPaperName} 第${item.PageNumName}页`}}
                         </el-checkbox>
                         <!--            <span class="flag" v-show="index === 0">最近布置过</span>-->
                     </div>
