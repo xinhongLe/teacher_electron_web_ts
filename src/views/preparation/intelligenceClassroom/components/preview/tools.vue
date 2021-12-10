@@ -125,7 +125,7 @@
 import { ref, defineComponent, watch, onMounted, onUnmounted } from "vue-demi";
 import { enterFullscreen, exitFullscreen, isFullscreen } from "@/utils/fullscreen";
 import { useRouter } from "vue-router";
-// import isElectron from "is-electron";
+import isElectron from "is-electron";
 import { sleep } from "@/utils/common";
 export default defineComponent({
     props: ["showRemark"],
@@ -153,24 +153,26 @@ export default defineComponent({
         );
         onMounted(() => {
             document.addEventListener("keydown", keyDown);
-            document.addEventListener("resize", onResize);
+            window.addEventListener("resize", onResize);
             canvas.value = document.getElementById("canvas");
             canvas.value.setAttribute("width", document.getElementsByClassName("main-body")[0].clientWidth);
             canvas.value.setAttribute("height", document.getElementsByClassName("me-work")[0].clientHeight);
             ctx.value = canvas.value.getContext("2d");
         });
         onUnmounted(() => {
-            document.removeEventListener("resize", onResize);
+            window.removeEventListener("resize", onResize);
             document.removeEventListener("keydown", keyDown);
         });
-        const onResize = () => {
+        const onResize = async () => {
             canvas.value.setAttribute("width", document.getElementsByClassName("main-body")[0].clientWidth);
             canvas.value.setAttribute("height", document.getElementsByClassName("me-work")[0].clientHeight);
             if (switchFlag.value && isFullscreen()) {
                 switchFlag.value = false;
             } else if (!switchFlag.value && isFullscreen()) {
             } else {
+                if (isElectron()) return false;
                 activeFlag.value = false;
+                await sleep(300);
                 emit("clockFullScreen");
             }
         };
@@ -233,6 +235,7 @@ export default defineComponent({
             emit("nextStep");
         };
         const keyDown = async (e:any) => {
+            if (!isElectron()) return false;
             if (e.keyCode === 27) {
                 if (!activeFlag.value) return false;
                 activeFlag.value = false;
@@ -243,7 +246,7 @@ export default defineComponent({
         const fullScreen = async () => {
             if ((window as any).electron && !(window as any).electron.isFullScreen() && !(window as any).electron.isMac()) {
                 (window as any).electron.setFullScreen();
-                await sleep(300);
+                await sleep(100);
             }
             activeFlag.value = true;
             switchFlag.value = true;
