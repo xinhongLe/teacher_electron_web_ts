@@ -1,7 +1,7 @@
 <template>
     <router-view />
     <el-dialog
-        v-model:visible="isShowUpdate"
+        v-model="isShowUpdate"
         title="更新下载"
         :show-close="false"
         :close-on-click-modal="false"

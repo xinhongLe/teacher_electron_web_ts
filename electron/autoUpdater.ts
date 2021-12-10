@@ -28,7 +28,7 @@ export default (win: BrowserWindow) => {
             sendUpdateMessage(message.checking);
         });
 
-        // 当有可用更新的时候触发。 更新将自动下载
+        // 当有可用更新的时候触发
         autoUpdater.on("update-available", function(info) {
             sendUpdateMessage(message.updateAva);
             ipcMain.handle("isUpdateNow", (e, arg) => {
