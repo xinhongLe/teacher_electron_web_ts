@@ -108,6 +108,7 @@ export interface Workbook {
 
 export interface WorkbookPaper {
     UnitName: string;
+    PageNumName: string;
     WorkbookPaperID: string;
     WorkbookPaperName: string;
 }
