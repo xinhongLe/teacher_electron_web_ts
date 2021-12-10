@@ -1,13 +1,14 @@
 <template>
-    <el-dialog
-        :model-value="visible"
-        :width="1200"
-        title="正在查看同类题"
-        center
-        :show-close="false"
-    >
-        <Question :close="close" :isPureQuestion="true"/>
-    </el-dialog>
+    <div class="container">
+        <el-dialog
+            :model-value="visible"
+            title="正在查看同类题"
+            center
+            :show-close="false"
+        >
+            <Question :close="close" :isPureQuestion="true" />
+        </el-dialog>
+    </div>
 </template>
 
 <script lang="ts">
@@ -32,4 +33,10 @@ export default defineComponent({
 });
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.container {
+    :deep(.el-dialog) {
+        width: fit-content;
+    }
+}
+</style>

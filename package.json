@@ -1,6 +1,6 @@
 {
     "name": "Aixueshi",
-    "version": "0.1.1",
+    "version": "0.1.0",
     "private": true,
     "main": "background.js",
     "scripts": {
@@ -58,6 +58,7 @@
         "eslint-plugin-standard": "^4.0.0",
         "eslint-plugin-vue": "^7.0.0",
         "electron": "^16.0.4",
+        "electron-log": "4.4.1",
         "@electron/remote": "^2.0.1",
         "electron-devtools-installer": "^3.2.0",
         "electron-updater": "^4.6.1",

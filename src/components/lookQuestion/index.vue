@@ -97,6 +97,9 @@ export default defineComponent({
     z-index: 9999;
     background: #fff;
     padding-top: 16px;
+    :deep(.el-dialog__body) {
+        height: 700px;
+    }
     .btn-list {
         display: flex;
     }

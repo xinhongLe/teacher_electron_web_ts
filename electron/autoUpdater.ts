@@ -11,10 +11,12 @@ export default (win: BrowserWindow) => {
     if (process.platform === "win32") {
         autoUpdater.setFeedURL(feedUrl);
         autoUpdater.autoDownload = false;
+        const log = require("electron-log");
+        autoUpdater.logger = log;
         const message = {
             error: "检查更新出错",
             checking: "正在检查更新……",
-            updateAva: "检测到新版本，正在下载……",
+            updateAva: "检测到新版本",
             updateNotAva: "现在使用的就是最新版本，不用更新"
         };
 
