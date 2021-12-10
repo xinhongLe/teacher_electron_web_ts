@@ -155,7 +155,7 @@ export default defineComponent({
     padding: 15px;
     background-color: #fff;
     border-top: 1px solid #ccc;
-    overflow-x: scroll;
+    overflow-x: auto;
 }
 
 .me-page-item {
