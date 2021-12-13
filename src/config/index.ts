@@ -39,3 +39,27 @@ export const pageType = {
     teach: 16
 };
 export const originType = 1;
+
+export const fileTypeMap: Record<string, number> = {
+    rtf: 1,
+    png: 2,
+    jpeg: 2,
+    gif: 2,
+    jpg: 2,
+    ppt: 3,
+    pptx: 3,
+    mp3: 4,
+    wav: 4,
+    mp4: 5,
+    mkv: 5,
+    flv: 5,
+    ico: 6,
+    json: 7,
+    doc: 9,
+    docx: 9,
+    pdf: 10,
+    zip: 11,
+    excel: 12,
+    xls: 12,
+    xlsx: 12
+};
