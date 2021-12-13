@@ -81,7 +81,7 @@ export default defineComponent({
     height: 100vh;
     overflow: hidden;
     position: fixed;
-    z-index: 9999;
+    z-index: 999;
     background: #fff;
     padding-top: 16px;
     :deep(.el-dialog__body) {

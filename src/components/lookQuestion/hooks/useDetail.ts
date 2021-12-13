@@ -172,6 +172,9 @@ export default (isPureQuestion: boolean, questionId = "") => {
     };
 
     const removeQuestion = () => {
+        if (sum.value === 1) {
+            return ElMessage.info("至少保留一套题目哦~");
+        }
         ElMessageBox.confirm("在此处作业中移除此题目吗?", "提示", {
             confirmButtonText: "确定",
             cancelButtonText: "取消",
