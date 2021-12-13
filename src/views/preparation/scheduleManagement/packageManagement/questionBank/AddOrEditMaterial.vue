@@ -30,7 +30,7 @@
                         <el-button>上传</el-button>
                     </el-upload>
                     <div v-else class="file">
-                        <FileType :fileType="fileType" />
+                        <FileType :fileExtension="fileInfo.fileExtension" />
                         <div class="name" :title="fileInfo.name">
                             {{ fileInfo.fileName }}.{{ fileInfo.fileExtension }}
                         </div>
@@ -51,12 +51,13 @@
 </template>
 
 <script lang="ts">
+import { fileTypeMap } from "@/config";
 import useUploadFile from "@/hooks/useUploadFile";
 import { Lesson, Material } from "@/types/preparation";
 import { addMaterial, editMaterial } from "@/views/preparation/api";
 import { ElMessage } from "element-plus";
 import { computed, defineComponent, PropType, ref, watchEffect } from "vue";
-import FileType from "./FileType.vue";
+import FileType from "@/components/fileType/index.vue";
 export default defineComponent({
     props: {
         lessons: {
@@ -128,31 +129,8 @@ export default defineComponent({
         };
 
         const fileType = computed(() => {
-            const extention = fileInfo.fileExtension.toLowerCase();
-            const fileTypeMap: Record<string, number> = {
-                rtf: 1,
-                png: 2,
-                jpeg: 2,
-                gif: 2,
-                jpg: 2,
-                ppt: 3,
-                pptx: 3,
-                mp3: 4,
-                wav: 4,
-                mp4: 5,
-                mkv: 5,
-                flv: 5,
-                ico: 6,
-                json: 7,
-                doc: 9,
-                docx: 9,
-                pdf: 10,
-                zip: 11,
-                excel: 12,
-                xls: 12,
-                xlsx: 12
-            };
-            return fileTypeMap[extention];
+            const extension = fileInfo.fileExtension.toLowerCase();
+            return fileTypeMap[extension];
         });
 
         watchEffect(() => {

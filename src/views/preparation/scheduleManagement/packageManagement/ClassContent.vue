@@ -78,11 +78,8 @@
                             @click="lookQuestions({ id: data.ID, type: 3 })"
                             :class="isDragging ? 'drag' : ''"
                         >
-                            <div>
-                                <img
-                                    src="@/assets/images/attend-class/icon_timu.png"
-                                    alt=""
-                                />
+                            <div class="content">
+                                <FileType :fileExtension="data?.File?.Extention"/>
                                 <p class="className">
                                     {{ data.Name }}
                                     <span
@@ -144,6 +141,7 @@ import ClassBagDialog from "../ClassBagDialog.vue";
 import useDrag from "@/hooks/useDrag";
 import useDrop from "./hooks/useDrop";
 import { lookVideo, lookQuestions } from "@/utils";
+import FileType from "@/components/fileType/index.vue";
 export default defineComponent({
     setup() {
         const dialogVisible = ref(false);
@@ -240,7 +238,7 @@ export default defineComponent({
             lookQuestions
         };
     },
-    components: { ClassBagDialog }
+    components: { ClassBagDialog, FileType }
 });
 </script>
 
@@ -345,6 +343,10 @@ export default defineComponent({
                 border: none;
                 justify-content: space-between;
                 position: relative;
+                .content {
+                    display: flex;
+                    align-items: center;
+                }
                 &.drag {
                     pointer-events: none;
                 }

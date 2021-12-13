@@ -96,6 +96,7 @@ export interface CourseWares {
     PaperID?: string;
     File?: {
         Duration: string;
+        Extention: string;
     };
     QuestionCount: number;
     CopyType?: number;
