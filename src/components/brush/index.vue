@@ -142,6 +142,6 @@ export default defineComponent({
     cursor: url("./../../assets/look/icon-rubber.png"), pointer;
 }
 .black_cursor {
-    cursor: url("./../../assets/look/chalk_black.png"), pointer;
+    cursor: url("./../../assets/look/icon-huabi.png"), pointer;
 }
 </style>
