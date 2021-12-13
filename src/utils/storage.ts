@@ -15,7 +15,14 @@ export enum STORAGE_TYPES {
 
     // 登录历史
     RECORD_LOGIN_LIST = "RECORD_LOGIN_LIST",
-
+    /**
+     * 自动播放题音开关
+     */
+    AUTO_PALY_QUESTION_SWITCH = "AUTO_PALY_QUESTION_SWITCH",
+    /**
+     * 自动播放解析
+     */
+    AUTO_PALY_RESOLUTION_SWITCH = "AUTO_PALY_RESOLUTION_SWITCH",
     /**
      * oss存储路径
     */

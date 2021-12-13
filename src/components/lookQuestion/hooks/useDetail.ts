@@ -1,6 +1,7 @@
 import { store } from "@/store";
 import { FileInfo, Question } from "@/types/lookQuestion";
 import { downloadFile } from "@/utils/oss";
+import { get, STORAGE_TYPES } from "@/utils/storage";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { ref } from "vue";
 import { fetchPureQuestionByQuestionID, getCourseBagQuestionsByIds, getQuestionsByIds } from "../api";
@@ -18,6 +19,10 @@ export default (isPureQuestion: boolean, questionId = "") => {
     const isNextBtn = ref(false);
     const isLastBtn = ref(false);
     const number = ref(1);
+    const resolutionSwitch = get(STORAGE_TYPES.AUTO_PALY_RESOLUTION_SWITCH);
+    const questionSwitch = get(STORAGE_TYPES.AUTO_PALY_QUESTION_SWITCH);
+    const resolutionSwitchValue = ref(resolutionSwitch === null ? true : Boolean(resolutionSwitch));
+    const questionSwitchValue = ref(questionSwitch === null ? true : Boolean(questionSwitch));
 
     function getUrl(file: FileInfo) {
         const { Extention, FilePath, FileName, Bucket } = file;
@@ -52,7 +57,6 @@ export default (isPureQuestion: boolean, questionId = "") => {
     function playSounds(index: number) {
         if (audioRef.value) {
             audioRef.value.src = voiceUrl.value[index];
-            audioRef.value.play();
         }
     }
 
@@ -208,7 +212,9 @@ export default (isPureQuestion: boolean, questionId = "") => {
         nextPage,
         isNextBtn,
         removeQuestion,
+        resolutionSwitchValue,
         nextIndex,
+        questionSwitchValue,
         questionList
     };
 };
