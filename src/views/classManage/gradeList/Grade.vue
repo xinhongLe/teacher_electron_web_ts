@@ -7,7 +7,7 @@
     >
         <p class="name">{{ grade.GradeAlbum + grade.Name }}</p>
         <p class="count">学生： {{ grade.StudentCount }}</p>
-        <div class="info" @click.stop="openDialag">
+        <div class="info" @click.stop="openDialog">
             <i class="el-icon-warning-outline" />
             班级信息
         </div>
@@ -27,14 +27,19 @@ export default defineComponent({
         }
     },
     setup(props) {
-        const openDialag = () => {
+        const openDialog = () => {
             store.commit(MutationTypes.SHOW_CLASS_DIALOG, { info: props.grade, isEdit: true });
+        };
+
+        const updateClassId = (grade: Class) => {
+            store.commit(MutationTypes.UPDATE_SELECT_CLASS_INFO, grade);
+            store.commit(MutationTypes.UPDATE_SEARCH_STUDENT, "");
         };
 
         return {
             isSelect: computed(() => store.state.myStudent.selectClassInfo.ID === props.grade.ID),
-            openDialag,
-            updateClassId: (grade: Class) => store.commit(MutationTypes.UPDATE_SELECT_CLASS_INFO, grade)
+            openDialog,
+            updateClassId
         };
     }
 });
