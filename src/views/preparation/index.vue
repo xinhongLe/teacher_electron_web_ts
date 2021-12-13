@@ -5,8 +5,6 @@
             :reload="reload"
         />
         <div class="content-wrapper">
-            <!-- <ScheduleManagement v-if="tabIndex === 0"/>
-            <IntelligenceClassroom v-if="tabIndex ===1"/> -->
             <keep-alive v-if="isRouterAlive">
                 <ScheduleManagement v-if="tabIndex === 0"/>
                 <IntelligenceClassroom v-else-if="tabIndex ===1"/>

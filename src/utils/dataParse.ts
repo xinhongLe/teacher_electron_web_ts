@@ -64,9 +64,13 @@ export const dealOldData = async (pageID: string, oldSlide: IOldSlide) => {
         viewportRatio: 0.5625,
         elements: []
     };
+
     slide.background = getSlideData(oldSlide.PageSetting || "{}");
+
     slide.steps = getSlideStepData(oldSlide.Steps || []);
+
     const sortOldElenents = sortElementsByZIndex(oldSlide.Elements || []);
+
     slide.elements = await getElementsData(sortOldElenents, oldSlide.Events || []);
     return slide;
 };
@@ -248,14 +252,14 @@ const dealText = (oldText: IOldTextElement) => {
     };
     // LineHeight 不存在的情况
     oldText.LineHeight = oldText.LineHeight || 22;
-    oldText.LineHeight = oldText.LineHeight === 22 ? 45 : oldText.LineHeight < oldText.FontSize ? oldText.FontSize : oldText.LineHeight;
+    oldText.LineHeight = oldText.LineHeight < oldText.FontSize ? oldText.FontSize : oldText.LineHeight;
     // 由于旧数据文本在行内是居上显示的，所以这类计算上下的偏移量
     const realTextHeight = getTextHeight(oldText.FontSize, oldText.FontFamily, oldText.Text);
     const offsetTop = (oldText.LineHeight - realTextHeight) / 2;
     element.id = oldText.UUID;
     element.name = oldText.Name;
     // 显示发现 wpf 数据的文本都偏上一点 数据不是很准，待验证
-    const offsetTopLittle = realTextHeight / 7;
+    const offsetTopLittle = realTextHeight / 12;
     const newTexts = [];
     for (const text of oldText.Text.split("\r\n")) {
         newTexts.push(text.trimEnd());
@@ -263,7 +267,7 @@ const dealText = (oldText: IOldTextElement) => {
     oldText.Text = newTexts.join("\r\n");
     // 处理文本内边距的问题
     element.top = oldText.Top - 10 - offsetTop + offsetTopLittle;
-    element.left = oldText.Left - 10;
+    element.left = oldText.Left - 10 + 5;
     element.width = oldText.Width + 20;
     element.height = oldText.Height + 20;
     element.content = dealTextContent(oldText.Text);
@@ -305,7 +309,7 @@ const dealTextContent = (text: string) => {
     str = str.replace(/\n/g, "</p><p>");
     str = str.replace(/\r/g, "</p><p>");
     str = "<p>" + str + "</p>";
-    str = str.replace(/\s/g, "&nbsp;");
+    // str = str.replace(/\s/g, "&nbsp;");
     str = str.replace(/<p><\/p>/g, "<p>&nbsp;</p>");
     return str;
 };

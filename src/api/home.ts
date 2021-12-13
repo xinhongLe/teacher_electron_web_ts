@@ -94,7 +94,8 @@ export function getChapters(data: IGetChapters): Promise<ChaptersResponse> {
     return request({
         url: "/Api/WCP/Window/GetChapterLessonWindow",
         headers: {
-            "Content-Type": "application/json-patch+json"
+            "Content-Type": "application/json-patch+json",
+            noLoading: "true"
         },
         method: "post",
         data,
@@ -172,7 +173,7 @@ export async function getPageDetailRes(data:IGetPageData, type: number): Promise
         }
         request({
             url: urlList[type],
-            headers: { DeviceID: "Franchisee", ...dbResArr.length > 0 ? { noLoading: "ok" } : {} },
+            headers: { DeviceID: "Franchisee", ...dbResArr.length > 0 ? { noLoading: "ok" } : {}, noLoading: "true" },
             method: "post",
             baseURL: WINDOW_CRAD_API,
             data
@@ -260,7 +261,7 @@ export function renameCardOrPage(data : IRenameCardOrPage) : Promise<GetPageResp
 export function getVideoQuoteInfo(data : IVideoQuoteInfo) : Promise<GetPageResponse> {
     return request({
         url: "Api/WCP/Window/GetVideoQuoteInfo",
-        headers: { DeviceID: "Franchisee" },
+        headers: { DeviceID: "Franchisee", noLoading: "true" },
         method: "post",
         baseURL: WINDOW_CRAD_API,
         data: Object.assign(data, { OriginType: originType })
