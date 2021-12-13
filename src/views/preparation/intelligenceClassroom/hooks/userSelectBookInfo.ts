@@ -58,6 +58,7 @@ interface CardListItem {
     Type: number,
     Sort: number,
     Height: number,
+    State: boolean,
     Remark?: string
 }
 interface cardList {
@@ -130,25 +131,12 @@ export default () => {
     const updatePageList = (card: cardList) => {
         activeIndex.previewOptions = card;
     };
-    interface winListItem {
-        ContentType: number,
-        Height: number,
-        ID: string,
-        Name: string,
-        NickName: string,
-        OriginType: number,
-        Sort: number,
-        State: boolean,
-        TeachPageRelationID: string,
-        Type: number,
-        Width: number,
-        originType?: number
-    }
     const detailData = (data: any) => {
         if (data.length === 0) return [];
-        const winList = data.map((item:winListItem) => {
+        const winList = data.map((item: any) => {
             return {
                 ...item,
+                PageList: item.PageList.filter((items: any) => { return items.State === true; }),
                 originType: activeIndex.originType
             };
         });

@@ -190,6 +190,7 @@ export default defineComponent({
 
         const pageList = ref();
         const handleView = (node:Node, data:ICardList) => {
+            console.log(data, "data");
             pageList.value = data.PageList;
             winScreenView.value = true;
             enterFullscreen();

@@ -27,7 +27,8 @@ export default defineComponent({
         const { getPageDetail } = useHome();
         onMounted(async() => {
             pageList.value = props.pageList;
-            slideView.value = await getPageDetail(pageList.value[index.value]);
+            console.log(pageList.value[index.value], "1111111111");
+            slideView.value = await getPageDetail(pageList.value[index.value], 1);
         });
 
         const pagePrev = async () => {
@@ -35,7 +36,7 @@ export default defineComponent({
                 return ElMessage({ type: "warning", message: "已经是第一页" });
             }
             index.value--;
-            slideView.value = await getPageDetail(pageList.value[index.value]);
+            slideView.value = await getPageDetail(pageList.value[index.value], 1);
         };
 
         const pageNext = async () => {
@@ -43,7 +44,7 @@ export default defineComponent({
                 return ElMessage({ type: "warning", message: "已经是最后页" });
             }
             index.value++;
-            slideView.value = await getPageDetail(pageList.value[index.value]);
+            slideView.value = await getPageDetail(pageList.value[index.value], 1);
         };
 
         const dialogVisible = ref(false);
