@@ -80,20 +80,22 @@
                                 :key="index"
                             >
                                 <span>{{ item }}</span>
-                                <div>
+                                <div v-if="subjectList[item]">
                                     <span
-                                        v-for="(item1, index1) in subjectList[
-                                            item
-                                        ]"
-                                        :key="index1"
-                                        ><i class="el-icon-s-custom"></i
-                                        >{{ item1.Name
-                                        }}<i
+
+                                        v-for="(item1) in (subjectList[item] || [])"
+                                        :key="item1?.ID"
+                                    >
+                                        <i class="el-icon-s-custom"></i>
+                                        {{ item1?.Name}}
+                                        <i
                                             class="el-icon-remove"
-                                            v-if="isEdit || ownerId !== item1.ID"
-                                            @click="delTeacher(item1.ID)"
-                                        ></i
-                                    ></span>
+                                            v-if="
+                                                isEdit || ownerId !== item1?.ID
+                                            "
+                                            @click="delTeacher(item1?.ID)"
+                                        ></i>
+                                    </span>
                                 </div>
                             </div>
                         </div>
@@ -142,10 +144,8 @@ export default defineComponent({
         const show = computed(() => store.state.myStudent.isShowClassDialog);
 
         getGradeList().then(() => {
-            const {
-                isEditClassDialog: isEdit,
-                classDialogInfo: classInfo
-            } = store.state.myStudent;
+            const { isEditClassDialog: isEdit, classDialogInfo: classInfo } =
+                store.state.myStudent;
             if (isEdit) {
                 formData.name = classInfo!.Name;
                 formData.schoolId = classInfo!.SchoolId;
