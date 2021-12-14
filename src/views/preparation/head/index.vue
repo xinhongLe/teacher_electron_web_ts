@@ -70,6 +70,7 @@
 <script lang="ts">
 import { MutationTypes, store } from "@/store";
 import { computed, defineComponent, ref, watch } from "vue";
+import { setLastSelectBook } from "../api";
 import useBook from "../hooks/useBook";
 import ChapterDialog from "./chapterDialog.vue";
 export default defineComponent({
@@ -101,6 +102,11 @@ export default defineComponent({
 
         watch(teacherBookChapter, (value) => {
             store.commit(MutationTypes.SET_SELECT_CHAPTER_ID, value);
+            setLastSelectBook({
+                bookID: subjectPublisherBookValue.value[2],
+                chapterID: value,
+                subjectID: subjectPublisherBookValue.value[0]
+            });
         });
 
         watch(tabIndex, (value) => {

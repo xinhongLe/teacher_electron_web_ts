@@ -31,8 +31,10 @@
                             :header-cell-style="{ 'text-align': 'center' }"
                             :cell-style="{ 'text-align': 'center' }"
                             style="width: 100%; margin-top: 16px"
-                            @selection-change="handleSelectionChange"
+                            @select="select"
+                            @select-all="selectAll"
                             max-height="480px"
+                            ref="tableRef"
                         >
                             <el-table-column
                                 type="selection"
@@ -85,9 +87,11 @@
 </template>
 
 <script lang="ts">
-import { ClassTeacher, Teacher } from "@/types/myStudent";
+import { store } from "@/store";
+import { ElTableType } from "@/types/elementType";
+import { ClassTeacher } from "@/types/myStudent";
 import { ElMessage } from "element-plus";
-import { defineComponent, PropType, ref } from "vue";
+import { computed, defineComponent, nextTick, PropType, ref, watch } from "vue";
 import useAddTeacher from "./useAddTeacher";
 export default defineComponent({
     name: "AddTeacher",
@@ -102,8 +106,8 @@ export default defineComponent({
         }
     },
     setup(props, { emit }) {
-        const selectTeacher = ref<Teacher[]>([]);
-        const btnActive = ref(false);
+        const selectTeacher = ref<ClassTeacher[]>([...props.selectedTeacher]);
+        const tableRef = ref<ElTableType>();
         const {
             getTeacherList,
             page,
@@ -113,26 +117,57 @@ export default defineComponent({
             handleSizeChange
         } = useAddTeacher();
 
+        const btnActive = computed(() => {
+            const id = store.state.userInfo.id;
+            return !selectTeacher.value.every((item) => item.ID === id);
+        });
+
         const handleClose = () => {
             emit("update:visible", false);
-        };
-
-        const handleSelectionChange = (v: Teacher[]) => {
-            selectTeacher.value = v;
-            btnActive.value = v.length !== 0;
         };
 
         const save = () => {
             if (selectTeacher.value.length === 0) {
                 return ElMessage.warning("尚未选择老师！！");
             }
-            emit("update:selectedTeacher", [
-                ...props.selectedTeacher,
-                ...selectTeacher.value
-            ]);
+            emit("update:selectedTeacher", selectTeacher.value);
             handleClose();
         };
+
+        const select = (selection:ClassTeacher[], row:ClassTeacher) => {
+            const index = selectTeacher.value.findIndex(({ ID }) => row.ID === ID);
+            if (index === -1) {
+                return selectTeacher.value.push(row);
+            }
+            selectTeacher.value.splice(index, 1);
+        };
+
+        const selectAll = (selection:ClassTeacher[]) => {
+            if (selection.length === 0) {
+                tableData.value.forEach((item) => {
+                    const index = selectTeacher.value.findIndex(({ ID }) => item.UserId === ID);
+                    selectTeacher.value.splice(index, 1);
+                });
+            } else {
+                selection.forEach((item) => {
+                    const data = selectTeacher.value.find(({ ID }) => item.ID === ID);
+                    !data && selectTeacher.value.push(item);
+                });
+            }
+        };
+
         getTeacherList();
+
+        watch(tableData, (v) => {
+            nextTick(() => {
+                selectTeacher.value.forEach(item => {
+                    const row = v.find(({ UserId }) => item.ID === UserId);
+                    if (row) {
+                        tableRef.value && tableRef.value.toggleRowSelection(row, true);
+                    }
+                });
+            });
+        });
 
         return {
             formData,
@@ -140,9 +175,12 @@ export default defineComponent({
             page,
             handleClose,
             getTeacherList,
-            handleSelectionChange,
             save,
+            selectTeacher,
+            tableRef,
+            select,
             btnActive,
+            selectAll,
             handleSizeChange,
             handleCurrentChange
         };

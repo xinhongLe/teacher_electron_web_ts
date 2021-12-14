@@ -1,3 +1,4 @@
+import { FileInfo } from "./lookQuestion";
 import { BagPapers, Questions } from "./preparation";
 
 export interface FetchGradeClassStudentsData {
@@ -118,4 +119,12 @@ export interface TeachHomework extends WorkbookPaper {
     publisherName: string;
     gradeName: string;
     students: Student[];
+}
+
+export interface GetBookImgData {
+    BookID: string
+}
+
+export interface GetBookImgRes {
+    BookCoverFile: FileInfo
 }

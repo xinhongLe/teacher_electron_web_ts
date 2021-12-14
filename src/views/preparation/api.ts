@@ -8,7 +8,7 @@ import {
     EditMaterialData,
     FetchBagChapterData,
     FetchLessonsData,
-    FetchTeacherBookChaptersData, FetchTeacherLessonAndBagByChapterData, Lesson, Material, QueryMaterialListData, SaveTeacherClassScheduleData, UpdateCourseBagTeacherData, UpdateCourseWareListOfTeacherData, UpdateCourseWareTeacherSortData, UpdateCustomBookLessonData
+    FetchTeacherBookChaptersData, FetchTeacherLessonAndBagByChapterData, GetLastSelectBookData, GetLastSelectBookRes, Lesson, Material, QueryMaterialListData, SaveTeacherClassScheduleData, SetLastSelectBookData, UpdateCourseBagTeacherData, UpdateCourseWareListOfTeacherData, UpdateCourseWareTeacherSortData, UpdateCustomBookLessonData
 } from "@/types/preparation";
 
 // 获取科目出版社集合
@@ -261,6 +261,30 @@ export const addCourseWareTeacherElementFile: RequestFun<AddCourseWareTeacherEle
     return request({
         baseURL: AI_XUE_SHI_API,
         url: "Api/W4/Teach/AddCourseWareTeacherElementFile",
+        headers: {
+            "Content-Type": "application/json-patch+json"
+        },
+        method: "post",
+        data
+    });
+};
+
+export const getLastSelectBook: RequestFun<GetLastSelectBookData, GetLastSelectBookRes> = (data) => {
+    return request({
+        baseURL: AI_XUE_SHI_API,
+        url: "Api/W4/Teach/GetLastSelectBook",
+        headers: {
+            "Content-Type": "application/json-patch+json"
+        },
+        method: "post",
+        data
+    });
+};
+
+export const setLastSelectBook: RequestFun<SetLastSelectBookData, null> = (data) => {
+    return request({
+        baseURL: AI_XUE_SHI_API,
+        url: "Api/W4/Teach/SetLastSelectBook",
         headers: {
             "Content-Type": "application/json-patch+json"
         },

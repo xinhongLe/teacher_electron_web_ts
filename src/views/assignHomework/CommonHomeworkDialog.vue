@@ -16,7 +16,7 @@
                 ></el-cascader>
                 <img
                     v-if="form.subjectPublisherBookValue.length > 0"
-                    src="@/assets/indexImages/card_beike.png"
+                    :src="bookImg"
                     alt=""
                 />
                 <div v-else class="no-check">
@@ -133,11 +133,14 @@
 <script lang="ts">
 import useUploadFile from "@/hooks/useUploadFile";
 import { CommHomework } from "@/types/assignHomework";
+import { downloadFile } from "@/utils/oss";
 import { ElMessage } from "element-plus";
 import { UploadFile } from "element-plus/lib/components/upload/src/upload.type";
-import { defineComponent, reactive, ref } from "vue";
+import { defineComponent, reactive, ref, watch } from "vue";
+import { getBookImg } from "./api";
 import useBookList from "./hooks/useBookList";
 import { showImg } from "./logic";
+const defaultBookImg = require("@/assets/indexImages/card_beike.png");
 export default defineComponent({
     props: {
         dialogVisible: {
@@ -152,6 +155,7 @@ export default defineComponent({
             subjectPublisherBookValue: []
         });
         const commonList = ref<CommHomework[]>([]);
+        const bookImg = ref(defaultBookImg);
         const { subjectPublisherBookList, cascaderProps } = useBookList();
         const { uploadFile, fileInfo } = useUploadFile("CustomHomework");
 
@@ -223,6 +227,26 @@ export default defineComponent({
             });
         };
 
+        watch(() => form.subjectPublisherBookValue, (v) => {
+            getBookImg({
+                BookID: v[2]
+            }).then((res) => {
+                if (res.resultCode === 200 && res.result.BookCoverFile) {
+                    const key =
+                    res.result.BookCoverFile.FilePath +
+                    "/" +
+                    res.result.BookCoverFile.FileName +
+                    "." +
+                    res.result.BookCoverFile.Extention;
+                    downloadFile(key, res.result.BookCoverFile.Bucket).then((res) => {
+                        bookImg.value = res;
+                    });
+                } else {
+                    bookImg.value = defaultBookImg;
+                }
+            });
+        });
+
         return {
             handleClose,
             subjectPublisherBookList,
@@ -235,6 +259,7 @@ export default defineComponent({
             delFile,
             delRow,
             acceptList,
+            bookImg,
             uploadSuccess,
             form
         };
