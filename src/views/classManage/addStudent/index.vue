@@ -39,6 +39,7 @@
             <span
                 @click="save"
                 :class="tabIndex === 1 && isDisabledBtn ? 'disable' : ''"
+                v-loading="isSubmitting"
                 >保存</span
             >
             <!-- <span v-if="tabIndex == 1 && !fileList.name" style="background: #D4D6D9;color: #fff">保存</span> -->
@@ -165,6 +166,9 @@ export default defineComponent({
         background: #4b71ee;
         color: #fff;
         margin-left: 24px;
+        :deep(.el-loading-spinner) {
+            top: 0;
+        }
     }
 }
 </style>
