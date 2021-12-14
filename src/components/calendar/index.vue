@@ -8,8 +8,8 @@
             </div>
         </div>
         <div class="content">
-            <div class="col" v-for="col in schedules" :key="col.ClassIndex">
-                <div class="time cell">{{col.fontShowTime}}</div>
+            <div class="col" v-for="(col, index) in schedules" :key="col.ClassIndex">
+                <div class="time cell">{{col.ShowType === 1 ? `第${index+1}节课` : col.fontShowTime}}</div>
                 <Course
                     v-for="item in col.colData"
                     :key="item.ID"
