@@ -47,6 +47,11 @@ export interface IAddPage{
     Type: number,
     Name: string
 }
+export interface ICopyPage{
+    CardID: string,
+    OldCardID: string,
+    PageID: string
+}
 
 export interface IRenameCardOrPage {
     ID: string,
@@ -239,6 +244,17 @@ export function addCard(data: IAddCard) : Promise<GetPageResponse> {
 export function addPage(data: IAddPage) : Promise<GetPageResponse> {
     return request({
         url: "/Api/WCP/Window/AddPage",
+        headers: { DeviceID: "Franchisee" },
+        method: "post",
+        baseURL: WINDOW_CRAD_API,
+        data: Object.assign(data, { OriginType: originType })
+    });
+}
+
+// 复制页
+export function copyPage(data: ICopyPage) : Promise<GetPageResponse> {
+    return request({
+        url: "/Api/WCP/Window/CopyPage",
         headers: { DeviceID: "Franchisee" },
         method: "post",
         baseURL: WINDOW_CRAD_API,
