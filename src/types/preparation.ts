@@ -247,3 +247,22 @@ export type AddCourseWareTeacherElementFileData = {
     courseBagID: null;
     videoDuration: null;
 }[];
+
+export interface GetLastSelectBookData {
+    subjectID: string;
+}
+
+export interface GetLastSelectBookRes {
+    SubjectID: string;
+    BookID: string;
+    AlbumID: string;
+    PublisherID: string;
+    ChapterID: string;
+    LastSelectTime: string;
+}
+
+export interface SetLastSelectBookData {
+    subjectID: string;
+    bookID: string;
+    chapterID: string;
+}
