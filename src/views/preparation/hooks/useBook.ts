@@ -27,7 +27,7 @@ export default () => {
         const res = await fetchTeacherBookChapters({ bookID });
         if (res.resultCode === 200) {
             teacherBookChapterList.value = res.result;
-            if (selectBook && isFirst) {
+            if (Object.keys(selectBook).length !== 0 && isFirst) {
                 isFirst = false;
                 return (teacherBookChapter.value = selectBook.ChapterID);
             }
@@ -45,7 +45,7 @@ export default () => {
             if (selectBookRes.resultCode === 200) {
                 selectBook = selectBookRes.result;
             }
-            if (selectBook) {
+            if (Object.keys(selectBookRes.result).length !== 0) {
                 const { BookID, PublisherID, SubjectID } = selectBook;
                 subjectPublisherBookValue.value = [SubjectID, PublisherID, BookID];
             } else {
