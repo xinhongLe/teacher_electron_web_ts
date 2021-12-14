@@ -9,7 +9,7 @@
                     ref="audioRef"
                     :src="voiceUrl[nextIndex - 1]"
                     :controls="true"
-                    :autoplay="true"
+                    @canplay="playAudio"
                     style="display: none"
                 >
                     亲 您的浏览器不支持html5的audio标签
@@ -25,11 +25,11 @@
         <div class="dialog-footer">
             <div class="switch-box">
                 <div>
-                    <el-switch v-model="switchValue"> </el-switch>
+                    <el-switch v-model="questionSwitchValue"> </el-switch>
                     <p>自动播放题音</p>
                 </div>
                 <div>
-                    <el-switch v-model="switchValue"> </el-switch>
+                    <el-switch v-model="resolutionSwitchValue"> </el-switch>
                     <p>自动播放解析</p>
                 </div>
             </div>
@@ -101,6 +101,7 @@ import isElectronFun from "is-electron";
 import useDetail from "./hooks/useDetail";
 import Brush from "@/components/brush/index.vue";
 import { store } from "@/store";
+import { set, STORAGE_TYPES } from "@/utils/storage";
 export default defineComponent({
     props: {
         close: {
@@ -114,7 +115,6 @@ export default defineComponent({
     },
     setup(props, { emit }) {
         const type = computed(() => store.state.common.viewQuestionInfo.type);
-        const switchValue = ref(true);
         const btnType = ref(1);
         const childRef = ref<InstanceType<typeof Brush>>();
         const isElectron = isElectronFun();
@@ -135,6 +135,8 @@ export default defineComponent({
             removeQuestion,
             playSounds,
             nowQuestionID,
+            resolutionSwitchValue,
+            questionSwitchValue,
             nextPage
         } = useDetail(props.isPureQuestion, questionID.value);
 
@@ -166,6 +168,11 @@ export default defineComponent({
             audioRef.value!.pause();
         };
 
+        const playAudio = () => {
+            const isPlay = nextIndex.value === 1 ? questionSwitchValue.value : resolutionSwitchValue.value;
+            isPlay && audioRef.value && audioRef.value.play();
+        };
+
         watch(nowQuestionID, (v) => {
             emit("update:nowQuestionID", v);
         });
@@ -174,8 +181,17 @@ export default defineComponent({
             childRef.value!.clearBrush();
         });
 
+        watch(questionSwitchValue, (v) => {
+            set(STORAGE_TYPES.AUTO_PALY_QUESTION_SWITCH, String(v));
+        });
+
+        watch(resolutionSwitchValue, (v) => {
+            set(STORAGE_TYPES.AUTO_PALY_RESOLUTION_SWITCH, String(v));
+        });
+
         return {
-            switchValue,
+            resolutionSwitchValue,
+            questionSwitchValue,
             imageUrl,
             sum,
             number,
@@ -197,6 +213,7 @@ export default defineComponent({
             lookSimilarQuestions,
             smallQuestion,
             removeQuestion,
+            playAudio,
             imageRef,
             audioRef,
             isElectron

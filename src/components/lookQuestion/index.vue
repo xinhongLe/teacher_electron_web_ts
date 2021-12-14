@@ -1,5 +1,5 @@
 <template>
-    <div class="look-question" @click="closeSmall">
+    <div class="look-question">
         <Question :close="close" ref="questionRef" v-model:nowQuestionID="nowQuestionID">
             <template #title>
                 <p class="title">查看题目</p>
@@ -32,7 +32,6 @@
 
 <script lang="ts">
 import { computed, defineComponent, provide, ref } from "vue";
-import isElectronFun from "is-electron";
 import Question from "./Question.vue";
 import PureQuestionDialog from "./PureQuestionDialog.vue";
 import { checkPureQuestionByQuestionID } from "./api";
@@ -41,14 +40,8 @@ import { MutationTypes, store } from "@/store";
 export default defineComponent({
     setup() {
         const type = computed(() => store.state.common.viewQuestionInfo.type);
-        const isElectron = isElectronFun();
         const dialogVisible = ref(false);
         const nowQuestionID = ref("");
-        const closeSmall = () => {
-            if (isElectron) {
-                // type.value === 2 && ipcRenderer.send("closeSQuestion");
-            }
-        };
 
         const viewPureQuestion = async () => {
             const check = await checkPureQuestionByQuestionID({
@@ -65,17 +58,11 @@ export default defineComponent({
 
         const close = () => {
             store.commit(MutationTypes.SET_IS_SHOW_QUESTION, { flag: false, info: {} });
-            // if (isElectron) {
-            //     type.value === 2
-            //         ? ipcRenderer.send("closeSQuestion")
-            //         : ipcRenderer.send("closeQuestion");
-            // }
         };
 
         provide("nowQuestionID", nowQuestionID);
 
         return {
-            closeSmall,
             type,
             viewPureQuestion,
             close,
@@ -94,7 +81,7 @@ export default defineComponent({
     height: 100vh;
     overflow: hidden;
     position: fixed;
-    z-index: 9999;
+    z-index: 999;
     background: #fff;
     padding-top: 16px;
     :deep(.el-dialog__body) {

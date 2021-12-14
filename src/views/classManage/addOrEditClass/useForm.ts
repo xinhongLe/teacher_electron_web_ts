@@ -42,7 +42,7 @@ export default (selectTeacher: Ref<ClassTeacher[]>) => {
                 const teacherIDs: string[] = [];
                 const ownerId = store.state.userInfo.id;
                 selectTeacher.value.forEach(({ ID }) => {
-                    if (ownerId !== ID) {
+                    if (ownerId !== ID || isEditClassDialog) {
                         teacherIDs.push(ID);
                     }
                 });
@@ -60,6 +60,9 @@ export default (selectTeacher: Ref<ClassTeacher[]>) => {
                     if (res.resultCode === 200) {
                         flag = true;
                         message = "修改成功";
+                        if (!teacherIDs.includes(ownerId)) {
+                            isActiveFirst = true;
+                        }
                     }
                 } else {
                     const data: AddSingleClassData = {

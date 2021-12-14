@@ -1,6 +1,6 @@
 <template>
     <div class="student-box">
-        <div :style="{ height: showAll ? 'auto' : '78px' }">
+        <div>
             <p>
                 <span>{{ item.tagName }}</span>
                 <span>{{ item.list.length }}</span>
@@ -13,7 +13,7 @@
                     showAll ? "收起" : "展开"
                 }}</span>
             </p>
-            <div>
+            <div v-show="showAll">
                 <el-row :gutter="20">
                     <el-col
                         :span="6"

@@ -2,6 +2,7 @@
     <div class="look-video">
         <div class="warp">
             <div class="frames-box">
+                <span class="file-sn">{{fileSn}}</span>
                 <p>查看视频</p>
                 <div class="content">
                     <Brush ref="childRef"></Brush>
@@ -79,6 +80,7 @@ export default defineComponent({
         const videoUrl = ref("");
         const btnType = ref(1);
         const childRef = ref<InstanceType<typeof Brush>>();
+        const fileSn = ref();
         const {
             changeData,
             marks,
@@ -112,16 +114,10 @@ export default defineComponent({
                 flag: false,
                 info: {}
             });
-            if (isElectron) {
-                // ipcRenderer.send("closeVideo");
-            }
         };
 
         const smallVideo = () => {
             videoRef.value!.pause();
-            if (isElectron) {
-                // ipcRenderer.send("smallVideo");
-            }
         };
 
         getFileAndPauseByFile({
@@ -129,8 +125,9 @@ export default defineComponent({
         }).then(async (res) => {
             if (res.resultCode === 200) {
                 const { FilePauses, VideoFile } = res.result;
-                const { Extention, FilePath, FileName, Bucket } = VideoFile;
+                const { Extention, FilePath, FileName, Bucket, SN } = VideoFile;
                 filePauses.value = changeData(FilePauses);
+                fileSn.value = SN;
                 const key = Extention
                     ? `${FilePath}/${FileName}.${Extention}`
                     : `${FilePath}/${FileName}`;
@@ -155,6 +152,7 @@ export default defineComponent({
             changeVideoTime,
             brushHandle,
             isElectron,
+            fileSn,
             childRef,
             formateSeconds
         };
@@ -167,6 +165,13 @@ export default defineComponent({
 .active {
     border: 3px solid #4b71ee;
     border-radius: 10px;
+}
+.file-sn {
+    position: absolute;
+    left: 20px;
+    top: 20px;
+    color: #999;
+    font-size: 16px;
 }
 .look-video {
     width: 100vw;

@@ -23,7 +23,7 @@
                     class="icon"
                 />
                 <div class="item-conent" @click="openFile(item.ElementFile)">
-                    <FileType :fileType="item.FileType" />
+                    <FileType :fileExtension="item?.ElementFile?.Extention" />
                     <div class="file-name" :title="getFileName(item)">
                         {{ getFileName(item) }}
                     </div>
@@ -74,12 +74,12 @@ import { ElementFile, Lesson, Material } from "@/types/preparation";
 import { downloadFile } from "@/utils/oss";
 import { deleteMaterial, queryMaterialList } from "@/views/preparation/api";
 import { defineComponent, PropType, ref, watchEffect } from "vue";
-import FileType from "./FileType.vue";
 import AddOrEditMaterial from "./AddOrEditMaterial.vue";
 import useMaterialDialog from "./hooks/useMaterialDialog";
 import useDrag from "@/hooks/useDrag";
 import { MutationTypes, store } from "@/store";
 import { openFile } from "@/utils";
+import FileType from "@/components/fileType/index.vue";
 export default defineComponent({
     props: {
         lessonID: {
@@ -164,7 +164,7 @@ export default defineComponent({
             getFileName
         };
     },
-    components: { FileType, AddOrEditMaterial }
+    components: { AddOrEditMaterial, FileType }
 });
 </script>
 

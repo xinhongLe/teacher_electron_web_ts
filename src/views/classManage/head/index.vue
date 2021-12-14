@@ -22,13 +22,13 @@
             <span class="btn" @click="goLabel">管理标签</span>
             <span class="btn" @click="showAddStudent = true">添加学生</span>
         </div>
-        <AddStudent v-model:visible="showAddStudent" v-if="showAddStudent"/>
+        <AddStudent v-model:visible="showAddStudent" v-if="showAddStudent" />
     </div>
 </template>
 
 <script lang="ts">
 import { MutationTypes, store } from "@/store";
-import { defineComponent, reactive, ref } from "vue";
+import { defineComponent, reactive, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import AddStudent from "../addStudent/index.vue";
 
@@ -52,6 +52,10 @@ export default defineComponent({
                 router.push("/label/" + id);
             }
         };
+
+        watch(() => store.state.myStudent.selectClassInfo.ID, () => {
+            form.studentName = "";
+        });
 
         return {
             form,
@@ -108,6 +112,9 @@ export default defineComponent({
                     border: #4B71EE;
                 }
             }
+        }
+        :deep(.el-dialog__body) {
+            padding: 0;
         }
     }
 </style>

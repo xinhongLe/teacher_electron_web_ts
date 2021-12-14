@@ -112,7 +112,10 @@ function createBlackboardWindow() {
 
 function createSubjectToolWindow(url, name) {
     const win = createWindow(url, {
-        alwaysOnTop: true
+        alwaysOnTop: true,
+        webPreferences: {
+            nodeIntegration: false
+        }
     });
     win.once("ready-to-show", () => {
         win.show();
