@@ -50,12 +50,14 @@
                         :winActiveId="winActiveId"
                         :cardList="cardList"
                         @updatePageList="updatePageList"
+                        @updateFlag="updateFlag"
                     />
                     <div class="card-box-outbottom"></div>
                 </div>
                 <div class="card-detail">
                     <div class="card-detail-content">
                         <PreviewSection
+                            ref="PreviewSection"
                             :hideTools="hideTools"
                             :uuid="cardUuid"
                             :isPreview="isPreview"
@@ -127,6 +129,10 @@ export default defineComponent({
         const firstPage = () => {
             cardListComponents.value.changeAddPage();
         };
+        const PreviewSection = ref();
+        const updateFlag = () => {
+            PreviewSection.value.updateFlag();
+        };
         return {
             showList,
             ...toRefs(allData),
@@ -136,7 +142,9 @@ export default defineComponent({
             windowEdit,
             cardListComponents,
             lastPage,
-            firstPage
+            firstPage,
+            PreviewSection,
+            updateFlag
         };
     }
 });

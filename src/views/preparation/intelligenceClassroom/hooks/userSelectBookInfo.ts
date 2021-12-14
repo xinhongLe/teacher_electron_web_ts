@@ -108,6 +108,18 @@ export default () => {
                     activeIndex.winActiveId = "";
                     activeIndex.previewOptions = {};
                 }
+                // const allPageIds = ref([]);
+                // res.result.forEach(item => {
+                //     if (!item.PageList) return false;
+                //     item.PageList.forEach(items => {
+                //         allPageIds.value.push({
+                //             Name: items.Name,
+                //             Type: items.Type,
+                //             ID: items.ID,
+                //             OriginType: items.OriginType
+                //         })
+                //     })
+                // })
             }
         });
     };

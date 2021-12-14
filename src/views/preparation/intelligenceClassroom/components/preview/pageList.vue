@@ -57,7 +57,6 @@ export default defineComponent({
         watch(
             () => props.pageListOption,
             () => {
-                console.log(props.pageListOption, "props", prevPageFlag.value);
                 if (prevPageFlag.value === true) {
                     prevPageFlag.value = false;
                     pageList.value = props.pageListOption;
@@ -112,6 +111,9 @@ export default defineComponent({
                 emit("changeRemark", pageList.value[selected.value].Remark);
                 page.value = await getPageDetail(pageList.value[selected.value], pageList.value[selected.value].originType);
             }
+        };
+        const updateFlags = () => {
+            prevPageFlag.value = false;
         };
         const pageNextEnd = async () => {
             emit("changeRemark", pageList.value[selected.value].Remark);
@@ -178,7 +180,8 @@ export default defineComponent({
             fullScreen,
             fullscreenStyle,
             pageNext,
-            clockFullScreen
+            clockFullScreen,
+            updateFlags
         };
     }
 });

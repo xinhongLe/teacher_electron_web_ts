@@ -45,6 +45,7 @@ export default defineComponent({
         };
         const changeAddPage = () => {
             if (cardIndex.value === 0) {
+                emit("updateFlag");
                 return ElMessage({ type: "warning", message: "已经是第一页了" });
             }
             console.log(currentCardList.value, "currentCardList.value");

@@ -69,6 +69,9 @@ export default defineComponent({
             fullScreenStyle.value = false;
             PageList.value.clockFullScreen();
         };
+        const updateFlag = () => {
+            PageList.value.updateFlags();
+        };
         watch(
             () => props.options,
             () => {
@@ -91,7 +94,8 @@ export default defineComponent({
             fullScreen,
             lastPage,
             firstPage,
-            clockFullScreen
+            clockFullScreen,
+            updateFlag
         };
     }
 });
