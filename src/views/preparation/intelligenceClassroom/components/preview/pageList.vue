@@ -4,11 +4,14 @@
             <ScreenView
                 class="me-work-screen"
                 :inline="true"
+                :isInit="isInit"
                 ref="screenRef"
                 :slide="page"
+                @openCard="openCard"
                 @pagePrev="pagePrev"
                 @pageNext="pageNext"
             />
+            <open-card-view-dialog v-if="dialogVisible" :cardList="cardList" v-model:dialogVisible="dialogVisible"></open-card-view-dialog>
             <div
                 v-if="!fullscreenStyle"
                 class="me-page"
@@ -39,19 +42,31 @@
 import { defineComponent, ref, watch } from "vue-demi";
 import pageListServer from "../../hooks/pageList";
 import useHome from "@/hooks/useHome";
+import OpenCardViewDialog from "../edit/openCardViewDialog.vue";
+import { getCardDetail } from "@/api/home";
 export default defineComponent({
     props: ["pageListOption"],
+    components: { OpenCardViewDialog },
     setup(props, { emit }) {
         const { getPageDetail } = useHome();
         const pageList = ref([]);
         const page = ref({});
         const { hasCheck, selected } = pageListServer();
+        const dialogVisible = ref(false);
+        const prevPageFlag = ref(false);
         watch(
             () => props.pageListOption,
             () => {
-                pageList.value = props.pageListOption;
-                selected.value = -1;
-                pageNext(selected.value);
+                if (prevPageFlag.value === true) {
+                    prevPageFlag.value = false;
+                    pageList.value = props.pageListOption;
+                    selected.value = props.pageListOption.length - 1;
+                    pageNextEnd(selected.value);
+                } else {
+                    pageList.value = props.pageListOption;
+                    selected.value = -1;
+                    pageNext(selected.value);
+                }
             }
         );
         const selectPage = async (index) => {
@@ -62,11 +77,11 @@ export default defineComponent({
             }
         };
         const screenRef = ref();
-
+        const isInit = ref(true);
         const prevCard = () => {
+            isInit.value = false;
             screenRef.value.execPrev();
         };
-
         const pagePrev = async () => {
             if (selected.value > 0) {
                 selected.value--;
@@ -75,11 +90,13 @@ export default defineComponent({
                 return;
             }
             if (selected.value === 0) {
+                prevPageFlag.value = true;
                 emit("firstPage");
             }
         };
 
         const nextCard = () => {
+            isInit.value = true;
             screenRef.value.execNext();
         };
 
@@ -95,6 +112,13 @@ export default defineComponent({
                 page.value = await getPageDetail(pageList.value[selected.value], pageList.value[selected.value].originType);
             }
         };
+        const updateFlags = () => {
+            prevPageFlag.value = false;
+        };
+        const pageNextEnd = async () => {
+            emit("changeRemark", pageList.value[selected.value].Remark);
+            page.value = await getPageDetail(pageList.value[selected.value], pageList.value[selected.value].originType);
+        };
         const fullscreenStyle = ref(false);
         const fullScreen = () => {
             fullscreenStyle.value = true;
@@ -102,12 +126,53 @@ export default defineComponent({
         const clockFullScreen = () => {
             fullscreenStyle.value = false;
         };
+        const cardList = ref([]);
+        const openCard = async (wins) => {
+            console.log(wins, "wins");
+            if (wins[0] && wins[0].cards) {
+                const cards = wins[0].cards;
+                let pages = [];
+                const newPages = [];
+                cards.map(card => {
+                    pages = pages.concat(card.slides.map(page => {
+                        return {
+                            ID: page.id,
+                            Type: page.type,
+                            Name: page.name
+                        };
+                    }));
+                });
+                if (pages.length > 0) {
+                    const pageIDs = pages.map(page => page.ID);
+                    const res = await getCardDetail({ pageIDs });
+                    console.log(res, "res");
+                    if (res.resultCode === 200 && res.result && res.result.length > 0) {
+                        // 页名称可能会修改
+                        res.result.map(item => {
+                            pages.map(page => {
+                                if (page.ID === item.ID) {
+                                    newPages.push(
+                                        { Type: page.Type, ID: page.ID, Name: item.Name }
+                                    );
+                                }
+                            });
+                        });
+                        cardList.value = newPages;
+                        dialogVisible.value = true;
+                    }
+                }
+            }
+        };
         return {
             screenRef,
+            isInit,
             page,
             hasCheck,
             selected,
             pageList,
+            dialogVisible,
+            cardList,
+            openCard,
             prevCard,
             pagePrev,
             selectPage,
@@ -115,13 +180,24 @@ export default defineComponent({
             fullScreen,
             fullscreenStyle,
             pageNext,
-            clockFullScreen
+            clockFullScreen,
+            updateFlags
         };
     }
 });
 </script>
 
 <style lang="scss" scoped>
+.pageListComponents{
+    :deep(.el-overlay){
+        z-index: 999999 !important;
+    }
+    :deep(.el-dialog__body){
+        height: 800px!important;
+        width: 100%;
+        overflow-y: auto;
+    }
+}
 .pageListComponents{
     display: flex;
     flex: 1;

@@ -8,6 +8,7 @@ import { ITreeList, ICardList } from "@/types/home";
 import { reactive, ref } from "vue";
 import { ElMessageBox, ElMessage } from "element-plus";
 import Node from "element-plus/es/components/tree/src/model/node";
+import { useRoute } from "vue-router";
 interface State {
     subjectPublisherBookList: ITreeList[],
     subjectPublisherBookValue: string[],
@@ -20,6 +21,7 @@ interface State {
 }
 
 export default () => {
+    const route = useRoute();
     const defaultProps = ref({ children: "PageList", label: "Name", value: "ID" });
     const pageValue = ref({
         ID: "",
@@ -107,7 +109,7 @@ export default () => {
             deleteCardOrPage(data).then(res => {
                 if (res.resultCode === 200) {
                     ElMessage({ type: "success", message: "删除成功" });
-                    _getWindowCards({ WindowID: state.winValue[1] });
+                    _getWindowCards({ WindowID: `${route.params.winValue}` });
                 }
             });
         }).catch((err) => {
@@ -119,7 +121,7 @@ export default () => {
         addCard(data).then(res => {
             if (res.resultCode === 200) {
                 ElMessage({ type: "success", message: "新增卡成功" });
-                _getWindowCards({ WindowID: state.winValue[1] });
+                _getWindowCards({ WindowID: `${route.params.winValue}` });
             }
         });
     };
@@ -128,7 +130,7 @@ export default () => {
         addPage(data).then(res => {
             if (res.resultCode === 200) {
                 ElMessage({ type: "success", message: "新增页成功" });
-                _getWindowCards({ WindowID: state.winValue[1] });
+                _getWindowCards({ WindowID: `${route.params.winValue}` });
             }
         });
     };
@@ -137,7 +139,7 @@ export default () => {
         renameCardOrPage(data).then(res => {
             if (res.resultCode === 200) {
                 ElMessage({ type: "success", message: "更新名称成功" });
-                _getWindowCards({ WindowID: state.winValue[1] });
+                _getWindowCards({ WindowID: `${route.params.winValue}` });
             }
         });
     };
@@ -149,7 +151,7 @@ export default () => {
                     type: "success",
                     message: data.State === 1 ? "上架成功" : "下架成功"
                 });
-                _getWindowCards({ WindowID: state.winValue[1] });
+                _getWindowCards({ WindowID: `${route.params.winValue}` });
             }
         });
     };
@@ -161,7 +163,7 @@ export default () => {
                     type: "success",
                     message: "排序成功"
                 });
-                _getWindowCards({ WindowID: state.winValue[1] });
+                _getWindowCards({ WindowID: `${route.params.winValue}` });
             }
         });
     };

@@ -1,5 +1,5 @@
 <template>
-    <el-dialog v-model="visible" width="80%" title="弹出卡" center @close="close">
+    <el-dialog v-model="visible" width="80%" title="" center @close="close">
         <ScreenView ref="screenRef" :inline="true"  :slide="slideView"/>
         <template #footer>
           <span class="dialog-footer">
@@ -42,10 +42,12 @@ export default defineComponent({
         const cardList = ref<any[]>([]);
         const selected = ref(0);
         const { getPageDetail } = useHome();
-        const originType: any = route.params.originType as string;
+        const originType: any = route.params.originType as string ? route.params.originType as string : 1;
         onMounted(async() => {
             cardList.value = props.cardList;
+            console.log(cardList.value, "cardList.value");
             slideView.value = await getPageDetail(cardList.value[0], originType);
+            console.log(slideView, "slideview");
         });
         const close = () => {
             emit("update:dialogVisible", false);

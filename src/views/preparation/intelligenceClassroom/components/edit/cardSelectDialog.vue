@@ -45,6 +45,7 @@ import { IPageValue, ITreeList, ICardList, ICards } from "@/types/home";
 import Node from "element-plus/es/components/tree/src/model/node";
 import useSelectBookInfo from "@/hooks/useSelectBookInfo";
 import { ElMessage } from "element-plus";
+import { useRoute } from "vue-router";
 
 interface ICardType {
     [propName: string]: ICards
@@ -62,6 +63,7 @@ export default defineComponent({
     emits: ["update:dialogVisible", "selectCard"],
     setup(props, { emit }) {
         const visible = computed(() => props.dialogVisible);
+        const route = useRoute();
         const treeRef = ref();
         const {
             state, defaultProps, pageValue, _getSubjectPublisherBookList,
@@ -84,8 +86,8 @@ export default defineComponent({
             _getWinList(curVal);
         });
 
-        watch(() => state.winValue, (curVal) => {
-            _getWindowCards({ WindowID: curVal[1] });
+        watch(() => state.winValue, () => {
+            _getWindowCards({ WindowID: `${route.params.winValue}` });
         });
 
         const handleComfirm = () => {
