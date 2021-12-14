@@ -64,6 +64,7 @@ import StudentList from "./studentList/index.vue";
 import AddOrEditLabel from "./addOrEditLabel/index.vue";
 import AllStudentList from "./allStudentList/index.vue";
 export default defineComponent({
+    name: "LabelManage",
     setup() {
         const canEdit = ref(false);
         const dialogVisible = ref(false);

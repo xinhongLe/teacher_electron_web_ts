@@ -8,6 +8,7 @@
 import { store } from "@/store";
 import { computed, defineComponent } from "vue";
 export default defineComponent({
+    name: "ReportCenter",
     setup() {
         const url = process.env.VUE_APP_IFRAME;
         return	{

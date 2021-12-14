@@ -1,8 +1,9 @@
+import router from "@/router";
 import { Homework } from "@/types/homework";
 import { LessonClasses, LessonSubject } from "@/types/login";
 import { get, STORAGE_TYPES } from "@/utils/storage";
 import moment from "moment";
-import { reactive, ref, toRefs, watch } from "vue";
+import { onActivated, reactive, ref, toRefs } from "vue";
 import { fetchClassHomeworkPaperList, fetchHomeworkDateByYear } from "../api";
 
 export default () => {
@@ -68,9 +69,12 @@ export default () => {
         getHasTaskDate();
     };
 
-    initData();
-
-    watch(() => form.subject, getHasTaskDate);
+    onActivated(() => {
+        if (!router.currentRoute.value.meta.isBack) {
+            initData();
+        }
+        router.currentRoute.value.meta.isBack = false;
+    });
 
     return {
         form,

@@ -101,6 +101,7 @@ import AddCardDialog from "../components/edit/addCardDialog.vue";
 import { useRoute } from "vue-router";
 export default defineComponent({
     components: { AddCardDialog, WinCardView, UpdateNameCardOrPage, AddPageDialog, WinCardEdit, MoreFilled },
+    name: "Edit",
     setup() {
         const showCollapse = ref(true);
         const dialogVisible = ref(false);

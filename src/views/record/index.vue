@@ -113,6 +113,7 @@ import { useRoute } from "vue-router";
 import { get, STORAGE_TYPES } from "@/utils/storage";
 import { fetchStudentInfo } from "../classManage/api";
 export default defineComponent({
+    name: "Record",
     setup() {
         const route = useRoute();
         const { list, activeIndex, echartRef } = useEchart();

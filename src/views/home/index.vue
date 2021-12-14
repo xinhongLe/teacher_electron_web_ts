@@ -79,6 +79,7 @@ import { useRouter } from "vue-router";
 import Calendar from "../../components/calendar/index.vue";
 
 export default defineComponent({
+    name: "Home",
     components: {
         Calendar
     },
