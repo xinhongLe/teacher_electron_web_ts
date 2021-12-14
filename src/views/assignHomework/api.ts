@@ -1,7 +1,7 @@
 import request from "@/utils/request";
 import { AI_XUE_SHI_API } from "@/config";
 import { RequestFun } from "@/types/response";
-import { FetchGradeClassStudentsData, FetchWorkbookListData, FetchWorkbookPaperData, Grade, GradeClassStudent, Publisher, PublishHomeworkData, Workbook, WorkbookPaper } from "@/types/assignHomework";
+import { FetchGradeClassStudentsData, FetchWorkbookListData, FetchWorkbookPaperData, GetBookImgData, GetBookImgRes, Grade, GradeClassStudent, Publisher, PublishHomeworkData, Workbook, WorkbookPaper } from "@/types/assignHomework";
 
 // 获取年级班级学生
 export const fetchGradeClassStudents: RequestFun<FetchGradeClassStudentsData, GradeClassStudent[]> = (data) => {
@@ -72,6 +72,19 @@ export const fetchWorkbookPaper: RequestFun<FetchWorkbookPaperData, WorkbookPape
     return request({
         baseURL: AI_XUE_SHI_API,
         url: "/API/W4/CustomHomework/GetWorkbookPaper",
+        headers: {
+            "Content-Type": "application/json-patch+json"
+        },
+        method: "post",
+        data
+    });
+};
+
+// 获取书面图片
+export const getBookImg: RequestFun<GetBookImgData, GetBookImgRes> = (data) => {
+    return request({
+        baseURL: AI_XUE_SHI_API,
+        url: "/API/W4/Teach/GetBookImg",
         headers: {
             "Content-Type": "application/json-patch+json"
         },
