@@ -98,6 +98,7 @@ export interface CourseWares {
         Duration: string;
         Extention: string;
     };
+    Type: number;
     QuestionCount: number;
     CopyType?: number;
     VideoDuration: number;

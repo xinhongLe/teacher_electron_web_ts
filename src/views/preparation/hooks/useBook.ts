@@ -48,13 +48,6 @@ export default () => {
         }
     };
 
-    watch(subjectPublisherBookValue, (value) => {
-        getTeacherBookChapters(value[2]);
-        store.commit(MutationTypes.SET_SUBJECT_PUBLISHER_BOOK_VALUE, value);
-    }, {
-        deep: true
-    });
-
     return {
         subjectPublisherBookValue,
         subjectPublisherBookList,

@@ -103,7 +103,7 @@ export default defineComponent({
         watch(
             () => props.subjectPublisherBookValue,
             (value) => {
-                getBagChapter(value[2]);
+                getBagChapter(value[1]);
             },
             {
                 deep: true
