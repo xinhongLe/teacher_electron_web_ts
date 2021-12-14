@@ -5,6 +5,7 @@
                 <el-select
                     style="width: 140px; margin-right: 16px"
                     v-model="form.subject"
+                    @change="getHasTaskDate"
                 >
                     <el-option
                         v-for="item in subjectList"
@@ -97,6 +98,7 @@ import { useRouter } from "vue-router";
 import useHomework from "./hooks/useHomework";
 import HomeworkItem from "./homeworkItem.vue";
 export default defineComponent({
+    name: "Homework",
     setup() {
         const router = useRouter();
         const {

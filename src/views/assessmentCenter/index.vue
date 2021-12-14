@@ -5,7 +5,11 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from "vue";
 
+export default defineComponent(({
+    name: "assessmentCenter"
+}));
 </script>
 
 <style lang="scss" scoped>

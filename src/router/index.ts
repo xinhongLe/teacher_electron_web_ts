@@ -69,7 +69,16 @@ const routes: Array<RouteRecordRaw> = [
             {
                 path: "homework",
                 name: "作业",
-                component: () => import("@/views/homework/index.vue")
+                meta: {
+                    isBack: false
+                },
+                component: () => import("@/views/homework/index.vue"),
+                beforeEnter: (to, from, next) => {
+                    if (from.name === "查阅作业") {
+                        to.meta.isBack = true;
+                    }
+                    next();
+                }
             },
             {
                 path: "assignHomework/:subjectId/:subjectName",

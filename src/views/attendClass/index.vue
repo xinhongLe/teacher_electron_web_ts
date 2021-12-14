@@ -15,6 +15,7 @@ import Head from "./Head.vue";
 import StayOnCourse from "./stayOnCourse/index.vue";
 import HistoryCourse from "./historyCourse/index.vue";
 export default defineComponent({
+    name: "AttendClass",
     setup() {
         const activeIndex = ref(0);
         const stayOnCourseRef = ref<InstanceType<typeof StayOnCourse>>();

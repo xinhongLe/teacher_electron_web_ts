@@ -5,10 +5,11 @@
         <LookQuestion v-if="isShowQuestion"/>
         <LookVideo v-if="isShowVideo"/>
         <div class="main-body">
-            <keep-alive v-if="$route.meta.keepAlive">
-                <router-view></router-view>
-            </keep-alive>
-            <router-view v-if="!$route.meta.keepAlive"></router-view>
+            <router-view v-slot="{Component}">
+                <keep-alive :exclude="keepExcludeArr">
+                    <component :is="Component"/>
+                </keep-alive>
+            </router-view>
         </div>
     </div>
 </template>
@@ -41,6 +42,7 @@ export default defineComponent({
         const wpfNames = ["wpf班级管理", "wpf管理标签", "wpf学习记录"];
         const { queryUserInfo } = useUserInfo();
         const { getTagList } = useTagList();
+        const keepExcludeArr = ["Home", "LabelManage", "Record", "Edit", "AssignHomework", "CheckHomework"];
 
         watch(() => ({ query: route.query, name: route.name }), ({ query, name }) => {
             isShowNarBar.value = !query.head && !wpfNames.includes(name as string);
@@ -65,7 +67,8 @@ export default defineComponent({
             isElectron: isElectron(),
             isShowQuestion: computed(() => store.state.common.isShowQuestion),
             isShowVideo: computed(() => store.state.common.isShowVideo),
-            isShowNarBar
+            isShowNarBar,
+            keepExcludeArr
         };
     }
 });

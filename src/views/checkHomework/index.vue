@@ -25,6 +25,7 @@ import CommonHomework from "./commonHomework/index.vue";
 import SystemHomework from "./systemHomework/index.vue";
 import VideoHomework from "./videoHomework/index.vue";
 export default defineComponent({
+    name: "CheckHomework",
     setup() {
         const homeworkDetail = get(
             STORAGE_TYPES.HOMEWORK_DETAIL

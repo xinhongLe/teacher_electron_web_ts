@@ -18,7 +18,7 @@ import useUserInfo from "@/hooks/useUserInfo";
 import { MutationTypes, store } from "@/store";
 
 export default defineComponent({
-    name: "classManage",
+    name: "ClassManage",
     components: {
         Head,
         GradeList,

@@ -20,6 +20,7 @@ import Head from "./head/index.vue";
 import ScheduleManagement from "./scheduleManagement/index.vue";
 import IntelligenceClassroom from "./intelligenceClassroom/index.vue";
 export default defineComponent({
+    name: "Preparation",
     setup() {
         const tabIndex = ref(0);
         const isRouterAlive = ref(true);

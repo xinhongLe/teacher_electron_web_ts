@@ -94,6 +94,7 @@ import SystemHomeworkItem from "./SystemHomeworkItem.vue";
 import TeachHomeworkDialog from "./TeachHomeworkDialog.vue";
 import TeachHomeworkItem from "./TeachHomeworkItem.vue";
 export default defineComponent({
+    name: "AssignHomework",
     setup() {
         const commonHomeworkDialog = ref(false);
         const systemHomeworkDialog = ref(false);
