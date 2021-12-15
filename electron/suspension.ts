@@ -8,6 +8,9 @@ let isShowTimer = false; // 悬浮球是否显示时间
 const timerURL = process.env.NODE_ENV === "development"
     ? `${process.env.WEBPACK_DEV_SERVER_URL}timer.html`
     : `file://${__dirname}/timer.html`;
+const callURL = process.env.NODE_ENV === "development"
+    ? `${process.env.WEBPACK_DEV_SERVER_URL}call.html`
+    : `file://${__dirname}/call.html`;
 const suspensionURL = process.env.NODE_ENV === "development"
     ? `${process.env.WEBPACK_DEV_SERVER_URL}suspension.html`
     : `file://${__dirname}/suspension.html`;
@@ -67,6 +70,15 @@ function createTimerWindow() {
     });
 }
 
+function createRollcall() {
+    createWindow(callURL, {
+        width: 800,
+        frame: false, // 要创建无边框窗口
+        resizable: false, // 禁止窗口大小缩放
+        height: 500,
+        useContentSize: true
+    });
+}
 function createUnfoldSuspensionWindow() {
     unfoldSuspensionWin = createWindow(unfoldSuspensionURL, {
         width: 470,
@@ -236,7 +248,10 @@ export function registerEvent() {
         }
         createTimerWindow();
     });
-
+    ipcMain.handle("openRollCall", () => {
+        showSuspension();
+        createRollcall();
+    });
     ipcMain.handle("closeTimerWin", () => {
         timerWin.close();
     });

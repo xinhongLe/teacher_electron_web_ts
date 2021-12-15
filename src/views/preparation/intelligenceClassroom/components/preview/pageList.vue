@@ -7,6 +7,7 @@
                 :isInit="isInit"
                 ref="screenRef"
                 :slide="page"
+                :useScale="true"
                 @openCard="openCard"
                 @pagePrev="pagePrev"
                 @pageNext="pageNext"

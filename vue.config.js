@@ -25,6 +25,13 @@ module.exports = {
             filename: "timer.html",
             title: "计时器",
             chunks: ["timer"]
+        },
+        call: {
+            entry: "src/childWindow/call/main.ts",
+            template: "public/index.html",
+            filename: "call.html",
+            title: "",
+            chunks: ["call"]
         }
     },
     css: {

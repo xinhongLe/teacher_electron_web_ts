@@ -36,12 +36,40 @@
                     <div class="blackboard-text">黑板</div>
                     <!-- <div class="blackboard-btn" @click="openBlackboard()">打开</div> -->
                 </div>
+                <div class="blackboard-box" @click="uncultivated">
+                    <img
+                        src="@/assets/images/suspension/img_datiqi.png"
+                        alt=""
+                    />
+                    <div class="blackboard-text">答题器</div>
+                </div>
+                <div class="blackboard-box" @click="uncultivated">
+                    <img
+                        src="@/assets/images/suspension/pic_touying@2x.png"
+                        alt=""
+                    />
+                    <div class="blackboard-text">投影</div>
+                </div>
+                <div class="blackboard-box">
+                    <img
+                        src="@/assets/images/suspension/pic_zhishitupu@2x.png"
+                        alt=""
+                    />
+                    <div class="blackboard-text">知识图谱</div>
+                </div>
                 <div class="blackboard-box" @click="openTimer">
                     <img
-                        src="@/assets/images/suspension/pic_blackboard@2x.png"
+                        src="@/assets/images/suspension/pic_timer@2x.png"
                         alt=""
                     />
                     <div class="blackboard-text">计时器</div>
+                </div>
+                <div class="blackboard-box" @click="openRollCall">
+                    <img
+                        src="@/assets/images/suspension/pic_namer@2x.png"
+                        alt=""
+                    />
+                    <div class="blackboard-text">点名</div>
                 </div>
             </div>
 
@@ -70,6 +98,7 @@ import { Game } from "./interface";
 import { getToolList } from "@/api/index";
 import { downloadFile } from "@/utils/oss";
 import isElectron from "is-electron";
+import { ElMessage } from "element-plus";
 export default defineComponent({
     setup(props, { emit }) {
         const gameList = ref<Game[]>([]);
@@ -109,13 +138,20 @@ export default defineComponent({
             }
             window.open(url);
         };
-
+        const openRollCall = () => {
+            if (isElectron()) {
+                return window.electron.ipcRenderer.invoke("openRollCall");
+            }
+        };
         const close = () => {
             if (isElectron()) {
                 window.electron.ipcRenderer.invoke("hideUnfoldSuspensionWin");
             } else {
                 emit("close-helper");
             }
+        };
+        const uncultivated = () => {
+            ElMessage({ type: "warning", message: "功能暂未开发" });
         };
         onMounted(getGradeList);
         return {
@@ -124,7 +160,9 @@ export default defineComponent({
             getGradeList,
             openUrl,
             close,
-            gameList
+            gameList,
+            uncultivated,
+            openRollCall
         };
     }
 });
@@ -179,7 +217,7 @@ export default defineComponent({
             justify-content: flex-start;
             flex-wrap: wrap;
             color: #fff;
-            margin: 10px 0 10px 30px;
+            margin: 10px 0 10px 20px;
         }
         .blackboard-box {
             padding: 10px;
