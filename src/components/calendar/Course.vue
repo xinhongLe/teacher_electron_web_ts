@@ -77,7 +77,7 @@
                         v-if="!colData.ClassActualEndTime && colData.Classes"
                     >
                         <span v-if="isShowDetailBtn" @click="openDeteil">详情</span>
-                        <span
+                        <!-- <span
                             @click="
                                 $router.push({
                                     path: '/attend-class',
@@ -85,7 +85,7 @@
                             "
                         >
                             去上课
-                        </span>
+                        </span> -->
                     </div>
                     <div
                         class="content-class"
@@ -121,6 +121,7 @@ import { MutationTypes, store } from "@/store";
 import { CourseBag } from "@/types/preparation";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { computed, defineComponent, inject, PropType, ref } from "vue";
+import { useRouter } from "vue-router";
 import ClassDialog from "./ClassDialog.vue";
 import { addClasses } from "./logic";
 export default defineComponent({
@@ -150,6 +151,7 @@ export default defineComponent({
         const dialogVisible = ref(false);
         const courseBag = ref<CourseBag>();
         const isActive = ref(false);
+        const router = useRouter();
 
         const updateSchedules = inject(
             "updateSchedules"
@@ -167,6 +169,7 @@ export default defineComponent({
                 TeacherID,
                 OnSale
             } = props.colData;
+            if (!CourseBagTeacherID) return;
             const info = {
                 ID: CourseBagTeacherID,
                 TeacherID,
@@ -177,9 +180,9 @@ export default defineComponent({
                 LessonID,
                 CourseBagType: Type
             };
-
             store.commit(MutationTypes.SET_SELECT_COURSE_BAG, info);
-            store.commit(MutationTypes.SET_VIEW_COURSE_DETAIL_ING, true);
+            store.commit(MutationTypes.SET_IS_CLICK_DETAIL, true);
+            router.push("/preparation");
         };
 
         const onDrop = async (ev: DragEvent, colData: ColData) => {

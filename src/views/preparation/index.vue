@@ -14,8 +14,7 @@
 </template>
 
 <script lang="ts">
-import { MutationTypes, store } from "@/store";
-import { defineComponent, onUnmounted, ref, nextTick } from "vue";
+import { defineComponent, ref, nextTick } from "vue";
 import Head from "./head/index.vue";
 import ScheduleManagement from "./scheduleManagement/index.vue";
 import IntelligenceClassroom from "./intelligenceClassroom/index.vue";
@@ -31,10 +30,6 @@ export default defineComponent({
                 isRouterAlive.value = true;
             });
         };
-
-        onUnmounted(() => {
-            store.commit(MutationTypes.PREPARATION_STUDENT_RESET_STATE);
-        });
 
         return {
             tabIndex,
