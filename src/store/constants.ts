@@ -74,6 +74,10 @@ export const enum MutationTypes {
      * 设置是否在拖拽精品素材
      */
     SET_IS_DRAGGING_ELEMENT = "SET_IS_DRAGGING_ELEMENT",
+    /**
+     * 设置是否是点击详情跳转的
+     */
+    SET_IS_CLICK_DETAIL = "SET_IS_CLICK_DETAIL"
 }
 
 export const enum ActionTypes {

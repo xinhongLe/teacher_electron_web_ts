@@ -17,7 +17,8 @@ export function fetchSubjectPublisherBookList():Promise<IResponse<BookList[]>> {
         baseURL: AI_XUE_SHI_API,
         url: "/Api/W4/Teach/GetSubjectPublisherBookList",
         headers: {
-            "Content-Type": "application/json-patch+json"
+            "Content-Type": "application/json-patch+json",
+            noLoading: "true"
         },
         method: "post"
     });

@@ -41,7 +41,11 @@ export interface PreparationState {
     /**
      * 是否在拖拽精品素材
      */
-    isDraggingElement: boolean
+    isDraggingElement: boolean,
+    /**
+     * 是否是点击详情跳转的
+     */
+    isClickDetail: boolean
 }
 
 export interface CommonState {

@@ -4,7 +4,7 @@
             <el-cascader
                 v-model="subjectPublisherBookValue"
                 :props="cascaderProps"
-                style="margin-right:20px;"
+                style="margin-right: 20px"
                 :options="subjectPublisherBookList"
             ></el-cascader>
             <el-select
@@ -68,6 +68,7 @@
 </template>
 
 <script lang="ts">
+import { getCourseByCourseBag } from "@/api";
 import { MutationTypes, store } from "@/store";
 import { GetLastSelectBookRes } from "@/types/preparation";
 import { computed, defineComponent, ref, watch } from "vue";
@@ -85,6 +86,7 @@ export default defineComponent({
     setup(props, { emit }) {
         const titleList = [{ title: "翻转课堂" }, { title: "数智课堂" }];
         const tabIndex = ref(0);
+        const courseBagDetail = ref<getCourseByCourseBag>();
         let selectBook: GetLastSelectBookRes;
         let isFirst = true;
         const {
@@ -119,17 +121,68 @@ export default defineComponent({
 
         watch(subjectPublisherBookValue, (value) => {
             getTeacherBookChapters(value[2]).then(() => {
-                if (Object.keys(selectBook).length !== 0 && isFirst) {
+                if (selectBook && Object.keys(selectBook).length !== 0 && isFirst) {
                     isFirst = false;
                     return (teacherBookChapter.value = selectBook.ChapterID);
                 }
+                if (courseBagDetail.value) {
+                    const { ChapterName } = courseBagDetail.value!;
+                    const info = teacherBookChapterList.value.find(({ Name }) => ChapterName === Name);
+                    const id = info ? info.ID : teacherBookChapterList.value[0].ID;
+                    teacherBookChapter.value = id;
+                    return (courseBagDetail.value = undefined);
+                }
+                teacherBookChapter.value = teacherBookChapterList.value[0]?.ID;
             });
             store.commit(MutationTypes.SET_SUBJECT_PUBLISHER_BOOK_VALUE, value);
         }, {
             deep: true
         });
 
+        watch([() => store.state.preparation.isClickDetail, subjectPublisherBookList], (v) => {
+            const [isClickDetail] = v;
+            const { selectCourseBag } = store.state.preparation;
+            if (isClickDetail) {
+                const { Type, ID } = selectCourseBag;
+                const courseBagData =
+                    Type === 1
+                        ? {
+                            courseBagID: ID!
+                        }
+                        : {
+                            courseBagTeacherID: ID!
+                        };
+                getCourseByCourseBag(
+                    Type!,
+                    courseBagData
+                ).then(res => {
+                    store.commit(MutationTypes.SET_IS_CLICK_DETAIL, false);
+                    if (res.resultCode === 200) {
+                        courseBagDetail.value = res.result;
+                        const { SubjectName, AlbumName, PublishName } = courseBagDetail.value!;
+                        subjectPublisherBookList.value.forEach((item) => {
+                            if (item.Lable === SubjectName) {
+                                item.Children && item.Children.forEach(item1 => {
+                                    if (item1.Lable === PublishName) {
+                                        item1.Children && item1.Children.forEach(item2 => {
+                                            if (item2.Lable === AlbumName) {
+                                                subjectPublisherBookValue.value = [item.Value, item1.Value, item2.Value];
+                                                return false;
+                                            }
+                                        });
+                                    }
+                                });
+                            }
+                        });
+                    } else {
+                        findFirstId([subjectPublisherBookList.value[0]], subjectPublisherBookValue.value);
+                    }
+                });
+            }
+        });
+
         getSubjectPublisherBookList().then(async () => {
+            if (store.state.preparation.isClickDetail) return;
             const selectBookRes = await getLastSelectBook({
                 subjectID: ""
             });

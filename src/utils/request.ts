@@ -95,18 +95,19 @@ class Queue<T, U> {
              const res = await http(request.options);
              request.callback(res.data);
          } catch (error) {
-             //  request.callback({ error });
+             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+             // @ts-ignore
+             request.callback({});
          }
 
-         if (this.requestList.length !== 0) {
-             setTimeout(() => {
-                 this.isRequesting = false;
-                 this.start();
-             }, 300);
-         } else {
+         setTimeout(() => { // 300毫秒之后才能再次执行
              this.isRequesting = false;
-             queueMap.delete(request.options.url);
-         }
+             if (this.requestList.length !== 0) {
+                 this.start();
+             } else {
+                 queueMap.delete(request.options.url);
+             }
+         }, 300);
      }
 }
 

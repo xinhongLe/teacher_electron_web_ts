@@ -16,7 +16,6 @@ export default () => {
         const res = await fetchTeacherBookChapters({ bookID });
         if (res.resultCode === 200) {
             teacherBookChapterList.value = res.result;
-            teacherBookChapter.value = res.result[0].ID;
         }
     };
 

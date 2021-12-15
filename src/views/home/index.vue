@@ -11,7 +11,7 @@
                     </div>
                 </div>
                 <div class="right">
-                    <Calendar :days="days">
+                    <Calendar :days="days" :isShowDetailBtn="true">
                         <header class="header">
                             <div @click="weekPre" class="week"><i class="el-icon-arrow-left"></i>上周</div>
                             <div>上课</div>

@@ -91,7 +91,9 @@ export default defineComponent({
         });
 
         watch(subjectPublisherBookValue, (v) => {
-            getTeacherBookChapters(v[1]);
+            getTeacherBookChapters(v[1]).then(() => {
+                teacherBookChapter.value = teacherBookChapterList.value[0]?.ID;
+            });
         });
 
         const options = computed(() => {
