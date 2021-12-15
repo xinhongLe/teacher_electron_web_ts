@@ -15,7 +15,7 @@
                 <el-cascader
                     v-model="subjectPublisherBookValue"
                     :props="cascaderProps"
-                    :options="subjectPublisherBookList"
+                    :options="options"
                 ></el-cascader>
                 <el-select
                     v-model="teacherBookChapter"
@@ -55,8 +55,9 @@
 </template>
 
 <script lang="ts">
+import { store } from "@/store";
 import useBook from "@/views/preparation/hooks/useBook";
-import { defineComponent, onMounted, ref, watch } from "vue";
+import { computed, defineComponent, onMounted, ref, watch } from "vue";
 import BagChapter from "./BagChapter.vue";
 import Material from "./Material.vue";
 export default defineComponent({
@@ -64,15 +65,16 @@ export default defineComponent({
     setup() {
         const titleIndex = ref(0);
         const titleList = [{ title: "系统题库" }, { title: "精品素材" }];
+        const subjectPublisherBookValue = ref<string[]>([]);
         const {
             subjectPublisherBookList,
-            subjectPublisherBookValue,
             teacherBookChapterList,
             cascaderProps,
             lessonID,
             lessons,
             getLessons,
             getSubjectPublisherBookList,
+            getTeacherBookChapters,
             teacherBookChapter
         } = useBook();
 
@@ -90,6 +92,21 @@ export default defineComponent({
             }
         });
 
+        watch(() => store.state.preparation.subjectPublisherBookValue, (v) => {
+            subjectPublisherBookValue.value = v.slice(1);
+        });
+
+        watch(subjectPublisherBookValue, (v) => {
+            setTimeout(() => {
+                getTeacherBookChapters(v[1]);
+            }, 500);
+        });
+
+        const options = computed(() => {
+            const subject = store.state.preparation.subjectPublisherBookValue[0];
+            return subjectPublisherBookList.value.find(({ Value }) => Value === subject)?.Children || [];
+        });
+
         onMounted(() => {
             window.addEventListener("subjectPublisherBookListLoaded", startGetSubjectPublisherBookList);
         });
@@ -103,6 +120,7 @@ export default defineComponent({
             cascaderProps,
             lessonID,
             lessons,
+            options,
             teacherBookChapterList
         };
     },

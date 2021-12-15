@@ -1,8 +1,8 @@
 import {
     getSubjectPublisherBookList, getChapters, getWindowCard, deleteCardOrPage, addPage,
-    renameCardOrPage, setCardOrPageState, updateCardSort, movePage, addCard,
+    renameCardOrPage, setCardOrPageState, updateCardSort, movePage, copyPage, addCard,
     IGetChapters, IGetWindowCards, IDelCardOrPage, IAddPage, IRenameCardOrPage,
-    ICardOrPageState, ICardSortRes, IAddCard, IMovePage
+    ICardOrPageState, ICardSortRes, IAddCard, ICopyPage, IMovePage
 } from "@/api/home";
 import { ITreeList, ICardList } from "@/types/home";
 import { reactive, ref } from "vue";
@@ -93,6 +93,14 @@ export default () => {
             if (res.resultCode === 200) {
                 state.windowCards = res.result;
                 state.oldWindowCards = JSON.parse(JSON.stringify(res.result));
+            }
+        });
+    };
+    const _copyPage = (data: ICopyPage) => {
+        copyPage(data).then(res => {
+            if (res.resultCode === 200) {
+                ElMessage({ type: "success", message: "粘贴卡成功" });
+                _getWindowCards({ WindowID: `${route.params.winValue}` });
             }
         });
     };
@@ -245,6 +253,7 @@ export default () => {
         _getWinList,
         _deleteCardOrPage,
         _addCard,
+        _copyPage,
         _addPage,
         _renameCardOrPage,
         _setCardOrPageState

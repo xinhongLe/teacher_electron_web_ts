@@ -79,7 +79,7 @@
                             :class="isDragging ? 'drag' : ''"
                         >
                             <div class="content">
-                                <FileType :fileExtension="data?.File?.Extention"/>
+                                <FileType :fileExtension="data.Type === 1 ? '' : data?.File?.Extention"/>
                                 <p class="className">
                                     {{ data.Name }}
                                     <span

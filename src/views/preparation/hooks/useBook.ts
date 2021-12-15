@@ -1,7 +1,6 @@
-import { MutationTypes, store } from "@/store";
-import { BookChapter, BookList, Lesson } from "@/types/preparation";
-import { ref, watch } from "vue";
-import { fetchLessons, fetchSubjectPublisherBookList, fetchTeacherBookChapters } from "../api";
+import { BookChapter, BookList, GetLastSelectBookRes, Lesson } from "@/types/preparation";
+import { ref } from "vue";
+import { fetchLessons, fetchSubjectPublisherBookList, fetchTeacherBookChapters, getLastSelectBook } from "../api";
 
 const findFirstId = (tree: BookList[], ids: string[]) => {
     tree.forEach((item) => {
@@ -16,15 +15,22 @@ export default () => {
     const subjectPublisherBookList = ref<BookList[]>([]);
     const teacherBookChapterList = ref<BookChapter[]>([]);
     const teacherBookChapter = ref("");
-    const subjectPublisherBookValue = ref([]);
+    const subjectPublisherBookValue = ref<string[]>([]);
     const cascaderProps = { value: "Value", children: "Children", label: "Lable" };
     const lessonID = ref<string | null>(null);
     const lessons = ref<Lesson[]>([]);
+    let selectBook: GetLastSelectBookRes;
+    let isFirst = true;
 
     const getTeacherBookChapters = async (bookID: string) => {
+        if (!bookID) return;
         const res = await fetchTeacherBookChapters({ bookID });
         if (res.resultCode === 200) {
             teacherBookChapterList.value = res.result;
+            if (Object.keys(selectBook).length !== 0 && isFirst) {
+                isFirst = false;
+                return (teacherBookChapter.value = selectBook.ChapterID);
+            }
             teacherBookChapter.value = res.result[0].ID;
         }
     };
@@ -33,7 +39,18 @@ export default () => {
         const res = await fetchSubjectPublisherBookList();
         if (res.resultCode === 200) {
             subjectPublisherBookList.value = res.result;
-            findFirstId([res.result[0]], subjectPublisherBookValue.value);
+            const selectBookRes = await getLastSelectBook({
+                subjectID: ""
+            });
+            if (selectBookRes.resultCode === 200) {
+                selectBook = selectBookRes.result;
+            }
+            if (Object.keys(selectBookRes.result).length !== 0) {
+                const { BookID, PublisherID, SubjectID } = selectBook;
+                subjectPublisherBookValue.value = [SubjectID, PublisherID, BookID];
+            } else {
+                findFirstId([res.result[0]], subjectPublisherBookValue.value);
+            }
         }
     };
 
@@ -47,13 +64,6 @@ export default () => {
             lessonID.value = null;
         }
     };
-
-    watch(subjectPublisherBookValue, (value) => {
-        getTeacherBookChapters(value[2]);
-        store.commit(MutationTypes.SET_SUBJECT_PUBLISHER_BOOK_VALUE, value);
-    }, {
-        deep: true
-    });
 
     return {
         subjectPublisherBookValue,

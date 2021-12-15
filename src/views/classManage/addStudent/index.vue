@@ -39,6 +39,7 @@
             <span
                 @click="save"
                 :class="tabIndex === 1 && isDisabledBtn ? 'disable' : ''"
+                v-loading="isSubmitting"
                 >保存</span
             >
             <!-- <span v-if="tabIndex == 1 && !fileList.name" style="background: #D4D6D9;color: #fff">保存</span> -->
@@ -67,6 +68,7 @@ export default defineComponent({
         const uploadRef = ref<InstanceType<typeof Import>>();
         const studentRef = ref<InstanceType<typeof StudentInfo>>();
         const isDisabledBtn = ref(true);
+        const isSubmitting = ref(false);
         const { formData, saveForm } = useStudentForm();
 
         const handleClose = () => {
@@ -74,6 +76,7 @@ export default defineComponent({
         };
 
         const successCallback = () => {
+            isSubmitting.value = false;
             handleClose();
             setTimeout(async () => {
                 await store.dispatch(ActionTypes.FETCH_CLASS_LIST);
@@ -82,6 +85,8 @@ export default defineComponent({
         };
 
         const save = () => {
+            if (isSubmitting.value) return;
+            isSubmitting.value = true;
             if (tabIndex.value === 0) {
                 formRef.value!.formRef!.validate((valid) => {
                     if (valid) {
@@ -98,6 +103,7 @@ export default defineComponent({
             handleClose,
             tabIndex,
             formRef,
+            isSubmitting,
             successCallback,
             save,
             isDisabledBtn,
@@ -160,6 +166,9 @@ export default defineComponent({
         background: #4b71ee;
         color: #fff;
         margin-left: 24px;
+        :deep(.el-loading-spinner) {
+            top: 0;
+        }
     }
 }
 </style>

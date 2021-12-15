@@ -51,6 +51,8 @@
                                            <div v-show="node.level === 1" @click.stop="handleAdd(node, data)">新增</div>
                                            <div  @click.stop="handleUpdateName(node, data)">修改名称</div>
                                            <div v-show="node.level === 2"  @click.stop="handleUpdateState(node, data)">{{data.State ? "下架" : "上架"}}</div>
+                                           <div  v-show="node.level === 1" @click.stop="handlePaste(data)">粘贴页</div>
+                                           <div  v-show="node.level === 2" @click.stop="handleCopy(node, data)">复制页</div>
                                            <div @click.stop="handleDel(node, data)">删除</div>
                                        </div>
                                    </el-popover>
@@ -94,6 +96,7 @@ import Node from "element-plus/es/components/tree/src/model/node";
 import useSelectBookInfo from "@/hooks/useSelectBookInfo";
 import { enterFullscreen, isFullscreen } from "@/utils/fullscreen";
 import { MoreFilled } from "@element-plus/icons";
+import { ElMessage } from "element-plus";
 import AddPageDialog from "../components/edit/addPageDialog.vue";
 import UpdateNameCardOrPage from "../components/edit/updateNameCardOrPage.vue";
 import WinCardView from "../components/edit/winScreenView.vue";
@@ -134,7 +137,7 @@ export default defineComponent({
             // _getChapters, _getWindowCards, _getWinList,
             state, defaultProps, pageValue, _getSubjectPublisherBookList, _getWindowCards,
             _deleteCardOrPage, _addPage, _renameCardOrPage,
-            _setCardOrPageState, _addCard, dragDealData
+            _setCardOrPageState, _addCard, _copyPage, dragDealData
         } = useSelectBookInfo();
         const handleNodeClick = (data :IPageValue, Node: Node) => {
             if (Node.level === 2) {
@@ -181,6 +184,32 @@ export default defineComponent({
 
         const handleDel = (node:Node, data:ICardList) => {
             _deleteCardOrPage({ TeachPageRelationID: data.TeachPageRelationID });
+        };
+
+        let copyValue = {
+            OldCardID: "",
+            PageID: ""
+        };
+        const handleCopy = (node:Node, data:ICardList) => {
+            copyValue = {
+                OldCardID: node.parent.data.ID,
+                PageID: data.ID
+            };
+            if (copyValue.OldCardID && copyValue.PageID) {
+                ElMessage({ type: "success", message: "复制页成功" });
+            }
+        };
+
+        const handlePaste = (data:ICardList) => {
+            if (copyValue.OldCardID && copyValue.PageID) {
+                const value = {
+                    ...copyValue,
+                    CardID: data.ID
+                };
+                _copyPage(value);
+            } else {
+                ElMessage({ type: "warning", message: "请先复制的卡" });
+            }
         };
 
         const currentValue = ref();
@@ -261,6 +290,8 @@ export default defineComponent({
             handleDragEnd,
             handleAddCard,
             handleAdd,
+            handleCopy,
+            handlePaste,
             handleDel,
             handleView,
             handleUpdateName,
