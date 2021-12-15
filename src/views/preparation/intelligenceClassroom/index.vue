@@ -41,17 +41,23 @@
         <div class="right">
             <div class="right-bottom">
                  <div class="card-box-away" @click="showList = !showList">
-                    <span v-if="showList">《</span>
-                    <span v-if="!showList">》</span>
+                    <span v-if="showList">
+                        <i class="el-icon-arrow-left"></i>
+                    </span>
+                    <span v-if="!showList">
+                        <i class="el-icon-arrow-right"></i>
+                    </span>
                 </div>
                 <div class="card-box-left">
-                    <CardList
+                    <div class="card-box-lefts">
+                        <CardList
                         ref="cardListComponents"
                         :winActiveId="winActiveId"
                         :cardList="cardList"
                         @updatePageList="updatePageList"
                         @updateFlag="updateFlag"
                     />
+                    </div>
                     <div class="card-box-outbottom"></div>
                 </div>
                 <div class="card-detail">
@@ -334,19 +340,27 @@ $border-color: #f5f6fa;
                 font-size: 20px;
             }
             .card-box-left {
-                position: relative;
-                height: 100%;
-                overflow-y: auto;
+                // position: relative;
+                // height: 100%;
+                // overflow-y: auto;
                 width: 180px;
                 text-align: center;
-                padding: 20px 0;
+                padding: 20px 0 0 0;
                 box-sizing: border-box;
-                // border-right: 1px solid $border-color;
+                display: flex;
+                min-width: 0;
+                min-height: 0;
+                flex-direction: column;
+            }
+            .card-box-lefts{
+                display: flex;
+                flex: 1;
+                min-width: 0px;
+                min-height: 0;
+                overflow-y: auto;
+                margin-bottom: 20px;
             }
             .card-box-outbottom{
-                position: absolute;
-                bottom: 0;
-                left: 0;
                 width: 100%;
                 height: 84px;
                 background: #bccfff;

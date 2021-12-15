@@ -9,8 +9,9 @@
                 @changeRemark="changeRemark"
                 @lastPage="lastPage"
                 @firstPage="firstPage"
+                :showRemark="showRemark"
             />
-            <Remark :value="remark" v-if="showRemark" />
+            <Remark :class="fullScreenStyle ? 'remark-fullSrceen' : ''" :value="remark" v-if="showRemark" />
         </div>
         <Tools
             :class="fullScreenStyle ? 'tools-fullSrceen' : ''"
@@ -107,6 +108,13 @@ export default defineComponent({
     bottom: 0;
     left: 0;
     width: 100%;
+}
+.remark-fullSrceen{
+    position: fixed;
+    width: 220px;
+    height: calc(100% - 86px);
+    top: 0;
+    right: 0;
 }
 .me-preview {
     flex: 1;

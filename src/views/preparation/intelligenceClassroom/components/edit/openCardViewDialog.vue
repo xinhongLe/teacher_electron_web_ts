@@ -1,5 +1,5 @@
 <template>
-    <el-dialog v-model="visible" width="80%" title="" center @close="close">
+    <el-dialog v-model="visible" width="96%" title="" :close-on-click-modal="false" center @close="close">
         <ScreenView ref="screenRef" :inline="true"  :slide="slideView"/>
         <template #footer>
           <span class="dialog-footer">
@@ -71,6 +71,7 @@ export default defineComponent({
 .cardLis-class{
     display: flex;
     justify-content: flex-start;
+    overflow-y: auto;
     .me-page-item {
         background-color: #f0f3ff;
         color: #444;

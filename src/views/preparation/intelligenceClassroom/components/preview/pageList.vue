@@ -1,13 +1,14 @@
 <template>
     <div class="pageListComponents">
-        <div class="me-work" :class=" fullscreenStyle ? 'fullscreen' : ''">
+        <div class="me-work" :style="showRemarks ? 'width: calc(100% - 22rem)' : 'width: 100%;'" :class=" fullscreenStyle ? 'fullscreen' : ''">
             <ScreenView
                 class="me-work-screen"
                 :inline="true"
                 :isInit="isInit"
                 ref="screenRef"
                 :slide="page"
-                :useScale="true"
+                :keyDisabled="keyDisabled"
+                :useScale="false"
                 @openCard="openCard"
                 @pagePrev="pagePrev"
                 @pageNext="pageNext"
@@ -46,7 +47,7 @@ import useHome from "@/hooks/useHome";
 import OpenCardViewDialog from "../edit/openCardViewDialog.vue";
 import { getCardDetail } from "@/api/home";
 export default defineComponent({
-    props: ["pageListOption"],
+    props: ["pageListOption", "showRemark"],
     components: { OpenCardViewDialog },
     setup(props, { emit }) {
         const { getPageDetail } = useHome();
@@ -55,6 +56,15 @@ export default defineComponent({
         const { hasCheck, selected } = pageListServer();
         const dialogVisible = ref(false);
         const prevPageFlag = ref(false);
+        const showRemarks = ref(false);
+        const keyDisabled = ref(false);
+        watch(
+            () => props.showRemark,
+            () => {
+                console.log(props.showRemark, "showRemark");
+                showRemarks.value = props.showRemark;
+            }
+        );
         watch(
             () => props.pageListOption,
             () => {
@@ -129,8 +139,8 @@ export default defineComponent({
         };
         const cardList = ref([]);
         const openCard = async (wins) => {
-            console.log(wins, "wins");
             if (wins[0] && wins[0].cards) {
+                keyDisabled.value = true;
                 const cards = wins[0].cards;
                 let pages = [];
                 const newPages = [];
@@ -173,6 +183,8 @@ export default defineComponent({
             pageList,
             dialogVisible,
             cardList,
+            showRemarks,
+            keyDisabled,
             openCard,
             prevCard,
             pagePrev,
@@ -193,8 +205,11 @@ export default defineComponent({
     :deep(.el-overlay){
         z-index: 999999 !important;
     }
+    :deep(.el-dialog){
+        margin: 50px auto;
+    }
     :deep(.el-dialog__body){
-        height: 800px!important;
+        height: 84vh !important;
         width: 100%;
         overflow-y: auto;
     }
@@ -211,7 +226,7 @@ export default defineComponent({
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
+    width: calc(100% - 220px);
     height: calc(100% - 86px);
 }
 .me-work {
@@ -219,6 +234,7 @@ export default defineComponent({
     min-width: 0;
     display: flex;
     flex-direction: column;
+    overflow: hidden;
 }
 .me-work-screen {
     width: 100%;
