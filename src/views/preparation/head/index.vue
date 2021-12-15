@@ -69,9 +69,11 @@
 
 <script lang="ts">
 import { MutationTypes, store } from "@/store";
+import { GetLastSelectBookRes } from "@/types/preparation";
 import { computed, defineComponent, ref, watch } from "vue";
-import { setLastSelectBook } from "../api";
+import { getLastSelectBook, setLastSelectBook } from "../api";
 import useBook from "../hooks/useBook";
+import { findFirstId } from "../logic";
 import ChapterDialog from "./chapterDialog.vue";
 export default defineComponent({
     name: "head",
@@ -83,6 +85,8 @@ export default defineComponent({
     setup(props, { emit }) {
         const titleList = [{ title: "翻转课堂" }, { title: "数智课堂" }];
         const tabIndex = ref(0);
+        let selectBook: GetLastSelectBookRes;
+        let isFirst = true;
         const {
             subjectPublisherBookList, subjectPublisherBookValue,
             teacherBookChapterList, cascaderProps, teacherBookChapter,
@@ -114,14 +118,30 @@ export default defineComponent({
         });
 
         watch(subjectPublisherBookValue, (value) => {
-            getTeacherBookChapters(value[2]);
+            getTeacherBookChapters(value[2]).then(() => {
+                if (Object.keys(selectBook).length !== 0 && isFirst) {
+                    isFirst = false;
+                    return (teacherBookChapter.value = selectBook.ChapterID);
+                }
+            });
             store.commit(MutationTypes.SET_SUBJECT_PUBLISHER_BOOK_VALUE, value);
         }, {
             deep: true
         });
 
-        getSubjectPublisherBookList().then(() => {
-            window.dispatchEvent(new Event("subjectPublisherBookListLoaded"));
+        getSubjectPublisherBookList().then(async () => {
+            const selectBookRes = await getLastSelectBook({
+                subjectID: ""
+            });
+            if (selectBookRes.resultCode === 200) {
+                selectBook = selectBookRes.result;
+            }
+            if (Object.keys(selectBookRes.result).length !== 0) {
+                const { BookID, PublisherID, SubjectID } = selectBook;
+                subjectPublisherBookValue.value = [SubjectID, PublisherID, BookID];
+            } else {
+                findFirstId([subjectPublisherBookList.value[0]], subjectPublisherBookValue.value);
+            }
         });
 
         return {

@@ -274,7 +274,8 @@ export const getLastSelectBook: RequestFun<GetLastSelectBookData, GetLastSelectB
         baseURL: AI_XUE_SHI_API,
         url: "Api/W4/Teach/GetLastSelectBook",
         headers: {
-            "Content-Type": "application/json-patch+json"
+            "Content-Type": "application/json-patch+json",
+            noLoading: "true"
         },
         method: "post",
         data
@@ -286,7 +287,8 @@ export const setLastSelectBook: RequestFun<SetLastSelectBookData, null> = (data)
         baseURL: AI_XUE_SHI_API,
         url: "Api/W4/Teach/SetLastSelectBook",
         headers: {
-            "Content-Type": "application/json-patch+json"
+            "Content-Type": "application/json-patch+json",
+            noLoading: "true"
         },
         method: "post",
         data

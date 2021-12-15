@@ -57,7 +57,7 @@
 <script lang="ts">
 import { store } from "@/store";
 import useBook from "@/views/preparation/hooks/useBook";
-import { computed, defineComponent, onMounted, ref, watch } from "vue";
+import { computed, defineComponent, ref, watch } from "vue";
 import BagChapter from "./BagChapter.vue";
 import Material from "./Material.vue";
 export default defineComponent({
@@ -78,13 +78,7 @@ export default defineComponent({
             teacherBookChapter
         } = useBook();
 
-        const startGetSubjectPublisherBookList = () => {
-            setTimeout(() => {
-                getSubjectPublisherBookList().then(() => {
-                    window.removeEventListener("subjectPublisherBookListLoaded", startGetSubjectPublisherBookList);
-                });
-            }, 300); // 后期优化 -- 封装接口请求处增加请求队列
-        };
+        getSubjectPublisherBookList();
 
         watch([teacherBookChapter, titleIndex], ([value, index]) => {
             if (index === 1) {
@@ -97,18 +91,12 @@ export default defineComponent({
         });
 
         watch(subjectPublisherBookValue, (v) => {
-            setTimeout(() => {
-                getTeacherBookChapters(v[1]);
-            }, 500);
+            getTeacherBookChapters(v[1]);
         });
 
         const options = computed(() => {
             const subject = store.state.preparation.subjectPublisherBookValue[0];
             return subjectPublisherBookList.value.find(({ Value }) => Value === subject)?.Children || [];
-        });
-
-        onMounted(() => {
-            window.addEventListener("subjectPublisherBookListLoaded", startGetSubjectPublisherBookList);
         });
 
         return {

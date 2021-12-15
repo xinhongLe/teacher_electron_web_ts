@@ -1,15 +1,6 @@
-import { BookChapter, BookList, GetLastSelectBookRes, Lesson } from "@/types/preparation";
+import { BookChapter, BookList, Lesson } from "@/types/preparation";
 import { ref } from "vue";
-import { fetchLessons, fetchSubjectPublisherBookList, fetchTeacherBookChapters, getLastSelectBook } from "../api";
-
-const findFirstId = (tree: BookList[], ids: string[]) => {
-    tree.forEach((item) => {
-        ids.push(item.Value);
-        if (item.Children && item.Children.length > 0) {
-            findFirstId([item.Children[0]], ids);
-        }
-    });
-};
+import { fetchLessons, fetchSubjectPublisherBookList, fetchTeacherBookChapters } from "../api";
 
 export default () => {
     const subjectPublisherBookList = ref<BookList[]>([]);
@@ -19,18 +10,12 @@ export default () => {
     const cascaderProps = { value: "Value", children: "Children", label: "Lable" };
     const lessonID = ref<string | null>(null);
     const lessons = ref<Lesson[]>([]);
-    let selectBook: GetLastSelectBookRes;
-    let isFirst = true;
 
     const getTeacherBookChapters = async (bookID: string) => {
         if (!bookID) return;
         const res = await fetchTeacherBookChapters({ bookID });
         if (res.resultCode === 200) {
             teacherBookChapterList.value = res.result;
-            if (Object.keys(selectBook).length !== 0 && isFirst) {
-                isFirst = false;
-                return (teacherBookChapter.value = selectBook.ChapterID);
-            }
             teacherBookChapter.value = res.result[0].ID;
         }
     };
@@ -39,18 +24,6 @@ export default () => {
         const res = await fetchSubjectPublisherBookList();
         if (res.resultCode === 200) {
             subjectPublisherBookList.value = res.result;
-            const selectBookRes = await getLastSelectBook({
-                subjectID: ""
-            });
-            if (selectBookRes.resultCode === 200) {
-                selectBook = selectBookRes.result;
-            }
-            if (Object.keys(selectBookRes.result).length !== 0) {
-                const { BookID, PublisherID, SubjectID } = selectBook;
-                subjectPublisherBookValue.value = [SubjectID, PublisherID, BookID];
-            } else {
-                findFirstId([res.result[0]], subjectPublisherBookValue.value);
-            }
         }
     };
 

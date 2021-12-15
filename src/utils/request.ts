@@ -1,5 +1,5 @@
 import axios, { AxiosRequestConfig, AxiosRequestHeaders, Method } from "axios";
-import { ElMessage, ILoadingInstance } from "element-plus";
+import { ElMessage } from "element-plus";
 import { clear, get, STORAGE_TYPES } from "./storage";
 import router from "@/router/index";
 import { initAllState } from "@/store";
@@ -9,8 +9,6 @@ const http = axios.create({
     baseURL: "/",
     timeout: 150000
 });
-
-let loadingInstance: ILoadingInstance;
 
 http.interceptors.request.use(
     (config: AxiosRequestConfig) => {
@@ -56,7 +54,7 @@ http.interceptors.response.use(
         return response;
     },
     (error) => {
-        loadingInstance?.close && loadingInstance.close();
+        loading.hide();
         ElMessage({
             message: "请求失败",
             type: "error",
@@ -74,11 +72,54 @@ interface IRequest<T> {
     data?: T
 }
 
+interface Request<T, U> {
+    options: IRequest<T>,
+    callback: (value: U | PromiseLike<U>)=> void
+}
+
+const queueMap = new Map();
+
+class Queue<T, U> {
+    requestList: Request<T, U>[] = []
+    isRequesting = false
+    add(data: Request<T, U>) {
+        this.requestList.push(data);
+        this.start();
+    }
+
+     start = async () => {
+         if (this.isRequesting || this.requestList.length === 0) return;
+         this.isRequesting = true;
+         const [request] = this.requestList.splice(0, 1);
+         try {
+             const res = await http(request.options);
+             request.callback(res.data);
+         } catch (error) {
+             //  request.callback({ error });
+         }
+
+         if (this.requestList.length !== 0) {
+             setTimeout(() => {
+                 this.isRequesting = false;
+                 this.start();
+             }, 300);
+         } else {
+             this.isRequesting = false;
+             queueMap.delete(request.options.url);
+         }
+     }
+}
+
 function request<T, U>(options: IRequest<T>): Promise<U> {
     return new Promise(resolve => {
-        http(options).then(res => {
-            resolve(res.data);
-        });
+        if (queueMap.has(options.url)) {
+            const queue = queueMap.get(options.url);
+            queue.add({ options, callback: resolve });
+        } else {
+            const queue = new Queue<T, U>();
+            queueMap.set(options.url, queue);
+            queue.add({ options, callback: resolve });
+        }
     });
 }
 
