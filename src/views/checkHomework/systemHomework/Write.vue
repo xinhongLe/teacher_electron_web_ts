@@ -2,8 +2,8 @@
     <div class="write-box">
         <canvas
             ref="canvas"
-            :width="panelWidth + 'px'"
-            :height="panelHeight + 'px'"
+            :width="panelWidth"
+            :height="panelHeight"
             :style="{ left: panelOffsetX + 'px', top: panelOffsetY + 'px' }"
         ></canvas>
     </div>

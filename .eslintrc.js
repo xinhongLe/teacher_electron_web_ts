@@ -4,7 +4,8 @@ module.exports = {
         node: true,
     },
     globals: {
-        electron: true
+        electron: true,
+        MathJax: true
     },
     extends: [
         "plugin:vue/vue3-essential",

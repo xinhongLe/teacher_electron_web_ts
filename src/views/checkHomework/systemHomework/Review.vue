@@ -10,7 +10,9 @@
             </div>
             <div class="answer">
                 <template v-if="detail.Detail">
+                    <TeacherAnswer v-if="detail.Detail.HomeworkPaperType === 2" :data="detail"/>
                     <Answer
+                        v-else-if="detail.Detail.HomeworkPaperType === 0"
                         :data="
                             detail?.Study?.StudyFiles?.filter(
                                 (v) => v.Type == 1
@@ -88,7 +90,9 @@
             :successHandle="successHandle"
         >
             <template v-if="detail.Detail">
+                <TeacherAnswerImg v-if="detail.Detail.HomeworkPaperType === 2" :data="detail"/>
                 <Answer
+                    v-else-if="detail.Detail.HomeworkPaperType === 0"
                     :data="detail.Study?.StudyFiles?.filter((v) => v.Type == 1)"
                     :speechResult="detail.Detail.SpeechAssessResults"
                     :speechText="detail.Detail.PronunciationText"
@@ -121,6 +125,8 @@ import Avatar from "@/components/avatar/index.vue";
 import { QuestionDetail } from "@/types/checkHomework";
 import Answer from "./Answer.vue";
 import Enlarge from "./Enlarge.vue";
+import TeacherAnswer from "./TeacherAnswer.vue";
+import TeacherAnswerImg from "./TeacherAnswerImg.vue";
 export default defineComponent({
     props: {
         className: {
@@ -182,7 +188,7 @@ export default defineComponent({
             errorHandle
         };
     },
-    components: { Avatar, Answer, Enlarge }
+    components: { Avatar, Answer, Enlarge, TeacherAnswer, TeacherAnswerImg }
 });
 </script>
 

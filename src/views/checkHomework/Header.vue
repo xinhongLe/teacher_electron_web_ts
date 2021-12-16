@@ -8,9 +8,15 @@
                 alt=""
             />
             <img
-                v-if="type === 0 || type === 2"
+                v-if="type === 0"
                 class="docx"
                 src="@/assets/images/homeworkNew/icon_timu.png"
+                alt=""
+            />
+            <img
+                v-else-if="type === 2"
+                class="docx"
+                src="@/assets/images/homeworkNew/icon_timuxiangqing.png"
                 alt=""
             />
             <img

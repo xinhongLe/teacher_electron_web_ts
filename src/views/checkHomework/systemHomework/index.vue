@@ -38,16 +38,10 @@
             </div>
         </div>
         <div class="right">
-            <!-- state 为1  系统作业 为2  教辅作业 -->
-            <!-- <ReviewHomework :MissionDetails="MissionDetails" v-if="state === 1"></ReviewHomework>
-                <TeachingHomework
-                    v-if="state === 2"
-                    :MissionDetails="MissionDetails"
-                    :questionDetailId="questionDetailId"
-                ></TeachingHomework> -->
             <ReviewHomework
                 :MissionDetails="missionDetails"
                 :questionDetailId="questionDetailId"
+                :questionContent="questionContent"
             ></ReviewHomework>
         </div>
     </div>
@@ -81,6 +75,7 @@ export default defineComponent({
         const missionDetails = ref<MissionDetail[]>([]);
         const activeIndex = ref(0);
         const questionDetailId = ref("");
+        const questionContent = ref("");
 
         async function getQuestinInfoByQuestionID(questionID: string) {
             const res = await fetchQuestinInfoByQuestionID({
@@ -88,6 +83,7 @@ export default defineComponent({
             });
             if (res.resultCode === 200) {
                 questionDetailId.value = res.result.Question.ID;
+                questionContent.value = res.result.Question.FlowText?.QuestionContent || "";
             }
         }
 
@@ -125,6 +121,7 @@ export default defineComponent({
             selectQuestion,
             questionDetailId,
             missionDetails,
+            questionContent,
             questionList
         };
     },
