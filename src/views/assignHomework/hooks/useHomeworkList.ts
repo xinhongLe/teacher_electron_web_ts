@@ -93,7 +93,9 @@ export default () => {
         teachHomeworkList.value.push(
             ...newList.map((item) => ({
                 ...item,
-                students: cloneDeep(studentList.value)
+                students: cloneDeep(studentList.value),
+                publishType: "shou",
+                publishTime: ""
             }))
         );
     };
@@ -101,7 +103,10 @@ export default () => {
     const deleteTeachHomework = (index: number) => {
         teachHomeworkList.value.splice(index, 1);
     };
-
+    const updateTeachHomework = (index: number, item: any) => {
+        teachHomeworkList.value.splice(index, 1, item);
+        console.log(teachHomeworkList, "updata");
+    };
     return {
         classList,
         commonHomeworkList,
@@ -115,6 +120,7 @@ export default () => {
         updateCommonHomeworkList,
         deleteTeachHomework,
         teachHomeworkList,
+        updateTeachHomework,
         deleteCommonHomework
     };
 };

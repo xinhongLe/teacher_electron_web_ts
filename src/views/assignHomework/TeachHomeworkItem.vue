@@ -1,3 +1,4 @@
+/* eslint-disable vue/no-mutating-props */
 <template>
     <div
         class="homework-row flex-between-center"
@@ -11,13 +12,37 @@
                 alt=""
             />
             <p>
-                {{ "《" + item.WorkbookName + "》" }} {{ item.UnitName }}
-                {{ item.WorkbookPaperName }}
+                {{ "《" + HomeWorkListItem.WorkbookName + "》" }} {{ HomeWorkListItem.UnitName }}
+                {{ HomeWorkListItem.WorkbookPaperName }}
             </p>
-            <span>{{ item.gradeName }} {{ item.publisherName }}</span>
+            <span>{{ HomeWorkListItem.gradeName }} {{ HomeWorkListItem.publisherName }}</span>
             <span></span>
         </div>
-        <SelectLabel :studentList="item.students"></SelectLabel>
+        <div class="forms">
+            <el-form
+                ref="ruleForm"
+                label-width="80px"
+                class="demo-ruleForm"
+                :inline="true"
+            >
+                <el-form-item label="公布答案">
+                    <el-select @change="selectChange" style="width: 120px;" v-model="HomeWorkListItem.publishType">
+                        <el-option label="自动公布" value="zi"></el-option>
+                        <el-option label="手动公布" value="shou"></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item v-if="HomeWorkListItem.publishType === 'zi'" style="margin-left:10px;">
+                    <el-date-picker
+                        type="datetime"
+                        v-model="HomeWorkListItem.publishTime"
+                        @change="pickerChange"
+                        :clearable="false"
+                    >
+                    </el-date-picker>
+                </el-form-item>
+            </el-form>
+        </div>
+        <SelectLabel :studentList="HomeWorkListItem.students"></SelectLabel>
         <div class="btns">
             <!-- <el-button
                 size="small"
@@ -40,7 +65,7 @@
 
 <script lang="ts">
 import { TeachHomework } from "@/types/assignHomework";
-import { defineComponent, PropType } from "vue";
+import { computed, defineComponent, PropType } from "vue";
 import SelectLabel from "./SelectLabel.vue";
 export default defineComponent({
     props: {
@@ -61,7 +86,23 @@ export default defineComponent({
         const del = () => {
             emit("delete", props.realIndex);
         };
+        const HomeWorkListItem:any = computed(() => props.item);
+        const selectChange = () => {
+            if (HomeWorkListItem.value.publishType === "zi") {
+                HomeWorkListItem.value.publishTime = new Date();
+                emit("update", props.realIndex, HomeWorkListItem.value);
+            } else {
+                HomeWorkListItem.value.publishTime = "";
+                emit("update", props.realIndex, HomeWorkListItem.value);
+            }
+        };
+        const pickerChange = () => {
+            emit("update", props.realIndex, HomeWorkListItem.value);
+        };
         return {
+            HomeWorkListItem,
+            selectChange,
+            pickerChange,
             del
         };
     },
@@ -72,13 +113,15 @@ export default defineComponent({
 <style lang="scss" scoped>
 .homework-row {
     display: flex;
-    width: 100%;
+    flex: 1;
+    min-width: 0;
     height: 56px;
     line-height: 56px;
     background: #f9fafc;
     border-radius: 4px;
     padding: 0 20px;
     margin-top: 10px;
+    overflow-x: auto;
     .first-col {
         width: 40%;
         align-items: center;
@@ -98,9 +141,11 @@ export default defineComponent({
         }
         p {
             font-weight: 600;
+            white-space: nowrap;
         }
         span {
             margin-left: 12px;
+            white-space: nowrap;
         }
         .type {
             color: #4b71ee;
@@ -120,5 +165,12 @@ export default defineComponent({
     margin-left: auto;
     display: flex;
     align-items: center;
+}
+.forms{
+    white-space: nowrap;
+    margin-right: 30px;
+    :deep(.el-form-item){
+        margin: 0;
+    }
 }
 </style>

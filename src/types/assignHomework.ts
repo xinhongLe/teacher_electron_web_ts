@@ -64,6 +64,7 @@ export interface Paper {
         studentID: string;
         classID: string;
     }[];
+    answerShowTime?: string,
     name?: string;
     files?: {
         fileName: string;
@@ -119,6 +120,8 @@ export interface TeachHomework extends WorkbookPaper {
     publisherName: string;
     gradeName: string;
     students: Student[];
+    publishType: string,
+    publishTime: any
 }
 
 export interface GetBookImgData {

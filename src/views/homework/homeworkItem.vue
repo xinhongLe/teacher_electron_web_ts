@@ -100,6 +100,17 @@
                     {{ info.AllStudentCount }}</span
                 >
             </div>
+            <div class="deta" style="margin-left:10px;">
+                <span v-if="info.AnswerShowTime" style="margin-right:20px;">答案公布时间：{{ detailTime(info.AnswerShowTime)}}</span>
+                <span v-else style="margin-right:20px;">手动发布</span>
+             </div>
+            <div class="answer" v-if="info.showPublish || !info.AnswerShowTime">
+                <el-button size="small" type="success" v-if="info.HomeworkPaperType === 2" @click="publish(info)">立即发布</el-button>
+             </div>
+             <div class="answer" v-else>
+                <span style="margin-right:10px;">答案已公布</span>
+                <el-button size="small" @click="hideAnswer(info)">撤回发布</el-button>
+             </div>
             <div class="btn-list">
                 <!-- <el-button
                     size="small"
@@ -142,8 +153,9 @@ import { Homework } from "@/types/homework";
 import { getCourseBagType, formatDuration } from "@/utils";
 import { set, STORAGE_TYPES } from "@/utils/storage";
 import { ElMessage, ElMessageBox } from "element-plus";
+import moment from "moment";
 import { computed, defineComponent, PropType } from "vue";
-import { rebackHomeworkPaper } from "./api";
+import { rebackHomeworkPaper, ShowAnswer, HideAnswer } from "./api";
 import FileItem from "./FileItem.vue";
 export default defineComponent({
     props: {
@@ -249,7 +261,44 @@ export default defineComponent({
                     ElMessage.info("已取消删除");
                 });
         };
-
+        const detailTime = (str: string) => {
+            return `${moment(str).format("YYYY-MM-DD HH:mm:ss")}`;
+        };
+        // 公布
+        const publish = (item: any) => {
+            ElMessageBox.confirm(
+                "公布答案后家长和学生端会在作业系统里看到正确答案和详解，确定公布答案吗？?", "提示",
+                {
+                    confirmButtonText: "确认公布",
+                    cancelButtonText: "取消",
+                    type: "warning"
+                }
+            ).then(() => {
+                const obj = {
+                    classHomeworkPaperID: item.ClassHomeworkPaperID
+                };
+                ShowAnswer(obj).then(res => {
+                    if (res.resultCode === 200) {
+                        ElMessage({ type: "success", message: "发布成功" });
+                        emit("getTaskList");
+                    }
+                });
+            }).catch((err) => {
+                return err;
+            });
+        };
+        // 隐藏
+        const hideAnswer = (item:any) => {
+            const obj = {
+                id: item.ClassHomeworkPaperID
+            };
+            HideAnswer(obj).then(res => {
+                if (res.resultCode === 200) {
+                    ElMessage({ type: "success", message: "撤回成功" });
+                    emit("getTaskList");
+                }
+            });
+        };
         return {
             getCourseBagType,
             probability,
@@ -257,7 +306,10 @@ export default defineComponent({
             formatDuration,
             deleteHomework,
             name,
-            probability1
+            probability1,
+            detailTime,
+            publish,
+            hideAnswer
         };
     },
     components: { FileItem }
@@ -287,15 +339,21 @@ export default defineComponent({
         }
         .people {
             flex: 1;
+            white-space: nowrap;
         }
         .progress-content1 {
             width: 5%;
             margin: 0 20px;
         }
         .btn-list {
-            width: 340px;
+            // width: 340px;
             float: right;
             text-align: right;
+        }
+        .answer{
+            float: right;
+            margin-left: 20px;
+            margin-right: 10px;
         }
     }
     .text-color {

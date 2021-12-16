@@ -5,6 +5,8 @@ import {
     FetchClassHomeworkPaperListData,
     FetchHomeworkDateByYearData,
     RebackHomeworkPaperData,
+    RebackShowAnswer,
+    RebackHideAnswer,
     Homework
 } from "@/types/homework";
 
@@ -47,6 +49,36 @@ export const rebackHomeworkPaper: RequestFun<RebackHomeworkPaperData, null> = (
     return request({
         baseURL: AI_XUE_SHI_API,
         url: "/API/W4/HomeworkIntegration/RebackHomeworkPaper",
+        headers: {
+            "Content-Type": "application/json-patch+json"
+        },
+        method: "post",
+        data
+    });
+};
+
+// 公布答案
+export const ShowAnswer: RequestFun<RebackShowAnswer, null> = (
+    data
+) => {
+    return request({
+        baseURL: AI_XUE_SHI_API,
+        url: "/API/W4/HomeworkIntegration/ShowAnswer",
+        headers: {
+            "Content-Type": "application/json-patch+json"
+        },
+        method: "post",
+        data
+    });
+};
+
+// 隐藏
+export const HideAnswer: RequestFun<RebackHideAnswer, null> = (
+    data
+) => {
+    return request({
+        baseURL: AI_XUE_SHI_API,
+        url: "/API/W4/HomeworkIntegration/HideAnswer",
         headers: {
             "Content-Type": "application/json-patch+json"
         },

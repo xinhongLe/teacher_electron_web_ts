@@ -59,7 +59,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, onUnmounted, reactive, ref } from "vue";
+import { defineComponent, getCurrentInstance, onMounted, onUnmounted, reactive, ref } from "vue";
 import useLogin from "@/hooks/useLogin";
 import { useRouter } from "vue-router";
 import { ILoginData } from "@/types/login";
@@ -89,7 +89,6 @@ export default defineComponent({
             loading.value = false;
             router.push("/");
         };
-
         const handleChange = (account: string) => {
             recordAccountList.value.forEach((item: ILoginData) => {
                 if (item.account === account) {

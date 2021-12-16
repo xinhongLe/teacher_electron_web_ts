@@ -54,6 +54,7 @@
                         :item="item"
                         :realIndex="index"
                         @delete="deleteTeachHomework"
+                        @update="updateTeachHomework"
                     />
                 </div>
             </div>
@@ -82,6 +83,7 @@
 <script lang="ts">
 import { Paper } from "@/types/assignHomework";
 import { ElMessage } from "element-plus";
+import moment from "moment";
 import { defineComponent, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { publishHomework } from "./api";
@@ -115,7 +117,8 @@ export default defineComponent({
             deleteTeachHomework,
             teachHomeworkList,
             updateTeachHomeworkList,
-            deleteSystemHomework
+            deleteSystemHomework,
+            updateTeachHomework
         } = useHomeworkList();
 
         const submit = async () => {
@@ -160,10 +163,12 @@ export default defineComponent({
                         studentID: val.ID,
                         classID: val.classID!
                     }));
+                console.log(v, "publishTime ");
                 return {
                     type: 2,
                     students,
-                    paperID: v.WorkbookPaperID
+                    paperID: v.WorkbookPaperID,
+                    answerShowTime: v.publishTime ? `${moment(v.publishTime).format("YYYY-MM-DD HH:mm:ss")}` : ""
                 };
             });
             const data = {
@@ -171,6 +176,7 @@ export default defineComponent({
                 classes: classList.value.map((v) => ({ classID: v.ClassId })),
                 papers: [...commonPaper, ...systemPaper, ...teachPaper]
             };
+            console.log(data, "data");
             const res = await publishHomework(data);
             if (res.resultCode === 200) {
                 ElMessage.success("布置作业成功");
@@ -194,6 +200,7 @@ export default defineComponent({
             teachHomeworkDialog,
             deleteSystemHomework,
             deleteTeachHomework,
+            updateTeachHomework,
             teachHomeworkList,
             updateTeachHomeworkList,
             systemHomeworkDialog,
@@ -264,6 +271,7 @@ export default defineComponent({
             }
             .content-wrapper {
                 flex: 1;
+                min-width: 0;
             }
         }
     }

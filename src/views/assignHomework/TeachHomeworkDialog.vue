@@ -188,7 +188,9 @@ export default defineComponent({
                 WorkbookName,
                 publisherName,
                 gradeName,
-                students: []
+                students: [],
+                publishType: "",
+                publishTime: ""
             };
             if (flag) {
                 selectListMap.value[WorkbookID]

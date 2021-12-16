@@ -14,6 +14,14 @@ export interface RebackHomeworkPaperData {
     classHomeworkPaperIDs: string[];
 }
 
+export interface RebackShowAnswer {
+    classHomeworkPaperID: string,
+    answerShowTime?: string
+}
+
+export interface RebackHideAnswer{
+    id: string
+}
 export interface HomeworkPaperFile {
     Type: 0,
     File: FileInfo

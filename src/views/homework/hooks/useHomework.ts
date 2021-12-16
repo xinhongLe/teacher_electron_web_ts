@@ -32,10 +32,17 @@ export default () => {
         };
         const res = await fetchClassHomeworkPaperList(data);
         if (res.resultCode === 200) {
-            res.result.forEach(item => {
+            const detailList = res.result.map((item:any) => {
+                return {
+                    ...item,
+                    showPublish: moment(item.AnswerShowTime) > moment(new Date())
+                };
+            });
+            detailList.forEach(item => {
                 const { ClassID } = item;
                 homeworkListMap.value[ClassID] ? homeworkListMap.value[ClassID].push(item) : (homeworkListMap.value[ClassID] = [item]);
             });
+            console.log(detailList, "11111111111");
         }
     };
 
