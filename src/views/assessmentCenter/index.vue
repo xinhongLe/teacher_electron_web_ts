@@ -1,6 +1,6 @@
 <template>
     <div class="container">
-        <iframe src="http://1.15.4.131/" class="iframe"/>
+        <iframe src="http://1.15.4.131/" sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-top-navigation-by-user-activation" class="iframe"/>
     </div>
 </template>
 

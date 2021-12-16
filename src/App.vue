@@ -95,4 +95,7 @@ img {
     -moz-osx-font-smoothing: grayscale;
     height: 100vh;
 }
+.el-message--warning{
+    z-index: 9999999 !important;
+}
 </style>
