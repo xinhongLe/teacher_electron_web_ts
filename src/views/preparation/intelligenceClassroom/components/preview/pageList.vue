@@ -4,7 +4,7 @@
             <ScreenView
                 class="me-work-screen"
                 :inline="true"
-                :isInit="isInit"
+                :isInit="isInitPage"
                 ref="screenRef"
                 :slide="page"
                 :keyDisabled="keyDisabled"
@@ -66,6 +66,14 @@ export default defineComponent({
             }
         );
         watch(
+            () => dialogVisible.value,
+            () => {
+                if (!dialogVisible.value) {
+                    keyDisabled.value = false;
+                }
+            }
+        );
+        watch(
             () => props.pageListOption,
             () => {
                 if (prevPageFlag.value === true) {
@@ -88,26 +96,28 @@ export default defineComponent({
             }
         };
         const screenRef = ref();
-        const isInit = ref(true);
+        const isInitPage = ref(true);
         const prevCard = () => {
-            isInit.value = false;
+            isInitPage.value = false;
             screenRef.value.execPrev();
         };
         const pagePrev = async () => {
             if (selected.value > 0) {
                 selected.value--;
+                isInitPage.value = false;
                 emit("changeRemark", pageList.value[selected.value].Remark);
                 page.value = await getPageDetail(pageList.value[selected.value], pageList.value[selected.value].originType);
                 return;
             }
             if (selected.value === 0) {
+                isInitPage.value = false;
                 prevPageFlag.value = true;
                 emit("firstPage");
             }
         };
 
         const nextCard = () => {
-            isInit.value = true;
+            isInitPage.value = true;
             screenRef.value.execNext();
         };
 
@@ -116,9 +126,11 @@ export default defineComponent({
                 page.value = {};
             }
             if (selected.value === pageList.value.length - 1) {
+                isInitPage.value = true;
                 emit("lastPage");
             } else {
                 selected.value++;
+                isInitPage.value = true;
                 emit("changeRemark", pageList.value[selected.value].Remark);
                 page.value = await getPageDetail(pageList.value[selected.value], pageList.value[selected.value].originType);
             }
@@ -176,7 +188,7 @@ export default defineComponent({
         };
         return {
             screenRef,
-            isInit,
+            isInitPage,
             page,
             hasCheck,
             selected,
@@ -205,12 +217,23 @@ export default defineComponent({
     :deep(.el-overlay){
         z-index: 999999 !important;
     }
-    :deep(.el-dialog){
-        margin: 50px auto;
+    :deep(.el-dialog.is-fullscreen){
+        --el-dialog-width: 94%;
+        --el-dialog-margin-top: 0;
+        margin-bottom: 0;
+        height: 96%;
+        overflow: auto;
+        margin-top: 20px;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
     }
     :deep(.el-dialog__body){
-        height: 84vh !important;
         width: 100%;
+        display: flex;
+        flex: 1;
+        min-width: 0;
+        min-height: 0;
         overflow-y: auto;
     }
 }
