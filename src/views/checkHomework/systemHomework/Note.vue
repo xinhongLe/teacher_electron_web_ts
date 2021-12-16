@@ -2,8 +2,8 @@
     <div class="write-box">
         <canvas
             ref="canvasRef"
-            :width="width + 'px'"
-            :height="height + 'px'"
+            :width="width"
+            :height="height"
         ></canvas>
     </div>
 </template>

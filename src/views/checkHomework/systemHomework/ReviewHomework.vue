@@ -1,12 +1,8 @@
 <template>
       <div>
     <div class="access-system-detail">
-      <div class="system-explain">
+      <div class="system-explain" ref="explainRef">
         <p v-if="type == 5">填空题：</p>
-        <!-- <p>
-                    这里是解答题描述文案，这里是解答题描述的文案，请小朋友们耐心自信的在与其他三幅图不同的图下面画
-                    “ ✓ ”。
-                </p> -->
       </div>
       <div class="system-detail" @click="lookQuestions({id: questionDetailId,type: 0})">
         <img src="@/assets/images/homeworkNew/icon_timuxiangqing.png" alt="" />
@@ -31,7 +27,7 @@
             </p>
           </template>
           <div class="access-system-student" v-if="index != 3">
-            <div v-for="(value, index1) in item" :key="index1 + index">
+            <div v-for="(value, index1) in item" :key="index1 + index" class="access-system-student-item">
               <Review
                 :result="value.Result"
                 :index="getIndex(index, index1)"
@@ -59,7 +55,7 @@
 <script lang="ts">
 import { MissionDetail } from "@/types/checkHomework";
 import { lookQuestions } from "@/utils";
-import { computed, defineComponent, PropType, ref } from "vue";
+import { computed, defineComponent, PropType, ref, watchEffect } from "vue";
 import NulliparousStudents from "../NulliparousStudents.vue";
 import Review from "./Review.vue";
 export default defineComponent({
@@ -72,6 +68,10 @@ export default defineComponent({
             type: String,
             default: ""
         },
+        questionContent: {
+            type: String,
+            default: ""
+        },
         type: {},
         questionDetailId: {
             type: String,
@@ -80,6 +80,7 @@ export default defineComponent({
     },
     setup(props) {
         const activeNames = ref(["2"]);
+        const explainRef = ref<HTMLDivElement>();
         const list = computed(() => {
             const list = [];
             list[0] = props.MissionDetails.filter((m) => m.Result === 3);
@@ -94,9 +95,25 @@ export default defineComponent({
             return timeoutIndex;
         };
 
+        watchEffect(() => {
+            if (explainRef.value) {
+                explainRef.value.innerHTML = props.questionContent;
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
+                MathJax.texReset();
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
+                MathJax.typesetClear();
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
+                MathJax.typesetPromise([explainRef.value]);
+            }
+        });
+
         return {
             lookQuestions,
             list,
+            explainRef,
             getIndex,
             activeNames
         };
@@ -112,6 +129,7 @@ export default defineComponent({
   padding: 16px 24px;
   align-items: center;
   .system-explain {
+    font-size: 14px;
     p:nth-of-type(1) {
       font-size: 16px;
       font-weight: 500;
@@ -158,8 +176,11 @@ export default defineComponent({
     .access-system-student {
       padding: 0 24px 16px 24px;
       display: flex;
-      justify-content: space-between;
+      justify-content: flex-start;
       flex-wrap: wrap;
+      .access-system-student-item {
+          margin-right: 20px;
+      }
       i {
         width: 294px;
       }
@@ -176,8 +197,11 @@ export default defineComponent({
     .access-system-student {
       padding: 0 24px 16px 24px;
       display: flex;
-      justify-content: space-between;
+      justify-content: flex-start;
       flex-wrap: wrap;
+      .access-system-student-item {
+          margin-right: 20px;
+      }
       i {
         width: 294px;
       }
@@ -194,7 +218,10 @@ export default defineComponent({
     .access-system-student {
       padding: 0 24px 16px 24px;
       display: flex;
-      justify-content: space-between;
+      justify-content: flex-start;
+      .access-system-student-item {
+          margin-right: 20px;
+      }
       flex-wrap: wrap;
       i {
         width: 294px;
@@ -212,8 +239,11 @@ export default defineComponent({
     .access-system-student {
       padding: 0 24px 16px 24px;
       display: flex;
-      justify-content: space-between;
+      justify-content: flex-start;
       flex-wrap: wrap;
+      .access-system-student-item {
+          margin-right: 20px;
+      }
       i {
         width: 294px;
       }
@@ -230,7 +260,10 @@ export default defineComponent({
     .access-system-student {
       padding: 0 24px 16px 24px;
       display: flex;
-      justify-content: space-between;
+      justify-content: flex-start;
+      .access-system-student-item {
+          margin-right: 20px;
+      }
       flex-wrap: wrap;
       i {
         width: 294px;
@@ -264,7 +297,10 @@ export default defineComponent({
     .access-system-student {
       padding: 0 24px 16px 24px;
       display: flex;
-      justify-content: space-between;
+      justify-content: flex-start;
+      .access-system-student-item {
+          margin-right: 20px;
+      }
       flex-wrap: wrap;
       i {
         width: 294px;
@@ -298,7 +334,7 @@ export default defineComponent({
   .general-reference-student {
     padding: 0 24px 16px 24px;
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     flex-wrap: wrap;
     i {
       width: 250px;

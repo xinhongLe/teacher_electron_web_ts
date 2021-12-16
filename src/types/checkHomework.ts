@@ -101,38 +101,63 @@ export interface QuestinInfo {
         PureQuestionIDs: string[];
         QuestionFiles: QuestionFile[];
         SN: string;
+        FlowText?: {
+            QuestionContent: string
+        },
         Type: number;
     };
 }
 
 export interface FetchDetailByMissionStudyIDData {
-    MissionStudyID: string
+    MissionStudyID: string;
 }
 
 export interface ChangeResultData {
-    missionDetailID: string,
-    result: number
+    missionDetailID: string;
+    result: number;
 }
 
 export interface SpeechAssessResult {
     JsonData: string;
 }
 
+export interface QuestionDetailMissionFile extends QuestionFile {
+    PageNum: number;
+}
+
+export interface WorkbookPageQuestionBlank {
+    Answer?: string;
+    ID: string;
+    IsKeyboardInput: number;
+    MarginLeft: number;
+    MarginTop: number;
+    SizeHeight: number;
+    SizeWidth: number;
+    Type: 0;
+}
+
 export interface QuestionDetail {
     Student?: {
-        Name: string,
-        HeadPortrait: HeadPortrait
-    },
+        Name: string;
+        HeadPortrait: HeadPortrait;
+    };
     Question?: {
-        Type: number,
-        Answers: Answer[]
-    },
+        Type: number;
+        Answers: Answer[];
+    };
     Detail?: {
-        SpeechAssessResults: SpeechAssessResult[],
-        ID: string,
-        PronunciationText: string
-    },
+        SpeechAssessResults: SpeechAssessResult[];
+        ID: string;
+        Result: string;
+        HomeworkPaperType: number;
+        PronunciationText: string;
+    };
     Study?: {
-        StudyFiles?: QuestionFile[]
-    }
+        StudyFiles?: QuestionFile[];
+        MissionFiles?: QuestionDetailMissionFile[];
+    };
+    WorkbookPageQuestion?: {
+        PageNum: number;
+        WorkbookPageQuestionBlanks: WorkbookPageQuestionBlank[];
+    };
 }

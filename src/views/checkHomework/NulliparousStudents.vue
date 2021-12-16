@@ -1,5 +1,5 @@
 <template>
-     <div>
+     <div class="container">
         <div class="student-once">
             <div class="student-useravator">
                 <Avatar :file="HeadPortrait"></Avatar>
@@ -38,6 +38,9 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
+.container {
+    width: 18%;
+}
 .student-once {
     margin: 8px 8px 8px 8px;
     width: 250px;
@@ -61,7 +64,6 @@ export default defineComponent({
         flex: 1;
         overflow: hidden;
         .student-classname {
-            width: 160px;
             font-size: 12px;
             line-height: 18px;
             overflow: hidden;
@@ -69,9 +71,6 @@ export default defineComponent({
             text-overflow: ellipsis;
             font-weight: 500;
             color: #5f626f;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
         }
         .student-name {
             font-size: 16px;
