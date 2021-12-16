@@ -25,7 +25,12 @@
                             :key="index"
                             :label="item.account"
                             :value="item.account"
-                        ></el-option>
+                        >
+                        <span style="float: left">{{ item.account }}</span>
+                        <span style="float: right; color: #8492a6; font-size: 13px">
+                            <i @click.stop="delAccount(index)" class="el-icon-close"></i>
+                        </span>
+                    </el-option>
                     </el-select>
                 </el-form-item>
                 <el-form-item>
@@ -96,7 +101,9 @@ export default defineComponent({
                 }
             });
         };
-
+        const delAccount = (index: number) => {
+            recordAccountList.value.splice(index, 1);
+        };
         const onEnter = (e: KeyboardEvent) => {
             if (e.key === "Enter") {
                 login();
@@ -129,6 +136,7 @@ export default defineComponent({
             close,
             version,
             handleChange,
+            delAccount,
             isElectron: isElectron()
         };
     }

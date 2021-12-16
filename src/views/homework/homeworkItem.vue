@@ -100,17 +100,41 @@
                     {{ info.AllStudentCount }}</span
                 >
             </div>
-            <div class="deta" style="margin-left:10px;">
-                <span v-if="info.AnswerShowTime" style="margin-right:20px;">答案公布时间：{{ detailTime(info.AnswerShowTime)}}</span>
-                <span v-else style="margin-right:20px;">手动发布</span>
-             </div>
-            <div class="answer" v-if="info.showPublish || !info.AnswerShowTime">
-                <el-button size="small" type="success" v-if="info.HomeworkPaperType === 2" @click="publish(info)">立即发布</el-button>
-             </div>
-             <div class="answer" v-else>
-                <span style="margin-right:10px;">答案已公布</span>
-                <el-button size="small" @click="hideAnswer(info)">撤回发布</el-button>
-             </div>
+            <div class="homework" style="display:flex;" v-if="info.HomeworkPaperType === 2">
+                <div class="answer" style="margin-left: 10px;" v-if="info.AnswerShowTime">
+                    <span v-if="info.showPublish">
+                        答案公布时间：{{ detailTime(info.AnswerShowTime)}}
+                        <i v-if="!showdataPicker" @click="changeTag" class="el-icon-edit-outline" style="margin:0 10px;color:#4B71EE;" color="#4B71EE"></i>
+                        <el-date-picker
+                            v-else
+                            ref="dataPicker"
+                            type="datetime"
+                            v-model="date"
+                            @change="(val) => dateChange(val, info)"
+                            @blur="dataBlur"
+                            placeholder="选择日期时间">
+                        </el-date-picker>
+                    </span>
+                    <el-button v-if="info.showPublish" size="small" type="success" @click="publish(info)">立即发布</el-button>
+                    <span v-if="!info.showPublish" style="margin-right:10px;">答案已公布</span>
+                    <el-button v-if="!info.showPublish" size="small" @click="hideAnswer(info)">撤回发布</el-button>
+                </div>
+                <div class="detail" style="margin-left: 10px;" v-else>
+                    <span>手动发布
+                        <i v-if="!showdataPicker" @click="changeTag" class="el-icon-edit-outline" style="margin:0 10px;color:#4B71EE;" color="#4B71EE"></i>
+                        <el-date-picker
+                            v-else
+                            ref="dataPicker"
+                            type="datetime"
+                            v-model="date"
+                            @change="(val) => dateChange(val, info)"
+                            @blur="dataBlur"
+                            placeholder="选择日期时间">
+                        </el-date-picker>
+                    </span>
+                    <el-button size="small" type="success" @click="publish(info)">立即发布</el-button>
+                </div>
+            </div>
             <div class="btn-list">
                 <!-- <el-button
                     size="small"
@@ -154,7 +178,7 @@ import { getCourseBagType, formatDuration } from "@/utils";
 import { set, STORAGE_TYPES } from "@/utils/storage";
 import { ElMessage, ElMessageBox } from "element-plus";
 import moment from "moment";
-import { computed, defineComponent, PropType } from "vue";
+import { computed, defineComponent, nextTick, PropType, ref } from "vue";
 import { rebackHomeworkPaper, ShowAnswer, HideAnswer } from "./api";
 import FileItem from "./FileItem.vue";
 export default defineComponent({
@@ -178,7 +202,31 @@ export default defineComponent({
                 ).toFixed(2)
             );
         });
-
+        const showdataPicker = ref(false);
+        const dataPicker = ref();
+        const date = ref("");
+        const changeTag = () => {
+            showdataPicker.value = true;
+            nextTick(() => {
+                dataPicker.value.focus();
+                dataPicker.value.display = "none";
+            });
+        };
+        const dataBlur = () => {
+            showdataPicker.value = false;
+        };
+        const dateChange = (val:any, info:any) => {
+            const obj = {
+                classHomeworkPaperID: info.ClassHomeworkPaperID,
+                answerShowTime: `${moment(val).format("YYYY-MM-DD HH:mm:ss")}`
+            };
+            ShowAnswer(obj).then(res => {
+                if (res.resultCode === 200) {
+                    ElMessage({ type: "success", message: "修改成功" });
+                    emit("getTaskList");
+                }
+            });
+        };
         const name = computed(() => {
             const { HomeworkPaperType, WorkbookName, PaperName, HomeworkName } =
                 props.info;
@@ -300,6 +348,12 @@ export default defineComponent({
             });
         };
         return {
+            showdataPicker,
+            date,
+            dataBlur,
+            dataPicker,
+            changeTag,
+            dateChange,
             getCourseBagType,
             probability,
             review,
@@ -346,14 +400,12 @@ export default defineComponent({
             margin: 0 20px;
         }
         .btn-list {
-            // width: 340px;
             float: right;
+            margin-left: 10px;
             text-align: right;
         }
         .answer{
             float: right;
-            margin-left: 20px;
-            margin-right: 10px;
         }
     }
     .text-color {
