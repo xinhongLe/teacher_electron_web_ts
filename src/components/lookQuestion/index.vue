@@ -1,32 +1,43 @@
 <template>
     <div class="look-question">
-        <Question :close="close" ref="questionRef" v-model:nowQuestionID="nowQuestionID">
+        <el-dialog
+            :fullscreen="true"
+            :model-value="true"
+            :show-close="false"
+            custom-class="look-question-dialog"
+        >
             <template #title>
                 <p class="title">查看题目</p>
             </template>
-            <template v-slot:footerBtn="slotProps">
-                <div class="btn-list">
-                    <div
-                        v-show="type !== 2 && slotProps.sum > 1"
-                        class="btn"
-                        @click.stop="viewPureQuestion"
-                    >
-                        <p>同类题</p>
+            <Question
+                :close="close"
+                ref="questionRef"
+                v-model:nowQuestionID="nowQuestionID"
+            >
+                <template v-slot:footerBtn="slotProps">
+                    <div class="btn-list">
+                        <div
+                            v-show="type !== 2 && slotProps.sum > 1"
+                            class="btn"
+                            @click.stop="viewPureQuestion"
+                        >
+                            <p>同类题</p>
+                        </div>
+                        <div
+                            v-show="type !== 2"
+                            @click.stop="slotProps.removeQuestion"
+                            class="btn"
+                        >
+                            <p>移除题目</p>
+                        </div>
                     </div>
-                    <div
-                        v-show="type !== 2"
-                        @click.stop="slotProps.removeQuestion"
-                        class="btn"
-                    >
-                        <p>移除题目</p>
-                    </div>
-                </div>
-            </template>
-        </Question>
-        <PureQuestionDialog
-            v-if="dialogVisible"
-            v-model:visible="dialogVisible"
-        />
+                </template>
+            </Question>
+            <PureQuestionDialog
+                v-if="dialogVisible"
+                v-model:visible="dialogVisible"
+            />
+        </el-dialog>
     </div>
 </template>
 
@@ -38,6 +49,7 @@ import { checkPureQuestionByQuestionID } from "./api";
 import { ElMessage } from "element-plus";
 import { MutationTypes, store } from "@/store";
 export default defineComponent({
+    name: "LookQuestion",
     setup() {
         const type = computed(() => store.state.common.viewQuestionInfo.type);
         const dialogVisible = ref(false);
@@ -57,7 +69,10 @@ export default defineComponent({
         };
 
         const close = () => {
-            store.commit(MutationTypes.SET_IS_SHOW_QUESTION, { flag: false, info: {} });
+            store.commit(MutationTypes.SET_IS_SHOW_QUESTION, {
+                flag: false,
+                info: {}
+            });
         };
 
         provide("nowQuestionID", nowQuestionID);
@@ -77,16 +92,18 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .look-question {
-    width: 100vw;
-    height: 100vh;
-    overflow: hidden;
-    position: fixed;
-    z-index: 999;
     background: #fff;
-    padding-top: 16px;
-    :deep(.el-dialog__body) {
-        height: 700px;
+    :deep(.look-question-dialog) {
+        &.el-dialog {
+            display: flex;
+            flex-direction: column;
+        }
+        .el-dialog__body {
+            padding: 0;
+            flex: 1;
+        }
     }
+
     .btn-list {
         display: flex;
     }

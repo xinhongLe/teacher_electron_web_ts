@@ -38,5 +38,8 @@ export default defineComponent({
     :deep(.el-dialog) {
         width: fit-content;
     }
+    :deep(.el-dialog__body) {
+        height: 700px;
+    }
 }
 </style>

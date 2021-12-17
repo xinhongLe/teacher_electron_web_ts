@@ -30,7 +30,8 @@
         "vue": "^3.0.0",
         "vue-router": "^4.0.0-0",
         "vuedraggable": "^2.24.3",
-        "vuex": "^4.0.0-0"
+        "vuex": "^4.0.0-0",
+        "wincard": "^1.5.0"
     },
     "devDependencies": {
         "@types/lodash": "^4.14.176",
@@ -64,8 +65,7 @@
         "vue-cli-plugin-electron-builder": "~2.1.1",
         "node-sass": "^4.12.0",
         "sass-loader": "^8.0.2",
-        "typescript": "~4.1.5",
-        "wincard": "~1.5.0"
+        "typescript": "~4.1.5"
     },
     "eslintConfig": {
         "root": true,
