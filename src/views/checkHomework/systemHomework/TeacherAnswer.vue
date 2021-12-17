@@ -7,6 +7,7 @@
             }"
             class="content"
             @mousedown="mousedown"
+            v-if="imgUrl"
         >
             <img :src="imgUrl" v-if="imgUrl" @load="load" />
             <div class="box" :style="boxStyle"></div>
@@ -102,6 +103,8 @@ export default defineComponent({
                     const { Bucket, Extention, FileName, FilePath } = fileInfo;
                     const key = `${FilePath}/${FileName}.${Extention}`;
                     imgUrl.value = await downloadFile(key, Bucket);
+                } else {
+                    imgUrl.value = "";
                 }
             }
         });
