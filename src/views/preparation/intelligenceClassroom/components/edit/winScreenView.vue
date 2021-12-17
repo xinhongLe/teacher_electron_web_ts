@@ -1,17 +1,20 @@
 <template>
     <div class="view-box">
-        <ScreenView ref="screenRef" :slide="slideView"  @openCard="openCard"  @pagePrev="pagePrev()" @pageNext="pageNext()"/>
+        <ScreenView ref="screenRef" :keyDisabled="keyDisabled" :isInit="isInit" :slide="slideView"  @openCard="openCard"  @pagePrev="pagePrev()" @pageNext="pageNext()"/>
        <!-- 弹卡-->
-        <open-card-view-dialog v-if="dialogVisible" :cardList="cardList" v-model:dialogVisible="dialogVisible"></open-card-view-dialog>
+        <open-card-view-dialog v-if="dialogVisible" :cardList="cardList"
+          @closeOpenCard="closeOpenCard" v-model:dialogVisible="dialogVisible"></open-card-view-dialog>
     </div>
 </template>
 
 <script>
 import { defineComponent, onMounted, ref } from "vue";
 import { getCardDetail } from "@/api/home";
+import { getWinCardDBData } from "@/utils/database";
+import { get, STORAGE_TYPES } from "@/utils/storage";
 import useHome from "@/hooks/useHome";
 import { ElMessage } from "element-plus";
-import OpenCardViewDialog from "./openCardViewDialog.vue";
+import OpenCardViewDialog from "./openCardViewDialog";
 export default defineComponent({
     name: "winCardViewDialog",
     components: { OpenCardViewDialog },
@@ -20,15 +23,17 @@ export default defineComponent({
             type: Object
         }
     },
-    setup(props) {
+    emits: ["stopGetAllPageList"],
+    setup(props, { emit }) {
         const slideView = ref({});
         const pageList = ref([]);
         const index = ref(0);
+        const isInit = ref(true);
+        const keyDisabled = ref(false);
         const { getPageDetail } = useHome();
-        onMounted(async() => {
+        onMounted(async () => {
             pageList.value = props.pageList;
-            console.log(pageList.value[index.value], "1111111111");
-            slideView.value = await getPageDetail(pageList.value[index.value], 1);
+            getSlideData();
         });
 
         const pagePrev = async () => {
@@ -36,7 +41,8 @@ export default defineComponent({
                 return ElMessage({ type: "warning", message: "已经是第一页" });
             }
             index.value--;
-            slideView.value = await getPageDetail(pageList.value[index.value], 1);
+            isInit.value = false;
+            getSlideData();
         };
 
         const pageNext = async () => {
@@ -44,7 +50,45 @@ export default defineComponent({
                 return ElMessage({ type: "warning", message: "已经是最后页" });
             }
             index.value++;
-            slideView.value = await getPageDetail(pageList.value[index.value], 1);
+            isInit.value = true;
+            getSlideData();
+        };
+
+        const getSlideData = async () => {
+            const dbResArr = await getWinCardDBData(pageList.value[index.value].ID);
+            if (dbResArr.length > 0) {
+                slideView.value = JSON.parse(dbResArr[0].result);
+            } else {
+                const pageIdIng = get(STORAGE_TYPES.SET_PAGEIDING);
+                // const noResPages = get(STORAGE_TYPES.SET_NORESPAGES);
+                if (pageIdIng && pageIdIng === pageList.value[index.value].ID) {
+                    const interval = setInterval(async () => {
+                        const dbResArr = await getWinCardDBData(pageList.value[index.value].ID);
+                        if (dbResArr.length > 0) {
+                            clearInterval(interval);
+                            slideView.value = JSON.parse(dbResArr[0].result);
+                        }
+                    }, 300);
+                } else if (pageIdIng && pageIdIng !== pageList.value[index.value].ID) {
+                    emit("stopGetAllPageList");
+                    const interval = setInterval(async () => {
+                        if (!pageIdIng) {
+                            clearInterval(interval);
+                            await getPageDetail(pageList.value[index.value], (res) => {
+                                if (res && res.id) {
+                                    slideView.value = res;
+                                }
+                            });
+                        }
+                    }, 300);
+                } else {
+                    await getPageDetail(pageList.value[index.value], (res) => {
+                        if (res && res.id) {
+                            slideView.value = res;
+                        }
+                    });
+                }
+            }
         };
 
         const dialogVisible = ref(false);
@@ -79,18 +123,39 @@ export default defineComponent({
                         });
                         cardList.value = newPages;
                         dialogVisible.value = true;
+                        keyDisabled.value = true;
                     }
                 }
             }
         };
 
+        const closeOpenCard = () => {
+            dialogVisible.value = false;
+            keyDisabled.value = false;
+        };
+
+        const screenRef = ref();
+        const execPrev = () => {
+            screenRef.value.execPrev();
+        };
+
+        const execNext = () => {
+            screenRef.value.execNext();
+        };
+
         return {
+            keyDisabled,
+            isInit,
             slideView,
             dialogVisible,
             cardList,
             pageNext,
             pagePrev,
-            openCard
+            openCard,
+            screenRef,
+            execPrev,
+            execNext,
+            closeOpenCard
         };
     }
 });
@@ -101,8 +166,14 @@ export default defineComponent({
     :deep(.el-overlay){
         z-index: 999999 !important;
     }
+    :deep(.el-dialog){
+        --el-dialog-margin-top: 5vh;
+        .slide-list{
+            background-color: #fff;
+        }
+    }
     :deep(.el-dialog__body){
-        height: 800px!important;
+        height: 80vh !important;
         width: 100%;
         overflow-y: auto;
     }

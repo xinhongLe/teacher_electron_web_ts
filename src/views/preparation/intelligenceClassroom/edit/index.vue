@@ -4,28 +4,30 @@
         padding: showCollapse ? '0px' : '0px 9px'}">
            <div class="left-content">
                <div>
-                   <!-- <el-cascader v-model="subjectPublisherBookValue" :options="subjectPublisherBookList"
-                                :props="{  value: 'ID', children: 'Children', label: 'Name' }">
-                   </el-cascader>
-                   <el-select v-model="chaptersValue" placeholder="Select">
-                       <el-option v-for="item in chaptersList" :key="item.ID" :label="item.Name" :value="item.ID">
-                       </el-option>
-                   </el-select>
-                   <el-cascader v-model="winValue" :options="winList"
-                                :props="{ value: 'ID', children: 'Children', label: 'Name' }">
-                   </el-cascader> -->
-                   <el-button
-                       class="add-card"
-                       v-if="winValue.length > 0"
-                       @click="dialogVisibleCard = true"
-                       size="small" type="primary" plain>新增卡</el-button>
+                   <el-row :gutter="20">
+                       <el-col :span="12">
+                           <el-button
+                               class="add-card"
+                               v-if="winValue.length > 0"
+                               @click="dialogVisibleCard = true"
+                               size="small" type="primary" plain>新增卡</el-button>
+                       </el-col>
+                       <el-col :span="12">
+                           <el-button
+                               class="add-card"
+                               v-if="winValue.length > 0"
+                               @click="handleView(allPageList)"
+                               size="small" type="primary" plain>预览窗</el-button>
+                       </el-col>
+                   </el-row>
                </div>
-               <div class="card-list">
+                <div class="card-list">
                    <el-tree
                        default-expand-all
                        node-key="ID"
                        draggable
                        :allow-drop="allowDrop"
+                       :expand-on-click-node="false"
                        :highlight-current="true"
                        :data="windowCards"
                        :props="defaultProps"
@@ -36,7 +38,7 @@
                            <span class="label-class"
                                  @mouseenter="mouseenter($event, node.label)"
                                  @mouseleave="mouseleave">
-                                  <span>{{ node.label }}</span>
+                                  <span :style="{color: !data.State && node.level === 2 ? '#c0c4cc' : '#333'}">{{ node.label }}</span>
                               </span>
 
                                <div class="icon-box">
@@ -47,7 +49,7 @@
                                            </el-button>
                                        </template>
                                        <div class="operation-box">
-                                           <div v-show="node.level === 1" @click.stop="handleView(node, data)">预览</div>
+                                           <div v-show="node.level === 1" @click.stop="handleView(data.PageList)">预览</div>
                                            <div v-show="node.level === 1" @click.stop="handleAdd(node, data)">新增</div>
                                            <div  @click.stop="handleUpdateName(node, data)">修改名称</div>
                                            <div v-show="node.level === 2"  @click.stop="handleUpdateState(node, data)">{{data.State ? "下架" : "上架"}}</div>
@@ -63,17 +65,17 @@
                    </el-tree>
                </div>
            </div>
-            <div class="shrink">
+            <div class="shrink"  ref="shrinkRef">
                 <div @click="showCollapse = !showCollapse"><i :style="{'transform': 'rotate(' + (showCollapse ? 0 : 180) + 'deg)'}" class="el-icon-arrow-left"></i></div>
             </div>
         </div>
         <div class="right">
-            <win-card-edit :pageValue="pageValue"></win-card-edit>
+            <win-card-edit ref="editRef" :pageValue="pageValue" :isSetCache="isSetCache" :allPageList="allPageList"></win-card-edit>
         </div>
     </div>
 
     <!--预览界面-->
-    <win-card-view v-if= winScreenView :pageList="pageList"></win-card-view>
+    <win-card-view ref="winCardViewRef" v-if= winScreenView :pageList="pageList" @stopGetAllPageList="stopGetAllPageList"></win-card-view>
 
     <!-- 新增卡弹框-->
     <add-card-dialog v-model:dialogVisible = "dialogVisibleCard" @handleAddCard="handleAddCard"></add-card-dialog>
@@ -96,12 +98,14 @@ import Node from "element-plus/es/components/tree/src/model/node";
 import useSelectBookInfo from "@/hooks/useSelectBookInfo";
 import { enterFullscreen, isFullscreen } from "@/utils/fullscreen";
 import { MoreFilled } from "@element-plus/icons";
-import { ElMessage } from "element-plus";
+import { ElMessage, ElMessageBox } from "element-plus";
 import AddPageDialog from "../components/edit/addPageDialog.vue";
 import UpdateNameCardOrPage from "../components/edit/updateNameCardOrPage.vue";
 import WinCardView from "../components/edit/winScreenView.vue";
 import AddCardDialog from "../components/edit/addCardDialog.vue";
 import { useRoute } from "vue-router";
+import { sleep } from "@/utils/common";
+import isElectron from "is-electron";
 export default defineComponent({
     components: { AddCardDialog, WinCardView, UpdateNameCardOrPage, AddPageDialog, WinCardEdit, MoreFilled },
     name: "Edit",
@@ -112,6 +116,7 @@ export default defineComponent({
         const dialogVisibleName = ref(false);
         const tooltipShow = ref(true);
         const winScreenView = ref(false);
+        const editRef = ref();
         const mouseenter = (event:any, lable: string) => {
             const labelBox = event.target;
             const labelText = event.target.firstChild;
@@ -134,14 +139,37 @@ export default defineComponent({
             }
         };
         const {
-            // _getChapters, _getWindowCards, _getWinList,
-            state, defaultProps, pageValue, _getSubjectPublisherBookList, _getWindowCards,
+            state, allPageList, cardsValue, defaultProps, pageValue, isSetCache, _getSubjectPublisherBookList, _getWindowCards,
             _deleteCardOrPage, _addPage, _renameCardOrPage,
             _setCardOrPageState, _addCard, _copyPage, dragDealData
         } = useSelectBookInfo();
         const handleNodeClick = (data :IPageValue, Node: Node) => {
-            if (Node.level === 2) {
-                pageValue.value = data;
+            if (editRef.value.getDataIsChange()) {
+                ElMessageBox.confirm("尚未保存修改, 是否继续操作?", "提示",
+                    {
+                        confirmButtonText: "确认",
+                        cancelButtonText: "取消",
+                        type: "warning"
+                    }
+                ).then(() => {
+                    if (Node.level === 1) {
+                        cardsValue.value = data;
+                        pageValue.value = { ID: "", Type: 11 };
+                    } else if (Node.level === 2) {
+                        pageValue.value = data;
+                        cardsValue.value = { ID: "" };
+                    }
+                }).catch((err) => {
+                    return err;
+                });
+            } else {
+                if (Node.level === 1) {
+                    cardsValue.value = data;
+                    pageValue.value = { ID: "", Type: 11 };
+                } else if (Node.level === 2) {
+                    pageValue.value = data;
+                    cardsValue.value = { ID: "" };
+                }
             }
         };
 
@@ -161,29 +189,26 @@ export default defineComponent({
         };
 
         _getSubjectPublisherBookList();
-
-        // watch(() => state.subjectPublisherBookValue, (curVal) => {
-        //     _getChapters({ id: curVal[2] });
-        // });
-
-        // watch(() => state.chaptersValue, (curVal) => {
-        //     _getWinList(curVal);
-        // });
         const route = useRoute();
+        const winValue = route.params.winValue as string;
         onMounted(() => {
-            _getWindowCards({ WindowID: `${route.params.winValue as string}` });
+            _getWindowCards({ WindowID: `${route.params.winValue as string}` }, true);
         });
-        // watch(() => state.winValue, (curVal) => {
-        //     _getWindowCards({ WindowID: curVal[1] });
-        // });
 
         const handleAddCard = (name:string) => {
-            _addCard({ WindowID: state.winValue[1], Sort: 0, Name: name });
+            _addCard({ WindowID: `${route.params.winValue as string}`, Sort: 0, Name: name });
             dialogVisibleCard.value = false;
         };
 
         const handleDel = (node:Node, data:ICardList) => {
-            _deleteCardOrPage({ TeachPageRelationID: data.TeachPageRelationID });
+            // 删除的是卡 判断当前页是否在删除卡下
+            if (node.level === 1 && pageValue.value.ID) {
+                const flag = data.PageList.find(item => item.ID === pageValue.value.ID);
+                if (flag) {
+                    cardsValue.value = data;
+                }
+            }
+            _deleteCardOrPage(data.ID, { TeachPageRelationID: data.TeachPageRelationID });
         };
 
         let copyValue = {
@@ -214,19 +239,32 @@ export default defineComponent({
 
         const currentValue = ref();
         const handleAdd = (node:Node, data:ICardList) => {
+            shrinkRef.value.click();
             dialogVisible.value = true;
             currentValue.value = data;
         };
 
         const pageList = ref();
-        const handleView = (node:Node, data:ICardList) => {
-            console.log(data, "data");
-            pageList.value = data.PageList;
-            winScreenView.value = true;
-            enterFullscreen();
+        // 预览
+        const handleView = async (data:IPageValue[]) => {
+            // 预览只支持 已上架数据
+            pageList.value = data.filter((item: IPageValue) => item.State);
+            if (pageList.value.length > 0) {
+                if ((window as any).electron && !(window as any).electron.isFullScreen() && !(window as any).electron.isMac()) {
+                    (window as any).electron.setFullScreen();
+                    await sleep(300);
+                }
+                winScreenView.value = true;
+                enterFullscreen();
+            } else {
+                ElMessage({ type: "warning", message: "请先添加页，在进行预览" });
+            }
         };
-
+        const stopGetAllPageList = () => {
+            editRef.value.getAllPageList([]);
+        };
         const handleUpdateName = (node:Node, data:ICardList) => {
+            shrinkRef.value.click();
             dialogVisibleName.value = true;
             currentValue.value = data;
         };
@@ -258,9 +296,17 @@ export default defineComponent({
                 winScreenView.value = false;
             }
         };
-
+        const winCardViewRef = ref();
         onMounted(() => {
             document.addEventListener("keydown", keyDown);
+            document.addEventListener("keydown", keyDown);
+            if (isElectron()) {
+                (window as any).electron.registerEscKeyUp(() => {
+                    (window as any).electron.minimizeWindow();
+                    winScreenView.value = false;
+                    editRef.value.closeScreen();
+                });
+            }
             // 监听退出全屏事件浏览器
             window.onresize = function() {
                 if (!isFullscreen()) {
@@ -271,8 +317,15 @@ export default defineComponent({
         onUnmounted(() => {
             document.removeEventListener("keydown", keyDown);
         });
+        const shrinkRef = ref();
         return {
+            editRef,
+            shrinkRef,
+            winCardViewRef,
             ...toRefs(state),
+            winValue,
+            allPageList,
+            isSetCache,
             defaultProps,
             pageValue,
             currentValue,
@@ -294,6 +347,7 @@ export default defineComponent({
             handlePaste,
             handleDel,
             handleView,
+            stopGetAllPageList,
             handleUpdateName,
             handleUpdateState,
             addPage,

@@ -1,11 +1,11 @@
 import {
-    getSubjectPublisherBookList, getChapters, getWindowCard, deleteCardOrPage, addPage,
-    renameCardOrPage, setCardOrPageState, updateCardSort, movePage, copyPage, addCard,
+    getSubjectPublisherBookList, getChapters, getWindowCards, deleteCardOrPage, addPage,
+    renameCardOrPage, setCardOrPageState, updateCardSort, movePage, addCard, copyPage,
     IGetChapters, IGetWindowCards, IDelCardOrPage, IAddPage, IRenameCardOrPage,
     ICardOrPageState, ICardSortRes, IAddCard, ICopyPage, IMovePage
 } from "@/api/home";
-import { ITreeList, ICardList } from "@/types/home";
-import { reactive, ref } from "vue";
+import { ITreeList, ICardList, IPageValue } from "@/types/home";
+import { reactive, ref, computed } from "vue";
 import { ElMessageBox, ElMessage } from "element-plus";
 import Node from "element-plus/es/components/tree/src/model/node";
 import { useRoute } from "vue-router";
@@ -27,6 +27,8 @@ export default () => {
         ID: "",
         Type: 11
     });
+    const cardsValue = ref({ ID: "" });
+    const isSetCache = ref(false); // 是否需要更新窗下的数据
     const state = reactive<State>({
         subjectPublisherBookList: [],
         subjectPublisherBookValue: [],
@@ -63,6 +65,7 @@ export default () => {
                 state.chaptersList = res.result || [];
                 if (state.chaptersList.length > 0) {
                     state.chaptersValue = state.chaptersList[0].ID;
+                    state.winValue = [];
                 } else {
                     state.chaptersValue = "";
                     state.winList = [];
@@ -76,22 +79,27 @@ export default () => {
     const _getWinList = (curVal: string) => {
         const value: ITreeList | undefined = state.chaptersList.find(item => item.ID === curVal);
         if (value && Array.isArray(value.Children) && value.Children.length > 0) {
-            state.winList = value.Children.map((item: any) => {
-                if (!item.Children || item.Children.length === 0) {
-                    item.disabled = true;
-                }
-                return item;
-            });
+            state.winList = value.Children.filter((item: any) => item.Children && item.Children.length > 0);
         } else {
             state.winList = [];
         }
+        state.winValue = [];
         state.windowCards = [];
     };
 
-    const _getWindowCards = (data: IGetWindowCards) => {
-        getWindowCard(data).then(res => {
+    const allPageList = computed(() => {
+        let list: IPageValue[] = [];
+        state.windowCards.map(card => {
+            list = list.concat(card.PageList);
+        });
+        console.log(list, "list");
+        return list;
+    });
+    const _getWindowCards = (data: IGetWindowCards, isCache = false) => {
+        getWindowCards(data).then(res => {
             if (res.resultCode === 200) {
                 state.windowCards = res.result;
+                isSetCache.value = isCache;
                 state.oldWindowCards = JSON.parse(JSON.stringify(res.result));
             }
         });
@@ -105,7 +113,7 @@ export default () => {
         });
     };
 
-    const _deleteCardOrPage = (data: IDelCardOrPage) => {
+    const _deleteCardOrPage = (ID: string, data: IDelCardOrPage) => {
         ElMessageBox.confirm(
             "此操作将删除该数据, 是否继续?", "提示",
             {
@@ -120,6 +128,10 @@ export default () => {
                     _getWindowCards({ WindowID: `${route.params.winValue}` });
                 }
             });
+            // 删除卡或页是当前展示的页面则清空页面
+            if (pageValue.value.ID === ID || cardsValue.value.ID === ID) {
+                pageValue.value = { ID: "", Type: 11 };
+            }
         }).catch((err) => {
             return err;
         });
@@ -242,9 +254,12 @@ export default () => {
     };
 
     return {
+        isSetCache,
         defaultProps,
         pageValue,
+        cardsValue,
         state,
+        allPageList,
         findFirstId,
         dragDealData,
         _getSubjectPublisherBookList,

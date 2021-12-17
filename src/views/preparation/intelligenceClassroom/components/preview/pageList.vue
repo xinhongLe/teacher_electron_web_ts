@@ -43,8 +43,8 @@
 <script>
 import { defineComponent, ref, watch } from "vue-demi";
 import pageListServer from "../../hooks/pageList";
-import useHome from "@/hooks/useHome";
-import OpenCardViewDialog from "../edit/openCardViewDialog.vue";
+import useHome from "../../hooks/useHome";
+import OpenCardViewDialog from "./openCardViewDialog.vue";
 import { getCardDetail } from "../../api";
 export default defineComponent({
     props: ["pageListOption", "showRemark"],

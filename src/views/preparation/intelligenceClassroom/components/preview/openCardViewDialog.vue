@@ -1,6 +1,6 @@
 <template>
-    <el-dialog v-model="visible" width="80%" title="" center @close="close">
-        <ScreenView ref="screenRef" :inline="true" :isInit="isInit" @pagePrev="execPrev" @pageNext="execNext" :slide="slideView"/>
+    <el-dialog v-model="visible" :fullscreen="true" title="" :close-on-click-modal="false" center @close="close">
+        <ScreenView ref="screenRef" :isInit="isInit" @pagePrev="execPrev" @pageNext="execNext" :inline="true"  :slide="slideView"/>
         <template #footer>
           <span class="dialog-footer">
               <div class="cardLis-class">
@@ -19,9 +19,9 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted, computed, onUnmounted } from "vue";
-import useHome from "@/hooks/useHome";
-import { getWinCardDBData } from "@/utils/database";
+import { defineComponent, ref, onMounted, computed } from "vue";
+import useHome from "../../hooks/useHome";
+import { useRoute } from "vue-router";
 import { ElMessage } from "element-plus";
 export default defineComponent({
     name: "openCardViewDia",
@@ -35,62 +35,54 @@ export default defineComponent({
             default: () => []
         }
     },
-    emits: ["closeOpenCard"],
+    emits: ["update:dialogVisible"],
     setup(props, { emit }) {
+        const route = useRoute();
         const visible = computed(() => props.dialogVisible);
         const slideView = ref({});
         const cardList = ref<any[]>([]);
         const selected = ref(0);
-        const isInit = ref(true);
         const { getPageDetail } = useHome();
-        onMounted(async () => {
+        const isInit = ref(true);
+        const originType: any = route.params.originType as string ? route.params.originType as string : 1;
+        onMounted(async() => {
             cardList.value = props.cardList;
-            _getPageDetail(selected.value);
+            console.log(cardList.value, "cardList.value");
+            slideView.value = await getPageDetail(cardList.value[0], originType);
+            console.log(slideView, "slideview");
         });
-        const execPrev = () => {
+        const close = () => {
+            emit("update:dialogVisible", false);
+        };
+        const checkPage = async (index: number) => {
+            selected.value = index;
+            slideView.value = await getPageDetail(cardList.value[index], originType);
+        };
+        const execPrev = async() => {
             if (selected.value === 0) {
                 return ElMessage({ type: "warning", message: "已经是第一页" });
             }
             selected.value--;
             isInit.value = false;
-            _getPageDetail(selected.value);
+            slideView.value = await getPageDetail(cardList.value[selected.value], 1);
         };
-        const execNext = () => {
+        const execNext = async () => {
             if (selected.value === cardList.value.length - 1) {
                 return ElMessage({ type: "warning", message: "已经是最后一页" });
             }
             selected.value++;
             isInit.value = true;
-            _getPageDetail(selected.value);
-        };
-        const checkPage = async (index: number) => {
-            selected.value = index;
-            _getPageDetail(selected.value);
-        };
-        const _getPageDetail = async (index:number) => {
-            const dbResArr = await getWinCardDBData(cardList.value[index].ID);
-            if (dbResArr.length > 0) {
-                slideView.value = JSON.parse(dbResArr[0].result);
-            } else {
-                await getPageDetail(cardList.value[index], (res: any) => {
-                    if (res && res.id) {
-                        slideView.value = res;
-                    }
-                });
-            }
-        };
-        const close = () => {
-            emit("closeOpenCard");
+            slideView.value = await getPageDetail(cardList.value[selected.value], 1);
         };
         return {
             visible,
             isInit,
             slideView,
-            execPrev,
-            execNext,
             selected,
             checkPage,
-            close
+            close,
+            execPrev,
+            execNext
         };
     }
 });
@@ -107,6 +99,7 @@ export default defineComponent({
         padding: 10px 20px;
         box-sizing: border-box;
         text-align: center;
+        min-width: 100px;
         font-size: 14px;
         white-space: nowrap;
         margin-right: 10px;

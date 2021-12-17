@@ -3,7 +3,7 @@ import { IResponse } from "@/types/response";
 import { ICardList, ITreeList } from "@/types/home";
 import { Slide } from "wincard/src/types/slides";
 import { WINDOW_CRAD_API, originType } from "@/config/index";
-import { getWinCardDB } from "@/utils/database";
+import { getWinCardDBData } from "@/utils/database";
 type BookListResponse = IResponse<ITreeList[]>
 export interface IGetChapters {
     id: string
@@ -158,45 +158,31 @@ export function getWindowCards(data: IGetWindowCards): Promise<GetWindowCardsRes
         },
         method: "post",
         baseURL: WINDOW_CRAD_API,
-        data
+        data: Object.assign(data, { OriginType: originType })
     });
 }
 
 // 获取页面的详情 (新)
-export async function getPageDetailRes(data:IGetPageData, type: number): Promise<GetPageResponse> {
+export async function getPageDetailRes(data:IGetPageData, type: number, callback: any): Promise<GetPageResponse> {
     const urlList: string[] = [
         "/API/WCP/Window/GetPageElements", // 素材页
         "/Api/WCP/Listen/GetPageWords", // 听写页
         "/Api/WCP/Window/GetPageVideo", // 跟读页
         "/Api/WCP/TeachTool/GetPageTool" // 教具页
     ];
-    const winCardDB = getWinCardDB();
-    const dbResArr = await winCardDB.db.where({ id: data.pageID }).toArray();
-    return new Promise((resolve) => {
+    const dbResArr = await getWinCardDBData(data.pageID);
+    return new Promise(() => {
         if (dbResArr.length > 0) {
-            resolve(JSON.parse(dbResArr[0].result));
+            callback(JSON.parse(dbResArr[0].result));
         }
         request({
             url: urlList[type],
-            headers: { DeviceID: "Franchisee", ...dbResArr.length > 0 ? { noLoading: "ok" } : {}, noLoading: "true" },
-            method: "post",
             baseURL: WINDOW_CRAD_API,
-            data
-        }).then((res:any) => {
-            if (res.success) {
-                resolve(res);
-                // if (dbResArr.length === 0) {
-                //     console.log(res, "res");
-                //     winCardDB.db.add({ id: data.pageID, result: JSON.stringify(res) });
-                //     resolve(res);
-                // } else {
-                //     const apiResStr = JSON.stringify(res);
-                //     if (dbResArr[0].result !== apiResStr) {
-                //         winCardDB.db.update({ id: data.pageID, result: apiResStr }, { result: apiResStr });
-                //     }
-                //     resolve(res);
-                // }
-            }
+            headers: { DeviceID: "Franchisee", ...{ noLoading: "ok" } },
+            method: "post",
+            data: Object.assign(data, { OriginType: originType })
+        }).then((res: any) => {
+            callback(res);
         });
     });
 }
