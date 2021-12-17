@@ -125,6 +125,7 @@ module.exports = {
                     allowToChangeInstallationDirectory: true, // 允许修改安装目录
                     installerIcon: "./public/icon.ico", // 安装图标
                     uninstallerIcon: "./public/icon.ico", // 卸载图标
+                    deleteAppDataOnUninstall: true,
                     installerHeaderIcon: "./public/icon.ico", // 安装时头部图标
                     createDesktopShortcut: true, // 创建桌面图标
                     createStartMenuShortcut: true, // 创建开始菜单图标
