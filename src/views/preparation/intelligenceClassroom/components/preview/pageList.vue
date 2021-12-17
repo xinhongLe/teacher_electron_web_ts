@@ -45,7 +45,7 @@ import { defineComponent, ref, watch } from "vue-demi";
 import pageListServer from "../../hooks/pageList";
 import useHome from "@/hooks/useHome";
 import OpenCardViewDialog from "../edit/openCardViewDialog.vue";
-import { getCardDetail } from "@/api/home";
+import { getCardDetail } from "../../api";
 export default defineComponent({
     props: ["pageListOption", "showRemark"],
     components: { OpenCardViewDialog },
@@ -139,8 +139,13 @@ export default defineComponent({
             prevPageFlag.value = false;
         };
         const pageNextEnd = async () => {
-            emit("changeRemark", pageList.value[selected.value].Remark);
-            page.value = await getPageDetail(pageList.value[selected.value], pageList.value[selected.value].originType);
+            if (pageList.value.length > 0) {
+                emit("changeRemark", pageList.value[selected.value].Remark);
+                page.value = await getPageDetail(pageList.value[selected.value], pageList.value[selected.value].originType);
+            } else {
+                emit("changeRemark", " ");
+                page.value = [];
+            }
         };
         const fullscreenStyle = ref(false);
         const fullScreen = () => {

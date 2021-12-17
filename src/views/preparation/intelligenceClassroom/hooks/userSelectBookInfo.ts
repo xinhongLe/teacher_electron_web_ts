@@ -101,7 +101,7 @@ export default () => {
                     activeIndex.originType = allData.winList[0].TeachPageList[0].OriginType;
                     activeIndex.leftActiveIndex = 0;
                     activeIndex.winIndex = 0;
-                    allData.cardList = allData.winList[0].TeachPageList[0].CardList;
+                    allData.cardList = allData.winList[0].TeachPageList[0].CardList.filter((item:any) => { return item.Pages.length > 0; });
                 } else {
                     allData.cardList = [];
                     activeIndex.winActiveValue = "";
@@ -133,7 +133,8 @@ export default () => {
     const _getWindowCards = (ID: string) => {
         getWindowCards({ WindowID: ID, OriginType: activeIndex.originType }).then((res) => {
             if (res.resultCode === 200) {
-                allData.cardList = detailData(res.result);
+                const removeNoPageList = res.result.filter((item:any) => { return item.PageList.length > 0; });
+                allData.cardList = detailData(removeNoPageList);
                 if (allData.cardList.length > 0) {
                     cardListComponents.value.handleClick(0, allData.cardList[0]);
                 }

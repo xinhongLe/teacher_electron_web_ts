@@ -35,6 +35,7 @@ export default defineComponent({
         const handleClick = (index, item) => {
             cardIndex.value = index;
             const pageDate = dealCardData(item, item.originType);
+            console.log(pageDate, "pageDate");
             emit("updatePageList", pageDate);
         };
         const changeReducePage = () => {
@@ -48,7 +49,7 @@ export default defineComponent({
                 emit("updateFlag");
                 return ElMessage({ type: "warning", message: "已经是第一页了" });
             }
-            console.log(currentCardList.value, "currentCardList.value");
+            // (currentCardList.value[cardIndex.value - 1].PageList.length > 0)
             handleClick(cardIndex.value - 1, currentCardList.value[cardIndex.value - 1]);
         };
         return {
@@ -63,6 +64,10 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
+#nodata{
+    cursor:not-allowed;
+    pointer-events:none;
+}
 .me-card {
     position: relative;
     width: 100%;
