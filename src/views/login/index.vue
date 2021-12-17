@@ -68,7 +68,7 @@ import { defineComponent, getCurrentInstance, onMounted, onUnmounted, reactive, 
 import useLogin from "@/hooks/useLogin";
 import { useRouter } from "vue-router";
 import { ILoginData } from "@/types/login";
-import { STORAGE_TYPES, get } from "@/utils/storage";
+import { STORAGE_TYPES, get, set } from "@/utils/storage";
 import isElectron from "is-electron";
 export default defineComponent({
     setup() {
@@ -103,6 +103,7 @@ export default defineComponent({
         };
         const delAccount = (index: number) => {
             recordAccountList.value.splice(index, 1);
+            set(STORAGE_TYPES.RECORD_LOGIN_LIST, recordAccountList.value);
         };
         const onEnter = (e: KeyboardEvent) => {
             if (e.key === "Enter") {

@@ -371,6 +371,13 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
+.detail{
+    :deep(.el-input){
+        position: relative;
+        z-index: -1;
+        width: 30px;
+    }
+}
 .table-row {
     font-size: 14px;
     color: #5f626f;
