@@ -191,9 +191,6 @@ export default defineComponent({
         _getSubjectPublisherBookList();
         const route = useRoute();
         const winValue = route.params.winValue as string;
-        onMounted(() => {
-            _getWindowCards({ WindowID: `${route.params.winValue as string}` }, true);
-        });
 
         const handleAddCard = (name:string) => {
             _addCard({ WindowID: `${route.params.winValue as string}`, Sort: 0, Name: name });
@@ -298,6 +295,7 @@ export default defineComponent({
         };
         const winCardViewRef = ref();
         onMounted(() => {
+            _getWindowCards({ WindowID: `${route.params.winValue as string}` }, true);
             document.addEventListener("keydown", keyDown);
             document.addEventListener("keydown", keyDown);
             if (isElectron()) {
@@ -351,7 +349,8 @@ export default defineComponent({
             handleUpdateName,
             handleUpdateState,
             addPage,
-            updateName
+            updateName,
+            _getWindowCards
         };
     }
 });

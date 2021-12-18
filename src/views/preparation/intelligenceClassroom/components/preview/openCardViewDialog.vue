@@ -18,11 +18,13 @@
     </el-dialog>
 </template>
 
-<script lang="ts">
+<script>
 import { defineComponent, ref, onMounted, computed } from "vue";
-import useHome from "../../hooks/useHome";
+import useHome from "@/hooks/useHome";
 import { useRoute } from "vue-router";
 import { ElMessage } from "element-plus";
+import { get, STORAGE_TYPES } from "@/utils/storage";
+import { getWinCardDBData } from "@/utils/database";
 export default defineComponent({
     name: "openCardViewDia",
     props: {
@@ -40,23 +42,22 @@ export default defineComponent({
         const route = useRoute();
         const visible = computed(() => props.dialogVisible);
         const slideView = ref({});
-        const cardList = ref<any[]>([]);
+        const cardList = ref([]);
         const selected = ref(0);
         const { getPageDetail } = useHome();
         const isInit = ref(true);
-        const originType: any = route.params.originType as string ? route.params.originType as string : 1;
         onMounted(async() => {
             cardList.value = props.cardList;
             console.log(cardList.value, "cardList.value");
-            slideView.value = await getPageDetail(cardList.value[0], originType);
+            getDataBase(cardList.value[0].id);
             console.log(slideView, "slideview");
         });
         const close = () => {
             emit("update:dialogVisible", false);
         };
-        const checkPage = async (index: number) => {
+        const checkPage = async (index) => {
             selected.value = index;
-            slideView.value = await getPageDetail(cardList.value[index], originType);
+            getDataBase(cardList.value[index].id);
         };
         const execPrev = async() => {
             if (selected.value === 0) {
@@ -64,7 +65,7 @@ export default defineComponent({
             }
             selected.value--;
             isInit.value = false;
-            slideView.value = await getPageDetail(cardList.value[selected.value], 1);
+            getDataBase(cardList.value[selected.value].id);
         };
         const execNext = async () => {
             if (selected.value === cardList.value.length - 1) {
@@ -72,7 +73,42 @@ export default defineComponent({
             }
             selected.value++;
             isInit.value = true;
-            slideView.value = await getPageDetail(cardList.value[selected.value], 1);
+            getDataBase(cardList.value[selected.value].id);
+        };
+        const getDataBase = async (str) => {
+            const dbResArr = await getWinCardDBData(str);
+            console.log(dbResArr.length, dbResArr);
+            if (dbResArr.length > 0) {
+                slideView.value = JSON.parse(dbResArr[0].result);
+            } else {
+                const pageIdIng = get(STORAGE_TYPES.SET_PAGEIDING);
+                if (pageIdIng && pageIdIng === str) {
+                    const interval = setInterval(async () => {
+                        const dbResArr = await getWinCardDBData(str);
+                        if (dbResArr.length > 0) {
+                            clearInterval(interval);
+                            slideView.value = JSON.parse(dbResArr[0].result);
+                        }
+                    }, 300);
+                } else if (pageIdIng && pageIdIng !== str) {
+                    const interval = setInterval(async () => {
+                        if (!pageIdIng) {
+                            clearInterval(interval);
+                            await getPageDetail(str, (res) => {
+                                if (res && res.id) {
+                                    slideView.value = res;
+                                }
+                            });
+                        }
+                    }, 300);
+                } else {
+                    await getPageDetail(str, (res) => {
+                        if (res && res.id) {
+                            slideView.value = res;
+                        }
+                    });
+                }
+            }
         };
         return {
             visible,

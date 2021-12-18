@@ -33,7 +33,6 @@ export default () => {
     const getPageDetail = async (page: IPageValue, callback: any) => {
         const data: PageData = { pageID: page.ID };
         const type: number = transformType(page.Type);
-
         if (type < 0) {
             ElMessage({ type: "warning", message: "暂不支持该页面类型" });
             return {};
