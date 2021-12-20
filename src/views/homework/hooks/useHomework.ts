@@ -42,7 +42,6 @@ export default () => {
                 const { ClassID } = item;
                 homeworkListMap.value[ClassID] ? homeworkListMap.value[ClassID].push(item) : (homeworkListMap.value[ClassID] = [item]);
             });
-            console.log(detailList, "11111111111");
         }
     };
 
@@ -70,7 +69,7 @@ export default () => {
             ({ Name }) => Name !== "拼音"
         );
         classList.value = userInfo.Classes.reverse();
-        form.subject = subjectList.value[0] ? subjectList.value[0].ID : "";
+        !form.subject && (form.subject = subjectList.value[0] ? subjectList.value[0].ID : form.subject);
         !selectClassId.value && (selectClassId.value = classList.value[0].ID);
 
         getHasTaskDate();
