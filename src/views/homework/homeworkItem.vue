@@ -114,17 +114,17 @@
                         <span v-if="info.showPublish">
                             答案公布时间：{{ detailTime(info.AnswerShowTime) }}
                             <i
-                                v-if="!showdataPicker"
                                 @click="changeTag"
                                 class="el-icon-edit-outline"
                                 style="margin: 0 10px; color: #4b71ee"
                                 color="#4B71EE"
                             ></i>
                             <el-date-picker
-                                v-else
+                                v-if="showdataPicker"
                                 ref="dataPicker"
                                 type="datetime"
                                 v-model="date"
+                                size="large"
                                 @change="(val) => dateChange(val, info)"
                                 @blur="dataBlur"
                                 placeholder="选择日期时间"
@@ -154,14 +154,14 @@
                         <span
                             >手动发布
                             <i
-                                v-if="!showdataPicker"
+
                                 @click="changeTag"
                                 class="el-icon-edit-outline"
                                 style="margin: 0 10px; color: #4b71ee"
                                 color="#4B71EE"
                             ></i>
                             <el-date-picker
-                                v-else
+                                v-if="showdataPicker"
                                 ref="dataPicker"
                                 type="datetime"
                                 v-model="date"
@@ -431,12 +431,23 @@ export default defineComponent({
     font-size: 14px;
     color: #5f626f;
     margin-bottom: 10px;
+    height: 60px;
     .homework-warp {
         width: 20%;
+        :deep(.el-date-editor) {
+            width: 0;
+            height: 25px;
+            visibility: hidden;
+            .el-input__inner {
+                width: 0;
+                height: 25px;
+            }
+        }
     }
     > div {
         padding: 13px 20px;
         background: #f3f7ff;
+        height: 100%;
         > span {
             flex: 1;
             display: block;
@@ -463,8 +474,15 @@ export default defineComponent({
             margin-left: 10px;
             text-align: right;
         }
-        .answer {
-            float: right;
+        .answer, .detail {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            >span {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
         }
     }
     .text-color {

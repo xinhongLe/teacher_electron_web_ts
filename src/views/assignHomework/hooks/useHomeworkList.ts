@@ -90,12 +90,14 @@ export default () => {
                     (v) => v.WorkbookPaperID === item.WorkbookPaperID
                 )
         );
+        const dateTime = new Date();
+        dateTime.setDate(dateTime.getDate() + 1);
         teachHomeworkList.value.push(
             ...newList.map((item) => ({
                 ...item,
                 students: cloneDeep(studentList.value),
-                publishType: "shou",
-                publishTime: ""
+                publishType: "zi",
+                publishTime: new Date(dateTime)
             }))
         );
     };
