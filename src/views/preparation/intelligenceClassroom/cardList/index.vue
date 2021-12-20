@@ -48,7 +48,6 @@ export default defineComponent({
                 emit("updateFlag");
                 return ElMessage({ type: "warning", message: "已经是第一页了" });
             }
-            console.log(currentCardList.value, "currentCardList.value");
             handleClick(cardIndex.value - 1, currentCardList.value[cardIndex.value - 1]);
         };
         return {
@@ -58,11 +57,20 @@ export default defineComponent({
             changeReducePage,
             changeAddPage
         };
+    },
+    activated () {
+        if (this.currentCardList.length > 0) {
+            this.handleClick(this.cardIndex, this.currentCardList[this.cardIndex]);
+        }
     }
 });
 </script>
 
 <style lang="scss" scoped>
+#nodata{
+    cursor:not-allowed;
+    pointer-events:none;
+}
 .me-card {
     position: relative;
     width: 100%;

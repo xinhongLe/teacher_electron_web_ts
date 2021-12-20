@@ -13,6 +13,11 @@ export enum STORAGE_TYPES {
     // 用户信息存储
     USER_INFO = "USER_INFO",
 
+    /**
+     * 是否有正在请求的页
+     */
+
+     SET_PAGEIDING = "SET_PAGEIDING",
     // 登录历史
     RECORD_LOGIN_LIST = "RECORD_LOGIN_LIST",
     /**

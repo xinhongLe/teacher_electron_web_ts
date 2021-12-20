@@ -45,7 +45,9 @@ import { defineComponent, ref, watch } from "vue-demi";
 import pageListServer from "../../hooks/pageList";
 import useHome from "@/hooks/useHome";
 import OpenCardViewDialog from "../edit/openCardViewDialog.vue";
-import { getCardDetail } from "@/api/home";
+import { getCardDetail } from "../../api";
+import { get, STORAGE_TYPES } from "@/utils/storage";
+import { getWinCardDBData } from "@/utils/database";
 export default defineComponent({
     props: ["pageListOption", "showRemark"],
     components: { OpenCardViewDialog },
@@ -61,7 +63,6 @@ export default defineComponent({
         watch(
             () => props.showRemark,
             () => {
-                console.log(props.showRemark, "showRemark");
                 showRemarks.value = props.showRemark;
             }
         );
@@ -88,11 +89,46 @@ export default defineComponent({
                 }
             }
         );
-        const selectPage = async (index) => {
+        const selectPage = (index) => {
             selected.value = index;
-            if (pageList.value.length > 0) {
-                emit("changeRemark", pageList.value[index].Remark);
-                page.value = await getPageDetail(pageList.value[index], pageList.value[index].originType);
+            getDataBase(pageList.value[index].ID, pageList.value[index]);
+        };
+        const getDataBase = async (str, obj) => {
+            console.log("pagelist", str, obj);
+            const dbResArr = await getWinCardDBData(str);
+            console.log(dbResArr, "dbRessArr");
+            if (dbResArr.length > 0) {
+                page.value = JSON.parse(dbResArr[0].result);
+            } else {
+                const pageIdIng = get(STORAGE_TYPES.SET_PAGEIDING);
+                console.log(pageIdIng, "padingIng");
+                if (pageIdIng && pageIdIng === str) {
+                    const interval = setInterval(async () => {
+                        const dbResArr = await getWinCardDBData(str);
+                        if (dbResArr.length > 0) {
+                            clearInterval(interval);
+                            page.value = JSON.parse(dbResArr[0].result);
+                        }
+                    }, 300);
+                } else if (pageIdIng && pageIdIng !== str) {
+                    console.log(11111, "1111");
+                    const interval = setInterval(async () => {
+                        if (!pageIdIng) {
+                            clearInterval(interval);
+                            await getPageDetail(obj, (res) => {
+                                if (res && res.id) {
+                                    page.value = res;
+                                }
+                            });
+                        }
+                    }, 300);
+                } else {
+                    await getPageDetail(obj, (res) => {
+                        if (res && res.id) {
+                            page.value = res;
+                        }
+                    });
+                }
             }
         };
         const screenRef = ref();
@@ -106,7 +142,7 @@ export default defineComponent({
                 selected.value--;
                 isInitPage.value = false;
                 emit("changeRemark", pageList.value[selected.value].Remark);
-                page.value = await getPageDetail(pageList.value[selected.value], pageList.value[selected.value].originType);
+                getDataBase(pageList.value[selected.value].ID, pageList.value[selected.value]);
                 return;
             }
             if (selected.value === 0) {
@@ -132,15 +168,20 @@ export default defineComponent({
                 selected.value++;
                 isInitPage.value = true;
                 emit("changeRemark", pageList.value[selected.value].Remark);
-                page.value = await getPageDetail(pageList.value[selected.value], pageList.value[selected.value].originType);
+                getDataBase(pageList.value[selected.value].ID, pageList.value[selected.value]);
             }
         };
         const updateFlags = () => {
             prevPageFlag.value = false;
         };
         const pageNextEnd = async () => {
-            emit("changeRemark", pageList.value[selected.value].Remark);
-            page.value = await getPageDetail(pageList.value[selected.value], pageList.value[selected.value].originType);
+            if (pageList.value.length > 0) {
+                emit("changeRemark", pageList.value[selected.value].Remark);
+                getDataBase(pageList.value[selected.value].ID, pageList.value[selected.value]);
+            } else {
+                emit("changeRemark", " ");
+                page.value = [];
+            }
         };
         const fullscreenStyle = ref(false);
         const fullScreen = () => {
@@ -168,7 +209,6 @@ export default defineComponent({
                 if (pages.length > 0) {
                     const pageIDs = pages.map(page => page.ID);
                     const res = await getCardDetail({ pageIDs });
-                    console.log(res, "res");
                     if (res.resultCode === 200 && res.result && res.result.length > 0) {
                         // 页名称可能会修改
                         res.result.map(item => {

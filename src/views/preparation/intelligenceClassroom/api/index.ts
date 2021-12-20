@@ -1,7 +1,7 @@
 import request from "@/utils/request";
 import { IResponse } from "@/types/response";
 import { ICardList, ITreeList } from "@/types/intelligence";
-import { AI_XUE_SHI_API } from "@/config";
+import { AI_XUE_SHI_API, WINDOW_CRAD_API, originType } from "@/config";
 type BookListResponse = IResponse<ITreeList[]>
 
 export interface IGetChapters {
@@ -113,7 +113,16 @@ export function getPageDetailRes(data:GetPageData, type: number): Promise<GetPag
         data
     });
 }
-
+// 弹出卡 页列表
+export function getCardDetail(data: string[]): Promise<GetPageResponse> {
+    return request({
+        url: "/Api/WCP/Window/GetPageInfos",
+        headers: { DeviceID: "Franchisee" },
+        method: "post",
+        baseURL: WINDOW_CRAD_API,
+        data: Object.assign(data, { OriginType: originType })
+    });
+}
 // 删除卡或页
 export function deleteCardOrPage(data:IDelCardOrPage): Promise<GetPageResponse> {
     return request({

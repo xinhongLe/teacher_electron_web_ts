@@ -76,8 +76,13 @@ export default defineComponent({
         watch(
             () => props.options,
             () => {
-                remark.value = props.options.pages ? props.options.pages[0].Remark : "";
-                pageList.value = props.options.pages ? props.options.pages : [];
+                if (props.options.pages.length > 0) {
+                    remark.value = props.options.pages ? props.options.pages[0].Remark : "";
+                    pageList.value = props.options.pages ? props.options.pages : [];
+                } else {
+                    remark.value = "";
+                    pageList.value = [];
+                }
             }
         );
         return {

@@ -93,7 +93,7 @@ export default defineComponent({
     setup() {
         const router = useRouter();
         const showList = ref(true);
-        const { activeIndex, allData, cardListComponents, _getSchoolLessonWindow, handleClickWin, _getWindowCards, updatePageList } = userSelectBookInfo();
+        const { allPageList, activeIndex, allData, cardListComponents, _getSchoolLessonWindow, handleClickWin, _getWindowCards, updatePageList } = userSelectBookInfo();
         watch(
             () => store.state.preparation.selectChapterID,
             () => {
@@ -106,7 +106,7 @@ export default defineComponent({
             () => activeIndex.winActiveId,
             (val) => {
                 if (val) {
-                    _getWindowCards(val);
+                    _getWindowCards(val, true);
                 }
             }
         );
@@ -150,7 +150,8 @@ export default defineComponent({
             lastPage,
             firstPage,
             PreviewSection,
-            updateFlag
+            updateFlag,
+            allPageList
         };
     }
 });

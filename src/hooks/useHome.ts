@@ -1,14 +1,13 @@
 import { getPageDetailRes, updatePageRes } from "@/api/home";
-import { computed } from "vue";
 import { dealOldData } from "@/utils/dataParse";
 import { dealOldDataVideo, dealOldDataWord, dealOldDataTeach } from "@/utils/dataParsePage";
 import { IPageValue } from "@/types/home";
 import { Slide } from "wincard/src/types/slides";
 import { ElMessage } from "element-plus";
 import { dealSaveDataWord, dealSaveDataVideo, dealSaveDataTeach, dealSaveDataElement } from "@/utils/savePageDataParse";
-import { pageType } from "@/config/index";
+import { getWinCardDBData, setWinCardDBData, updateWinCardDBData } from "@/utils/database";
+import { pageType } from "@/config";
 interface PageData {
-    originType?: number,
     pageID: string
 }
 
@@ -31,32 +30,59 @@ export default () => {
             return -1;
         }
     };
-    const getPageDetail = async (page: IPageValue, originType:number) => {
-        const data: PageData = {
-            originType: originType,
-            pageID: page.ID
-        };
+    const getPageDetail = async (page: IPageValue, callback: any) => {
+        const data: PageData = { pageID: page.ID };
         const type: number = transformType(page.Type);
-        let newSlide:any = {};
         if (type < 0) {
             ElMessage({ type: "warning", message: "暂不支持该页面类型" });
-            return newSlide;
+            return {};
         }
-        const res = await getPageDetailRes(data, type);
-        if (res.resultCode === 200) {
-            if (page.Type === pageType.element) {
-                const slideString = res.result.Json || "{}";
-                const oldSlide = JSON.parse(slideString);
-                // 素材页如果是新数据直接赋值，旧数据dealOldData处理
-                newSlide = oldSlide.type ? oldSlide : await dealOldData(page.ID, oldSlide);
-            } else if (page.Type === pageType.listen) {
-                newSlide = dealOldDataWord(page.ID, res.result);
-            } else if (page.Type === pageType.follow) {
-                newSlide = dealOldDataVideo(page.ID, res.result);
-            } else if (page.Type === pageType.teach) {
-                newSlide = dealOldDataTeach(page.ID, res.result);
+        const res = getPageDetailRes(data, type, async(res:any) => {
+            const pageDetail = await dealPageDetail(page, res);
+            callback(pageDetail);
+        });
+    };
+    const dealPageDetail = async (page: IPageValue, res: any) => {
+        // 后台返回
+        if (res.resultCode) {
+            // 后台请求成功回调
+            if (res.resultCode === 200) {
+                let newSlide:any = {};
+                if (page.Type === pageType.element) {
+                    const slideString = res.result.Json || "{}";
+                    const oldSlide = JSON.parse(slideString);
+                    // 素材页如果是新数据直接赋值(更新id是为了避免复制卡过后id不统一问题)，旧数据dealOldData处理
+                    newSlide = oldSlide.type ? { ...oldSlide, id: page.ID } : await dealOldData(page.ID, oldSlide);
+                } else if (page.Type === pageType.listen) {
+                    newSlide = dealOldDataWord(page.ID, res.result);
+                } else if (page.Type === pageType.follow) {
+                    newSlide = dealOldDataVideo(page.ID, res.result);
+                } else if (page.Type === pageType.teach) {
+                    newSlide = dealOldDataTeach(page.ID, res.result);
+                }
+                const pageSlide = Object.assign(newSlide, { remark: page.Remark || "" });
+                saveDBdata(pageSlide);
+                return pageSlide;
+            } else {
+                return res;
             }
-            return Object.assign(newSlide, { remark: page.Remark || "" });
+        } else { // 本地数据库取出 直接返回
+            return {
+                from: "DB", // 标识本地返回
+                result: res
+            };
+        }
+    };
+    // 处理好的数据直接保存在本地数据库
+    const saveDBdata = async (pageSlide: any) => {
+        const dbResArr = await getWinCardDBData(pageSlide.id);
+        if (dbResArr.length === 0) {
+            setWinCardDBData(pageSlide.id, pageSlide);
+        } else {
+            const apiResStr = JSON.stringify(pageSlide);
+            if (dbResArr[0].result !== apiResStr) {
+                updateWinCardDBData(pageSlide.id, pageSlide);
+            }
         }
     };
 
@@ -75,11 +101,14 @@ export default () => {
         const res = await updatePageRes(newSlide, type);
         if (res.resultCode === 200) {
             ElMessage({ type: "success", message: "保存成功" });
+            saveDBdata(slide);
+            return slide;
         }
     };
 
     return {
         getPageDetail,
+        dealPageDetail,
         savePage
     };
 };

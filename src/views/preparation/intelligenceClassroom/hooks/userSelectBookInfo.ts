@@ -1,5 +1,8 @@
 import { getSchoolLessonWindow, getWindowCards } from "../api/index";
-import { reactive, ref } from "vue-demi";
+import { IPageValue } from "@/types/home";
+import { reactive, ref, watch } from "vue-demi";
+import { set, STORAGE_TYPES } from "@/utils/storage";
+import useHome from "@/hooks/useHome";
 interface IGetLessonWindows {
     chapterID: string
 }
@@ -71,6 +74,7 @@ interface cardList {
     PageList: CardListItem[]
 }
 export default () => {
+    const { getPageDetail } = useHome();
     const allData = reactive<AllData>({
         winList: [],
         cardList: []
@@ -101,25 +105,13 @@ export default () => {
                     activeIndex.originType = allData.winList[0].TeachPageList[0].OriginType;
                     activeIndex.leftActiveIndex = 0;
                     activeIndex.winIndex = 0;
-                    allData.cardList = allData.winList[0].TeachPageList[0].CardList;
+                    allData.cardList = allData.winList[0].TeachPageList[0].CardList.filter((item:any) => { return item.Pages.length > 0; });
                 } else {
                     allData.cardList = [];
                     activeIndex.winActiveValue = "";
                     activeIndex.winActiveId = "";
                     activeIndex.previewOptions = {};
                 }
-                // const allPageIds = ref([]);
-                // res.result.forEach(item => {
-                //     if (!item.PageList) return false;
-                //     item.PageList.forEach(items => {
-                //         allPageIds.value.push({
-                //             Name: items.Name,
-                //             Type: items.Type,
-                //             ID: items.ID,
-                //             OriginType: items.OriginType
-                //         })
-                //     })
-                // })
             }
         });
     };
@@ -130,15 +122,69 @@ export default () => {
         activeIndex.winActiveValue = j;
         activeIndex.originType = j.OriginType;
     };
-    const _getWindowCards = (ID: string) => {
+    const isSetCache = ref(false); // 是否需要更新窗下的数据
+    const allPageList:any = ref([]);
+    let pageIdIng: string | null = null; // 正在请求的页id
+    let timer: any = null;
+    let noResPages: IPageValue[] = []; // 未请求的页面集合
+    let resPagesIds: string[] = []; // 已经请求过的页面ids
+    const _getWindowCards = (ID:string, isCache = false) => {
         getWindowCards({ WindowID: ID, OriginType: activeIndex.originType }).then((res) => {
             if (res.resultCode === 200) {
-                allData.cardList = detailData(res.result);
+                noResPages = [];
+                resPagesIds = [];
+                getAllPageList([]);
+                const removeNoPageList = res.result.filter((item:any) => { return item.PageList.length > 0; });
+                allData.cardList = detailData(removeNoPageList);
+                isSetCache.value = isCache;
+                allPageList.value = detailPageList(allData.cardList);
                 if (allData.cardList.length > 0) {
                     cardListComponents.value.handleClick(0, allData.cardList[0]);
                 }
             }
         });
+    };
+    const detailPageList = (arr:any) => {
+        let list: IPageValue[] = [];
+        arr.map((card:any) => {
+            list = list.concat(card.PageList);
+        });
+        return list;
+    };
+    watch(allPageList, () => {
+        const interval = setInterval(() => {
+            clearInterval(interval);
+            getAllPageList(JSON.parse(JSON.stringify(allPageList.value)));
+        }, 300);
+    });
+    const getAllPageList = async (arr: IPageValue[]) => {
+        if (timer) clearTimeout(timer);
+        if (arr.length > 0) {
+            if (resPagesIds.includes(arr[0].ID)) {
+                arr.shift();
+                noResPages = arr;
+                timer.value = setTimeout(() => {
+                    getAllPageList(noResPages);
+                }, 300);
+            } else {
+                pageIdIng = arr[0].ID;
+                set(STORAGE_TYPES.SET_PAGEIDING, pageIdIng);
+                await getPageDetail(arr[0], (res: any) => {
+                    pageIdIng = null;
+                    set(STORAGE_TYPES.SET_PAGEIDING, pageIdIng);
+                    if (arr.length > 0) {
+                        if (res.id) { // 成功请求
+                            resPagesIds.push(arr[0].ID);
+                        }
+                        arr.shift();
+                        noResPages = arr;
+                        timer = setTimeout(() => {
+                            getAllPageList(noResPages);
+                        }, 300);
+                    }
+                });
+            }
+        }
     };
     const updatePageList = (card: cardList) => {
         activeIndex.previewOptions = card;
@@ -157,6 +203,7 @@ export default () => {
     return {
         _getSchoolLessonWindow,
         allData,
+        allPageList,
         activeIndex,
         cardListComponents,
         handleClickWin,

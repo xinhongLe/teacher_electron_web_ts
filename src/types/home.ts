@@ -13,7 +13,8 @@ export interface IPageValue {
     Name?: string,
     Remark?: string,
     originType?: number,
-    OriginType?: number
+    OriginType?: number,
+    State: boolean
 }
 
 export interface ICardList {
