@@ -3,7 +3,7 @@ import { FileInfo, Question } from "@/types/lookQuestion";
 import { downloadFile } from "@/utils/oss";
 import { get, STORAGE_TYPES } from "@/utils/storage";
 import { ElMessage, ElMessageBox } from "element-plus";
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import { fetchPureQuestionByQuestionID, getCourseBagQuestionsByIds, getQuestionsByIds } from "../api";
 
 export default (isPureQuestion: boolean, questionId = "") => {
@@ -184,14 +184,15 @@ export default (isPureQuestion: boolean, questionId = "") => {
                 // 接口不对，后期会改，先本地假删除
                 ElMessage.success("移除成功!");
                 audioRef.value!.pause();
-                questionList.value = questionList.value.filter(
-                    ({ QuestionID }) => QuestionID !== nowQuestionID.value
-                );
+                questionList.value.splice(number.value - 1, 1);
+                if (sum.value === number.value) {
+                    number.value--;
+                }
                 sum.value--;
                 voiceUrl.value = [];
                 imageUrl.value = [];
                 nextIndex.value = 1;
-                const question = questionList.value[0];
+                const question = questionList.value[number.value - 1];
                 const { QuestionFiles, AnswerFiles, QuestionID } = question;
                 getFileList(QuestionFiles, 1);
                 getFileList(AnswerFiles[0].Files, 2);
@@ -199,6 +200,8 @@ export default (isPureQuestion: boolean, questionId = "") => {
             })
             .catch();
     };
+
+    const questionSn = computed(() => questionList.value[number.value - 1]?.SN);
 
     return {
         imageUrl,
@@ -215,6 +218,7 @@ export default (isPureQuestion: boolean, questionId = "") => {
         nextPage,
         isNextBtn,
         removeQuestion,
+        questionSn,
         resolutionSwitchValue,
         nextIndex,
         questionSwitchValue,

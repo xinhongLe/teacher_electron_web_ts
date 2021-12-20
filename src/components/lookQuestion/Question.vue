@@ -1,6 +1,7 @@
 <template>
     <div class="warp">
         <div class="frames-box">
+            <span class="file-sn">{{questionSn}}</span>
             <slot name="title" />
             <div class="count">{{ number }} / {{ sum }}</div>
             <div class="material-box">
@@ -137,7 +138,8 @@ export default defineComponent({
             nowQuestionID,
             resolutionSwitchValue,
             questionSwitchValue,
-            nextPage
+            nextPage,
+            questionSn
         } = useDetail(props.isPureQuestion, questionID.value);
 
         const brushHandle = () => {
@@ -215,6 +217,7 @@ export default defineComponent({
             removeQuestion,
             playAudio,
             imageRef,
+            questionSn,
             audioRef,
             isElectron
         };
@@ -240,6 +243,13 @@ export default defineComponent({
     flex: 1;
     display: flex;
     flex-direction: column;
+    .file-sn {
+        position: fixed;
+        left: 20px;
+        top: 20px;
+        color: #999;
+        font-size: 16px;
+    }
     > p {
         font-size: 20px;
         font-weight: 600;
