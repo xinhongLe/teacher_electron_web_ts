@@ -30,6 +30,7 @@ async function createWindow() {
         minHeight: 520,
         show: false,
         webPreferences: {
+            webviewTag: true,
             webSecurity: false, // 取消跨域限制
             nodeIntegration: true,
             contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
