@@ -13,7 +13,7 @@
                 @pagePrev="pagePrev"
                 @pageNext="pageNext"
             />
-            <open-card-view-dialog v-if="dialogVisible" :cardList="cardList" v-model:dialogVisible="dialogVisible"></open-card-view-dialog>
+            <open-card-view-dialog @closeOpenCard="closeOpenCard" v-if="dialogVisible" :cardList="cardList" v-model:dialogVisible="dialogVisible"></open-card-view-dialog>
             <div
                 v-if="!fullscreenStyle"
                 class="me-page"
@@ -111,11 +111,11 @@ export default defineComponent({
                         }
                     }, 300);
                 } else if (pageIdIng && pageIdIng !== str) {
-                    console.log(11111, "1111");
                     const interval = setInterval(async () => {
+                        console.log(obj, "obj");
                         if (!pageIdIng) {
                             clearInterval(interval);
-                            await getPageDetail(obj, (res) => {
+                            await getPageDetail(obj, obj.originType, (res) => {
                                 if (res && res.id) {
                                     page.value = res;
                                 }
@@ -123,7 +123,7 @@ export default defineComponent({
                         }
                     }, 300);
                 } else {
-                    await getPageDetail(obj, (res) => {
+                    await getPageDetail(obj, obj.originType, (res) => {
                         if (res && res.id) {
                             page.value = res;
                         }
@@ -226,6 +226,10 @@ export default defineComponent({
                 }
             }
         };
+        const closeOpenCard = () => {
+            dialogVisible.value = false;
+            keyDisabled.value = false;
+        };
         return {
             screenRef,
             isInitPage,
@@ -246,7 +250,8 @@ export default defineComponent({
             fullscreenStyle,
             pageNext,
             clockFullScreen,
-            updateFlags
+            updateFlags,
+            closeOpenCard
         };
     }
 });

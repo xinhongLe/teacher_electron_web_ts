@@ -74,7 +74,7 @@ export default defineComponent({
                     const interval = setInterval(async () => {
                         if (!pageIdIng) {
                             clearInterval(interval);
-                            await getPageDetail(pageList.value[index.value], (res) => {
+                            await getPageDetail(pageList.value[index.value], 1, (res) => {
                                 if (res && res.id) {
                                     slideView.value = res;
                                 }
@@ -82,7 +82,7 @@ export default defineComponent({
                         }
                     }, 300);
                 } else {
-                    await getPageDetail(pageList.value[index.value], (res) => {
+                    await getPageDetail(pageList.value[index.value], 1, (res) => {
                         if (res && res.id) {
                             slideView.value = res;
                         }
@@ -166,16 +166,27 @@ export default defineComponent({
     :deep(.el-overlay){
         z-index: 999999 !important;
     }
-    :deep(.el-dialog){
-        --el-dialog-margin-top: 5vh;
-        .slide-list{
-            background-color: #fff;
-        }
+    :deep(.el-dialog.is-fullscreen){
+        --el-dialog-width: 94%;
+        --el-dialog-margin-top: 0;
+        margin-bottom: 0;
+        height: 96%;
+        overflow: auto;
+        margin-top: 20px;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
     }
     :deep(.el-dialog__body){
-        height: 80vh !important;
         width: 100%;
+        display: flex;
+        flex: 1;
+        min-width: 0;
+        min-height: 0;
         overflow-y: auto;
+        :deep(.slide-list){
+            background: #fff;
+        }
     }
 }
 </style>

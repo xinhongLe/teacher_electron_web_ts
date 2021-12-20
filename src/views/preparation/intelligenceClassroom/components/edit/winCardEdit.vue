@@ -128,7 +128,7 @@ export default defineComponent({
                     pageIdIng = allPageList[0].ID;
                     console.log(pageIdIng, "pageIdIng");
                     set(STORAGE_TYPES.SET_PAGEIDING, pageIdIng);
-                    await getPageDetail(allPageList[0], (res: any) => {
+                    await getPageDetail(allPageList[0], 1, (res: any) => {
                         if (res.from === "DB") {
                             // 被点击的页时正在请求时
                             if (page.value?.ID === allPageList[0].ID) {

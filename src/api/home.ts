@@ -180,7 +180,7 @@ export async function getPageDetailRes(data:IGetPageData, type: number, callback
             baseURL: WINDOW_CRAD_API,
             headers: { DeviceID: "Franchisee", ...{ noLoading: "ok" } },
             method: "post",
-            data: Object.assign(data, { OriginType: originType })
+            data
         }).then((res: any) => {
             callback(res);
         });
