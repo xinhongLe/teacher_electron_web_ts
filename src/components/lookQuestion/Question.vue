@@ -244,9 +244,9 @@ export default defineComponent({
     display: flex;
     flex-direction: column;
     .file-sn {
-        position: fixed;
+        position: absolute;
         left: 20px;
-        top: 20px;
+        top: -20px;
         color: #999;
         font-size: 16px;
     }
