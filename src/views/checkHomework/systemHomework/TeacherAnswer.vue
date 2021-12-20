@@ -7,18 +7,20 @@
             }"
             class="content"
             @mousedown="mousedown"
-            v-if="imgUrl"
+            v-if="fileInfo"
         >
             <img :src="imgUrl" v-if="imgUrl" @load="load" />
             <div class="box" :style="boxStyle"></div>
         </div>
+        <EmptyImage v-else :isError="data.Detail?.Result === 2"/>
     </div>
 </template>
 
 <script lang="ts">
 import { QuestionDetail } from "@/types/checkHomework";
 import { downloadFile } from "@/utils/oss";
-import { defineComponent, PropType, reactive, ref, watchEffect } from "vue";
+import { computed, defineComponent, PropType, reactive, ref, watchEffect } from "vue";
+import EmptyImage from "./EmptyImage.vue";
 export default defineComponent({
     props: {
         data: {
@@ -42,12 +44,10 @@ export default defineComponent({
             x: 0,
             y: 0
         };
+        const fileInfo = computed(() => props.data.Study?.MissionFiles?.find(({ PageNum }) => PageNum === props.data.WorkbookPageQuestion?.PageNum)?.File);
         const load = (e: Event) => {
             const target = e.target as HTMLImageElement;
-            const blank =
-                props.data.WorkbookPageQuestion?.WorkbookPageQuestionBlanks.find(
-                    ({ Type }) => Type === 0
-                );
+            const blank = props.data.WorkbookPageQuestion?.WorkbookPageQuestionBlanks.find(({ Type }) => Type === 0);
             imgWidth.value = target.width;
             imgHeight.value = target.height;
             const x = target.width * (blank?.MarginLeft || 1);
@@ -65,7 +65,6 @@ export default defineComponent({
                 height: target.height * (blank?.SizeHeight || 1) + "px"
             };
         };
-
         const mousedown = (event: MouseEvent) => {
             const { clientX, clientY } = event;
             dragPosition.x = clientX;
@@ -92,15 +91,10 @@ export default defineComponent({
                 document.onmouseup = null;
             };
         };
-
         watchEffect(async () => {
             if (props.data) {
-                const fileInfo = props.data.Study?.MissionFiles?.find(
-                    ({ PageNum }) =>
-                        PageNum === props.data.WorkbookPageQuestion?.PageNum
-                )?.File;
-                if (fileInfo) {
-                    const { Bucket, Extention, FileName, FilePath } = fileInfo;
+                if (fileInfo.value) {
+                    const { Bucket, Extention, FileName, FilePath } = fileInfo.value;
                     const key = `${FilePath}/${FileName}.${Extention}`;
                     imgUrl.value = await downloadFile(key, Bucket);
                 } else {
@@ -114,11 +108,13 @@ export default defineComponent({
             divStyle,
             boxStyle,
             imgRef,
+            fileInfo,
             mousedown,
             containerRef,
             transform
         };
-    }
+    },
+    components: { EmptyImage }
 });
 </script>
 

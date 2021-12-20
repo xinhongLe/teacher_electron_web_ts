@@ -79,7 +79,7 @@ export default defineComponent({
         }
     },
     setup(props) {
-        const activeNames = ref(["2"]);
+        const activeNames = ref(["0", "1", "2", "3"]);
         const explainRef = ref<HTMLDivElement>();
         const list = computed(() => {
             const list = [];

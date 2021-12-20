@@ -1,7 +1,7 @@
 <template>
     <div>
         <div class="student-once">
-            <div class="answer-all">
+            <div class="answer-all" v-if="isShow">
                 <img
                     src="@/assets/images/homeworkNew/icon_zuida.png"
                     alt=""
@@ -119,7 +119,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, watchEffect } from "vue";
+import { computed, defineComponent, ref, watchEffect } from "vue";
 import { changeResult, fetchDetailByMissionStudyID } from "../api";
 import Avatar from "@/components/avatar/index.vue";
 import { QuestionDetail } from "@/types/checkHomework";
@@ -149,6 +149,8 @@ export default defineComponent({
     setup(props) {
         const enlargeRef = ref();
         const detail = ref<QuestionDetail>({});
+        const isShow = computed(() => detail.value?.Detail?.HomeworkPaperType === 0 || (detail.value?.Detail?.HomeworkPaperType === 2 && detail.value.Study?.MissionFiles?.find(({ PageNum }) => PageNum === detail.value.WorkbookPageQuestion?.PageNum)?.File));
+
         const getData = async () => {
             const res = await fetchDetailByMissionStudyID({
                 MissionStudyID: props.misssionStudyID
@@ -185,6 +187,7 @@ export default defineComponent({
             enlargeRef,
             detail,
             successHandle,
+            isShow,
             errorHandle
         };
     },
