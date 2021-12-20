@@ -9,6 +9,10 @@ import { fetchPureQuestionByQuestionID, getCourseBagQuestionsByIds, getQuestions
 export default (isPureQuestion: boolean, questionId = "") => {
     const imageUrl = ref<string[]>([]);
     const voiceUrl = ref<string[]>([]);
+    const voiceUrlMap = ref({
+        question: "",
+        answer: ""
+    });
     const sum = ref(0);
     const isBlackboard = ref(false);
     const nowQuestionID = ref("");
@@ -50,13 +54,16 @@ export default (isPureQuestion: boolean, questionId = "") => {
                 }
             }
         });
-        voiceUrl.value.push(...(await Promise.all(voiceListProm)));
-        imageUrl.value.push(...(await Promise.all(imageListProm)));
+        const voices = await Promise.all(voiceListProm);
+        const images = await Promise.all(imageListProm);
+        voiceUrl.value.push(...voices);
+        imageUrl.value.push(...images);
+        voiceUrlMap.value[type === 1 ? "question" : "answer"] = voices[0];
     }
 
     function playSounds(index: number) {
         if (audioRef.value) {
-            audioRef.value.src = voiceUrl.value[index];
+            audioRef.value.src = voiceUrlMap.value[index === 0 ? "question" : "answer"];
         }
     }
 
@@ -218,6 +225,7 @@ export default (isPureQuestion: boolean, questionId = "") => {
         nextPage,
         isNextBtn,
         removeQuestion,
+        voiceUrlMap,
         questionSn,
         resolutionSwitchValue,
         nextIndex,
