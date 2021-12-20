@@ -1,4 +1,4 @@
-export const AI_XUE_SHI_API = "http://42.192.7.46:5002";
+export const AI_XUE_SHI_API = process.env.VUE_APP_AI_XUE_SHI_API;
 export const WINDOW_CRAD_API = "http://42.192.7.46:5002";
 
 // 注册学生模板下载地址
