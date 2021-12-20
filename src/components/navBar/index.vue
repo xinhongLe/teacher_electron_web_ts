@@ -96,7 +96,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, computed, ref } from "vue";
+import { defineComponent, computed, ref, onMounted } from "vue";
 import useMaximizeWindow from "../../hooks/useMaximizeWindow";
 import useMinimizeWindow from "../../hooks/useMinimizeWindow";
 import isElectron from "is-electron";
@@ -136,6 +136,14 @@ export default defineComponent({
         const close = () => {
             visible.value = true;
         };
+
+        onMounted(() => {
+            if (isElectron()) {
+                window.electron.ipcRenderer.on("exitApp", () => {
+                    visible.value = true;
+                });
+            }
+        });
 
         return {
             isElectron,

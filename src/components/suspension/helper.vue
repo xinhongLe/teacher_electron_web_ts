@@ -1,6 +1,7 @@
 <template>
     <div class="helper-container">
         <div class="header">
+            <span class="exit" v-if="isElectron" @click="exitApp">退出程序</span>
             <img
                 src="@/assets/images/suspension/pic_tittle_zhike@2x.png"
                 alt=""
@@ -75,8 +76,34 @@
             </div>
 
             <div class="teach-list">
-                <p class="teach-list-title">教学助手</p>
+                <div class="teach-list-title">
+                    <span class="title">教学助手</span>
+                    <el-cascader
+                        v-model="selectBookList"
+                        :props="cascaderProps"
+                        :options="subjectPublisherBookList"
+                    />
+                    <div class="search-input">
+                        <el-input
+                            placeholder="搜索教具名称"
+                            v-model="searchName"
+                        >
+                            <template #append>
+                                <el-button
+                                    icon="el-icon-search"
+                                    @click="getGradeList"
+                                ></el-button>
+                            </template>
+                        </el-input>
+                    </div>
+                </div>
                 <div class="teach-class">
+                    <div class="list-empty">
+                        <img src="@/assets/images/suspension/empty_tool.png" />
+                        <span
+                            >本书册下暂无教具，可切换为“全部”查看更多教具内容</span
+                        >
+                    </div>
                     <div
                         class="teach-content"
                         v-for="(item, index) in gameList"
@@ -94,15 +121,30 @@
     </div>
 </template>
 <script lang="ts">
-import { defineComponent, onMounted, ref } from "vue";
+import { defineComponent, onMounted, ref, watch } from "vue";
 import { Game } from "./interface";
 import { getToolList } from "@/api/index";
 import { downloadFile } from "@/utils/oss";
 import isElectron from "is-electron";
 import { ElMessage } from "element-plus";
+import { fetchSubjectPublisherBookList } from "@/views/preparation/api";
+import { BookList } from "@/types/preparation";
 export default defineComponent({
     setup(props, { emit }) {
         const gameList = ref<Game[]>([]);
+        const subjectPublisherBookList = ref<BookList[]>([{
+            Lable: "全部教具",
+            Value: "全部教具"
+        }]);
+        const cascaderProps = {
+            value: "Value",
+            children: "Children",
+            label: "Lable",
+            checkStrictly: true
+        };
+        const searchName = ref("");
+        const selectBookList = ref(["全部教具"]);
+
         const openBlackboard = () => {
             if (isElectron()) {
                 return window.electron.ipcRenderer.invoke("openBlackboard");
@@ -116,7 +158,19 @@ export default defineComponent({
             emit("close-helper");
         };
         const getGradeList = async () => {
-            const res = await getToolList();
+            const data = {
+                name: searchName.value,
+                bookID: "",
+                bookIDs: [] as string[]
+            };
+            if (selectBookList.value.length === 1) {
+                data.bookIDs = subjectPublisherBookList.value.find(item => item.Value === selectBookList.value[0])?.Children?.flatMap(x => x.Children || { Value: "" }).map(x => x?.Value || "") || [];
+            } else if (selectBookList.value.length === 2) {
+                data.bookIDs = subjectPublisherBookList.value.find(item => item.Value === selectBookList.value[0])?.Children?.find(item => item.Value === selectBookList.value[1])?.Children?.map(x => x?.Value || "") || [];
+            } else {
+                data.bookID = selectBookList.value[2];
+            }
+            const res = await getToolList(data);
             if (res.resultCode === 200) {
                 const list = res.result;
                 const imgListPromise = list.map((item) => {
@@ -135,7 +189,11 @@ export default defineComponent({
         };
         const openUrl = (url: string, name: string) => {
             if (isElectron()) {
-                return window.electron.ipcRenderer.invoke("openSubjectTool", url, name);
+                return window.electron.ipcRenderer.invoke(
+                    "openSubjectTool",
+                    url,
+                    name
+                );
             }
             window.open(url);
         };
@@ -154,14 +212,34 @@ export default defineComponent({
         const uncultivated = () => {
             ElMessage({ type: "warning", message: "功能暂未开发" });
         };
-        onMounted(getGradeList);
+
+        const exitApp = () => {
+            window.electron.ipcRenderer.invoke("exitApp");
+        };
+
+        onMounted(async () => {
+            const res = await fetchSubjectPublisherBookList();
+            if (res.resultCode === 200) {
+                subjectPublisherBookList.value = [...subjectPublisherBookList.value, ...res.result];
+            }
+            getGradeList();
+        });
+
+        watch(selectBookList, getGradeList);
+
         return {
             openBlackboard,
             openTimer,
             getGradeList,
             openUrl,
+            cascaderProps,
+            subjectPublisherBookList,
             close,
+            selectBookList,
+            isElectron: isElectron(),
             gameList,
+            exitApp,
+            searchName,
             uncultivated,
             openRollCall
         };
@@ -188,6 +266,12 @@ export default defineComponent({
         width: 100%;
         box-sizing: border-box;
         padding: 0 15px;
+        -webkit-app-region: drag;
+        .exit {
+            color: #fff;
+            font-size: 16px;
+            -webkit-app-region: no-drag;
+        }
         img {
             width: 150px;
             display: block;
@@ -196,6 +280,7 @@ export default defineComponent({
             display: flex;
             align-items: center;
             .right-btn {
+                -webkit-app-region: no-drag;
                 width: 25px;
                 height: 25px;
                 background: #1a1d3e;
@@ -264,6 +349,23 @@ export default defineComponent({
                 color: #ffffff;
                 font-weight: 600;
                 font-size: 18px;
+                display: flex;
+                align-items: center;
+                .title {
+                    margin-right: 5px;
+                    flex-shrink: 0;
+                }
+                .search-input {
+                    margin-left: 5px;
+                    :deep(.el-input-group__append) {
+                        background: #0c1222;
+                        border: none;
+                    }
+                }
+                :deep(.el-input__inner) {
+                    background: #0c1222;
+                    border: none;
+                }
             }
             .teach-class {
                 flex: 1;
@@ -272,7 +374,17 @@ export default defineComponent({
                 flex-wrap: wrap;
                 color: #fff;
                 overflow-y: auto;
-                margin: 10px 0 10px 30px;
+                margin: 10px 0;
+                background: #0c1222;
+                .list-empty {
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    width: 100%;
+                    color: #bec3d6;
+                    font-size: 16px;
+                    flex-direction: column;
+                }
                 &::-webkit-scrollbar {
                     display: none;
                 }
@@ -281,7 +393,7 @@ export default defineComponent({
                     margin-bottom: 10px;
                     text-align: center;
                     cursor: pointer;
-                    flex: 1;
+                    width: 28%;
                     .img-warp {
                         width: 108px;
                         height: 108px;
