@@ -26,13 +26,19 @@ export function getOssToken(): Promise<IOssTokenRes> {
     });
 }
 
-export function getToolList(): Promise<IResponse<Tools[]>> {
+export function getToolList({ name = "", bookID, bookIDs }: {name: string, bookID?: string, bookIDs?: string[]}): Promise<IResponse<Tools[]>> {
     return request({
         baseURL: AI_XUE_SHI_API,
-        url: "API/W1/TeachingMiniTool/ToolManage/GetToolList",
+        url: "API/W1/TeachingMiniTool/ToolManage/GetToolList/V211125",
+        headers: {
+            noLoading: "true"
+        },
         method: "post",
         data: {
-            State: 2
+            State: 2,
+            name,
+            bookID,
+            bookIDs
         }
     });
 }
