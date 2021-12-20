@@ -5,6 +5,7 @@ import {
     IGradeClassTreeResponse,
     ILessonManagerResponse,
     ILoginData,
+    ILoginTokenData,
     ILoginResponse
 } from "@/types/login";
 
@@ -41,5 +42,15 @@ export function GetBasicTag(): Promise<IBasicTagResponse> {
         baseURL: AI_XUE_SHI_API,
         url: "Api/V2/Universal/BaseData/GetBasicTag",
         method: "post"
+    });
+}
+
+// 根据手机号获取token
+export function GetUserInfoByToken(data: ILoginTokenData): Promise<ILoginResponse> {
+    return request({
+        baseURL: AI_XUE_SHI_API,
+        url: `api/UserAccount/Account/GetPhone?token=${data.token}&type=1`,
+        method: "get",
+        data
     });
 }

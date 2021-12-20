@@ -8,7 +8,7 @@
                 <Brush ref="childRef" v-if="isBlackboard"></Brush>
                 <audio
                     ref="audioRef"
-                    :src="voiceUrl[nextIndex - 1]"
+                    :src="voiceUrlMap[nextIndex - 1 === 0 ? 'question' : 'answer']"
                     :controls="true"
                     @canplay="playAudio"
                     style="display: none"
@@ -138,6 +138,7 @@ export default defineComponent({
             nowQuestionID,
             resolutionSwitchValue,
             questionSwitchValue,
+            voiceUrlMap,
             nextPage,
             questionSn
         } = useDetail(props.isPureQuestion, questionID.value);
@@ -217,6 +218,7 @@ export default defineComponent({
             removeQuestion,
             playAudio,
             imageRef,
+            voiceUrlMap,
             questionSn,
             audioRef,
             isElectron
@@ -244,9 +246,9 @@ export default defineComponent({
     display: flex;
     flex-direction: column;
     .file-sn {
-        position: fixed;
+        position: absolute;
         left: 20px;
-        top: 20px;
+        top: -20px;
         color: #999;
         font-size: 16px;
     }

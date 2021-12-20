@@ -14,6 +14,12 @@ router.beforeEach((to, from, next) => {
             to.query.password.toString(),
             next
         );
+    } else if (window.location.href.indexOf("yueyangyun") > -1 && to.query.token) {
+        const { userLoginByToken } = useLogin();
+        userLoginByToken(
+            to.query.token.toString(),
+            next
+        );
     } else {
         const token = (to.query.token || from.query.token)?.toString();
         if (token) {

@@ -108,6 +108,7 @@ export default defineComponent({
 
         watch(teacherBookChapter, (value) => {
             store.commit(MutationTypes.SET_SELECT_CHAPTER_ID, value);
+            store.commit(MutationTypes.SET_SELECT_COURSE_BAG, {});
             setLastSelectBook({
                 bookID: subjectPublisherBookValue.value[2],
                 chapterID: value,

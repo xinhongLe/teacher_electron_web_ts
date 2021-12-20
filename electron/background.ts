@@ -71,6 +71,11 @@ async function createWindow() {
     ipcMain.on("unmaximizeWindow", (e) => {
         mainWindow!.unmaximize();
     });
+
+    ipcMain.handle("exitApp", () => {
+        mainWindow!.show();
+        mainWindow!.webContents.send("exitApp");
+    });
 }
 
 app.on("window-all-closed", () => {
