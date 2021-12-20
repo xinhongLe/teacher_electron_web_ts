@@ -22,14 +22,15 @@ async function createWindow() {
         Menu.setApplicationMenu(menu);
     }
     mainWindow = new BrowserWindow({
-        height: 563,
+        height: 520,
         useContentSize: true,
-        width: 1000,
+        width: 750,
         frame: false,
-        minWidth: 1000,
-        minHeight: 563,
+        minWidth: 750,
+        minHeight: 520,
         show: false,
         webPreferences: {
+            webviewTag: true,
             webSecurity: false, // 取消跨域限制
             nodeIntegration: true,
             contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,

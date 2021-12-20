@@ -29,6 +29,7 @@
                 >
             </div>
         </div>
+        <div class="placeholder"/>
         <SelectLabel :studentList="item.students"></SelectLabel>
         <div class="btns">
             <!-- <el-button
@@ -103,6 +104,10 @@ export default defineComponent({
     border-radius: 4px;
     padding: 0 20px;
     margin-top: 10px;
+    .placeholder {
+        width: 20%;
+        margin-right: 30px;
+    }
     .first-col {
         width: 40%;
         align-items: center;

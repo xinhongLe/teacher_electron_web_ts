@@ -121,7 +121,6 @@ export default defineComponent({
     border-radius: 4px;
     padding: 0 20px;
     margin-top: 10px;
-    overflow-x: auto;
     .first-col {
         width: 40%;
         align-items: center;
@@ -168,6 +167,7 @@ export default defineComponent({
 }
 .forms{
     white-space: nowrap;
+    width: 20%;
     margin-right: 30px;
     :deep(.el-form-item){
         margin: 0;

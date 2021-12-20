@@ -1,6 +1,8 @@
 <template>
-    <div class="login-content">
-        <div class="left-content"></div>
+    <div class="login-content" :class="{web: !isElectron}">
+        <div class="left-content">
+            <div class="version-text">版本: {{ version }}</div>
+        </div>
         <div class="right-content">
             <div class="login-logo">
                 <img src="@/assets/images/login/logo.png" alt="" />
@@ -8,13 +10,19 @@
             </div>
             <el-form :model="form" label-width="0px">
                 <el-form-item>
-                    <img src="@/assets/images/login/icon_zhanghao.png" alt="" />
                     <el-input
                         class="zh-class"
                         v-model.trim="form.account"
                         placeholder="请输入手机号码"
                         maxlength="11"
-                    ></el-input>
+                    >
+                        <template #prefix>
+                            <img
+                                src="@/assets/images/login/icon_zhanghao.png"
+                                alt=""
+                            />
+                        </template>
+                    </el-input>
                     <el-select
                         v-model="form.account"
                         @change="handleChange"
@@ -26,20 +34,43 @@
                             :label="item.account"
                             :value="item.account"
                         >
-                        <span style="float: left">{{ item.account }}</span>
-                        <span style="float: right; color: #8492a6; font-size: 13px">
-                            <i @click.stop="delAccount(index)" class="el-icon-close"></i>
-                        </span>
-                    </el-option>
+                            <span style="float: left">{{ item.account }}</span>
+                            <span
+                                style="
+                                    float: right;
+                                    color: #8492a6;
+                                    font-size: 13px;
+                                "
+                            >
+                                <i
+                                    @click.stop="delAccount(index)"
+                                    class="el-icon-close"
+                                ></i>
+                            </span>
+                        </el-option>
                     </el-select>
                 </el-form-item>
                 <el-form-item>
-                    <img src="@/assets/images/login/icon_password.png" alt="" />
                     <el-input
                         type="password"
                         v-model="form.password"
                         placeholder="请输入密码"
-                    ></el-input>
+                    >
+                        <template #prefix>
+                            <img
+                                src="@/assets/images/login/icon_password.png"
+                                alt=""
+                            />
+                        </template>
+                        <template #suffix v-if="isElectron">
+                            <img
+                                src="@/assets/images/login/icon_keyboard.png"
+                                alt=""
+                                class="key-board-img"
+                                @click="openVirtualKeyBoard"
+                            />
+                        </template>
+                    </el-input>
                 </el-form-item>
                 <el-form-item>
                     <el-button
@@ -58,13 +89,12 @@
                 <p>违法和不良信息举报电话：0512-65520773</p>
                 <p>举报邮箱：zhangyunlong@upplus.net</p>
             </div>
-            <div class="version-text">版本:{{ version }}</div>
         </div>
     </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, getCurrentInstance, onMounted, onUnmounted, reactive, ref } from "vue";
+import { defineComponent, onMounted, onUnmounted, reactive, ref } from "vue";
 import useLogin from "@/hooks/useLogin";
 import { useRouter } from "vue-router";
 import { ILoginData } from "@/types/login";
@@ -115,6 +145,16 @@ export default defineComponent({
             window.electron.exit();
         };
 
+        const openVirtualKeyBoard = () => {
+            const { exec } = require("child_process");
+            const os = require("os");
+            if (os.platform() === "win32") {
+                exec("osk.exe");
+            } else {
+                exec("onboard");
+            }
+        };
+
         const version = ref(require("../../../package.json").version);
 
         onMounted(() => {
@@ -137,6 +177,7 @@ export default defineComponent({
             close,
             version,
             handleChange,
+            openVirtualKeyBoard,
             delAccount,
             isElectron: isElectron()
         };
@@ -150,12 +191,39 @@ $btn_color: #4b71ee;
     display: flex;
     width: 100%;
     height: 100%;
-    -webkit-app-region: drag;
+    &.web {
+        .right-content {
+            :deep(.el-form) {
+                width: initial;
+                .el-input__inner {
+                    width: 528px;
+                    height: 70px;
+                }
+                .zh-class {
+                    width: 480px;
+                    z-index: 1;
+                    .el-input__inner {
+                        width: 100%;
+                    }
+                }
+            }
+
+        }
+    }
     .left-content {
         width: 50%;
         background: url("../../assets/images/login/bg_login.png") no-repeat
             center center;
         background-size: cover;
+        -webkit-app-region: drag;
+        position: relative;
+        .version-text {
+            position: absolute;
+            color: #b0c0fa;
+            bottom: 60px;
+            left: 30px;
+            font-size: 16px;
+        }
     }
     .right-content {
         position: relative;
@@ -164,15 +232,16 @@ $btn_color: #4b71ee;
         justify-content: center;
         align-items: center;
         width: 50%;
+        padding: 0 40px;
         .login-logo {
             text-align: center;
             margin-bottom: 35px;
             img {
-                width: 142px;
-                height: 142px;
+                width: 95px;
+                height: 95px;
             }
             p {
-                font-size: 32px;
+                font-size: 26px;
                 font-weight: 600;
                 color: #19203d;
                 line-height: 45px;
@@ -189,69 +258,73 @@ $btn_color: #4b71ee;
             }
         }
         :deep(.el-form) {
+            width: 100%;
             .el-form-item {
                 position: relative;
                 margin-bottom: 32px;
                 -webkit-app-region: no-drag;
+                .key-board-img {
+                    width: 21px;
+                    height: 16px;
+                    cursor: pointer;
+                }
                 img {
-                    position: absolute;
-                    left: 12px;
-                    top: 26px;
                     width: 16px;
                     height: 18px;
                     z-index: 2;
                 }
                 .el-input__inner {
-                    width: 528px;
-                    height: 70px;
-                    font-size: 22px;
+                    // width: 300px;
+                    font-size: 16px;
                     color: #000;
                     background: #f5f6fa !important;
                     border: none;
-                    padding-left: 62px;
+                    padding-left: 50px;
+                }
+                .el-input__prefix, .el-input__suffix-inner {
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                }
+                .el-input__prefix {
+                    left: 12px;
+                }
+                .el-input__suffix {
+                    display: flex;
+                    align-items: center;
+                    right: 12px;
                 }
                 .zh-class {
-                    width: 480px;
+                    width: 90%;
                     z-index: 1;
-                    .el-input__inner {
-                        width: 100%;
-                    }
+                    padding-right: 40px;
                 }
                 .el-select {
                     position: absolute;
                     right: 0;
                     bottom: 0;
-                }
-                .el-button--primary {
-                    height: 70px;
-                    margin-top: 40px;
-                    font-size: 26px;
-                    letter-spacing: 4px;
-                    background: $btn_color;
-                    border: $btn_color;
-                    -webkit-app-region: no-drag;
+                    left: 0;
                 }
             }
-            .el-input__suffix {
-                display: flex;
-                align-items: center;
-            }
+        }
+        :deep(.el-button--primary) {
+            height: 50px;
+            font-size: 16px;
+            margin-top: 10px;
+            letter-spacing: 4px;
+            background: $btn_color;
+            border: $btn_color;
+            -webkit-app-region: no-drag;
         }
         .prompt-text {
             position: absolute;
             bottom: 10px;
             text-align: center;
-            color: #9c9faa;
-            font-size: 12px;
+            color: #ccc;
+            font-size: 16px;
             p {
                 margin-bottom: 10px;
             }
-        }
-        .version-text {
-            position: absolute;
-            bottom: 10px;
-            right: 15px;
-            font-size: 14px;
         }
     }
 }
