@@ -19,7 +19,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted, computed, onUnmounted } from "vue";
+import { defineComponent, ref, onMounted, computed } from "vue";
 import useHome from "@/hooks/useHome";
 import { getWinCardDBData } from "@/utils/database";
 import { ElMessage } from "element-plus";
@@ -56,7 +56,6 @@ export default defineComponent({
             _getPageDetail(selected.value);
         };
         const execNext = () => {
-            console.log(selected.value, cardList.value, "最后一页openCard");
             if (selected.value === cardList.value.length - 1) {
                 return ElMessage({ type: "warning", message: "已经是最后一页" });
             }

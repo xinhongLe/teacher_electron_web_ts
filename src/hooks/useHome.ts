@@ -110,6 +110,7 @@ export default () => {
     return {
         getPageDetail,
         dealPageDetail,
-        savePage
+        savePage,
+        transformType
     };
 };

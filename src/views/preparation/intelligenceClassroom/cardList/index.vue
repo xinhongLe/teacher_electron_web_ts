@@ -38,7 +38,6 @@ export default defineComponent({
             emit("updatePageList", pageDate);
         };
         const changeReducePage = () => {
-            console.log(cardIndex.value + 1, currentCardList.value.length, "最后一页index");
             if (cardIndex.value + 1 === currentCardList.value.length) {
                 return ElMessage({ type: "warning", message: "已经是最后一页" });
             }

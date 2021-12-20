@@ -62,8 +62,18 @@ export default defineComponent({
         let noResPages: IPageValue[] = []; // 未请求的页面集合
         let resPagesIds: string[] = []; // 已经请求过的页面ids
         let pageIdIng: string | null = null; // 正在请求的页id
-        const { getPageDetail, savePage } = useHome();
+        const { getPageDetail, savePage, transformType } = useHome();
         watch(() => props.pageValue, async (val: IPageValue, oldVal) => {
+            if (transformType(val.Type) === -1) {
+                ElMessage({ type: "warning", message: "暂不支持该页面类型" });
+                page.value = {
+                    ID: val.ID,
+                    Type: val.Type,
+                    State: val.State,
+                    TeachPageRelationID: val.TeachPageRelationID
+                };
+                state.slide = {};
+            }
             if (val && val !== oldVal) {
                 page.value = val;
                 if (val.ID) {
@@ -100,7 +110,6 @@ export default defineComponent({
         });
 
         watch(() => props.allPageList, async (val: IPageValue[]) => {
-            console.log(props.allPageList, props.isSetCache, "1111111111");
             noResPages = [];
             resPagesIds = [];
             getAllPageList([]);
@@ -117,7 +126,7 @@ export default defineComponent({
         const getAllPageList = async (allPageList: IPageValue[]) => {
             if (timer) clearTimeout(timer);
             if (allPageList.length > 0) {
-                if (resPagesIds.includes(allPageList[0].ID)) {
+                if (resPagesIds.includes(allPageList[0].ID) || transformType(allPageList[0].Type)) {
                     allPageList.shift();
                     noResPages = allPageList;
                     // set(STORAGE_TYPES.SET_NORESPAGES, pageIdIng);
@@ -126,7 +135,6 @@ export default defineComponent({
                     }, 300);
                 } else {
                     pageIdIng = allPageList[0].ID;
-                    console.log(pageIdIng, "pageIdIng");
                     set(STORAGE_TYPES.SET_PAGEIDING, pageIdIng);
                     await getPageDetail(allPageList[0], 1, (res: any) => {
                         if (res.from === "DB") {

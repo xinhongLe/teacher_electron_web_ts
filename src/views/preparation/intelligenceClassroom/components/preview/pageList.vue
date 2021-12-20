@@ -48,11 +48,12 @@ import OpenCardViewDialog from "../edit/openCardViewDialog.vue";
 import { getCardDetail } from "../../api";
 import { get, STORAGE_TYPES } from "@/utils/storage";
 import { getWinCardDBData } from "@/utils/database";
+import { ElMessage } from "element-plus";
 export default defineComponent({
     props: ["pageListOption", "showRemark"],
     components: { OpenCardViewDialog },
     setup(props, { emit }) {
-        const { getPageDetail } = useHome();
+        const { getPageDetail, transformType } = useHome();
         const pageList = ref([]);
         const page = ref({});
         const { hasCheck, selected } = pageListServer();
@@ -94,33 +95,38 @@ export default defineComponent({
             getDataBase(pageList.value[index].ID, pageList.value[index]);
         };
         const getDataBase = async (str, obj) => {
-            console.log("pagelist", str, obj);
+            if (transformType(obj.Type) === -1) {
+                ElMessage({ type: "warning", message: "暂不支持该页面类型" });
+                page.value = {};
+                return false;
+            }
             const dbResArr = await getWinCardDBData(str);
-            console.log(dbResArr, "dbRessArr");
             if (dbResArr.length > 0) {
                 page.value = JSON.parse(dbResArr[0].result);
             } else {
                 const pageIdIng = get(STORAGE_TYPES.SET_PAGEIDING);
-                console.log(pageIdIng, "padingIng");
                 if (pageIdIng && pageIdIng === str) {
                     const interval = setInterval(async () => {
                         const dbResArr = await getWinCardDBData(str);
                         if (dbResArr.length > 0) {
                             clearInterval(interval);
                             page.value = JSON.parse(dbResArr[0].result);
-                        }
-                    }, 300);
-                } else if (pageIdIng && pageIdIng !== str) {
-                    const interval = setInterval(async () => {
-                        console.log(obj, "obj");
-                        if (!pageIdIng) {
-                            clearInterval(interval);
+                        } else {
                             await getPageDetail(obj, obj.originType, (res) => {
                                 if (res && res.id) {
                                     page.value = res;
                                 }
                             });
                         }
+                    }, 300);
+                } else if (pageIdIng && pageIdIng !== str) {
+                    const interval = setInterval(async () => {
+                        clearInterval(interval);
+                        await getPageDetail(obj, obj.originType, (res) => {
+                            if (res && res.id) {
+                                page.value = res;
+                            }
+                        });
                     }, 300);
                 } else {
                     await getPageDetail(obj, obj.originType, (res) => {

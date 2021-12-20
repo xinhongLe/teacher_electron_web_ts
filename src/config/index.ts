@@ -1,5 +1,5 @@
-export const AI_XUE_SHI_API = "http://42.192.7.46:5002";
-export const WINDOW_CRAD_API = "http://42.192.7.46:5002";
+export const AI_XUE_SHI_API = "http://apitest.aixueshi.top:5002";
+export const WINDOW_CRAD_API = "http://apitest.aixueshi.top:5002";
 
 // 注册学生模板下载地址
 export const ADD_STUDENT_TEMPLATE = "https://wechat.aixueshi.top/学生信息表2.2.xlsx";

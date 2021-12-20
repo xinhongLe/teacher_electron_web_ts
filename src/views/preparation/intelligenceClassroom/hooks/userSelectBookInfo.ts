@@ -74,7 +74,7 @@ interface cardList {
     PageList: CardListItem[]
 }
 export default () => {
-    const { getPageDetail } = useHome();
+    const { getPageDetail, transformType } = useHome();
     const allData = reactive<AllData>({
         winList: [],
         cardList: []
@@ -94,7 +94,9 @@ export default () => {
     const _getSchoolLessonWindow = (data: IGetLessonWindows) => {
         getSchoolLessonWindow(data).then((res) => {
             if (res.resultCode === 200) {
-                allData.winList = res.result;
+                allData.winList = res.result.filter((item:any) => {
+                    return item.TeachPageList.length > 0;
+                });
                 if (
                     allData.winList.length > 0 &&
                     allData.winList[0].TeachPageList &&
@@ -111,6 +113,8 @@ export default () => {
                     activeIndex.winActiveValue = "";
                     activeIndex.winActiveId = "";
                     activeIndex.previewOptions = {};
+                    activeIndex.leftActiveIndex = 0;
+                    activeIndex.winIndex = 0;
                 }
             }
         });
@@ -140,6 +144,8 @@ export default () => {
                 allPageList.value = detailPageList(allData.cardList);
                 if (allData.cardList.length > 0) {
                     cardListComponents.value.handleClick(0, allData.cardList[0]);
+                } else {
+                    activeIndex.previewOptions = {};
                 }
             }
         });
@@ -152,6 +158,9 @@ export default () => {
         return list;
     };
     watch(allPageList, () => {
+        if (allPageList.length > 0) {
+            return false;
+        }
         const interval = setInterval(() => {
             clearInterval(interval);
             getAllPageList(JSON.parse(JSON.stringify(allPageList.value)));
@@ -160,16 +169,15 @@ export default () => {
     const getAllPageList = async (arr: IPageValue[]) => {
         if (timer) clearTimeout(timer);
         if (arr.length > 0) {
-            if (resPagesIds.includes(arr[0].ID)) {
+            if (resPagesIds.includes(arr[0].ID) || transformType(arr[0].Type) === -1) {
                 arr.shift();
                 noResPages = arr;
-                timer.value = setTimeout(() => {
+                timer = setTimeout(() => {
                     getAllPageList(noResPages);
                 }, 300);
             } else {
                 pageIdIng = arr[0].ID;
                 set(STORAGE_TYPES.SET_PAGEIDING, pageIdIng);
-                console.log(arr[0], "arr[0]");
                 await getPageDetail(arr[0], arr[0].originType, (res: any) => {
                     pageIdIng = null;
                     set(STORAGE_TYPES.SET_PAGEIDING, pageIdIng);
