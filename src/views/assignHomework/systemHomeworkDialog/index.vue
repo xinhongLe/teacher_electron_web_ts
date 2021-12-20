@@ -77,6 +77,9 @@
                 </div>
             </div>
             <template #footer>
+                <span class="select-count">
+                    已选{{Object.values(selectListMap).flat().length}}
+                </span>
                 <span class="dialog-footer">
                     <el-button @click="handleClose">取 消</el-button>
                     <el-button type="primary" @click="submit">确 定</el-button>
@@ -289,6 +292,17 @@ export default defineComponent({
                 }
             }
         }
+    }
+    :deep(.el-dialog__footer) {
+        position: relative;
+    }
+    .select-count {
+        position: absolute;
+        left: 250px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 14px;
+        color: #bcbcbc;
     }
 }
 </style>

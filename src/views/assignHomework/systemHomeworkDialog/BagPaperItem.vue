@@ -12,7 +12,8 @@
                 src="@/assets/images/homeworkNew/icon_shipin.png"
                 alt=""
             />
-            <p class="text-class">{{ info.QuestionCount }}题</p>
+            <p class="text-class" v-if="type === 0">{{ info.QuestionCount }}题</p>
+            <p class="text-class" v-else>时长:{{ formatDuration(info.VideoDuration) }}</p>
             <span class="before-class">{{
                 getCourseBagType(info.ClassifyType)
             }}</span>
@@ -43,7 +44,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from "vue";
-import { getCourseBagType, lookQuestions, lookVideo } from "@/utils";
+import { getCourseBagType, lookQuestions, lookVideo, formatDuration } from "@/utils";
 import { BagPapers } from "@/types/preparation";
 export default defineComponent({
     props: {
@@ -73,6 +74,7 @@ export default defineComponent({
             lookVideo,
             getCourseBagType,
             choicePaper,
+            formatDuration,
             lookQuestions
         };
     }
@@ -102,7 +104,6 @@ export default defineComponent({
         .text-class {
             font-size: 14px;
             color: #5f626f;
-            width: 50px;
             text-align: center;
         }
         .before-class {
