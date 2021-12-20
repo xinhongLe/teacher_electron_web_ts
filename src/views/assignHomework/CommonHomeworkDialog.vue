@@ -75,6 +75,7 @@
                                     :limit="5"
                                     :accept="acceptList"
                                     :show-file-list="false"
+                                    :on-exceed="onExceed"
                                     :before-upload="beforeUpload"
                                     :http-request="
                                         // @ts-ignore
@@ -191,6 +192,10 @@ export default defineComponent({
             commonList.value[index].files.splice(j, 1);
         };
 
+        const onExceed = () => {
+            ElMessage.info("最多添加5个附件");
+        };
+
         const beforeUpload = ({ name }: { name: string }) => {
             const fileType = name.substring(name.lastIndexOf(".") + 1);
             const whiteList = [
@@ -261,6 +266,7 @@ export default defineComponent({
             acceptList,
             bookImg,
             uploadSuccess,
+            onExceed,
             form
         };
     }
