@@ -101,14 +101,7 @@
                         <div v-if="item.files.length > 0" class="file">
                             <div v-for="(file, j) in item.files" :key="j">
                                 <p>
-                                    <img
-                                        :src="
-                                            require(`@/assets/homeworkImg/${showImg(
-                                                file.extension
-                                            )}.png`)
-                                        "
-                                        alt=""
-                                    />
+                                    <FileType :fileExtension="file.extension"/>
                                     <span>{{ file.name }}</span>
                                 </p>
                                 <img
@@ -141,6 +134,7 @@ import { defineComponent, reactive, ref, watch } from "vue";
 import { getBookImg } from "./api";
 import useBookList from "./hooks/useBookList";
 import { showImg } from "./logic";
+import FileType from "../../components/fileType/index.vue";
 const defaultBookImg = require("@/assets/indexImages/card_beike.png");
 export default defineComponent({
     props: {
@@ -150,8 +144,7 @@ export default defineComponent({
         }
     },
     setup(props, { emit }) {
-        const acceptList =
-            ".ppt,.pptx,.doc,.docx,.pdf,.mp3,.mp4,.mkv,.flv,.jpg,.png,.jpeg";
+        const acceptList = ".ppt,.pptx,.doc,.docx,.pdf,.mp3,.mp4,.mkv,.flv,.jpg,.png,.jpeg";
         const form = reactive({
             subjectPublisherBookValue: []
         });
@@ -159,11 +152,9 @@ export default defineComponent({
         const bookImg = ref(defaultBookImg);
         const { subjectPublisherBookList, cascaderProps } = useBookList();
         const { uploadFile, fileInfo } = useUploadFile("CustomHomework");
-
         const handleClose = () => {
             emit("update:dialogVisible", false);
         };
-
         const submit = () => {
             if (form.subjectPublisherBookValue.length === 0) {
                 return ElMessage.error("请选择书册");
@@ -174,7 +165,6 @@ export default defineComponent({
             handleClose();
             emit("updateCommonHomeworkList", commonList.value);
         };
-
         const addRow = () => {
             commonList.value.push({
                 name: "",
@@ -183,20 +173,18 @@ export default defineComponent({
                 students: []
             });
         };
-
         const delRow = (index: number) => {
             commonList.value.splice(index, 1);
         };
-
         const delFile = (index: number, j: number) => {
             commonList.value[index].files.splice(j, 1);
         };
-
         const onExceed = () => {
             ElMessage.info("最多添加5个附件");
         };
-
-        const beforeUpload = ({ name }: { name: string }) => {
+        const beforeUpload = ({ name }: {
+            name: string;
+        }) => {
             const fileType = name.substring(name.lastIndexOf(".") + 1);
             const whiteList = [
                 "ppt",
@@ -213,17 +201,13 @@ export default defineComponent({
                 "jpeg"
             ];
             if (whiteList.indexOf(fileType) === -1) {
-                ElMessage.error(
-                    "上传文件只能是 ppt,pptx,doc,docx,pdf,mp3,mp4,mkv,flv,jpg,png,jpeg格式"
-                );
+                ElMessage.error("上传文件只能是 ppt,pptx,doc,docx,pdf,mp3,mp4,mkv,flv,jpg,png,jpeg格式");
                 return false;
             }
         };
-
-        const uploadSuccess = async (
-            { file }: { file: UploadFile & Blob },
-            index: number
-        ) => {
+        const uploadSuccess = async ({ file }: {
+            file: UploadFile & Blob;
+        }, index: number) => {
             await uploadFile({ file });
             commonList.value[index].files.push({
                 extension: fileInfo.fileExtension,
@@ -231,18 +215,16 @@ export default defineComponent({
                 fileName: fileInfo.name
             });
         };
-
         watch(() => form.subjectPublisherBookValue, (v) => {
             getBookImg({
                 BookID: v[2]
             }).then((res) => {
                 if (res.resultCode === 200 && res.result.BookCoverFile) {
-                    const key =
-                    res.result.BookCoverFile.FilePath +
-                    "/" +
-                    res.result.BookCoverFile.FileName +
-                    "." +
-                    res.result.BookCoverFile.Extention;
+                    const key = res.result.BookCoverFile.FilePath +
+                        "/" +
+                        res.result.BookCoverFile.FileName +
+                        "." +
+                        res.result.BookCoverFile.Extention;
                     downloadFile(key, res.result.BookCoverFile.Bucket).then((res) => {
                         bookImg.value = res;
                     });
@@ -251,7 +233,6 @@ export default defineComponent({
                 }
             });
         });
-
         return {
             handleClose,
             subjectPublisherBookList,
@@ -269,7 +250,8 @@ export default defineComponent({
             onExceed,
             form
         };
-    }
+    },
+    components: { FileType }
 });
 </script>
 
@@ -348,6 +330,12 @@ export default defineComponent({
                         background-color: #f3f7ff;
                         border-radius: 4px;
                         p {
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            >span:first-child{
+                                margin-right: 10px;
+                            }
                             img {
                                 width: 20px;
                                 height: 20px;
