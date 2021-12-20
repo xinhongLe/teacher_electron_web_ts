@@ -8,7 +8,8 @@ import { dealSaveDataWord, dealSaveDataVideo, dealSaveDataTeach, dealSaveDataEle
 import { getWinCardDBData, setWinCardDBData, updateWinCardDBData } from "@/utils/database";
 import { pageType } from "@/config";
 interface PageData {
-    pageID: string
+    pageID: string,
+    OriginType: any
 }
 
 export default () => {
@@ -30,8 +31,8 @@ export default () => {
             return -1;
         }
     };
-    const getPageDetail = async (page: IPageValue, callback: any) => {
-        const data: PageData = { pageID: page.ID };
+    const getPageDetail = async (page: IPageValue, originType: any, callback: any) => {
+        const data: PageData = { pageID: page.ID, OriginType: originType };
         const type: number = transformType(page.Type);
         if (type < 0) {
             ElMessage({ type: "warning", message: "暂不支持该页面类型" });

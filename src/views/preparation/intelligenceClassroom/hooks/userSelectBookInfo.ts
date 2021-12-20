@@ -169,7 +169,8 @@ export default () => {
             } else {
                 pageIdIng = arr[0].ID;
                 set(STORAGE_TYPES.SET_PAGEIDING, pageIdIng);
-                await getPageDetail(arr[0], (res: any) => {
+                console.log(arr[0], "arr[0]");
+                await getPageDetail(arr[0], arr[0].originType, (res: any) => {
                     pageIdIng = null;
                     set(STORAGE_TYPES.SET_PAGEIDING, pageIdIng);
                     if (arr.length > 0) {
@@ -198,7 +199,18 @@ export default () => {
                 originType: activeIndex.originType
             };
         });
-        return winList;
+        const changeOriginList = winList.map((item :any) => {
+            return {
+                ...item,
+                PageList: item.PageList.map((items: any) => {
+                    return {
+                        ...items,
+                        originType: item.originType
+                    };
+                })
+            };
+        });
+        return changeOriginList;
     };
     return {
         _getSchoolLessonWindow,

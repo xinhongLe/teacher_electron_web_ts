@@ -56,6 +56,7 @@ export default defineComponent({
             _getPageDetail(selected.value);
         };
         const execNext = () => {
+            console.log(selected.value, cardList.value, "最后一页openCard");
             if (selected.value === cardList.value.length - 1) {
                 return ElMessage({ type: "warning", message: "已经是最后一页" });
             }
@@ -72,7 +73,7 @@ export default defineComponent({
             if (dbResArr.length > 0) {
                 slideView.value = JSON.parse(dbResArr[0].result);
             } else {
-                await getPageDetail(cardList.value[index], (res: any) => {
+                await getPageDetail(cardList.value[index], 1, (res: any) => {
                     if (res && res.id) {
                         slideView.value = res;
                     }
