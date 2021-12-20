@@ -157,7 +157,7 @@ export default defineComponent({
     padding: 0 20px;
     margin-top: 10px;
     .placeholder {
-        width: 20%;
+        width: 30%;
         margin-right: 30px;
     }
     .first-col {

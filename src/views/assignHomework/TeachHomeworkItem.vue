@@ -89,7 +89,9 @@ export default defineComponent({
         const HomeWorkListItem:any = computed(() => props.item);
         const selectChange = () => {
             if (HomeWorkListItem.value.publishType === "zi") {
-                HomeWorkListItem.value.publishTime = new Date();
+                const dateTime = new Date();
+                dateTime.setDate(dateTime.getDate() + 1);
+                HomeWorkListItem.value.publishTime = new Date(dateTime);
                 emit("update", props.realIndex, HomeWorkListItem.value);
             } else {
                 HomeWorkListItem.value.publishTime = "";
@@ -167,7 +169,7 @@ export default defineComponent({
 }
 .forms{
     white-space: nowrap;
-    width: 20%;
+    width: 30%;
     margin-right: 30px;
     :deep(.el-form-item){
         margin: 0;
