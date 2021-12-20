@@ -49,7 +49,7 @@ export function GetBasicTag(): Promise<IBasicTagResponse> {
 export function GetUserInfoByToken(data: ILoginTokenData): Promise<ILoginResponse> {
     return request({
         baseURL: AI_XUE_SHI_API,
-        url: `https://yunapi.aixueshi.top/api/UserAccount/Account/GetPhone?token=${data.token}&type=1`,
+        url: `api/UserAccount/Account/GetPhone?token=${data.token}&type=1`,
         method: "get",
         data
     });
