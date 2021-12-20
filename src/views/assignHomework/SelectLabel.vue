@@ -93,7 +93,7 @@ export default defineComponent({
 
         watchEffect(() => {
             selectLabel.value = levelList.value
-                .filter((item) => item.checked)
+                .filter((item) => item.students.filter((v) => v.checked).length > 0)
                 .map((item) => {
                     const { label, students } = item;
                     return `${label.replace("Level ", "")}(${getCheckCount(students)})`;
