@@ -6,6 +6,7 @@ import { get, set, STORAGE_TYPES } from "@/utils/storage";
 import {
     Login
 } from "@/views/login/api";
+import useUserInfo from "@/hooks/useUserInfo";
 import { NavigationGuardNext } from "vue-router";
 
 export default () => {
@@ -13,9 +14,15 @@ export default () => {
         const loginRes: ILoginResponse = await Login({ account, password });
         if (loginRes.resultCode === 200) {
             set(STORAGE_TYPES.SET_TOKEN, loginRes.result.token);
-
             next && next({ path: "/" });
         }
+    };
+
+    const userLoginByToken = async (token: string, next?: NavigationGuardNext) => {
+        set(STORAGE_TYPES.SET_TOKEN, token);
+        const { queryUserInfo } = useUserInfo();
+        queryUserInfo();
+        next && next();
     };
 
     const recordAccount = (form: ILoginData) => {
@@ -27,6 +34,7 @@ export default () => {
 
     return {
         userLogin,
+        userLoginByToken,
         recordAccount
     };
 };
