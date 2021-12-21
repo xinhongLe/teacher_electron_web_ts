@@ -92,7 +92,6 @@ export default () => {
         state.windowCards.map(card => {
             list = list.concat(card.PageList);
         });
-        console.log(list, "list");
         return list;
     });
     const _getWindowCards = (data: IGetWindowCards, isCache = false) => {

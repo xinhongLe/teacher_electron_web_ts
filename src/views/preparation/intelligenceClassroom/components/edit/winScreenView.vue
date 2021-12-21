@@ -11,7 +11,6 @@
 import { defineComponent, onMounted, ref } from "vue";
 import { getCardDetail } from "@/api/home";
 import { getWinCardDBData } from "@/utils/database";
-import { get, STORAGE_TYPES } from "@/utils/storage";
 import useHome from "@/hooks/useHome";
 import { ElMessage } from "element-plus";
 import OpenCardViewDialog from "./openCardViewDialog";
@@ -24,7 +23,7 @@ export default defineComponent({
         }
     },
     emits: ["stopGetAllPageList"],
-    setup(props, { emit }) {
+    setup(props) {
         const slideView = ref({});
         const pageList = ref([]);
         const index = ref(0);
@@ -59,35 +58,11 @@ export default defineComponent({
             if (dbResArr.length > 0) {
                 slideView.value = JSON.parse(dbResArr[0].result);
             } else {
-                const pageIdIng = get(STORAGE_TYPES.SET_PAGEIDING);
-                // const noResPages = get(STORAGE_TYPES.SET_NORESPAGES);
-                if (pageIdIng && pageIdIng === pageList.value[index.value].ID) {
-                    const interval = setInterval(async () => {
-                        const dbResArr = await getWinCardDBData(pageList.value[index.value].ID);
-                        if (dbResArr.length > 0) {
-                            clearInterval(interval);
-                            slideView.value = JSON.parse(dbResArr[0].result);
-                        }
-                    }, 300);
-                } else if (pageIdIng && pageIdIng !== pageList.value[index.value].ID) {
-                    emit("stopGetAllPageList");
-                    const interval = setInterval(async () => {
-                        if (!pageIdIng) {
-                            clearInterval(interval);
-                            await getPageDetail(pageList.value[index.value], 1, (res) => {
-                                if (res && res.id) {
-                                    slideView.value = res;
-                                }
-                            });
-                        }
-                    }, 300);
-                } else {
-                    await getPageDetail(pageList.value[index.value], 1, (res) => {
-                        if (res && res.id) {
-                            slideView.value = res;
-                        }
-                    });
-                }
+                await getPageDetail(pageList.value[index.value], 1, (res) => {
+                    if (res && res.id) {
+                        slideView.value = res;
+                    }
+                });
             }
         };
 

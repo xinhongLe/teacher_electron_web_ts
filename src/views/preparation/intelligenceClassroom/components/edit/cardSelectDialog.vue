@@ -45,6 +45,7 @@ import { IPageValue, ITreeList, ICardList, ICards } from "@/types/home";
 import Node from "element-plus/es/components/tree/src/model/node";
 import useSelectBookInfo from "@/hooks/useSelectBookInfo";
 import { ElMessage } from "element-plus";
+import { useRoute } from "vue-router";
 
 interface ICardType {
     [propName: string]: ICards
@@ -83,10 +84,10 @@ export default defineComponent({
         watch(() => state.chaptersValue, (curVal) => {
             _getWinList(curVal);
         });
-
+        const route = useRoute();
         watch(() => state.winValue, (curVal) => {
             if (curVal.length > 0) {
-                _getWindowCards({ WindowID: curVal[1] });
+                _getWindowCards({ WindowID: `${route.params.winValue as string}` });
             }
         });
 

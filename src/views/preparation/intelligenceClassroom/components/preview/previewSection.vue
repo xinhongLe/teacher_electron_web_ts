@@ -76,7 +76,10 @@ export default defineComponent({
         watch(
             () => props.options,
             () => {
-                if (props.options.pages.length > 0) {
+                if (!props.options.pages) {
+                    remark.value = "";
+                    pageList.value = [];
+                } else if (props.options.pages.length > 0) {
                     remark.value = props.options.pages ? props.options.pages[0].Remark : "";
                     pageList.value = props.options.pages ? props.options.pages : [];
                 } else {

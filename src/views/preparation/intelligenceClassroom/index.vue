@@ -30,7 +30,7 @@
                                     <div>{{ j.WindowName }}</div>
                                 </el-tooltip>
                                 <div class="win-bottom-edit">
-                                    <i class="el-icon-edit-outline" @click="windowEdit(item)"></i>
+                                    <i class="el-icon-edit-outline" @click="windowEdit(j,i,item)"></i>
                                 </div>
                             </div>
                         </div>
@@ -114,19 +114,21 @@ export default defineComponent({
             const obj = { chapterID: store.state.preparation.selectChapterID };
             _getSchoolLessonWindow(obj);
         });
-        const windowEdit = async (item) => {
-            if (item.TeachPageList[0].OriginType === 0) {
+        const windowEdit = async (j, i, item) => {
+            if (j.OriginType === 0) {
                 const obj = {
-                    id: item.TeachPageList[0].WindowID,
-                    originType: 1,
-                    sourceLessonID: item.Lesson.ID
+                    id: j.WindowID,
+                    originType: null,
+                    sourceLessonID: j.LessonID,
+                    targetLessonID: j.LessonID
                 };
                 const res = await CopyWindow(obj);
                 if (res.resultCode === 200) {
                     router.push(`/windowcard-edit/${res.result.ID}/1`);
+                    j.OriginType = 1;
                 }
             } else {
-                router.push(`/windowcard-edit/${item.TeachPageList[0].WindowID}/1`);
+                router.push(`/windowcard-edit/${j.WindowID}/1`);
             }
         };
         const lastPage = () => {
@@ -151,8 +153,15 @@ export default defineComponent({
             firstPage,
             PreviewSection,
             updateFlag,
-            allPageList
+            allPageList,
+            _getWindowCards
         };
+    },
+    activated () {
+        console.log(store.state.preparation.selectChapterID, "store");
+        if (this.winActiveId) {
+            this._getWindowCards(this.winActiveId, true);
+        }
     }
 });
 </script>

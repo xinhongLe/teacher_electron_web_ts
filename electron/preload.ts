@@ -1,5 +1,5 @@
-import remote, { getCurrentWindow, app } from "@electron/remote";
-import electron from "electron";
+import { getCurrentWindow, app } from "@electron/remote";
+import electron, { remote } from "electron";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 window.electron = {
@@ -62,6 +62,7 @@ window.electron = {
         return process.platform === "darwin";
     },
     registerEscKeyUp: (callback: () => void) => {
+        console.log(remote, "remote");
         remote.globalShortcut.register("esc", () => {
             callback && callback();
         });
