@@ -26,6 +26,13 @@ module.exports = {
             title: "计时器",
             chunks: ["timer"]
         },
+        projection: {
+            entry: "src/childWindow/projection/main.ts",
+            template: "public/index.html",
+            filename: "projection.html",
+            title: "投影",
+            chunks: ["projection"]
+        },
         call: {
             entry: "src/childWindow/call/main.ts",
             template: "public/index.html",
@@ -64,6 +71,11 @@ module.exports = {
                     name: "unfoldSuspension",
                     priority: 10,
                     test: "src/unfoldSuspension/main.ts"
+                },
+                projection: {
+                    name: "projection",
+                    priority: 10,
+                    test: "src/projection/main.ts"
                 },
                 timer: {
                     name: "timer",

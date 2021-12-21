@@ -4,6 +4,7 @@
             :model-value="visible"
             title="正在查看同类题"
             center
+            v-if="isShowDialog"
             :show-close="false"
         >
             <Question :close="close" :isPureQuestion="true" />
@@ -12,7 +13,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent, nextTick, ref } from "vue";
 import Question from "./Question.vue";
 export default defineComponent({
     props: {
@@ -22,11 +23,16 @@ export default defineComponent({
         }
     },
     setup(props, { emit }) {
+        const isShowDialog = ref(true);
         const close = () => {
-            emit("update:visible", false);
+            isShowDialog.value = false;
+            nextTick(() => {
+                emit("update:visible", false);
+            });
         };
         return {
-            close
+            close,
+            isShowDialog
         };
     },
     components: { Question }

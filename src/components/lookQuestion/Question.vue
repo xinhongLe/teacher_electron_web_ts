@@ -141,7 +141,7 @@ export default defineComponent({
             voiceUrlMap,
             nextPage,
             questionSn
-        } = useDetail(props.isPureQuestion, questionID.value);
+        } = useDetail(props.isPureQuestion, questionID.value, emit);
 
         const brushHandle = () => {
             btnType.value = 1;
@@ -169,6 +169,7 @@ export default defineComponent({
 
         const smallQuestion = () => {
             audioRef.value!.pause();
+            emit("update:isMinimized", true);
         };
 
         const playAudio = () => {

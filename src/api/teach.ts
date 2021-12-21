@@ -1,6 +1,7 @@
 import request from "@/utils/request";
 import { AI_XUE_SHI_API } from "@/config";
 import { IResponse } from "@/types/response";
+import { ElementFile } from "@/types/preparation";
 
 interface GetClassTimeData {
     schoolID: string;
@@ -94,10 +95,7 @@ export interface CourseWares {
     LessonName: string;
     FileID?: string;
     PaperID?: string;
-    File?: {
-        Duration: string;
-        Extention: string;
-    };
+    File?: ElementFile;
     Type: number;
     QuestionCount: number;
     CopyType?: number;

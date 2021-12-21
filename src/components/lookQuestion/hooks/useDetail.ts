@@ -3,10 +3,10 @@ import { FileInfo, Question } from "@/types/lookQuestion";
 import { downloadFile } from "@/utils/oss";
 import { get, STORAGE_TYPES } from "@/utils/storage";
 import { ElMessage, ElMessageBox } from "element-plus";
-import { computed, ref } from "vue";
+import { computed, ref, watchEffect } from "vue";
 import { fetchPureQuestionByQuestionID, getCourseBagQuestionsByIds, getQuestionsByIds } from "../api";
 
-export default (isPureQuestion: boolean, questionId = "") => {
+export default (isPureQuestion: boolean, questionId = "", emit: (event: string, ...args: any[]) => void) => {
     const imageUrl = ref<string[]>([]);
     const voiceUrl = ref<string[]>([]);
     const voiceUrlMap = ref({
@@ -27,6 +27,7 @@ export default (isPureQuestion: boolean, questionId = "") => {
     const questionSwitch = get(STORAGE_TYPES.AUTO_PALY_QUESTION_SWITCH);
     const resolutionSwitchValue = ref(resolutionSwitch === null ? true : Boolean(resolutionSwitch));
     const questionSwitchValue = ref(questionSwitch === null ? true : Boolean(questionSwitch));
+    const lastId = ref("");
 
     function getUrl(file: FileInfo) {
         const { Extention, FilePath, FileName, Bucket } = file;
@@ -69,12 +70,28 @@ export default (isPureQuestion: boolean, questionId = "") => {
 
     const getDetail = async () => {
         const { type, id } = store.state.common.viewQuestionInfo;
+        if (!id) return;
+        emit("update:isMinimized", false);
+        if (id === lastId.value) return;
+        voiceUrl.value = [];
+        imageUrl.value = [];
+        isNextBtn.value = false;
+        isLastBtn.value = false;
+        number.value = 1;
+        nextIndex.value = 1;
+        sum.value = 1;
+        voiceUrlMap.value = {
+            question: "",
+            answer: ""
+        };
+        questionList.value = [];
         let res;
         if (isPureQuestion) {
             res = await fetchPureQuestionByQuestionID({
                 questionID: questionId
             });
         } else {
+            lastId.value = id;
             if (type === 3) {
                 res = await getCourseBagQuestionsByIds({
                     courseWareTeacherID: id
@@ -98,7 +115,8 @@ export default (isPureQuestion: boolean, questionId = "") => {
             isBlackboard.value = true;
         }
     };
-    getDetail();
+
+    watchEffect(getDetail);
 
     const nextPage = () => {
         if (nextIndex.value < imageUrl.value.length) {

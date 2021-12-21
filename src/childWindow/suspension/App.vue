@@ -28,6 +28,5 @@ body {
     position: relative;
     height: 100vh;
     width: 100vw;
-    cursor: pointer;
 }
 </style>
