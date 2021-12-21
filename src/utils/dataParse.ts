@@ -126,6 +126,7 @@ const getElementCustomById = (events: IEvent[], id: string) => {
 
     const win: IWin[] = (event?.CustomActions || []).map((item: any) => {
         const ActionData = JSON.parse(item?.ActionData);
+        console.log(ActionData, ActionData.Cards, "ActionData");
         const cards: PPTCard[] = ActionData.Cards.map((card: IOldCards) => {
             const slides: PPTRelation[] = card.Pages?.map((page: IOldPages) => {
                 return {
