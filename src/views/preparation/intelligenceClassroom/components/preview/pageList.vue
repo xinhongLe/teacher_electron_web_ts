@@ -283,8 +283,8 @@ export default defineComponent({
     position: fixed;
     top: 0;
     left: 0;
-    width: calc(100% - 220px);
-    height: calc(100% - 86px);
+    width: calc(100% - 22rem);
+    height: calc(100% - 85px);
 }
 .me-work {
     flex: 1;

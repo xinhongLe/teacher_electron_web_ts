@@ -11,7 +11,6 @@
 import { defineComponent, onMounted, ref } from "vue";
 import { getCardDetail } from "@/api/home";
 import { getWinCardDBData } from "@/utils/database";
-import { get, STORAGE_TYPES } from "@/utils/storage";
 import useHome from "@/hooks/useHome";
 import { ElMessage } from "element-plus";
 import OpenCardViewDialog from "./openCardViewDialog";

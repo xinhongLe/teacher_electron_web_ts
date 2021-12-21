@@ -153,8 +153,15 @@ export default defineComponent({
             firstPage,
             PreviewSection,
             updateFlag,
-            allPageList
+            allPageList,
+            _getWindowCards
         };
+    },
+    activated () {
+        console.log(store.state.preparation.selectChapterID, "store");
+        if (this.winActiveId) {
+            this._getWindowCards(this.winActiveId, true);
+        }
     }
 });
 </script>

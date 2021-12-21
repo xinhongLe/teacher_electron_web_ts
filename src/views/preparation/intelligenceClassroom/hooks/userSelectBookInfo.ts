@@ -168,35 +168,12 @@ export default () => {
     });
     const getAllPageList = async (arr: IPageValue[]) => {
         for (const elem of arr) {
-            if (transformType(elem.Type) === -1) {
-                return;
-            } else {
-                // getPageDetail(elem, elem.originType);
+            if (transformType(elem.Type) !== -1) {
+                await getPageDetail(elem, elem.originType, (res:any) => {
+                    // console.log(res);
+                });
             }
         }
-        // if (timer) clearTimeout(timer);
-        // if (arr.length > 0) {
-        //     if (resPagesIds.includes(arr[0].ID) || transformType(arr[0].Type) === -1) {
-        //         arr.shift();
-        //         noResPages = arr;
-        //         timer = setTimeout(() => {
-        //             getAllPageList(noResPages);
-        //         }, 300);
-        //     } else {
-        //         await getPageDetail(arr[0], arr[0].originType, (res: any) => {
-        //             if (arr.length > 0) {
-        //                 if (res.id) { // 成功请求
-        //                     resPagesIds.push(arr[0].ID);
-        //                 }
-        //                 arr.shift();
-        //                 noResPages = arr;
-        //                 timer = setTimeout(() => {
-        //                     getAllPageList(noResPages);
-        //                 }, 300);
-        //             }
-        //         });
-        //     }
-        // }
     };
     const updatePageList = (card: cardList) => {
         activeIndex.previewOptions = card;
