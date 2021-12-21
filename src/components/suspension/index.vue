@@ -8,11 +8,35 @@
                     : { bottom: `${bottom + 140}px`, right: `${right + 100}px` }
             "
             @mousedown="mouseDown"
-            class="timer"
+            class="timer icon"
             ref="timerRef"
         >
             <span>{{ time }}</span>
             <i class="icon-close" ref="iconCloseRef"></i>
+        </div>
+        <div
+            class="video icon"
+            v-show="isShowVideo"
+            ref="videoRef"
+            @mousedown="mouseDown"
+        >
+            <i class="icon-close" ref="iconVideoCloseRef"></i>
+        </div>
+        <div
+            class="question icon"
+            v-show="isShowQuestion"
+            ref="questionRef"
+            @mousedown="mouseDown"
+        >
+            <i class="icon-close" ref="iconQuestionCloseRef"></i>
+        </div>
+        <div
+            class="blackboard icon"
+            v-show="isShowBlackBoard"
+            @mousedown="mouseDown"
+            ref="blackboardRef"
+        >
+            <i class="icon-close" ref="iconBlackboardCloseRef"></i>
         </div>
         <div
             class="suspension"
@@ -65,7 +89,16 @@ export default defineComponent({
         const susDom = ref(null);
         const time = ref();
         const timerRef = ref<HTMLDivElement>();
+        const videoRef = ref<HTMLDivElement>();
+        const questionRef = ref<HTMLDivElement>();
+        const blackboardRef = ref<HTMLDivElement>();
         const iconCloseRef = ref<HTMLLIElement>();
+        const iconVideoCloseRef = ref<HTMLLIElement>();
+        const iconQuestionCloseRef = ref<HTMLLIElement>();
+        const iconBlackboardCloseRef = ref<HTMLLIElement>();
+        const isShowVideo = ref(false);
+        const isShowQuestion = ref(false);
+        const isShowBlackBoard = ref(false);
 
         const mouseDown = (event: MouseEvent) => {
             isStartMove.value = true;
@@ -104,6 +137,24 @@ export default defineComponent({
                             window.electron.ipcRenderer.invoke("openTimerWin");
                         } else if (event.target === iconCloseRef.value) {
                             window.electron.ipcRenderer.invoke("closeTimerWin");
+                        } else if (event.target === videoRef.value) {
+                            window.electron.ipcRenderer.invoke("openVideoWin");
+                        } else if (event.target === iconVideoCloseRef.value) {
+                            window.electron.ipcRenderer.invoke("closeVideoWin");
+                        } else if (event.target === blackboardRef.value) {
+                            window.electron.ipcRenderer.invoke(
+                                "openBlackboard"
+                            );
+                        } else if (
+                            event.target === iconBlackboardCloseRef.value
+                        ) {
+                            window.electron.ipcRenderer.invoke(
+                                "closeBlackboard"
+                            );
+                        } else if (event.target === questionRef.value) {
+                            window.electron.ipcRenderer.invoke("openQuestion");
+                        } else if (event.target === iconQuestionCloseRef.value) {
+                            window.electron.ipcRenderer.invoke("closeQuestion");
                         } else {
                             window.electron.ipcRenderer.invoke(
                                 "openUnfoldSuspension"
@@ -152,6 +203,27 @@ export default defineComponent({
                 window.electron.ipcRenderer.on("timeChange", (_, _time) => {
                     time.value = _time;
                 });
+                window.electron.ipcRenderer.on("videoMinimized", () => {
+                    isShowVideo.value = true;
+                });
+                window.electron.ipcRenderer.on("hideSuspensionVideo", () => {
+                    isShowVideo.value = false;
+                });
+                window.electron.ipcRenderer.on("questionMinimized", () => {
+                    isShowQuestion.value = true;
+                });
+                window.electron.ipcRenderer.on("hideSuspensionQuestion", () => {
+                    isShowQuestion.value = false;
+                });
+                window.electron.ipcRenderer.on("blackboardMinimized", () => {
+                    isShowBlackBoard.value = true;
+                });
+                window.electron.ipcRenderer.on(
+                    "hideSuspensionBlackboard",
+                    () => {
+                        isShowBlackBoard.value = false;
+                    }
+                );
             }
         });
         return {
@@ -166,9 +238,18 @@ export default defineComponent({
             isShowTimer,
             susDom,
             timerRef,
+            videoRef,
+            questionRef,
+            iconQuestionCloseRef,
             mouseDown,
             onmouseover,
+            iconBlackboardCloseRef,
             iconCloseRef,
+            isShowBlackBoard,
+            blackboardRef,
+            iconVideoCloseRef,
+            isShowQuestion,
+            isShowVideo,
             time
         };
     }
@@ -179,20 +260,20 @@ export default defineComponent({
 .suspension-container {
     position: fixed;
     z-index: 9999;
-    .timer {
+
+    .icon {
         width: 75px;
         height: 75px;
-        border-radius: 50%;
-        background: palevioletred;
-        position: fixed;
         z-index: 9999;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        color: #ffffff;
-        background: url("../../assets/images/suspension//btn_clock@2x.png") no-repeat center;
+        border-radius: 50%;
+        position: fixed;
+        background-repeat: no-repeat;
+        background-position: center;
         background-size: contain;
-        font-size: 16px;
+        cursor: pointer;
+        * {
+            pointer-events: none;
+        }
         .icon-close {
             display: inline-block;
             position: absolute;
@@ -222,9 +303,31 @@ export default defineComponent({
         .icon-close::after {
             transform: rotate(-45deg);
         }
-        * {
-            pointer-events: none;
-        }
+    }
+    .timer {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: #ffffff;
+        background-image: url("../../assets/images/suspension/btn_clock@2x.png");
+        font-size: 16px;
+        top: 5px;
+        left: 60px;
+    }
+    .video {
+        background-image: url("../../assets/images/suspension/btn_video@2x.png");
+        top: 57px;
+        left: 10px;
+    }
+    .question {
+        background-image: url("../../assets/images/suspension/btn_timu@2x.png");
+        top: 122px;
+        left: 0;
+    }
+    .blackboard {
+        background-image: url("../../assets/images/suspension/btn_blackboard@2x.png");
+        top: 0;
+        right: 0;
     }
     .suspension {
         position: fixed;
@@ -232,6 +335,7 @@ export default defineComponent({
         width: 120px;
         z-index: 9999;
         bottom: 0;
+        right: 0;
         -webkit-app-region: no-drag;
         img {
             width: 100%;

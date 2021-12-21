@@ -75,7 +75,7 @@
                         </div>
                         <div
                             class="problem_item"
-                            @click="lookQuestions({ id: data.ID, type: 3 })"
+                            @click="data.Type === 1 ? lookQuestions({ id: data.ID, type: 3 }) : openFile(data.File)"
                             :class="isDragging ? 'drag' : ''"
                         >
                             <div class="content">
@@ -89,7 +89,7 @@
                                     </span>
                                 </p>
                             </div>
-                            <span>{{ data.QuestionCount }}</span>
+                            <span v-if="data.Type === 1">{{ data.QuestionCount }}</span>
                         </div>
                         <img
                             class="icon_delete"
@@ -140,8 +140,10 @@ import useClassContentList from "./hooks/useClassContentList";
 import ClassBagDialog from "../ClassBagDialog.vue";
 import useDrag from "@/hooks/useDrag";
 import useDrop from "./hooks/useDrop";
-import { lookVideo, lookQuestions } from "@/utils";
+import { lookVideo, lookQuestions, openFile } from "@/utils";
 import FileType from "@/components/fileType/index.vue";
+import { ElementFile } from "@/types/preparation";
+import { downloadFile } from "@/utils/oss";
 export default defineComponent({
     setup() {
         const dialogVisible = ref(false);
@@ -215,6 +217,15 @@ export default defineComponent({
             e.preventDefault();
         };
 
+        const _openFile = async (file?: ElementFile) => {
+            if (file) {
+                const name = `${file.FileName}.${file.Extention}`;
+                const key = `${file.FilePath}/${name}`;
+                const url = await downloadFile(key, file.Bucket);
+                openFile(url, name);
+            }
+        };
+
         return {
             classContentList,
             selectCourseBag,
@@ -235,6 +246,7 @@ export default defineComponent({
             onDragEnd: _onDragEnd,
             lookVideo,
             btnListRef,
+            openFile: _openFile,
             lookQuestions
         };
     },

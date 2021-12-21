@@ -1,5 +1,5 @@
 <template>
-    <div class="look-video">
+    <div class="look-video" v-show="!isMinimized">
         <div class="warp">
             <div class="frames-box">
                 <span class="file-sn">{{fileSn}}</span>
@@ -67,7 +67,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from "vue";
+import { defineComponent, ref, watchEffect, watch, onMounted, nextTick, onUnmounted } from "vue";
 import isElectronFun from "is-electron";
 import { getFileAndPauseByFile } from "./api";
 import useVideo, { formateSeconds } from "./hooks/useVideo";
@@ -81,6 +81,8 @@ export default defineComponent({
         const btnType = ref(1);
         const childRef = ref<InstanceType<typeof Brush>>();
         const fileSn = ref();
+        const isMinimized = ref(false);
+        const lastId = ref("");
         const {
             changeData,
             marks,
@@ -118,20 +120,72 @@ export default defineComponent({
 
         const smallVideo = () => {
             videoRef.value!.pause();
+            isMinimized.value = true;
         };
 
-        getFileAndPauseByFile({
-            fileID: store.state.common.viewVideoInfo.id
-        }).then(async (res) => {
-            if (res.resultCode === 200) {
-                const { FilePauses, VideoFile } = res.result;
-                const { Extention, FilePath, FileName, Bucket, SN } = VideoFile;
-                filePauses.value = changeData(FilePauses);
-                fileSn.value = SN;
-                const key = Extention
-                    ? `${FilePath}/${FileName}.${Extention}`
-                    : `${FilePath}/${FileName}`;
-                videoUrl.value = await downloadFile(key, Bucket);
+        watch(isMinimized, (v) => {
+            if (v) {
+                window.electron.ipcRenderer.invoke("videoMinimized");
+            } else {
+                window.electron.ipcRenderer.invoke("hideSuspensionVideo");
+            }
+        });
+
+        watchEffect(() => {
+            const { id } = store.state.common.viewVideoInfo;
+            if (!id) return;
+            isMinimized.value = false;
+            if (id === lastId.value) {
+                if (btnName.value === "暂停") {
+                    videoRef.value!.play();
+                }
+                return;
+            }
+            lastId.value = id;
+            getFileAndPauseByFile({
+                fileID: store.state.common.viewVideoInfo.id
+            }).then(async (res) => {
+                if (res.resultCode === 200) {
+                    const { FilePauses, VideoFile } = res.result;
+                    const { Extention, FilePath, FileName, Bucket, SN } = VideoFile;
+                    filePauses.value = changeData(FilePauses);
+                    fileSn.value = SN;
+                    const key = Extention
+                        ? `${FilePath}/${FileName}.${Extention}`
+                        : `${FilePath}/${FileName}`;
+                    const url = await downloadFile(key, Bucket);
+                    if (url !== videoUrl.value) {
+                        videoUrl.value = url;
+                    }
+                }
+            });
+        });
+
+        const openVideoWin = () => {
+            isMinimized.value = false;
+            nextTick(() => {
+                if (btnName.value === "暂停") {
+                    videoRef.value && videoRef.value.play();
+                }
+            });
+        };
+
+        const closeVideoWin = () => {
+            window.electron.ipcRenderer.invoke("hideSuspensionVideo");
+            closeVideo();
+        };
+
+        onMounted(() => {
+            if (isElectron) {
+                window.electron.ipcRenderer.on("openVideoWin", openVideoWin);
+                window.electron.ipcRenderer.on("closeVideoWin", closeVideoWin);
+            }
+        });
+
+        onUnmounted(() => {
+            if (isElectron) {
+                window.electron.ipcRenderer.removeListener("openVideoWin", openVideoWin);
+                window.electron.ipcRenderer.removeListener("closeVideoWin", closeVideoWin);
             }
         });
 
@@ -145,6 +199,7 @@ export default defineComponent({
             videoRef,
             closeVideo,
             smallVideo,
+            isMinimized,
             videoTimeUpdate,
             getAudioLength,
             eraserHandle,

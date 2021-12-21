@@ -1,10 +1,11 @@
 <template>
-    <div class="look-question">
+    <div class="look-question" v-show="!isMinimized">
         <el-dialog
             :fullscreen="true"
             :model-value="true"
             :show-close="false"
             custom-class="look-question-dialog"
+            v-if="isShowDialog"
         >
             <template #title>
                 <p class="title">查看题目</p>
@@ -13,6 +14,7 @@
                 :close="close"
                 ref="questionRef"
                 v-model:nowQuestionID="nowQuestionID"
+                v-model:isMinimized="isMinimized"
             >
                 <template v-slot:footerBtn="slotProps">
                     <div class="btn-list">
@@ -42,18 +44,21 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, provide, ref } from "vue";
+import { computed, defineComponent, nextTick, onMounted, onUnmounted, provide, ref, watch } from "vue";
 import Question from "./Question.vue";
 import PureQuestionDialog from "./PureQuestionDialog.vue";
 import { checkPureQuestionByQuestionID } from "./api";
 import { ElMessage } from "element-plus";
 import { MutationTypes, store } from "@/store";
+import isElectron from "is-electron";
 export default defineComponent({
     name: "LookQuestion",
     setup() {
         const type = computed(() => store.state.common.viewQuestionInfo.type);
+        const isShowDialog = ref(true);
         const dialogVisible = ref(false);
         const nowQuestionID = ref("");
+        const isMinimized = ref(false);
 
         const viewPureQuestion = async () => {
             const check = await checkPureQuestionByQuestionID({
@@ -69,18 +74,54 @@ export default defineComponent({
         };
 
         const close = () => {
-            store.commit(MutationTypes.SET_IS_SHOW_QUESTION, {
-                flag: false,
-                info: {}
+            isShowDialog.value = false;
+            nextTick(() => {
+                store.commit(MutationTypes.SET_IS_SHOW_QUESTION, {
+                    flag: false,
+                    info: {}
+                });
             });
         };
 
         provide("nowQuestionID", nowQuestionID);
 
+        const openQuestion = () => {
+            isMinimized.value = false;
+        };
+
+        const closeQuestion = () => {
+            window.electron.ipcRenderer.invoke("hideSuspensionQuestion");
+            close();
+        };
+
+        watch(isMinimized, (v) => {
+            if (v) {
+                window.electron.ipcRenderer.invoke("questionMinimized");
+            } else {
+                window.electron.ipcRenderer.invoke("hideSuspensionQuestion");
+            }
+        });
+
+        onMounted(() => {
+            if (isElectron()) {
+                window.electron.ipcRenderer.on("openQuestion", openQuestion);
+                window.electron.ipcRenderer.on("closeQuestion", closeQuestion);
+            }
+        });
+
+        onUnmounted(() => {
+            if (isElectron()) {
+                window.electron.ipcRenderer.removeListener("openQuestion", openQuestion);
+                window.electron.ipcRenderer.removeListener("closeQuestion", closeQuestion);
+            }
+        });
+
         return {
             type,
             viewPureQuestion,
             close,
+            isShowDialog,
+            isMinimized,
             nowQuestionID,
             dialogVisible
         };

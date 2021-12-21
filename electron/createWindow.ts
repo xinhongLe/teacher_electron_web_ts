@@ -9,7 +9,7 @@ export const createWindow = (url: string, option: BrowserWindowConstructorOption
             preload: path.join(__dirname, "preload.js"),
             nodeIntegrationInWorker: true,
             contextIsolation: false,
-            devTools: false,
+            devTools: !!process.env.WEBPACK_DEV_SERVER_URL,
             ...option.webPreferences
         }
     });

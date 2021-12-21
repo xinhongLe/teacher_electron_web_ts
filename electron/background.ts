@@ -11,7 +11,16 @@ const path = require("path");
 initialize();
 
 protocol.registerSchemesAsPrivileged([
-    { scheme: "app", privileges: { secure: true, standard: true } }
+    { scheme: "app", privileges: { secure: true, standard: true } },
+    {
+        scheme: "http",
+        privileges: {
+            bypassCSP: true,
+            secure: true,
+            supportFetchAPI: true,
+            corsEnabled: true
+        }
+    }
 ]);
 
 let mainWindow: BrowserWindow | null;
@@ -30,6 +39,7 @@ async function createWindow() {
         minHeight: 520,
         show: false,
         webPreferences: {
+            enableRemoteModule: true,
             webviewTag: true,
             webSecurity: false, // 取消跨域限制
             nodeIntegration: true,
@@ -75,6 +85,24 @@ async function createWindow() {
     ipcMain.handle("exitApp", () => {
         mainWindow!.show();
         mainWindow!.webContents.send("exitApp");
+    });
+
+    ipcMain.handle("openVideoWin", () => {
+        mainWindow!.show();
+        mainWindow!.webContents.send("openVideoWin");
+    });
+
+    ipcMain.handle("closeVideoWin", () => {
+        mainWindow!.webContents.send("closeVideoWin");
+    });
+
+    ipcMain.handle("openQuestion", () => {
+        mainWindow!.show();
+        mainWindow!.webContents.send("openQuestion");
+    });
+
+    ipcMain.handle("closeQuestion", () => {
+        mainWindow!.webContents.send("closeQuestion");
     });
 }
 

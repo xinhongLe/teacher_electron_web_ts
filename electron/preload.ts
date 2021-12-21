@@ -48,6 +48,10 @@ window.electron = {
         const currentWindow = getCurrentWindow();
         currentWindow.show();
     },
+    setContentSize: (width: number, height: number) => {
+        const currentWindow = getCurrentWindow();
+        currentWindow.setContentSize(width, height);
+    },
     exit: () => {
         app.quit();
     },

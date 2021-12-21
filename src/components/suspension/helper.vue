@@ -46,14 +46,14 @@
                     />
                     <div class="blackboard-text">答题器</div>
                 </div>
-                <div class="blackboard-box" @click="uncultivated">
+                <div class="blackboard-box" @click="clickProjection">
                     <img
                         src="@/assets/images/suspension/pic_touying@2x.png"
                         alt=""
                     />
                     <div class="blackboard-text">投影</div>
                 </div>
-                <div class="blackboard-box">
+                <div class="blackboard-box" @click="clickKnowledge">
                     <img
                         src="@/assets/images/suspension/pic_zhishitupu@2x.png"
                         alt=""
@@ -188,7 +188,7 @@ export default defineComponent({
             }
             const res = await getToolList(data);
             if (res.resultCode === 200) {
-                const list = res.result;
+                const list = res.result.filter(({ Url }) => Url);
                 const imgListPromise = list.map((item) => {
                     const { File } = item;
                     const { FileName, Bucket, FilePath, Extention } = File;
@@ -205,6 +205,7 @@ export default defineComponent({
         };
         const openUrl = (url: string, name: string) => {
             if (isElectron()) {
+                url = url.startsWith("http") ? url : `https://${url}`;
                 return window.electron.ipcRenderer.invoke(
                     "openSubjectTool",
                     url,
@@ -213,11 +214,17 @@ export default defineComponent({
             }
             window.open(url);
         };
+
+        const clickKnowledge = () => {
+            openUrl("https://knowledge.aixueshi.top/", "知识图谱");
+        };
+
         const openRollCall = () => {
             if (isElectron()) {
                 return window.electron.ipcRenderer.invoke("openRollCall");
             }
         };
+
         const close = () => {
             if (isElectron()) {
                 window.electron.ipcRenderer.invoke("hideUnfoldSuspensionWin");
@@ -225,6 +232,13 @@ export default defineComponent({
                 emit("close-helper");
             }
         };
+
+        const clickProjection = () => {
+            if (isElectron()) {
+                window.electron.ipcRenderer.invoke("openProjectionWindow");
+            }
+        };
+
         const uncultivated = () => {
             ElMessage({ type: "warning", message: "功能暂未开发" });
         };
@@ -258,6 +272,8 @@ export default defineComponent({
             isElectron: isElectron(),
             gameList,
             exitApp,
+            clickKnowledge,
+            clickProjection,
             searchName,
             uncultivated,
             openRollCall
