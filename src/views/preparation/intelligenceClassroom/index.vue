@@ -115,17 +115,17 @@ export default defineComponent({
             _getSchoolLessonWindow(obj);
         });
         const windowEdit = async (j, i, item) => {
-            console.log(j, i, item);
             if (j.OriginType === 0) {
                 const obj = {
-                    ID: j.WindowID,
-                    OriginType: 1,
-                    SourceLessonID: item.Lesson.ID,
-                    targetLessonID: 1
+                    id: j.WindowID,
+                    originType: null,
+                    sourceLessonID: j.LessonID,
+                    targetLessonID: j.LessonID
                 };
                 const res = await CopyWindow(obj);
                 if (res.resultCode === 200) {
                     router.push(`/windowcard-edit/${res.result.ID}/1`);
+                    j.OriginType = 1;
                 }
             } else {
                 router.push(`/windowcard-edit/${j.WindowID}/1`);

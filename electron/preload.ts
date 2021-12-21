@@ -58,6 +58,7 @@ window.electron = {
         return process.platform === "darwin";
     },
     registerEscKeyUp: (callback: () => void) => {
+        console.log(remote, "remote");
         remote.globalShortcut.register("esc", () => {
             callback && callback();
         });

@@ -41,7 +41,7 @@
 </template>
 
 <script>
-import { defineComponent, ref, watch } from "vue-demi";
+import { defineComponent, onMounted, onUnmounted, ref, watch } from "vue-demi";
 import pageListServer from "../../hooks/pageList";
 import useHome from "@/hooks/useHome";
 import OpenCardViewDialog from "../edit/openCardViewDialog.vue";
@@ -49,6 +49,7 @@ import { getCardDetail } from "../../api";
 import { get, STORAGE_TYPES } from "@/utils/storage";
 import { getWinCardDBData } from "@/utils/database";
 import { ElMessage } from "element-plus";
+import { useRoute } from "vue-router";
 export default defineComponent({
     props: ["pageListOption", "showRemark"],
     components: { OpenCardViewDialog },
@@ -104,37 +105,11 @@ export default defineComponent({
             if (dbResArr.length > 0) {
                 page.value = JSON.parse(dbResArr[0].result);
             } else {
-                const pageIdIng = get(STORAGE_TYPES.SET_PAGEIDING);
-                if (pageIdIng && pageIdIng === str) {
-                    const interval = setInterval(async () => {
-                        const dbResArr = await getWinCardDBData(str);
-                        if (dbResArr.length > 0) {
-                            clearInterval(interval);
-                            page.value = JSON.parse(dbResArr[0].result);
-                        } else {
-                            await getPageDetail(obj, obj.originType, (res) => {
-                                if (res && res.id) {
-                                    page.value = res;
-                                }
-                            });
-                        }
-                    }, 300);
-                } else if (pageIdIng && pageIdIng !== str) {
-                    const interval = setInterval(async () => {
-                        clearInterval(interval);
-                        await getPageDetail(obj, obj.originType, (res) => {
-                            if (res && res.id) {
-                                page.value = res;
-                            }
-                        });
-                    }, 300);
-                } else {
-                    await getPageDetail(obj, obj.originType, (res) => {
-                        if (res && res.id) {
-                            page.value = res;
-                        }
-                    });
-                }
+                await getPageDetail(obj, obj.originType, (res) => {
+                    if (res && res.id) {
+                        page.value = res;
+                    }
+                });
             }
         };
         const screenRef = ref();
@@ -143,6 +118,14 @@ export default defineComponent({
             isInitPage.value = false;
             screenRef.value.execPrev();
         };
+        const route = useRoute();
+        watch(() => route.path, () => {
+            if (route.path !== "/preparation") {
+                keyDisabled.value = true;
+            } else {
+                keyDisabled.value = false;
+            }
+        });
         const pagePrev = async () => {
             if (selected.value > 0) {
                 selected.value--;

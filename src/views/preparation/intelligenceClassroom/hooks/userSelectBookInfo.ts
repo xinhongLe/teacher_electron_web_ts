@@ -3,6 +3,7 @@ import { IPageValue } from "@/types/home";
 import { reactive, ref, watch } from "vue-demi";
 import { set, STORAGE_TYPES } from "@/utils/storage";
 import useHome from "@/hooks/useHome";
+import { originType } from "@/config";
 interface IGetLessonWindows {
     chapterID: string
 }
@@ -128,8 +129,7 @@ export default () => {
     };
     const isSetCache = ref(false); // 是否需要更新窗下的数据
     const allPageList:any = ref([]);
-    let pageIdIng: string | null = null; // 正在请求的页id
-    let timer: any = null;
+    // let timer: any = null;
     let noResPages: IPageValue[] = []; // 未请求的页面集合
     let resPagesIds: string[] = []; // 已经请求过的页面ids
     const _getWindowCards = (ID:string, isCache = false) => {
@@ -167,33 +167,36 @@ export default () => {
         }, 300);
     });
     const getAllPageList = async (arr: IPageValue[]) => {
-        if (timer) clearTimeout(timer);
-        if (arr.length > 0) {
-            if (resPagesIds.includes(arr[0].ID) || transformType(arr[0].Type) === -1) {
-                arr.shift();
-                noResPages = arr;
-                timer = setTimeout(() => {
-                    getAllPageList(noResPages);
-                }, 300);
+        for (const elem of arr) {
+            if (transformType(elem.Type) === -1) {
+                return;
             } else {
-                pageIdIng = arr[0].ID;
-                set(STORAGE_TYPES.SET_PAGEIDING, pageIdIng);
-                await getPageDetail(arr[0], arr[0].originType, (res: any) => {
-                    pageIdIng = null;
-                    set(STORAGE_TYPES.SET_PAGEIDING, pageIdIng);
-                    if (arr.length > 0) {
-                        if (res.id) { // 成功请求
-                            resPagesIds.push(arr[0].ID);
-                        }
-                        arr.shift();
-                        noResPages = arr;
-                        timer = setTimeout(() => {
-                            getAllPageList(noResPages);
-                        }, 300);
-                    }
-                });
+                // getPageDetail(elem, elem.originType);
             }
         }
+        // if (timer) clearTimeout(timer);
+        // if (arr.length > 0) {
+        //     if (resPagesIds.includes(arr[0].ID) || transformType(arr[0].Type) === -1) {
+        //         arr.shift();
+        //         noResPages = arr;
+        //         timer = setTimeout(() => {
+        //             getAllPageList(noResPages);
+        //         }, 300);
+        //     } else {
+        //         await getPageDetail(arr[0], arr[0].originType, (res: any) => {
+        //             if (arr.length > 0) {
+        //                 if (res.id) { // 成功请求
+        //                     resPagesIds.push(arr[0].ID);
+        //                 }
+        //                 arr.shift();
+        //                 noResPages = arr;
+        //                 timer = setTimeout(() => {
+        //                     getAllPageList(noResPages);
+        //                 }, 300);
+        //             }
+        //         });
+        //     }
+        // }
     };
     const updatePageList = (card: cardList) => {
         activeIndex.previewOptions = card;

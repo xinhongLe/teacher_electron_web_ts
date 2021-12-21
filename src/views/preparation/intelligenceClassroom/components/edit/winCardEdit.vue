@@ -126,7 +126,7 @@ export default defineComponent({
         const getAllPageList = async (allPageList: IPageValue[]) => {
             if (timer) clearTimeout(timer);
             if (allPageList.length > 0) {
-                if (resPagesIds.includes(allPageList[0].ID) || transformType(allPageList[0].Type)) {
+                if (resPagesIds.includes(allPageList[0].ID) || transformType(allPageList[0].Type) === -1) {
                     allPageList.shift();
                     noResPages = allPageList;
                     // set(STORAGE_TYPES.SET_NORESPAGES, pageIdIng);

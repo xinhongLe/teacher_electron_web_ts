@@ -193,7 +193,7 @@ export default defineComponent({
         const winValue = route.params.winValue as string;
 
         const handleAddCard = (name:string) => {
-            _addCard({ WindowID: `${route.params.winValue as string}`, Sort: 0, Name: name });
+            _addCard({ WindowID: route.params.winValue as string, Sort: 0, Name: name });
             dialogVisibleCard.value = false;
         };
 
@@ -295,8 +295,7 @@ export default defineComponent({
         };
         const winCardViewRef = ref();
         onMounted(() => {
-            _getWindowCards({ WindowID: `${route.params.winValue as string}` }, true);
-            document.addEventListener("keydown", keyDown);
+            _getWindowCards({ WindowID: route.params.winValue as string }, true);
             document.addEventListener("keydown", keyDown);
             if (isElectron()) {
                 (window as any).electron.registerEscKeyUp(() => {

@@ -33,11 +33,13 @@ export default defineComponent({
         );
         const cardIndex = ref(0);
         const handleClick = (index, item) => {
+            console.log(index, item);
             cardIndex.value = index;
             const pageDate = dealCardData(item, item.originType);
             emit("updatePageList", pageDate);
         };
         const changeReducePage = () => {
+            if (currentCardList.value.length === 0) return false;
             if (cardIndex.value + 1 === currentCardList.value.length) {
                 return ElMessage({ type: "warning", message: "已经是最后一页" });
             }
