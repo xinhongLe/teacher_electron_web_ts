@@ -1,7 +1,9 @@
 <template>
     <div class="helper-container">
         <div class="header">
-            <span class="exit" v-if="isElectron" @click="exitApp">退出程序</span>
+            <span class="exit" v-if="isElectron" @click="exitApp"
+                >退出程序</span
+            >
             <img
                 src="@/assets/images/suspension/pic_tittle_zhike@2x.png"
                 alt=""
@@ -98,22 +100,24 @@
                     </div>
                 </div>
                 <div class="teach-class">
-                    <div class="list-empty">
+                    <div class="list-empty" v-if="gameList.length === 0">
                         <img src="@/assets/images/suspension/empty_tool.png" />
                         <span
                             >本书册下暂无教具，可切换为“全部”查看更多教具内容</span
                         >
                     </div>
-                    <div
-                        class="teach-content"
-                        v-for="(item, index) in gameList"
-                        :key="index"
-                        @click="openUrl(item.url, item.name)"
-                    >
-                        <div class="img-warp">
-                            <img :src="item.imgUrl" />
+                    <div v-else class="teach-content-warp">
+                        <div
+                            class="teach-content"
+                            v-for="(item, index) in gameList"
+                            :key="index"
+                            @click="openUrl(item.url, item.name)"
+                        >
+                            <div class="img-warp">
+                                <img :src="item.imgUrl" />
+                            </div>
+                            <p>{{ item.name }}</p>
                         </div>
-                        <p>{{ item.name }}</p>
                     </div>
                 </div>
             </div>
@@ -132,10 +136,12 @@ import { BookList } from "@/types/preparation";
 export default defineComponent({
     setup(props, { emit }) {
         const gameList = ref<Game[]>([]);
-        const subjectPublisherBookList = ref<BookList[]>([{
-            Lable: "全部教具",
-            Value: "全部教具"
-        }]);
+        const subjectPublisherBookList = ref<BookList[]>([
+            {
+                Lable: "全部教具",
+                Value: "全部教具"
+            }
+        ]);
         const cascaderProps = {
             value: "Value",
             children: "Children",
@@ -164,9 +170,19 @@ export default defineComponent({
                 bookIDs: [] as string[]
             };
             if (selectBookList.value.length === 1) {
-                data.bookIDs = subjectPublisherBookList.value.find(item => item.Value === selectBookList.value[0])?.Children?.flatMap(x => x.Children || { Value: "" }).map(x => x?.Value || "") || [];
+                data.bookIDs =
+                    subjectPublisherBookList.value
+                        .find((item) => item.Value === selectBookList.value[0])
+                        ?.Children?.flatMap((x) => x.Children || { Value: "" })
+                        .map((x) => x?.Value || "") || [];
             } else if (selectBookList.value.length === 2) {
-                data.bookIDs = subjectPublisherBookList.value.find(item => item.Value === selectBookList.value[0])?.Children?.find(item => item.Value === selectBookList.value[1])?.Children?.map(x => x?.Value || "") || [];
+                data.bookIDs =
+                    subjectPublisherBookList.value
+                        .find((item) => item.Value === selectBookList.value[0])
+                        ?.Children?.find(
+                            (item) => item.Value === selectBookList.value[1]
+                        )
+                        ?.Children?.map((x) => x?.Value || "") || [];
             } else {
                 data.bookID = selectBookList.value[2];
             }
@@ -220,7 +236,10 @@ export default defineComponent({
         onMounted(async () => {
             const res = await fetchSubjectPublisherBookList();
             if (res.resultCode === 200) {
-                subjectPublisherBookList.value = [...subjectPublisherBookList.value, ...res.result];
+                subjectPublisherBookList.value = [
+                    ...subjectPublisherBookList.value,
+                    ...res.result
+                ];
             }
             getGradeList();
         });
@@ -375,7 +394,12 @@ export default defineComponent({
                 color: #fff;
                 overflow-y: auto;
                 margin: 10px 0;
-                background: #0c1222;
+                .teach-content-warp {
+                    padding-left: 20px;
+                    display: flex;
+                    justify-content: flex-start;
+                    flex-wrap: wrap;
+                }
                 .list-empty {
                     display: flex;
                     justify-content: center;
@@ -383,6 +407,7 @@ export default defineComponent({
                     width: 100%;
                     color: #bec3d6;
                     font-size: 16px;
+                    background: #0c1222;
                     flex-direction: column;
                 }
                 &::-webkit-scrollbar {
@@ -400,6 +425,7 @@ export default defineComponent({
                         background: #d1eaff;
                         display: flex;
                         justify-content: center;
+                        border-radius: 4px;
                         img {
                             object-fit: contain;
                             width: 100%;
