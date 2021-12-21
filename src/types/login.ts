@@ -5,6 +5,10 @@ export interface ILoginData {
     password: string;
 }
 
+export interface ILoginTokenData {
+    token: string;
+}
+
 interface ILoginResult {
     token: string;
 }
