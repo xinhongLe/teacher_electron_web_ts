@@ -63,6 +63,7 @@ export default defineComponent({
         };
         const fullScreenStyle = ref(false);
         const fullScreen = () => {
+            showRemark.value = false;
             fullScreenStyle.value = true;
             PageList.value.fullScreen();
         };

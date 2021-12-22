@@ -158,13 +158,7 @@ export default () => {
         return list;
     };
     watch(allPageList, () => {
-        if (allPageList.length > 0) {
-            return false;
-        }
-        const interval = setInterval(() => {
-            clearInterval(interval);
-            getAllPageList(JSON.parse(JSON.stringify(allPageList.value)));
-        }, 300);
+        getAllPageList(JSON.parse(JSON.stringify(allPageList.value)));
     });
     const getAllPageList = async (arr: IPageValue[]) => {
         for (const elem of arr) {

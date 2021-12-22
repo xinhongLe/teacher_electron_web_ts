@@ -152,7 +152,7 @@ export default defineComponent({
             }
         );
         onMounted(() => {
-            document.addEventListener("keydown", keyDown);
+            window.addEventListener("keydown", keyDown);
             window.addEventListener("resize", onResize);
             canvas.value = document.getElementById("canvas");
             canvas.value.setAttribute("width", document.getElementsByClassName("main-body")[0].clientWidth);
@@ -161,7 +161,7 @@ export default defineComponent({
         });
         onUnmounted(() => {
             window.removeEventListener("resize", onResize);
-            document.removeEventListener("keydown", keyDown);
+            window.removeEventListener("keydown", keyDown);
         });
         const onResize = async () => {
             canvas.value.setAttribute("width", document.getElementsByClassName("main-body")[0].clientWidth);
@@ -246,7 +246,7 @@ export default defineComponent({
         const fullScreen = async () => {
             if ((window as any).electron && !(window as any).electron.isFullScreen() && !(window as any).electron.isMac()) {
                 (window as any).electron.setFullScreen();
-                await sleep(100);
+                await sleep(300);
             }
             activeFlag.value = true;
             switchFlag.value = true;
