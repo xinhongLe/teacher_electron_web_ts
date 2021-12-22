@@ -129,15 +129,9 @@ export default () => {
     };
     const isSetCache = ref(false); // 是否需要更新窗下的数据
     const allPageList:any = ref([]);
-    // let timer: any = null;
-    let noResPages: IPageValue[] = []; // 未请求的页面集合
-    let resPagesIds: string[] = []; // 已经请求过的页面ids
     const _getWindowCards = (ID:string, isCache = false) => {
         getWindowCards({ WindowID: ID, OriginType: activeIndex.originType }).then((res) => {
             if (res.resultCode === 200) {
-                noResPages = [];
-                resPagesIds = [];
-                getAllPageList([]);
                 const removeNoPageList = res.result.filter((item:any) => { return item.PageList.length > 0; });
                 allData.cardList = detailData(removeNoPageList);
                 isSetCache.value = isCache;

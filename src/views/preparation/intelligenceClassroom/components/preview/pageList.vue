@@ -182,6 +182,7 @@ export default defineComponent({
         };
         const cardList = ref([]);
         const openCard = async (wins) => {
+            console.log(wins, "wins");
             if (wins[0] && wins[0].cards) {
                 keyDisabled.value = true;
                 const cards = wins[0].cards;
@@ -197,6 +198,7 @@ export default defineComponent({
                     }));
                 });
                 if (pages.length > 0) {
+                    console.log(pages, "pages");
                     const pageIDs = pages.map(page => page.ID);
                     const res = await getCardDetail({ pageIDs });
                     if (res.resultCode === 200 && res.result && res.result.length > 0) {
