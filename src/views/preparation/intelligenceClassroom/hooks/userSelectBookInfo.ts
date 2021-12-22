@@ -151,18 +151,30 @@ export default () => {
         });
         return list;
     };
+
+    let isExecuting = false;
+    let executePageList:any = [];
+
     watch(allPageList, () => {
-        getAllPageList(JSON.parse(JSON.stringify(allPageList.value)));
+        executePageList = JSON.parse(JSON.stringify(allPageList.value));
+        if (!isExecuting) {
+            _getPageDetail();
+        }
     });
-    const getAllPageList = async (arr: IPageValue[]) => {
-        for (const elem of arr) {
-            if (transformType(elem.Type) !== -1) {
-                await getPageDetail(elem, elem.originType, (res:any) => {
-                    // console.log(res);
-                });
-            }
+
+    const _getPageDetail: any = async () => {
+        if (executePageList.length !== 0) {
+            isExecuting = true;
+            const [elem] = executePageList.splice(0, 1);
+            await getPageDetail(elem, elem.originType, (res:any) => {
+                // console.log(res);
+            });
+            return _getPageDetail();
+        } else {
+            return (isExecuting = false);
         }
     };
+
     const updatePageList = (card: cardList) => {
         activeIndex.previewOptions = card;
     };

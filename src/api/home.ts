@@ -171,7 +171,7 @@ export async function getPageDetailRes(data:IGetPageData, type: number, callback
         "/Api/WCP/TeachTool/GetPageTool" // 教具页
     ];
     const dbResArr = await getWinCardDBData(data.pageID);
-    return new Promise(() => {
+    return new Promise((resolve) => {
         if (dbResArr.length > 0) {
             callback(JSON.parse(dbResArr[0].result));
         }
@@ -183,6 +183,7 @@ export async function getPageDetailRes(data:IGetPageData, type: number, callback
             data
         }).then((res: any) => {
             callback(res);
+            resolve(res);
         });
     });
 }
