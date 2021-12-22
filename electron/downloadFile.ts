@@ -18,7 +18,7 @@ export default (win: BrowserWindow) => {
         const isExist = await isExistFile(filePath);
         if (isExist) {
             const callback = downloadSuccessCallbackMap.get(fileName);
-            callback(filePath);
+            callback && callback(filePath);
         } else {
             if (!downloadingFileList.includes(fileName)) {
                 win.webContents.downloadURL(url);
@@ -45,7 +45,7 @@ export default (win: BrowserWindow) => {
             downloadingFileList.splice(index, 1);
             if (state === "completed") {
                 const callback = downloadSuccessCallbackMap.get(fileName);
-                callback(filePath);
+                callback && callback(filePath);
             }
         });
     });

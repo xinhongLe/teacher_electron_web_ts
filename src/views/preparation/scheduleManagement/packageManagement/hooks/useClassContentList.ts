@@ -12,7 +12,7 @@ export default () => {
     const classContentList = ref<ClassContent[]>([]);
 
     const queryClassContentList = async () => {
-        const { Type, ID } = store.state.preparation.selectCourseBag;
+        const { CourseBagType, ID } = store.state.preparation.selectCourseBag;
 
         if (!ID) return;
 
@@ -29,13 +29,13 @@ export default () => {
 
         let res;
 
-        if (Type === 1) {
+        if (CourseBagType === 1) {
             const cloneCourseBagDetail = await cloneCourseBagToTeacher({
                 courseBagID: ID!
             });
             if (cloneCourseBagDetail.resultCode === 200) {
                 res = await getCourseByCourseBag(2, {
-                    courseBagTeacherID: ID!
+                    courseBagTeacherID: cloneCourseBagDetail.result.CourseBagTeacher.ID
                 });
             }
         } else {

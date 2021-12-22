@@ -1,5 +1,5 @@
 <template>
-      <div class="import">
+    <div class="import">
         <p>
             <span>只能上传xls/xlsx文件</span>
             <el-upload
@@ -17,14 +17,26 @@
                 <span><i class="el-icon-plus"></i>添加文件</span></el-upload
             >
 
-             <span style="margin-right: 0;background: #D4D6D9;color: #fff; border-color: #D4D6D9" v-show="fileInfo.name"><i class="el-icon-plus"></i>添加文件</span>
-                <span>
-                <el-link type="primary" href="https://app-v.oss-cn-shanghai.aliyuncs.com/other/%E6%89%B9%E9%87%8F%E6%B3%A8%E5%86%8C%E5%AD%A6%E7%94%9F%E4%BF%A1%E6%81%AF%E8%A1%A8.xlsx" download="批量注册学生信息表.xlsx"
-                    >
-                    <i class="el-icon-download"></i>下载导入模板
-                    </el-link
+            <span
+                style="
+                    margin-right: 0;
+                    background: #d4d6d9;
+                    color: #fff;
+                    border-color: #d4d6d9;
+                "
+                v-show="fileInfo.name"
+                ><i class="el-icon-plus"></i>添加文件</span
+            >
+            <span>
+                <el-link
+                    type="primary"
+                    :href="href"
+                    download="批量注册学生信息表.xlsx"
+                    @click="clickLink"
                 >
-                </span>
+                    <i class="el-icon-download"></i>下载导入模板
+                </el-link>
+            </span>
         </p>
         <div class="no-data" v-if="!fileInfo.name">
             <img src="@/assets/my-student/pic_wuwenjian@2x.png" />
@@ -33,7 +45,7 @@
         </div>
         <div class="file-box">
             <div class="file" v-if="fileInfo.name">
-                <img src="@/assets/my-student/icon_excel@2x.png" alt=""/>
+                <img src="@/assets/my-student/icon_excel@2x.png" alt="" />
                 <span>{{ fileInfo.name }}</span>
                 <span>已上传</span>
                 <span @click="delFile"><i class="el-icon-delete"></i>删除</span>
@@ -53,8 +65,13 @@
 import { AI_XUE_SHI_API } from "@/config";
 import { store } from "@/store";
 import { ElUploadType } from "@/types/elementType";
+import { openFile } from "@/utils";
 import { ElMessage } from "element-plus";
-import { ElFile, UploadFile } from "element-plus/lib/components/upload/src/upload.type";
+import {
+    ElFile,
+    UploadFile
+} from "element-plus/lib/components/upload/src/upload.type";
+import isElectron from "is-electron";
 import { defineComponent, ref } from "vue";
 import { batchAddStudent } from "../api";
 const getIconName = (extention: string) => {
@@ -86,7 +103,9 @@ export default defineComponent({
     setup(props, { emit }) {
         const fileInfo = ref<Partial<UploadFile>>({});
         const uploadRef = ref<ElUploadType>();
-        const action = AI_XUE_SHI_API + "/Api/Web/Class/BatchAddStudent/V210918";
+        const action =
+            AI_XUE_SHI_API + "/Api/Web/Class/BatchAddStudent/V210918";
+        const href = ref("");
         const delFile = () => {
             emit("update:isDisabledBtn", true);
             fileInfo.value = {};
@@ -97,9 +116,14 @@ export default defineComponent({
             fileInfo.value = file;
         };
 
-        const uploadSectionFile = async ({ file }: {file: ElFile}) => {
+        const uploadSectionFile = async ({ file }: { file: ElFile }) => {
             const formdata = new FormData(); // 创建form对象
-            const { userInfo: { id }, myStudent: { selectClassInfo: { ID, SchoolId } } } = store.state;
+            const {
+                userInfo: { id },
+                myStudent: {
+                    selectClassInfo: { ID, SchoolId }
+                }
+            } = store.state;
             formdata.append("classId", ID);
             formdata.append("teacherId", id);
             formdata.append("schoolId", SchoolId); // 通过append向form对象添加数据,可以通过append继续添加数据
@@ -113,6 +137,14 @@ export default defineComponent({
                 delFile();
             }
         };
+
+        const clickLink = () => {
+            if (isElectron()) {
+                return openFile("https://app-v.oss-cn-shanghai.aliyuncs.com/other/%E6%89%B9%E9%87%8F%E6%B3%A8%E5%86%8C%E5%AD%A6%E7%94%9F%E4%BF%A1%E6%81%AF%E8%A1%A8.xlsx", "批量注册学生信息表.xlsx");
+            }
+            href.value = "https://app-v.oss-cn-shanghai.aliyuncs.com/other/%E6%89%B9%E9%87%8F%E6%B3%A8%E5%86%8C%E5%AD%A6%E7%94%9F%E4%BF%A1%E6%81%AF%E8%A1%A8.xlsx";
+        };
+
         return {
             getIconName,
             delFile,
@@ -120,6 +152,8 @@ export default defineComponent({
             uploadSectionFile,
             fileInfo,
             uploadRef,
+            href,
+            clickLink,
             action
         };
     }
@@ -143,7 +177,8 @@ export default defineComponent({
             color: #19203d;
             line-height: 28px;
         }
-        > span:nth-of-type(2),> span:nth-of-type(3) {
+        > span:nth-of-type(2),
+        > span:nth-of-type(3) {
             width: 132px;
             height: 32px;
             border-radius: 4px;

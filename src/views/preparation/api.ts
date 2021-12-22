@@ -2,7 +2,7 @@ import request from "@/utils/request";
 import { AI_XUE_SHI_API } from "@/config";
 import { IResponse, RequestFun } from "@/types/response";
 import {
-    AddChapterData, AddCourseWareTeacherElementFileData, AddCustomBookLessonData, AddMaterialData, AddOrUpdateCourseBagTeacherData, BagChapter, BookChapter, BookList, CloneCourseBagToTeacherData, Course,
+    AddChapterData, AddCourseWareTeacherElementFileData, AddCustomBookLessonData, AddMaterialData, AddOrUpdateCourseBagTeacherData, BagChapter, BookChapter, BookList, CloneCourseBagToTeacherData, CloneCourseBagToTeacherRes, Course,
     DelCourseBagTeacherData,
     DeleteMaterialData,
     EditMaterialData,
@@ -129,7 +129,7 @@ export function saveTeacherClassSchedule(data: SaveTeacherClassScheduleData): Pr
 }
 
 // 克隆系统课包
-export function cloneCourseBagToTeacher(data: CloneCourseBagToTeacherData): Promise<IResponse<null>> {
+export function cloneCourseBagToTeacher(data: CloneCourseBagToTeacherData): Promise<IResponse<CloneCourseBagToTeacherRes>> {
     return request({
         baseURL: AI_XUE_SHI_API,
         url: "API/W4/Teach/CloneCourseBagToTeacher",

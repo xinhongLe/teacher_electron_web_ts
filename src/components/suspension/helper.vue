@@ -136,12 +136,13 @@ import { BookList } from "@/types/preparation";
 export default defineComponent({
     setup(props, { emit }) {
         const gameList = ref<Game[]>([]);
-        const subjectPublisherBookList = ref<BookList[]>([
+        const initBookList = [
             {
                 Lable: "全部教具",
                 Value: "全部教具"
             }
-        ]);
+        ];
+        const subjectPublisherBookList = ref<BookList[]>(initBookList);
         const cascaderProps = {
             value: "Value",
             children: "Children",
@@ -247,15 +248,22 @@ export default defineComponent({
             window.electron.ipcRenderer.invoke("exitApp");
         };
 
-        onMounted(async () => {
+        const getBookList = async () => {
             const res = await fetchSubjectPublisherBookList();
             if (res.resultCode === 200) {
                 subjectPublisherBookList.value = [
-                    ...subjectPublisherBookList.value,
+                    ...initBookList,
                     ...res.result
                 ];
             }
             getGradeList();
+        };
+
+        onMounted(async () => {
+            getBookList();
+            if (isElectron()) {
+                window.electron.ipcRenderer.on("loginSuccess", getBookList);
+            }
         });
 
         watch(selectBookList, getGradeList);

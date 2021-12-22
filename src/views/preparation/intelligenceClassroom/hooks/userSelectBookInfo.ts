@@ -166,9 +166,11 @@ export default () => {
         if (executePageList.length !== 0) {
             isExecuting = true;
             const [elem] = executePageList.splice(0, 1);
-            await getPageDetail(elem, elem.originType, (res:any) => {
-                // console.log(res);
-            });
+            if (transformType(elem.Type) !== -1) {
+                await getPageDetail(elem, elem.originType, (res:any) => {
+                    // console.log(res);
+                });
+            }
             return _getPageDetail();
         } else {
             return (isExecuting = false);
