@@ -1,3 +1,5 @@
+import { decrypt, encrypt } from "./crypto";
+
 const PREFIX = "VUE";
 
 export enum STORAGE_TYPES {
@@ -38,14 +40,17 @@ export enum STORAGE_TYPES {
     HOMEWORK_DETAIL = "HOMEWORK_DETAIL"
 }
 
-export const set = (name: STORAGE_TYPES, value: unknown) => {
-    localStorage.setItem(`${PREFIX}_${name}`, typeof value === "string" ? value : JSON.stringify(value));
+export const set = (name: STORAGE_TYPES, value: unknown, isEncrypt = false) => {
+    let newValue = typeof value === "string" ? value : JSON.stringify(value);
+    newValue = isEncrypt ? encrypt(newValue) : newValue;
+    localStorage.setItem(`${PREFIX}_${name}`, newValue);
 };
 
-export const get = (name: STORAGE_TYPES) => {
-    const item = localStorage.getItem(`${PREFIX}_${name}`);
+export const get = (name: STORAGE_TYPES, isDecrypt = false) => {
+    let item = localStorage.getItem(`${PREFIX}_${name}`);
     let result;
     try {
+        item = isDecrypt ? decrypt(item || "") : item;
         result = item === null ? null : JSON.parse(item);
     } catch {
         result = item;

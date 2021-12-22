@@ -111,16 +111,15 @@ export default defineComponent({
 
         const loading = ref(false);
         const recordAccountList = ref([]);
-        recordAccountList.value = get(STORAGE_TYPES.RECORD_LOGIN_LIST) || [];
+        recordAccountList.value = get(STORAGE_TYPES.RECORD_LOGIN_LIST, true) || [];
 
-        const { userLogin, recordAccount } = useLogin();
+        const { userLogin } = useLogin();
 
         const login = async () => {
             const { account, password } = form;
             if (account.length === 0 || password.length === 0) return false;
             loading.value = true;
             await userLogin(account, password);
-            recordAccount(form);
             loading.value = false;
             router.push("/");
         };
@@ -133,7 +132,7 @@ export default defineComponent({
         };
         const delAccount = (index: number) => {
             recordAccountList.value.splice(index, 1);
-            set(STORAGE_TYPES.RECORD_LOGIN_LIST, recordAccountList.value);
+            set(STORAGE_TYPES.RECORD_LOGIN_LIST, recordAccountList.value, true);
         };
         const onEnter = (e: KeyboardEvent) => {
             if (e.key === "Enter") {
