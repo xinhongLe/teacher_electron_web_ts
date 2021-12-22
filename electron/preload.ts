@@ -48,6 +48,10 @@ window.electron = {
         const currentWindow = getCurrentWindow();
         currentWindow.show();
     },
+    destroyWindow: () => {
+        const currentWindow = getCurrentWindow();
+        currentWindow.destroy();
+    },
     setContentSize: (width: number, height: number) => {
         const currentWindow = getCurrentWindow();
         currentWindow.setContentSize(width, height);
@@ -62,7 +66,6 @@ window.electron = {
         return process.platform === "darwin";
     },
     registerEscKeyUp: (callback: () => void) => {
-        console.log(remote, "remote");
         remote.globalShortcut.register("esc", () => {
             callback && callback();
         });

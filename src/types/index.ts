@@ -13,6 +13,7 @@ type Electron = typeof electron & {
     unRegisterEscKeyUp: () => void,
     hideWindow: () => void,
     setContentSize: (width: number, height: number) => void,
+    destroyWindow: () => void,
     showWindow: () => void
 }
 
