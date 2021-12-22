@@ -39,7 +39,7 @@ export default () => {
             ElMessage({ type: "warning", message: "暂不支持该页面类型" });
             return {};
         }
-        const res = getPageDetailRes(data, type, async(res:any) => {
+        await getPageDetailRes(data, type, async(res:any) => {
             const pageDetail = await dealPageDetail(page, res);
             callback(pageDetail);
         });

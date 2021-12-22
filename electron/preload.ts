@@ -76,9 +76,9 @@ window.electron = {
         remote.globalShortcut.unregister("esc");
     },
     getCacheFile: async (fileName: string) => {
+        if (!fileName) return "";
         const filePath = process.platform === "darwin" ? appPath + fileName : resolve(appPath, fileName);
         const isExist = await isExistFile(filePath);
-        console.log(isExist ? "file://" + filePath.split("\\").join("/") : "");
         return isExist ? "file://" + filePath.split("\\").join("/") : "";
     },
     ...electron
