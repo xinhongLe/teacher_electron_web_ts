@@ -151,6 +151,7 @@ export default defineComponent({
     display: flex;
     align-items: center;
     padding: 0 20px;
+    cursor: pointer;
     span {
       font-size: 16px;
       font-family: PingFangSC-Regular, PingFang SC;
