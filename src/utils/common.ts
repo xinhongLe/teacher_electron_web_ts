@@ -264,7 +264,8 @@ export default class TrackService {
                     baseURL: this.TrackBaseUrl,
                     url: this.TRACKAPIPATH,
                     headers: {
-                        "Content-Type": "application/json-patch+json"
+                        "Content-Type": "application/json-patch+json",
+                        noLoading: "true"
                     },
                     method: "post",
                     data: model

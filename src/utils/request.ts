@@ -45,7 +45,7 @@ http.interceptors.response.use(
             router.push("/login");
             initAllState();
         } else if (res.resultCode !== 200) {
-            ElMessage({
+            res.resultDesc && ElMessage({
                 message: res.resultDesc,
                 type: "error",
                 duration: 5 * 1000
