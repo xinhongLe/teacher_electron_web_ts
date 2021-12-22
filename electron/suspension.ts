@@ -249,6 +249,7 @@ export function registerEvent() {
 
     ipcMain.handle("closeSuspension", () => {
         suspensionWin && suspensionWin.hide();
+        unfoldSuspensionWin && unfoldSuspensionWin.hide();
         hideSuspensionIcon();
     });
 
@@ -352,5 +353,9 @@ export function registerEvent() {
             return projectionWin.show();
         }
         createProjectionWindow();
+    });
+
+    ipcMain.handle("loginSuccess", () => {
+        unfoldSuspensionWin && unfoldSuspensionWin.webContents.send("loginSuccess");
     });
 }
