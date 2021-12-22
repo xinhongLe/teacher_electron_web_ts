@@ -13,6 +13,8 @@ type Electron = typeof electron & {
     unRegisterEscKeyUp: () => void,
     hideWindow: () => void,
     setContentSize: (width: number, height: number) => void,
+    getCacheFile: (fileName: string) => Promise<string>,
+    destroyWindow: () => void,
     showWindow: () => void
 }
 

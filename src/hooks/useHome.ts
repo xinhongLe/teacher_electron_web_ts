@@ -7,6 +7,7 @@ import { ElMessage } from "element-plus";
 import { dealSaveDataWord, dealSaveDataVideo, dealSaveDataTeach, dealSaveDataElement } from "@/utils/savePageDataParse";
 import { getWinCardDBData, setWinCardDBData, updateWinCardDBData } from "@/utils/database";
 import { pageType } from "@/config";
+import { cacheSildeFiles } from "@/utils/file";
 interface PageData {
     pageID: string,
     OriginType: any
@@ -54,6 +55,7 @@ export default () => {
                     const oldSlide = JSON.parse(slideString);
                     // 素材页如果是新数据直接赋值(更新id是为了避免复制卡过后id不统一问题)，旧数据dealOldData处理
                     newSlide = oldSlide.type ? { ...oldSlide, id: page.ID } : await dealOldData(page.ID, oldSlide);
+                    cacheSildeFiles(newSlide);
                 } else if (page.Type === pageType.listen) {
                     newSlide = dealOldDataWord(page.ID, res.result);
                 } else if (page.Type === pageType.follow) {

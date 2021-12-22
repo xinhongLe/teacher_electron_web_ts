@@ -48,16 +48,17 @@ export default defineComponent({
         }
 
         async function updateDeviceList () {
-            videoList.value = [];
+            const list: { label: string; id: string }[] = [];
             const devices = await navigator.mediaDevices.enumerateDevices();
             devices.forEach((device) => {
                 if (device.kind === "videoinput") {
-                    videoList.value.push({
+                    list.push({
                         label: device.label,
                         id: device.deviceId
                     });
                 }
             });
+            videoList.value = list;
             mediaStreamConstraints.deviceId = videoList.value[0]?.id || "";
         }
 
@@ -67,13 +68,13 @@ export default defineComponent({
                 confirmButtonText: "确定",
                 cancelButtonText: "取消"
             }).then(() => {
-                window.close();
+                window.electron.destroyWindow();
             });
         };
 
-        watch(() => mediaStreamConstraints.deviceId, () => {
+        watch(mediaStreamConstraints, (v) => {
             navigator.mediaDevices
-                .getUserMedia(mediaStreamConstraints)
+                .getUserMedia(v)
                 .then(gotLocalMediaStream);
         });
 

@@ -130,7 +130,9 @@ export const showFileIcon = (extention: string) => {
 
 export const openFile = (url: string, fileName = "") => {
     if (isElectron()) {
-        return window.electron.ipcRenderer.invoke("downloadFile", url, fileName);
+        return window.electron.ipcRenderer.invoke("downloadFile", url, fileName).then((filePath) => {
+            window.electron.shell.openPath(filePath);
+        });
     }
     window.open(url);
 };

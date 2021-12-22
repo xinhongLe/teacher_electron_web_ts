@@ -1,5 +1,7 @@
 import { getCurrentWindow, app } from "@electron/remote";
 import electron, { remote } from "electron";
+import { appPath, isExistFile } from "./downloadFile";
+import { resolve } from "path";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 window.electron = {
@@ -48,6 +50,10 @@ window.electron = {
         const currentWindow = getCurrentWindow();
         currentWindow.show();
     },
+    destroyWindow: () => {
+        const currentWindow = getCurrentWindow();
+        currentWindow.destroy();
+    },
     setContentSize: (width: number, height: number) => {
         const currentWindow = getCurrentWindow();
         currentWindow.setContentSize(width, height);
@@ -62,13 +68,18 @@ window.electron = {
         return process.platform === "darwin";
     },
     registerEscKeyUp: (callback: () => void) => {
-        console.log(remote, "remote");
         remote.globalShortcut.register("esc", () => {
             callback && callback();
         });
     },
     unRegisterEscKeyUp: () => {
         remote.globalShortcut.unregister("esc");
+    },
+    getCacheFile: async (fileName: string) => {
+        const filePath = process.platform === "darwin" ? appPath + fileName : resolve(appPath, fileName);
+        const isExist = await isExistFile(filePath);
+        console.log(isExist ? "file://" + filePath.split("\\").join("/") : "");
+        return isExist ? "file://" + filePath.split("\\").join("/") : "";
     },
     ...electron
 };
