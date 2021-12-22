@@ -24,7 +24,7 @@
                     :class="selected === index && 'active'"
                     v-for="(item, index) in pageList"
                     :key="index"
-                    @click="selectPage(index)"
+                    @click="selectPage(index,item)"
                 >
                     {{ item.Name }}
                     <div
@@ -42,6 +42,7 @@
 
 <script>
 import { defineComponent, onMounted, onUnmounted, ref, watch } from "vue-demi";
+import TrackService, { EnumTrackEventType } from "@/utils/common";
 import pageListServer from "../../hooks/pageList";
 import useHome from "@/hooks/useHome";
 import OpenCardViewDialog from "../edit/openCardViewDialog.vue";
@@ -92,9 +93,11 @@ export default defineComponent({
                 }
             }
         );
-        const selectPage = (index) => {
+        const selectPage = (index, item) => {
             selected.value = index;
+            console.log(item, "page");
             getDataBase(pageList.value[index].ID, pageList.value[index]);
+            TrackService.setTrack(EnumTrackEventType.SelectPage, "", "", "", "", item.Name, item.ID, "选择页");
         };
         const getDataBase = async (str, obj) => {
             if (transformType(obj.Type) === -1) {

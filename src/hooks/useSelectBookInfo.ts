@@ -9,6 +9,7 @@ import { reactive, ref, computed } from "vue";
 import { ElMessageBox, ElMessage } from "element-plus";
 import Node from "element-plus/es/components/tree/src/model/node";
 import { useRoute } from "vue-router";
+import TrackService, { EnumTrackEventType } from "@/utils/common";
 interface State {
     subjectPublisherBookList: ITreeList[],
     subjectPublisherBookValue: string[],
@@ -107,6 +108,7 @@ export default () => {
         copyPage(data).then(res => {
             if (res.resultCode === 200) {
                 ElMessage({ type: "success", message: "粘贴卡成功" });
+                TrackService.setTrack(EnumTrackEventType.PastePage, "", "", "", "", "", "", "粘贴卡");
                 _getWindowCards({ WindowID: `${route.params.winValue}`, OriginType: 1 });
             }
         });
@@ -127,6 +129,7 @@ export default () => {
                     _getWindowCards({ WindowID: `${route.params.winValue}`, OriginType: 1 });
                 }
             });
+            TrackService.setTrack(EnumTrackEventType.DeleteCard, "", "", "", "", "", "", "删除卡或页");
             // 删除卡或页是当前展示的页面则清空页面
             if (pageValue.value.ID === ID || cardsValue.value.ID === ID) {
                 pageValue.value = { ID: "", Type: 11 };
@@ -140,6 +143,7 @@ export default () => {
         addCard(data).then(res => {
             if (res.resultCode === 200) {
                 ElMessage({ type: "success", message: "新增卡成功" });
+                TrackService.setTrack(EnumTrackEventType.AddCard, "", "", "", "", "", "", "新增卡");
                 _getWindowCards({ WindowID: `${route.params.winValue}`, OriginType: 1 });
             }
         });
@@ -158,6 +162,7 @@ export default () => {
         renameCardOrPage(data).then(res => {
             if (res.resultCode === 200) {
                 ElMessage({ type: "success", message: "更新名称成功" });
+                TrackService.setTrack(EnumTrackEventType.ChangeCardName, "", "", "", "", "", "", "修改卡名");
                 _getWindowCards({ WindowID: `${route.params.winValue}`, OriginType: 1 });
             }
         });
