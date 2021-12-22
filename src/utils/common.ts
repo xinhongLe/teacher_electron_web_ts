@@ -1,5 +1,6 @@
 import { padStart } from "lodash";
 import request from "./request";
+import { get, STORAGE_TYPES } from "./storage";
 
 export enum EnumTrackEventType {
     /// <summary>
@@ -90,7 +91,7 @@ export class TrackModel {
     /// <summary>
     /// 跟踪来源
     /// </summary>
-    Source: EnumTrackSource = EnumTrackSource.WCP;
+    Source: EnumTrackSource = EnumTrackSource.Web;
     /// <summary>
     /// 埋点事件类型
     /// </summary>
@@ -210,7 +211,7 @@ export const sleep = (time: number) => {
     });
 };
 
-export class TrackService {
+export default class TrackService {
     private static TRACKAPIPATH = "Api/Track/create";
     public static IsEnableTrack = true;
     public static TrackBaseUrl = "https://api.aixueshi.top:5019/";
@@ -225,6 +226,31 @@ export class TrackService {
         if (this.IsEnableTrack) {
             this.trackModels.push(model);
         }
+    }
+
+    static setTrack(trackEventType: number, windowId = "", windowName = "", cardId = "", cardName = "", pageId = "", pageName = "", content = "", dataContext = "") {
+        const trackModel = new TrackModel();
+        const userInfo = get(STORAGE_TYPES.USER_INFO);
+        trackModel.TrackEventType = trackEventType;
+        trackModel.FranchiseeID = userInfo.FranchiseeID;
+        trackModel.OperatorID = userInfo.ID;
+        trackModel.OperatorName = userInfo.Name;
+        trackModel.SessionID = get(STORAGE_TYPES.SESSION_ID);
+        trackModel.Version = window.electron.getVersion();
+        const trackDataModel = new TrackDataModel();
+        trackDataModel.OperatorName = userInfo.Name;
+        trackDataModel.OperatorID = userInfo.ID;
+        trackDataModel.FranchiseeID = userInfo.FranchiseeID;
+        trackDataModel.WindowID = windowId;
+        trackDataModel.WindowName = windowName;
+        trackDataModel.CardID = cardId;
+        trackDataModel.CardName = cardName;
+        trackDataModel.PageID = pageId;
+        trackDataModel.PageName = pageName;
+        trackDataModel.Content = content;
+        trackDataModel.DataContext = dataContext;
+        trackModel.trackData = trackDataModel;
+        this.trackPoint(trackModel);
     }
 
     /**

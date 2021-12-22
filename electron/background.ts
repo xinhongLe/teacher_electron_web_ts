@@ -45,8 +45,7 @@ async function createWindow() {
             nodeIntegration: true,
             contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
             preload: path.join(__dirname, "preload.js"),
-            devTools: !!process.env.WEBPACK_DEV_SERVER_URL,
-            enableRemoteModule: true
+            devTools: !!process.env.WEBPACK_DEV_SERVER_URL
         }
     });
     downloadFile(mainWindow);
