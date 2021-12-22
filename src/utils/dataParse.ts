@@ -57,7 +57,7 @@ interface IOldAction {
     TargetID: string;
 }
 
-export const dealOldData = async (pageID: string, oldSlide: IOldSlide) => {
+export const dealOldData = async (pageID: string, originType: any, oldSlide: IOldSlide) => {
     const slide: Slide = {
         id: pageID,
         type: "element",
@@ -71,7 +71,7 @@ export const dealOldData = async (pageID: string, oldSlide: IOldSlide) => {
 
     const sortOldElenents = sortElementsByZIndex(oldSlide.Elements || []);
 
-    slide.elements = await getElementsData(sortOldElenents, oldSlide.Events || []);
+    slide.elements = await getElementsData(sortOldElenents, oldSlide.Events || [], originType);
     return slide;
 };
 
@@ -119,14 +119,13 @@ const getElementActionsById = (events: IEvent[], id: string) => {
 };
 
 // 获取对应元素的特殊事件（弹出卡）
-const getElementCustomById = (events: IEvent[], id: string) => {
+const getElementCustomById = (events: IEvent[], id: string, originType: number) => {
     const event = events.find((event: IEvent) => {
         return event.SourceID === id;
     });
 
     const win: IWin[] = (event?.CustomActions || []).map((item: any) => {
         const ActionData = JSON.parse(item?.ActionData);
-        console.log(ActionData, "ActionData");
         const cards: PPTCard[] = ActionData.Cards.map((card: IOldCards) => {
             const slides: PPTRelation[] = card.Pages?.map((page: IOldPages) => {
                 return {
@@ -138,6 +137,7 @@ const getElementCustomById = (events: IEvent[], id: string) => {
             return {
                 id: card.CardID,
                 name: card.CardName,
+                type: originType,
                 slides
             };
         });
@@ -174,13 +174,13 @@ const sortElementsByZIndex = (oldElements: string[]) => {
 };
 
 // 处理获取元素集合
-const getElementsData = async (oldElements: string[], oldActions: string[]) => {
+const getElementsData = async (oldElements: string[], oldActions: string[], originType:number) => {
     const events: IEvent[] = getSlideEventData(oldActions);
     const elements: PPTElement[] = [];
     for (const item of oldElements) {
         const oldElement = JSON.parse(item);
         const actions: PPTElementAction[] = getElementActionsById(events, oldElement.UUID);
-        const wins: IWin[] = getElementCustomById(events, oldElement.UUID);
+        const wins: IWin[] = getElementCustomById(events, oldElement.UUID, originType);
         switch (oldElement.Type) {
         case 1:
             elements.push({ ...dealText(oldElement), actions, wins });
@@ -454,7 +454,7 @@ const dealRect = (oldRect: IOldRectElement) => {
     element.outline.width = oldRect.LineWidth;
     element.outline.style = oldRect.LineType === 0 ? "dashed" : "solid";
     element.display = oldRect.IsVisibility;
-    element.fill = oldRect.Background;
+    element.fill = converColor(oldRect.Background);
     return element;
 };
 
