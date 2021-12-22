@@ -8,12 +8,14 @@ import {
 } from "@/views/login/api";
 import useUserInfo from "@/hooks/useUserInfo";
 import { NavigationGuardNext } from "vue-router";
+import md5 from "js-md5";
 
 export default () => {
     const userLogin = async (account: string, password: string, next?: NavigationGuardNext) => {
         const loginRes: ILoginResponse = await Login({ account, password });
         if (loginRes.resultCode === 200) {
             set(STORAGE_TYPES.SET_TOKEN, loginRes.result.token);
+            set(STORAGE_TYPES.SESSION_ID, md5(loginRes.result.token + new Date().valueOf()));
             next && next({ path: "/" });
         }
     };

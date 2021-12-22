@@ -16,4 +16,7 @@ import "./types";
 import WinCard from "wincard";
 import "wincard/dist/wincard.css";
 
+import TrackService from "@/utils/common";
+TrackService.useTrackPoint();
+
 createApp(App).use(WinCard, process.env.VUE_APP_AI_XUE_SHI_API, "https://wincard.lyx-edu.com/swf2canvas.html").use(ElementPlus, { locale: zhCn }).use(store, key).use(router).mount("#app");
