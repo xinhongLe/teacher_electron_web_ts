@@ -4,6 +4,7 @@ import { reactive, ref, watch } from "vue-demi";
 import { set, STORAGE_TYPES } from "@/utils/storage";
 import useHome from "@/hooks/useHome";
 import { originType } from "@/config";
+import TrackService, { EnumTrackEventType } from "@/utils/common";
 interface IGetLessonWindows {
     chapterID: string
 }
@@ -126,6 +127,7 @@ export default () => {
         activeIndex.winActiveId = j.WindowID;
         activeIndex.winActiveValue = j;
         activeIndex.originType = j.OriginType;
+        TrackService.setTrack(EnumTrackEventType.SelectWindow, j.WindowID, j.WindowName, "", "", "", "", "选择窗");
     };
     const isSetCache = ref(false); // 是否需要更新窗下的数据
     const allPageList:any = ref([]);

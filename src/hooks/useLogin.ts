@@ -8,6 +8,7 @@ import {
 } from "@/views/login/api";
 import useUserInfo from "@/hooks/useUserInfo";
 import { NavigationGuardNext } from "vue-router";
+import md5 from "js-md5";
 import isElectron from "is-electron";
 
 export default () => {
@@ -16,6 +17,7 @@ export default () => {
         if (loginRes.resultCode === 200) {
             recordAccount({ account, password });
             set(STORAGE_TYPES.SET_TOKEN, loginRes.result.token);
+            set(STORAGE_TYPES.SESSION_ID, md5(loginRes.result.token + new Date().valueOf()));
             next && next({ path: "/" });
             isElectron() && window.electron.ipcRenderer.invoke("loginSuccess");
         }

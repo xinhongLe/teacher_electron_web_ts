@@ -37,7 +37,11 @@ export enum STORAGE_TYPES {
     /**
      * 查阅作业的详情
      */
-    HOMEWORK_DETAIL = "HOMEWORK_DETAIL"
+    HOMEWORK_DETAIL = "HOMEWORK_DETAIL",
+    /**
+     * SessionId 本次登录默认标识ID
+     */
+    SESSION_ID = "SESSION_ID"
 }
 
 export const set = (name: STORAGE_TYPES, value: unknown, isEncrypt = false) => {
