@@ -53,7 +53,7 @@ export default () => {
                 if (page.Type === pageType.element) {
                     const slideString = res.result.Json || "{}";
                     const oldSlide = JSON.parse(slideString);
-                    console.log(oldSlide, "oldSlide");
+                    console.log(oldSlide.type, "oldSlide");
                     // 素材页如果是新数据直接赋值(更新id是为了避免复制卡过后id不统一问题)，旧数据dealOldData处理
                     newSlide = oldSlide.type ? { ...oldSlide, id: page.ID } : await dealOldData(page.ID, page.originType, oldSlide);
                     cacheSildeFiles(newSlide);

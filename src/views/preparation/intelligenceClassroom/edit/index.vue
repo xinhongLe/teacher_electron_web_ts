@@ -295,7 +295,7 @@ export default defineComponent({
         };
         const winCardViewRef = ref();
         onMounted(() => {
-            _getWindowCards({ WindowID: route.params.winValue as string }, true);
+            _getWindowCards({ WindowID: route.params.winValue as string, OriginType: 1 }, true);
             document.addEventListener("keydown", keyDown);
             if (isElectron()) {
                 (window as any).electron.registerEscKeyUp(() => {

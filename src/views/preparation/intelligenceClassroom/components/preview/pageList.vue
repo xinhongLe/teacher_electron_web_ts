@@ -203,9 +203,10 @@ export default defineComponent({
                     console.log(pages, "pages");
                     const pageIDs = pages.map(page => page.ID);
                     const obj = {
-                        pageIDs,
-                        OriginType: pages[0].OriginType || 1
+                        pageIDs
+                        // OriginType: pages[0].OriginType
                     };
+                    console.log(obj, "obj");
                     const res = await getCardDetail(obj);
                     if (res.resultCode === 200 && res.result && res.result.length > 0) {
                         // 页名称可能会修改

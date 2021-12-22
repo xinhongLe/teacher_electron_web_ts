@@ -107,7 +107,7 @@ export default () => {
         copyPage(data).then(res => {
             if (res.resultCode === 200) {
                 ElMessage({ type: "success", message: "粘贴卡成功" });
-                _getWindowCards({ WindowID: `${route.params.winValue}` });
+                _getWindowCards({ WindowID: `${route.params.winValue}`, OriginType: 1 });
             }
         });
     };
@@ -124,7 +124,7 @@ export default () => {
             deleteCardOrPage(data).then(res => {
                 if (res.resultCode === 200) {
                     ElMessage({ type: "success", message: "删除成功" });
-                    _getWindowCards({ WindowID: `${route.params.winValue}` });
+                    _getWindowCards({ WindowID: `${route.params.winValue}`, OriginType: 1 });
                 }
             });
             // 删除卡或页是当前展示的页面则清空页面
@@ -140,7 +140,7 @@ export default () => {
         addCard(data).then(res => {
             if (res.resultCode === 200) {
                 ElMessage({ type: "success", message: "新增卡成功" });
-                _getWindowCards({ WindowID: `${route.params.winValue}` });
+                _getWindowCards({ WindowID: `${route.params.winValue}`, OriginType: 1 });
             }
         });
     };
@@ -149,7 +149,7 @@ export default () => {
         addPage(data).then(res => {
             if (res.resultCode === 200) {
                 ElMessage({ type: "success", message: "新增页成功" });
-                _getWindowCards({ WindowID: `${route.params.winValue}` });
+                _getWindowCards({ WindowID: `${route.params.winValue}`, OriginType: 1 });
             }
         });
     };
@@ -158,7 +158,7 @@ export default () => {
         renameCardOrPage(data).then(res => {
             if (res.resultCode === 200) {
                 ElMessage({ type: "success", message: "更新名称成功" });
-                _getWindowCards({ WindowID: `${route.params.winValue}` });
+                _getWindowCards({ WindowID: `${route.params.winValue}`, OriginType: 1 });
             }
         });
     };
@@ -170,7 +170,7 @@ export default () => {
                     type: "success",
                     message: data.State === 1 ? "上架成功" : "下架成功"
                 });
-                _getWindowCards({ WindowID: `${route.params.winValue}` });
+                _getWindowCards({ WindowID: `${route.params.winValue}`, OriginType: 1 });
             }
         });
     };
@@ -182,7 +182,7 @@ export default () => {
                     type: "success",
                     message: "排序成功"
                 });
-                _getWindowCards({ WindowID: `${route.params.winValue}` });
+                _getWindowCards({ WindowID: `${route.params.winValue}`, OriginType: 1 });
             }
         });
     };
@@ -193,7 +193,7 @@ export default () => {
                     type: "success",
                     message: "排序成功"
                 });
-                _getWindowCards({ WindowID: state.winValue[1] });
+                _getWindowCards({ WindowID: `${route.params.winValue}`, OriginType: 1 });
             }
         });
     };

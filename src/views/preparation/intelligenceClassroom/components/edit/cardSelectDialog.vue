@@ -84,10 +84,9 @@ export default defineComponent({
         watch(() => state.chaptersValue, (curVal) => {
             _getWinList(curVal);
         });
-        const route = useRoute();
         watch(() => state.winValue, (curVal) => {
             if (curVal.length > 0) {
-                _getWindowCards({ WindowID: `${route.params.winValue as string}` });
+                _getWindowCards({ WindowID: curVal[1], OriginType: 0 });
             }
         });
 

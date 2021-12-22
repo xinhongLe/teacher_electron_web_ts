@@ -12,7 +12,8 @@ export interface IGetChapters {
 type ChaptersResponse = IResponse<ITreeList[]>
 
 export interface IGetWindowCards {
-    WindowID: string
+    WindowID: string,
+    OriginType?: number
 }
 
 interface IGetPageData {
@@ -137,18 +138,6 @@ export function getElementsVideo(data: IElementsVideo): Promise<GetPageResponse>
         data: Object.assign(data, { OriginType: originType })
     });
 }
-// 获取复制窗下的卡、页
-export function getWindowCard(data: IGetWindowCards): Promise<GetWindowCardsResponse> {
-    return request({
-        url: "API/W1/Card/GetWindowCards",
-        headers: {
-            "Content-Type": "application/json-patch+json"
-        },
-        method: "post",
-        baseURL: WINDOW_CRAD_API,
-        data: Object.assign(data, { OriginType: originType })
-    });
-}
 // 获取窗下的卡、页
 export function getWindowCards(data: IGetWindowCards): Promise<GetWindowCardsResponse> {
     return request({
@@ -158,7 +147,7 @@ export function getWindowCards(data: IGetWindowCards): Promise<GetWindowCardsRes
         },
         method: "post",
         baseURL: WINDOW_CRAD_API,
-        data: Object.assign(data, { OriginType: originType })
+        data
     });
 }
 
