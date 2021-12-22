@@ -126,6 +126,7 @@ export default defineComponent({
                 if (res.resultCode === 200) {
                     router.push(`/windowcard-edit/${res.result.ID}/1`);
                     j.OriginType = 1;
+                    j.WindowID = res.result.ID;
                 }
             } else {
                 router.push(`/windowcard-edit/${j.WindowID}/1`);
