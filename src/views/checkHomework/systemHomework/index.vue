@@ -94,13 +94,14 @@ export default defineComponent({
             if (res.resultCode === 200) {
                 questionList.value = res.result;
                 missionDetails.value = questionList.value[activeIndex.value].MissionDetails;
-                getQuestinInfoByQuestionID(questionList.value[0].QuestionID);
+                getQuestinInfoByQuestionID(questionList.value[activeIndex.value].QuestionID);
             }
         };
 
         const selectQuestion = (index: number) => {
             activeIndex.value = index;
             missionDetails.value = questionList.value[index].MissionDetails;
+            getQuestinInfoByQuestionID(questionList.value[index].QuestionID);
         };
 
         getClassHomeworkPaperQuestionList();

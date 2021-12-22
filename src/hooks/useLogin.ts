@@ -8,6 +8,7 @@ import {
 } from "@/views/login/api";
 import useUserInfo from "@/hooks/useUserInfo";
 import { NavigationGuardNext } from "vue-router";
+import isElectron from "is-electron";
 
 export default () => {
     const userLogin = async (account: string, password: string, next?: NavigationGuardNext) => {
@@ -15,7 +16,7 @@ export default () => {
         if (loginRes.resultCode === 200) {
             set(STORAGE_TYPES.SET_TOKEN, loginRes.result.token);
             next && next({ path: "/" });
-            window.electron.ipcRenderer.invoke("loginSuccess");
+            isElectron() && window.electron.ipcRenderer.invoke("loginSuccess");
         }
     };
 
