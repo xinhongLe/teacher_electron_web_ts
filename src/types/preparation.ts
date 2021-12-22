@@ -266,3 +266,9 @@ export interface SetLastSelectBookData {
     bookID: string;
     chapterID: string;
 }
+
+export interface CloneCourseBagToTeacherRes {
+    CourseBagTeacher: {
+        ID: string
+    }
+}
