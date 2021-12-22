@@ -74,7 +74,7 @@
 <script lang="ts">
 import useTime from "@/hooks/useTime";
 import { ElMessage } from "element-plus";
-import { defineComponent } from "vue";
+import { defineComponent, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import Calendar from "../../components/calendar/index.vue";
 
@@ -97,6 +97,12 @@ export default defineComponent({
                 router.push(`/${val}`);
             }
         };
+        onMounted(() => {
+            // 外部嵌套，直接打开作业管理
+            if (window.location.href.indexOf("yueyangyun") > -1 && window.location.href.indexOf("homework") > -1) {
+                go("homework");
+            }
+        });
         return {
             go,
             weekNext,

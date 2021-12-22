@@ -6,7 +6,7 @@ import { Slide } from "wincard/src/types/slides";
 import { ElMessage } from "element-plus";
 import { dealSaveDataWord, dealSaveDataVideo, dealSaveDataTeach, dealSaveDataElement } from "@/utils/savePageDataParse";
 import { getWinCardDBData, setWinCardDBData, updateWinCardDBData } from "@/utils/database";
-import { pageType } from "@/config";
+import { originType, pageType } from "@/config";
 import { cacheSildeFiles } from "@/utils/file";
 interface PageData {
     pageID: string,
@@ -53,8 +53,9 @@ export default () => {
                 if (page.Type === pageType.element) {
                     const slideString = res.result.Json || "{}";
                     const oldSlide = JSON.parse(slideString);
+                    console.log(oldSlide, "oldSlide");
                     // 素材页如果是新数据直接赋值(更新id是为了避免复制卡过后id不统一问题)，旧数据dealOldData处理
-                    newSlide = oldSlide.type ? { ...oldSlide, id: page.ID } : await dealOldData(page.ID, oldSlide);
+                    newSlide = oldSlide.type ? { ...oldSlide, id: page.ID } : await dealOldData(page.ID, page.originType, oldSlide);
                     cacheSildeFiles(newSlide);
                 } else if (page.Type === pageType.listen) {
                     newSlide = dealOldDataWord(page.ID, res.result);
@@ -64,6 +65,7 @@ export default () => {
                     newSlide = dealOldDataTeach(page.ID, res.result);
                 }
                 const pageSlide = Object.assign(newSlide, { remark: page.Remark || "" });
+                console.log(pageSlide);
                 saveDBdata(pageSlide);
                 return pageSlide;
             } else {

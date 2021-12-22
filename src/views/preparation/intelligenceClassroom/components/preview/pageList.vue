@@ -105,6 +105,7 @@ export default defineComponent({
             const dbResArr = await getWinCardDBData(str);
             if (dbResArr.length > 0) {
                 page.value = JSON.parse(dbResArr[0].result);
+                console.log(page.value, "value");
             } else {
                 await getPageDetail(obj, obj.originType, (res) => {
                     if (res && res.id) {
@@ -193,14 +194,19 @@ export default defineComponent({
                         return {
                             ID: page.id,
                             Type: page.type,
-                            Name: page.name
+                            Name: page.name,
+                            OriginType: card.type
                         };
                     }));
                 });
                 if (pages.length > 0) {
                     console.log(pages, "pages");
                     const pageIDs = pages.map(page => page.ID);
-                    const res = await getCardDetail({ pageIDs });
+                    const obj = {
+                        pageIDs,
+                        OriginType: pages[0].OriginType || 1
+                    };
+                    const res = await getCardDetail(obj);
                     if (res.resultCode === 200 && res.result && res.result.length > 0) {
                         // 页名称可能会修改
                         res.result.map(item => {
@@ -214,6 +220,8 @@ export default defineComponent({
                         });
                         cardList.value = newPages;
                         dialogVisible.value = true;
+                    } else {
+                        keyDisabled.value = false;
                     }
                 }
             }
