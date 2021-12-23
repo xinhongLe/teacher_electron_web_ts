@@ -7,11 +7,13 @@
                 :isInit="isInitPage"
                 ref="screenRef"
                 :slide="page"
+                :writeBoardVisible="writeBoardVisible"
                 :keyDisabled="keyDisabled"
                 :useScale="false"
                 @openCard="openCard"
                 @pagePrev="pagePrev"
                 @pageNext="pageNext"
+                @closeWriteBoard="closeWriteBoard"
             />
             <open-card-view-dialog @closeOpenCard="closeOpenCard" v-if="dialogVisible" :cardList="cardList" v-model:dialogVisible="dialogVisible"></open-card-view-dialog>
             <div
@@ -93,6 +95,7 @@ export default defineComponent({
                 }
             }
         );
+        const writeBoardVisible = ref(false);
         const selectPage = (index, item) => {
             selected.value = index;
             console.log(item, "page");
@@ -122,6 +125,17 @@ export default defineComponent({
         const prevCard = () => {
             isInitPage.value = false;
             screenRef.value.execPrev();
+        };
+        const showWriteBoard = () => {
+            console.log(writeBoardVisible.value, "111111");
+            writeBoardVisible.value = true;
+        };
+        const hideWriteBoard = () => {
+            writeBoardVisible.value = false;
+        };
+        const closeWriteBoard = () => {
+            console.log("执行");
+            writeBoardVisible.value = false;
         };
         const route = useRoute();
         watch(() => route.path, () => {
@@ -245,6 +259,7 @@ export default defineComponent({
             cardList,
             showRemarks,
             keyDisabled,
+            writeBoardVisible,
             openCard,
             prevCard,
             pagePrev,
@@ -255,7 +270,10 @@ export default defineComponent({
             pageNext,
             clockFullScreen,
             updateFlags,
-            closeOpenCard
+            closeOpenCard,
+            showWriteBoard,
+            hideWriteBoard,
+            closeWriteBoard
         };
     }
 });
