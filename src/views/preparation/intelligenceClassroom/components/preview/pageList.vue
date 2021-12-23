@@ -117,7 +117,6 @@ export default defineComponent({
             const dbResArr = await getWinCardDBData(str);
             if (dbResArr.length > 0) {
                 page.value = JSON.parse(dbResArr[0].result);
-                console.log(page.value, "value");
             } else {
                 await getPageDetail(obj, obj.originType, (res) => {
                     if (res && res.id) {
@@ -133,14 +132,12 @@ export default defineComponent({
             screenRef.value.execPrev();
         };
         const showWriteBoard = () => {
-            console.log(writeBoardVisible.value, "111111");
             writeBoardVisible.value = true;
         };
         const hideWriteBoard = () => {
             writeBoardVisible.value = false;
         };
         const closeWriteBoard = () => {
-            console.log("执行");
             writeBoardVisible.value = false;
         };
         const route = useRoute();
@@ -179,10 +176,13 @@ export default defineComponent({
                 isInitPage.value = true;
                 emit("lastPage");
             } else {
-                // console.log(pageList.value, "value");
                 selected.value++;
-                // console.log(WinActiveId.value, WindowName.value, LessonID.value, CardName.value, CardId.value);
                 isInitPage.value = true;
+                const DataContext = {
+                    Type: EnumTrackEventType.SelectPage,
+                    LessonID: LessonID.value
+                };
+                TrackService.setTrack(EnumTrackEventType.SelectPage, WinActiveId.value, WindowName.value, CardId.value, CardName.value, pageList.value[selected.value].ID, pageList.value[selected.value].Name, "选择页", JSON.stringify(DataContext), pageList.value[selected.value].ID);
                 emit("changeRemark", pageList.value[selected.value].Remark);
                 getDataBase(pageList.value[selected.value].ID, pageList.value[selected.value]);
             }
