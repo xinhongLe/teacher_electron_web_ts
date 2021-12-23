@@ -37,7 +37,6 @@ export default defineComponent({
         const currentCardList = ref([]);
         const winActiveId = computed(() => props.winActiveId);
         const WindowName = computed(() => props.WindowName);
-        const LessonID = computed(() => props.LessonID);
         watch(
             () => props.cardList,
             () => {
@@ -50,12 +49,7 @@ export default defineComponent({
             cardIndex.value = index;
             const pageDate = dealCardData(item, item.originType);
             emit("updatePageList", pageDate);
-            const DataContext = {
-                Type: item.PageList.length > 0 ? item.PageList[0].Type : "",
-                LessonID: LessonID.value
-            };
-            console.log(DataContext, "DataContext");
-            TrackService.setTrack(EnumTrackEventType.SelectPage, winActiveId.value, WindowName.value, item.ID, item.Name, item.PageList.length > 0 ? item.PageList[0].ID : "", item.PageList.length > 0 ? item.PageList[0].Name : "", "选择卡", DataContext, item.PageList.length > 0 ? item.PageList[0].ID : "");
+            TrackService.setTrack(EnumTrackEventType.SelectCard, winActiveId.value, WindowName.value, item.ID, item.Name, item.PageList.length > 0 ? item.PageList[0].ID : "", item.PageList.length > 0 ? item.PageList[0].Name : "", "选择卡", "", "");
         };
         const changeReducePage = () => {
             if (currentCardList.value.length === 0) return false;

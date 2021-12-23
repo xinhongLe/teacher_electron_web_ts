@@ -246,6 +246,8 @@ export class TrackDataModel {
     /// 数据上下文
     /// </summary>
     DataContext = "";
+    EventID = "";
+    EventType = ""
 }
 
 /**

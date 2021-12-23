@@ -5,6 +5,11 @@
                 class="preview-pagelist"
                 style="margin-right: 15px"
                 :pageListOption="pageList"
+                :WinActiveId="WinActiveIdProp"
+                :WindowName="WindowNameProp"
+                :LessonID="LessonIDProp"
+                :CardName="CardName"
+                :CardId="CardId"
                 ref="PageList"
                 @changeRemark="changeRemark"
                 @lastPage="lastPage"
@@ -41,13 +46,18 @@ export default defineComponent({
         Tools,
         PageList
     },
-    props: ["options", "hideTools"],
+    props: ["options", "hideTools", "winActiveId", "WindowName", "LessonID"],
     setup(props, { emit }) {
         const { data, showRemark, toggleRemark } = preventRemark();
         const pageList = ref({});
         const hideTool = computed(() => props.hideTools);
+        const WinActiveIdProp = computed(() => props.winActiveId);
+        const WindowNameProp = computed(() => props.WindowName);
+        const LessonIDProp = computed(() => props.LessonID);
         const remark = ref("");
         const PageList = ref();
+        const CardId = ref("");
+        const CardName = ref("");
         const prevStep = () => {
             PageList.value.prevCard();
         };
@@ -88,16 +98,27 @@ export default defineComponent({
                 if (!props.options.pages) {
                     remark.value = "";
                     pageList.value = [];
+                    CardId.value = "";
+                    CardName.value = "";
                 } else if (props.options.pages.length > 0) {
                     remark.value = props.options.pages ? props.options.pages[0].Remark : "";
                     pageList.value = props.options.pages ? props.options.pages : [];
+                    CardId.value = props.options.id;
+                    CardName.value = props.options.name;
                 } else {
                     remark.value = "";
                     pageList.value = [];
+                    CardId.value = "";
+                    CardName.value = "";
                 }
             }
         );
         return {
+            CardName,
+            CardId,
+            WinActiveIdProp,
+            WindowNameProp,
+            LessonIDProp,
             remark,
             PageList,
             fullScreenStyle,
