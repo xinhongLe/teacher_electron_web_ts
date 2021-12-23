@@ -6,8 +6,14 @@ export const cacheFile = async (key: string) => {
         if (isElectron()) {
             const fileName = key.replace(/(.*\/)*([^.]+)/i, "$2");
             if (fileName === "null") return;
-            return downloadFile(key, "axsfile").then(filePath => {
-                window.electron.ipcRenderer.invoke("downloadFile", filePath, fileName).then(path => resolve(path));
+            return window.electron.isExistFile(fileName).then((isExist) => {
+                if (isExist) {
+                    resolve("file://" + window.electron.getFilePath(fileName));
+                } else {
+                    downloadFile(key, "axsfile").then(filePath => {
+                        window.electron.ipcRenderer.invoke("downloadFile", filePath, fileName).then(path => resolve("file://" + path));
+                    });
+                }
             });
         }
     });

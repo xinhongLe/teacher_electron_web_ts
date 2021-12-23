@@ -14,6 +14,8 @@ type Electron = typeof electron & {
     hideWindow: () => void,
     setContentSize: (width: number, height: number) => void,
     getCacheFile: (fileName: string) => Promise<string>,
+    getFilePath: (fileName: string) => string,
+    isExistFile: (fileName: string) => Promise<boolean>,
     destroyWindow: () => void,
     showWindow: () => void
 }

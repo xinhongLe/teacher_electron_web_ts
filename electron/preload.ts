@@ -75,6 +75,20 @@ window.electron = {
     unRegisterEscKeyUp: () => {
         remote.globalShortcut.unregister("esc");
     },
+    isExistFile: (fileName: string) => {
+        const filePath =
+            process.platform === "darwin"
+                ? appPath + fileName
+                : resolve(appPath, fileName);
+        return isExistFile(filePath);
+    },
+    getFilePath: (fileName: string) => {
+        const filePath =
+        process.platform === "darwin"
+            ? appPath + fileName
+            : resolve(appPath, fileName);
+        return filePath;
+    },
     getCacheFile: async (fileName: string) => {
         if (!fileName) return "";
         const filePath = process.platform === "darwin" ? appPath + fileName : resolve(appPath, fileName);
