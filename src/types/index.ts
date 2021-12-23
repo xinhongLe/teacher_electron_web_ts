@@ -1,4 +1,5 @@
 import electron from "electron";
+import { LogFunctions } from "electron-log";
 
 type Electron = typeof electron & {
     exit: () => void,
@@ -15,7 +16,8 @@ type Electron = typeof electron & {
     setContentSize: (width: number, height: number) => void,
     getCacheFile: (fileName: string) => Promise<string>,
     destroyWindow: () => void,
-    showWindow: () => void
+    showWindow: () => void,
+    log: LogFunctions
 }
 
 declare global {

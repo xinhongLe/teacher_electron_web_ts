@@ -2,7 +2,7 @@ import { getCurrentWindow, app } from "@electron/remote";
 import electron, { remote } from "electron";
 import { appPath, isExistFile } from "./downloadFile";
 import { resolve } from "path";
-const log = require("electron-log");
+import ElectronLog from "electron-log";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 window.electron = {
     maximizeWindow: () => {
@@ -75,6 +75,7 @@ window.electron = {
     unRegisterEscKeyUp: () => {
         remote.globalShortcut.unregister("esc");
     },
+    log: ElectronLog,
     getCacheFile: async (fileName: string) => {
         if (!fileName) return "";
         const filePath = process.platform === "darwin" ? appPath + fileName : resolve(appPath, fileName);

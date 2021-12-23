@@ -90,7 +90,9 @@ export default () => {
         winIndex: 0,
         winActiveId: "",
         winActiveValue: {},
-        originType: 0
+        originType: 0,
+        LessonID: "",
+        WindowName: ""
     });
     const cardListComponents = ref();
     const _getSchoolLessonWindow = (data: IGetLessonWindows) => {
@@ -105,8 +107,10 @@ export default () => {
                     allData.winList[0].TeachPageList.length > 0
                 ) {
                     activeIndex.winActiveId = allData.winList[0].TeachPageList[0].WindowID;
+                    activeIndex.WindowName = allData.winList[0].TeachPageList[0].WindowName;
                     activeIndex.winActiveValue = allData.winList[0].TeachPageList[0];
                     activeIndex.originType = allData.winList[0].TeachPageList[0].OriginType;
+                    activeIndex.LessonID = allData.winList[0].Lesson!.ID;
                     activeIndex.leftActiveIndex = 0;
                     activeIndex.winIndex = 0;
                     allData.cardList = allData.winList[0].TeachPageList[0].CardList.filter((item:any) => { return item.Pages.length > 0; });
@@ -117,6 +121,7 @@ export default () => {
                     activeIndex.previewOptions = {};
                     activeIndex.leftActiveIndex = 0;
                     activeIndex.winIndex = 0;
+                    activeIndex.LessonID = "";
                 }
             }
         });

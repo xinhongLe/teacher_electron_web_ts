@@ -53,7 +53,9 @@
                         <CardList
                         ref="cardListComponents"
                         :winActiveId="winActiveId"
+                        :WindowName="WindowName"
                         :cardList="cardList"
+                        :LessonID="LessonID"
                         @updatePageList="updatePageList"
                         @updateFlag="updateFlag"
                     />
