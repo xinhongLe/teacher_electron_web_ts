@@ -112,7 +112,7 @@ export default defineComponent({
         };
 
         const close = () => {
-            window.close();
+            window.electron.destroyWindow();
         };
 
         const add = (index: number) => {
