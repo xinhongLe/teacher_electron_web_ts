@@ -2,6 +2,8 @@ import { ipcMain, BrowserWindow, session } from "electron";
 import { resolve } from "path";
 import { access, readFile } from "fs/promises";
 import SparkMD5 from "spark-md5";
+import { createReadStream } from "original-fs";
+const crypto = require("crypto");
 
 type func = (value: unknown) => void;
 
@@ -10,21 +12,26 @@ const downloadSuccessCallbackMap = new Map<string, func[]>();
 export const appPath =
     process.platform === "darwin"
         ? (process.env.HOME || process.env.USERPROFILE) +
-          "/.aixueshi_teacher_files/"
+        "/.aixueshi_teacher_files/"
         : resolve(process.env.APPDATA!, "Aixueshi/files/");
 export const isExistFile = (filePath: string): Promise<boolean> => {
     return new Promise((resolve) => {
         access(filePath)
             .then(() => {
-                readFile(filePath).then((data) => {
-                    const fileName = filePath.substring(filePath.lastIndexOf("\\") + 1, filePath.indexOf("."));
-                    const spark = new SparkMD5.ArrayBuffer();
-                    spark.append(data);
-                    const md5 = spark.end();
-                    return resolve(md5.toLocaleLowerCase() === fileName.toLocaleLowerCase());
-                }).catch(() => {
-                    return resolve(false);
-                });
+                // resolve(true);
+                const fileName = filePath.substring(filePath.lastIndexOf("\\") + 1, filePath.indexOf("."));
+                const hash = crypto.createHash('md5');
+                createReadStream(filePath)
+                    .on('data', (chunk: any) => {
+                        hash.update(chunk, 'utf8');
+                    })
+                    .on('end', () => {
+                        const md5 = hash.digest('hex');
+                        return resolve(md5.toLocaleLowerCase() === fileName.toLocaleLowerCase());
+                    })
+                    .on('error', () => {
+                        return resolve(false);
+                    });
             })
             .catch(() => {
                 resolve(false);
@@ -49,6 +56,7 @@ export default (win: BrowserWindow) => {
         if (downloadingFileList.includes(fileName)) return;
         const isExist = await isExistFile(filePath);
         if (isExist) {
+            console.log(isExist, filePath);
             dealCallback(fileName, filePath);
         } else {
             if (!downloadingFileList.includes(fileName)) {

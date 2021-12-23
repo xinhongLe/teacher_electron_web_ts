@@ -4,61 +4,133 @@ import { get, STORAGE_TYPES } from "./storage";
 
 export enum EnumTrackEventType {
     /// <summary>
-    /// 其他
-    /// </summary>
-    Other = 0,
-    /// <summary>
-    /// 进入页面
-    /// </summary>
-    PageEntry = 1,
-    /// <summary>
-    /// 离开页面
-    /// </summary>
-    PageLeave = 2,
-    /// <summary>
-    /// 热区点击
-    /// </summary>
-    HotClick = 3,
-    /// <summary>
-    /// 窗卡页登录
-    /// </summary>
-    WCPLogin = 4,
-    /// <summary>
-    /// 选择窗
-    /// </summary>
-    SelectWindow = 10,
-    /// <summary>
-    /// 选择卡
-    /// </summary>
-    SelectCard = 11,
-    /// <summary>
-    /// 选择页
-    /// </summary>
-    SelectPage = 12,
-    /// <summary>
-    /// 进入目录导航
-    /// </summary>
-    EntryMenuNav = 13,
-    /// <summary>
-    /// 点击目录导航中的页
-    /// </summary>
-    ClickPageByMenuNav = 14,
-    /// <summary>
-    /// 删除卡
-    /// </summary>
-    DeleteCard = 21,
-    /// <summary>
-    /// 修改卡名
-    /// </summary>
-    ChangeCardName = 22,
-    /// <summary>
-    /// 新建卡
-    /// </summary>
-    AddCard = 23,
-    /// <summary>
-    /// 粘贴页
-    /// </summary>
-    PastePage = 24
+        /// 其他
+        /// </summary>
+        Other = 0,
+
+        /// <summary>
+        /// 进入页面
+        /// </summary>
+        PageEntry = 1,
+
+        /// <summary>
+        /// 离开页面
+        /// </summary>
+        PageLeave = 2,
+
+        /// <summary>
+        /// 热区点击
+        /// </summary>
+        HotClick = 3,
+
+        /// <summary>
+        /// 窗卡页登录
+        /// </summary>
+        WCPLogin = 4,
+
+        /// <summary>
+        /// 备教登录
+        /// </summary>
+        TeachLogin = 5,
+
+        /// <summary>
+        /// 选择窗
+        /// </summary>
+        SelectWindow = 10,
+        /// <summary>
+        /// 选择卡
+        /// </summary>
+        SelectCard = 11,
+        /// <summary>
+        /// 选择页
+        /// </summary>
+        SelectPage = 12,
+        /// <summary>
+        /// 进入目录导航
+        /// </summary>
+        EntryMenuNav = 13,
+        /// <summary>
+        /// 点击目录导航中的页
+        /// </summary>
+        ClickPageByMenuNav = 14,
+
+        /// <summary>
+        /// 删除页
+        /// </summary>
+        DeletePage = 15,
+        /// <summary>
+        /// 修改页名称
+        /// </summary>
+        ChangePageName = 16,
+        /// <summary>
+        /// 修改页状态
+        /// </summary>
+        ChangePageState = 17,
+        /// <summary>
+        /// 保存教学建议
+        /// </summary>
+        ChangePageRemark = 18,
+        /// <summary>
+        /// 保存页
+        /// </summary>
+        SavePage = 19,
+        /// <summary>
+        /// 新建页
+        /// </summary>
+        AddPage = 20,
+
+        /// <summary>
+        /// 删除卡
+        /// </summary>
+        DeleteCard = 21,
+        /// <summary>
+        /// 修改卡名
+        /// </summary>
+        ChangeCardName = 22,
+        /// <summary>
+        /// 新建卡
+        /// </summary>
+        AddCard = 23,
+        /// <summary>
+        /// 粘贴页
+        /// </summary>
+        PastePage = 24,
+
+        /// <summary>
+        /// 打开课包中内容
+        /// </summary>
+        OpenBagFile = 100,
+
+        /// <summary>
+        /// 查看题目
+        /// </summary>
+        CheckQuestion = 101,
+
+        /// <summary>
+        /// 查看视频
+        /// </summary>
+        CheckVideo = 102,
+
+        /// <summary>
+        /// 选中科目
+        /// </summary>
+        SelectSubject = 103,
+        /// <summary>
+        /// 选中出版社
+        /// </summary>
+        SelectPublisher = 104,
+        /// <summary>
+        /// 选中书本
+        /// </summary>
+        SelectBook = 105,
+        /// <summary>
+        /// 选中单元
+        /// </summary>
+        SelectCharpt = 106,
+        /// <summary>
+        /// 选中课包
+        /// </summary>
+        SelectBag = 107,
 }
 
 export enum EnumTrackSource {
@@ -91,7 +163,7 @@ export class TrackModel {
     /// <summary>
     /// 跟踪来源
     /// </summary>
-    Source: EnumTrackSource = EnumTrackSource.Web;
+    Source: EnumTrackSource = EnumTrackSource.Teacher;
     /// <summary>
     /// 埋点事件类型
     /// </summary>
@@ -174,6 +246,8 @@ export class TrackDataModel {
     /// 数据上下文
     /// </summary>
     DataContext = "";
+    EventID = "";
+    EventType = ""
 }
 
 /**
@@ -228,7 +302,7 @@ export default class TrackService {
         }
     }
 
-    static setTrack(trackEventType: number, windowId = "", windowName = "", cardId = "", cardName = "", pageId = "", pageName = "", content = "", dataContext = "") {
+    static setTrack(trackEventType: number, windowId = "", windowName = "", cardId = "", cardName = "", pageId = "", pageName = "", content = "", dataContext = "", currentId = "") {
         const trackModel = new TrackModel();
         const userInfo = get(STORAGE_TYPES.USER_INFO);
         trackModel.TrackEventType = trackEventType;
@@ -249,6 +323,7 @@ export default class TrackService {
         trackDataModel.PageName = pageName;
         trackDataModel.Content = content;
         trackDataModel.DataContext = dataContext;
+        trackDataModel.CurrentID = currentId;
         trackModel.trackData = trackDataModel;
         this.trackPoint(trackModel);
     }

@@ -107,7 +107,6 @@ export default () => {
     };
     const updateTeachHomework = (index: number, item: any) => {
         teachHomeworkList.value.splice(index, 1, item);
-        console.log(teachHomeworkList, "updata");
     };
     return {
         classList,

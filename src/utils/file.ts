@@ -2,10 +2,10 @@ import isElectron from "is-electron";
 import { Slide } from "wincard/src/types/slides";
 import { downloadFile } from "./oss";
 export const cacheFile = async (key: string) => {
+    if (!key) return;
     return new Promise((resolve) => {
         if (isElectron()) {
             const fileName = key.replace(/(.*\/)*([^.]+)/i, "$2");
-            if (fileName === "null") return;
             return window.electron.isExistFile(fileName).then((isExist) => {
                 if (isExist) {
                     resolve("file://" + window.electron.getFilePath(fileName));

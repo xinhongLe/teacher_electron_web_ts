@@ -13,7 +13,7 @@
 </template>
 
 <script>
-import { defineComponent, ref, watch } from "vue-demi";
+import { computed, defineComponent, ref, watch } from "vue-demi";
 import cardList from "../hooks/cardList";
 import { ElMessage } from "element-plus";
 import TrackService, { EnumTrackEventType } from "@/utils/common";
@@ -21,11 +21,22 @@ export default defineComponent({
     props: {
         cardList: {
             type: Array
+        },
+        LessonID: {
+            type: String
+        },
+        winActiveId: {
+            type: String
+        },
+        WindowName: {
+            type: String
         }
     },
     setup(props, { emit }) {
         const { dealCardData } = cardList();
         const currentCardList = ref([]);
+        const winActiveId = computed(() => props.winActiveId);
+        const WindowName = computed(() => props.WindowName);
         watch(
             () => props.cardList,
             () => {
@@ -34,11 +45,10 @@ export default defineComponent({
         );
         const cardIndex = ref(0);
         const handleClick = (index, item) => {
-            console.log(index, item);
             cardIndex.value = index;
             const pageDate = dealCardData(item, item.originType);
             emit("updatePageList", pageDate);
-            TrackService.setTrack(EnumTrackEventType.SelectCard, "", "", item.Name, item.ID, "", "", "选择卡");
+            TrackService.setTrack(EnumTrackEventType.SelectCard, winActiveId.value, WindowName.value, item.ID, item.Name, item.PageList.length > 0 ? item.PageList[0].ID : "", item.PageList.length > 0 ? item.PageList[0].Name : "", "选择卡", "", "");
         };
         const changeReducePage = () => {
             if (currentCardList.value.length === 0) return false;

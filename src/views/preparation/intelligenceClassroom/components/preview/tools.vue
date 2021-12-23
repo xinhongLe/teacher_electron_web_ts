@@ -147,6 +147,7 @@ export default defineComponent({
             if (e.keyCode === 27) {
                 if (!activeFlag.value) return false;
                 activeFlag.value = false;
+                if (!isFullscreen()) return false;
                 exitFullscreen();
                 emit("clockFullScreen");
             }

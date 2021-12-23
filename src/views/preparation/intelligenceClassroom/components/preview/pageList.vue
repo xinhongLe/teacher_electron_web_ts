@@ -43,19 +43,17 @@
 </template>
 
 <script>
-import { defineComponent, onMounted, onUnmounted, ref, watch } from "vue-demi";
+import { computed, defineComponent, ref, watch } from "vue-demi";
 import TrackService, { EnumTrackEventType } from "@/utils/common";
 import pageListServer from "../../hooks/pageList";
 import useHome from "@/hooks/useHome";
 import OpenCardViewDialog from "../edit/openCardViewDialog.vue";
 import { getCardDetail } from "../../api";
-import { exitFullscreen } from "@/utils/fullscreen";
-import isElectron from "is-electron";
 import { getWinCardDBData } from "@/utils/database";
 import { ElMessage } from "element-plus";
 import { useRoute } from "vue-router";
 export default defineComponent({
-    props: ["pageListOption", "showRemark"],
+    props: ["pageListOption", "showRemark", "WinActiveId", "WindowName", "LessonID", "CardName", "CardId"],
     components: { OpenCardViewDialog },
     setup(props, { emit }) {
         const { getPageDetail, transformType } = useHome();
@@ -66,6 +64,11 @@ export default defineComponent({
         const prevPageFlag = ref(false);
         const showRemarks = ref(false);
         const keyDisabled = ref(false);
+        const WinActiveId = computed(() => props.WinActiveId);
+        const WindowName = computed(() => props.WindowName);
+        const LessonID = computed(() => props.LessonID);
+        const CardName = computed(() => props.CardName);
+        const CardId = computed(() => props.CardId);
         watch(
             () => props.showRemark,
             () => {
@@ -98,9 +101,12 @@ export default defineComponent({
         const writeBoardVisible = ref(false);
         const selectPage = (index, item) => {
             selected.value = index;
-            console.log(item, "page");
             getDataBase(pageList.value[index].ID, pageList.value[index]);
-            TrackService.setTrack(EnumTrackEventType.SelectPage, "", "", "", "", item.Name, item.ID, "选择页");
+            const DataContext = {
+                Type: EnumTrackEventType.SelectPage,
+                LessonID: LessonID.value
+            };
+            TrackService.setTrack(EnumTrackEventType.SelectPage, WinActiveId.value, WindowName.value, CardId.value, CardName.value, item.ID, item.Name, "选择页", JSON.stringify(DataContext), item.ID);
         };
         const getDataBase = async (str, obj) => {
             if (transformType(obj.Type) === -1) {
@@ -111,7 +117,6 @@ export default defineComponent({
             const dbResArr = await getWinCardDBData(str);
             if (dbResArr.length > 0) {
                 page.value = JSON.parse(dbResArr[0].result);
-                console.log(page.value, "value");
             } else {
                 await getPageDetail(obj, obj.originType, (res) => {
                     if (res && res.id) {
@@ -127,14 +132,12 @@ export default defineComponent({
             screenRef.value.execPrev();
         };
         const showWriteBoard = () => {
-            console.log(writeBoardVisible.value, "111111");
             writeBoardVisible.value = true;
         };
         const hideWriteBoard = () => {
             writeBoardVisible.value = false;
         };
         const closeWriteBoard = () => {
-            console.log("执行");
             writeBoardVisible.value = false;
         };
         const route = useRoute();
@@ -175,6 +178,11 @@ export default defineComponent({
             } else {
                 selected.value++;
                 isInitPage.value = true;
+                const DataContext = {
+                    Type: EnumTrackEventType.SelectPage,
+                    LessonID: LessonID.value
+                };
+                TrackService.setTrack(EnumTrackEventType.SelectPage, WinActiveId.value, WindowName.value, CardId.value, CardName.value, pageList.value[selected.value].ID, pageList.value[selected.value].Name, "选择页", JSON.stringify(DataContext), pageList.value[selected.value].ID);
                 emit("changeRemark", pageList.value[selected.value].Remark);
                 getDataBase(pageList.value[selected.value].ID, pageList.value[selected.value]);
             }
@@ -200,7 +208,6 @@ export default defineComponent({
         };
         const cardList = ref([]);
         const openCard = async (wins) => {
-            console.log(wins, "wins");
             if (wins[0] && wins[0].cards) {
                 keyDisabled.value = true;
                 const cards = wins[0].cards;
@@ -217,13 +224,11 @@ export default defineComponent({
                     }));
                 });
                 if (pages.length > 0) {
-                    console.log(pages, "pages");
                     const pageIDs = pages.map(page => page.ID);
                     const obj = {
                         pageIDs
                         // OriginType: pages[0].OriginType
                     };
-                    console.log(obj, "obj");
                     const res = await getCardDetail(obj);
                     if (res.resultCode === 200 && res.result && res.result.length > 0) {
                         // 页名称可能会修改
@@ -282,7 +287,7 @@ export default defineComponent({
 <style lang="scss" scoped>
 .pageListComponents{
     :deep(.el-overlay){
-        z-index: 999999 !important;
+        z-index: 9999 !important;
     }
     :deep(.el-dialog.is-fullscreen){
         --el-dialog-width: 94%;

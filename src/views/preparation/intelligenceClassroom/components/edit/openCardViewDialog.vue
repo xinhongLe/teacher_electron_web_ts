@@ -1,6 +1,6 @@
 <template>
     <el-dialog v-model="visible" :close-on-click-modal="false" :fullscreen="true" width="80%" title="" center @close="close">
-        <ScreenView ref="screenRef" :inline="true" :isInit="isInit" @pagePrev="execPrev" @pageNext="execNext" :slide="slideView"/>
+        <ScreenView ref="screenRef"  :inline="true" :isInit="isInit" @pagePrev="execPrev" @pageNext="execNext" :slide="slideView"/>
         <template #footer>
           <span class="dialog-footer">
               <div class="cardLis-class">

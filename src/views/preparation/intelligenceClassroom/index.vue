@@ -53,7 +53,9 @@
                         <CardList
                         ref="cardListComponents"
                         :winActiveId="winActiveId"
+                        :WindowName="WindowName"
                         :cardList="cardList"
+                        :LessonID="LessonID"
                         @updatePageList="updatePageList"
                         @updateFlag="updateFlag"
                     />
@@ -67,6 +69,9 @@
                             :hideTools="hideTools"
                             :uuid="cardUuid"
                             :isPreview="isPreview"
+                            :winActiveId="winActiveId"
+                            :WindowName="WindowName"
+                            :LessonID="LessonID"
                             :options="previewOptions"
                             @lastPage="lastPage"
                             @firstPage="firstPage"
