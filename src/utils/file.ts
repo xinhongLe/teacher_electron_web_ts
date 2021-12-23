@@ -2,12 +2,15 @@ import isElectron from "is-electron";
 import { Slide } from "wincard/src/types/slides";
 import { downloadFile } from "./oss";
 export const cacheFile = async (key: string) => {
-    if (isElectron()) {
-        const fileName = key.replace(/(.*\/)*([^.]+)/i, "$2");
-        if (fileName === "null") return;
-        const filePath = await downloadFile(key, "axsfile");
-        window.electron.ipcRenderer.invoke("downloadFile", filePath, fileName);
-    }
+    return new Promise((resolve) => {
+        if (isElectron()) {
+            const fileName = key.replace(/(.*\/)*([^.]+)/i, "$2");
+            if (fileName === "null") return;
+            return downloadFile(key, "axsfile").then(filePath => {
+                window.electron.ipcRenderer.invoke("downloadFile", filePath, fileName).then(path => resolve(path));
+            });
+        }
+    });
 };
 
 export const cacheSildeFiles = (slide: Slide) => {
