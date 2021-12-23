@@ -19,7 +19,7 @@ export default () => {
             set(STORAGE_TYPES.SET_TOKEN, loginRes.result.token);
             set(STORAGE_TYPES.SESSION_ID, md5(loginRes.result.token + new Date().valueOf()));
             next && next({ path: "/" });
-            isElectron() && window.electron.ipcRenderer.invoke("loginSuccess");
+            isElectron() && window.electron.ipcRenderer.invoke("loginSuccess", loginRes.result.token);
         }
     };
 

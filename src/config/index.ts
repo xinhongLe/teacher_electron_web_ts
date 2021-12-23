@@ -1,4 +1,4 @@
-export const AI_XUE_SHI_API = "http://apitest.aixueshi.top:5002";
+export const AI_XUE_SHI_API = process.env.VUE_APP_AI_XUE_SHI_API;
 export const WINDOW_CRAD_API = "http://apitest.aixueshi.top:5002";
 // export const AI_XUE_SHI_API = "https://api.aixueshi.top:5003";
 // export const WINDOW_CRAD_API = "https://api.aixueshi.top:5003";

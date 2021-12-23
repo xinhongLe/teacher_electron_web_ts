@@ -105,8 +105,8 @@ function createRollcall() {
 }
 function createUnfoldSuspensionWindow() {
     unfoldSuspensionWin = createWindow(unfoldSuspensionURL, {
-        width: 470,
-        height: 800,
+        width: 545,
+        height: 680,
         type: "toolbar", // 创建的窗口类型为工具栏窗口
         frame: false, // 要创建无边框窗口
         resizable: false, // 禁止窗口大小缩放
@@ -355,7 +355,7 @@ export function registerEvent() {
         createProjectionWindow();
     });
 
-    ipcMain.handle("loginSuccess", () => {
-        unfoldSuspensionWin && unfoldSuspensionWin.webContents.send("loginSuccess");
+    ipcMain.handle("loginSuccess", (_, token) => {
+        unfoldSuspensionWin && unfoldSuspensionWin.webContents.send("loginSuccess", token);
     });
 }

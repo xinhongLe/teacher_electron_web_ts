@@ -133,6 +133,7 @@ import isElectron from "is-electron";
 import { ElMessage } from "element-plus";
 import { fetchSubjectPublisherBookList } from "@/views/preparation/api";
 import { BookList } from "@/types/preparation";
+import { set, STORAGE_TYPES } from "@/utils/storage";
 export default defineComponent({
     setup(props, { emit }) {
         const gameList = ref<Game[]>([]);
@@ -262,7 +263,10 @@ export default defineComponent({
         onMounted(async () => {
             getBookList();
             if (isElectron()) {
-                window.electron.ipcRenderer.on("loginSuccess", getBookList);
+                window.electron.ipcRenderer.on("loginSuccess", (_, token) => {
+                    set(STORAGE_TYPES.SET_TOKEN, token);
+                    getBookList();
+                });
             }
         });
 
@@ -295,8 +299,8 @@ export default defineComponent({
     position: fixed;
     right: 0;
     bottom: 0;
-    width: 470px;
-    height: 800px;
+    width: 545px;
+    height: 680px;
     border-radius: 1rem;
     display: flex;
     flex-direction: column;
@@ -346,13 +350,13 @@ export default defineComponent({
             justify-content: flex-start;
             flex-wrap: wrap;
             color: #fff;
-            margin: 10px 0 10px 20px;
+            margin: 10px 0 10px 0;
         }
         .blackboard-box {
             padding: 10px;
             background-color: #2b314b;
             border-radius: 8px;
-            margin-right: 20px;
+            margin-right: 8px;
             margin-bottom: 10px;
             text-align: center;
             cursor: pointer;
@@ -408,6 +412,10 @@ export default defineComponent({
                 :deep(.el-input__inner) {
                     background: #0c1222;
                     border: none;
+                    color: #fdfdfd;
+                    &::placeholder {
+                        color: #8b8e95;
+                    }
                 }
             }
             .teach-class {
@@ -419,9 +427,9 @@ export default defineComponent({
                 overflow-y: auto;
                 margin: 10px 0;
                 .teach-content-warp {
-                    padding-left: 20px;
+                    padding: 0 5px;
                     display: flex;
-                    justify-content: flex-start;
+                    justify-content: space-between;
                     flex-wrap: wrap;
                 }
                 .list-empty {
@@ -438,13 +446,11 @@ export default defineComponent({
                     display: none;
                 }
                 .teach-content {
-                    margin-right: 20px;
                     margin-bottom: 10px;
                     text-align: center;
                     cursor: pointer;
-                    width: 28%;
+                    width: 21%;
                     .img-warp {
-                        width: 108px;
                         height: 108px;
                         background: #d1eaff;
                         display: flex;
