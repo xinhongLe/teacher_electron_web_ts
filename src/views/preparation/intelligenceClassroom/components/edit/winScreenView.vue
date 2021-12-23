@@ -23,8 +23,8 @@ export default defineComponent({
             type: Object
         }
     },
-    emits: ["stopGetAllPageList"],
-    setup(props) {
+    emits: ["stopGetAllPageList", "offScreen"],
+    setup(props, { emit }) {
         const slideView = ref({});
         const pageList = ref([]);
         const index = ref(0);
@@ -121,7 +121,8 @@ export default defineComponent({
             screenRef.value.execNext();
         };
         const offScreen = () => {
-            exitFullscreen();
+            emit("offScreen");
+            // exitFullscreen();
         };
         return {
             keyDisabled,

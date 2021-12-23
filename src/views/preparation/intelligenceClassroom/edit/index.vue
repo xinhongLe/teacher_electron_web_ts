@@ -75,7 +75,7 @@
     </div>
 
     <!--预览界面-->
-    <win-card-view ref="winCardViewRef" v-if= winScreenView :pageList="pageList" @stopGetAllPageList="stopGetAllPageList"></win-card-view>
+    <win-card-view ref="winCardViewRef" v-if= winScreenView @offScreen="offScreen" :pageList="pageList" @stopGetAllPageList="stopGetAllPageList"></win-card-view>
 
     <!-- 新增卡弹框-->
     <add-card-dialog v-model:dialogVisible = "dialogVisibleCard" @handleAddCard="handleAddCard"></add-card-dialog>
@@ -257,6 +257,9 @@ export default defineComponent({
                 ElMessage({ type: "warning", message: "请先添加页，在进行预览" });
             }
         };
+        const offScreen = () => {
+            winScreenView.value = false;
+        };
         const stopGetAllPageList = () => {
             editRef.value.getAllPageList([]);
         };
@@ -313,6 +316,9 @@ export default defineComponent({
         });
         onUnmounted(() => {
             document.removeEventListener("keydown", keyDown);
+            if (isElectron()) {
+                (window as any).electron.unRegisterEscKeyUp();
+            }
         });
         const shrinkRef = ref();
         return {
@@ -349,7 +355,8 @@ export default defineComponent({
             handleUpdateState,
             addPage,
             updateName,
-            _getWindowCards
+            _getWindowCards,
+            offScreen
         };
     }
 });
