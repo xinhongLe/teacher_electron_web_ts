@@ -2,7 +2,7 @@ import { getCurrentWindow, app } from "@electron/remote";
 import electron, { remote } from "electron";
 import { appPath, isExistFile } from "./downloadFile";
 import { resolve } from "path";
-
+const log = require("electron-log");
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 window.electron = {
     maximizeWindow: () => {

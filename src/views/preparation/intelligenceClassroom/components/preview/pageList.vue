@@ -217,7 +217,6 @@ export default defineComponent({
                     }));
                 });
                 if (pages.length > 0) {
-                    console.log(pages, "pages");
                     const pageIDs = pages.map(page => page.ID);
                     const obj = {
                         pageIDs
@@ -282,7 +281,7 @@ export default defineComponent({
 <style lang="scss" scoped>
 .pageListComponents{
     :deep(.el-overlay){
-        z-index: 999999 !important;
+        z-index: 9999 !important;
     }
     :deep(.el-dialog.is-fullscreen){
         --el-dialog-width: 94%;

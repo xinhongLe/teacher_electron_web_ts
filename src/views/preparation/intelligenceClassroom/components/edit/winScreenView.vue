@@ -1,6 +1,6 @@
 <template>
     <div class="view-box">
-        <ScreenView ref="screenRef" :keyDisabled="keyDisabled" :isInit="isInit" :slide="slideView"  @openCard="openCard"  @pagePrev="pagePrev()" @pageNext="pageNext()"/>
+        <ScreenView ref="screenRef" @offScreen="offScreen" :keyDisabled="keyDisabled" :isInit="isInit" :slide="slideView"  @openCard="openCard"  @pagePrev="pagePrev()" @pageNext="pageNext()"/>
        <!-- 弹卡-->
         <open-card-view-dialog v-if="dialogVisible" :cardList="cardList"
           @closeOpenCard="closeOpenCard" v-model:dialogVisible="dialogVisible"></open-card-view-dialog>
@@ -14,6 +14,7 @@ import { getWinCardDBData } from "@/utils/database";
 import useHome from "@/hooks/useHome";
 import { ElMessage } from "element-plus";
 import OpenCardViewDialog from "./openCardViewDialog";
+import { exitFullscreen } from "@/utils/fullscreen";
 export default defineComponent({
     name: "winCardViewDialog",
     components: { OpenCardViewDialog },
@@ -99,6 +100,8 @@ export default defineComponent({
                         cardList.value = newPages;
                         dialogVisible.value = true;
                         keyDisabled.value = true;
+                    } else {
+                        keyDisabled.value = false;
                     }
                 }
             }
@@ -117,7 +120,9 @@ export default defineComponent({
         const execNext = () => {
             screenRef.value.execNext();
         };
-
+        const offScreen = () => {
+            exitFullscreen();
+        };
         return {
             keyDisabled,
             isInit,
@@ -130,7 +135,8 @@ export default defineComponent({
             screenRef,
             execPrev,
             execNext,
-            closeOpenCard
+            closeOpenCard,
+            offScreen
         };
     }
 });
@@ -139,7 +145,7 @@ export default defineComponent({
 <style scoped lang="scss">
 .view-box{
     :deep(.el-overlay){
-        z-index: 999999 !important;
+        z-index: 10000 !important;
     }
     :deep(.el-dialog.is-fullscreen){
         --el-dialog-width: 94%;

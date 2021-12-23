@@ -289,7 +289,7 @@ export function getCardDetail(data: string[]): Promise<GetPageResponse> {
         headers: { DeviceID: "Franchisee" },
         method: "post",
         baseURL: WINDOW_CRAD_API,
-        data: Object.assign(data, { OriginType: originType })
+        data
     });
 }
 
