@@ -117,7 +117,7 @@ export default defineComponent({
 
         const add = (index: number) => {
             if (isPlay.value) return;
-            if (index === 0 || index === 2) {
+            if (index === 2) {
                 if (countDownList.value[index] < 5) {
                     countDownList.value[index]++;
                 } else {
@@ -134,7 +134,7 @@ export default defineComponent({
 
         const reduce = (index: number) => {
             if (isPlay.value) return;
-            if (index === 0 || index === 2) {
+            if (index === 2) {
                 if (
                     countDownList.value[index] < 6 &&
                     countDownList.value[index] > 0
