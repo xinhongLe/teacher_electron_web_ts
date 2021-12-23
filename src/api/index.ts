@@ -18,7 +18,7 @@ export function getOssPaths(): Promise<IOssPathsRes> {
 
 export function getOssToken(): Promise<IOssTokenRes> {
     return request({
-        baseURL: "http://apitest.aixueshi.top:5002",
+        baseURL: AI_XUE_SHI_API,
         url: "/Api/V3/Auxiliary/GetOssToken",
         headers: { DeviceID: "Franchisee", noLoading: "true" },
         method: "post",

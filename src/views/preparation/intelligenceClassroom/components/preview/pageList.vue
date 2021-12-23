@@ -7,11 +7,13 @@
                 :isInit="isInitPage"
                 ref="screenRef"
                 :slide="page"
+                :writeBoardVisible="writeBoardVisible"
                 :keyDisabled="keyDisabled"
                 :useScale="false"
                 @openCard="openCard"
                 @pagePrev="pagePrev"
                 @pageNext="pageNext"
+                @closeWriteBoard="closeWriteBoard"
             />
             <open-card-view-dialog @closeOpenCard="closeOpenCard" v-if="dialogVisible" :cardList="cardList" v-model:dialogVisible="dialogVisible"></open-card-view-dialog>
             <div
@@ -24,7 +26,7 @@
                     :class="selected === index && 'active'"
                     v-for="(item, index) in pageList"
                     :key="index"
-                    @click="selectPage(index)"
+                    @click="selectPage(index,item)"
                 >
                     {{ item.Name }}
                     <div
@@ -42,6 +44,7 @@
 
 <script>
 import { defineComponent, onMounted, onUnmounted, ref, watch } from "vue-demi";
+import TrackService, { EnumTrackEventType } from "@/utils/common";
 import pageListServer from "../../hooks/pageList";
 import useHome from "@/hooks/useHome";
 import OpenCardViewDialog from "../edit/openCardViewDialog.vue";
@@ -92,9 +95,12 @@ export default defineComponent({
                 }
             }
         );
-        const selectPage = (index) => {
+        const writeBoardVisible = ref(false);
+        const selectPage = (index, item) => {
             selected.value = index;
+            console.log(item, "page");
             getDataBase(pageList.value[index].ID, pageList.value[index]);
+            TrackService.setTrack(EnumTrackEventType.SelectPage, "", "", "", "", item.Name, item.ID, "选择页");
         };
         const getDataBase = async (str, obj) => {
             if (transformType(obj.Type) === -1) {
@@ -119,6 +125,17 @@ export default defineComponent({
         const prevCard = () => {
             isInitPage.value = false;
             screenRef.value.execPrev();
+        };
+        const showWriteBoard = () => {
+            console.log(writeBoardVisible.value, "111111");
+            writeBoardVisible.value = true;
+        };
+        const hideWriteBoard = () => {
+            writeBoardVisible.value = false;
+        };
+        const closeWriteBoard = () => {
+            console.log("执行");
+            writeBoardVisible.value = false;
         };
         const route = useRoute();
         watch(() => route.path, () => {
@@ -203,9 +220,10 @@ export default defineComponent({
                     console.log(pages, "pages");
                     const pageIDs = pages.map(page => page.ID);
                     const obj = {
-                        pageIDs,
-                        OriginType: pages[0].OriginType || 1
+                        pageIDs
+                        // OriginType: pages[0].OriginType
                     };
+                    console.log(obj, "obj");
                     const res = await getCardDetail(obj);
                     if (res.resultCode === 200 && res.result && res.result.length > 0) {
                         // 页名称可能会修改
@@ -241,6 +259,7 @@ export default defineComponent({
             cardList,
             showRemarks,
             keyDisabled,
+            writeBoardVisible,
             openCard,
             prevCard,
             pagePrev,
@@ -251,7 +270,10 @@ export default defineComponent({
             pageNext,
             clockFullScreen,
             updateFlags,
-            closeOpenCard
+            closeOpenCard,
+            showWriteBoard,
+            hideWriteBoard,
+            closeWriteBoard
         };
     }
 });

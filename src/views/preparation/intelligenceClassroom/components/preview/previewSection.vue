@@ -23,6 +23,8 @@
             @nextStep="nextStep"
             @fullScreen="fullScreen"
             @clockFullScreen="clockFullScreen"
+            @showWriteBoard="showWriteBoard"
+            @hideWriteBoard="hideWriteBoard"
         />
     </div>
 </template>
@@ -51,6 +53,12 @@ export default defineComponent({
         };
         const nextStep = () => {
             PageList.value.nextCard();
+        };
+        const showWriteBoard = () => {
+            PageList.value.showWriteBoard();
+        };
+        const hideWriteBoard = () => {
+            PageList.value.hideWriteBoard();
         };
         const changeRemark = (value) => {
             remark.value = value;
@@ -105,7 +113,9 @@ export default defineComponent({
             lastPage,
             firstPage,
             clockFullScreen,
-            updateFlag
+            updateFlag,
+            showWriteBoard,
+            hideWriteBoard
         };
     }
 });

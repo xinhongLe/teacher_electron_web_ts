@@ -72,7 +72,7 @@ export default defineComponent({
             if (dbResArr.length > 0) {
                 slideView.value = JSON.parse(dbResArr[0].result);
             } else {
-                await getPageDetail(cardList.value[index], 1, (res: any) => {
+                await getPageDetail(cardList.value[index], 0, (res: any) => {
                     if (res && res.id) {
                         slideView.value = res;
                     }

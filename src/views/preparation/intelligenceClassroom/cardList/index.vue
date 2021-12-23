@@ -16,6 +16,7 @@
 import { defineComponent, ref, watch } from "vue-demi";
 import cardList from "../hooks/cardList";
 import { ElMessage } from "element-plus";
+import TrackService, { EnumTrackEventType } from "@/utils/common";
 export default defineComponent({
     props: {
         cardList: {
@@ -37,6 +38,7 @@ export default defineComponent({
             cardIndex.value = index;
             const pageDate = dealCardData(item, item.originType);
             emit("updatePageList", pageDate);
+            TrackService.setTrack(EnumTrackEventType.SelectCard, "", "", item.Name, item.ID, "", "", "选择卡");
         };
         const changeReducePage = () => {
             if (currentCardList.value.length === 0) return false;

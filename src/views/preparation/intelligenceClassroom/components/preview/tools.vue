@@ -5,7 +5,7 @@
             <div
                 class="me-tool-btn"
                 :class="type === 'mouse' && 'active'"
-                @click="type = 'mouse'"
+                @click="hideWriteBoard"
             >
                 <img
                     v-if="type !== 'mouse'"
@@ -21,7 +21,7 @@
             <div
                 class="me-tool-btn"
                 :class="type === 'pen' && 'active'"
-                @click="type = 'pen'"
+                @click="showWriteBoard"
             >
                 <img
                     v-if="type !== 'pen'"
@@ -33,25 +33,6 @@
                     src="../../images/huabi_selected.png"
                     alt=""
                 />
-            </div>
-            <div
-                class="me-tool-btn"
-                :class="type === 'eraser' && 'active'"
-                @click="type = 'eraser'"
-            >
-                <img
-                    v-if="type !== 'eraser'"
-                    src="../../images/xiangpi_rest.png"
-                    alt=""
-                />
-                <img
-                    v-if="type === 'eraser'"
-                    src="../../images/xiangpi_selected.png"
-                    alt=""
-                />
-            </div>
-            <div class="me-tool-btn" @click="clear()">
-                <img src="../../images/qingkong_rest.png" alt="" />
             </div>
         </div>
         <div class="me-tools-system">
@@ -104,20 +85,6 @@
                 />
             </div>
         </div>
-        <canvas
-            class="me-draw-board"
-            :class="
-                { mouse: 'move', pen: 'cursor-pen', eraser: 'cursor-eraser' }[
-                    type
-                ]
-            "
-            ref="canvas"
-            id="canvas"
-            disable-scroll="true"
-            @mousedown="mousedown"
-            @mousemove="mousemove"
-            @mouseup="mouseup"
-        ></canvas>
     </div>
 </template>
 
@@ -132,10 +99,6 @@ export default defineComponent({
     setup(props, { emit }) {
         const router = useRouter();
         const type = ref("mouse");
-        const painting = ref(false);
-        const lastPoint = ref({ x: 0, y: 0 });
-        const ctx = ref();
-        const canvas = ref();
         const isLast = ref(false);
         const isFirst = ref(false);
         const showremark = ref(true);
@@ -154,18 +117,12 @@ export default defineComponent({
         onMounted(() => {
             window.addEventListener("keydown", keyDown);
             window.addEventListener("resize", onResize);
-            canvas.value = document.getElementById("canvas");
-            canvas.value.setAttribute("width", document.getElementsByClassName("main-body")[0].clientWidth);
-            canvas.value.setAttribute("height", document.getElementsByClassName("me-work")[0].clientHeight);
-            ctx.value = canvas.value.getContext("2d");
         });
         onUnmounted(() => {
             window.removeEventListener("resize", onResize);
             window.removeEventListener("keydown", keyDown);
         });
         const onResize = async () => {
-            canvas.value.setAttribute("width", document.getElementsByClassName("main-body")[0].clientWidth);
-            canvas.value.setAttribute("height", document.getElementsByClassName("me-work")[0].clientHeight);
             if (switchFlag.value && isFullscreen()) {
                 switchFlag.value = false;
             } else if (!switchFlag.value && isFullscreen()) {
@@ -175,55 +132,6 @@ export default defineComponent({
                 await sleep(300);
                 emit("clockFullScreen");
             }
-        };
-        const mousedown = (e: any) => {
-            if (type.value !== "mouse") {
-                painting.value = true;
-                const x = e.offsetX;
-                const y = e.offsetY;
-                lastPoint.value = { x, y };
-                ctx.value.strokeStyle = "red";
-                ctx.value.beginPath();
-            }
-        };
-        const mousemove = (e: any) => {
-            if (painting.value) {
-                const x = e.offsetX;
-                const y = e.offsetY;
-                const newPoint = { x, y };
-                type.value === "pen"
-                    ? drawLine(
-                        lastPoint.value.x,
-                        lastPoint.value.y,
-                        newPoint.x,
-                        newPoint.y
-                    )
-                    : setDrawPathForEraser(x, y);
-                lastPoint.value = newPoint;
-            }
-        };
-        const mouseup = () => {
-            painting.value = false;
-        };
-        const drawLine = (x1: number, y1: number, x2: number, y2: number) => {
-            ctx.value.lineWidth = 3;
-            ctx.value.lineCap = "round";
-            ctx.value.lineJoin = "round";
-            ctx.value.moveTo(x1, y1);
-            ctx.value.lineTo(x2, y2);
-            ctx.value.stroke();
-            ctx.value.closePath();
-        };
-        const setDrawPathForEraser = (x: number, y: number) => {
-            ctx.value.save();
-            ctx.value.beginPath();
-            ctx.value.arc(x + 10, y + 10, 30 / 2, 0, Math.PI * 2, false);
-            ctx.value.clip();
-            clear();
-            ctx.value.restore();
-        };
-        const clear = () => {
-            ctx.value.clearRect(0, 0, canvas.value.width, canvas.value.height);
         };
         const toggleRemark = () => {
             emit("toggleRemark");
@@ -259,6 +167,12 @@ export default defineComponent({
             exitFullscreen();
             emit("clockFullScreen");
         };
+        const showWriteBoard = () => {
+            emit("showWriteBoard");
+        };
+        const hideWriteBoard = () => {
+            emit("hideWriteBoard");
+        };
         return {
             scale,
             type,
@@ -267,15 +181,13 @@ export default defineComponent({
             activeFlag,
             showremark,
             goback,
-            mousedown,
-            mouseup,
-            mousemove,
-            clear,
             toggleRemark,
             prevStep,
             nextStep,
             fullScreen,
-            fillScreen
+            fillScreen,
+            showWriteBoard,
+            hideWriteBoard
         };
     }
 });
