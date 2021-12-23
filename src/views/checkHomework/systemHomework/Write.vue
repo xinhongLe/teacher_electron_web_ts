@@ -114,7 +114,6 @@ export default {
                 const height = obj ? obj.RectHeight * scale : 0;
 
                 const inScale = width / item.data.panelWidth;
-                // console.log(width / item.data.panelWidth, height / item.data.panelHeight)
                 const points = dealPoints(item.data.operations, inScale);
                 // 对点进行偏移
                 points.map((note) => {

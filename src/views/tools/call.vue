@@ -132,7 +132,6 @@ export default defineComponent({
                 checkStudentList.value.push(...item.Students);
             });
             chooseFlag.value = false;
-            console.log(data, "data", checkStudentList.value);
         };
 
         const cancle = () => {
