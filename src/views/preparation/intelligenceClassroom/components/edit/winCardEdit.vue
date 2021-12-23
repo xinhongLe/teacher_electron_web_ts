@@ -212,7 +212,6 @@ export default defineComponent({
 
         const PPTEditRef = ref();
         const closeScreen = () => {
-            console.log(PPTEditRef.value, "PPTEditRef.value");
             PPTEditRef.value.closeScreen();
         };
         const getIsScreening = () => {

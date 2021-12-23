@@ -163,7 +163,6 @@ export default defineComponent({
                         studentID: val.ID,
                         classID: val.classID!
                     }));
-                console.log(v, "publishTime ");
                 return {
                     type: 2,
                     students,
@@ -176,7 +175,6 @@ export default defineComponent({
                 classes: classList.value.map((v) => ({ classID: v.ClassId })),
                 papers: [...commonPaper, ...systemPaper, ...teachPaper]
             };
-            console.log(data, "data");
             const res = await publishHomework(data);
             if (res.resultCode === 200) {
                 ElMessage.success("布置作业成功");

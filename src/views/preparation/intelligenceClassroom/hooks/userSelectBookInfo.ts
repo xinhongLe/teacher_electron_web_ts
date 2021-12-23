@@ -185,7 +185,6 @@ export default () => {
     };
 
     const updatePageList = (card: cardList) => {
-        console.log(card, "card");
         activeIndex.previewOptions = card;
     };
     const detailData = (data: any) => {

@@ -208,7 +208,6 @@ export default defineComponent({
         };
         const cardList = ref([]);
         const openCard = async (wins) => {
-            console.log(wins, "wins");
             if (wins[0] && wins[0].cards) {
                 keyDisabled.value = true;
                 const cards = wins[0].cards;
@@ -230,7 +229,6 @@ export default defineComponent({
                         pageIDs
                         // OriginType: pages[0].OriginType
                     };
-                    console.log(obj, "obj");
                     const res = await getCardDetail(obj);
                     if (res.resultCode === 200 && res.result && res.result.length > 0) {
                         // 页名称可能会修改
