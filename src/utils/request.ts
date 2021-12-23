@@ -16,7 +16,7 @@ http.interceptors.request.use(
             config.headers = {
                 "Content-Type": "application/json-patch+json",
                 ...config.headers,
-                token: get(STORAGE_TYPES.SET_TOKEN),
+                Token: get(STORAGE_TYPES.SET_TOKEN),
                 Authorization: "Bearer" + " " + get(STORAGE_TYPES.SET_TOKEN)
             };
         }
