@@ -39,6 +39,7 @@ export interface CommHomework {
     type: number;
     students: Student[];
     name: string;
+    BookID: string;
     files: CommHomeworkFile[];
 }
 
@@ -47,6 +48,7 @@ export interface SystemHomework extends BagPapers {
     bagPapersName: string;
     bagLessonsName: string;
     version: string;
+    lessonID: string;
     students: Student[];
 }
 
@@ -87,9 +89,7 @@ export interface Publisher {
 }
 
 export interface FetchWorkbookListData {
-    subjectID: string;
-    publisherID: string;
-    albumID: string;
+    id: string;
 }
 
 export interface Grade {
@@ -119,6 +119,7 @@ export interface TeachHomework extends WorkbookPaper {
     WorkbookName: string;
     publisherName: string;
     gradeName: string;
+    BookID: string;
     students: Student[];
     publishType: string,
     publishTime: any

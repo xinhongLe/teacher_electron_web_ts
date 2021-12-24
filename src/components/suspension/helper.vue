@@ -429,7 +429,7 @@ export default defineComponent({
                 .teach-content-warp {
                     padding: 0 5px;
                     display: flex;
-                    justify-content: space-between;
+                    justify-content: flex-start;
                     flex-wrap: wrap;
                 }
                 .list-empty {
@@ -450,6 +450,7 @@ export default defineComponent({
                     text-align: center;
                     cursor: pointer;
                     width: 21%;
+                    margin-right: 20px;
                     .img-warp {
                         height: 108px;
                         background: #d1eaff;

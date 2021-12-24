@@ -60,7 +60,7 @@
             </span>
 
             <div class="progress-content">
-                <template v-if="info.HomeworkPaperType === 1">
+                <!-- <template v-if="info.HomeworkPaperType === 1">
                     <el-progress
                         type="circle"
                         :percentage="probability ? probability : 0"
@@ -69,7 +69,7 @@
                     ></el-progress>
                     <span class="text-color">{{ info.VideoCount }} </span
                     >&nbsp;人已看完，共 {{ info.AllStudentCount }} 人
-                </template>
+                </template> -->
 
                 <template v-if="info.HomeworkPaperType === 0">
                     <el-progress
@@ -85,9 +85,9 @@
                 </template>
             </div>
             <div class="progress-content1">
-                <template v-if="info.HomeworkPaperType === 1">
+                <!-- <template v-if="info.HomeworkPaperType === 1">
                     <span>{{ probability1 }}%已审</span>
-                </template>
+                </template> -->
                 <template v-if="info.HomeworkPaperType === 0">
                     <span>待审阅</span>&nbsp;
                     <span class="text-color">{{ info.NoSureCount }}</span>
@@ -502,6 +502,7 @@ export default defineComponent({
         p {
             flex: 2;
             font-size: 16px;
+            line-height: 18px;
             font-weight: 600;
             color: #19203d;
             margin: 0 30px;

@@ -71,10 +71,10 @@
 import { getCourseByCourseBag } from "@/api";
 import { MutationTypes, store } from "@/store";
 import { GetLastSelectBookRes } from "@/types/preparation";
+import { findFirstId } from "@/utils";
 import { computed, defineComponent, ref, watch } from "vue";
 import { getLastSelectBook, setLastSelectBook } from "../api";
 import useBook from "../hooks/useBook";
-import { findFirstId } from "../logic";
 import ChapterDialog from "./chapterDialog.vue";
 export default defineComponent({
     name: "head",

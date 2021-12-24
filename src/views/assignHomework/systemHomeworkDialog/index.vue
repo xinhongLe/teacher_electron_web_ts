@@ -61,14 +61,14 @@
                                         :info="item1"
                                         :type="1"
                                         :index="index"
-                                        @choicePaper="choicePaper"
+                                        :choicePaper="choicePaper(item.ID)"
                                         :isSelect="getIsSelect(item1.PaperID, 1)"
                                     />
                                 </template>
                                 <BagPaperItem
                                     :info="item1"
                                     :index="index"
-                                    @choicePaper="choicePaper"
+                                    :choicePaper="choicePaper(item.ID)"
                                     :isSelect="getIsSelect(item1.PaperID, 0)"
                                 />
                             </template>
@@ -147,42 +147,45 @@ export default defineComponent({
             }
         }
 
-        const choicePaper = (
-            flag: number,
-            item: BagPapers,
-            index: number,
-            type: number
-        ) => {
-            const { Name, BagLessons, ID } = allList.value[activeLeft.value];
-            const bagLessonsName = BagLessons[index].Name;
-            const version = subjectPublisherBookList.value
-                .find(
-                    ({ Value }) => form.subjectPublisherBookValue[0] === Value
-                )
-                ?.Children?.find(
-                    ({ Value }) => form.subjectPublisherBookValue[1] === Value
-                )
-                ?.Children?.find(
-                    ({ Value }) => form.subjectPublisherBookValue[2] === Value
-                )?.Lable as string;
-            const info = {
-                ...item,
-                bagPapersName: Name,
-                bagLessonsName,
-                type,
-                students: [],
-                version
+        const choicePaper = (lessonID: string) => {
+            return (
+                flag: number,
+                item: BagPapers,
+                index: number,
+                type: number
+            ) => {
+                const { Name, BagLessons, ID } = allList.value[activeLeft.value];
+                const bagLessonsName = BagLessons[index].Name;
+                const version = subjectPublisherBookList.value
+                    .find(
+                        ({ Value }) => form.subjectPublisherBookValue[0] === Value
+                    )
+                    ?.Children?.find(
+                        ({ Value }) => form.subjectPublisherBookValue[1] === Value
+                    )
+                    ?.Children?.find(
+                        ({ Value }) => form.subjectPublisherBookValue[2] === Value
+                    )?.Lable as string;
+                const info = {
+                    ...item,
+                    bagPapersName: Name,
+                    bagLessonsName,
+                    type,
+                    lessonID,
+                    students: [],
+                    version
+                };
+                if (flag) {
+                    selectListMap[ID]
+                        ? selectListMap[ID].push(info)
+                        : (selectListMap[ID] = [info]);
+                } else {
+                    const findIndex = selectListMap[ID].findIndex(
+                        (v) => item.PaperID === v.PaperID && v.type === type
+                    );
+                    selectListMap[ID].splice(findIndex, 1);
+                }
             };
-            if (flag) {
-                selectListMap[ID]
-                    ? selectListMap[ID].push(info)
-                    : (selectListMap[ID] = [info]);
-            } else {
-                const findIndex = selectListMap[ID].findIndex(
-                    (v) => item.PaperID === v.PaperID && v.type === type
-                );
-                selectListMap[ID].splice(findIndex, 1);
-            }
         };
 
         const getIsSelect = (id: string, type: number) => {

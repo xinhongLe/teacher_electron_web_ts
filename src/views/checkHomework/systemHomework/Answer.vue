@@ -174,7 +174,9 @@ export default defineComponent({
                 writeData.value = writeData.value.concat(res.data.fillBlankArr);
             }
         }
-        init();
+
+        watchEffect(init);
+
         return {
             questionUrl,
             height: _height,
