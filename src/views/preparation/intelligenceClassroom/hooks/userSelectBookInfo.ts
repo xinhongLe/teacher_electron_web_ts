@@ -139,7 +139,18 @@ export default () => {
     const _getWindowCards = (ID:string, isCache = false) => {
         getWindowCards({ WindowID: ID, OriginType: activeIndex.originType }).then((res) => {
             if (res.resultCode === 200) {
-                const removeNoPageList = res.result.filter((item:any) => { return item.PageList.length > 0; });
+                // 去除列表里面状态为下架的页
+                const removeStatePage = res.result.map((item:any) => {
+                    return {
+                        ...item,
+                        PageList: item.PageList.filter((items:any) => {
+                            return items.State;
+                        })
+                    };
+                });
+                // 去除列表没有页的卡
+                const removeNoPageList = removeStatePage.filter((item:any) => { return item.PageList.length > 0; });
+                // 添加originType 区别教师更改和系统
                 allData.cardList = detailData(removeNoPageList);
                 isSetCache.value = isCache;
                 allPageList.value = detailPageList(allData.cardList);

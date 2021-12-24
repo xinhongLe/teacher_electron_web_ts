@@ -68,7 +68,7 @@
                     <div class="blackboard-text">计时器</div>
                 </div>
                 <!-- openRollCall -->
-                <div class="blackboard-box">
+                <div class="blackboard-box" @click="uncultivated">
                     <img
                         src="@/assets/images/suspension/pic_namer@2x.png"
                         alt=""

@@ -254,7 +254,7 @@ export default defineComponent({
                 winScreenView.value = true;
                 enterFullscreen();
             } else {
-                ElMessage({ type: "warning", message: "请先添加页，在进行预览" });
+                ElMessage({ type: "warning", message: "请先添加页，再进行预览" });
             }
         };
         const offScreen = () => {
@@ -299,7 +299,7 @@ export default defineComponent({
         const winCardViewRef = ref();
         onMounted(() => {
             _getWindowCards({ WindowID: route.params.winValue as string, OriginType: 1 }, true);
-            document.addEventListener("keydown", keyDown);
+            window.addEventListener("keydown", keyDown);
             if (isElectron()) {
                 (window as any).electron.registerEscKeyUp(() => {
                     (window as any).electron.minimizeWindow();
@@ -315,7 +315,7 @@ export default defineComponent({
             };
         });
         onUnmounted(() => {
-            document.removeEventListener("keydown", keyDown);
+            window.removeEventListener("keydown", keyDown);
             if (isElectron()) {
                 (window as any).electron.unRegisterEscKeyUp();
             }
