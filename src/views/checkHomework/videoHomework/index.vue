@@ -24,6 +24,7 @@
                         :StudentAccount="item.StudentAccount"
                         :HeadPortrait="item.StudentHeadPortrait"
                         :videoWatchTimeTick="item.VideoWatchTimeTick"
+                        :videoDurationTick="homeworkDetail.videoDurationTick"
                     ></Student>
                 </div>
             </div>
