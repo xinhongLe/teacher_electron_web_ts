@@ -84,6 +84,7 @@ body {
 
 * {
     box-sizing: border-box;
+    outline: none;
 }
 
 img {
