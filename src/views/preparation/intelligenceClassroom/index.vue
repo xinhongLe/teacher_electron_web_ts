@@ -85,7 +85,7 @@
 
 <script>
 import { store } from "@/store";
-import { defineComponent, onMounted, ref, toRefs, watch } from "vue";
+import { defineComponent, onActivated, onDeactivated, onMounted, ref, toRefs, watch } from "vue";
 import userSelectBookInfo from "./hooks/userSelectBookInfo";
 import CardList from "./cardList/index.vue";
 import PreviewSection from "./components/preview/previewSection.vue";
@@ -147,6 +147,14 @@ export default defineComponent({
         const updateFlag = () => {
             PreviewSection.value.updateFlag();
         };
+        onActivated(() => {
+            document.onkeydown = (event) => {
+                event.preventDefault();
+            };
+        });
+        onDeactivated(() => {
+            document.onkeydown = null;
+        });
         return {
             showList,
             ...toRefs(allData),
@@ -164,7 +172,6 @@ export default defineComponent({
         };
     },
     activated () {
-        console.log(store.state.preparation.selectChapterID, "store");
         if (this.winActiveId) {
             this._getWindowCards(this.winActiveId, true);
         }

@@ -1,6 +1,6 @@
 import { getSchoolLessonWindow, getWindowCards } from "../api/index";
 import { IPageValue } from "@/types/home";
-import { reactive, ref, watch } from "vue-demi";
+import { reactive, ref, watch } from "vue";
 import { set, STORAGE_TYPES } from "@/utils/storage";
 import useHome from "@/hooks/useHome";
 import { originType } from "@/config";
