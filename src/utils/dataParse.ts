@@ -66,7 +66,6 @@ export const dealOldData = async (pageID: string, originType: any, oldSlide: IOl
     };
 
     slide.background = getSlideData(oldSlide.PageSetting || "{}");
-
     slide.steps = getSlideStepData(oldSlide.Steps || []);
 
     const sortOldElenents = sortElementsByZIndex(oldSlide.Elements || []);

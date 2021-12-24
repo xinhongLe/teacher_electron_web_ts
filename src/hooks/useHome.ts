@@ -1,4 +1,4 @@
-import { getPageDetailRes, updatePageRes } from "@/api/home";
+import { getPageDetailRes, updatePageRes, UpdatePageRemark } from "@/api/home";
 import { dealOldData } from "@/utils/dataParse";
 import { dealOldDataVideo, dealOldDataWord, dealOldDataTeach } from "@/utils/dataParsePage";
 import { IPageValue } from "@/types/home";
@@ -92,15 +92,22 @@ export default () => {
     const savePage = async (slide: Slide) => {
         const type: number = transformType(slide.type);
         let newSlide:any = {};
+        let updateRemark:any = {};
         if (slide.type === "element") {
             newSlide = dealSaveDataElement(slide);
+            updateRemark = { pageID: newSlide.PageID, remark: JSON.parse(newSlide.Json).remark };
         } else if (slide.type === "listen") {
             newSlide = dealSaveDataWord(slide);
+            updateRemark = { pageID: newSlide.PageID, remark: slide.remark };
         } else if (slide.type === "follow") {
             newSlide = dealSaveDataVideo(slide);
+            updateRemark = { pageID: newSlide.PageID, remark: slide.remark };
         } else if (slide.type === "teach") {
             newSlide = dealSaveDataTeach(slide);
+            updateRemark = { pageID: newSlide.teacherPageID, remark: slide.remark };
         }
+        // 更新，修改建议
+        await UpdatePageRemark(updateRemark);
         const res = await updatePageRes(newSlide, type);
         if (res.resultCode === 200) {
             ElMessage({ type: "success", message: "保存成功" });

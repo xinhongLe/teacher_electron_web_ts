@@ -101,12 +101,14 @@ export default defineComponent({
         const writeBoardVisible = ref(false);
         const selectPage = (index, item) => {
             selected.value = index;
-            getDataBase(pageList.value[index].ID, pageList.value[index]);
+            console.log(pageList.value[index], "pagelist");
             const DataContext = {
                 Type: EnumTrackEventType.SelectPage,
                 LessonID: LessonID.value
             };
+            getDataBase(pageList.value[index].ID, pageList.value[index]);
             TrackService.setTrack(EnumTrackEventType.SelectPage, WinActiveId.value, WindowName.value, CardId.value, CardName.value, item.ID, item.Name, "选择页", JSON.stringify(DataContext), item.ID);
+            emit("changeRemark", pageList.value[index].Remark);
         };
         const getDataBase = async (str, obj) => {
             if (transformType(obj.Type) === -1) {

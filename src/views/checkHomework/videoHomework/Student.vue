@@ -11,7 +11,7 @@
             <div class="student-progress">
                 <div>
                     <el-progress
-                        :percentage="videoWatchTimeTick"
+                        :percentage="Math.floor(videoWatchTimeTick / videoDurationTick * 100)"
                         :color="customColors"
                     ></el-progress>
                 </div>
@@ -40,6 +40,10 @@ export default defineComponent({
             default: () => ({})
         },
         videoWatchTimeTick: {
+            type: Number,
+            default: 0
+        },
+        videoDurationTick: {
             type: Number,
             default: 0
         }

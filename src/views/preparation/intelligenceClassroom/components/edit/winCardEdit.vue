@@ -32,6 +32,7 @@ import { useRoute } from "vue-router";
 import { getWinCardDBData } from "@/utils/database";
 import { set, STORAGE_TYPES } from "@/utils/storage";
 import { ElMessage } from "element-plus";
+import { Debugger } from "@electron/remote";
 export default defineComponent({
     name: "winCardEdit",
     components: { SelectVideoDialog, CardSelectDialog },
@@ -182,7 +183,7 @@ export default defineComponent({
                     }, 10);
                 }
             } else {
-                ElMessage({ type: "warning", message: "请先选择页，在进行保存" });
+                ElMessage({ type: "warning", message: "请先选择页，再进行保存" });
             }
         };
 
