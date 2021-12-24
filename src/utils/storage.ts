@@ -74,6 +74,10 @@ export const clear = () => {
         if (!REGEXP.test(name) || name.includes("RECORD_LOGIN_LIST")) {
             return;
         }
+        // OSS_PATHS不能删 （被人顶掉以后不执行App组件的getoss，导致上传报错）
+        if (!REGEXP.test(name) || name.includes("OSS_PATHS")) {
+            return;
+        }
         remove(name.substring(4));
     });
     sessionStorage.removeItem("breadList");

@@ -86,10 +86,10 @@ export default defineComponent({
 
         const save = () => {
             if (isSubmitting.value) return;
-            isSubmitting.value = true;
             if (tabIndex.value === 0) {
                 formRef.value!.formRef!.validate((valid) => {
                     if (valid) {
+                        isSubmitting.value = true;
                         saveForm(successCallback);
                     }
                 });

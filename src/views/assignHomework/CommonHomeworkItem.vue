@@ -51,11 +51,11 @@
                         alt=""
                     />
                     <span>{{ file.name }}</span>
-                    <img
+                    <!-- <img
                         src="@/assets/homeworkImg/icon_delete_red@2x.png"
                         @click="delFile(j)"
                         alt=""
-                    />
+                    /> -->
                 </p>
             </div>
         </div>

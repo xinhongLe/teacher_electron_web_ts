@@ -133,12 +133,15 @@ export default defineComponent({
                 emit("clockFullScreen");
             }
         };
+        // 切换建议
         const toggleRemark = () => {
             emit("toggleRemark");
         };
+        // 上一步
         const prevStep = () => {
             emit("prevStep");
         };
+        // 下一步
         const nextStep = () => {
             emit("nextStep");
         };
@@ -152,6 +155,7 @@ export default defineComponent({
                 emit("clockFullScreen");
             }
         };
+        // 点击全屏
         const fullScreen = async () => {
             if ((window as any).electron && !(window as any).electron.isFullScreen() && !(window as any).electron.isMac()) {
                 (window as any).electron.setFullScreen();
@@ -163,6 +167,7 @@ export default defineComponent({
             emit("fullScreen");
             enterFullscreen();
         };
+        // 退出全屏
         const fillScreen = () => {
             activeFlag.value = false;
             exitFullscreen();

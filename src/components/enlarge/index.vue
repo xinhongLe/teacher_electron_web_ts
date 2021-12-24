@@ -70,6 +70,7 @@ export default defineComponent({
                     dom.style.height = "auto";
                 } else {
                     dom.style.width = "auto";
+                    dom.style.maxWidth = "100%";
                     dom.style.height = "70vh";
                 }
             });

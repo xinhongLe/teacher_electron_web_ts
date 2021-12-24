@@ -29,6 +29,10 @@ interface IElementsVideo {
     chapterID: string,
     fileType: number
 }
+interface Remark {
+    pageID: string,
+    remark: string
+}
 
 type GetWindowCardsResponse = IResponse<ICardList[]>
 
@@ -187,6 +191,17 @@ export function updatePageRes(data: Slide, type:number) : Promise<GetPageRespons
     ];
     return request({
         url: urlList[type],
+        headers: { DeviceID: "Franchisee" },
+        method: "post",
+        baseURL: WINDOW_CRAD_API,
+        data: Object.assign(data, { OriginType: originType })
+    });
+}
+
+// 保存 更新备注
+export function UpdatePageRemark(data: Remark) : Promise<GetPageResponse> {
+    return request({
+        url: "/Api/WCP/Window/UpdatePageRemark",
         headers: { DeviceID: "Franchisee" },
         method: "post",
         baseURL: WINDOW_CRAD_API,

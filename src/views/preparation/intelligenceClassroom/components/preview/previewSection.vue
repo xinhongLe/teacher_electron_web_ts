@@ -86,6 +86,7 @@ export default defineComponent({
             PageList.value.fullScreen();
         };
         const clockFullScreen = () => {
+            showRemark.value = true;
             fullScreenStyle.value = false;
             PageList.value.clockFullScreen();
         };
