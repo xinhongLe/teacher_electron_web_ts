@@ -138,6 +138,7 @@ export default defineComponent({
                 return {
                     type: 99,
                     name: v.name,
+                    BookID: v.BookID,
                     students,
                     files
                 };
@@ -153,6 +154,7 @@ export default defineComponent({
                     type: v.type,
                     paperID: v.PaperID,
                     students,
+                    lessonID: v.lessonID,
                     questionIDs: v.Questions
                 };
             });
@@ -166,6 +168,7 @@ export default defineComponent({
                 return {
                     type: 2,
                     students,
+                    BookID: v.BookID,
                     paperID: v.WorkbookPaperID,
                     answerShowTime: v.publishTime ? `${moment(v.publishTime).format("YYYY-MM-DD HH:mm:ss")}` : ""
                 };

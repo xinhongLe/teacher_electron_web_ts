@@ -1,7 +1,7 @@
 <template>
     <div :class="['right-row', 'flex-between-center']">
         <div class="first-col flex-between-center">
-            <el-checkbox @change="choicePaper" :model-value="isSelect"/>
+            <el-checkbox @change="_choicePaper" :model-value="isSelect"/>
             <img
                 v-if="type === 0"
                 src="@/assets/images/homeworkNew/homework1.png"
@@ -60,20 +60,24 @@ export default defineComponent({
             type: Boolean,
             default: false
         },
+        choicePaper: {
+            type: Function,
+            required: true
+        },
         type: {
             type: Number,
             default: 0
         }
     },
-    setup(props, { emit }) {
-        const choicePaper = (flag: boolean) => {
-            emit("choicePaper", flag, props.info, props.index, props.type);
+    setup(props) {
+        const _choicePaper = (flag: boolean) => {
+            props.choicePaper(flag, props.info, props.index, props.type);
         };
 
         return {
             lookVideo,
             getCourseBagType,
-            choicePaper,
+            _choicePaper,
             formatDuration,
             lookQuestions
         };

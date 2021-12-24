@@ -7,45 +7,14 @@
             center=""
             :before-close="handleClose"
         >
-            <el-form :model="form" label-width="0px">
+            <div class="header">
                 <p class="title-text">选择版本</p>
-                <el-row :gutter="20">
-                    <el-col :span="8">
-                        <el-form-item>
-                            <el-select
-                                v-model="form.publisherValue"
-                                placeholder="请选择"
-                                @change="handleChange"
-                            >
-                                <el-option
-                                    v-for="item in publisherList"
-                                    :key="item.ID"
-                                    :label="item.Name"
-                                    :value="item.ID"
-                                >
-                                </el-option>
-                            </el-select>
-                        </el-form-item>
-                    </el-col>
-                    <el-col :span="8">
-                        <el-form-item>
-                            <el-select
-                                v-model="form.gradeValue"
-                                placeholder="请选择"
-                                @change="handleChange"
-                            >
-                                <el-option
-                                    v-for="item in gradeList"
-                                    :key="item.ID"
-                                    :label="item.Name"
-                                    :value="item.ID"
-                                >
-                                </el-option>
-                            </el-select>
-                        </el-form-item>
-                    </el-col>
-                </el-row>
-            </el-form>
+                <el-cascader
+                    v-model="subjectPublisherBookValue"
+                    :props="cascaderProps"
+                    :options="subjectPublisherBookList"
+                ></el-cascader>
+            </div>
             <p class="title-text" style="padding-left: 20px">选择教辅及页码</p>
             <div v-if="leftList.length > 0" class="content">
                 <div class="content-left">
@@ -60,9 +29,15 @@
                             @click="activeLeft = index"
                         >
                             <span>{{ item.WorkbookName }}</span>
-                            <span v-show="selectListMap[item.WorkbookID] && selectListMap[item.WorkbookID]?.length > 0">{{
-                                selectListMap[item.WorkbookID]?.length
-                            }}</span>
+                            <span
+                                v-show="
+                                    selectListMap[item.WorkbookID] &&
+                                    selectListMap[item.WorkbookID]?.length > 0
+                                "
+                                >{{
+                                    selectListMap[item.WorkbookID]?.length
+                                }}</span
+                            >
                         </div>
                     </div>
                 </div>
@@ -74,9 +49,11 @@
                     >
                         <el-checkbox
                             :model-value="getIsSelect(item)"
-                            @change="flag =>  handleRightClick(flag, item)"
+                            @change="(flag) => handleRightClick(flag, item)"
                         >
-                            {{`${item.UnitName} ${item.WorkbookPaperName} 第${item.PageNumName}页`}}
+                            {{
+                                `${item.UnitName} ${item.WorkbookPaperName} 第${item.PageNumName}页`
+                            }}
                         </el-checkbox>
                         <!--            <span class="flag" v-show="index === 0">最近布置过</span>-->
                     </div>
@@ -113,15 +90,14 @@ import {
     Workbook,
     WorkbookPaper
 } from "@/types/assignHomework";
+import { findFirstId } from "@/utils";
 import { ElMessageBox } from "element-plus";
-import { defineComponent, reactive, ref, watch } from "vue";
-import { useRoute } from "vue-router";
+import { defineComponent, ref, watch } from "vue";
 import {
-    fetchGrade,
-    fetchPublisherList,
     fetchWorkbookList,
     fetchWorkbookPaper
 } from "./api";
+import useBookList from "./hooks/useBookList";
 export default defineComponent({
     props: {
         dialogVisible: {
@@ -130,17 +106,14 @@ export default defineComponent({
         }
     },
     setup(props, { emit }) {
-        const route = useRoute();
-        const form = reactive({
-            publisherValue: "",
-            gradeValue: ""
-        });
+        const subjectPublisherBookValue = ref<string[]>([]);
         const publisherList = ref<Publisher[]>([]);
         const gradeList = ref<Grade[]>([]);
         const leftList = ref<Workbook[]>([]);
         const rightList = ref<WorkbookPaper[]>([]);
         const activeLeft = ref(0);
         const selectListMap = ref<Record<string, TeachHomework[]>>({});
+        const { subjectPublisherBookList, cascaderProps } = useBookList();
 
         const handleClose = () => {
             emit("update:dialogVisible", false);
@@ -155,11 +128,15 @@ export default defineComponent({
             if (Object.values(selectListMap.value).length === 0) {
                 getWorkbookList();
             } else {
-                ElMessageBox.confirm("切换书本会移除已选择的教辅, 是否继续?", "提示", {
-                    confirmButtonText: "确定",
-                    cancelButtonText: "取消",
-                    type: "warning"
-                }).then(() => {
+                ElMessageBox.confirm(
+                    "切换书本会移除已选择的教辅, 是否继续?",
+                    "提示",
+                    {
+                        confirmButtonText: "确定",
+                        cancelButtonText: "取消",
+                        type: "warning"
+                    }
+                ).then(() => {
                     selectListMap.value = {};
                     getWorkbookList();
                 });
@@ -167,24 +144,30 @@ export default defineComponent({
         };
 
         const getIsSelect = (item: WorkbookPaper) => {
-            const { WorkbookID } =
-                leftList.value[activeLeft.value];
+            const { WorkbookID } = leftList.value[activeLeft.value];
             if (!selectListMap.value[WorkbookID]) return false;
-            const findIndex = selectListMap.value[WorkbookID].findIndex(v => v.WorkbookPaperID === item.WorkbookPaperID);
+            const findIndex = selectListMap.value[WorkbookID].findIndex(
+                (v) => v.WorkbookPaperID === item.WorkbookPaperID
+            );
             return findIndex !== -1;
         };
 
         const handleRightClick = (flag: boolean, item: WorkbookPaper) => {
             const { WorkbookID, WorkbookName } =
                 leftList.value[activeLeft.value];
-            const publisherName =
-                publisherList.value.find(({ ID }) => form.publisherValue === ID)
-                    ?.Name || "";
+            const publisherSelect =
+                subjectPublisherBookList.value[0]?.Children?.find(
+                    ({ Value }) => subjectPublisherBookValue.value[1] === Value
+                );
+            const publisherName = publisherSelect?.Lable || "";
+
             const gradeName =
-                gradeList.value.find(({ ID }) => form.gradeValue === ID)
-                    ?.Name || "";
+                publisherSelect?.Children?.find(
+                    ({ Value }) => subjectPublisherBookValue.value[2] === Value
+                )?.Lable || "";
             const info: TeachHomework = {
                 ...item,
+                BookID: subjectPublisherBookValue.value[2],
                 WorkbookName,
                 publisherName,
                 gradeName,
@@ -197,7 +180,9 @@ export default defineComponent({
                     ? selectListMap.value[WorkbookID].push(info)
                     : (selectListMap.value[WorkbookID] = [info]);
             } else {
-                const findIndex = selectListMap.value[WorkbookID].findIndex(v => v.WorkbookPaperID === item.WorkbookPaperID);
+                const findIndex = selectListMap.value[WorkbookID].findIndex(
+                    (v) => v.WorkbookPaperID === item.WorkbookPaperID
+                );
                 selectListMap.value[WorkbookID].splice(findIndex, 1);
             }
         };
@@ -212,9 +197,7 @@ export default defineComponent({
 
         async function getWorkbookList() {
             const data = {
-                subjectID: route.params.subjectId as string,
-                publisherID: form.publisherValue,
-                albumID: form.gradeValue
+                id: subjectPublisherBookValue.value[2]
             };
             const res = await fetchWorkbookList(data);
             if (res.resultCode === 200) {
@@ -226,27 +209,17 @@ export default defineComponent({
             }
         }
 
-        async function getGrade() {
-            const res = await fetchGrade();
-            if (res.resultCode === 200) {
-                gradeList.value = res.result;
-                form.gradeValue = res.result[0].ID;
-            }
-        }
-
-        async function getPublisherList() {
-            const res = await fetchPublisherList();
-            if (res.resultCode === 200) {
-                publisherList.value = res.result;
-                form.publisherValue = res.result[0].ID;
-                await getGrade();
-                await getWorkbookList();
-            }
-        }
-
-        getPublisherList();
-
         watch(activeLeft, getWorkbookPaper);
+
+        watch(subjectPublisherBookList, (v) => {
+            if (v) {
+                findFirstId([subjectPublisherBookList.value[0]], subjectPublisherBookValue.value);
+            }
+        });
+
+        watch(subjectPublisherBookValue, handleChange, {
+            deep: true
+        });
 
         return {
             handleClose,
@@ -259,8 +232,10 @@ export default defineComponent({
             handleRightClick,
             handleConfirm,
             rightList,
+            subjectPublisherBookList,
             handleChange,
-            form
+            cascaderProps,
+            subjectPublisherBookValue
         };
     }
 });
@@ -268,11 +243,15 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .add-system-homework {
+    .header {
+        display: flex;
+        padding-left: 20px;
+    }
     .title-text {
         font-size: 20px;
         font-weight: 600;
         color: #19203d;
-        margin: 10px 0 20px;
+        margin: 10px 10px 20px 0;
     }
     :deep(.el-dialog__body) {
         padding: 0 0 20px;

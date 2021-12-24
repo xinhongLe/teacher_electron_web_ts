@@ -45,7 +45,7 @@ export const fetchPublisherList: RequestFun<null, Publisher[]> = () => {
 export const fetchWorkbookList: RequestFun<FetchWorkbookListData, Workbook[]> = (data) => {
     return request({
         baseURL: AI_XUE_SHI_API,
-        url: "/API/W4/CustomHomework/GetWorkbookList",
+        url: "/API/W4/CustomHomework/GetWorkbookList/V20211101",
         headers: {
             "Content-Type": "application/json-patch+json"
         },
