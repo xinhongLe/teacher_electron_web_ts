@@ -20,16 +20,16 @@ export const isExistFile = (filePath: string): Promise<boolean> => {
             .then(() => {
                 // resolve(true);
                 const fileName = filePath.substring(filePath.lastIndexOf("\\") + 1, filePath.indexOf("."));
-                const hash = crypto.createHash('md5');
+                const hash = crypto.createHash("md5");
                 createReadStream(filePath)
-                    .on('data', (chunk: any) => {
-                        hash.update(chunk, 'utf8');
+                    .on("data", (chunk: any) => {
+                        hash.update(chunk, "utf8");
                     })
-                    .on('end', () => {
-                        const md5 = hash.digest('hex');
+                    .on("end", () => {
+                        const md5 = hash.digest("hex");
                         return resolve(md5.toLocaleLowerCase() === fileName.toLocaleLowerCase());
                     })
-                    .on('error', () => {
+                    .on("error", () => {
                         return resolve(false);
                     });
             })
