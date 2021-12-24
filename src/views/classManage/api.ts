@@ -122,7 +122,7 @@ export function batchAddStudent(data: FormData): Promise<IResponse<null>> {
 export function fetchStudent(data: FetchStudentData): Promise<IResponse<FetchStudentRes>> {
     return request({
         baseURL: AI_XUE_SHI_API,
-        url: "/Api/Web/Class/GetClassStudentsBeforeDistribute",
+        url: "/Api/Web/Class/GetClassStudentsBeforeDistribute/V210922",
         method: "post",
         data
     });
