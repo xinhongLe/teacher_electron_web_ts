@@ -44,12 +44,3 @@ export function teacherLessonAndBagFilter(arr: Course[]) {
     });
     return newArr;
 }
-
-export const findFirstId = (tree: BookList[], ids: string[]) => {
-    tree.forEach((item) => {
-        ids.push(item.Value);
-        if (item.Children && item.Children.length > 0) {
-            findFirstId([item.Children[0]], ids);
-        }
-    });
-};

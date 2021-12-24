@@ -146,7 +146,7 @@ export default defineComponent({
     setup(props, { emit }) {
         const acceptList = ".ppt,.pptx,.doc,.docx,.pdf,.mp3,.mp4,.mkv,.flv,.jpg,.png,.jpeg";
         const form = reactive({
-            subjectPublisherBookValue: []
+            subjectPublisherBookValue: [] as string[]
         });
         const commonList = ref<CommHomework[]>([]);
         const bookImg = ref(defaultBookImg);
@@ -163,12 +163,17 @@ export default defineComponent({
                 return ElMessage.error("请添加作业");
             }
             handleClose();
+            commonList.value = commonList.value.map(item => {
+                item.BookID = form.subjectPublisherBookValue[2];
+                return item;
+            });
             emit("updateCommonHomeworkList", commonList.value);
         };
         const addRow = () => {
             commonList.value.push({
                 name: "",
                 type: 0,
+                BookID: "",
                 files: [],
                 students: []
             });

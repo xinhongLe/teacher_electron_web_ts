@@ -2,6 +2,7 @@ import { CourseBagClasses } from "@/api";
 import moment from "moment";
 import isElectron from "is-electron";
 import { MutationTypes, store } from "@/store";
+import { BookList } from "@/types/preparation";
 
 export function formatClass(v: CourseBagClasses[]) {
     return v ? v.map((e) => e.ClassName).join(",") : "";
@@ -135,4 +136,13 @@ export const openFile = (url: string, fileName = "") => {
         });
     }
     window.open(url);
+};
+
+export const findFirstId = (tree: BookList[], ids: string[]) => {
+    tree.forEach((item) => {
+        ids.push(item.Value);
+        if (item.Children && item.Children.length > 0) {
+            findFirstId([item.Children[0]], ids);
+        }
+    });
 };

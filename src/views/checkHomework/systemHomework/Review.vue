@@ -13,24 +13,12 @@
                     <TeacherAnswer v-if="detail.Detail.HomeworkPaperType === 2" :data="detail"/>
                     <Answer
                         v-else-if="detail.Detail.HomeworkPaperType === 0"
-                        :data="
-                            detail?.Study?.StudyFiles?.filter(
-                                (v) => v.Type == 1
-                            )
-                        "
+                        :data="detailData"
                         :speechResult="detail.Detail?.SpeechAssessResults"
                         :speechText="detail.Detail?.PronunciationText"
                         :questionType="detail.Question?.Type"
-                        :question="
-                            detail?.Question?.Answers[0].AnswerFiles.find(
-                                (v) => v.Type == 3
-                            )?.File
-                        "
-                        :answer="
-                            detail?.Question?.Answers[0].AnswerFiles.find(
-                                (v) => v.Type == 3
-                            )?.File
-                        "
+                        :question="question"
+                        :answer="answer"
                         :isOrigin="true"
                         :isQuestion="true"
                         :speechAudioList="[]"
@@ -93,20 +81,12 @@
                 <TeacherAnswerImg v-if="detail.Detail.HomeworkPaperType === 2" :data="detail"/>
                 <Answer
                     v-else-if="detail.Detail.HomeworkPaperType === 0"
-                    :data="detail.Study?.StudyFiles?.filter((v) => v.Type == 1)"
+                    :data="detailData"
                     :speechResult="detail.Detail.SpeechAssessResults"
                     :speechText="detail.Detail.PronunciationText"
                     :questionType="detail?.Question?.Type"
-                    :question="
-                        detail?.Question?.Answers[0].AnswerFiles.find(
-                            (v) => v.Type == 3
-                        )?.File
-                    "
-                    :answer="
-                        detail?.Question?.Answers[0].AnswerFiles.find(
-                            (v) => v.Type == 3
-                        )?.File
-                    "
+                    :question="question"
+                    :answer="answer"
                     :isOrigin="true"
                     :isQuestion="true"
                     :speechAudioList="[]"
@@ -150,6 +130,13 @@ export default defineComponent({
         const enlargeRef = ref();
         const detail = ref<QuestionDetail>({});
         const isShow = computed(() => detail.value?.Detail?.HomeworkPaperType === 0 || (detail.value?.Detail?.HomeworkPaperType === 2 && detail.value.Study?.MissionFiles?.find(({ PageNum }) => PageNum === detail.value.WorkbookPageQuestion?.PageNum)?.File));
+        const detailData = computed(() => detail.value.Study?.StudyFiles?.filter((v) => v.Type === 1));
+        const question = computed(() => detail.value?.Question?.Answers[0].AnswerFiles.find(
+            (v) => v.Type === 3
+        )?.File);
+        const answer = computed(() => detail.value?.Question?.Answers[0].AnswerFiles.find(
+            (v) => v.Type === 3
+        )?.File);
 
         const getData = async () => {
             const res = await fetchDetailByMissionStudyID({
@@ -188,6 +175,9 @@ export default defineComponent({
             detail,
             successHandle,
             isShow,
+            question,
+            detailData,
+            answer,
             errorHandle
         };
     },
