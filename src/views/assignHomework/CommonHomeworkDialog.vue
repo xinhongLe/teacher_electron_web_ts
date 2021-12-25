@@ -102,7 +102,7 @@
                             <div v-for="(file, j) in item.files" :key="j">
                                 <p>
                                     <FileType :fileExtension="file.extension"/>
-                                    <span>{{ file.name }}</span>
+                                    <span class="ellipsis" :title="file.name">{{ file.name }}</span>
                                 </p>
                                 <img
                                     src="@/assets/homeworkImg/icon_delete_red@2x.png"
@@ -334,6 +334,7 @@ export default defineComponent({
                         padding: 10px 40px;
                         background-color: #f3f7ff;
                         border-radius: 4px;
+                        max-width: calc(20% - 20px);
                         p {
                             display: flex;
                             justify-content: center;
@@ -356,6 +357,14 @@ export default defineComponent({
                             height: 20px;
                             cursor: pointer;
                         }
+                    }
+                    .ellipsis {
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        white-space: nowrap;
+                        display: inline-block;
+                        width: auto;
+                        max-width: calc(95% - 25px);
                     }
                 }
             }

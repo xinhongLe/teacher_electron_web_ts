@@ -50,7 +50,7 @@
                         "
                         alt=""
                     />
-                    <span>{{ file.name }}</span>
+                    <span class="ellipsis" :title="file.name">{{ file.name }}</span>
                     <!-- <img
                         src="@/assets/homeworkImg/icon_delete_red@2x.png"
                         @click="delFile(j)"
@@ -69,6 +69,7 @@ import { UploadFile } from "element-plus/lib/components/upload/src/upload.type";
 import { defineComponent, PropType, reactive, watch } from "vue";
 import { showImg } from "./logic";
 import SelectLabel from "./SelectLabel.vue";
+import { ElMessage } from "element-plus";
 export default defineComponent({
     props: {
         item: {
@@ -89,11 +90,15 @@ export default defineComponent({
         const uploadSuccess = async ({ file }: { file: UploadFile & Blob }) => {
             await uploadFile({ file });
             const { name, fileExtension, fileName } = fileInfo;
-            info.files.push({
-                name: fileName,
-                extension: fileExtension,
-                fileName: name
-            });
+            if (info.files.length < 5) {
+                info.files.push({
+                    name: fileName,
+                    extension: fileExtension,
+                    fileName: name
+                });
+            } else {
+                ElMessage.info("最多添加5个附件");
+            }
         };
         const updateStudents = (students: Student[]) => {
             info.students = students;
@@ -126,10 +131,13 @@ export default defineComponent({
         margin-right: 20px;
         padding: 10px 40px;
         border-radius: 4px;
+        max-width: calc(20% - 20px);
         p {
             background-color: #fff;
             position: relative;
             padding: 7px 8px;
+            display: flex;
+            align-items: center;
             img {
                 width: 20px;
                 height: 20px;
@@ -145,6 +153,14 @@ export default defineComponent({
                 cursor: pointer;
             }
         }
+    }
+    .ellipsis {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        display: inline-block;
+        width: auto;
+        max-width: calc(95% - 25px);
     }
 }
 .homework-row {
