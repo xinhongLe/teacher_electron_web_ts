@@ -33,6 +33,7 @@ export interface CommHomeworkFile {
     extension: string;
     fileName: string;
     name: string;
+    path?: any
 }
 
 export interface CommHomework {

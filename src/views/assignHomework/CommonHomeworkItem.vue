@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="homeworkItem">
         <div class="homework-row flex-between-center">
             <div class="first-col">
                 <span class="indexNumber">{{ index + 1 }}</span>
@@ -14,7 +14,7 @@
                 :studentList="item.students"
             ></SelectLabel>
             <div class="btns">
-                <el-upload
+                <!-- <el-upload
                     class="upload-demo"
                     ref="upload"
                     action=""
@@ -29,7 +29,7 @@
                         icon="el-icon-paperclip"
                         >添加附件</el-button
                     >
-                </el-upload>
+                </el-upload> -->
                 <el-button
                     size="small"
                     type="danger"
@@ -122,9 +122,17 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
+.homeworkItem{
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
 .file {
     display: flex;
     justify-content: flex-start;
+    flex: 1;
+    min-width: 0;
+    overflow-x: auto;
     border-top: 1px solid #e9ecf0;
     background-color: #f9fafc;
     div {

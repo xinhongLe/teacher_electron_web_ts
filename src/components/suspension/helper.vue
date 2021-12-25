@@ -431,6 +431,7 @@ export default defineComponent({
                     display: flex;
                     justify-content: flex-start;
                     flex-wrap: wrap;
+                    width: 100%;
                 }
                 .list-empty {
                     display: flex;

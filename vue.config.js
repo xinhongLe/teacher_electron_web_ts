@@ -161,7 +161,7 @@ module.exports = {
                     target: ["dmg", "zip"]
                 }
             },
-            externals: ["clipboard"]
+            externals: ["clipboard", "@microsoft/signalr"]
         }
     }
 };

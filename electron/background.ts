@@ -6,6 +6,7 @@ import { initialize } from "@electron/remote/main";
 import { createSuspensionWindow, registerEvent } from "./suspension";
 import downloadFile from "./downloadFile";
 import autoUpdater from "./autoUpdater";
+import SingalRHelper from "./singalr";
 const isDevelopment = process.env.NODE_ENV !== "production";
 const path = require("path");
 initialize();
@@ -24,6 +25,7 @@ protocol.registerSchemesAsPrivileged([
 ]);
 
 let mainWindow: BrowserWindow | null;
+let singalr: SingalRHelper | null;
 
 async function createWindow() {
     if (!process.env.WEBPACK_DEV_SERVER_URL) {
@@ -72,6 +74,22 @@ async function createWindow() {
             app.quit();
         }
         mainWindow = null;
+    });
+
+    ipcMain.on("startSingalR", (e, data) => {
+        if (singalr) {
+            singalr.disconnect();
+        }
+        if (mainWindow) {
+            singalr = new SingalRHelper(data, mainWindow);
+            singalr.start();
+        }
+    });
+
+    ipcMain.on("stopSingalR", () => {
+        if (singalr) {
+            singalr.disconnect();
+        }
     });
 
     ipcMain.on("maximizeWindow", (e) => {

@@ -39,6 +39,9 @@
                 <span class="tips"
                     >时长{{ formatDuration(videoDurationTick) }}</span
                 >
+                <span class="class-detail">
+                    {{ albumName }} {{ chapterName }}
+                </span>
             </template>
         </div>
         <div class="right">
@@ -146,6 +149,9 @@ export default defineComponent({
             font-size: 16px;
             font-weight: 500;
             color: #5f626f;
+            margin-left: 20px;
+        }
+        .class-detail{
             margin-left: 20px;
         }
     }

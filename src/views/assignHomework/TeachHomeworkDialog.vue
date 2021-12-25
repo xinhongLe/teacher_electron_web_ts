@@ -92,7 +92,7 @@ import {
 } from "@/types/assignHomework";
 import { findFirstId } from "@/utils";
 import { ElMessageBox } from "element-plus";
-import { defineComponent, ref, watch } from "vue";
+import { computed, defineComponent, ref, watch } from "vue";
 import {
     fetchWorkbookList,
     fetchWorkbookPaper
@@ -114,7 +114,6 @@ export default defineComponent({
         const activeLeft = ref(0);
         const selectListMap = ref<Record<string, TeachHomework[]>>({});
         const { subjectPublisherBookList, cascaderProps } = useBookList();
-
         const handleClose = () => {
             emit("update:dialogVisible", false);
         };

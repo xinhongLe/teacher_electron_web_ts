@@ -6,6 +6,7 @@ export const cacheFile = async (key: string) => {
     return new Promise((resolve) => {
         if (isElectron()) {
             const fileName = key.replace(/(.*\/)*([^.]+)/i, "$2");
+            if (fileName === "ElementFile/" || fileName === "null") return resolve("");
             return window.electron.isExistFile(fileName).then((isExist) => {
                 if (isExist) {
                     resolve("file://" + window.electron.getFilePath(fileName));
