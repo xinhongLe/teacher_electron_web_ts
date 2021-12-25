@@ -54,7 +54,7 @@
                     : { bottom: `${bottom}px`, right: `${right}px` }
             "
         >
-            <div class="no-drag"></div>
+            <div class="no-drag" v-if="showNoDrag"></div>
             <img
                 src="@/assets/images/suspension/btn_zhikezhushou@2x_Blue.png"
             />
@@ -106,6 +106,7 @@ export default defineComponent({
         const isShowVideo = ref(false);
         const isShowQuestion = ref(false);
         const isShowBlackBoard = ref(false);
+        const showNoDrag = ref(process.platform !== "darwin");
 
         const mouseDown = (event: MouseEvent) => {
             isStartMove.value = true;
@@ -282,7 +283,8 @@ export default defineComponent({
             isShowQuestion,
             isShowVideo,
             touchstart,
-            time
+            time,
+            showNoDrag
         };
     }
 });

@@ -1,7 +1,6 @@
 import { ipcMain, BrowserWindow, session } from "electron";
 import { resolve } from "path";
-import { access, readFile } from "fs/promises";
-import SparkMD5 from "spark-md5";
+import { access } from "fs/promises";
 import { createReadStream } from "original-fs";
 const crypto = require("crypto");
 
@@ -60,6 +59,7 @@ export default (win: BrowserWindow) => {
             dealCallback(fileName, filePath);
         } else {
             if (!downloadingFileList.includes(fileName)) {
+                downloadingFileList.push(fileName);
                 win.webContents.downloadURL(url);
             }
         }
@@ -82,9 +82,14 @@ export default (win: BrowserWindow) => {
     });
     session.defaultSession.on("will-download", (event, item, webContents) => {
         const fileName = item.getFilename();
-        downloadingFileList.push(fileName);
+        const fileExtension = fileName.split(".")[
+            fileName.split(".").length - 1
+        ];
         const filePath = resolve(appPath, item.getFilename());
-        item.setSavePath(filePath);
+        if (downloadingFileList.includes(fileName) || fileExtension === "xml") {
+            item.setSavePath(filePath);
+        }
+
         item.on("updated", () => {
             // console.log("下载进度", item.getReceivedBytes());
         });

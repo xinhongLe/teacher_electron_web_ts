@@ -546,5 +546,9 @@ export default defineComponent({
     padding: 0 20px !important;
     border-top: 1px solid #e9ecf0;
     flex-wrap: wrap;
+    > .file-info {
+        width: auto;
+        max-width: 20%;
+    }
 }
 </style>

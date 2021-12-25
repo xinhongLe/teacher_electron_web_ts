@@ -1,7 +1,7 @@
 <template>
     <div class="write-box">
         <canvas
-            ref="canvas"
+            ref="canvasRef"
             :width="panelWidth"
             :height="panelHeight"
             :style="{ left: panelOffsetX + 'px', top: panelOffsetY + 'px' }"
@@ -9,9 +9,10 @@
     </div>
 </template>
 
-<script>
+<script lang="ts">
 import { dealPoints } from "../logic";
-export default {
+import { defineComponent, ref, watch, nextTick } from "vue";
+export default defineComponent({
     name: "Write",
     props: {
         data: {
@@ -39,71 +40,65 @@ export default {
             default: 0
         }
     },
-    data() {
-        return {
-            height: 0,
-            width: 0,
-            ctx: null,
-            // 做题 订正笔记
-            writePoints: []
-        };
-    },
-    watch: {
-        data() {
-            if (this.data.length > 0) {
-                this.init();
+    setup(props) {
+        const height = ref(0);
+        const width = ref(0);
+        const ctx = ref<CanvasRenderingContext2D>();
+        const writePoints = ref<any[]>([]);
+        const canvasRef = ref<HTMLCanvasElement>();
+
+        watch(() => props.data, () => {
+            if (props.data.length > 0) {
+                init();
             } else {
-                this.canvasClear();
+                canvasClear();
             }
-        }
-    },
-    created() {
-        this.$nextTick(() => {
-            this.ctx = this.$refs.canvas.getContext("2d");
         });
-        if (this.data.length > 0) {
-            this.init();
-        } else {
-            this.canvasClear();
+
+        nextTick(() => {
+            ctx.value = canvasRef.value!.getContext("2d")!;
+            if (props.data.length > 0) {
+                init();
+            } else {
+                canvasClear();
+            }
+        });
+
+        function init () {
+            writePoints.value = [];
+            canvasClear();
+            dealWriteFileData(props.data);
+            draw();
         }
-    },
-    methods: {
-        init() {
-            this.writePoints = [];
-            this.canvasClear();
-            this.dealWriteFileData(this.data);
-            this.draw();
-        },
 
-        canvasClear() {
-            this.ctx &&
-                this.ctx.clearRect(
-                    0,
-                    0,
-                    this.$refs.canvas.clientWidth,
-                    this.$refs.canvas.clientHeight
-                );
-        },
+        function canvasClear () {
+            ctx.value && ctx.value.clearRect(
+                0,
+                0,
+                canvasRef.value!.clientWidth,
+                canvasRef.value!.clientHeight
+            );
+        }
 
-        dealWriteFileData(fillBlankArr) {
-            const writePoints = [];
+        function dealWriteFileData (fillBlankArr: any[]) {
+            const _writePoints: unknown[] = [];
             const canvasWidth = 3700;
             const canvasHeight = 2048;
-            this.width = this.panelWidth;
-            let scale = this.width / canvasWidth;
-            this.height = canvasHeight * scale;
-            if (this.height > this.panelHeight) {
-                this.height = this.panelHeight;
-                scale = this.height / canvasHeight;
-                this.width = canvasWidth * scale;
+            width.value = props.panelWidth;
+            let scale = width.value / canvasWidth;
+            height.value = canvasHeight * scale;
+            if (height.value > props.panelHeight) {
+                height.value = props.panelHeight;
+                scale = height.value / canvasHeight;
+                width.value = canvasWidth * scale;
             }
 
             // 计算下来， canvas的高度和图片的高度应该是一样的 这里dom上直接使用图片的宽高度 上面的计算只为了得到scale 暂时保留
 
-            fillBlankArr.map((item) => {
-                const obj = this.writeList.find((w) => {
+            fillBlankArr.map((item: any) => {
+                const obj = props.writeList.find((w: any) => {
                     return w.ID === item.fillBlankId;
-                });
+                }) as any;
                 const isCorrect = item.answer
                     ? item.answer.trim().toLowerCase() ===
                       item.correctAnswer.toLowerCase()
@@ -122,7 +117,7 @@ export default {
                         item.y = item.y + offsetY;
                     });
                 });
-                writePoints.push({
+                _writePoints.push({
                     x: offsetX,
                     y: offsetY,
                     isCorrect,
@@ -131,58 +126,13 @@ export default {
                     points
                 });
             });
-            this.writePoints = writePoints;
-        },
+            writePoints.value = _writePoints;
+        }
 
-        addNoAnswerText(obj) {
-            this.ctx.font = "20px Arial";
-            this.ctx.fillStyle = "red";
-            this.ctx.textAlign = "center";
-            this.ctx.fillText(
-                "未作答",
-                obj.x + obj.width / 2,
-                obj.y + obj.height / 2 + 8
-            );
-        },
-
-        draw() {
-            this.writePoints.map((item) => {
-                const strokeStyle = item.isCorrect ? "#56b70d" : "#fd7878";
-                const fillStyle = item.isCorrect ? "#b4eecb" : "#ffd9d9";
-                this.drawUsingArc(
-                    {
-                        x: item.x,
-                        y: item.y,
-                        width: item.width,
-                        height: item.height
-                    },
-                    10,
-                    strokeStyle,
-                    fillStyle
-                );
-                item.points.map((note) => {
-                    this.ctx.strokeStyle = "blue";
-                    this.ctx.lineWidth = 1;
-                    this.ctx.beginPath();
-                    this.ctx.moveTo(note.points[0].x, note.points[0].y);
-                    let i = 1;
-                    for (; i < note.points.length; i++) {
-                        this.ctx.lineTo(note.points[i].x, note.points[i].y);
-                    }
-                    this.ctx.stroke();
-                });
-                // 未作答
-                if (!item.isCorrect && item.points.length === 0) {
-                    this.addNoAnswerText(item);
-                }
-            });
-        },
-
-        // 画圆角矩形
-        drawUsingArc(rect, r, strokeStyle, fillStyle) {
+        function drawUsingArc (rect: any, r: any, strokeStyle:any, fillStyle:any) {
             const path = new Path2D();
-            this.ctx.strokeStyle = strokeStyle;
-            this.ctx.lineWidth = 3;
+            ctx.value!.strokeStyle = strokeStyle;
+            ctx.value!.lineWidth = 3;
             path.moveTo(rect.x + r, rect.y);
             path.lineTo(rect.x + rect.width - r, rect.y);
             path.arc(
@@ -200,7 +150,6 @@ export default {
                 r,
                 0,
                 (Math.PI / 180) * 90,
-                0,
                 false
             );
             path.lineTo(rect.x + r, rect.y + rect.height);
@@ -222,9 +171,9 @@ export default {
                 false
             );
 
-            this.ctx.stroke(path);
+            ctx.value!.stroke(path);
 
-            this.fillRoundRect(
+            fillRoundRect(
                 rect.x + 1,
                 rect.y + 1,
                 rect.width - 2,
@@ -232,27 +181,27 @@ export default {
                 r,
                 fillStyle
             );
-        },
+        }
 
-        fillRoundRect(x, y, width, height, radius, fillStyle) {
+        function fillRoundRect (x: any, y: any, width: any, height: any, radius: any, fillStyle: any) {
             // 圆的直径必然要小于矩形的宽高
             if (2 * radius > width || 2 * radius > height) {
                 return false;
             }
 
-            this.ctx.save();
-            this.ctx.translate(x, y);
+            ctx.value!.save();
+            ctx.value!.translate(x, y);
             // 绘制圆角矩形的各个边
-            this.drawRoundRectPath(width, height, radius);
-            this.ctx.fillStyle = fillStyle;
-            this.ctx.fill();
-            this.ctx.restore();
-        },
+            drawRoundRectPath(width, height, radius);
+            ctx.value!.fillStyle = fillStyle;
+            ctx.value!.fill();
+            ctx.value!.restore();
+        }
 
-        drawRoundRectPath(width, height, radius) {
-            this.ctx.beginPath(0);
+        function drawRoundRectPath (width: any, height: any, radius: any) {
+            ctx.value!.beginPath();
             // 从右下角顺时针绘制，弧度从0到1/2PI
-            this.ctx.arc(
+            ctx.value!.arc(
                 width - radius,
                 height - radius,
                 radius,
@@ -261,22 +210,22 @@ export default {
             );
 
             // 矩形下边线
-            this.ctx.lineTo(radius, height);
+            ctx.value!.lineTo(radius, height);
 
             // 左下角圆弧，弧度从1/2PI到PI
-            this.ctx.arc(radius, height - radius, radius, Math.PI / 2, Math.PI);
+            ctx.value!.arc(radius, height - radius, radius, Math.PI / 2, Math.PI);
 
             // 矩形左边线
-            this.ctx.lineTo(0, radius);
+            ctx.value!.lineTo(0, radius);
 
             // 左上角圆弧，弧度从PI到3/2PI
-            this.ctx.arc(radius, radius, radius, Math.PI, (Math.PI * 3) / 2);
+            ctx.value!.arc(radius, radius, radius, Math.PI, (Math.PI * 3) / 2);
 
             // 上边线
-            this.ctx.lineTo(width - radius, 0);
+            ctx.value!.lineTo(width - radius, 0);
 
             // 右上角圆弧
-            this.ctx.arc(
+            ctx.value!.arc(
                 width - radius,
                 radius,
                 radius,
@@ -285,12 +234,65 @@ export default {
             );
 
             // 右边线
-            this.ctx.lineTo(width, height - radius);
-            this.ctx.closePath();
+            ctx.value!.lineTo(width, height - radius);
+            ctx.value!.closePath();
         }
+
+        function draw () {
+            writePoints.value.map((item) => {
+                const strokeStyle = item.isCorrect ? "#56b70d" : "#fd7878";
+                const fillStyle = item.isCorrect ? "#b4eecb" : "#ffd9d9";
+                drawUsingArc(
+                    {
+                        x: item.x,
+                        y: item.y,
+                        width: item.width,
+                        height: item.height
+                    },
+                    10,
+                    strokeStyle,
+                    fillStyle
+                );
+                item.points.map((note: any) => {
+                    ctx.value!.strokeStyle = "blue";
+                    ctx.value!.lineWidth = 1;
+                    ctx.value!.beginPath();
+                    ctx.value!.moveTo(note.points[0].x, note.points[0].y);
+                    let i = 1;
+                    for (; i < note.points.length; i++) {
+                        ctx.value!.lineTo(note.points[i].x, note.points[i].y);
+                    }
+                    ctx.value!.stroke();
+                });
+                // // 未作答
+                if (!item.isCorrect && item.points.length === 0) {
+                    addNoAnswerText(item);
+                }
+            });
+        }
+
+        function addNoAnswerText (obj: any) {
+            ctx.value!.font = "20px Arial";
+            ctx.value!.fillStyle = "red";
+            ctx.value!.textAlign = "center";
+            ctx.value!.fillText(
+                "未作答",
+                obj.x + obj.width / 2,
+                obj.y + obj.height / 2 + 8
+            );
+        }
+
+        return	{
+            canvasRef,
+            writePoints
+        };
     }
-};
+});
 </script>
+
+<style lang="scss" scoped>
+
+</style>
 
 <style scoped>
 .write-box {

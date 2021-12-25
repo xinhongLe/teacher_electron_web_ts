@@ -302,6 +302,7 @@ export default defineComponent({
             window.addEventListener("keydown", keyDown);
             if (isElectron()) {
                 (window as any).electron.registerEscKeyUp(() => {
+                    if (!(window as any).electron.isFullScreen()) return;
                     (window as any).electron.minimizeWindow();
                     winScreenView.value = false;
                     editRef.value.closeScreen();

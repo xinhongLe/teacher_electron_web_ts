@@ -30,9 +30,8 @@
             <span>
                 <el-link
                     type="primary"
-                    :href="href"
+                    href="https://app-v.oss-cn-shanghai.aliyuncs.com/other/%E6%89%B9%E9%87%8F%E6%B3%A8%E5%86%8C%E5%AD%A6%E7%94%9F%E4%BF%A1%E6%81%AF%E8%A1%A8.xlsx"
                     download="批量注册学生信息表.xlsx"
-                    @click="clickLink"
                 >
                     <i class="el-icon-download"></i>下载导入模板
                 </el-link>
@@ -65,7 +64,6 @@
 import { AI_XUE_SHI_API } from "@/config";
 import { store } from "@/store";
 import { ElUploadType } from "@/types/elementType";
-import { openFile } from "@/utils";
 import { ElMessage } from "element-plus";
 import {
     ElFile,
@@ -138,13 +136,6 @@ export default defineComponent({
             }
         };
 
-        const clickLink = () => {
-            if (isElectron()) {
-                return openFile("https://app-v.oss-cn-shanghai.aliyuncs.com/other/%E6%89%B9%E9%87%8F%E6%B3%A8%E5%86%8C%E5%AD%A6%E7%94%9F%E4%BF%A1%E6%81%AF%E8%A1%A8.xlsx", "批量注册学生信息表.xlsx");
-            }
-            href.value = "https://app-v.oss-cn-shanghai.aliyuncs.com/other/%E6%89%B9%E9%87%8F%E6%B3%A8%E5%86%8C%E5%AD%A6%E7%94%9F%E4%BF%A1%E6%81%AF%E8%A1%A8.xlsx";
-        };
-
         return {
             getIconName,
             delFile,
@@ -153,7 +144,6 @@ export default defineComponent({
             fileInfo,
             uploadRef,
             href,
-            clickLink,
             action
         };
     }
