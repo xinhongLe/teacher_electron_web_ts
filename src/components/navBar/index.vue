@@ -145,6 +145,11 @@ export default defineComponent({
             }
         });
 
+        const useLogout = () => {
+            useOutLogin();
+            isElectron() && window.electron.ipcRenderer.send("stopSingalR");
+        }
+
         return {
             isElectron,
             breadList,
@@ -152,7 +157,7 @@ export default defineComponent({
             name,
             go,
             feedbackRef,
-            outlogin: useOutLogin,
+            outlogin: useLogout,
             closeTab,
             showFeedBack,
             close,

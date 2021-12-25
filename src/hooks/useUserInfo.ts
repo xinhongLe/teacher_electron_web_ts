@@ -17,10 +17,12 @@ const dealUserInfo = (useInfo:ILessonManagerResult) => {
 
 export default () => {
     const queryUserInfo = () => {
-        LessonManager().then((res) => {
+        return LessonManager().then((res) => {
             if (res.resultCode === 200) {
                 dealUserInfo(res.result);
+                return true;
             }
+            return false;
         });
     };
 
