@@ -64,4 +64,5 @@ export interface Homework {
     VideoDurationTick: number;
     VideoID: string;
     WrongCount: number;
+    AnswerShowTime?: string;
 }

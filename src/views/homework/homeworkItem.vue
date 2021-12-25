@@ -120,12 +120,12 @@
                                 color="#4B71EE"
                             ></i>
                             <el-date-picker
+                                popper-class="hand-publish"
                                 v-if="showdataPicker"
                                 ref="dataPicker"
                                 type="datetime"
                                 v-model="date"
                                 size="large"
-                                @change="(val) => dateChange(val, info)"
                                 @blur="dataBlur"
                                 placeholder="选择日期时间"
                             >
@@ -161,11 +161,11 @@
                                 color="#4B71EE"
                             ></i>
                             <el-date-picker
+                                popper-class="hand-publish"
                                 v-if="showdataPicker"
                                 ref="dataPicker"
                                 type="datetime"
                                 v-model="date"
-                                @change="(val) => dateChange(val, info)"
                                 @blur="dataBlur"
                                 placeholder="选择日期时间"
                             >
@@ -253,9 +253,35 @@ export default defineComponent({
         const date = ref("");
         const changeTag = () => {
             showdataPicker.value = true;
+            date.value = props.info.AnswerShowTime || "";
             nextTick(() => {
                 dataPicker.value.focus();
                 dataPicker.value.display = "none";
+                setTimeout(() => {
+                    // 添加日历footer里的的确定和此刻按钮的点击事件
+                    const cur = document.querySelectorAll(".el-picker-panel__link-btn");
+                    for (var m in cur) {
+                        if (cur[m]) {
+                            try {
+                                // cur[m].setAttribute("display", "none");
+                            } catch (error) {
+                                console.log(error);
+                            }
+                        }
+                    }
+                    const currentBtn = document.querySelectorAll(".hand-publish .el-picker-panel .el-picker-panel__footer .el-button");
+                    for (var i in currentBtn) {
+                        if (currentBtn[i]) {
+                            try {
+                                currentBtn[i].addEventListener("click", () => {
+                                    dateChange(date.value, props.info);
+                                });
+                            } catch (error) {
+                                console.log(error);
+                            }
+                        }
+                    }
+                }, 500);
             });
         };
         const dataBlur = () => {

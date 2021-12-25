@@ -148,7 +148,7 @@ export default defineComponent({
         const useLogout = () => {
             useOutLogin();
             isElectron() && window.electron.ipcRenderer.send("stopSingalR");
-        }
+        };
 
         return {
             isElectron,
