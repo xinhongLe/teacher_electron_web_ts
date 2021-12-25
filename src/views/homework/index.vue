@@ -144,12 +144,15 @@ export default defineComponent({
 <style lang="scss" scoped>
 .homework-wrapper {
     height: 100%;
+    display: flex;
+    flex-direction: column;
     header {
         padding: 20px;
     }
     .row-line {
         height: 10px;
         background-color: #f5f6fa;
+        flex-shrink: 0;
     }
     .class-list {
         padding: 20px;
@@ -157,6 +160,7 @@ export default defineComponent({
         background-color: #fff;
         display: flex;
         flex-wrap: wrap;
+        flex-shrink: 0;
         p {
             display: flex;
             height: 40px;
@@ -179,7 +183,8 @@ export default defineComponent({
         }
     }
     .homework-content {
-        height: calc(100% - 170px);
+        flex: 1;
+        overflow-y: overlay;
         background-color: #fff;
         padding: 0 20px;
         position: relative;

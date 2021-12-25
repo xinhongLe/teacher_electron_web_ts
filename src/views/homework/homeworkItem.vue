@@ -436,7 +436,6 @@ export default defineComponent({
     font-size: 14px;
     color: #5f626f;
     margin-bottom: 10px;
-    height: 60px;
     .homework-warp {
         width: 20%;
         :deep(.el-date-editor) {
@@ -552,5 +551,9 @@ export default defineComponent({
     padding: 0 20px !important;
     border-top: 1px solid #e9ecf0;
     flex-wrap: wrap;
+    > .file-info {
+        width: auto;
+        max-width: 20%;
+    }
 }
 </style>

@@ -9,7 +9,7 @@
                 "
                 alt=""
             />
-            <span>{{ file.File.Name }}</span>
+            <span class="ellipsis" :title="file.File.Name">{{ file.File.Name }}</span>
         </p>
         <Enlarge
             v-model:visible="visible"
@@ -56,11 +56,21 @@ export default defineComponent({
     p {
         background: #fff;
         padding: 8px;
+        display: flex;
+        align-items: center;
         img {
             width: 20px;
             height: 20px;
             vertical-align: middle;
             margin-right: 10px;
+        }
+         .ellipsis {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            display: inline-block;
+            width: auto;
+            max-width: calc(100% - 25px);
         }
     }
 }

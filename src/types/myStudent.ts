@@ -121,6 +121,7 @@ export interface GetAccountPasswordRes {
 
 export interface FetchStudentData {
     classId: string,
+    teacherID: string,
     pager?: Pager
 }
 

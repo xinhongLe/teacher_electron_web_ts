@@ -46,7 +46,8 @@ export default defineComponent({
 
         const getStudent = async () => {
             const res = await fetchStudent({
-                classId: store.state.myStudent.selectClassInfo.ID
+                classId: store.state.myStudent.selectClassInfo.ID,
+                teacherID: store.state.userInfo.id
             });
             if (res.resultCode === 200) {
                 const { result: { AllStudents, InClassStudents } } = res;

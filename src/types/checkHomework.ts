@@ -121,6 +121,9 @@ export interface ChangeResultData {
 
 export interface SpeechAssessResult {
     JsonData: string;
+    Overall: number;
+    Wavetime: number;
+    File: FileInfo
 }
 
 export interface QuestionDetailMissionFile extends QuestionFile {
@@ -145,6 +148,9 @@ export interface QuestionDetail {
     };
     Question?: {
         Type: number;
+        ChoiceValue: string;
+        ChoiceCount: number;
+        QuestionBlanks: [];
         Answers: Answer[];
     };
     Detail?: {

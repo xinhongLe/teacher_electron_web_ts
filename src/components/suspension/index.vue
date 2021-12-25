@@ -54,6 +54,7 @@
                     : { bottom: `${bottom}px`, right: `${right}px` }
             "
         >
+            <div class="no-drag" v-if="showNoDrag"></div>
             <img
                 src="@/assets/images/suspension/btn_zhikezhushou@2x_Blue.png"
             />
@@ -105,6 +106,7 @@ export default defineComponent({
         const isShowVideo = ref(false);
         const isShowQuestion = ref(false);
         const isShowBlackBoard = ref(false);
+        const showNoDrag = ref(process.platform !== "darwin");
 
         const mouseDown = (event: MouseEvent) => {
             isStartMove.value = true;
@@ -112,7 +114,7 @@ export default defineComponent({
             dragePosition.x = clientX;
             dragePosition.y = clientY;
             if (isElectron()) {
-                window.electron.ipcRenderer.invoke("window-move-open", true);
+                // window.electron.ipcRenderer.invoke("window-move-open", true);
             }
             document.onmousemove = (event) => {
                 if (isStartMove.value) {
@@ -281,7 +283,8 @@ export default defineComponent({
             isShowQuestion,
             isShowVideo,
             touchstart,
-            time
+            time,
+            showNoDrag
         };
     }
 });
@@ -364,14 +367,24 @@ export default defineComponent({
         position: fixed;
         cursor: pointer;
         width: 120px;
+        height: 120px;
         z-index: 9999;
         bottom: 0;
         right: 0;
-        -webkit-app-region: no-drag;
+        -webkit-app-region: drag;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        .no-drag {
+            -webkit-app-region: no-drag;
+            width: 50%;
+            height: 50%;
+        }
         img {
             width: 100%;
             user-select: none;
             pointer-events: none;
+            position: absolute;
         }
     }
     .welt {

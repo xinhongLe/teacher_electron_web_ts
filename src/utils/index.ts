@@ -13,7 +13,7 @@ export function formatDuration(time: number) {
     if (time > -1) {
         const hour = Math.floor(time / 3600000);
         const min = Math.floor(time / 60000) % 60;
-        const sec = time % 60;
+        const sec = Math.floor((time - min * 60000 - hour * 3600000) / 1000);
         if (hour > 0) {
             if (hour < 10) {
                 newTime = "0" + hour + ":";
@@ -60,7 +60,7 @@ export function formatDate(v: string) {
     return moment(v).format("YYYY年MM月DD日 星期" + str);
 }
 
-export function formatTime(v:string) {
+export function formatTime(v:string|number) {
     return moment(v).format("hh:mm");
 }
 
