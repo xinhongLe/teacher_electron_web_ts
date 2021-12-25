@@ -72,14 +72,13 @@
                                     class="upload-demo"
                                     ref="upload"
                                     action=""
+                                    :file-list="fileList"
                                     :limit="5"
                                     :accept="acceptList"
                                     :show-file-list="false"
-                                    :on-exceed="onExceed"
+                                    :on-exceed="(e) => onExceed(e,index)"
                                     :before-upload="beforeUpload"
-                                    :http-request="
-                                        // @ts-ignore
-                                        (e) => uploadSuccess(e, index)
+                                    :http-request="(e) => uploadSuccess(e, index)
                                     "
                                 >
                                     <el-button
@@ -184,8 +183,12 @@ export default defineComponent({
         const delFile = (index: number, j: number) => {
             commonList.value[index].files.splice(j, 1);
         };
-        const onExceed = () => {
-            ElMessage.info("最多添加5个附件");
+        const onExceed = (e:any, index: number) => {
+            if (commonList.value[index].files.length === 5) {
+                ElMessage.info("最多添加5个附件");
+            } else {
+                uploadSuccess(e, index);
+            }
         };
         const beforeUpload = ({ name }: {
             name: string;
@@ -214,6 +217,7 @@ export default defineComponent({
             file: UploadFile & Blob;
         }, index: number) => {
             await uploadFile({ file });
+            console.log(file, "files");
             commonList.value[index].files.push({
                 extension: fileInfo.fileExtension,
                 name: fileInfo.fileName,

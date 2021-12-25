@@ -44,5 +44,6 @@ export interface IOssFileInfo {
     name: string,
     md5: string,
     fileName: string,
-    fileExtension: string
+    fileExtension: string,
+    path?: string
 }
