@@ -39,7 +39,7 @@ export default () => {
         });
         breadList.value.splice(index, 1);
         if (router.currentRoute.value.name === item.name) {
-            router.back();
+            router.push(breadList.value[breadList.value.length - 1].path);
         }
     };
 

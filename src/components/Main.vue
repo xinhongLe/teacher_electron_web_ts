@@ -15,7 +15,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, ref, watch } from "vue";
+import { computed, defineComponent, onUnmounted, ref, watch } from "vue";
 import NavBar from "./navBar/index.vue";
 import Suspension from "./suspension/index.vue";
 import isElectron from "is-electron";
@@ -56,12 +56,27 @@ export default defineComponent({
 
         getTagList();
 
-        queryUserInfo();
+        queryUserInfo().then(success => {
+            // 获取到用户信息, 开始配置全局监听器
+            if (success) {
+                isElectron() && window.electron.ipcRenderer.send("startSingalR", store.state.userInfo.id);
+            }
+        });
+
+        const projection = (e: any, data: any) => {
+            console.log(data);
+        };
+
+        window.electron.ipcRenderer.on("singalRData-Projection", projection);
 
         if (isElectron()) {
             window.electron.ipcRenderer.invoke("openSuspension");
             window.electron.maximizeWindow();
         }
+
+        onUnmounted(() => {
+            window.electron.ipcRenderer.off("singalRData-Projection", projection);
+        });
 
         return {
             isElectron: isElectron(),
