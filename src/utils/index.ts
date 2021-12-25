@@ -60,7 +60,7 @@ export function formatDate(v: string) {
     return moment(v).format("YYYY年MM月DD日 星期" + str);
 }
 
-export function formatTime(v:string) {
+export function formatTime(v:string|number) {
     return moment(v).format("hh:mm");
 }
 

@@ -10,27 +10,33 @@
             </div>
             <div class="answer">
                 <template v-if="detail.Detail">
-                    <TeacherAnswer v-if="detail.Detail.HomeworkPaperType === 2" :data="detail"/>
-                    <Answer
-                        v-else-if="detail.Detail.HomeworkPaperType === 0"
-                        :data="detailData"
-                        :speechResult="detail.Detail?.SpeechAssessResults"
-                        :speechText="detail.Detail?.PronunciationText"
-                        :questionType="detail.Question?.Type"
-                        :question="question"
-                        :answer="answer"
-                        :isOrigin="true"
-                        :isQuestion="true"
-                        :speechAudioList="[]"
-                        :writeList="[]"
-                        :choiceValue="'a'"
-                        :style="{ transform: 'scale(' + 288 / 900 + ')' }"
-                    ></Answer>
+                    <TeacherAnswer
+                        v-if="detail.Detail.HomeworkPaperType === 2"
+                        :data="detail"
+                    />
+                    <template v-else-if="detail.Detail.HomeworkPaperType === 0">
+                        <SpeechAudio v-if="detail.Question?.Type === 7" :speechResult="detail.Detail?.SpeechAssessResults"/>
+                        <Answer
+                            v-else
+                            :data="detailData"
+                            :questionType="detail.Question?.Type"
+                            :question="question"
+                            :answer="answer"
+                            :isOrigin="true"
+                            :isQuestion="true"
+                            :writeList="detail?.Question?.QuestionBlanks"
+                            :choiceValue="detail.Question?.ChoiceValue"
+                            :style="{ transform: 'scale(' + 288 / 900 + ')' }"
+                        ></Answer>
+                    </template>
                 </template>
             </div>
             <div class="answer-userinfo">
                 <div class="answer-avator" v-if="detail.Student">
-                    <Avatar :file="detail.Student?.HeadPortrait" :size="28"></Avatar>
+                    <Avatar
+                        :file="detail.Student?.HeadPortrait"
+                        :size="28"
+                    ></Avatar>
                     <span class="studentNameBOX">{{
                         detail.Student?.Name
                     }}</span>
@@ -78,20 +84,20 @@
             :successHandle="successHandle"
         >
             <template v-if="detail.Detail">
-                <TeacherAnswerImg v-if="detail.Detail.HomeworkPaperType === 2" :data="detail"/>
+                <TeacherAnswerImg
+                    v-if="detail.Detail.HomeworkPaperType === 2"
+                    :data="detail"
+                />
                 <Answer
                     v-else-if="detail.Detail.HomeworkPaperType === 0"
                     :data="detailData"
-                    :speechResult="detail.Detail.SpeechAssessResults"
-                    :speechText="detail.Detail.PronunciationText"
                     :questionType="detail?.Question?.Type"
                     :question="question"
                     :answer="answer"
                     :isOrigin="true"
                     :isQuestion="true"
-                    :speechAudioList="[]"
-                    :writeList="[]"
-                    :choiceValue="'a'"
+                    :writeList="detail?.Question?.QuestionBlanks"
+                    :choiceValue="detail.Question?.ChoiceValue"
                 ></Answer>
             </template>
         </Enlarge>
@@ -107,6 +113,7 @@ import Answer from "./Answer.vue";
 import Enlarge from "./Enlarge.vue";
 import TeacherAnswer from "./TeacherAnswer.vue";
 import TeacherAnswerImg from "./TeacherAnswerImg.vue";
+import SpeechAudio from "./SpeechAudio.vue";
 export default defineComponent({
     props: {
         className: {
@@ -129,14 +136,31 @@ export default defineComponent({
     setup(props) {
         const enlargeRef = ref();
         const detail = ref<QuestionDetail>({});
-        const isShow = computed(() => detail.value?.Detail?.HomeworkPaperType === 0 || (detail.value?.Detail?.HomeworkPaperType === 2 && detail.value.Study?.MissionFiles?.find(({ PageNum }) => PageNum === detail.value.WorkbookPageQuestion?.PageNum)?.File));
-        const detailData = computed(() => detail.value.Study?.StudyFiles?.filter((v) => v.Type === 1));
-        const question = computed(() => detail.value?.Question?.Answers[0].AnswerFiles.find(
-            (v) => v.Type === 3
-        )?.File);
-        const answer = computed(() => detail.value?.Question?.Answers[0].AnswerFiles.find(
-            (v) => v.Type === 3
-        )?.File);
+        const isShow = computed(
+            () =>
+                (detail.value?.Detail?.HomeworkPaperType === 0 && detail.value?.Question?.Type !== 7) ||
+                (detail.value?.Detail?.HomeworkPaperType === 2 &&
+                    detail.value.Study?.MissionFiles?.find(
+                        ({ PageNum }) =>
+                            PageNum ===
+                            detail.value.WorkbookPageQuestion?.PageNum
+                    )?.File)
+        );
+        const detailData = computed(() =>
+            detail.value.Study?.StudyFiles?.filter((v) => v.Type === 1)
+        );
+        const question = computed(
+            () =>
+                detail.value?.Question?.Answers[0].AnswerFiles.find(
+                    (v) => v.Type === 3
+                )?.File
+        );
+        const answer = computed(
+            () =>
+                detail.value?.Question?.Answers[0].AnswerFiles.find(
+                    (v) => v.Type === 3
+                )?.File
+        );
 
         const getData = async () => {
             const res = await fetchDetailByMissionStudyID({
@@ -181,7 +205,7 @@ export default defineComponent({
             errorHandle
         };
     },
-    components: { Avatar, Answer, Enlarge, TeacherAnswer, TeacherAnswerImg }
+    components: { Avatar, Answer, Enlarge, TeacherAnswer, TeacherAnswerImg, SpeechAudio }
 });
 </script>
 
