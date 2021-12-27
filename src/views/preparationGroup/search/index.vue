@@ -2,7 +2,7 @@
     <div class="preparation-group-header">
         <div class="header-panel flex-between-center">
             <span class="header-title">我的集体备课</span>
-            <div class="add-btn" @click="add">
+            <div class="add-btn" @click="editPanel">
                 <img src="../../../assets/preparationGroup/icon_add_white.png" alt="" />
                 <span>发起集体备课</span>
             </div>
@@ -57,6 +57,7 @@
 
 <script lang="ts">
 import { defineComponent, reactive, toRefs } from "vue";
+import { useRouter } from "vue-router";
 import useSubmit from "./useSubmit";
 export default defineComponent({
     name: "head",
@@ -66,6 +67,7 @@ export default defineComponent({
         }
     },
     setup(props, { emit }) {
+        const router = useRouter();
         console.log(props);
         console.log(emit);
         const state = reactive({
@@ -95,8 +97,8 @@ export default defineComponent({
             emit("requestParams", formData);
         };
 
-        const add = () => {
-            console.log(1);
+        const editPanel = () => {
+            router.push("/preparation-edit");
         };
         const { statusList, formData, formRef } = useSubmit();
         return {
@@ -105,7 +107,7 @@ export default defineComponent({
             formData,
             formRef,
             submit,
-            add
+            editPanel
         };
     },
     components: { }

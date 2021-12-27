@@ -37,6 +37,14 @@ const routes: Array<RouteRecordRaw> = [
                 }
             },
             {
+                path: "preparation-edit",
+                name: "编辑集体备课",
+                component: () => import("@/views/preparationGroup/editPanel/index.vue"),
+                meta: {
+                    keepAlive: true
+                }
+            },
+            {
                 path: "class-manage",
                 name: "班级管理",
                 component: () => import("@/views/classManage/index.vue")
