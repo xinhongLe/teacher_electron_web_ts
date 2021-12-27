@@ -130,6 +130,7 @@ export default defineComponent({
 .head-info {
     width: 100%;
     height: auto;
+    min-height: 340px;
     padding: 24px;
     user-select: none;
     background-color: #fff;

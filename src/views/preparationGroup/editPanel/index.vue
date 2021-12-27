@@ -77,8 +77,10 @@ export default defineComponent({
     user-select: none;
     background-color: #F5F6FA;
     .main-box {
+        min-height: calc(100% - 340px);
         padding: 24px;
         margin-bottom: 0;
+        background-color: #F5F6FA;
         > div {
             margin-bottom: 24px;
         }
