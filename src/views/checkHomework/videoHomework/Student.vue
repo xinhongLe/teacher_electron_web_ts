@@ -11,7 +11,7 @@
             <div class="student-progress">
                 <div>
                     <el-progress
-                        :percentage="Math.floor(videoWatchTimeTick / videoDurationTick * 100)"
+                        :percentage="Math.round(videoWatchTimeTick / videoDurationTick * 100)"
                         :color="customColors"
                     ></el-progress>
                 </div>
@@ -50,11 +50,9 @@ export default defineComponent({
     },
     setup() {
         const customColors = [
-            { color: "#f56c6c", percentage: 20 },
-            { color: "#e6a23c", percentage: 40 },
-            { color: "#5cb87a", percentage: 60 },
-            { color: "#1989fa", percentage: 80 },
-            { color: "#6f7ad3", percentage: 100 }
+            { color: "#ff6b6b", percentage: 20 },
+            { color: "#fbc54d", percentage: 90 },
+            { color: "#a0b3f3", percentage: 100 }
         ];
         return {
             customColors

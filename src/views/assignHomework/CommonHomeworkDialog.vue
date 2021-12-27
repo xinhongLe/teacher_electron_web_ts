@@ -187,7 +187,7 @@ export default defineComponent({
             if (commonList.value[index].files.length === 5) {
                 ElMessage.info("最多添加5个附件");
             } else {
-                uploadSuccess(e, index);
+                uploadSuccess({ file: e[0] }, index);
             }
         };
         const beforeUpload = ({ name }: {
