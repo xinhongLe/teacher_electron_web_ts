@@ -50,14 +50,17 @@
                 </el-select>
             </div>
             <el-button type="primary" @click="submit">搜索</el-button>
-
         </div>
+        <CollectivePreparation
+         ref="CollectivePreparationRef"
+        ></CollectivePreparation>
     </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, toRefs } from "vue";
+import { defineComponent, reactive, ref, toRefs } from "vue";
 import useSubmit from "./useSubmit";
+import CollectivePreparation from "../collective-preparation/index.vue";
 export default defineComponent({
     name: "head",
     props: {
@@ -94,9 +97,9 @@ export default defineComponent({
         const submit = () => {
             emit("requestParams", formData);
         };
-
+        const CollectivePreparationRef = ref();
         const add = () => {
-            console.log(1);
+            CollectivePreparationRef.value.dialogVisible = true;
         };
         const { statusList, formData, formRef } = useSubmit();
         return {
@@ -104,11 +107,12 @@ export default defineComponent({
             statusList,
             formData,
             formRef,
+            CollectivePreparationRef,
             submit,
             add
         };
     },
-    components: { }
+    components: { CollectivePreparation }
 });
 </script>
 

@@ -32,14 +32,19 @@
                 </div>
                 <el-button type="primary" plain>进入研讨</el-button>
             </div>
-            <p>您可以<span class="blue">生成邀请链接</span>， 发送至小组成员</p>
+            <p>您可以<span class="blue" @click="generatelink">生成邀请链接</span>， 发送至小组成员</p>
         </div>
+
+        <generate-link
+        ref="generateLinkRef"
+        ></generate-link>
     </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, toRefs } from "vue";
+import { defineComponent, reactive, ref, toRefs } from "vue";
 import useSubmit from "../search/useSubmit";
+import generateLink from "../generate-link/index.vue";
 export default defineComponent({
     name: "card",
     props: {
@@ -47,26 +52,32 @@ export default defineComponent({
             type: Array
         }
     },
+    components: { generateLink },
     setup(props, { emit }) {
         console.log(props);
         console.log(emit);
         const state = reactive({
             loading: false
         });
-
+        const generateLinkRef = ref();
         const switchStatus = (status: number) => {
             return statusList.filter((v) => {
                 return v.value === status;
             })[0].label;
         };
+        // 生成邀请链接
+        const generatelink = () => {
+            generateLinkRef.value.dialogVisible = true;
+        };
         const { statusList } = useSubmit();
         return {
             ...toRefs(state),
             statusList,
-            switchStatus
+            generateLinkRef,
+            switchStatus,
+            generatelink
         };
-    },
-    components: { }
+    }
 });
 </script>
 

@@ -15,6 +15,10 @@ export default () => {
         {
             name: "集体备课",
             path: "/preparation-group"
+        },
+        {
+            name: "批注",
+            path: "/annotation"
         }
     ]);
 
