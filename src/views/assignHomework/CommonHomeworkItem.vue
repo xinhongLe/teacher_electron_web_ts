@@ -40,7 +40,7 @@
             </div>
         </div>
         <div v-if="item.files.length > 0" class="file">
-            <div v-for="(file, j) in item.files" :key="j">
+            <div v-for="(file, j) in item.files" :key="j" @click="preview(file)">
                 <p>
                     <img
                         :src="
@@ -59,6 +59,13 @@
                 </p>
             </div>
         </div>
+
+        <Enlarge
+            v-model:visible="visible"
+            v-if="visible"
+            :src="src"
+            :extention="extention"
+        />
     </div>
 </template>
 
@@ -66,10 +73,13 @@
 import useUploadFile from "@/hooks/useUploadFile";
 import { CommHomework, Student } from "@/types/assignHomework";
 import { UploadFile } from "element-plus/lib/components/upload/src/upload.type";
-import { defineComponent, PropType, reactive, watch } from "vue";
+import { defineComponent, PropType, reactive, watch, ref } from "vue";
 import { showImg } from "./logic";
 import SelectLabel from "./SelectLabel.vue";
 import { ElMessage } from "element-plus";
+import { get, STORAGE_TYPES } from "@/utils/storage";
+import useViewHomeworkFile from "@/hooks/useViewHomeworkFile";
+import Enlarge from "@/components/enlarge/index.vue";
 export default defineComponent({
     props: {
         item: {
@@ -103,6 +113,23 @@ export default defineComponent({
         const updateStudents = (students: Student[]) => {
             info.students = students;
         };
+        const { src, visible, viewInfo } = useViewHomeworkFile();
+        const extention = ref("");
+        const preview = (file: any) => {
+            extention.value = file.extension;
+            const fileInfo = {
+                Extention: file.extension,
+                FilePath: get(STORAGE_TYPES.OSS_PATHS).CustomHomework.Path,
+                FileName: file.fileName,
+                Bucket: get(STORAGE_TYPES.OSS_PATHS).CustomHomework.Bucket,
+                FileType: 1,
+                ID: "",
+                Name: "",
+                StaffName: "",
+                Type: 1
+            };
+            viewInfo(fileInfo);
+        };
         watch(
             info,
             (v) => {
@@ -114,10 +141,15 @@ export default defineComponent({
             showImg,
             delFile,
             updateStudents,
-            uploadSuccess
+            uploadSuccess,
+            visible,
+            extention,
+            src,
+            viewInfo,
+            preview
         };
     },
-    components: { SelectLabel }
+    components: { SelectLabel, Enlarge }
 });
 </script>
 
@@ -146,6 +178,7 @@ export default defineComponent({
             padding: 7px 8px;
             display: flex;
             align-items: center;
+            cursor: pointer;
             img {
                 width: 20px;
                 height: 20px;
