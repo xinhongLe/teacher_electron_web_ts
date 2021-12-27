@@ -16,7 +16,7 @@
 <script lang="ts">
 import { QuestionDetail } from "@/types/checkHomework";
 import { downloadFile } from "@/utils/oss";
-import { defineComponent, PropType, watchEffect, ref, reactive, onMounted } from "vue";
+import { defineComponent, PropType, watchEffect, ref, reactive, onMounted, onUnmounted } from "vue";
 export default defineComponent({
     props: {
         data: {
@@ -95,6 +95,10 @@ export default defineComponent({
 
         onMounted(() => {
             document.addEventListener("wheel", mousewheelHandler);
+        });
+
+        onUnmounted(() => {
+            document.removeEventListener("wheel", mousewheelHandler);
         });
 
         watchEffect(async () => {

@@ -24,6 +24,19 @@ type Electron = typeof electron & {
 
 declare global {
     interface Window {
-        electron: Electron
+        electron: Electron,
+        fabric: any
     }
+}
+
+export interface LYXSocketInputDTO {
+    userID: string;
+    userName: string;
+    thisImageIndex: number;
+    fileList: {
+        bucket: string,
+        extention: string,
+        fileName: string,
+        filePath: string,
+    }[];
 }
