@@ -2,7 +2,7 @@
     <div class="preparation-group-header">
         <div class="header-panel flex-between-center">
             <span class="header-title">我的集体备课</span>
-            <div class="add-btn" @click="add">
+            <div class="add-btn" @click="editPanel">
                 <img src="../../../assets/preparationGroup/icon_add_white.png" alt="" />
                 <span>发起集体备课</span>
             </div>
@@ -98,7 +98,7 @@ export default defineComponent({
             emit("requestParams", formData);
         };
         const CollectivePreparationRef = ref();
-        const add = () => {
+        const editPanel = () => {
             CollectivePreparationRef.value.dialogVisible = true;
         };
         const { statusList, formData, formRef } = useSubmit();
@@ -109,7 +109,7 @@ export default defineComponent({
             formRef,
             CollectivePreparationRef,
             submit,
-            add
+            editPanel
         };
     },
     components: { CollectivePreparation }
