@@ -82,6 +82,8 @@
 <script lang="ts">
 import isElectron from "is-electron";
 import { computed, defineComponent, ref, watch } from "vue";
+
+const { setInterval, clearInterval } = require("timers");
 export default defineComponent({
     setup() {
         const activeIndex = ref(0);

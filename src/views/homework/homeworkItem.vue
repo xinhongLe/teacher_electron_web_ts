@@ -288,6 +288,7 @@ export default defineComponent({
             showdataPicker.value = false;
         };
         const dateChange = (val: any, info: any) => {
+            console.log("change");
             const obj = {
                 classHomeworkPaperID: info.ClassHomeworkPaperID,
                 answerShowTime: `${moment(val).format("YYYY-MM-DD HH:mm:ss")}`
@@ -331,7 +332,9 @@ export default defineComponent({
                 VideoID,
                 HomeworkID,
                 HomeworkPaperType,
-                HomeworkPaperFiles
+                HomeworkPaperFiles,
+                AlbumName,
+                ChapterName
             } = props.info;
             const classInfo = Object.values(props.homeworkListMap)
                 .flat()
@@ -352,7 +355,9 @@ export default defineComponent({
                 videoID: VideoID,
                 type: HomeworkPaperType,
                 classInfo,
-                homeworkPaperFiles: HomeworkPaperFiles
+                homeworkPaperFiles: HomeworkPaperFiles,
+                albumName: AlbumName,
+                chapterName: ChapterName
             };
             set(STORAGE_TYPES.HOMEWORK_DETAIL, homeworkDetail);
             router.push({

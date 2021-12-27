@@ -12,21 +12,21 @@
                 popper-class="chapter-class"
             >
                 <el-option
-                    v-for="(item, index) in teacherBookChapterList"
+                    v-for="item in teacherBookChapterList"
                     :key="item.ID"
                     :label="`${item.Name}  ${item.Detial}`"
                     :value="item.ID"
                     :disabled="!item.ID"
                 >
-                    <template
-                        v-if="index !== teacherBookChapterList.length - 1"
-                    >
+                    <!-- <template -->
+                        <!-- v-if="index !== teacherBookChapterList.length - 1" -->
+                    <!-- > -->
                         <span>{{ item.Name }}</span>
                         <span style="padding-left: 20px">{{
                             item.Detial
                         }}</span>
-                    </template>
-                    <template v-else>
+                    <!-- </template> -->
+                    <!-- <template v-else>
                         <div
                             style="z-index: 999; color: #4b71ee"
                             @click="dialogVisible = true"
@@ -34,7 +34,7 @@
                             <span class="el-icon-circle-plus-outline"></span>
                             <span>添加自定义单元</span>
                         </div>
-                    </template>
+                    </template> -->
                 </el-option>
             </el-select>
         </div>
@@ -203,13 +203,14 @@ export default defineComponent({
             subjectPublisherBookValue,
             subjectPublisherBookList,
             cascaderProps,
-            teacherBookChapterList: computed(() => [...teacherBookChapterList.value, {
-                ID: "",
-                Detial: "",
-                Name: "",
-                Remark: "",
-                Sort: 0
-            }]),
+            // teacherBookChapterList: computed(() => [...teacherBookChapterList.value, {
+            //     ID: "",
+            //     Detial: "",
+            //     Name: "",
+            //     Remark: "",
+            //     Sort: 0
+            // }]),
+            teacherBookChapterList: computed(() => [...teacherBookChapterList.value]),
             clickTab,
             tabIndex,
             dialogVisible,

@@ -38,10 +38,10 @@
                                 v-if="item.subjectName === '英语'"
                                 src="./../../../assets/my-student/icon_yingwen.png"
                             />
-                            <img
+                            <!-- <img
                                 v-if="item.subjectName === '拼音'"
                                 src="./../../../assets/my-student/icon_pinying.png"
-                            />
+                            /> -->
                             <img
                                 v-if="item.subjectName === '语文'"
                                 src="./../../../assets/my-student/icon_yuwen.png"

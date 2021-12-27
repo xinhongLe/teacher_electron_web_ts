@@ -1,6 +1,6 @@
 <template>
     <div class="select-label">
-        <span>选择学生：</span>
+        <span style="white-space: nowrap;">选择学生：</span>
         <div class="select" @click.stop="clickSelect">
             <div class="select-content" >
                 <span v-for="item in selectLabel" :key="item" class="label">

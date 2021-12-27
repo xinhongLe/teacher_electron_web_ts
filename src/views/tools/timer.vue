@@ -1,7 +1,7 @@
 <template>
     <div ref="me-timer-dialog" class="me-timer-dialog" v-show="isshow" v-if="visible" draggable="true"
         @dragend="onDragEnd"
-        @dragstart="onDragStart" 
+        @dragstart="onDragStart"
         @drag="onDrag" >
         <div class="me-timer-header">
             <div class="me-timer-little">
@@ -10,7 +10,6 @@
                     <span class="minimize" @click.stop="minimizeHandle">最小化</span>
                     <span class="colse" @click.stop="close"></span>
                 </div>
-                
             </div>
             <div class="me-timer-tab">
                 <span :class="activeIndex == 0 ? 'active' : ''" @click="activeIndex = 0">倒计时</span>
@@ -48,7 +47,6 @@
                         <div class="me-timer-num">{{ countDownList[3] }}</div>
                 </div>
             </div>
-            
             <div v-else class="me-timer-count-down me-timer">
                 <div class="me-timer-num">{{ timeList[0] }}</div>
                 <div class="spot">:</div>
@@ -59,9 +57,8 @@
                     <span  v-if="!isPlay" @click="play('0')">开始</span>
                     <span  v-if="isPlay" @click="stop">暂停</span>
                 </div>
-                
                 <div class="resetbox" v-if="ispause">
-                    <span @click="reset">重置</span> 
+                    <span @click="reset">重置</span>
                     <span @click="play('1')">继续</span>
                 </div>
             </div>
@@ -72,9 +69,9 @@
 <script lang="ts">
 export default {
     props: {
-        visible:{
-            type:Boolean,
-            default:false
+        visible: {
+            type: Boolean,
+            default: false
         }
     },
     data() {
@@ -95,7 +92,7 @@ export default {
                 x: 0,
                 y: 0
             }
-        }
+        };
     },
     watch: {
         activeIndex() {
@@ -103,21 +100,19 @@ export default {
         }
     },
     computed:{
-        isshow(){
-            return this.$store.state.isshowTimer
+        isshow() {
+            return this.$store.state.isshowTimer;
         }
     },
     methods: {
-        minimizeHandle(){
+        minimizeHandle() {
             this.$store.dispatch('changeshowAct',false);
             //1是做减法2是做加法
-            if(this.time > 0){
+            if (this.time > 0) {
                 this.$store.dispatch('saveTimerAct',{time:this.time,alg:2,isPlay:this.isPlay});
-            }else{
+            } else {
                 this.$store.dispatch('saveTimerAct',{time:this.second,alg:1,isPlay:this.isPlay});
             }
-          
-           
         },
         onDragStart(e) {
             const transform = this.$refs['me-timer-dialog'].style.transform ? this.$refs['me-timer-dialog'].style.transform.split("(")[1].split(",") : ''
@@ -171,51 +166,51 @@ export default {
             }
         },
         play(type) {
-            if(this.activeIndex == 0) {
+            if (this.activeIndex === 0) {
                 this.getSecond();
-                if(this.second == 0) return;
-                if(type === '0'){
+                if (this.second === 0) return;
+                if (type === "0") {
                     this.isPlay = true;
-                }else if(type === '1'){
+                } else if (type === "1") {
                     this.isPlay = true;
-                    this.ispause = false
+                    this.ispause = false;
                 }
-                clearInterval(this.timer)
+                clearInterval(this.timer);
                 this.timer = setInterval(() => {
-                    if(this.second == 1) {
-                        clearInterval(this.timer)
-                        this.isPlay = false
+                    if (this.second === 1) {
+                        clearInterval(this.timer);
+                        this.isPlay = false;
                     }
                     this.second --;
-                    this.setCountDownList()
-                }, 1000)
-            }else{
-                if(type === '0'){
+                    this.setCountDownList();
+                }, 1000);
+            } else {
+                if (type === "0") {
                     this.isPlay = true;
-                }else if(type === '1'){
+                } else if (type === "1") {
                     this.isPlay = true;
-                    this.ispause = false
+                    this.ispause = false;
                 }
-                clearInterval(this.timer)
+                clearInterval(this.timer);
                 this.timer = setInterval(() => {
                     this.time ++;
-                    this.setTimeList()
+                    this.setTimeList();
                 }, 1000)
             }
         },
         stop() {
             this.isPlay = false;
             this.ispause = true;
-            this.timer ? clearInterval(this.timer) : ''
+            this.timer ? clearInterval(this.timer) : "";
         },
         getSecond() {
-            this.second = this.countDownList[0] * 600 + this.countDownList[1] * 60 + this.countDownList[2] * 10 + this.countDownList[3] 
+            this.second = this.countDownList[0] * 600 + this.countDownList[1] * 60 + this.countDownList[2] * 10 + this.countDownList[3];
         },
         setCountDownList() {
-            this.$set(this.countDownList, 0, Math.floor(this.second / 600))
-            this.$set(this.countDownList, 1, Math.floor((this.second - this.countDownList[0] * 600) / 60))
-            this.$set(this.countDownList, 2, Math.floor((this.second - this.countDownList[0] * 600 - this.countDownList[1] * 60 ) / 10))
-            this.$set(this.countDownList, 3, this.second - this.countDownList[0] * 600 - this.countDownList[1] * 60 - this.countDownList[2] * 10)
+            this.$set(this.countDownList, 0, Math.floor(this.second / 600));
+            this.$set(this.countDownList, 1, Math.floor((this.second - this.countDownList[0] * 600) / 60));
+            this.$set(this.countDownList, 2, Math.floor((this.second - this.countDownList[0] * 600 - this.countDownList[1] * 60 ) / 10));
+            this.$set(this.countDownList, 3, this.second - this.countDownList[0] * 600 - this.countDownList[1] * 60 - this.countDownList[2] * 10);
         },
         setTimeList() {
             // let h = Math.floor(this.time / 600) < 10 ? ('0' + String((Math.floor(this.time / 3600)))) : Math.floor(this.time / 3600)
@@ -224,25 +219,25 @@ export default {
             // this.$set(this.timeList, 1, m)
             // let s = (this.time - h * 600 - m * 60) < 10 ? ('0' + String(this.time - h * 600 - m * 60)) : this.time - h * 600 - m * 60
             // this.$set(this.timeList, 2, s)
-            let h = Math.floor(this.time / 600) < 10 ? ('0' + String((Math.floor(this.time / 3600)))) : Math.floor(this.time / 3600)
-            let m = Math.floor((this.time - h * 600) / 60) < 10 ? ('0' + String(Math.floor((this.time - h * 600) / 60))) : Math.floor((this.time - h * 600) / 60)
+            let h = Math.floor(this.time / 600) < 10 ? ("0" + String((Math.floor(this.time / 3600)))) : Math.floor(this.time / 3600)
+            let m = Math.floor((this.time - h * 600) / 60) < 10 ? ("0" + String(Math.floor((this.time - h * 600) / 60))) : Math.floor((this.time - h * 600) / 60)
             this.$set(this.timeList, 0, m)
-            let s = (this.time - h * 600 - m * 60) < 10 ? ('0' + String(this.time - h * 600 - m * 60)) : this.time - h * 600 - m * 60
-            this.$set(this.timeList, 1, s)
+            let s = (this.time - h * 600 - m * 60) < 10 ? ("0" + String(this.time - h * 600 - m * 60)) : this.time - h * 600 - m * 60
+            this.$set(this.timeList, 1, s);
         },
         close() {
             this.activeIndex = 0;
             this.reset();
-            this.$store.dispatch('changeDataAct',false)
+            this.$store.dispatch("changeDataAct", false);
         },
         reset() {
             this.isPlay = false;
             this.ispause = false;
-            this.timer ? clearInterval(this.timer) : ''
-            if(this.activeIndex == 0){
+            this.timer ? clearInterval(this.timer) : "";
+            if (this.activeIndex === 0) {
                 this.second = 300;
-                this.setCountDownList()
-            }else{
+                this.setCountDownList();
+            } else {
                 this.time = 0;
                 this.setTimeList();
             }
