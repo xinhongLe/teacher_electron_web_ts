@@ -74,7 +74,7 @@
         />
         <TeachHomeworkDialog
             v-model:dialogVisible="teachHomeworkDialog"
-            v-if="teachHomeworkDialog"
+            v-show="teachHomeworkDialog"
             @update="updateTeachHomeworkList"
         />
     </div>

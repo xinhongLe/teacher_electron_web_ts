@@ -14,6 +14,8 @@ export interface HomeworkDetail {
         classHomeworkPaperID: string;
     }[];
     type: number;
+    albumName: string;
+    chapterName: string
 }
 
 export interface FetchMissionListData {

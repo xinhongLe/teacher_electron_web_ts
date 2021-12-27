@@ -50,17 +50,25 @@ export default defineComponent({
             emit("updatePageList", pageDate);
             TrackService.setTrack(EnumTrackEventType.SelectCard, winActiveId.value, WindowName.value, item.ID, item.Name, item.PageList.length > 0 ? item.PageList[0].ID : "", item.PageList.length > 0 ? item.PageList[0].Name : "", "选择卡", "", "");
         };
+        const ToastFirstPage = debounce(() => {
+            return ElMessage({ type: "warning", message: "已经是第一页了" });
+        }, 200);
+        const ToastLastPage = debounce(() => {
+            return ElMessage({ type: "warning", message: "已经是最后页" });
+        }, 200);
         const changeReducePage = () => {
             if (currentCardList.value.length === 0) return false;
             if (cardIndex.value + 1 === currentCardList.value.length) {
-                return ElMessage({ type: "warning", message: "已经是最后一页" });
+                ToastLastPage();
+                return false;
             }
             handleClick(cardIndex.value + 1, currentCardList.value[cardIndex.value + 1]);
         };
         const changeAddPage = () => {
             if (cardIndex.value === 0) {
                 emit("updateFlag");
-                return ElMessage({ type: "warning", message: "已经是第一页了" });
+                ToastFirstPage();
+                return false;
             }
             handleClick(cardIndex.value - 1, currentCardList.value[cardIndex.value - 1]);
         };
@@ -69,7 +77,9 @@ export default defineComponent({
             cardIndex,
             handleClick,
             changeReducePage,
-            changeAddPage
+            changeAddPage,
+            ToastFirstPage,
+            ToastLastPage
         };
     },
     activated () {
@@ -78,6 +88,17 @@ export default defineComponent({
         }
     }
 });
+function debounce (fn, delay) {
+    let timer;
+    return function () {
+        if (timer) {
+            clearTimeout(timer);
+        }
+        timer = setTimeout(() => {
+            fn();
+        }, delay);
+    };
+}
 </script>
 
 <style lang="scss" scoped>

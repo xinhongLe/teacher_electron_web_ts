@@ -22,10 +22,6 @@ export const ALL_SUBJECT_LIST = [
     {
         subjectName: "英语",
         subjectId: "39F766472E161EEFD06F825352362179"
-    },
-    {
-        subjectName: "拼音",
-        subjectId: "39F766472E16DFF69031FA194C9A33B8"
     }
 ];
 export const pageTypeList = [
