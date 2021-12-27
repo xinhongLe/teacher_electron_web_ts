@@ -50,15 +50,17 @@
                 </el-select>
             </div>
             <el-button type="primary" @click="submit">搜索</el-button>
-
         </div>
+        <CollectivePreparation
+         ref="CollectivePreparationRef"
+        ></CollectivePreparation>
     </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, toRefs } from "vue";
-import { useRouter } from "vue-router";
+import { defineComponent, reactive, ref, toRefs } from "vue";
 import useSubmit from "./useSubmit";
+import CollectivePreparation from "../collective-preparation/index.vue";
 export default defineComponent({
     name: "head",
     props: {
@@ -67,7 +69,6 @@ export default defineComponent({
         }
     },
     setup(props, { emit }) {
-        const router = useRouter();
         console.log(props);
         console.log(emit);
         const state = reactive({
@@ -96,9 +97,9 @@ export default defineComponent({
         const submit = () => {
             emit("requestParams", formData);
         };
-
+        const CollectivePreparationRef = ref();
         const editPanel = () => {
-            router.push("/preparation-edit");
+            CollectivePreparationRef.value.dialogVisible = true;
         };
         const { statusList, formData, formRef } = useSubmit();
         return {
@@ -106,11 +107,12 @@ export default defineComponent({
             statusList,
             formData,
             formRef,
+            CollectivePreparationRef,
             submit,
             editPanel
         };
     },
-    components: { }
+    components: { CollectivePreparation }
 });
 </script>
 
