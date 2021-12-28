@@ -23,7 +23,6 @@ export default () => {
             const name = index === -1 ? FileName : FileName.substring(FileName.lastIndexOf("\\") + 1, index);
             if (Extention) {
                 const key = FilePath + "/" + name + "." + Extention;
-                console.log(key);
                 src.value = await downloadFile(key, Bucket);
                 if (extentionArr.includes(Extention)) {
                     visible.value = true;
