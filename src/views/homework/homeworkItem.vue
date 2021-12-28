@@ -334,6 +334,7 @@ export default defineComponent({
                 HomeworkPaperType,
                 HomeworkPaperFiles,
                 AlbumName,
+                WorkbookPaperPageNum,
                 ChapterName
             } = props.info;
             const classInfo = Object.values(props.homeworkListMap)
@@ -356,6 +357,7 @@ export default defineComponent({
                 type: HomeworkPaperType,
                 classInfo,
                 homeworkPaperFiles: HomeworkPaperFiles,
+                workbookPaperPageNum: WorkbookPaperPageNum || "",
                 albumName: AlbumName,
                 chapterName: ChapterName
             };

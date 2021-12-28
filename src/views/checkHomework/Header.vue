@@ -16,7 +16,7 @@
             <img
                 v-else-if="type === 2"
                 class="docx"
-                src="@/assets/images/homeworkNew/icon_timuxiangqing.png"
+                src="@/assets/images/homeworkNew/homework2.png"
                 alt=""
             />
             <img
@@ -32,6 +32,10 @@
                 alt=""
             />
             <span class="name">{{ name }}</span>
+            <template v-if="type === 2">
+                <span class="name" :style="{margin: '10px'}">第{{ workbookPaperPageNum }}页</span>
+                <span class="name" :style="{margin: '40px'}">{{ albumName }}</span>
+            </template>
             <template v-if="type === 0 || type === 2">
                 <span class="tips">共{{ count }}题</span>
             </template>

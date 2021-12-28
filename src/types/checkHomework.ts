@@ -14,6 +14,7 @@ export interface HomeworkDetail {
         classHomeworkPaperID: string;
     }[];
     type: number;
+    workbookPaperPageNum: string;
     albumName: string;
     chapterName: string
 }
