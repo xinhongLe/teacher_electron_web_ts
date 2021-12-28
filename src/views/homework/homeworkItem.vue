@@ -193,6 +193,7 @@
                     "
                     >查阅学生</el-button
                   > -->
+                <el-button size="small" v-if="info.HomeworkPaperType == 2" style="background-color:#00C0FF;" type="primary" @click="quickUpload">快速上传</el-button>
                 <el-button size="small" type="primary" @click="review"
                     >查阅作业</el-button
                 >
@@ -213,6 +214,9 @@
                 :file="file"
             />
         </div>
+        <HignPhoto
+        ref="hignPhotoRef"
+        ></HignPhoto>
     </div>
 </template>
 
@@ -226,6 +230,7 @@ import { ElMessage, ElMessageBox } from "element-plus";
 import moment from "moment";
 import { computed, defineComponent, nextTick, PropType, ref } from "vue";
 import { rebackHomeworkPaper, ShowAnswer, HideAnswer } from "./api";
+import HignPhoto from "./hignphoto.vue";
 import FileItem from "./FileItem.vue";
 export default defineComponent({
     props: {
@@ -427,7 +432,27 @@ export default defineComponent({
                 }
             });
         };
+        const hignPhotoRef = ref();
+        const quickUpload = async () => {
+            const list: { label: string; id: string }[] = [];
+            const devices = await navigator.mediaDevices.enumerateDevices();
+            devices.forEach((device) => {
+                if (device.kind === "videoinput") {
+                    list.push({
+                        label: device.label,
+                        id: device.deviceId
+                    });
+                }
+            });
+            if (list.length === 0) {
+                ElMessage({ type: "warning", message: "没有摄像头" });
+            } else {
+                hignPhotoRef.value.dialogVisible = true;
+            }
+        };
+
         return {
+            hignPhotoRef,
             showdataPicker,
             date,
             dataBlur,
@@ -443,10 +468,11 @@ export default defineComponent({
             probability1,
             detailTime,
             publish,
-            hideAnswer
+            hideAnswer,
+            quickUpload
         };
     },
-    components: { FileItem }
+    components: { FileItem, HignPhoto }
 });
 </script>
 
@@ -456,6 +482,14 @@ export default defineComponent({
         position: relative;
         z-index: -1;
         width: 30px;
+    }
+}
+.table-row{
+    :deep(.el-dialog__body){
+        padding: 0;
+    }
+    :deep(.el-dialog__header){
+        display: none;
     }
 }
 .table-row {

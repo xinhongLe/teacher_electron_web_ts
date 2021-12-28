@@ -1,5 +1,5 @@
 export const AI_XUE_SHI_API = process.env.VUE_APP_AI_XUE_SHI_API;
-export const WINDOW_CRAD_API = "http://apitest.aixueshi.top:5002";
+export const WINDOW_CRAD_API = "http://192.168.20.109:8010";
 // export const AI_XUE_SHI_API = "https://api.aixueshi.top:5003";
 // export const WINDOW_CRAD_API = "https://api.aixueshi.top:5003";
 // 注册学生模板下载地址
