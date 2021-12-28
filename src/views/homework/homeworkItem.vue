@@ -28,10 +28,12 @@
                 <p>
                     {{ name }}
                     <template v-if="info.HomeworkPaperType == 2">
-                        &nbsp; 第{{ info.WorkbookPaperPageNum }}页
+                        <span>&nbsp; 第{{ info.WorkbookPaperPageNum }}页</span>
+                        <span :style="{marginLeft: '40px'}">{{info.AlbumName}}</span>
                     </template>
                 </p>
                 <span
+                    class="course-bag-type"
                     v-show="
                         info.HomeworkPaperType == 1 ||
                         info.HomeworkPaperType == 0
@@ -539,7 +541,7 @@ export default defineComponent({
             color: #19203d;
             margin: 0 30px;
         }
-        span {
+        .course-bag-type {
             flex: 1;
             font-size: 14px;
             color: #4b71ee;
