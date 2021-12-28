@@ -129,7 +129,6 @@ function createBlackboardWindow() {
     blackboardWin = createWindow(blackboardURL, {
         width: 1000,
         height: 750,
-        type: "toolbar", // 创建的窗口类型为工具栏窗口
         frame: false, // 要创建无边框窗口
         resizable: false,
         fullscreen: true,

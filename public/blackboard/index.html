@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>爱学仕校园教师端</title>
+    <title>教学黑板</title>
     <link rel="stylesheet" href="style.css">
     <script src="./fabric.min.js"></script>
 </head>
@@ -95,6 +95,28 @@
         </div>
     </div>
 
+    <div class="confirm-warp" id="confirm">
+        <div class="confirm">
+            <div class="header">
+                <span>警告</span>
+                <div id="confirmClose">
+                    <i class="close" >
+                        <svg class="icon" width="200" height="200" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"><path fill="#909399" d="M764.288 214.592L512 466.88 259.712 214.592a31.936 31.936 0 00-45.12 45.12L466.752 512 214.528 764.224a31.936 31.936 0 1045.12 45.184L512 557.184l252.288 252.288a31.936 31.936 0 0045.12-45.12L557.12 512.064l252.288-252.352a31.936 31.936 0 10-45.12-45.184z"></path></svg>
+                    </i>
+                </div>
+            </div>
+            <div class="content">
+                <i class="warn">
+                    <svg class="icon" width="200" height="200" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"><path fill="currentColor" d="M512 64a448 448 0 110 896 448 448 0 010-896zm0 192a58.432 58.432 0 00-58.24 63.744l23.36 256.384a35.072 35.072 0 0069.76 0l23.296-256.384A58.432 58.432 0 00512 256zm0 512a51.2 51.2 0 100-102.4 51.2 51.2 0 000 102.4z"></path></svg>
+                </i>
+                是否清空黑板?
+            </div>
+            <div class="btns">
+                <div class="btn" id="cancel">取消</div>
+                <div class="btn sure" id="sure">确定</div>
+            </div>
+        </div>
+    </div>
     <script src="index.js"></script>
     <script>
         var electron;
