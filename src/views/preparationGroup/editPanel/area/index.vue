@@ -19,10 +19,12 @@
                     <span>编辑</span>
                 </div>
             </div>
-            <p class="teacher-box">
-                <img src="../../../../assets/preparationGroup/editPanel/avator_small.png" alt="">
-                <span>林老师 于2021-12-12 08:35上传教案</span>
-            </p>
+            <div class="teacher-box">
+                <div class="teacher-con">
+                    <img src="../../../../assets/preparationGroup/editPanel/avator_small.png" alt="">
+                    <span>林老师 于2021-12-12 08:35上传教案</span>
+                </div>
+            </div>
             <div class="area-lesson">
                 <div class="left">
                     <div>
@@ -73,7 +75,7 @@
                     <div class="title-box">
                         <div class="title-left">
                             <p class="title">内容摘要</p>
-                            <p class="content">本节课的设计依据课标和学生自身特点重组教材内容，以学生操作中获取新知，注重教本节课的设计依据课标和学生自身特点重组教材...<span class="more">阅读全部</span></p>
+                            <p class="content">本节课的设计依据课标和学生自身特点重组教材内容，以学生生活实际和已有经验组织教学，强调学生观察、操作中获取新知，注重教学质量本节课的设计依据课标和学生自身特点重组教材内容，以学生生活实际和已有经验组织教学，强调学生观察、操作中获取新知，注重教本节课的设计依据课标和学生自身特点重组教材<span class="more">阅读全部</span></p>
                         </div>
                         <div class="title-right">
                             <div class="btn">
@@ -82,6 +84,71 @@
                             </div>
                         </div>
                     </div>
+                    <div class="file-box">
+                        <div class="title-left">
+                            <p class="title">附件</p>
+                            <p class="files">
+                                <span class="files-list">
+                                    <div class="file-item" v-for="(item, index) in fileList" :key="index">
+                                        <File :fileInfo="item"></File>
+                                    </div>
+                                </span>
+                            </p>
+                        </div>
+                        <div class="title-right">
+                            <div class="btn-memo" @click="memoPanelStatus = !memoPanelStatus">
+                                <img src="../../../../assets/preparationGroup/editPanel/memo.png" alt="">
+                                <span v-if="memoPanelStatus">收起评论</span>
+                                <span v-else>5条评论</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="memo-box" v-if="memoPanelStatus">
+                <p class="memo-title">5条评论</p>
+                <div class="memo-container">
+                    <div class="memo-cell" v-for="(item, index) in memoList" :key="index">
+                        <div class="left">
+                            <img src="../../../../assets/preparationGroup/editPanel/avator_small.png" alt="">
+                            <div class="memo-info">
+                                <p class="teacher">{{ item.teacher }}</p>
+                                <p class="word">{{ item.word }}</p>
+                                <div class="file" v-if="item.files.length > 0">
+                                    <span>附件：</span>
+                                    <div class="file-list">
+                                        <div class="file-cell" v-for="(ite, ind) in item.files" :key="ind">
+                                            <FileSmall :fileInfo="ite"></FileSmall>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="right">
+                            <span>{{ item.time }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="pagination" v-if="memoPanelStatus">
+                <el-pagination small layout="prev, pager, next" prev-text="上一页" next-text="下一页" :total="50"></el-pagination>
+            </div>
+            <div class="texrarea-box" v-if="memoPanelStatus">
+                <div class="left">
+                    <div class="area-action">
+                        <div class="action">
+                            <el-input v-model="textareaWord" :rows="1" type="textarea" placeholder="请输入评论内容" resize="none"/>
+                            <div class="file-list">
+                                <div class="file-cell" v-for="(ite, ind) in wordFiles" :key="ind">
+                                    <FileSmall :fileInfo="ite"></FileSmall>
+                                </div>
+                            </div>
+                        </div>
+                        <img src="../../../../assets/preparationGroup/editPanel/icon_fujian.png" alt="">
+                    </div>
+                </div>
+                <div class="right">
+                    <div>发布评论</div>
                 </div>
             </div>
         </div>
@@ -90,6 +157,8 @@
 
 <script lang="ts">
 import { defineComponent, reactive, toRefs } from "vue";
+import File from "../../file/index.vue";
+import FileSmall from "../../file/small.vue";
 export default defineComponent({
     name: "area",
     props: {
@@ -101,22 +170,80 @@ export default defineComponent({
         console.log(props);
         console.log(emit);
         const state = reactive({
-            stepList: [
+            memoPanelStatus: false,
+            textareaWord: "",
+            fileList: [
                 {
-                    title: "上传教案/课件初稿",
-                    tip: "点击【新增研讨】，填写备课内容及上传资料"
+                    fileType: "word",
+                    fileName: "认识长方形",
+                    extend: "doc",
+                    size: "310.79K"
                 },
                 {
-                    title: "在线/线下进行研讨",
-                    tip: "小组成员可通过在线或线下对教案/课件进行反馈"
+                    fileType: "pdf",
+                    fileName: "认识长方形",
+                    extend: "pdf",
+                    size: "7.42MB"
+                }
+            ],
+            wordFiles: [
+                {
+                    fileType: "word",
+                    fileName: "认识长方形",
+                    extend: "doc",
+                    size: "310.79K"
                 },
                 {
-                    title: "更新教案/课件",
-                    tip: "研讨对象上传者根据反馈修改教案/课件"
+                    fileType: "pdf",
+                    fileName: "认识长方形",
+                    extend: "pdf",
+                    size: "7.42MB"
+                }
+            ],
+            memoList: [
+                {
+                    teacher: "李老师",
+                    word: "做的很棒！赞赞赞",
+                    time: "2021-12-12 08:35",
+                    files: [
+                        {
+                            fileType: "word",
+                            fileName: "认识长方形",
+                            extend: "doc",
+                            size: "310.79K"
+                        },
+                        {
+                            fileType: "pdf",
+                            fileName: "认识长方形",
+                            extend: "pdf",
+                            size: "7.42MB"
+                        }
+                    ]
                 },
                 {
-                    title: "形成教案/课件终稿",
-                    tip: "研讨对象上传者上传修改后的教案/课件，支持查看、下载和再次上传"
+                    teacher: "王老师",
+                    word: "我觉得第3页中用的素材可以替换一下，素材在附件中。",
+                    time: "2021-12-12 08:35",
+                    files: []
+                },
+                {
+                    teacher: "林老师",
+                    word: "该课件设计注重学生自主学习能力培养，课前、课中、课后设计能够有效衔接、相互支持。",
+                    time: "2021-12-12 08:35",
+                    files: [
+                        {
+                            fileType: "word",
+                            fileName: "认识长方形",
+                            extend: "doc",
+                            size: "310.79K"
+                        },
+                        {
+                            fileType: "pdf",
+                            fileName: "认识长方形",
+                            extend: "pdf",
+                            size: "7.42MB"
+                        }
+                    ]
                 }
             ]
         });
@@ -134,7 +261,7 @@ export default defineComponent({
             add
         };
     },
-    components: { }
+    components: { File, FileSmall }
 });
 </script>
 
@@ -146,6 +273,7 @@ export default defineComponent({
     background: #F9F9FB;
     border-radius: 8px;
     border: 1px solid #E9ECF0;
+    margin-bottom: 24px;
     .area-head {
         display: flex;
         align-items: center;
@@ -187,11 +315,12 @@ export default defineComponent({
     }
     .area-body {
         height: calc(100% - 62px);
-        padding: 24px;
+        padding-top: 24px;
         .title-box {
             display: flex;
             align-items: center;
             justify-content: space-between;
+            padding: 0 24px;
             .title {
                 font-size: 20px;
                 font-family: PingFangSC-Semibold, PingFang SC;
@@ -235,23 +364,30 @@ export default defineComponent({
         .teacher-box {
             display: flex;
             align-items: center;
-            line-height: 48px;
-            border-bottom: 1px dashed #E0E2E7;
-            img {
-                display: inline-block;
-                width: 24px;
-                height: auto;
-            }
-            span {
-                font-size: 14px;
-                font-family: PingFangSC-Regular, PingFang SC;
-                font-weight: 400;
-                color: #5F626F;
-                margin-left: 10px;
+            padding: 0 24px;
+            .teacher-con {
+                display: flex;
+                align-items: center;
+                line-height: 48px;
+                border-bottom: 1px dashed #E0E2E7;
+                width: 100%;
+                img {
+                    display: inline-block;
+                    width: 24px;
+                    height: auto;
+                }
+                span {
+                    font-size: 14px;
+                    font-family: PingFangSC-Regular, PingFang SC;
+                    font-weight: 400;
+                    color: #5F626F;
+                    margin-left: 10px;
+                }
             }
         }
         .area-lesson {
-            padding: 24px 0;
+            padding: 24px;
+            padding-bottom: 0;
             display: flex;
             .left {
                 display: flex;
@@ -289,7 +425,7 @@ export default defineComponent({
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    margin: 16px 0;
+                    margin: 20px 0;
                     .tool-item {
                         display: flex;
                         align-items: center;
@@ -320,6 +456,7 @@ export default defineComponent({
                 }
                 .arrow {
                     margin: 0 16px;
+                    margin-top: -40px;
                 }
             }
             .right {
@@ -328,7 +465,9 @@ export default defineComponent({
                 .title-box {
                     display: flex;
                     justify-content: space-between;
+                    padding: 0;
                     .title-left {
+                        width: calc(100% - 150px);
                         .title {
                             font-size: 16px;
                             font-family: PingFangSC-Regular, PingFang SC;
@@ -341,6 +480,8 @@ export default defineComponent({
                             font-family: PingFangSC-Regular, PingFang SC;
                             font-weight: 400;
                             color: #5F626F;
+                            margin: 15px 0;
+                            line-height: 24px;
                         }
                         .more {
                             font-size: 14px;
@@ -351,6 +492,10 @@ export default defineComponent({
                         }
                     }
                     .title-right {
+                        display: flex;
+                        align-items: center;
+                        justify-content: flex-end;
+                        width: 150px;
                         .btn {
                             width: 118px;
                             height: 36px;
@@ -371,6 +516,219 @@ export default defineComponent({
                             }
                         }
                     }
+                }
+                .file-box {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: flex-end;
+                    .title-left {
+                        width: calc(100% - 150px);
+                        .title {
+                            font-size: 16px;
+                            font-family: PingFangSC-Regular, PingFang SC;
+                            font-weight: 400;
+                            color: #19203D;
+                            margin-bottom: 8px;
+                        }
+                        .files {
+                            .files-list {
+                                display: flex;
+                                align-items: center;
+                                flex-wrap: wrap;
+                                margin-top: 10px;
+                                .file-item {
+                                    margin-right: 10px;
+                                    margin-bottom: 10px;
+                                }
+                            }
+                        }
+                    }
+                    .title-right {
+                        display: flex;
+                        align-items: center;
+                        justify-content: flex-end;
+                        width: 150px;
+                        margin-bottom: 15px;
+                        .btn-memo {
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            cursor: pointer;
+                            img {
+                                display: inline-block;
+                                width: 16px;
+                                height: auto;
+                            }
+                            span {
+                                font-size: 14px;
+                                font-family: PingFangSC-Regular, PingFang SC;
+                                font-weight: 400;
+                                color: #5F626F;
+                                margin-left: 5px;
+                                &:hover {
+                                    color: #4B71EE;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        .memo-box {
+            padding: 0 24px;
+            .memo-title {
+                font-size: 16px;
+                font-family: PingFangSC-Semibold, PingFang SC;
+                font-weight: 600;
+                color: #19203D;
+                border-top: 1px dashed #E0E2E7;
+                line-height: 48px;
+            }
+            .memo-container {
+                .memo-cell {
+                    display: flex;
+                    align-items: flex-start;
+                    justify-content: space-between;
+                    border-top: 1px solid #E9ECF0;
+                    padding: 12px 0;
+                    .left {
+                        display: flex;
+                        align-items: flex-start;
+                        img {
+                            display: inline-block;
+                            width: 24px;
+                            height: auto;
+                        }
+                        .memo-info {
+                            padding-left: 10px;
+                            .teacher {
+                                font-size: 16px;
+                                font-family: PingFangSC-Semibold, PingFang SC;
+                                font-weight: 600;
+                                color: #19203D;
+                                line-height: 26px;
+                            }
+                            .word {
+                                font-size: 14px;
+                                font-family: PingFangSC-Regular, PingFang SC;
+                                font-weight: 400;
+                                color: #19203D;
+                                line-height: 28px;
+                            }
+                            .file {
+                                display: flex;
+                                align-items: center;
+                                line-height: 28px;
+                                span {
+                                    font-size: 14px;
+                                    font-family: PingFangSC-Regular, PingFang SC;
+                                    font-weight: 400;
+                                    color: #5F626F;
+                                }
+                                .file-list {
+                                    display: flex;
+                                    align-items: center;
+                                    flex-wrap: wrap;
+                                }
+                            }
+                        }
+                    }
+                    .right {
+                        span {
+                            font-size: 14px;
+                            font-family: PingFangSC-Regular, PingFang SC;
+                            font-weight: 400;
+                            color: #5F626F;
+                            line-height: 26px;
+                        }
+                    }
+                }
+            }
+        }
+        .pagination {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 18px 0;
+            border-top: 1px solid #E9ECF0;
+            border-bottom: 1px solid #E9ECF0;
+            :deep(.el-pagination) {
+                display: flex;
+                align-items: center;
+            }
+            :deep(.el-pager li) {
+                display: inline-block;
+                background: none;
+                margin: 0 8px;
+            }
+            :deep(button) {
+                display: inline-block;
+                background: none;
+            }
+        }
+        .texrarea-box {
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            .left {
+                display: flex;
+                width: calc(100% - 150px);
+                height: 100px;
+                .area-action {
+                    width: 100%;
+                    height: 100%;
+                    background: #FFFFFF;
+                    border-radius: 4px;
+                    border: 1px solid #E0E2E7;
+                    padding: 16px;
+                    display: flex;
+                    align-items: flex-start;
+                    justify-content: space-between;
+                    .action {
+                        width: calc(100% - 40px);
+                        :deep(.el-textarea__inner) {
+                            padding: 0;
+                            border: none;
+                            font-size: 16px;
+                            font-family: PingFangSC-Regular, PingFang SC;
+                            font-weight: 400;
+                            color: #19203D;
+                        }
+                        .file-list {
+                            display: flex;
+                            align-items: center;
+                            flex-wrap: wrap;
+                            margin-top: 10px;
+                            .file-cell {
+                                margin: 0 10px 10px 0;
+                                > .preparation-file-small {
+                                    margin-left: 0;
+                                }
+                            }
+                        }
+                    }
+                    img {
+                        cursor: pointer;
+                    }
+                }
+            }
+            .right {
+                display: flex;
+                align-items: flex-start;
+                justify-content: flex-end;
+                width: 150px;
+                > div {
+                    width: 118px;
+                    height: 48px;
+                    line-height: 48px;
+                    background: #4B71EE;
+                    font-size: 16px;
+                    font-family: PingFangSC-Regular, PingFang SC;
+                    font-weight: 400;
+                    color: #FFFFFF;
+                    border-radius: 4px;
+                    text-align: center;
+                    cursor: pointer;
                 }
             }
         }
