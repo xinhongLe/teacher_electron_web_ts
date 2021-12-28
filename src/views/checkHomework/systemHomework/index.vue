@@ -154,10 +154,7 @@ export default defineComponent({
             display: flex;
             flex-wrap: wrap;
             justify-content: space-between;
-            overflow-y: auto;
-        }
-        .access-system-chart::-webkit-scrollbar {
-            width: 0 !important;
+            overflow-y: overlay;
         }
         .access-system-toast {
             height: 70px;
