@@ -19,6 +19,7 @@ type Electron = typeof electron & {
     isExistFile: (fileName: string) => Promise<boolean>,
     destroyWindow: () => void,
     showWindow: () => void,
+    setCenter: () => void,
     log: LogFunctions
 }
 
