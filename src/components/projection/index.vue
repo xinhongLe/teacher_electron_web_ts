@@ -198,7 +198,7 @@
                         </div>
                     </div>
                 </div>
-                <el-button type="danger" @click="close"> 关闭投屏 </el-button>
+                <el-button type="danger" @click="isShow = false"> 关闭投屏 </el-button>
             </div>
         </el-dialog>
     </div>
@@ -215,7 +215,7 @@ export default defineComponent({
     setup() {
         const imgList = ref<string[]>([]);
         const currentIndex = ref(0);
-        const isShow = ref(true);
+        const isShow = ref(false);
         const isBrush = ref(false);
         const isPopover = ref(false);
         const activeIndex = ref(-1);
