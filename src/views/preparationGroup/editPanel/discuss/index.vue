@@ -2,7 +2,7 @@
     <div class="discuss">
         <div class="discuss-head">
             <span class="title">研讨内容</span>
-            <div class="discuss-btn">
+            <div class="discuss-btn" @click="AddResearch">
                 <img src="../../../../assets/preparationGroup/editPanel/discuss-btn.png" alt="" />
                 <span>新增研讨</span>
             </div>
@@ -27,12 +27,14 @@
                 <Area></Area>
             </div>
         </div>
+        <AddResearchContent v-model:dialogVisible="dialogVisible"  v-if="dialogVisible"></AddResearchContent>
     </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, toRefs } from "vue";
+import { defineComponent, reactive, toRefs, ref } from "vue";
 import Area from "../area/index.vue";
+import AddResearchContent from "../../popup-window/add-research-content.vue";
 export default defineComponent({
     name: "discuss",
     props: {
@@ -43,6 +45,7 @@ export default defineComponent({
     setup(props, { emit }) {
         console.log(props);
         console.log(emit);
+        const dialogVisible = ref(false);
         const state = reactive({
             stepList: [
                 {
@@ -68,16 +71,22 @@ export default defineComponent({
             console.log(1);
         };
 
+        const AddResearch = () => {
+            dialogVisible.value = true;
+        };
+
         const add = () => {
             console.log(1);
         };
         return {
             ...toRefs(state),
             submit,
-            add
+            add,
+            AddResearch,
+            dialogVisible
         };
     },
-    components: { Area }
+    components: { Area, AddResearchContent }
 });
 </script>
 

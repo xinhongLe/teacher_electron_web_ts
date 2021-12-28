@@ -1,8 +1,8 @@
 <template>
-    <el-dialog v-model="centerDialogVisible" title="新增研讨内容" width="35%" center>
+    <el-dialog :append-to-body="true" :model-value="dialogVisible" :before-close="handleClose" title="新增研讨内容" width="800px" center>
         <el-form ref="formRef" :model="form" :rules="rules" label-position="left">
             <el-form-item label="研讨主题:" :label-width="formLabelWidth" prop="title">
-                <el-input v-model="form.title" autocomplete="off"></el-input>
+                <el-input v-model="form.title" placeholder="请输入研讨主题" autocomplete="off"></el-input>
             </el-form-item>
             <el-form-item label="资源类型:" :label-width="formLabelWidth" prop="resourceType">
                 <el-radio-group v-model="form.resourceType">
@@ -72,7 +72,7 @@
         </el-form>
         <template #footer>
             <span class="dialog-footer">
-                <el-button @click="centerDialogVisible = false">取消</el-button>
+                <el-button @click="handleClose">取消</el-button>
                 <el-button type="primary" @click="submitForm">确认</el-button>
             </span>
         </template>
@@ -90,8 +90,14 @@ import { cooOss } from "@/utils/oss";
 import { get, STORAGE_TYPES } from "@/utils/storage";
 
 export default defineComponent({
+    props: {
+        dialogVisible: {
+            type: Boolean,
+            default: false
+        }
+    },
     components: { FileType },
-    setup() {
+    setup(props, { emit }) {
         const formRef = ref<ElFormType>();
         const acceptList = ".ppt,.doc,.docx,.pdf,.mp3,.mp4,.jpg,.png,";
         const fileList = reactive<{ extension: string; fileName: string; name: string }[]>([]);
@@ -117,7 +123,7 @@ export default defineComponent({
             title: [
                 {
                     required: true,
-                    message: "请输入教研主题",
+                    message: "请输入研讨主题",
                     trigger: "blur"
                 }
             ],
@@ -208,9 +214,11 @@ export default defineComponent({
                 }
             });
         };
+        const handleClose = () => {
+            emit("update:dialogVisible", false);
+        };
         return {
             formRef,
-            centerDialogVisible: ref(true),
             ...toRefs(state),
             rules,
             fileList,
@@ -222,7 +230,8 @@ export default defineComponent({
             uploadFileSuccess,
             uploadSuccess,
             delFile,
-            submitForm
+            submitForm,
+            handleClose
         };
     }
 });
