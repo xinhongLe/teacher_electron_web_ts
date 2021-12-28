@@ -205,6 +205,11 @@ export function createSuspensionWindow() {
     suspensionWin.on("closed", () => {
         suspensionWin = null;
     });
+
+    suspensionWin.on("moved", () => {
+        setSuspensionSize(false);
+        checkIsWelt();
+    });
 }
 
 function showSuspension() {
