@@ -120,6 +120,7 @@ export default defineComponent({
 .my-student {
     display: flex;
     height: 100%;
+    flex: 1;
     flex-direction: column;
     .search-box {
         height: 72px;

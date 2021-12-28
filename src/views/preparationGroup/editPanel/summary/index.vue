@@ -123,7 +123,8 @@ export default defineComponent({
         border: none;
     }
     .page {
-        margin: 15px 0;
+        height: 25px;
+        margin: 15px 0 0 0;
         :deep(.el-pagination) {
             float: right;
         }

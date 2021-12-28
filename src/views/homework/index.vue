@@ -145,6 +145,7 @@ export default defineComponent({
 .homework-wrapper {
     height: 100%;
     display: flex;
+    flex: 1;
     flex-direction: column;
     header {
         padding: 20px;

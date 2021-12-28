@@ -98,6 +98,7 @@ export default defineComponent({
 }
 
 .main-body {
+    display: flex;
     flex: 1;
     overflow-y: auto;
 }
