@@ -69,42 +69,6 @@ export default defineComponent({
                     fileName: "认识长方形",
                     extend: "pdf",
                     size: "7.42MB"
-                },
-                {
-                    fileType: "word",
-                    fileName: "认识长方形",
-                    extend: "doc",
-                    size: "310.79K"
-                },
-                {
-                    fileType: "pdf",
-                    fileName: "认识长方形",
-                    extend: "pdf",
-                    size: "7.42MB"
-                },
-                {
-                    fileType: "word",
-                    fileName: "认识长方形",
-                    extend: "doc",
-                    size: "310.79K"
-                },
-                {
-                    fileType: "pdf",
-                    fileName: "认识长方形",
-                    extend: "pdf",
-                    size: "7.42MB"
-                },
-                {
-                    fileType: "word",
-                    fileName: "认识长方形",
-                    extend: "doc",
-                    size: "310.79K"
-                },
-                {
-                    fileType: "pdf",
-                    fileName: "认识长方形",
-                    extend: "pdf",
-                    size: "7.42MB"
                 }
             ]
         });

@@ -8,6 +8,7 @@
                 :slide="screenViewPage"
                 :useScale="false"
             />
+            <canvas ref="canvasRef" class="canvas"></canvas>
             <div class="me-page">
                 <div
                     class="me-page-item"
@@ -33,6 +34,7 @@ export default defineComponent({
         const selected = ref(0);
         const pageList = ref([]);
         const screenViewPage = ref({});
+        const canvasRef = ref();
         const { transformType, getPageDetail } = useHome();
         watch(
             () => props.pageListOption,
@@ -68,6 +70,7 @@ export default defineComponent({
             selected,
             pageList,
             screenViewPage,
+            canvasRef,
             selectPage
         };
     }
@@ -75,6 +78,13 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
+.canvas{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
 .pageListComponents{
     :deep(.el-overlay){
         z-index: 9999 !important;
@@ -115,6 +125,7 @@ export default defineComponent({
     height: calc(100% - 85px);
 }
 .me-work {
+    position: relative;
     flex: 1;
     min-width: 0;
     display: flex;

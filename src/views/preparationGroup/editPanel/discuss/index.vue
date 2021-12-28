@@ -89,6 +89,7 @@ export default defineComponent({
     background: #FFFFFF;
     border-radius: 8px;
     padding: 20px 24px;
+    padding-bottom: 0.1px;
     .discuss-head {
         display: flex;
         align-items: center;
@@ -189,7 +190,7 @@ export default defineComponent({
     }
     .discuss-area {
         .discuss-box-cell {
-            margin-top: 24px;
+            margin-top: 30px;
         }
     }
 }
