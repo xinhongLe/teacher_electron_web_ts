@@ -41,6 +41,7 @@ export default defineComponent({
 <style lang="scss" scoped>
 .my-student {
     display: flex;
+    flex: 1;
     height: 100%;
     flex-direction: column;
     justify-content: space-between;

@@ -27,7 +27,7 @@
                     @size-change="handleSizeChange"
                     @current-change="handleCurrentChange"
                 />
-            </div>
+        </div>
     </div>
 </template>
 
@@ -87,7 +87,8 @@ export default defineComponent({
     user-select: none;
     background-color: #fff;
     .page {
-        margin: 15px 0;
+        height: 25px;
+        margin: 15px 0 0 0;
         :deep(.el-pagination) {
             float: right;
         }
