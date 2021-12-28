@@ -49,7 +49,7 @@
 </template>
 
 <script>
-import { defineComponent, onMounted, ref } from "vue-demi";
+import { defineComponent, onMounted } from "vue-demi";
 import annotation from "./annotation";
 import CardList from "./components/card-list.vue";
 import PageList from "./components/page-list.vue";
