@@ -337,14 +337,16 @@ export default defineComponent({
                 HomeworkPaperFiles,
                 AlbumName,
                 WorkbookPaperPageNum,
-                ChapterName
+                ChapterName,
+                HomeworkName
             } = props.info;
             const classInfo = Object.values(props.homeworkListMap)
                 .flat()
                 .filter(
                     (v) =>
                         v.HomeworkID === HomeworkID &&
-                        v.HomeworkPaperType === HomeworkPaperType
+                        v.HomeworkPaperType === HomeworkPaperType &&
+                        v.HomeworkName === HomeworkName
                 )
                 .map((v) => ({
                     name: v.ClassName,
