@@ -1,14 +1,49 @@
 import { IOssFileInfo } from "@/types/oss";
-export interface PreparateListBag {
+export interface FetchPreparateListPageData {
     preTitle: string;
-    lessonRange: string;
     status: number;
-    createrName: string;
-    createrID: string;
-    createTime: string;
+    createTime?: string;
+    createStartTime: string;
     createEndTime: string;
-    teacherCount: number;
-    fileModel: FileModelBag;
+    pager: PagerReq;
+}
+
+export interface FetchPreparateListPageRes {
+    list?: PreparateListBag[];
+    pager?: PagerRes;
+}
+
+export interface PagerReq {
+    pageNumber: number;
+    pageSize: number;
+    pageChoose: number[];
+    sortField?: string;
+    sortType?: string;
+    total?: number;
+}
+
+export interface PagerRes {
+    IsFirstPage: boolean;
+    IsLastPage: boolean;
+    PageNumber: number;
+    PageSize: number;
+    Pages: number;
+    SortField: string;
+    SortType: string;
+    Total: number;
+}
+
+export interface PreparateListBag {
+    Id: string;
+    PreTitle: string;
+    Status: number;
+    CreaterName: string;
+    CreaterID: string;
+    CreateTime: string;
+    CreateEndTime: string;
+    TeacherCount: number;
+    LessonRange?: string;
+    FileModel?: FileModelBag;
 }
 
 export interface FileModelBag {
@@ -24,43 +59,13 @@ export interface FileModelBag {
     staffID: string;
 }
 
-export interface PagerRes {
-    IsFirstPage: boolean;
-    IsLastPage: boolean;
-    PageNumber: number;
-    PageSize: number;
-    Pages: number;
-    SortField: string;
-    SortType: string;
-    Total: number;
-}
-
-export interface PagerReq {
-    pageNumber: number;
-    pageSize: number;
-    pageChoose: number[];
-    sortField?: string;
-    sortType?: string;
-    total?: number;
+export interface DeletePreLessonData {
+    preLessonId: string;
 }
 
 export interface StatusType {
     label: string;
     value: number;
-}
-
-export interface FetchPreparateListPageData {
-    preTitle: string;
-    status: number;
-    createTime?: string;
-    createStartTime: string;
-    createEndTime: string;
-    pager: PagerReq;
-}
-
-export interface FetchPreparateListPageRes {
-    list?: PreparateListBag[];
-    pager?: PagerRes;
 }
 
 export interface FetchTextBookGradeData {
@@ -72,11 +77,13 @@ export interface TextBookGradeChildList {
     value: string;
     children?: TextBookGradeChildList[];
 }
+
 export interface TextBookGradeRes {
     label: string;
     value: string;
     children?: TextBookGradeChildList[];
 }
+
 export interface lessonItemData {
     title: string;
     creator: string;
@@ -99,7 +106,6 @@ export interface BookList {
 export interface FetchTeacherBookChaptersData {
     bookID: string;
 }
-
 export interface BookChapter {
     Detial: string;
     ID: string;
@@ -160,10 +166,6 @@ export type SaveTeacherClassScheduleData = {
 export interface CloneCourseBagToTeacherData {
     courseBagID: string;
     courseBagTeacherName?: string;
-}
-
-export interface DelCourseBagTeacherData {
-    id: string;
 }
 
 export interface Questions {

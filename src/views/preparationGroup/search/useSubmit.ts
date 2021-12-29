@@ -19,9 +19,7 @@ export default () => {
     const formData = reactive({
         preTitle: "",
         status: 0,
-        createTime: "",
-        createStartTime: "",
-        createEndTime: ""
+        createTime: ""
     });
     const formRef = ref<InstanceType<typeof ElForm>>();
 

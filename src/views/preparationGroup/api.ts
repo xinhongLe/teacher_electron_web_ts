@@ -2,9 +2,8 @@ import request from "@/utils/request";
 import { AI_XUE_SHI_API } from "@/config";
 import { IResponse, RequestFun } from "@/types/response";
 import {
-    FetchPreparateListPageData, FetchPreparateListPageRes,
+    FetchPreparateListPageData, FetchPreparateListPageRes, DeletePreLessonData,
     AddChapterData, AddCourseWareTeacherElementFileData, AddCustomBookLessonData, AddMaterialData, AddOrUpdateCourseBagTeacherData, BagChapter, BookChapter, BookList, CloneCourseBagToTeacherData, CloneCourseBagToTeacherRes, Course,
-    DelCourseBagTeacherData,
     DeleteMaterialData,
     EditMaterialData,
     FetchBagChapterData,
@@ -12,6 +11,33 @@ import {
     AddContentData,
     FetchTeacherBookChaptersData, FetchTeacherLessonAndBagByChapterData, GetLastSelectBookData, GetLastSelectBookRes, Lesson, Material, QueryMaterialListData, SaveTeacherClassScheduleData, SetLastSelectBookData, UpdateCourseBagTeacherData, UpdateCourseWareListOfTeacherData, UpdateCourseWareTeacherSortData, UpdateCustomBookLessonData
 } from "@/types/preparationGroup";
+
+// 查询我的备课列表(分页)
+export function fetchPreparateListPage(data: FetchPreparateListPageData): Promise<IResponse<FetchPreparateListPageRes>> {
+    return request({
+        baseURL: AI_XUE_SHI_API,
+        url: "/Api/V2/GroupLesson/GetPreparateListPage",
+        headers: {
+            "Content-Type": "application/json-patch+json"
+        },
+        method: "post",
+        data
+    });
+}
+
+// 根据id删除选中的备课
+export function deletePreLesson(data: DeletePreLessonData): Promise<IResponse<null>> {
+    return request({
+        baseURL: AI_XUE_SHI_API,
+        url: "/Api/V2/GroupLesson/DeletePreLesson",
+        headers: {
+            "Content-Type": "application/json-patch+json"
+        },
+        method: "post",
+        data
+    });
+}
+
 
 // 获取集体备课明细数据
 export function fetchPreparateDetail(data: FetchTeacherBookChaptersData):Promise<IResponse<BookChapter[]>> {
@@ -123,32 +149,6 @@ export function addResourceResult(data: SaveTeacherClassScheduleData): Promise<I
     return request({
         baseURL: AI_XUE_SHI_API,
         url: "/Api/V2/GroupLesson/AddResourceResult",
-        headers: {
-            "Content-Type": "application/json-patch+json"
-        },
-        method: "post",
-        data
-    });
-}
-
-// 查询我的备课列表(分页)
-export function fetchPreparateListPage(data: FetchPreparateListPageData): Promise<IResponse<FetchPreparateListPageRes>> {
-    return request({
-        baseURL: AI_XUE_SHI_API,
-        url: "/Api/V2/GroupLesson/GetPreparateListPage",
-        headers: {
-            "Content-Type": "application/json-patch+json"
-        },
-        method: "post",
-        data
-    });
-}
-
-// 根据id删除选中的备课
-export function deletePreLesson(data: DelCourseBagTeacherData): Promise<IResponse<null>> {
-    return request({
-        baseURL: AI_XUE_SHI_API,
-        url: "/Api/V2/GroupLesson/DeletePreLesson",
         headers: {
             "Content-Type": "application/json-patch+json"
         },

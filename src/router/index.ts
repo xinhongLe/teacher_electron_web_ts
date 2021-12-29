@@ -37,7 +37,7 @@ const routes: Array<RouteRecordRaw> = [
                 }
             },
             {
-                path: "preparation-edit",
+                path: "preparation-edit/:preId",
                 name: "编辑集体备课",
                 component: () => import("@/views/preparationGroup/editPanel/index.vue"),
                 meta: {
