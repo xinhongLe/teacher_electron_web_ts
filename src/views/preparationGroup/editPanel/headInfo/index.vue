@@ -93,6 +93,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, reactive, getCurrentInstance, onMounted, watch } from "vue";
+import { fetchPreparateDetail } from "../../api";
 import useUploadFile from "@/hooks/useUploadFile";
 import { lessonItemData } from "@/types/preparationGroup";
 import { IOssFileInfo } from "@/types/oss";

@@ -9,7 +9,7 @@ import {
     FetchBagChapterData,
     FetchLessonsData,
     AddContentData,
-    FetchTeacherBookChaptersData, FetchTeacherLessonAndBagByChapterData, GetLastSelectBookData, GetLastSelectBookRes, Lesson, Material, QueryMaterialListData, SaveTeacherClassScheduleData, SetLastSelectBookData, UpdateCourseBagTeacherData, UpdateCourseWareListOfTeacherData, UpdateCourseWareTeacherSortData, UpdateCustomBookLessonData
+    FetchPreparateDetailData, FetchTeacherLessonAndBagByChapterData, GetLastSelectBookData, GetLastSelectBookRes, Lesson, Material, QueryMaterialListData, SaveTeacherClassScheduleData, SetLastSelectBookData, UpdateCourseBagTeacherData, UpdateCourseWareListOfTeacherData, UpdateCourseWareTeacherSortData, UpdateCustomBookLessonData
 } from "@/types/preparationGroup";
 
 // 查询我的备课列表(分页)
@@ -40,7 +40,7 @@ export function deletePreLesson(data: DeletePreLessonData): Promise<IResponse<nu
 
 
 // 获取集体备课明细数据
-export function fetchPreparateDetail(data: FetchTeacherBookChaptersData):Promise<IResponse<BookChapter[]>> {
+export function fetchPreparateDetail(data: FetchPreparateDetailData):Promise<IResponse<BookChapter[]>> {
     return request({
         baseURL: AI_XUE_SHI_API,
         url: "/Api/V2/GroupLesson/GetPreparateDetail",
@@ -54,7 +54,7 @@ export function fetchPreparateDetail(data: FetchTeacherBookChaptersData):Promise
 }
 
 // 查询集体备课 小组成员列表
-export function fetchGroupLessonTeachers(data: FetchTeacherBookChaptersData): Promise<IResponse<BookChapter[]>> {
+export function fetchGroupLessonTeachers(data: FetchPreparateDetailData): Promise<IResponse<BookChapter[]>> {
     return request({
         baseURL: AI_XUE_SHI_API,
         url: "/Api/V2/GroupLesson/GetGroupLessonTeachers",

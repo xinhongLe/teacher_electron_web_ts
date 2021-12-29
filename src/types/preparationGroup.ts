@@ -60,7 +60,7 @@ export interface FileModelBag {
 }
 
 export interface DeletePreLessonData {
-    preLessonId: string;
+    Id: string;
 }
 
 export interface StatusType {
@@ -103,8 +103,8 @@ export interface BookList {
     Children?: BookList[];
 }
 
-export interface FetchTeacherBookChaptersData {
-    bookID: string;
+export interface FetchPreparateDetailData {
+    id: string;
 }
 export interface BookChapter {
     Detial: string;

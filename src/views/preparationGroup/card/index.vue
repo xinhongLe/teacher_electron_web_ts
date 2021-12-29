@@ -100,7 +100,7 @@ export default defineComponent({
         // 删除研讨
         const deleteResource = async () => {
             const res = await deletePreLesson({
-                preLessonId: currentItem.value.Id
+                Id: currentItem.value.Id
             });
             if (res.resultCode === 200) {
                 const cardParams = JSON.parse(sessionStorage.getItem("cardParams") || "");
