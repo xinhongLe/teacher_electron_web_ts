@@ -8,6 +8,7 @@ export default (ossPathKey: OssName) => {
     const loadingShow = ref(false);
     const fileInfo = reactive<IOssFileInfo>({
         bucket: "",
+        path: "",
         objectKey: "",
         name: "",
         md5: "",
@@ -23,6 +24,7 @@ export default (ossPathKey: OssName) => {
         if (res?.code === 200) {
             const { objectKey, name, md5, fileExtension } = res;
             fileInfo.bucket = ossPath.Bucket;
+            fileInfo.path = ossPath.Path;
             fileInfo.fileExtension = fileExtension;
             fileInfo.objectKey = objectKey;
             fileInfo.name = name;
@@ -35,6 +37,7 @@ export default (ossPathKey: OssName) => {
 
     const resetFileInfo = () => {
         fileInfo.bucket = "";
+        fileInfo.path = "";
         fileInfo.fileExtension = "";
         fileInfo.objectKey = "";
         fileInfo.name = "";

@@ -9,6 +9,7 @@ import {
     EditMaterialData,
     FetchBagChapterData,
     FetchLessonsData,
+    AddContentData,
     FetchTeacherBookChaptersData, FetchTeacherLessonAndBagByChapterData, GetLastSelectBookData, GetLastSelectBookRes, Lesson, Material, QueryMaterialListData, SaveTeacherClassScheduleData, SetLastSelectBookData, UpdateCourseBagTeacherData, UpdateCourseWareListOfTeacherData, UpdateCourseWareTeacherSortData, UpdateCustomBookLessonData
 } from "@/types/preparationGroup";
 
@@ -187,6 +188,32 @@ export function fetchThisFraineseTeachers(data: FetchLessonsData): Promise<IResp
     return request({
         baseURL: AI_XUE_SHI_API,
         url: "/Api/V2/GroupLesson/GetThisFraineseTeachers",
+        headers: {
+            "Content-Type": "application/json-patch+json"
+        },
+        method: "post",
+        data
+    });
+}
+
+// 添加研讨内容
+export function AddDiscussionContent(data: AddContentData): Promise<IResponse<null>> {
+    return request({
+        baseURL: AI_XUE_SHI_API,
+        url: "/Api/V2/GroupLesson/AddDiscussionContent",
+        headers: {
+            "Content-Type": "application/json-patch+json"
+        },
+        method: "post",
+        data
+    });
+}
+
+// 编辑研讨内容
+export function EditDiscussionContent(data: AddContentData): Promise<IResponse<null>> {
+    return request({
+        baseURL: AI_XUE_SHI_API,
+        url: "/Api/V2/GroupLesson/EditDiscussionContent",
         headers: {
             "Content-Type": "application/json-patch+json"
         },

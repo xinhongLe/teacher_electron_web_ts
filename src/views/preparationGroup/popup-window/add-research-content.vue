@@ -1,19 +1,31 @@
 <template>
-    <el-dialog :append-to-body="true" :model-value="dialogVisible" :before-close="handleClose" title="新增研讨内容" width="800px" center>
+    <el-dialog
+        :append-to-body="true"
+        :model-value="dialogVisible"
+        :before-close="handleClose"
+        title="新增研讨内容"
+        width="800px"
+        center
+    >
         <el-form ref="formRef" :model="form" :rules="rules" label-position="left">
             <el-form-item label="研讨主题:" :label-width="formLabelWidth" prop="title">
                 <el-input v-model="form.title" placeholder="请输入研讨主题" autocomplete="off"></el-input>
             </el-form-item>
             <el-form-item label="资源类型:" :label-width="formLabelWidth" prop="resourceType">
                 <el-radio-group v-model="form.resourceType">
-                    <el-radio label="1">教案设计</el-radio>
-                    <el-radio label="2">课件设计</el-radio>
+                    <el-radio :label="1">教案设计</el-radio>
+                    <el-radio :label="2">课件设计</el-radio>
                 </el-radio-group>
             </el-form-item>
             <el-form-item label="内容摘要:" :label-width="formLabelWidth" prop="content">
                 <el-input v-model="form.content" autocomplete="off" type="textarea"></el-input>
             </el-form-item>
-            <el-form-item label="教案/课件:" :label-width="formLabelWidth" :show-message="false" prop="planFile">
+            <el-form-item
+                label="教案/课件:"
+                :label-width="formLabelWidth"
+                :show-message="false"
+                prop="planFile"
+            >
                 <el-upload
                     action
                     :show-file-list="false"
@@ -24,15 +36,14 @@
                 >
                     <el-button size="small" type="primary" plain icon="el-icon-upload">上传文件</el-button>
                     <template #tip>
-                        <div>仅可上传一个word或ppt文件</div>
+                        <div class="el-upload__tip TheSlogan">仅可上传一个word或ppt文件</div>
                     </template>
                 </el-upload>
                 <div v-else class="fileBox">
                     <FileType :fileExtension="fileContent.fileExtension" />
-                    <div
-                        class="name"
-                        :title="fileContent.name"
-                    >{{ fileContent.fileName }}.{{ fileContent.fileExtension }}</div>
+                    <div class="name" :title="fileContent.name">
+                        {{ fileContent.fileName }}.{{ fileContent.fileExtension }}
+                    </div>
                     <span class="delete" @click="deleteFile" />
                 </div>
             </el-form-item>
@@ -49,18 +60,17 @@
                 >
                     <el-button size="small" type="primary" plain icon="el-icon-paperclip">上传附件</el-button>
                     <template #tip>
-                        <div>可上传不超过9个素材，支持格式：doc、docx、ppt、pdf、jpg、png、mp3、mp4等</div>
+                        <div class="el-upload__tip TheSlogan">
+                            可上传不超过9个素材，支持格式：doc、docx、ppt、pdf、jpg、png、mp3、mp4等
+                        </div>
                     </template>
                 </el-upload>
                 <div v-if="fileList.length > 0" class="attachmentBox">
                     <div v-for="(file, index) in fileList" :key="index">
-                        <p>
-                            <FileType :fileExtension="file.extension" />
-                            <span
-                                class="ellipsis"
-                                :title="file.name"
-                            >{{ file.name }}.{{ file.extension }}</span>
-                        </p>
+                        <div>
+                            <FileType :fileExtension="file.extention" />
+                            <span class="ellipsis" :title="file.fileName">{{ file.fileName }}.{{ file.extention }}</span>
+                        </div>
                         <img
                             src="@/assets/preparationGroup/icon_shanchu.png"
                             @click="delFile(index)"
@@ -79,16 +89,16 @@
     </el-dialog>
 </template>
 <script lang="ts">
+import { defineComponent, reactive, ref, toRefs } from "vue";
 import { ElFormType } from "@/types/elementType";
 import { ElMessage } from "element-plus";
-import { defineComponent, reactive, ref, toRefs } from "vue";
-import useUploadFile from "@/hooks/useUploadFile";
-import { UploadFile } from "element-plus/lib/components/upload/src/upload.type";
-import FileType from "@/components/fileType/index.vue";
 import { IOssFileInfo } from "@/types/oss";
 import { cooOss } from "@/utils/oss";
 import { get, STORAGE_TYPES } from "@/utils/storage";
-
+import { UploadFile } from "element-plus/lib/components/upload/src/upload.type";
+import FileType from "@/components/fileType/index.vue";
+import useUploadFile from "@/hooks/useUploadFile";
+import { AddDiscussionContent } from "../api";
 export default defineComponent({
     props: {
         dialogVisible: {
@@ -100,9 +110,10 @@ export default defineComponent({
     setup(props, { emit }) {
         const formRef = ref<ElFormType>();
         const acceptList = ".ppt,.doc,.docx,.pdf,.mp3,.mp4,.jpg,.png,";
-        const fileList = reactive<{ extension: string; fileName: string; name: string }[]>([]);
+        const fileList = reactive<{ extention: string; fileName: string; name: string; bucket: string; fileMD5: string; filePath: string; }[]>([]);
         const fileContent = reactive<IOssFileInfo>({
             bucket: "",
+            path: "",
             objectKey: "",
             name: "",
             md5: "",
@@ -112,7 +123,7 @@ export default defineComponent({
         const state = reactive({
             form: {
                 title: "",
-                resourceType: "1",
+                resourceType: 1,
                 content: "",
                 planFile: "",
                 attachments: []
@@ -144,9 +155,8 @@ export default defineComponent({
         };
         const { loadingShow, fileInfo, uploadFile } = useUploadFile("ElementFile");
 
-        const beforeUpload = ({ name }: {
-            name: string;
-        }) => {
+        // 教案课件上传之前
+        const beforeUpload = ({ name }: {name: string;}) => {
             const fileType = name.substring(name.lastIndexOf(".") + 1);
             console.log(name, fileType);
             const whiteList = [
@@ -162,49 +172,94 @@ export default defineComponent({
             state.form.planFile = "1";
             console.log(state.form.planFile, "99");
         };
-        const uploadFileSuccess = async ({ file }: {
-            file: UploadFile & Blob;
-        }) => {
+
+        // 上传教案/课件
+        const uploadFileSuccess = async ({ file }: {file: UploadFile & Blob;}) => {
             const ossPath = get(STORAGE_TYPES.OSS_PATHS)?.["ElementFile"];
+            console.log(ossPath, "ossPathossPath");
             const res = await cooOss(file, ossPath);
             if (res?.code === 200) {
+                console.log(res, "resresres");
                 const { objectKey, name, md5, fileExtension } = res;
                 fileContent.bucket = ossPath.Bucket;
+                fileContent.path = ossPath.Path;
                 fileContent.fileExtension = fileExtension;
                 fileContent.objectKey = objectKey;
                 fileContent.name = name;
-                fileContent.objectKey = objectKey;
                 fileContent.md5 = md5;
                 fileContent.fileName = file.name.substring(0, file.name.lastIndexOf("."));
+                console.log(fileContent, "fileContent");
             }
         };
+
+        // 删除教案/课件
         const deleteFile = () => {
             fileContent.bucket = "";
+            fileContent.path = "";
             fileContent.fileExtension = "";
             fileContent.objectKey = "";
             fileContent.name = "";
-            fileContent.objectKey = "";
             fileContent.md5 = "";
             fileContent.fileName = "";
         };
-        const uploadSuccess = async ({ file }: {
-            file: UploadFile & Blob;
-        }) => {
+
+        // 上传附件
+        const uploadSuccess = async ({ file }: {file: UploadFile & Blob;}) => {
             await uploadFile({ file });
             fileList.push({
-                extension: fileInfo.fileExtension,
-                name: fileInfo.fileName,
-                fileName: fileInfo.name
+                extention: fileInfo.fileExtension,
+                name: fileInfo.name,
+                fileName: fileInfo.fileName,
+                bucket: fileInfo.bucket,
+                fileMD5: fileInfo.md5,
+                filePath: fileInfo.path!
             });
         };
+
+        // 删除附件
         const delFile = (index: number) => {
             fileList.splice(index, 1);
         };
 
-        const submitForm = () => {
+        // 确认新增事件
+        const submitForm = async () => {
             formRef.value!.validate(async valid => {
                 if (valid) {
-                    alert("'submit!'");
+                    const data = {
+                        groupLessonPreparateID: "string",
+                        discussionContent: {
+                            title: state.form.title,
+                            resourceType: state.form.resourceType,
+                            content: state.form.content,
+                            planFile: {
+                                name: fileContent.name,
+                                fileName: fileContent.fileName,
+                                bucket: fileContent.bucket,
+                                filePath: fileContent.path!,
+                                extention: fileContent.fileExtension,
+                                fileMD5: fileContent.md5
+                            },
+                            attachments: fileList
+                            // attachments: [
+                            //     {
+                            //         id: "string",
+                            //         name: "string",
+                            //         sn: 0,
+                            //         fileName: "string",
+                            //         bucket: "string",
+                            //         filePath: "string",
+                            //         extention: "string",
+                            //         fileMD5: "string",
+                            //         type: 0,
+                            //         staffID: "string"
+                            //     }
+                            // ]
+                        }
+                    };
+                    const res = await AddDiscussionContent(data);
+                    if (res.resultCode === 200) {
+                        ElMessage.success("新增研讨内容成功");
+                    }
                 } else {
                     if (state.form.planFile === "") {
                         ElMessage.error("请上传教案/课件");
@@ -272,6 +327,7 @@ export default defineComponent({
     display: flex;
     justify-content: flex-start;
     flex-wrap: wrap;
+    margin-top: 8px;
     div {
         display: flex;
         align-items: center;
@@ -307,5 +363,12 @@ export default defineComponent({
         white-space: nowrap;
         display: inline-block;
     }
+}
+.TheSlogan {
+    font-size: 12px;
+    font-family: PingFangSC-Regular, PingFang SC;
+    font-weight: 400;
+    color: #a7aab4;
+    line-height: 17px;
 }
 </style>

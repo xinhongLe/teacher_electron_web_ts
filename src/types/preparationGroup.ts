@@ -146,6 +146,27 @@ export interface Questions {
     QuestionID: string;
 }
 
+export interface FileData {
+    id?: string;
+    name: string;
+    sn?: number;
+    fileName: string;
+    bucket: string;
+    filePath?: string;
+    extention: string;
+    fileMD5: string;
+    type?: number;
+    staffID?: string
+}
+
+export interface discussionContent {
+    title: string;
+    resourceType: number;
+    content: string;
+    planFile: FileData;
+    attachments: FileData[]
+}
+
 export interface UpdateCourseWareListOfTeacherData {
     deletedCourseWareTeacherIDs?: string[];
     addedCourseWareTeacher?: {
@@ -187,6 +208,11 @@ export interface Lesson {
 export interface FetchLessonsData {
     chapterID: string;
     type: number;
+}
+
+export interface AddContentData {
+    groupLessonPreparateID: string;
+    discussionContent: discussionContent;
 }
 
 export interface FetchBagChapterData {
