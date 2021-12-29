@@ -77,7 +77,8 @@
     </el-dialog>
 </template>
 <script lang="ts">
-import { defineComponent, reactive, ref, toRefs } from "vue";
+import { defineComponent, onMounted, reactive, ref, toRefs } from "vue";
+import { useRoute } from "vue-router";
 import { ElFormType } from "@/types/elementType";
 import { ElMessage } from "element-plus";
 import { IOssFileInfo } from "@/types/oss";
@@ -96,7 +97,9 @@ export default defineComponent({
     },
     components: { File },
     setup(props, { emit }) {
+        const route = useRoute();
         const formRef = ref<ElFormType>();
+        const preId = ref();
         const acceptList = ".ppt,.doc,.docx,.pdf,.mp3,.mp4,.jpg,.png,";
         const fileList = reactive<{ extention: string; fileName: string; name: string; bucket: string; fileMD5: string; filePath: string; size: string; fileType: string; }[]>([]);
         const fileContent = reactive<IOssFileInfo>({
@@ -218,7 +221,7 @@ export default defineComponent({
             formRef.value!.validate(async valid => {
                 if (valid) {
                     const data = {
-                        groupLessonPreparateID: "string",
+                        groupLessonPreparateID: preId.value,
                         discussionContent: {
                             title: state.form.title,
                             resourceType: state.form.resourceType,
@@ -251,6 +254,7 @@ export default defineComponent({
                     const res = await AddDiscussionContent(data);
                     if (res.resultCode === 200) {
                         ElMessage.success("新增研讨内容成功");
+                        emit("update:dialogVisible", false);
                     }
                 } else {
                     if (state.form.title === "") {
@@ -267,6 +271,10 @@ export default defineComponent({
         const handleClose = () => {
             emit("update:dialogVisible", false);
         };
+        onMounted(() => {
+            preId.value = route.params.preId;
+            console.log(preId.value, "preIdpreIdpreIdpreIdpreId");
+        });
         return {
             formRef,
             ...toRefs(state),
