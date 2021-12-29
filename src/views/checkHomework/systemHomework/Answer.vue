@@ -150,8 +150,8 @@ export default defineComponent({
             scale = width / panelWidth;
             height = panelHeight * scale;
             // 图片
-            imgWidth = res.data.qaWidth * scale;
-            imgHeight = res.data.qaHeight * scale;
+            res.data.qaWidth !== 0 && (imgWidth = res.data.qaWidth * scale);
+            res.data.qaHeight !== 0 && (imgHeight = res.data.qaHeight * scale);
             imgOffsetX = res.data.qaX * scale;
             imgOffsetY = res.data.qaY * scale;
             _scale.value = scale;

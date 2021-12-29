@@ -157,12 +157,13 @@ export interface QuestionDetail {
     Detail?: {
         SpeechAssessResults: SpeechAssessResult[];
         ID: string;
-        Result: string;
+        Result: number;
         HomeworkPaperType: number;
         PronunciationText: string;
     };
     Study?: {
         StudyFiles?: QuestionFile[];
+        ChoiceValue: string;
         MissionFiles?: QuestionDetailMissionFile[];
     };
     WorkbookPageQuestion?: {

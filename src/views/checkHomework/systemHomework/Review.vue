@@ -15,7 +15,15 @@
                         :data="detail"
                     />
                     <template v-else-if="detail.Detail.HomeworkPaperType === 0">
-                        <SpeechAudio v-if="detail.Question?.Type === 7" :speechResult="detail.Detail?.SpeechAssessResults"/>
+                        <SpeechAudio
+                            v-if="detail.Question?.Type === 7"
+                            :speechResult="detail.Detail?.SpeechAssessResults"
+                        />
+                        <AnswerChoiceValue
+                            v-else-if="detail.Question?.Type < 5"
+                            :choiceValue="detail.Study?.ChoiceValue"
+                            :isError="detail.Detail?.Result === 2"
+                        />
                         <Answer
                             v-else
                             :data="detailData"
@@ -88,17 +96,24 @@
                     v-if="detail.Detail.HomeworkPaperType === 2"
                     :data="detail"
                 />
-                <Answer
-                    v-else-if="detail.Detail.HomeworkPaperType === 0"
-                    :data="detailData"
-                    :questionType="detail?.Question?.Type"
-                    :question="question"
-                    :answer="answer"
-                    :isOrigin="true"
-                    :isQuestion="true"
-                    :writeList="detail?.Question?.QuestionBlanks"
-                    :choiceValue="detail.Question?.ChoiceValue"
-                ></Answer>
+                <template v-else-if="detail.Detail.HomeworkPaperType === 0">
+                    <QuestionChoiceList
+                        v-if="detail.Question?.Type < 5"
+                        :choiceValue="detail.Study?.ChoiceValue"
+                        :questionType="detail?.Question?.Type"
+                        :choiceCount="detail?.Question?.ChoiceCount"
+                    />
+                    <Answer
+                        :data="detailData"
+                        :questionType="detail?.Question?.Type"
+                        :question="question"
+                        :answer="answer"
+                        :isOrigin="true"
+                        :isQuestion="true"
+                        :writeList="detail?.Question?.QuestionBlanks"
+                        :choiceValue="detail.Question?.ChoiceValue"
+                    ></Answer>
+                </template>
             </template>
         </Enlarge>
     </div>
@@ -114,6 +129,8 @@ import Enlarge from "./Enlarge.vue";
 import TeacherAnswer from "./TeacherAnswer.vue";
 import TeacherAnswerImg from "./TeacherAnswerImg.vue";
 import SpeechAudio from "./SpeechAudio.vue";
+import AnswerChoiceValue from "./AnswerChoiceValue.vue";
+import QuestionChoiceList from "./QuestionChoiceList.vue";
 export default defineComponent({
     props: {
         className: {
@@ -138,7 +155,8 @@ export default defineComponent({
         const detail = ref<QuestionDetail>({});
         const isShow = computed(
             () =>
-                (detail.value?.Detail?.HomeworkPaperType === 0 && detail.value?.Question?.Type !== 7) ||
+                (detail.value?.Detail?.HomeworkPaperType === 0 &&
+                    detail.value?.Question?.Type !== 7) ||
                 (detail.value?.Detail?.HomeworkPaperType === 2 &&
                     detail.value.Study?.MissionFiles?.find(
                         ({ PageNum }) =>
@@ -205,7 +223,16 @@ export default defineComponent({
             errorHandle
         };
     },
-    components: { Avatar, Answer, Enlarge, TeacherAnswer, TeacherAnswerImg, SpeechAudio }
+    components: {
+        Avatar,
+        Answer,
+        Enlarge,
+        TeacherAnswer,
+        TeacherAnswerImg,
+        SpeechAudio,
+        AnswerChoiceValue,
+        QuestionChoiceList
+    }
 });
 </script>
 
