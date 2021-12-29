@@ -36,7 +36,10 @@ export default defineComponent({
             type: Object
         },
         action: {
-            type: String
+            type: String,
+            default: () => {
+                return "download";
+            }
         }
     },
     setup(props, { emit }) {

@@ -1,8 +1,16 @@
 <template>
-    <div class="preparation-file-small">
-        <img class="file-type" v-if="fileInfo.fileType === 'word'" src="../../../assets/preparationGroup/editPanel/icon_word.png" alt="" />
-        <img class="file-type" v-else-if="fileInfo.fileType === 'pdf'" src="../../../assets/preparationGroup/editPanel/icon_pdf.png" alt="" />
-        <span class="file-name ellipsis">{{`${fileInfo.fileName}.${fileInfo.extend}`}}</span>
+    <div class="preparation-file-small" :title="fileInfo.fileName">
+        <img class="file-type" v-if="fileInfo.fileType === 'word'" src="../../../assets/preparationGroup/editPanel/icon_word.png" />
+        <img class="file-type" v-else-if="fileInfo.fileType === 'excel'" src="../../../assets/preparationGroup/editPanel/icon_excel.png" />
+        <img class="file-type" v-else-if="fileInfo.fileType === 'ppt'" src="../../../assets/preparationGroup/editPanel/icon_ppt.png" />
+        <img class="file-type" v-else-if="fileInfo.fileType === 'pdf'" src="../../../assets/preparationGroup/editPanel/icon_pdf.png" />
+        <img class="file-type" v-else-if="fileInfo.fileType === 'txt'" src="../../../assets/preparationGroup/editPanel/icon_txt.png" />
+        <img class="file-type" v-else-if="fileInfo.fileType === 'video'" src="../../../assets/preparationGroup/editPanel/icon_video.png" />
+        <img class="file-type" v-else-if="fileInfo.fileType === 'radio'" src="../../../assets/preparationGroup/editPanel/icon_radio.png" />
+        <img class="file-type" v-else-if="fileInfo.fileType === 'image'" src="../../../assets/preparationGroup/editPanel/icon_image.png" />
+        <img class="file-type" v-else-if="fileInfo.fileType === 'zip'" src="../../../assets/preparationGroup/editPanel/icon_zip.png" />
+        <img class="file-type" v-else src="../../../assets/preparationGroup/editPanel/icon_other.png" />
+        <p class="file-name"><span class="ellipsis">{{ fileInfo.fileName }}</span>{{`.${fileInfo.fileExtension}`}}</p>
     </div>
 </template>
 
@@ -62,11 +70,15 @@ export default defineComponent({
         font-weight: 400;
         color: #19203D;
         margin-left: 5px;
+        display: flex;
+        align-items: center;
     }
     .ellipsis {
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+        display: inline-block;
+        max-width: 65px;
     }
 }
 </style>
