@@ -39,12 +39,8 @@
                         <div class="el-upload__tip TheSlogan">仅可上传一个word或ppt文件</div>
                     </template>
                 </el-upload>
-                <div v-else class="fileBox">
-                    <FileType :fileExtension="fileContent.fileExtension" />
-                    <div class="name" :title="fileContent.name">
-                        {{ fileContent.fileName }}.{{ fileContent.fileExtension }}
-                    </div>
-                    <span class="delete" @click="deleteFile" />
+                <div v-else>
+                    <File :fileInfo="fileContent" action="upload" @close="deleteFile"></File>
                 </div>
             </el-form-item>
             <el-form-item label="附件:" :label-width="formLabelWidth" prop="attachments">
@@ -66,16 +62,8 @@
                     </template>
                 </el-upload>
                 <div v-if="fileList.length > 0" class="attachmentBox">
-                    <div v-for="(file, index) in fileList" :key="index">
-                        <div>
-                            <FileType :fileExtension="file.extention" />
-                            <span class="ellipsis" :title="file.fileName">{{ file.fileName }}.{{ file.extention }}</span>
-                        </div>
-                        <img
-                            src="@/assets/preparationGroup/icon_shanchu.png"
-                            @click="delFile(index)"
-                            alt=""
-                        />
+                    <div class="file-item" v-for="(file, index) in fileList" :key="index">
+                        <File :fileInfo="file" action="upload" @close="delFile(index)"></File>
                     </div>
                 </div>
             </el-form-item>
@@ -96,7 +84,7 @@ import { IOssFileInfo } from "@/types/oss";
 import { cooOss } from "@/utils/oss";
 import { get, STORAGE_TYPES } from "@/utils/storage";
 import { UploadFile } from "element-plus/lib/components/upload/src/upload.type";
-import FileType from "@/components/fileType/index.vue";
+import File from "../file/index.vue";
 import useUploadFile from "@/hooks/useUploadFile";
 import { AddDiscussionContent } from "../api";
 export default defineComponent({
@@ -106,11 +94,11 @@ export default defineComponent({
             default: false
         }
     },
-    components: { FileType },
+    components: { File },
     setup(props, { emit }) {
         const formRef = ref<ElFormType>();
         const acceptList = ".ppt,.doc,.docx,.pdf,.mp3,.mp4,.jpg,.png,";
-        const fileList = reactive<{ extention: string; fileName: string; name: string; bucket: string; fileMD5: string; filePath: string; }[]>([]);
+        const fileList = reactive<{ extention: string; fileName: string; name: string; bucket: string; fileMD5: string; filePath: string; size: string; fileType: string; }[]>([]);
         const fileContent = reactive<IOssFileInfo>({
             bucket: "",
             path: "",
@@ -118,7 +106,9 @@ export default defineComponent({
             name: "",
             md5: "",
             fileName: "",
-            fileExtension: ""
+            fileExtension: "",
+            size: "",
+            fileType: ""
         });
         const state = reactive({
             form: {
@@ -153,12 +143,11 @@ export default defineComponent({
                 }
             ]
         };
-        const { loadingShow, fileInfo, uploadFile } = useUploadFile("ElementFile");
+        const { loadingShow, fileInfo, getFileSize, getFileType, uploadFile } = useUploadFile("ElementFile");
 
         // 教案课件上传之前
         const beforeUpload = ({ name }: {name: string;}) => {
             const fileType = name.substring(name.lastIndexOf(".") + 1);
-            console.log(name, fileType);
             const whiteList = [
                 "ppt",
                 "pptx",
@@ -170,13 +159,11 @@ export default defineComponent({
                 return false;
             }
             state.form.planFile = "1";
-            console.log(state.form.planFile, "99");
         };
 
         // 上传教案/课件
         const uploadFileSuccess = async ({ file }: {file: UploadFile & Blob;}) => {
             const ossPath = get(STORAGE_TYPES.OSS_PATHS)?.["ElementFile"];
-            console.log(ossPath, "ossPathossPath");
             const res = await cooOss(file, ossPath);
             if (res?.code === 200) {
                 console.log(res, "resresres");
@@ -188,7 +175,8 @@ export default defineComponent({
                 fileContent.name = name;
                 fileContent.md5 = md5;
                 fileContent.fileName = file.name.substring(0, file.name.lastIndexOf("."));
-                console.log(fileContent, "fileContent");
+                fileContent.size = getFileSize(file.size);
+                fileContent.fileType = getFileType(file.name);
             }
         };
 
@@ -201,6 +189,8 @@ export default defineComponent({
             fileContent.name = "";
             fileContent.md5 = "";
             fileContent.fileName = "";
+            fileContent.size = "";
+            fileContent.fileType = "";
         };
 
         // 上传附件
@@ -212,7 +202,9 @@ export default defineComponent({
                 fileName: fileInfo.fileName,
                 bucket: fileInfo.bucket,
                 fileMD5: fileInfo.md5,
-                filePath: fileInfo.path!
+                filePath: fileInfo.path!,
+                size: fileInfo.size!,
+                fileType: fileInfo.fileType!
             });
         };
 
@@ -261,6 +253,9 @@ export default defineComponent({
                         ElMessage.success("新增研讨内容成功");
                     }
                 } else {
+                    if (state.form.title === "") {
+                        return false;
+                    }
                     if (state.form.planFile === "") {
                         ElMessage.error("请上传教案/课件");
                     }
@@ -328,40 +323,8 @@ export default defineComponent({
     justify-content: flex-start;
     flex-wrap: wrap;
     margin-top: 8px;
-    div {
-        display: flex;
-        align-items: center;
-        margin: 0 20px 20px 0;
-        padding: 0 12px;
-        background: #ffffff;
-        border-radius: 4px;
-        border: 1px solid #e0e2e7;
-        p {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            > span:first-child {
-                margin-right: 10px;
-            }
-            img {
-                width: 20px;
-                height: 20px;
-                vertical-align: middle;
-                margin-right: 10px;
-            }
-        }
-        > img {
-            width: 20px;
-            height: 20px;
-            cursor: pointer;
-        }
-    }
-    .ellipsis {
-        width: 160px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        display: inline-block;
+    .file-item {
+        margin: 0 10px 10px 0;
     }
 }
 .TheSlogan {

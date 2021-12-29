@@ -169,6 +169,8 @@ export default (ossPathKey: OssName) => {
         loadingShow,
         fileInfo,
         resetFileInfo,
-        uploadFile
+        uploadFile,
+        getFileType,
+        getFileSize
     };
 };

@@ -11,7 +11,7 @@
         <img class="file-type" v-else-if="fileInfo.fileType === 'zip'" src="../../../assets/preparationGroup/editPanel/icon_zip.png" />
         <img class="file-type" v-else src="../../../assets/preparationGroup/editPanel/icon_other.png" />
         <div class="file-info">
-            <p class="file-name"><span class="ellipsis">{{ fileInfo.fileName }}</span>{{`.${fileInfo.fileExtension}`}}</p>
+            <p class="file-name"><span class="ellipsis">{{ fileInfo.fileName }}</span><span style="flex-shrink: 0;">{{`.${fileInfo.fileExtension || fileInfo.extention}`}}</span></p>
             <div class="loading-box" v-if="action === 'upload' && percent < 100">
               <div
                 class="loading-default"
