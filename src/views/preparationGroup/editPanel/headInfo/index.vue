@@ -70,13 +70,19 @@
                 <span>教研资料：</span>
                 <span class="content flex-wrap">
                     <div style="width: 100%;margin-bottom: 12px;" v-if="isEdit">
-                        <div class="btn-upload">
-                            <img src="../../../../assets/preparationGroup/editPanel/icon_upload.png" alt="">
-                            <span>上传文件</span>
-                        </div>
+                        <el-upload
+                            action=""
+                            :show-file-list="false"
+                            :http-request="uploadFile"
+                        >
+                            <div class="btn-upload">
+                                <img src="../../../../assets/preparationGroup/editPanel/icon_upload.png" alt="">
+                                <span>上传文件</span>
+                            </div>
+                        </el-upload>
                     </div>
                     <div class="file-item" v-for="(item, index) in lessonItem.fileList" :key="index">
-                        <File :fileInfo="item"></File>
+                        <File :fileInfo="item" action="upload" @close="deleteFileItem"></File>
                     </div>
                 </span>
             </div>
@@ -86,7 +92,10 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, toRefs, getCurrentInstance, onMounted } from "vue";
+import { defineComponent, ref, reactive, getCurrentInstance, onMounted, watch } from "vue";
+import useUploadFile from "@/hooks/useUploadFile";
+import { lessonItemData } from "@/types/preparationGroup";
+import { IOssFileInfo } from "@/types/oss";
 import useSubmit from "../useSubmit";
 import File from "../../file/index.vue";
 export default defineComponent({
@@ -97,68 +106,28 @@ export default defineComponent({
         }
     },
     setup(props, { emit }) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { proxy } = getCurrentInstance() as any;
         console.log(props);
         console.log(emit);
-        const state = reactive({
-            isEdit: false,
-            isShowMore: false,
-            options: [
-                {
-                    value: "navigation",
-                    label: "Navigation",
-                    children: [
-                        {
-                            value: "side nav",
-                            label: "Side Navigation",
-                            children: [
-                                {
-                                    value: "side nav",
-                                    label: "Side Navigation"
-                                },
-                                {
-                                    value: "top nav",
-                                    label: "Top Navigation"
-                                }
-                            ]
-                        },
-                        {
-                            value: "top nav",
-                            label: "Top Navigation"
-                        }
-                    ]
-                }
-            ],
-            lessonItem: {
-                title: "第3单元 长方形和正方形",
-                creator: "林老师",
-                createTime: "2021-12-20 16:06",
-                num: 5,
-                range: ["39F766472E16F43AE0EAE334481AF7BA", "39F7666AAF66E4DC95726D72374B09E6", "39F766472E575A8BCBF9F8B9B8888387"],
-                grade: "",
-                version: "",
-                subject: "",
-                content: "1、初步认识长方形和正方形，会找出它们的特征，并且会利用特征来进行正确的判断； 2、通过学生的操作探索活动，培养学生学习数学的兴趣； 3、培养学生的初步动手能力和与人合作的习惯。 4、集体备课由教学处（或教科研室）实施管理。一般由教研组长具体主持集体备课活动；公共科和规模较大、门类较多的专业教研组可分成若干备课组，由备课组长负责具体实施，教研组长指导并参加各小组的备课活动。 5、集中研讨即组长在集体备课时间里召集本组教师提出备课要求，听取中心发言人的发言，讨论备课提纲。讨论中心发言人提出备课提纲时",
-                fileList: [
-                    {
-                        fileType: "word",
-                        fileName: "认识长方形",
-                        extend: "doc",
-                        size: "310.79K"
-                    },
-                    {
-                        fileType: "pdf",
-                        fileName: "认识长方形",
-                        extend: "pdf",
-                        size: "7.42MB"
-                    }
-                ]
-            }
+        const isEdit = ref(false);
+        const isShowMore = ref(false);
+        const lessonItem = reactive<lessonItemData>({
+            title: "",
+            creator: "",
+            createTime: "",
+            num: 0,
+            range: [],
+            grade: "",
+            version: "",
+            subject: "",
+            content: "",
+            fileList: []
         });
 
         const actionEditPanel = (val: boolean) => {
-            state.isEdit = val;
-            proxy.mittBus.emit("watchStatus", state.isEdit);
+            isEdit.value = val;
+            proxy.mittBus.emit("watchStatus", isEdit.value);
         };
 
         const handleChange = () => {
@@ -166,14 +135,40 @@ export default defineComponent({
         };
         const { textBookGradeList, getTextBookGrade } = useSubmit();
 
+        const { loadingShow, fileInfo, uploadFile, resetFileInfo } = useUploadFile("GroupLessonFile");
+        watch(fileInfo, (fileObj: IOssFileInfo) => {
+            const file = {
+                ...fileObj
+            };
+            if (file && file.name.length > 0) {
+                const list = JSON.parse(JSON.stringify(lessonItem.fileList));
+                list.push(file);
+                lessonItem.fileList = list;
+                resetFileInfo();
+            }
+        }, {
+            immediate: true,
+            deep: true
+        });
+        const deleteFileItem = (fileObj: IOssFileInfo) => {
+            const index = lessonItem.fileList.findIndex((v) => v.name === fileObj.name);
+            lessonItem.fileList.splice(index, 1);
+        };
         onMounted(() => {
             getTextBookGrade();
         });
         return {
-            ...toRefs(state),
+            isEdit,
+            isShowMore,
+            lessonItem,
             actionEditPanel,
             textBookGradeList,
-            handleChange
+            loadingShow,
+            fileInfo,
+            uploadFile,
+            resetFileInfo,
+            handleChange,
+            deleteFileItem
         };
     },
     components: { File }
