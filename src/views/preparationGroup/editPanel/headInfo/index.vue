@@ -9,13 +9,13 @@
                 <span :class="`status status-2`"><span class="white"></span>正在进行</span>
             </div>
             <div class="right">
-                <div class="btn-cancel" @click="isEdit = false" v-if="isEdit">
+                <div class="btn-cancel" @click="actionEditPanel(false)" v-if="isEdit">
                     <span>取消</span>
                 </div>
                 <div class="btn-save" v-if="isEdit">
                     <span>保存</span>
                 </div>
-                <div class="btn-edit" @click="isEdit = true" v-else>
+                <div class="btn-edit" @click="actionEditPanel(true)" v-else>
                     <img src="../../../../assets/preparationGroup/editPanel/edit.png" alt="" />
                     <span>编辑</span>
                 </div>
@@ -36,10 +36,18 @@
             </div>
         </div>
         <div class="file-info">
-            <div class="file-cell">
+            <div class="file-cell" :class="isEdit ? `align-items` : ''">
                 <img src="../../../../assets/preparationGroup/editPanel/pointer.png" alt="" />
                 <span>备课范围：</span>
-                <span class="content">数学 苏教版 三上</span>
+                <div class="content" :class="isEdit ? `padding-left` : ''" v-if="isEdit">
+                    <el-cascader
+                        v-model="lessonItem.range"
+                        :options="textBookGradeList"
+                        :props="{expandTrigger: 'hover'}"
+                        @change="handleChange"
+                    ></el-cascader>
+                </div>
+                <span v-else class="content">数学 苏教版 一上</span>
             </div>
             <div class="file-cell">
                 <img src="../../../../assets/preparationGroup/editPanel/book.png" alt="" />
@@ -47,15 +55,25 @@
                 <span class="content textarea-content" v-if="isEdit">
                     <el-input v-model="lessonItem.content" :rows="3" type="textarea" placeholder="" resize="none"/>
                 </span>
-                <span class="content special-content" v-else>{{ lessonItem.content }}<span class="more">阅读全部</span></span>
+                <span class="content special-content" :class="isShowMore ? `` : `clamp`" :title="lessonItem.content" v-else>
+                    {{ lessonItem.content }}
+                    <span class="more" v-if="!isShowMore" @click="isShowMore = true">
+                        <span class="dot">...</span>阅读全部
+                    </span>
+                    <span class="mores" v-else @click="isShowMore = false">
+                        收起全部
+                    </span>
+                </span>
             </div>
             <div class="file-cell">
                 <img src="../../../../assets/preparationGroup/editPanel/file.png" alt="" />
                 <span>教研资料：</span>
                 <span class="content flex-wrap">
-                    <div class="btn-upload">
-                        <img src="../../../../assets/preparationGroup/editPanel/icon_upload.png" alt="">
-                        <span>上传文件</span>
+                    <div style="width: 100%;margin-bottom: 12px;" v-if="isEdit">
+                        <div class="btn-upload">
+                            <img src="../../../../assets/preparationGroup/editPanel/icon_upload.png" alt="">
+                            <span>上传文件</span>
+                        </div>
                     </div>
                     <div class="file-item" v-for="(item, index) in lessonItem.fileList" :key="index">
                         <File :fileInfo="item"></File>
@@ -68,7 +86,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, toRefs } from "vue";
+import { defineComponent, reactive, toRefs, getCurrentInstance, onMounted } from "vue";
+import useSubmit from "../useSubmit";
 import File from "../../file/index.vue";
 export default defineComponent({
     name: "head-info",
@@ -78,19 +97,48 @@ export default defineComponent({
         }
     },
     setup(props, { emit }) {
+        const { proxy } = getCurrentInstance() as any;
         console.log(props);
         console.log(emit);
         const state = reactive({
             isEdit: false,
+            isShowMore: false,
+            options: [
+                {
+                    value: "navigation",
+                    label: "Navigation",
+                    children: [
+                        {
+                            value: "side nav",
+                            label: "Side Navigation",
+                            children: [
+                                {
+                                    value: "side nav",
+                                    label: "Side Navigation"
+                                },
+                                {
+                                    value: "top nav",
+                                    label: "Top Navigation"
+                                }
+                            ]
+                        },
+                        {
+                            value: "top nav",
+                            label: "Top Navigation"
+                        }
+                    ]
+                }
+            ],
             lessonItem: {
                 title: "第3单元 长方形和正方形",
                 creator: "林老师",
                 createTime: "2021-12-20 16:06",
                 num: 5,
+                range: ["39F766472E16F43AE0EAE334481AF7BA", "39F7666AAF66E4DC95726D72374B09E6", "39F766472E575A8BCBF9F8B9B8888387"],
                 grade: "",
                 version: "",
                 subject: "",
-                content: "1、初步认识长方形和正方形，会找出它们的特征，并且会利用特征来进行正确的判断",
+                content: "1、初步认识长方形和正方形，会找出它们的特征，并且会利用特征来进行正确的判断； 2、通过学生的操作探索活动，培养学生学习数学的兴趣； 3、培养学生的初步动手能力和与人合作的习惯。 4、集体备课由教学处（或教科研室）实施管理。一般由教研组长具体主持集体备课活动；公共科和规模较大、门类较多的专业教研组可分成若干备课组，由备课组长负责具体实施，教研组长指导并参加各小组的备课活动。 5、集中研讨即组长在集体备课时间里召集本组教师提出备课要求，听取中心发言人的发言，讨论备课提纲。讨论中心发言人提出备课提纲时",
                 fileList: [
                     {
                         fileType: "word",
@@ -108,17 +156,24 @@ export default defineComponent({
             }
         });
 
-        const submit = () => {
-            console.log(1);
+        const actionEditPanel = (val: boolean) => {
+            state.isEdit = val;
+            proxy.mittBus.emit("watchStatus", state.isEdit);
         };
 
-        const add = () => {
+        const handleChange = () => {
             console.log(1);
         };
+        const { textBookGradeList, getTextBookGrade } = useSubmit();
+
+        onMounted(() => {
+            getTextBookGrade();
+        });
         return {
             ...toRefs(state),
-            submit,
-            add
+            actionEditPanel,
+            textBookGradeList,
+            handleChange
         };
     },
     components: { File }
@@ -296,6 +351,15 @@ export default defineComponent({
             .special-content {
                 line-height: 24px;
                 margin-top: -5px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                display: -webkit-box;
+                word-break: break-all;
+                position: relative;
+            }
+            .clamp {
+                -webkit-line-clamp: 1;
+                -webkit-box-orient: vertical;
             }
             .textarea-content {
                 width: 100%;
@@ -306,13 +370,30 @@ export default defineComponent({
                 font-weight: 400;
                 color: #4B71EE;
                 cursor: pointer;
+                position: absolute;
+                right: 0;
+                bottom: 0;
+                overflow: hidden;
+                background: #fff;
+                padding: 0 5px;
+                .dot {
+                    font-weight: 400;
+                    color: #5F626F;
+                    margin: 0 15px 0 0;
+                }
+            }
+            .mores {
+                font-size: 14px;
+                font-family: PingFangSC-Regular, PingFang SC;
+                font-weight: 400;
+                color: #4B71EE;
+                cursor: pointer;
             }
             .btn-upload {
                 width: 116px;
                 height: 40px;
                 border-radius: 4px;
-                opacity: 0.5;
-                border: 1px solid #3B62F4;
+                border: 1px solid rgba(75, 113, 238, 0.5);
                 text-align: center;
                 display: flex;
                 align-items: center;
@@ -330,8 +411,15 @@ export default defineComponent({
                     color: #3B62F4;
                     display: inline-block;
                     margin: 0;
+                    min-width: 70px;
                 }
             }
+            .padding-left {
+                padding-left: 5px;
+            }
+        }
+        .align-items {
+            align-items: center;
         }
     }
     .flex-wrap {

@@ -63,6 +63,21 @@ export interface FetchPreparateListPageRes {
     pager?: PagerRes;
 }
 
+export interface FetchTextBookGradeData {
+    token?: string;
+}
+
+export interface TextBookGradeChildList {
+    label: string;
+    value: string;
+    children?: TextBookGradeChildList[];
+}
+export interface TextBookGradeRes {
+    label: string;
+    value: string;
+    children?: TextBookGradeChildList[];
+}
+
 export interface BookList {
     Lable: string;
     Value: string;
