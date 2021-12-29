@@ -1,5 +1,7 @@
 import { ElForm } from "element-plus";
 import { reactive, ref } from "vue";
+import { fetchTextBookGrade } from "./api";
+import { TextBookGradeRes } from "@/types/preparationGroup";
 
 export default () => {
     const statusList = [
@@ -24,10 +26,19 @@ export default () => {
         createEndTime: ""
     });
     const formRef = ref<InstanceType<typeof ElForm>>();
+    const textBookGradeList = ref<TextBookGradeRes[]>([]);
+    const getTextBookGrade = async () => {
+        const res = await fetchTextBookGrade({});
+        if (res.resultCode === 200) {
+            textBookGradeList.value = res.result;
+        }
+    };
 
     return {
         statusList,
         formData,
-        formRef
+        formRef,
+        textBookGradeList,
+        getTextBookGrade
     };
 };

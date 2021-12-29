@@ -1,4 +1,4 @@
-
+import { IOssFileInfo } from "@/types/oss";
 export interface PreparateListBag {
     preTitle: string;
     lessonRange: string;
@@ -61,6 +61,33 @@ export interface FetchPreparateListPageData {
 export interface FetchPreparateListPageRes {
     list?: PreparateListBag[];
     pager?: PagerRes;
+}
+
+export interface FetchTextBookGradeData {
+    token?: string;
+}
+
+export interface TextBookGradeChildList {
+    label: string;
+    value: string;
+    children?: TextBookGradeChildList[];
+}
+export interface TextBookGradeRes {
+    label: string;
+    value: string;
+    children?: TextBookGradeChildList[];
+}
+export interface lessonItemData {
+    title: string;
+    creator: string;
+    createTime: string;
+    num: number;
+    range: string[];
+    grade: string;
+    version: string;
+    subject: string;
+    content: string;
+    fileList: IOssFileInfo[];
 }
 
 export interface BookList {
