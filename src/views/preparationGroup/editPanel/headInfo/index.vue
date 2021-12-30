@@ -2,17 +2,17 @@
     <div class="head-info">
         <div class="head-title">
             <div class="left" v-if="isEdit">
-                <el-input class="input-title" v-model="lessonItem.title" placeholder=""></el-input>
+                <el-input class="input-title" v-model="lessonItem.PreTitle" placeholder=""></el-input>
             </div>
             <div class="left" v-else>
-                <span class="title">{{ lessonItem.title }}</span>
-                <span :class="`status status-2`"><span class="white"></span>正在进行</span>
+                <span class="title">{{ lessonItem.PreTitle }}</span>
+                <span :class="`status status-${lessonItem.Status}`"><span class="white"></span>{{ switchStatus(lessonItem.Status) }}</span>
             </div>
-            <div class="right">
+            <div class="right" v-if="lessonItem.CanEdit">
                 <div class="btn-cancel" @click="actionEditPanel(false)" v-if="isEdit">
                     <span>取消</span>
                 </div>
-                <div class="btn-save" v-if="isEdit">
+                <div class="btn-save" v-if="isEdit" @click="savePreparateDetail">
                     <span>保存</span>
                 </div>
                 <div class="btn-edit" @click="actionEditPanel(true)" v-else>
@@ -24,15 +24,15 @@
         <div class="lesson-info">
             <div class="lesson-cell">
                 <img src="../../../../assets/preparationGroup/editPanel/persion.png" alt="" />
-                <span>创建人：{{ lessonItem.creator }}</span>
+                <span>创建人：{{ lessonItem.CreaterName }}</span>
             </div>
             <div class="lesson-cell">
                 <img src="../../../../assets/preparationGroup/editPanel/time.png" alt="" />
-                <span>创建时间：{{ lessonItem.createTime }}</span>
+                <span>创建时间：{{ lessonItem.CreateTime }}</span>
             </div>
             <div class="lesson-cell">
                 <img src="../../../../assets/preparationGroup/editPanel/personals.png" alt="" />
-                <span>小组人数：{{ lessonItem.num }}人</span>
+                <span>小组人数：{{ lessonItem.TeacherCount }}人</span>
             </div>
         </div>
         <div class="file-info">
@@ -41,22 +41,22 @@
                 <span>备课范围：</span>
                 <div class="content" :class="isEdit ? `padding-left` : ''" v-if="isEdit">
                     <el-cascader
-                        v-model="lessonItem.range"
+                        v-model="lessonItem.LessonRangeIDs"
                         :options="textBookGradeList"
-                        :props="{expandTrigger: 'hover'}"
+                        :props="{expandTrigger: 'click'}"
                         @change="handleChange"
                     ></el-cascader>
                 </div>
-                <span v-else class="content">数学 苏教版 一上</span>
+                <span v-else class="content">{{ lessonItem.LessonRange }}</span>
             </div>
             <div class="file-cell">
                 <img src="../../../../assets/preparationGroup/editPanel/book.png" alt="" />
                 <span>备课内容：</span>
                 <span class="content textarea-content" v-if="isEdit">
-                    <el-input v-model="lessonItem.content" :rows="3" type="textarea" placeholder="" resize="none"/>
+                    <el-input v-model="lessonItem.LessonContent" :rows="3" type="textarea" placeholder="" resize="none"/>
                 </span>
-                <span class="content special-content" :class="isShowMore ? `` : `clamp`" :title="lessonItem.content" v-else>
-                    {{ lessonItem.content }}
+                <span class="content special-content" :class="isShowMore ? `` : `clamp`" :title="lessonItem.LessonContent" v-else>
+                    {{ lessonItem.LessonContent }}
                     <span class="more" v-if="!isShowMore" @click="isShowMore = true">
                         <span class="dot">...</span>阅读全部
                     </span>
@@ -81,8 +81,8 @@
                             </div>
                         </el-upload>
                     </div>
-                    <div class="file-item" v-for="(item, index) in lessonItem.fileList" :key="index">
-                        <File :fileInfo="item" action="upload" @close="deleteFileItem"></File>
+                    <div class="file-item" v-for="(item, index) in lessonItem.Attachments" :key="index">
+                        <File :fileInfo="item" :action="isEdit ? 'upload' : 'download'" @close="deleteFileItem"></File>
                     </div>
                 </span>
             </div>
@@ -93,9 +93,11 @@
 
 <script lang="ts">
 import { defineComponent, ref, reactive, getCurrentInstance, onMounted, watch } from "vue";
-import { fetchPreparateDetail } from "../../api";
+import { useRoute } from "vue-router";
+import { fetchPreparateDetail, editPreparateDetail } from "../../api";
 import useUploadFile from "@/hooks/useUploadFile";
-import { lessonItemData } from "@/types/preparationGroup";
+import moment from "moment";
+import { lessonItemData, IPreOssFileInfo } from "@/types/preparationGroup";
 import { IOssFileInfo } from "@/types/oss";
 import useSubmit from "../useSubmit";
 import File from "../../file/index.vue";
@@ -109,22 +111,111 @@ export default defineComponent({
     setup(props, { emit }) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { proxy } = getCurrentInstance() as any;
+        const route = useRoute();
         console.log(props);
         console.log(emit);
         const isEdit = ref(false);
         const isShowMore = ref(false);
         const lessonItem = reactive<lessonItemData>({
-            title: "",
-            creator: "",
-            createTime: "",
-            num: 0,
-            range: [],
-            grade: "",
-            version: "",
-            subject: "",
-            content: "",
-            fileList: []
+            Attachments: [],
+            CanEdit: false,
+            CreateTime: "",
+            EndTime: "",
+            CreaterID: "",
+            CreaterName: "",
+            PreTitle: "",
+            Status: 0,
+            TeacherCount: 0,
+            LessonRange: "",
+            LessonRangeIDs: [],
+            LessonContent: ""
         });
+
+        const getPreparateDetail = async () => {
+            console.log(route.params.preId);
+            const res = await fetchPreparateDetail({
+                id: route.params.preId as string
+            });
+            if (res.resultCode === 200) {
+                const { Attachments, CanEdit, CreateTime, CreaterName, PreTitle, Status, TeacherCount = 0, LessonRange, LessonContent = "" } = res.result;
+                lessonItem.Attachments = [];
+                if (Attachments && Attachments.length > 0) {
+                    Attachments.map((v: any) => {
+                        lessonItem.Attachments.push({
+                            ...v,
+                            fileName: v.FileName,
+                            fileExtension: v.Extention,
+                            fileType: getFileType(`${v.FileName}.${v.Extention}`)
+                        });
+                    });
+                }
+                lessonItem.CanEdit = CanEdit;
+                lessonItem.CreateTime = moment(CreateTime).format("YYYY-MM-DD HH:mm:ss");
+                lessonItem.CreaterName = CreaterName;
+                lessonItem.PreTitle = PreTitle;
+                lessonItem.Status = Status;
+                lessonItem.TeacherCount = TeacherCount;
+                lessonItem.LessonRange = "39F766472E16384149030DFA4E9863B5,39F7666AAF66065AF9B04D393F156352,39FFD2A8895176995E7C9B9FBA779A52";
+                // lessonItem.LessonRange = LessonRange;
+                lessonItem.LessonRangeIDs = lessonItem.LessonRange.split(",");
+                if (lessonItem.LessonRangeIDs.length > 0) {
+                    let rangeText = "";
+                    const levelOne = textBookGradeList.value.filter((v: any) => {
+                        return v.value === lessonItem.LessonRangeIDs[0];
+                    });
+                    if (levelOne && levelOne[0]) {
+                        rangeText += `${levelOne[0].label} `;
+                        if (levelOne[0].children && levelOne[0].children.length > 0) {
+                            const levelTwo = levelOne[0].children.filter((vv: any) => {
+                                return vv.value === lessonItem.LessonRangeIDs[1];
+                            });
+                            if (levelTwo && levelTwo[0]) {
+                                rangeText += `${levelTwo[0].label} `;
+                                if (levelTwo[0].children && levelTwo[0].children.length > 0) {
+                                    const levelThree = levelTwo[0].children.filter((vvv: any) => {
+                                        return vvv.value === lessonItem.LessonRangeIDs[2];
+                                    });
+                                    if (levelThree && levelThree[0]) {
+                                        rangeText += `${levelThree[0].label}`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    lessonItem.LessonRange = rangeText;
+                }
+                lessonItem.LessonContent = LessonContent;
+                isEdit.value = false;
+                console.log(res);
+            }
+        };
+
+        const savePreparateDetail = async () => {
+            const params = {
+                groupLessonPreparateID: route.params.preId as string,
+                preTitle: lessonItem.PreTitle,
+                lessonRange: lessonItem.LessonRangeIDs.join(","),
+                lessonContent: lessonItem.LessonContent,
+                attachments: [] as any
+            };
+            if (lessonItem.Attachments && lessonItem.Attachments.length > 0) {
+                lessonItem.Attachments.map(v => {
+                    params.attachments.push({
+                        bucket: v.bucket,
+                        objectKey: v.objectKey,
+                        name: v.name,
+                        fileMD5: v.md5,
+                        fileName: v.fileName,
+                        extention: v.fileExtension
+                    });
+                });
+            }
+            const res = await editPreparateDetail(params);
+            if (res.resultCode === 200) {
+                console.log(res);
+                actionEditPanel(false);
+            }
+        };
 
         const actionEditPanel = (val: boolean) => {
             isEdit.value = val;
@@ -134,17 +225,17 @@ export default defineComponent({
         const handleChange = () => {
             console.log(1);
         };
-        const { textBookGradeList, getTextBookGrade } = useSubmit();
+        const { switchStatus, textBookGradeList, getTextBookGrade } = useSubmit();
 
-        const { loadingShow, fileInfo, uploadFile, resetFileInfo } = useUploadFile("GroupLessonFile");
+        const { loadingShow, fileInfo, uploadFile, resetFileInfo, getFileType } = useUploadFile("GroupLessonFile");
         watch(fileInfo, (fileObj: IOssFileInfo) => {
             const file = {
                 ...fileObj
             };
             if (file && file.name.length > 0) {
-                const list = JSON.parse(JSON.stringify(lessonItem.fileList));
+                const list = JSON.parse(JSON.stringify(lessonItem.Attachments));
                 list.push(file);
-                lessonItem.fileList = list;
+                lessonItem.Attachments = list;
                 resetFileInfo();
             }
         }, {
@@ -152,24 +243,29 @@ export default defineComponent({
             deep: true
         });
         const deleteFileItem = (fileObj: IOssFileInfo) => {
-            const index = lessonItem.fileList.findIndex((v) => v.name === fileObj.name);
-            lessonItem.fileList.splice(index, 1);
+            const index = lessonItem.Attachments.findIndex((v) => v.name === fileObj.name);
+            lessonItem.Attachments.splice(index, 1);
         };
         onMounted(() => {
             getTextBookGrade();
+            getPreparateDetail();
         });
         return {
             isEdit,
             isShowMore,
             lessonItem,
             actionEditPanel,
+            switchStatus,
             textBookGradeList,
             loadingShow,
             fileInfo,
             uploadFile,
             resetFileInfo,
+            getFileType,
             handleChange,
-            deleteFileItem
+            deleteFileItem,
+            getPreparateDetail,
+            savePreparateDetail
         };
     },
     components: { File }

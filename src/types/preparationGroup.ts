@@ -60,7 +60,7 @@ export interface FileModelBag {
 }
 
 export interface DeletePreLessonData {
-    Id: string;
+    ID: string;
 }
 
 export interface StatusType {
@@ -85,16 +85,18 @@ export interface TextBookGradeRes {
 }
 
 export interface lessonItemData {
-    title: string;
-    creator: string;
-    createTime: string;
-    num: number;
-    range: string[];
-    grade: string;
-    version: string;
-    subject: string;
-    content: string;
-    fileList: IOssFileInfo[];
+    Attachments: IPreOssFileInfo[];
+    CanEdit: boolean;
+    CreateTime: string;
+    EndTime: string;
+    CreaterID: string;
+    CreaterName: string;
+    PreTitle: string;
+    Status: number;
+    TeacherCount: number;
+    LessonRange: string;
+    LessonRangeIDs: string[],
+    LessonContent: string;
 }
 
 export interface BookList {
@@ -106,12 +108,44 @@ export interface BookList {
 export interface FetchPreparateDetailData {
     id: string;
 }
-export interface BookChapter {
-    Detial: string;
-    ID: string;
-    Name: string;
-    Remark: string;
-    Sort: number;
+export interface IPreOssFileInfo {
+    id?: string,
+    sn?: string,
+    bucket: string,
+    objectKey: string,
+    name: string,
+    md5: string,
+    fileName: string,
+    fileExtension: string,
+    path?: string,
+    filePath: string,
+    extention: string,
+    fileMD5: string,
+    type: string,
+    staffID: string,
+    size?: string,
+    fileType?: string
+}
+export interface FetchPreparateDetailRes {
+    Attachments: IPreOssFileInfo[];
+    CanEdit: boolean;
+    CreateTime: string;
+    EndTime: string;
+    CreaterID: string;
+    CreaterName: string;
+    PreTitle: string;
+    Status: number;
+    TeacherCount: number;
+    LessonRange: string;
+    LessonContent: string;
+}
+
+export interface SavePreparateDetailData {
+    groupLessonPreparateID: string;
+    preTitle: string;
+    lessonRange: string;
+    lessonContent: string;
+    attachments: IPreOssFileInfo[];
 }
 
 export interface AddChapterData {
@@ -135,10 +169,6 @@ export interface Course {
     Type: number;
 }
 
-export interface AddOrUpdateCourseBagTeacherData {
-    name: string;
-    lessonID: string;
-}
 export interface UpdateCourseBagTeacherData {
     name: string;
     id: string;
