@@ -57,12 +57,14 @@
                 </span>
                 <span class="content special-content" :class="isShowMore ? `` : `clamp`" :title="lessonItem.LessonContent" v-else>
                     {{ lessonItem.LessonContent }}
-                    <span class="more" v-if="!isShowMore" @click="isShowMore = true">
-                        <span class="dot">...</span>阅读全部
-                    </span>
-                    <span class="mores" v-else @click="isShowMore = false">
-                        收起全部
-                    </span>
+                    <div v-if="isFull">
+                        <span class="more" v-if="!isShowMore" @click="isShowMore = true">
+                            <span class="dot">...</span>阅读全部
+                        </span>
+                        <span class="mores" v-else @click="isShowMore = false">
+                            收起全部
+                        </span>
+                    </div>
                 </span>
             </div>
             <div class="file-cell">
@@ -92,7 +94,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, reactive, getCurrentInstance, onMounted, watch } from "vue";
+import { defineComponent, ref, reactive, getCurrentInstance, onMounted, watch, nextTick } from "vue";
 import { useRoute } from "vue-router";
 import { fetchPreparateDetail, editPreparateDetail } from "../../api";
 import useUploadFile from "@/hooks/useUploadFile";
@@ -116,6 +118,7 @@ export default defineComponent({
         console.log(emit);
         const isEdit = ref(false);
         const isShowMore = ref(false);
+        const isFull = ref(false);
         const lessonItem = reactive<lessonItemData>({
             Attachments: [],
             CanEdit: false,
@@ -186,6 +189,13 @@ export default defineComponent({
                 }
                 lessonItem.LessonContent = LessonContent;
                 isEdit.value = false;
+                nextTick(() => {
+                    const specialContent = document.querySelectorAll(".special-content");
+                    const windowContent = document.documentElement.clientWidth;
+                    if (specialContent && specialContent[0] && specialContent[0].clientWidth) {
+                        isFull.value = (windowContent - 200) < specialContent[0].clientWidth;
+                    }
+                });
                 console.log(res);
             }
         };
@@ -194,7 +204,8 @@ export default defineComponent({
             const params = {
                 groupLessonPreparateID: route.params.preId as string,
                 preTitle: lessonItem.PreTitle,
-                lessonRange: lessonItem.LessonRangeIDs.join(","),
+                lessonRange: "",
+                // lessonRange: lessonItem.LessonRangeIDs.join(","),
                 lessonContent: lessonItem.LessonContent,
                 attachments: [] as any
             };
@@ -253,6 +264,7 @@ export default defineComponent({
         return {
             isEdit,
             isShowMore,
+            isFull,
             lessonItem,
             actionEditPanel,
             switchStatus,
@@ -450,6 +462,8 @@ export default defineComponent({
                 position: relative;
             }
             .clamp {
+                line-clamp: 1;
+                box-orient: vertical;
                 -webkit-line-clamp: 1;
                 -webkit-box-orient: vertical;
             }
