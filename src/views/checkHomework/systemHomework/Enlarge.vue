@@ -7,15 +7,15 @@
     >
         <div class="look-images">
             <div class="subject-list">
-                <slot></slot>
+                <slot :detail="detail" :detailData="detailData" :answer="answer" :question="question"></slot>
                 <div class="subject-detail">
                     <div class="head-photo flex-between-center">
                         <Avatar
-                            :file="headPortrait"
+                            :file="detail.Student?.HeadPortrait"
                             :size="78"
                         ></Avatar>
                         <div class="info">
-                            <p class="name">{{ childrenName }}</p>
+                            <p class="name">{{ detail.Student ? detail.Student.Name : '' }}</p>
                             <el-tooltip placement="bottom">
                                 <template #content>
                                     <div>{{ className }}</div>
@@ -28,16 +28,25 @@
                     <div class="btns">
                         <div
                             class="btn-class el-icon-check"
-                            :class="{success: Detail.Result == QuestionResultTypeEnum.RIGHT}"
-                            @click="_successHandle"
+                            :class="{success: detail?.Detail?.Result == QuestionResultTypeEnum.RIGHT}"
+                            @click="successHandle"
                         ></div>
                         <div
                             class="btn-class el-icon-close"
-                            @click="_errorHandle"
-                            :class="{error: Detail.Result == QuestionResultTypeEnum.ERROR}"
+                            @click="errorHandle"
+                            :class="{error: detail?.Detail?.Result == QuestionResultTypeEnum.ERROR}"
                         >
                             <i></i>
                         </div>
+                    </div>
+                    <div class="page">
+                        <span class="btn" :class="{display: isDisplayPrev}" @click="prevPage">
+                            <i class="el-icon-arrow-left"></i>
+                        </span>
+                        {{currentIndex+1}}/{{detailList.length}}
+                        <span class="btn" :class="{display: isDisplayNext}" @click="nextPage">
+                            <i class="el-icon-arrow-right"></i>
+                        </span>
                     </div>
                 </div>
             </div>
@@ -46,52 +55,82 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from "vue";
+import { computed, defineComponent, PropType, ref } from "vue";
 import { QuestionResultTypeEnum } from "../enum";
 import Avatar from "../../../components/avatar/index.vue";
+import { successHandle, errorHandle } from "../logic";
+import { MissionDetail, QuestionDetail } from "@/types/checkHomework";
 export default defineComponent({
     props: {
-        childrenName: {
-            type: String,
-            default: "***"
+        MissionList: {
+            type: Array as PropType<MissionDetail[]>,
+            default: () => ([])
         },
-        className: {
-            type: String,
-            default: "***"
-        },
-        Detail: {
-            type: Object,
-            default: () => ({})
-        },
-        errorHandle: {
-            type: Function,
-            required: true
-        },
-        headPortrait: {
-            type: Object,
-            default: () => ({})
-        },
-        successHandle: {
-            type: Function,
-            required: true
+        detailList: {
+            type: Array as PropType<QuestionDetail[]>,
+            default: () => ([])
         }
     },
     setup(props) {
         const visible = ref(false);
+        const currentIndex = ref(0);
+        const detail = computed(() => props.detailList[currentIndex.value]);
+        const className = computed(() => props.MissionList[currentIndex.value].StudentClassName);
+        const detailData = computed(() =>
+            detail.value.Study?.StudyFiles
+        );
+        const question = computed(
+            () =>
+                detail.value?.Question?.Answers[0].AnswerFiles.find(
+                    (v) => v.Type === 3
+                )?.File
+        );
+        const answer = computed(
+            () =>
+                detail.value?.Question?.Answers[0].AnswerFiles.find(
+                    (v) => v.Type === 3
+                )?.File
+        );
+
+        const isDisplayPrev = computed(() => currentIndex.value === 0);
+        const isDisplayNext = computed(() => currentIndex.value === props.detailList.length - 1);
+
         const _errorHandle = () => {
-            if (props.Detail.Result === QuestionResultTypeEnum.ERROR) { return; }
+            if (detail.value?.Detail?.Result === QuestionResultTypeEnum.ERROR) { return; }
             visible.value = false;
-            props.errorHandle(props.Detail.ID);
+            errorHandle(detail.value?.Detail?.ID, detail.value?.Detail?.Result);
         };
+
         const _successHandle = () => {
-            if (props.Detail.Result === QuestionResultTypeEnum.RIGHT) { return; }
+            if (detail.value?.Detail?.Result === QuestionResultTypeEnum.RIGHT) { return; }
             visible.value = false;
-            props.successHandle(props.Detail.ID);
+            successHandle(detail.value?.Detail?.ID, detail.value?.Detail?.Result);
         };
+
+        const nextPage = () => {
+            if (isDisplayNext.value) return;
+            currentIndex.value = currentIndex.value + 1;
+        };
+
+        const prevPage = () => {
+            if (isDisplayPrev.value) return;
+            currentIndex.value = currentIndex.value - 1;
+        };
+
         return {
-            _errorHandle,
-            _successHandle,
+            errorHandle: _errorHandle,
+            successHandle: _successHandle,
+            detailData,
+            question,
+            answer,
             visible,
+            detail,
+            currentIndex,
+            className,
+            nextPage,
+            prevPage,
+            isDisplayPrev,
+            isDisplayNext,
             QuestionResultTypeEnum
         };
     },
@@ -145,9 +184,12 @@ export default defineComponent({
             }
         }
         .subject-detail {
-            padding: 10px 20px 78px 10px;
+            padding: 10px 20px 0 10px;
             background-color: #fff;
             position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             .head-photo {
                 margin-top: 10px;
                 float: left;
@@ -187,7 +229,6 @@ export default defineComponent({
             .btns {
                 position: absolute;
                 left: 50%;
-                top: 50%;
                 transform: translate(-50%);
             }
             .collection-btn {
@@ -205,6 +246,30 @@ export default defineComponent({
                 margin-left: 10px;
                 color: #a7aab4;
                 font-size: 14px;
+                display: flex;
+                align-items: center;
+                .btn {
+                    width: 28px;
+                    height: 28px;
+                    background: #fff;
+                    border: 1px solid #E0E2E7;
+                    color: #19203D;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    cursor: pointer;
+                    &:first-child {
+                        margin-right: 16px;
+                    }
+                    &:last-child {
+                        margin-left: 16px;
+                    }
+                    &.display {
+                        background: #D4D6D9;
+                        border: none;
+                        color: #fff;
+                    }
+                }
                 i {
                     cursor: pointer;
                 }

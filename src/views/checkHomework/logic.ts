@@ -1,3 +1,6 @@
+import { changeResult } from "./api";
+import { QuestionResultTypeEnum } from "./enum";
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 let circleR = 20;
 interface Point {
@@ -84,3 +87,25 @@ export function getQuestionType (type: number) {
     };
     return typeEnum[type] || "";
 }
+
+export const successHandle = async (id = "", result = -1) => {
+    if (result === QuestionResultTypeEnum.RIGHT) return;
+    const res = await changeResult({
+        missionDetailID: id,
+        result: QuestionResultTypeEnum.RIGHT
+    });
+    if (res.resultCode === 200) {
+        document.dispatchEvent(new Event("updateSystemHomework"));
+    }
+};
+
+export const errorHandle = async (id = "", result = -1) => {
+    if (result === QuestionResultTypeEnum.ERROR) return;
+    const res = await changeResult({
+        missionDetailID: id,
+        result: QuestionResultTypeEnum.ERROR
+    });
+    if (res.resultCode === 200) {
+        document.dispatchEvent(new Event("updateSystemHomework"));
+    }
+};

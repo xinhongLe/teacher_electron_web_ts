@@ -5,7 +5,7 @@
                 <img
                     src="@/assets/images/homeworkNew/icon_zuida.png"
                     alt=""
-                    @click="enlargeRef.visible = true"
+                    @click="openEnlarge(index)"
                 />
             </div>
             <div class="answer" :class="{success: result === QuestionResultTypeEnum.RIGHT, error: result === QuestionResultTypeEnum.ERROR}">
@@ -58,7 +58,7 @@
                 <div class="answer-answer">
                     <div
                         class="answer-btn"
-                        @click="successHandle(detail.Detail?.ID)"
+                        @click="successHandle(detail.Detail?.ID, result)"
                         :class="{success: result == QuestionResultTypeEnum.RIGHT}"
                     >
                         <img src="@/assets/images/homeworkNew/icon_duigou_white.png" v-if="result == QuestionResultTypeEnum.RIGHT"/>
@@ -71,7 +71,7 @@
                     </div>
                     <div
                         class="answer-btn"
-                        @click="errorHandle(detail.Detail?.ID)"
+                        @click="errorHandle(detail.Detail?.ID, result)"
                         :class="{error: result == QuestionResultTypeEnum.ERROR}"
                     >
                         <img src="@/assets/images/homeworkNew/icon_cuo_white.png" v-if="result == QuestionResultTypeEnum.ERROR"/>
@@ -84,70 +84,36 @@
                 </div>
             </div>
         </div>
-        <Enlarge
-            :childrenName="detail.Student ? detail.Student.Name : ''"
-            :className="className"
-            :Detail="detail.Detail"
-            ref="enlargeRef"
-            :errorHandle="errorHandle"
-            :successHandle="successHandle"
-            :headPortrait="detail.Student?.HeadPortrait"
-        >
-            <template v-if="detail.Detail">
-                <TeacherAnswerImg
-                    v-if="detail.Detail.HomeworkPaperType === 2"
-                    :data="detail"
-                />
-                <template v-else-if="detail.Detail.HomeworkPaperType === 0">
-                    <QuestionChoiceList
-                        v-if="detail.Question?.Type < 5"
-                        :choiceValue="detail.Study?.ChoiceValue"
-                        :questionType="detail?.Question?.Type"
-                        :choiceCount="detail?.Question?.ChoiceCount"
-                    />
-                    <Answer
-                        :data="detailData"
-                        :questionType="detail?.Question?.Type"
-                        :question="question"
-                        :answer="answer"
-                        :isOrigin="true"
-                        :isQuestion="true"
-                        :writeList="detail?.Question?.QuestionBlanks"
-                        :choiceValue="detail.Question?.ChoiceValue"
-                        :result="result"
-                    ></Answer>
-                </template>
-            </template>
-        </Enlarge>
     </div>
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, ref, watchEffect } from "vue";
-import { changeResult, fetchDetailByMissionStudyID } from "../api";
+import { computed, defineComponent, PropType, ref, toRefs } from "vue";
 import Avatar from "@/components/avatar/index.vue";
 import { QuestionDetail } from "@/types/checkHomework";
 import Answer from "./Answer.vue";
-import Enlarge from "./Enlarge.vue";
 import TeacherAnswer from "./TeacherAnswer.vue";
-import TeacherAnswerImg from "./TeacherAnswerImg.vue";
 import SpeechAudio from "./SpeechAudio.vue";
 import AnswerChoiceValue from "./AnswerChoiceValue.vue";
-import QuestionChoiceList from "./QuestionChoiceList.vue";
 import { QuestionResultTypeEnum } from "../enum";
+import { successHandle, errorHandle } from "../logic";
 export default defineComponent({
     props: {
         className: {
             type: String,
             default: ""
         },
+        detail: {
+            type: Object as PropType<QuestionDetail>,
+            default: null
+        },
         index: {
             type: Number,
             default: 0
         },
-        misssionStudyID: {
-            type: String,
-            default: ""
+        openEnlarge: {
+            type: Function,
+            required: true
         },
         result: {
             type: Number,
@@ -156,7 +122,7 @@ export default defineComponent({
     },
     setup(props) {
         const enlargeRef = ref();
-        const detail = ref<QuestionDetail>({});
+        const { detail } = toRefs(props);
         const isShow = computed(
             () =>
                 (detail.value?.Detail?.HomeworkPaperType === 0 &&
@@ -184,41 +150,8 @@ export default defineComponent({
                 )?.File
         );
 
-        const getData = async () => {
-            const res = await fetchDetailByMissionStudyID({
-                MissionStudyID: props.misssionStudyID
-            });
-            if (res.resultCode === 200) {
-                detail.value = res.result;
-            }
-        };
-
-        const successHandle = async (id = "") => {
-            if (props.result === QuestionResultTypeEnum.RIGHT) return;
-            const res = await changeResult({
-                missionDetailID: id,
-                result: QuestionResultTypeEnum.RIGHT
-            });
-            if (res.resultCode === 200) {
-                document.dispatchEvent(new Event("updateSystemHomework"));
-            }
-        };
-
-        const errorHandle = async (id = "") => {
-            if (props.result === QuestionResultTypeEnum.ERROR) return;
-            const res = await changeResult({
-                missionDetailID: id,
-                result: QuestionResultTypeEnum.ERROR
-            });
-            if (res.resultCode === 200) {
-                document.dispatchEvent(new Event("updateSystemHomework"));
-            }
-        };
-
-        watchEffect(getData);
         return {
             enlargeRef,
-            detail,
             successHandle,
             isShow,
             question,
@@ -231,12 +164,9 @@ export default defineComponent({
     components: {
         Avatar,
         Answer,
-        Enlarge,
         TeacherAnswer,
-        TeacherAnswerImg,
         SpeechAudio,
-        AnswerChoiceValue,
-        QuestionChoiceList
+        AnswerChoiceValue
     }
 });
 </script>

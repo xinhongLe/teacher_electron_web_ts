@@ -28,14 +28,7 @@
             </p>
           </template>
           <div class="access-system-student" v-if="index != 3">
-            <div v-for="(value, index1) in item" :key="value.MisssionStudyID" class="access-system-student-item">
-              <Review
-                :result="value.Result"
-                :index="getIndex(index, index1)"
-                :className="value.StudentClassName"
-                :misssionStudyID="value.MisssionStudyID"
-              ></Review>
-            </div>
+            <ReviewList :item="item"/>
           </div>
           <div v-else class="general-reference-student">
             <NulliparousStudents
@@ -60,7 +53,7 @@ import { computed, defineComponent, PropType, ref, watchEffect } from "vue";
 import { QuestionResultTypeEnum } from "../enum";
 import { getQuestionType } from "../logic";
 import NulliparousStudents from "../NulliparousStudents.vue";
-import Review from "./Review.vue";
+import ReviewList from "./ReviewList.vue";
 export default defineComponent({
     props: {
         MissionDetails: {
@@ -126,7 +119,7 @@ export default defineComponent({
             activeNames
         };
     },
-    components: { NulliparousStudents, Review }
+    components: { NulliparousStudents, ReviewList }
 });
 </script>
 
@@ -181,9 +174,7 @@ export default defineComponent({
       display: flex;
       justify-content: flex-start;
       flex-wrap: wrap;
-      .access-system-student-item {
-          margin-right: 20px;
-      }
+
       i {
         width: 294px;
       }
@@ -202,9 +193,6 @@ export default defineComponent({
       display: flex;
       justify-content: flex-start;
       flex-wrap: wrap;
-      .access-system-student-item {
-          margin-right: 20px;
-      }
       i {
         width: 294px;
       }
@@ -222,9 +210,6 @@ export default defineComponent({
       padding: 0 24px 16px 24px;
       display: flex;
       justify-content: flex-start;
-      .access-system-student-item {
-          margin-right: 20px;
-      }
       flex-wrap: wrap;
       i {
         width: 294px;
@@ -244,9 +229,6 @@ export default defineComponent({
       display: flex;
       justify-content: flex-start;
       flex-wrap: wrap;
-      .access-system-student-item {
-          margin-right: 20px;
-      }
       i {
         width: 294px;
       }
@@ -264,9 +246,6 @@ export default defineComponent({
       padding: 0 24px 16px 24px;
       display: flex;
       justify-content: flex-start;
-      .access-system-student-item {
-          margin-right: 20px;
-      }
       flex-wrap: wrap;
       i {
         width: 294px;
@@ -301,9 +280,6 @@ export default defineComponent({
       padding: 0 24px 16px 24px;
       display: flex;
       justify-content: flex-start;
-      .access-system-student-item {
-          margin-right: 20px;
-      }
       flex-wrap: wrap;
       i {
         width: 294px;
