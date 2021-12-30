@@ -591,11 +591,17 @@ const dealVideo = async (oldVideo: IOldVideo) => {
     };
 
     if (oldVideo.Type === 10 || oldVideo.Type === 13) {
-        await getVideoQuoteInfo({ FileIDs: [oldVideo.FileID] }).then(res => {
-            if (res.resultCode === 200) {
-                oldVideo.OssFileName = res.result[0].File.FileName + "." + res.result[0].File.Extention;
-            }
-        });
+        if (oldVideo.FileID) {
+            await getVideoQuoteInfo({ FileIDs: [oldVideo.FileID] }).then(res => {
+                if (res.resultCode === 200 && res.result.length > 0) {
+                    oldVideo.OssFileName = res.result[0].File.FileName + "." + res.result[0].File.Extention;
+                } else {
+                    oldVideo.OssFileName = "";
+                }
+            });
+        } else {
+            oldVideo.OssFileName = "";
+        }
     }
 
     element.id = oldVideo.UUID;
