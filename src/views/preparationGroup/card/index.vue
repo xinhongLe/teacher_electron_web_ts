@@ -4,33 +4,33 @@
             <img class="cover" src="../../../assets/preparationGroup/pic_source_default.png" alt="备课图片">
             <div class="card-box">
                 <p class="card-title">
-                    <span class="title">{{ item.preTitle }}</span>
-                    <span :class="`status status-${item.status}`">{{ switchStatus(item.status) }}</span>
+                    <span class="title">{{ item.PreTitle }}</span>
+                    <span :class="`status status-${item.Status}`">{{ switchStatus(item.Status) }}</span>
                 </p>
                 <div class="card-detail">
                     <div>
                         <img src="../../../assets/preparationGroup/icon_ren.png" alt="创建人">
-                        <span>创建人：{{ item.createrName }}</span>
+                        <span>创建人：{{ item.CreaterName }}</span>
                     </div>
                     <div>
                         <img src="../../../assets/preparationGroup/icon_renshu.png" alt="创建人">
-                        <span>小组人数：{{ item.teacherCount }}人</span>
+                        <span>小组人数：{{ item.TeacherCount }}人</span>
                     </div>
                 </div>
                 <div class="card-detail">
                     <div>
                         <img src="../../../assets/preparationGroup/icon_shijian.png" alt="创建人">
-                        <span>创建时间：{{ item.createTime }}</span>
+                        <span>创建时间：{{ moment(item.CreateTime).format("YYYY-MM-DD HH:mm:ss") }}</span>
                     </div>
                 </div>
             </div>
         </div>
         <div class="right">
             <div>
-                <div class="delete-btn">
+                <div class="delete-btn" @click="showDeleteDialog(item)">
                     <img src="../../../assets/preparationGroup/icon_delete.png" alt="删除">
                 </div>
-                <el-button type="primary" plain @click="editPanel">进入研讨</el-button>
+                <el-button type="primary" plain @click="turnToEditPanel(item)">进入研讨</el-button>
             </div>
             <p>您可以<span class="blue" @click="generatelink">生成邀请链接</span>， 发送至小组成员</p>
         </div>
@@ -38,14 +38,22 @@
         <generate-link
         ref="generateLinkRef"
         ></generate-link>
+
     </div>
+    <DeleteConfirm ref="deleteDialog" msg="您确定删除这条集体备课记录么？" :deleteResource="deleteResource"></DeleteConfirm>
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, ref, toRefs } from "vue";
+import { defineComponent, reactive, ref, toRefs, onMounted } from "vue";
+import { PreparateListBag } from "@/types/preparationGroup";
+import { deletePreLesson } from "../api";
 import { useRouter } from "vue-router";
+import moment from "moment";
+import { ElMessage } from "element-plus";
 import useSubmit from "../search/useSubmit";
+import useEdit from "../editPanel/useSubmit";
 import generateLink from "../generate-link/index.vue";
+import DeleteConfirm from "../dialog/index.vue";
 export default defineComponent({
     name: "card",
     props: {
@@ -53,36 +61,68 @@ export default defineComponent({
             type: Array
         }
     },
-    components: { generateLink },
+    components: { generateLink, DeleteConfirm },
     setup(props, { emit }) {
         const router = useRouter();
         console.log(props);
         console.log(emit);
+        const deleteDialog = ref();
         const state = reactive({
             loading: false
         });
+        const currentItem = ref<PreparateListBag>({
+            Id: "",
+            PreTitle: "",
+            Status: 0,
+            CreaterName: "",
+            CreaterID: "",
+            CreateTime: "",
+            CreateEndTime: "",
+            TeacherCount: 0
+        });
         const generateLinkRef = ref();
-        const switchStatus = (status: number) => {
-            return statusList.filter((v) => {
-                return v.value === status;
-            })[0].label;
-        };
         // 生成邀请链接
         const generatelink = () => {
             generateLinkRef.value.dialogVisible = true;
         };
         // 进入研讨
-        const editPanel = () => {
-            router.push("/preparation-edit");
+        const turnToEditPanel = (item: PreparateListBag) => {
+            router.push(`/preparation-edit/${item.Id}`);
         };
-        const { statusList } = useSubmit();
+        // 显示删除确认框
+        const showDeleteDialog = (item: PreparateListBag) => {
+            currentItem.value = item;
+            deleteDialog.value.openDialog();
+        };
+        // 删除研讨
+        const deleteResource = async () => {
+            const res = await deletePreLesson({
+                ID: currentItem.value.Id
+            });
+            if (res.resultCode === 200) {
+                ElMessage.success("删除成功");
+                const cardParams = JSON.parse(sessionStorage.getItem("cardParams") || "");
+                emit("requestParams", cardParams);
+            }
+        };
+        const { statusList, switchStatus } = useSubmit();
+        const { getTextBookGrade } = useEdit();
+        onMounted(() => {
+            getTextBookGrade();
+        });
         return {
             ...toRefs(state),
             statusList,
             generateLinkRef,
             switchStatus,
             generatelink,
-            editPanel
+            turnToEditPanel,
+            moment,
+            currentItem,
+            showDeleteDialog,
+            deleteDialog,
+            deleteResource,
+            getTextBookGrade
         };
     }
 });

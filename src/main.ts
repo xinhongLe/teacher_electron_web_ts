@@ -16,8 +16,12 @@ import "./types";
 import WinCard from "wincard";
 import "wincard/dist/wincard.css";
 
+import mitt from "mitt";
+
 import TrackService from "@/utils/common";
 import { cacheFile } from "./utils/file";
 TrackService.useTrackPoint();
 
-createApp(App).use(WinCard, process.env.VUE_APP_AI_XUE_SHI_API, "https://wincard.lyx-edu.com/swf2canvas.html", cacheFile).use(ElementPlus, { locale: zhCn }).use(store, key).use(router).mount("#app");
+const app = createApp(App);
+app.use(WinCard, process.env.VUE_APP_AI_XUE_SHI_API, "https://wincard.lyx-edu.com/swf2canvas.html", cacheFile).use(ElementPlus, { locale: zhCn }).use(store, key).use(router).mount("#app");
+app.config.globalProperties.mittBus = mitt();

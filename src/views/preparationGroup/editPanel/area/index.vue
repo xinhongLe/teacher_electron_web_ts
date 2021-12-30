@@ -42,10 +42,6 @@
                                 <img src="../../../../assets/preparationGroup/editPanel/down.png" alt="">
                                 <span>下载</span>
                             </div>
-                            <div class="tool-item">
-                                <img src="../../../../assets/preparationGroup/editPanel/up.png" alt="">
-                                <span>再次上传</span>
-                            </div>
                         </div>
                     </div>
                     <img class="arrow" src="../../../../assets/preparationGroup/editPanel/right.png" alt="">
@@ -89,7 +85,7 @@
                             <p class="title">附件</p>
                             <p class="files">
                                 <span class="files-list">
-                                    <div class="file-item" v-for="(item, index) in fileList" :key="index">
+                                    <div class="file-item" v-for="(item, index) in contentFiles" :key="index">
                                         <File :fileInfo="item"></File>
                                     </div>
                                 </span>
@@ -157,6 +153,7 @@
 
 <script lang="ts">
 import { defineComponent, reactive, toRefs } from "vue";
+import { IOssFileInfo } from "@/types/oss";
 import File from "../../file/index.vue";
 import FileSmall from "../../file/small.vue";
 export default defineComponent({
@@ -172,34 +169,6 @@ export default defineComponent({
         const state = reactive({
             memoPanelStatus: false,
             textareaWord: "",
-            fileList: [
-                {
-                    fileType: "word",
-                    fileName: "认识长方形",
-                    extend: "doc",
-                    size: "310.79K"
-                },
-                {
-                    fileType: "pdf",
-                    fileName: "认识长方形",
-                    extend: "pdf",
-                    size: "7.42MB"
-                }
-            ],
-            wordFiles: [
-                {
-                    fileType: "word",
-                    fileName: "认识长方形",
-                    extend: "doc",
-                    size: "310.79K"
-                },
-                {
-                    fileType: "pdf",
-                    fileName: "认识长方形",
-                    extend: "pdf",
-                    size: "7.42MB"
-                }
-            ],
             memoList: [
                 {
                     teacher: "李老师",
@@ -209,13 +178,13 @@ export default defineComponent({
                         {
                             fileType: "word",
                             fileName: "认识长方形",
-                            extend: "doc",
+                            fileExtension: "doc",
                             size: "310.79K"
                         },
                         {
                             fileType: "pdf",
                             fileName: "认识长方形",
-                            extend: "pdf",
+                            fileExtension: "pdf",
                             size: "7.42MB"
                         }
                     ]
@@ -234,19 +203,46 @@ export default defineComponent({
                         {
                             fileType: "word",
                             fileName: "认识长方形",
-                            extend: "doc",
+                            fileExtension: "doc",
                             size: "310.79K"
                         },
                         {
                             fileType: "pdf",
                             fileName: "认识长方形",
-                            extend: "pdf",
+                            fileExtension: "pdf",
                             size: "7.42MB"
                         }
                     ]
                 }
             ]
         });
+
+        const contentFiles = reactive<IOssFileInfo[]>([
+            {
+                bucket: "",
+                objectKey: "",
+                name: "",
+                md5: "",
+                fileName: "摘要长方形",
+                fileExtension: "doc",
+                path: "",
+                size: "310.79 KB",
+                fileType: "word"
+            }
+        ]);
+        const wordFiles = reactive<IOssFileInfo[]>([
+            {
+                bucket: "",
+                objectKey: "",
+                name: "",
+                md5: "",
+                fileName: "评论长方形评论长方形评论长方形",
+                fileExtension: "doc",
+                path: "",
+                size: "310.79 KB",
+                fileType: "word"
+            }
+        ]);
 
         const submit = () => {
             console.log(1);
@@ -256,6 +252,8 @@ export default defineComponent({
             console.log(1);
         };
         return {
+            contentFiles,
+            wordFiles,
             ...toRefs(state),
             submit,
             add
