@@ -179,7 +179,6 @@ function createSubjectToolWindow(url, name) {
         win.setTitle(`爱学仕学科工具《${name}》`);
     });
 
-    win.loadURL(url);
     win.maximize();
 }
 
