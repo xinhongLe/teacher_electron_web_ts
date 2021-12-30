@@ -18,6 +18,11 @@ export default () => {
             value: 2
         }
     ];
+    const switchStatus = (status: number) => {
+        return statusList.filter((v) => {
+            return v.value === status;
+        })[0].label;
+    };
     const formData = reactive({
         preTitle: "",
         status: 0,
@@ -28,14 +33,21 @@ export default () => {
     const formRef = ref<InstanceType<typeof ElForm>>();
     const textBookGradeList = ref<TextBookGradeRes[]>([]);
     const getTextBookGrade = async () => {
-        const res = await fetchTextBookGrade({});
-        if (res.resultCode === 200) {
-            textBookGradeList.value = res.result;
+        const sessionTextBookGradeList = sessionStorage.getItem("sessionTextBookGradeList");
+        if (!sessionTextBookGradeList) {
+            const res = await fetchTextBookGrade({});
+            if (res.resultCode === 200) {
+                textBookGradeList.value = res.result;
+                sessionStorage.setItem("sessionTextBookGradeList", JSON.stringify(textBookGradeList.value));
+            }
+        } else {
+            textBookGradeList.value = JSON.parse(sessionTextBookGradeList);
         }
     };
 
     return {
         statusList,
+        switchStatus,
         formData,
         formRef,
         textBookGradeList,

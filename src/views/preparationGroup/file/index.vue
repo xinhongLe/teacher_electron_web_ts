@@ -11,7 +11,7 @@
         <img class="file-type" v-else-if="fileInfo.fileType === 'zip'" src="../../../assets/preparationGroup/editPanel/icon_zip.png" />
         <img class="file-type" v-else src="../../../assets/preparationGroup/editPanel/icon_other.png" />
         <div class="file-info">
-            <p class="file-name"><span class="ellipsis">{{ fileInfo.fileName }}</span><span style="flex-shrink: 0;">{{`.${fileInfo.fileExtension || fileInfo.extention}`}}</span></p>
+            <p class="file-name"><span class="ellipsis">{{ fileInfo.fileName || fileInfo.FileName }}</span><span style="flex-shrink: 0;">{{`.${fileInfo.fileExtension || fileInfo.extention || fileInfo.Extention}`}}</span></p>
             <div class="loading-box" v-if="action === 'upload' && percent < 100">
               <div
                 class="loading-default"
@@ -19,7 +19,7 @@
                 :style="{ width: percent + '%' }"
               ></div>
             </div>
-            <p class="file-size" v-else>{{`${fileInfo.size}`}}</p>
+            <p class="file-size" v-else>{{`${fileInfo.size || '0 KB'}`}}</p>
         </div>
         <img v-if="action === 'download'" class="file-download" src="../../../assets/preparationGroup/editPanel/download.png" @click="download" />
         <img v-else-if="action === 'upload'" class="file-download" src="../../../assets/preparationGroup/editPanel/close.png" @click="close" />
@@ -46,7 +46,7 @@ export default defineComponent({
         console.log(props);
         console.log(emit);
         const timer = ref();
-        const percent = ref(0);
+        const percent = ref(100);
 
         const download = async () => {
             console.log(props.fileInfo);
@@ -70,6 +70,7 @@ export default defineComponent({
             clearInterval(timer.value);
             timer.value = null;
             if (props.action === "upload") {
+                percent.value = 0;
                 timer.value = setInterval(() => {
                     let step = 50;
                     switch (item.size.split(" ")[1]) {

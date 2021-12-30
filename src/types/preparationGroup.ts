@@ -1,17 +1,4 @@
 import { IOssFileInfo } from "@/types/oss";
-export interface FetchPreparateListPageData {
-    preTitle: string;
-    status: number;
-    createTime?: string;
-    createStartTime: string;
-    createEndTime: string;
-    pager: PagerReq;
-}
-
-export interface FetchPreparateListPageRes {
-    list?: PreparateListBag[];
-    pager?: PagerRes;
-}
 
 export interface PagerReq {
     pageNumber: number;
@@ -33,19 +20,6 @@ export interface PagerRes {
     Total: number;
 }
 
-export interface PreparateListBag {
-    Id: string;
-    PreTitle: string;
-    Status: number;
-    CreaterName: string;
-    CreaterID: string;
-    CreateTime: string;
-    CreateEndTime: string;
-    TeacherCount: number;
-    LessonRange?: string;
-    FileModel?: FileModelBag;
-}
-
 export interface FileModelBag {
     id: string;
     name: string;
@@ -59,8 +33,81 @@ export interface FileModelBag {
     staffID: string;
 }
 
-export interface DeletePreLessonData {
+export interface IPreOssFileInfo {
+    id?: string,
+    sn?: string,
+    bucket: string,
+    objectKey: string,
+    name: string,
+    md5: string,
+    fileName: string,
+    fileExtension: string,
+    path?: string,
+    filePath: string,
+    extention: string,
+    fileMD5: string,
+    type: string,
+    staffID: string,
+    size?: string,
+    fileType?: string
+}
+
+export interface PreparateListBag {
     Id: string;
+    PreTitle: string;
+    Status: number;
+    CreaterName: string;
+    CreaterID: string;
+    CreateTime: string;
+    CreateEndTime: string;
+    TeacherCount: number;
+    LessonRange?: string;
+    FileModel?: FileModelBag;
+}
+export interface FetchPreparateListPageData {
+    preTitle: string;
+    status: number;
+    createTime?: string;
+    createStartTime: string;
+    createEndTime: string;
+    pager: PagerReq;
+}
+
+export interface DiscussioncontentList {
+    Attachments: Fileginseng[];
+    Content: string;
+    CreateTime: string;
+    CreaterID: string;
+    CreaterName: string;
+    PreparateID: string;
+    DiscussionContentID:string;
+    ResourceSource: Fileginseng;
+    ResourceResult: Fileginseng;
+    ResourceType: number;
+    Title: string;
+}
+
+export interface Fileginseng {
+    Bucket: string;
+    Extention: string;
+    FileMD5: string;
+    FileName: string;
+    FilePath: string;
+    ID: string;
+    Name: string;
+    SN: number;
+    Type: number;
+}
+export interface FetchTeacherLessonAndBagByChapterData {
+    chapterID: string;
+}
+export interface FetchPreparateListPageRes {
+    list?: PreparateListBag[];
+    pager?: PagerRes;
+}
+
+export interface DeletePreLessonData {
+    ID: string;
 }
 
 export interface StatusType {
@@ -85,16 +132,18 @@ export interface TextBookGradeRes {
 }
 
 export interface lessonItemData {
-    title: string;
-    creator: string;
-    createTime: string;
-    num: number;
-    range: string[];
-    grade: string;
-    version: string;
-    subject: string;
-    content: string;
-    fileList: IOssFileInfo[];
+    Attachments: IPreOssFileInfo[];
+    CanEdit: boolean;
+    CreateTime: string;
+    EndTime: string;
+    CreaterID: string;
+    CreaterName: string;
+    PreTitle: string;
+    Status: number;
+    TeacherCount: number;
+    LessonRange: string;
+    LessonRangeIDs: string[],
+    LessonContent: string;
 }
 
 export interface BookList {
@@ -106,21 +155,63 @@ export interface BookList {
 export interface FetchPreparateDetailData {
     id: string;
 }
-export interface BookChapter {
-    Detial: string;
-    ID: string;
+export interface FetchPreparateDetailRes {
+    Attachments: IPreOssFileInfo[];
+    CanEdit: boolean;
+    CreateTime: string;
+    EndTime: string;
+    CreaterID: string;
+    CreaterName: string;
+    PreTitle: string;
+    Status: number;
+    TeacherCount: number;
+    LessonRange: string;
+    LessonContent: string;
+}
+
+export interface SavePreparateDetailData {
+    groupLessonPreparateID: string;
+    preTitle: string;
+    lessonRange: string;
+    lessonContent: string;
+    attachments: IPreOssFileInfo[];
+}
+export interface UploadSummaryData {
+    groupLessonPreparateID?: string;
+    documentFileType: number;
+    attachments: IPreOssFileInfo[];
+}
+export interface FetchGroupLessonTeachersRes {
+    Id: string;
     Name: string;
-    Remark: string;
-    Sort: number;
+    memberIcon?: string;
+    memberId?: string;
+    memberName?: string;
 }
 
 export interface AddChapterData {
-    bookID: string;
-    name: string;
+    id?: string;
+    bookID?: string;
+    name?: string;
 }
 
-export interface FetchTeacherLessonAndBagByChapterData {
-    chapterID: string;
+export interface FetchReflectFilesData {
+    id: string;
+}
+
+export interface FetchReflectFilesRes {
+    TeachName: string;
+    UploadTime: string;
+    ReflectFiles?: {
+        Bucket: string;
+        Extention: string;
+        FileMD5: string;
+        FileName: string;
+        FilePath: string;
+        ID: string;
+        SN: number;
+        Type: number;
+    };
 }
 
 export interface Course {
@@ -135,10 +226,6 @@ export interface Course {
     Type: number;
 }
 
-export interface AddOrUpdateCourseBagTeacherData {
-    name: string;
-    lessonID: string;
-}
 export interface UpdateCourseBagTeacherData {
     name: string;
     id: string;
@@ -156,12 +243,10 @@ export interface UpdateCustomBookLessonData {
 }
 
 export type SaveTeacherClassScheduleData = {
-    beginTime: string;
-    classID: string;
-    dayOfWeek: number;
-    endTime: string;
-    subjectID: string;
-}[];
+    discussionID: string;
+    // eslint-disable-next-line no-use-before-define
+    resourceResult: FileData;
+};
 
 export interface CloneCourseBagToTeacherData {
     courseBagID: string;
@@ -215,14 +300,6 @@ export interface UpdateCourseWareListOfTeacherData {
     CourseBagTeacherID?: string;
 }
 
-export interface UpdateCourseWareTeacherSortData {
-    courseWareID: string;
-    sort: number;
-    copyType: number;
-    process: number;
-    type: number;
-}
-
 export interface Lesson {
     ChapterID: string;
     Count: number;
@@ -241,6 +318,11 @@ export interface FetchLessonsData {
 
 export interface AddContentData {
     groupLessonPreparateID: string;
+    discussionContent: discussionContent;
+}
+
+export interface EditContentData {
+    discussionID: string;
     discussionContent: discussionContent;
 }
 

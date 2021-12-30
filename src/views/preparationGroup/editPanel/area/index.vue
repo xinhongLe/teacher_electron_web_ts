@@ -1,20 +1,20 @@
 <template>
-    <div class="area">
+    <div class="area" v-for="(item, index) in Contents" :key="index">
         <div class="area-head">
             <div class="tag">
                 <div class="tag-1"></div>
                 <div class="tag-2"></div>
                 <div class="tag-3"></div>
             </div>
-            <span class="title">研讨一</span>
+            <span class="title">研讨{{index+1}}</span>
         </div>
         <div class="area-body">
             <div class="title-box">
                 <div>
-                    <span class="title">认识长方形与正方形</span>
-                    <span class="title-status title-status-1">教案设计</span>
+                    <span class="title">{{item.Title}}</span>
+                    <span class="title-status title-status-1">{{item.ResourceType === 1 ? '教案设计' : '课件设计'}}</span>
                 </div>
-                <div class="edit-btn">
+                <div class="edit-btn" @click="EditResearch(item)">
                     <img src="../../../../assets/preparationGroup/editPanel/edit.png" alt="">
                     <span>编辑</span>
                 </div>
@@ -22,7 +22,7 @@
             <div class="teacher-box">
                 <div class="teacher-con">
                     <img src="../../../../assets/preparationGroup/editPanel/avator_small.png" alt="">
-                    <span>林老师 于2021-12-12 08:35上传教案</span>
+                    <span>{{item.CreaterName}} 于{{moment(item.CreateTime).format("YYYY-MM-DD HH:mm:ss")}}上传教案</span>
                 </div>
             </div>
             <div class="area-lesson">
@@ -36,15 +36,11 @@
                         <div class="tools">
                             <div class="tool-item">
                                 <img src="../../../../assets/preparationGroup/editPanel/view.png" alt="">
-                                <span>查看</span>
+                                <span @click="lookOver(item.ResourceSource)">查看</span>
                             </div>
                             <div class="tool-item">
                                 <img src="../../../../assets/preparationGroup/editPanel/down.png" alt="">
-                                <span>下载</span>
-                            </div>
-                            <div class="tool-item">
-                                <img src="../../../../assets/preparationGroup/editPanel/up.png" alt="">
-                                <span>再次上传</span>
+                                <span @click="download(item.ResourceSource)">下载</span>
                             </div>
                         </div>
                     </div>
@@ -58,15 +54,22 @@
                         <div class="tools">
                             <div class="tool-item">
                                 <img src="../../../../assets/preparationGroup/editPanel/view.png" alt="">
-                                <span>查看</span>
+                                <el-button @click="lookOver(item.ResourceResult)" type="text" :disabled="!item.ResourceResult">查看</el-button>
                             </div>
                             <div class="tool-item">
                                 <img src="../../../../assets/preparationGroup/editPanel/down.png" alt="">
-                                <span>下载</span>
+                                <el-button @click="download(item.ResourceResult)" type="text" :disabled="!item.ResourceResult">下载</el-button>
                             </div>
                             <div class="tool-item">
-                                <img src="../../../../assets/preparationGroup/editPanel/up.png" alt="">
-                                <span>再次上传</span>
+                                <el-upload
+                                    action
+                                    :show-file-list="false"
+                                    accept=".doc, .docx, .ppt"
+                                    :http-request="(file) => uploadFileSuccess(file, item.DiscussionContentID)"
+                                >
+                                    <img src="../../../../assets/preparationGroup/editPanel/up.png" alt="">
+                                    <span>再次上传</span>
+                                </el-upload>
                             </div>
                         </div>
                     </div>
@@ -75,7 +78,8 @@
                     <div class="title-box">
                         <div class="title-left">
                             <p class="title">内容摘要</p>
-                            <p class="content">本节课的设计依据课标和学生自身特点重组教材内容，以学生生活实际和已有经验组织教学，强调学生观察、操作中获取新知，注重教学质量本节课的设计依据课标和学生自身特点重组教材内容，以学生生活实际和已有经验组织教学，强调学生观察、操作中获取新知，注重教本节课的设计依据课标和学生自身特点重组教材<span class="more">阅读全部</span></p>
+                            <!-- <p class="content">本节课的设计依据课标和学生自身特点重组教材内容，以学生生活实际和已有经验组织教学，强调学生观察、操作中获取新知，注重教学质量本节课的设计依据课标和学生自身特点重组教材内容，以学生生活实际和已有经验组织教学，强调学生观察、操作中获取新知，注重教本节课的设计依据课标和学生自身特点重组教材<span class="more">阅读全部</span></p> -->
+                            <p class="content">{{item.Content}}</p>
                         </div>
                         <div class="title-right">
                             <div class="btn">
@@ -89,7 +93,7 @@
                             <p class="title">附件</p>
                             <p class="files">
                                 <span class="files-list">
-                                    <div class="file-item" v-for="(item, index) in contentFiles" :key="index">
+                                    <div class="file-item" v-for="(item, index) in item.Attachments" :key="index">
                                         <File :fileInfo="item"></File>
                                     </div>
                                 </span>
@@ -153,13 +157,25 @@
             </div>
         </div>
     </div>
+    <AddResearchContent v-model:dialogVisible="dialogVisible" :researchContent="researchContent" @close="closeHandle"></AddResearchContent>
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, toRefs } from "vue";
+import { defineComponent, onMounted, reactive, toRefs, ref } from "vue";
+import { useRoute } from "vue-router";
+import { ElMessage } from "element-plus";
 import { IOssFileInfo } from "@/types/oss";
 import File from "../../file/index.vue";
 import FileSmall from "../../file/small.vue";
+import useContents from "./useContents";
+import moment from "moment";
+import { DiscussioncontentList, Fileginseng } from "@/types/preparationGroup";
+import { openFile, downLoad } from "@/utils";
+import { get, STORAGE_TYPES } from "@/utils/storage";
+import { downloadFile, cooOss } from "@/utils/oss";
+import { UploadFile } from "element-plus/lib/components/upload/src/upload.type";
+import AddResearchContent from "../../popup-window/add-research-content.vue";
+import { addResourceResult } from "../../api";
 export default defineComponent({
     name: "area",
     props: {
@@ -170,6 +186,9 @@ export default defineComponent({
     setup(props, { emit }) {
         console.log(props);
         console.log(emit);
+        const route = useRoute();
+        const filesrc = ref("");
+        const dialogVisible = ref(false);
         const state = reactive({
             memoPanelStatus: false,
             textareaWord: "",
@@ -221,6 +240,8 @@ export default defineComponent({
             ]
         });
 
+        const researchContent = ref({});
+
         const contentFiles = reactive<IOssFileInfo[]>([
             {
                 bucket: "",
@@ -248,6 +269,83 @@ export default defineComponent({
             }
         ]);
 
+        const { Contents, getContents } = useContents();
+
+        const lookOver = async (file: Fileginseng) => {
+            if (file) {
+                console.log(file, "file");
+                const { Extention, FilePath, Name, Bucket } = file;
+                if (Extention) {
+                    const key = FilePath + "/" + Name + "." + Extention;
+                    console.log(key, "key");
+                    filesrc.value = await downloadFile(key, Bucket);
+                    console.log(filesrc.value, Name + "." + Extention);
+                    openFile(filesrc.value, Name + "." + Extention);
+                } else {
+                    const key = FilePath + "/" + Name;
+                    console.log(key);
+                    filesrc.value = await downloadFile(key, Bucket);
+                    openFile(filesrc.value, Name + "." + Extention);
+                }
+            }
+        };
+
+        const download = async (file: Fileginseng) => {
+            if (file) {
+                const { Extention, FilePath, FileName, Name, Bucket } = file;
+                if (Extention) {
+                    const key = FilePath + "/" + Name + "." + Extention;
+                    filesrc.value = await downloadFile(key, Bucket);
+                    downLoad(filesrc.value, FileName);
+                } else {
+                    const key = FilePath + "/" + Name;
+                    filesrc.value = await downloadFile(key, Bucket);
+                    downLoad(filesrc.value, FileName);
+                }
+            }
+        };
+
+        // 再次上传教案/课件
+        const uploadFileSuccess = async ({ file }: {file: UploadFile & Blob;}, id: string) => {
+            console.log(id);
+            const ossPath = get(STORAGE_TYPES.OSS_PATHS)?.["ElementFile"];
+            const res = await cooOss(file, ossPath);
+            if (res?.code === 200) {
+                console.log(res, "resresres");
+                const { name, md5, fileExtension } = res;
+                const params = {
+                    discussionID: id,
+                    resourceResult: {
+                        name: name,
+                        fileName: file.name.substring(0, file.name.lastIndexOf(".")),
+                        bucket: ossPath.Bucket,
+                        filePath: ossPath.Path,
+                        extention: fileExtension,
+                        fileMD5: md5
+                    }
+                };
+                const result = await addResourceResult(params);
+                if (result.resultCode === 200) {
+                    console.log(result);
+                    ElMessage.success("添加研讨的终稿文件成功");
+                    const preId = route.params.preId as string;
+                    const params = {
+                        id: preId
+                    };
+                    getContents(params);
+                }
+            }
+        };
+
+        const againUpload = (id:string) => {
+            console.log(id);
+        };
+
+        const EditResearch = (row :DiscussioncontentList) => {
+            researchContent.value = row;
+            dialogVisible.value = true;
+        };
+
         const submit = () => {
             console.log(1);
         };
@@ -255,15 +353,43 @@ export default defineComponent({
         const add = () => {
             console.log(1);
         };
+        const closeHandle = () => {
+            dialogVisible.value = false;
+            const preId = route.params.preId as string;
+            const params = {
+                id: preId
+            };
+            getContents(params);
+        };
+
+        onMounted(async () => {
+            const preId = route.params.preId as string;
+            console.log(preId, "123456789");
+            const params = {
+                id: preId
+            };
+            getContents(params);
+        });
         return {
             contentFiles,
             wordFiles,
+            Contents,
+            dialogVisible,
+            researchContent,
             ...toRefs(state),
             submit,
-            add
+            add,
+            getContents,
+            lookOver,
+            download,
+            EditResearch,
+            closeHandle,
+            uploadFileSuccess,
+            againUpload,
+            moment
         };
     },
-    components: { File, FileSmall }
+    components: { File, FileSmall, AddResearchContent }
 });
 </script>
 
@@ -428,6 +554,7 @@ export default defineComponent({
                     align-items: center;
                     justify-content: center;
                     margin: 20px 0;
+                    height: 28px;
                     .tool-item {
                         display: flex;
                         align-items: center;
