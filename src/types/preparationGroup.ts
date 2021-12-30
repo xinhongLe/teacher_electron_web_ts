@@ -46,6 +46,32 @@ export interface PreparateListBag {
     FileModel?: FileModelBag;
 }
 
+export interface DiscussioncontentList {
+    Attachments: Fileginseng[];
+    Content: string;
+    CreateTime: string;
+    CreaterID: string;
+    CreaterName: string;
+    PreparateID: string;
+    DiscussionContentID:string;
+    ResourceSource: Fileginseng;
+    ResourceResult: Fileginseng;
+    ResourceType: number;
+    Title: string;
+}
+
+export interface Fileginseng {
+    Bucket: string;
+    Extention: string;
+    FileMD5: string;
+    FileName: string;
+    FilePath: string;
+    ID: string;
+    Name: string;
+    SN: number;
+    Type: number;
+}
+
 export interface FileModelBag {
     id: string;
     name: string;
@@ -149,8 +175,7 @@ export interface SavePreparateDetailData {
 }
 
 export interface AddChapterData {
-    bookID: string;
-    name: string;
+    id: string;
 }
 
 export interface FetchTeacherLessonAndBagByChapterData {
@@ -186,12 +211,10 @@ export interface UpdateCustomBookLessonData {
 }
 
 export type SaveTeacherClassScheduleData = {
-    beginTime: string;
-    classID: string;
-    dayOfWeek: number;
-    endTime: string;
-    subjectID: string;
-}[];
+    discussionID: string;
+    // eslint-disable-next-line no-use-before-define
+    resourceResult: FileData;
+};
 
 export interface CloneCourseBagToTeacherData {
     courseBagID: string;
@@ -271,6 +294,11 @@ export interface FetchLessonsData {
 
 export interface AddContentData {
     groupLessonPreparateID: string;
+    discussionContent: discussionContent;
+}
+
+export interface EditContentData {
+    discussionID: string;
     discussionContent: discussionContent;
 }
 

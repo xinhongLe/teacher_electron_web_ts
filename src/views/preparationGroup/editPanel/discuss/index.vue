@@ -27,7 +27,7 @@
                 <Area></Area>
             </div>
         </div>
-        <AddResearchContent v-model:dialogVisible="dialogVisible"  v-if="dialogVisible"></AddResearchContent>
+        <AddResearchContent v-model:dialogVisible="dialogVisible"  v-if="dialogVisible" @close="closeHandle">></AddResearchContent>
     </div>
 </template>
 
@@ -75,6 +75,10 @@ export default defineComponent({
             dialogVisible.value = true;
         };
 
+        const closeHandle = () => {
+            dialogVisible.value = false;
+        };
+
         const add = () => {
             console.log(1);
         };
@@ -83,6 +87,7 @@ export default defineComponent({
             submit,
             add,
             AddResearch,
+            closeHandle,
             dialogVisible
         };
     },
