@@ -3,7 +3,8 @@ import { AI_XUE_SHI_API } from "@/config";
 import { IResponse, RequestFun } from "@/types/response";
 import {
     FetchPreparateListPageData, FetchPreparateListPageRes, DeletePreLessonData,
-    AddChapterData, AddCourseWareTeacherElementFileData, AddCustomBookLessonData, AddMaterialData, SavePreparateDetailData, BagChapter, FetchPreparateDetailRes, BookList, CloneCourseBagToTeacherData, CloneCourseBagToTeacherRes, Course,
+    AddChapterData, AddCourseWareTeacherElementFileData, AddCustomBookLessonData, AddMaterialData, SavePreparateDetailData, BagChapter, FetchPreparateDetailRes, FetchGroupLessonTeachersRes,
+    BookList, CloneCourseBagToTeacherData, CloneCourseBagToTeacherRes, Course,
     DeleteMaterialData,
     EditMaterialData,
     FetchBagChapterData,
@@ -11,7 +12,7 @@ import {
     FetchLessonsData,
     AddContentData,
     EditContentData,
-    FetchPreparateDetailData, FetchTeacherLessonAndBagByChapterData, GetLastSelectBookData, GetLastSelectBookRes, Lesson, Material, QueryMaterialListData, SaveTeacherClassScheduleData, SetLastSelectBookData, UpdateCourseBagTeacherData, UpdateCourseWareListOfTeacherData, UpdateCourseWareTeacherSortData, UpdateCustomBookLessonData
+    FetchPreparateDetailData, FetchTeacherLessonAndBagByChapterData, GetLastSelectBookData, FetchReflectFilesData, FetchReflectFilesRes, GetLastSelectBookRes, Lesson, Material, QueryMaterialListData, SaveTeacherClassScheduleData, SetLastSelectBookData, UpdateCourseBagTeacherData, UpdateCourseWareListOfTeacherData, UploadSummaryData, UpdateCustomBookLessonData
 } from "@/types/preparationGroup";
 
 // 查询我的备课列表(分页)
@@ -55,7 +56,7 @@ export function fetchPreparateDetail(data: FetchPreparateDetailData):Promise<IRe
 }
 
 // 查询集体备课 小组成员列表
-export function fetchGroupLessonTeachers(data: FetchPreparateDetailData): Promise<IResponse<FetchPreparateDetailRes>> {
+export function fetchGroupLessonTeachers(data: FetchPreparateDetailData): Promise<IResponse<FetchGroupLessonTeachersRes[]>> {
     return request({
         baseURL: AI_XUE_SHI_API,
         url: "/Api/V2/GroupLesson/GetGroupLessonTeachers",
@@ -80,8 +81,21 @@ export function fetchGroupLessonDiscussionContents(data: AddChapterData): Promis
     });
 }
 
+// 上传总结和反思
+export function uploadSummary(data: UploadSummaryData): Promise<IResponse<null>> {
+    return request({
+        baseURL: AI_XUE_SHI_API,
+        url: "/Api/V2/GroupLesson/UploadSummary",
+        headers: {
+            "Content-Type": "application/json-patch+json"
+        },
+        method: "post",
+        data
+    });
+}
+
 // 查询集体备课 总结与反思 文件列表
-export function fetchReflectFiles(data: FetchTeacherLessonAndBagByChapterData): Promise<IResponse<Course[]>> {
+export function fetchReflectFiles(data: FetchReflectFilesData): Promise<IResponse<FetchReflectFilesRes[]>> {
     return request({
         baseURL: AI_XUE_SHI_API,
         url: "/Api/V2/GroupLesson/GetReflectFiles",
@@ -163,19 +177,6 @@ export function addPreLesson(data: UpdateCourseWareListOfTeacherData): Promise<I
     return request({
         baseURL: AI_XUE_SHI_API,
         url: "/Api/V2/GroupLesson/AddPreLesson",
-        headers: {
-            "Content-Type": "application/json-patch+json"
-        },
-        method: "post",
-        data
-    });
-}
-
-// 上传总结和反思
-export function uploadSummary(data: UpdateCourseWareTeacherSortData[]): Promise<IResponse<null>> {
-    return request({
-        baseURL: AI_XUE_SHI_API,
-        url: "/Api/V2/GroupLesson/UploadSummary",
         headers: {
             "Content-Type": "application/json-patch+json"
         },

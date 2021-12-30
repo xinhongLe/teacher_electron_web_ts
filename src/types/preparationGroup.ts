@@ -1,17 +1,4 @@
 import { IOssFileInfo } from "@/types/oss";
-export interface FetchPreparateListPageData {
-    preTitle: string;
-    status: number;
-    createTime?: string;
-    createStartTime: string;
-    createEndTime: string;
-    pager: PagerReq;
-}
-
-export interface FetchPreparateListPageRes {
-    list?: PreparateListBag[];
-    pager?: PagerRes;
-}
 
 export interface PagerReq {
     pageNumber: number;
@@ -33,6 +20,38 @@ export interface PagerRes {
     Total: number;
 }
 
+export interface FileModelBag {
+    id: string;
+    name: string;
+    sn: number;
+    fileName: string;
+    bucket: string;
+    filePath: string;
+    extention: string;
+    fileMD5: string;
+    type: number;
+    staffID: string;
+}
+
+export interface IPreOssFileInfo {
+    id?: string,
+    sn?: string,
+    bucket: string,
+    objectKey: string,
+    name: string,
+    md5: string,
+    fileName: string,
+    fileExtension: string,
+    path?: string,
+    filePath: string,
+    extention: string,
+    fileMD5: string,
+    type: string,
+    staffID: string,
+    size?: string,
+    fileType?: string
+}
+
 export interface PreparateListBag {
     Id: string;
     PreTitle: string;
@@ -44,6 +63,14 @@ export interface PreparateListBag {
     TeacherCount: number;
     LessonRange?: string;
     FileModel?: FileModelBag;
+}
+export interface FetchPreparateListPageData {
+    preTitle: string;
+    status: number;
+    createTime?: string;
+    createStartTime: string;
+    createEndTime: string;
+    pager: PagerReq;
 }
 
 export interface DiscussioncontentList {
@@ -71,18 +98,12 @@ export interface Fileginseng {
     SN: number;
     Type: number;
 }
-
-export interface FileModelBag {
-    id: string;
-    name: string;
-    sn: number;
-    fileName: string;
-    bucket: string;
-    filePath: string;
-    extention: string;
-    fileMD5: string;
-    type: number;
-    staffID: string;
+export interface FetchTeacherLessonAndBagByChapterData {
+    chapterID: string;
+}
+export interface FetchPreparateListPageRes {
+    list?: PreparateListBag[];
+    pager?: PagerRes;
 }
 
 export interface DeletePreLessonData {
@@ -134,24 +155,6 @@ export interface BookList {
 export interface FetchPreparateDetailData {
     id: string;
 }
-export interface IPreOssFileInfo {
-    id?: string,
-    sn?: string,
-    bucket: string,
-    objectKey: string,
-    name: string,
-    md5: string,
-    fileName: string,
-    fileExtension: string,
-    path?: string,
-    filePath: string,
-    extention: string,
-    fileMD5: string,
-    type: string,
-    staffID: string,
-    size?: string,
-    fileType?: string
-}
 export interface FetchPreparateDetailRes {
     Attachments: IPreOssFileInfo[];
     CanEdit: boolean;
@@ -173,13 +176,42 @@ export interface SavePreparateDetailData {
     lessonContent: string;
     attachments: IPreOssFileInfo[];
 }
+export interface UploadSummaryData {
+    groupLessonPreparateID?: string;
+    documentFileType: number;
+    attachments: IPreOssFileInfo[];
+}
+export interface FetchGroupLessonTeachersRes {
+    Id: string;
+    Name: string;
+    memberIcon?: string;
+    memberId?: string;
+    memberName?: string;
+}
 
 export interface AddChapterData {
+    id?: string;
+    bookID?: string;
+    name?: string;
+}
+
+export interface FetchReflectFilesData {
     id: string;
 }
 
-export interface FetchTeacherLessonAndBagByChapterData {
-    chapterID: string;
+export interface FetchReflectFilesRes {
+    TeachName: string;
+    UploadTime: string;
+    ReflectFiles?: {
+        Bucket: string;
+        Extention: string;
+        FileMD5: string;
+        FileName: string;
+        FilePath: string;
+        ID: string;
+        SN: number;
+        Type: number;
+    };
 }
 
 export interface Course {
@@ -266,14 +298,6 @@ export interface UpdateCourseWareListOfTeacherData {
         FileID?: string;
     }[];
     CourseBagTeacherID?: string;
-}
-
-export interface UpdateCourseWareTeacherSortData {
-    courseWareID: string;
-    sort: number;
-    copyType: number;
-    process: number;
-    type: number;
 }
 
 export interface Lesson {

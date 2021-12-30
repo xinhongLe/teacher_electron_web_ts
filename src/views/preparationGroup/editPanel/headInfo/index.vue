@@ -8,7 +8,7 @@
                 <span class="title">{{ lessonItem.PreTitle }}</span>
                 <span :class="`status status-${lessonItem.Status}`"><span class="white"></span>{{ switchStatus(lessonItem.Status) }}</span>
             </div>
-            <div class="right" v-if="lessonItem.CanEdit">
+            <div class="right" v-if="lessonItem.CanEdit && lessonItem.Status === 2">
                 <div class="btn-cancel" @click="actionEditPanel(false)" v-if="isEdit">
                     <span>取消</span>
                 </div>
@@ -158,8 +158,8 @@ export default defineComponent({
                 lessonItem.PreTitle = PreTitle;
                 lessonItem.Status = Status;
                 lessonItem.TeacherCount = TeacherCount;
-                lessonItem.LessonRange = "39F766472E16384149030DFA4E9863B5,39F7666AAF66065AF9B04D393F156352,39FFD2A8895176995E7C9B9FBA779A52";
-                // lessonItem.LessonRange = LessonRange;
+                // lessonItem.LessonRange = "39F766472E16384149030DFA4E9863B5,39F7666AAF66065AF9B04D393F156352,39FFD2A8895176995E7C9B9FBA779A52";
+                lessonItem.LessonRange = LessonRange;
                 lessonItem.LessonRangeIDs = lessonItem.LessonRange.split(",");
                 if (lessonItem.LessonRangeIDs.length > 0) {
                     let rangeText = "";
@@ -204,8 +204,7 @@ export default defineComponent({
             const params = {
                 groupLessonPreparateID: route.params.preId as string,
                 preTitle: lessonItem.PreTitle,
-                lessonRange: "",
-                // lessonRange: lessonItem.LessonRangeIDs.join(","),
+                lessonRange: lessonItem.LessonRangeIDs.join(","),
                 lessonContent: lessonItem.LessonContent,
                 attachments: [] as any
             };
@@ -223,7 +222,7 @@ export default defineComponent({
             }
             const res = await editPreparateDetail(params);
             if (res.resultCode === 200) {
-                console.log(res);
+                getPreparateDetail();
                 actionEditPanel(false);
             }
         };
