@@ -57,6 +57,7 @@
 import { MissionDetail } from "@/types/checkHomework";
 import { lookQuestions } from "@/utils";
 import { computed, defineComponent, PropType, ref, watchEffect } from "vue";
+import { QuestionResultTypeEnum } from "../enum";
 import { getQuestionType } from "../logic";
 import NulliparousStudents from "../NulliparousStudents.vue";
 import Review from "./Review.vue";
@@ -88,10 +89,10 @@ export default defineComponent({
         const questionContentRef = ref<HTMLDivElement>();
         const list = computed(() => {
             const list = [];
-            list[0] = props.MissionDetails.filter((m) => m.Result === 3);
-            list[1] = props.MissionDetails.filter((m) => m.Result === 2);
-            list[2] = props.MissionDetails.filter((m) => m.Result === 1);
-            list[3] = props.MissionDetails.filter((m) => m.Result === 0);
+            list[0] = props.MissionDetails.filter((m) => m.Result === QuestionResultTypeEnum.NOT_SURE);
+            list[1] = props.MissionDetails.filter((m) => m.Result === QuestionResultTypeEnum.ERROR);
+            list[2] = props.MissionDetails.filter((m) => m.Result === QuestionResultTypeEnum.RIGHT);
+            list[3] = props.MissionDetails.filter((m) => m.Result === QuestionResultTypeEnum.NOT_DONE);
             return list;
         });
         const questionTypeName = computed(() => getQuestionType(props.type));

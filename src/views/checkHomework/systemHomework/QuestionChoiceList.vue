@@ -13,7 +13,7 @@
 
 <script lang="ts">
 import { computed, defineComponent } from "vue";
-import { QuestionTypeEnum } from "../logic";
+import { QuestionTypeEnum } from "../enum";
 export default defineComponent({
     props: {
         questionType: {

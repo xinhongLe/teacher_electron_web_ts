@@ -16,6 +16,7 @@ export interface HomeworkDetail {
     type: number;
     workbookPaperPageNum: string;
     albumName: string;
+    lessonName: string;
     chapterName: string
 }
 

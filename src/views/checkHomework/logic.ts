@@ -71,41 +71,6 @@ function intersect(a: { x: number; y: number; }, b: { x: number; y: number; }) {
     return false;
 }
 
-export const enum QuestionTypeEnum {
-    /**
-     * 1 ABC类型选择题
-     */
-    SELECT_ALPHABAT = 1,
-    /**
-     *  2 123类型选择题
-     */
-    SELECT_NUMBER,
-    /**
-     * 3 TF判断题
-     */
-    SELECT_TF,
-    /**
-     * 4√×判断题
-     */
-    SELECT_OKCANCEL,
-    /**
-     * 5 填空题
-     */
-    BLANK,
-    /**
-     * 6 应用题
-     */
-    APPLICATION,
-    /**
-     * 7 语音题
-     */
-    VOICE,
-    /**
-     * 8 解答题
-     */
-    SOLVE,
-}
-
 export function getQuestionType (type: number) {
     const typeEnum: Record<number, string> = {
         1: "选择题",
