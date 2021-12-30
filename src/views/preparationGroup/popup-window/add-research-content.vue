@@ -77,7 +77,7 @@
     </el-dialog>
 </template>
 <script lang="ts">
-import { defineComponent, onMounted, reactive, ref, toRefs } from "vue";
+import { defineComponent, onMounted, reactive, ref, toRefs, watch } from "vue";
 import { useRoute } from "vue-router";
 import { ElFormType } from "@/types/elementType";
 import { ElMessage } from "element-plus";
@@ -87,19 +87,25 @@ import { get, STORAGE_TYPES } from "@/utils/storage";
 import { UploadFile } from "element-plus/lib/components/upload/src/upload.type";
 import File from "../file/index.vue";
 import useUploadFile from "@/hooks/useUploadFile";
-import { AddDiscussionContent } from "../api";
+import { AddDiscussionContent, EditDiscussionContent } from "../api";
 export default defineComponent({
     props: {
         dialogVisible: {
             type: Boolean,
             default: false
+        },
+        researchContent: {
+            type: Object,
+            default: () => ({})
         }
     },
     components: { File },
     setup(props, { emit }) {
+        console.log(props);
         const route = useRoute();
         const formRef = ref<ElFormType>();
         const preId = ref();
+        const flagType = ref("新增");
         const acceptList = ".ppt,.doc,.docx,.pdf,.mp3,.mp4,.jpg,.png,";
         const fileList = reactive<{ extention: string; fileName: string; name: string; bucket: string; fileMD5: string; filePath: string; size: string; fileType: string; }[]>([]);
         const fileContent = reactive<IOssFileInfo>({
@@ -146,6 +152,25 @@ export default defineComponent({
                 }
             ]
         };
+
+        watch(() => props.researchContent, (newValue) => {
+            console.log(newValue, "12345");
+            flagType.value = "编辑";
+            preId.value = newValue.PreparateID;
+            state.form.title = newValue.Title;
+            state.form.resourceType = newValue.ResourceType;
+            state.form.content = newValue.Content;
+            state.form.planFile = "1";
+            fileContent.name = newValue.ResourceSource.Name;
+            fileContent.bucket = newValue.ResourceSource.Bucket;
+            fileContent.path = newValue.ResourceSource.FilePath;
+            fileContent.fileExtension = newValue.ResourceSource.Extention;
+            fileContent.md5 = newValue.ResourceSource.FileMD5;
+            fileContent.fileName = newValue.ResourceSource.FileName;
+            // fileContent.size = newValue.ResourceSource.Name;
+            // fileContent.fileType = newValue.ResourceSource.Name;
+        }, { deep: true });
+
         const { loadingShow, fileInfo, getFileSize, getFileType, uploadFile } = useUploadFile("ElementFile");
 
         // 教案课件上传之前
@@ -194,6 +219,7 @@ export default defineComponent({
             fileContent.fileName = "";
             fileContent.size = "";
             fileContent.fileType = "";
+            state.form.planFile = "";
         };
 
         // 上传附件
@@ -221,7 +247,6 @@ export default defineComponent({
             formRef.value!.validate(async valid => {
                 if (valid) {
                     const data = {
-                        groupLessonPreparateID: preId.value,
                         discussionContent: {
                             title: state.form.title,
                             resourceType: state.form.resourceType,
@@ -235,27 +260,22 @@ export default defineComponent({
                                 fileMD5: fileContent.md5
                             },
                             attachments: fileList
-                            // attachments: [
-                            //     {
-                            //         id: "string",
-                            //         name: "string",
-                            //         sn: 0,
-                            //         fileName: "string",
-                            //         bucket: "string",
-                            //         filePath: "string",
-                            //         extention: "string",
-                            //         fileMD5: "string",
-                            //         type: 0,
-                            //         staffID: "string"
-                            //     }
-                            // ]
                         }
                     };
-                    const res = await AddDiscussionContent(data);
-                    if (res.resultCode === 200) {
-                        ElMessage.success("新增研讨内容成功");
-                        emit("update:dialogVisible", false);
+                    if (flagType.value === "新增") {
+                        const params = Object.assign(data, { groupLessonPreparateID: preId.value });
+                        const res = await AddDiscussionContent(params);
+                        if (res.resultCode === 200) {
+                            ElMessage.success("新增研讨内容成功");
+                        }
+                    } else {
+                        const params = Object.assign(data, { discussionID: preId.value });
+                        const res = await EditDiscussionContent(params);
+                        if (res.resultCode === 200) {
+                            ElMessage.success("编辑研讨内容成功");
+                        }
                     }
+                    emit("update:dialogVisible", false);
                 } else {
                     if (state.form.title === "") {
                         return false;
@@ -269,7 +289,7 @@ export default defineComponent({
             });
         };
         const handleClose = () => {
-            emit("update:dialogVisible", false);
+            emit("close");
         };
         onMounted(() => {
             preId.value = route.params.preId;

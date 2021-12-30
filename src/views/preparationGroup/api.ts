@@ -7,8 +7,10 @@ import {
     DeleteMaterialData,
     EditMaterialData,
     FetchBagChapterData,
+    DiscussioncontentList,
     FetchLessonsData,
     AddContentData,
+    EditContentData,
     FetchPreparateDetailData, FetchTeacherLessonAndBagByChapterData, GetLastSelectBookData, GetLastSelectBookRes, Lesson, Material, QueryMaterialListData, SaveTeacherClassScheduleData, SetLastSelectBookData, UpdateCourseBagTeacherData, UpdateCourseWareListOfTeacherData, UpdateCourseWareTeacherSortData, UpdateCustomBookLessonData
 } from "@/types/preparationGroup";
 
@@ -38,7 +40,6 @@ export function deletePreLesson(data: DeletePreLessonData): Promise<IResponse<nu
     });
 }
 
-
 // 获取集体备课明细数据
 export function fetchPreparateDetail(data: FetchPreparateDetailData):Promise<IResponse<BookChapter[]>> {
     return request({
@@ -67,7 +68,7 @@ export function fetchGroupLessonTeachers(data: FetchPreparateDetailData): Promis
 }
 
 // 查询集体备课 研讨内容
-export function fetchGroupLessonDiscussionContents(data: AddChapterData): Promise<IResponse<null>> {
+export function fetchGroupLessonDiscussionContents(data: AddChapterData): Promise<IResponse<DiscussioncontentList[]>> {
     return request({
         baseURL: AI_XUE_SHI_API,
         url: "/Api/V2/GroupLesson/GetGroupLessonDiscussionContents",
@@ -210,7 +211,7 @@ export function AddDiscussionContent(data: AddContentData): Promise<IResponse<nu
 }
 
 // 编辑研讨内容
-export function EditDiscussionContent(data: AddContentData): Promise<IResponse<null>> {
+export function EditDiscussionContent(data: EditContentData): Promise<IResponse<null>> {
     return request({
         baseURL: AI_XUE_SHI_API,
         url: "/Api/V2/GroupLesson/EditDiscussionContent",
