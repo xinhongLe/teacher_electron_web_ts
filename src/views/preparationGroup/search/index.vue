@@ -54,6 +54,7 @@
         <CollectivePreparation
          ref="CollectivePreparationRef"
         ></CollectivePreparation>
+        <ShareDetail ref="ShareDialogRef" @submit="submit"></ShareDetail>
     </div>
 </template>
 
@@ -61,6 +62,7 @@
 import { defineComponent, reactive, ref, toRefs } from "vue";
 import useSubmit from "./useSubmit";
 import CollectivePreparation from "../collective-preparation/index.vue";
+import ShareDetail from "../shareDialog/index.vue";
 export default defineComponent({
     name: "head",
     props: {
@@ -98,8 +100,9 @@ export default defineComponent({
             emit("requestParams", formData);
         };
         const CollectivePreparationRef = ref();
+        const ShareDialogRef = ref();
         const editPanel = () => {
-            CollectivePreparationRef.value.dialogVisible = true;
+            ShareDialogRef.value.openDialog();
         };
         const { statusList, formData, formRef } = useSubmit();
         return {
@@ -109,10 +112,11 @@ export default defineComponent({
             formRef,
             CollectivePreparationRef,
             submit,
-            editPanel
+            editPanel,
+            ShareDialogRef
         };
     },
-    components: { CollectivePreparation }
+    components: { CollectivePreparation, ShareDetail }
 });
 </script>
 

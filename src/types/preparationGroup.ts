@@ -376,3 +376,35 @@ export interface CloneCourseBagToTeacherRes {
         ID: string
     }
 }
+
+export interface ShareResourceData  {
+    data: string;
+}
+
+export interface GetTeacherClassData {
+    schoolID: string,
+}
+
+export interface GetSchoolClassData {
+    id: string,
+}
+
+export type GetTeacherDataRes = {
+    ID: string,
+    Name: string,
+    Account?: string,
+    SubjectList?: [],
+    Schools?: [],
+}[]
+
+export type GetSchoolDataRes = {
+    ID: string,
+    Name: string
+}[]
+
+export interface addCourseData {
+    preTitle: string,
+    status: number,
+    preLessonContent: string,
+    teacherIDs: string[]
+}

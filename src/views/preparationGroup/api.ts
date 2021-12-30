@@ -1,5 +1,5 @@
 import request from "@/utils/request";
-import { AI_XUE_SHI_API } from "@/config";
+import { AI_XUE_SHI_API, WINDOW_CRAD_API } from "@/config";
 import { IResponse, RequestFun } from "@/types/response";
 import {
     FetchPreparateListPageData, FetchPreparateListPageRes, DeletePreLessonData,
@@ -9,7 +9,8 @@ import {
     FetchBagChapterData,
     FetchLessonsData,
     AddContentData,
-    FetchPreparateDetailData, FetchTeacherLessonAndBagByChapterData, GetLastSelectBookData, GetLastSelectBookRes, Lesson, Material, QueryMaterialListData, SaveTeacherClassScheduleData, SetLastSelectBookData, UpdateCourseBagTeacherData, UpdateCourseWareListOfTeacherData, UpdateCourseWareTeacherSortData, UpdateCustomBookLessonData
+    FetchPreparateDetailData, FetchTeacherLessonAndBagByChapterData, GetLastSelectBookData, GetLastSelectBookRes, Lesson, Material, QueryMaterialListData, SaveTeacherClassScheduleData, SetLastSelectBookData, UpdateCourseBagTeacherData, UpdateCourseWareListOfTeacherData, UpdateCourseWareTeacherSortData, UpdateCustomBookLessonData,
+    ShareResourceData, GetTeacherClassData, GetSchoolClassData, GetTeacherDataRes, GetSchoolDataRes, addCourseData
 } from "@/types/preparationGroup";
 
 // 查询我的备课列表(分页)
@@ -37,7 +38,6 @@ export function deletePreLesson(data: DeletePreLessonData): Promise<IResponse<nu
         data
     });
 }
-
 
 // 获取集体备课明细数据
 export function fetchPreparateDetail(data: FetchPreparateDetailData):Promise<IResponse<BookChapter[]>> {
@@ -158,7 +158,7 @@ export function addResourceResult(data: SaveTeacherClassScheduleData): Promise<I
 }
 
 // 新增备课
-export function addPreLesson(data: UpdateCourseWareListOfTeacherData): Promise<IResponse<null>> {
+export function addPreLesson(data: addCourseData): Promise<IResponse<null>> {
     return request({
         baseURL: AI_XUE_SHI_API,
         url: "/Api/V2/GroupLesson/AddPreLesson",
@@ -214,6 +214,32 @@ export function EditDiscussionContent(data: AddContentData): Promise<IResponse<n
     return request({
         baseURL: AI_XUE_SHI_API,
         url: "/Api/V2/GroupLesson/EditDiscussionContent",
+        headers: {
+            "Content-Type": "application/json-patch+json"
+        },
+        method: "post",
+        data
+    });
+}
+
+// 获取教师
+export function getTeacherList(data: GetTeacherClassData): Promise<IResponse<GetTeacherDataRes>> {
+    return request({
+        baseURL: AI_XUE_SHI_API,
+        url: "/Api/Web/BaseData/GetTeachersList",
+        headers: {
+            "Content-Type": "application/json-patch+json"
+        },
+        method: "post",
+        data
+    });
+}
+
+// 获取校区
+export function getSchoolList(data: GetSchoolClassData): Promise<IResponse<GetSchoolDataRes>> {
+    return request({
+        baseURL: WINDOW_CRAD_API,
+        url: "/Api/Web/BaseData/GetSchoolsByFranchiseeID",
         headers: {
             "Content-Type": "application/json-patch+json"
         },
