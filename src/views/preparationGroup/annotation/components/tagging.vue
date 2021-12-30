@@ -1,11 +1,14 @@
 <template>
     <div class="tagging">
         <div class="tagging-center">
-            <div
-            @mousedown="clickElement($event,item,index)"
-            :class="activeIndex === index ? 'elements activeElements' : 'elements'"
-            :id="`element`+index" v-for="(item,index) in elementList"
-            :key="index">
+            <div class="tagging-center-main">
+                <div
+                @mousedown="clickElement($event,item,index)"
+                :class="activeIndex === index ? 'elements activeElements' : 'elements'"
+                :id="`element`+index" v-for="(item,index) in elementList"
+                :key="index"
+            >
+            </div>
             </div>
         </div>
     </div>
@@ -30,6 +33,11 @@ export default defineComponent({
                 const width = document.querySelector(".slide-content").style.width;
                 const height = document.querySelector(".slide-content").style.height;
                 taggingRef.setAttribute("style", `width:${width};height:${height};`);
+                const taggingCenter = document.querySelector(".tagging-center-main");
+                const Cwidth = document.querySelector(".screen-slide").style.width;
+                const Cheight = document.querySelector(".screen-slide").style.height;
+                const Ctransform = document.querySelector(".screen-slide").style.transform;
+                taggingCenter.setAttribute("style", `width:${Cwidth};height:${Cheight};transform:${Ctransform}`);
             });
         });
         const onRize = () => {
@@ -38,6 +46,11 @@ export default defineComponent({
                 const width = document.querySelector(".slide-content").style.width;
                 const height = document.querySelector(".slide-content").style.height;
                 taggingRef.setAttribute("style", `width:${width};height:${height};`);
+                const taggingCenter = document.querySelector(".tagging-center-main");
+                const Cwidth = document.querySelector(".screen-slide").style.width;
+                const Cheight = document.querySelector(".screen-slide").style.height;
+                const Ctransform = document.querySelector(".screen-slide").style.transform;
+                taggingCenter.setAttribute("style", `width:${Cwidth};height:${Cheight};transform:${Ctransform}`);
             });
         };
         let move = false;
@@ -99,7 +112,13 @@ export default defineComponent({
         justify-content: center;
         align-items: center;
         transform-origin: center center;
-        border: 1px solid red;
+        .tagging-center-main{
+            position: absolute;
+            top: 0;
+            left: 0;
+            transform-origin: 0 0;
+            border: 2px solid #000;
+        }
     }
 }
 .activeElements{
