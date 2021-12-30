@@ -211,6 +211,7 @@ export default defineComponent({
             if (lessonItem.Attachments && lessonItem.Attachments.length > 0) {
                 lessonItem.Attachments.map(v => {
                     params.attachments.push({
+                        ...v,
                         bucket: v.bucket,
                         objectKey: v.objectKey,
                         name: v.name,

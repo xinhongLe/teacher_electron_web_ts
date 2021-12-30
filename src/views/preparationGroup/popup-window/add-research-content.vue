@@ -226,6 +226,7 @@ export default defineComponent({
         const uploadSuccess = async ({ file }: {file: UploadFile & Blob;}) => {
             await uploadFile({ file });
             fileList.push({
+                ...fileInfo,
                 extention: fileInfo.fileExtension,
                 name: fileInfo.name,
                 fileName: fileInfo.fileName,
@@ -252,6 +253,7 @@ export default defineComponent({
                             resourceType: state.form.resourceType,
                             content: state.form.content,
                             planFile: {
+                                ...fileContent,
                                 name: fileContent.name,
                                 fileName: fileContent.fileName,
                                 bucket: fileContent.bucket,

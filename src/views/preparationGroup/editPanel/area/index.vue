@@ -554,6 +554,7 @@ export default defineComponent({
                     align-items: center;
                     justify-content: center;
                     margin: 20px 0;
+                    height: 28px;
                     .tool-item {
                         display: flex;
                         align-items: center;
