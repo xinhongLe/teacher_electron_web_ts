@@ -1,4 +1,4 @@
-import electron from "electron";
+import electron, { Remote } from "electron";
 import { LogFunctions } from "electron-log";
 
 type Electron = typeof electron & {

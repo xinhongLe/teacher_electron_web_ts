@@ -50,7 +50,7 @@
                                        </template>
                                        <div class="operation-box">
                                            <div v-show="node.level === 1" @click.stop="handleView(data.PageList)">预览</div>
-                                           <div v-show="node.level === 1" @click.stop="handleAdd(node, data)">新增</div>
+                                           <div v-show="node.level === 1" @click.stop="handleAdd(node, data)">新增页</div>
                                            <div  @click.stop="handleUpdateName(node, data)">修改名称</div>
                                            <div v-show="node.level === 2"  @click.stop="handleUpdateState(node, data)">{{data.State ? "下架" : "上架"}}</div>
                                            <div  v-show="node.level === 1" @click.stop="handlePaste(data)">粘贴页</div>
@@ -193,7 +193,9 @@ export default defineComponent({
         const winValue = route.params.winValue as string;
 
         const handleAddCard = (name:string) => {
-            _addCard({ WindowID: route.params.winValue as string, Sort: 0, Name: name });
+            // _addCard({ WindowID: route.params.winValue as string, Sort: 0, Name: name });
+            const sort = state.windowCards ? state.windowCards.length : 0;
+            _addCard({ WindowID: route.params.winValue as string, Sort: sort, Name: name });
             dialogVisibleCard.value = false;
         };
 
@@ -273,7 +275,8 @@ export default defineComponent({
             const value = {
                 CardID: currentValue.value.ID,
                 Name: data.name,
-                Type: data.value
+                Type: data.value,
+                Sort: currentValue.value.PageList ? currentValue.value.PageList.length : 0
             };
             _addPage(value);
             dialogVisible.value = false;

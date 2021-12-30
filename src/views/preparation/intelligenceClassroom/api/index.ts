@@ -37,6 +37,7 @@ export interface IDelCardOrPage {
 
 interface IAddPage{
     CardID: string,
+    Sort: number,
     Type: number,
     Name: string
 }
