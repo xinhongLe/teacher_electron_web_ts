@@ -10,11 +10,11 @@
                 <slot></slot>
                 <div class="subject-detail">
                     <div class="head-photo flex-between-center">
-                        <img
-                            src="@/assets/images/preparation/touxiang_student@2x.png"
-                            alt=""
-                        />
-                        <div>
+                        <Avatar
+                            :file="headPortrait"
+                            :size="78"
+                        ></Avatar>
+                        <div class="info">
                             <p class="name">{{ childrenName }}</p>
                             <el-tooltip placement="bottom">
                                 <template #content>
@@ -28,19 +28,13 @@
                     <div class="btns">
                         <div
                             class="btn-class el-icon-check"
+                            :class="{success: Detail.Result == QuestionResultTypeEnum.RIGHT}"
                             @click="_successHandle"
-                            :style="{
-                                background:
-                                    Detail.Result == 1 ? '#f3f7ff' : '#74ecb4',
-                            }"
                         ></div>
                         <div
-                            class="btn-class btn-class-err el-icon-close"
-                            :style="{
-                                background:
-                                    Detail.Result == 2 ? '#f3f7ff' : '#f5a9a9',
-                            }"
+                            class="btn-class el-icon-close"
                             @click="_errorHandle"
+                            :class="{error: Detail.Result == QuestionResultTypeEnum.ERROR}"
                         >
                             <i></i>
                         </div>
@@ -53,6 +47,8 @@
 
 <script lang="ts">
 import { defineComponent, ref } from "vue";
+import { QuestionResultTypeEnum } from "../enum";
+import Avatar from "../../../components/avatar/index.vue";
 export default defineComponent({
     props: {
         childrenName: {
@@ -71,6 +67,10 @@ export default defineComponent({
             type: Function,
             required: true
         },
+        headPortrait: {
+            type: Object,
+            default: () => ({})
+        },
         successHandle: {
             type: Function,
             required: true
@@ -78,25 +78,24 @@ export default defineComponent({
     },
     setup(props) {
         const visible = ref(false);
-
         const _errorHandle = () => {
-            if (props.Detail.Result === 2) return;
+            if (props.Detail.Result === QuestionResultTypeEnum.ERROR) { return; }
             visible.value = false;
             props.errorHandle(props.Detail.ID);
         };
-
         const _successHandle = () => {
-            if (props.Detail.Result === 1) return;
+            if (props.Detail.Result === QuestionResultTypeEnum.RIGHT) { return; }
             visible.value = false;
             props.successHandle(props.Detail.ID);
         };
-
         return {
             _errorHandle,
             _successHandle,
-            visible
+            visible,
+            QuestionResultTypeEnum
         };
-    }
+    },
+    components: { Avatar }
 });
 </script>
 
@@ -153,10 +152,8 @@ export default defineComponent({
                 margin-top: 10px;
                 float: left;
                 height: 100px;
-                img {
-                    width: 78px;
-                    height: 78px;
-                    margin-right: 10px;
+                .info {
+                    margin-left: 10px;
                 }
                 .name {
                     font-size: 16px;
@@ -165,29 +162,33 @@ export default defineComponent({
                 }
             }
             .btn-class {
-                width: 56px;
-                height: 30px;
-                line-height: 30px;
+                width: 100px;
+                height: 40px;
+                line-height: 40px;
                 text-align: center;
-                background: #34e1b6;
-                border-radius: 32px;
+                background: #F3F7FF;
+                border-radius: 20px;
                 font-size: 24px;
                 font-weight: 900;
-                color: #fff;
+                color: #4B71EE;
                 cursor: pointer;
+                &:first-child {
+                    margin-right: 20px;
+                }
+                &.success {
+                    background: #34E1B6;
+                    color: #fff;
+                }
+                &.error {
+                    background: #FF6B6B;
+                    color: #fff;
+                }
             }
             .btns {
                 position: absolute;
-                left: 0;
-                right: 0;
-                width: 100%;
-                text-align: center;
-                margin-top: 40px;
-            }
-            .btn-class-err {
-                background: #f5a9a9;
-                color: #4b71ee;
-                margin-left: 10px;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%);
             }
             .collection-btn {
                 padding: 8px;

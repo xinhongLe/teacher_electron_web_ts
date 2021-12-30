@@ -1,4 +1,4 @@
-import electron from "electron";
+import electron, { Remote } from "electron";
 import { LogFunctions } from "electron-log";
 
 type Electron = typeof electron & {
@@ -19,11 +19,25 @@ type Electron = typeof electron & {
     isExistFile: (fileName: string) => Promise<boolean>,
     destroyWindow: () => void,
     showWindow: () => void,
+    setCenter: () => void,
     log: LogFunctions
 }
 
 declare global {
     interface Window {
-        electron: Electron
+        electron: Electron,
+        fabric: any
     }
+}
+
+export interface LYXSocketInputDTO {
+    userID: string;
+    userName: string;
+    thisImageIndex: number;
+    fileList: {
+        bucket: string,
+        extention: string,
+        fileName: string,
+        filePath: string,
+    }[];
 }

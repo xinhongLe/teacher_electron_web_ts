@@ -3,7 +3,7 @@
         <img
             class="question-img"
             :style="{
-                width: imgWidth + 'px',
+                width: imgWidth === 0 ? 'auto' : imgWidth + 'px',
                 height: imgHeight + 'px',
                 top: imgOffsetY + 'px',
                 left: imgOffsetX + 'px',
@@ -26,9 +26,6 @@
             @load="loadAnswerEnd"
             alt=""
         />
-        <div v-if="questionType == 2" class="selected-answer">
-            选择答案：{{ choiceValue }}
-        </div>
     </div>
 </template>
 

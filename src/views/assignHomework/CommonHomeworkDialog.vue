@@ -72,7 +72,6 @@
                                     class="upload-demo"
                                     ref="upload"
                                     action=""
-                                    :file-list="fileList"
                                     :limit="5"
                                     :accept="acceptList"
                                     :show-file-list="false"
@@ -187,7 +186,7 @@ export default defineComponent({
             if (commonList.value[index].files.length === 5) {
                 ElMessage.info("最多添加5个附件");
             } else {
-                uploadSuccess(e, index);
+                uploadSuccess({ file: e[0] }, index);
             }
         };
         const beforeUpload = ({ name }: {
@@ -217,7 +216,6 @@ export default defineComponent({
             file: UploadFile & Blob;
         }, index: number) => {
             await uploadFile({ file });
-            console.log(file, "files");
             commonList.value[index].files.push({
                 extension: fileInfo.fileExtension,
                 name: fileInfo.fileName,

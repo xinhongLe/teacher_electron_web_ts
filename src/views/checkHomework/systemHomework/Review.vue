@@ -8,14 +8,22 @@
                     @click="enlargeRef.visible = true"
                 />
             </div>
-            <div class="answer">
+            <div class="answer" :class="{success: result === QuestionResultTypeEnum.RIGHT, error: result === QuestionResultTypeEnum.ERROR}">
                 <template v-if="detail.Detail">
                     <TeacherAnswer
                         v-if="detail.Detail.HomeworkPaperType === 2"
                         :data="detail"
                     />
                     <template v-else-if="detail.Detail.HomeworkPaperType === 0">
-                        <SpeechAudio v-if="detail.Question?.Type === 7" :speechResult="detail.Detail?.SpeechAssessResults"/>
+                        <SpeechAudio
+                            v-if="detail.Question?.Type === 7"
+                            :speechResult="detail.Detail?.SpeechAssessResults"
+                        />
+                        <AnswerChoiceValue
+                            v-else-if="detail.Question?.Type < 5"
+                            :choiceValue="detail.Study?.ChoiceValue"
+                            :isError="detail.Detail?.Result === 2"
+                        />
                         <Answer
                             v-else
                             :data="detailData"
@@ -49,25 +57,26 @@
                 </div>
                 <div class="answer-answer">
                     <div
-                        class="success"
+                        class="answer-btn"
                         @click="successHandle(detail.Detail?.ID)"
-                        :style="{
-                            background: result == 1 ? '#f3f7ff' : '#74ecb4',
-                        }"
+                        :class="{success: result == QuestionResultTypeEnum.RIGHT}"
                     >
+                        <img src="@/assets/images/homeworkNew/icon_duigou_white.png" v-if="result == QuestionResultTypeEnum.RIGHT"/>
+
                         <img
+                            v-else
                             src="@/assets/images/homeworkNew/icon_duigou.png"
                             alt=""
                         />
                     </div>
                     <div
-                        class="error"
+                        class="answer-btn"
                         @click="errorHandle(detail.Detail?.ID)"
-                        :style="{
-                            background: result == 2 ? '#f3f7ff' : '#f5a9a9',
-                        }"
+                        :class="{error: result == QuestionResultTypeEnum.ERROR}"
                     >
+                        <img src="@/assets/images/homeworkNew/icon_cuo_white.png" v-if="result == QuestionResultTypeEnum.ERROR"/>
                         <img
+                            v-else
                             src="@/assets/images/homeworkNew/icon_cuo.png"
                             alt=""
                         />
@@ -82,23 +91,32 @@
             ref="enlargeRef"
             :errorHandle="errorHandle"
             :successHandle="successHandle"
+            :headPortrait="detail.Student?.HeadPortrait"
         >
             <template v-if="detail.Detail">
                 <TeacherAnswerImg
                     v-if="detail.Detail.HomeworkPaperType === 2"
                     :data="detail"
                 />
-                <Answer
-                    v-else-if="detail.Detail.HomeworkPaperType === 0"
-                    :data="detailData"
-                    :questionType="detail?.Question?.Type"
-                    :question="question"
-                    :answer="answer"
-                    :isOrigin="true"
-                    :isQuestion="true"
-                    :writeList="detail?.Question?.QuestionBlanks"
-                    :choiceValue="detail.Question?.ChoiceValue"
-                ></Answer>
+                <template v-else-if="detail.Detail.HomeworkPaperType === 0">
+                    <QuestionChoiceList
+                        v-if="detail.Question?.Type < 5"
+                        :choiceValue="detail.Study?.ChoiceValue"
+                        :questionType="detail?.Question?.Type"
+                        :choiceCount="detail?.Question?.ChoiceCount"
+                    />
+                    <Answer
+                        :data="detailData"
+                        :questionType="detail?.Question?.Type"
+                        :question="question"
+                        :answer="answer"
+                        :isOrigin="true"
+                        :isQuestion="true"
+                        :writeList="detail?.Question?.QuestionBlanks"
+                        :choiceValue="detail.Question?.ChoiceValue"
+                        :result="result"
+                    ></Answer>
+                </template>
             </template>
         </Enlarge>
     </div>
@@ -114,6 +132,9 @@ import Enlarge from "./Enlarge.vue";
 import TeacherAnswer from "./TeacherAnswer.vue";
 import TeacherAnswerImg from "./TeacherAnswerImg.vue";
 import SpeechAudio from "./SpeechAudio.vue";
+import AnswerChoiceValue from "./AnswerChoiceValue.vue";
+import QuestionChoiceList from "./QuestionChoiceList.vue";
+import { QuestionResultTypeEnum } from "../enum";
 export default defineComponent({
     props: {
         className: {
@@ -138,7 +159,8 @@ export default defineComponent({
         const detail = ref<QuestionDetail>({});
         const isShow = computed(
             () =>
-                (detail.value?.Detail?.HomeworkPaperType === 0 && detail.value?.Question?.Type !== 7) ||
+                (detail.value?.Detail?.HomeworkPaperType === 0 &&
+                    detail.value?.Question?.Type !== 7) ||
                 (detail.value?.Detail?.HomeworkPaperType === 2 &&
                     detail.value.Study?.MissionFiles?.find(
                         ({ PageNum }) =>
@@ -147,7 +169,7 @@ export default defineComponent({
                     )?.File)
         );
         const detailData = computed(() =>
-            detail.value.Study?.StudyFiles?.filter((v) => v.Type === 1)
+            detail.value.Study?.StudyFiles
         );
         const question = computed(
             () =>
@@ -172,10 +194,10 @@ export default defineComponent({
         };
 
         const successHandle = async (id = "") => {
-            if (props.result === 1) return;
+            if (props.result === QuestionResultTypeEnum.RIGHT) return;
             const res = await changeResult({
                 missionDetailID: id,
-                result: 1
+                result: QuestionResultTypeEnum.RIGHT
             });
             if (res.resultCode === 200) {
                 document.dispatchEvent(new Event("updateSystemHomework"));
@@ -183,10 +205,10 @@ export default defineComponent({
         };
 
         const errorHandle = async (id = "") => {
-            if (props.result === 2) return;
+            if (props.result === QuestionResultTypeEnum.ERROR) return;
             const res = await changeResult({
                 missionDetailID: id,
-                result: 2
+                result: QuestionResultTypeEnum.ERROR
             });
             if (res.resultCode === 200) {
                 document.dispatchEvent(new Event("updateSystemHomework"));
@@ -202,10 +224,20 @@ export default defineComponent({
             question,
             detailData,
             answer,
+            QuestionResultTypeEnum,
             errorHandle
         };
     },
-    components: { Avatar, Answer, Enlarge, TeacherAnswer, TeacherAnswerImg, SpeechAudio }
+    components: {
+        Avatar,
+        Answer,
+        Enlarge,
+        TeacherAnswer,
+        TeacherAnswerImg,
+        SpeechAudio,
+        AnswerChoiceValue,
+        QuestionChoiceList
+    }
 });
 </script>
 
@@ -248,6 +280,12 @@ export default defineComponent({
         position: relative;
         overflow: hidden;
         z-index: 1;
+        &.success {
+            border-color: #74EBB6;
+        }
+        &.error {
+            border-color: #FEA0A2;
+        }
         img,
         canvas {
             transform-origin: center;
@@ -299,34 +337,26 @@ export default defineComponent({
             display: flex;
             align-items: center;
             justify-content: space-around;
-            .success {
+            .answer-btn {
                 width: 40px;
                 height: 28px;
-                background: #74ecb4;
+                background: #ffffff;
                 border-radius: 4px;
                 border: 1px solid #e0e2e7;
                 display: flex;
                 align-items: center;
                 justify-content: space-around;
                 cursor: pointer;
-                img {
-                    width: 16px;
+                &:first-child {
+                    margin-right: 12px;
                 }
-            }
-            .error {
-                width: 40px;
-                height: 28px;
-                background: #f5a9a9;
-                border: 1px solid #e0e2e7;
-                border-radius: 4px;
-                display: flex;
-                align-items: center;
-                cursor: pointer;
-                justify-content: space-around;
-                margin-left: 7px;
-                img {
-                    width: 11px;
-                    height: 11px;
+                &.success {
+                    background: #34E1B6;
+                    border: none;
+                }
+                &.error {
+                    background: #FF6B6B;
+                    border: none;
                 }
             }
         }

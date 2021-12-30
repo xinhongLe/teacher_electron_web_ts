@@ -1,8 +1,9 @@
 <template>
       <div>
     <div class="access-system-detail">
-      <div class="system-explain" ref="explainRef">
-        <p v-if="type == 5">填空题：</p>
+      <div class="system-explain">
+        <p>{{questionTypeName}} : </p>
+        <div ref="questionContentRef"/>
       </div>
       <div class="system-detail" @click="lookQuestions({id: questionDetailId,type: 0})">
         <img src="@/assets/images/homeworkNew/icon_timuxiangqing.png" alt="" />
@@ -27,7 +28,7 @@
             </p>
           </template>
           <div class="access-system-student" v-if="index != 3">
-            <div v-for="(value, index1) in item" :key="index1 + index" class="access-system-student-item">
+            <div v-for="(value, index1) in item" :key="value.MisssionStudyID" class="access-system-student-item">
               <Review
                 :result="value.Result"
                 :index="getIndex(index, index1)"
@@ -56,6 +57,8 @@
 import { MissionDetail } from "@/types/checkHomework";
 import { lookQuestions } from "@/utils";
 import { computed, defineComponent, PropType, ref, watchEffect } from "vue";
+import { QuestionResultTypeEnum } from "../enum";
+import { getQuestionType } from "../logic";
 import NulliparousStudents from "../NulliparousStudents.vue";
 import Review from "./Review.vue";
 export default defineComponent({
@@ -72,7 +75,10 @@ export default defineComponent({
             type: String,
             default: ""
         },
-        type: {},
+        type: {
+            type: Number,
+            default: -1
+        },
         questionDetailId: {
             type: String,
             default: ""
@@ -80,15 +86,16 @@ export default defineComponent({
     },
     setup(props) {
         const activeNames = ref(["0", "1", "2", "3"]);
-        const explainRef = ref<HTMLDivElement>();
+        const questionContentRef = ref<HTMLDivElement>();
         const list = computed(() => {
             const list = [];
-            list[0] = props.MissionDetails.filter((m) => m.Result === 3);
-            list[1] = props.MissionDetails.filter((m) => m.Result === 2);
-            list[2] = props.MissionDetails.filter((m) => m.Result === 1);
-            list[3] = props.MissionDetails.filter((m) => m.Result === 0);
+            list[0] = props.MissionDetails.filter((m) => m.Result === QuestionResultTypeEnum.NOT_SURE);
+            list[1] = props.MissionDetails.filter((m) => m.Result === QuestionResultTypeEnum.ERROR);
+            list[2] = props.MissionDetails.filter((m) => m.Result === QuestionResultTypeEnum.RIGHT);
+            list[3] = props.MissionDetails.filter((m) => m.Result === QuestionResultTypeEnum.NOT_DONE);
             return list;
         });
+        const questionTypeName = computed(() => getQuestionType(props.type));
 
         const getIndex = (index: number, index1: number) => {
             const timeoutIndex = index1 + list.value[index].length;
@@ -96,8 +103,8 @@ export default defineComponent({
         };
 
         watchEffect(() => {
-            if (explainRef.value) {
-                explainRef.value.innerHTML = props.questionContent;
+            if (questionContentRef.value) {
+                questionContentRef.value.innerHTML = props.questionContent;
                 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                 // @ts-ignore
                 MathJax.texReset();
@@ -106,15 +113,16 @@ export default defineComponent({
                 MathJax.typesetClear();
                 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                 // @ts-ignore
-                MathJax.typesetPromise([explainRef.value]);
+                MathJax.typesetPromise([questionContentRef.value]);
             }
         });
 
         return {
             lookQuestions,
             list,
-            explainRef,
             getIndex,
+            questionContentRef,
+            questionTypeName,
             activeNames
         };
     },
@@ -132,14 +140,8 @@ export default defineComponent({
     font-size: 14px;
     p:nth-of-type(1) {
       font-size: 16px;
-      font-weight: 500;
+      font-weight: 700;
       color: #19203d;
-      line-height: 20px;
-    }
-    p:nth-of-type(2) {
-      font-size: 14px;
-      font-weight: 500;
-      color: #5f626f;
       line-height: 20px;
     }
   }

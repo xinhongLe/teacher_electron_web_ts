@@ -70,3 +70,17 @@ function intersect(a: { x: number; y: number; }, b: { x: number; y: number; }) {
     }
     return false;
 }
+
+export function getQuestionType (type: number) {
+    const typeEnum: Record<number, string> = {
+        1: "选择题",
+        2: "选择题",
+        3: "判断题",
+        4: "判断题",
+        5: "填空题",
+        6: "应用题",
+        7: "语音题",
+        8: "解答题"
+    };
+    return typeEnum[type] || "";
+}

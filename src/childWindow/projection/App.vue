@@ -1,34 +1,40 @@
 <template>
-    <div class="container">
-        <div class="video-warp">
-            <div class="video">
-                <video ref="videoRef" autoplay />
+    <el-config-provider :locale="locale">
+        <div class="container">
+            <div class="video-warp">
+                <div class="video">
+                    <video ref="videoRef" autoplay />
+                </div>
             </div>
-        </div>
-        <div class="footer">
-            <div class="camera-select">
-                <img src="@/assets/images/suspension/icon_shexiangtou@2x.png"/>
-                <span class="text">摄像头:</span>
-                <el-select placeholder="请选择摄像头" v-model="mediaStreamConstraints.deviceId">
-                    <el-option
-                        v-for="item in videoList"
-                        :key="item.id"
-                        :label="item.label"
-                        :value="item.id"
+            <div class="footer">
+                <div class="camera-select">
+                    <img
+                        src="@/assets/images/suspension/icon_shexiangtou@2x.png"
+                    />
+                    <span class="text">摄像头:</span>
+                    <el-select
+                        placeholder="请选择摄像头"
+                        v-model="mediaStreamConstraints.deviceId"
                     >
-                    </el-option>
-                </el-select>
+                        <el-option
+                            v-for="item in videoList"
+                            :key="item.id"
+                            :label="item.label"
+                            :value="item.id"
+                        >
+                        </el-option>
+                    </el-select>
+                </div>
+                <el-button type="danger" @click="close"> 关闭投影 </el-button>
             </div>
-            <el-button type="danger" @click="close">
-                关闭投影
-            </el-button>
         </div>
-    </div>
+    </el-config-provider>
 </template>
 
 <script lang="ts">
 import { ElMessageBox } from "element-plus";
 import { defineComponent, onMounted, reactive, ref, watch } from "vue";
+import zhCn from "element-plus/lib/locale/lang/zh-cn";
 export default defineComponent({
     setup() {
         const videoRef = ref<HTMLVideoElement>();
@@ -47,7 +53,7 @@ export default defineComponent({
             localVideo!.srcObject = mediaStream;
         }
 
-        async function updateDeviceList () {
+        async function updateDeviceList() {
             const list: { label: string; id: string }[] = [];
             const devices = await navigator.mediaDevices.enumerateDevices();
             devices.forEach((device) => {
@@ -73,9 +79,7 @@ export default defineComponent({
         };
 
         watch(mediaStreamConstraints, (v) => {
-            navigator.mediaDevices
-                .getUserMedia(v)
-                .then(gotLocalMediaStream);
+            navigator.mediaDevices.getUserMedia(v).then(gotLocalMediaStream);
         });
 
         onMounted(async () => {
@@ -89,6 +93,7 @@ export default defineComponent({
             videoRef,
             mediaStreamConstraints,
             videoList,
+            locale: zhCn,
             close
         };
     }

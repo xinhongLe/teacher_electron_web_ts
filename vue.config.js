@@ -1,3 +1,5 @@
+const { NormalModuleReplacementPlugin } = require("webpack");
+
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 
 module.exports = {
@@ -57,6 +59,10 @@ module.exports = {
              * 查看包大小
              */
             // new BundleAnalyzerPlugin()
+            new NormalModuleReplacementPlugin(
+                /element-plus[\\/\\]lib[\\/\\]locale[\\/\\]lang[\\/\\]en/,
+                "element-plus/lib/locale/lang/zh-cn"
+            )
         ]
     },
     chainWebpack(config) {
@@ -65,22 +71,27 @@ module.exports = {
                 suspension: {
                     name: "suspension",
                     priority: 10,
-                    test: "src/suspension/main.ts"
+                    test: "src/childWindow/suspension/main.ts"
                 },
                 unfoldSuspension: {
                     name: "unfoldSuspension",
                     priority: 10,
-                    test: "src/unfoldSuspension/main.ts"
+                    test: "src/childWindow/unfoldSuspension/main.ts"
                 },
                 projection: {
                     name: "projection",
                     priority: 10,
-                    test: "src/projection/main.ts"
+                    test: "src/childWindow/projection/main.ts"
+                },
+                call: {
+                    name: "call",
+                    priority: 10,
+                    test: "src/childWindow/call/main.ts"
                 },
                 timer: {
                     name: "timer",
                     priority: 10,
-                    test: "src/timer/main.ts"
+                    test: "src/childWindow/timer/main.ts"
                 }
             }
         });
@@ -161,7 +172,7 @@ module.exports = {
                     target: ["dmg", "zip"]
                 }
             },
-            externals: ["clipboard"]
+            externals: ["clipboard", "@microsoft/signalr"]
         }
     }
 };

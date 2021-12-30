@@ -66,7 +66,7 @@ const getSlideWord = (words: IOldWord[]) => {
 const getSlideBackground = () => {
     const background: SlideBackground = {
         type: "solid",
-        color: "#ffffff"
+        color: "#F6FFFB"
     };
     return background;
 };

@@ -42,6 +42,7 @@
                 :MissionDetails="missionDetails"
                 :questionDetailId="questionDetailId"
                 :questionContent="questionContent"
+                :type="questionType"
             ></ReviewHomework>
         </div>
     </div>
@@ -76,6 +77,7 @@ export default defineComponent({
         const activeIndex = ref(0);
         const questionDetailId = ref("");
         const questionContent = ref("");
+        const questionType = ref(-1);
 
         async function getQuestinInfoByQuestionID(questionID: string) {
             const res = await fetchQuestinInfoByQuestionID({
@@ -84,6 +86,7 @@ export default defineComponent({
             if (res.resultCode === 200) {
                 questionDetailId.value = res.result.Question.ID;
                 questionContent.value = res.result.Question.FlowText?.QuestionContent || "";
+                questionType.value = res.result.Question.Type;
             }
         }
 
@@ -121,6 +124,7 @@ export default defineComponent({
             activeIndex,
             selectQuestion,
             questionDetailId,
+            questionType,
             missionDetails,
             questionContent,
             questionList
@@ -154,10 +158,7 @@ export default defineComponent({
             display: flex;
             flex-wrap: wrap;
             justify-content: space-between;
-            overflow-y: auto;
-        }
-        .access-system-chart::-webkit-scrollbar {
-            width: 0 !important;
+            overflow-y: overlay;
         }
         .access-system-toast {
             height: 70px;

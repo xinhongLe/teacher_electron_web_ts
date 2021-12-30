@@ -2,8 +2,6 @@
     <div class="write-box">
         <canvas
             ref="canvasRef"
-            :width="panelWidth"
-            :height="panelHeight"
             :style="{ left: panelOffsetX + 'px', top: panelOffsetY + 'px' }"
         ></canvas>
     </div>
@@ -66,6 +64,8 @@ export default defineComponent({
 
         function init () {
             writePoints.value = [];
+            canvasRef.value!.width = props.panelWidth;
+            canvasRef.value!.height = props.panelHeight;
             canvasClear();
             dealWriteFileData(props.data);
             draw();

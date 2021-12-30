@@ -129,7 +129,6 @@ function createBlackboardWindow() {
     blackboardWin = createWindow(blackboardURL, {
         width: 1000,
         height: 750,
-        type: "toolbar", // 创建的窗口类型为工具栏窗口
         frame: false, // 要创建无边框窗口
         resizable: false,
         fullscreen: true,
@@ -180,7 +179,6 @@ function createSubjectToolWindow(url, name) {
         win.setTitle(`爱学仕学科工具《${name}》`);
     });
 
-    win.loadURL(url);
     win.maximize();
 }
 
@@ -205,6 +203,11 @@ export function createSuspensionWindow() {
     });
     suspensionWin.on("closed", () => {
         suspensionWin = null;
+    });
+
+    suspensionWin.on("moved", () => {
+        setSuspensionSize(false);
+        checkIsWelt();
     });
 }
 

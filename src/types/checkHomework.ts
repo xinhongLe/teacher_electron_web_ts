@@ -14,7 +14,9 @@ export interface HomeworkDetail {
         classHomeworkPaperID: string;
     }[];
     type: number;
+    workbookPaperPageNum: string;
     albumName: string;
+    lessonName: string;
     chapterName: string
 }
 
@@ -156,12 +158,13 @@ export interface QuestionDetail {
     Detail?: {
         SpeechAssessResults: SpeechAssessResult[];
         ID: string;
-        Result: string;
+        Result: number;
         HomeworkPaperType: number;
         PronunciationText: string;
     };
     Study?: {
         StudyFiles?: QuestionFile[];
+        ChoiceValue: string;
         MissionFiles?: QuestionDetailMissionFile[];
     };
     WorkbookPageQuestion?: {
