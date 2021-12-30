@@ -53,7 +53,9 @@ export interface DiscussioncontentList {
     CreaterID: string;
     CreaterName: string;
     PreparateID: string;
+    DiscussionContentID:string;
     ResourceSource: Fileginseng;
+    ResourceResult: Fileginseng;
     ResourceType: number;
     Title: string;
 }

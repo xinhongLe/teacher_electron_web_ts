@@ -156,7 +156,7 @@ export default defineComponent({
         watch(() => props.researchContent, (newValue) => {
             console.log(newValue, "12345");
             flagType.value = "编辑";
-            preId.value = newValue.PreparateID;
+            preId.value = newValue.DiscussionContentID;
             state.form.title = newValue.Title;
             state.form.resourceType = newValue.ResourceType;
             state.form.content = newValue.Content;

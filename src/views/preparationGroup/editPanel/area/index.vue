@@ -54,18 +54,18 @@
                         <div class="tools">
                             <div class="tool-item">
                                 <img src="../../../../assets/preparationGroup/editPanel/view.png" alt="">
-                                <span>查看</span>
+                                <el-button @click="lookOver(item.ResourceResult)" type="text" :disabled="!item.ResourceResult">查看</el-button>
                             </div>
                             <div class="tool-item">
                                 <img src="../../../../assets/preparationGroup/editPanel/down.png" alt="">
-                                <span>下载</span>
+                                <el-button @click="download(item.ResourceResult)" type="text" :disabled="!item.ResourceResult">下载</el-button>
                             </div>
                             <div class="tool-item">
                                 <el-upload
                                     action
                                     :show-file-list="false"
                                     accept=".doc, .docx, .ppt"
-                                    :http-request="(file) => uploadFileSuccess(file, item.PreparateID)"
+                                    :http-request="(file) => uploadFileSuccess(file, item.DiscussionContentID)"
                                 >
                                     <img src="../../../../assets/preparationGroup/editPanel/up.png" alt="">
                                     <span>再次上传</span>
@@ -163,6 +163,7 @@
 <script lang="ts">
 import { defineComponent, onMounted, reactive, toRefs, ref } from "vue";
 import { useRoute } from "vue-router";
+import { ElMessage } from "element-plus";
 import { IOssFileInfo } from "@/types/oss";
 import File from "../../file/index.vue";
 import FileSmall from "../../file/small.vue";
@@ -326,6 +327,12 @@ export default defineComponent({
                 const result = await addResourceResult(params);
                 if (result.resultCode === 200) {
                     console.log(result);
+                    ElMessage.success("添加研讨的终稿文件成功");
+                    const preId = route.params.preId as string;
+                    const params = {
+                        id: preId
+                    };
+                    getContents(params);
                 }
             }
         };
@@ -335,9 +342,7 @@ export default defineComponent({
         };
 
         const EditResearch = (row :DiscussioncontentList) => {
-            // console.log(row, "row");
             researchContent.value = row;
-            // console.log(researchContent.value, "researchContent.value");
             dialogVisible.value = true;
         };
 
