@@ -48,8 +48,7 @@ export default defineComponent({
                     : Number(
                         (
                             (props.item.TotalRight /
-                                  (props.item.TotalNoSure +
-                                      props.item.TotalWrong +
+                                  (props.item.TotalWrong +
                                       props.item.TotalRight)) *
                               100
                         ).toFixed(2)
