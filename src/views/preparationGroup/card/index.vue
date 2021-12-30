@@ -44,12 +44,14 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, ref, toRefs } from "vue";
+import { defineComponent, reactive, ref, toRefs, onMounted } from "vue";
 import { PreparateListBag } from "@/types/preparationGroup";
 import { deletePreLesson } from "../api";
 import { useRouter } from "vue-router";
 import moment from "moment";
+import { ElMessage } from "element-plus";
 import useSubmit from "../search/useSubmit";
+import useEdit from "../editPanel/useSubmit";
 import generateLink from "../generate-link/index.vue";
 import DeleteConfirm from "../dialog/index.vue";
 export default defineComponent({
@@ -79,11 +81,6 @@ export default defineComponent({
             TeacherCount: 0
         });
         const generateLinkRef = ref();
-        const switchStatus = (status: number) => {
-            return statusList.filter((v) => {
-                return v.value === status;
-            })[0].label;
-        };
         // 生成邀请链接
         const generatelink = () => {
             generateLinkRef.value.dialogVisible = true;
@@ -100,14 +97,19 @@ export default defineComponent({
         // 删除研讨
         const deleteResource = async () => {
             const res = await deletePreLesson({
-                Id: currentItem.value.Id
+                ID: currentItem.value.Id
             });
             if (res.resultCode === 200) {
+                ElMessage.success("删除成功");
                 const cardParams = JSON.parse(sessionStorage.getItem("cardParams") || "");
                 emit("requestParams", cardParams);
             }
         };
-        const { statusList } = useSubmit();
+        const { statusList, switchStatus } = useSubmit();
+        const { getTextBookGrade } = useEdit();
+        onMounted(() => {
+            getTextBookGrade();
+        });
         return {
             ...toRefs(state),
             statusList,
@@ -119,7 +121,8 @@ export default defineComponent({
             currentItem,
             showDeleteDialog,
             deleteDialog,
-            deleteResource
+            deleteResource,
+            getTextBookGrade
         };
     }
 });

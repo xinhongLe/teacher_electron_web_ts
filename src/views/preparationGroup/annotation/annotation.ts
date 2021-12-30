@@ -32,6 +32,7 @@ export default () => {
     const cardListRef = ref();
     const expandFlag = ref(false);
     const annotationFlag = ref(true);
+    const pageListRef = ref();
     const _getWindowCards = async (date:GetWindowCards) => {
         const obj = {
             OriginType: date.OriginType,
@@ -64,6 +65,13 @@ export default () => {
     };
     const openAnotation = () => {
         annotationFlag.value = true;
+        pageListRef.value.addElement();
+    };
+    const lastPage = () => {
+        cardListRef.value.lastPage();
+    };
+    const firstPage = () => {
+        cardListRef.value.firstPage();
     };
     return {
         allCardList,
@@ -71,10 +79,13 @@ export default () => {
         previewOptions,
         expandFlag,
         annotationFlag,
+        pageListRef,
         _getWindowCards,
         updatePageList,
         expand,
         closeAnotation,
-        openAnotation
+        openAnotation,
+        lastPage,
+        firstPage
     };
 };

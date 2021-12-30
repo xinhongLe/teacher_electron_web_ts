@@ -19,7 +19,7 @@
                 :style="{ width: percent + '%' }"
               ></div>
             </div>
-            <p class="file-size" v-else>{{`${fileInfo.size}`}}</p>
+            <p class="file-size" v-else>{{`${fileInfo.size || '0 KB'}`}}</p>
         </div>
         <img v-if="action === 'download'" class="file-download" src="../../../assets/preparationGroup/editPanel/download.png" @click="download" />
         <img v-else-if="action === 'upload'" class="file-download" src="../../../assets/preparationGroup/editPanel/close.png" @click="close" />
@@ -46,7 +46,7 @@ export default defineComponent({
         console.log(props);
         console.log(emit);
         const timer = ref();
-        const percent = ref(0);
+        const percent = ref(100);
 
         const download = async () => {
             console.log(props.fileInfo);
@@ -70,6 +70,7 @@ export default defineComponent({
             clearInterval(timer.value);
             timer.value = null;
             if (props.action === "upload") {
+                percent.value = 0;
                 timer.value = setInterval(() => {
                     let step = 50;
                     switch (item.size.split(" ")[1]) {

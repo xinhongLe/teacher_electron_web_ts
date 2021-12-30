@@ -163,7 +163,7 @@ export class TrackModel {
     /// <summary>
     /// 跟踪来源
     /// </summary>
-    Source: EnumTrackSource = EnumTrackSource.Teacher;
+    Source: EnumTrackSource = EnumTrackSource.WCP;
     /// <summary>
     /// 埋点事件类型
     /// </summary>

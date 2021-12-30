@@ -3,7 +3,7 @@ import { AI_XUE_SHI_API } from "@/config";
 import { IResponse, RequestFun } from "@/types/response";
 import {
     FetchPreparateListPageData, FetchPreparateListPageRes, DeletePreLessonData,
-    AddChapterData, AddCourseWareTeacherElementFileData, AddCustomBookLessonData, AddMaterialData, AddOrUpdateCourseBagTeacherData, BagChapter, BookChapter, BookList, CloneCourseBagToTeacherData, CloneCourseBagToTeacherRes, Course,
+    AddChapterData, AddCourseWareTeacherElementFileData, AddCustomBookLessonData, AddMaterialData, SavePreparateDetailData, BagChapter, FetchPreparateDetailRes, BookList, CloneCourseBagToTeacherData, CloneCourseBagToTeacherRes, Course,
     DeleteMaterialData,
     EditMaterialData,
     FetchBagChapterData,
@@ -41,7 +41,7 @@ export function deletePreLesson(data: DeletePreLessonData): Promise<IResponse<nu
 }
 
 // 获取集体备课明细数据
-export function fetchPreparateDetail(data: FetchPreparateDetailData):Promise<IResponse<BookChapter[]>> {
+export function fetchPreparateDetail(data: FetchPreparateDetailData):Promise<IResponse<FetchPreparateDetailRes>> {
     return request({
         baseURL: AI_XUE_SHI_API,
         url: "/Api/V2/GroupLesson/GetPreparateDetail",
@@ -55,7 +55,7 @@ export function fetchPreparateDetail(data: FetchPreparateDetailData):Promise<IRe
 }
 
 // 查询集体备课 小组成员列表
-export function fetchGroupLessonTeachers(data: FetchPreparateDetailData): Promise<IResponse<BookChapter[]>> {
+export function fetchGroupLessonTeachers(data: FetchPreparateDetailData): Promise<IResponse<FetchPreparateDetailRes>> {
     return request({
         baseURL: AI_XUE_SHI_API,
         url: "/Api/V2/GroupLesson/GetGroupLessonTeachers",
@@ -94,7 +94,7 @@ export function fetchReflectFiles(data: FetchTeacherLessonAndBagByChapterData): 
 }
 
 // 编辑集体备课明细数据（只有创建者才能编辑）
-export function editPreparateDetail(data:AddOrUpdateCourseBagTeacherData): Promise<IResponse<null>> {
+export function editPreparateDetail(data:SavePreparateDetailData): Promise<IResponse<null>> {
     return request({
         baseURL: AI_XUE_SHI_API,
         url: "/Api/V2/GroupLesson/EditPreparateDetail",

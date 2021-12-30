@@ -1,14 +1,19 @@
 <template>
-    <div class="pageListComponents">
+    <div class="pageListComponents" id="pageListComponents">
         <div class="me-work">
-            <ScreenView
-                class="me-work-screen"
-                :inline="true"
-                ref="screenRef"
-                :slide="screenViewPage"
-                :useScale="false"
-            />
-            <canvas ref="canvasRef" class="canvas"></canvas>
+            <div class="screen-views">
+                <ScreenView
+                    class="me-work-screen"
+                    :inline="true"
+                    ref="screenRef"
+                    :slide="screenViewPage"
+                    :useScale="false"
+                    :isInit="isInit"
+                    @pagePrev="pagePrev()"
+                    @pageNext="pageNext()"
+                />
+                <Tagging ref="taggingRef" class="taggingComponents"></Tagging>
+            </div>
             <div class="me-page">
                 <div
                     class="me-page-item"
@@ -28,62 +33,135 @@
 import useHome from "@/hooks/useHome";
 import { defineComponent, ref, watch } from "vue-demi";
 import { ElMessage } from "element-plus";
+import { getWinCardDBData } from "@/utils/database";
+import Tagging from "./tagging.vue";
 export default defineComponent({
     props: ["pageListOption"],
-    setup(props) {
+    components: { Tagging },
+    setup(props, { emit }) {
         const selected = ref(0);
         const pageList = ref([]);
         const screenViewPage = ref({});
         const canvasRef = ref();
+        const isInit = ref(true);
+        const screenRef = ref();
+        const switchFlag = ref(false);
+        const taggingRef = ref();
         const { transformType, getPageDetail } = useHome();
         watch(
             () => props.pageListOption,
             () => {
-                pageList.value = props.pageListOption.pages;
-                selected.value = -1;
-                pageNext(selected.value);
+                if (switchFlag.value) {
+                    switchFlag.value = false;
+                    pageList.value = props.pageListOption.pages;
+                    selected.value = pageList.value.length - 1;
+                    pageNextEnd();
+                } else {
+                    pageList.value = props.pageListOption.pages;
+                    selected.value = -1;
+                    pageNext();
+                }
             }
         );
+        // 下一步
+        const pageNext = async () => {
+            if (pageList.value.length === 0) {
+                screenViewPage.value = {};
+            }
+            if (selected.value === pageList.value.length - 1) {
+                isInit.value = true;
+                emit("lastPage");
+            } else {
+                selected.value++;
+                isInit.value = true;
+                getDataBase(pageList.value[selected.value].ID, pageList.value[selected.value]);
+            }
+        };
+        // 上一步
+        const pagePrev = async () => {
+            if (selected.value > 0) {
+                selected.value--;
+                isInit.value = false;
+                getDataBase(pageList.value[selected.value].ID, pageList.value[selected.value]);
+                return;
+            }
+            if (selected.value === 0) {
+                console.log("上一页");
+                isInit.value = false;
+                switchFlag.value = true;
+                emit("firstPage");
+            }
+        };
+        const nextCard = () => {
+            isInit.value = true;
+            screenRef.value.execNext();
+        };
+        const prevCard = () => {
+            isInit.value = false;
+            screenRef.value.execPrev();
+        };
+        const pageNextEnd = async () => {
+            if (pageList.value.length > 0) {
+                isInit.value = false;
+                getDataBase(pageList.value[selected.value].ID, pageList.value[selected.value]);
+            } else {
+                screenViewPage.value = {};
+            }
+        };
         const getDataBase = async(str, obj) => {
-            console.log(obj, pageList.value);
             if (transformType(obj.Type) === -1) {
                 ElMessage({ type: "warning", message: "暂不支持该页面类型" });
                 screenViewPage.value = {};
                 return false;
             }
-            await getPageDetail(obj, obj.originType, (res) => {
-                if (res && res.id) {
-                    screenViewPage.value = res;
-                }
-            });
-        };
-        const pageNext = () => {
-            console.log(pageList.value);
-            selected.value++;
-            getDataBase(pageList.value[selected.value].ID, pageList.value[selected.value]);
+            const dbResArr = await getWinCardDBData(str);
+            if (dbResArr.length > 0) {
+                screenViewPage.value = JSON.parse(dbResArr[0].result);
+            } else {
+                await getPageDetail(obj, obj.originType, (res) => {
+                    if (res && res.id) {
+                        screenViewPage.value = res;
+                    }
+                });
+            }
         };
         const selectPage = (index, item) => {
             selected.value = index;
             getDataBase(pageList.value[index].ID, pageList.value[index]);
+        };
+        const addElement = () => {
+            taggingRef.value.addElement();
         };
         return {
             selected,
             pageList,
             screenViewPage,
             canvasRef,
-            selectPage
+            screenRef,
+            isInit,
+            selectPage,
+            addElement,
+            pagePrev,
+            pageNext,
+            nextCard,
+            prevCard,
+            taggingRef
         };
     }
 });
 </script>
 
 <style lang="scss" scoped>
-.canvas{
+.activeElements{
+    background: red !important;
+}
+.elements{
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    top: calc(50% - 20px);
+    left: calc(50% - 10px);
+    width: 20px;
+    height: 40px;
+    background: #000;
 }
 .pageListComponents{
     :deep(.el-overlay){
@@ -135,6 +213,20 @@ export default defineComponent({
 .me-work-screen {
     width: 100%;
     height: 100%;
+}
+.screen-views{
+    display: flex;
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+    position: relative;
+    .taggingComponents{
+        position: absolute;
+        top: 0;
+        left: 0;
+        display: flex;
+        justify-content: center;
+    }
 }
 .me-page {
     min-width: 0;

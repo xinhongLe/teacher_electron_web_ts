@@ -30,12 +30,17 @@
                     style="margin-right: 15px"
                     ref="pageListRef"
                     :pageListOption="previewOptions"
+                    @lastPage="lastPage"
+                    @firstPage="firstPage"
                 />
             </div>
             <div class="annotation-main-right" v-if="annotationFlag">
                 <div class="amr-header">
                     <span>批注</span>
                     <span @click="closeAnotation"><i class="el-icon-close"></i></span>
+                    <div>
+                        111
+                    </div>
                 </div>
             </div>
         </div>
@@ -58,7 +63,7 @@ export default defineComponent({
     setup() {
         const WindowID = "3A0015526B08B24B97C9BCD943D6F7EC";
         const WindowName = "1A1.1 数一数";
-        const { cardListRef, allCardList, previewOptions, expandFlag, annotationFlag, _getWindowCards, updatePageList, expand, closeAnotation, openAnotation } = annotation();
+        const { cardListRef, pageListRef, allCardList, previewOptions, expandFlag, annotationFlag, _getWindowCards, updatePageList, expand, closeAnotation, openAnotation, lastPage, firstPage } = annotation();
         onMounted(async() => {
             const obj = {
                 OriginType: 1,
@@ -69,6 +74,7 @@ export default defineComponent({
         return {
             WindowName,
             cardListRef,
+            pageListRef,
             allCardList,
             previewOptions,
             expandFlag,
@@ -76,7 +82,9 @@ export default defineComponent({
             updatePageList,
             expand,
             closeAnotation,
-            openAnotation
+            openAnotation,
+            lastPage,
+            firstPage
         };
     }
 });

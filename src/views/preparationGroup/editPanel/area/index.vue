@@ -42,10 +42,6 @@
                                 <img src="../../../../assets/preparationGroup/editPanel/down.png" alt="">
                                 <span @click="download(item.ResourceSource)">下载</span>
                             </div>
-                            <div class="tool-item">
-                                <img src="../../../../assets/preparationGroup/editPanel/up.png" alt="">
-                                <span>再次上传</span>
-                            </div>
                         </div>
                     </div>
                     <img class="arrow" src="../../../../assets/preparationGroup/editPanel/right.png" alt="">

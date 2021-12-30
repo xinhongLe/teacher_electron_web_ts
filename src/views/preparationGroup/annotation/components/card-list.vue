@@ -12,6 +12,7 @@
     </div>
 </template>
 <script>
+import { ElMessage } from "element-plus";
 import { computed, defineComponent, ref } from "vue-demi";
 import cardList from "../../hooks/cardList";
 export default defineComponent({
@@ -29,13 +30,47 @@ export default defineComponent({
             const pageDate = dealCardData(item, 1);
             emit("updatePageList", pageDate);
         };
+        const ToastFirstPage = debounce(() => {
+            return ElMessage({ type: "warning", message: "已经是第一页了" });
+        }, 200);
+        const ToastLastPage = debounce(() => {
+            return ElMessage({ type: "warning", message: "已经是最后页了" });
+        }, 200);
+        const firstPage = () => {
+            if (cardIndex.value === 0) {
+                ToastFirstPage();
+                return false;
+            }
+            handleClick(cardIndex.value - 1, currentCardList.value[cardIndex.value - 1]);
+        };
+        const lastPage = () => {
+            if (currentCardList.value.length === 0) return false;
+            if (cardIndex.value + 1 === currentCardList.value.length) {
+                ToastLastPage();
+                return false;
+            }
+            handleClick(cardIndex.value + 1, currentCardList.value[cardIndex.value + 1]);
+        };
         return {
             currentCardList,
             cardIndex,
-            handleClick
+            handleClick,
+            lastPage,
+            firstPage
         };
     }
 });
+function debounce (fn, delay) {
+    let timer;
+    return function () {
+        if (timer) {
+            clearTimeout(timer);
+        }
+        timer = setTimeout(() => {
+            fn();
+        }, delay);
+    };
+}
 </script>
 <style lang="scss" scoped>
 .me-card {
