@@ -42,6 +42,7 @@
                 :MissionDetails="missionDetails"
                 :questionDetailId="questionDetailId"
                 :questionContent="questionContent"
+                :answerContent="answerContent"
                 :type="questionType"
             ></ReviewHomework>
         </div>
@@ -77,6 +78,7 @@ export default defineComponent({
         const activeIndex = ref(0);
         const questionDetailId = ref("");
         const questionContent = ref("");
+        const answerContent = ref("");
         const questionType = ref(-1);
 
         async function getQuestinInfoByQuestionID(questionID: string) {
@@ -86,6 +88,7 @@ export default defineComponent({
             if (res.resultCode === 200) {
                 questionDetailId.value = res.result.Question.ID;
                 questionContent.value = res.result.Question.FlowText?.QuestionContent || "";
+                answerContent.value = res.result.Question.FlowText?.AnswerContent || "";
                 questionType.value = res.result.Question.Type;
             }
         }
@@ -125,6 +128,7 @@ export default defineComponent({
             selectQuestion,
             questionDetailId,
             questionType,
+            answerContent,
             missionDetails,
             questionContent,
             questionList
