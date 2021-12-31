@@ -107,7 +107,7 @@ export default defineComponent({
         const preId = ref();
         const flagType = ref("新增");
         const acceptList = ".ppt,.doc,.docx,.pdf,.mp3,.mp4,.jpg,.png,";
-        const fileList = reactive<{ extention: string; fileName: string; name: string; bucket: string; fileMD5: string; filePath: string; size: string; fileType: string; }[]>([]);
+        const fileList = reactive<{ extention: string; fileName: string; name: string; bucket: string; fileMD5: string; filePath: string; size: number; fileSize: string; fileType: string; }[]>([]);
         const fileContent = reactive<IOssFileInfo>({
             bucket: "",
             path: "",
@@ -116,7 +116,8 @@ export default defineComponent({
             md5: "",
             fileName: "",
             fileExtension: "",
-            size: "",
+            size: 0,
+            fileSize: "",
             fileType: ""
         });
         const state = reactive({
@@ -167,7 +168,8 @@ export default defineComponent({
             fileContent.fileExtension = newValue.ResourceSource.Extention;
             fileContent.md5 = newValue.ResourceSource.FileMD5;
             fileContent.fileName = newValue.ResourceSource.FileName;
-            // fileContent.size = newValue.ResourceSource.Name;
+            fileContent.size = 0;
+            fileContent.fileSize = "";
             // fileContent.fileType = newValue.ResourceSource.Name;
         }, { deep: true });
 
@@ -203,7 +205,8 @@ export default defineComponent({
                 fileContent.name = name;
                 fileContent.md5 = md5;
                 fileContent.fileName = file.name.substring(0, file.name.lastIndexOf("."));
-                fileContent.size = getFileSize(file.size);
+                fileContent.size = file.size;
+                fileContent.fileSize = getFileSize(file.size);
                 fileContent.fileType = getFileType(file.name);
             }
         };
@@ -217,7 +220,8 @@ export default defineComponent({
             fileContent.name = "";
             fileContent.md5 = "";
             fileContent.fileName = "";
-            fileContent.size = "";
+            fileContent.size = 0;
+            fileContent.fileSize = "";
             fileContent.fileType = "";
             state.form.planFile = "";
         };
@@ -234,6 +238,7 @@ export default defineComponent({
                 fileMD5: fileInfo.md5,
                 filePath: fileInfo.path!,
                 size: fileInfo.size!,
+                fileSize: fileInfo.fileSize!,
                 fileType: fileInfo.fileType!
             });
         };

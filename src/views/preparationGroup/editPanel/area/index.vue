@@ -251,7 +251,8 @@ export default defineComponent({
                 fileName: "摘要长方形",
                 fileExtension: "doc",
                 path: "",
-                size: "310.79 KB",
+                size: 0,
+                fileSize: "310.79 KB",
                 fileType: "word"
             }
         ]);
@@ -264,7 +265,8 @@ export default defineComponent({
                 fileName: "评论长方形评论长方形评论长方形",
                 fileExtension: "doc",
                 path: "",
-                size: "310.79 KB",
+                size: 0,
+                fileSize: "310.79 KB",
                 fileType: "word"
             }
         ]);

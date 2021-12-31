@@ -14,7 +14,10 @@ export default (ossPathKey: OssName) => {
         md5: "",
         fileName: "",
         fileExtension: "",
-        size: "",
+        // 文件实际的大小
+        size: 0,
+        // 文件展示的大小
+        fileSize: "",
         fileType: ""
     });
 
@@ -33,7 +36,8 @@ export default (ossPathKey: OssName) => {
             fileInfo.objectKey = objectKey;
             fileInfo.md5 = md5;
             fileInfo.fileName = file.name.substring(0, file.name.lastIndexOf("."));
-            fileInfo.size = getFileSize(file.size);
+            fileInfo.size = file.size;
+            fileInfo.fileSize = getFileSize(file.size);
             fileInfo.fileType = getFileType(file.name);
         }
         loadingShow.value = false;
@@ -47,7 +51,8 @@ export default (ossPathKey: OssName) => {
         fileInfo.name = "";
         fileInfo.objectKey = "";
         fileInfo.md5 = "";
-        fileInfo.size = "";
+        fileInfo.size = 0;
+        fileInfo.fileSize = "";
         fileInfo.fileType = "";
     };
 
