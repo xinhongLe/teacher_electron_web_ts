@@ -4,7 +4,7 @@ import { GetTeacherClassData, GetTeacherDataRes, GetSchoolClassData, GetSchoolDa
 
 export default () => {
     const teacherList = ref<GetTeacherDataRes>([]);
-    const schoolList = ref<GetSchoolDataRes>();
+    const schoolList = ref<GetSchoolDataRes>([]);
 
     const getTeacher = async (params: GetTeacherClassData) => {
         const res = await getTeacherList(params);
@@ -13,7 +13,7 @@ export default () => {
                 const resp: any = {
                     ID: item.ID,
                     Name: item.Name,
-                    active: false
+                    Active: false
                 };
                 teacherList.value.push(resp);
             });
