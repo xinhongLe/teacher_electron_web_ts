@@ -157,11 +157,11 @@
             </div>
         </div>
     </div>
-    <AddResearchContent v-model:dialogVisible="dialogVisible" :researchContent="researchContent" @close="closeHandle"></AddResearchContent>
+    <AddResearchContent v-model:dialogVisible="dialogVisible" :researchContent="researchContent" @update="updateHandle"></AddResearchContent>
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, reactive, toRefs, ref } from "vue";
+import { defineComponent, onMounted, reactive, toRefs, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import { ElMessage } from "element-plus";
 import { IOssFileInfo } from "@/types/oss";
@@ -181,6 +181,10 @@ export default defineComponent({
     props: {
         reload: {
             type: Function
+        },
+        updateContent: {
+            type: Number,
+            defalut: 0
         }
     },
     setup(props, { emit }) {
@@ -353,7 +357,7 @@ export default defineComponent({
         const add = () => {
             console.log(1);
         };
-        const closeHandle = () => {
+        const updateHandle = () => {
             dialogVisible.value = false;
             const preId = route.params.preId as string;
             const params = {
@@ -361,6 +365,15 @@ export default defineComponent({
             };
             getContents(params);
         };
+
+        watch(() => props.updateContent, (newValue) => {
+            console.log(newValue, "123456");
+            const preId = route.params.preId as string;
+            const params = {
+                id: preId
+            };
+            getContents(params);
+        });
 
         onMounted(async () => {
             const preId = route.params.preId as string;
@@ -383,7 +396,7 @@ export default defineComponent({
             lookOver,
             download,
             EditResearch,
-            closeHandle,
+            updateHandle,
             uploadFileSuccess,
             againUpload,
             moment

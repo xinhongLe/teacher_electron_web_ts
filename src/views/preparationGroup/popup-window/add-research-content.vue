@@ -3,7 +3,7 @@
         :append-to-body="true"
         :model-value="dialogVisible"
         :before-close="handleClose"
-        title="新增研讨内容"
+        :title="flagType + '研讨内容'"
         width="800px"
         center
     >
@@ -277,7 +277,7 @@ export default defineComponent({
                             ElMessage.success("编辑研讨内容成功");
                         }
                     }
-                    emit("update:dialogVisible", false);
+                    emit("update");
                 } else {
                     if (state.form.title === "") {
                         return false;
@@ -291,7 +291,7 @@ export default defineComponent({
             });
         };
         const handleClose = () => {
-            emit("close");
+            emit("update:dialogVisible", false);
         };
         onMounted(() => {
             preId.value = route.params.preId;
@@ -305,6 +305,7 @@ export default defineComponent({
             acceptList,
             loadingShow,
             fileContent,
+            flagType,
             deleteFile,
             beforeUpload,
             uploadFileSuccess,

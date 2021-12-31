@@ -24,10 +24,10 @@
         </div>
         <div class="discuss-area">
             <div class="discuss-box-cell">
-                <Area></Area>
+                <Area :updateContent="updateContent"></Area>
             </div>
         </div>
-        <AddResearchContent v-model:dialogVisible="dialogVisible"  v-if="dialogVisible" @close="closeHandle">></AddResearchContent>
+        <AddResearchContent v-model:dialogVisible="dialogVisible"  v-if="dialogVisible" @update="updateHandle">></AddResearchContent>
     </div>
 </template>
 
@@ -46,6 +46,7 @@ export default defineComponent({
         console.log(props);
         console.log(emit);
         const dialogVisible = ref(false);
+        const updateContent = ref(0);
         const state = reactive({
             stepList: [
                 {
@@ -75,8 +76,10 @@ export default defineComponent({
             dialogVisible.value = true;
         };
 
-        const closeHandle = () => {
+        const updateHandle = () => {
             dialogVisible.value = false;
+            updateContent.value = +1;
+            console.log(updateContent.value, "updateContent");
         };
 
         const add = () => {
@@ -87,8 +90,9 @@ export default defineComponent({
             submit,
             add,
             AddResearch,
-            closeHandle,
-            dialogVisible
+            updateHandle,
+            dialogVisible,
+            updateContent
         };
     },
     components: { Area, AddResearchContent }

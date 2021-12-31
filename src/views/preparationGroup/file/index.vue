@@ -1,6 +1,7 @@
 <template>
     <div class="preparation-file" :title="fileInfo.fileName">
-        <img class="file-type" v-if="fileInfo.fileType === 'word'" src="../../../assets/preparationGroup/editPanel/icon_word.png" />
+        <FileType :iconWidth="24" :iconHeight="27" :fileExtension="fileInfo.fileExtension || fileInfo.extention || fileInfo.Extention"/>
+        <!-- <img class="file-type" v-if="fileInfo.fileType === 'word'" src="../../../assets/preparationGroup/editPanel/icon_word.png" />
         <img class="file-type" v-else-if="fileInfo.fileType === 'excel'" src="../../../assets/preparationGroup/editPanel/icon_excel.png" />
         <img class="file-type" v-else-if="fileInfo.fileType === 'ppt'" src="../../../assets/preparationGroup/editPanel/icon_ppt.png" />
         <img class="file-type" v-else-if="fileInfo.fileType === 'pdf'" src="../../../assets/preparationGroup/editPanel/icon_pdf.png" />
@@ -9,7 +10,7 @@
         <img class="file-type" v-else-if="fileInfo.fileType === 'radio'" src="../../../assets/preparationGroup/editPanel/icon_radio.png" />
         <img class="file-type" v-else-if="fileInfo.fileType === 'image'" src="../../../assets/preparationGroup/editPanel/icon_image.png" />
         <img class="file-type" v-else-if="fileInfo.fileType === 'zip'" src="../../../assets/preparationGroup/editPanel/icon_zip.png" />
-        <img class="file-type" v-else src="../../../assets/preparationGroup/editPanel/icon_other.png" />
+        <img class="file-type" v-else src="../../../assets/preparationGroup/editPanel/icon_other.png" /> -->
         <div class="file-info">
             <p class="file-name"><span class="ellipsis">{{ fileInfo.fileName || fileInfo.FileName }}</span><span style="flex-shrink: 0;">{{`.${fileInfo.fileExtension || fileInfo.extention || fileInfo.Extention}`}}</span></p>
             <div class="loading-box" v-if="action === 'upload' && percent < 100">
@@ -29,6 +30,7 @@
 <script lang="ts">
 import { defineComponent, ref, onMounted, onBeforeUnmount } from "vue";
 import { downloadFile } from "@/utils/oss";
+import FileType from "@/components/fileType/index.vue";
 export default defineComponent({
     name: "card",
     props: {
@@ -113,7 +115,7 @@ export default defineComponent({
             close
         };
     },
-    components: { }
+    components: { FileType }
 });
 </script>
 
@@ -133,9 +135,9 @@ export default defineComponent({
         border: 1px solid #4B71EE;
     }
     .file-type {
-        display: inline-block;
-        width: 24px;
-        height: auto;
+        // display: inline-block;
+        // width: 24px;
+        // height: auto;
     }
     .file-info {
         width: calc(100% - 40px);
