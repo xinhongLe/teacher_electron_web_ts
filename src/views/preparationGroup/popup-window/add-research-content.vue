@@ -3,7 +3,7 @@
         :append-to-body="true"
         :model-value="dialogVisible"
         :before-close="handleClose"
-        :title="`${flagType}研讨内容`"
+        :title="flagType + '研讨内容'"
         width="800px"
         center
     >
@@ -280,16 +280,16 @@ export default defineComponent({
                         const res = await AddDiscussionContent(params);
                         if (res.resultCode === 200) {
                             ElMessage.success("新增研讨内容成功");
+                            emit("AddSuccess");
                         }
                     } else {
                         const params = Object.assign(data, { discussionID: preId.value });
                         const res = await EditDiscussionContent(params);
                         if (res.resultCode === 200) {
                             ElMessage.success("编辑研讨内容成功");
+                            emit("EditSuccess");
                         }
                     }
-                    emit("update:dialogVisible", false);
-                    emit("close");
                 } else {
                     if (state.form.title === "") {
                         return false;
@@ -303,11 +303,10 @@ export default defineComponent({
             });
         };
         const handleClose = () => {
-            emit("close");
+            emit("update:dialogVisible", false);
         };
         onMounted(() => {
             preId.value = route.params.preId;
-            console.log(preId.value, "preIdpreIdpreIdpreIdpreId");
         });
         return {
             formRef,

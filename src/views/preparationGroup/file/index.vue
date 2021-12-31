@@ -153,9 +153,9 @@ export default defineComponent({
         align-items: center;
     }
     .file-type {
-        display: inline-block;
-        width: 24px;
-        height: auto;
+        // display: inline-block;
+        // width: 24px;
+        // height: auto;
     }
     .file-info {
         width: calc(100% - 40px);

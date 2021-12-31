@@ -1,5 +1,5 @@
 <template>
-    <div class="head-info">
+    <div :class="isEdit ? 'head-info max' : 'head-info'">
         <div class="head-title">
             <div class="left" v-if="isEdit">
                 <el-input class="input-title" v-model="lessonItem.PreTitle" placeholder=""></el-input>
@@ -532,5 +532,8 @@ export default defineComponent({
         margin-right: 10px;
         margin-bottom: 10px;
     }
+}
+.max {
+    min-height: 400px;
 }
 </style>
