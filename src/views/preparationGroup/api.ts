@@ -121,19 +121,6 @@ export function editPreparateDetail(data:SavePreparateDetailData): Promise<IResp
     });
 }
 
-// 编辑 集体备课参与人员
-export function editPreparateTeachers(data:UpdateCourseBagTeacherData): Promise<IResponse<null>> {
-    return request({
-        baseURL: AI_XUE_SHI_API,
-        url: "/Api/V2/GroupLesson/EditPreparateTeachers",
-        headers: {
-            "Content-Type": "application/json-patch+json"
-        },
-        method: "post",
-        data
-    });
-}
-
 // 添加研讨内容
 export function addDiscussionContent(data: AddCustomBookLessonData): Promise<IResponse<null>> {
     return request({
@@ -178,6 +165,19 @@ export function addPreLesson(data: addCourseData): Promise<IResponse<null>> {
     return request({
         baseURL: AI_XUE_SHI_API,
         url: "/Api/V2/GroupLesson/AddPreLesson",
+        headers: {
+            "Content-Type": "application/json-patch+json"
+        },
+        method: "post",
+        data
+    });
+}
+
+// 编辑 集体备课参与人员
+export function editPreparateTeachers(data:addCourseData): Promise<IResponse<null>> {
+    return request({
+        baseURL: AI_XUE_SHI_API,
+        url: "/Api/V2/GroupLesson/EditPreparateTeachers",
         headers: {
             "Content-Type": "application/json-patch+json"
         },

@@ -20,7 +20,7 @@
             暂无小组成员
         </div>
     </div>
-    <ShareDetail ref="ShareDialogRef" @submit="submit" :dynamicTags="memberList" :isEdit="true"></ShareDetail>
+    <ShareDetail ref="ShareDialogRef" @submit="submit" :dynamicTagsProps="memberList" :isEdit="true"></ShareDetail>
 </template>
 
 <script lang="ts">
@@ -51,7 +51,7 @@ export default defineComponent({
             ShareDialogRef.value.openDialog();
         };
         const submit = () => {
-            console.log(1);
+            getTeacherGroup();
         };
 
         const getTeacherGroup = async () => {
@@ -71,6 +71,7 @@ export default defineComponent({
                         });
                     });
                     emit("SetTeacherCount", memberList.value.length);
+                    sessionStorage.setItem("memberList", JSON.stringify(memberList.value));
                     nextTick(() => {
                         const windowContent = document.documentElement.clientWidth;
                         isShowMore.value = memberList.value.length * 92 > windowContent;

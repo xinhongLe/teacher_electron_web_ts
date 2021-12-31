@@ -158,19 +158,12 @@
 <script lang="ts">
 import { toRefs, reactive, nextTick, defineComponent, getCurrentInstance } from "vue";
 import { ElMessage } from "element-plus";
+import { useRoute } from "vue-router";
 import userShareList from "./userShareList";
 import { GetSchoolClassData } from "@/types/preparationGroup";
-import { addPreLesson } from "../api";
+import { addPreLesson, editPreparateTeachers } from "../api";
 export default defineComponent({
     props: {
-        dynamicTags: {
-            type: Object,
-            default: () => ({
-                Active: false,
-                ID: "",
-                Name: ""
-            })
-        },
         isEdit: {
             type: Boolean,
             default: false
@@ -178,6 +171,7 @@ export default defineComponent({
     },
     setup(props, { emit }) {
         const { proxy } = getCurrentInstance() as any;
+        const route = useRoute();
         const { teacherList, schoolList, getTeacher, getSchool } = userShareList();
         const state = reactive({
             courseContent: "",
@@ -285,10 +279,20 @@ export default defineComponent({
         };
 
         const resetShareParams = () => {
+            const dynamicTagsSession = JSON.parse(sessionStorage.getItem("memberList") || "") || [];
             state.searchString = "";
             state.selectOption = "";
             state.selectOptionID = "";
             state.dynamicTags = [];
+            if (props.isEdit && dynamicTagsSession && dynamicTagsSession.length > 0) {
+                dynamicTagsSession.map((v: any) => {
+                    state.dynamicTags.push({
+                        Active: false,
+                        ID: v.ID,
+                        Name: v.Name
+                    });
+                });
+            }
             state.searchResult = [];
             state.shareOption = [];
         };
@@ -479,19 +483,30 @@ export default defineComponent({
             const teacherIDs = state.dynamicTags.map((item: any) => {
                 return item.ID;
             });
-            const req = {
-                preTitle: state.courseContent,
-                status: 0,
-                preLessonContent: "",
-                teacherIDs: teacherIDs
-            };
-            const res = await addPreLesson(req);
-            if (res.resultCode === 200) {
-                ElMessage.success("邀请成功");
-                state.isShowDialog = false;
-                // const cardParams = JSON.parse(sessionStorage.getItem("cardParams") || "");
-                // emit("requestParams", cardParams);
-                emit("submit");
+            if (props.isEdit) {
+                const reqEdit = {
+                    groupLessonPreparateID: route.params.preId as string,
+                    teacherIDs: teacherIDs
+                };
+                const res = await editPreparateTeachers(reqEdit);
+                if (res.resultCode === 200) {
+                    ElMessage.success("操作成功");
+                    state.isShowDialog = false;
+                    emit("submit");
+                }
+            } else {
+                const req = {
+                    preTitle: state.courseContent,
+                    status: 0,
+                    preLessonContent: "",
+                    teacherIDs: teacherIDs
+                };
+                const res = await addPreLesson(req);
+                if (res.resultCode === 200) {
+                    ElMessage.success("邀请成功");
+                    state.isShowDialog = false;
+                    emit("submit");
+                }
             }
         };
 
