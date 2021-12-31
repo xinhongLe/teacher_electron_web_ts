@@ -1,15 +1,18 @@
 <template>
     <div class="shareDetailContent">
-        <el-dialog title="发起集体备课" center v-model="isShowDialog" :close-on-click-modal="false">
-            <div class="lessonPrepOption" v-if="!isEdit">
-                <span class="formTitle"><span class="requireIcon">*</span>集体备课主题:</span>
-                <el-input
-                    class="rightContent"
-                    v-model="courseContent"
-                    autosize
-                    clearable
-                    placeholder="请输入此次集体备课的主题，例如第3单元，长方形与正方形"
-                />
+        <el-dialog :title="title" center v-model="isShowDialog" :close-on-click-modal="false">
+            <div v-if="!isEdit">
+                <el-form ref="uploadForm" :model="ruleForm" :rules="rules" class="lessonPrepOption">
+                    <span class="formTitle"><span class="requireIcon">*</span>集体备课主题:</span>
+                    <el-form-item prop="courseContent" class="rightContent">
+                        <el-input
+                            v-model="ruleForm.courseContent"
+                            autosize
+                            clearable
+                            placeholder="请输入此次集体备课的主题，例如第3单元，长方形与正方形"
+                        />
+                    </el-form-item>
+                </el-form>
             </div>
             <div class="lessonPrepOption">
                 <span class="formTitle">邀请备课教师:</span>
@@ -156,7 +159,7 @@
     </div>
 </template>
 <script lang="ts">
-import { toRefs, reactive, nextTick, defineComponent, getCurrentInstance } from "vue";
+import { toRefs, reactive, nextTick, defineComponent, getCurrentInstance, ref } from "vue";
 import { ElMessage } from "element-plus";
 import { useRoute } from "vue-router";
 import userShareList from "./userShareList";
@@ -173,8 +176,9 @@ export default defineComponent({
         const { proxy } = getCurrentInstance() as any;
         const route = useRoute();
         const { teacherList, schoolList, getTeacher, getSchool } = userShareList();
+        const uploadForm = ref();
         const state = reactive({
-            courseContent: "",
+            title: props.isEdit ? "人员管理" : "发起集体备课",
             isShowDialog: false,
             organizationVisible: true,
             organizationGroupVisibility: false,
@@ -267,19 +271,28 @@ export default defineComponent({
                     id: 5,
                     name: "英语组(19人)"
                 }
-            ]
+            ],
+            ruleForm: {
+                courseContent: ""
+            },
+            rules: {
+                courseContent: [
+                    { required: true, message: "请输入集体备课主题", trigger: "blur" }
+                ]
+            }
         });
 
         const openDialog = () => {
             state.isShowDialog = true;
             nextTick(() => {
+                debugger;
                 resetShareParams();
                 fetchShareObjectOrganization();
             });
         };
 
         const resetShareParams = () => {
-            const dynamicTagsSession = JSON.parse(sessionStorage.getItem("memberList") || "") || [];
+            const dynamicTagsSession = sessionStorage.getItem("memberList") ? JSON.parse(sessionStorage.getItem("memberList") || "") : [];
             state.searchString = "";
             state.selectOption = "";
             state.selectOptionID = "";
@@ -324,12 +337,23 @@ export default defineComponent({
         const fetchShareObjectOrganization = async () => {
             state.shareOption = [];
             await getSchool({ id: "39F832D3E67424EA3F0479BE7957C642" });
-            nextTick(() => {
+            setTimeout(() => {
                 if (schoolList.value.length > 0) {
                     state.selectOption = schoolList.value[0].Name;
                     state.selectOptionID = schoolList.value[0].ID;
                 }
-            });
+                console.log(state.dynamicTags, teacherList.value);
+                if (state.dynamicTags.length > 0) {
+                    state.dynamicTags.map((item: any) => {
+                        teacherList.value.forEach((itm: any) => {
+                            if (item.ID === itm.ID) {
+                                itm.Active = true;
+                                return false;
+                            }
+                        });
+                    });
+                }
+            }, 500);
         };
 
         const fetchShareCustomerList = async (id: string) => {
@@ -476,10 +500,6 @@ export default defineComponent({
         };
 
         const confirm = async () => {
-            if (state.dynamicTags.length === 0) {
-                ElMessage.info("请选择要邀请的人员");
-                return;
-            }
             const teacherIDs = state.dynamicTags.map((item: any) => {
                 return item.ID;
             });
@@ -495,18 +515,22 @@ export default defineComponent({
                     emit("submit");
                 }
             } else {
-                const req = {
-                    preTitle: state.courseContent,
-                    status: 0,
-                    preLessonContent: "",
-                    teacherIDs: teacherIDs
-                };
-                const res = await addPreLesson(req);
-                if (res.resultCode === 200) {
-                    ElMessage.success("邀请成功");
-                    state.isShowDialog = false;
-                    emit("submit");
-                }
+                proxy.$refs.uploadForm.validate(async(valid: boolean) => {
+                    if (valid) {
+                        const req = {
+                            preTitle: state.ruleForm.courseContent,
+                            status: 0,
+                            preLessonContent: "",
+                            teacherIDs: teacherIDs
+                        };
+                        const res = await addPreLesson(req);
+                        if (res.resultCode === 200) {
+                            ElMessage.success("邀请成功");
+                            state.isShowDialog = false;
+                            emit("submit");
+                        }
+                    }
+                });
             }
         };
 
@@ -552,6 +576,7 @@ export default defineComponent({
         }
         .rightContent {
             width: calc(100% - 110px);
+            text-align: left;
         }
     }
     :deep(.el-dialog) {
