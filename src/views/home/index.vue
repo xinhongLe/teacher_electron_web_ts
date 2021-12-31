@@ -24,7 +24,7 @@
                 <div class="item" @click="go('report-center')">
                     <div class="item_div">
                         <img
-                            src="../../assets/indexImages/card_baobiao.png"
+                            src="../../assets/indexImages/pic_baobiao.png"
                             alt=""
                         />
                         <span>报表中心</span>
@@ -33,7 +33,7 @@
                 <div class="item" @click="go('assessment-center')">
                     <div class="item_div">
                         <img
-                            src="../../assets/indexImages/card_kaoshi.png"
+                            src="../../assets/indexImages/pic_kaoshi.png"
                             alt=""
                         />
                         <span>测评中心</span>
@@ -42,16 +42,25 @@
                 <div class="item" @click="go('course-time')">
                     <div class="item_div">
                         <img
-                            src="../../assets/indexImages/card_kaoshi.png"
+                            src="../../assets/indexImages/pic_kehou.png"
                             alt=""
                         />
                         <span>课时延后</span>
                     </div>
                 </div>
+                <div class="item" @click="go('preparation-group')">
+                    <div class="item_div">
+                        <img
+                            src="../../assets/indexImages/pic_jitibeike.png"
+                            alt=""
+                        />
+                        <span>集体备课</span>
+                    </div>
+                </div>
                 <div class="item" @click="go('')">
                     <div class="item_div">
                         <img
-                            src="../../assets/indexImages/card_zhibo.png"
+                            src="../../assets/indexImages/pic_zhibo.png"
                             alt=""
                         />
                         <span>直播课堂</span>
@@ -60,7 +69,7 @@
                 <div class="item" @click="go('class-manage')">
                     <div class="item_div">
                         <img
-                            src="../../assets/indexImages/card_xuesheng.png"
+                            src="../../assets/indexImages/pic_xuesheng.png"
                             alt=""
                         />
                         <span>班级管理</span>
@@ -222,8 +231,7 @@ export default defineComponent({
             width: 100%;
             display: flex;
             .item {
-                width: 25%;
-                padding: 20px;
+                width: 16.6%;
                 .item_div {
                     cursor: pointer;
                     position: relative;
@@ -237,12 +245,17 @@ export default defineComponent({
                     span {
                         position: absolute;
                         top: 18%;
-                        left: 12%;
+                        left: 20%;
                         z-index: 10;
                         font-size: 1.4vw;
                         font-family: PingFang-SC-Heavy, PingFang-SC;
                         font-weight: 800;
                         color: #ffffff;
+                    }
+                }
+                &:first-child {
+                    .item_div span {
+                        left: 15%;
                     }
                 }
             }
