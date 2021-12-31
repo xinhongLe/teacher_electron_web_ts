@@ -639,6 +639,7 @@ export default defineComponent({
                             margin-bottom: 8px;
                         }
                         .files {
+                            min-height: 60px;
                             .files-list {
                                 display: flex;
                                 align-items: center;

@@ -2,7 +2,7 @@
     <div class="member">
         <div class="member-head">
             <div class="title">小组成员<span>({{ memberList.length }})</span></div>
-            <div class="btn-edit">
+            <div class="btn-edit" @click="manage">
                 <img src="../../../../assets/preparationGroup/editPanel/icon_guanli.png" alt="" />
                 <span>管理</span>
             </div>
@@ -11,7 +11,7 @@
             <div class="member-list" :class="isFull ? `full-list` : ``">
                 <div class="member-cell" v-for="(item, index) in memberList" :key="index">
                     <img class="file-download" src="../../../../assets/preparationGroup/editPanel/avator_small_back.png" alt="" />
-                    <p>{{ item.memberName }}</p>
+                    <p>{{ item.Name }}</p>
                 </div>
             </div>
             <p class="more" v-if="isShowMore" @click="isFull = !isFull">{{ isFull ? `隐藏更多` : `查看更多` }}</p>
@@ -20,13 +20,15 @@
             暂无小组成员
         </div>
     </div>
+    <ShareDetail ref="ShareDialogRef" @submit="submit" :dynamicTags="memberList" :isEdit="true"></ShareDetail>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted, nextTick } from "vue";
+import { defineComponent, ref, onMounted, nextTick, getCurrentInstance } from "vue";
 import { useRoute } from "vue-router";
 import { fetchGroupLessonTeachers } from "../../api";
 import { FetchGroupLessonTeachersRes } from "@/types/preparationGroup";
+import ShareDetail from "../../shareDialog/index.vue";
 export default defineComponent({
     name: "member",
     props: {
@@ -35,6 +37,8 @@ export default defineComponent({
         }
     },
     setup(props, { emit }) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { proxy } = getCurrentInstance() as any;
         console.log(props);
         console.log(emit);
         const route = useRoute();
@@ -42,6 +46,10 @@ export default defineComponent({
         const isShowMore = ref(false);
         const isFull = ref(false);
 
+        const ShareDialogRef = ref();
+        const manage = () => {
+            ShareDialogRef.value.openDialog();
+        };
         const submit = () => {
             console.log(1);
         };
@@ -57,10 +65,12 @@ export default defineComponent({
                         memberList.value.push({
                             ...v,
                             memberIcon: "../../../../assets/preparationGroup/editPanel/avator_small_back.png",
-                            memberId: v.Id,
-                            memberName: v.Name
+                            ID: v.Id,
+                            Name: v.Name,
+                            Active: true
                         });
                     });
+                    emit("SetTeacherCount", memberList.value.length);
                     nextTick(() => {
                         const windowContent = document.documentElement.clientWidth;
                         isShowMore.value = memberList.value.length * 92 > windowContent;
@@ -73,6 +83,8 @@ export default defineComponent({
             getTeacherGroup();
         });
         return {
+            manage,
+            ShareDialogRef,
             isShowMore,
             isFull,
             memberList,
@@ -80,7 +92,7 @@ export default defineComponent({
             submit
         };
     },
-    components: { }
+    components: { ShareDetail }
 });
 </script>
 

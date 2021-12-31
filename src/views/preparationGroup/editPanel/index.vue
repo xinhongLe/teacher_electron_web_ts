@@ -1,8 +1,8 @@
 <template>
     <div class="edit-pre-panel">
-        <HeadInfo></HeadInfo>
+        <HeadInfo :teacherCount="teacherCount"></HeadInfo>
         <div class="main-box" :class="editStatus ? `opacity` : ``">
-            <Member></Member>
+            <Member @SetTeacherCount="setTeacherCount"></Member>
             <Discuss></Discuss>
             <Summary></Summary>
         </div>
@@ -17,7 +17,7 @@ import Discuss from "./discuss/index.vue";
 import Summary from "./summary/index.vue";
 import useSubmit from "./useSubmit";
 export default defineComponent({
-    name: "edit-pre-panel",
+    name: "preparationEdit",
     props: {
         reload: {
             type: Function
@@ -29,6 +29,7 @@ export default defineComponent({
         console.log(emit);
         const state = reactive({
             editStatus: false,
+            teacherCount: 0,
             defaultValue: [new Date(), new Date()],
             shortcuts: [
                 {
@@ -55,8 +56,8 @@ export default defineComponent({
             emit("requestParams", formData);
         };
 
-        const add = () => {
-            console.log(1);
+        const setTeacherCount = (teacherCount: number) => {
+            state.teacherCount = teacherCount;
         };
         const { statusList, formData, formRef } = useSubmit();
         onMounted(() => {
@@ -73,7 +74,7 @@ export default defineComponent({
             formData,
             formRef,
             submit,
-            add
+            setTeacherCount
         };
     },
     components: { HeadInfo, Member, Discuss, Summary }
@@ -83,6 +84,9 @@ export default defineComponent({
 <style lang="scss" scoped>
 .edit-pre-panel {
     width: 100%;
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
     height: fit-content;
     user-select: none;
     background-color: #F5F6FA;

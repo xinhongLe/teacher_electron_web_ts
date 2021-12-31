@@ -474,6 +474,7 @@ export interface GetSchoolClassData {
 export type GetTeacherDataRes = {
     ID: string,
     Name: string,
+    Active: boolean,
     Account?: string,
     SubjectList?: [],
     Schools?: [],

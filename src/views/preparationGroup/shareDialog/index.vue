@@ -1,14 +1,13 @@
 <template>
     <div class="shareDetailContent">
         <el-dialog title="发起集体备课" center v-model="isShowDialog" :close-on-click-modal="false">
-            <div class="lessonPrepOption">
+            <div class="lessonPrepOption" v-if="!isEdit">
                 <span class="formTitle"><span class="requireIcon">*</span>集体备课主题:</span>
                 <el-input
-                    class="title"
+                    class="rightContent"
                     v-model="courseContent"
                     autosize
                     clearable
-                    type="textarea"
                     placeholder="请输入此次集体备课的主题，例如第3单元，长方形与正方形"
                 />
             </div>
@@ -74,8 +73,8 @@
                                     </el-option>
                                     <template #empty>
                                         <div class="empty-box" style="height: 120px;">
-                                            <img src="../../../assets/preparationGroup/avatar_default.png" style="width: 100px;">
-                                            <p>{{ 搜索无结果 }}</p>
+                                            <img src="../../../assets/preparationGroup/pic_noresult.png">
+                                            <p>搜索无结果</p>
                                         </div>
                                     </template>
                                 </el-select>
@@ -88,8 +87,8 @@
                                 </div>
                                 <div class="customer-box-parent">
                                     <div v-for="(item,index) in teacherList" :key="index" class="customer-box" @click="clickCustomer(item)">
-                                        <div class="active-box">
-                                            <img v-if="item.active" src="../../../assets/preparationGroup/checkbox_cycle_selected.png">
+                                        <div class="Active-box">
+                                            <img v-if="item.Active" src="../../../assets/preparationGroup/checkbox_cycle_selected.png">
                                             <img v-else src="../../../assets/preparationGroup/checkbox_cycle.png">
                                         </div>
                                         <img class="avatarImg" src="../../../assets/preparationGroup/avatar_default.png">
@@ -101,8 +100,8 @@
                                 </div>
                             </div>
                             <div v-else class="empty-box" style="height: 120px;margin-top: 120px;">
-                                <img src="../../../assets/preparationGroup/avatar_default.png" style="width: 100px;">
-                                <p>{{ 搜索无结果 }}</p>
+                                <img src="../../../assets/preparationGroup/pic_noresult.png">
+                                <p>搜索无结果</p>
                             </div>
                             <div class="optionContent" v-if="false">
                                 <div v-for="(item,index) in organization" :key="index" class="organization">
@@ -150,8 +149,8 @@
                 <div class="inviteInfo">*若邀请人员不在列表，可在点击【确认】后，通过备课空间列表里的复制链接进行邀请</div>
             </div>
             <div class="dialogFooter">
-                <span class="confirm" @click="confirm">{{`确定邀请(${dynamicTags.length}/${maxSize})`}}</span>
-                <span class="cancel" @click="closeDialog">搜索无结果</span>
+                <span class="cancel" @click="closeDialog">取消</span>
+                <span class="confirm" @click="confirm">确认</span>
             </div>
         </el-dialog>
     </div>
@@ -163,6 +162,20 @@ import userShareList from "./userShareList";
 import { GetSchoolClassData } from "@/types/preparationGroup";
 import { addPreLesson } from "../api";
 export default defineComponent({
+    props: {
+        dynamicTags: {
+            type: Object,
+            default: () => ({
+                Active: false,
+                ID: "",
+                Name: ""
+            })
+        },
+        isEdit: {
+            type: Boolean,
+            default: false
+        }
+    },
     setup(props, { emit }) {
         const { proxy } = getCurrentInstance() as any;
         const { teacherList, schoolList, getTeacher, getSchool } = userShareList();
@@ -173,17 +186,16 @@ export default defineComponent({
             organizationGroupVisibility: false,
             optionMemberVisibility: false,
             selectOption: "",
-            currentOrgID: "",
+            selectOptionID: "",
             selectOrganizationIndex: "",
             shareOrganization: "",
             selectGroup: "",
             selectTeacher: {},
             dynamicTags: [
                 {
-                    active: false,
-                    group: "",
-                    id: "",
-                    name: ""
+                    Active: false,
+                    ID: "",
+                    Name: ""
                 }
             ],
             maxSize: 100,
@@ -261,8 +273,7 @@ export default defineComponent({
                     id: 5,
                     name: "英语组(19人)"
                 }
-            ],
-            selectOptionID: ""
+            ]
         });
 
         const openDialog = () => {
@@ -276,7 +287,7 @@ export default defineComponent({
         const resetShareParams = () => {
             state.searchString = "";
             state.selectOption = "";
-            state.currentOrgID = "";
+            state.selectOptionID = "";
             state.dynamicTags = [];
             state.searchResult = [];
             state.shareOption = [];
@@ -306,26 +317,40 @@ export default defineComponent({
             // });
         };
 
-        const fetchShareObjectOrganization = () => {
+        const fetchShareObjectOrganization = async () => {
             state.shareOption = [];
-            getSchool({ id: "39F832D3E67424EA3F0479BE7957C642" });
+            await getSchool({ id: "39F832D3E67424EA3F0479BE7957C642" });
+            nextTick(() => {
+                if (schoolList.value.length > 0) {
+                    state.selectOption = schoolList.value[0].Name;
+                    state.selectOptionID = schoolList.value[0].ID;
+                }
+            });
         };
 
-        const fetchShareCustomerList = (id: string) => {
-            state.currentOrgID = id;
+        const fetchShareCustomerList = async (id: string) => {
+            state.selectOptionID = id;
             teacherList.value = [];
             state.isSelectAll = false;
-            getTeacher({ schoolID: id });
+            await getTeacher({ schoolID: id });
+            state.dynamicTags.map((item: any) => {
+                teacherList.value.forEach((itm: any) => {
+                    if (item.ID === itm.ID) {
+                        itm.Active = true;
+                        return false;
+                    }
+                });
+            });
         };
 
         const clickCustomer = (item: any) => {
-            const ids = state.dynamicTags.map((v: any) => { return v.id; });
+            const ids = state.dynamicTags.map((v: any) => { return v.ID; });
             if (item.ID) {
-                item.active = !item.active;
-                if (item.active) {
+                item.Active = !item.Active;
+                if (item.Active) {
                     if (state.dynamicTags.length === state.maxSize) {
                         ElMessage.info(`最多邀请给${state.maxSize}个人`);
-                        item.active = false;
+                        item.Active = false;
                         return;
                     }
                     if (ids.indexOf(item.ID) === -1) {
@@ -333,10 +358,10 @@ export default defineComponent({
                     } else {
                         ElMessage.info("该数据已存在");
                     }
-                    const left = state.dynamicTags.filter((m: any) => {
-                        return m.organizationID === state.currentOrgID;
-                    });
-                    state.isSelectAll = left.length === teacherList.value.length;
+                    // const left = state.dynamicTags.filter((m: any) => {
+                    //     return m.organizationID === state.selectOptionID;
+                    // });
+                    // state.isSelectAll = left.length === teacherList.value.length;
                 } else {
                     state.isSelectAll = false;
                     state.dynamicTags.splice(ids.indexOf(item.ID), 1);
@@ -348,7 +373,7 @@ export default defineComponent({
                 }
                 state.isSelectAll = !state.isSelectAll;
                 teacherList.value.map((v: any) => {
-                    v.active = state.isSelectAll;
+                    v.Active = state.isSelectAll;
                 });
                 if (state.isSelectAll) {
                     teacherList.value.map((v: any) => {
@@ -359,7 +384,7 @@ export default defineComponent({
                 } else {
                     if (state.dynamicTags.length > 0) {
                         state.dynamicTags = state.dynamicTags.filter((m: any) => {
-                            return m.organizationID !== state.currentOrgID;
+                            return m.organizationID !== state.selectOptionID;
                         });
                     }
                 }
@@ -374,10 +399,10 @@ export default defineComponent({
             if (teacherList.value.length > 0) {
                 teacherList.value.map((v: any) => {
                     if (tag.ID === v.ID) {
-                        v.active = false;
+                        v.Active = false;
                     }
                 });
-                if (state.currentOrgID === tag.organizationID) state.isSelectAll = false;
+                if (state.selectOptionID === tag.organizationID) state.isSelectAll = false;
             }
         };
 
@@ -400,27 +425,27 @@ export default defineComponent({
         const addToTag = (value: any) => {
             const match = teacherList.value.filter((v: any) => { return v.ID === value; })[0];
             const ids = state.dynamicTags.map((v: any) => { return v.id; });
-            // if (state.dynamicTags.length === state.maxSize) {
-            //     ElMessage.info(`最多邀请给${state.maxSize}个人`);
-            //     state.searchString = "";
-            //     return;
-            // }
-            // if (ids.indexOf(value) === -1) {
-            //     state.dynamicTags.push(match);
-            //     teacherList.value.map((v: any) => {
-            //         if (match.ID === v.ID) {
-            //             v.active = true;
-            //         }
-            //     });
-            //     // 重置全选
-            //     const left = state.dynamicTags.filter((m: any) => {
-            //         return m.organizationID === state.currentOrgID;
-            //     });
-            //     state.isSelectAll = left.length === teacherList.value.length;
-            // } else {
-            //     ElMessage.info("该数据已存在");
-            // }
-            // state.searchString = "";
+            if (state.dynamicTags.length === state.maxSize) {
+                ElMessage.info(`最多邀请给${state.maxSize}个人`);
+                state.searchString = "";
+                return;
+            }
+            if (ids.indexOf(value) === -1) {
+                state.dynamicTags.push(match);
+                teacherList.value.map((v: any) => {
+                    if (match.ID === v.ID) {
+                        v.Active = true;
+                    }
+                });
+                // // 重置全选
+                // const left = state.dynamicTags.filter((m: any) => {
+                //     return m.organizationID === state.currentOrgID;
+                // });
+                // state.isSelectAll = left.length === teacherList.value.length;
+            } else {
+                ElMessage.info("该数据已存在");
+            }
+            state.searchString = "";
         };
 
         const enterPath = (index: any) => {
@@ -498,23 +523,27 @@ export default defineComponent({
         display: flex;
         align-items: baseLine;
         margin-bottom: 24px;
+        text-align: right;
         .formTitle {
             font-size: 16px;
             font-family: PingFangSC-Regular, PingFang SC;
             font-weight: 400;
             color: #5F626F;
             margin-right: 12px;
-            width: 20%;
+            width: 110px;
             .requireIcon {
                 color: #FF4545;
             }
+        }
+        .rightContent {
+            width: calc(100% - 110px);
         }
     }
     :deep(.el-dialog) {
         box-shadow: 0px 8px 24px 0px rgba(0, 0, 0, 0.1);
         border-radius: 8px;
         width: 900px;
-        height: 780px;
+        max-height: 820px;
         overflow: hidden;
         padding: 0 25px 25px 25px;
         .el-dialog__header {
@@ -528,9 +557,9 @@ export default defineComponent({
             margin: 0;
             padding: 0;
             height: 100%;
-            padding-top: 0 !important;
             overflow: hidden;
             max-height: 100%;
+            padding-top: 25px;
         }
         .dialogContent {
             display: flex;
@@ -538,6 +567,7 @@ export default defineComponent({
             border-radius: 4px;
             border: 1px solid #E0E2E7;
             padding: 16px;
+            width: calc(100% - 110px);
             .leftContent {
                 position: relative;
                 .el-select .el-input__inner {
@@ -637,7 +667,7 @@ export default defineComponent({
                         &:hover {
                             cursor: pointer;
                         }
-                        .active-box {
+                        .Active-box {
                             display: flex;
                             align-items: center;
                         }
@@ -763,8 +793,8 @@ export default defineComponent({
             color: #5F626F;
         }
         .dialogFooter {
-            position: absolute;
-            bottom: 20px;
+            text-align: center;
+            margin-top: 56px;
             .cancel {
                 display: inline-block;
                 width: 100px;
@@ -781,7 +811,7 @@ export default defineComponent({
                 margin-left: 20px;
                 &:hover {
                     cursor: pointer;
-                    border: 1px solid #008DFF;
+                    border: 1px solid #4B71EE;
                 }
             }
             .confirm {
@@ -790,7 +820,7 @@ export default defineComponent({
                 height: 40px;
                 line-height: 40px;
                 text-align: center;
-                background: #008DFF;
+                background: #4B71EE;
                 border-radius: 6px;
                 font-size: 14px;
                 font-family: PingFangSC-Regular, PingFang SC;
