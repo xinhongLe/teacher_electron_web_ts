@@ -6,6 +6,7 @@
                     <span class="formTitle"><span class="requireIcon">*</span>集体备课主题:</span>
                     <el-form-item prop="courseContent" class="rightContent">
                         <el-input
+                            maxlength="20"
                             v-model="ruleForm.courseContent"
                             autosize
                             clearable
@@ -513,6 +514,8 @@ export default defineComponent({
                     ElMessage.success("操作成功");
                     state.isShowDialog = false;
                     emit("submit");
+                } else {
+                    ElMessage.error("创建失败");
                 }
             } else {
                 proxy.$refs.uploadForm.validate(async(valid: boolean) => {
@@ -528,6 +531,8 @@ export default defineComponent({
                             ElMessage.success("邀请成功");
                             state.isShowDialog = false;
                             emit("submit");
+                        } else {
+                            ElMessage.error("创建失败");
                         }
                     }
                 });
