@@ -31,6 +31,7 @@
 <script lang="ts">
 import { defineComponent, ref, onMounted, onBeforeUnmount } from "vue";
 import { downloadFile } from "@/utils/oss";
+import isElectron from "is-electron";
 export default defineComponent({
     name: "card",
     props: {
@@ -56,6 +57,11 @@ export default defineComponent({
             const url = await downloadFile(`${item.FilePath}/${item.FileMD5}.doc`, item.Bucket);
             // const url = await downloadFile(`${item.FilePath}/${item.FileMD5}.${item.Extention}`, item.Bucket);
             const previewUrl = "https://owa.lyx-edu.com/op/view.aspx?src=" + encodeURIComponent(url);
+            if (isElectron()) {
+                return window.electron.ipcRenderer.invoke("downloadFile", previewUrl, `${item.fileName}.${item.Extention}`).then((filePath) => {
+                    window.electron.shell.openPath(filePath);
+                });
+            }
             window.open(previewUrl);
         };
         const download = async () => {

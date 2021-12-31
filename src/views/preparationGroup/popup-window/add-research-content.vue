@@ -3,7 +3,7 @@
         :append-to-body="true"
         :model-value="dialogVisible"
         :before-close="handleClose"
-        title="新增研讨内容"
+        :title="`${flagType}研讨内容`"
         width="800px"
         center
     >
@@ -97,6 +97,12 @@ export default defineComponent({
         researchContent: {
             type: Object,
             default: () => ({})
+        },
+        researchType: {
+            type: String,
+            default: () => {
+                return "新增";
+            }
         }
     },
     components: { File },
@@ -105,7 +111,7 @@ export default defineComponent({
         const route = useRoute();
         const formRef = ref<ElFormType>();
         const preId = ref();
-        const flagType = ref("新增");
+        const flagType = ref(props.researchType);
         const acceptList = ".ppt,.doc,.docx,.pdf,.mp3,.mp4,.jpg,.png,";
         const fileList = reactive<{ extention: string; fileName: string; name: string; bucket: string; fileMD5: string; filePath: string; size: number; fileSize: string; fileType: string; }[]>([]);
         const fileContent = reactive<IOssFileInfo>({
@@ -283,6 +289,7 @@ export default defineComponent({
                         }
                     }
                     emit("update:dialogVisible", false);
+                    emit("close");
                 } else {
                     if (state.form.title === "") {
                         return false;
@@ -310,6 +317,7 @@ export default defineComponent({
             acceptList,
             loadingShow,
             fileContent,
+            flagType,
             deleteFile,
             beforeUpload,
             uploadFileSuccess,

@@ -24,10 +24,10 @@
         </div>
         <div class="discuss-area">
             <div class="discuss-box-cell">
-                <Area></Area>
+                <Area ref="areaRef"></Area>
             </div>
         </div>
-        <AddResearchContent v-model:dialogVisible="dialogVisible"  v-if="dialogVisible" @close="closeHandle">></AddResearchContent>
+        <AddResearchContent v-model:dialogVisible="dialogVisible" v-if="dialogVisible" @close="closeHandle">></AddResearchContent>
     </div>
 </template>
 
@@ -46,6 +46,7 @@ export default defineComponent({
         console.log(props);
         console.log(emit);
         const dialogVisible = ref(false);
+        const areaRef = ref();
         const state = reactive({
             stepList: [
                 {
@@ -77,6 +78,7 @@ export default defineComponent({
 
         const closeHandle = () => {
             dialogVisible.value = false;
+            if (areaRef.value) areaRef.value.fetchContents();
         };
 
         const add = () => {
@@ -88,7 +90,8 @@ export default defineComponent({
             add,
             AddResearch,
             closeHandle,
-            dialogVisible
+            dialogVisible,
+            areaRef
         };
     },
     components: { Area, AddResearchContent }
