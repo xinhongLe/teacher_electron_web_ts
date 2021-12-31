@@ -32,11 +32,12 @@
                 </div>
                 <el-button type="primary" plain @click="turnToEditPanel(item)">进入研讨</el-button>
             </div>
-            <p>您可以<span class="blue" @click="generatelink">生成邀请链接</span>， 发送至小组成员</p>
+            <p>您可以<span class="blue" @click="generateInvitelink(item)">生成邀请链接</span>， 发送至小组成员</p>
         </div>
 
         <generate-link
-        ref="generateLinkRef"
+            ref="generateLinkRef"
+            :currentItem="currentItem"
         ></generate-link>
 
     </div>
@@ -82,7 +83,9 @@ export default defineComponent({
         });
         const generateLinkRef = ref();
         // 生成邀请链接
-        const generatelink = () => {
+        const generateInvitelink = (item: PreparateListBag) => {
+            currentItem.value = item;
+            generateLinkRef.value.isCopy = false;
             generateLinkRef.value.dialogVisible = true;
         };
         // 进入研讨
@@ -115,7 +118,7 @@ export default defineComponent({
             statusList,
             generateLinkRef,
             switchStatus,
-            generatelink,
+            generateInvitelink,
             turnToEditPanel,
             moment,
             currentItem,
