@@ -38,7 +38,11 @@
                            <span class="label-class"
                                  @mouseenter="mouseenter($event, node.label)"
                                  @mouseleave="mouseleave">
-                                  <span :style="{color: !data.State && node.level === 2 ? '#c0c4cc' : '#333'}">{{ node.label }}</span>
+                                  <span
+                                      :style="{color: !data.State && node.level === 2 ? '#c0c4cc' : '#333'}"
+                                  >
+                                      {{ node.label }}
+                                  </span>
                               </span>
 
                                <div class="icon-box">
@@ -71,6 +75,7 @@
         </div>
         <div class="right">
             <win-card-edit ref="editRef" :pageValue="pageValue" :isSetCache="isSetCache" :allPageList="allPageList"></win-card-edit>
+            <div v-show="!pageValue.ID" class="mask-right" @click.stop="handleMask"></div>
         </div>
     </div>
 
@@ -91,7 +96,7 @@
 </template>
 
 <script lang="ts">
-import { onMounted, onUnmounted, defineComponent, toRefs, ref } from "vue";
+import { onMounted, onUnmounted, defineComponent, toRefs, ref, watch } from "vue";
 import WinCardEdit from "../components/edit/winCardEdit.vue";
 import { IPageValue, ICardList } from "@/types/home";
 import Node from "element-plus/es/components/tree/src/model/node";
@@ -299,6 +304,12 @@ export default defineComponent({
                 winScreenView.value = false;
             }
         };
+        watch(() => state.windowCards, () => {
+            pageValue.value = { ID: "", Type: 11 };
+        });
+        const handleMask = () => {
+            ElMessage({ type: "warning", message: "请先选择页，在进行编辑" });
+        };
         const winCardViewRef = ref();
         onMounted(() => {
             _getWindowCards({ WindowID: route.params.winValue as string, OriginType: 1 }, true);
@@ -360,7 +371,8 @@ export default defineComponent({
             addPage,
             updateName,
             _getWindowCards,
-            offScreen
+            offScreen,
+            handleMask
         };
     }
 });
@@ -459,6 +471,9 @@ export default defineComponent({
                 }
             }
         }
+        .active-text{
+            color: #3582FB !important;
+        }
     }
 
     .right {
@@ -466,6 +481,15 @@ export default defineComponent({
         padding: 0px 10px;
         height: 100%;
         background-color: #fff;
+        .mask-right{
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+            position: absolute;
+            left: 0;
+            top: 0;
+            background: transparent;
+        }
     }
 }
 .operation-box{
