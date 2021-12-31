@@ -3,12 +3,13 @@
         <div
             :style="{
                 transform: `translate(${transform.x}px, ${transform.y}px) scale(${transform.scale})`,
-                ...divStyle,
+                width: `${imgWidth}px`,
+                height: `${imgHeight}px`
             }"
             class="content"
         >
-            <img :src="imgUrl" v-if="imgUrl" @load="load" />
-            <div class="box" :style="boxStyle"></div>
+            <img :src="imgUrl" v-if="imgUrl" @load="load($event, data.WorkbookPageQuestion?.WorkbookPageQuestionBlanks || [])" />
+            <div class="box" :style="boxStyle" v-for="(boxStyle, index) in boxStyleList" :key="index"></div>
         </div>
     </div>
 </template>
@@ -16,7 +17,8 @@
 <script lang="ts">
 import { QuestionDetail } from "@/types/checkHomework";
 import { downloadFile } from "@/utils/oss";
-import { defineComponent, PropType, watchEffect, ref, reactive, onMounted, onUnmounted } from "vue";
+import { defineComponent, PropType, watchEffect, ref, reactive, onMounted, onUnmounted, watch, computed } from "vue";
+import useTeacherAnswerLoad from "./hooks/useTeacherAnswerLoad";
 export default defineComponent({
     props: {
         data: {
@@ -27,10 +29,6 @@ export default defineComponent({
     setup(props) {
         const imgUrl = ref("");
         const imgRef = ref<HTMLImageElement>();
-        const divStyle = ref();
-        const boxStyle = ref();
-        const imgWidth = ref(0);
-        const imgHeight = ref(0);
         const containerRef = ref<HTMLDivElement>();
         const transform = reactive({
             x: 0,
@@ -42,24 +40,10 @@ export default defineComponent({
             y: 0
         };
         const zoomRate = 0.015;
-        const load = (e: Event) => {
-            const target = e.target as HTMLImageElement;
-            const blank =
-                props.data.WorkbookPageQuestion?.WorkbookPageQuestionBlanks.find(
-                    ({ Type }) => Type === 0
-                );
-            imgWidth.value = target.width;
-            imgHeight.value = target.height;
-            const x = target.width * (blank?.MarginLeft || 1);
-            const y = target.height * (blank?.MarginTop || 1);
-            transform.y = -y / 2;
-            boxStyle.value = {
-                width: target.width * (blank?.SizeWidth || 1) + "px",
-                left: x + "px",
-                top: y + "px",
-                height: target.height * (blank?.SizeHeight || 1) + "px"
-            };
-        };
+        const { load, imgHeight, imgWidth, y, boxStyleList } = useTeacherAnswerLoad();
+        watch(y, (v) => {
+            transform.y = -v / 2;
+        });
 
         const mousedown = (event: MouseEvent) => {
             const { clientX, clientY } = event;
@@ -117,8 +101,9 @@ export default defineComponent({
         return	{
             imgUrl,
             load,
-            divStyle,
-            boxStyle,
+            imgWidth,
+            imgHeight,
+            boxStyleList,
             imgRef,
             mousedown,
             containerRef,
@@ -130,15 +115,13 @@ export default defineComponent({
 
 <style lang="scss" scoped>
     .container {
+        width: 100%;
         height: 580px;
         overflow: hidden;
         cursor: move;
         .content {
             position: relative;
-            height: 100%;
-        }
-        img {
-            width: 100%;
+            margin: 0px auto;
         }
         .box {
             position: absolute;

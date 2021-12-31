@@ -16,6 +16,7 @@ export interface HomeworkDetail {
     type: number;
     workbookPaperPageNum: string;
     albumName: string;
+    lessonName: string;
     chapterName: string
 }
 
@@ -105,7 +106,8 @@ export interface QuestinInfo {
         QuestionFiles: QuestionFile[];
         SN: string;
         FlowText?: {
-            QuestionContent: string
+            QuestionContent: string;
+            AnswerContent: string;
         },
         Type: number;
     };

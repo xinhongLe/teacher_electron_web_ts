@@ -57,7 +57,7 @@
                         info.HomeworkPaperType == 1 ||
                         info.HomeworkPaperType == 0
                     "
-                    >{{ info.AlbumName }} {{ info.ChapterName }}</template
+                    >{{ info.AlbumName }} {{ info.ChapterName }} {{info.LessonName}}</template
                 >
             </span>
 
@@ -338,6 +338,7 @@ export default defineComponent({
                 AlbumName,
                 WorkbookPaperPageNum,
                 ChapterName,
+                LessonName,
                 HomeworkName
             } = props.info;
             const classInfo = Object.values(props.homeworkListMap)
@@ -363,6 +364,7 @@ export default defineComponent({
                 homeworkPaperFiles: HomeworkPaperFiles,
                 workbookPaperPageNum: WorkbookPaperPageNum || "",
                 albumName: AlbumName,
+                lessonName: LessonName,
                 chapterName: ChapterName
             };
             set(STORAGE_TYPES.HOMEWORK_DETAIL, homeworkDetail);

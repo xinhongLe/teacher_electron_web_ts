@@ -4,6 +4,7 @@
       <div class="system-explain">
         <p>{{questionTypeName}} : </p>
         <div ref="questionContentRef"/>
+        <div ref="answerContentRef"/>
       </div>
       <div class="system-detail" @click="lookQuestions({id: questionDetailId,type: 0})">
         <img src="@/assets/images/homeworkNew/icon_timuxiangqing.png" alt="" />
@@ -28,14 +29,7 @@
             </p>
           </template>
           <div class="access-system-student" v-if="index != 3">
-            <div v-for="(value, index1) in item" :key="value.MisssionStudyID" class="access-system-student-item">
-              <Review
-                :result="value.Result"
-                :index="getIndex(index, index1)"
-                :className="value.StudentClassName"
-                :misssionStudyID="value.MisssionStudyID"
-              ></Review>
-            </div>
+            <ReviewList :item="item"/>
           </div>
           <div v-else class="general-reference-student">
             <NulliparousStudents
@@ -57,9 +51,10 @@
 import { MissionDetail } from "@/types/checkHomework";
 import { lookQuestions } from "@/utils";
 import { computed, defineComponent, PropType, ref, watchEffect } from "vue";
+import { QuestionResultTypeEnum } from "../enum";
 import { getQuestionType } from "../logic";
 import NulliparousStudents from "../NulliparousStudents.vue";
-import Review from "./Review.vue";
+import ReviewList from "./ReviewList.vue";
 export default defineComponent({
     props: {
         MissionDetails: {
@@ -71,6 +66,10 @@ export default defineComponent({
             default: ""
         },
         questionContent: {
+            type: String,
+            default: ""
+        },
+        answerContent: {
             type: String,
             default: ""
         },
@@ -86,12 +85,13 @@ export default defineComponent({
     setup(props) {
         const activeNames = ref(["0", "1", "2", "3"]);
         const questionContentRef = ref<HTMLDivElement>();
+        const answerContentRef = ref<HTMLDivElement>();
         const list = computed(() => {
             const list = [];
-            list[0] = props.MissionDetails.filter((m) => m.Result === 3);
-            list[1] = props.MissionDetails.filter((m) => m.Result === 2);
-            list[2] = props.MissionDetails.filter((m) => m.Result === 1);
-            list[3] = props.MissionDetails.filter((m) => m.Result === 0);
+            list[0] = props.MissionDetails.filter((m) => m.Result === QuestionResultTypeEnum.NOT_SURE);
+            list[1] = props.MissionDetails.filter((m) => m.Result === QuestionResultTypeEnum.ERROR);
+            list[2] = props.MissionDetails.filter((m) => m.Result === QuestionResultTypeEnum.RIGHT);
+            list[3] = props.MissionDetails.filter((m) => m.Result === QuestionResultTypeEnum.NOT_DONE);
             return list;
         });
         const questionTypeName = computed(() => getQuestionType(props.type));
@@ -102,8 +102,9 @@ export default defineComponent({
         };
 
         watchEffect(() => {
-            if (questionContentRef.value) {
+            if (questionContentRef.value && answerContentRef.value) {
                 questionContentRef.value.innerHTML = props.questionContent;
+                answerContentRef.value.innerHTML = props.answerContent;
                 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                 // @ts-ignore
                 MathJax.texReset();
@@ -112,7 +113,7 @@ export default defineComponent({
                 MathJax.typesetClear();
                 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                 // @ts-ignore
-                MathJax.typesetPromise([questionContentRef.value]);
+                MathJax.typesetPromise([questionContentRef.value, answerContentRef.value]);
             }
         });
 
@@ -121,11 +122,12 @@ export default defineComponent({
             list,
             getIndex,
             questionContentRef,
+            answerContentRef,
             questionTypeName,
             activeNames
         };
     },
-    components: { NulliparousStudents, Review }
+    components: { NulliparousStudents, ReviewList }
 });
 </script>
 
@@ -180,9 +182,7 @@ export default defineComponent({
       display: flex;
       justify-content: flex-start;
       flex-wrap: wrap;
-      .access-system-student-item {
-          margin-right: 20px;
-      }
+
       i {
         width: 294px;
       }
@@ -201,9 +201,6 @@ export default defineComponent({
       display: flex;
       justify-content: flex-start;
       flex-wrap: wrap;
-      .access-system-student-item {
-          margin-right: 20px;
-      }
       i {
         width: 294px;
       }
@@ -221,9 +218,6 @@ export default defineComponent({
       padding: 0 24px 16px 24px;
       display: flex;
       justify-content: flex-start;
-      .access-system-student-item {
-          margin-right: 20px;
-      }
       flex-wrap: wrap;
       i {
         width: 294px;
@@ -243,9 +237,6 @@ export default defineComponent({
       display: flex;
       justify-content: flex-start;
       flex-wrap: wrap;
-      .access-system-student-item {
-          margin-right: 20px;
-      }
       i {
         width: 294px;
       }
@@ -263,9 +254,6 @@ export default defineComponent({
       padding: 0 24px 16px 24px;
       display: flex;
       justify-content: flex-start;
-      .access-system-student-item {
-          margin-right: 20px;
-      }
       flex-wrap: wrap;
       i {
         width: 294px;
@@ -300,9 +288,6 @@ export default defineComponent({
       padding: 0 24px 16px 24px;
       display: flex;
       justify-content: flex-start;
-      .access-system-student-item {
-          margin-right: 20px;
-      }
       flex-wrap: wrap;
       i {
         width: 294px;

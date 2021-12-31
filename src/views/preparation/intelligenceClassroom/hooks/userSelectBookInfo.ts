@@ -130,6 +130,7 @@ export default () => {
         activeIndex.leftActiveIndex = index;
         activeIndex.winIndex = i;
         activeIndex.winActiveId = j.WindowID;
+        activeIndex.WindowName = j.WindowName;
         activeIndex.winActiveValue = j;
         activeIndex.originType = j.OriginType;
         TrackService.setTrack(EnumTrackEventType.SelectWindow, j.WindowID, j.WindowName, "", "", "", "", "选择窗");
