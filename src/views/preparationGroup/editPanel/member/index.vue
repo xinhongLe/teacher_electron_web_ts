@@ -23,7 +23,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted, nextTick } from "vue";
+import { defineComponent, ref, onMounted, nextTick, getCurrentInstance } from "vue";
 import { useRoute } from "vue-router";
 import { fetchGroupLessonTeachers } from "../../api";
 import { FetchGroupLessonTeachersRes } from "@/types/preparationGroup";
@@ -35,6 +35,8 @@ export default defineComponent({
         }
     },
     setup(props, { emit }) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { proxy } = getCurrentInstance() as any;
         console.log(props);
         console.log(emit);
         const route = useRoute();
@@ -61,6 +63,7 @@ export default defineComponent({
                             memberName: v.Name
                         });
                     });
+                    emit("SetTeacherCount", memberList.value.length);
                     nextTick(() => {
                         const windowContent = document.documentElement.clientWidth;
                         isShowMore.value = memberList.value.length * 92 > windowContent;

@@ -32,7 +32,7 @@
             </div>
             <div class="lesson-cell">
                 <img src="../../../../assets/preparationGroup/editPanel/personals.png" alt="" />
-                <span>小组人数：{{ lessonItem.TeacherCount }}人</span>
+                <span>小组人数：{{ teacherCount }}人</span>
             </div>
         </div>
         <div class="file-info">
@@ -93,7 +93,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, reactive, getCurrentInstance, watch, nextTick } from "vue";
+import { defineComponent, ref, reactive, getCurrentInstance, watch, nextTick, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { fetchPreparateDetail, editPreparateDetail } from "../../api";
 import { lessonItemData } from "@/types/preparationGroup";
@@ -107,6 +107,12 @@ export default defineComponent({
     props: {
         reload: {
             type: Function
+        },
+        teacherCount: {
+            type: Number,
+            default: () => {
+                return 0;
+            }
         }
     },
     setup() {
@@ -247,8 +253,10 @@ export default defineComponent({
             const index = lessonItem.Attachments.findIndex((v) => v.name === fileObj.name);
             lessonItem.Attachments.splice(index, 1);
         };
-        getTextBookGrade();
-        getPreparateDetail();
+        onMounted(() => {
+            getTextBookGrade();
+            getPreparateDetail();
+        });
         return {
             isEdit,
             isShowMore,
@@ -300,7 +308,6 @@ export default defineComponent({
                 min-width: 64px;
                 height: 24px;
                 line-height: 24px;
-                padding: 0 5px;
                 border-radius: 4px;
                 text-align: center;
                 font-size: 12px;
@@ -308,6 +315,7 @@ export default defineComponent({
                 font-weight: 500;
                 text-align: center;
                 margin-left: 12px;
+                padding: 0 10px;
                 &-1 {
                     background: #E9EDF0;
                     color: #B2B8BE;
