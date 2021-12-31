@@ -67,15 +67,16 @@ export default defineComponent({
             console.log(data);
         };
 
-        window.electron.ipcRenderer.on("singalRData-Projection", projection);
-
         if (isElectron()) {
+            window.electron.ipcRenderer.on("singalRData-Projection", projection);
             window.electron.ipcRenderer.invoke("openSuspension");
             window.electron.maximizeWindow();
         }
 
         onUnmounted(() => {
-            window.electron.ipcRenderer.off("singalRData-Projection", projection);
+            if (isElectron()) {
+                window.electron.ipcRenderer.off("singalRData-Projection", projection);
+            }
         });
 
         return {
