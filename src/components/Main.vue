@@ -42,7 +42,7 @@ export default defineComponent({
         const wpfNames = ["wpf班级管理", "wpf管理标签", "wpf学习记录"];
         const { queryUserInfo } = useUserInfo();
         const { getTagList } = useTagList();
-        const keepExcludeArr = ["Home", "LabelManage", "Record", "Edit", "AssignHomework", "CheckHomework"];
+        const keepExcludeArr = ["Home", "LabelManage", "Record", "Edit", "AssignHomework", "CheckHomework", "preparationGroup", "preparationEdit"];
 
         watch(() => ({ query: route.query, name: route.name }), ({ query, name }) => {
             isShowNarBar.value = !query.head && !wpfNames.includes(name as string);
@@ -67,15 +67,16 @@ export default defineComponent({
             console.log(data);
         };
 
-        window.electron.ipcRenderer.on("singalRData-Projection", projection);
-
         if (isElectron()) {
+            window.electron.ipcRenderer.on("singalRData-Projection", projection);
             window.electron.ipcRenderer.invoke("openSuspension");
             window.electron.maximizeWindow();
         }
 
         onUnmounted(() => {
-            window.electron.ipcRenderer.off("singalRData-Projection", projection);
+            if (isElectron()) {
+                window.electron.ipcRenderer.off("singalRData-Projection", projection);
+            }
         });
 
         return {

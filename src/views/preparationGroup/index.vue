@@ -33,7 +33,7 @@ import Card from "./card/index.vue";
 import Empty from "./empty/index.vue";
 import useCardList from "./card/useCardList";
 export default defineComponent({
-    name: "preparation-group",
+    name: "preparationGroup",
     setup(props, { emit }) {
         console.log(props);
         console.log(emit);

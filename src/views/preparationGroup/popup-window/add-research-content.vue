@@ -3,7 +3,7 @@
         :append-to-body="true"
         :model-value="dialogVisible"
         :before-close="handleClose"
-        title="新增研讨内容"
+        :title="`${flagType}研讨内容`"
         width="800px"
         center
     >
@@ -40,7 +40,7 @@
                     </template>
                 </el-upload>
                 <div v-else>
-                    <File :fileInfo="fileContent" action="upload" @close="deleteFile"></File>
+                    <File :fileInfo="fileContent" action="download" @close="deleteFile"></File>
                 </div>
             </el-form-item>
             <el-form-item label="附件:" :label-width="formLabelWidth" prop="attachments">
@@ -97,6 +97,12 @@ export default defineComponent({
         researchContent: {
             type: Object,
             default: () => ({})
+        },
+        researchType: {
+            type: String,
+            default: () => {
+                return "新增";
+            }
         }
     },
     components: { File },
@@ -105,9 +111,9 @@ export default defineComponent({
         const route = useRoute();
         const formRef = ref<ElFormType>();
         const preId = ref();
-        const flagType = ref("新增");
+        const flagType = ref(props.researchType);
         const acceptList = ".ppt,.doc,.docx,.pdf,.mp3,.mp4,.jpg,.png,";
-        const fileList = reactive<{ extention: string; fileName: string; name: string; bucket: string; fileMD5: string; filePath: string; size: string; fileType: string; }[]>([]);
+        const fileList = reactive<{ extention: string; fileName: string; name: string; bucket: string; fileMD5: string; filePath: string; size: number; fileSize: string; fileType: string; }[]>([]);
         const fileContent = reactive<IOssFileInfo>({
             bucket: "",
             path: "",
@@ -116,7 +122,8 @@ export default defineComponent({
             md5: "",
             fileName: "",
             fileExtension: "",
-            size: "",
+            size: 0,
+            fileSize: "",
             fileType: ""
         });
         const state = reactive({
@@ -167,7 +174,8 @@ export default defineComponent({
             fileContent.fileExtension = newValue.ResourceSource.Extention;
             fileContent.md5 = newValue.ResourceSource.FileMD5;
             fileContent.fileName = newValue.ResourceSource.FileName;
-            // fileContent.size = newValue.ResourceSource.Name;
+            fileContent.size = 0;
+            fileContent.fileSize = "";
             // fileContent.fileType = newValue.ResourceSource.Name;
         }, { deep: true });
 
@@ -203,7 +211,8 @@ export default defineComponent({
                 fileContent.name = name;
                 fileContent.md5 = md5;
                 fileContent.fileName = file.name.substring(0, file.name.lastIndexOf("."));
-                fileContent.size = getFileSize(file.size);
+                fileContent.size = file.size;
+                fileContent.fileSize = getFileSize(file.size);
                 fileContent.fileType = getFileType(file.name);
             }
         };
@@ -217,7 +226,8 @@ export default defineComponent({
             fileContent.name = "";
             fileContent.md5 = "";
             fileContent.fileName = "";
-            fileContent.size = "";
+            fileContent.size = 0;
+            fileContent.fileSize = "";
             fileContent.fileType = "";
             state.form.planFile = "";
         };
@@ -226,6 +236,7 @@ export default defineComponent({
         const uploadSuccess = async ({ file }: {file: UploadFile & Blob;}) => {
             await uploadFile({ file });
             fileList.push({
+                ...fileInfo,
                 extention: fileInfo.fileExtension,
                 name: fileInfo.name,
                 fileName: fileInfo.fileName,
@@ -233,6 +244,7 @@ export default defineComponent({
                 fileMD5: fileInfo.md5,
                 filePath: fileInfo.path!,
                 size: fileInfo.size!,
+                fileSize: fileInfo.fileSize!,
                 fileType: fileInfo.fileType!
             });
         };
@@ -252,6 +264,7 @@ export default defineComponent({
                             resourceType: state.form.resourceType,
                             content: state.form.content,
                             planFile: {
+                                ...fileContent,
                                 name: fileContent.name,
                                 fileName: fileContent.fileName,
                                 bucket: fileContent.bucket,
@@ -276,6 +289,7 @@ export default defineComponent({
                         }
                     }
                     emit("update:dialogVisible", false);
+                    emit("close");
                 } else {
                     if (state.form.title === "") {
                         return false;
@@ -303,6 +317,7 @@ export default defineComponent({
             acceptList,
             loadingShow,
             fileContent,
+            flagType,
             deleteFile,
             beforeUpload,
             uploadFileSuccess,

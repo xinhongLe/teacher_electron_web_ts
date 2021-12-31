@@ -8,7 +8,7 @@
                 <span class="title">{{ lessonItem.PreTitle }}</span>
                 <span :class="`status status-${lessonItem.Status}`"><span class="white"></span>{{ switchStatus(lessonItem.Status) }}</span>
             </div>
-            <div class="right" v-if="lessonItem.CanEdit">
+            <div class="right" v-if="lessonItem.CanEdit && lessonItem.Status === 2">
                 <div class="btn-cancel" @click="actionEditPanel(false)" v-if="isEdit">
                     <span>取消</span>
                 </div>
@@ -32,7 +32,7 @@
             </div>
             <div class="lesson-cell">
                 <img src="../../../../assets/preparationGroup/editPanel/personals.png" alt="" />
-                <span>小组人数：{{ lessonItem.TeacherCount }}人</span>
+                <span>小组人数：{{ teacherCount }}人</span>
             </div>
         </div>
         <div class="file-info">
@@ -44,7 +44,6 @@
                         v-model="lessonItem.LessonRangeIDs"
                         :options="textBookGradeList"
                         :props="{expandTrigger: 'click'}"
-                        @change="handleChange"
                     ></el-cascader>
                 </div>
                 <span v-else class="content">{{ lessonItem.LessonRange }}</span>
@@ -94,13 +93,13 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, reactive, getCurrentInstance, onMounted, watch, nextTick } from "vue";
+import { defineComponent, ref, reactive, getCurrentInstance, watch, nextTick, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { fetchPreparateDetail, editPreparateDetail } from "../../api";
+import { lessonItemData } from "@/types/preparationGroup";
+import { IOssFileInfo } from "@/types/oss";
 import useUploadFile from "@/hooks/useUploadFile";
 import moment from "moment";
-import { lessonItemData, IPreOssFileInfo } from "@/types/preparationGroup";
-import { IOssFileInfo } from "@/types/oss";
 import useSubmit from "../useSubmit";
 import File from "../../file/index.vue";
 export default defineComponent({
@@ -108,14 +107,18 @@ export default defineComponent({
     props: {
         reload: {
             type: Function
+        },
+        teacherCount: {
+            type: Number,
+            default: () => {
+                return 0;
+            }
         }
     },
-    setup(props, { emit }) {
+    setup() {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { proxy } = getCurrentInstance() as any;
         const route = useRoute();
-        console.log(props);
-        console.log(emit);
         const isEdit = ref(false);
         const isShowMore = ref(false);
         const isFull = ref(false);
@@ -135,7 +138,6 @@ export default defineComponent({
         });
 
         const getPreparateDetail = async () => {
-            console.log(route.params.preId);
             const res = await fetchPreparateDetail({
                 id: route.params.preId as string
             });
@@ -158,8 +160,7 @@ export default defineComponent({
                 lessonItem.PreTitle = PreTitle;
                 lessonItem.Status = Status;
                 lessonItem.TeacherCount = TeacherCount;
-                lessonItem.LessonRange = "39F766472E16384149030DFA4E9863B5,39F7666AAF66065AF9B04D393F156352,39FFD2A8895176995E7C9B9FBA779A52";
-                // lessonItem.LessonRange = LessonRange;
+                lessonItem.LessonRange = LessonRange;
                 lessonItem.LessonRangeIDs = lessonItem.LessonRange.split(",");
                 if (lessonItem.LessonRangeIDs.length > 0) {
                     let rangeText = "";
@@ -196,7 +197,6 @@ export default defineComponent({
                         isFull.value = (windowContent - 200) < specialContent[0].clientWidth;
                     }
                 });
-                console.log(res);
             }
         };
 
@@ -204,14 +204,14 @@ export default defineComponent({
             const params = {
                 groupLessonPreparateID: route.params.preId as string,
                 preTitle: lessonItem.PreTitle,
-                lessonRange: "",
-                // lessonRange: lessonItem.LessonRangeIDs.join(","),
+                lessonRange: lessonItem.LessonRangeIDs.join(","),
                 lessonContent: lessonItem.LessonContent,
                 attachments: [] as any
             };
             if (lessonItem.Attachments && lessonItem.Attachments.length > 0) {
                 lessonItem.Attachments.map(v => {
                     params.attachments.push({
+                        ...v,
                         bucket: v.bucket,
                         objectKey: v.objectKey,
                         name: v.name,
@@ -223,7 +223,7 @@ export default defineComponent({
             }
             const res = await editPreparateDetail(params);
             if (res.resultCode === 200) {
-                console.log(res);
+                getPreparateDetail();
                 actionEditPanel(false);
             }
         };
@@ -233,11 +233,7 @@ export default defineComponent({
             proxy.mittBus.emit("watchStatus", isEdit.value);
         };
 
-        const handleChange = () => {
-            console.log(1);
-        };
         const { switchStatus, textBookGradeList, getTextBookGrade } = useSubmit();
-
         const { loadingShow, fileInfo, uploadFile, resetFileInfo, getFileType } = useUploadFile("GroupLessonFile");
         watch(fileInfo, (fileObj: IOssFileInfo) => {
             const file = {
@@ -274,7 +270,6 @@ export default defineComponent({
             uploadFile,
             resetFileInfo,
             getFileType,
-            handleChange,
             deleteFileItem,
             getPreparateDetail,
             savePreparateDetail
@@ -313,7 +308,6 @@ export default defineComponent({
                 min-width: 64px;
                 height: 24px;
                 line-height: 24px;
-                padding: 0 5px;
                 border-radius: 4px;
                 text-align: center;
                 font-size: 12px;
@@ -321,6 +315,7 @@ export default defineComponent({
                 font-weight: 500;
                 text-align: center;
                 margin-left: 12px;
+                padding: 0 10px;
                 &-1 {
                     background: #E9EDF0;
                     color: #B2B8BE;

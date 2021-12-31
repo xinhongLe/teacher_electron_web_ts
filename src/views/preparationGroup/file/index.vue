@@ -1,17 +1,19 @@
 <template>
     <div class="preparation-file" :title="fileInfo.fileName">
-        <img class="file-type" v-if="fileInfo.fileType === 'word'" src="../../../assets/preparationGroup/editPanel/icon_word.png" />
-        <img class="file-type" v-else-if="fileInfo.fileType === 'excel'" src="../../../assets/preparationGroup/editPanel/icon_excel.png" />
-        <img class="file-type" v-else-if="fileInfo.fileType === 'ppt'" src="../../../assets/preparationGroup/editPanel/icon_ppt.png" />
-        <img class="file-type" v-else-if="fileInfo.fileType === 'pdf'" src="../../../assets/preparationGroup/editPanel/icon_pdf.png" />
-        <img class="file-type" v-else-if="fileInfo.fileType === 'txt'" src="../../../assets/preparationGroup/editPanel/icon_txt.png" />
-        <img class="file-type" v-else-if="fileInfo.fileType === 'video'" src="../../../assets/preparationGroup/editPanel/icon_video.png" />
-        <img class="file-type" v-else-if="fileInfo.fileType === 'radio'" src="../../../assets/preparationGroup/editPanel/icon_radio.png" />
-        <img class="file-type" v-else-if="fileInfo.fileType === 'image'" src="../../../assets/preparationGroup/editPanel/icon_image.png" />
-        <img class="file-type" v-else-if="fileInfo.fileType === 'zip'" src="../../../assets/preparationGroup/editPanel/icon_zip.png" />
-        <img class="file-type" v-else src="../../../assets/preparationGroup/editPanel/icon_other.png" />
+        <div class="file-type-box" @click="preView">
+            <img class="file-type" v-if="fileInfo.fileType === 'word'" src="../../../assets/preparationGroup/editPanel/icon_word.png" />
+            <img class="file-type" v-else-if="fileInfo.fileType === 'excel'" src="../../../assets/preparationGroup/editPanel/icon_excel.png" />
+            <img class="file-type" v-else-if="fileInfo.fileType === 'ppt'" src="../../../assets/preparationGroup/editPanel/icon_ppt.png" />
+            <img class="file-type" v-else-if="fileInfo.fileType === 'pdf'" src="../../../assets/preparationGroup/editPanel/icon_pdf.png" />
+            <img class="file-type" v-else-if="fileInfo.fileType === 'txt'" src="../../../assets/preparationGroup/editPanel/icon_txt.png" />
+            <img class="file-type" v-else-if="fileInfo.fileType === 'video'" src="../../../assets/preparationGroup/editPanel/icon_video.png" />
+            <img class="file-type" v-else-if="fileInfo.fileType === 'radio'" src="../../../assets/preparationGroup/editPanel/icon_radio.png" />
+            <img class="file-type" v-else-if="fileInfo.fileType === 'image'" src="../../../assets/preparationGroup/editPanel/icon_image.png" />
+            <img class="file-type" v-else-if="fileInfo.fileType === 'zip'" src="../../../assets/preparationGroup/editPanel/icon_zip.png" />
+            <img class="file-type" v-else src="../../../assets/preparationGroup/editPanel/icon_other.png" />
+        </div>
         <div class="file-info">
-            <p class="file-name"><span class="ellipsis">{{ fileInfo.fileName }}</span><span style="flex-shrink: 0;">{{`.${fileInfo.fileExtension || fileInfo.extention}`}}</span></p>
+            <p class="file-name"><span class="ellipsis">{{ fileInfo.fileName || fileInfo.FileName }}</span><span style="flex-shrink: 0;">{{`.${fileInfo.fileExtension || fileInfo.extention || fileInfo.Extention}`}}</span></p>
             <div class="loading-box" v-if="action === 'upload' && percent < 100">
               <div
                 class="loading-default"
@@ -19,7 +21,7 @@
                 :style="{ width: percent + '%' }"
               ></div>
             </div>
-            <p class="file-size" v-else>{{`${fileInfo.size || '0 KB'}`}}</p>
+            <p class="file-size" v-else>{{`${fileInfo.fileSize || '0 KB'}`}}</p>
         </div>
         <img v-if="action === 'download'" class="file-download" src="../../../assets/preparationGroup/editPanel/download.png" @click="download" />
         <img v-else-if="action === 'upload'" class="file-download" src="../../../assets/preparationGroup/editPanel/close.png" @click="close" />
@@ -29,6 +31,7 @@
 <script lang="ts">
 import { defineComponent, ref, onMounted, onBeforeUnmount } from "vue";
 import { downloadFile } from "@/utils/oss";
+import isElectron from "is-electron";
 export default defineComponent({
     name: "card",
     props: {
@@ -48,15 +51,27 @@ export default defineComponent({
         const timer = ref();
         const percent = ref(100);
 
-        const download = async () => {
-            console.log(props.fileInfo);
+        const preView = async () => {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const item: any = props.fileInfo;
-            const url = await downloadFile(`${item.path}/${item.fileName}.${item.fileExtension}`, item.bucket);
-            console.log(url);
+            const url = await downloadFile(`${item.FilePath}/${item.FileMD5}.doc`, item.Bucket);
+            // const url = await downloadFile(`${item.FilePath}/${item.FileMD5}.${item.Extention}`, item.Bucket);
             const previewUrl = "https://owa.lyx-edu.com/op/view.aspx?src=" + encodeURIComponent(url);
-            console.log(previewUrl);
+            if (isElectron()) {
+                return window.electron.ipcRenderer.invoke("downloadFile", previewUrl, `${item.fileName}.${item.Extention}`).then((filePath) => {
+                    window.electron.shell.openPath(filePath);
+                });
+            }
             window.open(previewUrl);
+        };
+        const download = async () => {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const item: any = props.fileInfo;
+            const url = await downloadFile(`${item.FilePath}/${item.FileMD5}.doc`, item.Bucket);
+            // const url = await downloadFile(`${item.FilePath}/${item.FileMD5}.${item.Extention}`, item.Bucket);
+            const a = document.createElement("a");
+            a.setAttribute("href", url);
+            a.click();
         };
         const close = () => {
             emit("close", props.fileInfo);
@@ -73,7 +88,7 @@ export default defineComponent({
                 percent.value = 0;
                 timer.value = setInterval(() => {
                     let step = 50;
-                    switch (item.size.split(" ")[1]) {
+                    switch (item.fileSize.split(" ")[1]) {
                     case "B":
                         step = 50;
                         break;
@@ -109,6 +124,7 @@ export default defineComponent({
         });
         return {
             percent,
+            preView,
             download,
             close
         };
@@ -131,6 +147,10 @@ export default defineComponent({
     cursor: pointer;
     &:hover {
         border: 1px solid #4B71EE;
+    }
+    .file-type-box {
+        display: flex;
+        align-items: center;
     }
     .file-type {
         display: inline-block;

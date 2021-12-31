@@ -12,7 +12,7 @@
             <div class="title-box">
                 <div>
                     <span class="title">{{item.Title}}</span>
-                    <span class="title-status title-status-1">{{item.ResourceType === 1 ? '教案设计' : '课件设计'}}</span>
+                    <span :class="`title-status title-status-${item.ResourceType}`">{{item.ResourceType === 1 ? '教案设计' : '课件设计'}}</span>
                 </div>
                 <div class="edit-btn" @click="EditResearch(item)">
                     <img src="../../../../assets/preparationGroup/editPanel/edit.png" alt="">
@@ -157,7 +157,7 @@
             </div>
         </div>
     </div>
-    <AddResearchContent v-model:dialogVisible="dialogVisible" :researchContent="researchContent" @close="closeHandle"></AddResearchContent>
+    <AddResearchContent v-model:dialogVisible="dialogVisible" :researchContent="researchContent" researchType="编辑" @close="closeHandle"></AddResearchContent>
 </template>
 
 <script lang="ts">
@@ -251,7 +251,8 @@ export default defineComponent({
                 fileName: "摘要长方形",
                 fileExtension: "doc",
                 path: "",
-                size: "310.79 KB",
+                size: 0,
+                fileSize: "310.79 KB",
                 fileType: "word"
             }
         ]);
@@ -264,7 +265,8 @@ export default defineComponent({
                 fileName: "评论长方形评论长方形评论长方形",
                 fileExtension: "doc",
                 path: "",
-                size: "310.79 KB",
+                size: 0,
+                fileSize: "310.79 KB",
                 fileType: "word"
             }
         ]);
@@ -328,11 +330,7 @@ export default defineComponent({
                 if (result.resultCode === 200) {
                     console.log(result);
                     ElMessage.success("添加研讨的终稿文件成功");
-                    const preId = route.params.preId as string;
-                    const params = {
-                        id: preId
-                    };
-                    getContents(params);
+                    fetchContents();
                 }
             }
         };
@@ -355,6 +353,10 @@ export default defineComponent({
         };
         const closeHandle = () => {
             dialogVisible.value = false;
+            fetchContents();
+        };
+
+        const fetchContents = () => {
             const preId = route.params.preId as string;
             const params = {
                 id: preId
@@ -363,12 +365,7 @@ export default defineComponent({
         };
 
         onMounted(async () => {
-            const preId = route.params.preId as string;
-            console.log(preId, "123456789");
-            const params = {
-                id: preId
-            };
-            getContents(params);
+            fetchContents();
         });
         return {
             contentFiles,
@@ -379,6 +376,7 @@ export default defineComponent({
             ...toRefs(state),
             submit,
             add,
+            fetchContents,
             getContents,
             lookOver,
             download,
@@ -467,6 +465,7 @@ export default defineComponent({
                 font-weight: 400;
                 text-align: center;
                 margin-left: 10px;
+                padding: 0 5px;
                 &-1 {
                     color: #48DBBF;
                     border: 1px solid #48DBBF;
@@ -554,6 +553,7 @@ export default defineComponent({
                     align-items: center;
                     justify-content: center;
                     margin: 20px 0;
+                    height: 28px;
                     .tool-item {
                         display: flex;
                         align-items: center;
@@ -659,6 +659,7 @@ export default defineComponent({
                             margin-bottom: 8px;
                         }
                         .files {
+                            min-height: 60px;
                             .files-list {
                                 display: flex;
                                 align-items: center;

@@ -2,28 +2,33 @@
     <div class="member">
         <div class="member-head">
             <div class="title">小组成员<span>({{ memberList.length }})</span></div>
-            <div class="btn-edit">
+            <div class="btn-edit" @click="manage">
                 <img src="../../../../assets/preparationGroup/editPanel/icon_guanli.png" alt="" />
                 <span>管理</span>
             </div>
         </div>
-        <div v-if="memberList.length > 0">
-            <div class="member-list">
+        <div v-if="memberList && memberList.length > 0">
+            <div class="member-list" :class="isFull ? `full-list` : ``">
                 <div class="member-cell" v-for="(item, index) in memberList" :key="index">
                     <img class="file-download" src="../../../../assets/preparationGroup/editPanel/avator_small_back.png" alt="" />
-                    <p>{{ item.memberName }}</p>
+                    <p>{{ item.Name }}</p>
                 </div>
             </div>
-            <p class="more" v-if="computedMore">查看更多</p>
+            <p class="more" v-if="isShowMore" @click="isFull = !isFull">{{ isFull ? `隐藏更多` : `查看更多` }}</p>
         </div>
         <div class="empty" v-else>
             暂无小组成员
         </div>
     </div>
+    <ShareDetail ref="ShareDialogRef" @submit="submit" :dynamicTags="memberList" :isEdit="true"></ShareDetail>
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, toRefs, computed } from "vue";
+import { defineComponent, ref, onMounted, nextTick, getCurrentInstance } from "vue";
+import { useRoute } from "vue-router";
+import { fetchGroupLessonTeachers } from "../../api";
+import { FetchGroupLessonTeachersRes } from "@/types/preparationGroup";
+import ShareDetail from "../../shareDialog/index.vue";
 export default defineComponent({
     name: "member",
     props: {
@@ -32,42 +37,62 @@ export default defineComponent({
         }
     },
     setup(props, { emit }) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { proxy } = getCurrentInstance() as any;
         console.log(props);
         console.log(emit);
-        const state = reactive({
-            memberList: [
-                {
-                    memberIcon: "../../../../assets/preparationGroup/editPanel/avator_small_back.png",
-                    memberName: "李老师"
-                },
-                {
-                    memberIcon: "../../../../assets/preparationGroup/editPanel/avator_small_back.png",
-                    memberName: "张老师"
-                },
-                {
-                    memberIcon: "../../../../assets/preparationGroup/editPanel/avator_small_back.png",
-                    memberName: "王老师"
-                }
-            ]
-        });
+        const route = useRoute();
+        const memberList = ref<FetchGroupLessonTeachersRes[]>([]);
+        const isShowMore = ref(false);
+        const isFull = ref(false);
 
+        const ShareDialogRef = ref();
+        const manage = () => {
+            ShareDialogRef.value.openDialog();
+        };
         const submit = () => {
             console.log(1);
         };
 
-        const computedMore = computed(() => {
-            const parent = document.querySelectorAll(".member-list");
-            console.log(parent);
-            const result = state.memberList.length > 5;
-            return result;
+        const getTeacherGroup = async () => {
+            const res = await fetchGroupLessonTeachers({
+                id: route.params.preId as string
+            });
+            memberList.value = [];
+            if (res.resultCode === 200) {
+                if (res.result) {
+                    res.result.map((v: any) => {
+                        memberList.value.push({
+                            ...v,
+                            memberIcon: "../../../../assets/preparationGroup/editPanel/avator_small_back.png",
+                            ID: v.Id,
+                            Name: v.Name,
+                            Active: true
+                        });
+                    });
+                    emit("SetTeacherCount", memberList.value.length);
+                    nextTick(() => {
+                        const windowContent = document.documentElement.clientWidth;
+                        isShowMore.value = memberList.value.length * 92 > windowContent;
+                    });
+                }
+            }
+        };
+
+        onMounted(() => {
+            getTeacherGroup();
         });
         return {
-            ...toRefs(state),
-            computedMore,
+            manage,
+            ShareDialogRef,
+            isShowMore,
+            isFull,
+            memberList,
+            getTeacherGroup,
             submit
         };
     },
-    components: { }
+    components: { ShareDetail }
 });
 </script>
 
@@ -117,9 +142,12 @@ export default defineComponent({
         display: flex;
         align-items: center;
         flex-wrap: wrap;
+        height: 130px;
+        overflow: hidden;
         .member-cell {
             margin-right: 32px;
             margin-top: 20px;
+            width: 60px;
             display: flex;
             align-items: center;
             flex-direction: column;
@@ -131,6 +159,9 @@ export default defineComponent({
                 margin-top: 18px;
             }
         }
+    }
+    .full-list {
+        height: auto;
     }
     .more {
         font-size: 14px;
