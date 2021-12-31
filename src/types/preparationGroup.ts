@@ -487,8 +487,9 @@ export type GetSchoolDataRes = {
 }[]
 
 export interface addCourseData {
-    preTitle: string,
-    status: number,
-    preLessonContent: string,
+    preTitle?: string,
+    status?: number,
+    groupLessonPreparateID?: string,
+    preLessonContent?: string,
     teacherIDs: string[]
 }

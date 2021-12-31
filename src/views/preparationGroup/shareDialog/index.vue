@@ -1,15 +1,18 @@
 <template>
     <div class="shareDetailContent">
-        <el-dialog title="发起集体备课" center v-model="isShowDialog" :close-on-click-modal="false">
-            <div class="lessonPrepOption" v-if="!isEdit">
-                <span class="formTitle"><span class="requireIcon">*</span>集体备课主题:</span>
-                <el-input
-                    class="rightContent"
-                    v-model="courseContent"
-                    autosize
-                    clearable
-                    placeholder="请输入此次集体备课的主题，例如第3单元，长方形与正方形"
-                />
+        <el-dialog :title="title" center v-model="isShowDialog" :close-on-click-modal="false">
+            <div v-if="!isEdit">
+                <el-form ref="uploadForm" :model="ruleForm" :rules="rules" class="lessonPrepOption">
+                    <span class="formTitle"><span class="requireIcon">*</span>集体备课主题:</span>
+                    <el-form-item prop="courseContent" class="rightContent">
+                        <el-input
+                            v-model="ruleForm.courseContent"
+                            autosize
+                            clearable
+                            placeholder="请输入此次集体备课的主题，例如第3单元，长方形与正方形"
+                        />
+                    </el-form-item>
+                </el-form>
             </div>
             <div class="lessonPrepOption">
                 <span class="formTitle">邀请备课教师:</span>
@@ -35,9 +38,9 @@
                                 </div>
                             </el-option>
                             <template #empty>
-                                <div class="empty-box" style="height: 120px;">
+                                <div class="empty-box">
                                     <img src="../../../assets/preparationGroup/pic_noresult.png">
-                                    <p>搜索无结果</p>
+                                    <p class="emptyContent">搜索无结果</p>
                                 </div>
                             </template>
                         </el-select>
@@ -72,9 +75,9 @@
                                     </div>
                                     </el-option>
                                     <template #empty>
-                                        <div class="empty-box" style="height: 120px;">
+                                        <div class="empty-box">
                                             <img src="../../../assets/preparationGroup/pic_noresult.png">
-                                            <p>搜索无结果</p>
+                                            <p class="emptyContent">搜索无结果</p>
                                         </div>
                                     </template>
                                 </el-select>
@@ -99,9 +102,9 @@
                                     </div>
                                 </div>
                             </div>
-                            <div v-else class="empty-box" style="height: 120px;margin-top: 120px;">
+                            <div v-else class="empty-box">
                                 <img src="../../../assets/preparationGroup/pic_noresult.png">
-                                <p>搜索无结果</p>
+                                <p class="emptyContent">搜索无结果</p>
                             </div>
                             <div class="optionContent" v-if="false">
                                 <div v-for="(item,index) in organization" :key="index" class="organization">
@@ -156,21 +159,14 @@
     </div>
 </template>
 <script lang="ts">
-import { toRefs, reactive, nextTick, defineComponent, getCurrentInstance } from "vue";
+import { toRefs, reactive, nextTick, defineComponent, getCurrentInstance, ref } from "vue";
 import { ElMessage } from "element-plus";
+import { useRoute } from "vue-router";
 import userShareList from "./userShareList";
 import { GetSchoolClassData } from "@/types/preparationGroup";
-import { addPreLesson } from "../api";
+import { addPreLesson, editPreparateTeachers } from "../api";
 export default defineComponent({
     props: {
-        dynamicTags: {
-            type: Object,
-            default: () => ({
-                Active: false,
-                ID: "",
-                Name: ""
-            })
-        },
         isEdit: {
             type: Boolean,
             default: false
@@ -178,9 +174,11 @@ export default defineComponent({
     },
     setup(props, { emit }) {
         const { proxy } = getCurrentInstance() as any;
+        const route = useRoute();
         const { teacherList, schoolList, getTeacher, getSchool } = userShareList();
+        const uploadForm = ref();
         const state = reactive({
-            courseContent: "",
+            title: props.isEdit ? "人员管理" : "发起集体备课",
             isShowDialog: false,
             organizationVisible: true,
             organizationGroupVisibility: false,
@@ -273,22 +271,41 @@ export default defineComponent({
                     id: 5,
                     name: "英语组(19人)"
                 }
-            ]
+            ],
+            ruleForm: {
+                courseContent: ""
+            },
+            rules: {
+                courseContent: [
+                    { required: true, message: "请输入集体备课主题", trigger: "blur" }
+                ]
+            }
         });
 
         const openDialog = () => {
             state.isShowDialog = true;
             nextTick(() => {
+                debugger;
                 resetShareParams();
                 fetchShareObjectOrganization();
             });
         };
 
         const resetShareParams = () => {
+            const dynamicTagsSession = sessionStorage.getItem("memberList") ? JSON.parse(sessionStorage.getItem("memberList") || "") : [];
             state.searchString = "";
             state.selectOption = "";
             state.selectOptionID = "";
             state.dynamicTags = [];
+            if (props.isEdit && dynamicTagsSession && dynamicTagsSession.length > 0) {
+                dynamicTagsSession.map((v: any) => {
+                    state.dynamicTags.push({
+                        Active: false,
+                        ID: v.ID,
+                        Name: v.Name
+                    });
+                });
+            }
             state.searchResult = [];
             state.shareOption = [];
         };
@@ -296,7 +313,7 @@ export default defineComponent({
         const fetchShareObjectCustomer = () => {
             state.searchString = "";
             state.searchResult = [];
-            getTeacher({ schoolID: teacherList.value[0].ID });
+            getTeacher({ schoolID: state.selectOptionID });
             // const req = {
             //     type: ""
             // };
@@ -320,12 +337,23 @@ export default defineComponent({
         const fetchShareObjectOrganization = async () => {
             state.shareOption = [];
             await getSchool({ id: "39F832D3E67424EA3F0479BE7957C642" });
-            nextTick(() => {
+            setTimeout(() => {
                 if (schoolList.value.length > 0) {
                     state.selectOption = schoolList.value[0].Name;
                     state.selectOptionID = schoolList.value[0].ID;
                 }
-            });
+                console.log(state.dynamicTags, teacherList.value);
+                if (state.dynamicTags.length > 0) {
+                    state.dynamicTags.map((item: any) => {
+                        teacherList.value.forEach((itm: any) => {
+                            if (item.ID === itm.ID) {
+                                itm.Active = true;
+                                return false;
+                            }
+                        });
+                    });
+                }
+            }, 500);
         };
 
         const fetchShareCustomerList = async (id: string) => {
@@ -472,26 +500,37 @@ export default defineComponent({
         };
 
         const confirm = async () => {
-            if (state.dynamicTags.length === 0) {
-                ElMessage.info("请选择要邀请的人员");
-                return;
-            }
             const teacherIDs = state.dynamicTags.map((item: any) => {
                 return item.ID;
             });
-            const req = {
-                preTitle: state.courseContent,
-                status: 0,
-                preLessonContent: "",
-                teacherIDs: teacherIDs
-            };
-            const res = await addPreLesson(req);
-            if (res.resultCode === 200) {
-                ElMessage.success("邀请成功");
-                state.isShowDialog = false;
-                // const cardParams = JSON.parse(sessionStorage.getItem("cardParams") || "");
-                // emit("requestParams", cardParams);
-                emit("submit");
+            if (props.isEdit) {
+                const reqEdit = {
+                    groupLessonPreparateID: route.params.preId as string,
+                    teacherIDs: teacherIDs
+                };
+                const res = await editPreparateTeachers(reqEdit);
+                if (res.resultCode === 200) {
+                    ElMessage.success("操作成功");
+                    state.isShowDialog = false;
+                    emit("submit");
+                }
+            } else {
+                proxy.$refs.uploadForm.validate(async(valid: boolean) => {
+                    if (valid) {
+                        const req = {
+                            preTitle: state.ruleForm.courseContent,
+                            status: 0,
+                            preLessonContent: "",
+                            teacherIDs: teacherIDs
+                        };
+                        const res = await addPreLesson(req);
+                        if (res.resultCode === 200) {
+                            ElMessage.success("邀请成功");
+                            state.isShowDialog = false;
+                            emit("submit");
+                        }
+                    }
+                });
             }
         };
 
@@ -537,6 +576,7 @@ export default defineComponent({
         }
         .rightContent {
             width: calc(100% - 110px);
+            text-align: left;
         }
     }
     :deep(.el-dialog) {
@@ -570,6 +610,7 @@ export default defineComponent({
             width: calc(100% - 110px);
             .leftContent {
                 position: relative;
+                text-align: left;
                 .el-select .el-input__inner {
                     border: 0;
                 }
@@ -928,5 +969,12 @@ export default defineComponent({
 
 .empty-box {
     text-align: center;
+    height: 350px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    .emptyContent {
+        margin-top: 15px;
+    }
 }
 </style>
