@@ -1,9 +1,10 @@
 <template>
     <div class="shareDetailContent">
         <el-dialog title="发起集体备课" center v-model="isShowDialog" :close-on-click-modal="false">
-            <div>
-                <span>集体备课主题</span>
+            <div class="lessonPrepOption">
+                <span class="formTitle"><span class="requireIcon">*</span>集体备课主题:</span>
                 <el-input
+                    class="title"
                     v-model="courseContent"
                     autosize
                     clearable
@@ -11,8 +12,8 @@
                     placeholder="请输入此次集体备课的主题，例如第3单元，长方形与正方形"
                 />
             </div>
-            <div>
-                <span>邀请备课教师</span>
+            <div class="lessonPrepOption">
+                <span class="formTitle">邀请备课教师:</span>
                 <div class="dialogContent">
                     <div class="leftContent">
                         <el-select popper-class="popper-teacher-box" class="teacher-box" v-model="searchString" size="medium" filterable placeholder="搜索" @focus="fetchShareObjectCustomer" @change="addToTag($event)">
@@ -53,6 +54,7 @@
                                 {{ tag.Name }}
                             </el-tag>
                         </div>
+                        <div class="countNum">{{`已选(${dynamicTags.length}/${maxSize})`}}</div>
                     </div>
                     <div class="rightContent" >
                         <div class="organization" v-if="organizationVisible">
@@ -143,6 +145,10 @@
                     </div>
                 </div>
             </div>
+            <div class="lessonPrepOption">
+                <span class="formTitle"></span>
+                <div class="inviteInfo">*若邀请人员不在列表，可在点击【确认】后，通过备课空间列表里的复制链接进行邀请</div>
+            </div>
             <div class="dialogFooter">
                 <span class="confirm" @click="confirm">{{`确定邀请(${dynamicTags.length}/${maxSize})`}}</span>
                 <span class="cancel" @click="closeDialog">搜索无结果</span>
@@ -180,7 +186,7 @@ export default defineComponent({
                     name: ""
                 }
             ],
-            maxSize: 50,
+            maxSize: 100,
             searchResult: [
                 // {
                 //     id: 1,
@@ -279,6 +285,7 @@ export default defineComponent({
         const fetchShareObjectCustomer = () => {
             state.searchString = "";
             state.searchResult = [];
+            getTeacher({ schoolID: teacherList.value[0].ID });
             // const req = {
             //     type: ""
             // };
@@ -306,7 +313,7 @@ export default defineComponent({
 
         const fetchShareCustomerList = (id: string) => {
             state.currentOrgID = id;
-            state.customerList = [];
+            teacherList.value = [];
             state.isSelectAll = false;
             getTeacher({ schoolID: id });
         };
@@ -364,9 +371,9 @@ export default defineComponent({
 
         const handleClose = (tag: any, index: number) => {
             state.dynamicTags.splice(index, 1);
-            if (state.customerList.length > 0) {
-                state.customerList.map((v: any) => {
-                    if (tag.id === v.id) {
+            if (teacherList.value.length > 0) {
+                teacherList.value.map((v: any) => {
+                    if (tag.ID === v.ID) {
                         v.active = false;
                     }
                 });
@@ -391,7 +398,7 @@ export default defineComponent({
         };
 
         const addToTag = (value: any) => {
-            const match = state.searchResult.filter((v: any) => { return v.id === value; })[0];
+            const match = teacherList.value.filter((v: any) => { return v.ID === value; })[0];
             const ids = state.dynamicTags.map((v: any) => { return v.id; });
             // if (state.dynamicTags.length === state.maxSize) {
             //     ElMessage.info(`最多邀请给${state.maxSize}个人`);
@@ -400,8 +407,8 @@ export default defineComponent({
             // }
             // if (ids.indexOf(value) === -1) {
             //     state.dynamicTags.push(match);
-            //     state.customerList.map((v: any) => {
-            //         if (match.id === v.id) {
+            //     teacherList.value.map((v: any) => {
+            //         if (match.ID === v.ID) {
             //             v.active = true;
             //         }
             //     });
@@ -409,7 +416,7 @@ export default defineComponent({
             //     const left = state.dynamicTags.filter((m: any) => {
             //         return m.organizationID === state.currentOrgID;
             //     });
-            //     state.isSelectAll = left.length === state.customerList.length;
+            //     state.isSelectAll = left.length === teacherList.value.length;
             // } else {
             //     ElMessage.info("该数据已存在");
             // }
@@ -487,12 +494,29 @@ export default defineComponent({
 <style lang="scss" scoped>
 .shareDetailContent {
     display: inline-block;
+    .lessonPrepOption {
+        display: flex;
+        align-items: baseLine;
+        margin-bottom: 24px;
+        .formTitle {
+            font-size: 16px;
+            font-family: PingFangSC-Regular, PingFang SC;
+            font-weight: 400;
+            color: #5F626F;
+            margin-right: 12px;
+            width: 20%;
+            .requireIcon {
+                color: #FF4545;
+            }
+        }
+    }
     :deep(.el-dialog) {
         box-shadow: 0px 8px 24px 0px rgba(0, 0, 0, 0.1);
         border-radius: 8px;
-        width: 720px;
-        height: 560px;
+        width: 900px;
+        height: 780px;
         overflow: hidden;
+        padding: 0 25px 25px 25px;
         .el-dialog__header {
             font-size: 18px;
             font-family: PingFangSC-Semibold, PingFang SC;
@@ -513,7 +537,9 @@ export default defineComponent({
             background: #FFFFFF;
             border-radius: 4px;
             border: 1px solid #E0E2E7;
+            padding: 16px;
             .leftContent {
+                position: relative;
                 .el-select .el-input__inner {
                     border: 0;
                 }
@@ -553,6 +579,10 @@ export default defineComponent({
                 }
                 .filterDiv {
                     max-height: 372px;
+                }
+                .countNum {
+                    position: absolute;
+                    bottom: 0;
                 }
             }
             .rightContent {
@@ -725,6 +755,12 @@ export default defineComponent({
                     }
                 }
             }
+        }
+        .inviteInfo {
+            font-size: 12px;
+            font-family: PingFangSC-Regular, PingFang SC;
+            font-weight: 400;
+            color: #5F626F;
         }
         .dialogFooter {
             position: absolute;
