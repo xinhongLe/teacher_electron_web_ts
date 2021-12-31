@@ -3,12 +3,13 @@
         <div class="tagging-center">
             <div class="tagging-center-main">
                 <div
-                @mousedown="clickElement($event,item,index)"
-                :class="activeIndex === index ? 'elements activeElements' : 'elements'"
-                :id="`element`+index" v-for="(item,index) in elementList"
-                :key="index"
-            >
-            </div>
+                    @mousedown="clickElement($event,item,index)"
+                    :class="activeIndex === index ? 'elements activeElements' : 'elements'"
+                    :id="`element`+index" v-for="(item,index) in elementList"
+                    :key="index"
+                >
+                    <span>{{index + 1}}</span>
+                </div>
             </div>
         </div>
     </div>
@@ -117,19 +118,29 @@ export default defineComponent({
             top: 0;
             left: 0;
             transform-origin: 0 0;
-            border: 2px solid #000;
         }
     }
 }
 .activeElements{
-    background: red !important;
+    background-image: url("./pic_pizhu2.png") !important;
+    background-position: center center;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    color:#fff !important;
 }
 .elements{
     position: absolute;
     top: calc(50% - 20px);
     left: calc(50% - 10px);
-    width: 20px;
-    height: 40px;
-    background: #000;
+    width: 38px;
+    height: 44px;
+    background-image: url("./pic_pizhu1.png");
+    background-position: center center;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color:#4B71EE;
 }
 </style>

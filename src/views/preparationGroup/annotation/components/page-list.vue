@@ -15,14 +15,20 @@
                 <Tagging ref="taggingRef" class="taggingComponents"></Tagging>
             </div>
             <div class="me-page">
-                <div
-                    class="me-page-item"
-                    :class="selected === index && 'active'"
-                    v-for="(item, index) in pageList"
-                    :key="index"
-                    @click="selectPage(index, item)"
-                >
-                    {{ item.Name }}
+                <div class="me-page-list">
+                    <div
+                        class="me-page-item"
+                        :class="selected === index && 'active'"
+                        v-for="(item, index) in pageList"
+                        :key="index"
+                        @click="selectPage(index, item)"
+                    >
+                        {{ item.Name }}
+                    </div>
+                </div>
+                <div class="me-page-step">
+                    <div><i class="el-icon-arrow-left"></i>上一页</div>
+                    <div>下一页<i class="el-icon-arrow-right"></i></div>
                 </div>
             </div>
         </div>
@@ -235,8 +241,53 @@ export default defineComponent({
     flex-wrap: nowrap;
     padding: 15px;
     background-color: #fff;
-    overflow-y: hidden;
-    overflow-x: auto;
+    .me-page-list{
+        display: flex;
+        flex: 1;
+        min-width: 0;
+        min-height: 0;
+        overflow-y: hidden;
+        overflow-x: auto;
+        .me-page-item {
+            background-color: #f0f3ff;
+            color: #5560f1;
+            padding: 0px 10px;
+            box-sizing: border-box;
+            text-align: center;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            font-size: 16px;
+            white-space: nowrap;
+            margin-right: 10px;
+            border: 1px solid #f0f3ff;
+            border-radius: 5px;
+            cursor: pointer;
+            position: relative;
+        }
+        .me-page-item.active {
+            border: 2px solid #6675f4;
+        }
+    }
+    .me-page-step{
+        display: flex;
+        background: #fff;
+        div{
+            width: 98px;
+            height: 36px;
+            background: #4B71EE;
+            color:#fff;
+            border-radius: 4px;
+            margin-left: 20px;
+            font-size: 16px;
+            font-family: PingFangSC-Regular, PingFang SC;
+            font-weight: 400;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+    }
 }
 
 .me-page-item {

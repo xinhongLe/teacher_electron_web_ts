@@ -65,7 +65,7 @@ export default () => {
     };
     const openAnotation = () => {
         annotationFlag.value = true;
-        pageListRef.value.addElement();
+        // pageListRef.value.addElement();
     };
     const lastPage = () => {
         cardListRef.value.lastPage();

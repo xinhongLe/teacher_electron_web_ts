@@ -1,19 +1,20 @@
 <template>
     <div class="annotation">
         <div class="annotation-header">
-            <div class="annotation-header-classinfo">
-                {{ WindowName }}
+            <div class="annotation-header-left">
+                <div class="annotation-header-classinfo">
+                    {{ WindowName }}
+                </div>
+                <div class="annotation-header-otherinfo">
+                    <div><img src="@/assets/preparationGroup/icon_ren1.png" alt="">创建人：林老师</div>
+                    <div><img src="@/assets/preparationGroup/icon_time1.png" alt="">创建时间：2021-12-27 16：08</div>
+                    <div><img src="@/assets/preparationGroup/icon_renshu1.png" alt="">小组人数：5人</div>
+                    <div><img src="@/assets/preparationGroup/icon_fanwei.png" alt="">备课范围：数学 苏教版 三上</div>
+                </div>
             </div>
-            <div class="annotation-header-otherinfo">
-                <div>
-                    <div><i class="el-icon-user"></i>创建人：林老师</div>
-                    <div><i class="el-icon-time"></i>创建时间：2021-12-27 16：08</div>
-                    <div>小组人数：5人</div>
-                    <div>备课范围：数学 苏教版 三上</div>
-                </div>
-                <div>
-                    <i @click="openAnotation" class="el-icon-location-outline"></i>
-                </div>
+            <div class="annotation-header-right" @click="openAnotation">
+                <img src="@/assets/preparationGroup/icon_pizhu.png" alt="">
+                打点批注
             </div>
         </div>
         <div class="annotation-main">
@@ -35,13 +36,7 @@
                 />
             </div>
             <div class="annotation-main-right" v-if="annotationFlag">
-                <div class="amr-header">
-                    <span>批注</span>
-                    <span @click="closeAnotation"><i class="el-icon-close"></i></span>
-                    <div>
-                        111
-                    </div>
-                </div>
+                <AnnotationList></AnnotationList>
             </div>
         </div>
         <div class='expandFixed'>
@@ -58,8 +53,9 @@ import { defineComponent, onMounted } from "vue-demi";
 import annotation from "./annotation";
 import CardList from "./components/card-list.vue";
 import PageList from "./components/page-list.vue";
+import AnnotationList from "./components/annotation-list.vue";
 export default defineComponent({
-    components: { CardList, PageList },
+    components: { CardList, PageList, AnnotationList },
     setup() {
         const WindowID = "3A0015526B08B24B97C9BCD943D6F7EC";
         const WindowName = "1A1.1 数一数";
@@ -121,41 +117,56 @@ export default defineComponent({
         width: clac(100% -40px);
         height: 120px;
         background: #fff;
-        border: 1px solid #eee;
-        padding: 20px 10px;
+        padding: 20px 20px;
         box-sizing: border-box;
-        margin: 20px;
-        .annotation-header-classinfo{
-            font-size: 24px;
-            font-weight: 600;
-            padding: 0 10px;
-            margin-bottom: 10px;
-        }
-        .annotation-header-otherinfo{
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #eee;
-            padding: 10px 10px;
-            >div:nth-of-type(1){
+        background: #4B71EE;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        .annotation-header-left{
+            .annotation-header-classinfo{
+                font-size: 22px;
+                font-family: PingFangSC-Semibold, PingFang SC;
+                font-weight: 600;
+                color: #FFFFFF;
+                padding: 0 10px;
+                margin-bottom: 10px;
+            }
+            .annotation-header-otherinfo{
                 display: flex;
-                justify-content: flex-start;
+                justify-content: space-between;
+                align-items: center;
+                padding: 10px 10px;
                 div{
                     margin-left: 30px;
-                    font-size: 18px;
                     display: flex;
                     align-items: center;
-                    i{
-                        padding: 0 5px;
+                    font-size: 16px;
+                    font-family: PingFangSC-Regular, PingFang SC;
+                    font-weight: 400;
+                    color: #FFFFFF;
+                    img{
+                        margin-right: 10px;
                     }
                 }
                 div:nth-of-type(1){
                     margin: 0;
                 }
             }
-            div:nth-of-type(2){
-                font-size: 20px;
-            }
+        }
+        .annotation-header-right{
+            width: 140px;
+            height: 46px;
+            background: #FFFFFF;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            font-size: 16px;
+            font-family: PingFangSC-Semibold, PingFang SC;
+            font-weight: 600;
+            color: #4B71EE;
+            padding:20px;
         }
     }
     .annotation-main{
@@ -165,6 +176,7 @@ export default defineComponent({
         min-height: 0;
         background: #fff;
         padding: 5px 20px;
+        position: relative;
         .annotation-main-left{
             width: 180px;
         }
@@ -175,9 +187,14 @@ export default defineComponent({
             min-height: 0;
         }
         .annotation-main-right{
-            width: 220px;
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 260px;
+            height: 100%;
             padding: 20px;
-            border: 1px solid #000;
+            background: #fff;
+            box-shadow: -6px 0px 15px 0px rgba(0, 0, 0, 0.09);
             .amr-header{
                 display: flex;
                 justify-content: space-between;
