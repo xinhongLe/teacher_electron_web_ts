@@ -76,6 +76,8 @@ export default defineComponent({
     height: 100%;
     display: flex;
     flex-direction: column;
+    flex: 1;
+    min-height: 0;
 }
 .view-video-select {
     display: flex;
@@ -83,6 +85,7 @@ export default defineComponent({
     height: 88px;
     justify-content: space-between;
     padding: 16px 24px;
+    flex-shrink: 0;
     .video-detail {
         font-size: 16px;
         font-family: PingFang-SC-Medium, PingFang-SC;
@@ -95,6 +98,7 @@ export default defineComponent({
     height: 100%;
     background: #f5f6fa;
     padding: 24px 26px;
+    overflow-y: overlay;
     .student-list {
         display: flex;
         flex-wrap: wrap;

@@ -101,7 +101,6 @@ export default defineComponent({
         const writeBoardVisible = ref(false);
         const selectPage = (index, item) => {
             selected.value = index;
-            console.log(pageList.value[index], "pagelist");
             const DataContext = {
                 Type: EnumTrackEventType.SelectPage,
                 LessonID: LessonID.value

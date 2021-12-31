@@ -9,6 +9,7 @@
                 alt=""
             />
             <div class="right-btns">
+                <i class="el-icon-refresh-right refresh" @click="getGradeList"></i>
                 <div class="right-btn" @click="close">
                     <svg
                         t="1623303211083"
@@ -99,7 +100,7 @@
                         </el-input>
                     </div>
                 </div>
-                <div class="teach-class">
+                <div class="teach-class" v-show="!isLoading">
                     <div class="list-empty" v-if="gameList.length === 0">
                         <img src="@/assets/images/suspension/empty_tool.png" />
                         <span
@@ -152,6 +153,7 @@ export default defineComponent({
         };
         const searchName = ref("");
         const selectBookList = ref(["全部教具"]);
+        const isLoading = ref(false);
 
         const openBlackboard = () => {
             if (isElectron()) {
@@ -166,6 +168,7 @@ export default defineComponent({
             emit("close-helper");
         };
         const getGradeList = async () => {
+            isLoading.value = true;
             const data = {
                 name: searchName.value,
                 bookID: "",
@@ -204,6 +207,7 @@ export default defineComponent({
                     name: item.Name
                 }));
             }
+            isLoading.value = false;
         };
         const openUrl = (url: string, name: string) => {
             if (isElectron()) {
@@ -288,6 +292,7 @@ export default defineComponent({
             clickProjection,
             searchName,
             uncultivated,
+            isLoading,
             openRollCall
         };
     }
@@ -326,11 +331,16 @@ export default defineComponent({
         .right-btns {
             display: flex;
             align-items: center;
+            -webkit-app-region: no-drag;
+            .refresh {
+                font-size: 25px;
+                color: #ffffff;
+                margin-right: 20px;
+                cursor: pointer;
+            }
             .right-btn {
-                -webkit-app-region: no-drag;
                 width: 25px;
                 height: 25px;
-                background: #1a1d3e;
                 svg {
                     width: 25px;
                     height: 25px;

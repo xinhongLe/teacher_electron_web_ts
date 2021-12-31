@@ -72,7 +72,6 @@
                                     class="upload-demo"
                                     ref="upload"
                                     action=""
-                                    :file-list="fileList"
                                     :limit="5"
                                     :accept="acceptList"
                                     :show-file-list="false"
@@ -217,7 +216,6 @@ export default defineComponent({
             file: UploadFile & Blob;
         }, index: number) => {
             await uploadFile({ file });
-            console.log(file, "files");
             commonList.value[index].files.push({
                 extension: fileInfo.fileExtension,
                 name: fileInfo.fileName,

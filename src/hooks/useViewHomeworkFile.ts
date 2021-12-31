@@ -19,16 +19,18 @@ export default () => {
     const viewInfo = async (file: FileInfo) => {
         if (file) {
             const { Extention, FilePath, FileName, Bucket } = file;
+            const index = FileName.lastIndexOf(".");
+            const name = index === -1 ? FileName : FileName.substring(FileName.lastIndexOf("\\") + 1, index);
             if (Extention) {
-                const key = FilePath + "/" + FileName + "." + Extention;
+                const key = FilePath + "/" + name + "." + Extention;
                 src.value = await downloadFile(key, Bucket);
                 if (extentionArr.includes(Extention)) {
                     visible.value = true;
                 } else {
-                    openFile(src.value, FileName + "." + Extention);
+                    openFile(src.value, name + "." + Extention);
                 }
             } else {
-                const key = FilePath + "/" + FileName;
+                const key = FilePath + "/" + name;
                 src.value = await downloadFile(key, Bucket);
                 visible.value = true;
             }

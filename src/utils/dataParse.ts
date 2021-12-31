@@ -68,7 +68,12 @@ export const dealOldData = async (pageID: string, originType: any, oldSlide: IOl
     slide.background = getSlideData(oldSlide.PageSetting || "{}");
     slide.steps = getSlideStepData(oldSlide.Steps || []);
 
-    const sortOldElenents = sortElementsByZIndex(oldSlide.Elements || []);
+    let sortOldElenents: string[] = [];
+    try {
+        sortOldElenents = sortElementsByZIndex(oldSlide.Elements || []);
+    } catch (err) {
+        (window as any).electron && (window as any).electron.log.error(err);
+    }
 
     slide.elements = await getElementsData(sortOldElenents, oldSlide.Events || [], originType);
     return slide;
@@ -79,7 +84,7 @@ const getSlideData = (slideBackgroundString: string) => {
     const setting = JSON.parse(slideBackgroundString);
     const background: SlideBackground = {
         type: "solid",
-        color: "#fff"
+        color: "#F6FFFB"
     };
     if (setting.BackColor) {
         // 纯色背景填充
@@ -202,6 +207,7 @@ const getElementsData = async (oldElements: string[], oldActions: string[], orig
         case 7:
         case 8:
         case 10:
+        case 13:
             elements.push({ ...await dealVideo(oldElement), actions, wins });
             break;
         }
@@ -565,6 +571,8 @@ interface IOldVideo {
     UUID: string;
     Width: number;
     ZIndex: number;
+    EnumVideoPlayStyle: number;
+    IsAutoPlay: boolean;
 }
 
 // 处理视频
@@ -582,12 +590,18 @@ const dealVideo = async (oldVideo: IOldVideo) => {
         rotate: 0
     };
 
-    if (oldVideo.Type === 10) {
-        await getVideoQuoteInfo({ FileIDs: [oldVideo.FileID] }).then(res => {
-            if (res.resultCode === 200) {
-                oldVideo.OssFileName = res.result[0].File.FileName + "." + res.result[0].File.Extention;
-            }
-        });
+    if (oldVideo.Type === 10 || oldVideo.Type === 13) {
+        if (oldVideo.FileID) {
+            await getVideoQuoteInfo({ FileIDs: [oldVideo.FileID] }).then(res => {
+                if (res.resultCode === 200 && res.result.length > 0) {
+                    oldVideo.OssFileName = res.result[0].File.FileName + "." + res.result[0].File.Extention;
+                } else {
+                    oldVideo.OssFileName = "";
+                }
+            });
+        } else {
+            oldVideo.OssFileName = "";
+        }
     }
 
     element.id = oldVideo.UUID;
@@ -597,8 +611,9 @@ const dealVideo = async (oldVideo: IOldVideo) => {
     element.width = oldVideo.Width;
     element.height = oldVideo.Height;
     element.src = OSS_PATH + "/" + oldVideo.OssFileName;
-    element.showType = oldVideo.Type === 7 ? 1 : 0;
+    element.showType = element.showType = oldVideo.Type === 13 ? (oldVideo.EnumVideoPlayStyle === 1 ? 0 : 1) : oldVideo.Type === 7 ? 1 : 0;
     element.display = oldVideo.IsVisibility;
+    element.autoPlay = oldVideo.IsAutoPlay;
     return element;
 };
 

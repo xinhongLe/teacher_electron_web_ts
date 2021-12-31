@@ -158,15 +158,18 @@ export default defineComponent({
 
         onMounted(() => {
             document.addEventListener("keyup", onEnter);
-            if (isElectron()) {
-                window.electron.ipcRenderer.invoke("closeSuspension");
-                window.electron.unmaximizeWindow();
-            }
         });
 
         onUnmounted(() => {
             document.removeEventListener("keyup", onEnter);
         });
+
+        if (isElectron()) {
+            window.electron.ipcRenderer.invoke("closeSuspension");
+            window.electron.setContentSize(750, 520);
+            window.electron.unmaximizeWindow();
+            window.electron.setCenter();
+        }
 
         return {
             form,

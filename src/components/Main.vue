@@ -4,6 +4,7 @@
         <Suspension v-if="!isElectron"/>
         <LookQuestion v-if="isShowQuestion"/>
         <LookVideo v-if="isShowVideo"/>
+        <Projection/>
         <div class="main-body">
             <router-view v-slot="{Component}">
                 <keep-alive :exclude="keepExcludeArr">
@@ -15,7 +16,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, onUnmounted, ref, watch } from "vue";
+import { computed, defineComponent, ref, watch } from "vue";
 import NavBar from "./navBar/index.vue";
 import Suspension from "./suspension/index.vue";
 import isElectron from "is-electron";
@@ -28,13 +29,15 @@ import useTagList from "@/hooks/useTagList";
 import LookQuestion from "./lookQuestion/index.vue";
 import { store } from "@/store";
 import LookVideo from "./lookVideo/index.vue";
+import Projection from "./projection/index.vue";
 
 export default defineComponent({
     components: {
         NavBar,
         Suspension,
         LookQuestion,
-        LookVideo
+        LookVideo,
+        Projection
     },
     setup() {
         const route = useRoute();
