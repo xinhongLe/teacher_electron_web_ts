@@ -13,14 +13,18 @@
                         <span>创建人：{{ item.CreaterName }}</span>
                     </div>
                     <div>
-                        <img src="../../../assets/preparationGroup/icon_renshu.png" alt="创建人">
+                        <img src="../../../assets/preparationGroup/icon_renshu.png" alt="小组人数">
                         <span>小组人数：{{ item.TeacherCount }}人</span>
                     </div>
                 </div>
                 <div class="card-detail">
-                    <div>
-                        <img src="../../../assets/preparationGroup/icon_shijian.png" alt="创建人">
+                    <div v-if="item.Status === 2">
+                        <img src="../../../assets/preparationGroup/icon_shijian.png" alt="创建时间">
                         <span>创建时间：{{ moment(item.CreateTime).format("YYYY-MM-DD HH:mm:ss") }}</span>
+                    </div>
+                    <div v-else>
+                        <img src="../../../assets/preparationGroup/icon_shijian.png" alt="研讨时间">
+                        <span>研讨时间：{{ `${moment(item.CreateTime).format("YYYY-MM-DD HH:mm:ss")} 至 ${moment(item.CreateEndTime).format("YYYY-MM-DD HH:mm:ss")}` }}</span>
                     </div>
                 </div>
             </div>
@@ -32,7 +36,7 @@
                 </div>
                 <el-button type="primary" plain @click="turnToEditPanel(item)">进入研讨</el-button>
             </div>
-            <p>您可以<span class="blue" @click="generateInvitelink(item)">生成邀请链接</span>， 发送至小组成员</p>
+            <p style="min-width: 300px;">您可以<span class="blue" @click="generateInvitelink(item)">生成邀请链接</span>， 发送至小组成员</p>
         </div>
 
         <generate-link
@@ -192,7 +196,7 @@ export default defineComponent({
                 > div {
                     display: flex;
                     align-items: center;
-                    width: 300px;
+                    min-width: 300px;
                 }
                 img {
                     display: inline-block;

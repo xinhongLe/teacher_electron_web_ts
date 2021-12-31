@@ -2,7 +2,7 @@
     <div :class="isEdit ? 'head-info max' : 'head-info'">
         <div class="head-title">
             <div class="left" v-if="isEdit">
-                <el-input class="input-title" v-model="lessonItem.PreTitle" placeholder=""></el-input>
+                <el-input class="input-title" v-model="lessonItem.PreTitle" placeholder="" maxlength="20"></el-input>
             </div>
             <div class="left" v-else>
                 <span class="title">{{ lessonItem.PreTitle }}</span>
@@ -336,7 +336,7 @@ export default defineComponent({
             .input-title {
                 display: inline-block;
                 :deep(.el-input__inner) {
-                    width: 510px;
+                    width: 520px;
                     height: 48px;
                     font-size: 24px;
                     font-family: PingFangSC-Semibold, PingFang SC;

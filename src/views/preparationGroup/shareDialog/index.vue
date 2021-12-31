@@ -285,7 +285,6 @@ export default defineComponent({
         const openDialog = () => {
             state.isShowDialog = true;
             nextTick(() => {
-                debugger;
                 resetShareParams();
                 fetchShareObjectOrganization();
             });

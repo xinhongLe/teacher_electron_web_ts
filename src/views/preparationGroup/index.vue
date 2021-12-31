@@ -45,8 +45,8 @@ export default defineComponent({
                 createEndTime: "",
                 pager: {
                     pageNumber: 1,
-                    pageSize: 10,
-                    pageChoose: [10, 20, 30, 50],
+                    pageSize: 4,
+                    pageChoose: [4, 8, 20, 50],
                     total: 0
                 }
             }
@@ -104,7 +104,7 @@ export default defineComponent({
     min-height: 0;
     background-color: #f5f6fa;
     .content-wrapper {
-        height: calc(100% - 148px);
+        height: calc(100% - 168px);
         padding: 16px 24px;
         .card-wrapper {
             height: calc(100% - 32px);

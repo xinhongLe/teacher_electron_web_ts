@@ -11,7 +11,7 @@
             <div class="member-list" :class="isFull ? `full-list` : ``">
                 <div class="member-cell" v-for="(item, index) in memberList" :key="index">
                     <img class="file-download" src="../../../../assets/preparationGroup/editPanel/avator_small_back.png" alt="" />
-                    <p>{{ item.Name }}</p>
+                    <p class="ellipsis" :title="item.Name">{{ item.Name }}</p>
                 </div>
             </div>
             <p class="more" v-if="isShowMore" @click="isFull = !isFull">{{ isFull ? `隐藏更多` : `查看更多` }}</p>
@@ -158,6 +158,13 @@ export default defineComponent({
                 font-weight: 400;
                 color: #19203D;
                 margin-top: 18px;
+            }
+            .ellipsis {
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                display: inline-block;
+                max-width: 60px;
             }
         }
     }
