@@ -200,7 +200,7 @@ export default defineComponent({
             }
         });
 
-        const { loadingShow, fileInfo, getFileSize, getFileType, uploadFile } = useUploadFile("ElementFile");
+        const { loadingShow, fileInfo, getFileSize, getFileType, uploadFile } = useUploadFile("GroupLessonFile");
 
         // 教案课件上传之前
         const beforeUpload = ({ name }: {name: string;}) => {
@@ -220,7 +220,7 @@ export default defineComponent({
 
         // 上传教案/课件
         const uploadFileSuccess = async ({ file }: {file: UploadFile & Blob;}) => {
-            const ossPath = get(STORAGE_TYPES.OSS_PATHS)?.["ElementFile"];
+            const ossPath = get(STORAGE_TYPES.OSS_PATHS)?.["GroupLessonFile"];
             const res = await cooOss(file, ossPath);
             if (res?.code === 200) {
                 console.log(res, "resresres");

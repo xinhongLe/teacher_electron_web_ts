@@ -16,7 +16,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, ref, watch } from "vue";
+import { computed, defineComponent, ref, watch, onUnmounted } from "vue";
 import NavBar from "./navBar/index.vue";
 import Suspension from "./suspension/index.vue";
 import isElectron from "is-electron";

@@ -307,7 +307,7 @@ export default defineComponent({
 
         // 再次上传教案/课件
         const uploadFileSuccess = async ({ file }: {file: UploadFile & Blob;}, id: string) => {
-            const ossPath = get(STORAGE_TYPES.OSS_PATHS)?.["ElementFile"];
+            const ossPath = get(STORAGE_TYPES.OSS_PATHS)?.["GroupLessonFile"];
             const res = await cooOss(file, ossPath);
             if (res?.code === 200) {
                 const { name, md5, fileExtension } = res;
