@@ -127,12 +127,14 @@ export default () => {
         });
     };
     const handleClickWin = (j:clickWinList, i: number, index: number) => {
+        console.log("j", j);
         activeIndex.leftActiveIndex = index;
         activeIndex.winIndex = i;
         activeIndex.winActiveId = j.WindowID;
         activeIndex.WindowName = j.WindowName;
         activeIndex.winActiveValue = j;
         activeIndex.originType = j.OriginType;
+        activeIndex.LessonID = j.LessonID;
         TrackService.setTrack(EnumTrackEventType.SelectWindow, j.WindowID, j.WindowName, "", "", "", "", "选择窗");
     };
     const isSetCache = ref(false); // 是否需要更新窗下的数据
