@@ -35,9 +35,9 @@
                                 </div>
                             </el-option>
                             <template #empty>
-                                <div class="empty-box" style="height: 120px;">
+                                <div class="empty-box">
                                     <img src="../../../assets/preparationGroup/pic_noresult.png">
-                                    <p>搜索无结果</p>
+                                    <p class="emptyContent">搜索无结果</p>
                                 </div>
                             </template>
                         </el-select>
@@ -72,9 +72,9 @@
                                     </div>
                                     </el-option>
                                     <template #empty>
-                                        <div class="empty-box" style="height: 120px;">
+                                        <div class="empty-box">
                                             <img src="../../../assets/preparationGroup/pic_noresult.png">
-                                            <p>搜索无结果</p>
+                                            <p class="emptyContent">搜索无结果</p>
                                         </div>
                                     </template>
                                 </el-select>
@@ -99,9 +99,9 @@
                                     </div>
                                 </div>
                             </div>
-                            <div v-else class="empty-box" style="height: 120px;margin-top: 120px;">
+                            <div v-else class="empty-box">
                                 <img src="../../../assets/preparationGroup/pic_noresult.png">
-                                <p>搜索无结果</p>
+                                <p class="emptyContent">搜索无结果</p>
                             </div>
                             <div class="optionContent" v-if="false">
                                 <div v-for="(item,index) in organization" :key="index" class="organization">
@@ -296,7 +296,7 @@ export default defineComponent({
         const fetchShareObjectCustomer = () => {
             state.searchString = "";
             state.searchResult = [];
-            getTeacher({ schoolID: teacherList.value[0].ID });
+            getTeacher({ schoolID: state.selectOptionID });
             // const req = {
             //     type: ""
             // };
@@ -570,6 +570,7 @@ export default defineComponent({
             width: calc(100% - 110px);
             .leftContent {
                 position: relative;
+                text-align: left;
                 .el-select .el-input__inner {
                     border: 0;
                 }
@@ -928,5 +929,12 @@ export default defineComponent({
 
 .empty-box {
     text-align: center;
+    height: 350px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    .emptyContent {
+        margin-top: 15px;
+    }
 }
 </style>
