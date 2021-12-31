@@ -160,7 +160,7 @@ export default defineComponent({
                 lessonItem.PreTitle = PreTitle;
                 lessonItem.Status = Status;
                 lessonItem.TeacherCount = TeacherCount;
-                lessonItem.LessonRange = LessonRange;
+                lessonItem.LessonRange = LessonRange || "";
                 lessonItem.LessonRangeIDs = lessonItem.LessonRange.split(",");
                 if (lessonItem.LessonRangeIDs.length > 0) {
                     let rangeText = "";
