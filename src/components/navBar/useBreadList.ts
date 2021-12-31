@@ -11,14 +11,6 @@ export default () => {
         {
             name: "备课",
             path: "/preparation"
-        },
-        {
-            name: "集体备课",
-            path: "/preparation-group"
-        },
-        {
-            name: "批注",
-            path: "/annotation"
         }
     ]);
 
