@@ -4,6 +4,7 @@
       <div class="system-explain">
         <p>{{questionTypeName}} : </p>
         <div ref="questionContentRef"/>
+        <div ref="answerContentRef"/>
       </div>
       <div class="system-detail" @click="lookQuestions({id: questionDetailId,type: 0})">
         <img src="@/assets/images/homeworkNew/icon_timuxiangqing.png" alt="" />
@@ -68,6 +69,10 @@ export default defineComponent({
             type: String,
             default: ""
         },
+        answerContent: {
+            type: String,
+            default: ""
+        },
         type: {
             type: Number,
             default: -1
@@ -80,6 +85,7 @@ export default defineComponent({
     setup(props) {
         const activeNames = ref(["0", "1", "2", "3"]);
         const questionContentRef = ref<HTMLDivElement>();
+        const answerContentRef = ref<HTMLDivElement>();
         const list = computed(() => {
             const list = [];
             list[0] = props.MissionDetails.filter((m) => m.Result === QuestionResultTypeEnum.NOT_SURE);
@@ -96,8 +102,9 @@ export default defineComponent({
         };
 
         watchEffect(() => {
-            if (questionContentRef.value) {
+            if (questionContentRef.value && answerContentRef.value) {
                 questionContentRef.value.innerHTML = props.questionContent;
+                answerContentRef.value.innerHTML = props.answerContent;
                 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                 // @ts-ignore
                 MathJax.texReset();
@@ -106,7 +113,7 @@ export default defineComponent({
                 MathJax.typesetClear();
                 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                 // @ts-ignore
-                MathJax.typesetPromise([questionContentRef.value]);
+                MathJax.typesetPromise([questionContentRef.value, answerContentRef.value]);
             }
         });
 
@@ -115,6 +122,7 @@ export default defineComponent({
             list,
             getIndex,
             questionContentRef,
+            answerContentRef,
             questionTypeName,
             activeNames
         };

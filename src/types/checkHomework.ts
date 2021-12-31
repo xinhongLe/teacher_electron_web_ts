@@ -106,7 +106,8 @@ export interface QuestinInfo {
         QuestionFiles: QuestionFile[];
         SN: string;
         FlowText?: {
-            QuestionContent: string
+            QuestionContent: string;
+            AnswerContent: string;
         },
         Type: number;
     };
