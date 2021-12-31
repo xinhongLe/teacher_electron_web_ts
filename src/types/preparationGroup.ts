@@ -73,6 +73,18 @@ export interface FetchPreparateListPageData {
     pager: PagerReq;
 }
 
+export interface Fileginseng {
+    Bucket: string;
+    Extention: string;
+    FileMD5: string;
+    FileName: string;
+    FilePath: string;
+    ID: string;
+    Name: string;
+    SN: number;
+    Type: number;
+}
+
 export interface DiscussioncontentList {
     Attachments: Fileginseng[];
     Content: string;
@@ -87,17 +99,6 @@ export interface DiscussioncontentList {
     Title: string;
 }
 
-export interface Fileginseng {
-    Bucket: string;
-    Extention: string;
-    FileMD5: string;
-    FileName: string;
-    FilePath: string;
-    ID: string;
-    Name: string;
-    SN: number;
-    Type: number;
-}
 export interface FetchTeacherLessonAndBagByChapterData {
     chapterID: string;
 }
@@ -261,16 +262,16 @@ export interface Questions {
 }
 
 export interface FileData {
-    id?: string;
-    name: string;
-    sn?: number;
-    fileName: string;
-    bucket: string;
-    filePath?: string;
-    extention: string;
-    fileMD5: string;
-    type?: number;
-    staffID?: string
+    bucket: string,
+    objectKey?: string,
+    name: string,
+    md5: string,
+    fileName: string,
+    fileExtension: string,
+    path?: string,
+    size?: number,
+    fileSize?: string,
+    fileType?: string
 }
 
 export interface discussionContent {
@@ -459,7 +460,7 @@ export interface CloneCourseBagToTeacherRes {
     }
 }
 
-export interface ShareResourceData  {
+export interface ShareResourceData {
     data: string;
 }
 
