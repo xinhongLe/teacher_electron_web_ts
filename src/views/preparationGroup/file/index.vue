@@ -84,6 +84,7 @@ export default defineComponent({
             const item: any = props.fileInfo;
             clearInterval(timer.value);
             timer.value = null;
+            if (!item.fileSize) return;
             if (props.action === "upload") {
                 percent.value = 0;
                 timer.value = setInterval(() => {

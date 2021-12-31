@@ -317,9 +317,9 @@ export default defineComponent({
                         name: name,
                         fileName: file.name.substring(0, file.name.lastIndexOf(".")),
                         bucket: ossPath.Bucket,
-                        filePath: ossPath.Path,
-                        extention: fileExtension,
-                        fileMD5: md5
+                        path: ossPath.Path,
+                        fileExtension: fileExtension,
+                        md5: md5
                     }
                 };
                 const result = await addResourceResult(params);

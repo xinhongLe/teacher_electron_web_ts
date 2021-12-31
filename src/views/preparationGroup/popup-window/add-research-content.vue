@@ -77,7 +77,7 @@
     </el-dialog>
 </template>
 <script lang="ts">
-import { defineComponent, onMounted, reactive, ref, toRefs, watch } from "vue";
+import { defineComponent, onMounted, reactive, ref, toRefs, watch, PropType } from "vue";
 import { useRoute } from "vue-router";
 import { ElFormType } from "@/types/elementType";
 import { ElMessage } from "element-plus";
@@ -88,6 +88,7 @@ import { UploadFile } from "element-plus/lib/components/upload/src/upload.type";
 import File from "../file/index.vue";
 import useUploadFile from "@/hooks/useUploadFile";
 import { AddDiscussionContent, EditDiscussionContent } from "../api";
+import { DiscussioncontentList } from "@/types/preparationGroup";
 export default defineComponent({
     props: {
         dialogVisible: {
@@ -95,7 +96,7 @@ export default defineComponent({
             default: false
         },
         researchContent: {
-            type: Object,
+            type: Object as PropType<DiscussioncontentList>,
             default: () => ({})
         },
         researchType: {
@@ -113,7 +114,8 @@ export default defineComponent({
         const preId = ref();
         const flagType = ref(props.researchType);
         const acceptList = ".ppt,.doc,.docx,.pdf,.mp3,.mp4,.jpg,.png,";
-        const fileList = reactive<{ extention: string; fileName: string; name: string; bucket: string; fileMD5: string; filePath: string; size: number; fileSize: string; fileType: string; }[]>([]);
+        // const fileList = reactive<{ extention: string; fileName: string; name: string; bucket: string; fileMD5: string; filePath: string; size: number; fileSize: string; fileType: string; }[]>([]);
+        const fileList = ref<IOssFileInfo[]>([]);
         const fileContent = reactive<IOssFileInfo>({
             bucket: "",
             path: "",
@@ -160,24 +162,43 @@ export default defineComponent({
             ]
         };
 
-        watch(() => props.researchContent, (newValue) => {
-            console.log(newValue, "12345");
-            flagType.value = "编辑";
-            preId.value = newValue.DiscussionContentID;
-            state.form.title = newValue.Title;
-            state.form.resourceType = newValue.ResourceType;
-            state.form.content = newValue.Content;
-            state.form.planFile = "1";
-            fileContent.name = newValue.ResourceSource.Name;
-            fileContent.bucket = newValue.ResourceSource.Bucket;
-            fileContent.path = newValue.ResourceSource.FilePath;
-            fileContent.fileExtension = newValue.ResourceSource.Extention;
-            fileContent.md5 = newValue.ResourceSource.FileMD5;
-            fileContent.fileName = newValue.ResourceSource.FileName;
-            fileContent.size = 0;
-            fileContent.fileSize = "";
-            // fileContent.fileType = newValue.ResourceSource.Name;
-        }, { deep: true });
+        watch(() => props.dialogVisible, (visible) => {
+            if (visible) {
+                console.log(visible, "visible");
+                if (props.researchContent) {
+                    console.log(props.researchContent, "1234567890");
+                    flagType.value = "编辑";
+                    preId.value = props.researchContent.DiscussionContentID;
+                    state.form.title = props.researchContent.Title;
+                    state.form.resourceType = props.researchContent.ResourceType;
+                    state.form.content = props.researchContent.Content;
+                    state.form.planFile = "1";
+                    fileContent.name = props.researchContent.ResourceSource.Name;
+                    fileContent.bucket = props.researchContent.ResourceSource.Bucket;
+                    fileContent.path = props.researchContent.ResourceSource.FilePath;
+                    fileContent.fileExtension = props.researchContent.ResourceSource.Extention;
+                    fileContent.md5 = props.researchContent.ResourceSource.FileMD5;
+                    fileContent.fileName = props.researchContent.ResourceSource.FileName;
+                    fileContent.size = 0;
+                    fileContent.fileSize = "";
+                    // fileContent.fileType = props.researchContent.ResourceSource.Name;
+                    fileList.value = [];
+                    props.researchContent.Attachments && props.researchContent.Attachments.map(item => {
+                        console.log(item);
+                        fileList.value.push({
+                            objectKey: "",
+                            bucket: item.Bucket,
+                            name: item.Name,
+                            md5: item.FileMD5,
+                            fileName: item.FileName,
+                            fileExtension: item.Extention,
+                            path: item.FilePath
+                        });
+                    });
+                    console.log(fileList.value, "fileListfileListfileList");
+                }
+            }
+        });
 
         const { loadingShow, fileInfo, getFileSize, getFileType, uploadFile } = useUploadFile("ElementFile");
 
@@ -235,23 +256,23 @@ export default defineComponent({
         // 上传附件
         const uploadSuccess = async ({ file }: {file: UploadFile & Blob;}) => {
             await uploadFile({ file });
-            fileList.push({
-                ...fileInfo,
-                extention: fileInfo.fileExtension,
-                name: fileInfo.name,
-                fileName: fileInfo.fileName,
-                bucket: fileInfo.bucket,
-                fileMD5: fileInfo.md5,
-                filePath: fileInfo.path!,
-                size: fileInfo.size!,
-                fileSize: fileInfo.fileSize!,
-                fileType: fileInfo.fileType!
+            fileList.value.push({
+                ...fileInfo
+                // extention: fileInfo.fileExtension,
+                // name: fileInfo.name,
+                // fileName: fileInfo.fileName,
+                // bucket: fileInfo.bucket,
+                // fileMD5: fileInfo.md5,
+                // filePath: fileInfo.path!,
+                // size: fileInfo.size!,
+                // fileSize: fileInfo.fileSize!,
+                // fileType: fileInfo.fileType!
             });
         };
 
         // 删除附件
         const delFile = (index: number) => {
-            fileList.splice(index, 1);
+            fileList.value.splice(index, 1);
         };
 
         // 确认新增事件
@@ -272,7 +293,7 @@ export default defineComponent({
                                 extention: fileContent.fileExtension,
                                 fileMD5: fileContent.md5
                             },
-                            attachments: fileList
+                            attachments: fileList.value
                         }
                     };
                     if (flagType.value === "新增") {
