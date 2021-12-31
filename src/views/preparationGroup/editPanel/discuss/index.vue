@@ -24,17 +24,19 @@
         </div>
         <div class="discuss-area">
             <div class="discuss-box-cell">
-                <Area :updateContent="updateContent"></Area>
+                <Area :content="item" :numorder="index" v-for="(item, index) in Contents" :key="index" @Modify="ModifyHandle"></Area>
             </div>
         </div>
-        <AddResearchContent v-model:dialogVisible="dialogVisible"  v-if="dialogVisible" @update="updateHandle">></AddResearchContent>
+        <AddResearchContent v-model:dialogVisible="dialogVisible" v-if="dialogVisible" @AddSuccess="AddSuccessHandle">></AddResearchContent>
     </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, toRefs, ref } from "vue";
+import { defineComponent, reactive, toRefs, ref, onMounted } from "vue";
+import { useRoute } from "vue-router";
 import Area from "../area/index.vue";
 import AddResearchContent from "../../popup-window/add-research-content.vue";
+import useContents from "./useContents";
 export default defineComponent({
     name: "discuss",
     props: {
@@ -45,8 +47,8 @@ export default defineComponent({
     setup(props, { emit }) {
         console.log(props);
         console.log(emit);
+        const route = useRoute();
         const dialogVisible = ref(false);
-        const updateContent = ref(0);
         const state = reactive({
             stepList: [
                 {
@@ -68,6 +70,8 @@ export default defineComponent({
             ]
         });
 
+        const { Contents, getContents } = useContents();
+
         const submit = () => {
             console.log(1);
         };
@@ -76,23 +80,40 @@ export default defineComponent({
             dialogVisible.value = true;
         };
 
-        const updateHandle = () => {
+        const AddSuccessHandle = () => {
             dialogVisible.value = false;
-            updateContent.value = +1;
-            console.log(updateContent.value, "updateContent");
+            fetchContents();
+        };
+
+        const ModifyHandle = () => {
+            fetchContents();
         };
 
         const add = () => {
             console.log(1);
         };
+        const fetchContents = () => {
+            const preId = route.params.preId as string;
+            const params = {
+                id: preId
+            };
+            getContents(params);
+        };
+
+        onMounted(async () => {
+            fetchContents();
+        });
+
         return {
             ...toRefs(state),
             submit,
             add,
             AddResearch,
-            updateHandle,
+            AddSuccessHandle,
+            fetchContents,
+            ModifyHandle,
             dialogVisible,
-            updateContent
+            Contents
         };
     },
     components: { Area, AddResearchContent }

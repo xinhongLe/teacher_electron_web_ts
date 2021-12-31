@@ -29,19 +29,6 @@ const routes: Array<RouteRecordRaw> = [
                 }
             },
             {
-                path: "preparation-group",
-                name: "集体备课",
-                component: () => import("@/views/preparationGroup/index.vue"),
-                meta: {
-                    keepAlive: true
-                }
-            },
-            {
-                path: "preparation-edit/:preId",
-                name: "编辑集体备课",
-                component: () => import("@/views/preparationGroup/editPanel/index.vue")
-            },
-            {
                 path: "class-manage",
                 name: "班级管理",
                 component: () => import("@/views/classManage/index.vue")
@@ -112,6 +99,16 @@ const routes: Array<RouteRecordRaw> = [
                 path: "course-time",
                 name: "课时延后",
                 component: () => import("@/views/courseTime/index.vue")
+            },
+            {
+                path: "preparation-group",
+                name: "集体备课",
+                component: () => import("@/views/preparationGroup/index.vue")
+            },
+            {
+                path: "preparation-edit/:preId",
+                name: "编辑集体备课",
+                component: () => import("@/views/preparationGroup/editPanel/index.vue")
             },
             {
                 path: "assessment-center",

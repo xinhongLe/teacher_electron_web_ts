@@ -44,7 +44,6 @@
                         v-model="lessonItem.LessonRangeIDs"
                         :options="textBookGradeList"
                         :props="{expandTrigger: 'click'}"
-                        @change="handleChange"
                     ></el-cascader>
                 </div>
                 <span v-else class="content">{{ lessonItem.LessonRange }}</span>
@@ -94,13 +93,13 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, reactive, getCurrentInstance, onMounted, watch, nextTick } from "vue";
+import { defineComponent, ref, reactive, getCurrentInstance, watch, nextTick } from "vue";
 import { useRoute } from "vue-router";
 import { fetchPreparateDetail, editPreparateDetail } from "../../api";
+import { lessonItemData } from "@/types/preparationGroup";
+import { IOssFileInfo } from "@/types/oss";
 import useUploadFile from "@/hooks/useUploadFile";
 import moment from "moment";
-import { lessonItemData, IPreOssFileInfo } from "@/types/preparationGroup";
-import { IOssFileInfo } from "@/types/oss";
 import useSubmit from "../useSubmit";
 import File from "../../file/index.vue";
 export default defineComponent({
@@ -110,12 +109,10 @@ export default defineComponent({
             type: Function
         }
     },
-    setup(props, { emit }) {
+    setup() {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { proxy } = getCurrentInstance() as any;
         const route = useRoute();
-        console.log(props);
-        console.log(emit);
         const isEdit = ref(false);
         const isShowMore = ref(false);
         const isFull = ref(false);
@@ -135,7 +132,6 @@ export default defineComponent({
         });
 
         const getPreparateDetail = async () => {
-            console.log(route.params.preId);
             const res = await fetchPreparateDetail({
                 id: route.params.preId as string
             });
@@ -158,7 +154,6 @@ export default defineComponent({
                 lessonItem.PreTitle = PreTitle;
                 lessonItem.Status = Status;
                 lessonItem.TeacherCount = TeacherCount;
-                // lessonItem.LessonRange = "39F766472E16384149030DFA4E9863B5,39F7666AAF66065AF9B04D393F156352,39FFD2A8895176995E7C9B9FBA779A52";
                 lessonItem.LessonRange = LessonRange;
                 lessonItem.LessonRangeIDs = lessonItem.LessonRange.split(",");
                 if (lessonItem.LessonRangeIDs.length > 0) {
@@ -196,7 +191,6 @@ export default defineComponent({
                         isFull.value = (windowContent - 200) < specialContent[0].clientWidth;
                     }
                 });
-                console.log(res);
             }
         };
 
@@ -233,11 +227,7 @@ export default defineComponent({
             proxy.mittBus.emit("watchStatus", isEdit.value);
         };
 
-        const handleChange = () => {
-            console.log(1);
-        };
         const { switchStatus, textBookGradeList, getTextBookGrade } = useSubmit();
-
         const { loadingShow, fileInfo, uploadFile, resetFileInfo, getFileType } = useUploadFile("GroupLessonFile");
         watch(fileInfo, (fileObj: IOssFileInfo) => {
             const file = {
@@ -257,10 +247,8 @@ export default defineComponent({
             const index = lessonItem.Attachments.findIndex((v) => v.name === fileObj.name);
             lessonItem.Attachments.splice(index, 1);
         };
-        onMounted(() => {
-            getTextBookGrade();
-            getPreparateDetail();
-        });
+        getTextBookGrade();
+        getPreparateDetail();
         return {
             isEdit,
             isShowMore,
@@ -274,7 +262,6 @@ export default defineComponent({
             uploadFile,
             resetFileInfo,
             getFileType,
-            handleChange,
             deleteFileItem,
             getPreparateDetail,
             savePreparateDetail
