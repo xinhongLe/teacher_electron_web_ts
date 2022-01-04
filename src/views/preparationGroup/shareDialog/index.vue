@@ -565,7 +565,7 @@ export default defineComponent({
     .lessonPrepOption {
         display: flex;
         align-items: baseLine;
-        margin-bottom: 24px;
+        margin-bottom: 20px;
         text-align: right;
         .formTitle {
             font-size: 16px;
@@ -839,7 +839,7 @@ export default defineComponent({
         }
         .dialogFooter {
             text-align: center;
-            margin-top: 56px;
+            margin-top: 35px;
             .cancel {
                 display: inline-block;
                 width: 100px;

@@ -36,7 +36,7 @@
                 </div>
                 <el-button type="primary" plain @click="turnToEditPanel(item)">进入研讨</el-button>
             </div>
-            <p style="min-width: 300px;">您可以<span class="blue" @click="generateInvitelink(item)">生成邀请链接</span>， 发送至小组成员</p>
+            <p style="min-width: 300px; height:16px; text-align: right;" v-if="item.Status === 2">您可以<span class="blue" @click="generateInvitelink(item)">生成邀请链接</span>， 发送至小组成员</p>
         </div>
 
         <generate-link
