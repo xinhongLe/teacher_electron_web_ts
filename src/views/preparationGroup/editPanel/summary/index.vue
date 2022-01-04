@@ -29,7 +29,7 @@
                     </template>
                 </el-table-column>
             </el-table>
-            <div class="page" v-if="false">
+            <div class="page">
                 <el-pagination
                     :current-page="page.pageNumber"
                     :page-sizes="page.pageChoose"
@@ -71,18 +71,25 @@ export default defineComponent({
             total: 0 // 总数据
         });
         const handleSizeChange = (v: number) => {
+            page.pageNumber = 1;
             page.pageSize = v;
+            getTableList();
         };
 
         const handleCurrentChange = (v: number) => {
             page.pageNumber = v;
+            getTableList();
         };
         const getTableList = async () => {
             const res = await fetchReflectFiles({
-                id: route.params.preId as string
+                pager: {
+                    ...page
+                },
+                preparateID: route.params.preId as string
             });
             if (res.resultCode === 200) {
-                proxy.tableData = res.result;
+                proxy.tableData = res.result.list;
+                page.total = res.result.pager.Total;
                 nextTick(() => {
                     proxy.autoHeight = proxy.tableData.length * 60 + 32;
                 });

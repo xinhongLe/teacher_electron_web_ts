@@ -86,7 +86,8 @@ export default defineComponent({
     width: 100%;
     display: flex;
     flex-direction: column;
-    height: 100%;
+    min-height: 100%;
+    height: fit-content;
     user-select: none;
     background-color: #F5F6FA;
     .main-box {

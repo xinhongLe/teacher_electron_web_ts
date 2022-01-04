@@ -1,8 +1,8 @@
 <template>
-    <div class="head-info">
+    <div :class="isEdit ? 'head-info max' : 'head-info'">
         <div class="head-title">
             <div class="left" v-if="isEdit">
-                <el-input class="input-title" v-model="lessonItem.PreTitle" placeholder=""></el-input>
+                <el-input class="input-title" v-model="lessonItem.PreTitle" placeholder="" maxlength="20"></el-input>
             </div>
             <div class="left" v-else>
                 <span class="title">{{ lessonItem.PreTitle }}</span>
@@ -150,6 +150,7 @@ export default defineComponent({
                             ...v,
                             fileName: v.FileName,
                             fileExtension: v.Extention,
+                            fileSize: getFileSize(v.Size),
                             fileType: getFileType(`${v.FileName}.${v.Extention}`)
                         });
                     });
@@ -160,7 +161,7 @@ export default defineComponent({
                 lessonItem.PreTitle = PreTitle;
                 lessonItem.Status = Status;
                 lessonItem.TeacherCount = TeacherCount;
-                lessonItem.LessonRange = LessonRange;
+                lessonItem.LessonRange = LessonRange || "";
                 lessonItem.LessonRangeIDs = lessonItem.LessonRange.split(",");
                 if (lessonItem.LessonRangeIDs.length > 0) {
                     let rangeText = "";
@@ -234,7 +235,7 @@ export default defineComponent({
         };
 
         const { switchStatus, textBookGradeList, getTextBookGrade } = useSubmit();
-        const { loadingShow, fileInfo, uploadFile, resetFileInfo, getFileType } = useUploadFile("GroupLessonFile");
+        const { loadingShow, fileInfo, uploadFile, resetFileInfo, getFileType, getFileSize } = useUploadFile("GroupLessonFile");
         watch(fileInfo, (fileObj: IOssFileInfo) => {
             const file = {
                 ...fileObj
@@ -270,6 +271,7 @@ export default defineComponent({
             uploadFile,
             resetFileInfo,
             getFileType,
+            getFileSize,
             deleteFileItem,
             getPreparateDetail,
             savePreparateDetail
@@ -336,7 +338,7 @@ export default defineComponent({
             .input-title {
                 display: inline-block;
                 :deep(.el-input__inner) {
-                    width: 510px;
+                    width: 520px;
                     height: 48px;
                     font-size: 24px;
                     font-family: PingFangSC-Semibold, PingFang SC;
@@ -532,5 +534,8 @@ export default defineComponent({
         margin-right: 10px;
         margin-bottom: 10px;
     }
+}
+.max {
+    min-height: 400px;
 }
 </style>

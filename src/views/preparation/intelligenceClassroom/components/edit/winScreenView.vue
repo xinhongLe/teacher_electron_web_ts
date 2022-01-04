@@ -88,15 +88,15 @@ export default defineComponent({
                     const res = await getCardDetail({ pageIDs });
                     if (res.resultCode === 200 && res.result && res.result.length > 0) {
                         // 页名称可能会修改
-                        res.result.map(item => {
-                            pages.map(page => {
-                                if (page.ID === item.ID) {
-                                    newPages.push(
-                                        { Type: page.Type, ID: page.ID, Name: item.Name }
-                                    );
-                                }
-                            });
+                        pages.map(item => {
+                            const value = res.result.find(page => page.ID === item.ID);
+                            if (value) {
+                                newPages.push({ Type: item.Type, ID: item.ID, Name: value.Name });
+                            } else {
+                                newPages.push({ Type: item.Type, ID: item.ID, Name: item.Name });
+                            }
                         });
+
                         cardList.value = newPages;
                         dialogVisible.value = true;
                         keyDisabled.value = true;

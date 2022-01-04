@@ -11,7 +11,7 @@
             <div class="member-list" :class="isFull ? `full-list` : ``">
                 <div class="member-cell" v-for="(item, index) in memberList" :key="index">
                     <img class="file-download" src="../../../../assets/preparationGroup/editPanel/avator_small_back.png" alt="" />
-                    <p>{{ item.Name }}</p>
+                    <p class="ellipsis" :title="item.Name">{{ item.Name }}</p>
                 </div>
             </div>
             <p class="more" v-if="isShowMore" @click="isFull = !isFull">{{ isFull ? `隐藏更多` : `查看更多` }}</p>
@@ -20,7 +20,7 @@
             暂无小组成员
         </div>
     </div>
-    <ShareDetail ref="ShareDialogRef" @submit="submit" :dynamicTags="memberList" :isEdit="true"></ShareDetail>
+    <ShareDetail ref="ShareDialogRef" @submit="submit" :dynamicTagsProps="memberList" :isEdit="true"></ShareDetail>
 </template>
 
 <script lang="ts">
@@ -51,7 +51,7 @@ export default defineComponent({
             ShareDialogRef.value.openDialog();
         };
         const submit = () => {
-            console.log(1);
+            getTeacherGroup();
         };
 
         const getTeacherGroup = async () => {
@@ -71,6 +71,7 @@ export default defineComponent({
                         });
                     });
                     emit("SetTeacherCount", memberList.value.length);
+                    sessionStorage.setItem("memberList", JSON.stringify(memberList.value));
                     nextTick(() => {
                         const windowContent = document.documentElement.clientWidth;
                         isShowMore.value = memberList.value.length * 92 > windowContent;
@@ -157,6 +158,13 @@ export default defineComponent({
                 font-weight: 400;
                 color: #19203D;
                 margin-top: 18px;
+            }
+            .ellipsis {
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                display: inline-block;
+                max-width: 60px;
             }
         }
     }

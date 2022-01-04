@@ -9,33 +9,59 @@
         <template #title>
             <span class="dialog-header">集体备课小组邀请</span>
         </template>
-        <div class="dialog-classinfo auto">第三单元 <span>长方形和正方形</span></div>
-        <div class="dialog-teachinfo auto">某某邀请您参加集体备课</div>
-        <div class="dialog-timeinfo auto">创建时间：2021/12/12 12:30</div>
+        <div class="dialog-classinfo auto">{{ currentItem.PreTitle }}</div>
+        <div class="dialog-teachinfo auto">{{ currentItem.CreaterName }}邀请您参加集体备课</div>
+        <div class="dialog-timeinfo auto">创建时间：{{ moment(currentItem.CreateTime).format("YYYY-MM-DD HH:mm:ss") }}</div>
         <div class="dialog-linkinfo auto">
             <span class="icon"><i class="el-icon-paperclip"></i></span>
-            <span class="link">https://alidocs.dingtalk.com/i/team/OlnXhttps://alidocs.dingtalk.com/i/team/OlnX</span>
+            <span class="link ellipsis">{{ `${origin}/preparation-edit/${currentItem.Id}` }}</span>
         </div>
         <div class="dialog-tipinfo auto">请用电脑端登陆【爱学仕】系统，再点击以上链接加入集体备课</div>
         <template #footer>
             <span class="dialog-footer">
-                <el-button style="background-color:#4B71EE;color:#fff;" icon="el-icon-copy-document">复制邀请链接</el-button>
-                <el-button style="background-color:#48DBBF;color:#fff;">复制成功</el-button>
+                <el-button style="background-color:#48DBBF;color:#fff;border: none;" v-if="isCopy" @click="dialogVisible = false">复制成功</el-button>
+                <el-button style="background-color:#4B71EE;color:#fff;border: none;" icon="el-icon-copy-document" @click="copyText" v-else>复制邀请链接</el-button>
             </span>
         </template>
     </el-dialog>
 </template>
 <script>
 import { defineComponent, ref } from "vue";
+import moment from "moment";
 export default defineComponent({
-    setup() {
+    props: {
+        currentItem: {
+            type: Object
+        }
+    },
+    setup(props) {
         const dialogVisible = ref(false);
+        const isCopy = ref(false);
+        const origin = window.location.origin;
         const handleClose = () => {
             dialogVisible.value = false;
         };
+        const copyText = () => {
+            const url = `${origin}/preparation-edit/${props.currentItem.Id}`;
+            const transfer = document.createElement("input");
+            document.body.appendChild(transfer);
+            transfer.value = url;
+            transfer.focus();
+            transfer.select();
+            if (document.execCommand("copy")) {
+                document.execCommand("copy");
+            }
+            transfer.blur();
+            document.body.removeChild(transfer);
+            isCopy.value = true;
+        };
         return {
             dialogVisible,
-            handleClose
+            isCopy,
+            origin,
+            handleClose,
+            copyText,
+            moment
         };
     }
 });
@@ -89,11 +115,7 @@ export default defineComponent({
             font-size: 20px;
         }
         .link{
-            display: flex;
-            align-items: center;
-            flex: 1;
-            min-width: 0;
-            justify-content: center;
+            line-height: 46px;
         }
     }
     .dialog-tipinfo{
@@ -101,5 +123,12 @@ export default defineComponent({
         font-family: PingFangSC-Regular, PingFang SC;
         font-weight: 400;
         color: #A7AAB4;
+    }
+    .ellipsis {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        display: inline-block;
+        max-width: 300px;
     }
 </style>

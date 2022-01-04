@@ -1,20 +1,20 @@
 <template>
-    <div class="area" v-for="(item, index) in Contents" :key="index">
+    <div class="area">
         <div class="area-head">
             <div class="tag">
                 <div class="tag-1"></div>
                 <div class="tag-2"></div>
                 <div class="tag-3"></div>
             </div>
-            <span class="title">研讨{{index+1}}</span>
+            <span class="title">研讨{{numorder+1}}</span>
         </div>
         <div class="area-body">
             <div class="title-box">
                 <div>
-                    <span class="title">{{item.Title}}</span>
-                    <span :class="`title-status title-status-${item.ResourceType}`">{{item.ResourceType === 1 ? '教案设计' : '课件设计'}}</span>
+                    <span class="title">{{content.Title}}</span>
+                    <span :class="`title-status title-status-${content.ResourceType}`">{{content.ResourceType === 1 ? '教案设计' : '课件设计'}}</span>
                 </div>
-                <div class="edit-btn" @click="EditResearch(item)">
+                <div class="edit-btn" @click="EditResearch(content)">
                     <img src="../../../../assets/preparationGroup/editPanel/edit.png" alt="">
                     <span>编辑</span>
                 </div>
@@ -22,7 +22,7 @@
             <div class="teacher-box">
                 <div class="teacher-con">
                     <img src="../../../../assets/preparationGroup/editPanel/avator_small.png" alt="">
-                    <span>{{item.CreaterName}} 于{{moment(item.CreateTime).format("YYYY-MM-DD HH:mm:ss")}}上传教案</span>
+                    <span>{{content.CreaterName}} 于{{moment(content.CreateTime).format("YYYY-MM-DD HH:mm:ss")}}上传教案</span>
                 </div>
             </div>
             <div class="area-lesson">
@@ -36,11 +36,11 @@
                         <div class="tools">
                             <div class="tool-item">
                                 <img src="../../../../assets/preparationGroup/editPanel/view.png" alt="">
-                                <span @click="lookOver(item.ResourceSource)">查看</span>
+                                <span @click="lookOver(content.ResourceSource)">查看</span>
                             </div>
                             <div class="tool-item">
                                 <img src="../../../../assets/preparationGroup/editPanel/down.png" alt="">
-                                <span @click="download(item.ResourceSource)">下载</span>
+                                <span @click="download(content.ResourceSource)">下载</span>
                             </div>
                         </div>
                     </div>
@@ -54,18 +54,18 @@
                         <div class="tools">
                             <div class="tool-item">
                                 <img src="../../../../assets/preparationGroup/editPanel/view.png" alt="">
-                                <el-button @click="lookOver(item.ResourceResult)" type="text" :disabled="!item.ResourceResult">查看</el-button>
+                                <el-button @click="lookOver(content.ResourceResult)" type="text" :disabled="!content.ResourceResult">查看</el-button>
                             </div>
                             <div class="tool-item">
                                 <img src="../../../../assets/preparationGroup/editPanel/down.png" alt="">
-                                <el-button @click="download(item.ResourceResult)" type="text" :disabled="!item.ResourceResult">下载</el-button>
+                                <el-button @click="download(content.ResourceResult)" type="text" :disabled="!content.ResourceResult">下载</el-button>
                             </div>
                             <div class="tool-item">
                                 <el-upload
                                     action
                                     :show-file-list="false"
                                     accept=".doc, .docx, .ppt"
-                                    :http-request="(file) => uploadFileSuccess(file, item.DiscussionContentID)"
+                                    :http-request="(file) => uploadFileSuccess(file, content.DiscussionContentID)"
                                 >
                                     <img src="../../../../assets/preparationGroup/editPanel/up.png" alt="">
                                     <span>再次上传</span>
@@ -78,8 +78,17 @@
                     <div class="title-box">
                         <div class="title-left">
                             <p class="title">内容摘要</p>
-                            <!-- <p class="content">本节课的设计依据课标和学生自身特点重组教材内容，以学生生活实际和已有经验组织教学，强调学生观察、操作中获取新知，注重教学质量本节课的设计依据课标和学生自身特点重组教材内容，以学生生活实际和已有经验组织教学，强调学生观察、操作中获取新知，注重教本节课的设计依据课标和学生自身特点重组教材<span class="more">阅读全部</span></p> -->
-                            <p class="content">{{item.Content}}</p>
+                            <span class="content special-content" :class="isShowMore ? `` : `clamp`" :title="content.Content">
+                                {{content.Content}}
+                                <div v-if="isFull">
+                                    <span class="more" v-if="!isShowMore" @click="isShowMore = true">
+                                        <span class="dot">...</span>阅读全部
+                                    </span>
+                                    <span class="mores" v-else @click="isShowMore = false">
+                                        收起全部
+                                    </span>
+                                </div>
+                            </span>
                         </div>
                         <div class="title-right">
                             <div class="btn">
@@ -93,7 +102,7 @@
                             <p class="title">附件</p>
                             <p class="files">
                                 <span class="files-list">
-                                    <div class="file-item" v-for="(item, index) in item.Attachments" :key="index">
+                                    <div class="file-item" v-for="(item, index) in content.Attachments" :key="index">
                                         <File :fileInfo="item"></File>
                                     </div>
                                 </span>
@@ -157,17 +166,15 @@
             </div>
         </div>
     </div>
-    <AddResearchContent v-model:dialogVisible="dialogVisible" :researchContent="researchContent" researchType="编辑" @close="closeHandle"></AddResearchContent>
+    <AddResearchContent v-model:dialogVisible="dialogVisible" :researchContent="researchContent" @EditSuccess="EditSuccessHandle"></AddResearchContent>
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, reactive, toRefs, ref } from "vue";
-import { useRoute } from "vue-router";
+import { defineComponent, reactive, toRefs, ref, onMounted, nextTick } from "vue";
 import { ElMessage } from "element-plus";
 import { IOssFileInfo } from "@/types/oss";
 import File from "../../file/index.vue";
 import FileSmall from "../../file/small.vue";
-import useContents from "./useContents";
 import moment from "moment";
 import { DiscussioncontentList, Fileginseng } from "@/types/preparationGroup";
 import { openFile, downLoad } from "@/utils";
@@ -181,14 +188,21 @@ export default defineComponent({
     props: {
         reload: {
             type: Function
+        },
+        content: {
+            type: Object,
+            degault: () => ({})
+        },
+        numorder: {
+            type: Number,
+            degault: 0
         }
     },
     setup(props, { emit }) {
-        console.log(props);
-        console.log(emit);
-        const route = useRoute();
         const filesrc = ref("");
         const dialogVisible = ref(false);
+        const isShowMore = ref(false);
+        const isFull = ref(false);
         const state = reactive({
             memoPanelStatus: false,
             textareaWord: "",
@@ -271,21 +285,16 @@ export default defineComponent({
             }
         ]);
 
-        const { Contents, getContents } = useContents();
-
         const lookOver = async (file: Fileginseng) => {
             if (file) {
-                console.log(file, "file");
                 const { Extention, FilePath, Name, Bucket } = file;
                 if (Extention) {
                     const key = FilePath + "/" + Name + "." + Extention;
-                    console.log(key, "key");
                     filesrc.value = await downloadFile(key, Bucket);
                     console.log(filesrc.value, Name + "." + Extention);
                     openFile(filesrc.value, Name + "." + Extention);
                 } else {
                     const key = FilePath + "/" + Name;
-                    console.log(key);
                     filesrc.value = await downloadFile(key, Bucket);
                     openFile(filesrc.value, Name + "." + Extention);
                 }
@@ -309,11 +318,9 @@ export default defineComponent({
 
         // 再次上传教案/课件
         const uploadFileSuccess = async ({ file }: {file: UploadFile & Blob;}, id: string) => {
-            console.log(id);
-            const ossPath = get(STORAGE_TYPES.OSS_PATHS)?.["ElementFile"];
+            const ossPath = get(STORAGE_TYPES.OSS_PATHS)?.["GroupLessonFile"];
             const res = await cooOss(file, ossPath);
             if (res?.code === 200) {
-                console.log(res, "resresres");
                 const { name, md5, fileExtension } = res;
                 const params = {
                     discussionID: id,
@@ -321,16 +328,14 @@ export default defineComponent({
                         name: name,
                         fileName: file.name.substring(0, file.name.lastIndexOf(".")),
                         bucket: ossPath.Bucket,
-                        filePath: ossPath.Path,
-                        extention: fileExtension,
-                        fileMD5: md5
+                        path: ossPath.Path,
+                        fileExtension: fileExtension,
+                        md5: md5
                     }
                 };
                 const result = await addResourceResult(params);
                 if (result.resultCode === 200) {
-                    console.log(result);
                     ElMessage.success("添加研讨的终稿文件成功");
-                    fetchContents();
                 }
             }
         };
@@ -351,37 +356,37 @@ export default defineComponent({
         const add = () => {
             console.log(1);
         };
-        const closeHandle = () => {
+        const EditSuccessHandle = () => {
             dialogVisible.value = false;
-            fetchContents();
+            emit("Modify");
         };
 
-        const fetchContents = () => {
-            const preId = route.params.preId as string;
-            const params = {
-                id: preId
-            };
-            getContents(params);
-        };
-
-        onMounted(async () => {
-            fetchContents();
+        onMounted(() => {
+            nextTick(() => {
+                setTimeout(() => {
+                    const specialContent = document.querySelectorAll(".special-content");
+                    const windowContent = document.documentElement.clientWidth;
+                    if (specialContent && specialContent[0] && specialContent[0].clientWidth) {
+                        isFull.value = (windowContent - 200) < specialContent[0].clientWidth;
+                    }
+                });
+            });
         });
+
         return {
             contentFiles,
             wordFiles,
-            Contents,
             dialogVisible,
             researchContent,
+            isShowMore,
+            isFull,
             ...toRefs(state),
             submit,
             add,
-            fetchContents,
-            getContents,
             lookOver,
             download,
             EditResearch,
-            closeHandle,
+            EditSuccessHandle,
             uploadFileSuccess,
             againUpload,
             moment
@@ -518,7 +523,7 @@ export default defineComponent({
             display: flex;
             .left {
                 display: flex;
-                align-items: center;
+                align-items: flex-start;
                 .box-item {
                     width: 208px;
                     height: 139px;
@@ -584,7 +589,7 @@ export default defineComponent({
                 }
                 .arrow {
                     margin: 0 16px;
-                    margin-top: -40px;
+                    margin-top: 60px;
                 }
             }
             .right {
@@ -611,7 +616,40 @@ export default defineComponent({
                             margin: 15px 0;
                             line-height: 24px;
                         }
+                        .special-content {
+                            line-height: 24px;
+                            margin-top: -5px;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                            display: -webkit-box;
+                            word-break: break-all;
+                            position: relative;
+                        }
+                        .clamp {
+                            line-clamp: 1;
+                            box-orient: vertical;
+                            -webkit-line-clamp: 1;
+                            -webkit-box-orient: vertical;
+                        }
                         .more {
+                            font-size: 14px;
+                            font-family: PingFangSC-Regular, PingFang SC;
+                            font-weight: 400;
+                            color: #4B71EE;
+                            cursor: pointer;
+                            position: absolute;
+                            right: 0;
+                            bottom: 0;
+                            overflow: hidden;
+                            background: #F9F9FB;
+                            padding: 0 5px;
+                            .dot {
+                                font-weight: 400;
+                                color: #5F626F;
+                                margin: 0 15px 0 0;
+                            }
+                        }
+                        .mores {
                             font-size: 14px;
                             font-family: PingFangSC-Regular, PingFang SC;
                             font-weight: 400;

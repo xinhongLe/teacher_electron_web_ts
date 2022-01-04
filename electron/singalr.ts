@@ -1,19 +1,14 @@
 import { AI_XUE_SHI_API } from "@/config";
+import { LYXSocketInputDTO } from "@/types";
 import { HubConnection, HubConnectionBuilder, HubConnectionState } from "@microsoft/signalr";
 import { BrowserWindow } from "electron";
-
-interface LYXSocketInputDTO {
-    UserID: string;
-    UserName: string;
-    ThisImageIndex: number;
-    FileList: [];
-}
 
 export default class SingalRHelper {
     private connection: HubConnection | null = null;
     private isUserDisconnect = false;
 
     constructor(userId: string, window: BrowserWindow) {
+        console.log(userId);
         this.connection = new HubConnectionBuilder()
             .withUrl(`${AI_XUE_SHI_API}/lyxHub`, {
                 headers: {

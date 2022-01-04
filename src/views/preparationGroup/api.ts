@@ -96,7 +96,7 @@ export function uploadSummary(data: UploadSummaryData): Promise<IResponse<null>>
 }
 
 // 查询集体备课 总结与反思 文件列表
-export function fetchReflectFiles(data: FetchReflectFilesData): Promise<IResponse<FetchReflectFilesRes[]>> {
+export function fetchReflectFiles(data: FetchReflectFilesData): Promise<IResponse<FetchReflectFilesRes>> {
     return request({
         baseURL: AI_XUE_SHI_API,
         url: "/Api/V2/GroupLesson/GetReflectFiles",
@@ -113,19 +113,6 @@ export function editPreparateDetail(data:SavePreparateDetailData): Promise<IResp
     return request({
         baseURL: AI_XUE_SHI_API,
         url: "/Api/V2/GroupLesson/EditPreparateDetail",
-        headers: {
-            "Content-Type": "application/json-patch+json"
-        },
-        method: "post",
-        data
-    });
-}
-
-// 编辑 集体备课参与人员
-export function editPreparateTeachers(data:UpdateCourseBagTeacherData): Promise<IResponse<null>> {
-    return request({
-        baseURL: AI_XUE_SHI_API,
-        url: "/Api/V2/GroupLesson/EditPreparateTeachers",
         headers: {
             "Content-Type": "application/json-patch+json"
         },
@@ -178,6 +165,19 @@ export function addPreLesson(data: addCourseData): Promise<IResponse<null>> {
     return request({
         baseURL: AI_XUE_SHI_API,
         url: "/Api/V2/GroupLesson/AddPreLesson",
+        headers: {
+            "Content-Type": "application/json-patch+json"
+        },
+        method: "post",
+        data
+    });
+}
+
+// 编辑 集体备课参与人员
+export function editPreparateTeachers(data:addCourseData): Promise<IResponse<null>> {
+    return request({
+        baseURL: AI_XUE_SHI_API,
+        url: "/Api/V2/GroupLesson/EditPreparateTeachers",
         headers: {
             "Content-Type": "application/json-patch+json"
         },
@@ -241,7 +241,7 @@ export function getTeacherList(data: GetTeacherClassData): Promise<IResponse<Get
 // 获取校区
 export function getSchoolList(data: GetSchoolClassData): Promise<IResponse<GetSchoolDataRes>> {
     return request({
-        baseURL: WINDOW_CRAD_API,
+        baseURL: AI_XUE_SHI_API,
         url: "/Api/Web/BaseData/GetSchoolsByFranchiseeID",
         headers: {
             "Content-Type": "application/json-patch+json"

@@ -12,14 +12,14 @@
                 class="input-theme"
                 v-model="formData.preTitle"
                 placeholder="搜索集体备课主题"
-                @enter="submit"
+                @change="submit"
             >
                 <template #prefix>
 					<img src="../../../assets/preparationGroup/icon_search.png" alt="">
 				</template>
-                <template #suffix>
+                <!-- <template #suffix>
                     <span @click="submit">搜索</span>
-                </template>
+                </template> -->
             </el-input>
             <el-date-picker
                 class="time-picker"
@@ -123,8 +123,8 @@ export default defineComponent({
 <style lang="scss" scoped>
 .preparation-group-header {
     width: 100%;
-    height: auto;
-    padding: 10px 20px;
+    height: 148px;
+    padding: 24px 20px;
     user-select: none;
     background-color: #fff;
     .header-panel {
@@ -161,7 +161,7 @@ export default defineComponent({
         display: flex;
         align-items: center;
         justify-content: flex-start;
-        margin: 24px 0;
+        margin: 20px 0;
         .input-theme {
             width: 300px;
             :deep(.el-input__inner) {

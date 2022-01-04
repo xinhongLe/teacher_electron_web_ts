@@ -54,8 +54,12 @@ export default defineComponent({
         const preView = async () => {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const item: any = props.fileInfo;
-            const url = await downloadFile(`${item.FilePath}/${item.FileMD5}.doc`, item.Bucket);
-            // const url = await downloadFile(`${item.FilePath}/${item.FileMD5}.${item.Extention}`, item.Bucket);
+            let url = "";
+            if (item.FilePath && item.FileMD5 && item.Extention && item.Bucket) {
+                url = await downloadFile(`${item.FilePath}/${item.FileMD5}.${item.Extention}`, item.Bucket);
+            } else if (item.path && item.md5 && item.extention && item.bucket) {
+                url = await downloadFile(`${item.path}/${item.md5}.${item.extention}`, item.bucket);
+            }
             const previewUrl = "https://owa.lyx-edu.com/op/view.aspx?src=" + encodeURIComponent(url);
             if (isElectron()) {
                 return window.electron.ipcRenderer.invoke("downloadFile", previewUrl, `${item.fileName}.${item.Extention}`).then((filePath) => {
@@ -67,8 +71,12 @@ export default defineComponent({
         const download = async () => {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const item: any = props.fileInfo;
-            const url = await downloadFile(`${item.FilePath}/${item.FileMD5}.doc`, item.Bucket);
-            // const url = await downloadFile(`${item.FilePath}/${item.FileMD5}.${item.Extention}`, item.Bucket);
+            let url = "";
+            if (item.FilePath && item.FileMD5 && item.Extention && item.Bucket) {
+                url = await downloadFile(`${item.FilePath}/${item.FileMD5}.${item.Extention}`, item.Bucket);
+            } else if (item.path && item.md5 && item.extention && item.bucket) {
+                url = await downloadFile(`${item.path}/${item.md5}.${item.extention}`, item.bucket);
+            }
             const a = document.createElement("a");
             a.setAttribute("href", url);
             a.click();
@@ -84,6 +92,7 @@ export default defineComponent({
             const item: any = props.fileInfo;
             clearInterval(timer.value);
             timer.value = null;
+            if (!item.fileSize) return;
             if (props.action === "upload") {
                 percent.value = 0;
                 timer.value = setInterval(() => {
@@ -153,9 +162,9 @@ export default defineComponent({
         align-items: center;
     }
     .file-type {
-        display: inline-block;
-        width: 24px;
-        height: auto;
+        // display: inline-block;
+        // width: 24px;
+        // height: auto;
     }
     .file-info {
         width: calc(100% - 40px);

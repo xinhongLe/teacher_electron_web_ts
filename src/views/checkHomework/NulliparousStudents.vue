@@ -38,9 +38,6 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-.container {
-    width: 18%;
-}
 .student-once {
     margin: 8px 8px 8px 8px;
     width: 250px;

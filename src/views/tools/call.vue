@@ -5,7 +5,7 @@
             <div class="rch-center">
                 <span v-if="chooseFlag">选择班级</span>
             </div>
-            <div class="rch-right" @click="cancle">
+            <div class="rch-right" @click="close">
                 <img src="@/assets/images/suspension/guanbi.png" alt="" />
             </div>
         </div>
@@ -23,7 +23,7 @@
             </el-tree>
         </div>
         <div class="roll-call-footer" v-if="chooseFlag">
-            <el-button @click="cancle">取消</el-button>
+            <el-button @click="close">取消</el-button>
             <el-button type="primary" @click="submit">确认</el-button>
         </div>
         <div id="projects" v-if="!chooseFlag">
@@ -56,11 +56,11 @@
 
 <script lang="ts">
 import { ElMessage } from "element-plus";
-import { defineComponent, ref } from "vue-demi";
+import { defineComponent, ref } from "vue";
 import { fetchGradeClassStudents } from "./api";
 export default defineComponent({
     setup() {
-        const chooseFlag = ref(false);
+        const chooseFlag = ref(true);
         const classTreeList = ref<unknown>([]);
         const allClassTreeList = ref<unknown>([]);
         const treeRef = ref();
@@ -69,7 +69,7 @@ export default defineComponent({
         const checkStudentList: any = ref([]);
         const treeProps = { label: "ClassName", children: "classData" };
         fetchGradeClassStudents({
-            subjectID: "39F766472E16F43AE0EAE334481AF7BA"
+            subjectID: "39F766472E16384149030DFA4E9863B5"
         }).then((res) => {
             if (res.resultCode === 200) {
                 allClassTreeList.value = res.result;
@@ -134,8 +134,8 @@ export default defineComponent({
             chooseFlag.value = false;
         };
 
-        const cancle = () => {
-            console.log("关闭");
+        const close = () => {
+            window.electron.destroyWindow();
         };
         return {
             classTreeList,
@@ -143,7 +143,7 @@ export default defineComponent({
             treeRef,
             chooseFlag,
             checkTreeChange,
-            cancle,
+            close,
             submit
         };
     }

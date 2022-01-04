@@ -1,5 +1,5 @@
 <template>
-    <div class="canvas-box" :style="{ height: height + 60 + 'px' }">
+    <div class="canvas-box" :style="{ height: height + 60 + 'px' }" :class="{success: result === QuestionResultTypeEnum.RIGHT, error: result === QuestionResultTypeEnum.ERROR}">
         <Question
             :speechResult="speechResult"
             :speechText="speechText"
@@ -44,6 +44,7 @@ import axios from "axios";
 import Question from "./Question.vue";
 import Write from "./Write.vue";
 import Note from "./Note.vue";
+import { QuestionResultTypeEnum } from "../enum";
 let panelWidth = 1024;
 let panelHeight = 696;
 let scale = 900 / 1024;
@@ -81,6 +82,10 @@ export default defineComponent({
         },
         // 题目类型, 1 ABC类型选择题 , 2 123类型选择题 , 3 TF判断题 , 4√×判断题 , 5 填空题 , 6 应用题 7语音测评
         questionType: {
+            type: Number,
+            default: 1
+        },
+        result: {
             type: Number,
             default: 1
         },
@@ -124,13 +129,11 @@ export default defineComponent({
             }
             return url;
         };
-        watchEffect(
-            async () => {
-                if (props.question) {
-                    questionUrl.value = await _downloadFile(props.question);
-                }
+        watchEffect(async () => {
+            if (props.question) {
+                questionUrl.value = await _downloadFile(props.question);
             }
-        );
+        });
         function init() {
             noteData.value = [];
             writeData.value = [];
@@ -150,8 +153,8 @@ export default defineComponent({
             scale = width / panelWidth;
             height = panelHeight * scale;
             // 图片
-            imgWidth = res.data.qaWidth * scale;
-            imgHeight = res.data.qaHeight * scale;
+            res.data.qaWidth !== 0 && (imgWidth = res.data.qaWidth * scale);
+            res.data.qaHeight !== 0 && (imgHeight = res.data.qaHeight * scale);
             imgOffsetX = res.data.qaX * scale;
             imgOffsetY = res.data.qaY * scale;
             _scale.value = scale;
@@ -185,6 +188,7 @@ export default defineComponent({
             imgOffsetX: _imgOffsetX,
             imgOffsetY: _imgOffsetY,
             noteData,
+            QuestionResultTypeEnum,
             width: _width,
             scale: _scale,
             imgWidth: _imgWidth
@@ -196,12 +200,18 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .canvas-box {
-    border: 1px solid #ababab;
+    border: 1px solid #98aef6;
     background-color: #fff;
     position: relative;
     padding: 30px;
     overflow: hidden;
     min-width: 960px;
+    &.success {
+        border-color: #74ebb6;
+    }
+    &.error {
+        border-color: #fea0a2;
+    }
 }
 
 .canvas-box canvas {

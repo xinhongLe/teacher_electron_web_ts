@@ -84,7 +84,7 @@
 import useTime from "@/hooks/useTime";
 import { ElMessage } from "element-plus";
 import { defineComponent } from "vue";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import Calendar from "../../components/calendar/index.vue";
 
 export default defineComponent({
@@ -94,6 +94,7 @@ export default defineComponent({
     },
     setup() {
         const router = useRouter();
+        const route = useRoute();
         const { weekNext, weekPre, initDays, days } = useTime();
         initDays();
 
@@ -106,6 +107,14 @@ export default defineComponent({
                 router.push(`/${val}`);
             }
         };
+        const turnToPage = () => {
+            // 岳阳云平台内嵌备教端，页面跳转
+            if (route.redirectedFrom && window.top && window.top[0] && window.top[0].location && window.top[0].location.origin && (window.top[0].location.origin.indexOf("yueyangyun") > -1 || window.top[0].location.origin.indexOf("20.199") > -1)) {
+                const path = route.redirectedFrom.path.split("#/")[1] || "";
+                go(`${path}`);
+            }
+        };
+        turnToPage();
         return {
             go,
             weekNext,

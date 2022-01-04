@@ -19,9 +19,7 @@ window.electron = {
         const currentWindow = getCurrentWindow();
         if (currentWindow.isFullScreen()) {
             currentWindow.setFullScreen(false);
-            setTimeout(() => {
-                currentWindow.unmaximize();
-            }, 300);
+            currentWindow.unmaximize();
         } else {
             currentWindow.unmaximize();
         }
@@ -57,6 +55,9 @@ window.electron = {
     setContentSize: (width: number, height: number) => {
         const currentWindow = getCurrentWindow();
         currentWindow.setContentSize(width, height);
+    },
+    setCenter: () => {
+        getCurrentWindow().center();
     },
     exit: () => {
         app.quit();
