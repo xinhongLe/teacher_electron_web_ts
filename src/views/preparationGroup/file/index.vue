@@ -55,8 +55,6 @@ export default defineComponent({
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const item: any = props.fileInfo;
             let url = "";
-            item.Extention = "doc";
-            item.extention = "doc";
             if (item.FilePath && item.FileMD5 && item.Extention && item.Bucket) {
                 url = await downloadFile(`${item.FilePath}/${item.FileMD5}.${item.Extention}`, item.Bucket);
             } else if (item.path && item.md5 && item.extention && item.bucket) {
@@ -74,8 +72,6 @@ export default defineComponent({
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const item: any = props.fileInfo;
             let url = "";
-            item.Extention = "doc";
-            item.extention = "doc";
             if (item.FilePath && item.FileMD5 && item.Extention && item.Bucket) {
                 url = await downloadFile(`${item.FilePath}/${item.FileMD5}.${item.Extention}`, item.Bucket);
             } else if (item.path && item.md5 && item.extention && item.bucket) {

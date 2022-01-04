@@ -96,7 +96,7 @@ export function uploadSummary(data: UploadSummaryData): Promise<IResponse<null>>
 }
 
 // 查询集体备课 总结与反思 文件列表
-export function fetchReflectFiles(data: FetchReflectFilesData): Promise<IResponse<FetchReflectFilesRes[]>> {
+export function fetchReflectFiles(data: FetchReflectFilesData): Promise<IResponse<FetchReflectFilesRes>> {
     return request({
         baseURL: AI_XUE_SHI_API,
         url: "/Api/V2/GroupLesson/GetReflectFiles",

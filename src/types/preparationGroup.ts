@@ -196,23 +196,27 @@ export interface AddChapterData {
     name?: string;
 }
 
+export interface ReflectFilesBag {
+    Id: string;
+    PreTitle: string;
+    Status: number;
+    CreaterName: string;
+    CreaterID: string;
+    CreateTime: string;
+    CreateEndTime: string;
+    TeacherCount: number;
+    LessonRange?: string;
+    FileModel?: FileModelBag;
+}
+
 export interface FetchReflectFilesData {
-    id: string;
+    preparateID: string;
+    pager: PagerReq;
 }
 
 export interface FetchReflectFilesRes {
-    TeachName: string;
-    UploadTime: string;
-    ReflectFiles?: {
-        Bucket: string;
-        Extention: string;
-        FileMD5: string;
-        FileName: string;
-        FilePath: string;
-        ID: string;
-        SN: number;
-        Type: number;
-    };
+    list: ReflectFilesBag[];
+    pager: PagerRes;
 }
 
 export interface Course {
