@@ -1,34 +1,43 @@
 <template>
     <div class="tagging">
         <div class="tagging-center">
-            <div class="tagging-center-main">
+            <div class="tagging-center-main" @click="showAnnotaiton($event)">
                 <div
                     @mousedown="clickElement($event,item,index)"
                     :class="activeIndex === index ? 'elements activeElements' : 'elements'"
                     :id="`element`+index" v-for="(item,index) in elementList"
                     :key="index"
+                    :style="{left: item.left + 'px', top: item.top+ 'px'}"
                 >
                     <span>{{index + 1}}</span>
                 </div>
             </div>
+            {{ elementList }}
         </div>
     </div>
 </template>
 
 <script>
 import { nextTick } from "process";
-import { defineComponent, onMounted, ref } from "vue-demi";
+import { defineComponent, onMounted, ref, getCurrentInstance, onBeforeUnmount, reactive, toRefs } from "vue-demi";
 export default defineComponent({
-    setup() {
-        const elementList = ref([]);
-        const addElement = () => {
-            elementList.value.push({
-                left: 0,
-                top: 0
-            });
+    setup(props, { emit }) {
+        const allData = reactive({ elementList: [] });
+        const { proxy } = getCurrentInstance();
+        const dragePosition = {
+            x: 0,
+            y: 0
         };
+        const style = reactive({
+            left: 0,
+            top: 0
+        });
+        const scale = ref(null);
         onMounted(() => {
             window.addEventListener("resize", onRize);
+            proxy.mittBus.on("annotationList", (annotation) => {
+                allData.elementList = annotation;
+            });
             nextTick(() => {
                 const taggingRef = document.querySelector(".tagging-center");
                 const width = document.querySelector(".slide-content").style.width;
@@ -39,7 +48,11 @@ export default defineComponent({
                 const Cheight = document.querySelector(".screen-slide").style.height;
                 const Ctransform = document.querySelector(".screen-slide").style.transform;
                 taggingCenter.setAttribute("style", `width:${Cwidth};height:${Cheight};transform:${Ctransform}`);
+                scale.value = Ctransform.slice(6, Ctransform.length - 1);
             });
+        });
+        onBeforeUnmount(() => {
+            proxy.mittBus.off("annotationList");
         });
         const onRize = () => {
             nextTick(() => {
@@ -52,49 +65,45 @@ export default defineComponent({
                 const Cheight = document.querySelector(".screen-slide").style.height;
                 const Ctransform = document.querySelector(".screen-slide").style.transform;
                 taggingCenter.setAttribute("style", `width:${Cwidth};height:${Cheight};transform:${Ctransform}`);
+                scale.value = Ctransform.slice(6, Ctransform.length - 1);
             });
         };
         let move = false;
-        let deltaLeft = 0;
-        let deltaTop = 0;
-        let icon = "";
         const activeIndex = ref(null);
         const clickElement = (event, item, index) => {
             activeIndex.value = index;
-            const taggingComponents = document.querySelector(".tagging-center");
-            icon = document.querySelector(`#element${index}`);
-            deltaLeft = event.clientX - event.target.offsetLeft;
-            deltaTop = event.clientY - event.target.offsetTop;
+            dragePosition.x = event.clientX;
+            dragePosition.y = event.clientY;
             move = true;
-            taggingComponents.addEventListener("mousemove", (e) => {
+            document.addEventListener("mousemove", (e) => {
                 if (move) {
-                    const cx = e.clientX;
-                    const cy = e.clientY;
-                    /** 相减即可得到相对于父元素移动的位置 */
-                    let dx = cx - deltaLeft;
-                    let dy = cy - deltaTop;
-                    /** 防止超出父元素范围 */
-                    if (dx < 0) dx = 0;
-                    if (dy < 0) dy = 0;
-                    if (dx > taggingComponents.offsetWidth) dx = taggingComponents.offsetWidth;
-                    if (dy > taggingComponents.offsetHeight) dy = taggingComponents.offsetHeight;
-                    icon.setAttribute("style", `left:${dx}px;top:${dy}px`);
-                    item.left = dx;
-                    item.top = dy;
+                    const x = dragePosition.x - e.clientX;
+                    const y = dragePosition.y - e.clientY;
+                    dragePosition.x = e.clientX;
+                    dragePosition.y = e.clientY;
+                    allData.elementList[activeIndex.value].left = allData.elementList[activeIndex.value].left - x / scale.value;
+                    allData.elementList[activeIndex.value].top = allData.elementList[activeIndex.value].top - y / scale.value;
                 }
             });
-            taggingComponents.addEventListener("mouseup", () => {
+            document.addEventListener("mouseup", () => {
                 move = false;
-                icon = "";
-                item = {};
-                index = null;
             });
         };
+        const showAnnotaiton = (e) => {
+            let annotationSwitch = false;
+            if (e.toElement.className === "tagging-center-main") {
+                annotationSwitch = false;
+            } else {
+                annotationSwitch = true;
+            }
+            emit("showAnnotation", annotationSwitch);
+        };
         return {
-            elementList,
+            ...toRefs(allData),
+            style,
             activeIndex,
             clickElement,
-            addElement
+            showAnnotaiton
         };
     }
 });

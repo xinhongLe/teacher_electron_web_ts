@@ -12,7 +12,7 @@
                         <div class="ali-header-more" @click.stop="changeEditBoxSwtich(index)">
                             <img src="@/assets/preparationGroup/icon_more.png" alt="">
                             <div class="ahm-edit" v-if="editBoxSwtich === index">
-                                <div @click.stop="edit(index, 0)"><i class="el-icon-edit"></i>编辑</div>
+                                <div @click.stop="edit(index, 0, item)"><i class="el-icon-edit"></i>编辑</div>
                                 <div @click.stop="del(index)"><i class="el-icon-delete"></i>删除</div>
                             </div>
                         </div>
@@ -22,9 +22,9 @@
                         <span v-else>
                             {{ item.text }}
                         </span>
-                        <div class="ali-content-button">
-                            <div>确认</div>
-                            <div>取消</div>
+                        <div v-if="editFlag === index && contentFlag === 0"  class="ali-content-button">
+                            <div @click.stop="submit(item)">确认</div>
+                            <div @click.stop="cancel(index)">取消</div>
                         </div>
                     </div>
                 </div>
@@ -37,22 +37,40 @@
 </template>
 
 <script>
-import { contentTracing } from "electron";
-import { defineComponent, ref } from "vue-demi";
-
+import { ElMessage } from "element-plus";
+import { defineComponent, ref, getCurrentInstance, watch, computed } from "vue-demi";
+import { AddAnnotation } from "../api";
 export default defineComponent({
-    setup() {
-        const editBoxSwtich = ref(null);
+    props: ["AnotationList", "cardID", "pageID"],
+    setup(props, { emit }) {
+        const { proxy } = getCurrentInstance();
+        const editBoxSwtich = ref(null); // 编辑删除弹框
         const editFlag = ref(null);
         const contentFlag = ref(null);
-        const annotationList = ref([
-            {
-                text: "123123123123123123123"
-            },
-            {
-                text: "12111"
+        const editValue = ref(""); // 编辑的内容
+        const annotationList = ref([]);
+        const cardId = ref("");
+        const pageId = ref("");
+        watch(
+            () => props.cardID,
+            () => {
+                cardId.value = props.cardID;
             }
-        ]);
+        );
+        watch(
+            () => props.pageID,
+            () => {
+                pageId.value = props.pageID;
+            }
+        );
+        watch(
+            () => props.AnotationList,
+            () => {
+                annotationList.value = props.AnotationList;
+                proxy.mittBus.emit("annotationList", annotationList.value);
+                console.log(annotationList.value, "value");
+            }
+        );
         const changeEditBoxSwtich = (index) => {
             editBoxSwtich.value = index;
         };
@@ -60,13 +78,49 @@ export default defineComponent({
             annotationList.value.splice(index, 1);
             editBoxSwtich.value = null;
         };
+        // 新增
         const add = () => {
-            annotationList.value.push({ text: "1111" });
+            annotationList.value.push({ text: "", left: 640, top: 340 });
+            editValue.value = "";
+            contentFlag.value = 0;
+            editFlag.value = annotationList.value.length - 1;
+            editBoxSwtich.value = null;
+            proxy.mittBus.emit("annotationList", annotationList.value);
         };
-        const edit = (index, num) => {
+        // 编辑
+        const edit = (index, num, item) => {
+            if (item.text) {
+                editValue.value = JSON.stringify(JSON.parse(item.text));
+            } else {
+                editValue.value = "";
+            }
             contentFlag.value = num;
             editFlag.value = index;
             editBoxSwtich.value = null;
+        };
+        // 取消
+        const cancel = (index) => {
+            editFlag.value = null;
+            contentFlag.value = null;
+            annotationList.value[index].text = editValue.value;
+        };
+        // 确认
+        const submit = (item) => {
+            contentFlag.value = null;
+            editValue.value = "";
+            editFlag.value = null;
+            const obj = {
+                cardID: cardId.value,
+                pageID: pageId.value,
+                pointX: item.left,
+                pointY: item.right,
+                content: item.text
+            };
+            emit("successAdd");
+            // const res = await AddAnnotation(obj);
+            // if (res.resultCode === 200) {
+            //     ElMessage.success("批注成功");
+            // }
         };
         return {
             annotationList,
@@ -76,7 +130,9 @@ export default defineComponent({
             changeEditBoxSwtich,
             add,
             del,
-            edit
+            edit,
+            cancel,
+            submit
         };
     }
 });
@@ -173,6 +229,9 @@ export default defineComponent({
                     font-weight: 400;
                     color: #5D5D5D;
                     padding: 8px;
+                    textarea{
+                        width: 100%;
+                    }
                     .ali-content-button{
                         overflow: hidden;
                         margin-top: 6px;
@@ -189,6 +248,7 @@ export default defineComponent({
                             background: #4B71EE;
                             border-radius: 4px;
                             color: #fff;
+                            margin-left: 8px;
                         }
                     }
                 }

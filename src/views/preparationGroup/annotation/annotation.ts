@@ -24,7 +24,8 @@ interface cardList {
     Sort: number,
     TeachPageRelationID: string,
     Type: number,
-    PageList: CardListItem[]
+    PageList: CardListItem[],
+    id: string
 }
 export default () => {
     const allCardList:any = ref([]);
@@ -33,6 +34,7 @@ export default () => {
     const expandFlag = ref(false);
     const annotationFlag = ref(true);
     const pageListRef = ref();
+    const cardID = ref("");
     const _getWindowCards = async (date:GetWindowCards) => {
         const obj = {
             OriginType: date.OriginType,
@@ -56,6 +58,7 @@ export default () => {
     };
     const updatePageList = (card: cardList) => {
         previewOptions.value = card;
+        cardID.value = card.id;
     };
     const expand = () => {
         expandFlag.value = !expandFlag.value;
@@ -65,7 +68,6 @@ export default () => {
     };
     const openAnotation = () => {
         annotationFlag.value = true;
-        // pageListRef.value.addElement();
     };
     const lastPage = () => {
         cardListRef.value.lastPage();
@@ -76,6 +78,7 @@ export default () => {
     return {
         allCardList,
         cardListRef,
+        cardID,
         previewOptions,
         expandFlag,
         annotationFlag,

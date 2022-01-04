@@ -33,10 +33,19 @@
                     :pageListOption="previewOptions"
                     @lastPage="lastPage"
                     @firstPage="firstPage"
+                    @showAnnotation="showAnnotation"
+                    @updatePageID="updatePageID"
+                    @updateAnotationList="updateAnotationList"
                 />
             </div>
-            <div class="annotation-main-right" v-if="annotationFlag">
-                <AnnotationList></AnnotationList>
+            <div class="annotation-main-right" v-show="annotationFlag">
+                <AnnotationList
+                    @addElement="addElement"
+                    :AnotationList="AnotationList"
+                    :cardID="cardID"
+                    :pageID="pageID"
+                    @successAdd="successAdd"
+                ></AnnotationList>
             </div>
         </div>
         <div class='expandFixed'>
@@ -49,7 +58,7 @@
 </template>
 
 <script>
-import { defineComponent, onMounted } from "vue-demi";
+import { defineComponent, onMounted, ref } from "vue-demi";
 import annotation from "./annotation";
 import CardList from "./components/card-list.vue";
 import PageList from "./components/page-list.vue";
@@ -59,7 +68,9 @@ export default defineComponent({
     setup() {
         const WindowID = "3A0015526B08B24B97C9BCD943D6F7EC";
         const WindowName = "1A1.1 数一数";
-        const { cardListRef, pageListRef, allCardList, previewOptions, expandFlag, annotationFlag, _getWindowCards, updatePageList, expand, closeAnotation, openAnotation, lastPage, firstPage } = annotation();
+        const AnotationList = ref([]);
+        const pageID = ref("");
+        const { cardListRef, cardID, pageListRef, allCardList, previewOptions, expandFlag, annotationFlag, _getWindowCards, updatePageList, expand, closeAnotation, openAnotation, lastPage, firstPage } = annotation();
         onMounted(async() => {
             const obj = {
                 OriginType: 1,
@@ -67,8 +78,26 @@ export default defineComponent({
             };
             await _getWindowCards(obj);
         });
+        const showAnnotation = (e) => {
+            annotationFlag.value = e;
+        };
+        const updatePageID = (id) => {
+            pageID.value = id;
+        };
+        // 更新批注
+        const updateAnotationList = (e) => {
+            AnotationList.value = e;
+            console.log(e);
+        };
+        const successAdd = () => {
+            // 新增成功刷新批注列表
+            pageListRef.value._getAnnotation();
+        };
         return {
+            AnotationList,
             WindowName,
+            cardID,
+            pageID,
             cardListRef,
             pageListRef,
             allCardList,
@@ -80,7 +109,11 @@ export default defineComponent({
             closeAnotation,
             openAnotation,
             lastPage,
-            firstPage
+            firstPage,
+            showAnnotation,
+            updateAnotationList,
+            updatePageID,
+            successAdd
         };
     }
 });
