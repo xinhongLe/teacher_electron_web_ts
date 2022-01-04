@@ -12,16 +12,22 @@
         <div class="dialog-img auto">
             <img src="@/assets/preparationGroup/pic_join.png" alt="">
         </div>
-        <div class="dialog-teachinfo auto">
-            <span>林某某老师</span>
+        <div class="dialog-teachinfo auto" v-if="collectivePreparationItem.InTeam">
+            系统检测到您已经在集体备课小组：【
+            <span>{{collectivePreparationItem.PreTitle}}</span>
+            】,<br>点击确认按钮，进入详情页
+        </div>
+        <div class="dialog-teachinfo auto" v-else>
+            <span>{{collectivePreparationItem.InviteeTeacherName}}</span>
             邀请您参加集体备课，备课主题为：【
-            <span>集体备课的主题名称</span>
-            】,请确认是否加入该小组？
+            <span>{{collectivePreparationItem.PreTitle}}</span>
+            】,<br>请确认是否加入该小组？
         </div>
         <template #footer>
             <span class="dialog-footer">
                 <el-button @click="dialogVisible = false">取 消</el-button>
-                <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+                <el-button type="primary" @click="turnToPage" v-if="collectivePreparationItem.InTeam">确 定</el-button>
+                <el-button type="primary" @click="confirm" v-else>确 定</el-button>
             </span>
         </template>
     </el-dialog>
@@ -29,14 +35,38 @@
 <script>
 import { defineComponent, ref } from "vue";
 export default defineComponent({
-    setup() {
+    name: "coreparationItem",
+    props: {
+        collectivePreparationItem: {
+            type: Object,
+            default: () => {
+                return {
+                    InTeam: false,
+                    PreTitle: "",
+                    InviteeTeacherName: "",
+                    GroupLessonPreparateID: ""
+                };
+            }
+        }
+    },
+    setup(props, { emit }) {
         const dialogVisible = ref(false);
         const handleClose = () => {
             dialogVisible.value = false;
         };
+        const confirm = () => {
+            emit("submit");
+            dialogVisible.value = false;
+        };
+        const turnToPage = () => {
+            dialogVisible.value = false;
+            window.open(`${window.location.origin}/preparation-edit/${props.collectivePreparationItem.GroupLessonPreparateID}`);
+        };
         return {
             dialogVisible,
-            handleClose
+            handleClose,
+            confirm,
+            turnToPage
         };
     }
 });
@@ -59,6 +89,7 @@ export default defineComponent({
         font-weight: 400;
         color: #19203D;
         margin-bottom: 10px;
+        line-height: 24px;
         span{
             color:#4B71EE;
         }

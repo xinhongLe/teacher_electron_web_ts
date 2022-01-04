@@ -51,9 +51,6 @@
             </div>
             <el-button type="primary" @click="submit">搜索</el-button>
         </div>
-        <CollectivePreparation
-         ref="CollectivePreparationRef"
-        ></CollectivePreparation>
         <ShareDetail ref="ShareDialogRef" @submit="submit"></ShareDetail>
     </div>
 </template>
@@ -61,7 +58,6 @@
 <script lang="ts">
 import { defineComponent, reactive, ref, toRefs } from "vue";
 import useSubmit from "./useSubmit";
-import CollectivePreparation from "../collective-preparation/index.vue";
 import ShareDetail from "../shareDialog/index.vue";
 export default defineComponent({
     name: "head",
@@ -99,7 +95,6 @@ export default defineComponent({
         const submit = () => {
             emit("requestParams", formData);
         };
-        const CollectivePreparationRef = ref();
         const ShareDialogRef = ref();
         const editPanel = () => {
             ShareDialogRef.value.openDialog();
@@ -110,13 +105,12 @@ export default defineComponent({
             statusList,
             formData,
             formRef,
-            CollectivePreparationRef,
             submit,
             editPanel,
             ShareDialogRef
         };
     },
-    components: { CollectivePreparation, ShareDetail }
+    components: { ShareDetail }
 });
 </script>
 

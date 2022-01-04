@@ -500,5 +500,17 @@ export interface InviteeLinkData {
     groupLessonPreparateID: string
 }
 export interface InviteeLinkRes {
-    groupLessonPreparateID: string
+    ID: string
+}
+export interface AddInviteeLinkData {
+    ID: string
+}
+export interface AddInviteeLinkRes {
+    ID: string
+}
+export interface MakeInviteeLinkData {
+    ID: string
+}
+export interface MakeInviteeLinkRes {
+    ID: string
 }

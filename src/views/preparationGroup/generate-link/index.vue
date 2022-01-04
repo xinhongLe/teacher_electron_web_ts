@@ -62,8 +62,8 @@ export default defineComponent({
                 groupLessonPreparateID: props.currentItem.Id
             });
             if (res.resultCode === 200) {
-                url.value = `${origin}/preparation-edit/${props.currentItem.Id}`;
-                console.log(res);
+                url.value = `${origin}/preparation-group?inviteID=${res.result.ID}`;
+                // url.value = `${origin}/preparation-edit/${props.currentItem.Id}`;
             }
         };
         watch(dialogVisible, (val) => {
