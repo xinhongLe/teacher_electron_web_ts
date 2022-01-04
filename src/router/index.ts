@@ -83,7 +83,10 @@ const routes: Array<RouteRecordRaw> = [
             {
                 path: "assignHomework/:subjectId/:subjectName",
                 name: "布置作业",
-                component: () => import("@/views/assignHomework/index.vue")
+                component: () => import("@/views/assignHomework/index.vue"),
+                meta: {
+                    keepAlive: true
+                }
             },
             {
                 path: "check-homework/:classHomeworkPaperID",

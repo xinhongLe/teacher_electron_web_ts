@@ -45,7 +45,7 @@ export default defineComponent({
         const wpfNames = ["wpf班级管理", "wpf管理标签", "wpf学习记录"];
         const { queryUserInfo } = useUserInfo();
         const { getTagList } = useTagList();
-        const keepExcludeArr = ["Home", "LabelManage", "Record", "Edit", "AssignHomework", "CheckHomework"];
+        const keepExcludeArr = ["Home", "LabelManage", "Record", "Edit", "CheckHomework"];
 
         watch(() => ({ query: route.query, name: route.name }), ({ query, name }) => {
             isShowNarBar.value = !query.head && !wpfNames.includes(name as string);

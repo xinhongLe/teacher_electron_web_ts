@@ -49,7 +49,7 @@
             </el-date-picker>
         </el-form-item>
         <slot></slot>
-        <el-form-item label="每日任务配置：">
+        <el-form-item label="每日任务配置：" prop="num">
             <div class="config">
                 <p>集中攻克完成量<span>（每日至少完成的数量）</span></p>
                 <el-input-number
@@ -134,7 +134,8 @@ export default defineComponent({
             password: [
                 { required: true, message: "请输入密码", trigger: "blur" },
                 { validator: checkPassword, trigger: "blur" }
-            ]
+            ],
+            num: [{ required: true, message: "请输入完成数量", trigger: "blur" }]
         };
 
         const getSystemAccountPwd = async () => {
