@@ -78,8 +78,17 @@
                     <div class="title-box">
                         <div class="title-left">
                             <p class="title">内容摘要</p>
-                            <!-- <p class="content">本节课的设计依据课标和学生自身特点重组教材内容，以学生生活实际和已有经验组织教学，强调学生观察、操作中获取新知，注重教学质量本节课的设计依据课标和学生自身特点重组教材内容，以学生生活实际和已有经验组织教学，强调学生观察、操作中获取新知，注重教本节课的设计依据课标和学生自身特点重组教材<span class="more">阅读全部</span></p> -->
-                            <p class="content">{{content.Content}}</p>
+                            <span class="content special-content" :class="isShowMore ? `` : `clamp`" :title="content.Content">
+                                {{content.Content}}
+                                <div v-if="isFull">
+                                    <span class="more" v-if="!isShowMore" @click="isShowMore = true">
+                                        <span class="dot">...</span>阅读全部
+                                    </span>
+                                    <span class="mores" v-else @click="isShowMore = false">
+                                        收起全部
+                                    </span>
+                                </div>
+                            </span>
                         </div>
                         <div class="title-right">
                             <div class="btn">
@@ -161,7 +170,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, toRefs, ref } from "vue";
+import { defineComponent, reactive, toRefs, ref, onMounted, nextTick } from "vue";
 import { ElMessage } from "element-plus";
 import { IOssFileInfo } from "@/types/oss";
 import File from "../../file/index.vue";
@@ -192,6 +201,8 @@ export default defineComponent({
     setup(props, { emit }) {
         const filesrc = ref("");
         const dialogVisible = ref(false);
+        const isShowMore = ref(false);
+        const isFull = ref(false);
         const state = reactive({
             memoPanelStatus: false,
             textareaWord: "",
@@ -350,11 +361,25 @@ export default defineComponent({
             emit("Modify");
         };
 
+        onMounted(() => {
+            nextTick(() => {
+                setTimeout(() => {
+                    const specialContent = document.querySelectorAll(".special-content");
+                    const windowContent = document.documentElement.clientWidth;
+                    if (specialContent && specialContent[0] && specialContent[0].clientWidth) {
+                        isFull.value = (windowContent - 200) < specialContent[0].clientWidth;
+                    }
+                });
+            });
+        });
+
         return {
             contentFiles,
             wordFiles,
             dialogVisible,
             researchContent,
+            isShowMore,
+            isFull,
             ...toRefs(state),
             submit,
             add,
@@ -498,7 +523,7 @@ export default defineComponent({
             display: flex;
             .left {
                 display: flex;
-                align-items: center;
+                align-items: flex-start;
                 .box-item {
                     width: 208px;
                     height: 139px;
@@ -564,7 +589,7 @@ export default defineComponent({
                 }
                 .arrow {
                     margin: 0 16px;
-                    margin-top: -40px;
+                    margin-top: 60px;
                 }
             }
             .right {
@@ -591,7 +616,40 @@ export default defineComponent({
                             margin: 15px 0;
                             line-height: 24px;
                         }
+                        .special-content {
+                            line-height: 24px;
+                            margin-top: -5px;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                            display: -webkit-box;
+                            word-break: break-all;
+                            position: relative;
+                        }
+                        .clamp {
+                            line-clamp: 1;
+                            box-orient: vertical;
+                            -webkit-line-clamp: 1;
+                            -webkit-box-orient: vertical;
+                        }
                         .more {
+                            font-size: 14px;
+                            font-family: PingFangSC-Regular, PingFang SC;
+                            font-weight: 400;
+                            color: #4B71EE;
+                            cursor: pointer;
+                            position: absolute;
+                            right: 0;
+                            bottom: 0;
+                            overflow: hidden;
+                            background: #F9F9FB;
+                            padding: 0 5px;
+                            .dot {
+                                font-weight: 400;
+                                color: #5F626F;
+                                margin: 0 15px 0 0;
+                            }
+                        }
+                        .mores {
                             font-size: 14px;
                             font-family: PingFangSC-Regular, PingFang SC;
                             font-weight: 400;

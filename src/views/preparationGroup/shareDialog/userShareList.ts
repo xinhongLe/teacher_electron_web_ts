@@ -1,6 +1,7 @@
 import { getTeacherList, getSchoolList } from "../api";
 import { ref } from "vue";
 import { GetTeacherClassData, GetTeacherDataRes, GetSchoolClassData, GetSchoolDataRes } from "@/types/preparationGroup";
+import { get, STORAGE_TYPES } from "@/utils/storage";
 
 export default () => {
     const teacherList = ref<GetTeacherDataRes>([]);
@@ -21,13 +22,15 @@ export default () => {
     };
 
     const getSchool = async (params: GetSchoolClassData) => {
+        const userInfo = get(STORAGE_TYPES.USER_INFO);
         const res = await getSchoolList(params);
         if (res.resultCode === 200) {
-            schoolList.value = res.result;
+            // schoolList.value = res.result;
+            schoolList.value = userInfo.Schools;
             const req: GetTeacherClassData = {
                 schoolID: schoolList.value ? schoolList.value[0].ID : ""
             };
-            getTeacher(req);
+            // getTeacher(req);
         }
     };
 

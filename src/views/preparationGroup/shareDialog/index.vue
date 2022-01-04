@@ -21,7 +21,7 @@
                     <div class="leftContent">
                         <el-select popper-class="popper-teacher-box" class="teacher-box" v-model="searchString" size="medium" filterable placeholder="搜索" @focus="fetchShareObjectCustomer" @change="addToTag($event)">
                             <el-option
-                                v-for="item in teacherList"
+                                v-for="item in storageTeacherList"
                                 :key="item.ID"
                                 :label="item.Name"
                                 :value="item.ID"
@@ -165,7 +165,8 @@ import { ElMessage } from "element-plus";
 import { useRoute } from "vue-router";
 import userShareList from "./userShareList";
 import { GetSchoolClassData } from "@/types/preparationGroup";
-import { addPreLesson, editPreparateTeachers } from "../api";
+import { set, get, STORAGE_TYPES } from "@/utils/storage";
+import { addPreLesson, editPreparateTeachers, fetchThisFraineseTeachers } from "../api";
 export default defineComponent({
     props: {
         isEdit: {
@@ -189,6 +190,7 @@ export default defineComponent({
             selectOrganizationIndex: "",
             shareOrganization: "",
             selectGroup: "",
+            storageTeacherList: [],
             selectTeacher: {},
             dynamicTags: [
                 {
@@ -288,6 +290,7 @@ export default defineComponent({
             nextTick(() => {
                 resetShareParams();
                 fetchShareObjectOrganization();
+                fetchFraineseTeachers();
             });
         };
 
@@ -310,10 +313,31 @@ export default defineComponent({
             state.shareOption = [];
         };
 
+        const fetchFraineseTeachers = () => {
+            teacherList.value = [];
+            fetchThisFraineseTeachers({}).then((res: any) => {
+                if (res.success) {
+                    if (res.result.length > 0) {
+                        res.result.map((item: any) => {
+                            const resp: any = {
+                                ID: item.ID,
+                                Name: item.Name,
+                                Active: false
+                            };
+                            if (item.Name && item.Name.length > 0) teacherList.value.push(resp);
+                        });
+                    }
+                }
+                set(STORAGE_TYPES.TEACHER_LIST, teacherList.value);
+            });
+        };
+
         const fetchShareObjectCustomer = () => {
             state.searchString = "";
             state.searchResult = [];
-            getTeacher({ schoolID: state.selectOptionID });
+            state.storageTeacherList = get(STORAGE_TYPES.TEACHER_LIST);
+            // fetchFraineseTeachers();
+            // getTeacher({ schoolID: state.selectOptionID });
             // const req = {
             //     type: ""
             // };
@@ -335,8 +359,9 @@ export default defineComponent({
         };
 
         const fetchShareObjectOrganization = async () => {
+            const userInfo = get(STORAGE_TYPES.USER_INFO);
             state.shareOption = [];
-            await getSchool({ id: "39F832D3E67424EA3F0479BE7957C642" });
+            await getSchool({ id: userInfo.ID }); // "39F832D3E67424EA3F0479BE7957C642"
             setTimeout(() => {
                 if (schoolList.value.length > 0) {
                     state.selectOption = schoolList.value[0].Name;
@@ -360,7 +385,7 @@ export default defineComponent({
             state.selectOptionID = id;
             teacherList.value = [];
             state.isSelectAll = false;
-            await getTeacher({ schoolID: id });
+            // await getTeacher({ schoolID: id });
             state.dynamicTags.map((item: any) => {
                 teacherList.value.forEach((itm: any) => {
                     if (item.ID === itm.ID) {
@@ -977,6 +1002,12 @@ export default defineComponent({
     display: flex;
     flex-direction: column;
     justify-content: center;
+    > img {
+        display: inline-block;
+        width: 50%;
+        height: auto;
+        margin: 0 auto;
+    }
     .emptyContent {
         margin-top: 15px;
     }

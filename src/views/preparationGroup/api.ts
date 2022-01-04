@@ -241,7 +241,7 @@ export function getTeacherList(data: GetTeacherClassData): Promise<IResponse<Get
 // 获取校区
 export function getSchoolList(data: GetSchoolClassData): Promise<IResponse<GetSchoolDataRes>> {
     return request({
-        baseURL: WINDOW_CRAD_API,
+        baseURL: AI_XUE_SHI_API,
         url: "/Api/Web/BaseData/GetSchoolsByFranchiseeID",
         headers: {
             "Content-Type": "application/json-patch+json"

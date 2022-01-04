@@ -40,7 +40,7 @@
                     </template>
                 </el-upload>
                 <div v-else>
-                    <File :fileInfo="fileContent" action="download" @close="deleteFile"></File>
+                    <File :fileInfo="fileContent" action="upload" @close="deleteFile"></File>
                 </div>
             </el-form-item>
             <el-form-item label="附件:" :label-width="formLabelWidth" prop="attachments">

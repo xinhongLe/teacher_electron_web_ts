@@ -317,8 +317,7 @@ export interface Lesson {
 }
 
 export interface FetchLessonsData {
-    chapterID: string;
-    type: number;
+    
 }
 
 export interface AddContentData {

@@ -150,6 +150,7 @@ export default defineComponent({
                             ...v,
                             fileName: v.FileName,
                             fileExtension: v.Extention,
+                            fileSize: getFileSize(v.Size),
                             fileType: getFileType(`${v.FileName}.${v.Extention}`)
                         });
                     });
@@ -234,7 +235,7 @@ export default defineComponent({
         };
 
         const { switchStatus, textBookGradeList, getTextBookGrade } = useSubmit();
-        const { loadingShow, fileInfo, uploadFile, resetFileInfo, getFileType } = useUploadFile("GroupLessonFile");
+        const { loadingShow, fileInfo, uploadFile, resetFileInfo, getFileType, getFileSize } = useUploadFile("GroupLessonFile");
         watch(fileInfo, (fileObj: IOssFileInfo) => {
             const file = {
                 ...fileObj
@@ -270,6 +271,7 @@ export default defineComponent({
             uploadFile,
             resetFileInfo,
             getFileType,
+            getFileSize,
             deleteFileItem,
             getPreparateDetail,
             savePreparateDetail
