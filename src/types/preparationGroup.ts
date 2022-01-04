@@ -496,3 +496,9 @@ export interface addCourseData {
     preLessonContent?: string,
     teacherIDs: string[]
 }
+export interface InviteeLinkData {
+    groupLessonPreparateID: string
+}
+export interface InviteeLinkRes {
+    groupLessonPreparateID: string
+}

@@ -13,7 +13,8 @@ import {
     AddContentData,
     EditContentData,
     FetchPreparateDetailData, FetchTeacherLessonAndBagByChapterData, GetLastSelectBookData, FetchReflectFilesData, FetchReflectFilesRes, GetLastSelectBookRes, Lesson, Material, QueryMaterialListData, SaveTeacherClassScheduleData, SetLastSelectBookData, UpdateCourseBagTeacherData, UpdateCourseWareListOfTeacherData, UploadSummaryData, UpdateCustomBookLessonData,
-    ShareResourceData, GetTeacherClassData, GetSchoolClassData, GetTeacherDataRes, GetSchoolDataRes, addCourseData
+    ShareResourceData, GetTeacherClassData, GetSchoolClassData, GetTeacherDataRes, GetSchoolDataRes, addCourseData,
+    InviteeLinkData, InviteeLinkRes
 } from "@/types/preparationGroup";
 
 // 查询我的备课列表(分页)
@@ -243,6 +244,19 @@ export function getSchoolList(data: GetSchoolClassData): Promise<IResponse<GetSc
     return request({
         baseURL: AI_XUE_SHI_API,
         url: "/Api/Web/BaseData/GetSchoolsByFranchiseeID",
+        headers: {
+            "Content-Type": "application/json-patch+json"
+        },
+        method: "post",
+        data
+    });
+}
+
+// 生成邀请链接
+export function makeInviteeLink(data: InviteeLinkData): Promise<IResponse<InviteeLinkRes>> {
+    return request({
+        baseURL: AI_XUE_SHI_API,
+        url: "/Api/V2/GroupLesson/AddInviteeLink",
         headers: {
             "Content-Type": "application/json-patch+json"
         },

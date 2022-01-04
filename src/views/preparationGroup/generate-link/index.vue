@@ -14,7 +14,7 @@
         <div class="dialog-timeinfo auto">创建时间：{{ moment(currentItem.CreateTime).format("YYYY-MM-DD HH:mm:ss") }}</div>
         <div class="dialog-linkinfo auto">
             <span class="icon"><i class="el-icon-paperclip"></i></span>
-            <span class="link ellipsis">{{ `${origin}/preparation-edit/${currentItem.Id}` }}</span>
+            <span class="link ellipsis">{{ `${url}` }}</span>
         </div>
         <div class="dialog-tipinfo auto">请用电脑端登陆【爱学仕】系统，再点击以上链接加入集体备课</div>
         <template #footer>
@@ -26,7 +26,8 @@
     </el-dialog>
 </template>
 <script>
-import { defineComponent, ref } from "vue";
+import { defineComponent, ref, watch } from "vue";
+import { makeInviteeLink } from "../api";
 import moment from "moment";
 export default defineComponent({
     props: {
@@ -38,14 +39,14 @@ export default defineComponent({
         const dialogVisible = ref(false);
         const isCopy = ref(false);
         const origin = window.location.origin;
+        const url = ref("");
         const handleClose = () => {
             dialogVisible.value = false;
         };
         const copyText = () => {
-            const url = `${origin}/preparation-edit/${props.currentItem.Id}`;
             const transfer = document.createElement("input");
             document.body.appendChild(transfer);
-            transfer.value = url;
+            transfer.value = url.value;
             transfer.focus();
             transfer.select();
             if (document.execCommand("copy")) {
@@ -55,10 +56,30 @@ export default defineComponent({
             document.body.removeChild(transfer);
             isCopy.value = true;
         };
+        const makeLink = async () => {
+            console.log(props.currentItem);
+            const res = await makeInviteeLink({
+                groupLessonPreparateID: props.currentItem.Id
+            });
+            if (res.resultCode === 200) {
+                url.value = `${origin}/preparation-edit/${props.currentItem.Id}`;
+                console.log(res);
+            }
+        };
+        watch(dialogVisible, (val) => {
+            if (val) {
+                setTimeout(() => {
+                    makeLink();
+                });
+            }
+        }, {
+            deep: true
+        });
         return {
             dialogVisible,
             isCopy,
             origin,
+            url,
             handleClose,
             copyText,
             moment

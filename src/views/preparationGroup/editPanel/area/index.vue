@@ -76,9 +76,9 @@
                 </div>
                 <div class="right">
                     <div class="title-box">
-                        <div class="title-left">
+                        <div :class="`title-left title-left-content-${numorder}`">
                             <p class="title">内容摘要</p>
-                            <span class="content special-content" :class="isShowMore ? `` : `clamp`" :title="content.Content">
+                            <span :class="`content special-area-content special-area-content-${numorder} ${isShowMore ? `` : `clamp`}`" :title="content.Content">
                                 {{content.Content}}
                                 <div v-if="isFull">
                                     <span class="more" v-if="!isShowMore" @click="isShowMore = true">
@@ -191,20 +191,20 @@ export default defineComponent({
         },
         content: {
             type: Object,
-            degault: () => ({})
+            default: () => ({})
         },
         numorder: {
             type: Number,
-            degault: 0
+            default: 0
         }
     },
     setup(props, { emit }) {
         const filesrc = ref("");
         const dialogVisible = ref(false);
-        const isShowMore = ref(false);
-        const isFull = ref(false);
         const state = reactive({
             memoPanelStatus: false,
+            isShowMore: false,
+            isFull: false,
             textareaWord: "",
             memoList: [
                 {
@@ -359,18 +359,24 @@ export default defineComponent({
         const EditSuccessHandle = () => {
             dialogVisible.value = false;
             emit("Modify");
+            window.location.reload();
+        };
+
+        const resizeTextarea = () => {
+            nextTick(() => {
+                const index = props.numorder;
+                const specialContent = document.querySelectorAll(`.special-area-content-${index}`);
+                const windowContent = document.querySelectorAll(`.title-left-content-${index}`);
+                console.log(windowContent[0].clientWidth);
+                console.log(specialContent[0].clientWidth);
+                if (specialContent && specialContent[0] && specialContent[0].clientWidth && windowContent && windowContent[0] && windowContent[0].clientWidth) {
+                    state.isFull = ((windowContent[0].clientWidth - 0) <= specialContent[0].clientWidth);
+                }
+            });
         };
 
         onMounted(() => {
-            nextTick(() => {
-                setTimeout(() => {
-                    const specialContent = document.querySelectorAll(".special-content");
-                    const windowContent = document.documentElement.clientWidth;
-                    if (specialContent && specialContent[0] && specialContent[0].clientWidth) {
-                        isFull.value = (windowContent - 200) < specialContent[0].clientWidth;
-                    }
-                });
-            });
+            resizeTextarea();
         });
 
         return {
@@ -378,8 +384,6 @@ export default defineComponent({
             wordFiles,
             dialogVisible,
             researchContent,
-            isShowMore,
-            isFull,
             ...toRefs(state),
             submit,
             add,
@@ -616,14 +620,14 @@ export default defineComponent({
                             margin: 15px 0;
                             line-height: 24px;
                         }
-                        .special-content {
+                        .special-area-content {
                             line-height: 24px;
-                            margin-top: -5px;
                             overflow: hidden;
                             text-overflow: ellipsis;
                             display: -webkit-box;
                             word-break: break-all;
                             position: relative;
+                            width: fit-content;
                         }
                         .clamp {
                             line-clamp: 1;
