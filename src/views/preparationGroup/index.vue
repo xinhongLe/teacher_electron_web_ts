@@ -22,21 +22,29 @@
             <Empty></Empty>
         </div>
     </div>
+    <CollectivePreparation ref="coRef" :collectivePreparationItem="collectivePreparationItem" @submit="addInviteeLink"></CollectivePreparation>
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, toRefs, onMounted } from "vue";
+import { defineComponent, reactive, toRefs, onMounted, ref } from "vue";
 import { FetchPreparateListPageData } from "@/types/preparationGroup";
+import { tryAddTeacherByInviteeLink, addTeacherByInviteeLink } from "./api";
+import { useRoute } from "vue-router";
 import moment from "moment";
 import Search from "./search/index.vue";
 import Card from "./card/index.vue";
 import Empty from "./empty/index.vue";
+import CollectivePreparation from "./collective-preparation/index.vue";
 import useCardList from "./card/useCardList";
+import { ElMessage } from "element-plus";
 export default defineComponent({
     name: "preparationGroup",
     setup(props, { emit }) {
         console.log(props);
         console.log(emit);
+        const collectivePreparationItem = ref();
+        const coRef = ref();
+        const route = useRoute();
         const state = reactive({
             filterParams: {
                 preTitle: "",
@@ -76,21 +84,45 @@ export default defineComponent({
             state.filterParams.pager.pageNumber = e;
             getCardList(state.filterParams);
         };
+        const tryInviteeLink = async () => {
+            if (!route.query.inviteID) return;
+            const res = await tryAddTeacherByInviteeLink({
+                ID: route.query.inviteID as string
+            });
+            if (res.resultCode === 200) {
+                collectivePreparationItem.value = res.result;
+                setTimeout(() => {
+                    if (coRef.value) coRef.value.dialogVisible = true;
+                });
+            }
+        };
+        const addInviteeLink = async () => {
+            const res = await addTeacherByInviteeLink({
+                ID: route.query.inviteID as string
+            });
+            if (res.resultCode === 200) {
+                ElMessage.success("加入成功");
+            }
+        };
         onMounted(() => {
             getCardList(state.filterParams);
+            tryInviteeLink();
         });
         return {
             ...toRefs(state),
+            coRef,
+            collectivePreparationItem,
             moment,
             requestParams,
             cardList,
             getCardList,
             pageParams,
             handleSizeChange,
-            handleCurrentChange
+            handleCurrentChange,
+            addInviteeLink
         };
     },
-    components: { Search, Card, Empty }
+    components: { Search, Card, Empty, CollectivePreparation }
 });
 </script>
 

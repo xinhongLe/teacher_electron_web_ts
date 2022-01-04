@@ -14,7 +14,7 @@ import {
     EditContentData,
     FetchPreparateDetailData, FetchTeacherLessonAndBagByChapterData, GetLastSelectBookData, FetchReflectFilesData, FetchReflectFilesRes, GetLastSelectBookRes, Lesson, Material, QueryMaterialListData, SaveTeacherClassScheduleData, SetLastSelectBookData, UpdateCourseBagTeacherData, UpdateCourseWareListOfTeacherData, UploadSummaryData, UpdateCustomBookLessonData,
     ShareResourceData, GetTeacherClassData, GetSchoolClassData, GetTeacherDataRes, GetSchoolDataRes, addCourseData,
-    InviteeLinkData, InviteeLinkRes
+    InviteeLinkData, InviteeLinkRes, AddInviteeLinkData, AddInviteeLinkRes, MakeInviteeLinkData, MakeInviteeLinkRes
 } from "@/types/preparationGroup";
 
 // 查询我的备课列表(分页)
@@ -257,6 +257,32 @@ export function makeInviteeLink(data: InviteeLinkData): Promise<IResponse<Invite
     return request({
         baseURL: AI_XUE_SHI_API,
         url: "/Api/V2/GroupLesson/AddInviteeLink",
+        headers: {
+            "Content-Type": "application/json-patch+json"
+        },
+        method: "post",
+        data
+    });
+}
+
+// 第一步：根据链接ID添加集体备课小组成员
+export function tryAddTeacherByInviteeLink(data: AddInviteeLinkData): Promise<IResponse<AddInviteeLinkRes>> {
+    return request({
+        baseURL: AI_XUE_SHI_API,
+        url: "/Api/V2/GroupLesson/TryAddTeacherByInviteeLink",
+        headers: {
+            "Content-Type": "application/json-patch+json"
+        },
+        method: "post",
+        data
+    });
+}
+
+// 第二步：根据链接ID添加集体备课小组成员
+export function addTeacherByInviteeLink(data: MakeInviteeLinkData): Promise<IResponse<MakeInviteeLinkRes>> {
+    return request({
+        baseURL: AI_XUE_SHI_API,
+        url: "/Api/V2/GroupLesson/AddTeacherByInviteeLink",
         headers: {
             "Content-Type": "application/json-patch+json"
         },

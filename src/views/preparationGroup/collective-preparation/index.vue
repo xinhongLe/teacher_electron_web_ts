@@ -13,15 +13,15 @@
             <img src="@/assets/preparationGroup/pic_join.png" alt="">
         </div>
         <div class="dialog-teachinfo auto">
-            <span>林某某老师</span>
+            <span>{{collectivePreparationItem.InviteeTeacherName}}</span>
             邀请您参加集体备课，备课主题为：【
-            <span>集体备课的主题名称</span>
-            】,请确认是否加入该小组？
+            <span>{{collectivePreparationItem.PreTitle}}</span>
+            】,<br>请确认是否加入该小组？
         </div>
         <template #footer>
             <span class="dialog-footer">
                 <el-button @click="dialogVisible = false">取 消</el-button>
-                <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+                <el-button type="primary" @click="confirm">确 定</el-button>
             </span>
         </template>
     </el-dialog>
@@ -29,14 +29,25 @@
 <script>
 import { defineComponent, ref } from "vue";
 export default defineComponent({
-    setup() {
+    name: "coreparationItem",
+    props: {
+        collectivePreparationItem: {
+            type: Object
+        }
+    },
+    setup(props, { emit }) {
         const dialogVisible = ref(false);
         const handleClose = () => {
             dialogVisible.value = false;
         };
+        const confirm = () => {
+            emit("submit");
+            dialogVisible.value = false;
+        };
         return {
             dialogVisible,
-            handleClose
+            handleClose,
+            confirm
         };
     }
 });
@@ -59,6 +70,7 @@ export default defineComponent({
         font-weight: 400;
         color: #19203D;
         margin-bottom: 10px;
+        line-height: 24px;
         span{
             color:#4B71EE;
         }
