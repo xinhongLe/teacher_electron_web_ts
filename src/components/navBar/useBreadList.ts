@@ -11,6 +11,10 @@ export default () => {
         {
             name: "备课",
             path: "/preparation"
+        },
+        {
+            name: "批注",
+            path: "/annotation"
         }
     ]);
 
