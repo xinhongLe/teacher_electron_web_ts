@@ -179,9 +179,9 @@ export default defineComponent({
                     fileContent.fileExtension = props.researchContent.ResourceSource.Extention;
                     fileContent.md5 = props.researchContent.ResourceSource.FileMD5;
                     fileContent.fileName = props.researchContent.ResourceSource.FileName;
-                    fileContent.size = 0;
-                    fileContent.fileSize = "";
-                    // fileContent.fileType = props.researchContent.ResourceSource.Name;
+                    fileContent.size = props.researchContent.ResourceSource.Size;
+                    fileContent.fileSize = getFileSize(props.researchContent.ResourceSource.Size || 0);
+                    fileContent.fileType = getFileType(`${props.researchContent.ResourceSource.Name}.${props.researchContent.ResourceSource.Extention}`);
                     fileList.value = [];
                     props.researchContent.Attachments && props.researchContent.Attachments.map(item => {
                         console.log(item);
@@ -192,7 +192,10 @@ export default defineComponent({
                             md5: item.FileMD5,
                             fileName: item.FileName,
                             fileExtension: item.Extention,
-                            path: item.FilePath
+                            path: item.FilePath,
+                            size: item.Size,
+                            fileSize: getFileSize(item.Size || 0),
+                            fileType: getFileType(`${item.Name}.${item.Extention}`)
                         });
                     });
                     console.log(fileList.value, "fileListfileListfileList");

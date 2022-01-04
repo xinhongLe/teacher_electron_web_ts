@@ -83,6 +83,8 @@ export interface Fileginseng {
     Name: string;
     SN: number;
     Type: number;
+    Size?: number;
+    FileSize?: string;
 }
 
 export interface DiscussioncontentList {
