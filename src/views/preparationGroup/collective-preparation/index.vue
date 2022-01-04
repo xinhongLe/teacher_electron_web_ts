@@ -12,7 +12,12 @@
         <div class="dialog-img auto">
             <img src="@/assets/preparationGroup/pic_join.png" alt="">
         </div>
-        <div class="dialog-teachinfo auto">
+        <div class="dialog-teachinfo auto" v-if="collectivePreparationItem.InTeam">
+            系统检测到您已经在集体备课小组：【
+            <span>{{collectivePreparationItem.PreTitle}}</span>
+            】,<br>点击确认按钮，进入详情页
+        </div>
+        <div class="dialog-teachinfo auto" v-else>
             <span>{{collectivePreparationItem.InviteeTeacherName}}</span>
             邀请您参加集体备课，备课主题为：【
             <span>{{collectivePreparationItem.PreTitle}}</span>
@@ -21,7 +26,8 @@
         <template #footer>
             <span class="dialog-footer">
                 <el-button @click="dialogVisible = false">取 消</el-button>
-                <el-button type="primary" @click="confirm">确 定</el-button>
+                <el-button type="primary" @click="turnToPage" v-if="collectivePreparationItem.InTeam">确 定</el-button>
+                <el-button type="primary" @click="confirm" v-else>确 定</el-button>
             </span>
         </template>
     </el-dialog>
@@ -32,7 +38,15 @@ export default defineComponent({
     name: "coreparationItem",
     props: {
         collectivePreparationItem: {
-            type: Object
+            type: Object,
+            default: () => {
+                return {
+                    InTeam: false,
+                    PreTitle: "",
+                    InviteeTeacherName: "",
+                    GroupLessonPreparateID: ""
+                };
+            }
         }
     },
     setup(props, { emit }) {
@@ -44,10 +58,15 @@ export default defineComponent({
             emit("submit");
             dialogVisible.value = false;
         };
+        const turnToPage = () => {
+            dialogVisible.value = false;
+            window.open(`${window.location.origin}/preparation-edit/${props.collectivePreparationItem.GroupLessonPreparateID}`);
+        };
         return {
             dialogVisible,
             handleClose,
-            confirm
+            confirm,
+            turnToPage
         };
     }
 });

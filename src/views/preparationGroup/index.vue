@@ -101,7 +101,10 @@ export default defineComponent({
                 ID: route.query.inviteID as string
             });
             if (res.resultCode === 200) {
-                ElMessage.success("加入成功");
+                ElMessage.success("加入成功，跳转中");
+                setTimeout(() => {
+                    window.open(`${window.location.origin}/preparation-edit/${collectivePreparationItem.value.GroupLessonPreparateID}`);
+                }, 2000);
             }
         };
         onMounted(() => {
