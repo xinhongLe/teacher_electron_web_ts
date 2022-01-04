@@ -7,7 +7,7 @@
         <div class="annotation-list-all">
             <div class="annotation-list-alllist">
                 <div class="annotation-list-item" v-for="(item,index) in annotationList" :key="index">
-                    <div class="ali-header">
+                    <div class="ali-header" :class="activeID === index ? 'active':''">
                         <div>{{index + 1}}</div>
                         <div class="ali-header-more" @click.stop="changeEditBoxSwtich(index)">
                             <img src="@/assets/preparationGroup/icon_more.png" alt="">
@@ -18,7 +18,12 @@
                         </div>
                     </div>
                     <div class="ali-content">
-                        <textarea v-if="editFlag === index && contentFlag === 0" v-model="item.text"></textarea>
+                        <el-input
+                            v-if="editFlag === index && contentFlag === 0"
+                            v-model="item.text"
+                            type="textarea"
+                            :rows="2">
+                            </el-input>
                         <span v-else>
                             {{ item.text }}
                         </span>
@@ -38,7 +43,8 @@
 
 <script>
 import { ElMessage } from "element-plus";
-import { defineComponent, ref, getCurrentInstance, watch, computed } from "vue-demi";
+import { cloneDeep } from "lodash";
+import { defineComponent, ref, getCurrentInstance, watch, computed, onMounted, onBeforeUnmount } from "vue-demi";
 import { AddAnnotation } from "../api";
 export default defineComponent({
     props: ["AnotationList", "cardID", "pageID"],
@@ -51,6 +57,15 @@ export default defineComponent({
         const annotationList = ref([]);
         const cardId = ref("");
         const pageId = ref("");
+        const activeID = ref(0);
+        onMounted(() => {
+            proxy.mittBus.on("annotationActionID", (annotationActionID) => {
+                activeID.value = annotationActionID;
+            });
+        });
+        onBeforeUnmount(() => {
+            proxy.mittBus.off("annotationActionID");
+        });
         watch(
             () => props.cardID,
             () => {
@@ -89,8 +104,9 @@ export default defineComponent({
         };
         // 编辑
         const edit = (index, num, item) => {
+            console.log(index, num, item);
             if (item.text) {
-                editValue.value = JSON.stringify(JSON.parse(item.text));
+                editValue.value = cloneDeep(item.text);
             } else {
                 editValue.value = "";
             }
@@ -123,6 +139,7 @@ export default defineComponent({
             // }
         };
         return {
+            activeID,
             annotationList,
             editBoxSwtich,
             editFlag,
@@ -178,7 +195,7 @@ export default defineComponent({
                 margin-top: 16px;
                 .ali-header{
                     width: 100%;
-                    background: #DEE4FF;
+                    background: #F5F6FA;
                     height: 30px;
                     display: flex;
                     justify-content: space-between;
@@ -193,16 +210,18 @@ export default defineComponent({
                         line-height: 18px;
                     }
                     .ali-header-more{
+                        height: 30px;
                         display: flex;
                         align-items: center;
                         position: relative;
                         .ahm-edit{
                             position: absolute;
                             top: 10px;
-                            right: 0;
+                            right: 20px;
                             width: 100px;
                             height: 50px;
                             background: #fff;
+                            z-index: 10;
                             div{
                                 width: 100px;
                                 height: 25px;
@@ -223,26 +242,37 @@ export default defineComponent({
                         }
                     }
                 }
+                .active{
+                    background: #DEE4FF !important;
+                }
                 .ali-content{
-                    font-size: 12px;
+                    font-size: 14px;
                     font-family: PingFangSC-Regular, PingFang SC;
                     font-weight: 400;
                     color: #5D5D5D;
                     padding: 8px;
-                    textarea{
-                        width: 100%;
+                    span{
+                        font-size: 14px;
+                        padding: 2px;
+                        display: block;
+                        word-wrap: break-word;
+                        word-break: normal;
                     }
                     .ali-content-button{
                         overflow: hidden;
                         margin-top: 6px;
                         div{
                             float: right;
-                            width: 30px;
-                            height: 20px;
+                            width: 40px;
+                            height: 24px;
                             background: #fff;
                             color: #000;
-                            line-height: 20px;
+                            // line-height: 20px;
                             text-align: center;
+                            padding: 5px;
+                            white-space: nowrap;
+                            box-sizing: border-box;
+                            cursor: pointer;
                         }
                         div:nth-of-type(1){
                             background: #4B71EE;
