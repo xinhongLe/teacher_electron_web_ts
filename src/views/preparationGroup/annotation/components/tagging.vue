@@ -12,7 +12,6 @@
                     <span>{{index + 1}}</span>
                 </div>
             </div>
-            {{ elementList }}
         </div>
     </div>
 </template>
@@ -72,6 +71,7 @@ export default defineComponent({
         const activeIndex = ref(null);
         const clickElement = (event, item, index) => {
             activeIndex.value = index;
+            proxy.mittBus.emit("annotationActionID", activeIndex.value);
             dragePosition.x = event.clientX;
             dragePosition.y = event.clientY;
             move = true;
