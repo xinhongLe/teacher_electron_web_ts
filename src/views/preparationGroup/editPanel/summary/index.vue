@@ -8,7 +8,7 @@
                 :http-request="uploadFile"
                 accept="doc, docx"
             >
-                <el-button icon="el-icon-document" style="background-color:#48DBBF;color:#fff;" v-if="isHasRule">上传文档</el-button>
+                <el-button icon="el-icon-document" style="background-color:#48DBBF;color:#fff;">上传文档</el-button>
             </el-upload>
         </div>
         <div v-if="tableData && tableData.length > 0">

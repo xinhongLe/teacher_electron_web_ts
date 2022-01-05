@@ -49,7 +49,6 @@
                     v-loading="loadingShow"
                     action
                     multiple
-                    :limit="9"
                     :show-file-list="false"
                     :accept="acceptList"
                     :http-request="uploadSuccess"

@@ -31,7 +31,7 @@
         </div>
         <div class="right">
             <div>
-                <div class="delete-btn" @click="showDeleteDialog(item)">
+                <div class="delete-btn" v-if="switchDeleteRule(item)" @click="showDeleteDialog(item)">
                     <img src="../../../assets/preparationGroup/icon_delete.png" alt="删除">
                 </div>
                 <el-button type="primary" plain @click="turnToEditPanel(item)">进入研讨</el-button>
@@ -59,6 +59,7 @@ import useSubmit from "../search/useSubmit";
 import useEdit from "../editPanel/useSubmit";
 import generateLink from "../generate-link/index.vue";
 import DeleteConfirm from "../dialog/index.vue";
+import { get, STORAGE_TYPES } from "@/utils/storage";
 export default defineComponent({
     name: "card",
     props: {
@@ -112,6 +113,9 @@ export default defineComponent({
                 emit("requestParams", cardParams);
             }
         };
+        const switchDeleteRule = (item: PreparateListBag) => {
+            return item.CreaterID === get(STORAGE_TYPES.USER_INFO).ID;
+        };
         const { statusList, switchStatus } = useSubmit();
         const { getTextBookGrade } = useEdit();
         onMounted(() => {
@@ -129,7 +133,8 @@ export default defineComponent({
             showDeleteDialog,
             deleteDialog,
             deleteResource,
-            getTextBookGrade
+            getTextBookGrade,
+            switchDeleteRule
         };
     }
 });
