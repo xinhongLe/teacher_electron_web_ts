@@ -51,6 +51,7 @@ export default defineComponent({
         console.log(emit);
         const timer = ref();
         const percent = ref(100);
+        console.log("fileInfo", props.fileInfo);
 
         const preView = async () => {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -121,7 +122,7 @@ export default defineComponent({
                         clearInterval(timer.value);
                         timer.value = null;
                     }
-                }, 1500);
+                }, 1000);
             }
         };
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -139,6 +140,7 @@ export default defineComponent({
             intervalTimer();
         });
         onBeforeUnmount(() => {
+            percent.value = 100;
             clearInterval(timer.value);
             timer.value = null;
         });

@@ -287,29 +287,29 @@ export default defineComponent({
 
         const lookOver = async (file: Fileginseng) => {
             if (file) {
-                const { Extention, FilePath, Name, Bucket } = file;
+                const { Extention, FilePath, FileMD5, Bucket } = file;
                 if (Extention) {
-                    const key = FilePath + "/" + Name + "." + Extention;
+                    const key = FilePath + "/" + FileMD5 + "." + Extention;
                     filesrc.value = await downloadFile(key, Bucket);
-                    console.log(filesrc.value, Name + "." + Extention);
-                    openFile(filesrc.value, Name + "." + Extention);
+                    console.log(filesrc.value, FileMD5 + "." + Extention);
+                    openFile(filesrc.value, FileMD5 + "." + Extention);
                 } else {
-                    const key = FilePath + "/" + Name;
+                    const key = FilePath + "/" + FileMD5;
                     filesrc.value = await downloadFile(key, Bucket);
-                    openFile(filesrc.value, Name + "." + Extention);
+                    openFile(filesrc.value, FileMD5 + "." + Extention);
                 }
             }
         };
 
         const download = async (file: Fileginseng) => {
             if (file) {
-                const { Extention, FilePath, FileName, Name, Bucket } = file;
+                const { Extention, FilePath, FileName, FileMD5, Bucket } = file;
                 if (Extention) {
-                    const key = FilePath + "/" + Name + "." + Extention;
+                    const key = FilePath + "/" + FileMD5 + "." + Extention;
                     filesrc.value = await downloadFile(key, Bucket);
                     downLoad(filesrc.value, FileName);
                 } else {
-                    const key = FilePath + "/" + Name;
+                    const key = FilePath + "/" + FileMD5;
                     filesrc.value = await downloadFile(key, Bucket);
                     downLoad(filesrc.value, FileName);
                 }
@@ -335,6 +335,7 @@ export default defineComponent({
                 };
                 const result = await addResourceResult(params);
                 if (result.resultCode === 200) {
+                    window.location.reload();
                     ElMessage.success("添加研讨的终稿文件成功");
                 }
             }
