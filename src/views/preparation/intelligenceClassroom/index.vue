@@ -66,6 +66,7 @@
                     <div class="card-detail-content">
                         <PreviewSection
                             ref="PreviewSection"
+                            :winList="cardList"
                             :hideTools="hideTools"
                             :uuid="cardUuid"
                             :isPreview="isPreview"
@@ -118,6 +119,8 @@ export default defineComponent({
         onMounted(() => {
             const obj = { chapterID: store.state.preparation.selectChapterID };
             _getSchoolLessonWindow(obj);
+
+            // console.log(allData.cardList, "00000000000000");
         });
         const windowEdit = async (j, i, item) => {
             if (j.OriginType === 0) {

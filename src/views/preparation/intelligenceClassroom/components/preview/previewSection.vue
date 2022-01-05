@@ -15,6 +15,7 @@
                 @lastPage="lastPage"
                 @firstPage="firstPage"
                 :showRemark="showRemark"
+                :winList="winList"
             />
             <Remark :class="fullScreenStyle ? 'remark-fullSrceen' : ''" :value="remark" v-if="showRemark" />
         </div>
@@ -46,7 +47,7 @@ export default defineComponent({
         Tools,
         PageList
     },
-    props: ["options", "hideTools", "winActiveId", "WindowName", "LessonID"],
+    props: ["options", "hideTools", "winActiveId", "WindowName", "LessonID", "winList"],
     setup(props, { emit }) {
         const { data, showRemark, toggleRemark } = preventRemark();
         const pageList = ref({});
