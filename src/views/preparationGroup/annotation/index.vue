@@ -64,19 +64,19 @@ import annotation from "./annotation";
 import CardList from "./components/card-list.vue";
 import PageList from "./components/page-list.vue";
 import AnnotationList from "./components/annotation-list.vue";
+import { useRoute } from "vue-router";
 export default defineComponent({
+    name: "preparationGroup",
     components: { CardList, PageList, AnnotationList },
     setup() {
-        // const WindowID = "3A0015526B08B24B97C9BCD943D6F7EC"; // 正式
-        const WindowID = "3A013B8EB62C2E60DA242F59622829DA";
-        const WindowName = "1A1.1 数一数";
         const AnotationList = ref([]);
         const pageID = ref("");
         const AnnotationListRef = ref();
+        const route = useRoute();
         const { cardListRef, cardID, pageListRef, allCardList, previewOptions, expandFlag, annotationFlag, _getWindowCards, updatePageList, expand, closeAnotation, openAnotation, lastPage, firstPage } = annotation();
         onMounted(async() => {
             const obj = {
-                WindowID: WindowID
+                WindowID: route.params.id
             };
             await _getWindowCards(obj);
         });
@@ -98,7 +98,6 @@ export default defineComponent({
         };
         return {
             AnotationList,
-            WindowName,
             cardID,
             pageID,
             cardListRef,
