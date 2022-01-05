@@ -48,5 +48,6 @@ export interface IOssFileInfo {
     path?: string,
     size?: number,
     fileSize?: string,
-    fileType?: string
+    fileType?: string,
+    Name?: string
 }

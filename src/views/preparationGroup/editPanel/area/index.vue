@@ -590,6 +590,12 @@ export default defineComponent({
                         &:last-child::after {
                             display: none;
                         }
+                        :deep(.el-button--text span) {
+                            font-size: 14px;
+                            font-family: PingFangSC-Regular, PingFang SC;
+                            font-weight: 400;
+                            color: #4B71EE;
+                        }
                     }
                 }
                 .arrow {

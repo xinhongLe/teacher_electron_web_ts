@@ -98,22 +98,22 @@ export default defineComponent({
             if (props.action === "upload") {
                 percent.value = 0;
                 timer.value = setInterval(() => {
-                    let step = 50;
+                    let step = 75;
                     switch (item.fileSize.split(" ")[1]) {
                     case "B":
-                        step = 50;
+                        step = 75;
                         break;
                     case "KB":
-                        step = 40;
+                        step = 65;
                         break;
                     case "MB":
-                        step = 30;
+                        step = 55;
                         break;
                     case "GB":
-                        step = 20;
+                        step = 45;
                         break;
                     default:
-                        step = 50;
+                        step = 75;
                     }
                     if (percent.value + random(1, step) < 100) {
                         percent.value += random(1, step);
@@ -122,7 +122,7 @@ export default defineComponent({
                         clearInterval(timer.value);
                         timer.value = null;
                     }
-                }, 1000);
+                }, 500);
             }
         };
         // eslint-disable-next-line @typescript-eslint/no-explicit-any

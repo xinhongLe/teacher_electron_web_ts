@@ -49,7 +49,8 @@ export interface IPreOssFileInfo {
     type: string,
     staffID: string,
     size?: string,
-    fileType?: string
+    fileType?: string,
+    Name?: string
 }
 
 export interface PreparateListBag {

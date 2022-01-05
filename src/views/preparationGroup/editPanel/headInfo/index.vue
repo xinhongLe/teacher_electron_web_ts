@@ -251,7 +251,12 @@ export default defineComponent({
             deep: true
         });
         const deleteFileItem = (fileObj: IOssFileInfo) => {
-            const index = lessonItem.Attachments.findIndex((v) => v.name === fileObj.name);
+            let index = -1;
+            if (fileObj.name) {
+                index = lessonItem.Attachments.findIndex((v) => v.name === fileObj.name);
+            } else if (fileObj.Name) {
+                index = lessonItem.Attachments.findIndex((v) => v.Name === fileObj.Name);
+            }
             lessonItem.Attachments.splice(index, 1);
         };
         onMounted(() => {
