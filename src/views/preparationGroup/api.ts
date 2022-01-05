@@ -1,5 +1,5 @@
 import request from "@/utils/request";
-import { AI_XUE_SHI_API, WINDOW_CRAD_API } from "@/config";
+import { AI_XUE_SHI_API, UPLOAD_CRAD_API } from "@/config";
 import { IResponse, RequestFun } from "@/types/response";
 import {
     FetchPreparateListPageData, FetchPreparateListPageRes, DeletePreLessonData,
@@ -14,7 +14,7 @@ import {
     EditContentData,
     FetchPreparateDetailData, FetchTeacherLessonAndBagByChapterData, GetLastSelectBookData, FetchReflectFilesData, FetchReflectFilesRes, GetLastSelectBookRes, Lesson, Material, QueryMaterialListData, SaveTeacherClassScheduleData, SetLastSelectBookData, UpdateCourseBagTeacherData, UpdateCourseWareListOfTeacherData, UploadSummaryData, UpdateCustomBookLessonData,
     ShareResourceData, GetTeacherClassData, GetSchoolClassData, GetTeacherDataRes, GetSchoolDataRes, addCourseData,
-    InviteeLinkData, InviteeLinkRes, AddInviteeLinkData, AddInviteeLinkRes, MakeInviteeLinkData, MakeInviteeLinkRes
+    InviteeLinkData, InviteeLinkRes, AddInviteeLinkData, AddInviteeLinkRes, MakeInviteeLinkData, MakeInviteeLinkRes, TransformData, TransformRes
 } from "@/types/preparationGroup";
 
 // 查询我的备课列表(分页)
@@ -288,5 +288,17 @@ export function addTeacherByInviteeLink(data: MakeInviteeLinkData): Promise<IRes
         },
         method: "post",
         data
+    });
+}
+
+// json转字符串
+export function jsonToString(data: TransformData): Promise<IResponse<TransformRes>> {
+    return request({
+        baseURL: UPLOAD_CRAD_API,
+        url: `/api/Analysis/PPTToImage?bucketPath=${data.bucketPath}&InDto=${data.file}`,
+        headers: {
+            "Content-Type": "application/json;charset=utf-8"
+        },
+        method: "get"
     });
 }

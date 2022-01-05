@@ -9,7 +9,7 @@
     >
         <el-form ref="formRef" :model="form" :rules="rules" label-position="left">
             <el-form-item label="研讨主题:" :label-width="formLabelWidth" prop="title">
-                <el-input v-model="form.title" placeholder="请输入研讨主题" autocomplete="off"></el-input>
+                <el-input v-model="form.title" placeholder="请输入研讨主题，40个字以内" autocomplete="off" maxlength="40"></el-input>
             </el-form-item>
             <el-form-item label="资源类型:" :label-width="formLabelWidth" prop="resourceType">
                 <el-radio-group v-model="form.resourceType">
@@ -87,7 +87,7 @@ import { get, STORAGE_TYPES } from "@/utils/storage";
 import { UploadFile } from "element-plus/lib/components/upload/src/upload.type";
 import File from "../file/index.vue";
 import useUploadFile from "@/hooks/useUploadFile";
-import { AddDiscussionContent, EditDiscussionContent } from "../api";
+import { AddDiscussionContent, EditDiscussionContent, jsonToString } from "../api";
 import { DiscussioncontentList } from "@/types/preparationGroup";
 export default defineComponent({
     props: {
@@ -133,6 +133,7 @@ export default defineComponent({
                 title: "",
                 resourceType: 1,
                 content: "",
+                coursewareContent: "",
                 planFile: "",
                 attachments: []
             },
@@ -172,6 +173,7 @@ export default defineComponent({
                     state.form.title = props.researchContent.Title;
                     state.form.resourceType = props.researchContent.ResourceType;
                     state.form.content = props.researchContent.Content;
+                    state.form.coursewareContent = props.researchContent.CoursewareContent;
                     state.form.planFile = "1";
                     fileContent.name = props.researchContent.ResourceSource.Name;
                     fileContent.bucket = props.researchContent.ResourceSource.Bucket;
@@ -179,9 +181,9 @@ export default defineComponent({
                     fileContent.fileExtension = props.researchContent.ResourceSource.Extention;
                     fileContent.md5 = props.researchContent.ResourceSource.FileMD5;
                     fileContent.fileName = props.researchContent.ResourceSource.FileName;
-                    fileContent.size = 0;
-                    fileContent.fileSize = "";
-                    // fileContent.fileType = props.researchContent.ResourceSource.Name;
+                    fileContent.size = props.researchContent.ResourceSource.Size;
+                    fileContent.fileSize = getFileSize(props.researchContent.ResourceSource.Size || 0);
+                    fileContent.fileType = getFileType(`${props.researchContent.ResourceSource.Name}.${props.researchContent.ResourceSource.Extention}`);
                     fileList.value = [];
                     props.researchContent.Attachments && props.researchContent.Attachments.map(item => {
                         console.log(item);
@@ -192,7 +194,10 @@ export default defineComponent({
                             md5: item.FileMD5,
                             fileName: item.FileName,
                             fileExtension: item.Extention,
-                            path: item.FilePath
+                            path: item.FilePath,
+                            size: item.Size,
+                            fileSize: getFileSize(item.Size || 0),
+                            fileType: getFileType(`${item.Name}.${item.Extention}`)
                         });
                     });
                     console.log(fileList.value, "fileListfileListfileList");
@@ -235,11 +240,25 @@ export default defineComponent({
                 fileContent.size = file.size;
                 fileContent.fileSize = getFileSize(file.size);
                 fileContent.fileType = getFileType(file.name);
+                state.form.coursewareContent = "";
+                // JSON转字符串
+                const coursewareItem = await jsonToString({
+                    bucketPath: "GroupLessonFile",
+                    file: `${name}.${fileExtension}`
+                });
+                if (coursewareItem && coursewareItem.success) {
+                    state.form.coursewareContent = JSON.stringify(coursewareItem.result);
+                }
+                console.log(coursewareItem);
             }
         };
 
         // 删除教案/课件
         const deleteFile = () => {
+            if (flagType.value === "编辑") {
+                ElMessage.info("暂不支持对教案课件初稿更改，请通过再次上传按钮进行上传操作");
+                return;
+            }
             fileContent.bucket = "";
             fileContent.path = "";
             fileContent.fileExtension = "";
@@ -284,6 +303,7 @@ export default defineComponent({
                             title: state.form.title,
                             resourceType: state.form.resourceType,
                             content: state.form.content,
+                            coursewareContent: state.form.coursewareContent,
                             planFile: {
                                 ...fileContent,
                                 name: fileContent.name,

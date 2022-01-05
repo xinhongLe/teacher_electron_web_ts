@@ -5,7 +5,7 @@
             :key="index"
             class="speech-audio-item"
         >
-            <div class="speech-audio" @click="playAudio(index)">
+            <div class="speech-audio" @click="playAudio(index)" :class="{'audio-red': item.score < 85}">
                 <div
                     class="wifi-symbol"
                     :class="playIndex == index ? 'animation' : ''"
@@ -45,8 +45,6 @@ export default defineComponent({
             }[]
         >([]);
         const speechAudio = ref("");
-        const text = ref("");
-        const speechResultArray = ref([]);
         const cacheSpeechResult = ref<SpeechAssessResult[]>([]);
 
         function dealTime(s: number) {
@@ -61,7 +59,6 @@ export default defineComponent({
         }
 
         const dealSpeechText = () => {
-            console.log("dealSpeechText", props.speechResult);
             playIndex.value = null;
             audioRef.value && audioRef.value.pause();
             audioList.value = [];
@@ -69,18 +66,8 @@ export default defineComponent({
             const speechResult = JSON.parse(
                 JSON.stringify(props.speechResult)
             ).reverse() as SpeechAssessResult[];
-            // if (speechResult.length === 0) {
-            //     return (text.value =
-            //         "<span style=\"color: #f60000\">" +
-            //         props.speechText +
-            //         "</span>");
-            // }
 
-            speechResult.map(async (item, index) => {
-                const result = JSON.parse(
-                    JSON.parse(item.JsonData).Result
-                ).result;
-
+            speechResult.map(async (item) => {
                 const {
                     File: { Extention, FilePath, FileName, Bucket }
                 } = item;
@@ -95,99 +82,6 @@ export default defineComponent({
                     score: item.Overall,
                     url
                 });
-
-                // if (index === speechResult.length - 1) {
-                //     speechResultArray.value = result.details;
-                //     let textString = "";
-                //     // 英文
-                //     if (props.speechText) {
-                //         const textArray = props.speechText.split("\n");
-                //         const newTextArray: string[] = [];
-                //         textArray.map((text) => {
-                //             newTextArray.push(
-                //                 text
-                //                     .split(".")
-                //                     .join(". ")
-                //                     .split(",")
-                //                     .join(", ")
-                //                     .split("!")
-                //                     .join("! ")
-                //                     .split("?")
-                //                     .join("? ")
-                //                     .replace(/\s+/g, " ")
-                //             );
-                //         });
-                //         textString = newTextArray.join("\n");
-                //     }
-
-                //     const backText: string[] = [];
-                //     const startIndex = 0;
-                //     const specialText = textString.split("\n");
-                //     const isSpecial = false;
-                //     // 根据得分规则 将文本进行拆分
-                //     // speechResultArray.value.map((item, i) => {
-                //     //     if (item.score < this.$store.state.app.standard) {
-                //     //         if (typeof item.beginindex !== "undefined") {
-                //     //             const startText = textString.slice(
-                //     //                 startIndex,
-                //     //                 item.beginindex
-                //     //             );
-                //     //             backText.push(startText);
-                //     //             const tartgetText = textString.slice(
-                //     //                 item.beginindex,
-                //     //                 item.endindex + 1
-                //     //             );
-                //     //             backText.push(tartgetText);
-                //     //             startIndex = item.endindex + 1;
-                //     //         } else {
-                //     //             isSpecial = true;
-                //     //             backText.push(specialText[i]);
-                //     //         }
-                //     //     }
-                //     // });
-
-                //     let _text = "";
-                //     if (isSpecial) {
-                //         specialText.map((item) => {
-                //             if (backText.indexOf(item) > -1) {
-                //                 _text =
-                //                     _text +
-                //                     "<span style=\"color: #f60000\">" +
-                //                     item +
-                //                     "</span>";
-                //             } else {
-                //                 _text = _text + item;
-                //             }
-                //         });
-                //     } else {
-                //         // 存在尾部文本
-                //         if (startIndex < textString.length && !isSpecial) {
-                //             const endText = textString.slice(
-                //                 startIndex,
-                //                 textString.length
-                //             );
-                //             if (endText) backText.push(endText);
-                //         }
-                //         // 对拆分文本进行组合
-                //         backText.map((item, index) => {
-                //             if (index % 2 !== 0) {
-                //                 _text =
-                //                     _text +
-                //                     "<span style=\"color: #f60000\">" +
-                //                     item +
-                //                     "</span>";
-                //             } else {
-                //                 // 存在换行符
-                //                 if (item.indexOf("\n") > -1) {
-                //                     _text = _text + item.replace("\n", "<br />");
-                //                 } else {
-                //                     _text = _text + item;
-                //                 }
-                //             }
-                //         });
-                //     }
-                //     text.value = _text;
-                // }
             });
         };
 
@@ -211,9 +105,6 @@ export default defineComponent({
                 audioRef.value!.play();
             }, 200);
         };
-
-        // watchEffect(dealSpeechText);
-
         watch(
             () => props.speechResult,
             (val) => {
@@ -226,8 +117,6 @@ export default defineComponent({
                 }
             }
         );
-
-        // watch(() => props.speechText, dealSpeechText);
 
         dealSpeechText();
         return {
@@ -260,15 +149,14 @@ export default defineComponent({
         .speech-audio {
             position: relative;
             height: 50px;
-            background-color: #65f769;
+            background-color: #34E1B6;
             border-radius: 10px;
             display: flex;
             align-items: center;
             cursor: pointer;
-        }
-
-        .speech-audio.audio-red {
-            background-color: #f60000;
+            &.audio-red {
+                background-color: #FF6B6B;
+            }
         }
 
         .audio-time {
@@ -282,14 +170,14 @@ export default defineComponent({
             content: "";
             display: block;
             border: 10px solid;
-            border-color: #65f769 transparent transparent #65f769;
+            border-color: #34E1B6 transparent transparent #34E1B6;
             position: absolute;
             bottom: -10px;
             left: 10px;
         }
 
         .speech-audio.audio-red:before {
-            border-color: #f60000 transparent transparent #f60000;
+            border-color: #FF6B6B transparent transparent #FF6B6B;
         }
 
         .wifi-symbol {

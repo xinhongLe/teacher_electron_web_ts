@@ -31,7 +31,6 @@ export default defineComponent({
         }
     },
     setup(props) {
-        console.log(props.isBrush);
         const canvasRef = ref<HTMLCanvasElement>();
         const boxRef = ref<HTMLDivElement>();
         const painting = ref(false);

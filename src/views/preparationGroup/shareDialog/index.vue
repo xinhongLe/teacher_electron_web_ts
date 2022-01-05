@@ -296,6 +296,7 @@ export default defineComponent({
 
         const resetShareParams = () => {
             const dynamicTagsSession = sessionStorage.getItem("memberList") ? JSON.parse(sessionStorage.getItem("memberList") || "") : [];
+            state.ruleForm.courseContent = "";
             state.searchString = "";
             state.selectOption = "";
             state.selectOptionID = "";

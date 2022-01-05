@@ -1,15 +1,15 @@
 <template>
     <div class="preparation-file" :title="fileInfo.fileName">
         <div class="file-type-box" @click="preView">
-            <img class="file-type" v-if="fileInfo.fileType === 'word'" src="../../../assets/preparationGroup/editPanel/icon_word.png" />
-            <img class="file-type" v-else-if="fileInfo.fileType === 'excel'" src="../../../assets/preparationGroup/editPanel/icon_excel.png" />
-            <img class="file-type" v-else-if="fileInfo.fileType === 'ppt'" src="../../../assets/preparationGroup/editPanel/icon_ppt.png" />
-            <img class="file-type" v-else-if="fileInfo.fileType === 'pdf'" src="../../../assets/preparationGroup/editPanel/icon_pdf.png" />
-            <img class="file-type" v-else-if="fileInfo.fileType === 'txt'" src="../../../assets/preparationGroup/editPanel/icon_txt.png" />
-            <img class="file-type" v-else-if="fileInfo.fileType === 'video'" src="../../../assets/preparationGroup/editPanel/icon_video.png" />
-            <img class="file-type" v-else-if="fileInfo.fileType === 'radio'" src="../../../assets/preparationGroup/editPanel/icon_radio.png" />
-            <img class="file-type" v-else-if="fileInfo.fileType === 'image'" src="../../../assets/preparationGroup/editPanel/icon_image.png" />
-            <img class="file-type" v-else-if="fileInfo.fileType === 'zip'" src="../../../assets/preparationGroup/editPanel/icon_zip.png" />
+            <img class="file-type" v-if="switchFileType(fileInfo, 'word')" src="../../../assets/preparationGroup/editPanel/icon_word.png" />
+            <img class="file-type" v-else-if="switchFileType(fileInfo, 'excel')" src="../../../assets/preparationGroup/editPanel/icon_excel.png" />
+            <img class="file-type" v-else-if="switchFileType(fileInfo, 'ppt')" src="../../../assets/preparationGroup/editPanel/icon_ppt.png" />
+            <img class="file-type" v-else-if="switchFileType(fileInfo, 'pdf')" src="../../../assets/preparationGroup/editPanel/icon_pdf.png" />
+            <img class="file-type" v-else-if="switchFileType(fileInfo, 'txt')" src="../../../assets/preparationGroup/editPanel/icon_txt.png" />
+            <img class="file-type" v-else-if="switchFileType(fileInfo, 'video')" src="../../../assets/preparationGroup/editPanel/icon_video.png" />
+            <img class="file-type" v-else-if="switchFileType(fileInfo, 'radio')" src="../../../assets/preparationGroup/editPanel/icon_radio.png" />
+            <img class="file-type" v-else-if="switchFileType(fileInfo, 'image')" src="../../../assets/preparationGroup/editPanel/icon_image.png" />
+            <img class="file-type" v-else-if="switchFileType(fileInfo, 'zip')" src="../../../assets/preparationGroup/editPanel/icon_zip.png" />
             <img class="file-type" v-else src="../../../assets/preparationGroup/editPanel/icon_other.png" />
         </div>
         <div class="file-info">
@@ -21,7 +21,7 @@
                 :style="{ width: percent + '%' }"
               ></div>
             </div>
-            <p class="file-size" v-else>{{`${fileInfo.fileSize || '0 KB'}`}}</p>
+            <p class="file-size" v-else>{{`${fileInfo.fileSize || getFileSize(fileInfo.Size || 0) || '0 KB'}`}}</p>
         </div>
         <img v-if="action === 'download'" class="file-download" src="../../../assets/preparationGroup/editPanel/download.png" @click="download" />
         <img v-else-if="action === 'upload'" class="file-download" src="../../../assets/preparationGroup/editPanel/close.png" @click="close" />
@@ -31,6 +31,7 @@
 <script lang="ts">
 import { defineComponent, ref, onMounted, onBeforeUnmount } from "vue";
 import { downloadFile } from "@/utils/oss";
+import useUploadFile from "@/hooks/useUploadFile";
 import isElectron from "is-electron";
 export default defineComponent({
     name: "card",
@@ -50,6 +51,7 @@ export default defineComponent({
         console.log(emit);
         const timer = ref();
         const percent = ref(100);
+        console.log("fileInfo", props.fileInfo);
 
         const preView = async () => {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -80,6 +82,9 @@ export default defineComponent({
             const a = document.createElement("a");
             a.setAttribute("href", url);
             a.click();
+            if (window && window.top) {
+                window.top.postMessage({ url, download: true }, "*");
+            }
         };
         const close = () => {
             emit("close", props.fileInfo);
@@ -96,22 +101,22 @@ export default defineComponent({
             if (props.action === "upload") {
                 percent.value = 0;
                 timer.value = setInterval(() => {
-                    let step = 50;
+                    let step = 75;
                     switch (item.fileSize.split(" ")[1]) {
                     case "B":
-                        step = 50;
+                        step = 75;
                         break;
                     case "KB":
-                        step = 40;
+                        step = 65;
                         break;
                     case "MB":
-                        step = 30;
+                        step = 55;
                         break;
                     case "GB":
-                        step = 20;
+                        step = 45;
                         break;
                     default:
-                        step = 50;
+                        step = 75;
                     }
                     if (percent.value + random(1, step) < 100) {
                         percent.value += random(1, step);
@@ -120,14 +125,25 @@ export default defineComponent({
                         clearInterval(timer.value);
                         timer.value = null;
                     }
-                    console.log(percent.value);
-                }, 1500);
+                }, 500);
             }
         };
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const switchFileType = (fileInfo: any, ext: string) => {
+            if (fileInfo) {
+                if (fileInfo.fileType) {
+                    return fileInfo.fileType === ext;
+                } else {
+                    return getFileType(`${fileInfo.fileName || fileInfo.FileName}.${fileInfo.fileExtension || fileInfo.extention || fileInfo.Extention}`) === ext;
+                }
+            }
+        };
+        const { getFileSize, getFileType } = useUploadFile("GroupLessonFile");
         onMounted(() => {
             intervalTimer();
         });
         onBeforeUnmount(() => {
+            percent.value = 100;
             clearInterval(timer.value);
             timer.value = null;
         });
@@ -135,7 +151,10 @@ export default defineComponent({
             percent,
             preView,
             download,
-            close
+            close,
+            getFileSize,
+            getFileType,
+            switchFileType
         };
     },
     components: { }

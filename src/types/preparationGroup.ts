@@ -37,19 +37,26 @@ export interface IPreOssFileInfo {
     id?: string,
     sn?: string,
     bucket: string,
+    Bucket?: string,
     objectKey: string,
+    ObjectKey?: string,
     name: string,
     md5: string,
     fileName: string,
+    FileName?: string,
     fileExtension: string,
     path?: string,
     filePath: string,
     extention: string,
+    Extention?: string,
     fileMD5: string,
+    FileMD5?: string,
     type: string,
     staffID: string,
     size?: string,
-    fileType?: string
+    Size?: string,
+    fileType?: string,
+    Name?: string
 }
 
 export interface PreparateListBag {
@@ -83,11 +90,14 @@ export interface Fileginseng {
     Name: string;
     SN: number;
     Type: number;
+    Size?: number;
+    FileSize?: string;
 }
 
 export interface DiscussioncontentList {
     Attachments: Fileginseng[];
     Content: string;
+    CoursewareContent: string;
     CreateTime: string;
     CreaterID: string;
     CreaterName: string;
@@ -282,6 +292,7 @@ export interface discussionContent {
     title: string;
     resourceType: number;
     content: string;
+    coursewareContent: string;
     planFile: FileData;
     attachments: FileData[]
 }
@@ -513,4 +524,12 @@ export interface MakeInviteeLinkData {
 }
 export interface MakeInviteeLinkRes {
     ID: string
+}
+export interface TransformData {
+    bucketPath: string,
+    file: string
+}
+export interface TransformRes {
+    jsonText: string,
+    pageRemark: string
 }
