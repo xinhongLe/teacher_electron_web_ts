@@ -9,7 +9,7 @@
     >
         <el-form ref="formRef" :model="form" :rules="rules" label-position="left">
             <el-form-item label="研讨主题:" :label-width="formLabelWidth" prop="title">
-                <el-input v-model="form.title" placeholder="请输入研讨主题" autocomplete="off"></el-input>
+                <el-input v-model="form.title" placeholder="请输入研讨主题，40个字以内" autocomplete="off" maxlength="40"></el-input>
             </el-form-item>
             <el-form-item label="资源类型:" :label-width="formLabelWidth" prop="resourceType">
                 <el-radio-group v-model="form.resourceType">
