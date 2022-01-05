@@ -91,7 +91,7 @@
                             </span>
                         </div>
                         <div class="title-right">
-                            <div class="btn">
+                            <div class="btn" @click="turnToAnnotation">
                                 <img src="../../../../assets/preparationGroup/editPanel/plus.png" alt="">
                                 <span>添加批注</span>
                             </div>
@@ -175,6 +175,7 @@ import { ElMessage } from "element-plus";
 import { IOssFileInfo } from "@/types/oss";
 import File from "../../file/index.vue";
 import FileSmall from "../../file/small.vue";
+import { useRouter } from "vue-router";
 import moment from "moment";
 import { DiscussioncontentList, Fileginseng } from "@/types/preparationGroup";
 import { openFile, downLoad } from "@/utils";
@@ -201,6 +202,7 @@ export default defineComponent({
     setup(props, { emit }) {
         const filesrc = ref("");
         const dialogVisible = ref(false);
+        const router = useRouter();
         const state = reactive({
             memoPanelStatus: false,
             isShowMore: false,
@@ -376,6 +378,10 @@ export default defineComponent({
             });
         };
 
+        const turnToAnnotation = () => {
+            router.push(`/annotation/${props.content.DiscussionContentID}`);
+        };
+
         onMounted(() => {
             resizeTextarea();
         });
@@ -394,6 +400,7 @@ export default defineComponent({
             EditSuccessHandle,
             uploadFileSuccess,
             againUpload,
+            turnToAnnotation,
             moment
         };
     },
