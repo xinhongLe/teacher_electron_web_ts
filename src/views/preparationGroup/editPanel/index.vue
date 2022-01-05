@@ -67,6 +67,7 @@ export default defineComponent({
         });
         onBeforeUnmount(() => {
             proxy.mittBus.off("watchStatus");
+            proxy.mittBus.off("PreDetail");
         });
         return {
             ...toRefs(state),

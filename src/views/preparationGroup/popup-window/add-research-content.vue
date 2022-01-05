@@ -200,7 +200,6 @@ export default defineComponent({
                             fileType: getFileType(`${item.Name}.${item.Extention}`)
                         });
                     });
-                    console.log(fileList.value, "fileListfileListfileList");
                 }
             }
         });
@@ -242,14 +241,15 @@ export default defineComponent({
                 fileContent.fileType = getFileType(file.name);
                 state.form.coursewareContent = "";
                 // JSON转字符串
-                const coursewareItem = await jsonToString({
-                    bucketPath: "GroupLessonFile",
-                    file: `${name}.${fileExtension}`
-                });
-                if (coursewareItem && coursewareItem.success) {
-                    state.form.coursewareContent = JSON.stringify(coursewareItem.result);
+                if (fileContent.fileType === "ppt") {
+                    const coursewareItem = await jsonToString({
+                        bucketPath: "GroupLessonFile",
+                        file: `${name}.${fileExtension}`
+                    });
+                    if (coursewareItem && coursewareItem.success) {
+                        state.form.coursewareContent = JSON.stringify(coursewareItem.result);
+                    }
                 }
-                console.log(coursewareItem);
             }
         };
 
@@ -274,19 +274,24 @@ export default defineComponent({
 
         // 上传附件
         const uploadSuccess = async ({ file }: {file: UploadFile & Blob;}) => {
-            await uploadFile({ file });
-            fileList.value.push({
-                ...fileInfo
-                // extention: fileInfo.fileExtension,
-                // name: fileInfo.name,
-                // fileName: fileInfo.fileName,
-                // bucket: fileInfo.bucket,
-                // fileMD5: fileInfo.md5,
-                // filePath: fileInfo.path!,
-                // size: fileInfo.size!,
-                // fileSize: fileInfo.fileSize!,
-                // fileType: fileInfo.fileType!
-            });
+            console.log("fileList", fileList.value);
+            if (fileList.value.length < 9) {
+                await uploadFile({ file });
+                fileList.value.push({
+                    ...fileInfo
+                    // extention: fileInfo.fileExtension,
+                    // name: fileInfo.name,
+                    // fileName: fileInfo.fileName,
+                    // bucket: fileInfo.bucket,
+                    // fileMD5: fileInfo.md5,
+                    // filePath: fileInfo.path!,
+                    // size: fileInfo.size!,
+                    // fileSize: fileInfo.fileSize!,
+                    // fileType: fileInfo.fileType!
+                });
+            } else {
+                ElMessage.info("最多上传9个素材");
+            }
         };
 
         // 删除附件

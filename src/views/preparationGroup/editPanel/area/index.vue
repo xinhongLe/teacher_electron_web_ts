@@ -14,7 +14,7 @@
                     <span class="title">{{content.Title}}</span>
                     <span :class="`title-status title-status-${content.ResourceType}`">{{content.ResourceType === 1 ? '教案设计' : '课件设计'}}</span>
                 </div>
-                <div class="edit-btn" @click="EditResearch(content)">
+                <div class="edit-btn" @click="EditResearch(content)" v-if="isHasRule">
                     <img src="../../../../assets/preparationGroup/editPanel/edit.png" alt="">
                     <span>编辑</span>
                 </div>
@@ -170,7 +170,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, toRefs, ref, onMounted, nextTick } from "vue";
+import { defineComponent, reactive, toRefs, ref, onMounted, nextTick, getCurrentInstance } from "vue";
 import { ElMessage } from "element-plus";
 import { IOssFileInfo } from "@/types/oss";
 import File from "../../file/index.vue";
@@ -201,8 +201,11 @@ export default defineComponent({
         }
     },
     setup(props, { emit }) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { proxy } = getCurrentInstance() as any;
         const filesrc = ref("");
         const dialogVisible = ref(false);
+        const isHasRule = ref(props.content.CreaterID === get(STORAGE_TYPES.USER_INFO).ID);
         const router = useRouter();
         const state = reactive({
             memoPanelStatus: false,
@@ -424,6 +427,7 @@ export default defineComponent({
             contentFiles,
             wordFiles,
             dialogVisible,
+            isHasRule,
             researchContent,
             ...toRefs(state),
             submit,

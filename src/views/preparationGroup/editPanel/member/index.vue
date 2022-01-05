@@ -2,7 +2,7 @@
     <div class="member">
         <div class="member-head">
             <div class="title">小组成员<span>({{ memberList.length }})</span></div>
-            <div class="btn-edit" @click="manage">
+            <div class="btn-edit" @click="manage" v-if="isHasRule">
                 <img src="../../../../assets/preparationGroup/editPanel/icon_guanli.png" alt="" />
                 <span>管理</span>
             </div>
@@ -29,13 +29,10 @@ import { useRoute } from "vue-router";
 import { fetchGroupLessonTeachers } from "../../api";
 import { FetchGroupLessonTeachersRes } from "@/types/preparationGroup";
 import ShareDetail from "../../shareDialog/index.vue";
+import { get, STORAGE_TYPES } from "@/utils/storage";
 export default defineComponent({
     name: "member",
-    props: {
-        reload: {
-            type: Function
-        }
-    },
+    props: {},
     setup(props, { emit }) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { proxy } = getCurrentInstance() as any;
@@ -45,6 +42,7 @@ export default defineComponent({
         const memberList = ref<FetchGroupLessonTeachersRes[]>([]);
         const isShowMore = ref(false);
         const isFull = ref(false);
+        const isHasRule = ref(false);
 
         const ShareDialogRef = ref();
         const manage = () => {
@@ -81,6 +79,9 @@ export default defineComponent({
         };
 
         onMounted(() => {
+            proxy.mittBus.on("PreDetail", (preDetail: any) => {
+                isHasRule.value = preDetail.CreaterID === get(STORAGE_TYPES.USER_INFO).ID;
+            });
             getTeacherGroup();
         });
         return {
@@ -88,6 +89,7 @@ export default defineComponent({
             ShareDialogRef,
             isShowMore,
             isFull,
+            isHasRule,
             memberList,
             getTeacherGroup,
             submit

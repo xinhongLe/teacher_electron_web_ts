@@ -8,7 +8,7 @@
                 :http-request="uploadFile"
                 accept="doc, docx"
             >
-                <el-button icon="el-icon-document" style="background-color:#48DBBF;color:#fff;">上传文档</el-button>
+                <el-button icon="el-icon-document" style="background-color:#48DBBF;color:#fff;" v-if="isHasRule">上传文档</el-button>
             </el-upload>
         </div>
         <div v-if="tableData && tableData.length > 0">
@@ -48,18 +48,20 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, toRefs, reactive, onMounted, nextTick, watch, getCurrentInstance } from "vue";
+import { defineComponent, ref, toRefs, reactive, onMounted, nextTick, watch, getCurrentInstance } from "vue";
 import { useRoute } from "vue-router";
 import useUploadFile from "@/hooks/useUploadFile";
 import Empty from "../../empty/index.vue";
 import { ElMessage } from "element-plus";
 import moment from "moment";
 import { uploadSummary, fetchReflectFiles } from "../../api";
+import { get, STORAGE_TYPES } from "@/utils/storage";
 export default defineComponent({
     setup() {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { proxy } = getCurrentInstance() as any;
         const route = useRoute();
+        const isHasRule = ref(false);
         const state = reactive({
             tableData: [],
             autoHeight: 500
@@ -130,6 +132,9 @@ export default defineComponent({
             deep: true
         });
         onMounted(() => {
+            proxy.mittBus.on("PreDetail", (preDetail: any) => {
+                isHasRule.value = preDetail.CreaterID === get(STORAGE_TYPES.USER_INFO).ID;
+            });
             getTableList();
         });
         return {
@@ -141,6 +146,7 @@ export default defineComponent({
             getTableList,
             loadingShow,
             fileInfo,
+            isHasRule,
             uploadFile,
             resetFileInfo,
             getFileType

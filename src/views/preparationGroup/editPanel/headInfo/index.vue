@@ -102,6 +102,7 @@ import useUploadFile from "@/hooks/useUploadFile";
 import moment from "moment";
 import useSubmit from "../useSubmit";
 import File from "../../file/index.vue";
+import { emit } from "process";
 export default defineComponent({
     name: "head-info",
     props: {
@@ -115,7 +116,7 @@ export default defineComponent({
             }
         }
     },
-    setup() {
+    setup(props, { emit }) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { proxy } = getCurrentInstance() as any;
         const route = useRoute();
@@ -142,7 +143,7 @@ export default defineComponent({
                 id: route.params.preId as string
             });
             if (res.resultCode === 200) {
-                const { Attachments, CanEdit, CreateTime, CreaterName, PreTitle, Status, TeacherCount = 0, LessonRange, LessonContent = "" } = res.result;
+                const { Attachments, CanEdit, CreateTime, CreaterID, CreaterName, PreTitle, Status, TeacherCount = 0, LessonRange, LessonContent = "" } = res.result;
                 lessonItem.Attachments = [];
                 if (Attachments && Attachments.length > 0) {
                     Attachments.map((v: any) => {
@@ -157,6 +158,7 @@ export default defineComponent({
                 }
                 lessonItem.CanEdit = CanEdit;
                 lessonItem.CreateTime = moment(CreateTime).format("YYYY-MM-DD HH:mm:ss");
+                lessonItem.CreaterID = CreaterID;
                 lessonItem.CreaterName = CreaterName;
                 lessonItem.PreTitle = PreTitle;
                 lessonItem.Status = Status;
@@ -191,6 +193,7 @@ export default defineComponent({
                 }
                 lessonItem.LessonContent = LessonContent;
                 isEdit.value = false;
+                proxy.mittBus.emit("PreDetail", lessonItem);
                 nextTick(() => {
                     const specialContent = document.querySelectorAll(".special-content");
                     const windowContent = document.documentElement.clientWidth;
