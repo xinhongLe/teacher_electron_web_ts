@@ -5,6 +5,7 @@
         <LookQuestion v-if="isShowQuestion"/>
         <LookVideo v-if="isShowVideo"/>
         <Projection/>
+        <VideoProjection/>
         <div class="main-body">
             <router-view v-slot="{Component}">
                 <keep-alive :exclude="keepExcludeArr">
@@ -30,6 +31,7 @@ import LookQuestion from "./lookQuestion/index.vue";
 import { store } from "@/store";
 import LookVideo from "./lookVideo/index.vue";
 import Projection from "./projection/index.vue";
+import VideoProjection from "./videoProjection/index.vue";
 
 export default defineComponent({
     components: {
@@ -37,7 +39,8 @@ export default defineComponent({
         Suspension,
         LookQuestion,
         LookVideo,
-        Projection
+        Projection,
+        VideoProjection
     },
     setup() {
         const route = useRoute();

@@ -54,6 +54,17 @@ module.exports = {
     },
     configureWebpack: {
         devtool: "source-map",
+        module: {
+            rules: [
+                {
+                    test: /\.node$/,
+                    loader: "native-ext-loader",
+                    options: {
+                        rewritePath: process.env.NODE_ENV === "production" ? process.platform === "win32" ? "./resources" : "../Resources" : "./node_modules/trtc-electron-sdk/build/Release" // 打包腾讯实时音视频sdk
+                    }
+                }
+            ]
+        },
         plugins: [
             /**
              * 查看包大小
@@ -116,6 +127,7 @@ module.exports = {
                 appId: "com.leyixue.teacher",
                 productName: "爱学仕校园教师端", // 项目名
                 copyright: "Copyright © 2021", // 版权信息
+                artifactName: "${productName}-${version}.${ext}",
                 directories: {
                     output: "./dist_electron" // 输出文件路径
                 },
@@ -165,12 +177,29 @@ module.exports = {
                                 "ia32" // 32位
                             ]
                         }
+                    ],
+                    extraFiles: [
+                        {
+                            from: "node_modules/trtc-electron-sdk/build/Release/",
+                            to: "./resources",
+                            filter: ["**/*"]
+                        }
                     ]
                 },
                 mac: {
                     icon: "./public/icon.icns",
-                    target: ["dmg", "zip"]
-                }
+                    target: ["dmg", "zip"],
+                    extraFiles: [
+                        {
+                            from: "node_modules/trtc-electron-sdk/build/Release/",
+                            to: "./resources",
+                            filter: ["**/*"]
+                        }
+                    ]
+                },
+                extraFiles: [
+                    "node_modules/trtc-electron-sdk/build/Release/trtc_electron_sdk.node"
+                ]
             },
             externals: ["clipboard", "@microsoft/signalr"]
         }
