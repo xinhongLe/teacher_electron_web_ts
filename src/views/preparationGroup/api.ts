@@ -1,5 +1,5 @@
 import request from "@/utils/request";
-import { AI_XUE_SHI_API, WINDOW_CRAD_API } from "@/config";
+import { AI_XUE_SHI_API, UPLOAD_CRAD_API } from "@/config";
 import { IResponse, RequestFun } from "@/types/response";
 import {
     FetchPreparateListPageData, FetchPreparateListPageRes, DeletePreLessonData,
@@ -294,12 +294,11 @@ export function addTeacherByInviteeLink(data: MakeInviteeLinkData): Promise<IRes
 // json转字符串
 export function jsonToString(data: TransformData): Promise<IResponse<TransformRes>> {
     return request({
-        baseURL: AI_XUE_SHI_API,
-        url: `https://apitest.aixueshi.top:5026/api/Analysis/PPTToImage?bucketPath=${data.bucketPath}&InDto=${data.file}`,
+        baseURL: UPLOAD_CRAD_API,
+        url: `/api/Analysis/PPTToImage?bucketPath=${data.bucketPath}&InDto=${data.file}`,
         headers: {
-            "Content-Type": "application/json-patch+json"
+            "Content-Type": "application/json;charset=utf-8"
         },
-        method: "get",
-        data
+        method: "get"
     });
 }

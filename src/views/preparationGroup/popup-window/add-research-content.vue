@@ -247,7 +247,7 @@ export default defineComponent({
                     file: `${name}.${fileExtension}`
                 });
                 if (coursewareItem && coursewareItem.success) {
-                    state.form.coursewareContent = coursewareItem.result.toString();
+                    state.form.coursewareContent = JSON.stringify(coursewareItem.result);
                 }
                 console.log(coursewareItem);
             }
@@ -255,6 +255,10 @@ export default defineComponent({
 
         // 删除教案/课件
         const deleteFile = () => {
+            if (flagType.value === "编辑") {
+                ElMessage.info("暂不支持对教案课件初稿更改，请通过再次上传按钮进行上传操作");
+                return;
+            }
             fileContent.bucket = "";
             fileContent.path = "";
             fileContent.fileExtension = "";

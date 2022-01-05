@@ -2,6 +2,8 @@
 // export const WINDOW_CRAD_API = process.env.VUE_APP_AI_XUE_SHI_API;
 export const AI_XUE_SHI_API = "https://api.aixueshi.top:5003";
 export const WINDOW_CRAD_API = "https://api.aixueshi.top:5003";
+// 集体备课文件转json
+export const UPLOAD_CRAD_API = "https://apitest.aixueshi.top:5026";
 // 注册学生模板下载地址
 export const ADD_STUDENT_TEMPLATE = "https://wechat.aixueshi.top/学生信息表2.2.xlsx";
 
