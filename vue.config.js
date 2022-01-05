@@ -192,7 +192,7 @@ module.exports = {
                     extraFiles: [
                         {
                             from: "node_modules/trtc-electron-sdk/build/Release/",
-                            to: "./resources",
+                            to: "./Resources",
                             filter: ["**/*"]
                         }
                     ]
