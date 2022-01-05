@@ -38,8 +38,8 @@
 <script>
 import useHome from "@/hooks/useHome";
 import { defineComponent, ref, watch } from "vue-demi";
-import { ElMessage } from "element-plus";
-import { getWinCardDBData } from "@/utils/database";
+import { getPPtPageDetail, GetAnnotation } from "../api";
+import { dealOldData } from "@/utils/dataParse";
 import Tagging from "./tagging.vue";
 export default defineComponent({
     props: ["pageListOption"],
@@ -54,11 +54,7 @@ export default defineComponent({
         const switchFlag = ref(false);
         const taggingRef = ref();
         const pageID = ref("");
-        const annotationList = ref([
-            { text: "222", left: 640, top: 340 },
-            { text: "111", left: 60, top: 340 }
-        ]);
-        const { transformType, getPageDetail } = useHome();
+        const annotationList = ref([]);
         watch(
             () => props.pageListOption,
             () => {
@@ -86,9 +82,8 @@ export default defineComponent({
                 selected.value++;
                 isInit.value = true;
                 getDataBase(pageList.value[selected.value].ID, pageList.value[selected.value]);
+                _getAnnotation();
                 emit("updatePageID", pageList.value[selected.value].ID);
-                annotationList.value = [];
-                emit("updateAnotationList", annotationList.value);
             }
         };
         // 上一步
@@ -97,11 +92,11 @@ export default defineComponent({
                 selected.value--;
                 isInit.value = false;
                 getDataBase(pageList.value[selected.value].ID, pageList.value[selected.value]);
+                _getAnnotation();
                 emit("updatePageID", pageList.value[selected.value].ID);
                 return;
             }
             if (selected.value === 0) {
-                console.log("上一页");
                 isInit.value = false;
                 switchFlag.value = true;
                 emit("firstPage");
@@ -120,30 +115,24 @@ export default defineComponent({
                 isInit.value = false;
                 getDataBase(pageList.value[selected.value].ID, pageList.value[selected.value]);
                 emit("updatePageID", pageList.value[selected.value].ID);
+                _getAnnotation();
             } else {
                 screenViewPage.value = {};
             }
         };
         const getDataBase = async(str, obj) => {
-            if (transformType(obj.Type) === -1) {
-                ElMessage({ type: "warning", message: "暂不支持该页面类型" });
-                screenViewPage.value = {};
-                return false;
-            }
-            const dbResArr = await getWinCardDBData(str);
-            if (dbResArr.length > 0) {
-                screenViewPage.value = JSON.parse(dbResArr[0].result);
-            } else {
-                await getPageDetail(obj, obj.originType, (res) => {
-                    if (res && res.id) {
-                        screenViewPage.value = res;
-                    }
-                });
+            const res = await getPPtPageDetail({ id: str });
+            if (res.resultCode === 200) {
+                console.log(res);
+                screenViewPage.value = await dealOldData(str, obj.originType, JSON.parse(res.result.Json));
+                console.log(screenViewPage.value);
             }
         };
         const selectPage = (index, item) => {
+            console.log(item, "item");
             selected.value = index;
             getDataBase(pageList.value[index].ID, pageList.value[index]);
+            _getAnnotation();
             emit("updatePageID", item.ID);
         };
         const addElement = () => {
@@ -153,8 +142,16 @@ export default defineComponent({
         const showAnnotation = (boolean) => {
             emit("showAnnotation", boolean);
         };
-        const _getAnnotation = () => {
-            console.log("_getAnnotation");
+        const _getAnnotation = async () => {
+            const obj = {
+                pageID: pageList.value[selected.value].ID
+            };
+            const res = await GetAnnotation(obj);
+            if (res.resultCode === 200) {
+                console.log(res);
+                annotationList.value = res.result;
+                emit("updateAnotationList", annotationList.value);
+            }
         };
         return {
             annotationList,

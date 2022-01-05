@@ -7,7 +7,7 @@
                     :class="activeIndex === index ? 'elements activeElements' : 'elements'"
                     :id="`element`+index" v-for="(item,index) in elementList"
                     :key="index"
-                    :style="{left: item.left + 'px', top: item.top+ 'px'}"
+                    :style="{left: item.PointX + 'px', top: item.PointY+ 'px'}"
                 >
                     <span>{{index + 1}}</span>
                 </div>
@@ -18,6 +18,7 @@
 
 <script>
 import { nextTick } from "process";
+import { EditAnnotation } from "../api";
 import { defineComponent, onMounted, ref, getCurrentInstance, onBeforeUnmount, reactive, toRefs } from "vue-demi";
 export default defineComponent({
     setup(props, { emit }) {
@@ -27,10 +28,6 @@ export default defineComponent({
             x: 0,
             y: 0
         };
-        const style = reactive({
-            left: 0,
-            top: 0
-        });
         const scale = ref(null);
         onMounted(() => {
             window.addEventListener("resize", onRize);
@@ -69,26 +66,61 @@ export default defineComponent({
         };
         let move = false;
         const activeIndex = ref(null);
+        const lastMove = ref();
         const clickElement = (event, item, index) => {
+            console.log(item, "item");
             activeIndex.value = index;
+            const taggingComponents = document.querySelector(".tagging-center-main");
+            console.log(taggingComponents.offsetWidth);
             proxy.mittBus.emit("annotationActionID", activeIndex.value);
             dragePosition.x = event.clientX;
             dragePosition.y = event.clientY;
             move = true;
             document.addEventListener("mousemove", (e) => {
                 if (move) {
+                    lastMove.value = new Date().getTime();
                     const x = dragePosition.x - e.clientX;
                     const y = dragePosition.y - e.clientY;
                     dragePosition.x = e.clientX;
                     dragePosition.y = e.clientY;
-                    allData.elementList[activeIndex.value].left = allData.elementList[activeIndex.value].left - x / scale.value;
-                    allData.elementList[activeIndex.value].top = allData.elementList[activeIndex.value].top - y / scale.value;
+                    /**
+                     *防止超出范围
+                     */
+                    if (allData.elementList[activeIndex.value].PointX - x / scale.value < 0) allData.elementList[activeIndex.value].PointX = 0;
+                    if (allData.elementList[activeIndex.value].PointY - y / scale.value < 0) allData.elementList[activeIndex.value].PointY = 0;
+                    if (allData.elementList[activeIndex.value].PointX - x / scale.value > taggingComponents.offsetWidth) allData.elementList[activeIndex.value].PointX = taggingComponents.offsetWidth;
+                    if (allData.elementList[activeIndex.value].PointY - y / scale.value > taggingComponents.offsetHeight) allData.elementList[activeIndex.value].PointY = taggingComponents.offsetHeight;
+                    allData.elementList[activeIndex.value].PointX = allData.elementList[activeIndex.value].PointX - x / scale.value;
+                    allData.elementList[activeIndex.value].PointY = allData.elementList[activeIndex.value].PointY - y / scale.value;
                 }
             });
             document.addEventListener("mouseup", () => {
                 move = false;
             });
+            const isMove = setInterval(() => {
+                const now = new Date().getTime();
+                console.log(now, lastMove.value);
+                if (!lastMove.value) {
+                    clearInterval(isMove);
+                    return false;
+                }
+                if (now - lastMove.value > 3000) {
+                    console.log("没有动了");
+                    lastMove.value = undefined;
+                    if (!allData.elementList[activeIndex.value].ID) {
+                        return false;
+                    }
+                    const obj = {
+                        annotationID: allData.elementList[activeIndex.value].ID,
+                        pointX: allData.elementList[activeIndex.value].PointX,
+                        pointY: allData.elementList[activeIndex.value].PointY,
+                        content: allData.elementList[activeIndex.value].Content
+                    };
+                    EditAnnotation(obj);
+                }
+            }, 1000);
         };
+        // 监听鼠标三秒之内没有动过
         const showAnnotaiton = (e) => {
             let annotationSwitch = false;
             if (e.toElement.className === "tagging-center-main") {
@@ -100,7 +132,6 @@ export default defineComponent({
         };
         return {
             ...toRefs(allData),
-            style,
             activeIndex,
             clickElement,
             showAnnotaiton

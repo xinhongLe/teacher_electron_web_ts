@@ -40,6 +40,7 @@
             </div>
             <div class="annotation-main-right" v-show="annotationFlag">
                 <AnnotationList
+                    ref="AnnotationListRef"
                     @addElement="addElement"
                     :AnotationList="AnotationList"
                     :cardID="cardID"
@@ -66,14 +67,15 @@ import AnnotationList from "./components/annotation-list.vue";
 export default defineComponent({
     components: { CardList, PageList, AnnotationList },
     setup() {
-        const WindowID = "3A0015526B08B24B97C9BCD943D6F7EC";
+        // const WindowID = "3A0015526B08B24B97C9BCD943D6F7EC"; // 正式
+        const WindowID = "3A013B8EB62C2E60DA242F59622829DA";
         const WindowName = "1A1.1 数一数";
         const AnotationList = ref([]);
         const pageID = ref("");
+        const AnnotationListRef = ref();
         const { cardListRef, cardID, pageListRef, allCardList, previewOptions, expandFlag, annotationFlag, _getWindowCards, updatePageList, expand, closeAnotation, openAnotation, lastPage, firstPage } = annotation();
         onMounted(async() => {
             const obj = {
-                OriginType: 1,
                 WindowID: WindowID
             };
             await _getWindowCards(obj);
@@ -83,6 +85,7 @@ export default defineComponent({
         };
         const updatePageID = (id) => {
             pageID.value = id;
+            AnnotationListRef.value.contentFlag = null;
         };
         // 更新批注
         const updateAnotationList = (e) => {
@@ -100,6 +103,7 @@ export default defineComponent({
             pageID,
             cardListRef,
             pageListRef,
+            AnnotationListRef,
             allCardList,
             previewOptions,
             expandFlag,

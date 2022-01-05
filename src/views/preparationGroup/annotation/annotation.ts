@@ -1,7 +1,6 @@
 import { ref } from "vue-demi";
-import { getWindowCards } from "./api";
+import { GetDiscussionContentCards } from "./api";
 interface GetWindowCards {
-    OriginType: number,
     WindowID: string
 }
 interface CardListItem {
@@ -37,10 +36,9 @@ export default () => {
     const cardID = ref("");
     const _getWindowCards = async (date:GetWindowCards) => {
         const obj = {
-            OriginType: date.OriginType,
-            WindowID: date.WindowID
+            id: date.WindowID
         };
-        const res = await getWindowCards(obj);
+        const res = await GetDiscussionContentCards(obj);
         if (res.resultCode === 200) {
             // 去除列表里面状态为下架的页
             const removeStatePage = res.result.map((item:any) => {

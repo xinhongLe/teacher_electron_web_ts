@@ -13,19 +13,19 @@
                             <img src="@/assets/preparationGroup/icon_more.png" alt="">
                             <div class="ahm-edit" v-if="editBoxSwtich === index">
                                 <div @click.stop="edit(index, 0, item)"><i class="el-icon-edit"></i>编辑</div>
-                                <div @click.stop="del(index)"><i class="el-icon-delete"></i>删除</div>
+                                <div @click.stop="del(item)"><i class="el-icon-delete"></i>删除</div>
                             </div>
                         </div>
                     </div>
                     <div class="ali-content">
                         <el-input
                             v-if="editFlag === index && contentFlag === 0"
-                            v-model="item.text"
+                            v-model="item.Content"
                             type="textarea"
                             :rows="2">
                             </el-input>
                         <span v-else>
-                            {{ item.text }}
+                            {{ item.Content }}
                         </span>
                         <div v-if="editFlag === index && contentFlag === 0"  class="ali-content-button">
                             <div @click.stop="submit(item)">确认</div>
@@ -45,7 +45,7 @@
 import { ElMessage } from "element-plus";
 import { cloneDeep } from "lodash";
 import { defineComponent, ref, getCurrentInstance, watch, computed, onMounted, onBeforeUnmount } from "vue-demi";
-import { AddAnnotation } from "../api";
+import { AddAnnotation, DeleteAnnotation, EditAnnotation } from "../api";
 export default defineComponent({
     props: ["AnotationList", "cardID", "pageID"],
     setup(props, { emit }) {
@@ -89,13 +89,30 @@ export default defineComponent({
         const changeEditBoxSwtich = (index) => {
             editBoxSwtich.value = index;
         };
-        const del = (index) => {
-            annotationList.value.splice(index, 1);
-            editBoxSwtich.value = null;
+        // 删除
+        const del = async (item) => {
+            if (contentFlag.value === 0) {
+                ElMessage.warning("请先完成上一个批注");
+                return false;
+            }
+            const obj = {
+                id: item.ID
+            };
+            const res = await DeleteAnnotation(obj);
+            if (res.resultCode === 200) {
+                editBoxSwtich.value = null;
+                contentFlag.value = null;
+                emit("successAdd");
+            }
         };
         // 新增
         const add = () => {
-            annotationList.value.push({ text: "", left: 640, top: 340 });
+            console.log(annotationList.value);
+            if (contentFlag.value === 0) {
+                ElMessage.warning("请先完成上一个批注");
+                return false;
+            }
+            annotationList.value.push({ Content: "", PointX: 640, PointY: 340 });
             editValue.value = "";
             contentFlag.value = 0;
             editFlag.value = annotationList.value.length - 1;
@@ -104,9 +121,12 @@ export default defineComponent({
         };
         // 编辑
         const edit = (index, num, item) => {
-            console.log(index, num, item);
-            if (item.text) {
-                editValue.value = cloneDeep(item.text);
+            if (contentFlag.value === 0) {
+                ElMessage.warning("请先完成上一个批注");
+                return false;
+            }
+            if (item.Content) {
+                editValue.value = cloneDeep(item.Content);
             } else {
                 editValue.value = "";
             }
@@ -116,27 +136,45 @@ export default defineComponent({
         };
         // 取消
         const cancel = (index) => {
+            if (!editValue.value) {
+                ElMessage.warning("请输入批注内容");
+                return false;
+            }
             editFlag.value = null;
             contentFlag.value = null;
-            annotationList.value[index].text = editValue.value;
+            annotationList.value[index].Content = editValue.value;
         };
         // 确认
-        const submit = (item) => {
+        const submit = async (item) => {
             contentFlag.value = null;
             editValue.value = "";
             editFlag.value = null;
-            const obj = {
-                cardID: cardId.value,
-                pageID: pageId.value,
-                pointX: item.left,
-                pointY: item.right,
-                content: item.text
-            };
-            emit("successAdd");
-            // const res = await AddAnnotation(obj);
-            // if (res.resultCode === 200) {
-            //     ElMessage.success("批注成功");
-            // }
+            if (item.ID) {
+                const obj = {
+                    annotationID: item.ID,
+                    pointX: item.PointX,
+                    pointY: item.PointY,
+                    content: item.Content
+                };
+                const res = await EditAnnotation(obj);
+                if (res.resultCode === 200) {
+                    ElMessage.success("编辑成功");
+                    emit("successAdd");
+                }
+            } else {
+                const obj = {
+                    cardID: cardId.value,
+                    pageID: pageId.value,
+                    pointX: item.PointX,
+                    pointY: item.PointY,
+                    content: item.Content
+                };
+                const res = await AddAnnotation(obj);
+                if (res.resultCode === 200) {
+                    ElMessage.success("批注成功");
+                    emit("successAdd");
+                }
+            }
         };
         return {
             activeID,
