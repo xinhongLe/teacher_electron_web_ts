@@ -212,13 +212,16 @@ export default defineComponent({
             if (lessonItem.Attachments && lessonItem.Attachments.length > 0) {
                 lessonItem.Attachments.map(v => {
                     params.attachments.push({
-                        ...v,
-                        bucket: v.bucket,
-                        objectKey: v.objectKey,
-                        name: v.name,
-                        fileMD5: v.md5,
-                        fileName: v.fileName,
-                        extention: v.fileExtension
+                        // ...v,
+                        bucket: v.bucket || v.Bucket,
+                        objectKey: v.objectKey || v.ObjectKey,
+                        name: v.name || v.md5 || v.FileMD5,
+                        md5: v.md5 || v.FileMD5,
+                        fileMD5: v.md5 || v.FileMD5,
+                        fileName: v.fileName || v.FileName,
+                        extention: v.fileExtension || v.Extention,
+                        fileExtension: v.fileExtension || v.Extention,
+                        size: v.size || v.Size
                     });
                 });
             }
