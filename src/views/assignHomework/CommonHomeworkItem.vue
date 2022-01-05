@@ -42,14 +42,15 @@
         <div v-if="item.files.length > 0" class="file">
             <div v-for="(file, j) in item.files" :key="j" @click="preview(file)">
                 <p>
-                    <img
+                    <!-- <img
                         :src="
                             require(`@/assets/homeworkImg/${showImg(
                                 file.extension
                             )}.png`)
                         "
                         alt=""
-                    />
+                    /> -->
+                    <FileType :fileExtension="file.extension"/>
                     <span class="ellipsis" :title="file.name">{{ file.name }}</span>
                     <!-- <img
                         src="@/assets/homeworkImg/icon_delete_red@2x.png"
@@ -80,6 +81,7 @@ import { ElMessage } from "element-plus";
 import { get, STORAGE_TYPES } from "@/utils/storage";
 import useViewHomeworkFile from "@/hooks/useViewHomeworkFile";
 import Enlarge from "@/components/enlarge/index.vue";
+import FileType from "../../components/fileType/index.vue";
 export default defineComponent({
     props: {
         item: {
@@ -149,7 +151,7 @@ export default defineComponent({
             preview
         };
     },
-    components: { SelectLabel, Enlarge }
+    components: { SelectLabel, Enlarge, FileType }
 });
 </script>
 

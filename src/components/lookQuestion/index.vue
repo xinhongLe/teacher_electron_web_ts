@@ -135,6 +135,7 @@ export default defineComponent({
 .look-question {
     background: #fff;
     :deep(.look-question-dialog) {
+        -webkit-app-region: no-drag;
         &.el-dialog {
             display: flex;
             flex-direction: column;

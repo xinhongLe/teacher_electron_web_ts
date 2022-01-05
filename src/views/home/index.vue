@@ -45,7 +45,7 @@
                             src="../../assets/indexImages/pic_kehou.png"
                             alt=""
                         />
-                        <span>课时延后</span>
+                        <span>课后延时</span>
                     </div>
                 </div>
                 <div class="item" @click="go('preparation-group')">

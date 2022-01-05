@@ -1,7 +1,7 @@
 <template>
     <div class="pageListComponents">
         <div class="me-work" :style="showRemarks ? 'width: calc(100% - 22rem)' : 'width: 100%;'" :class=" fullscreenStyle ? 'fullscreen' : ''">
-            <ScreenView
+                <ScreenView
                 class="me-work-screen"
                 :inline="true"
                 :isInit="isInitPage"
@@ -10,6 +10,7 @@
                 :writeBoardVisible="writeBoardVisible"
                 :keyDisabled="keyDisabled"
                 :useScale="false"
+                :winList="winList"
                 @openCard="openCard"
                 @pagePrev="pagePrev"
                 @pageNext="pageNext"
@@ -53,7 +54,7 @@ import { getWinCardDBData } from "@/utils/database";
 import { ElMessage } from "element-plus";
 import { useRoute } from "vue-router";
 export default defineComponent({
-    props: ["pageListOption", "showRemark", "WinActiveId", "WindowName", "LessonID", "CardName", "CardId"],
+    props: ["pageListOption", "showRemark", "WinActiveId", "WindowName", "LessonID", "CardName", "CardId", "winList"],
     components: { OpenCardViewDialog },
     setup(props, { emit }) {
         const { getPageDetail, transformType } = useHome();

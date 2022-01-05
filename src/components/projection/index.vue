@@ -62,6 +62,7 @@ export default defineComponent({
     :deep(.el-dialog) {
         display: flex;
         flex-direction: column;
+        -webkit-app-region: no-drag;
         .el-dialog__body {
             height: 100%;
             display: flex;

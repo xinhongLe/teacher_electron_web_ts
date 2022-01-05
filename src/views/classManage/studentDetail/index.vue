@@ -165,6 +165,7 @@ export default defineComponent({
         };
         const save = async () => {
             const { name, birthday, sex, classList, num } = formData;
+            if (!name || !num) return false;
             const data: UpdateStudentInfoData = {
                 id: props.studentId,
                 studentName: name,
