@@ -91,6 +91,7 @@ export interface Fileginseng {
 export interface DiscussioncontentList {
     Attachments: Fileginseng[];
     Content: string;
+    CoursewareContent: string;
     CreateTime: string;
     CreaterID: string;
     CreaterName: string;
@@ -285,6 +286,7 @@ export interface discussionContent {
     title: string;
     resourceType: number;
     content: string;
+    coursewareContent: string;
     planFile: FileData;
     attachments: FileData[]
 }
@@ -516,4 +518,12 @@ export interface MakeInviteeLinkData {
 }
 export interface MakeInviteeLinkRes {
     ID: string
+}
+export interface TransformData {
+    bucketPath: string,
+    file: string
+}
+export interface TransformRes {
+    jsonText: string,
+    pageRemark: string
 }

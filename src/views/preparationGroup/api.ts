@@ -14,7 +14,7 @@ import {
     EditContentData,
     FetchPreparateDetailData, FetchTeacherLessonAndBagByChapterData, GetLastSelectBookData, FetchReflectFilesData, FetchReflectFilesRes, GetLastSelectBookRes, Lesson, Material, QueryMaterialListData, SaveTeacherClassScheduleData, SetLastSelectBookData, UpdateCourseBagTeacherData, UpdateCourseWareListOfTeacherData, UploadSummaryData, UpdateCustomBookLessonData,
     ShareResourceData, GetTeacherClassData, GetSchoolClassData, GetTeacherDataRes, GetSchoolDataRes, addCourseData,
-    InviteeLinkData, InviteeLinkRes, AddInviteeLinkData, AddInviteeLinkRes, MakeInviteeLinkData, MakeInviteeLinkRes
+    InviteeLinkData, InviteeLinkRes, AddInviteeLinkData, AddInviteeLinkRes, MakeInviteeLinkData, MakeInviteeLinkRes, TransformData, TransformRes
 } from "@/types/preparationGroup";
 
 // 查询我的备课列表(分页)
@@ -287,6 +287,19 @@ export function addTeacherByInviteeLink(data: MakeInviteeLinkData): Promise<IRes
             "Content-Type": "application/json-patch+json"
         },
         method: "post",
+        data
+    });
+}
+
+// json转字符串
+export function jsonToString(data: TransformData): Promise<IResponse<TransformRes>> {
+    return request({
+        baseURL: AI_XUE_SHI_API,
+        url: `https://apitest.aixueshi.top:5026/api/Analysis/PPTToImage?bucketPath=${data.bucketPath}&InDto=${data.file}`,
+        headers: {
+            "Content-Type": "application/json-patch+json"
+        },
+        method: "get",
         data
     });
 }

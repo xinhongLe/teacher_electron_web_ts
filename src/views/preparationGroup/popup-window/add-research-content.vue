@@ -87,7 +87,7 @@ import { get, STORAGE_TYPES } from "@/utils/storage";
 import { UploadFile } from "element-plus/lib/components/upload/src/upload.type";
 import File from "../file/index.vue";
 import useUploadFile from "@/hooks/useUploadFile";
-import { AddDiscussionContent, EditDiscussionContent } from "../api";
+import { AddDiscussionContent, EditDiscussionContent, jsonToString } from "../api";
 import { DiscussioncontentList } from "@/types/preparationGroup";
 export default defineComponent({
     props: {
@@ -133,6 +133,7 @@ export default defineComponent({
                 title: "",
                 resourceType: 1,
                 content: "",
+                coursewareContent: "",
                 planFile: "",
                 attachments: []
             },
@@ -172,6 +173,7 @@ export default defineComponent({
                     state.form.title = props.researchContent.Title;
                     state.form.resourceType = props.researchContent.ResourceType;
                     state.form.content = props.researchContent.Content;
+                    state.form.coursewareContent = props.researchContent.CoursewareContent;
                     state.form.planFile = "1";
                     fileContent.name = props.researchContent.ResourceSource.Name;
                     fileContent.bucket = props.researchContent.ResourceSource.Bucket;
@@ -238,6 +240,16 @@ export default defineComponent({
                 fileContent.size = file.size;
                 fileContent.fileSize = getFileSize(file.size);
                 fileContent.fileType = getFileType(file.name);
+                state.form.coursewareContent = "";
+                // JSON转字符串
+                const coursewareItem = await jsonToString({
+                    bucketPath: "GroupLessonFile",
+                    file: `${name}.${fileExtension}`
+                });
+                if (coursewareItem && coursewareItem.success) {
+                    state.form.coursewareContent = coursewareItem.result.toString();
+                }
+                console.log(coursewareItem);
             }
         };
 
@@ -287,6 +299,7 @@ export default defineComponent({
                             title: state.form.title,
                             resourceType: state.form.resourceType,
                             content: state.form.content,
+                            coursewareContent: state.form.coursewareContent,
                             planFile: {
                                 ...fileContent,
                                 name: fileContent.name,
