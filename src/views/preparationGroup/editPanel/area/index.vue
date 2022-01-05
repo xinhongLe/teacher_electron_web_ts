@@ -184,6 +184,7 @@ import { downloadFile, cooOss } from "@/utils/oss";
 import { UploadFile } from "element-plus/lib/components/upload/src/upload.type";
 import AddResearchContent from "../../popup-window/add-research-content.vue";
 import { addResourceResult } from "../../api";
+import isElectron from "is-electron";
 export default defineComponent({
     name: "area",
     props: {
@@ -288,32 +289,65 @@ export default defineComponent({
         ]);
 
         const lookOver = async (file: Fileginseng) => {
+            // if (file) {
+            //     const { Extention, FilePath, FileMD5, Bucket } = file;
+            //     if (Extention) {
+            //         const key = FilePath + "/" + FileMD5 + "." + Extention;
+            //         filesrc.value = await downloadFile(key, Bucket);
+            //         console.log(filesrc.value, FileMD5 + "." + Extention);
+            //         openFile(filesrc.value, FileMD5 + "." + Extention);
+            //     } else {
+            //         const key = FilePath + "/" + FileMD5;
+            //         filesrc.value = await downloadFile(key, Bucket);
+            //         openFile(filesrc.value, FileMD5 + "." + Extention);
+            //     }
+            // }
             if (file) {
-                const { Extention, FilePath, FileMD5, Bucket } = file;
-                if (Extention) {
-                    const key = FilePath + "/" + FileMD5 + "." + Extention;
-                    filesrc.value = await downloadFile(key, Bucket);
-                    console.log(filesrc.value, FileMD5 + "." + Extention);
-                    openFile(filesrc.value, FileMD5 + "." + Extention);
-                } else {
-                    const key = FilePath + "/" + FileMD5;
-                    filesrc.value = await downloadFile(key, Bucket);
-                    openFile(filesrc.value, FileMD5 + "." + Extention);
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const item: any = file;
+                let url = "";
+                if (item.FilePath && item.FileMD5 && item.Extention && item.Bucket) {
+                    url = await downloadFile(`${item.FilePath}/${item.FileMD5}.${item.Extention}`, item.Bucket);
+                } else if (item.path && item.md5 && item.extention && item.bucket) {
+                    url = await downloadFile(`${item.path}/${item.md5}.${item.extention}`, item.bucket);
                 }
+                const previewUrl = "https://owa.lyx-edu.com/op/view.aspx?src=" + encodeURIComponent(url);
+                if (isElectron()) {
+                    return window.electron.ipcRenderer.invoke("downloadFile", previewUrl, `${item.fileName}.${item.Extention}`).then((filePath) => {
+                        window.electron.shell.openPath(filePath);
+                    });
+                }
+                window.open(previewUrl);
             }
         };
 
         const download = async (file: Fileginseng) => {
+            // if (file) {
+            //     const { Extention, FilePath, FileName, FileMD5, Bucket } = file;
+            //     if (Extention) {
+            //         const key = FilePath + "/" + FileMD5 + "." + Extention;
+            //         filesrc.value = await downloadFile(key, Bucket);
+            //         downLoad(filesrc.value, FileName);
+            //     } else {
+            //         const key = FilePath + "/" + FileMD5;
+            //         filesrc.value = await downloadFile(key, Bucket);
+            //         downLoad(filesrc.value, FileName);
+            //     }
+            // }
             if (file) {
-                const { Extention, FilePath, FileName, FileMD5, Bucket } = file;
-                if (Extention) {
-                    const key = FilePath + "/" + FileMD5 + "." + Extention;
-                    filesrc.value = await downloadFile(key, Bucket);
-                    downLoad(filesrc.value, FileName);
-                } else {
-                    const key = FilePath + "/" + FileMD5;
-                    filesrc.value = await downloadFile(key, Bucket);
-                    downLoad(filesrc.value, FileName);
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const item: any = file;
+                let url = "";
+                if (item.FilePath && item.FileMD5 && item.Extention && item.Bucket) {
+                    url = await downloadFile(`${item.FilePath}/${item.FileMD5}.${item.Extention}`, item.Bucket);
+                } else if (item.path && item.md5 && item.extention && item.bucket) {
+                    url = await downloadFile(`${item.path}/${item.md5}.${item.extention}`, item.bucket);
+                }
+                const a = document.createElement("a");
+                a.setAttribute("href", url);
+                a.click();
+                if (window && window.top) {
+                    window.top.postMessage({ url, download: true }, "*");
                 }
             }
         };

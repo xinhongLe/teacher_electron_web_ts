@@ -82,6 +82,9 @@ export default defineComponent({
             const a = document.createElement("a");
             a.setAttribute("href", url);
             a.click();
+            if (window && window.top) {
+                window.top.postMessage({ url, download: true }, "*");
+            }
         };
         const close = () => {
             emit("close", props.fileInfo);
