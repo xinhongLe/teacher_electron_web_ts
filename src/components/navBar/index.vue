@@ -13,8 +13,7 @@
                     class="el-icon-close"
                     v-if="
                         item.name !== '首页' &&
-                        item.name !== '备课' &&
-                        item.name !== '批注'
+                        item.name !== '备课'
                     "
                     @click.stop="closeTab(item)"
                 ></i>
