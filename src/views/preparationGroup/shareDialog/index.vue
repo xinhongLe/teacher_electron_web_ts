@@ -464,6 +464,10 @@ export default defineComponent({
         };
 
         const handleClose = (tag: any, index: number) => {
+            if (tag.ID === get(STORAGE_TYPES.USER_INFO).ID) {
+                ElMessage.info("主备课人无法删除");
+                return;
+            }
             state.dynamicTags.splice(index, 1);
             if (teacherList.value.length > 0) {
                 teacherList.value.map((v: any) => {
