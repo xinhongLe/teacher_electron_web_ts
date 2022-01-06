@@ -2,18 +2,31 @@
     <div class="annotation-list" @click="editBoxSwtich = null">
         <div class="annotation-list-header">
             <div class="alh-left">批注</div>
-            <!-- <div class="alh-right">显示：无</div> -->
+            <div class="alh-right">
+                <el-select v-model="value" placeholder="请选择">
+                    <el-option
+                    v-for="item in options"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value">
+                    </el-option>
+                </el-select>
+            </div>
         </div>
         <div class="annotation-list-all">
             <div class="annotation-list-alllist">
                 <div class="annotation-list-item" v-for="(item,index) in annotationList" :key="index">
                     <div class="ali-header" :class="activeID === index ? 'active':''">
-                        <div>{{index + 1}}</div>
+                        <div>
+                            <span>{{index + 1 }}</span>
+                            <span>{{ item.CreateTeacherName}}</span>
+                            <span>{{ detailTime(item.CreateTime) }}</span>
+                        </div>
                         <div class="ali-header-more" @click.stop="changeEditBoxSwtich(index)">
                             <img src="@/assets/preparationGroup/icon_more.png" alt="">
                             <div class="ahm-edit" v-if="editBoxSwtich === index">
                                 <div @click.stop="edit(index, 0, item)"><i class="el-icon-edit"></i>编辑</div>
-                                <div @click.stop="del(item)"><i class="el-icon-delete"></i>删除</div>
+                                <div @click.stop="(item)"><i class="el-icon-delete"></i>删除</div>
                             </div>
                         </div>
                     </div>
@@ -44,11 +57,34 @@
 <script>
 import { ElMessage } from "element-plus";
 import { cloneDeep } from "lodash";
-import { defineComponent, ref, getCurrentInstance, watch, computed, onMounted, onBeforeUnmount } from "vue-demi";
+import moment from "moment";
+import { defineComponent, ref, getCurrentInstance, watch, onMounted, onBeforeUnmount } from "vue-demi";
 import { AddAnnotation, DeleteAnnotation, EditAnnotation } from "../api";
 export default defineComponent({
     props: ["AnotationList", "cardID", "pageID"],
     setup(props, { emit }) {
+        const options = [{
+            value: "选项1",
+            label: "黄金糕"
+        },
+        {
+            value: "选项2",
+            label: "双皮奶"
+        },
+        {
+            value: "选项3",
+            label: "蚵仔煎"
+        },
+        {
+            value: "选项4",
+            label: "龙须面"
+        },
+        {
+            value: "选项5",
+            label: "北京烤鸭"
+        }
+        ];
+        const teacherID = "";
         const { proxy } = getCurrentInstance();
         const editBoxSwtich = ref(null); // 编辑删除弹框
         const editFlag = ref(null);
@@ -185,18 +221,28 @@ export default defineComponent({
                 }
             }
         };
+        // 处理时间
+        const detailTime = (str) => {
+            if (!str) {
+                return "";
+            }
+            return `${moment(str).format("YYYY-MM-DD HH:ss")}`;
+        };
         return {
+            teacherID,
             activeID,
             annotationList,
             editBoxSwtich,
             editFlag,
             contentFlag,
+            options,
             changeEditBoxSwtich,
             add,
             del,
             edit,
             cancel,
-            submit
+            submit,
+            detailTime
         };
     }
 });
@@ -214,6 +260,7 @@ export default defineComponent({
     .annotation-list-header{
         display: flex;
         justify-content: space-between;
+        padding: 0 0 10px 0;
         .alh-left{
             font-size: 18px;
             font-family: PingFangSC-Medium, PingFang SC;
@@ -249,12 +296,30 @@ export default defineComponent({
                     align-items: center;
                     padding: 0 10px;
                     >div:nth-of-type(1){
-                        width: 18px;
-                        height: 18px;
-                        background: #fff;
-                        border-radius: 18px;
-                        text-align: center;
-                        line-height: 18px;
+                        display: flex;
+                        justify-content: flex-start;
+                        align-items: center;
+                        >span:nth-of-type(1){
+                            display: block;
+                            width: 18px;
+                            height: 18px;
+                            background: #fff;
+                            border-radius: 18px;
+                            text-align: center;
+                            line-height: 18px;
+                            margin-right: 8px;
+                        }
+                        span{
+                            display: block;
+                            white-space: nowrap;
+                        }
+                        >span:nth-of-type(3){
+                            margin-left: 5px;
+                            font-size: 12px;
+                        }
+                        >span:nth-of-type(2){
+                            font-size: 12px;
+                        }
                     }
                     .ali-header-more{
                         height: 30px;
@@ -304,6 +369,7 @@ export default defineComponent({
                         display: block;
                         word-wrap: break-word;
                         word-break: normal;
+                        line-height: 16px;
                     }
                     .ali-content-button{
                         overflow: hidden;

@@ -105,7 +105,7 @@ export default defineComponent({
                     clearInterval(isMove);
                     return false;
                 }
-                if (now - lastMove.value > 2000) {
+                if (now - lastMove.value > 1000) {
                     console.log("没有动了");
                     lastMove.value = undefined;
                     for (const item of allData.elementList) {
@@ -121,7 +121,7 @@ export default defineComponent({
                         EditAnnotation(obj);
                     }
                 }
-            }, 1000);
+            }, 500);
         };
         const showAnnotaiton = (e) => {
             let annotationSwitch = false;

@@ -227,7 +227,7 @@ export default defineComponent({
             position: absolute;
             right: 0;
             top: 0;
-            width: 260px;
+            width: 300px;
             height: 100%;
             padding: 20px;
             background: #fff;
