@@ -14,7 +14,6 @@
         <div v-if="tableData && tableData.length > 0">
             <el-table :data="tableData" style="width: 100%" :height="autoHeight">
                 <el-table-column align="left">
-                    <!-- <template #header> <span style="font-size:18px;font-weight:600;color:#000;">备课总结与反思</span> </template> -->
                     <template #default="scope">
                         <div class="table-left">
                             <img style="" src="@/assets/preparationGroup/editPanel/icon_word.png" alt="">
@@ -23,7 +22,6 @@
                     </template>
                 </el-table-column>
                 <el-table-column  align="right">
-                    <!-- <template #header> <el-button icon="el-icon-document" style="background-color:#48DBBF;color:#fff;">上传文档</el-button> </template> -->
                     <template #default="scope" class="table-right">
                         {{ moment(scope.row.UploadTime).format("YYYY-MM-DD HH:mm:ss") }}
                     </template>
@@ -119,10 +117,15 @@ export default defineComponent({
                 extention: fileObj.fileExtension
             };
             if (file && file.name.length > 0) {
-                if (getFileType(`${file.fileName}.${file.fileExtension}`) === "word") {
-                    uploadItem(file);
+                if (file.fileName.length < 128) {
+                    if (getFileType(`${file.fileName}.${file.fileExtension}`) === "word") {
+                        uploadItem(file);
+                    } else {
+                        ElMessage.info("目前只支持上传word类型的文档");
+                    }
                 } else {
-                    ElMessage.info("目前只支持上传word类型的文档");
+                    ElMessage.info("文件名字长度不能超过128位");
+                    resetFileInfo();
                 }
             }
             resetFileInfo();

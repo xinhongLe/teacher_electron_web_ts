@@ -304,11 +304,13 @@ export default defineComponent({
             state.dynamicTags = [];
             if (props.isEdit && dynamicTagsSession && dynamicTagsSession.length > 0) {
                 dynamicTagsSession.map((v: any) => {
-                    state.dynamicTags.push({
-                        Active: false,
-                        ID: v.ID,
-                        Name: v.Name
-                    });
+                    if (v.ID !== get(STORAGE_TYPES.USER_INFO).ID) {
+                        state.dynamicTags.push({
+                            Active: false,
+                            ID: v.ID,
+                            Name: v.Name
+                        });
+                    }
                 });
             }
             state.searchResult = [];
@@ -330,6 +332,7 @@ export default defineComponent({
                         });
                     }
                 }
+                state.maxSize = teacherList.value.length;
                 set(STORAGE_TYPES.TEACHER_LIST, teacherList.value);
             });
         };
@@ -543,8 +546,9 @@ export default defineComponent({
         };
 
         const confirm = async () => {
-            const teacherIDs = state.dynamicTags.map((item: any) => {
-                return item.ID;
+            const teacherIDs = [get(STORAGE_TYPES.USER_INFO).ID];
+            state.dynamicTags.map((item: any) => {
+                teacherIDs.push(item.ID);
             });
             if (props.isEdit) {
                 const reqEdit = {

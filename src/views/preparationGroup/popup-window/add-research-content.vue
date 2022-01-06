@@ -18,7 +18,7 @@
                 </el-radio-group>
             </el-form-item>
             <el-form-item label="内容摘要:" :label-width="formLabelWidth" prop="content">
-                <el-input v-model="form.content" autocomplete="off" type="textarea" :row="4" resize="none"></el-input>
+                <el-input v-model="form.content" autocomplete="off" type="textarea" :row="5" placeholder="1000个字符以内" :maxlength="1000" resize="none"></el-input>
             </el-form-item>
             <el-form-item
                 label="教案/课件:"
@@ -56,7 +56,7 @@
                     <el-button size="small" type="primary" plain icon="el-icon-paperclip">上传附件</el-button>
                     <template #tip>
                         <div class="el-upload__tip TheSlogan">
-                            可上传不超过9个素材，支持格式：doc、docx、ppt、pdf、jpg、png、mp3、mp4等
+                            {{ `可上传不超过9个素材，支持格式：${acceptList.split(",").join(" ")}等` }}
                         </div>
                     </template>
                 </el-upload>
@@ -112,7 +112,7 @@ export default defineComponent({
         const formRef = ref<ElFormType>();
         const preId = ref();
         const flagType = ref(props.researchType);
-        const acceptList = ".ppt,.doc,.docx,.pdf,.mp3,.mp4,.jpg,.png,";
+        const acceptList = ".doc,.docx,.ppt,.pdf,.jpg,.png,.mp3,.mp4";
         // const fileList = reactive<{ extention: string; fileName: string; name: string; bucket: string; fileMD5: string; filePath: string; size: number; fileSize: string; fileType: string; }[]>([]);
         const fileList = ref<IOssFileInfo[]>([]);
         const fileContent = reactive<IOssFileInfo>({
@@ -278,7 +278,7 @@ export default defineComponent({
         // 上传附件
         const uploadSuccess = async ({ file }: {file: UploadFile & Blob;}) => {
             console.log("fileList", fileList.value);
-            if (fileList.value.length < 9) {
+            if (fileList.value.length < 9 && acceptList.indexOf(file.name.split(".")[1]) > -1) {
                 await uploadFile({ file });
                 fileList.value.push({
                     ...fileInfo
@@ -293,7 +293,7 @@ export default defineComponent({
                     // fileType: fileInfo.fileType!
                 });
             } else {
-                ElMessage.info("最多上传9个素材");
+                ElMessage.info(`可上传不超过9个素材，支持格式：${acceptList.split(",").join(" ")}等`);
             }
         };
 

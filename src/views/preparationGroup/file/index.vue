@@ -57,7 +57,8 @@ export default defineComponent({
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const item: any = props.fileInfo;
             const previewArray = ["ppt", "word", "excel", "pdf"];
-            if (previewArray.indexOf(item.fileType) > -1) {
+            const ext = item.Extention || item.extention || item.fileExtension;
+            if (previewArray.indexOf(item.fileType || getFileType(`.${ext}`)) > -1) {
                 let url = "";
                 if (item.FilePath && item.FileMD5 && item.Extention && item.Bucket) {
                     url = await downloadFile(`${item.FilePath}/${item.FileMD5}.${item.Extention}`, item.Bucket);
@@ -92,12 +93,33 @@ export default defineComponent({
                     url = await downloadFile(`${item.path}/${item.md5}.${item.fileExtension}`, item.bucket);
                 }
             }
-            const a = document.createElement("a");
-            a.setAttribute("href", url);
-            a.click();
-            if (window && window.top) {
-                window.top.postMessage({ url, download: true }, "*");
-            }
+            getBlob(url, function(blob: any) {
+                saveAs(blob, item);
+            });
+        };
+        const getBlob = (url: string, cb: any) => {
+            const xhr = new XMLHttpRequest();
+            xhr.open("GET", url, true);
+            xhr.responseType = "blob";
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    cb(xhr.response);
+                }
+            };
+            xhr.send();
+        };
+        const saveAs = (blob: any, item: any) => {
+            const name = item.FileName || item.fileName || item.Name;
+            const ext = item.Extention || item.extention || item.fileExtension;
+            const link = document.createElement("a");
+            const body = document.querySelectorAll("body");
+            link.href = window.URL.createObjectURL(blob);
+            link.download = `${name}.${ext}`;
+            link.style.display = "none";
+            body[0].appendChild(link);
+            link.click();
+            body[0].removeChild(link);
+            window.URL.revokeObjectURL(link.href);
         };
         const close = () => {
             emit("close", props.fileInfo);

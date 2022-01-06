@@ -1,7 +1,7 @@
 <template>
     <div class="main-container">
         <NavBar v-if="isShowNarBar"/>
-        <Suspension v-if="!isElectron"/>
+        <Suspension v-if="!isElectron && !isIframe"/>
         <LookQuestion v-if="isShowQuestion"/>
         <LookVideo v-if="isShowVideo"/>
         <Projection/>
@@ -42,6 +42,7 @@ export default defineComponent({
     setup() {
         const route = useRoute();
         const isShowNarBar = ref(true);
+        const isIframe = ref(false);
         const wpfNames = ["wpf班级管理", "wpf管理标签", "wpf学习记录"];
         const { queryUserInfo } = useUserInfo();
         const { getTagList } = useTagList();
@@ -52,6 +53,7 @@ export default defineComponent({
             // 岳阳云平台内嵌备教端，隐藏头部
             if (window.top && window.top[0] && window.top[0].location && window.top[0].location.origin && (window.top[0].location.origin.indexOf("yueyangyun") > -1 || (window.top[0].location.ancestorOrigins && window.top[0].location.ancestorOrigins[0] && window.top[0].location.ancestorOrigins[0].indexOf("yueyangyun") > -1) || window.top[0].location.origin.indexOf("20.199") > -1)) {
                 isShowNarBar.value = false;
+                isIframe.value = true;
             }
         });
 
@@ -91,6 +93,7 @@ export default defineComponent({
             isShowQuestion: computed(() => store.state.common.isShowQuestion),
             isShowVideo: computed(() => store.state.common.isShowVideo),
             isShowNarBar,
+            isIframe,
             keepExcludeArr
         };
     }

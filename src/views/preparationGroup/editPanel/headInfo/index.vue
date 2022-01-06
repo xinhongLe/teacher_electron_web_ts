@@ -102,7 +102,7 @@ import useUploadFile from "@/hooks/useUploadFile";
 import moment from "moment";
 import useSubmit from "../useSubmit";
 import File from "../../file/index.vue";
-import { emit } from "process";
+import { ElMessage } from "element-plus";
 export default defineComponent({
     name: "head-info",
     props: {
@@ -247,10 +247,15 @@ export default defineComponent({
                 ...fileObj
             };
             if (file && file.name.length > 0) {
-                const list = JSON.parse(JSON.stringify(lessonItem.Attachments));
-                list.push(file);
-                lessonItem.Attachments = list;
-                resetFileInfo();
+                if (file.fileName.length < 128) {
+                    const list = JSON.parse(JSON.stringify(lessonItem.Attachments));
+                    list.push(file);
+                    lessonItem.Attachments = list;
+                    resetFileInfo();
+                } else {
+                    ElMessage.info("文件名字长度不能超过128位");
+                    resetFileInfo();
+                }
             }
         }, {
             immediate: true,
