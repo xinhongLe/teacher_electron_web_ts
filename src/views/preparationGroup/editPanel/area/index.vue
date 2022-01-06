@@ -185,6 +185,7 @@ import { UploadFile } from "element-plus/lib/components/upload/src/upload.type";
 import AddResearchContent from "../../popup-window/add-research-content.vue";
 import { addResourceResult } from "../../api";
 import isElectron from "is-electron";
+import useUploadFile from "@/hooks/useUploadFile";
 export default defineComponent({
     name: "area",
     props: {
@@ -311,19 +312,29 @@ export default defineComponent({
             if (file) {
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const item: any = file;
-                let url = "";
-                if (item.FilePath && item.FileMD5 && item.Extention && item.Bucket) {
-                    url = await downloadFile(`${item.FilePath}/${item.FileMD5}.${item.Extention}`, item.Bucket);
-                } else if (item.path && item.md5 && item.extention && item.bucket) {
-                    url = await downloadFile(`${item.path}/${item.md5}.${item.extention}`, item.bucket);
+                const previewArray = ["ppt", "word", "excel", "pdf"];
+                const ext = item.Extention || item.extention || item.fileExtension;
+                if (previewArray.indexOf(item.fileType || getFileType(`.${ext}`)) > -1) {
+                    let url = "";
+                    if (item.FilePath && item.FileMD5 && item.Extention && item.Bucket) {
+                        url = await downloadFile(`${item.FilePath}/${item.FileMD5}.${item.Extention}`, item.Bucket);
+                    } else if (item.path && item.md5 && item.bucket) {
+                        if (item.extention) {
+                            url = await downloadFile(`${item.path}/${item.md5}.${item.extention}`, item.bucket);
+                        } else if (item.fileExtension) {
+                            url = await downloadFile(`${item.path}/${item.md5}.${item.fileExtension}`, item.bucket);
+                        }
+                    }
+                    const previewUrl = "https://owa.lyx-edu.com/op/view.aspx?src=" + encodeURIComponent(url);
+                    if (isElectron()) {
+                        return window.electron.ipcRenderer.invoke("downloadFile", previewUrl, `${item.fileName}.${item.Extention}`).then((filePath) => {
+                            window.electron.shell.openPath(filePath);
+                        });
+                    }
+                    window.open(previewUrl);
+                } else {
+                    download(file);
                 }
-                const previewUrl = "https://owa.lyx-edu.com/op/view.aspx?src=" + encodeURIComponent(url);
-                if (isElectron()) {
-                    return window.electron.ipcRenderer.invoke("downloadFile", previewUrl, `${item.fileName}.${item.Extention}`).then((filePath) => {
-                        window.electron.shell.openPath(filePath);
-                    });
-                }
-                window.open(previewUrl);
             }
         };
 
@@ -346,16 +357,42 @@ export default defineComponent({
                 let url = "";
                 if (item.FilePath && item.FileMD5 && item.Extention && item.Bucket) {
                     url = await downloadFile(`${item.FilePath}/${item.FileMD5}.${item.Extention}`, item.Bucket);
-                } else if (item.path && item.md5 && item.extention && item.bucket) {
-                    url = await downloadFile(`${item.path}/${item.md5}.${item.extention}`, item.bucket);
+                } else if (item.path && item.md5 && item.bucket) {
+                    if (item.extention) {
+                        url = await downloadFile(`${item.path}/${item.md5}.${item.extention}`, item.bucket);
+                    } else if (item.fileExtension) {
+                        url = await downloadFile(`${item.path}/${item.md5}.${item.fileExtension}`, item.bucket);
+                    }
                 }
-                const a = document.createElement("a");
-                a.setAttribute("href", url);
-                a.click();
-                if (window && window.top) {
-                    window.top.postMessage({ url, download: true }, "*");
-                }
+                getBlob(url, function(blob: any) {
+                    saveAs(blob, item);
+                });
             }
+        };
+
+        const getBlob = (url: string, cb: any) => {
+            const xhr = new XMLHttpRequest();
+            xhr.open("GET", url, true);
+            xhr.responseType = "blob";
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    cb(xhr.response);
+                }
+            };
+            xhr.send();
+        };
+        const saveAs = (blob: any, item: any) => {
+            const name = item.FileName || item.fileName || item.Name;
+            const ext = item.Extention || item.extention || item.fileExtension;
+            const link = document.createElement("a");
+            const body = document.querySelectorAll("body");
+            link.href = window.URL.createObjectURL(blob);
+            link.download = `${name}.${ext}`;
+            link.style.display = "none";
+            body[0].appendChild(link);
+            link.click();
+            body[0].removeChild(link);
+            window.URL.revokeObjectURL(link.href);
         };
 
         // 再次上传教案/课件
@@ -426,6 +463,8 @@ export default defineComponent({
             router.push(`/annotation/${props.content.DiscussionContentID}`);
         };
 
+        const { getFileType } = useUploadFile("GroupLessonFile");
+
         onMounted(() => {
             resizeTextarea();
         });
@@ -446,6 +485,7 @@ export default defineComponent({
             uploadFileSuccess,
             againUpload,
             turnToAnnotation,
+            getFileType,
             moment
         };
     },
