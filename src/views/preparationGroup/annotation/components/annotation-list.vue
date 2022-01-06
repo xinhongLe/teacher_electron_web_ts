@@ -87,6 +87,10 @@ export default defineComponent({
             }
         );
         const changeEditBoxSwtich = (index) => {
+            console.log(contentFlag.value);
+            if (contentFlag.value === 0) {
+                return false;
+            }
             editBoxSwtich.value = index;
         };
         // 删除
@@ -137,7 +141,8 @@ export default defineComponent({
         // 取消
         const cancel = (index) => {
             if (!editValue.value) {
-                ElMessage.warning("请输入批注内容");
+                annotationList.value.splice(index, 1);
+                contentFlag.value = null;
                 return false;
             }
             editFlag.value = null;
@@ -146,6 +151,10 @@ export default defineComponent({
         };
         // 确认
         const submit = async (item) => {
+            if (!item.Content) {
+                ElMessage.warning("批注内容不能为空");
+                return false;
+            }
             contentFlag.value = null;
             editValue.value = "";
             editFlag.value = null;
