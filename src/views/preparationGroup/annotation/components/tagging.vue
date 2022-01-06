@@ -125,7 +125,8 @@ export default defineComponent({
         };
         const showAnnotaiton = (e) => {
             let annotationSwitch = false;
-            if (e.toElement.className === "tagging-center-main") {
+            console.log(e, "eeeeeeeeee");
+            if (e.srcElement.className === "tagging-center-main") {
                 annotationSwitch = false;
             } else {
                 annotationSwitch = true;
