@@ -29,7 +29,7 @@
                 <el-upload
                     action
                     :show-file-list="false"
-                    accept=".doc, .docx, .ppt"
+                    accept=".doc, .docx, .ppt, .pptx"
                     :before-upload="beforeUpload"
                     :http-request="uploadFileSuccess"
                     v-if="!fileContent.name"

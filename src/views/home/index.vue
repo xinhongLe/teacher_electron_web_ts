@@ -111,7 +111,7 @@ export default defineComponent({
             // 岳阳云平台内嵌备教端，页面跳转
             if (route.redirectedFrom && window.top && window.top[0] && window.top[0].location && window.top[0].location.origin && (window.top[0].location.origin.indexOf("yueyangyun") > -1 || (window.top[0].location.ancestorOrigins && window.top[0].location.ancestorOrigins[0] && window.top[0].location.ancestorOrigins[0].indexOf("yueyangyun") > -1) || window.top[0].location.origin.indexOf("20.199") > -1)) {
                 const path = route.redirectedFrom.path.split("#/")[1] || "";
-                go(`${path}`);
+                router.replace(`${path}`);
             }
         };
         turnToPage();
