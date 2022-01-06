@@ -63,7 +63,7 @@
                         <div class="organization" v-if="organizationVisible">
                             <div class="optionTitle">
                                 <img class="logo" src="../../../assets/preparationGroup/avatar_default.png" />
-                                <span class="organization-span">{{ schoolList[0].Name }}</span>
+                                <span class="organization-span">{{ schoolList[0] && schoolList[0].Name }}</span>
                                 <el-select v-if="false" class="organization-select" v-model="selectOption" @change="fetchShareCustomerList($event)" size="medium" filterable>
                                     <el-option
                                         v-for="item in schoolList"
@@ -464,6 +464,10 @@ export default defineComponent({
         };
 
         const handleClose = (tag: any, index: number) => {
+            if (tag.ID === get(STORAGE_TYPES.USER_INFO).ID) {
+                ElMessage.info("主备课人无法删除");
+                return;
+            }
             state.dynamicTags.splice(index, 1);
             if (teacherList.value.length > 0) {
                 teacherList.value.map((v: any) => {

@@ -19,14 +19,14 @@
             </div>
         </div>
         <div class="empty-wrapper" v-else>
-            <Empty></Empty>
+            <Empty :type="emptyItem.type" :tip="emptyItem.tip"></Empty>
         </div>
     </div>
     <CollectivePreparation ref="coRef" :collectivePreparationItem="collectivePreparationItem" @submit="addInviteeLink"></CollectivePreparation>
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, toRefs, onMounted, ref } from "vue";
+import { defineComponent, reactive, toRefs, onMounted, ref, nextTick } from "vue";
 import { FetchPreparateListPageData } from "@/types/preparationGroup";
 import { tryAddTeacherByInviteeLink, addTeacherByInviteeLink } from "./api";
 import { useRoute } from "vue-router";
@@ -57,6 +57,20 @@ export default defineComponent({
                     pageChoose: [4, 8, 20, 50],
                     total: 0
                 }
+            },
+            empty: [
+                {
+                    type: "preparation",
+                    tip: "暂无集体备课活动，点击【发起集体备课】进行添加"
+                },
+                {
+                    type: "",
+                    tip: "暂无搜索结果"
+                }
+            ],
+            emptyItem: {
+                type: "",
+                tip: ""
             }
         });
         const requestParams = (params: FetchPreparateListPageData) => {
@@ -72,9 +86,18 @@ export default defineComponent({
             const queryParams = Object.assign(state.filterParams, params);
             delete queryParams.createTime;
             getCardList(queryParams);
+            nextTick(() => {
+                if (cardList.value.length === 0 && (state.filterParams.preTitle.length > 0 || state.filterParams.createStartTime.length > 0)) {
+                    state.emptyItem = state.empty[1];
+                } else {
+                    state.emptyItem = state.empty[0];
+                }
+            });
         };
         const { cardList, getCardList, pageParams } = useCardList();
-
+        if (cardList.value.length === 0) {
+            state.emptyItem = state.empty[0];
+        }
         const handleSizeChange = (e: number) => {
             state.filterParams.pager.pageNumber = 1;
             state.filterParams.pager.pageSize = e;

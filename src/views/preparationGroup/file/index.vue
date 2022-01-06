@@ -61,8 +61,12 @@ export default defineComponent({
                 let url = "";
                 if (item.FilePath && item.FileMD5 && item.Extention && item.Bucket) {
                     url = await downloadFile(`${item.FilePath}/${item.FileMD5}.${item.Extention}`, item.Bucket);
-                } else if (item.path && item.md5 && item.extention && item.bucket) {
-                    url = await downloadFile(`${item.path}/${item.md5}.${item.extention}`, item.bucket);
+                } else if (item.path && item.md5 && item.bucket) {
+                    if (item.extention) {
+                        url = await downloadFile(`${item.path}/${item.md5}.${item.extention}`, item.bucket);
+                    } else if (item.fileExtension) {
+                        url = await downloadFile(`${item.path}/${item.md5}.${item.fileExtension}`, item.bucket);
+                    }
                 }
                 const previewUrl = "https://owa.lyx-edu.com/op/view.aspx?src=" + encodeURIComponent(url);
                 if (isElectron()) {
@@ -81,8 +85,12 @@ export default defineComponent({
             let url = "";
             if (item.FilePath && item.FileMD5 && item.Extention && item.Bucket) {
                 url = await downloadFile(`${item.FilePath}/${item.FileMD5}.${item.Extention}`, item.Bucket);
-            } else if (item.path && item.md5 && item.extention && item.bucket) {
-                url = await downloadFile(`${item.path}/${item.md5}.${item.extention}`, item.bucket);
+            } else if (item.path && item.md5 && item.bucket) {
+                if (item.extention) {
+                    url = await downloadFile(`${item.path}/${item.md5}.${item.extention}`, item.bucket);
+                } else if (item.fileExtension) {
+                    url = await downloadFile(`${item.path}/${item.md5}.${item.fileExtension}`, item.bucket);
+                }
             }
             const a = document.createElement("a");
             a.setAttribute("href", url);

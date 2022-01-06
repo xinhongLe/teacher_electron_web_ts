@@ -1,7 +1,8 @@
 <template>
     <div class="empty-card">
-        <img src="../../../assets/preparationGroup/pic_noresult.png" alt="暂无数据">
-        <p>暂无搜索结果</p>
+        <img class="preparation" v-if="type === 'preparation'" src="../../../assets/preparationGroup/pic_wuneirong.png" alt="暂无数据">
+        <img v-else src="../../../assets/preparationGroup/pic_noresult.png" alt="暂无数据">
+        <p>{{ tip }}</p>
     </div>
 </template>
 
@@ -9,6 +10,20 @@
 import { defineComponent } from "vue";
 export default defineComponent({
     name: "empty-card",
+    props: {
+        type: {
+            type: String,
+            default: () => {
+                return "";
+            }
+        },
+        tip: {
+            type: String,
+            default: () => {
+                return "暂无搜索结果";
+            }
+        }
+    },
     setup() {
         return {};
     },
@@ -18,7 +33,7 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .empty-card {
-    width: 198px;
+    width: auto;
     height: 182px;
     margin: 0 auto;
     text-align: center;
@@ -26,6 +41,9 @@ export default defineComponent({
         display: inline-block;
         width: 198px;
         height: auto;
+    }
+    .preparation {
+        width: 136px;
     }
     p {
         font-size: 20px;

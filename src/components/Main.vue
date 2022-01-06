@@ -50,7 +50,7 @@ export default defineComponent({
         watch(() => ({ query: route.query, name: route.name }), ({ query, name }) => {
             isShowNarBar.value = !query.head && !wpfNames.includes(name as string);
             // 岳阳云平台内嵌备教端，隐藏头部
-            if (window.top && window.top[0] && window.top[0].location && window.top[0].location.origin && (window.top[0].location.origin.indexOf("yueyangyun") > -1 || window.top[0].location.origin.indexOf("20.199") > -1)) {
+            if (window.top && window.top[0] && window.top[0].location && window.top[0].location.origin && (window.top[0].location.origin.indexOf("yueyangyun") > -1 || (window.top[0].location.ancestorOrigins && window.top[0].location.ancestorOrigins[0] && window.top[0].location.ancestorOrigins[0].indexOf("yueyangyun") > -1) || window.top[0].location.origin.indexOf("20.199") > -1)) {
                 isShowNarBar.value = false;
             }
         });

@@ -42,7 +42,7 @@
             </div>
         </div>
         <div class="empty-wrapper" v-else>
-            <Empty></Empty>
+            <p>暂无文档</p>
         </div>
     </div>
 </template>
@@ -51,7 +51,6 @@
 import { defineComponent, ref, toRefs, reactive, onMounted, nextTick, watch, getCurrentInstance } from "vue";
 import { useRoute } from "vue-router";
 import useUploadFile from "@/hooks/useUploadFile";
-import Empty from "../../empty/index.vue";
 import { ElMessage } from "element-plus";
 import moment from "moment";
 import { uploadSummary, fetchReflectFiles } from "../../api";
@@ -152,7 +151,7 @@ export default defineComponent({
             getFileType
         };
     },
-    components: { Empty }
+    components: { }
 });
 </script>
 
@@ -164,7 +163,6 @@ export default defineComponent({
     border-radius: 8px;
     user-select: none;
     background-color: #fff;
-    padding-bottom: 50px;
     .header {
         display: flex;
         align-items: center;
@@ -183,10 +181,19 @@ export default defineComponent({
         }
     }
     .empty-wrapper {
-        height: calc(100% - 148px);
         display: flex;
         align-items: center;
         justify-content: center;
+        border-top: 1px dashed #E0E2E7;
+        margin-top: 20px;
+        p {
+            font-size: 20px;
+            font-family: PingFangSC-Regular, PingFang SC;
+            font-weight: 400;
+            color: #5F626F;
+            text-align: center;
+            line-height: 90px;
+        }
     }
 }
 .table-left {
