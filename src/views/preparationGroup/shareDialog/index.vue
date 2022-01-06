@@ -63,7 +63,8 @@
                         <div class="organization" v-if="organizationVisible">
                             <div class="optionTitle">
                                 <img class="logo" src="../../../assets/preparationGroup/avatar_default.png" />
-                                <el-select class="organization-select" v-model="selectOption" @change="fetchShareCustomerList($event)" size="medium" filterable>
+                                <span class="organization-span">{{ schoolList[0].Name }}</span>
+                                <el-select v-if="false" class="organization-select" v-model="selectOption" @change="fetchShareCustomerList($event)" size="medium" filterable>
                                     <el-option
                                         v-for="item in schoolList"
                                         :key="item.ID"
@@ -412,16 +413,14 @@ export default defineComponent({
                     } else {
                         ElMessage.info("该数据已存在");
                     }
-                    // const left = state.dynamicTags.filter((m: any) => {
-                    //     return m.organizationID === state.selectOptionID;
-                    // });
-                    // state.isSelectAll = left.length === teacherList.value.length;
+                    const left = state.dynamicTags;
+                    state.isSelectAll = left.length === teacherList.value.length;
                 } else {
                     state.isSelectAll = false;
                     state.dynamicTags.splice(ids.indexOf(item.ID), 1);
                 }
             } else {
-                if (teacherList.value.length > 50) {
+                if (teacherList.value.length > state.maxSize) {
                     ElMessage.info(`最多邀请给${state.maxSize}个人`);
                     return;
                 }
@@ -437,15 +436,31 @@ export default defineComponent({
                     });
                 } else {
                     if (state.dynamicTags.length > 0) {
-                        state.dynamicTags = state.dynamicTags.filter((m: any) => {
-                            return m.organizationID !== state.selectOptionID;
-                        });
+                        state.dynamicTags = [];
                     }
                 }
             }
-            // // 去重
-            // let array = jnpf.uniqueArray(state.customerList, "id");
-            // state.customerList = JSON.parse(JSON.stringify(array));
+            // 去重
+            const array = uniqueArray(state.customerList, "id");
+            state.customerList = JSON.parse(JSON.stringify(array));
+        };
+
+        const uniqueArray = (array = [], key = "") => {
+            const result = [array[0]];
+            for (var i = 1; i < array.length; i++) {
+                const item = array[i];
+                let repeat = false;
+                for (var j = 0; j < result.length; j++) {
+                    if (item[key] === result[j][key]) {
+                        repeat = true;
+                        break;
+                    }
+                }
+                if (!repeat) {
+                    result.push(item);
+                }
+            }
+            return result;
         };
 
         const handleClose = (tag: any, index: number) => {
@@ -456,8 +471,8 @@ export default defineComponent({
                         v.Active = false;
                     }
                 });
-                if (state.selectOptionID === tag.organizationID) state.isSelectAll = false;
             }
+            state.isSelectAll = false;
         };
 
         const handleSelect = () => {
@@ -491,11 +506,9 @@ export default defineComponent({
                         v.Active = true;
                     }
                 });
-                // // 重置全选
-                // const left = state.dynamicTags.filter((m: any) => {
-                //     return m.organizationID === state.currentOrgID;
-                // });
-                // state.isSelectAll = left.length === teacherList.value.length;
+                // 重置全选
+                const left = state.dynamicTags;
+                state.isSelectAll = left.length === teacherList.value.length;
             } else {
                 ElMessage.info("该数据已存在");
             }
@@ -930,6 +943,14 @@ export default defineComponent({
             font-weight: 600;
             color: #0D0B22;
         }
+    }
+    .organization-span {
+        width: 300px;
+        font-size: 16px;
+        font-family: PingFangSC-Semibold, PingFang SC;
+        font-weight: 600;
+        color: #0D0B22;
+        padding-left: 10px;
     }
 }
 .teacher-tip-info {

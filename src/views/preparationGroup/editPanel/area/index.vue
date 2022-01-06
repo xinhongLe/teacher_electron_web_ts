@@ -12,7 +12,7 @@
             <div class="title-box">
                 <div>
                     <span class="title">{{content.Title}}</span>
-                    <span :class="`title-status title-status-${content.ResourceType}`">{{content.ResourceType === 1 ? '教案设计' : '课件设计'}}</span>
+                    <span :class="`title-status title-status-${content.ResourceType}`">{{ fileText }}设计</span>
                 </div>
                 <div class="edit-btn" @click="EditResearch(content)" v-if="isHasRule">
                     <img src="../../../../assets/preparationGroup/editPanel/edit.png" alt="">
@@ -22,15 +22,15 @@
             <div class="teacher-box">
                 <div class="teacher-con">
                     <img src="../../../../assets/preparationGroup/editPanel/avator_small.png" alt="">
-                    <span>{{content.CreaterName}} 于{{moment(content.CreateTime).format("YYYY-MM-DD HH:mm:ss")}}上传教案</span>
+                    <span>{{content.CreaterName}} 于{{moment(content.CreateTime).format("YYYY-MM-DD HH:mm:ss")}}上传{{ fileText }}</span>
                 </div>
             </div>
             <div class="area-lesson">
                 <div class="left">
                     <div>
-                        <div class="box-item box-item-1">
+                        <div :class="`box-item box-item-${content.ResourceType}`">
                             <img src="../../../../assets/preparationGroup/editPanel/icon_jiaoan.png" alt="">
-                            <p>教案</p>
+                            <p>{{ fileText }}</p>
                             <p class="time">{{ moment(content.ResourceSource.CreateTime || content.CreateTime).format("YYYY-MM-DD HH:mm:ss") }}</p>
                         </div>
                         <div class="tools">
@@ -46,9 +46,9 @@
                     </div>
                     <img class="arrow" src="../../../../assets/preparationGroup/editPanel/right.png" alt="">
                     <div>
-                        <div class="box-item box-item-2" :class="content.ResourceResult ? '' : 'disable-item'">
+                        <div class="box-item box-item-3" :class="content.ResourceResult ? '' : 'disable-item'">
                             <img src="../../../../assets/preparationGroup/editPanel/icon_jiaoan.png" alt="">
-                            <p>教案终稿</p>
+                            <p>{{ fileText }}终稿</p>
                             <p class="time">{{ content.ResourceResult && content.ResourceResult.CreateTime ? moment(content.ResourceResult.CreateTime).format("YYYY-MM-DD HH:mm:ss") : "-" }}</p>
                         </div>
                         <div class="tools">
@@ -64,11 +64,11 @@
                                 <el-upload
                                     action
                                     :show-file-list="false"
-                                    accept=".doc, .docx, .ppt"
+                                    accept=".doc, .docx, .ppt, .pptx"
                                     :http-request="(file) => uploadFileSuccess(file, content.DiscussionContentID)"
                                 >
                                     <img src="../../../../assets/preparationGroup/editPanel/up.png" alt="">
-                                    <span>再次上传</span>
+                                    <span>{{ content.ResourceResult ? "再次" : "" }}上传</span>
                                 </el-upload>
                             </div>
                         </div>
@@ -91,7 +91,7 @@
                             </span>
                         </div>
                         <div class="title-right">
-                            <div class="btn" @click="turnToAnnotation">
+                            <div class="btn" v-if="content.ResourceType === 2" @click="turnToAnnotation">
                                 <img src="../../../../assets/preparationGroup/editPanel/plus.png" alt="">
                                 <span>添加批注</span>
                             </div>
@@ -211,6 +211,7 @@ export default defineComponent({
             memoPanelStatus: false,
             isShowMore: false,
             isFull: false,
+            fileText: "",
             textareaWord: "",
             memoList: [
                 {
@@ -259,6 +260,8 @@ export default defineComponent({
                 }
             ]
         });
+
+        state.fileText = props.content.ResourceType === 1 ? "教案" : "课件";
 
         const researchContent = ref({});
 
@@ -372,10 +375,14 @@ export default defineComponent({
                         md5: md5
                     }
                 };
+                if (props.content.ResourceType === 2 && fileExtension !== "ppt" && fileExtension !== "pptx") {
+                    ElMessage.info("课件只支持ppt和pptx类型");
+                    return;
+                }
                 const result = await addResourceResult(params);
                 if (result.resultCode === 200) {
-                    window.location.reload();
                     ElMessage.success("添加研讨的终稿文件成功");
+                    window.location.reload();
                 }
             }
         };
@@ -513,7 +520,7 @@ export default defineComponent({
                 min-width: 60px;
                 width: auto;
                 height: 24px;
-                line-height: 24px;
+                line-height: 23px;
                 border-radius: 4px;
                 font-size: 12px;
                 font-family: PingFangSC-Regular, PingFang SC;
@@ -583,6 +590,9 @@ export default defineComponent({
                         background: #48DBBF;
                     }
                     &-2 {
+                        background: #4B72EB;
+                    }
+                    &-3 {
                         background: #C160E0;
                     }
                     img {

@@ -12,7 +12,7 @@
                 <el-input v-model="form.title" placeholder="请输入研讨主题，40个字以内" autocomplete="off" maxlength="40"></el-input>
             </el-form-item>
             <el-form-item label="资源类型:" :label-width="formLabelWidth" prop="resourceType">
-                <el-radio-group v-model="form.resourceType">
+                <el-radio-group v-model="form.resourceType" :disabled="flagType === '编辑'" @click="deleteFile">
                     <el-radio :label="1">教案设计</el-radio>
                     <el-radio :label="2">课件设计</el-radio>
                 </el-radio-group>
@@ -36,7 +36,7 @@
                 >
                     <el-button size="small" type="primary" plain icon="el-icon-upload">上传文件</el-button>
                     <template #tip>
-                        <div class="el-upload__tip TheSlogan">仅可上传一个word或ppt文件</div>
+                        <div class="el-upload__tip TheSlogan">{{ `仅可上传一个${form.resourceType === 1 ? "word或" : "" }ppt文件` }}</div>
                     </template>
                 </el-upload>
                 <div v-else>
@@ -215,7 +215,11 @@ export default defineComponent({
                 "docx"
             ];
             if (whiteList.indexOf(fileType) === -1) {
-                ElMessage.error("上传文件只能是 ppt,pptx,doc,docx格式");
+                ElMessage.info("上传文件只能是 ppt,pptx,doc,docx格式");
+                return false;
+            }
+            if (state.form.resourceType === 2 && fileType !== "ppt" && fileType !== "pptx") {
+                ElMessage.info("课件文件只能是 ppt,pptx格式");
                 return false;
             }
             state.form.planFile = "1";
@@ -255,7 +259,7 @@ export default defineComponent({
         // 删除教案/课件
         const deleteFile = () => {
             if (flagType.value === "编辑") {
-                ElMessage.info("暂不支持对教案课件初稿更改，请通过再次上传按钮进行上传操作");
+                ElMessage.info("编辑模式暂不支持对资源类型和教案/课件初稿的修改");
                 return;
             }
             fileContent.bucket = "";
