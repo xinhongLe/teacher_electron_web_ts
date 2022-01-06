@@ -92,12 +92,37 @@ export default defineComponent({
                     url = await downloadFile(`${item.path}/${item.md5}.${item.fileExtension}`, item.bucket);
                 }
             }
-            const a = document.createElement("a");
-            a.setAttribute("href", url);
-            a.click();
-            if (window && window.top) {
-                window.top.postMessage({ url, download: true }, "*");
-            }
+            // const a = document.createElement("a");
+            // a.setAttribute("href", url);
+            // a.click();
+            // if (window && window.top) {
+            //     window.top.postMessage({ url, download: true }, "*");
+            // }
+            getBlob(url, function(blob: any) {
+                saveAs(blob, item);
+            });
+        };
+        const getBlob = (url: string, cb: any) => {
+            const xhr = new XMLHttpRequest();
+            xhr.open("GET", url, true);
+            xhr.responseType = "blob";
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    cb(xhr.response);
+                }
+            };
+            xhr.send();
+        };
+        const saveAs = (blob: any, item: any) => {
+            const link = document.createElement("a");
+            const body = document.querySelectorAll("body");
+            link.href = window.URL.createObjectURL(blob);
+            link.download = item.FileName || item.fileName || item.Name;
+            link.style.display = "none";
+            body[0].appendChild(link);
+            link.click();
+            body[0].removeChild(link);
+            window.URL.revokeObjectURL(link.href);
         };
         const close = () => {
             emit("close", props.fileInfo);

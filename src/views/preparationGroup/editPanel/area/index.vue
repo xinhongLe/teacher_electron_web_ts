@@ -60,7 +60,7 @@
                                 <img src="../../../../assets/preparationGroup/editPanel/down.png" alt="">
                                 <el-button @click="download(content.ResourceResult)" type="text" :disabled="!content.ResourceResult">下载</el-button>
                             </div>
-                            <div class="tool-item">
+                            <div class="tool-item" v-if="isHasRule">
                                 <el-upload
                                     action
                                     :show-file-list="false"
@@ -150,7 +150,7 @@
                 <div class="left">
                     <div class="area-action">
                         <div class="action">
-                            <el-input v-model="textareaWord" :rows="1" type="textarea" placeholder="请输入评论内容" resize="none"/>
+                            <el-input v-model="textareaWord" :rows="1" type="textarea" placeholder="请输入评论内容，500个字符以内" :maxlength="500" resize="none"/>
                             <div class="file-list">
                                 <div class="file-cell" v-for="(ite, ind) in wordFiles" :key="ind">
                                     <FileSmall :fileInfo="ite"></FileSmall>

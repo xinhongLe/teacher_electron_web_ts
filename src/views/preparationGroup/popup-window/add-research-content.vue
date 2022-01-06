@@ -18,7 +18,7 @@
                 </el-radio-group>
             </el-form-item>
             <el-form-item label="内容摘要:" :label-width="formLabelWidth" prop="content">
-                <el-input v-model="form.content" autocomplete="off" type="textarea" :row="4" resize="none"></el-input>
+                <el-input v-model="form.content" autocomplete="off" type="textarea" :row="5" placeholder="1000个字符以内" :maxlength="1000" resize="none"></el-input>
             </el-form-item>
             <el-form-item
                 label="教案/课件:"
