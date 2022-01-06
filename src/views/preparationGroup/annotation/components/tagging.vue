@@ -97,6 +97,7 @@ export default defineComponent({
             document.addEventListener("mouseup", () => {
                 move = false;
             });
+            // 监听鼠标三秒之内没有动过
             const isMove = setInterval(() => {
                 const now = new Date().getTime();
                 console.log(now, lastMove.value);
@@ -104,23 +105,24 @@ export default defineComponent({
                     clearInterval(isMove);
                     return false;
                 }
-                if (now - lastMove.value > 3000) {
+                if (now - lastMove.value > 2000) {
                     console.log("没有动了");
                     lastMove.value = undefined;
-                    if (!allData.elementList[activeIndex.value].ID) {
-                        return false;
+                    for (const item of allData.elementList) {
+                        if (!item.ID) {
+                            return false;
+                        }
+                        const obj = {
+                            annotationID: item.ID,
+                            pointX: item.PointX,
+                            pointY: item.PointY,
+                            content: item.Content
+                        };
+                        EditAnnotation(obj);
                     }
-                    const obj = {
-                        annotationID: allData.elementList[activeIndex.value].ID,
-                        pointX: allData.elementList[activeIndex.value].PointX,
-                        pointY: allData.elementList[activeIndex.value].PointY,
-                        content: allData.elementList[activeIndex.value].Content
-                    };
-                    EditAnnotation(obj);
                 }
             }, 1000);
         };
-        // 监听鼠标三秒之内没有动过
         const showAnnotaiton = (e) => {
             let annotationSwitch = false;
             if (e.toElement.className === "tagging-center-main") {

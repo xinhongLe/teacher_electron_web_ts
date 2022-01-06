@@ -76,7 +76,8 @@ export default defineComponent({
         const { cardListRef, cardID, pageListRef, allCardList, previewOptions, expandFlag, annotationFlag, _getWindowCards, updatePageList, expand, closeAnotation, openAnotation, lastPage, firstPage } = annotation();
         onMounted(async() => {
             const obj = {
-                WindowID: route.params.id
+                // WindowID: route.params.id
+                WindowID: "3A013B8EB62C2E60DA242F59622829DA"
             };
             await _getWindowCards(obj);
         });
