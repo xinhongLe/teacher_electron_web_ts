@@ -420,7 +420,6 @@ export default defineComponent({
                     const result = await addResourceResult(params);
                     if (result.resultCode === 200) {
                         ElMessage.success("添加研讨的终稿文件成功");
-                        window.location.reload();
                     }
                 }
             } else {
@@ -447,7 +446,6 @@ export default defineComponent({
         const EditSuccessHandle = () => {
             dialogVisible.value = false;
             emit("Modify");
-            window.location.reload();
         };
 
         const resizeTextarea = () => {
