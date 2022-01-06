@@ -3,7 +3,7 @@
         <div class="annotation-list-header">
             <div class="alh-left">批注</div>
             <div class="alh-right">
-                <el-select v-model="value" placeholder="请选择">
+                <el-select v-model="teacherID" placeholder="请选择">
                     <el-option
                     v-for="item in options"
                     :key="item.value"
@@ -84,7 +84,7 @@ export default defineComponent({
             label: "北京烤鸭"
         }
         ];
-        const teacherID = "";
+        const teacherID = ref("");
         const { proxy } = getCurrentInstance();
         const editBoxSwtich = ref(null); // 编辑删除弹框
         const editFlag = ref(null);
@@ -259,6 +259,7 @@ export default defineComponent({
     min-height: 0;
     .annotation-list-header{
         display: flex;
+        align-items: center;
         justify-content: space-between;
         padding: 0 0 10px 0;
         .alh-left{
@@ -266,6 +267,15 @@ export default defineComponent({
             font-family: PingFangSC-Medium, PingFang SC;
             font-weight: 500;
             color: #212121;
+        }
+        .alh-right{
+            :deep(.el-input__inner){
+                width: 170px;
+                height: 30px;
+            }
+            :deep(.el-input__suffix){
+                display: none;
+            }
         }
     }
     .annotation-list-all{
