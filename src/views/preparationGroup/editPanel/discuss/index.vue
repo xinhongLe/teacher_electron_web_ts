@@ -22,10 +22,13 @@
                 </div>
             </div>
         </div>
-        <div class="discuss-area">
+        <div class="discuss-area" v-if="Contents && Contents.length > 0">
             <div class="discuss-box-cell">
                 <Area :content="item" :numorder="index" v-for="(item, index) in Contents" :key="index" @Modify="ModifyHandle"></Area>
             </div>
+        </div>
+        <div class="discuss-area" v-else>
+            <p class="empty">暂无成员上传研讨内容</p>
         </div>
         <AddResearchContent v-model:dialogVisible="dialogVisible" v-if="dialogVisible" @AddSuccess="AddSuccessHandle">></AddResearchContent>
     </div>
@@ -165,6 +168,7 @@ export default defineComponent({
         }
     }
     .discuss-process {
+        margin-bottom: 20px;
         .process-title {
             font-size: 16px;
             font-family: PingFangSC-Regular, PingFang SC;
@@ -230,6 +234,16 @@ export default defineComponent({
     .discuss-area {
         .discuss-box-cell {
             margin-top: 30px;
+            min-height: 90px;
+        }
+        .empty {
+            font-size: 20px;
+            font-family: PingFangSC-Regular, PingFang SC;
+            font-weight: 400;
+            color: #5F626F;
+            text-align: center;
+            border-top: 1px dashed #E0E2E7;
+            line-height: 90px;
         }
     }
 }

@@ -81,7 +81,7 @@ export default defineComponent({
                     }
                 },
                 {
-                    text: "本周",
+                    text: "最近一周",
                     value: () => {
                         const end = new Date();
                         const start = new Date();

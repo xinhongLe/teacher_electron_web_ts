@@ -63,7 +63,7 @@
                         <div class="organization" v-if="organizationVisible">
                             <div class="optionTitle">
                                 <img class="logo" src="../../../assets/preparationGroup/avatar_default.png" />
-                                <span class="organization-span">{{ schoolList[0].Name }}</span>
+                                <span class="organization-span">{{ schoolList[0] && schoolList[0].Name }}</span>
                                 <el-select v-if="false" class="organization-select" v-model="selectOption" @change="fetchShareCustomerList($event)" size="medium" filterable>
                                     <el-option
                                         v-for="item in schoolList"
