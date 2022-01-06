@@ -26,6 +26,7 @@ import { TRTCParams, TRTCRoleType } from "trtc-electron-sdk/liteav/trtc_define";
 import { ElMessageBox } from "element-plus";
 import { store } from "@/store";
 import { getUserSig } from "@/api";
+import { clearInterval, setInterval } from "timers";
 export default defineComponent({
     props: {
         roomId: {
@@ -86,7 +87,7 @@ export default defineComponent({
             param.userId = userId.value;
             param.userSig = (await (await getUserSig({ sdkAppID: sdkAppId, userID: userId.value }))?.result)?.UserSig || "";
             param.role = TRTCRoleType.TRTCRoleAudience; // 设置角色为“观众”
-            trtcCloud.enterRoom(param, TRTCAppScene.TRTCAppSceneLIVE);
+            trtcCloud.enterRoom(param, TRTCAppScene.TRTCAppSceneVideoCall);
         };
 
         function setTimeList() {
@@ -142,8 +143,8 @@ export default defineComponent({
     position: absolute;
     display: flex;
     align-items: center;
-    top: 30px;
-    right: 32px;
+    top: 5px;
+    right: 20px;
     .circle {
         width: 8px;
         height: 8px;

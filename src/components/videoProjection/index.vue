@@ -12,6 +12,7 @@ import * as mqtt from "mqtt";
 import { ElMessage, ElMessageBox, MessageHandle } from "element-plus";
 import { store } from "@/store";
 import Content from "./Content.vue";
+import { clearTimeout, setTimeout } from "timers";
 const imgError = require("@/assets/projection/img_error@2x.png");
 
 export default defineComponent({
@@ -51,6 +52,7 @@ export default defineComponent({
                     roomID: string;
                 } = JSON.parse(infoString);
             if (!info.IsEnd) {
+                window.electron.maximizeWindow();
                 roomId.value = info.roomID;
                 isShow.value = true;
             } else {
@@ -159,6 +161,9 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .container {
+    :deep(.el-dialog) {
+        -webkit-app-region: no-drag;
+    }
     :deep(.el-dialog__header) {
         display: none;
     }
