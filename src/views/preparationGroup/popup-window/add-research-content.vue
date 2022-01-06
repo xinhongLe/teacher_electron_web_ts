@@ -227,32 +227,37 @@ export default defineComponent({
 
         // 上传教案/课件
         const uploadFileSuccess = async ({ file }: {file: UploadFile & Blob;}) => {
-            const ossPath = get(STORAGE_TYPES.OSS_PATHS)?.["GroupLessonFile"];
-            const res = await cooOss(file, ossPath);
-            if (res?.code === 200) {
-                console.log(res, "resresres");
-                const { objectKey, name, md5, fileExtension } = res;
-                fileContent.bucket = ossPath.Bucket;
-                fileContent.path = ossPath.Path;
-                fileContent.fileExtension = fileExtension;
-                fileContent.objectKey = objectKey;
-                fileContent.name = name;
-                fileContent.md5 = md5;
-                fileContent.fileName = file.name.substring(0, file.name.lastIndexOf("."));
-                fileContent.size = file.size;
-                fileContent.fileSize = getFileSize(file.size);
-                fileContent.fileType = getFileType(file.name);
-                state.form.coursewareContent = "";
-                // JSON转字符串
-                if (fileContent.fileType === "ppt") {
-                    const coursewareItem = await jsonToString({
-                        bucketPath: "GroupLessonFile",
-                        file: `${name}.${fileExtension}`
-                    });
-                    if (coursewareItem && coursewareItem.success) {
-                        state.form.coursewareContent = JSON.stringify(coursewareItem.result);
+            if (file.name.length < 128) {
+                const ossPath = get(STORAGE_TYPES.OSS_PATHS)?.["GroupLessonFile"];
+                const res = await cooOss(file, ossPath);
+                if (res?.code === 200) {
+                    console.log(res, "resresres");
+                    const { objectKey, name, md5, fileExtension } = res;
+                    fileContent.bucket = ossPath.Bucket;
+                    fileContent.path = ossPath.Path;
+                    fileContent.fileExtension = fileExtension;
+                    fileContent.objectKey = objectKey;
+                    fileContent.name = name;
+                    fileContent.md5 = md5;
+                    fileContent.fileName = file.name.substring(0, file.name.lastIndexOf("."));
+                    fileContent.size = file.size;
+                    fileContent.fileSize = getFileSize(file.size);
+                    fileContent.fileType = getFileType(file.name);
+                    state.form.coursewareContent = "";
+                    // JSON转字符串
+                    if (fileContent.fileType === "ppt") {
+                        const coursewareItem = await jsonToString({
+                            bucketPath: "GroupLessonFile",
+                            file: `${name}.${fileExtension}`
+                        });
+                        if (coursewareItem && coursewareItem.success) {
+                            state.form.coursewareContent = JSON.stringify(coursewareItem.result);
+                        }
                     }
                 }
+            } else {
+                ElMessage.info("文件名字长度不能超过128位");
+                deleteFile();
             }
         };
 
@@ -277,23 +282,27 @@ export default defineComponent({
 
         // 上传附件
         const uploadSuccess = async ({ file }: {file: UploadFile & Blob;}) => {
-            console.log("fileList", fileList.value);
-            if (fileList.value.length < 9 && acceptList.indexOf(file.name.split(".")[1]) > -1) {
-                await uploadFile({ file });
-                fileList.value.push({
-                    ...fileInfo
-                    // extention: fileInfo.fileExtension,
-                    // name: fileInfo.name,
-                    // fileName: fileInfo.fileName,
-                    // bucket: fileInfo.bucket,
-                    // fileMD5: fileInfo.md5,
-                    // filePath: fileInfo.path!,
-                    // size: fileInfo.size!,
-                    // fileSize: fileInfo.fileSize!,
-                    // fileType: fileInfo.fileType!
-                });
+            if (file.name.length < 128) {
+                console.log("fileList", fileList.value);
+                if (fileList.value.length < 9 && acceptList.indexOf(file.name.split(".")[1]) > -1) {
+                    await uploadFile({ file });
+                    fileList.value.push({
+                        ...fileInfo
+                        // extention: fileInfo.fileExtension,
+                        // name: fileInfo.name,
+                        // fileName: fileInfo.fileName,
+                        // bucket: fileInfo.bucket,
+                        // fileMD5: fileInfo.md5,
+                        // filePath: fileInfo.path!,
+                        // size: fileInfo.size!,
+                        // fileSize: fileInfo.fileSize!,
+                        // fileType: fileInfo.fileType!
+                    });
+                } else {
+                    ElMessage.info(`可上传不超过9个素材，支持格式：${acceptList.split(",").join(" ")}等`);
+                }
             } else {
-                ElMessage.info(`可上传不超过9个素材，支持格式：${acceptList.split(",").join(" ")}等`);
+                ElMessage.info("文件名字长度不能超过128位");
             }
         };
 

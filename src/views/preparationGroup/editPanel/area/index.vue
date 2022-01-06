@@ -397,30 +397,34 @@ export default defineComponent({
 
         // 再次上传教案/课件
         const uploadFileSuccess = async ({ file }: {file: UploadFile & Blob;}, id: string) => {
-            const ossPath = get(STORAGE_TYPES.OSS_PATHS)?.["GroupLessonFile"];
-            const res = await cooOss(file, ossPath);
-            if (res?.code === 200) {
-                const { name, md5, fileExtension } = res;
-                const params = {
-                    discussionID: id,
-                    resourceResult: {
-                        name: name,
-                        fileName: file.name.substring(0, file.name.lastIndexOf(".")),
-                        bucket: ossPath.Bucket,
-                        path: ossPath.Path,
-                        fileExtension: fileExtension,
-                        md5: md5
+            if (file.name.length < 128) {
+                const ossPath = get(STORAGE_TYPES.OSS_PATHS)?.["GroupLessonFile"];
+                const res = await cooOss(file, ossPath);
+                if (res?.code === 200) {
+                    const { name, md5, fileExtension } = res;
+                    const params = {
+                        discussionID: id,
+                        resourceResult: {
+                            name: name,
+                            fileName: file.name.substring(0, file.name.lastIndexOf(".")),
+                            bucket: ossPath.Bucket,
+                            path: ossPath.Path,
+                            fileExtension: fileExtension,
+                            md5: md5
+                        }
+                    };
+                    if (props.content.ResourceType === 2 && fileExtension !== "ppt" && fileExtension !== "pptx") {
+                        ElMessage.info("课件只支持ppt和pptx类型");
+                        return;
                     }
-                };
-                if (props.content.ResourceType === 2 && fileExtension !== "ppt" && fileExtension !== "pptx") {
-                    ElMessage.info("课件只支持ppt和pptx类型");
-                    return;
+                    const result = await addResourceResult(params);
+                    if (result.resultCode === 200) {
+                        ElMessage.success("添加研讨的终稿文件成功");
+                        window.location.reload();
+                    }
                 }
-                const result = await addResourceResult(params);
-                if (result.resultCode === 200) {
-                    ElMessage.success("添加研讨的终稿文件成功");
-                    window.location.reload();
-                }
+            } else {
+                ElMessage.info("文件名字长度不能超过128位");
             }
         };
 
