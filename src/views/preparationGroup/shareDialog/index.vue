@@ -325,7 +325,7 @@ export default defineComponent({
                                 Name: item.Name,
                                 Active: false
                             };
-                            if (item.Name && item.Name.length > 0) teacherList.value.push(resp);
+                            if (item.Name && item.Name.length > 0 && item.ID !== get(STORAGE_TYPES.USER_INFO).ID) teacherList.value.push(resp);
                         });
                     }
                 }

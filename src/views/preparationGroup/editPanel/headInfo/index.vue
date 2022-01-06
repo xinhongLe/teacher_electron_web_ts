@@ -52,7 +52,7 @@
                 <img src="../../../../assets/preparationGroup/editPanel/book.png" alt="" />
                 <span>备课内容：</span>
                 <span class="content textarea-content" v-if="isEdit">
-                    <el-input v-model="lessonItem.LessonContent" :rows="3" type="textarea" placeholder="" resize="none"/>
+                    <el-input v-model="lessonItem.LessonContent" :rows="3" type="textarea" placeholder="500个字符以内" :maxlength="500" resize="none"/>
                 </span>
                 <span class="content special-content" :class="isShowMore ? `` : `clamp`" :title="lessonItem.LessonContent" v-else>
                     {{ lessonItem.LessonContent }}

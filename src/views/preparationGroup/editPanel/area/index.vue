@@ -31,7 +31,7 @@
                         <div class="box-item box-item-1">
                             <img src="../../../../assets/preparationGroup/editPanel/icon_jiaoan.png" alt="">
                             <p>教案</p>
-                            <p class="time">2021-12-12 08:35</p>
+                            <p class="time">{{ moment(content.ResourceSource.CreateTime || content.CreateTime).format("YYYY-MM-DD HH:mm:ss") }}</p>
                         </div>
                         <div class="tools">
                             <div class="tool-item">
@@ -46,10 +46,10 @@
                     </div>
                     <img class="arrow" src="../../../../assets/preparationGroup/editPanel/right.png" alt="">
                     <div>
-                        <div class="box-item box-item-2">
+                        <div class="box-item box-item-2" :class="content.ResourceResult ? '' : 'disable-item'">
                             <img src="../../../../assets/preparationGroup/editPanel/icon_jiaoan.png" alt="">
                             <p>教案终稿</p>
-                            <p class="time">2021-12-12 08:35</p>
+                            <p class="time">{{ content.ResourceResult && content.ResourceResult.CreateTime ? moment(content.ResourceResult.CreateTime).format("YYYY-MM-DD HH:mm:ss") : "-" }}</p>
                         </div>
                         <div class="tools">
                             <div class="tool-item">
@@ -109,7 +109,7 @@
                             </p>
                         </div>
                         <div class="title-right">
-                            <div class="btn-memo" @click="memoPanelStatus = !memoPanelStatus">
+                            <div class="btn-memo" v-if="false" @click="memoPanelStatus = !memoPanelStatus">
                                 <img src="../../../../assets/preparationGroup/editPanel/memo.png" alt="">
                                 <span v-if="memoPanelStatus">收起评论</span>
                                 <span v-else>5条评论</span>
@@ -602,6 +602,10 @@ export default defineComponent({
                         font-weight: 400;
                         margin-top: 10px;
                     }
+                }
+                .disable-item {
+                    opacity: 0.5;
+                    background: #9E9EA7;
                 }
                 .tools {
                     display: flex;
