@@ -48,7 +48,7 @@
                     class="upload-demo"
                     v-loading="loadingShow"
                     action
-                    multiple
+                    :multiple="false"
                     :show-file-list="false"
                     :accept="acceptList"
                     :http-request="uploadSuccess"
