@@ -38,13 +38,8 @@
             </div>
             <p style="min-width: 300px; height:16px; text-align: right;" v-if="item.Status === 2">您可以<span class="blue" @click="generateInvitelink(item)">生成邀请链接</span>， 发送至小组成员</p>
         </div>
-
-        <generate-link
-            ref="generateLinkRef"
-            :currentItem="currentItem"
-        ></generate-link>
-
     </div>
+    <generate-link ref="generateLinkRef" :currentItem="currentItem"></generate-link>
     <DeleteConfirm ref="deleteDialog" msg="您确定删除这条集体备课记录么？" :deleteResource="deleteResource"></DeleteConfirm>
 </template>
 
@@ -90,8 +85,9 @@ export default defineComponent({
         // 生成邀请链接
         const generateInvitelink = (item: PreparateListBag) => {
             currentItem.value = item;
-            generateLinkRef.value.isCopy = false;
-            generateLinkRef.value.dialogVisible = true;
+            if (generateLinkRef.value) {
+                generateLinkRef.value.openDialog();
+            }
         };
         // 进入研讨
         const turnToEditPanel = (item: PreparateListBag) => {

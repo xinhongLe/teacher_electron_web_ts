@@ -64,6 +64,10 @@ export default defineComponent({
                 url.value = `${origin}/preparation-group?inviteID=${res.result.ID}&isShowNarBar=false&redirect=preparation-group`;
             }
         };
+        const openDialog = () => {
+            isCopy.value = false;
+            dialogVisible.value = true;
+        };
         watch(dialogVisible, (val) => {
             if (val) {
                 setTimeout(() => {
@@ -78,6 +82,7 @@ export default defineComponent({
             isCopy,
             origin,
             url,
+            openDialog,
             handleClose,
             copyText,
             moment
