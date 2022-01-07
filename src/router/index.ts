@@ -119,7 +119,7 @@ const routes: Array<RouteRecordRaw> = [
                 component: () => import("@/views/assessmentCenter/index.vue")
             },
             {
-                path: "annotation/:id",
+                path: "annotation/:id/:preId/:teacherCount",
                 name: "批注",
                 component: () => import("@/views/preparationGroup/annotation/index.vue")
             }

@@ -175,7 +175,7 @@ import { ElMessage } from "element-plus";
 import { IOssFileInfo } from "@/types/oss";
 import File from "../../file/index.vue";
 import FileSmall from "../../file/small.vue";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import moment from "moment";
 import { DiscussioncontentList, Fileginseng } from "@/types/preparationGroup";
 import { openFile, downLoad } from "@/utils";
@@ -199,6 +199,12 @@ export default defineComponent({
         numorder: {
             type: Number,
             default: 0
+        },
+        teacherCount: {
+            type: Number,
+            default: () => {
+                return 0;
+            }
         }
     },
     setup(props, { emit }) {
@@ -208,6 +214,7 @@ export default defineComponent({
         const dialogVisible = ref(false);
         const isHasRule = ref(props.content.CreaterID === get(STORAGE_TYPES.USER_INFO).ID);
         const router = useRouter();
+        const route = useRoute();
         const state = reactive({
             memoPanelStatus: false,
             isShowMore: false,
@@ -463,7 +470,7 @@ export default defineComponent({
         };
 
         const turnToAnnotation = () => {
-            router.push(`/annotation/${props.content.DiscussionContentID}`);
+            router.push(`/annotation/${props.content.DiscussionContentID}/${route.params.preId}/${props.teacherCount}`);
         };
 
         const { getFileType } = useUploadFile("GroupLessonFile");

@@ -6,10 +6,10 @@
                     {{ WindowName }}
                 </div>
                 <div class="annotation-header-otherinfo">
-                    <div><img src="@/assets/preparationGroup/icon_ren1.png" alt="">创建人：林老师</div>
-                    <div><img src="@/assets/preparationGroup/icon_time1.png" alt="">创建时间：2021-12-27 16：08</div>
-                    <div><img src="@/assets/preparationGroup/icon_renshu1.png" alt="">小组人数：5人</div>
-                    <div><img src="@/assets/preparationGroup/icon_fanwei.png" alt="">备课范围：数学 苏教版 三上</div>
+                    <div><img src="@/assets/preparationGroup/icon_ren1.png" alt="">创建人：{{ lessonItem.CreaterName }}</div>
+                    <div><img src="@/assets/preparationGroup/icon_time1.png" alt="">创建时间：{{ lessonItem.CreateTime }}</div>
+                    <div><img src="@/assets/preparationGroup/icon_renshu1.png" alt="">小组人数：{{ lessonItem.TeacherCount }}人</div>
+                    <div><img src="@/assets/preparationGroup/icon_fanwei.png" alt="">备课范围：{{ lessonItem.LessonRange }}</div>
                 </div>
             </div>
             <div class="annotation-header-right" @click="openAnotation">
@@ -63,12 +63,16 @@
 </template>
 
 <script>
-import { defineComponent, onMounted, ref } from "vue-demi";
+import { defineComponent, onMounted, ref, reactive } from "vue-demi";
 import annotation from "./annotation";
 import CardList from "./components/card-list.vue";
 import PageList from "./components/page-list.vue";
 import AnnotationList from "./components/annotation-list.vue";
 import { useRoute } from "vue-router";
+import { fetchPreparateDetail } from "../api";
+import { lessonItemData } from "@/types/preparationGroup";
+import useSubmit from "../editPanel/useSubmit";
+import moment from "moment";
 export default defineComponent({
     name: "preparationGroup",
     components: { CardList, PageList, AnnotationList },
@@ -79,8 +83,24 @@ export default defineComponent({
         const pageID = ref("");
         const AnnotationListRef = ref();
         const route = useRoute();
+        const lessonItem = reactive({
+            Attachments: [],
+            CanEdit: false,
+            CreateTime: "",
+            EndTime: "",
+            CreaterID: "",
+            CreaterName: "",
+            PreTitle: "",
+            Status: 0,
+            TeacherCount: 0,
+            LessonRange: "",
+            LessonRangeIDs: [],
+            LessonContent: ""
+        });
         const { cardListRef, cardID, pageListRef, allCardList, previewOptions, expandFlag, annotationFlag, _getWindowCards, updatePageList, expand, closeAnotation, openAnotation, lastPage, firstPage } = annotation();
         onMounted(async() => {
+            getTextBookGrade();
+            getPreparateDetail();
             const obj = {
                 WindowID: route.params.id
             };
@@ -109,6 +129,51 @@ export default defineComponent({
             pageListRef.value._getAnnotation();
             pageListRef.value._getAnnotationCreateTeachers();
         };
+        const getPreparateDetail = async () => {
+            const res = await fetchPreparateDetail({
+                id: route.params.preId
+            });
+            if (res.resultCode === 200) {
+                const { CanEdit, CreateTime, CreaterID, CreaterName, PreTitle, Status, TeacherCount = 0, LessonRange = "", LessonContent = "" } = res.result;
+                lessonItem.CanEdit = CanEdit;
+                lessonItem.CreateTime = moment(CreateTime).format("YYYY-MM-DD HH:mm:ss");
+                lessonItem.CreaterID = CreaterID;
+                lessonItem.CreaterName = CreaterName;
+                lessonItem.PreTitle = PreTitle;
+                lessonItem.Status = Status;
+                lessonItem.TeacherCount = route.params.teacherCount;
+                lessonItem.LessonRange = LessonRange || "";
+                lessonItem.LessonRangeIDs = lessonItem.LessonRange.split(",");
+                if (lessonItem.LessonRangeIDs.length > 0) {
+                    let rangeText = "";
+                    const levelOne = textBookGradeList.value.filter((v) => {
+                        return v.value === lessonItem.LessonRangeIDs[0];
+                    });
+                    if (levelOne && levelOne[0]) {
+                        rangeText += `${levelOne[0].label} `;
+                        if (levelOne[0].children && levelOne[0].children.length > 0) {
+                            const levelTwo = levelOne[0].children.filter((vv) => {
+                                return vv.value === lessonItem.LessonRangeIDs[1];
+                            });
+                            if (levelTwo && levelTwo[0]) {
+                                rangeText += `${levelTwo[0].label} `;
+                                if (levelTwo[0].children && levelTwo[0].children.length > 0) {
+                                    const levelThree = levelTwo[0].children.filter((vvv) => {
+                                        return vvv.value === lessonItem.LessonRangeIDs[2];
+                                    });
+                                    if (levelThree && levelThree[0]) {
+                                        rangeText += `${levelThree[0].label}`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    lessonItem.LessonRange = rangeText || "-";
+                }
+                lessonItem.LessonContent = LessonContent;
+            }
+        };
+        const { textBookGradeList, getTextBookGrade } = useSubmit();
         return {
             AnotationList,
             teacherList,
@@ -122,6 +187,7 @@ export default defineComponent({
             previewOptions,
             expandFlag,
             annotationFlag,
+            lessonItem,
             updatePageList,
             expand,
             closeAnotation,

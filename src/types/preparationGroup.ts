@@ -328,7 +328,7 @@ export interface Lesson {
 }
 
 export interface FetchLessonsData {
-    
+    id?: string;
 }
 
 export interface AddContentData {

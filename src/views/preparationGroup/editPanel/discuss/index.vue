@@ -24,7 +24,7 @@
         </div>
         <div class="discuss-area" v-if="Contents && Contents.length > 0">
             <div class="discuss-box-cell">
-                <Area :content="item" :numorder="index" v-for="(item, index) in Contents" :key="index" @Modify="ModifyHandle"></Area>
+                <Area :content="item" :numorder="index" :teacherCount="teacherCount" v-for="(item, index) in Contents" :key="index" @Modify="ModifyHandle"></Area>
             </div>
         </div>
         <div class="discuss-area" v-else>
@@ -45,6 +45,12 @@ export default defineComponent({
     props: {
         reload: {
             type: Function
+        },
+        teacherCount: {
+            type: Number,
+            default: () => {
+                return 0;
+            }
         }
     },
     setup(props, { emit }) {

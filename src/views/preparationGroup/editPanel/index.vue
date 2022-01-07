@@ -3,7 +3,7 @@
         <HeadInfo :teacherCount="teacherCount"></HeadInfo>
         <div class="main-box" :class="editStatus ? `opacity` : ``">
             <Member @SetTeacherCount="setTeacherCount"></Member>
-            <Discuss></Discuss>
+            <Discuss :teacherCount="teacherCount"></Discuss>
             <Summary></Summary>
         </div>
     </div>
