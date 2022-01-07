@@ -110,7 +110,7 @@ const routes: Array<RouteRecordRaw> = [
             },
             {
                 path: "preparation-edit/:preId",
-                name: "编辑集体备课",
+                name: "集体备课详情",
                 component: () => import("@/views/preparationGroup/editPanel/index.vue")
             },
             {

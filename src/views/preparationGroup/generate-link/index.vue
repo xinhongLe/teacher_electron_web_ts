@@ -57,14 +57,16 @@ export default defineComponent({
             isCopy.value = true;
         };
         const makeLink = async () => {
-            console.log(props.currentItem);
             const res = await makeInviteeLink({
                 groupLessonPreparateID: props.currentItem.Id
             });
             if (res.resultCode === 200) {
-                url.value = `${origin}/preparation-group?inviteID=${res.result.ID}`;
-                // url.value = `${origin}/preparation-edit/${props.currentItem.Id}`;
+                url.value = `${origin}/preparation-group?inviteID=${res.result.ID}&isShowNarBar=false&redirect=preparation-group`;
             }
+        };
+        const openDialog = () => {
+            isCopy.value = false;
+            dialogVisible.value = true;
         };
         watch(dialogVisible, (val) => {
             if (val) {
@@ -80,6 +82,7 @@ export default defineComponent({
             isCopy,
             origin,
             url,
+            openDialog,
             handleClose,
             copyText,
             moment
