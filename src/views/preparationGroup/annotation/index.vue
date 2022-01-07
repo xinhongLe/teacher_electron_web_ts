@@ -107,6 +107,7 @@ export default defineComponent({
         const successAdd = () => {
             // 新增成功刷新批注列表
             pageListRef.value._getAnnotation();
+            pageListRef.value._getAnnotationCreateTeachers();
         };
         return {
             AnotationList,
