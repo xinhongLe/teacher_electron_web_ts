@@ -205,7 +205,7 @@ export default defineComponent({
         };
 
         const savePreparateDetail = async () => {
-            if (lessonItem.PreTitle.length === 0 || !lessonItem.PreTitle) {
+            if (lessonItem.PreTitle.trim().length === 0 || !lessonItem.PreTitle) {
                 ElMessage.info("请输入备课主题");
                 return;
             }

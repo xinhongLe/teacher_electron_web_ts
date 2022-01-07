@@ -284,7 +284,8 @@ export default defineComponent({
         const uploadSuccess = async ({ file }: {file: UploadFile & Blob;}) => {
             if (file.name.length < 128) {
                 console.log("fileList", fileList.value);
-                if (fileList.value.length < 9 && acceptList.indexOf(file.name.split(".")[1]) > -1) {
+                const na = file.name.substring(file.name.lastIndexOf("."), file.name.length);
+                if (fileList.value.length < 9 && acceptList.indexOf(na) > -1) {
                     await uploadFile({ file });
                     fileList.value.push({
                         ...fileInfo
@@ -315,6 +316,10 @@ export default defineComponent({
         const submitForm = async () => {
             formRef.value!.validate(async valid => {
                 if (valid) {
+                    if (state.form.title.trim().length === 0) {
+                        ElMessage.info("请输入研讨主题");
+                        return;
+                    }
                     const data = {
                         discussionContent: {
                             title: state.form.title,

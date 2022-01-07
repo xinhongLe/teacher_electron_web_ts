@@ -26,7 +26,7 @@
                             <img src="@/assets/preparationGroup/icon_more.png" alt="">
                             <div class="ahm-edit" v-if="editBoxSwtich === index">
                                 <div @click.stop="edit(index, 0, item)"><i class="el-icon-edit"></i>编辑</div>
-                                <div @click.stop="(item)"><i class="el-icon-delete"></i>删除</div>
+                                <div @click.stop="del(item)"><i class="el-icon-delete"></i>删除</div>
                             </div>
                         </div>
                     </div>
@@ -104,6 +104,7 @@ export default defineComponent({
                     }
                 ];
                 options.value = options.value.concat(props.teacherList);
+                console.log(options.value);
                 teacherID.value = "";
                 editBoxSwtich.value = null;
             }

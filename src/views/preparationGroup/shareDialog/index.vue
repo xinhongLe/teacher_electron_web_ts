@@ -546,6 +546,10 @@ export default defineComponent({
         };
 
         const confirm = async () => {
+            if (state.ruleForm.courseContent.trim().length === 0) {
+                ElMessage.info("请输入备课主题");
+                return;
+            }
             const teacherIDs = [get(STORAGE_TYPES.USER_INFO).ID];
             state.dynamicTags.map((item: any) => {
                 teacherIDs.push(item.ID);
