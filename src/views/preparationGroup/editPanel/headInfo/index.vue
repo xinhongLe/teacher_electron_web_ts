@@ -93,7 +93,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, reactive, getCurrentInstance, watch, nextTick, onMounted } from "vue";
+import { defineComponent, ref, reactive, getCurrentInstance, watch, nextTick, onMounted, onBeforeUnmount } from "vue";
 import { useRoute } from "vue-router";
 import { fetchPreparateDetail, editPreparateDetail } from "../../api";
 import { lessonItemData } from "@/types/preparationGroup";
@@ -275,8 +275,14 @@ export default defineComponent({
             lessonItem.Attachments.splice(index, 1);
         };
         onMounted(() => {
+            proxy.mittBus.on("busPreparateDetail", (status: boolean) => {
+                getPreparateDetail();
+            });
             getTextBookGrade();
             getPreparateDetail();
+        });
+        onBeforeUnmount(() => {
+            proxy.mittBus.off("busPreparateDetail");
         });
         return {
             isEdit,

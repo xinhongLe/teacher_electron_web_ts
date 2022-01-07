@@ -35,7 +35,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, toRefs, ref, onMounted } from "vue";
+import { defineComponent, reactive, toRefs, ref, onMounted, getCurrentInstance } from "vue";
 import { useRoute } from "vue-router";
 import Area from "../area/index.vue";
 import AddResearchContent from "../../popup-window/add-research-content.vue";
@@ -54,6 +54,8 @@ export default defineComponent({
         }
     },
     setup(props, { emit }) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { proxy } = getCurrentInstance() as any;
         console.log(props);
         console.log(emit);
         const route = useRoute();
@@ -92,10 +94,12 @@ export default defineComponent({
         const AddSuccessHandle = () => {
             dialogVisible.value = false;
             fetchContents();
+            proxy.mittBus.emit("busPreparateDetail");
         };
 
         const ModifyHandle = () => {
             fetchContents();
+            proxy.mittBus.emit("busPreparateDetail");
         };
 
         const add = () => {
