@@ -97,7 +97,13 @@ export default defineComponent({
         watch(
             () => props.teacherList,
             () => {
-                options.value = props.teacherList;
+                options.value = [
+                    {
+                        CreateTeacherID: "",
+                        CreateTeacherName: "全部"
+                    }
+                ];
+                options.value = options.value.concat(props.teacherList);
                 teacherID.value = "";
                 editBoxSwtich.value = null;
             }
