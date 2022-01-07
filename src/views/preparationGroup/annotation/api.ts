@@ -99,6 +99,18 @@ export function GetDiscussionContentCards(data: IGetDiscussion): Promise<GetWind
         data
     });
 }
+// 获取老师批注列表
+export function GetAnnotationCreateTeachers(data: IGetAnnotation): Promise<GetWindowCardsResponse> {
+    return request({
+        baseURL: AI_XUE_SHI_API,
+        url: "/Api/V2/GroupLesson/GetAnnotationCreateTeachers",
+        headers: {
+            "Content-Type": "application/json-patch+json"
+        },
+        method: "post",
+        data
+    });
+}
 // 获取页面数据
 export function getPPtPageDetail(data: IGetDiscussion): Promise<GetWindowCardsResponse> {
     return request({

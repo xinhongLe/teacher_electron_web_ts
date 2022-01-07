@@ -31,11 +31,13 @@
                     style="margin-right: 15px"
                     ref="pageListRef"
                     :pageListOption="previewOptions"
+                    :createTeacherID="createTeacherID"
                     @lastPage="lastPage"
                     @firstPage="firstPage"
                     @showAnnotation="showAnnotation"
                     @updatePageID="updatePageID"
                     @updateAnotationList="updateAnotationList"
+                    @updateTeacherList="updateTeacherList"
                 />
             </div>
             <div class="annotation-main-right" v-show="annotationFlag">
@@ -43,9 +45,11 @@
                     ref="AnnotationListRef"
                     @addElement="addElement"
                     :AnotationList="AnotationList"
+                    :teacherList="teacherList"
                     :cardID="cardID"
                     :pageID="pageID"
                     @successAdd="successAdd"
+                    @selectTeacher="selectTeacher"
                 ></AnnotationList>
             </div>
         </div>
@@ -70,6 +74,8 @@ export default defineComponent({
     components: { CardList, PageList, AnnotationList },
     setup() {
         const AnotationList = ref([]);
+        const teacherList = ref([]);
+        const createTeacherID = ref("");
         const pageID = ref("");
         const AnnotationListRef = ref();
         const route = useRoute();
@@ -77,7 +83,6 @@ export default defineComponent({
         onMounted(async() => {
             const obj = {
                 WindowID: route.params.id
-                // WindowID: "3A013B8EB62C2E60DA242F59622829DA"
             };
             await _getWindowCards(obj);
         });
@@ -91,7 +96,13 @@ export default defineComponent({
         // 更新批注
         const updateAnotationList = (e) => {
             AnotationList.value = e;
-            console.log(e);
+        };
+        const updateTeacherList = (e) => {
+            teacherList.value = e;
+        };
+        // 选择老师
+        const selectTeacher = (e) => {
+            createTeacherID.value = e;
         };
         const successAdd = () => {
             // 新增成功刷新批注列表
@@ -99,6 +110,8 @@ export default defineComponent({
         };
         return {
             AnotationList,
+            teacherList,
+            createTeacherID,
             cardID,
             pageID,
             cardListRef,
@@ -116,8 +129,10 @@ export default defineComponent({
             firstPage,
             showAnnotation,
             updateAnotationList,
+            updateTeacherList,
             updatePageID,
-            successAdd
+            successAdd,
+            selectTeacher
         };
     }
 });

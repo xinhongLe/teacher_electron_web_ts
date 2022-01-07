@@ -38,11 +38,11 @@
 <script>
 import useHome from "@/hooks/useHome";
 import { defineComponent, ref, watch } from "vue-demi";
-import { getPPtPageDetail, GetAnnotation } from "../api";
+import { getPPtPageDetail, GetAnnotation, GetAnnotationCreateTeachers } from "../api";
 import { dealOldData } from "@/utils/dataParse";
 import Tagging from "./tagging.vue";
 export default defineComponent({
-    props: ["pageListOption"],
+    props: ["pageListOption", "createTeacherID"],
     components: { Tagging },
     setup(props, { emit }) {
         const selected = ref(0);
@@ -55,6 +55,7 @@ export default defineComponent({
         const taggingRef = ref();
         const pageID = ref("");
         const annotationList = ref([]);
+        const createTeacher = ref();
         watch(
             () => props.pageListOption,
             () => {
@@ -70,6 +71,13 @@ export default defineComponent({
                 }
             }
         );
+        watch(
+            () => props.createTeacherID,
+            () => {
+                createTeacher.value = props.createTeacherID;
+                _getAnnotation();
+            }
+        );
         // 下一步
         const pageNext = async () => {
             if (pageList.value.length === 0) {
@@ -82,7 +90,9 @@ export default defineComponent({
                 selected.value++;
                 isInit.value = true;
                 getDataBase(pageList.value[selected.value].ID, pageList.value[selected.value]);
+                createTeacher.value = "";
                 _getAnnotation();
+                _getAnnotationCreateTeachers();
                 emit("updatePageID", pageList.value[selected.value].ID);
             }
         };
@@ -92,7 +102,9 @@ export default defineComponent({
                 selected.value--;
                 isInit.value = false;
                 getDataBase(pageList.value[selected.value].ID, pageList.value[selected.value]);
+                createTeacher.value = "";
                 _getAnnotation();
+                _getAnnotationCreateTeachers();
                 emit("updatePageID", pageList.value[selected.value].ID);
                 return;
             }
@@ -115,7 +127,9 @@ export default defineComponent({
                 isInit.value = false;
                 getDataBase(pageList.value[selected.value].ID, pageList.value[selected.value]);
                 emit("updatePageID", pageList.value[selected.value].ID);
+                createTeacher.value = "";
                 _getAnnotation();
+                _getAnnotationCreateTeachers();
             } else {
                 screenViewPage.value = {};
             }
@@ -132,7 +146,9 @@ export default defineComponent({
             console.log(item, "item");
             selected.value = index;
             getDataBase(pageList.value[index].ID, pageList.value[index]);
+            createTeacher.value = "";
             _getAnnotation();
+            _getAnnotationCreateTeachers();
             emit("updatePageID", item.ID);
         };
         const addElement = () => {
@@ -144,13 +160,23 @@ export default defineComponent({
         };
         const _getAnnotation = async () => {
             const obj = {
-                pageID: pageList.value[selected.value].ID
+                pageID: pageList.value[selected.value].ID,
+                createTeacherID: createTeacher.value
             };
             const res = await GetAnnotation(obj);
             if (res.resultCode === 200) {
                 console.log(res);
                 annotationList.value = res.result;
                 emit("updateAnotationList", annotationList.value);
+            }
+        };
+        const _getAnnotationCreateTeachers = async () => {
+            const obj = {
+                pageID: pageList.value[selected.value].ID
+            };
+            const teacherList = await GetAnnotationCreateTeachers(obj);
+            if (teacherList.resultCode === 200) {
+                emit("updateTeacherList", teacherList.result);
             }
         };
         return {
@@ -170,7 +196,8 @@ export default defineComponent({
             prevCard,
             taggingRef,
             showAnnotation,
-            _getAnnotation
+            _getAnnotation,
+            _getAnnotationCreateTeachers
         };
     }
 });

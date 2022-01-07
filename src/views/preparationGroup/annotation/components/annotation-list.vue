@@ -3,12 +3,12 @@
         <div class="annotation-list-header">
             <div class="alh-left">批注</div>
             <div class="alh-right">
-                <el-select v-model="teacherID" placeholder="请选择">
+                <el-select @change="selectTeacher" v-model="teacherID" placeholder="请选择" clearable>
                     <el-option
                     v-for="item in options"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value">
+                    :key="item.CreateTeacherID"
+                    :label="item.CreateTeacherName"
+                    :value="item.CreateTeacherID">
                     </el-option>
                 </el-select>
             </div>
@@ -61,29 +61,9 @@ import moment from "moment";
 import { defineComponent, ref, getCurrentInstance, watch, onMounted, onBeforeUnmount } from "vue-demi";
 import { AddAnnotation, DeleteAnnotation, EditAnnotation } from "../api";
 export default defineComponent({
-    props: ["AnotationList", "cardID", "pageID"],
+    props: ["AnotationList", "cardID", "pageID", "teacherList"],
     setup(props, { emit }) {
-        const options = [{
-            value: "选项1",
-            label: "黄金糕"
-        },
-        {
-            value: "选项2",
-            label: "双皮奶"
-        },
-        {
-            value: "选项3",
-            label: "蚵仔煎"
-        },
-        {
-            value: "选项4",
-            label: "龙须面"
-        },
-        {
-            value: "选项5",
-            label: "北京烤鸭"
-        }
-        ];
+        const options = ref([]);
         const teacherID = ref("");
         const { proxy } = getCurrentInstance();
         const editBoxSwtich = ref(null); // 编辑删除弹框
@@ -112,6 +92,13 @@ export default defineComponent({
             () => props.pageID,
             () => {
                 pageId.value = props.pageID;
+            }
+        );
+        watch(
+            () => props.teacherList,
+            () => {
+                options.value = props.teacherList;
+                teacherID.value = "";
             }
         );
         watch(
@@ -228,6 +215,9 @@ export default defineComponent({
             }
             return `${moment(str).format("YYYY-MM-DD HH:ss")}`;
         };
+        const selectTeacher = (e) => {
+            emit("selectTeacher", e);
+        };
         return {
             teacherID,
             activeID,
@@ -242,7 +232,8 @@ export default defineComponent({
             edit,
             cancel,
             submit,
-            detailTime
+            detailTime,
+            selectTeacher
         };
     }
 });
@@ -271,10 +262,7 @@ export default defineComponent({
         .alh-right{
             :deep(.el-input__inner){
                 width: 170px;
-                height: 30px;
-            }
-            :deep(.el-input__suffix){
-                display: none;
+                height: 40px;
             }
         }
     }
