@@ -6,7 +6,7 @@
                 action=""
                 :show-file-list="false"
                 :http-request="uploadFile"
-                accept="doc, docx"
+                accept=".doc, .docx"
             >
                 <el-button icon="el-icon-document" style="background-color:#48DBBF;color:#fff;">上传文档</el-button>
             </el-upload>
@@ -15,7 +15,7 @@
             <el-table :data="tableData" style="width: 100%" :height="autoHeight">
                 <el-table-column align="left">
                     <template #default="scope">
-                        <div class="table-left">
+                        <div class="table-left" @click="turnToPreview(scope.row)">
                             <img style="" src="@/assets/preparationGroup/editPanel/icon_word.png" alt="">
                             {{ `${scope.row.ReflectFiles.FileName}.${scope.row.ReflectFiles.Extention}` }}
                         </div>
@@ -49,6 +49,8 @@
 import { defineComponent, ref, toRefs, reactive, onMounted, nextTick, watch, getCurrentInstance } from "vue";
 import { useRoute } from "vue-router";
 import useUploadFile from "@/hooks/useUploadFile";
+import { downloadFile } from "@/utils/oss";
+import isElectron from "is-electron";
 import { ElMessage } from "element-plus";
 import moment from "moment";
 import { uploadSummary, fetchReflectFiles } from "../../api";
@@ -110,6 +112,26 @@ export default defineComponent({
                 getTableList();
             }
         };
+        const turnToPreview = async (ite: any) => {
+            const item = ite.ReflectFiles;
+            let url = "";
+            if (item.FilePath && item.FileMD5 && item.Extention && item.Bucket) {
+                url = await downloadFile(`${item.FilePath}/${item.FileMD5}.${item.Extention}`, item.Bucket);
+            } else if (item.path && item.md5 && item.bucket) {
+                if (item.extention) {
+                    url = await downloadFile(`${item.path}/${item.md5}.${item.extention}`, item.bucket);
+                } else if (item.fileExtension) {
+                    url = await downloadFile(`${item.path}/${item.md5}.${item.fileExtension}`, item.bucket);
+                }
+            }
+            const previewUrl = "https://owa.lyx-edu.com/op/view.aspx?src=" + encodeURIComponent(url);
+            if (isElectron()) {
+                return window.electron.ipcRenderer.invoke("downloadFile", previewUrl, `${item.fileName}.${item.Extention}`).then((filePath) => {
+                    window.electron.shell.openPath(filePath);
+                });
+            }
+            window.open(previewUrl);
+        };
         const { loadingShow, fileInfo, uploadFile, resetFileInfo, getFileType } = useUploadFile("GroupLessonFile");
         watch(fileInfo, (fileObj) => {
             const file = {
@@ -151,7 +173,8 @@ export default defineComponent({
             isHasRule,
             uploadFile,
             resetFileInfo,
-            getFileType
+            getFileType,
+            turnToPreview
         };
     },
     components: { }

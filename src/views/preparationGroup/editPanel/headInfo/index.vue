@@ -9,7 +9,7 @@
                 <span :class="`status status-${lessonItem.Status}`"><span class="white"></span>{{ switchStatus(lessonItem.Status) }}</span>
             </div>
             <div class="right" v-if="lessonItem.CanEdit && lessonItem.Status === 2">
-                <div class="btn-cancel" @click="actionEditPanel(false)" v-if="isEdit">
+                <div class="btn-cancel" @click="actionEditPanel(false);getPreparateDetail();" v-if="isEdit">
                     <span>取消</span>
                 </div>
                 <div class="btn-save" v-if="isEdit" @click="savePreparateDetail">
@@ -205,6 +205,10 @@ export default defineComponent({
         };
 
         const savePreparateDetail = async () => {
+            if (lessonItem.PreTitle.length === 0 || !lessonItem.PreTitle) {
+                ElMessage.info("请输入备课主题");
+                return;
+            }
             const params = {
                 groupLessonPreparateID: route.params.preId as string,
                 preTitle: lessonItem.PreTitle,
