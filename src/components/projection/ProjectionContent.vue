@@ -205,7 +205,7 @@
 
 <script lang="ts">
 import useTransform from "@/hooks/useTransform";
-import { defineComponent, onUnmounted, PropType, ref, toRefs } from "vue";
+import { computed, defineComponent, PropType, ref, toRefs, watch } from "vue";
 import Brush from "../brush/index.vue";
 export default defineComponent({
     props: {
@@ -219,7 +219,7 @@ export default defineComponent({
         }
     },
     setup(props) {
-        const imgList = ref<string[]>(props.list);
+        const imgList = computed(() => props.list);
         const currentIndex = ref(props.index);
         const isBrush = ref(false);
         const isPopover = ref(false);
@@ -227,6 +227,10 @@ export default defineComponent({
         const brushRef = ref<InstanceType<typeof Brush>>();
         const colorName = ref("black");
         const penSize = ref(2);
+
+        watch(() => props.index, () => {
+            currentIndex.value = props.index;
+        });
         const {
             transform,
             leftRotate,

@@ -121,6 +121,7 @@ export default defineComponent({
                     x: offsetX,
                     y: offsetY,
                     isCorrect,
+                    answer: item.answer,
                     width: width,
                     height: height,
                     points
@@ -253,17 +254,12 @@ export default defineComponent({
                     strokeStyle,
                     fillStyle
                 );
-                item.points.map((note: any) => {
-                    ctx.value!.strokeStyle = "blue";
-                    ctx.value!.lineWidth = 1;
-                    ctx.value!.beginPath();
-                    ctx.value!.moveTo(note.points[0].x, note.points[0].y);
-                    let i = 1;
-                    for (; i < note.points.length; i++) {
-                        ctx.value!.lineTo(note.points[i].x, note.points[i].y);
-                    }
-                    ctx.value!.stroke();
-                });
+                ctx.value!.font = "30px arial";
+                ctx.value!.fillStyle = "#029cff";
+                ctx.value!.textBaseline = "middle";
+                ctx.value!.textAlign = "center";
+                ctx.value!.fillText(item.answer, item.x + item.width / 2, item.y + item.height / 2);
+
                 // // 未作答
                 if (!item.isCorrect && item.points.length === 0) {
                     addNoAnswerText(item);
@@ -278,7 +274,7 @@ export default defineComponent({
             ctx.value!.fillText(
                 "未作答",
                 obj.x + obj.width / 2,
-                obj.y + obj.height / 2 + 8
+                obj.y + obj.height / 2
             );
         }
 

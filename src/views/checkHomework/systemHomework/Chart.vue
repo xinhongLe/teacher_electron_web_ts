@@ -53,6 +53,7 @@ export default defineComponent({
                               100
                         ).toFixed(2)
                     );
+            if (props.item.TotalRight === 0 && props.item.TotalWrong === 0 && props.item.TotalNoSure === 0) return;
             var myChart = echarts.init(chartRef.value!);
             const option = {
                 series: [
