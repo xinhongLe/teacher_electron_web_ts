@@ -99,6 +99,7 @@ export default defineComponent({
             () => {
                 options.value = props.teacherList;
                 teacherID.value = "";
+                editBoxSwtich.value = null;
             }
         );
         watch(
