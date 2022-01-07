@@ -91,7 +91,7 @@
                             </span>
                         </div>
                         <div class="title-right">
-                            <div class="btn" v-if="content.ResourceType === 2" @click="turnToAnnotation">
+                            <div class="btn" :class="content.ResourceType === 1 ? 'btn-disable' : ''" @click="turnToAnnotation">
                                 <img src="../../../../assets/preparationGroup/editPanel/plus.png" alt="">
                                 <span>添加批注</span>
                             </div>
@@ -792,6 +792,11 @@ export default defineComponent({
                                 color: #4B71EE;
                                 margin-left: 5px;
                             }
+                        }
+                        .btn-disable {
+                            opacity: 0.39;
+                            pointer-events: none;
+                            cursor: not-allowed;
                         }
                     }
                 }

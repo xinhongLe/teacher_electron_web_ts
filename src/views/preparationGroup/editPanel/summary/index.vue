@@ -23,7 +23,7 @@
                 </el-table-column>
                 <el-table-column  align="right">
                     <template #default="scope" class="table-right">
-                        {{ moment(scope.row.UploadTime).format("YYYY-MM-DD HH:mm:ss") }}
+                        {{ `${scope.row.TeachName}上传于${moment(scope.row.UploadTime).format("YYYY-MM-DD HH:mm:ss")}` }}
                     </template>
                 </el-table-column>
             </el-table>
