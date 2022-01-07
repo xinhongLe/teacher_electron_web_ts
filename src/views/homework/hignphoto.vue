@@ -3,67 +3,130 @@
     v-model="dialogVisible"
     :fullscreen="true"
   >
-  <div class="container">
-  <div class="top">
-      <div class="camera-select">
-        <img src="@/assets/images/suspension/icon_shexiangtou@2x.png" />
-        <span class="text">高拍仪:</span>
-        <el-select
-          placeholder="请选择摄像头"
-          v-model="mediaStreamConstraints.deviceId"
-        >
-          <el-option
-            v-for="item in videoList"
-            :key="item.id"
-            :label="item.label"
-            :value="item.id"
+    <div class="container">
+      <div class="top">
+        <div class="camera-select">
+          <img src="@/assets/images/suspension/icon_shexiangtou@2x.png" />
+          <span class="text">高拍仪:</span>
+          <el-select
+            placeholder="请选择摄像头"
+            v-model="mediaStreamConstraints.deviceId"
           >
-          </el-option>
-        </el-select>
+            <el-option
+              v-for="item in videoList"
+              :key="item.id"
+              :label="item.label"
+              :value="item.id"
+            >
+            </el-option>
+          </el-select>
+        </div>
+        <el-button type="danger" @click="close"> 关闭高拍仪 </el-button>
       </div>
-      <el-button type="danger" @click="close"> 关闭高拍仪 </el-button>
+      <div class="video-warp">
+        <div class="students">
+          <el-button type="primary" @click="recognition">{{studentName}}</el-button>
+          <div class="student-list-item" v-for="(item,index) in studentFinishMissions" :key="index" @click="getMissionDetail(homeworkValue,item)">
+              {{ item.StudentName}}
+          </div>
+        </div>
+        <div class="video">
+          <video ref="videoRef" autoplay />
+          <img ref="missionInfoRef">
+        </div>
+        <div class="buttonDiscern">
+          <el-button type="primary" v-if="studentMission!=null" @click="discern">手动上传</el-button>
+        </div>
+        <canvas ref="canvasRef" id="canvas" style="display:none"></canvas>
+        <canvas ref="canvasCheckRef" id="canvasCheck" style="display:none"></canvas>
+        <img ref="img" :src="imageSrc" alt="">
+      </div>
     </div>
-    <div class="video-warp">
-		<div class="students">
-			<el-row :gutter="12" style="padding-bottom:6px">
-				<el-col :span="8">
-				<el-card shadow="hover"> 识别中 </el-card>
-				</el-col>
-			</el-row>
-			<el-row :gutter="12" style="padding-bottom:6px">
-				<el-col :span="8">
-				<el-card shadow="hover"> Hover </el-card>
-				</el-col>
-			</el-row>
-			<el-row :gutter="12" style="padding-bottom:6px">
-				<el-col :span="8">
-				<el-card shadow="hover"> Hover </el-card>
-				</el-col>
-			</el-row>
-		</div>
-		<div class="video">
-			<video ref="videoRef" autoplay />
-		</div>
-		<div class="buttonDiscern">
-			<el-button type="primary" @click="discern">识别</el-button>
-		</div>
-		<canvas ref="canvasRef" style="display:none"></canvas>
-    </div>
-  </div>
   </el-dialog>
 </template>
 <script lang="ts">
-import { ElMessageBox } from "element-plus";
-import { defineComponent, onMounted, reactive, ref, watch } from "vue";
+import { CheckQuestionResult, Homework, StudentMission, WorkBookPageDetailAndImgSize, CheckUpdateIn, BatchCheckUpdateIn, PageInfo } from "@/types/homework";
+import { ElMessage, ElMessageBox } from "element-plus";
+import jsQR from "jsqr";
+import { defineComponent, onMounted, PropType, reactive, ref, watch } from "vue";
+import { BatchCheckUpdate, GetCheckResult, GetMissionDetail, GetStudentMissionList, GetWorkbookPageInfo, SaveYuanshiImg } from "./api";
+import { downloadFile } from "@/utils/oss";
+import { nextTick } from "process";
 export default defineComponent({
-    setup() {
+    props: {
+        homeworkValue: {
+            type: Object as PropType<Homework>,
+            default: () => ({})
+        }
+    },
+    setup(props) {
+        // 摄像头弹窗的显示/隐藏属性
         const dialogVisible = ref(false);
+        // 扫描获取的同学ID
+        const studentName = ref("+识别学生");
         const handleClose = () => {
             dialogVisible.value = false;
         };
+
+        const imageSrc = ref<string>();
+        // 获取所有已完成任务的人员
+        const studentFinishMissions = ref<StudentMission[]>();
+        // 获取所有人员任务
+        const studentMissions = ref<StudentMission[]>();
+        // 扫描后的人员
+        const studentMission = ref<StudentMission | null>();
+        // 获取班级下所有学生的学习任务，已完成的学生任务
+        GetStudentMissionList({ ID: props.homeworkValue.ClassHomeworkPaperID }).then(res => {
+            if (res.resultCode === 200) {
+                studentFinishMissions.value = res.result.filter((item:any) => {
+                    return item.State === 5;
+                });
+                studentMissions.value = res.result;
+                console.log(studentMissions.value, "studentMissions");
+            }
+        });
+        // video对象
         const videoRef = ref<HTMLVideoElement>();
+        // canvas对象
         const canvasRef = ref<HTMLCanvasElement>();
+        const canvasCheckRef = ref<HTMLCanvasElement>();
+        // 已完成同学练习册比对结果图
+        const missionInfoRef = ref<HTMLImageElement>();
+        const img = ref<HTMLImageElement>();
         const videoList = ref<{ label: string; id: string }[]>([]);
+        // const codeReader = new BrowserMultiFormatReader();
+
+        const scanInterval = setInterval(() => {
+            // 获取当前模式下，要截取的图片的参数
+            if (dialogVisible.value === true && canvasRef.value && videoRef.value && videoRef.value.clientWidth > 0 && !studentMission.value) {
+                const targetWidth = videoRef.value.clientWidth;
+                const targetHeight = videoRef.value.clientHeight;
+                canvasRef.value.width = targetWidth;
+                canvasRef.value.height = targetHeight;
+                // 将视频流当前帧的图片中指定区域的图像裁剪到canvas，再转为base64后塞到img对象中
+                const context = canvasRef.value.getContext("2d");
+                context && context.drawImage(videoRef.value, 0, 0, targetWidth, targetHeight);
+                // const base64Img = canvasRef.value.toDataURL("image/png");
+                const imageData = context?.getImageData(0, 0, targetWidth, targetHeight);
+
+                if (imageData) {
+                    const code = jsQR(imageData.data, targetWidth, targetHeight);
+                    console.log(code, "line:119");
+                    if (code) {
+                        if (code.data) {
+                            const studentId = code.data.substr(code.data.indexOf(":") + 1);
+                            var smin = studentMissions.value?.find((item: StudentMission) => {
+                                return item.StudentID === studentId;
+                            });
+                            if (smin) {
+                                studentMission.value = smin;
+                                studentName.value = "当前学生：" + smin.StudentName;
+                            }
+                        }
+                    }
+                }
+            }
+        }, 5000);
         const mediaStreamConstraints = reactive({
             video: {
                 width: 1900,
@@ -74,8 +137,12 @@ export default defineComponent({
         });
 
         function gotLocalMediaStream(mediaStream: MediaStream) {
-            const localVideo = document.querySelector("video");
-            localVideo!.srcObject = mediaStream;
+            console.log(new Date(), "给video赋流");
+            nextTick(() => {
+                const localVideo = videoRef.value;
+                // const localVideo = document.querySelector("video");
+                localVideo!.srcObject = mediaStream;
+            });
         }
 
         async function updateDeviceList() {
@@ -93,6 +160,7 @@ export default defineComponent({
             mediaStreamConstraints.deviceId = videoList.value[0]?.id || "";
         }
 
+        // 关闭高拍仪弹窗
         const close = () => {
             ElMessageBox.confirm("确定关闭高拍仪吗", "关闭高拍仪", {
                 type: "warning",
@@ -103,14 +171,334 @@ export default defineComponent({
             });
         };
 
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
-        const discern = () => { };
+        // 识别学生的时候隐藏已完成学生的结果图片，显示video摄像头
+        const recognition = () => {
+            if (videoRef.value && missionInfoRef.value) {
+                videoRef.value.hidden = false;
+                missionInfoRef.value.hidden = true;
+            }
+        };
 
-        watch(mediaStreamConstraints, (v) => {
-            navigator.mediaDevices
-                .getUserMedia(v)
-                .then(gotLocalMediaStream);
+        const getMissionDetail = (hvalue: Homework, item: StudentMission) => {
+            const obj = {
+                PaperID: hvalue.PaperID,
+                PageNum: hvalue.WorkbookPaperPageNum,
+                MissionID: item.MissionID,
+                ClassHomeworkPaperID: hvalue.ClassHomeworkPaperID
+            };
+            GetMissionDetail(obj).then((res) => {
+                if (res.resultCode === 200) {
+                    console.log(res.result, "line:152");
+                    if (videoRef.value) {
+                        // videoRef.value && videoRef.value.hidden = true;
+                        if (missionInfoRef.value) {
+                            missionInfoRef.value.src = res.result;
+                            missionInfoRef.value.height = videoRef.value.clientHeight;
+                            missionInfoRef.value.hidden = false;
+                            studentMission.value = null;
+                            studentName.value = "+识别学生";
+                        }
+                        if (videoRef.value) {
+                            videoRef.value.hidden = true;
+                        }
+                    }
+                }
+            });
+        };
+
+        // 上传学生试卷
+        const discern = () => {
+            console.log("shangchuan");
+            const cv = (window as any).cv;
+            if (canvasRef.value && videoRef.value) {
+                canvasRef.value.width = videoRef.value.clientWidth;
+                canvasRef.value.height = videoRef.value.clientHeight;
+                const context = canvasRef.value.getContext("2d");
+                console.log(videoRef.value, "canvas");
+                var missionID = studentMission.value?.MissionID;
+                context && context.drawImage(videoRef.value, 0, 0, canvasRef.value.width, canvasRef.value.height);
+                var base64img = canvasRef.value.toDataURL("image/png");
+                SaveYuanshiImg({
+                    MissionID: missionID as string,
+                    Base64Img: base64img
+                }).then((res) => {
+                    if (res.resultCode === 200) {
+                        console.log("保存拍照图片成功");
+                    }
+                });
+                // imageSrc.value = base64img;
+                // eslint-disable-next-line new-cap
+                const imMat = new cv.imread(canvasRef.value);
+                const obj: PageInfo = {
+                    PaperID: props.homeworkValue.PaperID,
+                    PageNum: props.homeworkValue.WorkbookPaperPageNum
+                };
+                // 获取试卷原图及试卷题目框
+                GetWorkbookPageInfo(obj).then(async (res) => {
+                    if (res.resultCode === 200) {
+                        var result = res.result as WorkBookPageDetailAndImgSize;
+                        if (result) {
+                            const questionList = result.Questions;
+                            var checkQuestionResultList: CheckQuestionResult[] = [];
+                            questionList.forEach(item => {
+                                var queBlank = item.Blanks.find(x => {
+                                    return x.Type === 1;
+                                });
+                                if (queBlank) {
+                                    const marginLeft = queBlank.MarginLeft * result.ImageWidth;
+                                    const marginTop = queBlank.MarginTop * result.ImageHeight;
+                                    const sizeWidth = queBlank.SizeWidth * result.ImageWidth;
+                                    const sizeHeight = queBlank.SizeHeight * result.ImageHeight;
+                                    const checkQuestionResult: CheckQuestionResult = {
+                                        QuestionID: item.QuestionID,
+                                        MarginTop: marginTop,
+                                        MarginLeft: marginLeft,
+                                        SizeHeight: sizeHeight,
+                                        Category: "",
+                                        SizeWidth: sizeWidth
+                                    };
+                                    checkQuestionResultList.push(checkQuestionResult);
+                                }
+                            });
+                            const key = result.File.FilePath + "/" + result.File.FileMD5 + "." + result.File.Extention;
+                            const filepath = await downloadFile(key, result.File.Bucket);
+                            var img = new Image();
+                            img.onload = async () => {
+                                if (canvasRef.value) {
+                                    const context = canvasRef.value.getContext("2d");
+                                    context && context.drawImage(img, 0, 0, result.ImageWidth, result.ImageHeight);
+                                    // const base64Img = canvasRef.value.toDataURL("image/png");
+                                    const imageData = context?.getImageData(0, 0, result.ImageWidth, result.ImageHeight);
+                                    const fileMat = cv.matFromImageData(imageData);
+                                    const resMat = check(imMat, fileMat);
+                                    if (resMat) {
+                                        cv.imshow(canvasCheckRef.value, resMat);
+                                        if (canvasCheckRef.value) {
+                                            var base64String = canvasCheckRef.value.toDataURL("image/png");
+                                            var CheckUpdateIns: CheckUpdateIn[] = [];
+                                            var batchCheckUpDto: BatchCheckUpdateIn;
+                                            var outBase64 = base64String.substr(base64String.indexOf(",") + 1);
+                                            GetCheckResult(outBase64).then((res: any) => {
+                                                if (res) {
+                                                    const checkResult = res;
+                                                    if (checkQuestionResultList.length > 0) {
+                                                        checkQuestionResultList.forEach(ckitem => {
+                                                            checkResult.forEach((x: any) => {
+                                                                var RectA = {
+                                                                    top: x.bbox[0],
+                                                                    left: x.bbox[1],
+                                                                    right: x.bbox[1] + x.bbox[2],
+                                                                    bottom: x.bbox[0] + x.bbox[3]
+                                                                };
+                                                                var RectB = {
+                                                                    top: ckitem.MarginTop,
+                                                                    left: ckitem.MarginLeft,
+                                                                    right: ckitem.MarginLeft + ckitem.SizeWidth,
+                                                                    bottom: ckitem.MarginTop + ckitem.SizeHeight
+                                                                };
+                                                                if (checkIntersect(RectA, RectB)) {
+                                                                    ckitem.Category = x.category;
+                                                                }
+                                                            });
+                                                            if (studentMission.value) {
+                                                                var studenMission = studentMission.value;
+                                                                var missionDetail = studenMission.MissionDetails.find(m => {
+                                                                    return m.QuestionID === ckitem.QuestionID;
+                                                                });
+                                                                var cui: CheckUpdateIn = {
+                                                                    Result: ckitem.Category === "" ? 3 : ckitem.Category === "Error" ? 2 : 1,
+                                                                    Duration: "0",
+                                                                    ExplainFinish: 0,
+                                                                    NotUnderstand: 0,
+                                                                    ID: missionDetail?.MissionDetailID
+                                                                };
+                                                                CheckUpdateIns.push(cui);
+                                                            }
+                                                        });
+                                                    }
+                                                    batchCheckUpDto = {
+                                                        StudentID: studentMission.value?.StudentID,
+                                                        CheckUpdateIn: CheckUpdateIns
+                                                    };
+                                                    BatchCheckUpdate(batchCheckUpDto).then(res => {
+                                                        if (res.resultCode === 200) {
+                                                            // 上传成功
+                                                            // cv.imwrite("", 0, img);
+                                                            initPage();
+                                                            ElMessage({ type: "success", message: "上传成功" });
+                                                            // const correctColor = new cv.Scalar(255, 0, 0);
+                                                            // const errorColor = new cv.Scalar(0, 0, 255);
+                                                            // const wzColor = new cv.Scalar(47, 156, 255);
+                                                            // if (checkQuestionResultList.length > 0) {
+                                                            //     checkQuestionResultList.forEach(citem => {
+                                                            //         const point1 = new cv.Point(citem.MarginLeft, citem.MarginTop);
+                                                            //         const point2 = new cv.Point(citem.MarginLeft + citem.SizeWidth, citem.MarginTop + citem.SizeHeight);
+                                                            //         if (citem.Category === "Error") {
+                                                            //             cv.rectangle(resMat, point1, point2, errorColor, 2, cv.LINE_8, 0);
+                                                            //         } else if (citem.Category === "Correct") {
+                                                            //             cv.rectangle(resMat, point1, point2, correctColor, 2, cv.LINE_8, 0);
+                                                            //         } else {
+                                                            //             cv.rectangle(resMat, point1, point2, wzColor, 2, cv.LINE_8, 0);
+                                                            //         }
+                                                            //     });
+                                                            // }
+                                                            // if (videoRef.value && canvasRef.value) {
+                                                            //     canvasRef.value.height = videoRef.value.clientHeight;
+                                                            //     videoRef.value.hidden = true;
+                                                            //     canvasRef.value.hidden = false;
+                                                            //     cv.imshow(canvasRef.value, resMat);
+                                                            //     const base64Sv = canvasRef.value.toDataURL("image/png");
+                                                            //     console.log(base64Sv, "OVER");
+                                                            //     imageSrc.value = base64Sv;
+                                                            //     const path = "";
+                                                            // }
+                                                        }
+                                                    });
+                                                }
+                                            });
+                                        }
+                                    }
+                                }
+                            };
+                            img.src = filepath;
+                        }
+                    }
+                });
+            }
+        };
+
+        watch(mediaStreamConstraints, async (v) => {
+            if (dialogVisible.value === true) {
+                await navigator.mediaDevices
+                    .getUserMedia(v)
+                    .then(gotLocalMediaStream);
+            }
         });
+        watch(dialogVisible, async () => {
+            if (dialogVisible.value === true) {
+                await navigator.mediaDevices
+                    .getUserMedia(mediaStreamConstraints)
+                    .then(gotLocalMediaStream);
+            }
+        });
+
+        const initPage = () => {
+            GetStudentMissionList({ ID: props.homeworkValue.ClassHomeworkPaperID }).then(res => {
+                if (res.resultCode === 200) {
+                    studentFinishMissions.value = res.result.filter((item:any) => {
+                        return item.State === 5;
+                    });
+                }
+            });
+        };
+
+        function checkIntersect(RectA: { left: number; right: number; top: number; bottom: number; }, RectB: { right: number; left: number; bottom: number; top: number; }) {
+            const nonIntersect =
+          (RectB.right < RectA.left) ||
+          (RectB.left > RectA.right) ||
+          (RectB.bottom < RectA.top) ||
+          (RectB.top > RectA.bottom);
+            // 相交
+            const intersect = !nonIntersect;
+            return intersect;
+        }
+
+        function check(shrink1 : any, checkReferenceImage: any) {
+            const cv = (window as any).cv;
+            // 参照图
+            // const checkReferenceImage = checkReferenceImg;
+            // 拍照图
+            // const shrink1 = shrink;
+
+            const im1Gray = new cv.Mat();
+            const im2Gray = new cv.Mat();
+            const imGray = new cv.Mat();
+            cv.cvtColor(shrink1, im1Gray, cv.COLOR_BGR2GRAY);
+            cv.cvtColor(checkReferenceImage, im2Gray, cv.COLOR_BGR2GRAY);
+
+            const resultScale = 1;
+
+            const sift = new cv.SIFT();
+            const keypoints1 = new cv.KeyPointVector();
+            const keypoints2 = new cv.KeyPointVector();
+            const descriptors1 = new cv.Mat();
+            const descriptors2 = new cv.Mat();
+
+            sift.detectAndCompute(im1Gray, imGray, keypoints1, descriptors1);
+            sift.detectAndCompute(im2Gray, imGray, keypoints2, descriptors2);
+            const bfMatch = new cv.BFMatcher();
+            const matchePoints = new cv.DMatchVectorVector();
+            bfMatch.knnMatch(descriptors1, descriptors2, matchePoints, 2);
+
+            // let multi1 = shrink(checkImage, shrink1, 1);
+            const multi1 = 1;
+
+            const points1 = new cv.PointVector();
+            const points2 = new cv.PointVector();
+            // eslint-disable-next-line camelcase
+            const good_matches = new cv.DMatchVector();
+
+            // eslint-disable-next-line no-var
+            for (var i = 0; i < matchePoints.size(); i++) {
+                const match = matchePoints.get(i).get(0);
+                const lastMatch = matchePoints.get(i).get(1);
+                if (match.distance >= 0.75 * lastMatch.distance) {
+                    continue;
+                }
+                if (match.queryIdx < 0 || match.queryIdx >= keypoints1.size()) {
+                    continue;
+                }
+                if (match.trainIdx < 0 || match.trainIdx >= keypoints2.size()) {
+                    continue;
+                }
+                const point1 = keypoints1.get(match.queryIdx).pt;
+                point1.x *= multi1;
+                point1.y *= multi1;
+                points1.push_back(point1);
+                good_matches.push_back(matchePoints.get(i).get(0));
+
+                const point2 = keypoints2.get(match.trainIdx).pt;
+                point2.x *= resultScale;
+                point2.y *= resultScale;
+                points2.push_back(point2);
+            }
+
+            if (keypoints1.size() <= 0 || points1.size() <= 0) {
+                return;
+            }
+            const accuracy = points1.size() / keypoints1.size();
+
+            if (accuracy < 0.10) {
+                return;
+            }
+
+            const points1Temp = [];
+            // eslint-disable-next-line no-redeclare
+            for (var i = 0; i < points1.size(); i++) {
+                points1Temp.push(points1.get(i).x, points1.get(i).y);
+            }
+            const points2Temp = [];
+            // eslint-disable-next-line no-redeclare
+            for (var i = 0; i < points2.size(); i++) {
+                points2Temp.push(points2.get(i).x, points2.get(i).y);
+            }
+
+            const imMatches = new cv.Mat();
+            const color = new cv.Scalar(0, 255, 0, 255);
+            cv.drawMatches(shrink1, keypoints1, checkReferenceImage, keypoints2, good_matches, imMatches, color);
+            const mat1 = cv.matFromArray(points1.size(), 2, cv.CV_32F, points1Temp);
+            const mat2 = cv.matFromArray(points2.size(), 2, cv.CV_32F, points2Temp);
+            const h = cv.findHomography(mat1, mat2, cv.FM_RANSAC);
+
+            // eslint-disable-next-line camelcase
+            const image_B_final_result = new cv.Mat();
+            cv.warpPerspective(shrink1, image_B_final_result, h, checkReferenceImage.size());
+
+            // cv.imshow("canvasCheck", image_B_final_result);
+            // cv.imshow("canvasOutput", image_B_final_result);
+            // eslint-disable-next-line camelcase
+            return image_B_final_result;
+        }
 
         onMounted(async () => {
             navigator.mediaDevices.ondevicechange = () => {
@@ -122,10 +510,23 @@ export default defineComponent({
             dialogVisible,
             videoRef,
             canvasRef,
+            canvasCheckRef,
             mediaStreamConstraints,
             videoList,
+            studentMissions,
+            studentFinishMissions,
+            img,
+            missionInfoRef,
+            scanInterval,
+            studentName,
+            studentMission,
+            imageSrc,
             close,
-            handleClose
+            handleClose,
+            discern,
+            getMissionDetail,
+            recognition,
+            initPage
         };
     }
 });
@@ -146,15 +547,33 @@ body {
   width: 100vw;
   background: #cfe1ff;
   .video-warp {
+    position: relative;
     padding: 5px;
     flex: 1;
 	.students{
 		position: absolute;
-		top: 90px;
-		left: 20px;
-		width: 400px;
-		height: 100%;
-		z-index: 10;
+    top: 0;
+    left: 0;
+		padding: 40px 30px;
+    display: flex;
+    flex-direction: column;
+    flex:1;
+    min-width: 0;
+    min-height: 0;
+    z-index: 10;
+    height: calc(100vh - 7rem);
+    overflow-y:auto ;
+    .student-list-item{
+      padding: 1.2rem 1rem;
+      background-color: #000000;
+      border-radius: 0.4rem;
+      opacity: 0.5;
+      color: white;
+      margin-top: 0.5rem;
+      width: 11.2rem;
+      height: 4.2rem;
+      cursor : pointer;
+    }
 	}
 	.buttonDiscern{
 		position: absolute;

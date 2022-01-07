@@ -6,10 +6,21 @@
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <link rel="icon" href="<%= BASE_URL %>favicon.ico">
     <title>爱学仕校园教师端</title>
+
     <script src="/latex/tex-mml-chtml.js"></script>
   </head>
   <body>
+
     <div id="app"></div>
     <!-- built files will be auto injected -->
+    <script type="text/javascript">
+   async function onOpenCvReady() {
+         window.cv = await cv;
+         console.log(cv,"oload-cv");
+     }
+  </script>
+  <script async src="./lib/opencv.js" onload="onOpenCvReady();" type="text/javascript" ></script>
   </body>
+
+
 </html>

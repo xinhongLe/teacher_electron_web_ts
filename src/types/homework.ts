@@ -1,3 +1,4 @@
+import { int } from "@zxing/library/esm/customTypings";
 import { FileInfo } from "./lookQuestion";
 
 export interface FetchHomeworkDateByYearData {
@@ -65,4 +66,113 @@ export interface Homework {
     VideoID: string;
     WrongCount: number;
     AnswerShowTime?: string;
+}
+
+export interface MissionDetail {
+    MissionDetailID: string;
+    MissionID: string;
+    QuestionID: string;
+    Result: int;
+}
+
+export interface StudentMission {
+    StudentID: string;
+    StudentName: string;
+    MissionID: string;
+    MissionDetails: MissionDetail[];
+}
+
+export interface QuestionBlank {
+    Type: int;
+    Answer: string;
+    CombineSN: string;
+}
+
+export interface WorkbookPageQuestionBlank {
+    WorkbookPageQuestionID: string;
+    MarginLeft: number;
+    MarginTop: number;
+    SizeWidth: number;
+    SizeHeight: number;
+    Answer: string;
+    Type: int;
+    QuestionBlank: QuestionBlank;
+}
+
+export interface WorkbookPageQuestion {
+    QuestionID: string;
+    QuestionType: int;
+    PaperID: string;
+    Blanks: WorkbookPageQuestionBlank[];
+    QuestionSN: string;
+    WorkbookPaperID: string;
+    Number: int;
+    PageNum: int;
+    QuestionTrueNumber: string;
+}
+
+export interface FileModel {
+    SN: int;
+    FileName: string;
+    Bucket: string;
+    FilePath: string;
+    Extention: string;
+    FileMD5: string;
+    Type: int;
+    StaffID: string;
+    Duration: Date;
+}
+
+export interface WorkBookPageDetailAndImgSize {
+    File: FileModel;
+    ImageWidth: number;
+    ImageHeight: number;
+    Questions: WorkbookPageQuestion[];
+}
+
+export interface StudentDetAndPageInfo {
+    PaperID: string;
+    PageNum?: string;
+    MissionID: string;
+    ClassHomeworkPaperID: string;
+}
+
+export interface PageInfo{
+    PaperID: string;
+    PageNum?: string;
+}
+
+export interface PointsPackage{
+    // eslint-disable-next-line camelcase
+    category_id: int;
+    category: string;
+    bbox: number[];
+    Score: number;
+}
+
+export interface CheckQuestionResult{
+    QuestionID: string;
+    Category: string;
+    MarginLeft: number;
+    MarginTop: number;
+    SizeWidth: number;
+    SizeHeight: number;
+}
+
+export interface CheckUpdateIn{
+    Result: int;
+    Duration: string;
+    ExplainFinish: int;
+    NotUnderstand: int;
+    ID?: string
+}
+
+export interface BatchCheckUpdateIn{
+    CheckUpdateIn: CheckUpdateIn[];
+    StudentID?: string;
+}
+
+export interface SvImgIn{
+    MissionID: string;
+    Base64Img: string;
 }
