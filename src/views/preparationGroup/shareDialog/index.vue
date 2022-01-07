@@ -546,10 +546,6 @@ export default defineComponent({
         };
 
         const confirm = async () => {
-            if (state.ruleForm.courseContent.trim().length === 0) {
-                ElMessage.info("请输入备课主题");
-                return;
-            }
             const teacherIDs = [get(STORAGE_TYPES.USER_INFO).ID];
             state.dynamicTags.map((item: any) => {
                 teacherIDs.push(item.ID);
@@ -568,6 +564,10 @@ export default defineComponent({
                     ElMessage.error("创建失败");
                 }
             } else {
+                if (state.ruleForm.courseContent.trim().length === 0) {
+                    ElMessage.info("请输入备课主题");
+                    return;
+                }
                 proxy.$refs.uploadForm.validate(async(valid: boolean) => {
                     if (valid) {
                         const req = {
