@@ -112,7 +112,7 @@ export default defineComponent({
         const formRef = ref<ElFormType>();
         const preId = ref();
         const flagType = ref(props.researchType);
-        const acceptList = ".doc,.docx,.ppt,.pdf,.jpg,.png,.mp3,.mp4";
+        const acceptList = ".doc,.docx,.ppt,.pptx,.pdf,.jpg,.png,.mp3,.mp4";
         // const fileList = reactive<{ extention: string; fileName: string; name: string; bucket: string; fileMD5: string; filePath: string; size: number; fileSize: string; fileType: string; }[]>([]);
         const fileList = ref<IOssFileInfo[]>([]);
         const fileContent = reactive<IOssFileInfo>({
