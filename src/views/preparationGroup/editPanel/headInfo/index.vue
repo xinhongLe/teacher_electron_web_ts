@@ -73,7 +73,7 @@
             <div class="file-cell">
                 <img src="../../../../assets/preparationGroup/editPanel/file.png" alt="" />
                 <span>教研资料：</span>
-                <span class="content flex-wrap">
+                <div class="content flex-wrap">
                     <div style="width: 100%;margin-bottom: 12px;" v-show="isEdit">
                         <el-upload
                             action=""
@@ -86,10 +86,12 @@
                             </div>
                         </el-upload>
                     </div>
-                    <div class="file-item" v-for="(item, index) in lessonItem.Attachments" :key="index">
-                        <File :fileInfo="item" :action="isEdit ? 'upload' : 'download'" @close="deleteFileItem"></File>
+                    <div style="display:flex;align-items:center;flex-wrap: wrap;">
+                        <div class="file-item" v-for="(item, index) in lessonItem.Attachments" :key="index">
+                            <File :fileInfo="item" :action="isEdit ? 'upload' : 'download'" @close="deleteFileItem"></File>
+                        </div>
                     </div>
-                </span>
+                </div>
             </div>
 
         </div>
@@ -196,9 +198,9 @@ export default defineComponent({
                     lessonItem.LessonRange = rangeText;
                 }
                 lessonItem.LessonContent = LessonContent;
-                isEdit.value = false;
                 proxy.mittBus.emit("PreDetail", lessonItem);
                 nextTick(() => {
+                    isEdit.value = false;
                     const specialContent = document.querySelectorAll(".special-content");
                     const windowContent = document.documentElement.clientWidth;
                     if (specialContent && specialContent[0] && specialContent[0].clientWidth) {
