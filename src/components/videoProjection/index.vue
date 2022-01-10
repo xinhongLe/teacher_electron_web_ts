@@ -52,7 +52,6 @@ export default defineComponent({
                     roomID: string;
                 } = JSON.parse(infoString);
             if (!info.IsEnd) {
-                window.electron.maximizeWindow();
                 roomId.value = info.roomID;
                 isShow.value = true;
             } else {
@@ -78,7 +77,7 @@ export default defineComponent({
                     noSignalCount.value <= 6 && noSignalCount.value++;
                     sendHeartbeat();
                 }, 5 * 1000);
-            }, 10 * 1000);
+            }, 5 * 1000);
         };
 
         client.on("connect", function (err) {
@@ -142,6 +141,8 @@ export default defineComponent({
                 client.publish(getPublish(videoProject.value), JSON.stringify(info));
                 clearTimeout(heartbeatResultTimer);
                 clearTimeout(heartbeatTimer);
+                noSignalCount.value = 0;
+                messageHandle && messageHandle.close();
             }
         });
 
