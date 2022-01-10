@@ -20,6 +20,7 @@
 import { nextTick } from "process";
 import { EditAnnotation } from "../api";
 import { defineComponent, onMounted, ref, getCurrentInstance, onBeforeUnmount, reactive, toRefs } from "vue-demi";
+import { get, STORAGE_TYPES } from "@/utils/storage";
 export default defineComponent({
     setup(props, { emit }) {
         const allData = reactive({ elementList: [] });
@@ -112,13 +113,15 @@ export default defineComponent({
                         if (!item.ID) {
                             return false;
                         }
-                        const obj = {
-                            annotationID: item.ID,
-                            pointX: item.PointX,
-                            pointY: item.PointY,
-                            content: item.Content
-                        };
-                        EditAnnotation(obj);
+                        if (item.CreateTeacherID === get(STORAGE_TYPES.USER_INFO).ID) {
+                            const obj = {
+                                annotationID: item.ID,
+                                pointX: item.PointX,
+                                pointY: item.PointY,
+                                content: item.Content
+                            };
+                            EditAnnotation(obj);
+                        }
                     }
                 }
             }, 500);
