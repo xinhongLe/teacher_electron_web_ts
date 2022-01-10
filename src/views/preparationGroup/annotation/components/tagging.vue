@@ -7,6 +7,7 @@
                     :class="activeIndex === index ? 'elements activeElements' : 'elements'"
                     :id="`element`+index" v-for="(item,index) in elementList"
                     :key="index"
+                    :title="item.Content"
                     :style="{left: item.PointX + 'px', top: item.PointY+ 'px'}"
                 >
                     <span>{{index + 1}}</span>
@@ -188,5 +189,6 @@ export default defineComponent({
     align-items: center;
     justify-content: center;
     color:#4B71EE;
+    cursor: pointer;
 }
 </style>

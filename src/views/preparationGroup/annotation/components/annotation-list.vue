@@ -19,7 +19,7 @@
                     <div class="ali-header" :class="activeID === index ? 'active':''">
                         <div>
                             <span>{{index + 1 }}</span>
-                            <span>{{ item.CreateTeacherName}}</span>
+                            <span class="ellipsis" :title="item.CreateTeacherName">{{ item.CreateTeacherName}}</span>
                             <span>{{ detailTime(item.CreateTime) }}</span>
                         </div>
                         <div class="ali-header-more" v-if="isHasRule(item)" @click.stop="changeEditBoxSwtich(index)">
@@ -312,6 +312,7 @@ export default defineComponent({
                         display: flex;
                         justify-content: flex-start;
                         align-items: center;
+                        padding-right: 5px;
                         >span:nth-of-type(1){
                             display: block;
                             width: 18px;
@@ -333,6 +334,13 @@ export default defineComponent({
                         >span:nth-of-type(2){
                             font-size: 12px;
                         }
+                    }
+                    .ellipsis {
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        white-space: nowrap;
+                        display: inline-block;
+                        width: 60px;
                     }
                     .ali-header-more{
                         height: 30px;
