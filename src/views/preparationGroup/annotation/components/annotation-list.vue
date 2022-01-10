@@ -22,7 +22,7 @@
                             <span>{{ item.CreateTeacherName}}</span>
                             <span>{{ detailTime(item.CreateTime) }}</span>
                         </div>
-                        <div class="ali-header-more" @click.stop="changeEditBoxSwtich(index)">
+                        <div class="ali-header-more" v-if="isHasRule(item)" @click.stop="changeEditBoxSwtich(index)">
                             <img src="@/assets/preparationGroup/icon_more.png" alt="">
                             <div class="ahm-edit" v-if="editBoxSwtich === index">
                                 <div @click.stop="edit(index, 0, item)"><i class="el-icon-edit"></i>编辑</div>
@@ -62,6 +62,7 @@ import { cloneDeep } from "lodash";
 import moment from "moment";
 import { defineComponent, ref, getCurrentInstance, watch, onMounted, onBeforeUnmount } from "vue-demi";
 import { AddAnnotation, DeleteAnnotation, EditAnnotation } from "../api";
+import { set, get, STORAGE_TYPES } from "@/utils/storage";
 export default defineComponent({
     props: ["AnotationList", "cardID", "pageID", "teacherList"],
     setup(props, { emit }) {
@@ -228,6 +229,9 @@ export default defineComponent({
         const selectTeacher = (e) => {
             emit("selectTeacher", e);
         };
+        const isHasRule = (item) => {
+            return get(STORAGE_TYPES.USER_INFO).ID === item.CreateTeacherID;
+        };
         return {
             teacherID,
             activeID,
@@ -243,7 +247,8 @@ export default defineComponent({
             cancel,
             submit,
             detailTime,
-            selectTeacher
+            selectTeacher,
+            isHasRule
         };
     }
 });
