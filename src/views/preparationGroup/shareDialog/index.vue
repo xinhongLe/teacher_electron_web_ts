@@ -19,7 +19,7 @@
                 <span class="formTitle">邀请备课教师:</span>
                 <div class="dialogContent">
                     <div class="leftContent">
-                        <el-select popper-class="popper-teacher-box" class="teacher-box" v-model="searchString" size="medium" filterable placeholder="搜索" @focus="fetchShareObjectCustomer" @change="addToTag($event)">
+                        <el-select popper-class="popper-teacher-box" class="teacher-box" v-model="searchString" size="medium" filterable placeholder="在此输入老师名字进行搜索" @focus="fetchShareObjectCustomer" @change="addToTag($event)">
                             <el-option
                                 v-for="item in storageTeacherList"
                                 :key="item.ID"
@@ -937,6 +937,7 @@ export default defineComponent({
         margin-bottom: 20px;
         :deep(.el-input__inner) {
             width: 316px;
+            border: none;
         }
         :deep(.el-input__suffix) {
             display: none;
