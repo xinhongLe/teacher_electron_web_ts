@@ -2,8 +2,8 @@
     <div :class="isEdit ? 'head-info max' : 'head-info'">
         <div class="head-title">
             <div class="left">
-                <el-input v-if="isEdit" class="input-title" v-model="lessonItem.PreTitle" placeholder="" maxlength="20"></el-input>
-                <div v-else style="display: flex;align-items: center;">
+                <el-input v-show="isEdit" class="input-title" v-model="lessonItem.PreTitle" placeholder="" maxlength="20"></el-input>
+                <div v-show="!isEdit" style="display: flex;align-items: center;">
                     <span class="title">{{ lessonItem.PreTitle }}</span>
                     <span :class="`status status-${lessonItem.Status}`"><span class="white"></span>{{ switchStatus(lessonItem.Status) }}</span>
                 </div>
@@ -12,14 +12,14 @@
                 <span class="title">{{ lessonItem.PreTitle }}</span>
                 <span :class="`status status-${lessonItem.Status}`"><span class="white"></span>{{ switchStatus(lessonItem.Status) }}</span>
             </div> -->
-            <div class="right" v-if="lessonItem.CanEdit && lessonItem.Status === 2">
-                <div class="btn-cancel" @click="actionEditPanel(false);getPreparateDetail();" v-if="isEdit">
+            <div class="right" v-show="lessonItem.CanEdit && lessonItem.Status === 2">
+                <div class="btn-cancel" @click="actionEditPanel(false);getPreparateDetail();" v-show="isEdit">
                     <span>取消</span>
                 </div>
-                <div class="btn-save" v-if="isEdit" @click="savePreparateDetail">
+                <div class="btn-save" v-show="isEdit" @click="savePreparateDetail">
                     <span>保存</span>
                 </div>
-                <div class="btn-edit" @click="actionEditPanel(true)" v-else>
+                <div class="btn-edit" @click="actionEditPanel(true)" v-show="!isEdit">
                     <img src="../../../../assets/preparationGroup/editPanel/edit.png" alt="" />
                     <span>编辑</span>
                 </div>
@@ -43,22 +43,22 @@
             <div class="file-cell" :class="isEdit ? `align-items` : ''">
                 <img src="../../../../assets/preparationGroup/editPanel/pointer.png" alt="" />
                 <span>备课范围：</span>
-                <div class="content" :class="isEdit ? `padding-left` : ''" v-if="isEdit">
+                <div class="content" :class="isEdit ? `padding-left` : ''" v-show="isEdit">
                     <el-cascader
                         v-model="lessonItem.LessonRangeIDs"
                         :options="textBookGradeList"
                         :props="{expandTrigger: 'click'}"
                     ></el-cascader>
                 </div>
-                <span v-else class="content">{{ lessonItem.LessonRange }}</span>
+                <span v-show="!isEdit" class="content">{{ lessonItem.LessonRange }}</span>
             </div>
             <div class="file-cell">
                 <img src="../../../../assets/preparationGroup/editPanel/book.png" alt="" />
                 <span>备课内容：</span>
-                <span class="content textarea-content" v-if="isEdit">
+                <span class="content textarea-content" v-show="isEdit">
                     <el-input v-model="lessonItem.LessonContent" :rows="3" type="textarea" placeholder="500个字符以内" :maxlength="500" resize="none"/>
                 </span>
-                <span class="content special-content" :class="isShowMore ? `` : `clamp`" :title="lessonItem.LessonContent" v-else>
+                <span class="content special-content" :class="isShowMore ? `` : `clamp`" :title="lessonItem.LessonContent" v-show="!isEdit">
                     {{ lessonItem.LessonContent }}
                     <div v-if="isFull">
                         <span class="more" v-if="!isShowMore" @click="isShowMore = true">
@@ -74,7 +74,7 @@
                 <img src="../../../../assets/preparationGroup/editPanel/file.png" alt="" />
                 <span>教研资料：</span>
                 <span class="content flex-wrap">
-                    <div style="width: 100%;margin-bottom: 12px;" v-if="isEdit">
+                    <div style="width: 100%;margin-bottom: 12px;" v-show="isEdit">
                         <el-upload
                             action=""
                             :show-file-list="false"
