@@ -35,7 +35,9 @@
                             v-if="editFlag === index && contentFlag === 0"
                             v-model="item.Content"
                             type="textarea"
-                            :rows="2">
+                            :maxlength="1000"
+                            :rows="5"
+                            resize="none">
                             </el-input>
                         <span v-else>
                             {{ item.Content }}
