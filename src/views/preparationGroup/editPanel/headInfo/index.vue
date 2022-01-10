@@ -1,13 +1,17 @@
 <template>
     <div :class="isEdit ? 'head-info max' : 'head-info'">
         <div class="head-title">
-            <div class="left" v-if="isEdit">
-                <el-input class="input-title" v-model="lessonItem.PreTitle" placeholder="" maxlength="20"></el-input>
+            <div class="left">
+                <el-input v-if="isEdit" class="input-title" v-model="lessonItem.PreTitle" placeholder="" maxlength="20"></el-input>
+                <div v-else style="display: flex;align-items: center;">
+                    <span class="title">{{ lessonItem.PreTitle }}</span>
+                    <span :class="`status status-${lessonItem.Status}`"><span class="white"></span>{{ switchStatus(lessonItem.Status) }}</span>
+                </div>
             </div>
-            <div class="left" v-else>
+            <!-- <div class="left">
                 <span class="title">{{ lessonItem.PreTitle }}</span>
                 <span :class="`status status-${lessonItem.Status}`"><span class="white"></span>{{ switchStatus(lessonItem.Status) }}</span>
-            </div>
+            </div> -->
             <div class="right" v-if="lessonItem.CanEdit && lessonItem.Status === 2">
                 <div class="btn-cancel" @click="actionEditPanel(false);getPreparateDetail();" v-if="isEdit">
                     <span>取消</span>
