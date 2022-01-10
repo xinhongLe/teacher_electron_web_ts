@@ -30,8 +30,9 @@
               {{ item.StudentName}}
           </div>
         </div>
-        <div class="video">
+        <div class="video" style="padding-left:280px">
           <video ref="videoRef" autoplay />
+          <canvas ref="resultRef" hidden></canvas>
           <img ref="missionInfoRef">
         </div>
         <div class="buttonDiscern">
@@ -49,7 +50,7 @@ import { CheckQuestionResult, Homework, StudentMission, WorkBookPageDetailAndImg
 import { ElMessage, ElMessageBox } from "element-plus";
 import jsQR from "jsqr";
 import { defineComponent, onMounted, PropType, reactive, ref, watch } from "vue";
-import { BatchCheckUpdate, GetCheckResult, GetMissionDetail, GetStudentMissionList, GetWorkbookPageInfo, SaveYuanshiImg } from "./api";
+import { BatchChangeResult, BatchCheckUpdate, GetCheckResult, GetMissionDetail, GetStudentMissionList, GetWorkbookPageInfo, SaveYuanshiImg } from "./api";
 import { downloadFile } from "@/utils/oss";
 import { nextTick } from "process";
 export default defineComponent({
@@ -90,6 +91,7 @@ export default defineComponent({
         // canvas对象
         const canvasRef = ref<HTMLCanvasElement>();
         const canvasCheckRef = ref<HTMLCanvasElement>();
+        const resultRef = ref<HTMLCanvasElement>();
         // 已完成同学练习册比对结果图
         const missionInfoRef = ref<HTMLImageElement>();
         const img = ref<HTMLImageElement>();
@@ -126,7 +128,7 @@ export default defineComponent({
                     }
                 }
             }
-        }, 5000);
+        }, 1000);
         const mediaStreamConstraints = reactive({
             video: {
                 width: 1900,
@@ -208,24 +210,13 @@ export default defineComponent({
 
         // 上传学生试卷
         const discern = () => {
-            console.log("shangchuan");
             const cv = (window as any).cv;
             if (canvasRef.value && videoRef.value) {
                 canvasRef.value.width = videoRef.value.clientWidth;
                 canvasRef.value.height = videoRef.value.clientHeight;
                 const context = canvasRef.value.getContext("2d");
-                console.log(videoRef.value, "canvas");
                 var missionID = studentMission.value?.MissionID;
                 context && context.drawImage(videoRef.value, 0, 0, canvasRef.value.width, canvasRef.value.height);
-                var base64img = canvasRef.value.toDataURL("image/png");
-                SaveYuanshiImg({
-                    MissionID: missionID as string,
-                    Base64Img: base64img
-                }).then((res) => {
-                    if (res.resultCode === 200) {
-                        console.log("保存拍照图片成功");
-                    }
-                });
                 // imageSrc.value = base64img;
                 // eslint-disable-next-line new-cap
                 const imMat = new cv.imread(canvasRef.value);
@@ -275,11 +266,20 @@ export default defineComponent({
                                         cv.imshow(canvasCheckRef.value, resMat);
                                         if (canvasCheckRef.value) {
                                             var base64String = canvasCheckRef.value.toDataURL("image/png");
+                                            SaveYuanshiImg({
+                                                MissionID: missionID as string,
+                                                Base64Img: base64String
+                                            }).then((res) => {
+                                                if (res.resultCode === 200) {
+                                                    console.log("保存拍照图片成功");
+                                                }
+                                            });
                                             var CheckUpdateIns: CheckUpdateIn[] = [];
                                             var batchCheckUpDto: BatchCheckUpdateIn;
                                             var outBase64 = base64String.substr(base64String.indexOf(",") + 1);
                                             GetCheckResult(outBase64).then((res: any) => {
                                                 if (res) {
+                                                    console.log(res, "算法结果");
                                                     const checkResult = res;
                                                     if (checkQuestionResultList.length > 0) {
                                                         checkQuestionResultList.forEach(ckitem => {
@@ -320,40 +320,73 @@ export default defineComponent({
                                                         StudentID: studentMission.value?.StudentID,
                                                         CheckUpdateIn: CheckUpdateIns
                                                     };
-                                                    BatchCheckUpdate(batchCheckUpDto).then(res => {
-                                                        if (res.resultCode === 200) {
-                                                            // 上传成功
-                                                            // cv.imwrite("", 0, img);
-                                                            initPage();
-                                                            ElMessage({ type: "success", message: "上传成功" });
-                                                            // const correctColor = new cv.Scalar(255, 0, 0);
-                                                            // const errorColor = new cv.Scalar(0, 0, 255);
-                                                            // const wzColor = new cv.Scalar(47, 156, 255);
-                                                            // if (checkQuestionResultList.length > 0) {
-                                                            //     checkQuestionResultList.forEach(citem => {
-                                                            //         const point1 = new cv.Point(citem.MarginLeft, citem.MarginTop);
-                                                            //         const point2 = new cv.Point(citem.MarginLeft + citem.SizeWidth, citem.MarginTop + citem.SizeHeight);
-                                                            //         if (citem.Category === "Error") {
-                                                            //             cv.rectangle(resMat, point1, point2, errorColor, 2, cv.LINE_8, 0);
-                                                            //         } else if (citem.Category === "Correct") {
-                                                            //             cv.rectangle(resMat, point1, point2, correctColor, 2, cv.LINE_8, 0);
-                                                            //         } else {
-                                                            //             cv.rectangle(resMat, point1, point2, wzColor, 2, cv.LINE_8, 0);
-                                                            //         }
-                                                            //     });
-                                                            // }
-                                                            // if (videoRef.value && canvasRef.value) {
-                                                            //     canvasRef.value.height = videoRef.value.clientHeight;
-                                                            //     videoRef.value.hidden = true;
-                                                            //     canvasRef.value.hidden = false;
-                                                            //     cv.imshow(canvasRef.value, resMat);
-                                                            //     const base64Sv = canvasRef.value.toDataURL("image/png");
-                                                            //     console.log(base64Sv, "OVER");
-                                                            //     imageSrc.value = base64Sv;
-                                                            //     const path = "";
-                                                            // }
-                                                        }
-                                                    });
+                                                    if (studentMission.value && studentMission.value.State === 5) {
+                                                        ElMessageBox.confirm("同学：" + studentMission.value?.StudentName + "已提交过，是否确认重复提交？", "是否重复提交", {
+                                                            type: "warning",
+                                                            confirmButtonText: "确定",
+                                                            cancelButtonText: "取消"
+                                                        }).then(() => {
+                                                            BatchChangeResult(batchCheckUpDto).then(res => {
+                                                                if (res.resultCode === 200) {
+                                                                    // 修改成功
+                                                                    ElMessage({ type: "success", message: "重复提交成功" });
+                                                                    initPage();
+                                                                    const correctColor = new cv.Scalar(0, 0, 255);
+                                                                    const errorColor = new cv.Scalar(255, 0, 0);
+                                                                    const wzColor = new cv.Scalar(255, 156, 47);
+                                                                    if (checkQuestionResultList.length > 0) {
+                                                                        checkQuestionResultList.forEach(citem => {
+                                                                            const point1 = new cv.Point(citem.MarginLeft, citem.MarginTop);
+                                                                            const point2 = new cv.Point(citem.MarginLeft + citem.SizeWidth, citem.MarginTop + citem.SizeHeight);
+                                                                            if (citem.Category === "Error") {
+                                                                                cv.rectangle(resMat, point1, point2, errorColor, 1, cv.LINE_AA, 0);
+                                                                            } else if (citem.Category === "Correct") {
+                                                                                cv.rectangle(resMat, point1, point2, correctColor, 1, cv.LINE_8, 0);
+                                                                            } else {
+                                                                                cv.rectangle(resMat, point1, point2, wzColor, 1, cv.LINE_8, 0);
+                                                                            }
+                                                                        });
+                                                                    }
+                                                                    if (videoRef.value && resultRef.value) {
+                                                                        resultRef.value.height = videoRef.value.clientHeight;
+                                                                        videoRef.value.hidden = true;
+                                                                        resultRef.value.hidden = false;
+                                                                        cv.imshow(resultRef.value, resMat);
+                                                                    }
+                                                                }
+                                                            });
+                                                        });
+                                                    } else if (studentMission.value && studentMission.value.State !== 5) {
+                                                        BatchCheckUpdate(batchCheckUpDto).then(res => {
+                                                            if (res.resultCode === 200) {
+                                                                // 上传成功
+                                                                ElMessage({ type: "success", message: "上传成功" });
+                                                                initPage();
+                                                                const correctColor = new cv.Scalar(255, 0, 0);
+                                                                const errorColor = new cv.Scalar(0, 0, 255);
+                                                                const wzColor = new cv.Scalar(47, 156, 255);
+                                                                if (checkQuestionResultList.length > 0) {
+                                                                    checkQuestionResultList.forEach(citem => {
+                                                                        const point1 = new cv.Point(citem.MarginLeft, citem.MarginTop);
+                                                                        const point2 = new cv.Point(citem.MarginLeft + citem.SizeWidth, citem.MarginTop + citem.SizeHeight);
+                                                                        if (citem.Category === "Error") {
+                                                                            cv.rectangle(resMat, point1, point2, errorColor, 2, cv.LINE_8, 0);
+                                                                        } else if (citem.Category === "Correct") {
+                                                                            cv.rectangle(resMat, point1, point2, correctColor, 2, cv.LINE_8, 0);
+                                                                        } else {
+                                                                            cv.rectangle(resMat, point1, point2, wzColor, 2, cv.LINE_8, 0);
+                                                                        }
+                                                                    });
+                                                                }
+                                                                if (videoRef.value && resultRef.value) {
+                                                                    resultRef.value.height = videoRef.value.clientHeight;
+                                                                    videoRef.value.hidden = true;
+                                                                    resultRef.value.hidden = false;
+                                                                    cv.imshow(resultRef.value, resMat);
+                                                                }
+                                                            }
+                                                        });
+                                                    }
                                                 }
                                             });
                                         }
@@ -521,6 +554,7 @@ export default defineComponent({
             studentName,
             studentMission,
             imageSrc,
+            resultRef,
             close,
             handleClose,
             discern,

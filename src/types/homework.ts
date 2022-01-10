@@ -79,6 +79,7 @@ export interface StudentMission {
     StudentID: string;
     StudentName: string;
     MissionID: string;
+    State: int;
     MissionDetails: MissionDetail[];
 }
 
