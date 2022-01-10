@@ -16,7 +16,7 @@ export function dealPoints(operations: any[], scale: number) {
             points: [] as Point[],
             mode: element.mode
         };
-        if (element.mode === 1) {
+        if (element.mode === "1") {
             // 橡皮擦 去除擦掉的路径
             const clearPoints: { x: number; y: number; }[] = [];
             element.points.map((item: string) => {
