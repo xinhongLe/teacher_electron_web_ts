@@ -64,7 +64,7 @@
                                 <el-upload
                                     action
                                     :show-file-list="false"
-                                    accept=".doc, .docx, .ppt, .pptx"
+                                    :accept="content.ResourceType === 1 ? '.doc, .docx' : '.ppt, .pptx'"
                                     :http-request="(file) => uploadFileSuccess(file, content.DiscussionContentID)"
                                     :on-success="onSuccess"
                                 >
@@ -402,8 +402,12 @@ export default defineComponent({
                             md5: md5
                         }
                     };
+                    if (props.content.ResourceType === 1 && fileExtension !== "doc" && fileExtension !== "docx") {
+                        ElMessage.info("教案文件只能是 doc,docx格式");
+                        return;
+                    }
                     if (props.content.ResourceType === 2 && fileExtension !== "ppt" && fileExtension !== "pptx") {
-                        ElMessage.info("课件只支持ppt和pptx类型");
+                        ElMessage.info("课件文件只能是 ppt,pptx格式");
                         return;
                     }
                     const result = await addResourceResult(params);
