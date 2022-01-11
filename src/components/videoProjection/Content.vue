@@ -19,7 +19,8 @@ import {
     defineComponent,
     onMounted,
     onUnmounted,
-    ref
+    ref,
+    watch
 } from "vue";
 import TRTCCloud, { TRTCAppScene } from "trtc-electron-sdk";
 import { TRTCParams, TRTCRoleType } from "trtc-electron-sdk/liteav/trtc_define";
@@ -59,7 +60,7 @@ export default defineComponent({
         };
 
         const onUserVideoAvailable = (userId: string, available: unknown) => {
-            window.electron.log.info("onUserVideoAvailable available:", available);
+            window.electron.log.info(`onUserVideoAvailable available:${available}, roomId:${props.roomId}`);
             if (available === 1) {
                 trtcCloud.startRemoteView(userId, viewRef.value!);
             }
@@ -81,6 +82,8 @@ export default defineComponent({
         trtcCloud.on("onUserVideoAvailable", onUserVideoAvailable);
 
         const enterRoom = async () => {
+            window.electron.log.info("enterRoom roomId:", props.roomId);
+            trtcCloud.exitRoom();
             const param = new TRTCParams();
             param.sdkAppId = sdkAppId;
             param.strRoomId = props.roomId;
@@ -117,6 +120,8 @@ export default defineComponent({
                 setTimeList();
             }, 1000);
         });
+
+        watch(() => props.roomId, enterRoom);
 
         onUnmounted(() => {
             trtcCloud.exitRoom();

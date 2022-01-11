@@ -26,7 +26,6 @@ export default defineComponent({
         const getFileTypeClass = (fileExtension: string) => {
             console.log(fileExtension, "fileExtension");
             const type = fileTypeMap[fileExtension];
-            console.log(type, "tyoe");
             const classMap: Record<number, string> = {
                 2: "pic",
                 3: "ppt",

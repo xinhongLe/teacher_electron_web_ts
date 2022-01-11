@@ -68,18 +68,28 @@
         >
             <img src="@/assets/images/suspension/pic_shouqi@2x_copy.png" />
         </div>
-        <transition name="slide">
-            <Helper v-if="isShowHelper" @close-helper="isShowHelper = false" />
-        </transition>
+        <Suspense v-if="!isElectron">
+            <transition name="slide">
+                <Helper
+                    v-if="isShowHelper"
+                    @close-helper="isShowHelper = false"
+                />
+            </transition>
+        </Suspense>
     </div>
 </template>
 <script lang="ts">
-import { defineComponent, onMounted, reactive, ref } from "vue";
+import {
+    defineAsyncComponent,
+    defineComponent,
+    onMounted,
+    reactive,
+    ref
+} from "vue";
 import isElectron from "is-electron";
-import Helper from "./helper.vue";
 export default defineComponent({
     components: {
-        Helper
+        Helper: defineAsyncComponent(() => import("./helper.vue"))
     },
     setup() {
         const bottom = ref(100);
@@ -161,7 +171,9 @@ export default defineComponent({
                             );
                         } else if (event.target === questionRef.value) {
                             window.electron.ipcRenderer.invoke("openQuestion");
-                        } else if (event.target === iconQuestionCloseRef.value) {
+                        } else if (
+                            event.target === iconQuestionCloseRef.value
+                        ) {
                             window.electron.ipcRenderer.invoke("closeQuestion");
                         } else {
                             window.electron.ipcRenderer.invoke(

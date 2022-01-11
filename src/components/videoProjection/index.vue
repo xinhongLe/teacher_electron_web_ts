@@ -14,7 +14,7 @@ import { store } from "@/store";
 import Content from "./Content.vue";
 import { clearTimeout, setTimeout } from "timers";
 const imgError = require("@/assets/projection/img_error@2x.png");
-
+let messageHandle:MessageHandle;
 export default defineComponent({
     setup() {
         const isShow = ref(false);
@@ -29,7 +29,6 @@ export default defineComponent({
         const heartbeatResult = computed(() => `heartbeatResult_${id.value}`);
         let heartbeatResultTimer: any;
         let heartbeatTimer: any;
-        let messageHandle:MessageHandle;
 
         const roomId = ref("");
 
@@ -51,8 +50,8 @@ export default defineComponent({
                     IsEnd: boolean;
                     roomID: string;
                 } = JSON.parse(infoString);
+            window.electron.log.info(`dealVideoProjectTopic roomID: ${info.roomID}, IsEnd: ${info.IsEnd}`);
             if (!info.IsEnd) {
-                window.electron.maximizeWindow();
                 roomId.value = info.roomID;
                 isShow.value = true;
             } else {
@@ -61,10 +60,12 @@ export default defineComponent({
         };
 
         const dealHeartbeatTopic = () => {
+            window.electron.log.info("receive heartbeat");
             client.publish(getPublish(heartbeatResult.value), "");
         };
 
         const dealHeartbeatResultTopic = () => {
+            window.electron.log.info("receive heartbeat result");
             clearTimeout(heartbeatResultTimer);
             noSignalCount.value = 0;
             sendHeartbeat();
@@ -72,13 +73,15 @@ export default defineComponent({
 
         const sendHeartbeat = () => {
             heartbeatTimer = setTimeout(() => {
+                window.electron.log.info("start send heartbeat");
                 client.publish(getPublish(heartbeat.value), "");
                 heartbeatResultTimer = setTimeout(() => {
                     if (!isShow.value) return;
                     noSignalCount.value <= 6 && noSignalCount.value++;
+                    window.electron.log.info("not receive heartbeat result, noSignalCount: ", noSignalCount.value);
                     sendHeartbeat();
                 }, 5 * 1000);
-            }, 10 * 1000);
+            }, 5 * 1000);
         };
 
         client.on("connect", function (err) {
@@ -105,12 +108,10 @@ export default defineComponent({
             if (!id.value) return;
             client.subscribe(getSubscribe(videoProject.value));
             client.subscribe(getSubscribe(videoProjectResult.value));
-            client.subscribe(getSubscribe(heartbeatResult.value));
-            client.subscribe(getSubscribe(heartbeat.value));
-            client.subscribe(getPublish(videoProject.value));
         });
 
         watch(noSignalCount, (v) => {
+            window.electron.log.info("noSignalCount change", noSignalCount.value);
             if (v === 0) {
                 messageHandle && messageHandle.close();
             } else if (v === 3) {
@@ -142,6 +143,13 @@ export default defineComponent({
                 client.publish(getPublish(videoProject.value), JSON.stringify(info));
                 clearTimeout(heartbeatResultTimer);
                 clearTimeout(heartbeatTimer);
+                noSignalCount.value = 0;
+                messageHandle && messageHandle.close();
+                client.unsubscribe(getSubscribe(heartbeatResult.value));
+                client.unsubscribe(getSubscribe(heartbeat.value));
+            } else {
+                client.subscribe(getSubscribe(heartbeatResult.value));
+                client.subscribe(getSubscribe(heartbeat.value));
             }
         });
 

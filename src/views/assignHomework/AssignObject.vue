@@ -46,6 +46,10 @@ export default defineComponent({
             }
         };
 
+        const clearClassList = () => {
+            classList.value = [];
+        };
+
         watch(classList, (v) => {
             emit("updateClassList", v);
         }, { deep: true });
@@ -53,6 +57,7 @@ export default defineComponent({
         return {
             classList,
             openDialog,
+            clearClassList,
             dialogVisible
         };
     },

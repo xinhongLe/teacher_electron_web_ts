@@ -1,9 +1,9 @@
 <template>
     <div class="calendar">
-        <slot/>
+        <slot :initSchedules="initSchedules"/>
         <div class="content-header">
             <div class="item">上课时间</div>
-            <div v-for="(day, index) in days" :key="day" class="item">
+            <div v-for="(day, index) in days" :key="day" class="item" :class="{current: isCurrentDay(day)}">
                 {{`${formTime(day)} 周${formWeek(index+1)}`}}
             </div>
         </div>
@@ -27,6 +27,7 @@
 <script lang="ts">
 import useSchedules from "@/hooks/useSchedules";
 import useTime from "@/hooks/useTime";
+import moment from "moment";
 import { computed, defineComponent, PropType, provide } from "vue";
 import Course from "./Course.vue";
 
@@ -54,7 +55,13 @@ export default defineComponent({
         const { weekNext, weekPre, initDays, formTime, formWeek } = useTime();
         initDays();
         const days = computed(() => props.days);
-        const { schedules, updateSchedules, updateClassSchedule } = useSchedules(days);
+        const currentDay = new Date().getDate();
+        const { schedules, updateSchedules, updateClassSchedule, initSchedules } = useSchedules(days);
+        const isCurrentDay = (day: string) => {
+            const currentDay = new Date().getDate();
+            return currentDay === moment(day).date();
+        };
+
         provide("updateSchedules", updateSchedules);
 
         return {
@@ -63,6 +70,9 @@ export default defineComponent({
             schedules,
             formTime,
             updateClassSchedule,
+            initSchedules,
+            currentDay,
+            isCurrentDay,
             formWeek
         };
     },
@@ -94,6 +104,9 @@ export default defineComponent({
             text-align: center;
             border-left: 2px solid #e0e2e7;
             border-bottom: 1px solid #e0e2e7;
+            &.current {
+                background: #a0b7ff;
+            }
             &:last-child {
                 border-right: 2px solid #e0e2e7;
             }

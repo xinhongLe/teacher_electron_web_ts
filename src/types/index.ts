@@ -20,6 +20,9 @@ type Electron = typeof electron & {
     destroyWindow: () => void,
     showWindow: () => void,
     setCenter: () => void,
+    getCachePath: (path: string) => void,
+    readFile: (path: string, callback: (buffer: ArrayBuffer) => void) => void,
+    savePutFile: (path: string, buffer: NodeJS.ArrayBufferView) => void,
     log: LogFunctions
 }
 
