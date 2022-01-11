@@ -26,7 +26,7 @@
                 </div>
             </div>
             <div class="area-lesson">
-                <div class="left">
+                <div class="left" v-loading="loadingShow">
                     <div>
                         <div :class="`box-item box-item-${content.ResourceType}`">
                             <img src="../../../../assets/preparationGroup/editPanel/icon_jiaoan.png" alt="">
@@ -45,7 +45,7 @@
                         </div>
                     </div>
                     <img class="arrow" src="../../../../assets/preparationGroup/editPanel/right.png" alt="">
-                    <div v-loading="loadingShow">
+                    <div>
                         <div class="box-item box-item-3" :class="content.ResourceResult ? '' : 'disable-item'">
                             <img src="../../../../assets/preparationGroup/editPanel/icon_jiaoan.png" alt="">
                             <p>{{ fileText }}终稿</p>
@@ -336,6 +336,7 @@ export default defineComponent({
 
         const download = async (file: Fileginseng) => {
             if (file) {
+                loadingShow.value = true;
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const item: any = file;
                 let url = "";
@@ -377,6 +378,9 @@ export default defineComponent({
             link.click();
             body[0].removeChild(link);
             window.URL.revokeObjectURL(link.href);
+            setTimeout(() => {
+                loadingShow.value = false;
+            }, 500);
         };
 
         // 再次上传教案/课件
@@ -612,6 +616,9 @@ export default defineComponent({
             .left {
                 display: flex;
                 align-items: flex-start;
+                :deep(.el-loading-spinner) {
+                    top: 40%;
+                }
                 .box-item {
                     width: 208px;
                     height: 139px;

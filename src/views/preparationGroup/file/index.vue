@@ -1,5 +1,5 @@
 <template>
-    <div class="preparation-file" :title="fileInfo.fileName">
+    <div class="preparation-file" :title="fileInfo.fileName" v-loading="loadingShow">
         <div class="file-type-box" @click="preView">
             <img class="file-type" v-if="switchFileType(fileInfo, 'word')" src="../../../assets/preparationGroup/editPanel/icon_word.png" />
             <img class="file-type" v-else-if="switchFileType(fileInfo, 'excel')" src="../../../assets/preparationGroup/editPanel/icon_excel.png" />
@@ -49,6 +49,7 @@ export default defineComponent({
     setup(props, { emit }) {
         const timer = ref();
         const percent = ref(100);
+        const loadingShow = ref(false);
 
         const preView = async () => {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -78,6 +79,7 @@ export default defineComponent({
             }
         };
         const download = async () => {
+            loadingShow.value = true;
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const item: any = props.fileInfo;
             let url = "";
@@ -117,6 +119,9 @@ export default defineComponent({
             link.click();
             body[0].removeChild(link);
             window.URL.revokeObjectURL(link.href);
+            setTimeout(() => {
+                loadingShow.value = false;
+            }, 500);
         };
         const close = () => {
             emit("close", props.fileInfo);
@@ -175,12 +180,14 @@ export default defineComponent({
             intervalTimer();
         });
         onBeforeUnmount(() => {
+            loadingShow.value = false;
             percent.value = 100;
             clearInterval(timer.value);
             timer.value = null;
         });
         return {
             percent,
+            loadingShow,
             preView,
             download,
             close,
@@ -204,9 +211,13 @@ export default defineComponent({
     display: flex;
     align-items: center;
     padding: 12px;
+    overflow: hidden;
     cursor: pointer;
     &:hover {
         border: 1px solid #4B71EE;
+    }
+    :deep(.el-loading-spinner) {
+        top: 5%;
     }
     .file-type-box {
         display: flex;

@@ -222,6 +222,10 @@ export default defineComponent({
                 ElMessage.info("上传文件只能是 ppt,pptx,doc,docx格式");
                 return false;
             }
+            if (state.form.resourceType === 1 && fileType !== "doc" && fileType !== "docx") {
+                ElMessage.info("教案文件只能是 doc,docx格式");
+                return false;
+            }
             if (state.form.resourceType === 2 && fileType !== "ppt" && fileType !== "pptx") {
                 ElMessage.info("课件文件只能是 ppt,pptx格式");
                 return false;
