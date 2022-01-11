@@ -71,7 +71,7 @@
                 <img src="../../../../assets/preparationGroup/editPanel/file.png" alt="" />
                 <span>教研资料：</span>
                 <div class="content flex-wrap">
-                    <div style="width: 100%;margin-bottom: 12px;" v-show="isEdit">
+                    <div :class="loadingShow ? 'pointer-events' : ''" style="width: 100%;margin-bottom: 12px;" v-show="isEdit">
                         <el-upload
                             action=""
                             :show-file-list="false"
@@ -558,6 +558,11 @@ export default defineComponent({
             }
             .padding-left {
                 padding-left: 5px;
+            }
+            .pointer-events {
+                opacity: 0.5;
+                pointer-events: none;
+                cursor: default;
             }
         }
         .align-items {

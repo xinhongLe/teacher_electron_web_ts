@@ -1,14 +1,18 @@
 <template>
     <div class="summary">
-        <div class="header">
+        <div class="header" :class="loadingShow ? 'pointer-events' : ''">
             <span style="font-size:18px;font-weight:600;color:#000;">备课总结与反思</span>
             <el-upload
                 action=""
                 :show-file-list="false"
                 :http-request="uploadFile"
+                :on-success="onSuccess"
                 accept=".doc, .docx"
             >
-                <el-button icon="el-icon-document" style="background-color:#48DBBF;color:#fff;">上传文档</el-button>
+                <div class="btn-upload" v-loading="loadingShow">
+                    <img src="../../../../assets/preparationGroup/editPanel/sunmary.png" alt="">
+                    <span>{{ `上传${loadingShow ? "中..." : "文档"}` }}</span>
+                </div>
             </el-upload>
         </div>
         <div v-if="tableData && tableData.length > 0">
@@ -155,6 +159,9 @@ export default defineComponent({
             immediate: true,
             deep: true
         });
+        const onSuccess = () => {
+            loadingShow.value = false;
+        };
         onMounted(() => {
             proxy.mittBus.on("PreDetail", (preDetail: any) => {
                 isHasRule.value = preDetail.CreaterID === get(STORAGE_TYPES.USER_INFO).ID;
@@ -172,6 +179,7 @@ export default defineComponent({
             fileInfo,
             isHasRule,
             uploadFile,
+            onSuccess,
             resetFileInfo,
             getFileType,
             turnToPreview
@@ -194,10 +202,46 @@ export default defineComponent({
         align-items: center;
         justify-content: space-between;
     }
+    .btn-upload {
+        width: 142px;
+        height: 36px;
+        line-height: 36px;
+        border-radius: 4px;
+        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        background-color:#48DBBF;
+        color:#fff;
+        cursor: pointer;
+        img {
+            display: inline-block;
+            width: 16px;
+            height: auto;
+        }
+        span {
+            font-size: 16px;
+            font-family: PingFangSC-Regular, PingFang SC;
+            font-weight: 400;
+            color:#fff;
+            display: inline-block;
+            margin: 0;
+            min-width: 70px;
+        }
+        :deep(.el-loading-spinner) {
+            top: -3px;
+        }
+    }
+    .pointer-events {
+        pointer-events: none;
+        cursor: default;
+    }
     :deep(.el-button) {
         width: 142px;
         height: 36px;
         border: none;
+        overflow: hidden;
     }
     .page {
         height: 25px;
