@@ -8,10 +8,6 @@
                     <span :class="`status status-${lessonItem.Status}`"><span class="white"></span>{{ switchStatus(lessonItem.Status) }}</span>
                 </div>
             </div>
-            <!-- <div class="left">
-                <span class="title">{{ lessonItem.PreTitle }}</span>
-                <span :class="`status status-${lessonItem.Status}`"><span class="white"></span>{{ switchStatus(lessonItem.Status) }}</span>
-            </div> -->
             <div class="right" v-show="lessonItem.CanEdit && lessonItem.Status === 2">
                 <div class="btn-cancel" @click="actionEditPanel(false);getPreparateDetail();" v-show="isEdit">
                     <span>取消</span>
@@ -32,7 +28,8 @@
             </div>
             <div class="lesson-cell">
                 <img src="../../../../assets/preparationGroup/editPanel/time.png" alt="" />
-                <span>创建时间：{{ lessonItem.CreateTime }}</span>
+                <span v-show="lessonItem.Status === 2">创建时间：{{ lessonItem.CreateTime }}</span>
+                <span v-show="lessonItem.Status === 1">研讨时间：{{ `${lessonItem.CreateTime} 至 ${lessonItem.EndTime}` }}</span>
             </div>
             <div class="lesson-cell">
                 <img src="../../../../assets/preparationGroup/editPanel/personals.png" alt="" />
@@ -150,7 +147,7 @@ export default defineComponent({
                 id: route.params.preId as string
             });
             if (res.resultCode === 200) {
-                const { Attachments, CanEdit, CreateTime, CreaterID, CreaterName, PreTitle, Status, TeacherCount = 0, LessonRange, LessonContent = "" } = res.result;
+                const { Attachments, CanEdit, CreateTime, EndTime, CreaterID, CreaterName, PreTitle, Status, TeacherCount = 0, LessonRange, LessonContent = "" } = res.result;
                 lessonItem.Attachments = [];
                 if (Attachments && Attachments.length > 0) {
                     Attachments.map((v: any) => {
@@ -165,6 +162,7 @@ export default defineComponent({
                 }
                 lessonItem.CanEdit = CanEdit;
                 lessonItem.CreateTime = moment(CreateTime).format("YYYY-MM-DD HH:mm:ss");
+                lessonItem.EndTime = moment(EndTime).format("YYYY-MM-DD HH:mm:ss");
                 lessonItem.CreaterID = CreaterID;
                 lessonItem.CreaterName = CreaterName;
                 lessonItem.PreTitle = PreTitle;

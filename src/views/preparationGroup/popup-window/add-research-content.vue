@@ -30,7 +30,7 @@
                 <el-upload
                     action
                     :show-file-list="false"
-                    accept=".doc, .docx, .ppt, .pptx"
+                    :accept="form.resourceType === 1 ? '.doc, .docx' : '.ppt, .pptx'"
                     :before-upload="beforeUpload"
                     :http-request="uploadFileSuccess"
                     :on-success="onSuccess"
@@ -41,7 +41,7 @@
                         <span>{{ `上传文件` }}</span>
                     </div>
                     <template #tip>
-                        <div class="el-upload__tip TheSlogan">{{ `仅可上传一个${form.resourceType === 1 ? "word或" : "" }ppt文件` }}</div>
+                        <div class="el-upload__tip TheSlogan">{{ `仅可上传一个${form.resourceType === 1 ? "word" : "ppt" }文件` }}</div>
                     </template>
                 </el-upload>
                 <div v-else>
