@@ -38,6 +38,7 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .container {
+    flex: 1;
     height: 100%;
     .iframe {
         width: 100%;

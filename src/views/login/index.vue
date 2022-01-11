@@ -96,13 +96,14 @@
 <script lang="ts">
 import { defineComponent, onMounted, onUnmounted, reactive, ref } from "vue";
 import useLogin from "@/hooks/useLogin";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import { ILoginData } from "@/types/login";
 import { STORAGE_TYPES, get, set } from "@/utils/storage";
 import isElectron from "is-electron";
 export default defineComponent({
     setup() {
         const router = useRouter();
+        const route = useRoute();
 
         const form = reactive({
             account: "",
@@ -121,7 +122,17 @@ export default defineComponent({
             loading.value = true;
             await userLogin(account, password);
             loading.value = false;
-            router.push("/");
+
+            const redirect: any = route.redirectedFrom;
+            if (redirect) {
+                const params: any = redirect?.query;
+                router.push({
+                    path: redirect.path,
+                    query: Object.keys(params).length > 0 ? params : ""
+                });
+            } else {
+                router.push("/");
+            }
         };
         const handleChange = (account: string) => {
             recordAccountList.value.forEach((item: ILoginData) => {

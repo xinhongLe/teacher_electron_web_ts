@@ -104,9 +104,24 @@ const routes: Array<RouteRecordRaw> = [
                 component: () => import("@/views/courseTime/index.vue")
             },
             {
+                path: "preparation-group",
+                name: "集体备课",
+                component: () => import("@/views/preparationGroup/index.vue")
+            },
+            {
+                path: "preparation-edit/:preId",
+                name: "集体备课详情",
+                component: () => import("@/views/preparationGroup/editPanel/index.vue")
+            },
+            {
                 path: "assessment-center",
                 name: "测评中心",
                 component: () => import("@/views/assessmentCenter/index.vue")
+            },
+            {
+                path: "annotation/:id/:preId/:teacherCount",
+                name: "批注",
+                component: () => import("@/views/preparationGroup/annotation/index.vue")
             }
         ]
     }
