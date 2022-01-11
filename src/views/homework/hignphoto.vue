@@ -33,7 +33,6 @@
         <div class="video" style="padding-left:280px">
           <video ref="videoRef" autoplay />
           <canvas ref="resultRef" hidden></canvas>
-          <img ref="missionInfoRef">
         </div>
         <div class="buttonDiscern">
           <el-button type="primary" v-if="studentMission!=null" @click="discern">手动上传</el-button>
@@ -68,7 +67,7 @@ export default defineComponent({
         const handleClose = () => {
             dialogVisible.value = false;
         };
-
+        const cv = (window as any).cv;
         const imageSrc = ref<string>();
         // 获取所有已完成任务的人员
         const studentFinishMissions = ref<StudentMission[]>();
@@ -123,6 +122,8 @@ export default defineComponent({
                             if (smin) {
                                 studentMission.value = smin;
                                 studentName.value = "当前学生：" + smin.StudentName;
+                            } else {
+                                ElMessage({ type: "error", message: "此学生不属于这个班，请识别正确的二维码" });
                             }
                         }
                     }
@@ -175,9 +176,9 @@ export default defineComponent({
 
         // 识别学生的时候隐藏已完成学生的结果图片，显示video摄像头
         const recognition = () => {
-            if (videoRef.value && missionInfoRef.value) {
+            if (videoRef.value && resultRef.value) {
                 videoRef.value.hidden = false;
-                missionInfoRef.value.hidden = true;
+                resultRef.value.hidden = true;
             }
         };
 
@@ -191,26 +192,46 @@ export default defineComponent({
             GetMissionDetail(obj).then((res) => {
                 if (res.resultCode === 200) {
                     console.log(res.result, "line:152");
-                    if (videoRef.value) {
-                        // videoRef.value && videoRef.value.hidden = true;
-                        if (missionInfoRef.value) {
-                            missionInfoRef.value.src = res.result;
-                            missionInfoRef.value.height = videoRef.value.clientHeight;
-                            missionInfoRef.value.hidden = false;
-                            studentMission.value = null;
-                            studentName.value = "+识别学生";
+                    var resultData = res.result;
+                    var img = new Image();
+                    img.onload = () => {
+                        if (canvasRef.value) {
+                            const context = canvasRef.value.getContext("2d");
+                            context && context.drawImage(img, 0, 0, resultData.ImageWidth, resultData.ImageHeight);
+                            // const base64Img = canvasRef.value.toDataURL("image/png");
+                            const imageData = context?.getImageData(0, 0, resultData.ImageWidth, resultData.ImageHeight);
+                            const fileMat = cv.matFromImageData(imageData);
+                            var CheckQuestionResultList = resultData.CheckQuestionResultList;
+                            const correctColor = new cv.Scalar(0, 0, 255);
+                            const errorColor = new cv.Scalar(255, 0, 0);
+                            const wzColor = new cv.Scalar(255, 156, 47);
+                            CheckQuestionResultList.forEach((citem: { MarginLeft: any; MarginTop: any; SizeWidth: any; SizeHeight: any; Category: string; }) => {
+                                const point1 = new cv.Point(citem.MarginLeft, citem.MarginTop);
+                                const point2 = new cv.Point(citem.MarginLeft + citem.SizeWidth, citem.MarginTop + citem.SizeHeight);
+                                if (citem.Category === "Error") {
+                                    cv.rectangle(fileMat, point1, point2, errorColor, 1, cv.LINE_AA, 0);
+                                } else if (citem.Category === "Correct") {
+                                    cv.rectangle(fileMat, point1, point2, correctColor, 1, cv.LINE_AA, 0);
+                                } else {
+                                    cv.rectangle(fileMat, point1, point2, wzColor, 1, cv.LINE_AA, 0);
+                                }
+                            });
+                            if (videoRef.value && resultRef.value) {
+                                resultRef.value.height = videoRef.value.clientHeight;
+                                videoRef.value.hidden = true;
+                                resultRef.value.hidden = false;
+                                cv.imshow(resultRef.value, fileMat);
+                            }
+                            fileMat.delete();
                         }
-                        if (videoRef.value) {
-                            videoRef.value.hidden = true;
-                        }
-                    }
+                    };
+                    img.src = "data:image/png;base64," + resultData.CheckSourceImgBase64;
                 }
             });
         };
 
         // 上传学生试卷
         const discern = () => {
-            const cv = (window as any).cv;
             if (canvasRef.value && videoRef.value) {
                 canvasRef.value.width = videoRef.value.clientWidth;
                 canvasRef.value.height = videoRef.value.clientHeight;
@@ -320,6 +341,8 @@ export default defineComponent({
                                                         StudentID: studentMission.value?.StudentID,
                                                         CheckUpdateIn: CheckUpdateIns
                                                     };
+                                                    imMat.delete();
+                                                    fileMat.delete();
                                                     if (studentMission.value && studentMission.value.State === 5) {
                                                         ElMessageBox.confirm("同学：" + studentMission.value?.StudentName + "已提交过，是否确认重复提交？", "是否重复提交", {
                                                             type: "warning",
@@ -330,10 +353,9 @@ export default defineComponent({
                                                                 if (res.resultCode === 200) {
                                                                     // 修改成功
                                                                     ElMessage({ type: "success", message: "重复提交成功" });
-                                                                    initPage();
                                                                     const correctColor = new cv.Scalar(0, 0, 255);
                                                                     const errorColor = new cv.Scalar(255, 0, 0);
-                                                                    const wzColor = new cv.Scalar(255, 156, 47);
+                                                                    const wzColor = new cv.Scalar(255, 156, 47); // 255, 156, 47
                                                                     if (checkQuestionResultList.length > 0) {
                                                                         checkQuestionResultList.forEach(citem => {
                                                                             const point1 = new cv.Point(citem.MarginLeft, citem.MarginTop);
@@ -341,9 +363,9 @@ export default defineComponent({
                                                                             if (citem.Category === "Error") {
                                                                                 cv.rectangle(resMat, point1, point2, errorColor, 1, cv.LINE_AA, 0);
                                                                             } else if (citem.Category === "Correct") {
-                                                                                cv.rectangle(resMat, point1, point2, correctColor, 1, cv.LINE_8, 0);
+                                                                                cv.rectangle(resMat, point1, point2, correctColor, 1, cv.LINE_AA, 0);
                                                                             } else {
-                                                                                cv.rectangle(resMat, point1, point2, wzColor, 1, cv.LINE_8, 0);
+                                                                                cv.rectangle(resMat, point1, point2, wzColor, 1, cv.LINE_AA, 0);
                                                                             }
                                                                         });
                                                                     }
@@ -353,6 +375,7 @@ export default defineComponent({
                                                                         resultRef.value.hidden = false;
                                                                         cv.imshow(resultRef.value, resMat);
                                                                     }
+                                                                    resMat.delete();
                                                                 }
                                                             });
                                                         });
@@ -384,6 +407,7 @@ export default defineComponent({
                                                                     resultRef.value.hidden = false;
                                                                     cv.imshow(resultRef.value, resMat);
                                                                 }
+                                                                resMat.delete();
                                                             }
                                                         });
                                                     }
@@ -437,7 +461,6 @@ export default defineComponent({
         }
 
         function check(shrink1 : any, checkReferenceImage: any) {
-            const cv = (window as any).cv;
             // 参照图
             // const checkReferenceImage = checkReferenceImg;
             // 拍照图
@@ -526,7 +549,24 @@ export default defineComponent({
             // eslint-disable-next-line camelcase
             const image_B_final_result = new cv.Mat();
             cv.warpPerspective(shrink1, image_B_final_result, h, checkReferenceImage.size());
-
+            sift.delete();
+            points1.delete();
+            points2.delete();
+            good_matches.delete();
+            matchePoints.delete();
+            bfMatch.delete();
+            keypoints1.delete();
+            keypoints2.delete();
+            descriptors1.delete();
+            descriptors2.delete();
+            im1Gray.delete();
+            im2Gray.delete();
+            imGray.delete();
+            imMatches.delete();
+            // color.delete();
+            mat1.delete();
+            mat2.delete();
+            h.delete();
             // cv.imshow("canvasCheck", image_B_final_result);
             // cv.imshow("canvasOutput", image_B_final_result);
             // eslint-disable-next-line camelcase
@@ -555,6 +595,7 @@ export default defineComponent({
             studentMission,
             imageSrc,
             resultRef,
+            cv,
             close,
             handleClose,
             discern,

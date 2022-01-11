@@ -15,6 +15,7 @@ import {
     SvImgIn
 } from "@/types/homework";
 import { ChartView } from "echarts";
+import { AnyRecord } from "dns";
 
 // 获取一年中有作业的日期
 export const fetchHomeworkDateByYear: RequestFun<
@@ -125,7 +126,7 @@ export const GetWorkbookPageInfo: RequestFun<PageInfo, any> = (
 };
 
 // 获取已完成学生的完成情况
-export const GetMissionDetail: RequestFun<StudentDetAndPageInfo, string> = (
+export const GetMissionDetail: RequestFun<StudentDetAndPageInfo, any> = (
     data
 ) => {
     return request({
