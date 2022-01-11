@@ -61,7 +61,7 @@ export default defineComponent({
                 groupLessonPreparateID: props.currentItem.Id
             });
             if (res.resultCode === 200) {
-                const shareOrigin = window.top[0].location.ancestorOrigins[0] || origin;
+                const shareOrigin = window.top[0]?.location?.ancestorOrigins[0] || origin;
                 console.log(shareOrigin);
                 // url.value = `${shareOrigin}/#/preparation-group?inviteID=${res.result.ID}&isShowNarBar=false&platform=teacher&iframe_type=3&redirect=preparation-group`;
                 // 分享到集体备课
