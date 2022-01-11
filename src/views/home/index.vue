@@ -1,5 +1,5 @@
 <template>
-        <div class="home" style="height: 100%">
+    <div class="home" style="height: 100%">
         <div class="main">
             <div class="top">
                 <div class="left">
@@ -12,11 +12,26 @@
                 </div>
                 <div class="right">
                     <Calendar :days="days" :isShowDetailBtn="true">
-                        <header class="header">
-                            <div @click="weekPre" class="week"><i class="el-icon-arrow-left"></i>上周</div>
-                            <div>上课</div>
-                            <div @click="weekNext" class="week">下周<i class="el-icon-arrow-right"></i></div>
-                        </header>
+                        <template v-slot:default="slotProps">
+                            <header class="header">
+                                <div @click="weekPre" class="week">
+                                    <i class="el-icon-arrow-left"></i>上周
+                                </div>
+                                <div>上课</div>
+                                <div class="header-right">
+                                    <div class="refresh" @click="slotProps.initSchedules">
+                                        <i
+                                            class="el-icon-refresh-right"
+                                            :style="{marginRight: '4px'}"
+                                        ></i
+                                        >刷新课表
+                                    </div>
+                                    <div @click="weekNext" class="week">
+                                        下周<i class="el-icon-arrow-right"></i>
+                                    </div>
+                                </div>
+                            </header>
+                        </template>
                     </Calendar>
                 </div>
             </div>
@@ -128,7 +143,7 @@ export default defineComponent({
             width: 100%;
             height: 50px;
             display: flex;
-            padding: 20px;
+            padding: 0 20px;
             justify-content: space-between;
             align-items: center;
             font-size: 20px;
@@ -136,6 +151,15 @@ export default defineComponent({
             border-top-left-radius: 20px;
             border-top-right-radius: 20px;
             color: #ffffff;
+            .header-right {
+                display: flex;
+                align-items: center;
+                .refresh {
+                    font-size: 16px;
+                    margin-right: 8px;
+                    cursor: pointer;
+                }
+            }
             .week {
                 font-size: 18px;
                 font-weight: 400;
@@ -173,7 +197,8 @@ export default defineComponent({
                     box-sizing: border-box;
                     margin-bottom: 28px;
                     cursor: pointer;
-                    background: url('./../../assets/indexImages/card_beike.png') no-repeat;
+                    background: url("./../../assets/indexImages/card_beike.png")
+                        no-repeat;
                     background-position: center center;
                     background-size: cover;
                     border-radius: 15px;
@@ -192,7 +217,8 @@ export default defineComponent({
                     position: relative;
                     cursor: pointer;
                     flex: 1;
-                    background: url('./../../assets/indexImages/card_zuoye.png') no-repeat;
+                    background: url("./../../assets/indexImages/card_zuoye.png")
+                        no-repeat;
                     background-position: center center;
                     background-size: cover;
                     border-radius: 15px;

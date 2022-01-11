@@ -1,6 +1,6 @@
 <template>
     <div class="calendar">
-        <slot/>
+        <slot :initSchedules="initSchedules"/>
         <div class="content-header">
             <div class="item">上课时间</div>
             <div v-for="(day, index) in days" :key="day" class="item">
@@ -54,7 +54,7 @@ export default defineComponent({
         const { weekNext, weekPre, initDays, formTime, formWeek } = useTime();
         initDays();
         const days = computed(() => props.days);
-        const { schedules, updateSchedules, updateClassSchedule } = useSchedules(days);
+        const { schedules, updateSchedules, updateClassSchedule, initSchedules } = useSchedules(days);
         provide("updateSchedules", updateSchedules);
 
         return {
@@ -63,6 +63,7 @@ export default defineComponent({
             schedules,
             formTime,
             updateClassSchedule,
+            initSchedules,
             formWeek
         };
     },
