@@ -14,7 +14,7 @@ import { store } from "@/store";
 import Content from "./Content.vue";
 import { clearTimeout, setTimeout } from "timers";
 const imgError = require("@/assets/projection/img_error@2x.png");
-
+let messageHandle:MessageHandle;
 export default defineComponent({
     setup() {
         const isShow = ref(false);
@@ -29,7 +29,6 @@ export default defineComponent({
         const heartbeatResult = computed(() => `heartbeatResult_${id.value}`);
         let heartbeatResultTimer: any;
         let heartbeatTimer: any;
-        let messageHandle:MessageHandle;
 
         const roomId = ref("");
 
