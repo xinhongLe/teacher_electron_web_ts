@@ -203,9 +203,11 @@ export default defineComponent({
         };
         const fullscreenStyle = ref(false);
         const fullScreen = () => {
+            emit("changeWinSize"); // 切换窗口大小，清除缓存的笔记列表
             fullscreenStyle.value = true;
         };
         const clockFullScreen = () => {
+            emit("changeWinSize");
             fullscreenStyle.value = false;
         };
         const cardList = ref([]);
