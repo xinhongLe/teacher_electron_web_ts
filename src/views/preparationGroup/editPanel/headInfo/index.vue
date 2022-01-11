@@ -55,8 +55,8 @@
                 <span class="content textarea-content" v-show="isEdit">
                     <el-input v-model="lessonItem.LessonContent" :rows="3" type="textarea" placeholder="500个字符以内" :maxlength="500" resize="none"/>
                 </span>
-                <span class="content special-content" :class="isShowMore ? `` : `clamp`" :title="lessonItem.LessonContent" v-show="!isEdit">
-                    {{ lessonItem.LessonContent }}
+                <span class="content special-content" :class="isShowMore ? `` : `clamp_`" :title="lessonItem.LessonContent" v-show="!isEdit">
+                    <div v-html="`<p>${lessonItem.LessonContent.replace(/\n/g,'<br/>')}</p>`"></div>
                     <div v-if="isFull">
                         <span class="more" v-if="!isShowMore" @click="isShowMore = true">
                             <span class="dot">...</span>阅读全部
