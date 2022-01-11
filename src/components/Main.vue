@@ -1,11 +1,15 @@
 <template>
     <div class="main-container">
         <NavBar v-if="isShowNarBar"/>
-        <Suspension v-if="!isElectron"/>
+        <Suspense v-if="!isElectron">
+            <Suspension />
+        </Suspense>
         <LookQuestion v-if="isShowQuestion"/>
         <LookVideo v-if="isShowVideo"/>
         <Projection/>
-        <VideoProjection/>
+        <Suspense v-if="isElectron">
+            <VideoProjection/>
+        </Suspense>
         <div class="main-body">
             <router-view v-slot="{Component}">
                 <keep-alive :exclude="keepExcludeArr">
@@ -17,9 +21,8 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, ref, watch } from "vue";
+import { computed, defineAsyncComponent, defineComponent, ref, watch } from "vue";
 import NavBar from "./navBar/index.vue";
-import Suspension from "./suspension/index.vue";
 import isElectron from "is-electron";
 import { useRoute } from "vue-router";
 import { GetGradeClassTree } from "@/views/login/api";
@@ -31,16 +34,15 @@ import LookQuestion from "./lookQuestion/index.vue";
 import { store } from "@/store";
 import LookVideo from "./lookVideo/index.vue";
 import Projection from "./projection/index.vue";
-import VideoProjection from "./videoProjection/index.vue";
 
 export default defineComponent({
     components: {
         NavBar,
-        Suspension,
+        Suspension: defineAsyncComponent(() => import("./suspension/index.vue")),
         LookQuestion,
         LookVideo,
         Projection,
-        VideoProjection
+        VideoProjection: defineAsyncComponent(() => import("./videoProjection/index.vue"))
     },
     setup() {
         const route = useRoute();

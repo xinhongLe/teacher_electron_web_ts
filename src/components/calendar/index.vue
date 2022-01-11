@@ -59,7 +59,6 @@ export default defineComponent({
         const { schedules, updateSchedules, updateClassSchedule, initSchedules } = useSchedules(days);
         const isCurrentDay = (day: string) => {
             const currentDay = new Date().getDate();
-            console.log(currentDay, moment(day).date());
             return currentDay === moment(day).date();
         };
 

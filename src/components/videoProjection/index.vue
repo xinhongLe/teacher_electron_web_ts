@@ -50,6 +50,7 @@ export default defineComponent({
                     IsEnd: boolean;
                     roomID: string;
                 } = JSON.parse(infoString);
+            window.electron.log.info(`dealVideoProjectTopic roomID: ${info.roomID}, IsEnd: ${info.IsEnd}`);
             if (!info.IsEnd) {
                 roomId.value = info.roomID;
                 isShow.value = true;
@@ -59,10 +60,12 @@ export default defineComponent({
         };
 
         const dealHeartbeatTopic = () => {
+            window.electron.log.info("receive heartbeat");
             client.publish(getPublish(heartbeatResult.value), "");
         };
 
         const dealHeartbeatResultTopic = () => {
+            window.electron.log.info("receive heartbeat result");
             clearTimeout(heartbeatResultTimer);
             noSignalCount.value = 0;
             sendHeartbeat();
@@ -70,10 +73,12 @@ export default defineComponent({
 
         const sendHeartbeat = () => {
             heartbeatTimer = setTimeout(() => {
+                window.electron.log.info("start send heartbeat");
                 client.publish(getPublish(heartbeat.value), "");
                 heartbeatResultTimer = setTimeout(() => {
                     if (!isShow.value) return;
                     noSignalCount.value <= 6 && noSignalCount.value++;
+                    window.electron.log.info("not receive heartbeat result, noSignalCount: ", noSignalCount.value);
                     sendHeartbeat();
                 }, 5 * 1000);
             }, 5 * 1000);
@@ -103,12 +108,10 @@ export default defineComponent({
             if (!id.value) return;
             client.subscribe(getSubscribe(videoProject.value));
             client.subscribe(getSubscribe(videoProjectResult.value));
-            client.subscribe(getSubscribe(heartbeatResult.value));
-            client.subscribe(getSubscribe(heartbeat.value));
-            client.subscribe(getPublish(videoProject.value));
         });
 
         watch(noSignalCount, (v) => {
+            window.electron.log.info("noSignalCount change", noSignalCount.value);
             if (v === 0) {
                 messageHandle && messageHandle.close();
             } else if (v === 3) {
@@ -142,6 +145,11 @@ export default defineComponent({
                 clearTimeout(heartbeatTimer);
                 noSignalCount.value = 0;
                 messageHandle && messageHandle.close();
+                client.unsubscribe(getSubscribe(heartbeatResult.value));
+                client.unsubscribe(getSubscribe(heartbeat.value));
+            } else {
+                client.subscribe(getSubscribe(heartbeatResult.value));
+                client.subscribe(getSubscribe(heartbeat.value));
             }
         });
 
