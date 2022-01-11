@@ -18,6 +18,7 @@ export interface IGetWindowCards {
 
 interface IGetPageData {
     pageID: string,
+    id?: string,
     OriginType?: number,
 }
 
@@ -181,6 +182,21 @@ export async function getPageDetailRes(data:IGetPageData, type: number, callback
     });
 }
 
+// 获取ppt页数据
+// export function GetPageElements(data: any, type: number, callback: any) : Promise<GetPageResponse> {
+//     return new Promise((resolve) => {
+//         request({
+//             url: "/Api/V2/GroupLesson/GetPageElements",
+//             baseURL: WINDOW_CRAD_API,
+//             headers: { DeviceID: "Franchisee", ...{ noLoading: "ok" } },
+//             method: "post",
+//             data
+//         }).then((res: any) => {
+//             callback(res);
+//             resolve(res);
+//         });
+//     });
+// }
 // 保存/更新页面
 export function updatePageRes(data: Slide, type:number) : Promise<GetPageResponse> {
     const urlList = [
@@ -208,7 +224,6 @@ export function UpdatePageRemark(data: Remark) : Promise<GetPageResponse> {
         data: Object.assign(data, { OriginType: originType })
     });
 }
-
 // 删除卡或页
 export function deleteCardOrPage(data:IDelCardOrPage): Promise<GetPageResponse> {
     return request({

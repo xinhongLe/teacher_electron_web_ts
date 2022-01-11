@@ -31,6 +31,7 @@
         "is-electron": "^2.2.0",
         "js-md5": "^0.7.3",
         "lodash": "^4.17.21",
+        "mitt": "^3.0.0",
         "moment": "^2.29.1",
         "mqtt": "^4.3.2",
         "postcss-px2rem-exclude": "0.0.6",

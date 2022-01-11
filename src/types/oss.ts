@@ -12,7 +12,7 @@ export type OssName = "HeadPortrait"|"StudyAudio"|"StudyJson"|"LivePpt"|"GiftIma
 "ParentFile"|"TeacherFile"|"StoryFile"|"Teacherclass"|"GuideFile"|"VideoPauseProgramFile"|
 "CustomHomework"|"Workbook"|"ParentClass"|"CareClass"|"TeachingMiniToolFile"|"PaperCoverFile"|
 "QuestionExplainFile"|"TeachPageFile"|"ElementFile"|"TeacherElementFile"|"LiveLessonFile"|"FeedBackFile"|
-"ProjectionFile"|"TeacherBlackboardFile"|"BookFile"|"SchoolFile"
+"ProjectionFile"|"TeacherBlackboardFile"|"BookFile"|"SchoolFile"|"GroupLessonFile"
 
 export type IOssPathsRes = IResponse<Record<OssName, IOssPaths>>
 
@@ -45,5 +45,9 @@ export interface IOssFileInfo {
     md5: string,
     fileName: string,
     fileExtension: string,
-    path?: string
+    path?: string,
+    size?: number,
+    fileSize?: string,
+    fileType?: string,
+    Name?: string
 }
