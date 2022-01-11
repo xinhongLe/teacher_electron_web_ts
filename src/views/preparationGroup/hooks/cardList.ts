@@ -43,26 +43,28 @@ export default () => {
         }
     };
     const dealCardData = (card:CardList, originType: number) => {
-        const pages = card.PageList.map(page => {
+        if (card && card.PageList) {
+            const pages = card.PageList.map(page => {
+                return {
+                    ID: page.ID,
+                    Name: page.Name || ["普通页", "听写页", "跟读页"][page.Type],
+                    Type: page.Type,
+                    Steps: [],
+                    Elements: [],
+                    Width: page.Width || 1024,
+                    Height: page.Height || 678,
+                    BindId: page.TeachPageRelationID,
+                    Remark: page.Remark || "",
+                    IsGetData: false,
+                    originType
+                };
+            });
             return {
-                ID: page.ID,
-                Name: page.Name || ["普通页", "听写页", "跟读页"][page.Type],
-                Type: page.Type,
-                Steps: [],
-                Elements: [],
-                Width: page.Width || 1024,
-                Height: page.Height || 678,
-                BindId: page.TeachPageRelationID,
-                Remark: page.Remark || "",
-                IsGetData: false,
-                originType
+                id: card.ID,
+                name: card.Name,
+                pages: pages
             };
-        });
-        return {
-            id: card.ID,
-            name: card.Name,
-            pages: pages
-        };
+        }
     };
     return {
         dealCardData

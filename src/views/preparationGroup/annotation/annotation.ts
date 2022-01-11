@@ -42,16 +42,18 @@ export default () => {
         if (res.resultCode === 200) {
             // 去除列表里面状态为下架的页
             const removeStatePage = res.result.map((item:any) => {
-                return {
-                    ...item,
-                    PageList: item.PageList.filter((items:any) => {
-                        return items.State;
-                    })
-                };
+                if (item && item.PageList) {
+                    return {
+                        ...item,
+                        PageList: item.PageList.filter((items:any) => {
+                            return items.State;
+                        })
+                    };
+                }
             });
             // 去除列表没有页的卡
-            allCardList.value = removeStatePage.filter((item:any) => { return item.PageList.length > 0; });
-            cardListRef.value.handleClick(0, allCardList.value[0]);
+            allCardList.value = removeStatePage.filter((item:any) => { return item && item.PageList && item.PageList.length > 0; });
+            if (allCardList.value.length > 0) cardListRef.value.handleClick(0, allCardList.value[0]);
         }
     };
     const updatePageList = (card: cardList) => {
