@@ -5,9 +5,10 @@
         :before-close="handleClose"
         :title="flagType + '研讨内容'"
         width="800px"
+        :close-on-click-modal="false"
         center
     >
-        <el-form ref="formRef" :model="form" :rules="rules" label-position="left">
+        <el-form ref="formRef" :model="form" :rules="rules" v-loading="loadingShow" label-position="left">
             <el-form-item label="研讨主题:" :label-width="formLabelWidth" prop="title">
                 <el-input v-model="form.title" placeholder="请输入研讨主题，40个字以内" autocomplete="off" maxlength="40"></el-input>
             </el-form-item>
@@ -32,9 +33,13 @@
                     accept=".doc, .docx, .ppt, .pptx"
                     :before-upload="beforeUpload"
                     :http-request="uploadFileSuccess"
+                    :on-success="onSuccess"
                     v-if="!fileContent.name"
                 >
-                    <el-button size="small" type="primary" plain icon="el-icon-upload">上传文件</el-button>
+                    <div class="btn-upload">
+                        <img src="../../../assets/preparationGroup/editPanel/icon_upload.png" style="width: 12px;" alt="">
+                        <span>{{ `上传文件` }}</span>
+                    </div>
                     <template #tip>
                         <div class="el-upload__tip TheSlogan">{{ `仅可上传一个${form.resourceType === 1 ? "word或" : "" }ppt文件` }}</div>
                     </template>
@@ -46,14 +51,17 @@
             <el-form-item label="附件:" :label-width="formLabelWidth" prop="attachments">
                 <el-upload
                     class="upload-demo"
-                    v-loading="loadingShow"
                     action
                     :multiple="false"
                     :show-file-list="false"
                     :accept="acceptList"
                     :http-request="uploadSuccess"
+                    :on-success="onSuccess"
                 >
-                    <el-button size="small" type="primary" plain icon="el-icon-paperclip">上传附件</el-button>
+                    <div class="btn-upload">
+                        <img src="../../../assets/preparationGroup/editPanel/fj.png" style="width: 17px;" alt="">
+                        <span>{{ `上传附件` }}</span>
+                    </div>
                     <template #tip>
                         <div class="el-upload__tip TheSlogan">
                             {{ `可上传不超过9个素材，支持格式：${acceptList.split(",").join(" ")}等` }}
@@ -224,6 +232,7 @@ export default defineComponent({
         // 上传教案/课件
         const uploadFileSuccess = async ({ file }: {file: UploadFile & Blob;}) => {
             if (file.name.length < 128) {
+                loadingShow.value = true;
                 const ossPath = get(STORAGE_TYPES.OSS_PATHS)?.["GroupLessonFile"];
                 const res = await cooOss(file, ossPath);
                 if (res?.code === 200) {
@@ -254,6 +263,10 @@ export default defineComponent({
                 ElMessage.info("文件名字长度不能超过128位");
                 deleteFile();
             }
+        };
+
+        const onSuccess = () => {
+            loadingShow.value = false;
         };
 
         // 删除教案/课件
@@ -368,6 +381,7 @@ export default defineComponent({
             deleteFile,
             beforeUpload,
             uploadFileSuccess,
+            onSuccess,
             uploadSuccess,
             delFile,
             submitForm,
@@ -423,5 +437,34 @@ export default defineComponent({
     font-weight: 400;
     color: #a7aab4;
     line-height: 17px;
+}
+.btn-upload {
+    width: 116px;
+    height: 40px;
+    border-radius: 4px;
+    border: 1px solid rgba(75, 113, 238, 0.5);
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    cursor: pointer;
+    img {
+        display: inline-block;
+        width: 12px;
+        height: auto;
+    }
+    span {
+        font-size: 16px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: #3B62F4;
+        display: inline-block;
+        margin: 0;
+        min-width: 70px;
+    }
+    :deep(.el-loading-spinner) {
+        top: 0;
+    }
 }
 </style>

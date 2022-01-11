@@ -45,7 +45,7 @@
                         </div>
                     </div>
                     <img class="arrow" src="../../../../assets/preparationGroup/editPanel/right.png" alt="">
-                    <div>
+                    <div v-loading="loadingShow">
                         <div class="box-item box-item-3" :class="content.ResourceResult ? '' : 'disable-item'">
                             <img src="../../../../assets/preparationGroup/editPanel/icon_jiaoan.png" alt="">
                             <p>{{ fileText }}终稿</p>
@@ -66,6 +66,7 @@
                                     :show-file-list="false"
                                     accept=".doc, .docx, .ppt, .pptx"
                                     :http-request="(file) => uploadFileSuccess(file, content.DiscussionContentID)"
+                                    :on-success="onSuccess"
                                 >
                                     <img src="../../../../assets/preparationGroup/editPanel/up.png" alt="">
                                     <span>{{ content.ResourceResult ? "再次" : "" }}上传</span>
@@ -212,6 +213,7 @@ export default defineComponent({
         const { proxy } = getCurrentInstance() as any;
         const filesrc = ref("");
         const dialogVisible = ref(false);
+        const loadingShow = ref(false);
         const isHasRule = ref(props.content.CreaterID === get(STORAGE_TYPES.USER_INFO).ID);
         const router = useRouter();
         const route = useRoute();
@@ -380,6 +382,7 @@ export default defineComponent({
         // 再次上传教案/课件
         const uploadFileSuccess = async ({ file }: {file: UploadFile & Blob;}, id: string) => {
             if (file.name.length < 128) {
+                loadingShow.value = true;
                 const ossPath = get(STORAGE_TYPES.OSS_PATHS)?.["GroupLessonFile"];
                 const res = await cooOss(file, ossPath);
                 if (res?.code === 200) {
@@ -445,6 +448,9 @@ export default defineComponent({
         const turnToAnnotation = () => {
             router.push(`/annotation/${props.content.DiscussionContentID}/${route.params.preId}/${props.teacherCount}`);
         };
+        const onSuccess = () => {
+            loadingShow.value = false;
+        };
 
         const { getFileType } = useUploadFile("GroupLessonFile");
 
@@ -456,6 +462,7 @@ export default defineComponent({
             contentFiles,
             wordFiles,
             dialogVisible,
+            loadingShow,
             isHasRule,
             researchContent,
             ...toRefs(state),
@@ -469,6 +476,7 @@ export default defineComponent({
             againUpload,
             turnToAnnotation,
             getFileType,
+            onSuccess,
             moment
         };
     },

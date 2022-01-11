@@ -79,10 +79,11 @@
                             action=""
                             :show-file-list="false"
                             :http-request="uploadFile"
+                            :on-success="onSuccess"
                         >
-                            <div class="btn-upload">
+                            <div class="btn-upload" v-loading="loadingShow">
                                 <img src="../../../../assets/preparationGroup/editPanel/icon_upload.png" alt="">
-                                <span>上传文件</span>
+                                <span>{{ `上传${loadingShow ? "中..." : "文件"}` }}</span>
                             </div>
                         </el-upload>
                     </div>
@@ -280,6 +281,9 @@ export default defineComponent({
             }
             lessonItem.Attachments.splice(index, 1);
         };
+        const onSuccess = () => {
+            loadingShow.value = false;
+        };
         onMounted(() => {
             proxy.mittBus.on("busPreparateDetail", (status: boolean) => {
                 getPreparateDetail();
@@ -301,6 +305,7 @@ export default defineComponent({
             loadingShow,
             fileInfo,
             uploadFile,
+            onSuccess,
             resetFileInfo,
             getFileType,
             getFileSize,
@@ -533,6 +538,7 @@ export default defineComponent({
                 display: flex;
                 align-items: center;
                 justify-content: center;
+                overflow: hidden;
                 cursor: pointer;
                 img {
                     display: inline-block;
@@ -547,6 +553,9 @@ export default defineComponent({
                     display: inline-block;
                     margin: 0;
                     min-width: 70px;
+                }
+                :deep(.el-loading-spinner) {
+                    top: 0;
                 }
             }
             .padding-left {
