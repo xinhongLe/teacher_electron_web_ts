@@ -53,11 +53,9 @@ export default defineComponent({
             }
         }
     },
-    setup(props, { emit }) {
+    setup() {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { proxy } = getCurrentInstance() as any;
-        console.log(props);
-        console.log(emit);
         const route = useRoute();
         const dialogVisible = ref(false);
         const state = reactive({

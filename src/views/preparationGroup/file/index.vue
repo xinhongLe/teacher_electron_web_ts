@@ -47,11 +47,8 @@ export default defineComponent({
         }
     },
     setup(props, { emit }) {
-        console.log(props);
-        console.log(emit);
         const timer = ref();
         const percent = ref(100);
-        console.log("fileInfo", props.fileInfo);
 
         const preView = async () => {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any

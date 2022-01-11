@@ -107,7 +107,6 @@ export default defineComponent({
                     }
                 ];
                 options.value = options.value.concat(props.teacherList);
-                console.log(options.value);
                 teacherID.value = "";
                 editBoxSwtich.value = null;
             }
@@ -117,11 +116,9 @@ export default defineComponent({
             () => {
                 annotationList.value = props.AnotationList;
                 proxy.mittBus.emit("annotationList", annotationList.value);
-                console.log(annotationList.value, "value");
             }
         );
         const changeEditBoxSwtich = (index) => {
-            console.log(contentFlag.value);
             if (contentFlag.value === 0) {
                 return false;
             }
@@ -145,7 +142,6 @@ export default defineComponent({
         };
         // 新增
         const add = () => {
-            console.log(annotationList.value);
             if (contentFlag.value === 0) {
                 ElMessage.warning("请先完成上一个批注");
                 return false;

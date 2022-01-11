@@ -36,8 +36,6 @@ export default defineComponent({
     setup(props, { emit }) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { proxy } = getCurrentInstance() as any;
-        console.log(props);
-        console.log(emit);
         const route = useRoute();
         const memberList = ref<FetchGroupLessonTeachersRes[]>([]);
         const isShowMore = ref(false);

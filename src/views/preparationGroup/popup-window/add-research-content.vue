@@ -107,7 +107,6 @@ export default defineComponent({
     },
     components: { File },
     setup(props, { emit }) {
-        console.log(props);
         const route = useRoute();
         const formRef = ref<ElFormType>();
         const preId = ref();
@@ -164,9 +163,7 @@ export default defineComponent({
 
         watch(() => props.dialogVisible, (visible) => {
             if (visible) {
-                console.log(visible, "visible");
                 if (props.researchContent) {
-                    console.log(props.researchContent, "1234567890");
                     flagType.value = "编辑";
                     preId.value = props.researchContent.DiscussionContentID;
                     state.form.title = props.researchContent.Title;
@@ -185,7 +182,6 @@ export default defineComponent({
                     fileContent.fileType = getFileType(`${props.researchContent.ResourceSource.Name}.${props.researchContent.ResourceSource.Extention}`);
                     fileList.value = [];
                     props.researchContent.Attachments && props.researchContent.Attachments.map(item => {
-                        console.log(item);
                         fileList.value.push({
                             objectKey: "",
                             bucket: item.Bucket,
@@ -231,7 +227,6 @@ export default defineComponent({
                 const ossPath = get(STORAGE_TYPES.OSS_PATHS)?.["GroupLessonFile"];
                 const res = await cooOss(file, ossPath);
                 if (res?.code === 200) {
-                    console.log(res, "resresres");
                     const { objectKey, name, md5, fileExtension } = res;
                     fileContent.bucket = ossPath.Bucket;
                     fileContent.path = ossPath.Path;
@@ -283,21 +278,11 @@ export default defineComponent({
         // 上传附件
         const uploadSuccess = async ({ file }: {file: UploadFile & Blob;}) => {
             if (file.name.length < 128) {
-                console.log("fileList", fileList.value);
                 const na = file.name.substring(file.name.lastIndexOf("."), file.name.length);
                 if (fileList.value.length < 9 && acceptList.indexOf(na) > -1) {
                     await uploadFile({ file });
                     fileList.value.push({
                         ...fileInfo
-                        // extention: fileInfo.fileExtension,
-                        // name: fileInfo.name,
-                        // fileName: fileInfo.fileName,
-                        // bucket: fileInfo.bucket,
-                        // fileMD5: fileInfo.md5,
-                        // filePath: fileInfo.path!,
-                        // size: fileInfo.size!,
-                        // fileSize: fileInfo.fileSize!,
-                        // fileType: fileInfo.fileType!
                     });
                 } else {
                     ElMessage.info(`可上传不超过9个素材，支持格式：${acceptList.split(",").join(" ")}等`);

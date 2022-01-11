@@ -372,7 +372,6 @@ export default defineComponent({
                     state.selectOption = schoolList.value[0].Name;
                     state.selectOptionID = schoolList.value[0].ID;
                 }
-                console.log(state.dynamicTags, teacherList.value);
                 if (state.dynamicTags.length > 0) {
                     state.dynamicTags.map((item: any) => {
                         teacherList.value.forEach((itm: any) => {

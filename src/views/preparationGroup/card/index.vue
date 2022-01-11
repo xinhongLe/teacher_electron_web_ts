@@ -65,8 +65,6 @@ export default defineComponent({
     components: { generateLink, DeleteConfirm },
     setup(props, { emit }) {
         const router = useRouter();
-        console.log(props);
-        console.log(emit);
         const deleteDialog = ref();
         const state = reactive({
             loading: false

@@ -25,8 +25,6 @@ export default defineComponent({
     },
     setup(props, { emit }) {
         const { proxy } = getCurrentInstance() as any;
-        console.log(props);
-        console.log(emit);
         const state = reactive({
             editStatus: false,
             teacherCount: 0,

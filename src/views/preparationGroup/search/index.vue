@@ -67,8 +67,6 @@ export default defineComponent({
         }
     },
     setup(props, { emit }) {
-        console.log(props);
-        console.log(emit);
         const state = reactive({
             defaultValue: [new Date(), new Date()],
             shortcuts: [

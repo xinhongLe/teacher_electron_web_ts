@@ -25,8 +25,6 @@ export default defineComponent({
         }
     },
     setup(props, { emit }) {
-        console.log(props);
-        console.log(emit);
         const state = reactive({
             loading: false
         });

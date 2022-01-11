@@ -70,10 +70,8 @@ export default defineComponent({
         const activeIndex = ref(null);
         const lastMove = ref();
         const clickElement = (event, item, index) => {
-            console.log(item, "item");
             activeIndex.value = index;
             const taggingComponents = document.querySelector(".tagging-center-main");
-            console.log(taggingComponents.offsetWidth);
             proxy.mittBus.emit("annotationActionID", activeIndex.value);
             dragePosition.x = event.clientX;
             dragePosition.y = event.clientY;
@@ -102,7 +100,6 @@ export default defineComponent({
             // 监听鼠标三秒之内没有动过
             const isMove = setInterval(() => {
                 const now = new Date().getTime();
-                console.log(now, lastMove.value);
                 if (!lastMove.value) {
                     clearInterval(isMove);
                     return false;
@@ -129,7 +126,6 @@ export default defineComponent({
         };
         const showAnnotaiton = (e) => {
             let annotationSwitch = false;
-            console.log(e, "eeeeeeeeee");
             if (e.srcElement.className === "tagging-center-main") {
                 annotationSwitch = false;
             } else {

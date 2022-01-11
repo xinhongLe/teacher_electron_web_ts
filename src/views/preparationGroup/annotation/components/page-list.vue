@@ -137,13 +137,10 @@ export default defineComponent({
         const getDataBase = async(str, obj) => {
             const res = await getPPtPageDetail({ id: str });
             if (res.resultCode === 200) {
-                console.log(res);
                 screenViewPage.value = await dealOldData(str, obj.originType, JSON.parse(res.result.Json));
-                console.log(screenViewPage.value);
             }
         };
         const selectPage = (index, item) => {
-            console.log(item, "item");
             selected.value = index;
             getDataBase(pageList.value[index].ID, pageList.value[index]);
             createTeacher.value = "";
@@ -165,7 +162,6 @@ export default defineComponent({
             };
             const res = await GetAnnotation(obj);
             if (res.resultCode === 200) {
-                console.log(res);
                 annotationList.value = res.result;
                 emit("updateAnotationList", annotationList.value);
             }

@@ -39,9 +39,7 @@ import useCardList from "./card/useCardList";
 import { ElMessage } from "element-plus";
 export default defineComponent({
     name: "preparationGroup",
-    setup(props, { emit }) {
-        console.log(props);
-        console.log(emit);
+    setup() {
         const collectivePreparationItem = ref();
         const coRef = ref();
         const route = useRoute();

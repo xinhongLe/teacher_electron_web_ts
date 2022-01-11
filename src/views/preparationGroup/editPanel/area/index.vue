@@ -303,19 +303,6 @@ export default defineComponent({
         ]);
 
         const lookOver = async (file: Fileginseng) => {
-            // if (file) {
-            //     const { Extention, FilePath, FileMD5, Bucket } = file;
-            //     if (Extention) {
-            //         const key = FilePath + "/" + FileMD5 + "." + Extention;
-            //         filesrc.value = await downloadFile(key, Bucket);
-            //         console.log(filesrc.value, FileMD5 + "." + Extention);
-            //         openFile(filesrc.value, FileMD5 + "." + Extention);
-            //     } else {
-            //         const key = FilePath + "/" + FileMD5;
-            //         filesrc.value = await downloadFile(key, Bucket);
-            //         openFile(filesrc.value, FileMD5 + "." + Extention);
-            //     }
-            // }
             if (file) {
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const item: any = file;
@@ -346,18 +333,6 @@ export default defineComponent({
         };
 
         const download = async (file: Fileginseng) => {
-            // if (file) {
-            //     const { Extention, FilePath, FileName, FileMD5, Bucket } = file;
-            //     if (Extention) {
-            //         const key = FilePath + "/" + FileMD5 + "." + Extention;
-            //         filesrc.value = await downloadFile(key, Bucket);
-            //         downLoad(filesrc.value, FileName);
-            //     } else {
-            //         const key = FilePath + "/" + FileMD5;
-            //         filesrc.value = await downloadFile(key, Bucket);
-            //         downLoad(filesrc.value, FileName);
-            //     }
-            // }
             if (file) {
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const item: any = file;
@@ -461,8 +436,6 @@ export default defineComponent({
                 const index = props.numorder;
                 const specialContent = document.querySelectorAll(`.special-area-content-${index}`);
                 const windowContent = document.querySelectorAll(`.title-left-content-${index}`);
-                console.log(windowContent[0].clientWidth);
-                console.log(specialContent[0].clientWidth);
                 if (specialContent && specialContent[0] && specialContent[0].clientWidth && windowContent && windowContent[0] && windowContent[0].clientWidth) {
                     state.isFull = ((windowContent[0].clientWidth - 0) <= specialContent[0].clientWidth);
                 }
