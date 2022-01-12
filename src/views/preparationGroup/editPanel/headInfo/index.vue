@@ -1,5 +1,5 @@
 <template>
-    <div :class="isEdit ? 'head-info max' : 'head-info'">
+    <div v-loading="isLoading" :class="isEdit ? 'head-info max' : 'head-info'">
         <div class="head-title">
             <div class="left">
                 <el-input v-show="isEdit" class="input-title" v-model="lessonItem.PreTitle" placeholder="" maxlength="20"></el-input>
@@ -55,13 +55,13 @@
                 <span class="content textarea-content" v-show="isEdit">
                     <el-input v-model="lessonItem.LessonContent" :rows="3" type="textarea" placeholder="500个字符以内" :maxlength="500" resize="none"/>
                 </span>
-                <span class="content special-content" :class="isShowMore ? `` : `clamp_`" :title="lessonItem.LessonContent" v-show="!isEdit">
-                    <div v-html="`<p>${lessonItem.LessonContent.replace(/\n/g,'<br/>')}</p>`"></div>
-                    <div v-if="isFull">
+                <span class="content special-content" :class="isShowMore ? `` : `clamp`" :title="lessonItem.LessonContent" v-show="!isEdit">
+                    <div class="content-box" v-html="`<p>${lessonItem.LessonContent.replace(/\n/g,'<br/>')}</p>`"></div>
+                    <div class="all-box" v-show="isFull">
                         <span class="more" v-if="!isShowMore" @click="isShowMore = true">
-                            <span class="dot">...</span>阅读全部
+                            阅读全部
                         </span>
-                        <span class="mores" v-else @click="isShowMore = false">
+                        <span class="more" v-else @click="isShowMore = false">
                             收起全部
                         </span>
                     </div>
@@ -124,8 +124,9 @@ export default defineComponent({
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { proxy } = getCurrentInstance() as any;
         const route = useRoute();
+        const isLoading = ref(false);
         const isEdit = ref(false);
-        const isShowMore = ref(false);
+        const isShowMore = ref(true);
         const isFull = ref(false);
         const lessonItem = reactive<lessonItemData>({
             Attachments: [],
@@ -143,6 +144,7 @@ export default defineComponent({
         });
 
         const getPreparateDetail = async () => {
+            isLoading.value = true;
             const res = await fetchPreparateDetail({
                 id: route.params.preId as string
             });
@@ -198,13 +200,18 @@ export default defineComponent({
                 }
                 lessonItem.LessonContent = LessonContent;
                 proxy.mittBus.emit("PreDetail", lessonItem);
+                isEdit.value = false;
+                isShowMore.value = true;
+                isFull.value = false;
                 nextTick(() => {
-                    isEdit.value = false;
-                    const specialContent = document.querySelectorAll(".special-content");
-                    const windowContent = document.documentElement.clientWidth;
-                    if (specialContent && specialContent[0] && specialContent[0].clientWidth) {
-                        isFull.value = (windowContent - 200) < specialContent[0].clientWidth;
-                    }
+                    setTimeout(() => {
+                        const specialContent = document.querySelectorAll(".special-content");
+                        if (specialContent && specialContent[0] && specialContent[0].clientHeight) {
+                            isFull.value = specialContent[0].clientHeight > 48;
+                            isShowMore.value = !isFull.value;
+                        }
+                        isLoading.value = false;
+                    }, 500);
                 });
             }
         };
@@ -239,8 +246,8 @@ export default defineComponent({
             }
             const res = await editPreparateDetail(params);
             if (res.resultCode === 200) {
-                getPreparateDetail();
                 actionEditPanel(false);
+                getPreparateDetail();
             }
         };
 
@@ -293,6 +300,7 @@ export default defineComponent({
             proxy.mittBus.off("busPreparateDetail");
         });
         return {
+            isLoading,
             isEdit,
             isShowMore,
             isFull,
@@ -468,6 +476,7 @@ export default defineComponent({
             display: flex;
             align-items: flex-start;
             margin-top: 16px;
+            width: 100%;
             img {
                 display: inline-block;
                 width: 16px;
@@ -492,15 +501,26 @@ export default defineComponent({
                 display: -webkit-box;
                 word-break: break-all;
                 position: relative;
+                width: 100%;
+            }
+            .content-box {
+                width: calc(100% - 100px);
             }
             .clamp {
-                line-clamp: 1;
+                line-clamp: 2;
                 box-orient: vertical;
-                -webkit-line-clamp: 1;
+                -webkit-line-clamp: 2;
                 -webkit-box-orient: vertical;
             }
             .textarea-content {
-                width: 100%;
+                width: calc(100% - 200px);
+            }
+            .all-box {
+                position: absolute;
+                right: 0;
+                top: 0;
+                overflow: hidden;
+                background: #fff;
             }
             .more {
                 font-size: 14px;
@@ -508,12 +528,8 @@ export default defineComponent({
                 font-weight: 400;
                 color: #4B71EE;
                 cursor: pointer;
-                position: absolute;
-                right: 0;
-                bottom: 0;
-                overflow: hidden;
-                background: #fff;
                 padding: 0 5px;
+                display: inline-block;
                 .dot {
                     font-weight: 400;
                     color: #5F626F;
