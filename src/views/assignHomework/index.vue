@@ -229,6 +229,7 @@ export default defineComponent({
 <style lang="scss" scoped>
 .assign-homework-wrapper {
     height: 100%;
+    flex: 1;
     header {
         padding: 20px;
         p {

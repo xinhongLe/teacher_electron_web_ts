@@ -39,7 +39,7 @@ export default defineComponent({
         }
     },
     setup(props) {
-        const ctx = ref<CanvasRenderingContext2D>();
+        const ctx = ref<CanvasRenderingContext2D | null>();
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let notePoints: any[] = [];
         const canvasRef = ref<HTMLCanvasElement>();

@@ -41,7 +41,7 @@ export default defineComponent({
     setup(props) {
         const height = ref(0);
         const width = ref(0);
-        const ctx = ref<CanvasRenderingContext2D>();
+        const ctx = ref<CanvasRenderingContext2D | null>();
         const writePoints = ref<any[]>([]);
         const canvasRef = ref<HTMLCanvasElement>();
 

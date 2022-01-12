@@ -76,6 +76,7 @@
                             :options="previewOptions"
                             @lastPage="lastPage"
                             @firstPage="firstPage"
+                            @changeWinSize="changeWinSize"
                         />
                     </div>
                 </div>
@@ -116,6 +117,9 @@ export default defineComponent({
                 }
             }
         );
+        const changeWinSize = () => {
+            allData.cardList = [...allData.cardList]; // 切换窗口大小，清除缓存的笔记列表
+        };
         onMounted(() => {
             const obj = { chapterID: store.state.preparation.selectChapterID };
             _getSchoolLessonWindow(obj);
@@ -171,7 +175,8 @@ export default defineComponent({
             PreviewSection,
             updateFlag,
             allPageList,
-            _getWindowCards
+            _getWindowCards,
+            changeWinSize
         };
     },
     activated () {

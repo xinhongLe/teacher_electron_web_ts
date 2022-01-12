@@ -1,9 +1,10 @@
 <template>
-    <span class="file-type" :class="getFileTypeClass(fileExtension)" />
+    <span class="file-type" :class="getFileTypeClass(fileExtension)" :style="{width:iconWidth + 'px',height:iconHeight + 'px'}" />
 </template>
 
 <script lang="ts">
 import { fileTypeMap } from "@/config";
+import { number } from "echarts";
 import { defineComponent } from "vue";
 export default defineComponent({
     name: "fileType",
@@ -11,10 +12,19 @@ export default defineComponent({
         fileExtension: {
             required: true,
             default: ""
+        },
+        iconWidth: {
+            type: Number,
+            default: 16
+        },
+        iconHeight: {
+            type: Number,
+            default: 19
         }
     },
     setup() {
         const getFileTypeClass = (fileExtension: string) => {
+            console.log(fileExtension, "fileExtension");
             const type = fileTypeMap[fileExtension];
             const classMap: Record<number, string> = {
                 2: "pic",

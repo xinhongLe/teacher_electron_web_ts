@@ -108,7 +108,7 @@ export default defineComponent({
             };
             getDataBase(pageList.value[index].ID, pageList.value[index]);
             TrackService.setTrack(EnumTrackEventType.SelectPage, WinActiveId.value, WindowName.value, CardId.value, CardName.value, item.ID, item.Name, "选择页", JSON.stringify(DataContext), item.ID);
-            emit("changeRemark", pageList.value[index].Remark);
+            emit("changeRemark", pageList.value[index].Remark || "");
         };
         const getDataBase = async (str, obj) => {
             if (transformType(obj.Type) === -1) {
@@ -203,9 +203,11 @@ export default defineComponent({
         };
         const fullscreenStyle = ref(false);
         const fullScreen = () => {
+            emit("changeWinSize"); // 切换窗口大小，清除缓存的笔记列表
             fullscreenStyle.value = true;
         };
         const clockFullScreen = () => {
+            emit("changeWinSize");
             fullscreenStyle.value = false;
         };
         const cardList = ref([]);
