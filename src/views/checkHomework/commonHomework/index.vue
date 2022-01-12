@@ -36,7 +36,7 @@
                                     {{
                                         moment(
                                             item.MissionFiles[0]?.SubmitTime
-                                        ).format("YYYY-MM-DD hh:mm")
+                                        ).format("YYYY-MM-DD HH:mm")
                                     }}
                                 </p>
                                 <div>

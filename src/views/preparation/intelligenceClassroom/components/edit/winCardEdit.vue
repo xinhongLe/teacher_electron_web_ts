@@ -180,7 +180,7 @@ export default defineComponent({
                     state.slide = {};
                     setTimeout(() => {
                         state.slide = data;
-                    }, 10);
+                    }, 100);
                 }
             } else {
                 ElMessage({ type: "warning", message: "请先选择页，再进行保存" });

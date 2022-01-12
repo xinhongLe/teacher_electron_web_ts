@@ -3,14 +3,15 @@
         <div
             :style="{
                 transform: `translate(${transform.x}px, ${transform.y}px)`,
-                ...divStyle,
+                width: `${imgWidth}px`,
+                height: `${imgHeight}px`
             }"
             class="content"
             @mousedown="mousedown"
             v-if="fileInfo"
         >
-            <img :src="imgUrl" v-if="imgUrl" @load="load" />
-            <div class="box" :style="boxStyle"></div>
+            <img :src="imgUrl" v-if="imgUrl" @load="load($event, data.WorkbookPageQuestion?.WorkbookPageQuestionBlanks || [])" />
+            <div class="box" :style="boxStyle" v-for="(boxStyle, index) in boxStyleList" :key="index"></div>
         </div>
         <EmptyImage v-else :isError="data.Detail?.Result === 2"/>
     </div>
@@ -19,8 +20,9 @@
 <script lang="ts">
 import { QuestionDetail } from "@/types/checkHomework";
 import { downloadFile } from "@/utils/oss";
-import { computed, defineComponent, PropType, reactive, ref, watchEffect } from "vue";
+import { computed, defineComponent, PropType, reactive, ref, watch, watchEffect } from "vue";
 import EmptyImage from "./EmptyImage.vue";
+import useTeacherAnswerLoad from "./hooks/useTeacherAnswerLoad";
 export default defineComponent({
     props: {
         data: {
@@ -31,10 +33,6 @@ export default defineComponent({
     setup(props) {
         const imgUrl = ref("");
         const imgRef = ref<HTMLImageElement>();
-        const divStyle = ref();
-        const boxStyle = ref();
-        const imgWidth = ref(0);
-        const imgHeight = ref(0);
         const containerRef = ref<HTMLDivElement>();
         const transform = reactive({
             x: 0,
@@ -45,26 +43,13 @@ export default defineComponent({
             y: 0
         };
         const fileInfo = computed(() => props.data.Study?.MissionFiles?.find(({ PageNum }) => PageNum === props.data.WorkbookPageQuestion?.PageNum)?.File);
-        const load = (e: Event) => {
-            const target = e.target as HTMLImageElement;
-            const blank = props.data.WorkbookPageQuestion?.WorkbookPageQuestionBlanks.find(({ Type }) => Type === 0);
-            imgWidth.value = target.width;
-            imgHeight.value = target.height;
-            const x = target.width * (blank?.MarginLeft || 1);
-            const y = target.height * (blank?.MarginTop || 1);
-            divStyle.value = {
-                width: target.width + "px",
-                height: target.height + "px"
-            };
-            transform.x = -x / 1.15;
-            transform.y = -y / 1.1;
-            boxStyle.value = {
-                width: target.width * (blank?.SizeWidth || 1) + "px",
-                left: x + "px",
-                top: y + "px",
-                height: target.height * (blank?.SizeHeight || 1) + "px"
-            };
-        };
+        const { load, imgHeight, imgWidth, x, y, boxStyleList } = useTeacherAnswerLoad();
+
+        watch([x, y], ([v1, v2]) => {
+            transform.x = -v1 / 1.15;
+            transform.y = -v2 / 1.1;
+        });
+
         const mousedown = (event: MouseEvent) => {
             const { clientX, clientY } = event;
             dragPosition.x = clientX;
@@ -105,10 +90,11 @@ export default defineComponent({
         return {
             imgUrl,
             load,
-            divStyle,
-            boxStyle,
             imgRef,
             fileInfo,
+            imgWidth,
+            boxStyleList,
+            imgHeight,
             mousedown,
             containerRef,
             transform

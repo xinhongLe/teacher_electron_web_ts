@@ -5,7 +5,7 @@
         </header>
         <div class="row-line"></div>
         <div class="assign-homework-content">
-            <AssignObject @updateClassList="updateClassList" />
+            <AssignObject @updateClassList="updateClassList" ref="assignObjectRef"/>
             <div>
                 <p class="title-class">作业内容</p>
                 <div class="content-wrapper">
@@ -74,7 +74,7 @@
         />
         <TeachHomeworkDialog
             v-model:dialogVisible="teachHomeworkDialog"
-            v-if="teachHomeworkDialog"
+            v-show="teachHomeworkDialog"
             @update="updateTeachHomeworkList"
         />
     </div>
@@ -101,6 +101,7 @@ export default defineComponent({
         const commonHomeworkDialog = ref(false);
         const systemHomeworkDialog = ref(false);
         const teachHomeworkDialog = ref(false);
+        const assignObjectRef = ref<InstanceType<typeof AssignObject>>();
         const route = useRoute();
         const router = useRouter();
 
@@ -182,6 +183,10 @@ export default defineComponent({
             if (res.resultCode === 200) {
                 ElMessage.success("布置作业成功");
                 setTimeout(() => {
+                    commonHomeworkList.value = [];
+                    teachHomeworkList.value = [];
+                    systemHomeworkList.value = [];
+                    assignObjectRef.value && assignObjectRef.value.clearClassList();
                     router.push("/homework");
                 }, 500); // 延时跳转，确保服务器数据已刷新
             }
@@ -204,6 +209,7 @@ export default defineComponent({
             updateTeachHomework,
             teachHomeworkList,
             updateTeachHomeworkList,
+            assignObjectRef,
             systemHomeworkDialog,
             commonHomeworkDialog
         };
@@ -223,6 +229,7 @@ export default defineComponent({
 <style lang="scss" scoped>
 .assign-homework-wrapper {
     height: 100%;
+    flex: 1;
     header {
         padding: 20px;
         p {

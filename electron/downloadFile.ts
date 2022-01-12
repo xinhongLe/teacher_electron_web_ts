@@ -18,7 +18,7 @@ export const isExistFile = (filePath: string): Promise<boolean> => {
         access(filePath)
             .then(() => {
                 // resolve(true);
-                const fileName = filePath.substring(filePath.lastIndexOf("\\") + 1, filePath.indexOf("."));
+                const fileName = filePath.substring(filePath.lastIndexOf("\\") + 1, filePath.lastIndexOf("."));
                 const hash = crypto.createHash("md5");
                 createReadStream(filePath)
                     .on("data", (chunk: any) => {

@@ -1,3 +1,5 @@
+const { NormalModuleReplacementPlugin } = require("webpack");
+
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 
 module.exports = {
@@ -52,11 +54,26 @@ module.exports = {
     },
     configureWebpack: {
         devtool: "source-map",
+        module: {
+            rules: [
+                {
+                    test: /\.node$/,
+                    loader: "native-ext-loader",
+                    options: {
+                        rewritePath: process.env.NODE_ENV === "production" ? process.platform === "win32" ? "./resources" : "../Resources" : "./node_modules/trtc-electron-sdk/build/Release" // 打包腾讯实时音视频sdk
+                    }
+                }
+            ]
+        },
         plugins: [
             /**
              * 查看包大小
              */
             // new BundleAnalyzerPlugin()
+            new NormalModuleReplacementPlugin(
+                /element-plus[\\/\\]lib[\\/\\]locale[\\/\\]lang[\\/\\]en/,
+                "element-plus/lib/locale/lang/zh-cn"
+            )
         ]
     },
     chainWebpack(config) {
@@ -65,25 +82,36 @@ module.exports = {
                 suspension: {
                     name: "suspension",
                     priority: 10,
-                    test: "src/suspension/main.ts"
+                    test: "src/childWindow/suspension/main.ts"
                 },
                 unfoldSuspension: {
                     name: "unfoldSuspension",
                     priority: 10,
-                    test: "src/unfoldSuspension/main.ts"
+                    test: "src/childWindow/unfoldSuspension/main.ts"
                 },
                 projection: {
                     name: "projection",
                     priority: 10,
-                    test: "src/projection/main.ts"
+                    test: "src/childWindow/projection/main.ts"
+                },
+                call: {
+                    name: "call",
+                    priority: 10,
+                    test: "src/childWindow/call/main.ts"
                 },
                 timer: {
                     name: "timer",
                     priority: 10,
-                    test: "src/timer/main.ts"
+                    test: "src/childWindow/timer/main.ts"
                 }
             }
         });
+        config.module
+            .rule("url-loader")
+            .test(/\.(cur)(\?.*)?$/)
+            .use("url-loader")
+            .loader("url-loader")
+            .end();
     },
     pwa: {
         iconPaths: {
@@ -105,6 +133,7 @@ module.exports = {
                 appId: "com.leyixue.teacher",
                 productName: "爱学仕校园教师端", // 项目名
                 copyright: "Copyright © 2021", // 版权信息
+                artifactName: "${productName}-${version}.${ext}",
                 directories: {
                     output: "./dist_electron" // 输出文件路径
                 },
@@ -154,12 +183,29 @@ module.exports = {
                                 "ia32" // 32位
                             ]
                         }
+                    ],
+                    extraFiles: [
+                        {
+                            from: "node_modules/trtc-electron-sdk/build/Release/",
+                            to: "./resources",
+                            filter: ["**/*"]
+                        }
                     ]
                 },
                 mac: {
                     icon: "./public/icon.icns",
-                    target: ["dmg", "zip"]
-                }
+                    target: ["dmg", "zip"],
+                    extraFiles: [
+                        {
+                            from: "node_modules/trtc-electron-sdk/build/Release/",
+                            to: "./Resources",
+                            filter: ["**/*"]
+                        }
+                    ]
+                },
+                extraFiles: [
+                    "node_modules/trtc-electron-sdk/build/Release/trtc_electron_sdk.node"
+                ]
             },
             externals: ["clipboard", "@microsoft/signalr"]
         }

@@ -2,7 +2,7 @@ import request from "@/utils/request";
 import { AI_XUE_SHI_API } from "@/config";
 import { IOssPathsRes, IOssTokenRes } from "@/types/oss";
 import { Tools } from "@/types/tools";
-import { IResponse } from "@/types/response";
+import { IResponse, RequestFun } from "@/types/response";
 
 export * from "./teach";
 
@@ -42,3 +42,13 @@ export function getToolList({ name = "", bookID, bookIDs }: {name: string, bookI
         }
     });
 }
+
+export const getUserSig: RequestFun<{sdkAppID: number, userID: string}, Promise<{UserSig: string}>> = (data) => {
+    return request({
+        baseURL: AI_XUE_SHI_API,
+        url: "/Api/Web/TencentLive/GetUserSig",
+        headers: { noLoading: "true" },
+        method: "post",
+        data
+    });
+};

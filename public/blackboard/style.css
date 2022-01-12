@@ -306,3 +306,91 @@ ul li {
     right: 0;
     display: none;
 }
+.confirm-warp {
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    display: none;
+}
+.confirm {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%);
+    background: #fff;
+    width: 300px;
+    padding-bottom: 10px;
+}
+.confirm * {
+    box-sizing: border-box;
+}
+.confirm .content {
+    padding: 10px 15px;
+    color: #606266;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+}
+.confirm .content .warn{
+    width: 24px;
+    height: 24px;
+    color: #e6a23c;
+    margin-right: 12px;
+    fill: currentColor;
+}
+.confirm .content .warn svg {
+    width: 24px;
+    height: 24px;
+}
+.confirm .header {
+    display: flex;
+    justify-content: space-between;
+    padding: 15px;
+}
+.confirm .header .close {
+    width: 16px;
+    height: 16px;
+    color: #909399;
+    fill: currentColor;
+    cursor: pointer;
+}
+.confirm .header .close svg {
+    width: 16px;
+    height: 16px;
+}
+.confirm .btns {
+    display: flex;
+    justify-content: flex-end;
+    padding: 5px 15px 0;
+}
+
+.confirm .btns .btn{
+    height: 32px;
+    padding: 9px 15px;
+    font-size: 12px;
+    color: #606266;
+    border: 1px solid #dcdfe6;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    border-radius: 3px;
+}
+.confirm .btns .btn:hover {
+    background: #ecf5ff;
+    color: #409eff;
+    border-color: #c6e2ff;
+}
+.confirm .btns .btn.sure {
+    margin-left: 10px;
+    background: #ecf5ff;
+    color: #409eff;
+    border-color: #b3d8ff;
+    
+}
+.confirm .btns .btn.sure:hover {
+    color: #fff;
+    background: #409eff;
+    border-color: #409eff;
+}

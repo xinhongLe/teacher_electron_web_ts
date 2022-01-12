@@ -1,3 +1,6 @@
+import { changeResult } from "./api";
+import { QuestionResultTypeEnum } from "./enum";
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 let circleR = 20;
 interface Point {
@@ -13,7 +16,7 @@ export function dealPoints(operations: any[], scale: number) {
             points: [] as Point[],
             mode: element.mode
         };
-        if (element.mode === 1) {
+        if (element.mode === "1") {
             // 橡皮擦 去除擦掉的路径
             const clearPoints: { x: number; y: number; }[] = [];
             element.points.map((item: string) => {
@@ -70,3 +73,39 @@ function intersect(a: { x: number; y: number; }, b: { x: number; y: number; }) {
     }
     return false;
 }
+
+export function getQuestionType (type: number) {
+    const typeEnum: Record<number, string> = {
+        1: "选择题",
+        2: "选择题",
+        3: "判断题",
+        4: "判断题",
+        5: "填空题",
+        6: "应用题",
+        7: "语音题",
+        8: "解答题"
+    };
+    return typeEnum[type] || "";
+}
+
+export const successHandle = async (id = "", result = -1) => {
+    if (result === QuestionResultTypeEnum.RIGHT) return;
+    const res = await changeResult({
+        missionDetailID: id,
+        result: QuestionResultTypeEnum.RIGHT
+    });
+    if (res.resultCode === 200) {
+        document.dispatchEvent(new Event("updateSystemHomework"));
+    }
+};
+
+export const errorHandle = async (id = "", result = -1) => {
+    if (result === QuestionResultTypeEnum.ERROR) return;
+    const res = await changeResult({
+        missionDetailID: id,
+        result: QuestionResultTypeEnum.ERROR
+    });
+    if (res.resultCode === 200) {
+        document.dispatchEvent(new Event("updateSystemHomework"));
+    }
+};

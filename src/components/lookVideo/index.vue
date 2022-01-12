@@ -235,6 +235,7 @@ export default defineComponent({
     z-index: 9999;
     overflow: hidden;
     background: #fff;
+    -webkit-app-region: no-drag;
 }
 .warp {
     height: 100%;

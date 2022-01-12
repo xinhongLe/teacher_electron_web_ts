@@ -15,6 +15,8 @@
                 @lastPage="lastPage"
                 @firstPage="firstPage"
                 :showRemark="showRemark"
+                :winList="winList"
+                @changeWinSize="changeWinSize"
             />
             <Remark :class="fullScreenStyle ? 'remark-fullSrceen' : ''" :value="remark" v-if="showRemark" />
         </div>
@@ -46,7 +48,7 @@ export default defineComponent({
         Tools,
         PageList
     },
-    props: ["options", "hideTools", "winActiveId", "WindowName", "LessonID"],
+    props: ["options", "hideTools", "winActiveId", "WindowName", "LessonID", "winList"],
     setup(props, { emit }) {
         const { data, showRemark, toggleRemark } = preventRemark();
         const pageList = ref({});
@@ -93,6 +95,11 @@ export default defineComponent({
         const updateFlag = () => {
             PageList.value.updateFlags();
         };
+
+        const changeWinSize = () => {
+            emit("changeWinSize"); // 切换窗口大小，清除缓存的笔记列表
+        };
+
         watch(
             () => props.options,
             () => {
@@ -137,7 +144,8 @@ export default defineComponent({
             clockFullScreen,
             updateFlag,
             showWriteBoard,
-            hideWriteBoard
+            hideWriteBoard,
+            changeWinSize
         };
     }
 });

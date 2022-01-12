@@ -48,12 +48,12 @@ export default defineComponent({
                     : Number(
                         (
                             (props.item.TotalRight /
-                                  (props.item.TotalNoSure +
-                                      props.item.TotalWrong +
+                                  (props.item.TotalWrong +
                                       props.item.TotalRight)) *
                               100
                         ).toFixed(2)
                     );
+            if (props.item.TotalRight === 0 && props.item.TotalWrong === 0 && props.item.TotalNoSure === 0) return;
             var myChart = echarts.init(chartRef.value!);
             const option = {
                 series: [

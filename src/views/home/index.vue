@@ -1,5 +1,5 @@
 <template>
-        <div class="home" style="height: 100%">
+    <div class="home" style="height: 100%">
         <div class="main">
             <div class="top">
                 <div class="left">
@@ -12,11 +12,26 @@
                 </div>
                 <div class="right">
                     <Calendar :days="days" :isShowDetailBtn="true">
-                        <header class="header">
-                            <div @click="weekPre" class="week"><i class="el-icon-arrow-left"></i>上周</div>
-                            <div>上课</div>
-                            <div @click="weekNext" class="week">下周<i class="el-icon-arrow-right"></i></div>
-                        </header>
+                        <template v-slot:default="slotProps">
+                            <header class="header">
+                                <div @click="weekPre" class="week">
+                                    <i class="el-icon-arrow-left"></i>上周
+                                </div>
+                                <div>上课</div>
+                                <div class="header-right">
+                                    <div class="refresh" @click="slotProps.initSchedules">
+                                        <i
+                                            class="el-icon-refresh-right"
+                                            :style="{marginRight: '4px'}"
+                                        ></i
+                                        >刷新课表
+                                    </div>
+                                    <div @click="weekNext" class="week">
+                                        下周<i class="el-icon-arrow-right"></i>
+                                    </div>
+                                </div>
+                            </header>
+                        </template>
                     </Calendar>
                 </div>
             </div>
@@ -24,7 +39,7 @@
                 <div class="item" @click="go('report-center')">
                     <div class="item_div">
                         <img
-                            src="../../assets/indexImages/card_baobiao.png"
+                            src="../../assets/indexImages/pic_baobiao.png"
                             alt=""
                         />
                         <span>报表中心</span>
@@ -33,7 +48,7 @@
                 <div class="item" @click="go('assessment-center')">
                     <div class="item_div">
                         <img
-                            src="../../assets/indexImages/card_kaoshi.png"
+                            src="../../assets/indexImages/pic_kaoshi.png"
                             alt=""
                         />
                         <span>测评中心</span>
@@ -42,16 +57,25 @@
                 <div class="item" @click="go('course-time')">
                     <div class="item_div">
                         <img
-                            src="../../assets/indexImages/card_kaoshi.png"
+                            src="../../assets/indexImages/pic_kehou.png"
                             alt=""
                         />
-                        <span>课时延后</span>
+                        <span>课后延时</span>
+                    </div>
+                </div>
+                <div class="item" @click="go('preparation-group')">
+                    <div class="item_div">
+                        <img
+                            src="../../assets/indexImages/pic_jitibeike.png"
+                            alt=""
+                        />
+                        <span>集体备课</span>
                     </div>
                 </div>
                 <div class="item" @click="go('')">
                     <div class="item_div">
                         <img
-                            src="../../assets/indexImages/card_zhibo.png"
+                            src="../../assets/indexImages/pic_zhibo.png"
                             alt=""
                         />
                         <span>直播课堂</span>
@@ -60,7 +84,7 @@
                 <div class="item" @click="go('class-manage')">
                     <div class="item_div">
                         <img
-                            src="../../assets/indexImages/card_xuesheng.png"
+                            src="../../assets/indexImages/pic_xuesheng.png"
                             alt=""
                         />
                         <span>班级管理</span>
@@ -75,7 +99,7 @@
 import useTime from "@/hooks/useTime";
 import { ElMessage } from "element-plus";
 import { defineComponent } from "vue";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import Calendar from "../../components/calendar/index.vue";
 
 export default defineComponent({
@@ -85,6 +109,7 @@ export default defineComponent({
     },
     setup() {
         const router = useRouter();
+        const route = useRoute();
         const { weekNext, weekPre, initDays, days } = useTime();
         initDays();
 
@@ -97,6 +122,14 @@ export default defineComponent({
                 router.push(`/${val}`);
             }
         };
+        const turnToPage = () => {
+            // 岳阳云平台内嵌备教端，页面跳转
+            if (route.redirectedFrom && window.top && window.top[0] && window.top[0].location && window.top[0].location.origin && (window.top[0].location.origin.indexOf("yueyangyun") > -1 || (window.top[0].location.ancestorOrigins && window.top[0].location.ancestorOrigins[0] && window.top[0].location.ancestorOrigins[0].indexOf("yueyangyun") > -1) || window.top[0].location.origin.indexOf("20.199") > -1)) {
+                const path = route.redirectedFrom.path.split("#/")[1] || "";
+                router.replace(`${path}`);
+            }
+        };
+        turnToPage();
         return {
             go,
             weekNext,
@@ -128,7 +161,7 @@ export default defineComponent({
             width: 100%;
             height: 50px;
             display: flex;
-            padding: 20px;
+            padding: 0 20px;
             justify-content: space-between;
             align-items: center;
             font-size: 20px;
@@ -136,6 +169,15 @@ export default defineComponent({
             border-top-left-radius: 20px;
             border-top-right-radius: 20px;
             color: #ffffff;
+            .header-right {
+                display: flex;
+                align-items: center;
+                .refresh {
+                    font-size: 16px;
+                    margin-right: 8px;
+                    cursor: pointer;
+                }
+            }
             .week {
                 font-size: 18px;
                 font-weight: 400;
@@ -173,7 +215,8 @@ export default defineComponent({
                     box-sizing: border-box;
                     margin-bottom: 28px;
                     cursor: pointer;
-                    background: url('./../../assets/indexImages/card_beike.png') no-repeat;
+                    background: url("./../../assets/indexImages/card_beike.png")
+                        no-repeat;
                     background-position: center center;
                     background-size: cover;
                     border-radius: 15px;
@@ -192,7 +235,8 @@ export default defineComponent({
                     position: relative;
                     cursor: pointer;
                     flex: 1;
-                    background: url('./../../assets/indexImages/card_zuoye.png') no-repeat;
+                    background: url("./../../assets/indexImages/card_zuoye.png")
+                        no-repeat;
                     background-position: center center;
                     background-size: cover;
                     border-radius: 15px;
@@ -222,8 +266,7 @@ export default defineComponent({
             width: 100%;
             display: flex;
             .item {
-                width: 25%;
-                padding: 20px;
+                width: 16.6%;
                 .item_div {
                     cursor: pointer;
                     position: relative;
@@ -237,12 +280,17 @@ export default defineComponent({
                     span {
                         position: absolute;
                         top: 18%;
-                        left: 12%;
+                        left: 20%;
                         z-index: 10;
                         font-size: 1.4vw;
                         font-family: PingFang-SC-Heavy, PingFang-SC;
                         font-weight: 800;
                         color: #ffffff;
+                    }
+                }
+                &:first-child {
+                    .item_div span {
+                        left: 15%;
                     }
                 }
             }

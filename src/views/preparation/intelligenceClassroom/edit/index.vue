@@ -38,7 +38,11 @@
                            <span class="label-class"
                                  @mouseenter="mouseenter($event, node.label)"
                                  @mouseleave="mouseleave">
-                                  <span :style="{color: !data.State && node.level === 2 ? '#c0c4cc' : '#333'}">{{ node.label }}</span>
+                                  <span
+                                      :style="{color: !data.State && node.level === 2 ? '#c0c4cc' : '#333'}"
+                                  >
+                                      {{ node.label }}
+                                  </span>
                               </span>
 
                                <div class="icon-box">
@@ -50,7 +54,7 @@
                                        </template>
                                        <div class="operation-box">
                                            <div v-show="node.level === 1" @click.stop="handleView(data.PageList)">预览</div>
-                                           <div v-show="node.level === 1" @click.stop="handleAdd(node, data)">新增</div>
+                                           <div v-show="node.level === 1" @click.stop="handleAdd(node, data)">新增页</div>
                                            <div  @click.stop="handleUpdateName(node, data)">修改名称</div>
                                            <div v-show="node.level === 2"  @click.stop="handleUpdateState(node, data)">{{data.State ? "下架" : "上架"}}</div>
                                            <div  v-show="node.level === 1" @click.stop="handlePaste(data)">粘贴页</div>
@@ -71,6 +75,7 @@
         </div>
         <div class="right">
             <win-card-edit ref="editRef" :pageValue="pageValue" :isSetCache="isSetCache" :allPageList="allPageList"></win-card-edit>
+            <div v-show="!pageValue.ID" class="mask-right" @click.stop="handleMask"></div>
         </div>
     </div>
 
@@ -91,7 +96,7 @@
 </template>
 
 <script lang="ts">
-import { onMounted, onUnmounted, defineComponent, toRefs, ref } from "vue";
+import { onMounted, onUnmounted, defineComponent, toRefs, ref, watch } from "vue";
 import WinCardEdit from "../components/edit/winCardEdit.vue";
 import { IPageValue, ICardList } from "@/types/home";
 import Node from "element-plus/es/components/tree/src/model/node";
@@ -193,7 +198,9 @@ export default defineComponent({
         const winValue = route.params.winValue as string;
 
         const handleAddCard = (name:string) => {
-            _addCard({ WindowID: route.params.winValue as string, Sort: 0, Name: name });
+            // _addCard({ WindowID: route.params.winValue as string, Sort: 0, Name: name });
+            const sort = state.windowCards ? state.windowCards.length : 0;
+            _addCard({ WindowID: route.params.winValue as string, Sort: sort, Name: name });
             dialogVisibleCard.value = false;
         };
 
@@ -273,7 +280,8 @@ export default defineComponent({
             const value = {
                 CardID: currentValue.value.ID,
                 Name: data.name,
-                Type: data.value
+                Type: data.value,
+                Sort: currentValue.value.PageList ? currentValue.value.PageList.length : 0
             };
             _addPage(value);
             dialogVisible.value = false;
@@ -295,6 +303,12 @@ export default defineComponent({
             if (e.keyCode === 27) {
                 winScreenView.value = false;
             }
+        };
+        watch(() => state.windowCards, () => {
+            pageValue.value = { ID: "", Type: 11 };
+        });
+        const handleMask = () => {
+            ElMessage({ type: "warning", message: "请先选择页，在进行编辑" });
         };
         const winCardViewRef = ref();
         onMounted(() => {
@@ -357,7 +371,8 @@ export default defineComponent({
             addPage,
             updateName,
             _getWindowCards,
-            offScreen
+            offScreen,
+            handleMask
         };
     }
 });
@@ -456,6 +471,9 @@ export default defineComponent({
                 }
             }
         }
+        .active-text{
+            color: #3582FB !important;
+        }
     }
 
     .right {
@@ -463,6 +481,16 @@ export default defineComponent({
         padding: 0px 10px;
         height: 100%;
         background-color: #fff;
+        position: relative;
+        .mask-right{
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+            position: absolute;
+            left: 0;
+            top: 0;
+            background: transparent;
+        }
     }
 }
 .operation-box{

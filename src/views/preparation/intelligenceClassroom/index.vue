@@ -66,6 +66,7 @@
                     <div class="card-detail-content">
                         <PreviewSection
                             ref="PreviewSection"
+                            :winList="cardList"
                             :hideTools="hideTools"
                             :uuid="cardUuid"
                             :isPreview="isPreview"
@@ -75,6 +76,7 @@
                             :options="previewOptions"
                             @lastPage="lastPage"
                             @firstPage="firstPage"
+                            @changeWinSize="changeWinSize"
                         />
                     </div>
                 </div>
@@ -115,9 +117,14 @@ export default defineComponent({
                 }
             }
         );
+        const changeWinSize = () => {
+            allData.cardList = [...allData.cardList]; // 切换窗口大小，清除缓存的笔记列表
+        };
         onMounted(() => {
             const obj = { chapterID: store.state.preparation.selectChapterID };
             _getSchoolLessonWindow(obj);
+
+            // console.log(allData.cardList, "00000000000000");
         });
         const windowEdit = async (j, i, item) => {
             if (j.OriginType === 0) {
@@ -168,7 +175,8 @@ export default defineComponent({
             PreviewSection,
             updateFlag,
             allPageList,
-            _getWindowCards
+            _getWindowCards,
+            changeWinSize
         };
     },
     activated () {

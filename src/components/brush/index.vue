@@ -1,7 +1,8 @@
 <template>
-    <div class="write-box black_cursor" ref="boxRef">
+    <div class="write-box black_cursor" :class="{'no-brush': !isBrush}" ref="boxRef">
         <canvas
             ref="canvasRef"
+            id="canvas"
             @mousedown="mousedown"
             @mousemove="mousemove"
             @mouseup="mouseup"
@@ -10,80 +11,78 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, nextTick, onMounted, reactive, ref } from "vue";
+import { defineComponent, nextTick, onMounted, reactive, ref, watch } from "vue";
+const huabi = require("./../../assets/look/icon-huabi.cur");
+const rubber = require("./../../assets/look/icon-rubber2.cur");
 export default defineComponent({
     name: "brush",
-    setup() {
+    props: {
+        isBrush: {
+            type: Boolean,
+            default: true
+        },
+        colorName: {
+            type: String,
+            default: "#000000"
+        },
+        penSize: {
+            type: Number,
+            default: 1
+        }
+    },
+    setup(props) {
         const canvasRef = ref<HTMLCanvasElement>();
         const boxRef = ref<HTMLDivElement>();
-        const ctx = ref<CanvasRenderingContext2D>();
         const painting = ref(false);
         const eraserEnabled = ref(false);
         const startPoint = reactive({
             x: 0,
             y: 0
         });
+        const fabCanvas = ref();
 
         onMounted(() => {
             nextTick(() => {
-                ctx.value = canvasRef.value!.getContext("2d")!;
-                canvasRef.value!.width = Number(boxRef.value?.offsetWidth);
-                canvasRef.value!.height = Number(boxRef.value?.offsetHeight);
+                fabCanvas.value = new window.fabric.Canvas("canvas", {
+                    width: Number(boxRef.value?.offsetWidth),
+                    height: Number(boxRef.value?.offsetHeight)
+                });
+                fabCanvas.value.freeDrawingBrush.width = props.penSize;
+                selectPenMode();
             });
         });
 
-        function drawLine(
-            xStart: number,
-            yStart: number,
-            xEnd: number,
-            yEnd: number
-        ) {
-            // 开始绘制路径
-            ctx.value!.beginPath();
-            // 起始位置
-            ctx.value!.moveTo(xStart, yStart);
-            // 停止位置
-            ctx.value!.lineTo(xEnd, yEnd);
-            // 描绘线路
-            ctx.value!.stroke();
-            // 结束绘制
-            ctx.value!.closePath();
+        function selectPenMode () {
+            fabCanvas.value!.freeDrawingBrush = new window.fabric.PencilBrush(fabCanvas.value!);
+            fabCanvas.value!.isDrawingMode = true;
+            fabCanvas.value!.freeDrawingBrush.color = props.colorName;
+            fabCanvas.value!.freeDrawingBrush.width = props.penSize;
+            fabCanvas.value.freeDrawingCursor = `url(${huabi}),auto`;
         }
 
         const mousedown = (e: MouseEvent) => {
-            const x = e.offsetX;
-            const y = e.offsetY;
+            const x = e.x;
+            const y = e.y;
             painting.value = true;
-            if (eraserEnabled.value) {
-                ctx.value!.clearRect(x - 15, y - 15, 30, 30);
-            }
             startPoint.x = x;
             startPoint.y = y;
-            ctx.value!.beginPath();
-            if (eraserEnabled.value) {
-                ctx.value!.lineCap = "round";
-                ctx.value!.lineJoin = "round";
-                ctx.value!.moveTo(x, y);
-                ctx.value!.lineTo(x, y);
-                ctx.value!.stroke();
-            }
         };
 
         const mousemove = (e: MouseEvent) => {
-            const x = e.offsetX;
-            const y = e.offsetY;
+            const x = e.x;
+            const y = e.y;
             const newPoint = { x: x, y: y };
             if (painting.value) {
-                if (eraserEnabled.value) {
-                    ctx.value!.clearRect(x - 15, y - 15, 30, 30);
-                } else {
-                    drawLine(
-                        startPoint.x,
-                        startPoint.y,
-                        newPoint.x,
-                        newPoint.y
-                    );
-                }
+                const left = x - startPoint.x;
+                const top = y - startPoint.y;
+                const objects = fabCanvas.value!.getObjects();
+                objects.map((obj: any) => {
+                    obj.set({
+                        left: obj.left + left,
+                        top: obj.top + top
+                    });
+                });
+                fabCanvas.value!.renderAll();
                 startPoint.x = newPoint.x;
                 startPoint.y = newPoint.y;
             }
@@ -91,29 +90,33 @@ export default defineComponent({
 
         const mouseup = () => {
             painting.value = false;
-            ctx.value!.closePath();
         };
 
         const clearBrush = () => {
-            ctx.value!.clearRect(
-                0,
-                0,
-                canvasRef.value!.width,
-                canvasRef.value!.height
-            );
+            fabCanvas.value.clear();
+            fabCanvas.value.renderAll();
         };
 
         const eraserOn = () => {
-            canvasRef.value!.classList.remove("black_cursor");
-            canvasRef.value!.classList.add("xiangpica");
             eraserEnabled.value = true;
+            fabCanvas.value!.freeDrawingBrush = new window.fabric.EraserBrush(fabCanvas.value!);
+            fabCanvas.value!.freeDrawingBrush.width = 30;
+            fabCanvas.value!.isDrawingMode = true;
+            fabCanvas.value.freeDrawingCursor = `url(${rubber}),auto`;
         };
 
         const brushOn = () => {
-            canvasRef.value!.classList.remove("xiangpica");
-            canvasRef.value!.classList.add("black_cursor");
             eraserEnabled.value = false;
+            selectPenMode();
         };
+
+        watch(() => props.colorName, (v) => {
+            fabCanvas.value!.freeDrawingBrush.color = v;
+        });
+
+        watch(() => props.penSize, (v) => {
+            fabCanvas.value!.freeDrawingBrush.width = v;
+        });
 
         return {
             canvasRef,
@@ -143,5 +146,9 @@ export default defineComponent({
 }
 .black_cursor {
     cursor: url("./../../assets/look/icon-huabi.png"), pointer;
+}
+.no-brush {
+    cursor: pointer;
+    pointer-events: none;
 }
 </style>

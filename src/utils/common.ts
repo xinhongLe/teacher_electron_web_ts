@@ -1,5 +1,6 @@
 import { padStart } from "lodash";
 import request from "./request";
+import isElectron from "is-electron";
 import { get, STORAGE_TYPES } from "./storage";
 
 export enum EnumTrackEventType {
@@ -163,7 +164,7 @@ export class TrackModel {
     /// <summary>
     /// 跟踪来源
     /// </summary>
-    Source: EnumTrackSource = EnumTrackSource.Teacher;
+    Source: EnumTrackSource = EnumTrackSource.WCP;
     /// <summary>
     /// 埋点事件类型
     /// </summary>
@@ -310,7 +311,7 @@ export default class TrackService {
         trackModel.OperatorID = userInfo.ID;
         trackModel.OperatorName = userInfo.Name;
         trackModel.SessionID = get(STORAGE_TYPES.SESSION_ID);
-        trackModel.Version = window.electron.getVersion();
+        if (isElectron()) trackModel.Version = window.electron.getVersion();
         const trackDataModel = new TrackDataModel();
         trackDataModel.OperatorName = userInfo.Name;
         trackDataModel.OperatorID = userInfo.ID;

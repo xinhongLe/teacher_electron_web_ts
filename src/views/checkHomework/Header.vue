@@ -16,7 +16,7 @@
             <img
                 v-else-if="type === 2"
                 class="docx"
-                src="@/assets/images/homeworkNew/icon_timuxiangqing.png"
+                src="@/assets/images/homeworkNew/homework2.png"
                 alt=""
             />
             <img
@@ -32,16 +32,24 @@
                 alt=""
             />
             <span class="name">{{ name }}</span>
-            <template v-if="type === 0 || type === 2">
-                <span class="tips">共{{ count }}题</span>
+            <template v-if="type === 2">
+                <span class="name" :style="{ marginLeft: '10px' }"
+                    >第{{ workbookPaperPageNum }}页</span
+                >
+                <span class="name" :style="{ marginLeft: '40px' }">{{
+                    albumName
+                }}</span>
             </template>
-            <template v-else-if="type === 1">
-                <span class="tips"
+            <template v-if="type === 1 || type === 0">
+                <span class="class-detail">
+                    {{ albumName }} {{ chapterName }} {{ lessonName }}
+                </span>
+                <span class="tips" v-if="type === 1"
                     >时长{{ formatDuration(videoDurationTick) }}</span
                 >
-                <span class="class-detail">
-                    {{ albumName }} {{ chapterName }}
-                </span>
+            </template>
+            <template v-if="type === 0 || type === 2">
+                <span class="tips">共{{ count }}题</span>
             </template>
         </div>
         <div class="right">
@@ -151,7 +159,7 @@ export default defineComponent({
             color: #5f626f;
             margin-left: 20px;
         }
-        .class-detail{
+        .class-detail {
             margin-left: 20px;
         }
     }

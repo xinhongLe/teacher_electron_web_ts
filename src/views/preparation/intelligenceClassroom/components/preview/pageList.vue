@@ -1,7 +1,7 @@
 <template>
     <div class="pageListComponents">
         <div class="me-work" :style="showRemarks ? 'width: calc(100% - 22rem)' : 'width: 100%;'" :class=" fullscreenStyle ? 'fullscreen' : ''">
-            <ScreenView
+                <ScreenView
                 class="me-work-screen"
                 :inline="true"
                 :isInit="isInitPage"
@@ -10,6 +10,7 @@
                 :writeBoardVisible="writeBoardVisible"
                 :keyDisabled="keyDisabled"
                 :useScale="false"
+                :winList="winList"
                 @openCard="openCard"
                 @pagePrev="pagePrev"
                 @pageNext="pageNext"
@@ -53,7 +54,7 @@ import { getWinCardDBData } from "@/utils/database";
 import { ElMessage } from "element-plus";
 import { useRoute } from "vue-router";
 export default defineComponent({
-    props: ["pageListOption", "showRemark", "WinActiveId", "WindowName", "LessonID", "CardName", "CardId"],
+    props: ["pageListOption", "showRemark", "WinActiveId", "WindowName", "LessonID", "CardName", "CardId", "winList"],
     components: { OpenCardViewDialog },
     setup(props, { emit }) {
         const { getPageDetail, transformType } = useHome();
@@ -101,14 +102,13 @@ export default defineComponent({
         const writeBoardVisible = ref(false);
         const selectPage = (index, item) => {
             selected.value = index;
-            console.log(pageList.value[index], "pagelist");
             const DataContext = {
                 Type: EnumTrackEventType.SelectPage,
                 LessonID: LessonID.value
             };
             getDataBase(pageList.value[index].ID, pageList.value[index]);
             TrackService.setTrack(EnumTrackEventType.SelectPage, WinActiveId.value, WindowName.value, CardId.value, CardName.value, item.ID, item.Name, "选择页", JSON.stringify(DataContext), item.ID);
-            emit("changeRemark", pageList.value[index].Remark);
+            emit("changeRemark", pageList.value[index].Remark || "");
         };
         const getDataBase = async (str, obj) => {
             if (transformType(obj.Type) === -1) {
@@ -203,9 +203,11 @@ export default defineComponent({
         };
         const fullscreenStyle = ref(false);
         const fullScreen = () => {
+            emit("changeWinSize"); // 切换窗口大小，清除缓存的笔记列表
             fullscreenStyle.value = true;
         };
         const clockFullScreen = () => {
+            emit("changeWinSize");
             fullscreenStyle.value = false;
         };
         const cardList = ref([]);

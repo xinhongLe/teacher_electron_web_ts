@@ -16,6 +16,8 @@ export const cacheFile = async (key: string) => {
                     });
                 }
             });
+        } else {
+            resolve("");
         }
     });
 };

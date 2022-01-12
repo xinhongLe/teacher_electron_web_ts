@@ -1,7 +1,7 @@
 <template>
     <div class="student-detail">
         <div class="student-icon">
-            <img src="@/assets/images/homeworkNew/tag_yellow.png" alt="" />
+            <img src="@/assets/images/homeworkNew/tag_yellow.png" alt="" v-if="percentage !== 100"/>
         </div>
         <Avatar :file="HeadPortrait"></Avatar>
         <div class="student-otherinfo">
@@ -11,7 +11,7 @@
             <div class="student-progress">
                 <div>
                     <el-progress
-                        :percentage="Math.floor(videoWatchTimeTick / videoDurationTick * 100)"
+                        :percentage="percentage"
                         :color="customColors"
                     ></el-progress>
                 </div>
@@ -22,7 +22,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from "vue";
+import { computed, defineComponent, PropType } from "vue";
 import Avatar from "@/components/avatar/index.vue";
 import { HeadPortrait } from "@/types/myStudent";
 export default defineComponent({
@@ -48,16 +48,16 @@ export default defineComponent({
             default: 0
         }
     },
-    setup() {
+    setup(props) {
+        const percentage = computed(() => Math.round(props.videoWatchTimeTick / props.videoDurationTick * 100));
         const customColors = [
-            { color: "#f56c6c", percentage: 20 },
-            { color: "#e6a23c", percentage: 40 },
-            { color: "#5cb87a", percentage: 60 },
-            { color: "#1989fa", percentage: 80 },
-            { color: "#6f7ad3", percentage: 100 }
+            { color: "#ff6b6b", percentage: 20 },
+            { color: "#fbc54d", percentage: 90 },
+            { color: "#a0b3f3", percentage: 100 }
         ];
         return {
-            customColors
+            customColors,
+            percentage
         };
     },
     components: { Avatar }
