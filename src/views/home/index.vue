@@ -266,7 +266,7 @@ export default defineComponent({
             width: 100%;
             display: flex;
             .item {
-                width: 16.6%;
+                flex: 1;
                 .item_div {
                     cursor: pointer;
                     position: relative;
