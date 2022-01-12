@@ -273,9 +273,13 @@ export default defineComponent({
     font-family: PingFangSC-Regular, PingFang SC;
     font-weight: 400;
     color: #19203D;
+    cursor: pointer;
+    &:hover {
+        color: #4B71EE;
+    }
     img{
-        width: 20px;
-        height: 28px;
+        width: 24px;
+        height: auto;
         margin-right: 8px;
     }
 }
