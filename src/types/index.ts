@@ -23,6 +23,7 @@ type Electron = typeof electron & {
     getCachePath: (path: string) => void,
     readFile: (path: string, callback: (buffer: ArrayBuffer) => void) => void,
     savePutFile: (path: string, buffer: NodeJS.ArrayBufferView) => void,
+    store: unknown,
     log: LogFunctions
 }
 

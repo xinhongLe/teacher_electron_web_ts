@@ -2,10 +2,12 @@ import { ipcMain, BrowserWindow, session } from "electron";
 import { resolve } from "path";
 import { access } from "fs/promises";
 import { createReadStream } from "original-fs";
+const Store = require("electron-store");
 const crypto = require("crypto");
 
 type func = (value: unknown) => void;
 
+export const store = new Store();
 const downloadingFileList: string[] = []; // 下载中的文件列表
 const downloadSuccessCallbackMap = new Map<string, func[]>();
 export const appPath =
