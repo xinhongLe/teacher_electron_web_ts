@@ -12,8 +12,8 @@ import md5 from "js-md5";
 import isElectron from "is-electron";
 
 export default () => {
-    const userLogin = async (account: string, password: string, next?: NavigationGuardNext) => {
-        const loginRes: ILoginResponse = await Login({ account, password });
+    const userLogin = async ({ account, password, next, code, isPassWordLogin = true } : {account: string, password: string, next?: NavigationGuardNext, code?: string, isPassWordLogin?: boolean}) => {
+        const loginRes: ILoginResponse = await Login({ account, password, code }, isPassWordLogin);
         if (loginRes.resultCode === 200) {
             recordAccount({ account, password });
             set(STORAGE_TYPES.SET_TOKEN, loginRes.result.token);

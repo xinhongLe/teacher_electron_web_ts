@@ -1,5 +1,23 @@
 <template>
     <div class="me-tools" ref="metools">
+        <div class="me-tools-set">
+            <div class="setting" v-show="isShowMenu">
+                <span @click.stop="isShowSubMenu = true" class="setting-item">【下一步】位置设置 ></span>
+                <div class="setting-sub-menu" v-show="isShowSubMenu">
+                    <div v-for="item in nextSettingTypeList" :key="item.text" class="menu" @click="selectNextType = item.type">
+                        {{item.text}}
+                    </div>
+                </div>
+            </div>
+            <div class="me-tool-btn setting-btn" @click.stop="isShowMenu = true">
+                <img src="../../images/btn_more_3@2x.png"/>
+                <span>更多设置</span>
+            </div>
+            <div class="me-tool-btn setting-btn" @click="nextStep" v-show="selectNextType === NextSettingType.Left || selectNextType === NextSettingType.All">
+                <img src="../../images/btn_next_3@2x.png"/>
+                <span>下一步</span>
+            </div>
+        </div>
         <div class="me-tools-screen"></div>
         <div class="me-tools-canvas">
             <div
@@ -72,6 +90,7 @@
                 class="me-tool-btn next-step"
                 :disabled="isLast"
                 @click="nextStep"
+                v-show="selectNextType === NextSettingType.Right || selectNextType === NextSettingType.All"
             >
                 <img
                     v-if="!isLast"
@@ -89,11 +108,18 @@
 </template>
 
 <script lang="ts">
-import { ref, defineComponent, watch, onMounted, onUnmounted } from "vue-demi";
+import { ref, defineComponent, watch, onMounted, onUnmounted } from "vue";
 import { enterFullscreen, exitFullscreen, isFullscreen } from "@/utils/fullscreen";
 import { useRouter } from "vue-router";
 import isElectron from "is-electron";
 import { sleep } from "@/utils/common";
+import { get, STORAGE_TYPES, set } from "@/utils/storage";
+import { store } from "@/store";
+enum NextSettingType {
+    Right = "right",
+    Left = "left",
+    All = "all"
+}
 export default defineComponent({
     props: ["showRemark"],
     setup(props, { emit }) {
@@ -103,24 +129,47 @@ export default defineComponent({
         const isFirst = ref(false);
         const showremark = ref(true);
         const scale = ref(1);
+        const selectNextType = ref(getLocalNextType());
         const goback = () => {
             router.push("/");
         };
         const switchFlag = ref(false);
         const activeFlag = ref(false);
+        const isShowMenu = ref(false);
+        const isShowSubMenu = ref(false);
+        const nextSettingTypeList = [{
+            text: "仅右侧",
+            type: NextSettingType.Right
+        }, {
+            text: "仅左侧",
+            type: NextSettingType.Left
+        }, {
+            text: "左右侧",
+            type: NextSettingType.All
+        }];
         watch(
             () => props.showRemark,
             () => {
                 showremark.value = props.showRemark;
             }
         );
+
+        watch(selectNextType, (v) => {
+            set(STORAGE_TYPES.NEXT_SETTING + store.state.userInfo.id, v);
+        });
+        const hideMenu = () => {
+            isShowMenu.value = false;
+            isShowSubMenu.value = false;
+        };
         onMounted(() => {
             window.addEventListener("keydown", keyDown);
             window.addEventListener("resize", onResize);
+            window.addEventListener("click", hideMenu);
         });
         onUnmounted(() => {
             window.removeEventListener("resize", onResize);
             window.removeEventListener("keydown", keyDown);
+            window.removeEventListener("click", hideMenu);
         });
         const onResize = async () => {
             if (switchFlag.value && isFullscreen()) {
@@ -179,6 +228,11 @@ export default defineComponent({
         const hideWriteBoard = () => {
             emit("hideWriteBoard");
         };
+
+        function getLocalNextType() {
+            const type = get(STORAGE_TYPES.NEXT_SETTING + store.state.userInfo.id);
+            return type || NextSettingType.All;
+        }
         return {
             scale,
             type,
@@ -192,7 +246,12 @@ export default defineComponent({
             nextStep,
             fullScreen,
             fillScreen,
+            isShowSubMenu,
+            nextSettingTypeList,
             showWriteBoard,
+            NextSettingType,
+            isShowMenu,
+            selectNextType,
             hideWriteBoard
         };
     }
@@ -200,10 +259,79 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
+
 .me-tools {
     background-color: #bccfff;
     padding: 10px;
     display: flex;
+    position: relative;
+    &.tools-fullSrceen{
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        .me-tools-set {
+            transform: none;
+            .setting {
+                position: absolute;
+                .setting-sub-menu {
+                    position: absolute;
+                    right: -50%;
+                    bottom: 10px;
+                }
+            }
+        }
+
+    }
+    .me-tools-set {
+        position: fixed;
+        transform: translate(-100%);
+        width: 170px;
+        .setting {
+            position: fixed;
+            top: -55px;
+            left: 10px;
+            color: #fff;
+            background: #000;
+            .setting-item {
+                padding: 0 16px;
+                height: 50px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+            }
+            .setting-sub-menu {
+                position: fixed;
+                right: -61px;
+                bottom: 50px;
+                .menu {
+                    height: 40px;
+                    padding: 0 16px;
+                    color: #fff;
+                    background: #000;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    cursor: pointer;
+                    border-bottom: 1px solid #fff;
+                    &:last-child {
+                        border-bottom: none;
+                    }
+                }
+            }
+        }
+        .setting-btn {
+            display: flex;
+            justify-content: center;
+            color: #254d98;
+            font-weight: 700;
+            span {
+                position: absolute;
+                bottom: 0;
+            }
+        }
+    }
 }
 
 .me-tools-canvas {
@@ -215,6 +343,7 @@ export default defineComponent({
 .me-tools-canvas,
 .me-tools-screen,
 .me-tools-system,
+.me-tools-set,
 .me-tools-steps {
     display: flex;
 }

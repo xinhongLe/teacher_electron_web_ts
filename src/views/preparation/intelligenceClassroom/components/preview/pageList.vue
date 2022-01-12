@@ -326,7 +326,7 @@ export default defineComponent({
     top: 0;
     left: 0;
     width: calc(100% - 22rem);
-    height: calc(100% - 85px);
+    height: calc(100% - 84px);
 }
 .me-work {
     flex: 1;
