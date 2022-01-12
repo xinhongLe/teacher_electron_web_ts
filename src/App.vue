@@ -35,6 +35,9 @@ export default defineComponent({
             }
         });
 
+        // 默认开启缓存
+        set(STORAGE_TYPES.SET_ISCACHE, true);
+
         if (isElectron() && !window.electron.isMac()) {
             window.electron.ipcRenderer.invoke("checkForUpdate");
             window.electron.ipcRenderer.on("updateMessage", (_, text) => {

@@ -152,12 +152,6 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-.tools-fullSrceen{
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-}
 .remark-fullSrceen{
     position: fixed;
     width: 220px;

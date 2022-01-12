@@ -56,12 +56,13 @@ export interface IAddPage{
 export interface ICopyPage{
     CardID: string,
     OldCardID: string,
-    PageID: string
+    PageID: string,
+    Name: string
 }
 
 export interface IRenameCardOrPage {
     ID: string,
-    Name: string
+    Name: string | undefined
 }
 
 interface IVideoQuoteInfo {

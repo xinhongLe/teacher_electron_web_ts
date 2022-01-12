@@ -1,7 +1,7 @@
 import { getCurrentWindow, app } from "@electron/remote";
 import electron, { remote } from "electron";
-import { appPath, isExistFile } from "./downloadFile";
-import { resolve, join } from "path";
+import { appPath, isExistFile, store } from "./downloadFile";
+import { resolve } from "path";
 import ElectronLog from "electron-log";
 import fs from "fs";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -114,5 +114,6 @@ window.electron = {
             }
         });
     },
+    store: store,
     ...electron
 };

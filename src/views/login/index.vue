@@ -50,7 +50,7 @@
                         </el-option>
                     </el-select>
                 </el-form-item>
-                <el-form-item>
+                <el-form-item v-if="isPassWordLogin">
                     <el-input
                         type="password"
                         v-model="form.password"
@@ -72,6 +72,23 @@
                         </template>
                     </el-input>
                 </el-form-item>
+                <el-form-item v-else>
+                    <el-input
+                        type="text"
+                        v-model="form.code"
+                        placeholder="请输入验证码"
+                    >
+                        <template #prefix>
+                            <img
+                                src="@/assets/images/login/icon_yzm.png"
+                                alt=""
+                            />
+                        </template>
+                        <template #suffix>
+                            <span class="get-code-btn" @click="getCode">{{codeTime === 0 ? '获取验证码' : `${codeTime}秒后重发`}}</span>
+                        </template>
+                    </el-input>
+                </el-form-item>
                 <el-form-item>
                     <el-button
                         :loading="loading"
@@ -82,6 +99,16 @@
                     >
                 </el-form-item>
             </el-form>
+            <div class="login-method">
+                <template v-if="isPassWordLogin">
+                    <img src="@/assets/images/login/icon_yanzhengma.png" alt="" :width="13">
+                    <span @click="isPassWordLogin = false" class="text">验证码登录</span>
+                </template>
+                <template v-else>
+                    <img src="@/assets/images/login/icon_mima.png" alt=""  :width="12">
+                    <span @click="isPassWordLogin = true" class="text">密码登录</span>
+                </template>
+            </div>
             <div class="close-icon" v-if="isElectron" @click="close">
                 <i class="el-icon-close"></i>
             </div>
@@ -100,6 +127,7 @@ import { useRouter, useRoute } from "vue-router";
 import { ILoginData } from "@/types/login";
 import { STORAGE_TYPES, get, set } from "@/utils/storage";
 import isElectron from "is-electron";
+import { sendMsg } from "./api";
 export default defineComponent({
     setup() {
         const router = useRouter();
@@ -107,20 +135,24 @@ export default defineComponent({
 
         const form = reactive({
             account: "",
+            code: "",
             password: ""
         });
 
         const loading = ref(false);
         const recordAccountList = ref([]);
+        const isPassWordLogin = ref(true);
+        const codeTime = ref(0);
+        let timer:any;
         recordAccountList.value = get(STORAGE_TYPES.RECORD_LOGIN_LIST, true) || [];
 
         const { userLogin } = useLogin();
 
         const login = async () => {
-            const { account, password } = form;
-            if (account.length === 0 || password.length === 0) return false;
+            const { account, password, code } = form;
+            if ((isPassWordLogin.value && (account.length === 0 || password.length === 0)) || (!isPassWordLogin.value && (account.length === 0 || code.length === 0))) return false;
             loading.value = true;
-            await userLogin(account, password);
+            await userLogin({ account, password, code, isPassWordLogin: isPassWordLogin.value });
             loading.value = false;
 
             const redirect: any = route.redirectedFrom;
@@ -165,6 +197,22 @@ export default defineComponent({
             }
         };
 
+        const getCode = async () => {
+            if (!form.account) return;
+            const res = await sendMsg({
+                phone: form.account
+            });
+            if (res.resultCode === 200) {
+                codeTime.value = 60;
+                timer = setInterval(() => {
+                    codeTime.value--;
+                    if (codeTime.value === 0) {
+                        clearInterval(timer);
+                    }
+                }, 1000);
+            }
+        };
+
         const version = ref(require("../../../package.json").version);
 
         onMounted(() => {
@@ -192,6 +240,9 @@ export default defineComponent({
             handleChange,
             openVirtualKeyBoard,
             delAccount,
+            getCode,
+            codeTime,
+            isPassWordLogin,
             isElectron: isElectron()
         };
     }
@@ -260,6 +311,16 @@ $btn_color: #4b71ee;
                 line-height: 45px;
             }
         }
+        .login-method {
+            color: #4b71ee;
+            display: flex;
+            align-items: center;
+            height: 16px;
+            .text {
+                margin-left: 10px;
+                cursor: pointer;
+            }
+        }
         .close-icon {
             position: absolute;
             top: 20px;
@@ -281,6 +342,11 @@ $btn_color: #4b71ee;
                     height: 16px;
                     cursor: pointer;
                 }
+                .get-code-btn {
+                    color: #4b71ee;
+                    font-size: 16px;
+                    cursor: pointer;
+                }
                 img {
                     width: 16px;
                     height: 18px;
@@ -293,6 +359,7 @@ $btn_color: #4b71ee;
                     background: #f5f6fa !important;
                     border: none;
                     padding-left: 50px;
+                    padding-right: 95px;
                 }
                 .el-input__prefix, .el-input__suffix-inner {
                     display: flex;
