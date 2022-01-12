@@ -139,7 +139,6 @@
         <div class="right">
             <win-card-edit
                 ref="editRef"
-                :isWatchChange="isWatchChange"
                 :pageValue="pageValue"
                 :isSetCache="isSetCache"
                 :allPageList="allPageList"
@@ -249,7 +248,6 @@ export default defineComponent({
             _deleteCardOrPage, _addPage, _renameCardOrPage,
             _setCardOrPageState, _addCard, _copyPage, dragDealData
         } = useSelectBookInfo();
-        const isWatchChange = ref(true); // 是否是监听改变的pageValue
         const handleNodeClick = (data: IPageValue, Node: Node | null) => {
             if (Node) {
                 activeAllPageListIndex.value = allPageList.value.findIndex(item => item.ID === data.ID);
@@ -262,17 +260,16 @@ export default defineComponent({
                     type: "warning"
                 })
                     .then(() => {
-                        selectPageValue(data, false);
+                        selectPageValue(data);
                     })
                     .catch((err) => {
                         return err;
                     });
             } else {
-                selectPageValue(data, false);
+                selectPageValue(data);
             }
         };
-        const selectPageValue = (data: { ID: string; Type: number }, flag: boolean) => {
-            isWatchChange.value = flag;
+        const selectPageValue = (data: { ID: string; Type: number }) => {
             pageValue.value = data;
             setDomClass();
         };
@@ -445,7 +442,7 @@ export default defineComponent({
                     allPageList.value = getAllPageList(state.windowCards);
                     // 先判断是否是粘贴的卡 如果是粘贴卡先选中粘贴卡
                     if (state.pastePage && state.pastePage.ID) {
-                        selectPageValue(state.pastePage, false);
+                        selectPageValue(state.pastePage);
                         activeAllPageListIndex.value = allPageList.value.findIndex(item => item.ID === state.pastePage!.ID);
                         state.pastePage = null;
                         return;
@@ -460,11 +457,12 @@ export default defineComponent({
                         const obj: { ID: string; Type: number } = {
                             ...pageValue.value
                         };
-                        selectPageValue(obj, true);
+                        selectPageValue(obj);
                     } else {
                         const winCard = selectFirstPage(state.windowCards);
+                        console.log("pppppppppppp");
                         if (winCard) {
-                            selectPageValue(winCard.PageList[0], true);
+                            selectPageValue(winCard.PageList[0]);
                         }
                     }
                 }
@@ -570,7 +568,6 @@ export default defineComponent({
             dialogVisibleName,
             tooltipShow,
             winScreenView,
-            isWatchChange,
             mouseenter,
             mouseleave,
             handleNodeClick,

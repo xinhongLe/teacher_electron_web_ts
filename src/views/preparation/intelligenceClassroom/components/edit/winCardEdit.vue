@@ -48,10 +48,6 @@ export default defineComponent({
         allPageList: {
             type: Array as PropType<IPageValue[]>,
             default: () => []
-        },
-        isWatchChange: {
-            type: Boolean,
-            default: () => true
         }
     },
     setup(props) {
@@ -68,10 +64,8 @@ export default defineComponent({
         let resPagesIds: string[] = []; // 已经请求过的页面ids
         let pageIdIng: string | null = null; // 正在请求的页id
         const { getPageDetail, savePage, transformType } = useHome();
-        const watchChange = computed(() => props.isWatchChange);
         watch(() => props.pageValue, async (val: IPageValue, oldVal) => {
             if (transformType(val.Type) === -1) {
-                ElMessage({ type: "warning", message: "暂不支持该页面类型" });
                 page.value = {
                     ID: val.ID,
                     Type: val.Type,
@@ -79,14 +73,15 @@ export default defineComponent({
                     TeachPageRelationID: val.TeachPageRelationID
                 };
                 state.slide = {};
+                return;
             }
             if (val && val !== oldVal) {
                 page.value = val;
-                if (watchChange.value) return; // 首次选中走缓存
                 if (val.ID) {
                     const dbResArr = await getWinCardDBData(val.ID);
                     if (dbResArr.length > 0) {
-                        state.slide = JSON.parse(dbResArr[0].result);
+                        const data = JSON.parse(JSON.stringify(dbResArr[0].result));
+                        setSlide(JSON.parse(data));
                     } else {
                         if (pageIdIng) {
                             if (pageIdIng !== val.ID) {
@@ -147,13 +142,13 @@ export default defineComponent({
                         if (res.from === "DB") {
                             // 被点击的页时正在请求时
                             if (page.value?.ID === allPageList[0].ID) {
-                                state.slide = res.result;
+                                setSlide(res.result);
                             }
                         } else {
                             if (res.id) { // 肯定是请求成功的
                                 // 被点击的页时正在请求的
                                 if (page.value?.ID === allPageList[0].ID) {
-                                    state.slide = res;
+                                    setSlide(res);
                                 }
                             }
                             pageIdIng = null;
@@ -179,6 +174,15 @@ export default defineComponent({
             noResPages = [];
             getAllPageList([]);
         });
+
+        let timeOut:any = null;
+        const setSlide = (res: any) => {
+            state.slide = {}; // 要先置空 否则wincard组件有些值监听不到改变
+            timeOut = setTimeout(() => {
+                state.slide = res;
+            }, 100);
+        };
+
         const onSave = async (slide: Slide) => {
             if (props.pageValue.ID) {
                 const data = await savePage(slide);
