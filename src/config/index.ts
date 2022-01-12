@@ -1,15 +1,15 @@
 
-export const AI_XUE_SHI_API = "http://192.168.20.109:5010";
-export const WINDOW_CRAD_API = "http://192.168.20.109:5010";
+// export const AI_XUE_SHI_API = "http://192.168.20.109:5010";
+// export const WINDOW_CRAD_API = "http://192.168.20.109:5010";
 // export const AI_XUE_SHI_API = "https://api.aixueshi.top:5003";
 // export const WINDOW_CRAD_API = "https://api.aixueshi.top:5003";
-// =======
+
 // export const AI_XUE_SHI_API = process.env.VUE_APP_AI_XUE_SHI_API;
 // export const WINDOW_CRAD_API = process.env.VUE_APP_AI_XUE_SHI_API;
-// export const AI_XUE_SHI_API = "http://apitest.aixueshi.top:5002";
-// export const WINDOW_CRAD_API = "http://apitest.aixueshi.top:5002";
-// export const UPLOAD_CRAD_API = "https://apitest.aixueshi.top:5001";
-// >>>>>>> master
+export const AI_XUE_SHI_API = "http://apitest.aixueshi.top:5002";
+export const WINDOW_CRAD_API = "http://apitest.aixueshi.top:5002";
+export const UPLOAD_CRAD_API = "https://apitest.aixueshi.top:5001";
+
 // 注册学生模板下载地址
 export const ADD_STUDENT_TEMPLATE = "https://wechat.aixueshi.top/学生信息表2.2.xlsx";
 
