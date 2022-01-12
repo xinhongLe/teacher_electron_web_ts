@@ -22,7 +22,7 @@
     </div>
 </template>
 <script lang="ts">
-import { watch, defineComponent, reactive, toRefs, PropType, ref, onUnmounted } from "vue";
+import { watch, defineComponent, reactive, toRefs, PropType, ref, onUnmounted, computed } from "vue";
 import useHome from "@/hooks/useHome";
 import { Slide, IWin } from "wincard/src/types/slides";
 import CardSelectDialog from "./cardSelectDialog.vue";
@@ -48,6 +48,10 @@ export default defineComponent({
         allPageList: {
             type: Array as PropType<IPageValue[]>,
             default: () => []
+        },
+        isWatchChange: {
+            type: Boolean,
+            default: () => true
         }
     },
     setup(props) {
@@ -64,6 +68,7 @@ export default defineComponent({
         let resPagesIds: string[] = []; // 已经请求过的页面ids
         let pageIdIng: string | null = null; // 正在请求的页id
         const { getPageDetail, savePage, transformType } = useHome();
+        const watchChange = computed(() => props.isWatchChange);
         watch(() => props.pageValue, async (val: IPageValue, oldVal) => {
             if (transformType(val.Type) === -1) {
                 ElMessage({ type: "warning", message: "暂不支持该页面类型" });
@@ -77,6 +82,7 @@ export default defineComponent({
             }
             if (val && val !== oldVal) {
                 page.value = val;
+                if (watchChange.value) return; // 首次选中走缓存
                 if (val.ID) {
                     const dbResArr = await getWinCardDBData(val.ID);
                     if (dbResArr.length > 0) {
