@@ -60,9 +60,11 @@
                     <div class="all-box" v-show="isFull">
                         <span class="more" v-if="!isShowMore" @click="isShowMore = true">
                             阅读全部
+                            <img src="../../../../assets/preparationGroup/more-down.png" alt="">
                         </span>
                         <span class="more" v-else @click="isShowMore = false">
                             收起全部
+                            <img src="../../../../assets/preparationGroup/more-up.png" alt="">
                         </span>
                     </div>
                 </span>
@@ -529,11 +531,17 @@ export default defineComponent({
                 color: #4B71EE;
                 cursor: pointer;
                 padding: 0 5px;
-                display: inline-block;
+                display: flex;
+                align-items: center;
                 .dot {
                     font-weight: 400;
                     color: #5F626F;
                     margin: 0 15px 0 0;
+                }
+                img {
+                    display: inline-block;
+                    width: 16px;
+                    height: 16px;
                 }
             }
             .mores {

@@ -80,13 +80,14 @@
                         <div :class="`title-left title-left-content-${numorder}`">
                             <p class="title">内容摘要</p>
                             <span :class="`content special-area-content special-area-content-${numorder} ${isShowMore ? `` : `clamp`}`" :title="content.Content">
-                                {{content.Content}}
-                                <div v-if="isFull">
+                                <div class="content-box" v-html="`<p>${content.Content.replace(/\n/g,'<br/>')}</p>`"></div>
+                                <div class="all-box" v-if="isFull">
                                     <span class="more" v-if="!isShowMore" @click="isShowMore = true">
-                                        <span class="dot">...</span>阅读全部
+                                        <span class="dot">...</span>阅读全部<img src="../../../../assets/preparationGroup/more-down.png" alt="">
                                     </span>
-                                    <span class="mores" v-else @click="isShowMore = false">
+                                    <span class="more" v-else @click="isShowMore = false">
                                         收起全部
+                                        <img src="../../../../assets/preparationGroup/more-up.png" alt="">
                                     </span>
                                 </div>
                             </span>
@@ -443,13 +444,18 @@ export default defineComponent({
         };
 
         const resizeTextarea = () => {
+            state.isShowMore = true;
+            state.isFull = false;
             nextTick(() => {
-                const index = props.numorder;
-                const specialContent = document.querySelectorAll(`.special-area-content-${index}`);
-                const windowContent = document.querySelectorAll(`.title-left-content-${index}`);
-                if (specialContent && specialContent[0] && specialContent[0].clientWidth && windowContent && windowContent[0] && windowContent[0].clientWidth) {
-                    state.isFull = ((windowContent[0].clientWidth - 0) <= specialContent[0].clientWidth);
-                }
+                setTimeout(() => {
+                    const index = props.numorder;
+                    const specialContent = document.querySelectorAll(`.special-area-content-${index}`);
+                    if (specialContent && specialContent[0] && specialContent[0].clientHeight) {
+                        state.isFull = specialContent[0].clientHeight > 48;
+                        state.isShowMore = !state.isFull;
+                        console.log(state.isFull);
+                    }
+                }, 500);
             });
         };
 
@@ -710,6 +716,7 @@ export default defineComponent({
                 .title-box {
                     display: flex;
                     justify-content: space-between;
+                    align-items: flex-start;
                     padding: 0;
                     .title-left {
                         width: calc(100% - 150px);
@@ -735,13 +742,25 @@ export default defineComponent({
                             display: -webkit-box;
                             word-break: break-all;
                             position: relative;
-                            width: fit-content;
+                            width: 100%;
+                        }
+                        .content-box {
+                            width: calc(100% - 0px);
                         }
                         .clamp {
-                            line-clamp: 1;
+                            line-clamp: 2;
                             box-orient: vertical;
-                            -webkit-line-clamp: 1;
+                            -webkit-line-clamp: 2;
                             -webkit-box-orient: vertical;
+                        }
+                        .all-box {
+                            width: 100px;
+                            height: 24px;
+                            position: absolute;
+                            right: 0;
+                            bottom: 0;
+                            overflow: hidden;
+                            background: #F9F9FB;
                         }
                         .more {
                             font-size: 14px;
@@ -755,10 +774,17 @@ export default defineComponent({
                             overflow: hidden;
                             background: #F9F9FB;
                             padding: 0 5px;
+                            display: flex;
+                            align-items: center;
                             .dot {
                                 font-weight: 400;
                                 color: #5F626F;
-                                margin: 0 15px 0 0;
+                                margin: 0 5px 0 0;
+                            }
+                            img {
+                                display: inline-block;
+                                width: 16px;
+                                height: 16px;
                             }
                         }
                         .mores {
