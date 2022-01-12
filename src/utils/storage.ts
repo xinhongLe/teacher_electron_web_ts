@@ -67,7 +67,6 @@ export const get = (name: STORAGE_TYPES, isDecrypt = false) => {
     let item;
     if (isElectron()) {
         item = (window as any).electron.store.get(`${PREFIX}_${name}`);
-        console.log(item);
     } else {
         item = localStorage.getItem(`${PREFIX}_${name}`);
     }
