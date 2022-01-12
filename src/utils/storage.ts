@@ -43,18 +43,22 @@ export enum STORAGE_TYPES {
      */
     SESSION_ID = "SESSION_ID",
     /**
+     * 窗卡页下一步位置设置
+     */
+    NEXT_SETTING = "NEXT_SETTING_",
+    /**
      * TEACHER_LIST 集体备课邀请老师的列表
      */
      TEACHER_LIST = "TEACHER_LIST"
 }
 
-export const set = (name: STORAGE_TYPES, value: unknown, isEncrypt = false) => {
+export const set = (name: STORAGE_TYPES | string, value: unknown, isEncrypt = false) => {
     let newValue = typeof value === "string" ? value : JSON.stringify(value);
     newValue = isEncrypt ? encrypt(newValue) : newValue;
     localStorage.setItem(`${PREFIX}_${name}`, newValue);
 };
 
-export const get = (name: STORAGE_TYPES, isDecrypt = false) => {
+export const get = (name: STORAGE_TYPES | string, isDecrypt = false) => {
     let item = localStorage.getItem(`${PREFIX}_${name}`);
     let result;
     try {
