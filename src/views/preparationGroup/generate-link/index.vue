@@ -61,11 +61,14 @@ export default defineComponent({
                 groupLessonPreparateID: props.currentItem.Id
             });
             if (res.resultCode === 200) {
-                const shareOrigin = window.top[0]?.location?.ancestorOrigins[0] || origin;
-                console.log(shareOrigin);
-                // url.value = `${shareOrigin}/#/preparation-group?inviteID=${res.result.ID}&isShowNarBar=false&platform=teacher&iframe_type=3&redirect=preparation-group`;
-                // 分享到集体备课
-                url.value = `${origin}/preparation-group?inviteID=${res.result.ID}&isShowNarBar=false&redirect=preparation-group`;
+                if (window.top === window.self) {
+                    // 分享到集体备课
+                    url.value = `${origin}/preparation-group?inviteID=${res.result.ID}&isShowNarBar=false&redirect=preparation-group`;
+                } else {
+                    const shareOrigin = (window.top && window.top[0] && window.top[0].location && window.top[0].location.ancestorOrigins && window.top[0].location.ancestorOrigins[0]) || (window.top && window.top[0] && window.top[0].location && window.top[0].location.origin) || origin;
+                    // 分享到外部平台
+                    url.value = `${shareOrigin}/#/preparation-group?inviteID=${res.result.ID}&isShowNarBar=false&platform=teacher&iframe_type=3&redirect=preparation-group`;
+                }
             }
         };
         const openDialog = () => {

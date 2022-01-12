@@ -37,6 +37,7 @@ import Empty from "./empty/index.vue";
 import CollectivePreparation from "./collective-preparation/index.vue";
 import useCardList from "./card/useCardList";
 import { ElMessage } from "element-plus";
+import { MutationTypes, store } from "@/store";
 export default defineComponent({
     name: "preparationGroup",
     setup() {
@@ -69,7 +70,9 @@ export default defineComponent({
             emptyItem: {
                 type: "",
                 tip: ""
-            }
+            },
+            inviteID: "",
+            platform: "teacher"
         });
         const requestParams = (params: FetchPreparateListPageData) => {
             if (params) {
@@ -106,9 +109,9 @@ export default defineComponent({
             getCardList(state.filterParams);
         };
         const tryInviteeLink = async () => {
-            if (!route.query.inviteID) return;
+            if (!state.inviteID || state.inviteID.length === 0) return;
             const res = await tryAddTeacherByInviteeLink({
-                ID: route.query.inviteID as string
+                ID: state.inviteID
             });
             if (res.resultCode === 200) {
                 collectivePreparationItem.value = res.result;
@@ -117,20 +120,38 @@ export default defineComponent({
                 });
             }
         };
-        const addInviteeLink = async () => {
-            const res = await addTeacherByInviteeLink({
-                ID: route.query.inviteID as string
-            });
-            if (res.resultCode === 200) {
-                ElMessage.success("加入成功，跳转中");
-                setTimeout(() => {
-                    window.open(`${window.location.origin}/preparation-edit/${collectivePreparationItem.value.GroupLessonPreparateID}`);
-                }, 2000);
+        const addInviteeLink = async (isTurn: boolean) => {
+            const url = `${window.location.origin}/preparation-edit/${collectivePreparationItem.value.GroupLessonPreparateID}`;
+            if (isTurn) {
+                window.open(url, `${state.platform === "teacher" ? "_blank" : "_self"}`);
+                store.commit(MutationTypes.SET_IS_IFRAME, { flag: state.platform === "iframe" });
+            } else {
+                const res = await addTeacherByInviteeLink({
+                    ID: state.inviteID
+                });
+                if (res.resultCode === 200) {
+                    ElMessage.success("加入成功，跳转中");
+                    setTimeout(() => {
+                        window.open(url, `${state.platform === "teacher" ? "_blank" : "_self"}`);
+                        store.commit(MutationTypes.SET_IS_IFRAME, { flag: state.platform === "iframe" });
+                    }, 2000);
+                }
             }
         };
         onMounted(() => {
+            if (route && route.query && route.query.inviteID && route.query.inviteID.length > 0) {
+                state.inviteID = route.query.inviteID as string;
+                state.platform = "teacher";
+            }
             getCardList(state.filterParams);
             tryInviteeLink();
+            window.addEventListener("message", function(e) {
+                if (e.origin.indexOf("142.91") > -1 || e.origin.indexOf("teacher.aixueshi.top") > -1 || e.origin.indexOf("20.199") > -1) {
+                    state.inviteID = e?.data?.inviteID || "";
+                    state.platform = "iframe";
+                    tryInviteeLink();
+                }
+            });
         });
         return {
             ...toRefs(state),
