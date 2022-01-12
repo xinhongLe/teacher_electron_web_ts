@@ -3,6 +3,7 @@ import { IResponse } from "./response";
 export interface ILoginData {
     account: string;
     password: string;
+    code?: string;
 }
 
 export interface ILoginTokenData {
@@ -37,6 +38,10 @@ export interface ILessonManagerResult {
     Classes: LessonClasses[],
     Subjects: LessonSubject[],
     ID: string
+}
+
+export interface ISendMsgData {
+    phone: string
 }
 
 export type ILoginResponse = IResponse<ILoginResult>;
