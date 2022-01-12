@@ -63,7 +63,7 @@
                         <span>课后延时</span>
                     </div>
                 </div>
-                <div class="item" @click="go('preparation-group')">
+                <!-- <div class="item" @click="go('preparation-group')">
                     <div class="item_div">
                         <img
                             src="../../assets/indexImages/pic_jitibeike.png"
@@ -71,7 +71,7 @@
                         />
                         <span>集体备课</span>
                     </div>
-                </div>
+                </div> -->
                 <div class="item" @click="go('')">
                     <div class="item_div">
                         <img
