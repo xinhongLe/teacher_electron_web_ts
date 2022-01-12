@@ -37,6 +37,7 @@
                             type="textarea"
                             :maxlength="1000"
                             :rows="5"
+                            @keydown="($event) => changeInput($event)"
                             resize="none">
                             </el-input>
                         <span v-else>
@@ -228,6 +229,11 @@ export default defineComponent({
         const isHasRule = (item) => {
             return get(STORAGE_TYPES.USER_INFO).ID === item.CreateTeacherID;
         };
+        const changeInput = (e) => {
+            e = e || window.event;
+            e.stopPropagation && e.stopPropagation();
+            e.cancelBubble = true;
+        };
         return {
             teacherID,
             activeID,
@@ -244,7 +250,8 @@ export default defineComponent({
             submit,
             detailTime,
             selectTeacher,
-            isHasRule
+            isHasRule,
+            changeInput
         };
     }
 });
