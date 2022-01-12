@@ -9,7 +9,7 @@ export const cacheFile = async (key: string) => {
             if (fileName === "ElementFile/" || fileName === "null") return resolve("");
             return window.electron.isExistFile(fileName).then((isExist) => {
                 if (isExist) {
-                    resolve("file://" + window.electron.getFilePath(fileName));
+                    resolve(window.electron.getFilePath(fileName));
                 } else {
                     downloadFile(key, "axsfile").then(filePath => {
                         window.electron.ipcRenderer.invoke("downloadFile", filePath, fileName).then(path => resolve("file://" + path));

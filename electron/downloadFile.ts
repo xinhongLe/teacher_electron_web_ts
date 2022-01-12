@@ -41,7 +41,7 @@ export const isExistFile = (filePath: string): Promise<boolean> => {
 const dealCallback = (fileName: string, filePath: string) => {
     if (downloadSuccessCallbackMap.has(fileName)) {
         const callbackList = downloadSuccessCallbackMap.get(fileName) || [];
-        callbackList.forEach((callback) => callback(filePath));
+        callbackList.forEach((callback) => callback(filePath.replaceAll("\\", "/")));
         downloadSuccessCallbackMap.delete(fileName);
     }
 };
