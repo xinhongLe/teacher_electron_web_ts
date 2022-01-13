@@ -18,7 +18,6 @@
             />
             <open-card-view-dialog @closeOpenCard="closeOpenCard" v-if="dialogVisible" :cardList="cardList" v-model:dialogVisible="dialogVisible"></open-card-view-dialog>
             <div
-                v-if="!fullscreenStyle"
                 class="me-page"
             >
                 <!-- :style="{ paddingBottom: hasCheck ? '40px' : '15px' }" -->

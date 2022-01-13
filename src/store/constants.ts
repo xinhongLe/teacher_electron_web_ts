@@ -77,7 +77,16 @@ export const enum MutationTypes {
     /**
      * 设置是否是点击详情跳转的
      */
-    SET_IS_CLICK_DETAIL = "SET_IS_CLICK_DETAIL"
+    SET_IS_CLICK_DETAIL = "SET_IS_CLICK_DETAIL",
+    /**
+     * 设置备教端是否被嵌套在某个iframe里
+     */
+    SET_IS_IFRAME = "SET_IS_IFRAME",
+    /**
+     * 设置备教端iframe状态在local：1 被嵌在iframe， 0 备教端
+     */
+    LOCAL_IS_IFRAME = "LOCAL_IS_IFRAME"
+
 }
 
 export const enum ActionTypes {

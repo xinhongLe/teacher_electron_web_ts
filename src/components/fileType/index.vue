@@ -4,7 +4,6 @@
 
 <script lang="ts">
 import { fileTypeMap } from "@/config";
-import { number } from "echarts";
 import { defineComponent } from "vue";
 export default defineComponent({
     name: "fileType",
@@ -24,7 +23,6 @@ export default defineComponent({
     },
     setup() {
         const getFileTypeClass = (fileExtension: string) => {
-            console.log(fileExtension, "fileExtension");
             const type = fileTypeMap[fileExtension];
             const classMap: Record<number, string> = {
                 2: "pic",
