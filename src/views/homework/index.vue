@@ -20,6 +20,7 @@
                     type="date"
                     placeholder="选择日期"
                     value-format="YYYY-MM-DD"
+                    :disabled-date="disabledDate"
                     @change="getTaskList"
                 >
                 </el-date-picker>
