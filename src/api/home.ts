@@ -50,6 +50,7 @@ export interface IAddCard{
 
 export interface IAddPage{
     CardID: string,
+    Sort: number,
     Type: number,
     Name: string
 }

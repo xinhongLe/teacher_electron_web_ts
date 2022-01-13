@@ -594,7 +594,8 @@ const dealVideo = async (oldVideo: IOldVideo) => {
         src: "",
         showType: 0,
         rotate: 0,
-        poster: ""
+        poster: "",
+        icon: ""
     };
 
     if (oldVideo.Type === 10 || oldVideo.Type === 13) {
@@ -606,8 +607,6 @@ const dealVideo = async (oldVideo: IOldVideo) => {
                     oldVideo.OssFileName = "";
                 }
             });
-        } else {
-            oldVideo.OssFileName = "";
         }
     }
 
