@@ -48,7 +48,7 @@
                         <i class="el-icon-arrow-right"></i>
                     </span>
                 </div>
-                <div class="card-box-left">
+                <div class="card-box-left" :class="{fullScreen: isFullScreen, hidden: isFullScreen && !isShowCardList}">
                     <div class="card-box-lefts">
                         <CardList
                         ref="cardListComponents"
@@ -60,7 +60,7 @@
                         @updateFlag="updateFlag"
                     />
                     </div>
-                    <div class="card-box-outbottom"></div>
+                    <div class="card-box-outbottom" v-show="!isFullScreen"></div>
                 </div>
                 <div class="card-detail">
                     <div class="card-detail-content">
@@ -77,6 +77,8 @@
                             @lastPage="lastPage"
                             @firstPage="firstPage"
                             @changeWinSize="changeWinSize"
+                            @fullScreen="fullScreen"
+                            @clockFullScreen="clockFullScreen"
                         />
                     </div>
                 </div>
@@ -87,7 +89,7 @@
 
 <script>
 import { store } from "@/store";
-import { defineComponent, onActivated, onDeactivated, onMounted, ref, toRefs, watch } from "vue";
+import { defineComponent, onActivated, onDeactivated, onMounted, provide, ref, toRefs, watch } from "vue";
 import userSelectBookInfo from "./hooks/userSelectBookInfo";
 import CardList from "./cardList/index.vue";
 import PreviewSection from "./components/preview/previewSection.vue";
@@ -100,7 +102,10 @@ export default defineComponent({
     setup() {
         const router = useRouter();
         const showList = ref(true);
+        const isFullScreen = ref(false);
+        const isShowCardList = ref(true);
         const { allPageList, activeIndex, allData, cardListComponents, _getSchoolLessonWindow, handleClickWin, _getWindowCards, updatePageList } = userSelectBookInfo();
+        provide("isShowCardList", isShowCardList);
         watch(
             () => store.state.preparation.selectChapterID,
             () => {
@@ -154,6 +159,12 @@ export default defineComponent({
         const updateFlag = () => {
             PreviewSection.value.updateFlag();
         };
+        const fullScreen = () => {
+            isFullScreen.value = true;
+        };
+        const clockFullScreen = () => {
+            isFullScreen.value = false;
+        };
         onActivated(() => {
             document.onkeydown = (event) => {
                 event.preventDefault();
@@ -176,7 +187,11 @@ export default defineComponent({
             updateFlag,
             allPageList,
             _getWindowCards,
-            changeWinSize
+            changeWinSize,
+            isFullScreen,
+            fullScreen,
+            isShowCardList,
+            clockFullScreen
         };
     },
     activated () {
@@ -382,6 +397,18 @@ $border-color: #f5f6fa;
                 min-width: 0;
                 min-height: 0;
                 flex-direction: column;
+                background: #fff;
+                &.fullScreen {
+                    background: #F5F6FA;
+                    position: fixed;
+                    left: 0;
+                    top: 0;
+                    height: calc(100% - 84px);
+                    transition: width 0.3s;
+                }
+                &.hidden {
+                    width: 0;
+                }
             }
             .card-box-lefts{
                 display: flex;

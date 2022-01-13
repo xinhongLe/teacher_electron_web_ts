@@ -10,12 +10,10 @@
                 </div>
             </div>
             <div class="me-tool-btn setting-btn" @click.stop="isShowMenu = true">
-                <img src="../../images/btn_more_3@2x.png"/>
-                <span>更多设置</span>
+                <img src="../../images/btn_more.png"/>
             </div>
             <div class="me-tool-btn setting-btn" @click="nextStep" v-show="selectNextType === NextSettingType.Left || selectNextType === NextSettingType.All">
-                <img src="../../images/btn_next_3@2x.png"/>
-                <span>下一步</span>
+                <img src="../../images/btn_next.png"/>
             </div>
         </div>
         <div class="me-tools-screen"></div>
@@ -274,11 +272,6 @@ export default defineComponent({
             transform: none;
             .setting {
                 position: absolute;
-                .setting-sub-menu {
-                    position: absolute;
-                    right: -50%;
-                    bottom: 10px;
-                }
             }
         }
 
@@ -293,6 +286,8 @@ export default defineComponent({
             left: 10px;
             color: #fff;
             background: #000;
+            width: max-content;
+            z-index: 1;
             .setting-item {
                 padding: 0 16px;
                 height: 50px;
@@ -302,9 +297,10 @@ export default defineComponent({
                 cursor: pointer;
             }
             .setting-sub-menu {
-                position: fixed;
-                right: -61px;
-                bottom: 50px;
+                position: absolute;
+                right: -10px;
+                transform: translateX(100%);
+                bottom: 10px;
                 .menu {
                     height: 40px;
                     padding: 0 16px;

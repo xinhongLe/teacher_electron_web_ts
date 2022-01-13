@@ -8,7 +8,6 @@
                     : { bottom: `${bottom + 140}px`, right: `${right + 100}px` }
             "
             @mousedown="mouseDown"
-            @touchstart="touchstart"
             class="timer icon"
             ref="timerRef"
         >
@@ -20,7 +19,6 @@
             v-show="isShowVideo"
             ref="videoRef"
             @mousedown="mouseDown"
-            @touchstart="touchstart"
         >
             <i class="icon-close" ref="iconVideoCloseRef"></i>
         </div>
@@ -29,7 +27,6 @@
             v-show="isShowQuestion"
             ref="questionRef"
             @mousedown="mouseDown"
-            @touchstart="touchstart"
         >
             <i class="icon-close" ref="iconQuestionCloseRef"></i>
         </div>
@@ -37,7 +34,6 @@
             class="blackboard icon"
             v-show="isShowBlackBoard"
             @mousedown="mouseDown"
-            @touchstart="touchstart"
             ref="blackboardRef"
         >
             <i class="icon-close" ref="iconBlackboardCloseRef"></i>
@@ -46,7 +42,6 @@
             class="suspension"
             ref="susDom"
             @mousedown="mouseDown($event)"
-            @touchstart="touchstart"
             v-show="!isShowHelper && !isShowWelt"
             :style="
                 isElectron
@@ -64,7 +59,6 @@
             :style="isElectron ? undefined : { bottom: `${bottom}px` }"
             v-show="isShowWelt"
             @mouseover="onmouseover"
-            @touchstart="onmouseover"
         >
             <img src="@/assets/images/suspension/pic_shouqi@2x_copy.png" />
         </div>
@@ -199,30 +193,6 @@ export default defineComponent({
             };
         };
 
-        const touchstart = () => {
-            isStartMove.value = true;
-            if (isElectron()) {
-                window.electron.ipcRenderer.invoke("window-move-open", true);
-            }
-            document.ontouchmove = () => {
-                if (isStartMove.value) {
-                    isMove.value = true;
-                }
-            };
-            document.ontouchend = () => {
-                if (!isMove.value && isStartMove.value) return;
-                isElectron() &&
-                    window.electron.ipcRenderer.invoke(
-                        "window-move-open",
-                        false
-                    );
-                isMove.value = false;
-                isStartMove.value = false;
-                document.ontouchmove = null;
-                document.ontouchend = null;
-            };
-        };
-
         const onmouseover = () => {
             isShowWelt.value = false;
             right.value = 10;
@@ -294,7 +264,6 @@ export default defineComponent({
             iconVideoCloseRef,
             isShowQuestion,
             isShowVideo,
-            touchstart,
             time,
             showNoDrag
         };

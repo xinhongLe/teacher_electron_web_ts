@@ -513,10 +513,12 @@ let istheme = true;
 SwitchTheme.onclick = function() {
     if (istheme) {
         fabCanvas.setBackgroundColor("#ccc");
+        fabCanvas.get("backgroundColor").set({ erasable: false });
         fabCanvas.renderAll();
         istheme = false;
     } else {
         fabCanvas.setBackgroundColor("#293937");
+        fabCanvas.get("backgroundColor").set({ erasable: false });
         fabCanvas.renderAll();
         istheme = true;
     }

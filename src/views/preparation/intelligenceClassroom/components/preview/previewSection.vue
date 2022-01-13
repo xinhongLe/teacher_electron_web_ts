@@ -86,11 +86,13 @@ export default defineComponent({
             showRemark.value = false;
             fullScreenStyle.value = true;
             PageList.value.fullScreen();
+            emit("fullScreen");
         };
         const clockFullScreen = () => {
             showRemark.value = true;
             fullScreenStyle.value = false;
             PageList.value.clockFullScreen();
+            emit("clockFullScreen");
         };
         const updateFlag = () => {
             PageList.value.updateFlags();
