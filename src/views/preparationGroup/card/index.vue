@@ -108,7 +108,7 @@ export default defineComponent({
             }
         };
         const switchDeleteRule = (item: PreparateListBag) => {
-            return item.CreaterID === get(STORAGE_TYPES.USER_INFO).ID;
+            return item.CreaterID === get(STORAGE_TYPES.USER_INFO) && get(STORAGE_TYPES.USER_INFO).ID;
         };
         const { statusList, switchStatus } = useSubmit();
         const { getTextBookGrade } = useEdit();

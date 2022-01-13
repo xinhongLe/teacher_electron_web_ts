@@ -111,7 +111,7 @@ export default defineComponent({
                         if (!item.ID) {
                             return false;
                         }
-                        if (item.CreateTeacherID === get(STORAGE_TYPES.USER_INFO).ID) {
+                        if (get(STORAGE_TYPES.USER_INFO) && item.CreateTeacherID === get(STORAGE_TYPES.USER_INFO).ID) {
                             const obj = {
                                 annotationID: item.ID,
                                 pointX: item.PointX,

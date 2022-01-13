@@ -55,7 +55,11 @@ export default defineComponent({
             // 岳阳云平台内嵌备教端，隐藏头部
             if (window.top && window.top[0] && window.top[0].location && window.top[0].location.origin && (window.top[0].location.origin.indexOf("yueyangyun") > -1 || (window.top[0].location.ancestorOrigins && window.top[0].location.ancestorOrigins[0] && window.top[0].location.ancestorOrigins[0].indexOf("yueyangyun") > -1) || window.top[0].location.origin.indexOf("20.199") > -1)) {
                 isShowNarBar.value = false;
+                localStorage.setItem(MutationTypes.LOCAL_IS_IFRAME, "1");
                 store.commit(MutationTypes.SET_IS_IFRAME, { flag: true });
+            } else {
+                store.commit(MutationTypes.SET_IS_IFRAME, { flag: false });
+                localStorage.setItem(MutationTypes.LOCAL_IS_IFRAME, "0");
             }
         });
 
@@ -93,7 +97,7 @@ export default defineComponent({
         return {
             isElectron: isElectron(),
             isShowQuestion: computed(() => store.state.common.isShowQuestion),
-            isIframe: computed(() => store.state.common.isIframe),
+            isIframe: computed(() => localStorage.getItem(MutationTypes.LOCAL_IS_IFRAME) === "1" || store.state.common.isIframe),
             isShowVideo: computed(() => store.state.common.isShowVideo),
             isShowNarBar,
             keepExcludeArr

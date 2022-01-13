@@ -123,8 +123,9 @@ export default defineComponent({
         const addInviteeLink = async (isTurn: boolean) => {
             const url = `${window.location.origin}/preparation-edit/${collectivePreparationItem.value.GroupLessonPreparateID}`;
             if (isTurn) {
-                window.open(url, `${state.platform === "teacher" ? "_blank" : "_self"}`);
+                localStorage.setItem(MutationTypes.LOCAL_IS_IFRAME, state.platform === "iframe" ? "1" : "0");
                 store.commit(MutationTypes.SET_IS_IFRAME, { flag: state.platform === "iframe" });
+                window.open(url, `${state.platform === "teacher" ? "_blank" : "_self"}`);
             } else {
                 const res = await addTeacherByInviteeLink({
                     ID: state.inviteID
@@ -132,8 +133,9 @@ export default defineComponent({
                 if (res.resultCode === 200) {
                     ElMessage.success("加入成功，跳转中");
                     setTimeout(() => {
-                        window.open(url, `${state.platform === "teacher" ? "_blank" : "_self"}`);
+                        localStorage.setItem(MutationTypes.LOCAL_IS_IFRAME, state.platform === "iframe" ? "1" : "0");
                         store.commit(MutationTypes.SET_IS_IFRAME, { flag: state.platform === "iframe" });
+                        window.open(url, `${state.platform === "teacher" ? "_blank" : "_self"}`);
                     }, 2000);
                 }
             }
