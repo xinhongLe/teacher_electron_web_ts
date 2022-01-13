@@ -12,7 +12,7 @@ import * as mqtt from "mqtt";
 import { ElMessage, ElMessageBox, MessageHandle } from "element-plus";
 import { store } from "@/store";
 import Content from "./Content.vue";
-import { clearTimeout, setTimeout } from "timers";
+import { clearInterval, setInterval } from "timers";
 const imgError = require("@/assets/projection/img_error@2x.png");
 let messageHandle:MessageHandle;
 export default defineComponent({
@@ -27,7 +27,6 @@ export default defineComponent({
         const videoProjectResult = computed(() => `videoProjectResult_${id.value}`);
         const heartbeat = computed(() => `heartbeat_${id.value}`);
         const heartbeatResult = computed(() => `heartbeatResult_${id.value}`);
-        let heartbeatResultTimer: any;
         let heartbeatTimer: any;
 
         const roomId = ref("");
@@ -66,22 +65,17 @@ export default defineComponent({
 
         const dealHeartbeatResultTopic = () => {
             window.electron.log.info("receive heartbeat result");
-            clearTimeout(heartbeatResultTimer);
             noSignalCount.value = 0;
-            sendHeartbeat();
         };
 
         const sendHeartbeat = () => {
-            heartbeatTimer = setTimeout(() => {
+            heartbeatTimer && clearInterval(heartbeatTimer);
+            heartbeatTimer = setInterval(() => {
+                if (!isShow.value) return;
+                noSignalCount.value < 6 && noSignalCount.value++;
                 window.electron.log.info("start send heartbeat");
                 client.publish(getPublish(heartbeat.value), "");
-                heartbeatResultTimer = setTimeout(() => {
-                    if (!isShow.value) return;
-                    noSignalCount.value <= 6 && noSignalCount.value++;
-                    window.electron.log.info("not receive heartbeat result, noSignalCount: ", noSignalCount.value);
-                    sendHeartbeat();
-                }, 5 * 1000);
-            }, 5 * 1000);
+            }, 10 * 1000);
         };
 
         client.on("connect", function (err) {
@@ -109,7 +103,6 @@ export default defineComponent({
             client.subscribe(getSubscribe(videoProject.value));
             client.subscribe(getSubscribe(videoProjectResult.value));
         });
-
         watch(noSignalCount, (v) => {
             window.electron.log.info("noSignalCount change", noSignalCount.value);
             if (v === 0) {
@@ -141,10 +134,10 @@ export default defineComponent({
                     roomID: roomId.value
                 };
                 client.publish(getPublish(videoProject.value), JSON.stringify(info));
-                clearTimeout(heartbeatResultTimer);
-                clearTimeout(heartbeatTimer);
+                clearInterval(heartbeatTimer);
                 noSignalCount.value = 0;
                 messageHandle && messageHandle.close();
+                ElMessageBox.close();
                 client.unsubscribe(getSubscribe(heartbeatResult.value));
                 client.unsubscribe(getSubscribe(heartbeat.value));
             } else {

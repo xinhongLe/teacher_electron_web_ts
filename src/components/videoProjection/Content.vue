@@ -60,11 +60,35 @@ export default defineComponent({
         };
 
         const onUserVideoAvailable = (userId: string, available: unknown) => {
-            window.electron.log.info(`onUserVideoAvailable available:${available}, roomId:${props.roomId}`);
+            window.electron.log.info(`onUserVideoAvailable available:${available}, roomId:${props.roomId}, userId: ${userId}`);
             if (available === 1) {
                 trtcCloud.startRemoteView(userId, viewRef.value!);
             }
         };
+
+        const onWarning = (warningCode: number, warningMsg: string) => {
+            window.electron.log.info(`onWarning warningCode: ${warningCode}, warningMsg: ${warningMsg}`);
+        };
+
+        const onFirstVideoFrame = (userId: string, streamType: number, width: number, height: number) => {
+            window.electron.log.info(`onFirstVideoFrame userId: ${userId}, streamType: ${streamType}, width:${width}, height: ${height}`);
+        };
+
+        const onConnectionLost = () => {
+            window.electron.log.error("onConnectionLost");
+        };
+
+        const onExitRoom = (reason: number) => { // 离开房间原因，0：主动调用 exitRoom 退房；1：被服务器踢出当前房间；2：当前房间整个被解散。
+            window.electron.log.info(`onExitRoom reason: ${reason}`);
+        };
+
+        trtcCloud.on("onError", onError);
+        trtcCloud.on("onExitRoom", onExitRoom);
+        trtcCloud.on("onEnterRoom", onEnterRoom);
+        trtcCloud.on("onWarning", onWarning);
+        trtcCloud.on("onUserVideoAvailable", onUserVideoAvailable);
+        trtcCloud.on("onFirstVideoFrame", onFirstVideoFrame);
+        trtcCloud.on("onConnectionLost", onConnectionLost);
 
         const close = () => {
             ElMessageBox.confirm("确定要结束投屏吗？", "结束投屏", {
@@ -77,11 +101,12 @@ export default defineComponent({
             });
         };
 
-        trtcCloud.on("onError", onError);
-        trtcCloud.on("onEnterRoom", onEnterRoom);
-        trtcCloud.on("onUserVideoAvailable", onUserVideoAvailable);
-
         const enterRoom = async () => {
+            timer && clearInterval(timer);
+            timer = setInterval(() => {
+                time.value++;
+                setTimeList();
+            }, 1000);
             window.electron.log.info("enterRoom roomId:", props.roomId);
             trtcCloud.exitRoom();
             const param = new TRTCParams();
@@ -115,10 +140,6 @@ export default defineComponent({
 
         onMounted(() => {
             enterRoom();
-            timer = setInterval(() => {
-                time.value++;
-                setTimeList();
-            }, 1000);
         });
 
         watch(() => props.roomId, enterRoom);
