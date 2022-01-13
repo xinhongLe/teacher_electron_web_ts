@@ -78,7 +78,7 @@ export default defineComponent({
 
         onMounted(() => {
             proxy.mittBus.on("PreDetail", (preDetail: any) => {
-                isHasRule.value = preDetail.CreaterID === get(STORAGE_TYPES.USER_INFO).ID;
+                isHasRule.value = preDetail.CreaterID === get(STORAGE_TYPES.USER_INFO) && get(STORAGE_TYPES.USER_INFO).ID;
             });
             getTeacherGroup();
         });

@@ -26,8 +26,8 @@
         <template #footer>
             <span class="dialog-footer">
                 <el-button @click="dialogVisible = false">取 消</el-button>
-                <el-button type="primary" @click="turnToPage" v-if="collectivePreparationItem.InTeam">确 定</el-button>
-                <el-button type="primary" @click="confirm" v-else>确 定</el-button>
+                <el-button type="primary" @click="confirm(true)" v-if="collectivePreparationItem.InTeam">确 定</el-button>
+                <el-button type="primary" @click="confirm(false)" v-else>确 定</el-button>
             </span>
         </template>
     </el-dialog>
@@ -54,19 +54,14 @@ export default defineComponent({
         const handleClose = () => {
             dialogVisible.value = false;
         };
-        const confirm = () => {
-            emit("submit");
+        const confirm = (isTurn) => {
             dialogVisible.value = false;
-        };
-        const turnToPage = () => {
-            dialogVisible.value = false;
-            window.open(`${window.location.origin}/preparation-edit/${props.collectivePreparationItem.GroupLessonPreparateID}`);
+            emit("submit", isTurn);
         };
         return {
             dialogVisible,
             handleClose,
-            confirm,
-            turnToPage
+            confirm
         };
     }
 });
