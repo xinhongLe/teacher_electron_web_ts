@@ -227,7 +227,7 @@ export default defineComponent({
             emit("selectTeacher", e);
         };
         const isHasRule = (item) => {
-            return get(STORAGE_TYPES.USER_INFO).ID === item.CreateTeacherID;
+            return get(STORAGE_TYPES.USER_INFO) && get(STORAGE_TYPES.USER_INFO).ID === item.CreateTeacherID;
         };
         const changeInput = (e) => {
             e = e || window.event;

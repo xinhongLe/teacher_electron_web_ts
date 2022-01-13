@@ -73,7 +73,11 @@ export interface CommonState {
      */
     viewVideoInfo: {
         id: string
-    }
+    },
+    /**
+     * 备教端是否被嵌套在某个iframe里
+     */
+    isIframe: boolean
 }
 export interface RootState {
     userInfo: UserInfoState,
