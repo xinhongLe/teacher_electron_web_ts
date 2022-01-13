@@ -5,6 +5,13 @@
   >
     <div class="container">
       <div class="top">
+        <div class="workbook-info">
+            <img
+                    :src="require('@/assets/images/homeworkNew/homework2.png')"
+                    alt=""
+                />
+            <span>{{homeworkValue.WorkbookName}}</span>
+        </div>
         <div class="camera-select">
           <img src="@/assets/images/suspension/icon_shexiangtou@2x.png" />
           <span class="text">高拍仪:</span>
@@ -25,17 +32,29 @@
       </div>
       <div class="video-warp">
         <div class="students">
-          <el-button type="primary" @click="recognition">{{studentName}}</el-button>
+          <!-- <el-button type="primary" @click="recognition">{{studentName}}</el-button> -->
+          <div class="discern-now" style="width:33rem;padding:20px 10px">
+              <span>当前学生：</span><span style="font-size:24px;font-weight:bold;">{{studentName}}</span>
+              <el-button type="primary" @click="recognition" style="position:absolute;top:74px;left:256px;">重新识别</el-button>
+          </div>
           <div class="student-list-item" v-for="(item,index) in studentFinishMissions" :key="index" @click="getMissionDetail(homeworkValue,item)">
               {{ item.StudentName}}
           </div>
         </div>
-        <div class="video" style="padding-left:280px">
+        <div class="video" style="padding-left:18%">
           <video ref="videoRef" autoplay />
-          <canvas ref="resultRef" hidden></canvas>
+          <canvas ref="resultRef" @mousedown="mousedown" hidden></canvas>
+          <div class="overlay-wrapper"><span>{{IdentifyTip}}</span></div>
         </div>
-        <div class="buttonDiscern">
-          <el-button type="primary" v-if="studentMission!=null" @click="discern">手动上传</el-button>
+        <div class="buttonDiscern" style="width:500px">
+            <div v-if="selectResult" style="width:400px;height:400px;padding:20px;border-radius:12px;background: #000000;opacity: 0.6;color:white;">
+                <span>题目{{selectResult.Number}}</span>
+                <span>作答结果</span>
+                <div>
+                    <el-button>✔</el-button> <el-button>✖</el-button>
+                </div>
+            </div>
+          <el-button type="primary" style="width:180px;height:80px;position:relative;top:380px;left:250px;" v-if="studentMission!=null" @click="discern">识别(键盘[Enter]键)</el-button>
         </div>
         <canvas ref="canvasRef" id="canvas" style="display:none"></canvas>
         <canvas ref="canvasCheckRef" id="canvasCheck" style="display:none"></canvas>
@@ -60,10 +79,14 @@ export default defineComponent({
         }
     },
     setup(props) {
+        // 识别提示
+        const IdentifyTip = ref("识别中...请先扫描学生二维码");
+        // 识别出来的学生ID
+        const IdeStudentID = ref("");
         // 摄像头弹窗的显示/隐藏属性
         const dialogVisible = ref(false);
         // 扫描获取的同学ID
-        const studentName = ref("+识别学生");
+        const studentName = ref("识别中...");
         const handleClose = () => {
             dialogVisible.value = false;
         };
@@ -75,6 +98,12 @@ export default defineComponent({
         const studentMissions = ref<StudentMission[]>();
         // 扫描后的人员
         const studentMission = ref<StudentMission | null>();
+
+        // 选中题目对象
+        const selectResult = ref<any | null>();
+
+        // 全局变量 试卷结果集合
+        const CheckQuestionResultList = ref<any | null>();
         // 获取班级下所有学生的学习任务，已完成的学生任务
         GetStudentMissionList({ ID: props.homeworkValue.ClassHomeworkPaperID }).then(res => {
             if (res.resultCode === 200) {
@@ -116,12 +145,14 @@ export default defineComponent({
                     if (code) {
                         if (code.data) {
                             const studentId = code.data.substr(code.data.indexOf(":") + 1);
+                            IdeStudentID.value = studentId;
                             var smin = studentMissions.value?.find((item: StudentMission) => {
                                 return item.StudentID === studentId;
                             });
                             if (smin) {
                                 studentMission.value = smin;
-                                studentName.value = "当前学生：" + smin.StudentName;
+                                studentName.value = smin.StudentName;
+                                IdentifyTip.value = "识别中...请翻到第" + props.homeworkValue.WorkbookPaperPageNum + "页";
                             } else {
                                 ElMessage({ type: "error", message: "此学生不属于这个班，请识别正确的二维码" });
                             }
@@ -148,6 +179,23 @@ export default defineComponent({
             });
         }
 
+        const mousedown = (e: MouseEvent) => {
+            const videoOfsetLeft = e.offsetX;
+            const videoOfsetTop = e.offsetY;
+            console.log(videoOfsetLeft);
+            console.log(videoOfsetTop);
+            // 获取页面上题目的信息
+            if (CheckQuestionResultList.value) {
+                CheckQuestionResultList.value.forEach((citem: { MarginLeft: any; MarginTop: any; SizeWidth: any; SizeHeight: any; Category: string; }) => {
+                    const MarginRight = citem.MarginLeft + citem.SizeWidth;
+                    const MarginBottom = citem.MarginTop + citem.SizeHeight;
+                    if ((videoOfsetLeft > citem.MarginLeft && videoOfsetLeft < MarginRight && videoOfsetTop > citem.MarginTop && videoOfsetTop < MarginBottom)) {
+                        selectResult.value = citem;
+                    }
+                });
+            }
+        };
+
         async function updateDeviceList() {
             const list: { label: string; id: string }[] = [];
             const devices = await navigator.mediaDevices.enumerateDevices();
@@ -161,6 +209,21 @@ export default defineComponent({
             });
             videoList.value = list;
             mediaStreamConstraints.deviceId = videoList.value[0]?.id || "";
+        }
+
+        // 键盘事件
+        function handleKeyup (event: any) {
+            // eslint-disable-next-line no-caller
+            const e = event || window.event || arguments.callee.caller.arguments[0];
+            if (!e) return;
+            const { key, keyCode } = e;
+            console.log(keyCode);
+            console.log(key);
+            // 如果是Enter
+            if (keyCode === 13 && IdeStudentID.value && videoRef.value?.hidden === false) {
+                // 如果是回车键并且学生已经识别出来了则调用识别
+                discern();
+            }
         }
 
         // 关闭高拍仪弹窗
@@ -177,6 +240,15 @@ export default defineComponent({
         // 识别学生的时候隐藏已完成学生的结果图片，显示video摄像头
         const recognition = () => {
             if (videoRef.value && resultRef.value) {
+                if (IdeStudentID.value === "") {
+                    IdentifyTip.value = "识别中...请先扫描学生二维码";
+                } else {
+                    IdeStudentID.value = "";
+                    studentMission.value = null;
+                    studentName.value = "识别中...";
+                    IdentifyTip.value = "识别中...请先扫描学生二维码";
+                }
+                selectResult.value = null;
                 videoRef.value.hidden = false;
                 resultRef.value.hidden = true;
             }
@@ -195,17 +267,22 @@ export default defineComponent({
                     var resultData = res.result;
                     var img = new Image();
                     img.onload = () => {
+                        IdentifyTip.value = "";
+                        IdeStudentID.value = "";
+                        studentMission.value = null;
+                        studentName.value = "识别中...";
                         if (canvasRef.value) {
                             const context = canvasRef.value.getContext("2d");
                             context && context.drawImage(img, 0, 0, resultData.ImageWidth, resultData.ImageHeight);
                             // const base64Img = canvasRef.value.toDataURL("image/png");
                             const imageData = context?.getImageData(0, 0, resultData.ImageWidth, resultData.ImageHeight);
                             const fileMat = cv.matFromImageData(imageData);
-                            var CheckQuestionResultList = resultData.CheckQuestionResultList;
+                            CheckQuestionResultList.value = resultData.CheckQuestionResultList;
                             const correctColor = new cv.Scalar(0, 0, 255);
                             const errorColor = new cv.Scalar(255, 0, 0);
                             const wzColor = new cv.Scalar(255, 156, 47);
-                            CheckQuestionResultList.forEach((citem: { MarginLeft: any; MarginTop: any; SizeWidth: any; SizeHeight: any; Category: string; }) => {
+                            console.log(CheckQuestionResultList);
+                            CheckQuestionResultList.value.forEach((citem: { MarginLeft: any; MarginTop: any; SizeWidth: any; SizeHeight: any; Category: string; }) => {
                                 const point1 = new cv.Point(citem.MarginLeft, citem.MarginTop);
                                 const point2 = new cv.Point(citem.MarginLeft + citem.SizeWidth, citem.MarginTop + citem.SizeHeight);
                                 if (citem.Category === "Error") {
@@ -267,7 +344,8 @@ export default defineComponent({
                                         MarginLeft: marginLeft,
                                         SizeHeight: sizeHeight,
                                         Category: "",
-                                        SizeWidth: sizeWidth
+                                        SizeWidth: sizeWidth,
+                                        Number: item.Number
                                     };
                                     checkQuestionResultList.push(checkQuestionResult);
                                 }
@@ -343,6 +421,7 @@ export default defineComponent({
                                                     };
                                                     imMat.delete();
                                                     fileMat.delete();
+                                                    CheckQuestionResultList.value = checkQuestionResultList;
                                                     if (studentMission.value && studentMission.value.State === 5) {
                                                         ElMessageBox.confirm("同学：" + studentMission.value?.StudentName + "已提交过，是否确认重复提交？", "是否重复提交", {
                                                             type: "warning",
@@ -393,11 +472,11 @@ export default defineComponent({
                                                                         const point1 = new cv.Point(citem.MarginLeft, citem.MarginTop);
                                                                         const point2 = new cv.Point(citem.MarginLeft + citem.SizeWidth, citem.MarginTop + citem.SizeHeight);
                                                                         if (citem.Category === "Error") {
-                                                                            cv.rectangle(resMat, point1, point2, errorColor, 2, cv.LINE_8, 0);
+                                                                            cv.rectangle(resMat, point1, point2, errorColor, 1, cv.LINE_AA, 0);
                                                                         } else if (citem.Category === "Correct") {
-                                                                            cv.rectangle(resMat, point1, point2, correctColor, 2, cv.LINE_8, 0);
+                                                                            cv.rectangle(resMat, point1, point2, correctColor, 1, cv.LINE_AA, 0);
                                                                         } else {
-                                                                            cv.rectangle(resMat, point1, point2, wzColor, 2, cv.LINE_8, 0);
+                                                                            cv.rectangle(resMat, point1, point2, wzColor, 1, cv.LINE_AA, 0);
                                                                         }
                                                                     });
                                                                 }
@@ -414,6 +493,8 @@ export default defineComponent({
                                                 }
                                             });
                                         }
+                                    } else {
+                                        ElMessage({ type: "error", message: "试卷识别失败请识别正确的试卷" });
                                     }
                                 }
                             };
@@ -578,6 +659,7 @@ export default defineComponent({
                 updateDeviceList();
             };
             await updateDeviceList();
+            window.addEventListener("keyup", handleKeyup);
         });
         return {
             dialogVisible,
@@ -596,12 +678,17 @@ export default defineComponent({
             imageSrc,
             resultRef,
             cv,
+            IdentifyTip,
+            IdeStudentID,
+            CheckQuestionResultList,
+            selectResult,
             close,
             handleClose,
             discern,
             getMissionDetail,
             recognition,
-            initPage
+            initPage,
+            mousedown
         };
     }
 });
@@ -627,35 +714,41 @@ body {
     flex: 1;
 	.students{
 		position: absolute;
-    top: 0;
-    left: 0;
+        top: 0;
+        left: 0;
 		padding: 40px 30px;
-    display: flex;
-    flex-direction: column;
-    flex:1;
-    min-width: 0;
-    min-height: 0;
-    z-index: 10;
-    height: calc(100vh - 7rem);
-    overflow-y:auto ;
-    .student-list-item{
-      padding: 1.2rem 1rem;
-      background-color: #000000;
-      border-radius: 0.4rem;
-      opacity: 0.5;
-      color: white;
-      margin-top: 0.5rem;
-      width: 11.2rem;
-      height: 4.2rem;
-      cursor : pointer;
-    }
+        display: flex;
+        flex-direction: column;
+        flex:1;
+        min-width: 0;
+        min-height: 0;
+        z-index: 10;
+        height: calc(100vh - 7rem);
+        overflow-y:auto ;
+        .student-list-item{
+            padding: 1.2rem 1rem;
+            background-color: #000000;
+            border-radius: 0.4rem;
+            opacity: 0.5;
+            color: white;
+            margin-top: 0.5rem;
+            width: 11.2rem;
+            height: 4.2rem;
+            cursor : pointer;
+        }
+        .discern-now{
+            widows: 33rem;
+            height: 8rem;
+            border:solid 1px cornflowerblue;
+            border-radius: 5px;
+        }
 	}
 	.buttonDiscern{
 		position: absolute;
 		bottom: 5px;
 		right: 30px;
-		widows: 400px;
-		height: 100px;
+		widows: 500px;
+		height: 600px;
 	}
     .video {
       position: relative;
@@ -667,6 +760,21 @@ body {
         height: 100%;
         position: absolute;
       }
+      .overlay-wrapper {
+        position:absolute;
+        height:10%;
+        width:60%;
+        top:0;
+        left:18%;
+        z-index:200;
+        display:block;
+        text-align: center;
+        padding-top: 20px;
+        span{
+            color: rgb(95, 80, 80);
+            font-size:25px;
+        }
+      }
     }
   }
   .top {
@@ -677,9 +785,26 @@ body {
     align-items: center;
     justify-content: flex-end;
     padding-right: 20px;
+    .workbook-info {
+        position: absolute;
+        left:5%;
+        transform: translateX(-50%);
+        display: flex;
+        align-items: center;
+        span {
+            color: #0d0e11;
+            font-size: 20px;
+            margin-left: 15px;
+            margin-right: 5px;
+            font-weight: bold;
+        }
+        img {
+        width: 36px;
+      }
+    }
     .camera-select {
       position: absolute;
-      left: 50%;
+      left: 85%;
       transform: translateX(-50%);
       display: flex;
       align-items: center;

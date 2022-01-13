@@ -158,6 +158,7 @@ export interface CheckQuestionResult{
     MarginTop: number;
     SizeWidth: number;
     SizeHeight: number;
+    Number:int;
 }
 
 export interface CheckUpdateIn{
