@@ -125,7 +125,7 @@
 <script lang="ts">
 import useUploadFile from "@/hooks/useUploadFile";
 import { CommHomework } from "@/types/assignHomework";
-import { downloadFile } from "@/utils/oss";
+import { getOssUrl } from "@/utils/oss";
 import { ElMessage } from "element-plus";
 import { UploadFile } from "element-plus/lib/components/upload/src/upload.type";
 import { defineComponent, reactive, ref, watch } from "vue";
@@ -232,7 +232,7 @@ export default defineComponent({
                         res.result.BookCoverFile.FileName +
                         "." +
                         res.result.BookCoverFile.Extention;
-                    downloadFile(key, res.result.BookCoverFile.Bucket).then((res) => {
+                    getOssUrl(key, res.result.BookCoverFile.Bucket).then((res) => {
                         bookImg.value = res;
                     });
                 } else {

@@ -71,7 +71,7 @@ import { defineComponent, ref, watchEffect, watch, onMounted, nextTick, onUnmoun
 import isElectronFun from "is-electron";
 import { getFileAndPauseByFile } from "./api";
 import useVideo, { formateSeconds } from "./hooks/useVideo";
-import { downloadFile } from "@/utils/oss";
+import { getOssUrl } from "@/utils/oss";
 import Brush from "@/components/brush/index.vue";
 import { MutationTypes, store } from "@/store";
 export default defineComponent({
@@ -153,7 +153,7 @@ export default defineComponent({
                     const key = Extention
                         ? `${FilePath}/${FileName}.${Extention}`
                         : `${FilePath}/${FileName}`;
-                    const url = await downloadFile(key, Bucket);
+                    const url = await getOssUrl(key, Bucket);
                     if (url !== videoUrl.value) {
                         videoUrl.value = url;
                     }

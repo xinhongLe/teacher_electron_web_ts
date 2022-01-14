@@ -49,7 +49,7 @@
 <script lang="ts">
 import { computed, defineComponent, ref, watch } from "vue";
 import useUploadFile from "@/hooks/useUploadFile";
-import { downloadFile } from "@/utils/oss";
+import { getOssUrl } from "@/utils/oss";
 import { store } from "@/store";
 import useSubmit from "./useSubmit";
 
@@ -61,7 +61,7 @@ export default defineComponent({
         const { loadingShow, fileInfo, uploadFile, resetFileInfo } = useUploadFile("FeedBackFile");
 
         watch(fileInfo, async ({ objectKey, bucket }) => {
-            imgUrl.value = await downloadFile(objectKey, bucket);
+            imgUrl.value = await getOssUrl(objectKey, bucket);
         });
 
         watch(visible, () => {

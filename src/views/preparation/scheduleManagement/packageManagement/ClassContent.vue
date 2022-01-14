@@ -143,7 +143,7 @@ import useDrop from "./hooks/useDrop";
 import { lookVideo, lookQuestions, openFile } from "@/utils";
 import FileType from "@/components/fileType/index.vue";
 import { ElementFile } from "@/types/preparation";
-import { downloadFile } from "@/utils/oss";
+import { getOssUrl } from "@/utils/oss";
 export default defineComponent({
     setup() {
         const dialogVisible = ref(false);
@@ -221,7 +221,7 @@ export default defineComponent({
             if (file) {
                 const name = `${file.FileName}.${file.Extention}`;
                 const key = `${file.FilePath}/${name}`;
-                const url = await downloadFile(key, file.Bucket);
+                const url = await getOssUrl(key, file.Bucket);
                 openFile(url, name);
             }
         };

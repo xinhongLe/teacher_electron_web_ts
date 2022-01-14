@@ -129,7 +129,7 @@
 import { defineComponent, onMounted, ref, watch } from "vue";
 import { Game } from "./interface";
 import { getToolList } from "@/api/index";
-import { downloadFile } from "@/utils/oss";
+import { getOssUrl } from "@/utils/oss";
 import isElectron from "is-electron";
 import { ElMessage } from "element-plus";
 import { fetchSubjectPublisherBookList } from "@/views/preparation/api";
@@ -198,7 +198,7 @@ export default defineComponent({
                     const { File } = item;
                     const { FileName, Bucket, FilePath, Extention } = File;
                     const key = `${FilePath}/${FileName}.${Extention}`;
-                    return downloadFile(key, Bucket);
+                    return getOssUrl(key, Bucket);
                 });
                 const imgList = await Promise.all(imgListPromise);
                 gameList.value = list.map((item, index) => ({

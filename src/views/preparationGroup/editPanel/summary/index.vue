@@ -53,7 +53,7 @@
 import { defineComponent, ref, toRefs, reactive, onMounted, nextTick, watch, getCurrentInstance } from "vue";
 import { useRoute } from "vue-router";
 import useUploadFile from "@/hooks/useUploadFile";
-import { downloadFile } from "@/utils/oss";
+import { getOssUrl } from "@/utils/oss";
 import isElectron from "is-electron";
 import { ElMessage } from "element-plus";
 import moment from "moment";
@@ -120,12 +120,12 @@ export default defineComponent({
             const item = ite.ReflectFiles;
             let url = "";
             if (item.FilePath && item.FileMD5 && item.Extention && item.Bucket) {
-                url = await downloadFile(`${item.FilePath}/${item.FileMD5}.${item.Extention}`, item.Bucket);
+                url = await getOssUrl(`${item.FilePath}/${item.FileMD5}.${item.Extention}`, item.Bucket);
             } else if (item.path && item.md5 && item.bucket) {
                 if (item.extention) {
-                    url = await downloadFile(`${item.path}/${item.md5}.${item.extention}`, item.bucket);
+                    url = await getOssUrl(`${item.path}/${item.md5}.${item.extention}`, item.bucket);
                 } else if (item.fileExtension) {
-                    url = await downloadFile(`${item.path}/${item.md5}.${item.fileExtension}`, item.bucket);
+                    url = await getOssUrl(`${item.path}/${item.md5}.${item.fileExtension}`, item.bucket);
                 }
             }
             const previewUrl = "https://owa.lyx-edu.com/op/view.aspx?src=" + encodeURIComponent(url);

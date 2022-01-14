@@ -1,6 +1,6 @@
 import { store } from "@/store";
 import { FileInfo, Question } from "@/types/lookQuestion";
-import { downloadFile } from "@/utils/oss";
+import { getOssUrl } from "@/utils/oss";
 import { get, STORAGE_TYPES } from "@/utils/storage";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { computed, ref, watchEffect } from "vue";
@@ -34,7 +34,7 @@ export default (isPureQuestion: boolean, questionId = "", emit: (event: string, 
         const key = Extention
             ? `${FilePath}/${FileName}.${Extention}`
             : `${FilePath}/${FileName}`;
-        return downloadFile(key, Bucket);
+        return getOssUrl(key, Bucket);
     }
 
     async function getFileList(files: FileInfo[], type: number) {

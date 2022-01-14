@@ -1,6 +1,7 @@
 import isElectron from "is-electron";
 import { Slide } from "wincard/src/types/slides";
-import { downloadFile } from "./oss";
+import { getOssUrl } from "./oss";
+
 export const cacheFile = async (key: string) => {
     if (!key) return;
     return new Promise((resolve) => {
@@ -11,8 +12,8 @@ export const cacheFile = async (key: string) => {
                 if (isExist) {
                     resolve(window.electron.getFilePath(fileName));
                 } else {
-                    downloadFile(key, "axsfile").then(filePath => {
-                        window.electron.ipcRenderer.invoke("downloadFile", filePath, fileName).then(path => resolve("file://" + path));
+                    getOssUrl(key, "axsfile").then(filePath => {
+                        window.electron.ipcRenderer.invoke("downloadFile", filePath, fileName).then(path => resolve(path ? "file://" + path : ""));
                     });
                 }
             });

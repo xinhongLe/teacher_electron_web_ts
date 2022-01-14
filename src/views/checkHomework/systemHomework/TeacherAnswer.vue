@@ -19,7 +19,7 @@
 
 <script lang="ts">
 import { QuestionDetail } from "@/types/checkHomework";
-import { downloadFile } from "@/utils/oss";
+import { getOssUrl } from "@/utils/oss";
 import { computed, defineComponent, PropType, reactive, ref, watch, watchEffect } from "vue";
 import EmptyImage from "./EmptyImage.vue";
 import useTeacherAnswerLoad from "./hooks/useTeacherAnswerLoad";
@@ -81,7 +81,7 @@ export default defineComponent({
                 if (fileInfo.value) {
                     const { Bucket, Extention, FileName, FilePath } = fileInfo.value;
                     const key = `${FilePath}/${FileName}.${Extention}`;
-                    imgUrl.value = await downloadFile(key, Bucket);
+                    imgUrl.value = await getOssUrl(key, Bucket);
                 } else {
                     imgUrl.value = "";
                 }

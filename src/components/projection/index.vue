@@ -12,7 +12,7 @@
 
 <script lang="ts">
 import { LYXSocketInputDTO } from "@/types";
-import { downloadFile } from "@/utils/oss";
+import { getOssUrl } from "@/utils/oss";
 import isElectron from "is-electron";
 import { defineComponent, onUnmounted, ref } from "vue";
 import ProjectionContent from "./ProjectionContent.vue";
@@ -28,7 +28,7 @@ export default defineComponent({
             const imgListPromise = fileList.map((file) => {
                 const { extention, fileName, filePath, bucket } = file;
                 const key = `${filePath}/${fileName}.${extention}`;
-                return downloadFile(key, bucket);
+                return getOssUrl(key, bucket);
             });
             imgList.value = await Promise.all(imgListPromise);
             isShow.value = true;

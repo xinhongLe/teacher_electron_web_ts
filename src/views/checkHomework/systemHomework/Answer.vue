@@ -38,7 +38,7 @@
 <script lang="ts">
 import { QuestionFile, SpeechAssessResult } from "@/types/checkHomework";
 import { FileInfo } from "@/types/lookQuestion";
-import { downloadFile } from "@/utils/oss";
+import { getOssUrl } from "@/utils/oss";
 import { defineComponent, PropType, ref, watchEffect } from "vue";
 import axios from "axios";
 import Question from "./Question.vue";
@@ -122,10 +122,10 @@ export default defineComponent({
             const { Extention, FilePath, FileName, Bucket } = file;
             if (Extention) {
                 const key = FilePath + "/" + FileName + "." + Extention;
-                url = await downloadFile(key, Bucket);
+                url = await getOssUrl(key, Bucket);
             } else {
                 const key = FilePath + "/" + FileName;
-                url = await downloadFile(key, Bucket);
+                url = await getOssUrl(key, Bucket);
             }
             return url;
         };

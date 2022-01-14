@@ -16,7 +16,7 @@
 
 <script lang="ts">
 import { QuestionDetail } from "@/types/checkHomework";
-import { downloadFile } from "@/utils/oss";
+import { getOssUrl } from "@/utils/oss";
 import { defineComponent, PropType, watchEffect, ref, reactive, onMounted, onUnmounted, watch, computed } from "vue";
 import useTeacherAnswerLoad from "./hooks/useTeacherAnswerLoad";
 export default defineComponent({
@@ -94,7 +94,7 @@ export default defineComponent({
                 if (fileInfo) {
                     const { Bucket, Extention, FileName, FilePath } = fileInfo;
                     const key = `${FilePath}/${FileName}.${Extention}`;
-                    imgUrl.value = await downloadFile(key, Bucket);
+                    imgUrl.value = await getOssUrl(key, Bucket);
                 }
             }
         });
