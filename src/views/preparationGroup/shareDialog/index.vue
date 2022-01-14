@@ -304,7 +304,7 @@ export default defineComponent({
             state.dynamicTags = [];
             if (props.isEdit && dynamicTagsSession && dynamicTagsSession.length > 0) {
                 dynamicTagsSession.map((v: any) => {
-                    if (v.ID !== (get(STORAGE_TYPES.USER_INFO) && get(STORAGE_TYPES.USER_INFO).ID)) {
+                    if (get(STORAGE_TYPES.USER_INFO) && (v.ID !== get(STORAGE_TYPES.USER_INFO).ID)) {
                         state.dynamicTags.push({
                             Active: false,
                             ID: v.ID,
@@ -328,7 +328,7 @@ export default defineComponent({
                                 Name: item.Name,
                                 Active: false
                             };
-                            if (item.Name && item.Name.length > 0 && item.ID !== (get(STORAGE_TYPES.USER_INFO) && get(STORAGE_TYPES.USER_INFO).ID)) teacherList.value.push(resp);
+                            if (item.Name && item.Name.length > 0 && get(STORAGE_TYPES.USER_INFO) && (item.ID !== get(STORAGE_TYPES.USER_INFO).ID)) teacherList.value.push(resp);
                         });
                     }
                 }
@@ -467,7 +467,7 @@ export default defineComponent({
         };
 
         const handleClose = (tag: any, index: number) => {
-            if (tag.ID === get(STORAGE_TYPES.USER_INFO) && get(STORAGE_TYPES.USER_INFO).ID) {
+            if (get(STORAGE_TYPES.USER_INFO) && (tag.ID === get(STORAGE_TYPES.USER_INFO).ID)) {
                 ElMessage.info("主备课人无法删除");
                 return;
             }

@@ -164,7 +164,11 @@ export default defineComponent({
         };
         onMounted(() => {
             proxy.mittBus.on("PreDetail", (preDetail: any) => {
-                isHasRule.value = preDetail.CreaterID === get(STORAGE_TYPES.USER_INFO) && get(STORAGE_TYPES.USER_INFO).ID;
+                if (get(STORAGE_TYPES.USER_INFO)) {
+                    isHasRule.value = preDetail.CreaterID === get(STORAGE_TYPES.USER_INFO).ID;
+                } else {
+                    isHasRule.value = false;
+                }
             });
             getTableList();
         });
