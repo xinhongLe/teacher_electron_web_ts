@@ -215,7 +215,7 @@ export default defineComponent({
         const filesrc = ref("");
         const dialogVisible = ref(false);
         const loadingShow = ref(false);
-        const isHasRule = ref(props.content.CreaterID === get(STORAGE_TYPES.USER_INFO) && get(STORAGE_TYPES.USER_INFO).ID);
+        const isHasRule = ref(props.content.CreaterID === get(STORAGE_TYPES.USER_INFO).ID);
         const router = useRouter();
         const route = useRoute();
         const state = reactive({
