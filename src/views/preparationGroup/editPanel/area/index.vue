@@ -460,6 +460,7 @@ export default defineComponent({
         };
 
         const turnToAnnotation = () => {
+            localStorage.setItem("discussContent", JSON.stringify(props.content));
             router.push(`/annotation/${props.content.DiscussionContentID}/${route.params.preId}/${props.teacherCount}`);
         };
         const onSuccess = () => {
