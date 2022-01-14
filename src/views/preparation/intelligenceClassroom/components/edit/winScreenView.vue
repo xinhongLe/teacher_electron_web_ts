@@ -1,6 +1,6 @@
 <template>
     <div class="view-box">
-        <ScreenView ref="screenRef" @offScreen="offScreen" :keyDisabled="keyDisabled" :isInit="isInit" :slide="slideView"  @openCard="openCard"  @pagePrev="pagePrev()" @pageNext="pageNext()"/>
+        <ScreenView ref="screenRef"  @openMenu="openMenu" @offScreen="offScreen" :keyDisabled="keyDisabled" :isInit="isInit" :slide="slideView"  @openCard="openCard"  @pagePrev="pagePrev()" @pageNext="pageNext()"/>
 
         <div class="right-fixed" v-if="showCollapse">
             <div class="right-content" >
@@ -8,9 +8,9 @@
                 <div :class="['text', index === i ? 'active': '']" @click="handleActive(i)" v-for="(item, i) in pageList" :KEY="item.ID">{{item.Name}}</div>
             </div>
         </div>
-        <div :class="['fixed-box', showCollapse ? 'showCollapseClass' : 'hideCollapseClass']" @click="showCollapse = !showCollapse">
-            <i class="el-icon-menu"></i>
-        </div>
+<!--        <div :class="['fixed-box', showCollapse ? 'showCollapseClass' : 'hideCollapseClass']" @click="showCollapse = !showCollapse">-->
+<!--            <i class="el-icon-menu"></i>-->
+<!--        </div>-->
 
         <!-- 弹卡-->
         <open-card-view-dialog v-if="dialogVisible" :cardList="cardList"
@@ -74,6 +74,10 @@ export default defineComponent({
         const handleActive = (i) => {
             index.value = i;
             getSlideData();
+        };
+
+        const openMenu = () => {
+            showCollapse.value = !showCollapse.value;
         };
 
         const getSlideData = async () => {
@@ -154,6 +158,7 @@ export default defineComponent({
             cardList,
             showCollapse,
             index,
+            openMenu,
             pageNext,
             pagePrev,
             openCard,
