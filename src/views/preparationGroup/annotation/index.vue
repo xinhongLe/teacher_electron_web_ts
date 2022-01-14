@@ -48,6 +48,7 @@
                     :teacherList="teacherList"
                     :cardID="cardID"
                     :pageID="pageID"
+                    :lessonItem="lessonItem"
                     @successAdd="successAdd"
                     @selectTeacher="selectTeacher"
                 ></AnnotationList>
