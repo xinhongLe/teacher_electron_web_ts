@@ -45,7 +45,11 @@ export interface PreparationState {
     /**
      * 是否是点击详情跳转的
      */
-    isClickDetail: boolean
+    isClickDetail: boolean,
+    /**
+     * 窗卡页下一步按钮位置
+     */
+    selectNextType: string,
 }
 
 export interface CommonState {

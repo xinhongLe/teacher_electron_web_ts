@@ -9,6 +9,7 @@ const initState = (): PreparationState => ({
     selectCourseBag: {},
     isDraggingElement: false,
     isClickDetail: false,
+    selectNextType: "",
     subjectPublisherBookValue: []
 });
 
@@ -30,6 +31,9 @@ const mutations:MutationTree<PreparationState> = {
     },
     [MutationTypes.SET_IS_CLICK_DETAIL](state, flag) {
         state.isClickDetail = flag;
+    },
+    [MutationTypes.SET_SELECT_NEXT_TYPE](state, flag) {
+        state.selectNextType = flag;
     },
     [MutationTypes.PREPARATION_STUDENT_RESET_STATE](state) {
         Object.assign(state, initState());

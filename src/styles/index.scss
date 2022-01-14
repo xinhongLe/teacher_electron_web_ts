@@ -8,6 +8,9 @@ html {
         -moz-osx-font-smoothing: grayscale;
         -webkit-font-smoothing: antialiased;
         text-rendering: optimizeLegibility;
+        .el-dialog {
+            -webkit-app-region: no-drag;
+        }
         .el-select-dropdown {
             -webkit-app-region: no-drag;
         }

@@ -85,7 +85,11 @@ export const enum MutationTypes {
     /**
      * 设置备教端iframe状态在local：1 被嵌在iframe， 0 备教端
      */
-    LOCAL_IS_IFRAME = "LOCAL_IS_IFRAME"
+    LOCAL_IS_IFRAME = "LOCAL_IS_IFRAME",
+    /**
+     * 设置窗卡页下一步按钮位置
+     */
+    SET_SELECT_NEXT_TYPE = "SET_SELECT_NEXT_TYPE"
 
 }
 

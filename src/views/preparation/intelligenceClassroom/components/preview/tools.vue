@@ -2,18 +2,35 @@
     <div class="me-tools" ref="metools">
         <div class="me-tools-set">
             <div class="setting" v-show="isShowMenu">
-                <span @click.stop="isShowSubMenu = true" class="setting-item">【下一步】位置设置 ></span>
+                <span @click.stop="isShowSubMenu = true" class="setting-item"
+                    >【下一步】位置设置 ></span
+                >
                 <div class="setting-sub-menu" v-show="isShowSubMenu">
-                    <div v-for="item in nextSettingTypeList" :key="item.text" class="menu" @click="selectNextType = item.type">
-                        {{item.text}}
+                    <div
+                        v-for="item in nextSettingTypeList"
+                        :key="item.text"
+                        class="menu"
+                        @click="changeNextType(item.type)"
+                    >
+                        {{ item.text }}
                     </div>
                 </div>
             </div>
-            <div class="me-tool-btn setting-btn" @click.stop="isShowMenu = true">
-                <img src="../../images/btn_more.png"/>
+            <div
+                class="me-tool-btn setting-btn"
+                @click.stop="isShowMenu = true"
+            >
+                <img src="../../images/btn_more.png" />
             </div>
-            <div class="me-tool-btn setting-btn" @click="nextStep" v-show="selectNextType === NextSettingType.Left || selectNextType === NextSettingType.All">
-                <img src="../../images/btn_next.png"/>
+            <div
+                class="me-tool-btn setting-btn"
+                @click="nextStep"
+                v-show="
+                    selectNextType === NextSettingType.Left ||
+                    selectNextType === NextSettingType.All
+                "
+            >
+                <img src="../../images/btn_next.png" />
             </div>
         </div>
         <div class="me-tools-screen"></div>
@@ -52,13 +69,20 @@
             </div>
         </div>
         <div class="me-tools-system">
-            <div class="me-tool-btn" @click="fullScreen" v-if="!activeFlag">
-                <img src="../../images/quanping_rest.png" alt="" />
-            </div>
-            <div class="me-tool-btn" @click="fillScreen" v-else>
-                <img src="../../images/tuichuquanping_rest.png" alt="" />
-            </div>
-            <div class="me-tool-btn" @click="toggleRemark">
+            <template v-if="isShowFullscreen">
+                <div class="me-tool-btn" @click="fullScreen" v-if="!activeFlag">
+                    <img src="../../images/quanping_rest.png" alt="" />
+                </div>
+                <div class="me-tool-btn" @click="fillScreen" v-else>
+                    <img src="../../images/tuichuquanping_rest.png" alt="" />
+                </div>
+            </template>
+
+            <div
+                class="me-tool-btn"
+                @click="toggleRemark"
+                v-if="isShowRemarkBtn"
+            >
                 <img
                     v-if="!showremark"
                     src="../../images/xianshibeizhu_rest.png"
@@ -88,7 +112,10 @@
                 class="me-tool-btn next-step"
                 :disabled="isLast"
                 @click="nextStep"
-                v-show="selectNextType === NextSettingType.Right || selectNextType === NextSettingType.All"
+                v-show="
+                    selectNextType === NextSettingType.Right ||
+                    selectNextType === NextSettingType.All
+                "
             >
                 <img
                     v-if="!isLast"
@@ -102,24 +129,44 @@
                 />
             </div>
         </div>
+        <div class="me-tool-btn" v-if="isShowClose" @click="$emit('close')">
+                <img src="../../images/guanbi_rest.png" />
+            </div>
     </div>
 </template>
 
 <script lang="ts">
-import { ref, defineComponent, watch, onMounted, onUnmounted } from "vue";
-import { enterFullscreen, exitFullscreen, isFullscreen } from "@/utils/fullscreen";
+import { ref, defineComponent, watch, onMounted, onUnmounted, computed, onActivated, onDeactivated } from "vue";
+import {
+    enterFullscreen,
+    exitFullscreen,
+    isFullscreen
+} from "@/utils/fullscreen";
 import { useRouter } from "vue-router";
 import isElectron from "is-electron";
 import { sleep } from "@/utils/common";
-import { get, STORAGE_TYPES, set } from "@/utils/storage";
-import { store } from "@/store";
-enum NextSettingType {
-    Right = "right",
-    Left = "left",
-    All = "all"
-}
+import { STORAGE_TYPES, set, get } from "@/utils/storage";
+import { MutationTypes, store } from "@/store";
+import { NextSettingType } from "@/types/preparation";
 export default defineComponent({
-    props: ["showRemark"],
+    props: {
+        showRemark: {
+            type: Boolean,
+            default: true
+        },
+        isShowRemarkBtn: {
+            type: Boolean,
+            default: true
+        },
+        isShowFullscreen: {
+            type: Boolean,
+            default: true
+        },
+        isShowClose: {
+            type: Boolean,
+            default: false
+        }
+    },
     setup(props, { emit }) {
         const router = useRouter();
         const type = ref("mouse");
@@ -127,7 +174,7 @@ export default defineComponent({
         const isFirst = ref(false);
         const showremark = ref(true);
         const scale = ref(1);
-        const selectNextType = ref(getLocalNextType());
+        const selectNextType = computed(() => store.state.preparation.selectNextType);
         const goback = () => {
             router.push("/");
         };
@@ -135,16 +182,20 @@ export default defineComponent({
         const activeFlag = ref(false);
         const isShowMenu = ref(false);
         const isShowSubMenu = ref(false);
-        const nextSettingTypeList = [{
-            text: "仅右侧",
-            type: NextSettingType.Right
-        }, {
-            text: "仅左侧",
-            type: NextSettingType.Left
-        }, {
-            text: "左右侧",
-            type: NextSettingType.All
-        }];
+        const nextSettingTypeList = [
+            {
+                text: "仅右侧",
+                type: NextSettingType.Right
+            },
+            {
+                text: "仅左侧",
+                type: NextSettingType.Left
+            },
+            {
+                text: "左右侧",
+                type: NextSettingType.All
+            }
+        ];
         watch(
             () => props.showRemark,
             () => {
@@ -152,22 +203,39 @@ export default defineComponent({
             }
         );
 
-        watch(selectNextType, (v) => {
-            set(STORAGE_TYPES.NEXT_SETTING + store.state.userInfo.id, v);
-        });
+        const changeNextType = (type: NextSettingType) => {
+            store.commit(MutationTypes.SET_SELECT_NEXT_TYPE, type);
+            set(STORAGE_TYPES.NEXT_SETTING + store.state.userInfo.id, type);
+        };
+
         const hideMenu = () => {
             isShowMenu.value = false;
             isShowSubMenu.value = false;
         };
-        onMounted(() => {
+
+        const addEvent = () => {
             window.addEventListener("keydown", keyDown);
             window.addEventListener("resize", onResize);
-            window.addEventListener("click", hideMenu);
-        });
-        onUnmounted(() => {
+            document.addEventListener("click", hideMenu);
+        };
+
+        const removeEvent = () => {
             window.removeEventListener("resize", onResize);
             window.removeEventListener("keydown", keyDown);
-            window.removeEventListener("click", hideMenu);
+            document.removeEventListener("click", hideMenu);
+        };
+
+        onMounted(() => {
+            addEvent();
+        });
+        onUnmounted(() => {
+            removeEvent();
+        });
+        onActivated(() => {
+            addEvent();
+        });
+        onDeactivated(() => {
+            removeEvent();
         });
         const onResize = async () => {
             if (switchFlag.value && isFullscreen()) {
@@ -192,7 +260,7 @@ export default defineComponent({
         const nextStep = () => {
             emit("nextStep");
         };
-        const keyDown = async (e:any) => {
+        const keyDown = async (e: any) => {
             if (!isElectron()) return false;
             if (e.keyCode === 27) {
                 if (!activeFlag.value) return false;
@@ -204,7 +272,11 @@ export default defineComponent({
         };
         // 点击全屏
         const fullScreen = async () => {
-            if ((window as any).electron && !(window as any).electron.isFullScreen() && !(window as any).electron.isMac()) {
+            if (
+                (window as any).electron &&
+                !(window as any).electron.isFullScreen() &&
+                !(window as any).electron.isMac()
+            ) {
                 (window as any).electron.setFullScreen();
                 await sleep(300);
             }
@@ -228,9 +300,14 @@ export default defineComponent({
         };
 
         function getLocalNextType() {
-            const type = get(STORAGE_TYPES.NEXT_SETTING + store.state.userInfo.id);
-            return type || NextSettingType.All;
+            const type = get(
+                STORAGE_TYPES.NEXT_SETTING + store.state.userInfo.id
+            );
+            changeNextType(type || NextSettingType.All);
         }
+
+        getLocalNextType();
+
         return {
             scale,
             type,
@@ -244,6 +321,7 @@ export default defineComponent({
             nextStep,
             fullScreen,
             fillScreen,
+            changeNextType,
             isShowSubMenu,
             nextSettingTypeList,
             showWriteBoard,
@@ -257,13 +335,12 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-
 .me-tools {
     background-color: #bccfff;
     padding: 10px;
     display: flex;
     position: relative;
-    &.tools-fullSrceen{
+    &.tools-fullSrceen {
         position: fixed;
         bottom: 0;
         left: 0;
@@ -274,14 +351,13 @@ export default defineComponent({
                 position: absolute;
             }
         }
-
     }
     .me-tools-set {
         position: fixed;
-        transform: translate(-100%);
-        width: 170px;
+        transform: translate(-168px);
+        width: fit-content;
         .setting {
-            position: fixed;
+            position: absolute;
             top: -55px;
             left: 10px;
             color: #fff;
