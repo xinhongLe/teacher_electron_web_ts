@@ -48,8 +48,7 @@
                 <template v-if="info.HomeworkPaperType == 1"
                     >时长：{{
                         formatDuration(info.VideoDurationTick)
-                    }}</template
-                >
+                    }}</template>
             </span>
             <span>
                 <template

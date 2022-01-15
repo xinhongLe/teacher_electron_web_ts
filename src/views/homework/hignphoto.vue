@@ -53,6 +53,7 @@
                 <div>
                     <el-button>✔</el-button> <el-button>✖</el-button>
                 </div>
+                <div><el-button type="primary">重新识别此页</el-button></div>
             </div>
           <el-button type="primary" style="width:180px;height:80px;position:relative;top:380px;left:250px;" v-if="studentMission!=null" @click="discern">识别(键盘[Enter]键)</el-button>
         </div>
