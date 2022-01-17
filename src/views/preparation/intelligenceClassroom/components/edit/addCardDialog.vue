@@ -1,10 +1,10 @@
 <template>
-    <el-dialog v-model="visible" title="请添加卡名称" width="30%" center @close="close">
+    <el-dialog v-if="visible" v-model="visible" title="请添加卡名称" width="30%" center @close="close">
         <div class="page-type-box">
-            <el-form ref="ruleForm" :model="form" :rules="rules"
-                     label-width="120px">
+            <el-form ref="ruleForm" :model="form" :rules="rules" label-width="120px" @submit.prevent="() => false">
                 <el-form-item label="名称" prop="name">
                     <el-input
+                        @keyup.enter="handleComfirm"
                         v-model="form.name"
                     ></el-input>
                 </el-form-item>
@@ -23,7 +23,7 @@
 
 </script>
 <script lang="ts">
-import { computed, defineComponent, watch, reactive, toRefs, ref } from "vue";
+import { computed, defineComponent, reactive, toRefs, ref } from "vue";
 
 export default defineComponent({
     name: "addCardDialog",
@@ -50,7 +50,11 @@ export default defineComponent({
         const visible = computed(() => props.dialogVisible);
 
         const handleComfirm = () => {
-            emit("handleAddCard", form.value.name);
+            ruleForm.value.validate((valid: Boolean) => {
+                if(valid){
+                    emit("handleAddCard", form.value.name);
+                }
+            })
         };
         const close = () => {
             form.value.name = "";

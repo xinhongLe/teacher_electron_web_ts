@@ -48,7 +48,7 @@ export default () => {
                 const slideString = res.result.Json || "{}";
                 const oldSlide = JSON.parse(slideString);
                 // 素材页如果是新数据直接赋值，旧数据dealOldData处理
-                newSlide = oldSlide.type ? oldSlide : await dealOldData(page.ID, oldSlide);
+                newSlide = oldSlide.type ? oldSlide : await dealOldData(page.ID, 0, oldSlide);
             } else if (page.Type === pageType.listen) {
                 newSlide = dealOldDataWord(page.ID, res.result);
             } else if (page.Type === pageType.follow) {

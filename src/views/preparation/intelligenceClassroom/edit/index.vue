@@ -139,6 +139,7 @@
         <div class="right">
             <win-card-edit
                 ref="editRef"
+                :isWatchChange="isWatchChange"
                 :pageValue="pageValue"
                 :isSetCache="isSetCache"
                 :allPageList="allPageList"
@@ -248,6 +249,9 @@ export default defineComponent({
             _deleteCardOrPage, _addPage, _renameCardOrPage,
             _setCardOrPageState, _addCard, _copyPage, dragDealData
         } = useSelectBookInfo();
+
+        const isWatchChange = ref(true); // 是否是监听改变的pageValue
+
         const handleNodeClick = (data: IPageValue, Node: Node | null) => {
             if (Node) {
                 activeAllPageListIndex.value = allPageList.value.findIndex(item => item.ID === data.ID);
@@ -260,16 +264,18 @@ export default defineComponent({
                     type: "warning"
                 })
                     .then(() => {
-                        selectPageValue(data);
+                        selectPageValue(data, false);
                     })
                     .catch((err) => {
                         return err;
                     });
             } else {
-                selectPageValue(data);
+                selectPageValue(data, false);
             }
         };
-        const selectPageValue = (data: { ID: string; Type: number }) => {
+
+        const selectPageValue = (data: { ID: string; Type: number }, flag: boolean) => {
+            isWatchChange.value = flag;
             pageValue.value = data;
             setDomClass();
         };
@@ -353,7 +359,7 @@ export default defineComponent({
                 };
                 _copyPage(value);
             } else {
-                ElMessage({ type: "warning", message: "请先复制的卡" });
+                ElMessage({ type: "warning", message: "请先复制页" });
             }
         };
 
@@ -438,16 +444,17 @@ export default defineComponent({
         watch(
             () => state.windowCards,
             () => {
+                allPageList.value = getAllPageList(state.windowCards);
                 if (state.windowCards.length > 0) {
-                    allPageList.value = getAllPageList(state.windowCards);
-                    // 先判断是否是粘贴的卡 如果是粘贴卡先选中粘贴卡
+                    // 先判断是否是粘贴/新增的卡 如果是粘贴/新增卡先选中粘贴/新增卡
                     if (state.pastePage && state.pastePage.ID) {
-                        selectPageValue(state.pastePage);
+                        selectPageValue(state.pastePage, false);
                         activeAllPageListIndex.value = allPageList.value.findIndex(item => item.ID === state.pastePage!.ID);
                         state.pastePage = null;
                         return;
                     }
 
+                    // 拖拽排序选中当前页
                     if (pageValue.value.ID) {
                         // 需要更新当前选中页的上下架状态等
                         const newPageValue = allPageList.value.find(item => item.ID === pageValue.value.ID);
@@ -457,12 +464,11 @@ export default defineComponent({
                         const obj: { ID: string; Type: number } = {
                             ...pageValue.value
                         };
-                        selectPageValue(obj);
+                        selectPageValue(obj, true);
                     } else {
                         const winCard = selectFirstPage(state.windowCards);
-                        console.log("pppppppppppp");
                         if (winCard) {
-                            selectPageValue(winCard.PageList[0]);
+                            selectPageValue(winCard.PageList[0], true);
                         }
                     }
                 }
@@ -568,6 +574,7 @@ export default defineComponent({
             dialogVisibleName,
             tooltipShow,
             winScreenView,
+            isWatchChange,
             mouseenter,
             mouseleave,
             handleNodeClick,

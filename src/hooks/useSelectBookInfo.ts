@@ -175,6 +175,13 @@ export default () => {
     const _addPage = (data: IAddPage) => {
         addPage(data).then(res => {
             if (res.resultCode === 200) {
+                state.pastePage = {
+                    ID: res.result.ID,
+                    Type: data.Type,
+                    TeachPageRelationID: res.result.TeachPageRelationID,
+                    State: res.result.State,
+                    Name: res.result.Name
+                };
                 ElMessage({ type: "success", message: "新增页成功" });
                 _getWindowCards({ WindowID: `${route.params.winValue}`, OriginType: 1 });
             }

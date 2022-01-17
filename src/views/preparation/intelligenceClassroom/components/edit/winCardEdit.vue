@@ -48,6 +48,10 @@ export default defineComponent({
         allPageList: {
             type: Array as PropType<IPageValue[]>,
             default: () => []
+        },
+        isWatchChange: {
+            type: Boolean,
+            default: () => true
         }
     },
     setup(props) {
@@ -64,8 +68,9 @@ export default defineComponent({
         let resPagesIds: string[] = []; // 已经请求过的页面ids
         let pageIdIng: string | null = null; // 正在请求的页id
         const { getPageDetail, savePage, transformType } = useHome();
+        const watchChange = computed(() => props.isWatchChange);
         watch(() => props.pageValue, async (val: IPageValue, oldVal) => {
-            if (transformType(val.Type) === -1) {
+            if (transformType(val.Type) === -1 || !val.ID) {
                 page.value = {
                     ID: val.ID,
                     Type: val.Type,
@@ -77,6 +82,7 @@ export default defineComponent({
             }
             if (val && val !== oldVal) {
                 page.value = val;
+                if (watchChange.value && props.isSetCache) return; // 更新窗且执行默认选中第一个走props.allPageList监听
                 if (val.ID) {
                     const dbResArr = await getWinCardDBData(val.ID);
                     if (dbResArr.length > 0) {
@@ -105,23 +111,23 @@ export default defineComponent({
                             }
                         }
                     }
-                } else {
-                    state.slide = {};
                 }
             }
         });
 
         watch(() => props.allPageList, async (val: IPageValue[]) => {
-            noResPages = [];
-            resPagesIds = [];
-            getAllPageList([]);
             if (props.isSetCache) {
-                const interval = setInterval(() => {
-                    if (!pageIdIng) {
-                        clearInterval(interval);
-                        getAllPageList(JSON.parse(JSON.stringify(val)));
-                    }
-                }, 300);
+                noResPages = [];
+                resPagesIds = [];
+                getAllPageList([]);
+                if (val && val.length > 0) {
+                    const interval = setInterval(() => {
+                        if (!pageIdIng) {
+                            clearInterval(interval);
+                            getAllPageList(JSON.parse(JSON.stringify(val)));
+                        }
+                    }, 300);
+                }
             }
         }, { deep: true });
 
@@ -131,7 +137,6 @@ export default defineComponent({
                 if (resPagesIds.includes(allPageList[0].ID) || transformType(allPageList[0].Type) === -1) {
                     allPageList.shift();
                     noResPages = allPageList;
-                    // set(STORAGE_TYPES.SET_NORESPAGES, pageIdIng);
                     timer = setTimeout(() => {
                         getAllPageList(noResPages);
                     }, 300);

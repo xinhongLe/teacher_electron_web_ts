@@ -1,10 +1,10 @@
 <template>
-    <el-dialog v-model="visible" title="请修改名称" width="60%" center @close="close">
+    <el-dialog v-model="visible" title="请修改名称" width="30%" center @close="close">
         <div class="page-type-box">
-            <el-form ref="ruleForm" :model="form" :rules="rules"
-                label-width="120px">
+            <el-form ref="ruleForm" :model="form" :rules="rules" label-width="120px" @submit.prevent="() => false">
                 <el-form-item label="名称" prop="name">
                     <el-input
+                        @keyup.enter="handleComfirm"
                         v-model="form.name"
                         autofocus
                     ></el-input>
