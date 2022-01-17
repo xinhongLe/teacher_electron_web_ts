@@ -8,6 +8,9 @@ export function fetchAllStudents(teacherId: string): Promise<IResponse<Student[]
     return request({
         baseURL: AI_XUE_SHI_API,
         url: "/Api/V2/Teacher/Student/GetAllStudents/V210918?teacherId=" + teacherId,
+        headers: {
+            noLoading: "true"
+        },
         method: "get"
     });
 }
