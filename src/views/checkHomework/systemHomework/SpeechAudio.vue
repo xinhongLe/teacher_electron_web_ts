@@ -86,7 +86,6 @@ export default defineComponent({
         };
 
         const playAudio = (i: number) => {
-            console.log(audioRef.value?.paused);
             if (!audioRef.value?.paused) {
                 playIndex.value = null;
                 return audioRef.value!.pause();

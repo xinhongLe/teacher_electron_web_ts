@@ -43,7 +43,7 @@ export default defineComponent({
 
         onMounted(() => {
             nextTick(() => {
-                fabCanvas.value = new window.fabric.Canvas("canvas", {
+                fabCanvas.value = new window.fabric.Canvas(canvasRef.value, {
                     width: Number(boxRef.value?.offsetWidth),
                     height: Number(boxRef.value?.offsetHeight)
                 });
