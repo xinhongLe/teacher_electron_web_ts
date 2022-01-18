@@ -86,9 +86,7 @@ export default defineComponent({
                 slideView.value = JSON.parse(dbResArr[0].result);
             } else {
                 await getPageDetail(pageList.value[index.value], 1, (res) => {
-                    if (res && res.id) {
-                        slideView.value = res;
-                    }
+                    slideView.value = res;
                 });
             }
         };

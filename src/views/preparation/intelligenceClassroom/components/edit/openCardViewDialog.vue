@@ -93,11 +93,18 @@ export default defineComponent({
             const dbResArr = await getWinCardDBData(cardList.value[index].ID);
             if (dbResArr.length > 0) {
                 slideView.value = JSON.parse(dbResArr[0].result);
+                if (!cardList.value[index].update) {
+                    // 更新本地缓存弹卡信息
+                    await getPageDetail(cardList.value[index], 0, (res: any) => {
+                        if (!res.from) { // 线上返回
+                            cardList.value[index].update = true; // 标识弹卡已经更新过
+                            if (dbResArr[0].result !== JSON.stringify(res)) slideView.value = res; // 本地缓存和线上不一致 重新赋值
+                        }
+                    });
+                }
             } else {
                 await getPageDetail(cardList.value[index], 0, (res: any) => {
-                    if (res && res.id) {
-                        slideView.value = res;
-                    }
+                    slideView.value = res;
                 });
             }
         };
