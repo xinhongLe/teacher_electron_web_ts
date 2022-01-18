@@ -56,6 +56,14 @@ function checkIsWelt() {
     }
 }
 
+function setWelt() {
+    const winPosition = suspensionWin.getPosition();
+    const size = screen.getPrimaryDisplay().workAreaSize;
+    suspensionWin.webContents.send("showWelt");
+    suspensionWin.setPosition(size.width - 20, winPosition[1]);
+    suspensionWin.setContentSize(20, 80);
+}
+
 function hideSuspensionIcon () {
     isShowTimer = false;
     isShowVideo = false;
@@ -217,6 +225,12 @@ export function createSuspensionWindow() {
     suspensionWin.on("moved", () => {
         setSuspensionSize(false);
         checkIsWelt();
+    });
+
+    suspensionWin.on("show", () => {
+        setTimeout(() => {
+            setWelt();
+        }, 3000);
     });
 }
 

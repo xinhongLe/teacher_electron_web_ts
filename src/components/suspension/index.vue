@@ -1,7 +1,7 @@
 <template>
     <div class="suspension-container">
         <div
-            v-show="isShowTimer && !isShowHelper"
+            v-show="isShowTimer && !isShowHelper && !isShowWelt"
             :style="
                 isElectron
                     ? undefined
@@ -16,7 +16,7 @@
         </div>
         <div
             class="video icon"
-            v-show="isShowVideo"
+            v-show="isShowVideo && !isShowWelt"
             ref="videoRef"
             @mousedown="mouseDown"
         >
@@ -24,7 +24,7 @@
         </div>
         <div
             class="question icon"
-            v-show="isShowQuestion"
+            v-show="isShowQuestion && !isShowWelt"
             ref="questionRef"
             @mousedown="mouseDown"
         >
@@ -32,7 +32,7 @@
         </div>
         <div
             class="blackboard icon"
-            v-show="isShowBlackBoard"
+            v-show="isShowBlackBoard && !isShowWelt"
             @mousedown="mouseDown"
             ref="blackboardRef"
         >
