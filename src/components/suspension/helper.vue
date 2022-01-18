@@ -134,7 +134,7 @@ import isElectron from "is-electron";
 import { ElMessage } from "element-plus";
 import { fetchSubjectPublisherBookList } from "@/views/preparation/api";
 import { BookList } from "@/types/preparation";
-import { get, STORAGE_TYPES } from "@/utils/storage";
+import { get, STORAGE_TYPES, storeChange } from "@/utils/storage";
 import { fetchAllStudents } from "@/views/labelManage/api";
 export default defineComponent({
     setup(props, { emit }) {
@@ -156,6 +156,7 @@ export default defineComponent({
         const selectBookList = ref(["全部教具"]);
         const isLoading = ref(false);
         const allStudentList = ref<unknown[]>([]);
+        let userInfo = get(STORAGE_TYPES.USER_INFO);
 
         const openBlackboard = () => {
             if (isElectron()) {
@@ -270,7 +271,6 @@ export default defineComponent({
         };
 
         const getStudentList = async () => {
-            const userInfo = get(STORAGE_TYPES.USER_INFO);
             const res = await fetchAllStudents(userInfo?.ID);
             if (res.resultCode === 200) {
                 allStudentList.value = res.result;
@@ -278,14 +278,19 @@ export default defineComponent({
         };
 
         onMounted(async () => {
-            getBookList();
-            getStudentList();
-            // if (isElectron()) {
-            //     window.electron.ipcRenderer.on("loginSuccess", (_, token) => {
-            //         set(STORAGE_TYPES.SET_TOKEN, token);
-            //         getBookList();
-            //     });
-            // }
+            if (userInfo) {
+                getBookList();
+                getStudentList();
+            }
+            if (isElectron()) {
+                storeChange(STORAGE_TYPES.USER_INFO, (value) => {
+                    if (value) {
+                        userInfo = get(STORAGE_TYPES.USER_INFO);
+                        getBookList();
+                        getStudentList();
+                    }
+                });
+            }
         });
 
         watch(selectBookList, getGradeList);

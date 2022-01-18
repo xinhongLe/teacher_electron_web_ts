@@ -262,6 +262,7 @@ export function registerEvent() {
     ipcMain.handle("closeSuspension", () => {
         suspensionWin && suspensionWin.hide();
         unfoldSuspensionWin && unfoldSuspensionWin.hide();
+        rollCallWin && rollCallWin.destroy();
         hideSuspensionIcon();
     });
 
@@ -369,9 +370,5 @@ export function registerEvent() {
             return projectionWin.show();
         }
         createProjectionWindow();
-    });
-
-    ipcMain.handle("loginSuccess", (_, token) => {
-        unfoldSuspensionWin && unfoldSuspensionWin.webContents.send("loginSuccess", token);
     });
 }
