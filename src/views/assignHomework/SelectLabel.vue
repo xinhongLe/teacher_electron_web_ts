@@ -97,7 +97,7 @@ export default defineComponent({
                 .map((item) => {
                     const { label, students } = item;
                     return `${label.replace("Level ", "")}(${getCheckCount(students)})`;
-                });
+                }).sort();
         });
 
         function getSelectCount() {
