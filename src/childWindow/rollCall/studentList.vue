@@ -11,7 +11,7 @@
         <div class="current-student-box">
             <template v-if="currentIndex >= 0">
                 <span class="name">{{currentStudent?.Name}}</span>
-                <Avatar :size="240" :file="currentStudent?.HeadPortrait"/>
+                <Avatar :size="240" :file="currentStudent?.HeadPortrait" :key="currentStudent?.StudentID"/>
             </template>
         </div>
         <div class="student-list" ref="studentListRef">
@@ -93,6 +93,8 @@ export default defineComponent({
         const reset = () => {
             selectStudent.value = [];
             unselectedStudent.value = [...props.studentList];
+            currentStudent.value = undefined;
+            currentIndex.value = -1;
         };
 
         const mousedown = (index: number) => {
