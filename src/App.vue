@@ -41,7 +41,7 @@ export default defineComponent({
         if (isElectron() && !window.electron.isMac()) {
             window.electron.ipcRenderer.invoke("checkForUpdate");
             window.electron.ipcRenderer.on("updateMessage", (_, text) => {
-                console.log(text);
+                // console.log(text);
             });
 
             window.electron.ipcRenderer.on(

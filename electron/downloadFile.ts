@@ -4,11 +4,13 @@ import { access, mkdir } from "fs/promises";
 import Axios from "Axios";
 import { createWriteStream, createReadStream } from "fs";
 import ElectronLog from "electron-log";
-const Store = require("electron-store");
+import Store from "electron-store";
 const crypto = require("crypto");
 type func = (value: unknown) => void;
 
-export const store = new Store();
+export const store = new Store({
+    watch: true
+});
 const downloadingFileList: string[] = []; // 下载中的文件列表
 const downloadSuccessCallbackMap = new Map<string, func[]>();
 export const appPath =

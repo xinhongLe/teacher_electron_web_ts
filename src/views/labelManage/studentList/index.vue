@@ -37,6 +37,7 @@
                                             item1.StudentID
                                         )
                                     "
+                                    @change="checkStudent(item1.StudentID)"
                                 ></el-checkbox>
                             </div>
                             <Avatar :file="item1.HeadPortrait"></Avatar>

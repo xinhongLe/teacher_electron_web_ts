@@ -61,7 +61,7 @@ export const set = (name: STORAGE_TYPES | string, value: unknown, isEncrypt = fa
     let newValue = typeof value === "string" ? value : JSON.stringify(value);
     newValue = isEncrypt ? encrypt(newValue) : newValue;
     if (isElectron()) {
-        (window as any).electron.store.set(`${PREFIX}_${name}`, newValue);
+        window.electron.store.set(`${PREFIX}_${name}`, newValue);
     } else {
         localStorage.setItem(`${PREFIX}_${name}`, newValue);
     }
@@ -82,6 +82,10 @@ export const get = (name: STORAGE_TYPES | string, isDecrypt = false) => {
         result = item;
     }
     return result;
+};
+
+export const storeChange = (name: STORAGE_TYPES | string, callback: (newValue: unknown, oldValue: unknown) => void) => {
+    return window.electron.store.onDidChange(`${PREFIX}_${name}`, callback);
 };
 
 export const remove = (name: string) => {

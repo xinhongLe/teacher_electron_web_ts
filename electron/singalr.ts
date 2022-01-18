@@ -8,7 +8,6 @@ export default class SingalRHelper {
     private isUserDisconnect = false;
 
     constructor(userId: string, window: BrowserWindow) {
-        console.log(userId);
         this.connection = new HubConnectionBuilder()
             .withUrl(`${AI_XUE_SHI_API}/lyxHub`, {
                 headers: {

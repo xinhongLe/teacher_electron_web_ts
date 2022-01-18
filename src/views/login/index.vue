@@ -85,7 +85,8 @@
                             />
                         </template>
                         <template #suffix>
-                            <span class="get-code-btn" @click="getCode">{{codeTime === 0 ? '获取验证码' : `${codeTime}秒后重发`}}</span>
+                            <span class="get-code-btn" @click="getCode" v-if="codeTime === 0">获取验证码</span>
+                            <span class="get-code-btn" v-else>{{`${codeTime}秒后重发`}}</span>
                         </template>
                     </el-input>
                 </el-form-item>

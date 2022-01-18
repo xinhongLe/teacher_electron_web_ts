@@ -39,6 +39,11 @@ export default defineComponent({
     text-align: left;
 }
 
+.me-remark-content {
+    height: 100%;
+    overflow-y: auto;
+}
+
 .me-remark-content ul {
     margin-top: 20px;
     padding-left: 20px;
@@ -49,5 +54,6 @@ export default defineComponent({
 
 .me-remark-content ul li {
     margin-bottom: 8px;
+    word-break: break-all;
 }
 </style>

@@ -1,5 +1,6 @@
 import electron, { Remote } from "electron";
 import { LogFunctions } from "electron-log";
+import Store from "electron-store";
 
 type Electron = typeof electron & {
     exit: () => void,
@@ -23,7 +24,7 @@ type Electron = typeof electron & {
     getCachePath: (path: string) => void,
     readFile: (path: string, callback: (buffer: ArrayBuffer) => void) => void,
     savePutFile: (path: string, buffer: NodeJS.ArrayBufferView) => void,
-    store: unknown,
+    store: Store,
     log: LogFunctions
 }
 

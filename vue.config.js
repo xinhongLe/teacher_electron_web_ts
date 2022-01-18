@@ -35,12 +35,12 @@ module.exports = {
             title: "投影",
             chunks: ["projection"]
         },
-        call: {
-            entry: "src/childWindow/call/main.ts",
+        rollCall: {
+            entry: "src/childWindow/rollCall/main.ts",
             template: "public/index.html",
-            filename: "call.html",
+            filename: "rollCall.html",
             title: "",
-            chunks: ["call"]
+            chunks: ["rollCall"]
         }
     },
     css: {
@@ -94,10 +94,10 @@ module.exports = {
                     priority: 10,
                     test: "src/childWindow/projection/main.ts"
                 },
-                call: {
-                    name: "call",
+                rollCall: {
+                    name: "rollCall",
                     priority: 10,
-                    test: "src/childWindow/call/main.ts"
+                    test: "src/childWindow/rollCall/main.ts"
                 },
                 timer: {
                     name: "timer",
