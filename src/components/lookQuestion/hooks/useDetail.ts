@@ -65,6 +65,7 @@ export default (isPureQuestion: boolean, questionId = "", emit: (event: string, 
     function playSounds(index: number) {
         if (audioRef.value) {
             audioRef.value.src = voiceUrlMap.value[index === 0 ? "question" : "answer"];
+            audioRef.value.play();
         }
     }
 

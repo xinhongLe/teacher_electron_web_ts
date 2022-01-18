@@ -141,12 +141,12 @@ export default defineComponent({
     bottom: 0;
     z-index: 2;
 }
-.xiangpica {
-    cursor: url("./../../assets/look/icon-rubber.png"), pointer;
-}
-.black_cursor {
-    cursor: url("./../../assets/look/icon-huabi.png"), pointer;
-}
+// .xiangpica {
+//     cursor: url("./../../assets/look/icon-rubber.png"), pointer;
+// }
+// .black_cursor {
+//     cursor: url("./../../assets/look/icon-huabi.png"), pointer;
+// }
 .no-brush {
     cursor: pointer;
     pointer-events: none;
