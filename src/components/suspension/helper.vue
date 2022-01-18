@@ -271,6 +271,7 @@ export default defineComponent({
         };
 
         const getStudentList = async () => {
+            allStudentList.value = [];
             const res = await fetchAllStudents(userInfo?.ID);
             if (res.resultCode === 200) {
                 allStudentList.value = res.result;
