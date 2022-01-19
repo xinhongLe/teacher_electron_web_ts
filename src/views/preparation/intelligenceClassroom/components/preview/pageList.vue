@@ -85,6 +85,7 @@ export default defineComponent({
                 if (!dialogVisible.value) {
                     keyDisabled.value = false;
                 }
+                emit("update:hideTool", dialogVisible.value);
             }
         );
         watch(

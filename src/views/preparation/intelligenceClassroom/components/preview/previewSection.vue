@@ -10,6 +10,7 @@
                 :LessonID="LessonIDProp"
                 :CardName="CardName"
                 :CardId="CardId"
+                v-model:hideTool="hideTool"
                 ref="PageList"
                 @changeRemark="changeRemark"
                 @lastPage="lastPage"
@@ -23,7 +24,7 @@
         <Tools
             :class="fullScreenStyle ? 'tools-fullSrceen' : ''"
             class="tools"
-            v-if="hideTool"
+            v-show="!hideTool"
             :showRemark="showRemark"
             @toggleRemark="toggleRemark"
             @prevStep="prevStep"
@@ -52,7 +53,7 @@ export default defineComponent({
     setup(props, { emit }) {
         const { data, showRemark, toggleRemark } = preventRemark();
         const pageList = ref({});
-        const hideTool = computed(() => props.hideTools);
+        const hideTool = ref(false);
         const WinActiveIdProp = computed(() => props.winActiveId);
         const WindowNameProp = computed(() => props.WindowName);
         const LessonIDProp = computed(() => props.LessonID);
