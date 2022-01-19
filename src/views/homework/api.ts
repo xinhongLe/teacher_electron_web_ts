@@ -169,6 +169,20 @@ export const BatchCheckUpdate: RequestFun<any, any> = (
     });
 };
 
+export const ChangeResultForPhoto: RequestFun<any, any> = (
+    data
+) => {
+    return request({
+        baseURL: AI_XUE_SHI_API,
+        url: "/API/W4/HomeworkIntegration/ChangeResultForPhoto",
+        headers: {
+            "Content-Type": "application/json-patch+json"
+        },
+        method: "post",
+        data
+    });
+};
+
 export const BatchChangeResult: RequestFun<any, any> = (
     data
 ) => {

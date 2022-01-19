@@ -46,14 +46,16 @@
           <canvas ref="resultRef" @mousedown="mousedown" hidden></canvas>
           <div class="overlay-wrapper"><span>{{IdentifyTip}}</span></div>
         </div>
-        <div class="buttonDiscern" style="width:500px">
-            <div v-if="selectResult" style="width:400px;height:400px;padding:20px;border-radius:12px;background: #000000;opacity: 0.6;color:white;">
-                <span>题目{{selectResult.Number}}</span>
-                <span>作答结果</span>
-                <div>
-                    <el-button>✔</el-button> <el-button>✖</el-button>
+        <div class="buttonDiscern" style="width:440px">
+            <div v-if="resultVisible" style="width:400px;height:280px;padding:20px;border-radius:12px;background: #000000;opacity: 0.6;color:white;">
+                <el-button style="position: absolute;left: 370px;top:5px" type="text" @click="closeResult"> ✖ </el-button>
+                <div style="padding: 10px 15px;"><span style="font-size:24px">题目{{selectResult.Number}}</span></div>
+                <div style="padding: 10px 15px;"><span>作答结果</span></div>
+                <div style="padding: 20px 20px;text-align: center;">
+                    <el-button style="width:140px" :type="selectResult.Category === 'Correct' ? 'success' : ''"  @click="checkCorrect">✔</el-button>
+                    <el-button @click="checkError" :type="selectResult.Category === 'Error' ? 'danger' : ''" style="width:140px">✖</el-button>
                 </div>
-                <div><el-button type="primary">重新识别此页</el-button></div>
+                <div style="padding: 20px;text-align: center;"><el-button type="primary" @click="recognitionaForstu">重新识别此页</el-button></div>
             </div>
           <el-button type="primary" style="width:180px;height:80px;position:relative;top:380px;left:250px;" v-if="studentMission!=null" @click="discern">识别(键盘[Enter]键)</el-button>
         </div>
@@ -69,9 +71,10 @@ import { CheckQuestionResult, Homework, StudentMission, WorkBookPageDetailAndImg
 import { ElMessage, ElMessageBox } from "element-plus";
 import jsQR from "jsqr";
 import { defineComponent, onMounted, PropType, reactive, ref, watch } from "vue";
-import { BatchChangeResult, BatchCheckUpdate, GetCheckResult, GetMissionDetail, GetStudentMissionList, GetWorkbookPageInfo, SaveYuanshiImg } from "./api";
+import { BatchChangeResult, BatchCheckUpdate, ChangeResultForPhoto, GetCheckResult, GetMissionDetail, GetStudentMissionList, GetWorkbookPageInfo, SaveYuanshiImg } from "./api";
 import { downloadFile } from "@/utils/oss";
 import { nextTick } from "process";
+import { int } from "@zxing/library/esm/customTypings";
 export default defineComponent({
     props: {
         homeworkValue: {
@@ -86,6 +89,8 @@ export default defineComponent({
         const IdeStudentID = ref("");
         // 摄像头弹窗的显示/隐藏属性
         const dialogVisible = ref(false);
+        // 题目结果弹窗的显示/隐藏属性
+        const resultVisible = ref(false);
         // 扫描获取的同学ID
         const studentName = ref("识别中...");
         const handleClose = () => {
@@ -99,9 +104,18 @@ export default defineComponent({
         const studentMissions = ref<StudentMission[]>();
         // 扫描后的人员
         const studentMission = ref<StudentMission | null>();
+        const studentMissionTemp = ref<StudentMission | null>();
 
         // 选中题目对象
-        const selectResult = ref<any | null>();
+        const selectResult = reactive({
+            QuestionID: "",
+            MarginLeft: 0,
+            MarginTop: 0,
+            SizeWidth: 0,
+            SizeHeight: 0,
+            Category: "",
+            Number: 1
+        }); // ref< {QuestionID:any; MarginLeft: any; MarginTop: any; SizeWidth: any; SizeHeight: any; Category: string; Number:int;}>();
 
         // 全局变量 试卷结果集合
         const CheckQuestionResultList = ref<any | null>();
@@ -187,11 +201,18 @@ export default defineComponent({
             console.log(videoOfsetTop);
             // 获取页面上题目的信息
             if (CheckQuestionResultList.value) {
-                CheckQuestionResultList.value.forEach((citem: { MarginLeft: any; MarginTop: any; SizeWidth: any; SizeHeight: any; Category: string; }) => {
+                CheckQuestionResultList.value.forEach((citem: {QuestionID: any; MarginLeft: any; MarginTop: any; SizeWidth: any; SizeHeight: any; Category: string; Number:int; }) => {
                     const MarginRight = citem.MarginLeft + citem.SizeWidth;
                     const MarginBottom = citem.MarginTop + citem.SizeHeight;
                     if ((videoOfsetLeft > citem.MarginLeft && videoOfsetLeft < MarginRight && videoOfsetTop > citem.MarginTop && videoOfsetTop < MarginBottom)) {
-                        selectResult.value = citem;
+                        selectResult.QuestionID = citem.QuestionID;
+                        selectResult.MarginLeft = citem.MarginLeft;
+                        selectResult.MarginTop = citem.MarginTop;
+                        selectResult.SizeWidth = citem.SizeWidth;
+                        selectResult.SizeHeight = citem.SizeHeight;
+                        selectResult.Category = citem.Category;
+                        selectResult.Number = citem.Number;
+                        resultVisible.value = true;
                     }
                 });
             }
@@ -227,6 +248,44 @@ export default defineComponent({
             }
         }
 
+        // 修改题目结果为正确
+        const checkCorrect = () => {
+            if (studentMissionTemp.value && selectResult) {
+                const obj = {
+                    missionID: studentMissionTemp.value.MissionID,
+                    questionID: selectResult.QuestionID,
+                    result: 1
+                };
+                ChangeResultForPhoto(obj).then((ret) => {
+                    if (ret.resultCode === 200) {
+                        if (selectResult) {
+                            selectResult.Category = "Correct";
+                            ElMessage({ type: "success", message: "修改成功，重新查看学生查看修改结果" });
+                        }
+                    }
+                });
+            }
+        };
+
+        // 修改题目结果为错误
+        const checkError = () => {
+            if (studentMissionTemp.value && selectResult) {
+                const obj = {
+                    MissionID: studentMissionTemp.value.MissionID,
+                    QuestionID: selectResult.QuestionID,
+                    Result: 2
+                };
+                ChangeResultForPhoto(obj).then((ret) => {
+                    if (ret.resultCode === 200) {
+                        if (selectResult) {
+                            selectResult.Category = "Error";
+                            ElMessage({ type: "success", message: "修改成功，重新查看学生查看修改结果" });
+                        }
+                    }
+                });
+            }
+        };
+
         // 关闭高拍仪弹窗
         const close = () => {
             ElMessageBox.confirm("确定关闭高拍仪吗", "关闭高拍仪", {
@@ -236,6 +295,10 @@ export default defineComponent({
             }).then(() => {
                 dialogVisible.value = false;
             });
+        };
+        // 关闭查看试卷结果
+        const closeResult = () => {
+            resultVisible.value = false;
         };
 
         // 识别学生的时候隐藏已完成学生的结果图片，显示video摄像头
@@ -249,7 +312,19 @@ export default defineComponent({
                     studentName.value = "识别中...";
                     IdentifyTip.value = "识别中...请先扫描学生二维码";
                 }
-                selectResult.value = null;
+                videoRef.value.hidden = false;
+                resultRef.value.hidden = true;
+            }
+        };
+
+        // 重新识别某一页，这应该是知道哪个人哪一页的
+        const recognitionaForstu = () => {
+            if (videoRef.value && resultRef.value && studentMissionTemp.value && selectResult) {
+                IdeStudentID.value = studentMissionTemp.value.StudentID;
+                studentMission.value = studentMissionTemp.value;
+                studentName.value = studentMissionTemp.value.StudentName;
+                IdentifyTip.value = "识别中...请翻到" + props.homeworkValue.WorkbookPaperPageNum + "页";
+                resultVisible.value = false;
                 videoRef.value.hidden = false;
                 resultRef.value.hidden = true;
             }
@@ -264,6 +339,7 @@ export default defineComponent({
             };
             GetMissionDetail(obj).then((res) => {
                 if (res.resultCode === 200) {
+                    resultVisible.value = false;
                     console.log(res.result, "line:152");
                     var resultData = res.result;
                     var img = new Image();
@@ -271,6 +347,7 @@ export default defineComponent({
                         IdentifyTip.value = "";
                         IdeStudentID.value = "";
                         studentMission.value = null;
+                        studentMissionTemp.value = item;
                         studentName.value = "识别中...";
                         if (canvasRef.value) {
                             const context = canvasRef.value.getContext("2d");
@@ -283,7 +360,7 @@ export default defineComponent({
                             const errorColor = new cv.Scalar(255, 0, 0);
                             const wzColor = new cv.Scalar(255, 156, 47);
                             console.log(CheckQuestionResultList);
-                            CheckQuestionResultList.value.forEach((citem: { MarginLeft: any; MarginTop: any; SizeWidth: any; SizeHeight: any; Category: string; }) => {
+                            CheckQuestionResultList.value.forEach((citem: {QuestionID: any; MarginLeft: any; MarginTop: any; SizeWidth: any; SizeHeight: any; Category: string; Number: int;}) => {
                                 const point1 = new cv.Point(citem.MarginLeft, citem.MarginTop);
                                 const point2 = new cv.Point(citem.MarginLeft + citem.SizeWidth, citem.MarginTop + citem.SizeHeight);
                                 if (citem.Category === "Error") {
@@ -435,7 +512,7 @@ export default defineComponent({
                                                                     ElMessage({ type: "success", message: "重复提交成功" });
                                                                     const correctColor = new cv.Scalar(0, 0, 255);
                                                                     const errorColor = new cv.Scalar(255, 0, 0);
-                                                                    const wzColor = new cv.Scalar(255, 156, 47); // 255, 156, 47
+                                                                    const wzColor = new cv.Scalar(255, 156, 47);
                                                                     if (checkQuestionResultList.length > 0) {
                                                                         checkQuestionResultList.forEach(citem => {
                                                                             const point1 = new cv.Point(citem.MarginLeft, citem.MarginTop);
@@ -465,8 +542,8 @@ export default defineComponent({
                                                                 // 上传成功
                                                                 ElMessage({ type: "success", message: "上传成功" });
                                                                 initPage();
-                                                                const correctColor = new cv.Scalar(255, 0, 0);
-                                                                const errorColor = new cv.Scalar(0, 0, 255);
+                                                                const correctColor = new cv.Scalar(0, 0, 255);
+                                                                const errorColor = new cv.Scalar(255, 0, 0);
                                                                 const wzColor = new cv.Scalar(47, 156, 255);
                                                                 if (checkQuestionResultList.length > 0) {
                                                                     checkQuestionResultList.forEach(citem => {
@@ -683,13 +760,19 @@ export default defineComponent({
             IdeStudentID,
             CheckQuestionResultList,
             selectResult,
+            resultVisible,
+            studentMissionTemp,
             close,
             handleClose,
             discern,
             getMissionDetail,
             recognition,
             initPage,
-            mousedown
+            mousedown,
+            closeResult,
+            checkCorrect,
+            checkError,
+            recognitionaForstu
         };
     }
 });
@@ -748,7 +831,7 @@ body {
 		position: absolute;
 		bottom: 5px;
 		right: 30px;
-		widows: 500px;
+		widows: 440px;
 		height: 600px;
 	}
     .video {
