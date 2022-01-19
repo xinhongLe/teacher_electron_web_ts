@@ -58,6 +58,7 @@
             class="welt"
             :style="isElectron ? undefined : { bottom: `${bottom}px` }"
             v-show="isShowWelt"
+            @touchstart="onmouseover"
             @mouseover="onmouseover"
         >
             <img src="@/assets/images/suspension/pic_shouqi@2x_copy.png" />
