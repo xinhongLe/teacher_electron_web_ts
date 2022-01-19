@@ -170,6 +170,7 @@ export default defineComponent({
                 return;
             }
             lastId.value = id;
+            childRef.value && childRef.value!.clearBrush();
             getFileAndPauseByFile({
                 fileID: store.state.common.viewVideoInfo.id
             }).then(async (res) => {

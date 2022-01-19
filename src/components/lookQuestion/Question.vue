@@ -141,7 +141,7 @@ export default defineComponent({
             voiceUrlMap,
             nextPage,
             questionSn
-        } = useDetail(props.isPureQuestion, questionID.value, emit);
+        } = useDetail(props.isPureQuestion, questionID.value, emit, childRef);
 
         const brushHandle = () => {
             btnType.value = 1;
