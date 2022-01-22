@@ -499,6 +499,15 @@ export default defineComponent({
     :deep(.el-dialog__header){
         display: none;
     }
+     :deep(.el-dialog){
+        margin: 0;
+        padding: 30px;
+        box-sizing: border-box;
+        background: rgba(0, 0, 0, 0.2);
+    }
+    :deep(.el-overlay-dialog){
+        height: calc(100vh + 36px);
+    }
 }
 .table-row {
     font-size: 14px;

@@ -126,7 +126,7 @@ export const GetWorkbookPageInfo: RequestFun<PageInfo, any> = (
 };
 
 // 获取已完成学生的完成情况
-export const GetMissionDetail: RequestFun<StudentDetAndPageInfo, any> = (
+export const GetMissionDetail: RequestFun<any, any> = (
     data
 ) => {
     return request({
