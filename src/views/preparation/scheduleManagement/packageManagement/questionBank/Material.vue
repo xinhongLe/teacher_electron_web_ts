@@ -71,7 +71,7 @@
 
 <script lang="ts">
 import { ElementFile, Lesson, Material } from "@/types/preparation";
-import { downloadFile } from "@/utils/oss";
+import { getOssUrl } from "@/utils/oss";
 import { deleteMaterial, queryMaterialList } from "@/views/preparation/api";
 import { defineComponent, PropType, ref, watchEffect } from "vue";
 import AddOrEditMaterial from "./AddOrEditMaterial.vue";
@@ -121,7 +121,7 @@ export default defineComponent({
             if (file) {
                 const name = `${file.FileName}.${file.Extention}`;
                 const key = `${file.FilePath}/${name}`;
-                const url = await downloadFile(key, file.Bucket);
+                const url = await getOssUrl(key, file.Bucket);
                 openFile(url, name);
             }
         };

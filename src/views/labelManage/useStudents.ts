@@ -52,7 +52,7 @@ export default (tagList: Ref<Tag[]>, selectSubjectId: Ref<string>) => {
                     v.ClassID === router.currentRoute.value.params.classId
             )
             .filter(
-                (v) => studentName === "" || v.Name.indexOf(studentName) > -1 || v.Account.indexOf(studentName) > -1 || v.Phone.indexOf(studentName) > -1
+                (v) => studentName === "" || (v.Name && v.Name.indexOf(studentName) > -1) || (v.Account && v.Account.indexOf(studentName) > -1) || (v.Phone && v.Phone.indexOf(studentName) > -1)
             );
         if (subject === "") {
             const listMap = groupBy(studentList, "StudentID");

@@ -1,11 +1,16 @@
-import { ipcMain, BrowserWindow, session } from "electron";
+import { ipcMain } from "electron";
 import { resolve } from "path";
-import { access } from "fs/promises";
-import { createReadStream } from "original-fs";
+import { access, mkdir } from "fs/promises";
+import Axios from "Axios";
+import { createWriteStream, createReadStream } from "fs";
+import ElectronLog from "electron-log";
+import Store from "electron-store";
 const crypto = require("crypto");
-
 type func = (value: unknown) => void;
 
+export const store = new Store({
+    watch: true
+});
 const downloadingFileList: string[] = []; // 下载中的文件列表
 const downloadSuccessCallbackMap = new Map<string, func[]>();
 export const appPath =
@@ -41,12 +46,57 @@ export const isExistFile = (filePath: string): Promise<boolean> => {
 const dealCallback = (fileName: string, filePath: string) => {
     if (downloadSuccessCallbackMap.has(fileName)) {
         const callbackList = downloadSuccessCallbackMap.get(fileName) || [];
-        callbackList.forEach((callback) => callback(filePath));
+        callbackList.forEach((callback) => callback(filePath.replaceAll("\\", "/")));
         downloadSuccessCallbackMap.delete(fileName);
     }
 };
 
-export default (win: BrowserWindow) => {
+const mkdirs = (dirname: string) => {
+    return new Promise((resolve) => {
+        access(dirname).then(() => resolve("")).catch(() => mkdir(dirname));
+    });
+};
+
+export const downloadFileAxios = async (url: string, fileName: string) => {
+    const filePath =
+        process.platform === "darwin"
+            ? appPath + fileName
+            : resolve(appPath, fileName);
+    await mkdirs(appPath);
+    const writer = createWriteStream(filePath);
+    ElectronLog.info("start downloadFile fileName:", fileName);
+    const response = await Axios({
+        url,
+        method: "GET",
+        responseType: "stream"
+    });
+    ElectronLog.info("downloadFileAxios status: ", response.status, "fileName:", fileName);
+    if (response.status === 200) {
+        response.data.pipe(writer);
+    } else {
+        writer.destroy();
+    }
+
+    const state = await new Promise((resolve) => {
+        writer.on("finish", () => {
+            ElectronLog.info("finish fileName:", fileName);
+            resolve(true);
+        });
+        writer.on("error", () => {
+            ElectronLog.info("error fileName", fileName);
+            resolve(false);
+        });
+        writer.on("close", () => {
+            ElectronLog.info("close fileName", fileName);
+            resolve(false);
+        });
+    });
+    const index = downloadingFileList.indexOf(fileName);
+    downloadingFileList.splice(index, 1);
+    dealCallback(fileName, state ? filePath : "");
+};
+
+export default () => {
     const downloadFile = async (url: string, fileName: string) => {
         const filePath =
             process.platform === "darwin"
@@ -55,12 +105,11 @@ export default (win: BrowserWindow) => {
         if (downloadingFileList.includes(fileName)) return;
         const isExist = await isExistFile(filePath);
         if (isExist) {
-            console.log(isExist, filePath);
             dealCallback(fileName, filePath);
         } else {
             if (!downloadingFileList.includes(fileName)) {
                 downloadingFileList.push(fileName);
-                win.webContents.downloadURL(url);
+                downloadFileAxios(url, fileName);
             }
         }
     };
@@ -78,25 +127,6 @@ export default (win: BrowserWindow) => {
                 downloadSuccessCallbackMap.set(fileName, [resolve]);
             }
             downloadFile(url, fileName);
-        });
-    });
-    session.defaultSession.on("will-download", (event, item, webContents) => {
-        const fileName = item.getFilename();
-        const fileExtension = fileName.split(".")[
-            fileName.split(".").length - 1
-        ];
-        const filePath = resolve(appPath, item.getFilename());
-        if (downloadingFileList.includes(fileName) || fileExtension === "xml") {
-            item.setSavePath(filePath);
-        }
-
-        item.on("updated", () => {
-            // console.log("下载进度", item.getReceivedBytes());
-        });
-        item.once("done", (event, state) => {
-            const index = downloadingFileList.indexOf(fileName);
-            downloadingFileList.splice(index, 1);
-            dealCallback(fileName, state === "completed" ? filePath : "");
         });
     });
 };

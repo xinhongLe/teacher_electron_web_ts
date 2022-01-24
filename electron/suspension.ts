@@ -5,6 +5,7 @@ let unfoldSuspensionWin: BrowserWindow;
 let blackboardWin: BrowserWindow;
 let timerWin: BrowserWindow;
 let projectionWin: BrowserWindow;
+let rollCallWin: BrowserWindow;
 let isShowTimer = false; // 悬浮球是否显示时间
 let isShowVideo = false; // 悬浮球是否显示视频图标
 let isShowBlackboard = false; // 悬浮球是否显示黑板图标
@@ -13,8 +14,8 @@ const timerURL = process.env.NODE_ENV === "development"
     ? `${process.env.WEBPACK_DEV_SERVER_URL}timer.html`
     : `file://${__dirname}/timer.html`;
 const callURL = process.env.NODE_ENV === "development"
-    ? `${process.env.WEBPACK_DEV_SERVER_URL}call.html`
-    : `file://${__dirname}/call.html`;
+    ? `${process.env.WEBPACK_DEV_SERVER_URL}rollCall.html`
+    : `file://${__dirname}/rollCall.html`;
 const suspensionURL = process.env.NODE_ENV === "development"
     ? `${process.env.WEBPACK_DEV_SERVER_URL}suspension.html`
     : `file://${__dirname}/suspension.html`;
@@ -53,6 +54,14 @@ function checkIsWelt() {
         suspensionWin.setPosition(size.width - 20, winPosition[1]);
         suspensionWin.setContentSize(20, 80);
     }
+}
+
+function setWelt() {
+    const winPosition = suspensionWin.getPosition();
+    const size = screen.getPrimaryDisplay().workAreaSize;
+    suspensionWin.webContents.send("showWelt");
+    suspensionWin.setPosition(size.width - 20, winPosition[1]);
+    suspensionWin.setContentSize(20, 80);
 }
 
 function hideSuspensionIcon () {
@@ -94,13 +103,21 @@ function createTimerWindow() {
     });
 }
 
-function createRollcall() {
-    createWindow(callURL, {
+function createRollcall(allStudentList: []) {
+    rollCallWin = createWindow(callURL, {
         width: 800,
         frame: false, // 要创建无边框窗口
         resizable: false, // 禁止窗口大小缩放
         height: 500,
         useContentSize: true
+    });
+
+    rollCallWin.on("ready-to-show", () => {
+        rollCallWin.webContents.send("sendAllStudentList", allStudentList);
+    });
+
+    rollCallWin.on("closed", () => {
+        rollCallWin = null;
     });
 }
 function createUnfoldSuspensionWindow() {
@@ -209,6 +226,12 @@ export function createSuspensionWindow() {
         setSuspensionSize(false);
         checkIsWelt();
     });
+
+    suspensionWin.on("show", () => {
+        setTimeout(() => {
+            setWelt();
+        }, 3000);
+    });
 }
 
 function showSuspension() {
@@ -253,6 +276,7 @@ export function registerEvent() {
     ipcMain.handle("closeSuspension", () => {
         suspensionWin && suspensionWin.hide();
         unfoldSuspensionWin && unfoldSuspensionWin.hide();
+        rollCallWin && rollCallWin.destroy();
         hideSuspensionIcon();
     });
 
@@ -308,9 +332,13 @@ export function registerEvent() {
         }
         createTimerWindow();
     });
-    ipcMain.handle("openRollCall", () => {
+    ipcMain.handle("openRollCall", (_, allStudentList) => {
         showSuspension();
-        createRollcall();
+        if (rollCallWin) {
+            rollCallWin.show();
+        } else {
+            createRollcall(allStudentList);
+        }
     });
     ipcMain.handle("closeTimerWin", () => {
         timerWin.close();
@@ -356,9 +384,5 @@ export function registerEvent() {
             return projectionWin.show();
         }
         createProjectionWindow();
-    });
-
-    ipcMain.handle("loginSuccess", (_, token) => {
-        unfoldSuspensionWin && unfoldSuspensionWin.webContents.send("loginSuccess", token);
     });
 }

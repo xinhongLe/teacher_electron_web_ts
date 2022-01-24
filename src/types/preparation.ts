@@ -272,3 +272,9 @@ export interface CloneCourseBagToTeacherRes {
         ID: string
     }
 }
+
+export enum NextSettingType {
+    Right = "right",
+    Left = "left",
+    All = "all",
+}

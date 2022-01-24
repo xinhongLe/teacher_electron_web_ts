@@ -1,6 +1,6 @@
 import { getCurrentWindow, app } from "@electron/remote";
 import electron, { remote } from "electron";
-import { appPath, isExistFile } from "./downloadFile";
+import { appPath, isExistFile, store } from "./downloadFile";
 import { resolve } from "path";
 import ElectronLog from "electron-log";
 import fs from "fs";
@@ -85,11 +85,8 @@ window.electron = {
         return isExistFile(filePath);
     },
     getFilePath: (fileName: string) => {
-        const filePath =
-        process.platform === "darwin"
-            ? appPath + fileName
-            : resolve(appPath, fileName);
-        return filePath;
+        const filePath = process.platform === "darwin" ? appPath + fileName : resolve(appPath, fileName);
+        return "file:///" + filePath.replaceAll("\\", "/");
     },
     log: ElectronLog,
     getCacheFile: async (fileName: string) => {
@@ -117,5 +114,6 @@ window.electron = {
             }
         });
     },
+    store: store,
     ...electron
 };

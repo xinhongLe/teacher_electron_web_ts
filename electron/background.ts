@@ -50,7 +50,7 @@ async function createWindow() {
             devTools: !!process.env.WEBPACK_DEV_SERVER_URL
         }
     });
-    downloadFile(mainWindow);
+    downloadFile();
     autoUpdater(mainWindow!);
     createSuspensionWindow();
     registerEvent();

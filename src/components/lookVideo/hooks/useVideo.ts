@@ -38,6 +38,7 @@ export default () => {
     const filePauses = ref<{time: number, hasView: boolean}[]>([]);
     const marks = ref<Record<number, string>>({});
     const videoRef = ref<HTMLVideoElement>();
+    const isVideoEnded = ref(false);
     const initVideo = reactive({
         videoLength: 0, // 时长
         currentTime: 0, // 当前播放时间
@@ -105,6 +106,16 @@ export default () => {
         }
     };
 
+    const videoEnded = () => {
+        isVideoEnded.value = true;
+    };
+
+    const replay = () => {
+        isVideoEnded.value = false;
+        videoRef.value!.play();
+        btnName.value = "暂停";
+    };
+
     return {
         filePauses,
         marks,
@@ -114,7 +125,10 @@ export default () => {
         getAudioLength,
         videoTimeUpdate,
         playPause,
+        videoEnded,
         changeVideoTime,
+        isVideoEnded,
+        replay,
         changeData
     };
 };

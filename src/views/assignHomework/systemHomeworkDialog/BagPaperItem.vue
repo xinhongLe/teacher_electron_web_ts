@@ -18,6 +18,10 @@
                 getCourseBagType(info.ClassifyType)
             }}</span>
             <p>{{ info.Name }}</p>
+            <div v-if="info.IsPublishedRecently" class="recently">
+                <el-icon :size="16"><clock /></el-icon>
+                <span>最近布置过</span>
+            </div>
         </div>
         <div>
             <el-button
@@ -46,7 +50,11 @@
 import { defineComponent, PropType } from "vue";
 import { getCourseBagType, lookQuestions, lookVideo, formatDuration } from "@/utils";
 import { BagPapers } from "@/types/preparation";
+import { Clock } from "@element-plus/icons-vue";
 export default defineComponent({
+    components: {
+        Clock
+    },
     props: {
         info: {
             type: Object as PropType<BagPapers>,
@@ -123,6 +131,18 @@ export default defineComponent({
                 width: 4px;
                 height: 5px;
                 background-color: #4b71ee;
+            }
+        }
+        .recently {
+            display: flex;
+            align-items: center;
+            padding: 5px 10px;
+            background-image: linear-gradient(to right, #ffecea , #fff);
+            border-radius: 15px;
+            font-size: 14px;
+            color: #fb7468;
+            span {
+                margin-left: 5px;
             }
         }
     }

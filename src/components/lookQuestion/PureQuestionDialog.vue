@@ -5,6 +5,7 @@
             title="正在查看同类题"
             center
             v-if="isShowDialog"
+            :before-close="close"
             :show-close="false"
         >
             <Question :close="close" :isPureQuestion="true" />

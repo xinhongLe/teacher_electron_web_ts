@@ -22,7 +22,7 @@
     </div>
 </template>
 <script lang="ts">
-import { watch, defineComponent, reactive, toRefs, PropType, ref, onUnmounted } from "vue";
+import { watch, defineComponent, reactive, toRefs, PropType, ref, onUnmounted, computed } from "vue";
 import useHome from "@/hooks/useHome";
 import { Slide, IWin } from "wincard/src/types/slides";
 import CardSelectDialog from "./cardSelectDialog.vue";
@@ -48,6 +48,10 @@ export default defineComponent({
         allPageList: {
             type: Array as PropType<IPageValue[]>,
             default: () => []
+        },
+        isWatchChange: {
+            type: Boolean,
+            default: () => true
         }
     },
     setup(props) {
@@ -64,9 +68,9 @@ export default defineComponent({
         let resPagesIds: string[] = []; // 已经请求过的页面ids
         let pageIdIng: string | null = null; // 正在请求的页id
         const { getPageDetail, savePage, transformType } = useHome();
+        const watchChange = computed(() => props.isWatchChange);
         watch(() => props.pageValue, async (val: IPageValue, oldVal) => {
-            if (transformType(val.Type) === -1) {
-                ElMessage({ type: "warning", message: "暂不支持该页面类型" });
+            if (transformType(val.Type) === -1 || !val.ID) {
                 page.value = {
                     ID: val.ID,
                     Type: val.Type,
@@ -74,13 +78,16 @@ export default defineComponent({
                     TeachPageRelationID: val.TeachPageRelationID
                 };
                 state.slide = {};
+                return;
             }
             if (val && val !== oldVal) {
                 page.value = val;
+                if (watchChange.value && props.isSetCache) return; // 更新窗且执行默认选中第一个走props.allPageList监听
                 if (val.ID) {
                     const dbResArr = await getWinCardDBData(val.ID);
                     if (dbResArr.length > 0) {
-                        state.slide = JSON.parse(dbResArr[0].result);
+                        const data = JSON.parse(JSON.stringify(dbResArr[0].result));
+                        setSlide(JSON.parse(data));
                     } else {
                         if (pageIdIng) {
                             if (pageIdIng !== val.ID) {
@@ -104,23 +111,23 @@ export default defineComponent({
                             }
                         }
                     }
-                } else {
-                    state.slide = {};
                 }
             }
         });
 
         watch(() => props.allPageList, async (val: IPageValue[]) => {
-            noResPages = [];
-            resPagesIds = [];
-            getAllPageList([]);
             if (props.isSetCache) {
-                const interval = setInterval(() => {
-                    if (!pageIdIng) {
-                        clearInterval(interval);
-                        getAllPageList(JSON.parse(JSON.stringify(val)));
-                    }
-                }, 300);
+                noResPages = [];
+                resPagesIds = [];
+                getAllPageList([]);
+                if (val && val.length > 0) {
+                    const interval = setInterval(() => {
+                        if (!pageIdIng) {
+                            clearInterval(interval);
+                            getAllPageList(JSON.parse(JSON.stringify(val)));
+                        }
+                    }, 300);
+                }
             }
         }, { deep: true });
 
@@ -130,7 +137,6 @@ export default defineComponent({
                 if (resPagesIds.includes(allPageList[0].ID) || transformType(allPageList[0].Type) === -1) {
                     allPageList.shift();
                     noResPages = allPageList;
-                    // set(STORAGE_TYPES.SET_NORESPAGES, pageIdIng);
                     timer = setTimeout(() => {
                         getAllPageList(noResPages);
                     }, 300);
@@ -141,13 +147,13 @@ export default defineComponent({
                         if (res.from === "DB") {
                             // 被点击的页时正在请求时
                             if (page.value?.ID === allPageList[0].ID) {
-                                state.slide = res.result;
+                                setSlide(res.result);
                             }
                         } else {
                             if (res.id) { // 肯定是请求成功的
                                 // 被点击的页时正在请求的
                                 if (page.value?.ID === allPageList[0].ID) {
-                                    state.slide = res;
+                                    setSlide(res);
                                 }
                             }
                             pageIdIng = null;
@@ -173,6 +179,15 @@ export default defineComponent({
             noResPages = [];
             getAllPageList([]);
         });
+
+        let timeOut:any = null;
+        const setSlide = (res: any) => {
+            state.slide = {}; // 要先置空 否则wincard组件有些值监听不到改变
+            timeOut = setTimeout(() => {
+                state.slide = res;
+            }, 100);
+        };
+
         const onSave = async (slide: Slide) => {
             if (props.pageValue.ID) {
                 const data = await savePage(slide);

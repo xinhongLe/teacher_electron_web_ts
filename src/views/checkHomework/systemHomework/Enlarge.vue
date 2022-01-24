@@ -171,6 +171,9 @@ export default defineComponent({
         margin: 0px auto;
         margin-bottom: 15px;
         padding-right: 15px;
+        max-height: 800px;
+        display: flex;
+        flex-direction: column;
         .img-class {
             width: 100%;
             height: calc(100% - 85px);

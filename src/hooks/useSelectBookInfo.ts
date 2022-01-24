@@ -19,6 +19,7 @@ interface State {
     winValue: string[],
     windowCards: ICardList[],
     oldWindowCards: ICardList[], // 拖拽使用
+    pastePage: IPageValue | null
 }
 
 export default () => {
@@ -38,7 +39,8 @@ export default () => {
         winList: [],
         winValue: [],
         windowCards: [],
-        oldWindowCards: []
+        oldWindowCards: [],
+        pastePage: null // 粘贴卡
     });
 
     const findFirstId = (tree: ITreeList[], ids: string[]) => {
@@ -88,13 +90,6 @@ export default () => {
         state.windowCards = [];
     };
 
-    const allPageList = computed(() => {
-        let list: IPageValue[] = [];
-        state.windowCards.map(card => {
-            list = list.concat(card.PageList);
-        });
-        return list;
-    });
     const _getWindowCards = (data: IGetWindowCards, isCache = false) => {
         getWindowCards(data).then(res => {
             if (res.resultCode === 200) {
@@ -104,12 +99,40 @@ export default () => {
             }
         });
     };
+    let count = 0;
+    let copyPageValue: ICopyPage = {
+        CardID: "",
+        OldCardID: "",
+        PageID: "",
+        Name: ""
+    };
     const _copyPage = (data: ICopyPage) => {
+        let str = "(新)";
+        if (data.PageID === copyPageValue.PageID) {
+            count += 1;
+            for (let i = 0; i < count; i++) {
+                str = str + "(新)";
+            }
+        } else {
+            copyPageValue = { ...data };
+            count = 0;
+        }
         copyPage(data).then(res => {
             if (res.resultCode === 200) {
-                ElMessage({ type: "success", message: "粘贴卡成功" });
-                TrackService.setTrack(EnumTrackEventType.PastePage, "", "", "", "", "", "", "粘贴卡");
-                _getWindowCards({ WindowID: `${route.params.winValue}`, OriginType: 1 });
+                state.pastePage = {
+                    ID: res.result.ID,
+                    Type: res.result.Type,
+                    TeachPageRelationID: res.result.TeachPageRelationID,
+                    State: res.result.State,
+                    Name: data.Name + str
+                };
+                renameCardOrPage({ ID: state.pastePage.ID, Name: state.pastePage.Name }).then(res => {
+                    if (res.resultCode === 200) {
+                        ElMessage({ type: "success", message: "粘贴卡成功" });
+                        TrackService.setTrack(EnumTrackEventType.PastePage, "", "", "", "", "", "", "粘贴卡");
+                        _getWindowCards({ WindowID: `${route.params.winValue}`, OriginType: 1 });
+                    }
+                });
             }
         });
     };
@@ -152,6 +175,13 @@ export default () => {
     const _addPage = (data: IAddPage) => {
         addPage(data).then(res => {
             if (res.resultCode === 200) {
+                state.pastePage = {
+                    ID: res.result.ID,
+                    Type: data.Type,
+                    TeachPageRelationID: res.result.TeachPageRelationID,
+                    State: res.result.State,
+                    Name: res.result.Name
+                };
                 ElMessage({ type: "success", message: "新增页成功" });
                 _getWindowCards({ WindowID: `${route.params.winValue}`, OriginType: 1 });
             }
@@ -263,7 +293,6 @@ export default () => {
         pageValue,
         cardsValue,
         state,
-        allPageList,
         findFirstId,
         dragDealData,
         _getSubjectPublisherBookList,

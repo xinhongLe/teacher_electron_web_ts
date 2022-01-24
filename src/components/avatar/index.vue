@@ -10,7 +10,7 @@
 <script lang="ts">
 import { defineComponent, PropType, ref, watch, watchEffect } from "vue";
 import { avatarProps } from "element-plus";
-import { downloadFile } from "@/utils/oss";
+import { getOssUrl } from "@/utils/oss";
 import { HeadPortrait } from "@/types/myStudent";
 const imgUrl = require("@/assets/images/attend-class/touxiang_student.png");
 export default defineComponent({
@@ -33,7 +33,7 @@ export default defineComponent({
             const file = props.file;
             if (props.file.FileName) {
                 const key = file.Extention ? `${file.FilePath}/${file.FileName}.${file.Extention}` : `${file.FilePath}/${file.FileName}`;
-                downloadFile(key, file.Bucket).then(res => {
+                getOssUrl(key, file.Bucket).then(res => {
                     src.value = res;
                 });
             }

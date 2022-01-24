@@ -141,7 +141,7 @@ export default defineComponent({
             voiceUrlMap,
             nextPage,
             questionSn
-        } = useDetail(props.isPureQuestion, questionID.value, emit);
+        } = useDetail(props.isPureQuestion, questionID.value, emit, childRef);
 
         const brushHandle = () => {
             btnType.value = 1;
@@ -174,7 +174,9 @@ export default defineComponent({
 
         const playAudio = () => {
             const isPlay = nextIndex.value === 1 ? questionSwitchValue.value : resolutionSwitchValue.value;
-            isPlay && audioRef.value && audioRef.value.play();
+            if (isPlay && audioRef.value) {
+                audioRef.value.play();
+            }
         };
 
         watch(nowQuestionID, (v) => {

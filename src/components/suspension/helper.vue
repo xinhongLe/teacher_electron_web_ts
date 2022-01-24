@@ -69,7 +69,7 @@
                     <div class="blackboard-text">计时器</div>
                 </div>
                 <!-- openRollCall -->
-                <div class="blackboard-box" @click="uncultivated">
+                <div class="blackboard-box" @click="openRollCall">
                     <img
                         src="@/assets/images/suspension/pic_namer@2x.png"
                         alt=""
@@ -129,12 +129,13 @@
 import { defineComponent, onMounted, ref, watch } from "vue";
 import { Game } from "./interface";
 import { getToolList } from "@/api/index";
-import { downloadFile } from "@/utils/oss";
+import { getOssUrl } from "@/utils/oss";
 import isElectron from "is-electron";
 import { ElMessage } from "element-plus";
 import { fetchSubjectPublisherBookList } from "@/views/preparation/api";
 import { BookList } from "@/types/preparation";
-import { set, STORAGE_TYPES } from "@/utils/storage";
+import { get, STORAGE_TYPES, storeChange } from "@/utils/storage";
+import { fetchAllStudents } from "@/views/labelManage/api";
 export default defineComponent({
     setup(props, { emit }) {
         const gameList = ref<Game[]>([]);
@@ -154,6 +155,8 @@ export default defineComponent({
         const searchName = ref("");
         const selectBookList = ref(["全部教具"]);
         const isLoading = ref(false);
+        const allStudentList = ref<unknown[]>([]);
+        let userInfo = get(STORAGE_TYPES.USER_INFO);
 
         const openBlackboard = () => {
             if (isElectron()) {
@@ -198,7 +201,7 @@ export default defineComponent({
                     const { File } = item;
                     const { FileName, Bucket, FilePath, Extention } = File;
                     const key = `${FilePath}/${FileName}.${Extention}`;
-                    return downloadFile(key, Bucket);
+                    return getOssUrl(key, Bucket);
                 });
                 const imgList = await Promise.all(imgListPromise);
                 gameList.value = list.map((item, index) => ({
@@ -226,8 +229,11 @@ export default defineComponent({
         };
 
         const openRollCall = () => {
+            if (allStudentList.value.length === 0) {
+                return ElMessage.error("请等待学员加载后点名！");
+            }
             if (isElectron()) {
-                return window.electron.ipcRenderer.invoke("openRollCall");
+                return window.electron.ipcRenderer.invoke("openRollCall", JSON.parse(JSON.stringify(allStudentList.value)));
             }
         };
 
@@ -264,12 +270,26 @@ export default defineComponent({
             getGradeList();
         };
 
+        const getStudentList = async () => {
+            allStudentList.value = [];
+            const res = await fetchAllStudents(userInfo?.ID);
+            if (res.resultCode === 200) {
+                allStudentList.value = res.result;
+            }
+        };
+
         onMounted(async () => {
-            getBookList();
+            if (userInfo) {
+                getBookList();
+                getStudentList();
+            }
             if (isElectron()) {
-                window.electron.ipcRenderer.on("loginSuccess", (_, token) => {
-                    set(STORAGE_TYPES.SET_TOKEN, token);
-                    getBookList();
+                storeChange(STORAGE_TYPES.USER_INFO, (value) => {
+                    if (value) {
+                        userInfo = get(STORAGE_TYPES.USER_INFO);
+                        getBookList();
+                        getStudentList();
+                    }
                 });
             }
         });
@@ -353,7 +373,7 @@ export default defineComponent({
         flex: 1;
         display: flex;
         padding: 0 15px 15px;
-        overflow-y: auto;
+        overflow-y: overlay;
         flex-direction: column;
         .tool-list {
             display: flex;
@@ -399,7 +419,6 @@ export default defineComponent({
         .teach-list {
             flex: 1;
             display: flex;
-            overflow-y: auto;
             flex-direction: column;
             .teach-list-title {
                 margin: 20px 0;

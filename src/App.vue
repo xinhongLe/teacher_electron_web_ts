@@ -23,7 +23,7 @@ import isElectron from "is-electron";
 import { defineComponent, ref } from "vue";
 import { getOssPaths } from "./api";
 import { set, STORAGE_TYPES } from "./utils/storage";
-
+import type { Action } from "element-plus";
 export default defineComponent({
     setup() {
         const isShowUpdate = ref(false);
@@ -35,10 +35,13 @@ export default defineComponent({
             }
         });
 
+        // 默认开启缓存
+        set(STORAGE_TYPES.SET_ISCACHE, true);
+
         if (isElectron() && !window.electron.isMac()) {
             window.electron.ipcRenderer.invoke("checkForUpdate");
             window.electron.ipcRenderer.on("updateMessage", (_, text) => {
-                console.log(text);
+                // console.log(text);
             });
 
             window.electron.ipcRenderer.on(
@@ -49,17 +52,18 @@ export default defineComponent({
             );
 
             window.electron.ipcRenderer.on("isUpdateNow", () => {
-                ElMessageBox.confirm(
-                    "检测到有新的版本需要更新，是否需要更新？",
-                    "更新",
-                    {
-                        confirmButtonText: "确定",
-                        cancelButtonText: "取消",
-                        type: "warning"
+                ElMessageBox.alert("检测到有新的版本需要更新，是否需要更新？", "更新", {
+                    cancelButtonText: "取消",
+                    confirmButtonText: "确认",
+                    type: "warning",
+                    showClose: false,
+                    showCancelButton: true,
+                    callback: (action: Action) => {
+                        if (action === "confirm") {
+                            isShowUpdate.value = true;
+                            window.electron.ipcRenderer.invoke("isUpdateNow");
+                        }
                     }
-                ).then(() => {
-                    isShowUpdate.value = true;
-                    window.electron.ipcRenderer.invoke("isUpdateNow");
                 });
             });
         }

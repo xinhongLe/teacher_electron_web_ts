@@ -105,7 +105,7 @@ const fileMd5 = (file: UploadFile & Blob, callback: (md5: string) => void) => {
 };
 
 // 下载
-export const downloadFile = async (key: string, bucket: string) => {
+export const getOssUrl = async (key: string, bucket: string) => {
     const ossToken = await getToken();
     const region = "oss-cn-shanghai";
     const accessKeyId = ossToken && ossToken.AccessKeyId;

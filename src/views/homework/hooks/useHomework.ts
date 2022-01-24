@@ -46,20 +46,28 @@ export default () => {
     };
 
     const getHasTaskDate = async () => {
-        const data = {
-            subjectID: form.subject,
-            year: moment(new Date()).format("YYYY-MM-DD hh:mm:ss")
-        };
-        const res = await fetchHomeworkDateByYear(data);
-        if (res.resultCode === 200) {
-            dateList.value = res.result.map((v) => v.substr(0, 10));
-            if (dateList.value.length > 0) {
-                form.date = dateList.value[dateList.value.length - 1];
-                getTaskList();
-            } else {
-                homeworkListMap.value = {};
-                form.date = "--";
+        const resPromiseList = [];
+        for (let year = moment().year(); year >= 2021; year--) { // 2021年之前没该产品
+            const data = {
+                subjectID: form.subject,
+                year: moment().year(year).format("YYYY-MM-DD hh:mm:ss")
+            };
+            resPromiseList.push(fetchHomeworkDateByYear(data));
+        }
+        const resList = await Promise.all(resPromiseList);
+        const list: string[] = [];
+        resList.forEach((res) => {
+            if (res.resultCode === 200) {
+                list.push(...res.result.map((v) => v.substr(0, 10)).sort((a, b) => a > b ? -1 : 1));
             }
+        });
+        dateList.value = list;
+        if (dateList.value.length > 0) {
+            form.date = dateList.value[0];
+            getTaskList();
+        } else {
+            homeworkListMap.value = {};
+            form.date = "--";
         }
     };
 
@@ -70,7 +78,7 @@ export default () => {
         );
         classList.value = userInfo.Classes.reverse();
         !form.subject && (form.subject = subjectList.value[0] ? subjectList.value[0].ID : form.subject);
-        !selectClassId.value && (selectClassId.value = classList.value[0].ID);
+        !selectClassId.value && classList.value.length > 0 && (selectClassId.value = classList.value[0].ID);
 
         getHasTaskDate();
     };

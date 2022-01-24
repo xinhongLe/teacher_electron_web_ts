@@ -1,6 +1,6 @@
 <template>
     <div class="pageListComponents">
-        <div class="me-work" :style="showRemarks ? 'width: calc(100% - 22rem)' : 'width: 100%;'" :class=" fullscreenStyle ? 'fullscreen' : ''">
+        <div class="me-work" :class=" fullscreenStyle ? 'fullscreen' : ''"  :style="{width: showRemarks ? 'calc(100% - 22rem)' : '100%', left: isShowCardList ? '180px' : '0'}">
                 <ScreenView
                 class="me-work-screen"
                 :inline="true"
@@ -18,7 +18,6 @@
             />
             <open-card-view-dialog @closeOpenCard="closeOpenCard" v-if="dialogVisible" :cardList="cardList" v-model:dialogVisible="dialogVisible"></open-card-view-dialog>
             <div
-                v-if="!fullscreenStyle"
                 class="me-page"
             >
                 <!-- :style="{ paddingBottom: hasCheck ? '40px' : '15px' }" -->
@@ -39,12 +38,15 @@
                     </div>
                 </div>
             </div>
+            <div class="fold-btn" v-show="fullscreenStyle" @click="isShowCardList = !isShowCardList">
+                <i :class="isShowCardList ? 'el-icon-arrow-left': 'el-icon-arrow-right'"></i>
+            </div>
         </div>
     </div>
 </template>
 
 <script>
-import { computed, defineComponent, ref, watch } from "vue-demi";
+import { computed, defineComponent, inject, ref, watch } from "vue";
 import TrackService, { EnumTrackEventType } from "@/utils/common";
 import pageListServer from "../../hooks/pageList";
 import useHome from "@/hooks/useHome";
@@ -70,6 +72,7 @@ export default defineComponent({
         const LessonID = computed(() => props.LessonID);
         const CardName = computed(() => props.CardName);
         const CardId = computed(() => props.CardId);
+        const isShowCardList = inject("isShowCardList");
         watch(
             () => props.showRemark,
             () => {
@@ -82,6 +85,7 @@ export default defineComponent({
                 if (!dialogVisible.value) {
                     keyDisabled.value = false;
                 }
+                emit("update:hideTool", dialogVisible.value);
             }
         );
         watch(
@@ -236,14 +240,13 @@ export default defineComponent({
                     const res = await getCardDetail(obj);
                     if (res.resultCode === 200 && res.result && res.result.length > 0) {
                         // 页名称可能会修改
-                        res.result.map(item => {
-                            pages.map(page => {
-                                if (page.ID === item.ID) {
-                                    newPages.push(
-                                        { Type: page.Type, ID: page.ID, Name: item.Name }
-                                    );
-                                }
-                            });
+                        pages.map(item => {
+                            const value = res.result.find(page => page.ID === item.ID);
+                            if (value) {
+                                newPages.push({ Type: item.Type, ID: item.ID, Name: value.Name });
+                            } else {
+                                newPages.push({ Type: item.Type, ID: item.ID, Name: item.Name });
+                            }
                         });
                         cardList.value = newPages;
                         dialogVisible.value = true;
@@ -279,6 +282,7 @@ export default defineComponent({
             pageNext,
             clockFullScreen,
             updateFlags,
+            isShowCardList,
             closeOpenCard,
             showWriteBoard,
             hideWriteBoard,
@@ -326,7 +330,8 @@ export default defineComponent({
     top: 0;
     left: 0;
     width: calc(100% - 22rem);
-    height: calc(100% - 85px);
+    height: calc(100% - 84px);
+    transition: left 0.3s;
 }
 .me-work {
     flex: 1;
@@ -334,6 +339,25 @@ export default defineComponent({
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    .fold-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        left: 0;
+        height: 104px;
+        width: 18px;
+        border-radius: 0px 8px 8px 0px;
+        background: #F5F6FA;
+        cursor: pointer;
+        i {
+            color: #7E7F83;
+            font-size: 18px;
+            font-weight: 700;
+        }
+    }
 }
 .me-work-screen {
     width: 100%;

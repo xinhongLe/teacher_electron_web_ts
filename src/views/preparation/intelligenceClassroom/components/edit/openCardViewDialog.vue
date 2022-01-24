@@ -1,21 +1,38 @@
 <template>
-    <el-dialog v-model="visible" :close-on-click-modal="false" :fullscreen="true" width="80%" title="" center @close="close">
-        <ScreenView ref="screenRef"  :inline="true" :isInit="isInit" @pagePrev="execPrev" @pageNext="execNext" :slide="slideView"/>
-        <template #footer>
-          <span class="dialog-footer">
-              <div class="cardLis-class">
-                  <div
-                      class="me-page-item"
-                      :class="selected === index && 'active'"
-                      v-for="(item, index) in cardList"
-                      @click="checkPage(index)"
-                      :key = item.ID>
-                      {{item.Name}}
-                  </div>
-              </div>
-          </span>
-        </template>
-    </el-dialog>
+    <div class="card-dialog"
+    >
+        <ScreenView
+            ref="screenRef"
+            :inline="true"
+            :isInit="isInit"
+            :writeBoardVisible="writeBoardVisible"
+            @pagePrev="execPrev"
+            @pageNext="execNext"
+            @closeWriteBoard="closeWriteBoard"
+            :slide="slideView"
+        />
+        <div class="cardLis-class">
+                <div
+                    class="me-page-item"
+                    :class="selected === index && 'active'"
+                    v-for="(item, index) in cardList"
+                    @click="checkPage(index)"
+                    :key="item.ID"
+                >
+                    {{ item.Name }}
+                </div>
+            </div>
+            <Tools
+                @prevStep="execPrev"
+                @nextStep="execNext"
+                @showWriteBoard="showWriteBoard"
+                @hideWriteBoard="hideWriteBoard"
+                @close="close"
+                :isShowFullscreen="false"
+                :isShowRemarkBtn="false"
+                :isShowClose="true"
+            />
+    </div>
 </template>
 
 <script lang="ts">
@@ -23,6 +40,7 @@ import { defineComponent, ref, onMounted, computed } from "vue";
 import useHome from "@/hooks/useHome";
 import { getWinCardDBData } from "@/utils/database";
 import { ElMessage } from "element-plus";
+import Tools from "../preview/tools.vue";
 export default defineComponent({
     name: "openCardViewDia",
     props: {
@@ -42,6 +60,7 @@ export default defineComponent({
         const cardList = ref<any[]>([]);
         const selected = ref(0);
         const isInit = ref(true);
+        const writeBoardVisible = ref(false);
         const { getPageDetail } = useHome();
         onMounted(async () => {
             cardList.value = props.cardList;
@@ -57,7 +76,10 @@ export default defineComponent({
         };
         const execNext = () => {
             if (selected.value === cardList.value.length - 1) {
-                return ElMessage({ type: "warning", message: "已经是最后一页" });
+                return ElMessage({
+                    type: "warning",
+                    message: "已经是最后一页"
+                });
             }
             selected.value++;
             isInit.value = true;
@@ -67,17 +89,33 @@ export default defineComponent({
             selected.value = index;
             _getPageDetail(selected.value);
         };
-        const _getPageDetail = async (index:number) => {
+        const _getPageDetail = async (index: number) => {
             const dbResArr = await getWinCardDBData(cardList.value[index].ID);
             if (dbResArr.length > 0) {
                 slideView.value = JSON.parse(dbResArr[0].result);
+                if (!cardList.value[index].update) {
+                    // 更新本地缓存弹卡信息
+                    await getPageDetail(cardList.value[index], 0, (res: any) => {
+                        if (!res.from) { // 线上返回
+                            cardList.value[index].update = true; // 标识弹卡已经更新过
+                            if (dbResArr[0].result !== JSON.stringify(res)) slideView.value = res; // 本地缓存和线上不一致 重新赋值
+                        }
+                    });
+                }
             } else {
                 await getPageDetail(cardList.value[index], 0, (res: any) => {
-                    if (res && res.id) {
-                        slideView.value = res;
-                    }
+                    slideView.value = res;
                 });
             }
+        };
+        const showWriteBoard = () => {
+            writeBoardVisible.value = true;
+        };
+        const hideWriteBoard = () => {
+            writeBoardVisible.value = false;
+        };
+        const closeWriteBoard = () => {
+            writeBoardVisible.value = false;
         };
         const close = () => {
             emit("closeOpenCard");
@@ -90,17 +128,40 @@ export default defineComponent({
             execNext,
             selected,
             checkPage,
+            showWriteBoard,
+            hideWriteBoard,
+            writeBoardVisible,
+            closeWriteBoard,
             close
         };
-    }
+    },
+    components: { Tools }
 });
 </script>
 
 <style scoped lang="scss">
-.cardLis-class{
+.card-dialog {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    :deep(.me-tools-set) {
+        transform: none;
+    }
+    :deep(.me-tools-steps) {
+        flex: 0.5;
+    }
+}
+.cardLis-class {
     display: flex;
     justify-content: flex-start;
     overflow-y: auto;
+    padding: 10px 20px;
     .me-page-item {
         background-color: #f0f3ff;
         color: #444;

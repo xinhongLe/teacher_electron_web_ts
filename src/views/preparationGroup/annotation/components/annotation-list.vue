@@ -2,7 +2,7 @@
     <div class="annotation-list" @click="editBoxSwtich = null">
         <div class="annotation-list-header">
             <div class="alh-left">批注</div>
-            <div class="alh-right">
+            <div class="alh-right" v-if="isHasShow">
                 <el-select @change="selectTeacher" v-model="teacherID" placeholder="请选择" clearable>
                     <el-option
                     v-for="item in options"
@@ -37,6 +37,7 @@
                             type="textarea"
                             :maxlength="1000"
                             :rows="5"
+                            @keydown="($event) => changeInput($event)"
                             resize="none">
                             </el-input>
                         <span v-else>
@@ -64,7 +65,7 @@ import { defineComponent, ref, getCurrentInstance, watch, onMounted, onBeforeUnm
 import { AddAnnotation, DeleteAnnotation, EditAnnotation } from "../api";
 import { set, get, STORAGE_TYPES } from "@/utils/storage";
 export default defineComponent({
-    props: ["AnotationList", "cardID", "pageID", "teacherList"],
+    props: ["AnotationList", "cardID", "pageID", "teacherList", "lessonItem"],
     setup(props, { emit }) {
         const options = ref([]);
         const teacherID = ref("");
@@ -77,6 +78,7 @@ export default defineComponent({
         const cardId = ref("");
         const pageId = ref("");
         const activeID = ref(0);
+        const isHasShow = ref(false);
         onMounted(() => {
             proxy.mittBus.on("annotationActionID", (annotationActionID) => {
                 activeID.value = annotationActionID;
@@ -114,7 +116,22 @@ export default defineComponent({
         watch(
             () => props.AnotationList,
             () => {
-                annotationList.value = props.AnotationList;
+                const userInfo = get(STORAGE_TYPES.USER_INFO);
+                const discussContent = JSON.parse(localStorage.getItem("discussContent"));
+                if (props.lessonItem.Status === 1) {
+                    annotationList.value = props.AnotationList;
+                } else if (props.lessonItem.Status === 2) {
+                    if (userInfo && userInfo.ID) {
+                        if (props.lessonItem.CreaterID === userInfo.ID || (discussContent && discussContent.ResourceResult && Object.keys(discussContent.ResourceResult).length > 0)) {
+                            annotationList.value = props.AnotationList;
+                        } else {
+                            annotationList.value = props.AnotationList.filter(v => {
+                                return v.CreateTeacherID === userInfo.ID;
+                            });
+                        }
+                    }
+                }
+                isHasShow.value = (userInfo.ID === props.lessonItem.CreaterID) || (discussContent && discussContent.ResourceResult && Object.keys(discussContent.ResourceResult).length > 0);
                 proxy.mittBus.emit("annotationList", annotationList.value);
             }
         );
@@ -226,7 +243,12 @@ export default defineComponent({
             emit("selectTeacher", e);
         };
         const isHasRule = (item) => {
-            return get(STORAGE_TYPES.USER_INFO).ID === item.CreateTeacherID;
+            return get(STORAGE_TYPES.USER_INFO) && get(STORAGE_TYPES.USER_INFO).ID === item.CreateTeacherID;
+        };
+        const changeInput = (e) => {
+            e = e || window.event;
+            e.stopPropagation && e.stopPropagation();
+            e.cancelBubble = true;
         };
         return {
             teacherID,
@@ -236,6 +258,7 @@ export default defineComponent({
             editFlag,
             contentFlag,
             options,
+            isHasShow,
             changeEditBoxSwtich,
             add,
             del,
@@ -244,7 +267,8 @@ export default defineComponent({
             submit,
             detailTime,
             selectTeacher,
-            isHasRule
+            isHasRule,
+            changeInput
         };
     }
 });

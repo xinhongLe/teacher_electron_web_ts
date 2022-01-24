@@ -1,12 +1,12 @@
 import { store } from "@/store";
 import { FileInfo, Question } from "@/types/lookQuestion";
-import { downloadFile } from "@/utils/oss";
+import { getOssUrl } from "@/utils/oss";
 import { get, STORAGE_TYPES } from "@/utils/storage";
 import { ElMessage, ElMessageBox } from "element-plus";
-import { computed, ref, watchEffect } from "vue";
+import { computed, ref, watchEffect, Ref } from "vue";
 import { fetchPureQuestionByQuestionID, getCourseBagQuestionsByIds, getQuestionsByIds } from "../api";
 
-export default (isPureQuestion: boolean, questionId = "", emit: (event: string, ...args: any[]) => void) => {
+export default (isPureQuestion: boolean, questionId = "", emit: (event: string, ...args: any[]) => void, childRef: Ref<any>) => {
     const imageUrl = ref<string[]>([]);
     const voiceUrl = ref<string[]>([]);
     const voiceUrlMap = ref({
@@ -34,7 +34,7 @@ export default (isPureQuestion: boolean, questionId = "", emit: (event: string, 
         const key = Extention
             ? `${FilePath}/${FileName}.${Extention}`
             : `${FilePath}/${FileName}`;
-        return downloadFile(key, Bucket);
+        return getOssUrl(key, Bucket);
     }
 
     async function getFileList(files: FileInfo[], type: number) {
@@ -65,6 +65,7 @@ export default (isPureQuestion: boolean, questionId = "", emit: (event: string, 
     function playSounds(index: number) {
         if (audioRef.value) {
             audioRef.value.src = voiceUrlMap.value[index === 0 ? "question" : "answer"];
+            audioRef.value.play();
         }
     }
 
@@ -92,6 +93,7 @@ export default (isPureQuestion: boolean, questionId = "", emit: (event: string, 
             });
         } else {
             lastId.value = id;
+            childRef.value && childRef.value.clearBrush();
             if (type === 3) {
                 res = await getCourseBagQuestionsByIds({
                     courseWareTeacherID: id

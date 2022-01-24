@@ -127,7 +127,6 @@ export default () => {
         });
     };
     const handleClickWin = (j:clickWinList, i: number, index: number) => {
-        console.log("j", j);
         activeIndex.leftActiveIndex = index;
         activeIndex.winIndex = i;
         activeIndex.winActiveId = j.WindowID;

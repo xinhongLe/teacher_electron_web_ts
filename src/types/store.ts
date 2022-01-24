@@ -45,7 +45,11 @@ export interface PreparationState {
     /**
      * 是否是点击详情跳转的
      */
-    isClickDetail: boolean
+    isClickDetail: boolean,
+    /**
+     * 窗卡页下一步按钮位置
+     */
+    selectNextType: string,
 }
 
 export interface CommonState {
@@ -73,7 +77,11 @@ export interface CommonState {
      */
     viewVideoInfo: {
         id: string
-    }
+    },
+    /**
+     * 备教端是否被嵌套在某个iframe里
+     */
+    isIframe: boolean
 }
 export interface RootState {
     userInfo: UserInfoState,

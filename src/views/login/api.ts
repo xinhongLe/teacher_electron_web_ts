@@ -6,13 +6,15 @@ import {
     ILessonManagerResponse,
     ILoginData,
     ILoginTokenData,
-    ILoginResponse
+    ILoginResponse,
+    ISendMsgData
 } from "@/types/login";
+import { RequestFun } from "@/types/response";
 
-export function Login(data: ILoginData): Promise<ILoginResponse> {
+export function Login(data: ILoginData, isPassWordLogin = true): Promise<ILoginResponse> {
     return request({
         baseURL: AI_XUE_SHI_API,
-        url: "/Api/W4/Teach/Login",
+        url: isPassWordLogin ? "/Api/W4/Teach/Login" : "/Api/W4/Teach/LoginWithVerify",
         method: "post",
         data
     });
@@ -54,3 +56,12 @@ export function GetUserInfoByToken(data: ILoginTokenData): Promise<ILoginRespons
         data
     });
 }
+
+export const sendMsg: RequestFun<ISendMsgData, null> = (data) => {
+    return request({
+        baseURL: AI_XUE_SHI_API,
+        url: "/Api/W4/Teach/SendMsg",
+        method: "post",
+        data
+    });
+};

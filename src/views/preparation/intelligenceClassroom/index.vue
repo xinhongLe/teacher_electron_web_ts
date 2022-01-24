@@ -3,44 +3,51 @@
         <div class="left" v-if="showList">
             <div>
                 <div class="left-content">
-                    <div
-                        class="win-box"
-                        v-for="(item, index) in winList"
-                        :key="index"
-                    >
-                        <div>
-                            <div
-                                v-for="(j, i) in item.TeachPageList"
-                                :key="i"
-                                :class="[
-                                    'win-bottom',
-                                    leftActiveIndex === index && winIndex === i
-                                        ? 'active'
-                                        : '',
-                                ]"
-                                @click="handleClickWin(j, i, index)"
-                            >
-                                <p>{{ item.Lesson.Name }}</p>
-                                <el-tooltip
-                                    class="item"
-                                    effect="dark"
-                                    :content="j.WindowName"
-                                    placement="bottom-start"
+                    <div v-if="winList.length === 0" class="empty">暂无数据</div>
+                    <template v-else>
+                        <div
+                            class="win-box"
+                            v-for="(item, index) in winList"
+                            :key="index"
+                        >
+                            <div>
+                                <div
+                                    v-for="(j, i) in item.TeachPageList"
+                                    :key="i"
+                                    :class="[
+                                        'win-bottom',
+                                        leftActiveIndex === index &&
+                                        winIndex === i
+                                            ? 'active'
+                                            : '',
+                                    ]"
+                                    @click="handleClickWin(j, i, index)"
                                 >
-                                    <div>{{ j.WindowName }}</div>
-                                </el-tooltip>
-                                <div class="win-bottom-edit">
-                                    <i class="el-icon-edit-outline" @click="windowEdit(j,i,item)"></i>
+                                    <p>{{ item.Lesson.Name }}</p>
+                                    <el-tooltip
+                                        class="item"
+                                        effect="dark"
+                                        :content="j.WindowName"
+                                        placement="bottom-start"
+                                    >
+                                        <div>{{ j.WindowName }}</div>
+                                    </el-tooltip>
+                                    <div class="win-bottom-edit">
+                                        <i
+                                            class="el-icon-edit-outline"
+                                            @click="windowEdit(j, i, item)"
+                                        ></i>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </template>
                 </div>
             </div>
         </div>
         <div class="right">
             <div class="right-bottom">
-                 <div class="card-box-away" @click="showList = !showList">
+                <div class="card-box-away" @click="showList = !showList">
                     <span v-if="showList">
                         <i class="el-icon-arrow-left"></i>
                     </span>
@@ -48,19 +55,28 @@
                         <i class="el-icon-arrow-right"></i>
                     </span>
                 </div>
-                <div class="card-box-left">
+                <div
+                    class="card-box-left"
+                    :class="{
+                        fullScreen: isFullScreen,
+                        hidden: isFullScreen && !isShowCardList,
+                    }"
+                >
                     <div class="card-box-lefts">
                         <CardList
-                        ref="cardListComponents"
-                        :winActiveId="winActiveId"
-                        :WindowName="WindowName"
-                        :cardList="cardList"
-                        :LessonID="LessonID"
-                        @updatePageList="updatePageList"
-                        @updateFlag="updateFlag"
-                    />
+                            ref="cardListComponents"
+                            :winActiveId="winActiveId"
+                            :WindowName="WindowName"
+                            :cardList="cardList"
+                            :LessonID="LessonID"
+                            @updatePageList="updatePageList"
+                            @updateFlag="updateFlag"
+                        />
                     </div>
-                    <div class="card-box-outbottom"></div>
+                    <div
+                        class="card-box-outbottom"
+                        v-show="!isFullScreen"
+                    ></div>
                 </div>
                 <div class="card-detail">
                     <div class="card-detail-content">
@@ -77,6 +93,8 @@
                             @lastPage="lastPage"
                             @firstPage="firstPage"
                             @changeWinSize="changeWinSize"
+                            @fullScreen="fullScreen"
+                            @clockFullScreen="clockFullScreen"
                         />
                     </div>
                 </div>
@@ -87,7 +105,16 @@
 
 <script>
 import { store } from "@/store";
-import { defineComponent, onActivated, onDeactivated, onMounted, ref, toRefs, watch } from "vue";
+import {
+    defineComponent,
+    onActivated,
+    onDeactivated,
+    onMounted,
+    provide,
+    ref,
+    toRefs,
+    watch
+} from "vue";
 import userSelectBookInfo from "./hooks/userSelectBookInfo";
 import CardList from "./cardList/index.vue";
 import PreviewSection from "./components/preview/previewSection.vue";
@@ -95,17 +122,32 @@ import { useRouter } from "vue-router";
 import { CopyWindow } from "./api/index";
 export default defineComponent({
     components: {
-        CardList, PreviewSection
+        CardList,
+        PreviewSection
     },
     setup() {
         const router = useRouter();
         const showList = ref(true);
-        const { allPageList, activeIndex, allData, cardListComponents, _getSchoolLessonWindow, handleClickWin, _getWindowCards, updatePageList } = userSelectBookInfo();
+        const isFullScreen = ref(false);
+        const isShowCardList = ref(true);
+        const {
+            allPageList,
+            activeIndex,
+            allData,
+            cardListComponents,
+            _getSchoolLessonWindow,
+            handleClickWin,
+            _getWindowCards,
+            updatePageList
+        } = userSelectBookInfo();
+        provide("isShowCardList", isShowCardList);
         watch(
             () => store.state.preparation.selectChapterID,
             () => {
                 if (!store.state.preparation.selectChapterID) return false;
-                const obj = { chapterID: store.state.preparation.selectChapterID };
+                const obj = {
+                    chapterID: store.state.preparation.selectChapterID
+                };
                 _getSchoolLessonWindow(obj);
             }
         );
@@ -154,6 +196,12 @@ export default defineComponent({
         const updateFlag = () => {
             PreviewSection.value.updateFlag();
         };
+        const fullScreen = () => {
+            isFullScreen.value = true;
+        };
+        const clockFullScreen = () => {
+            isFullScreen.value = false;
+        };
         onActivated(() => {
             document.onkeydown = (event) => {
                 event.preventDefault();
@@ -176,10 +224,14 @@ export default defineComponent({
             updateFlag,
             allPageList,
             _getWindowCards,
-            changeWinSize
+            changeWinSize,
+            isFullScreen,
+            fullScreen,
+            isShowCardList,
+            clockFullScreen
         };
     },
-    activated () {
+    activated() {
         if (this.winActiveId) {
             this._getWindowCards(this.winActiveId, true);
         }
@@ -219,6 +271,14 @@ $border-color: #f5f6fa;
                 overflow-y: auto;
                 padding: 20px;
                 border-top: 1px solid $border-color;
+                .empty {
+                    width: 100%;
+                    height: 100%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 20px;
+                }
                 .win-box {
                     margin-bottom: 20px;
                     .win-top {
@@ -274,11 +334,11 @@ $border-color: #f5f6fa;
                             margin-bottom: 20px;
                         }
                     }
-                    .win-bottom-edit{
+                    .win-bottom-edit {
                         position: absolute;
                         bottom: 0;
                         right: 10px;
-                        color:white;
+                        color: white;
                     }
 
                     .active {
@@ -359,7 +419,7 @@ $border-color: #f5f6fa;
             flex: 1;
             min-width: 0;
             justify-content: space-between;
-            .card-box-away{
+            .card-box-away {
                 position: absolute;
                 top: calc(50% - 60px);
                 left: -20px;
@@ -382,8 +442,20 @@ $border-color: #f5f6fa;
                 min-width: 0;
                 min-height: 0;
                 flex-direction: column;
+                background: #fff;
+                &.fullScreen {
+                    background: #f5f6fa;
+                    position: fixed;
+                    left: 0;
+                    top: 0;
+                    height: calc(100% - 84px);
+                    transition: width 0.3s;
+                }
+                &.hidden {
+                    width: 0;
+                }
             }
-            .card-box-lefts{
+            .card-box-lefts {
                 display: flex;
                 flex: 1;
                 min-width: 0px;
@@ -391,7 +463,7 @@ $border-color: #f5f6fa;
                 overflow-y: auto;
                 margin-bottom: 20px;
             }
-            .card-box-outbottom{
+            .card-box-outbottom {
                 width: 100%;
                 height: 84px;
                 background: #bccfff;

@@ -9,11 +9,11 @@ router.beforeEach((to, from, next) => {
     // 判断有没有登录,登录的话跳到系统，未登录的话不让跳到系统
     if (to.query.account && to.query.password) {
         const { userLogin } = useLogin();
-        userLogin(
-            to.query.account.toString(),
-            to.query.password.toString(),
+        userLogin({
+            account: to.query.account.toString(),
+            password: to.query.password.toString(),
             next
-        );
+        });
     } else if (window.location.href.indexOf("yueyangyun") > -1 && to.query.token) {
         const { userLoginByToken } = useLogin();
         userLoginByToken(

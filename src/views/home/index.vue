@@ -63,7 +63,7 @@
                         <span>课后延时</span>
                     </div>
                 </div>
-                <div class="item" @click="go('preparation-group')">
+                <!-- <div class="item" @click="go('preparation-group')">
                     <div class="item_div">
                         <img
                             src="../../assets/indexImages/pic_jitibeike.png"
@@ -71,7 +71,7 @@
                         />
                         <span>集体备课</span>
                     </div>
-                </div>
+                </div> -->
                 <div class="item" @click="go('')">
                     <div class="item_div">
                         <img
@@ -124,7 +124,7 @@ export default defineComponent({
         };
         const turnToPage = () => {
             // 岳阳云平台内嵌备教端，页面跳转
-            if (route.redirectedFrom && window.top && window.top[0] && window.top[0].location && window.top[0].location.origin && (window.top[0].location.origin.indexOf("yueyangyun") > -1 || (window.top[0].location.ancestorOrigins && window.top[0].location.ancestorOrigins[0] && window.top[0].location.ancestorOrigins[0].indexOf("yueyangyun") > -1) || window.top[0].location.origin.indexOf("20.199") > -1)) {
+            if (route.redirectedFrom && window?.top && (window?.top[0]?.location.origin.indexOf("yueyangyun") > -1 || (window?.top[0]?.location?.ancestorOrigins[0].indexOf("yueyangyun") > -1) || window?.top[0]?.location?.origin.indexOf("20.199") > -1)) {
                 const path = route.redirectedFrom.path.split("#/")[1] || "";
                 router.replace(`${path}`);
             }
@@ -266,7 +266,7 @@ export default defineComponent({
             width: 100%;
             display: flex;
             .item {
-                width: 16.6%;
+                flex: 1;
                 .item_div {
                     cursor: pointer;
                     position: relative;

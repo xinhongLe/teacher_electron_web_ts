@@ -1,6 +1,6 @@
 <template>
     <div class="main-container">
-        <NavBar v-if="isShowNarBar"/>
+        <NavBar v-if="isShowNarBar && !isIframe"/>
         <Suspension v-if="!isElectron && !isIframe"/>
         <LookQuestion v-if="isShowQuestion"/>
         <LookVideo v-if="isShowVideo"/>
@@ -29,7 +29,7 @@ import { set, STORAGE_TYPES } from "@/utils/storage";
 import useUserInfo from "@/hooks/useUserInfo";
 import useTagList from "@/hooks/useTagList";
 import LookQuestion from "./lookQuestion/index.vue";
-import { store } from "@/store";
+import { MutationTypes, store } from "@/store";
 import LookVideo from "./lookVideo/index.vue";
 import Projection from "./projection/index.vue";
 
@@ -45,7 +45,6 @@ export default defineComponent({
     setup() {
         const route = useRoute();
         const isShowNarBar = ref(true);
-        const isIframe = ref(false);
         const wpfNames = ["wpf班级管理", "wpf管理标签", "wpf学习记录"];
         const { queryUserInfo } = useUserInfo();
         const { getTagList } = useTagList();
@@ -53,10 +52,16 @@ export default defineComponent({
 
         watch(() => ({ query: route.query, name: route.name }), ({ query, name }) => {
             isShowNarBar.value = !query.head && !wpfNames.includes(name as string);
-            // 岳阳云平台内嵌备教端，隐藏头部
-            if (window.top && window.top[0] && window.top[0].location && window.top[0].location.origin && (window.top[0].location.origin.indexOf("yueyangyun") > -1 || (window.top[0].location.ancestorOrigins && window.top[0].location.ancestorOrigins[0] && window.top[0].location.ancestorOrigins[0].indexOf("yueyangyun") > -1) || window.top[0].location.origin.indexOf("20.199") > -1)) {
-                isShowNarBar.value = false;
-                isIframe.value = true;
+            // 岳阳云平台内嵌备教端
+            if (name === "集体备课") {
+                if (window?.top && (window.top[0]?.location?.origin?.indexOf("yueyangyun") > -1 || (window.top[0]?.location?.ancestorOrigins[0]?.indexOf("yueyangyun") > -1) || window.top[0]?.location?.origin?.indexOf("20.199") > -1)) {
+                    isShowNarBar.value = false;
+                    localStorage.setItem(MutationTypes.LOCAL_IS_IFRAME, "1");
+                    store.commit(MutationTypes.SET_IS_IFRAME, { flag: true });
+                } else {
+                    store.commit(MutationTypes.SET_IS_IFRAME, { flag: false });
+                    localStorage.setItem(MutationTypes.LOCAL_IS_IFRAME, "0");
+                }
             }
         });
 
@@ -94,9 +99,9 @@ export default defineComponent({
         return {
             isElectron: isElectron(),
             isShowQuestion: computed(() => store.state.common.isShowQuestion),
+            isIframe: computed(() => localStorage.getItem(MutationTypes.LOCAL_IS_IFRAME) === "1" || store.state.common.isIframe),
             isShowVideo: computed(() => store.state.common.isShowVideo),
             isShowNarBar,
-            isIframe,
             keepExcludeArr
         };
     }

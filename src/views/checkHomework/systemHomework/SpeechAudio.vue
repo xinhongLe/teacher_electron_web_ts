@@ -24,7 +24,7 @@
 
 <script lang="ts">
 import { SpeechAssessResult } from "@/types/checkHomework";
-import { downloadFile } from "@/utils/oss";
+import { getOssUrl } from "@/utils/oss";
 import { defineComponent, PropType, ref, watch } from "vue";
 export default defineComponent({
     props: {
@@ -75,7 +75,7 @@ export default defineComponent({
                 const key = Extention
                     ? `${FilePath}/${FileName}.${Extention}`
                     : `${FilePath}/${FileName}`;
-                const url = await downloadFile(key, Bucket);
+                const url = await getOssUrl(key, Bucket);
 
                 audioList.value.push({
                     time: dealTime(item.Wavetime),
@@ -86,7 +86,6 @@ export default defineComponent({
         };
 
         const playAudio = (i: number) => {
-            console.log(audioRef.value?.paused);
             if (!audioRef.value?.paused) {
                 playIndex.value = null;
                 return audioRef.value!.pause();

@@ -37,7 +37,8 @@ export default () => {
         const type: number = transformType(page.Type);
         if (type < 0) {
             ElMessage({ type: "warning", message: "暂不支持该页面类型" });
-            return {};
+            const res = {}; // 不支持页面返回空对象
+            return callback(res);
         }
         await getPageDetailRes(data, type, async(res:any) => {
             const pageDetail = await dealPageDetail(page, res);

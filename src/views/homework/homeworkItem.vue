@@ -295,7 +295,6 @@ export default defineComponent({
             showdataPicker.value = false;
         };
         const dateChange = (val: any, info: any) => {
-            console.log("change");
             const obj = {
                 classHomeworkPaperID: info.ClassHomeworkPaperID,
                 answerShowTime: `${moment(val).format("YYYY-MM-DD HH:mm:ss")}`

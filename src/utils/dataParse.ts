@@ -259,6 +259,8 @@ const dealText = (oldText: IOldTextElement) => {
     // LineHeight 不存在的情况
     oldText.LineHeight = oldText.LineHeight || 22;
     oldText.LineHeight = oldText.LineHeight < oldText.FontSize ? oldText.FontSize : oldText.LineHeight;
+    // 文本有为null的情况出来
+    oldText.Text = oldText.Text || "";
     // 由于旧数据文本在行内是居上显示的，所以这类计算上下的偏移量
     const realTextHeight = getTextHeight(oldText.FontSize, oldText.FontFamily, oldText.Text);
     const offsetTop = (oldText.LineHeight - realTextHeight) / 2;
@@ -572,6 +574,10 @@ interface IOldVideo {
     Width: number;
     ZIndex: number;
     EnumVideoPlayStyle: number;
+    VideoPlayStyle: number;
+    OssCoverFileName: string;
+    OssDisplayCoverFileNmae: string;
+    OssImageFileName: string;
     IsAutoPlay: boolean;
 }
 
@@ -587,7 +593,9 @@ const dealVideo = async (oldVideo: IOldVideo) => {
         height: 0,
         src: "",
         showType: 0,
-        rotate: 0
+        rotate: 0,
+        poster: "",
+        icon: ""
     };
 
     if (oldVideo.Type === 10 || oldVideo.Type === 13) {
@@ -599,8 +607,6 @@ const dealVideo = async (oldVideo: IOldVideo) => {
                     oldVideo.OssFileName = "";
                 }
             });
-        } else {
-            oldVideo.OssFileName = "";
         }
     }
 
@@ -610,10 +616,12 @@ const dealVideo = async (oldVideo: IOldVideo) => {
     element.top = oldVideo.Top;
     element.width = oldVideo.Width;
     element.height = oldVideo.Height;
-    element.src = OSS_PATH + "/" + oldVideo.OssFileName;
-    element.showType = element.showType = oldVideo.Type === 13 ? (oldVideo.EnumVideoPlayStyle === 1 ? 0 : 1) : oldVideo.Type === 7 ? 1 : 0;
+    element.src = oldVideo.OssFileName ? OSS_PATH + "/" + oldVideo.OssFileName : "";
+    element.showType = oldVideo.Type === 13 ? ((oldVideo.EnumVideoPlayStyle === 1 || oldVideo.VideoPlayStyle === 1) ? 0 : 1) : oldVideo.Type === 7 ? 1 : 0;
     element.display = oldVideo.IsVisibility;
     element.autoPlay = oldVideo.IsAutoPlay;
+    element.poster = oldVideo.OssCoverFileName ? OSS_PATH + "/" + oldVideo.OssCoverFileName : "";
+    element.icon = oldVideo.OssImageFileName ? OSS_PATH + "/" + oldVideo.OssImageFileName : (oldVideo.OssDisplayCoverFileNmae ? OSS_PATH + "/" + oldVideo.OssDisplayCoverFileNmae : "");
     return element;
 };
 

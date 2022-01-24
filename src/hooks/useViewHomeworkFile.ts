@@ -1,6 +1,6 @@
 import { FileInfo } from "@/types/lookQuestion";
 import { openFile } from "@/utils";
-import { downloadFile } from "@/utils/oss";
+import { getOssUrl } from "@/utils/oss";
 import { ref } from "vue";
 
 export default () => {
@@ -23,7 +23,7 @@ export default () => {
             const name = index === -1 ? FileName : FileName.substring(FileName.lastIndexOf("\\") + 1, index);
             if (Extention) {
                 const key = FilePath + "/" + name + "." + Extention;
-                src.value = await downloadFile(key, Bucket);
+                src.value = await getOssUrl(key, Bucket);
                 if (extentionArr.includes(Extention)) {
                     visible.value = true;
                 } else {
@@ -31,7 +31,7 @@ export default () => {
                 }
             } else {
                 const key = FilePath + "/" + name;
-                src.value = await downloadFile(key, Bucket);
+                src.value = await getOssUrl(key, Bucket);
                 visible.value = true;
             }
         }

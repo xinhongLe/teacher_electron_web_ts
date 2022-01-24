@@ -69,7 +69,7 @@ export default defineComponent({
                     emit("SetTeacherCount", memberList.value.length);
                     sessionStorage.setItem("memberList", JSON.stringify(memberList.value));
                     nextTick(() => {
-                        const windowContent = document.documentElement.clientWidth;
+                        const windowContent = (document.documentElement && document.documentElement.clientWidth) || 0;
                         isShowMore.value = memberList.value.length * 92 > windowContent;
                     });
                 }
@@ -78,7 +78,11 @@ export default defineComponent({
 
         onMounted(() => {
             proxy.mittBus.on("PreDetail", (preDetail: any) => {
-                isHasRule.value = preDetail.CreaterID === get(STORAGE_TYPES.USER_INFO).ID;
+                if (get(STORAGE_TYPES.USER_INFO)) {
+                    isHasRule.value = preDetail.CreaterID === get(STORAGE_TYPES.USER_INFO).ID;
+                } else {
+                    isHasRule.value = false;
+                }
             });
             getTeacherGroup();
         });
