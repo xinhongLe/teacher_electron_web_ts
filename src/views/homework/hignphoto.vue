@@ -1086,23 +1086,31 @@ body {
       border: 1px solid #a4c4f9;
       .line{
           position: absolute;
-          left:19%;
+          left:18%;
           z-index: 2;
           widows: 100%;
           width: 1482px;
           height: 58px;
           background: url("../../assets/homeworkImg/pic_saomiao.png");
-          animation: myScan 1s infinite alternate;
-	-webkit-animation: myScan 1s infinite alternate;
+          animation: myScan 2s infinite alternate;
+          -webkit-animation: myScan 2s infinite alternate;
       }
       @keyframes  myScan{
-		from { top: 0px; }
-		to { top: 1550px; }
+          0% {
+              transform: translate(0, 0);
+          }
+          100% {
+              transform: translate(0, 1550px);
+          }
 	}
 	@-webkit-keyframes  myScan{
-		from { top: 0px; }
-		to { top: 1550px; }
-		}
+		0% {
+              transform: translate(0, 0);
+        }
+        100% {
+            transform: translate(0, 1550px);
+        }
+	}
       video {
         height: 100%;
         position: absolute;
