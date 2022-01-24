@@ -242,7 +242,7 @@ export default defineComponent({
                                 }
                                 studentMission.value = smin;
                                 studentMissionTemp.value = smin;
-                                studentName.value = smin.StudentName;
+                                studentName.value = smin.StudentName ?? "未知";
                                 IdentifyTip.value = "识别中,请翻到第" + pageNumTemp.value + "页";
                             } else {
                                 ElMessage({ type: "error", message: "此学生不属于这个班，请识别正确的二维码" });
