@@ -80,19 +80,19 @@ export default defineComponent({
             }
         });
 
-        const projection = (e: any, data: any) => {
-            console.log(data);
+        const answerjection = (e: any, data: any) => {
+            window.electron.ipcRenderer.invoke("answer-jection", data);
         };
 
         if (isElectron()) {
-            window.electron.ipcRenderer.on("singalRData-Projection", projection);
+            window.electron.ipcRenderer.on("answer-jection", answerjection);
             window.electron.ipcRenderer.invoke("openSuspension");
             window.electron.maximizeWindow();
         }
 
         onUnmounted(() => {
             if (isElectron()) {
-                window.electron.ipcRenderer.off("singalRData-Projection", projection);
+                window.electron.ipcRenderer.off("answer-jection", answerjection);
             }
         });
 

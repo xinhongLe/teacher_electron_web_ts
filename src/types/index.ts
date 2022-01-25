@@ -1,4 +1,4 @@
-import electron, { Remote } from "electron";
+import electron, { Remote, SaveDialogReturnValue, SaveDialogOptions, OpenDialogOptions, OpenDialogReturnValue } from "electron";
 import { LogFunctions } from "electron-log";
 import Store from "electron-store";
 
@@ -24,6 +24,9 @@ type Electron = typeof electron & {
     getCachePath: (path: string) => void,
     readFile: (path: string, callback: (buffer: ArrayBuffer) => void) => void,
     savePutFile: (path: string, buffer: NodeJS.ArrayBufferView) => void,
+    setPositionWin: (x: number, y: number) => void,
+    showSaveDialog: (option: SaveDialogOptions) => Promise<SaveDialogReturnValue>,
+    showOpenDialog: (option: OpenDialogOptions) => Promise<OpenDialogReturnValue>,
     store: Store,
     log: LogFunctions
 }

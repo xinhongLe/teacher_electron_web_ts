@@ -54,7 +54,11 @@ export enum STORAGE_TYPES {
     /**
      * 是否开启缓存
      */
-    SET_ISCACHE = "SET_ISCACHE"
+    SET_ISCACHE = "SET_ISCACHE",
+    /**
+     * 学生绑定答题器列表
+     */
+    STUDENT_MACHINE_LIST = "STUDENT_MACHINE_LIST_"
 }
 
 export const set = (name: STORAGE_TYPES | string, value: unknown, isEncrypt = false) => {

@@ -6,6 +6,7 @@ let blackboardWin: BrowserWindow;
 let timerWin: BrowserWindow;
 let projectionWin: BrowserWindow;
 let rollCallWin: BrowserWindow;
+let answerMachineWin: BrowserWindow;
 let isShowTimer = false; // 悬浮球是否显示时间
 let isShowVideo = false; // 悬浮球是否显示视频图标
 let isShowBlackboard = false; // 悬浮球是否显示黑板图标
@@ -30,6 +31,10 @@ const blackboardURL = process.env.NODE_ENV === "development"
 const projectionURL = process.env.NODE_ENV === "development"
     ? `${process.env.WEBPACK_DEV_SERVER_URL}projection.html`
     : `file://${__dirname}/projection.html`;
+
+const answerMachineURL = process.env.NODE_ENV === "development"
+    ? `${process.env.WEBPACK_DEV_SERVER_URL}answerMachine.html`
+    : `file://${__dirname}/answerMachine.html`;
 
 function setSuspensionSize(isResetPosition = true, isCloseWelt = false) {
     let width = 120;
@@ -130,6 +135,7 @@ function createUnfoldSuspensionWindow() {
         show: false,
         useContentSize: true,
         transparent: true, // 设置透明
+        backgroundColor: "#00000000",
         alwaysOnTop: true // 窗口是否总是显示在其他窗口之前
     });
     // 设置黑板窗口位置
@@ -161,6 +167,29 @@ function createBlackboardWindow() {
         isShowBlackboard = false;
         suspensionWin.webContents.send("hideSuspensionBlackboard");
         setSuspensionSize();
+    });
+}
+
+function createAnswerMachineWindow(allStudentList: []) {
+    answerMachineWin = createWindow(answerMachineURL, {
+        width: 620,
+        height: 422,
+        center: true,
+        useContentSize: true,
+        transparent: true,
+        backgroundColor: "#00000000",
+        type: "toolbar", // 创建的窗口类型为工具栏窗口
+        frame: false, // 要创建无边框窗口
+        alwaysOnTop: true,
+        resizable: false
+    });
+
+    answerMachineWin.on("ready-to-show", () => {
+        answerMachineWin.webContents.send("sendAllStudentList", allStudentList);
+    });
+
+    answerMachineWin.on("closed", () => {
+        answerMachineWin = null;
     });
 }
 
@@ -209,6 +238,7 @@ export function createSuspensionWindow() {
         show: false,
         useContentSize: true,
         transparent: true, // 设置透明
+        backgroundColor: "#00000000",
         alwaysOnTop: true // 窗口是否总是显示在其他窗口之前
     });
     const size = screen.getPrimaryDisplay().workAreaSize; // 获取显示器的宽高
@@ -277,6 +307,7 @@ export function registerEvent() {
         suspensionWin && suspensionWin.hide();
         unfoldSuspensionWin && unfoldSuspensionWin.hide();
         rollCallWin && rollCallWin.destroy();
+        answerMachineWin && answerMachineWin.destroy();
         hideSuspensionIcon();
     });
 
@@ -384,5 +415,16 @@ export function registerEvent() {
             return projectionWin.show();
         }
         createProjectionWindow();
+    });
+
+    ipcMain.handle("openAnswerMachineWindow", (_, allStudentList) => {
+        showSuspension();
+        if (!answerMachineWin) {
+            createAnswerMachineWindow(allStudentList);
+        }
+    });
+
+    ipcMain.handle("answer-jection", (_, data) => {
+        answerMachineWin.webContents.send("answer-jection", data);
     });
 }

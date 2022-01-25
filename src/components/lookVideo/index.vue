@@ -278,7 +278,7 @@ export default defineComponent({
     width: 100vw;
     height: 100vh;
     position: fixed;
-    z-index: 9999;
+    z-index: 2000;
     overflow: hidden;
     background: #fff;
     -webkit-app-region: no-drag;

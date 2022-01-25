@@ -1,5 +1,5 @@
-import { getCurrentWindow, app } from "@electron/remote";
-import electron, { remote } from "electron";
+import { getCurrentWindow, app, dialog } from "@electron/remote";
+import electron, { OpenDialogOptions, remote, SaveDialogOptions, SaveDialogReturnValue } from "electron";
 import { appPath, isExistFile, store } from "./downloadFile";
 import { resolve } from "path";
 import ElectronLog from "electron-log";
@@ -57,6 +57,10 @@ window.electron = {
         const currentWindow = getCurrentWindow();
         currentWindow.setContentSize(width, height);
     },
+    setPositionWin: (x, y) => {
+        const currentWindow = getCurrentWindow();
+        currentWindow.setPosition(x, y);
+    },
     setCenter: () => {
         getCurrentWindow().center();
     },
@@ -113,6 +117,14 @@ window.electron = {
                 ElectronLog.error("写入资源文件失败：", err);
             }
         });
+    },
+    showSaveDialog: (option: SaveDialogOptions) => {
+        const currentWindow = getCurrentWindow();
+        return dialog.showSaveDialog(currentWindow, option);
+    },
+    showOpenDialog: (option: OpenDialogOptions) => {
+        const currentWindow = getCurrentWindow();
+        return dialog.showOpenDialog(currentWindow, option);
     },
     store: store,
     ...electron

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="76px" height="8px" viewBox="0 0 76 8" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>img_xianduan</title>
+    <g id="答题器" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="我的学生-绑定答题器备份-2" transform="translate(-845.000000, -378.000000)">
+            <g id="编组-17" transform="translate(749.000000, 282.000000)">
+                <g id="编组-22" transform="translate(29.000000, 84.000000)">
+                    <g id="img_xianduan" transform="translate(68.250000, 12.003356)">
+                        <line x1="0" y1="3.49788191" x2="74" y2="3.50211809" id="路径-3" stroke="#D6D7D8" stroke-linecap="round" stroke-dasharray="4"></line>
+                        <g id="编组-24" transform="translate(30.000000, 0.000000)" fill="#C3D1FF">
+                            <polygon id="路径-126" transform="translate(3.496767, 3.589522) rotate(-270.000000) translate(-3.496767, -3.589522) " points="3.49676701 0.0927550476 -0.0927550476 3.58952206 -0.0927550476 7.08628907 3.4060075 3.58952206 7.08628907 7.08628907 7.08628907 3.58952206"></polygon>
+                            <polygon id="路径-126备份" transform="translate(10.496767, 3.589522) rotate(-270.000000) translate(-10.496767, -3.589522) " points="10.496767 0.0927550476 6.90724495 3.58952206 6.90724495 7.08628907 10.496767 3.50088064 14.0862891 7.08628907 14.0862891 3.58952206"></polygon>
+                        </g>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

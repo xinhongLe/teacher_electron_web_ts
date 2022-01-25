@@ -40,7 +40,7 @@
                     <div class="blackboard-text">黑板</div>
                     <!-- <div class="blackboard-btn" @click="openBlackboard()">打开</div> -->
                 </div>
-                <div class="blackboard-box" @click="uncultivated">
+                <div class="blackboard-box" @click="openAnswerMachineWindow">
                     <img
                         src="@/assets/images/suspension/img_datiqi.png"
                         alt=""
@@ -237,6 +237,15 @@ export default defineComponent({
             }
         };
 
+        const openAnswerMachineWindow = () => {
+            if (allStudentList.value.length === 0) {
+                return ElMessage.error("请等待学员加载后答题！");
+            }
+            if (isElectron()) {
+                return window.electron.ipcRenderer.invoke("openAnswerMachineWindow", JSON.parse(JSON.stringify(allStudentList.value)));
+            }
+        };
+
         const close = () => {
             if (isElectron()) {
                 window.electron.ipcRenderer.invoke("hideUnfoldSuspensionWin");
@@ -309,6 +318,7 @@ export default defineComponent({
             gameList,
             exitApp,
             clickKnowledge,
+            openAnswerMachineWindow,
             clickProjection,
             searchName,
             uncultivated,
