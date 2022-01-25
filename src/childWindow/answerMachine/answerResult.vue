@@ -74,7 +74,10 @@ export default defineComponent({
     },
     setup(props) {
         const echartRef = ref<HTMLDivElement>();
-        const QuestionType = inject("QuestionType") as typeof PADModeQuestionType;
+        const QuestionType = inject(
+            "QuestionType",
+            ref(PADModeQuestionType)
+        );
         const questionOptionList = computed(() => props.questionOption.split(";"));
         const studentAnswerInfoListMap = computed(() => {
             const map = new Map<string, Student[]>();

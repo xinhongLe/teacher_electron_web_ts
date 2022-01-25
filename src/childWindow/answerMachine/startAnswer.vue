@@ -107,7 +107,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, inject, PropType, ref, watch } from "vue";
+import { computed, defineComponent, inject, PropType, Ref, ref, watch } from "vue";
 import { get, STORAGE_TYPES } from "@/utils/storage";
 import { LessonClasses } from "@/types/login";
 import { Student } from "@/types/labelManage";
@@ -175,8 +175,9 @@ export default defineComponent({
         const isShowStudentList = ref(false);
         const choiceQuestion = getChoiceQuestion();
         const QuestionType = inject(
-            "QuestionType"
-        ) as typeof PADModeQuestionType;
+            "QuestionType",
+            ref(PADModeQuestionType)
+        );
         const questionnaireOption = [
             {
                 value: "2",
@@ -264,9 +265,10 @@ export default defineComponent({
         };
 
         const choiceQuestionType = (type: PADModeQuestionType) => {
+            console.log(type);
             if (questionType.value === type) return;
             questionType.value = type;
-            if (type === QuestionType.判断题) {
+            if (type === QuestionType.value.判断题) {
                 option.value = questionnaireOption;
                 selectSetting.value = [
                     questionnaireOption[0].value,

@@ -45,7 +45,10 @@ export default defineComponent({
     setup(props, { emit }) {
         const size = screen.getPrimaryDisplay().workAreaSize;
         const unAnswerStudentList = ref([...props.studentList]);
-        const QuestionType = inject("QuestionType") as typeof PADModeQuestionType;
+        const QuestionType = inject(
+            "QuestionType",
+            ref(PADModeQuestionType)
+        );
         const { showTime, startCountDown, endCountDown } = useCountDown();
 
         const answerJection = (_:unknown, data:any) => {
