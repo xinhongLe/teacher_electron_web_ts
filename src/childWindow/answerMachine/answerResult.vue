@@ -82,7 +82,7 @@ export default defineComponent({
         const studentAnswerInfoListMap = computed(() => {
             const map = new Map<string, Student[]>();
             props.studentAnswerInfoList.forEach((item) => {
-                const questionDetailList = item.QuestionDetail.split(";").filter(value => value);
+                const questionDetailList = item.QuestionDetail.includes(";") ? item.QuestionDetail.split(";").filter(value => value) : item.QuestionDetail.split(",").filter(value => value);
                 questionDetailList.forEach(value => {
                     const student = props.studentList.find(({ StudentID }) => StudentID === item.StudentId);
                     if (map.has(value)) {

@@ -133,7 +133,7 @@ function getChoiceQuestion() {
         let numberChoice = "1";
         let englishChoice = "A";
         for (let j = 1; j < i; j++) {
-            numberChoice += ` ${j}`;
+            numberChoice += ` ${j + 1}`;
             englishChoice += ` ${String.fromCharCode(j + 65)}`;
         }
         item.children = [
