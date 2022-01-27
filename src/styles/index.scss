@@ -246,6 +246,26 @@ html {
 .brushPopup {
     background: rgb(40, 40, 40) !important;
     color: #FFF !important;
+    border: none !important;
+    --el-color-white: rgb(40, 40, 40);
+    --el-border-color-light: rgb(40, 40, 40);
+    .eraserPopup {
+        display: flex;
+        padding: 12px;
+        color: #fff;
+        justify-content: space-around;
+        .erasure {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            span {
+                font-size: 16px;
+            }
+        }
+        img{
+            width: 20px;
+        }
+    }
     .color-box,
     .size-box {
         display: flex;

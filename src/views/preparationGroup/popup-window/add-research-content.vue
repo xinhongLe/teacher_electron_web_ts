@@ -91,7 +91,6 @@ import { ElMessage } from "element-plus";
 import { IOssFileInfo } from "@/types/oss";
 import { cooOss } from "@/utils/oss";
 import { get, STORAGE_TYPES } from "@/utils/storage";
-import { UploadFile } from "element-plus/lib/components/upload/src/upload.type";
 import File from "../file/index.vue";
 import useUploadFile from "@/hooks/useUploadFile";
 import { AddDiscussionContent, EditDiscussionContent, jsonToString } from "../api";
@@ -234,7 +233,7 @@ export default defineComponent({
         };
 
         // 上传教案/课件
-        const uploadFileSuccess = async ({ file }: {file: UploadFile & Blob;}) => {
+        const uploadFileSuccess = async ({ file }: {file: File & Blob;}) => {
             if (file.name.length < 128) {
                 loadingShow.value = true;
                 const ossPath = get(STORAGE_TYPES.OSS_PATHS)?.["GroupLessonFile"];
@@ -293,7 +292,7 @@ export default defineComponent({
         };
 
         // 上传附件
-        const uploadSuccess = async ({ file }: {file: UploadFile & Blob;}) => {
+        const uploadSuccess = async ({ file }: {file: File & Blob;}) => {
             if (file.name.length < 128) {
                 const na = file.name.substring(file.name.lastIndexOf("."), file.name.length);
                 if (fileList.value.length < 9 && acceptList.indexOf(na) > -1) {

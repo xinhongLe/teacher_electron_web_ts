@@ -1,5 +1,6 @@
 import { BrowserWindow, ipcMain, screen } from "electron";
 import { createWindow } from "./createWindow";
+import ElectronLog from "electron-log";
 let suspensionWin: BrowserWindow;
 let unfoldSuspensionWin: BrowserWindow;
 let blackboardWin: BrowserWindow;
@@ -25,8 +26,8 @@ const unfoldSuspensionURL = process.env.NODE_ENV === "development"
     : `file://${__dirname}/unfoldSuspension.html`;
 
 const blackboardURL = process.env.NODE_ENV === "development"
-    ? `${process.env.WEBPACK_DEV_SERVER_URL}blackboard/index.html`
-    : `file://${__dirname}/blackboard/index.html`;
+    ? `${process.env.WEBPACK_DEV_SERVER_URL}blackboard.html`
+    : `file://${__dirname}/blackboard.html`;
 
 const projectionURL = process.env.NODE_ENV === "development"
     ? `${process.env.WEBPACK_DEV_SERVER_URL}projection.html`
@@ -143,8 +144,13 @@ function createUnfoldSuspensionWindow() {
     const winSize = unfoldSuspensionWin.getSize(); // 获取窗口宽高
     unfoldSuspensionWin.setPosition(size.width - winSize[0] - 20, size.height - winSize[1]);
 
+    unfoldSuspensionWin.once("ready-to-show", () => {
+        unfoldSuspensionWin.setAlwaysOnTop(true, "pop-up-menu");
+    });
+
     unfoldSuspensionWin.on("closed", () => {
         unfoldSuspensionWin = null;
+        ElectronLog.info("unfoldSuspensionWin closed");
     });
 }
 
@@ -160,6 +166,7 @@ function createBlackboardWindow() {
     blackboardWin.once("ready-to-show", () => {
         blackboardWin.show();
         blackboardWin.focus();
+        blackboardWin.setTitle("教学黑板");
     });
 
     blackboardWin.on("closed", () => {
@@ -246,10 +253,12 @@ export function createSuspensionWindow() {
     suspensionWin.setPosition(size.width - winSize[0] - 80, size.height - winSize[1] - 50, false);
 
     suspensionWin.once("ready-to-show", () => {
+        suspensionWin.setAlwaysOnTop(true, "pop-up-menu");
         createUnfoldSuspensionWindow();
     });
     suspensionWin.on("closed", () => {
         suspensionWin = null;
+        ElectronLog.info("suspensionWin closed");
     });
 
     suspensionWin.on("moved", () => {
@@ -352,7 +361,7 @@ export function registerEvent() {
     });
 
     ipcMain.handle("closeBlackboard", () => {
-        blackboardWin.close();
+        blackboardWin.destroy();
         setSuspensionSize();
     });
 
@@ -372,7 +381,7 @@ export function registerEvent() {
         }
     });
     ipcMain.handle("closeTimerWin", () => {
-        timerWin.close();
+        timerWin.destroy();
     });
 
     ipcMain.handle("timerWinHide", (_, time) => {

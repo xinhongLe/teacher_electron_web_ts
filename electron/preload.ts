@@ -1,5 +1,5 @@
 import { getCurrentWindow, app, dialog } from "@electron/remote";
-import electron, { OpenDialogOptions, remote, SaveDialogOptions, SaveDialogReturnValue } from "electron";
+import electron, { OpenDialogOptions, remote, SaveDialogOptions } from "electron";
 import { appPath, isExistFile, store } from "./downloadFile";
 import { resolve } from "path";
 import ElectronLog from "electron-log";

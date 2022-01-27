@@ -127,7 +127,6 @@ import useUploadFile from "@/hooks/useUploadFile";
 import { CommHomework } from "@/types/assignHomework";
 import { getOssUrl } from "@/utils/oss";
 import { ElMessage } from "element-plus";
-import { UploadFile } from "element-plus/lib/components/upload/src/upload.type";
 import { defineComponent, reactive, ref, watch } from "vue";
 import { getBookImg } from "./api";
 import useBookList from "./hooks/useBookList";
@@ -213,7 +212,7 @@ export default defineComponent({
             }
         };
         const uploadSuccess = async ({ file }: {
-            file: UploadFile & Blob;
+            file: File & Blob;
         }, index: number) => {
             await uploadFile({ file });
             commonList.value[index].files.push({
