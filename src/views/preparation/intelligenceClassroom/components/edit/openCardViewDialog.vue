@@ -23,8 +23,8 @@
                 </div>
             </div>
             <Tools
-                @prevStep="execPrev"
-                @nextStep="execNext"
+                @prevStep="prevCard"
+                @nextStep="nextCard"
                 @showWriteBoard="showWriteBoard"
                 @hideWriteBoard="hideWriteBoard"
                 @close="close"
@@ -61,6 +61,7 @@ export default defineComponent({
         const selected = ref(0);
         const isInit = ref(true);
         const writeBoardVisible = ref(false);
+        const screenRef = ref();
         const { getPageDetail } = useHome();
         onMounted(async () => {
             cardList.value = props.cardList;
@@ -85,6 +86,15 @@ export default defineComponent({
             isInit.value = true;
             _getPageDetail(selected.value);
         };
+
+        const nextCard = () => {
+            screenRef.value.execNext();
+        };
+
+        const prevCard = () => {
+            screenRef.value.execPrev();
+        };
+
         const checkPage = async (index: number) => {
             selected.value = index;
             _getPageDetail(selected.value);
@@ -131,6 +141,9 @@ export default defineComponent({
             showWriteBoard,
             hideWriteBoard,
             writeBoardVisible,
+            screenRef,
+            nextCard,
+            prevCard,
             closeWriteBoard,
             close
         };
