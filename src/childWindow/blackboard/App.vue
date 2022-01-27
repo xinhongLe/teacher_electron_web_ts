@@ -270,24 +270,24 @@
                 </div>
             </div>
         </div>
+        <CloseDialog v-if="isShowCloseDialog" v-model:isShowCloseDialog="isShowCloseDialog" @saveBoardList="saveBoardList"/>
     </div>
 </template>
 
 <script lang="ts">
 import { ElMessageBox } from "element-plus";
-import { computed, defineComponent, h, onMounted, ref, render, watch } from "vue";
+import { computed, defineComponent, onMounted, ref, watch } from "vue";
 import BoardList from "./boardList.vue";
 import BoardHistoryList from "./boardHistoryList.vue";
-import { readFile } from "fs/promises";
 import useUploadFile from "@/hooks/useUploadFile";
 import { BlackboardFile, submitBlackboardHistory } from "./api";
+import CloseDialog from "./closeDialog.vue";
 const chalKBlack = require("./ico/chalk_black.cur");
 const chalKBlue = require("./ico/chalk_blue.cur");
 const chalKOrange = require("./ico/chalk_orange.cur");
 const chalKRed = require("./ico/chalk_red.cur");
 const chalKWhite = require("./ico/chalk_white.cur");
 const rubber2 = require("./ico/icon-rubber2.cur");
-const pic = require("./ico/pic_xiaojianjian.svg");
 enum ActiveType {
     Move,
     Choose,
@@ -347,6 +347,7 @@ export default defineComponent({
         const whiteColor = "#F5F6FA";
         const isShowHistoryBroadList = ref(false);
         const { uploadFile } = useUploadFile("TeacherBlackboardFile");
+        const isShowCloseDialog = ref(false);
 
         function init() {
             fabCanvas = new window.fabric.Canvas(canvasRef.value, {
@@ -535,34 +536,30 @@ export default defineComponent({
             window.electron.ipcRenderer.send("smallBlackboard");
         };
 
-        const closeClick = () => {
-            ElMessageBox.confirm("", "", {
-                title: "确定关闭黑板吗",
-                // message: h(),
-                confirmButtonText: "关闭",
-                cancelButtonText: "取消"
-            }).then(async () => {
-                saveCurrentCanvasData();
+        const saveBoardList = async () => {
+            saveCurrentCanvasData();
 
-                const fileInfoList = await Promise.all(storageCanvasData.value.map((item, index) => {
-                    const base64Data = item.img.replace(/^data:image\/\w+;base64,/, "");
-                    return uploadFile({ file: new File([Buffer.from(base64Data, "base64")], `${index}.png`) });
-                }));
+            const fileInfoList = await Promise.all(storageCanvasData.value.map((item, index) => {
+                const base64Data = item.img.replace(/^data:image\/\w+;base64,/, "");
+                return uploadFile({ file: new File([Buffer.from(base64Data, "base64")], `${index}.png`) });
+            }));
 
-                const blackboardFiles = fileInfoList.map(file => ({
-                    name: file.name,
-                    mD5: file.md5,
-                    ossExtention: file.fileExtension,
-                    bucketName: file.bucket,
-                    ossName: file.name
-                })) as BlackboardFile[];
+            const blackboardFiles = fileInfoList.map(file => ({
+                name: file.name,
+                mD5: file.md5,
+                ossExtention: file.fileExtension,
+                bucketName: file.bucket,
+                ossName: file.name
+            })) as BlackboardFile[];
 
-                await submitBlackboardHistory({
-                    blackboardFiles
-                });
-
-                window.electron.destroyWindow();
+            await submitBlackboardHistory({
+                blackboardFiles
             });
+            window.electron.destroyWindow();
+        };
+
+        const closeClick = () => {
+            isShowCloseDialog.value = true;
         };
 
         const deleteBoard = (index: number) => {
@@ -628,17 +625,19 @@ export default defineComponent({
             isShowBroadList,
             disabledPrevPage,
             disabledNextPage,
+            saveBoardList,
             storageCanvasData,
             changeBoard,
             smallClick,
             closeClick,
+            isShowCloseDialog,
             isShowHistoryBroadList,
             PenColorMap,
             disabledRecoverBtn: computed(() => deleteState.value.length === 0),
             disabledUndoBtn: computed(() => currentState.value.length === 0)
         };
     },
-    components: { BoardList, BoardHistoryList }
+    components: { BoardList, BoardHistoryList, CloseDialog }
 });
 </script>
 

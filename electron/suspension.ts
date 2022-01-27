@@ -161,6 +161,7 @@ function createBlackboardWindow() {
         frame: false, // 要创建无边框窗口
         resizable: false,
         fullscreen: true,
+        show: false,
         useContentSize: true
     });
     blackboardWin.once("ready-to-show", () => {
@@ -182,6 +183,7 @@ function createAnswerMachineWindow(allStudentList: []) {
         width: 620,
         height: 422,
         center: true,
+        show: false,
         useContentSize: true,
         transparent: true,
         backgroundColor: "#00000000",
@@ -192,6 +194,8 @@ function createAnswerMachineWindow(allStudentList: []) {
     });
 
     answerMachineWin.on("ready-to-show", () => {
+        answerMachineWin.show();
+        answerMachineWin.focus();
         answerMachineWin.webContents.send("sendAllStudentList", allStudentList);
     });
 
