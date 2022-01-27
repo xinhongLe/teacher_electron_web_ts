@@ -157,7 +157,7 @@ export default defineComponent({
             loading.value = false;
 
             const redirect: any = route.redirectedFrom;
-            if (redirect) {
+            if (redirect && !isElectron()) {
                 const params: any = redirect?.query;
                 router.push({
                     path: redirect.path,
