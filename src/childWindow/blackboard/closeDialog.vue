@@ -51,6 +51,7 @@ export default defineComponent({
     top: 0;
     bottom: 0;
     background-color: rgba(0, 0, 0, 0.4);
+    z-index: 1000;
     .close-content-warp {
         position: absolute;
         top: 50%;
