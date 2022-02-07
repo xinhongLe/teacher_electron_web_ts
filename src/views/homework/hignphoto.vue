@@ -8,7 +8,7 @@
       <div class="top">
         <div class="workbook-info">
             <img
-                    :src="require('@/assets/images/homeworkNew/homework2.png')"
+                    src="@/assets/images/homeworkNew/homework2.png"
                     alt=""
                 />
             <span>{{homeworkValue.WorkbookName}}</span>
@@ -39,9 +39,9 @@
       <div class="video-warp">
         <div class="students">
           <!-- <el-button type="primary" @click="recognition">{{studentName}}</el-button> -->
-          <div class="discern-now" style="width:33rem;padding:20px 10px">
+          <div class="discern-now" style="width:30rem;padding:20px 10px">
               <span>当前学生：</span><span style="font-size:24px;font-weight:bold;">{{studentName}}</span>
-              <el-button type="primary" @click="recognition" style="position:absolute;top:74px;left:256px;">重新识别</el-button>
+              <el-button type="primary" @click="recognition" style="position:absolute;top:115px;left:226px;">重新识别</el-button>
           </div>
           <div class="student-list-item" v-for="(item,index) in studentFinishMissions" :key="index" @click="getMissionDetail(homeworkValue,item)">
               <img style="width: 20px;height: 20px;position: relative;left: 115px;" src="@/assets/homeworkImg/icon_success.png">
@@ -49,8 +49,8 @@
           </div>
         </div>
         <div class="video" style="padding-left:18%">
-            <div class="line"></div>
-          <video ref="videoRef" autoplay />
+            <div v-if="showScan" class="line"></div>
+          <video ref="videoRef" id="video" autoplay />
           <canvas ref="resultRef" @mousedown="mousedown" hidden></canvas>
           <div class="overlay-wrapper"><span>{{IdentifyTip}}</span></div>
         </div>
@@ -68,14 +68,14 @@
             <div v-if="discernVisible" style="width:406px;height:234px;padding:20px;border-radius:12px;background: #000000;opacity: 0.6;color:white;">
                 <el-button style="position: absolute;left: 370px;top:5px" type="text" @click="closeDiscern">✖</el-button>
                 <div style="padding: 10px 0px;"><img src="@/assets/homeworkImg/icon_success.png"><span style="font-size: 25px;position: relative;padding-left: 15px;top: -5px;">识别成功</span></div>
-                <div style="padding: 40px 10px;"><span>3秒后自动刷新，继续扫描下一位学生</span></div>
+                <div style="padding: 40px 10px;"><span>3秒后自动刷新，继续扫描<span v-if="pageNumbersTemp.length<2">下一位学生</span><span v-if="pageNumbersTemp.length>1">下一页</span></span></div>
                 <div style="text-align: center;">
                     <el-button type="primary" @click="recognitionAgin">重新识别此页</el-button>
                     <el-button type="success" v-if="pageNumbersTemp.length<2" @click="recognition">下一位</el-button>
                     <el-button type="success" v-if="pageNumbersTemp.length>1" @click="nextPage">下一页</el-button>
                 </div>
             </div>
-          <el-button type="primary" style="width:180px;height:80px;position:relative;top:380px;left:250px;" v-if="studentMission!=null" @click="discern">识别(键盘[Enter]键)</el-button>
+          <el-button type="primary" style="width:180px;height:80px;position:relative;top:380px;left:250px;" v-if="studentMission" @click="discern">识别(键盘[Enter]键)</el-button>
         </div>
         <canvas ref="canvasRef" id="canvas" style="display:none"></canvas>
         <canvas ref="canvasCheckRef" id="canvasCheck" style="display:none"></canvas>
@@ -102,7 +102,7 @@ import { ElMessage, ElMessageBox } from "element-plus";
 import jsQR from "jsqr";
 import { defineComponent, onMounted, PropType, reactive, ref, watch } from "vue";
 import { BatchChangeResult, BatchCheckUpdate, ChangeResultForPhoto, GetCheckResult, GetMissionDetail, GetStudentMissionList, GetWorkbookPageInfo, SaveYuanshiImg } from "./api";
-import { downloadFile } from "@/utils/oss";
+import { getOssUrl } from "@/utils/oss";
 import { nextTick } from "process";
 import { int } from "@zxing/library/esm/customTypings";
 export default defineComponent({
@@ -113,6 +113,7 @@ export default defineComponent({
         }
     },
     setup(props) {
+        console.log(props.homeworkValue, "start");
         // 识别提示
         const IdentifyTip = ref("识别中,请先扫描学生二维码");
         // 识别出来的学生ID
@@ -127,6 +128,8 @@ export default defineComponent({
         const discernVisible = ref(false);
         // 是否查看学生识别结果
         const ischeckResult = ref(false);
+        // 是否显示扫描线
+        const showScan = ref(true);
         const activeName = ref("");
         activeName.value = props.homeworkValue.WorkbookPaperPageNum?.split(",")[0] as string;
         const pageNumbers = props.homeworkValue.WorkbookPaperPageNum?.split(",");
@@ -210,6 +213,7 @@ export default defineComponent({
             IdentifyTip.value = "识别中,请翻到第" + pageNumTemp.value + "页";
             if (videoRef.value && resultRef.value) {
                 videoRef.value.hidden = false;
+                showScan.value = true;
                 resultRef.value.hidden = true;
             }
         };
@@ -267,6 +271,7 @@ export default defineComponent({
                 const localVideo = videoRef.value;
                 // const localVideo = document.querySelector("video");
                 localVideo!.srcObject = mediaStream;
+                console.log(videoRef.value?.offsetWidth, "11111");
             });
         }
 
@@ -390,6 +395,7 @@ export default defineComponent({
                     IdentifyTip.value = "识别中,请先扫描学生二维码";
                 }
                 videoRef.value.hidden = false;
+                showScan.value = true;
                 resultRef.value.hidden = true;
             }
         };
@@ -397,9 +403,12 @@ export default defineComponent({
         // 识别结束后重新识别
         const recognitionAgin = () => {
             discernVisible.value = false;
-            if (videoRef.value && resultRef.value) {
+            if (studentMissionTemp.value) {
                 studentMission.value = studentMissionTemp.value;
+            }
+            if (videoRef.value && resultRef.value) {
                 videoRef.value.hidden = false;
+                showScan.value = true;
                 resultRef.value.hidden = true;
             }
         };
@@ -413,6 +422,7 @@ export default defineComponent({
                 IdentifyTip.value = "识别中,请翻到" + pageNumTemp.value + "页";
                 resultVisible.value = false;
                 videoRef.value.hidden = false;
+                showScan.value = true;
                 resultRef.value.hidden = true;
             }
         };
@@ -443,6 +453,7 @@ export default defineComponent({
                             const imageData = context?.getImageData(0, 0, resultData.ImageWidth, resultData.ImageHeight);
                             const fileMat = cv.matFromImageData(imageData);
                             CheckQuestionResultList.value = resultData.CheckQuestionResultList;
+                            console.log(CheckQuestionResultList.value, "题目");
                             const correctColor = new cv.Scalar(0, 0, 255);
                             const errorColor = new cv.Scalar(255, 0, 0);
                             const wzColor = new cv.Scalar(255, 156, 47);
@@ -451,9 +462,9 @@ export default defineComponent({
                                 const point1 = new cv.Point(citem.MarginLeft, citem.MarginTop);
                                 const point2 = new cv.Point(citem.MarginLeft + citem.SizeWidth, citem.MarginTop + citem.SizeHeight);
                                 if (citem.Category === "Error") {
-                                    cv.rectangle(fileMat, point1, point2, errorColor, 2, cv.LINE_AA, 0);
+                                    cv.rectangle(fileMat, point1, point2, errorColor, 1, cv.LINE_AA, 0);
                                 } else if (citem.Category === "Correct") {
-                                    cv.rectangle(fileMat, point1, point2, correctColor, 2, cv.LINE_AA, 0);
+                                    cv.rectangle(fileMat, point1, point2, correctColor, 1, cv.LINE_AA, 0);
                                 } else {
                                     cv.rectangle(fileMat, point1, point2, wzColor, 1, cv.LINE_AA, 0);
                                 }
@@ -461,6 +472,7 @@ export default defineComponent({
                             if (videoRef.value && resultRef.value) {
                                 resultRef.value.height = videoRef.value.clientHeight;
                                 videoRef.value.hidden = true;
+                                showScan.value = false;
                                 resultRef.value.hidden = false;
                                 cv.imshow(resultRef.value, fileMat);
                             }
@@ -507,9 +519,9 @@ export default defineComponent({
                                 const point1 = new cv.Point(citem.MarginLeft, citem.MarginTop);
                                 const point2 = new cv.Point(citem.MarginLeft + citem.SizeWidth, citem.MarginTop + citem.SizeHeight);
                                 if (citem.Category === "Error") {
-                                    cv.rectangle(fileMat, point1, point2, errorColor, 2, cv.LINE_AA, 0);
+                                    cv.rectangle(fileMat, point1, point2, errorColor, 1, cv.LINE_AA, 0);
                                 } else if (citem.Category === "Correct") {
-                                    cv.rectangle(fileMat, point1, point2, correctColor, 2, cv.LINE_AA, 0);
+                                    cv.rectangle(fileMat, point1, point2, correctColor, 1, cv.LINE_AA, 0);
                                 } else {
                                     cv.rectangle(fileMat, point1, point2, wzColor, 1, cv.LINE_AA, 0);
                                 }
@@ -517,6 +529,7 @@ export default defineComponent({
                             if (videoRef.value && resultRef.value) {
                                 resultRef.value.height = videoRef.value.clientHeight;
                                 videoRef.value.hidden = true;
+                                showScan.value = false;
                                 resultRef.value.hidden = false;
                                 cv.imshow(resultRef.value, fileMat);
                             }
@@ -572,7 +585,7 @@ export default defineComponent({
                                 }
                             });
                             const key = result.File.FilePath + "/" + result.File.FileMD5 + "." + result.File.Extention;
-                            const filepath = await downloadFile(key, result.File.Bucket);
+                            const filepath = await getOssUrl(key, result.File.Bucket);
                             var img = new Image();
                             img.onload = async () => {
                                 if (canvasRef.value) {
@@ -662,7 +675,7 @@ export default defineComponent({
                                                                             recognition();
                                                                             discernVisible.value = false;
                                                                         }
-                                                                    }, 3000);
+                                                                    }, 10000);
                                                                     const correctColor = new cv.Scalar(0, 0, 255);
                                                                     const errorColor = new cv.Scalar(255, 0, 0);
                                                                     const wzColor = new cv.Scalar(255, 156, 47);
@@ -671,9 +684,9 @@ export default defineComponent({
                                                                             const point1 = new cv.Point(citem.MarginLeft, citem.MarginTop);
                                                                             const point2 = new cv.Point(citem.MarginLeft + citem.SizeWidth, citem.MarginTop + citem.SizeHeight);
                                                                             if (citem.Category === "Error") {
-                                                                                cv.rectangle(resMat, point1, point2, errorColor, 2, cv.LINE_AA, 0);
+                                                                                cv.rectangle(resMat, point1, point2, errorColor, 1, cv.LINE_AA, 0);
                                                                             } else if (citem.Category === "Correct") {
-                                                                                cv.rectangle(resMat, point1, point2, correctColor, 2, cv.LINE_AA, 0);
+                                                                                cv.rectangle(resMat, point1, point2, correctColor, 1, cv.LINE_AA, 0);
                                                                             } else {
                                                                                 cv.rectangle(resMat, point1, point2, wzColor, 1, cv.LINE_AA, 0);
                                                                             }
@@ -682,6 +695,7 @@ export default defineComponent({
                                                                     if (videoRef.value && resultRef.value) {
                                                                         resultRef.value.height = videoRef.value.clientHeight;
                                                                         videoRef.value.hidden = true;
+                                                                        showScan.value = false;
                                                                         resultRef.value.hidden = false;
                                                                         cv.imshow(resultRef.value, resMat);
                                                                     }
@@ -699,14 +713,18 @@ export default defineComponent({
                                                                 studentMissionTemp.value = studentMissions.value?.find((item: any) => {
                                                                     item.StudentID = studentMission.value?.StudentID;
                                                                 });
-                                                                studentMission.value = null;
+                                                                if (pageNumbersTemp.value && (pageNumbersTemp.value as string[]).length > 1) {
+
+                                                                } else {
+                                                                    studentMission.value = null;
+                                                                }
                                                                 discernVisible.value = true;
                                                                 setTimeout(() => {
                                                                     if (discernVisible.value) {
                                                                         recognition();
                                                                         discernVisible.value = false;
                                                                     }
-                                                                }, 13000);
+                                                                }, 10000);
                                                                 const correctColor = new cv.Scalar(0, 0, 255);
                                                                 const errorColor = new cv.Scalar(255, 0, 0);
                                                                 const wzColor = new cv.Scalar(47, 156, 255);
@@ -715,9 +733,9 @@ export default defineComponent({
                                                                         const point1 = new cv.Point(citem.MarginLeft, citem.MarginTop);
                                                                         const point2 = new cv.Point(citem.MarginLeft + citem.SizeWidth, citem.MarginTop + citem.SizeHeight);
                                                                         if (citem.Category === "Error") {
-                                                                            cv.rectangle(resMat, point1, point2, errorColor, 2, cv.LINE_AA, 0);
+                                                                            cv.rectangle(resMat, point1, point2, errorColor, 1, cv.LINE_AA, 0);
                                                                         } else if (citem.Category === "Correct") {
-                                                                            cv.rectangle(resMat, point1, point2, correctColor, 2, cv.LINE_AA, 0);
+                                                                            cv.rectangle(resMat, point1, point2, correctColor, 1, cv.LINE_AA, 0);
                                                                         } else {
                                                                             cv.rectangle(resMat, point1, point2, wzColor, 1, cv.LINE_AA, 0);
                                                                         }
@@ -726,6 +744,7 @@ export default defineComponent({
                                                                 if (videoRef.value && resultRef.value) {
                                                                     resultRef.value.height = videoRef.value.clientHeight;
                                                                     videoRef.value.hidden = true;
+                                                                    showScan.value = false;
                                                                     resultRef.value.hidden = false;
                                                                     cv.imshow(resultRef.value, resMat);
                                                                 }
@@ -750,7 +769,7 @@ export default defineComponent({
                                                                                         recognition();
                                                                                         discernVisible.value = false;
                                                                                     }
-                                                                                }, 13000);
+                                                                                }, 3000);
                                                                                 const correctColor = new cv.Scalar(0, 0, 255);
                                                                                 const errorColor = new cv.Scalar(255, 0, 0);
                                                                                 const wzColor = new cv.Scalar(255, 156, 47);
@@ -759,9 +778,9 @@ export default defineComponent({
                                                                                         const point1 = new cv.Point(citem.MarginLeft, citem.MarginTop);
                                                                                         const point2 = new cv.Point(citem.MarginLeft + citem.SizeWidth, citem.MarginTop + citem.SizeHeight);
                                                                                         if (citem.Category === "Error") {
-                                                                                            cv.rectangle(resMat, point1, point2, errorColor, 2, cv.LINE_AA, 0);
+                                                                                            cv.rectangle(resMat, point1, point2, errorColor, 1, cv.LINE_AA, 0);
                                                                                         } else if (citem.Category === "Correct") {
-                                                                                            cv.rectangle(resMat, point1, point2, correctColor, 2, cv.LINE_AA, 0);
+                                                                                            cv.rectangle(resMat, point1, point2, correctColor, 1, cv.LINE_AA, 0);
                                                                                         } else {
                                                                                             cv.rectangle(resMat, point1, point2, wzColor, 1, cv.LINE_AA, 0);
                                                                                         }
@@ -770,6 +789,7 @@ export default defineComponent({
                                                                                 if (videoRef.value && resultRef.value) {
                                                                                     resultRef.value.height = videoRef.value.clientHeight;
                                                                                     videoRef.value.hidden = true;
+                                                                                    showScan.value = false;
                                                                                     resultRef.value.hidden = false;
                                                                                     cv.imshow(resultRef.value, resMat);
                                                                                 }
@@ -982,6 +1002,7 @@ export default defineComponent({
             pageNumbers,
             ischeckResult,
             pageNumbersTemp,
+            showScan,
             close,
             handleClose,
             discern,
@@ -1066,7 +1087,7 @@ body {
         }
         .discern-now{
             widows: 33rem;
-            height: 8rem;
+            height: 12rem;
             border:solid 1px cornflowerblue;
             border-radius: 5px;
         }
@@ -1090,6 +1111,7 @@ body {
           z-index: 2;
           widows: 100%;
           width: 1482px;
+        //   width: 100%;
           height: 58px;
           background: url("../../assets/homeworkImg/pic_saomiao.png");
           animation: myScan 2s infinite alternate;
