@@ -1,5 +1,5 @@
 import axios, { AxiosRequestConfig, AxiosRequestHeaders, Method } from "axios";
-import { ElMessage } from "element-plus";
+import { ElMessage, MessageHandle } from "element-plus";
 import { clear, get, STORAGE_TYPES } from "./storage";
 import router from "@/router/index";
 import { initAllState } from "@/store";
@@ -31,16 +31,23 @@ http.interceptors.request.use(
     }
 );
 
+let messageInterface: MessageHandle | null = null;
+
 http.interceptors.response.use(
     (response) => {
         loading.hide();
         const res = response.data;
         if (res.resultCode === 103) {
-            ElMessage({
-                message: "登录超时请重新登录",
-                type: "error",
-                duration: 5 * 1000
-            });
+            if (!messageInterface) {
+                messageInterface = ElMessage({
+                    message: "登录超时请重新登录",
+                    type: "error",
+                    duration: 5 * 1000,
+                    onClose: () => {
+                        messageInterface = null;
+                    }
+                });
+            }
             clear();
             router.push("/login");
             // 登录超时，外部系统返回登录页

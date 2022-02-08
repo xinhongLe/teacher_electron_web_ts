@@ -3,7 +3,7 @@
     v-model="dialogVisible"
     :fullscreen="true"
   >
-  <div class="container">
+  <div class="high-photo-container">
   <div class="top">
       <div class="camera-select">
         <img src="@/assets/images/suspension/icon_shexiangtou@2x.png" />
@@ -130,16 +130,8 @@ export default defineComponent({
     }
 });
 </script>
-<style lang="scss">
-html {
-  font-size: 10px;
-}
-body {
-  margin: 0;
-  user-select: none;
-  overflow: hidden;
-}
-.container {
+<style lang="scss" scoped>
+.high-photo-container {
   display: flex;
   flex-direction: column;
   height: 100vh;
