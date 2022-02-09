@@ -155,16 +155,15 @@ export default defineComponent({
             loading.value = true;
             await userLogin({ account, password, code, isPassWordLogin: isPassWordLogin.value });
             loading.value = false;
-
             const redirect: any = route.redirectedFrom;
-            if (redirect && !isElectron()) {
+            if (redirect && redirect.path !== "/" && !isElectron()) {
                 const params: any = redirect?.query;
                 router.push({
                     path: redirect.path,
                     query: Object.keys(params).length > 0 ? params : ""
                 });
             } else {
-                router.push("/");
+                router.push("/home");
             }
         };
         const handleChange = (account: string) => {

@@ -72,11 +72,15 @@ http.interceptors.response.use(
     },
     (error) => {
         loading.hide();
-        ElMessage({
-            message: "请求失败",
-            type: "error",
-            duration: 5 * 1000
-        });
+        if (error?.config && error.config.url === "Api/Track/create") {
+            //
+        } else {
+            ElMessage({
+                message: "请求失败",
+                type: "error",
+                duration: 5 * 1000
+            });
+        }
         return Promise.reject(error);
     }
 );
