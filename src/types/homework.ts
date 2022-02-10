@@ -172,6 +172,7 @@ export interface CheckUpdateIn{
 export interface BatchCheckUpdateIn{
     CheckUpdateIn: CheckUpdateIn[];
     StudentID?: string;
+    MissionID?: string;
 }
 
 export interface SvImgIn{

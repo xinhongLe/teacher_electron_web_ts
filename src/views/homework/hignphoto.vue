@@ -172,7 +172,7 @@ export default defineComponent({
         GetStudentMissionList({ ID: props.homeworkValue.ClassHomeworkPaperID }).then(res => {
             if (res.resultCode === 200) {
                 studentFinishMissions.value = res.result.filter((item:any) => {
-                    return item.State === 5;
+                    return item.State === 5 && item.Remark === "高拍仪完成";
                 });
                 studentMissions.value = res.result;
                 console.log(studentMissions.value, "studentMissions");
@@ -204,6 +204,7 @@ export default defineComponent({
         const nextPage = () => {
             var pagenums = pageNumbersTemp.value as string[];
             discernVisible.value = false;
+            resultVisible.value = false;
             var index = pagenums.indexOf(String(pageNumTemp.value));
             pagenums.splice(index, 1);
             pageNumbersTemp.value = pagenums;
@@ -237,19 +238,25 @@ export default defineComponent({
                         if (code.data) {
                             const studentId = code.data.substr(code.data.indexOf(":") + 1);
                             IdeStudentID.value = studentId;
-                            var smin = studentMissions.value?.find((item: StudentMission) => {
-                                return item.StudentID === studentId;
-                            });
-                            if (smin) {
-                                if (smin.State === 5) {
-                                    centerDialogVisible.value = true;
+                            if (studentMissions.value) {
+                                const stuMissionArray = studentMissions.value;
+                                var smin = stuMissionArray.find((item: StudentMission) => {
+                                    return item.StudentID === studentId;
+                                });
+                                if (smin) {
+                                    pageNumbersTemp.value = props.homeworkValue.WorkbookPaperPageNum?.split(",");
+                                    activeName.value = (pageNumbersTemp.value as string[])[0];
+                                    pageNumTemp.value = Number(activeName.value);
+                                    if (smin.State === 5) {
+                                        centerDialogVisible.value = true;
+                                    }
+                                    studentMission.value = smin;
+                                    studentMissionTemp.value = smin;
+                                    studentName.value = smin.StudentName ?? "未知";
+                                    IdentifyTip.value = "识别中,请翻到第" + pageNumTemp.value + "页";
+                                } else {
+                                    ElMessage({ type: "error", message: "此学生不属于这个班，请识别正确的二维码" });
                                 }
-                                studentMission.value = smin;
-                                studentMissionTemp.value = smin;
-                                studentName.value = smin.StudentName ?? "未知";
-                                IdentifyTip.value = "识别中,请翻到第" + pageNumTemp.value + "页";
-                            } else {
-                                ElMessage({ type: "error", message: "此学生不属于这个班，请识别正确的二维码" });
                             }
                         }
                     }
@@ -283,6 +290,10 @@ export default defineComponent({
                 CheckQuestionResultList.value.forEach((citem: {QuestionID: any; MarginLeft: any; MarginTop: any; SizeWidth: any; SizeHeight: any; Category: string; Number:int; }) => {
                     const MarginRight = citem.MarginLeft + citem.SizeWidth;
                     const MarginBottom = citem.MarginTop + citem.SizeHeight;
+                    if ((pageNumbersTemp.value as string[]).length > 1) {
+                        ElMessage({ type: "warning", message: "请优先识别完剩余页面后进行修改" });
+                        return;
+                    }
                     if ((videoOfsetLeft > citem.MarginLeft && videoOfsetLeft < MarginRight && videoOfsetTop > citem.MarginTop && videoOfsetTop < MarginBottom)) {
                         selectResult.QuestionID = citem.QuestionID;
                         selectResult.MarginLeft = citem.MarginLeft;
@@ -292,6 +303,7 @@ export default defineComponent({
                         selectResult.Category = citem.Category;
                         selectResult.Number = citem.Number;
                         resultVisible.value = true;
+                        discernVisible.value = false;
                     }
                 });
             }
@@ -383,6 +395,7 @@ export default defineComponent({
         // 识别学生的时候隐藏已完成学生的结果图片，显示video摄像头
         const recognition = () => {
             discernVisible.value = false;
+            resultVisible.value = false;
             ischeckResult.value = false;
             if (videoRef.value && resultRef.value) {
                 centerDialogVisible.value = false;
@@ -403,6 +416,7 @@ export default defineComponent({
         // 识别结束后重新识别
         const recognitionAgin = () => {
             discernVisible.value = false;
+            resultVisible.value = false;
             if (studentMissionTemp.value) {
                 studentMission.value = studentMissionTemp.value;
             }
@@ -651,6 +665,7 @@ export default defineComponent({
                                                     }
                                                     batchCheckUpDto = {
                                                         StudentID: studentMission.value?.StudentID,
+                                                        MissionID: studentMission.value?.MissionID,
                                                         CheckUpdateIn: CheckUpdateIns
                                                     };
                                                     imMat.delete();
@@ -672,7 +687,11 @@ export default defineComponent({
                                                                     discernVisible.value = true;
                                                                     setTimeout(() => {
                                                                         if (discernVisible.value) {
-                                                                            recognition();
+                                                                            if (pageNumbersTemp.value && (pageNumbersTemp.value as string[]).length > 1) {
+                                                                                nextPage();
+                                                                            } else {
+                                                                                recognition();
+                                                                            }
                                                                             discernVisible.value = false;
                                                                         }
                                                                     }, 10000);
@@ -710,8 +729,9 @@ export default defineComponent({
                                                                 // 上传成功
                                                                 ElMessage({ type: "success", message: "上传成功" });
                                                                 IdentifyTip.value = "";
-                                                                studentMissionTemp.value = studentMissions.value?.find((item: any) => {
-                                                                    item.StudentID = studentMission.value?.StudentID;
+                                                                const stuMissionArray = studentMissions.value;
+                                                                studentMissionTemp.value = stuMissionArray?.find((item: any) => {
+                                                                    return item.StudentID === studentMission.value?.StudentID;
                                                                 });
                                                                 if (pageNumbersTemp.value && (pageNumbersTemp.value as string[]).length > 1) {
 
@@ -721,7 +741,12 @@ export default defineComponent({
                                                                 discernVisible.value = true;
                                                                 setTimeout(() => {
                                                                     if (discernVisible.value) {
-                                                                        recognition();
+                                                                        // 如果有多页则识别完成后
+                                                                        if (pageNumbersTemp.value && (pageNumbersTemp.value as string[]).length > 1) {
+                                                                            nextPage();
+                                                                        } else {
+                                                                            recognition();
+                                                                        }
                                                                         discernVisible.value = false;
                                                                     }
                                                                 }, 10000);
@@ -766,10 +791,14 @@ export default defineComponent({
                                                                                 discernVisible.value = true;
                                                                                 setTimeout(() => {
                                                                                     if (discernVisible.value) {
-                                                                                        recognition();
+                                                                                        if (pageNumbersTemp.value && (pageNumbersTemp.value as string[]).length > 1) {
+                                                                                            nextPage();
+                                                                                        } else {
+                                                                                            recognition();
+                                                                                        }
                                                                                         discernVisible.value = false;
                                                                                     }
-                                                                                }, 3000);
+                                                                                }, 10000);
                                                                                 const correctColor = new cv.Scalar(0, 0, 255);
                                                                                 const errorColor = new cv.Scalar(255, 0, 0);
                                                                                 const wzColor = new cv.Scalar(255, 156, 47);
@@ -835,7 +864,7 @@ export default defineComponent({
             GetStudentMissionList({ ID: props.homeworkValue.ClassHomeworkPaperID }).then(res => {
                 if (res.resultCode === 200) {
                     studentFinishMissions.value = res.result.filter((item:any) => {
-                        return item.State === 5;
+                        return item.State === 5 && item.Remark === "高拍仪完成";
                     });
                 }
             });
@@ -1110,7 +1139,7 @@ body {
           left:18%;
           z-index: 2;
           widows: 100%;
-          width: 1482px;
+          width: 1211px;
         //   width: 100%;
           height: 58px;
           background: url("../../assets/homeworkImg/pic_saomiao.png");
