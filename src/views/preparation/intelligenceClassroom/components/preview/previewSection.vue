@@ -19,7 +19,9 @@
                 :winList="winList"
                 @changeWinSize="changeWinSize"
             />
-            <Remark :class="fullScreenStyle ? 'remark-fullSrceen' : ''" :value="remark" v-if="showRemark" />
+            <transition name="fade">
+                <Remark :class="fullScreenStyle ? 'remark-fullSrceen' : ''" :value="remark" v-if="showRemark" />
+            </transition>
         </div>
         <Tools
             :class="fullScreenStyle ? 'tools-fullSrceen' : ''"
@@ -186,5 +188,16 @@ export default defineComponent({
         margin: 0;
         padding: 0;
     }
+}
+.fade-enter-active,
+.fade-leave-active {
+    transition-property: width, padding;
+    transition-duration: 0.3s;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+    width: 0;
+    padding: 0 !important;
 }
 </style>
