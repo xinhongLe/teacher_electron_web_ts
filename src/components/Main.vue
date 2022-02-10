@@ -114,6 +114,7 @@ export default defineComponent({
     overflow: hidden;
     display: flex;
     flex-direction: column;
+    -webkit-app-region: no-drag;
 }
 
 .main-body {

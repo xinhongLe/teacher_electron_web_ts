@@ -28,6 +28,7 @@
                 @showWriteBoard="showWriteBoard"
                 @hideWriteBoard="hideWriteBoard"
                 @close="close"
+                @openShape="openShape"
                 :isShowFullscreen="false"
                 :isShowRemarkBtn="false"
                 :isShowClose="true"
@@ -91,6 +92,10 @@ export default defineComponent({
             screenRef.value.execNext();
         };
 
+        const openShape = (event: MouseEvent) => {
+            screenRef.value.openShape(event);
+        };
+
         const prevCard = () => {
             screenRef.value.execPrev();
         };
@@ -144,6 +149,7 @@ export default defineComponent({
             screenRef,
             nextCard,
             prevCard,
+            openShape,
             closeWriteBoard,
             close
         };
