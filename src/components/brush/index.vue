@@ -126,6 +126,7 @@ export default defineComponent({
             clearBrush,
             brushOn,
             boxRef,
+            fabCanvas,
             mousedown
         };
     }
