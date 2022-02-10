@@ -1,14 +1,7 @@
 <template>
     <div class="file-info">
         <p @click="viewInfo(file.File)">
-            <img
-                :src="
-                    require(`@/assets/images/homeworkNew/${showFileIcon(
-                        file.File.Extention
-                    )}.png`)
-                "
-                alt=""
-            />
+            <FileType :fileExtension="file.File.Extention"/>
             <span class="ellipsis" :title="file.File.Name">{{ file.File.Name }}</span>
         </p>
         <Enlarge
@@ -26,6 +19,7 @@ import { defineComponent, PropType } from "vue";
 import Enlarge from "@/components/enlarge/index.vue";
 import { showFileIcon } from "@/utils";
 import useViewHomeworkFile from "@/hooks/useViewHomeworkFile";
+import FileType from "../../components/fileType/index.vue";
 export default defineComponent({
     props: {
         file: {
@@ -42,7 +36,7 @@ export default defineComponent({
             viewInfo
         };
     },
-    components: { Enlarge }
+    components: { Enlarge, FileType }
 });
 </script>
 
@@ -65,6 +59,7 @@ export default defineComponent({
             margin-right: 10px;
         }
          .ellipsis {
+            margin-left: 10px;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
