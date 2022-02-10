@@ -594,6 +594,8 @@ export default defineComponent({
         });
         watch(pageIndex, (v) => {
             fabCanvas.loadFromJSON(storageCanvasData.value[v].data).renderAll();
+            deleteState.value = [];
+            currentState.value = [];
         });
         return {
             isBlack,
