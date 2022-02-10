@@ -56,7 +56,7 @@ function checkIsWelt() {
     const size = screen.getPrimaryDisplay().workAreaSize;
     const winSize = suspensionWin.getSize();
     if ((size.width - winPosition[0] - winSize[0]) < 10) {
-        suspensionWin.webContents.send("showWelt");
+        suspensionWin && suspensionWin.webContents.send("showWelt");
         suspensionWin.setPosition(size.width - 20, winPosition[1]);
         suspensionWin.setContentSize(20, 80);
     }
@@ -65,7 +65,7 @@ function checkIsWelt() {
 function setWelt() {
     const winPosition = suspensionWin.getPosition();
     const size = screen.getPrimaryDisplay().workAreaSize;
-    suspensionWin.webContents.send("showWelt");
+    suspensionWin && suspensionWin.webContents.send("showWelt");
     suspensionWin.setPosition(size.width - 20, winPosition[1]);
     suspensionWin.setContentSize(20, 80);
 }
@@ -75,16 +75,16 @@ function hideSuspensionIcon () {
     isShowVideo = false;
     isShowQuestion = false;
     isShowBlackboard = false;
-    suspensionWin.webContents.send("timerWinClose");
-    suspensionWin.webContents.send("hideSuspensionVideo");
-    suspensionWin.webContents.send("hideSuspensionBlackboard");
-    suspensionWin.webContents.send("hideSuspensionQuestion");
+    suspensionWin && suspensionWin.webContents.send("timerWinClose");
+    suspensionWin && suspensionWin.webContents.send("hideSuspensionVideo");
+    suspensionWin && suspensionWin.webContents.send("hideSuspensionBlackboard");
+    suspensionWin && suspensionWin.webContents.send("hideSuspensionQuestion");
     setSuspensionSize();
 }
 
 function hideTime() {
     isShowTimer = false;
-    suspensionWin.webContents.send("timerWinClose");
+    suspensionWin && suspensionWin.webContents.send("timerWinClose");
     setSuspensionSize();
 }
 
@@ -173,7 +173,7 @@ function createBlackboardWindow() {
     blackboardWin.on("closed", () => {
         blackboardWin = null;
         isShowBlackboard = false;
-        suspensionWin.webContents.send("hideSuspensionBlackboard");
+        suspensionWin && suspensionWin.webContents.send("hideSuspensionBlackboard");
         setSuspensionSize();
     });
 }
@@ -339,7 +339,7 @@ export function registerEvent() {
 
     ipcMain.handle("openBlackboard", () => {
         isShowBlackboard = false;
-        suspensionWin.webContents.send("hideSuspensionBlackboard");
+        suspensionWin && suspensionWin.webContents.send("hideSuspensionBlackboard");
         showSuspension();
         setSuspensionSize();
         if (blackboardWin) {
@@ -359,7 +359,7 @@ export function registerEvent() {
 
     ipcMain.on("smallBlackboard", () => {
         isShowBlackboard = true;
-        suspensionWin.webContents.send("blackboardMinimized");
+        suspensionWin && suspensionWin.webContents.send("blackboardMinimized");
         blackboardWin.hide();
         setSuspensionSize();
     });
@@ -392,34 +392,34 @@ export function registerEvent() {
         showSuspension();
         isShowTimer = true;
         setSuspensionSize();
-        suspensionWin.webContents.send("timerWinHide", time);
+        suspensionWin && suspensionWin.webContents.send("timerWinHide", time);
     });
 
     ipcMain.handle("timeChange", (_, time) => {
-        suspensionWin.webContents.send("timeChange", time);
+        suspensionWin && suspensionWin.webContents.send("timeChange", time);
     });
 
     ipcMain.handle("videoMinimized", () => {
         isShowVideo = true;
-        suspensionWin.webContents.send("videoMinimized");
+        suspensionWin && suspensionWin.webContents.send("videoMinimized");
         setSuspensionSize();
     });
 
     ipcMain.handle("hideSuspensionVideo", () => {
         isShowVideo = false;
-        suspensionWin.webContents.send("hideSuspensionVideo");
+        suspensionWin && suspensionWin.webContents.send("hideSuspensionVideo");
         setSuspensionSize();
     });
 
     ipcMain.handle("questionMinimized", () => {
         isShowQuestion = true;
-        suspensionWin.webContents.send("questionMinimized");
+        suspensionWin && suspensionWin.webContents.send("questionMinimized");
         setSuspensionSize();
     });
 
     ipcMain.handle("hideSuspensionQuestion", () => {
         isShowQuestion = false;
-        suspensionWin.webContents.send("hideSuspensionQuestion");
+        suspensionWin && suspensionWin.webContents.send("hideSuspensionQuestion");
         setSuspensionSize();
     });
 
@@ -438,6 +438,6 @@ export function registerEvent() {
     });
 
     ipcMain.handle("answer-jection", (_, data) => {
-        answerMachineWin.webContents.send("answer-jection", data);
+        answerMachineWin && answerMachineWin.webContents.send("answer-jection", data);
     });
 }

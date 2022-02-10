@@ -25,3 +25,11 @@ TrackService.useTrackPoint();
 const app = createApp(App);
 app.use(WinCard, process.env.VUE_APP_AI_XUE_SHI_API, "https://wincard.lyx-edu.com/swf2canvas.html", cacheFile).use(ElementPlus, { locale: zhCn }).use(store, key).use(router).mount("#app");
 app.config.globalProperties.mittBus = mitt();
+
+app.config.errorHandler = (err, vm, info) => {
+    window.electron && window.electron.log.error(err);
+};
+
+window.onerror = (event, source, lineno, colno, error) => {
+    window.electron && window.electron.log.error(error);
+};

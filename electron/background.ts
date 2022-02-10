@@ -7,6 +7,7 @@ import { createSuspensionWindow, registerEvent } from "./suspension";
 import downloadFile from "./downloadFile";
 import autoUpdater from "./autoUpdater";
 import SingalRHelper from "./singalr";
+import ElectronLog from "electron-log";
 const isDevelopment = process.env.NODE_ENV !== "production";
 const path = require("path");
 initialize();
@@ -143,6 +144,15 @@ app.on("ready", async () => {
         }
     }
     createWindow();
+});
+
+app.on("render-process-gone", (event, webContents, details) => {
+    ElectronLog.error(`render-process-gone, webContents title: ${webContents.getTitle()}, reason: ${details.reason}, exitCode: ${details.exitCode}`);
+});
+
+app.on("child-process-gone", (event, details) => {
+    const { type, reason, exitCode, serviceName, name } = details;
+    ElectronLog.error(`child-process-gone, reason: ${reason}, exitCode: ${exitCode}, type:${type}, serviceName: ${serviceName}, name: ${name}`);
 });
 
 const gotTheLock = app.requestSingleInstanceLock();

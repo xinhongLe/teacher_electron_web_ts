@@ -4,6 +4,7 @@ import { clear, get, STORAGE_TYPES } from "./storage";
 import router from "@/router/index";
 import { initAllState } from "@/store";
 import loading from "@/components/loading";
+import isElectron from "is-electron";
 
 const http = axios.create({
     baseURL: "/",
@@ -51,7 +52,7 @@ http.interceptors.response.use(
             clear();
             router.push("/login");
             // 登录超时，外部系统返回登录页
-            if (window.top && window.top[0]?.location?.origin?.indexOf("yueyangyun") > -1) {
+            if (window.top && window.top[0]?.location?.origin?.indexOf("yueyangyun") > -1 && !isElectron()) {
                 if (window.parent && window.parent.window && window.parent.window[0] && window.parent.window[0].location && window.parent.window[0].location.ancestorOrigins) {
                     window.top.location.href = `${window.parent.window[0].location.ancestorOrigins[0]}?isReset=true`;
                 } else if (window.top && window.top.parent) {
