@@ -10,7 +10,17 @@
     <script src="./blackboard/fabric.min.js"></script>
   </head>
   <body>
+
     <div id="app"></div>
     <!-- built files will be auto injected -->
+    <script type="text/javascript">
+   async function onOpenCvReady() {
+         window.cv = await cv;
+         console.log(cv,"oload-cv");
+     }
+  </script>
+  <script async src="./lib/opencv.js" onload="onOpenCvReady();" type="text/javascript" ></script>
   </body>
+
+
 </html>

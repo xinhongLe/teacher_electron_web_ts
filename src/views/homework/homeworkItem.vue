@@ -48,8 +48,7 @@
                 <template v-if="info.HomeworkPaperType == 1"
                     >时长：{{
                         formatDuration(info.VideoDurationTick)
-                    }}</template
-                >
+                    }}</template>
             </span>
             <span>
                 <template
@@ -195,7 +194,7 @@
                     "
                     >查阅学生</el-button
                   > -->
-                <el-button size="small" v-if="info.HomeworkPaperType == 2" style="background-color:#00C0FF;" type="primary" @click="quickUpload">快速上传</el-button>
+                <el-button size="small" v-if="info.HomeworkPaperType == 2" style="background-color:#00C0FF;" type="primary" @click="quickUpload(info)">快速上传</el-button>
                 <el-button size="small" type="primary" @click="review"
                     >查阅作业</el-button
                 >
@@ -216,7 +215,8 @@
                 :file="file"
             />
         </div>
-        <HignPhoto
+        <HignPhoto v-if="info.HomeworkPaperType == 2"
+        :homeworkValue="info"
         ref="hignPhotoRef"
         ></HignPhoto>
     </div>
@@ -440,7 +440,7 @@ export default defineComponent({
             });
         };
         const hignPhotoRef = ref();
-        const quickUpload = async () => {
+        const quickUpload = async (item: any) => {
             const list: { label: string; id: string }[] = [];
             const devices = await navigator.mediaDevices.enumerateDevices();
             devices.forEach((device) => {
@@ -497,6 +497,15 @@ export default defineComponent({
     }
     :deep(.el-dialog__header){
         display: none;
+    }
+     :deep(.el-dialog){
+        margin: 0;
+        padding: 30px;
+        box-sizing: border-box;
+        background: rgba(0, 0, 0, 0.2);
+    }
+    :deep(.el-overlay-dialog){
+        height: calc(100vh + 36px);
     }
 }
 .table-row {
