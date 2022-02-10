@@ -306,7 +306,6 @@ export default defineComponent({
         };
 
         const openShape = (event: MouseEvent) => {
-            console.log(event);
             emit("openShape", event);
         };
 
