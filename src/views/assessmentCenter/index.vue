@@ -3,10 +3,10 @@
         <webview
             v-if="isElectron"
             class="iframe"
-            src="http://1.15.4.131/"
+            src="http://tiku.leyixue.net/"
         ></webview>
         <iframe
-            src="http://1.15.4.131/"
+            src="http://tiku.leyixue.net/"
             sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-top-navigation-by-user-activation"
             class="iframe"
             v-else
