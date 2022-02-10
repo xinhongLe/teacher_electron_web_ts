@@ -43,10 +43,13 @@ export default defineComponent({
 <style lang="scss" scoped>
 .container {
     :deep(.el-dialog) {
-        width: fit-content;
+        --el-dialog-width: 90%;
+        margin: 0 auto;
+        top: 50%;
+        transform: translateY(-50%);
     }
     :deep(.el-dialog__body) {
-        height: 700px;
+        height: 90vh;
     }
 }
 </style>

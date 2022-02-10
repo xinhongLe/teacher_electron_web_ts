@@ -41,6 +41,20 @@ module.exports = {
             filename: "rollCall.html",
             title: "",
             chunks: ["rollCall"]
+        },
+        answerMachine: {
+            entry: "src/childWindow/answerMachine/main.ts",
+            template: "public/index.html",
+            filename: "answerMachine.html",
+            title: "",
+            chunks: ["answerMachine"]
+        },
+        blackboard: {
+            entry: "src/childWindow/blackboard/main.ts",
+            template: "public/index.html",
+            filename: "blackboard.html",
+            title: "教学黑板",
+            chunks: ["blackboard"]
         }
     },
     css: {
@@ -98,6 +112,16 @@ module.exports = {
                     name: "rollCall",
                     priority: 10,
                     test: "src/childWindow/rollCall/main.ts"
+                },
+                answerMachine: {
+                    name: "answerMachine",
+                    priority: 10,
+                    test: "src/childWindow/answerMachine/main.ts"
+                },
+                blackboard: {
+                    name: "blackboard",
+                    priority: 10,
+                    test: "src/childWindow/blackboard/main.ts"
                 },
                 timer: {
                     name: "timer",

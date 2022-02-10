@@ -146,6 +146,9 @@ export default defineComponent({
         const closeWriteBoard = () => {
             writeBoardVisible.value = false;
         };
+        const openShape = (event) => {
+            screenRef.value.openShape(event);
+        };
         const route = useRoute();
         watch(() => route.path, () => {
             if (route.path !== "/preparation") {
@@ -286,6 +289,7 @@ export default defineComponent({
             closeOpenCard,
             showWriteBoard,
             hideWriteBoard,
+            openShape,
             closeWriteBoard
         };
     }

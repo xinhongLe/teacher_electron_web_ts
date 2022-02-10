@@ -1,6 +1,6 @@
 {
     "name": "Aixueshi",
-    "version": "1.0.11",
+    "version": "1.0.12",
     "private": true,
     "main": "background.js",
     "config": {
@@ -43,12 +43,13 @@
         "postcss-px2rem-exclude": "0.0.6",
         "register-service-worker": "^1.7.1",
         "spark-md5": "^3.0.1",
-        "trtc-electron-sdk": "^8.9.102",
+        "trtc-electron-sdk": "8.9.102",
         "vue": "^3.0.0",
         "vue-router": "^4.0.0-0",
         "vuedraggable": "^2.24.3",
         "vuex": "^4.0.0-0",
-        "wincard": "^1.8.4"
+        "wincard": "^1.8.4",
+        "xlsx": "^0.17.5"
     },
     "devDependencies": {
         "@electron/remote": "^2.0.1",

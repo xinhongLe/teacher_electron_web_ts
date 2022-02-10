@@ -2,11 +2,10 @@ import OSS from "ali-oss";
 import SparkMD5 from "spark-md5";
 import { getOssToken } from "@/api";
 import { throttle } from "lodash";
-import { UploadFile } from "element-plus/lib/components/upload/src/upload.type";
 import { IOssPaths, IOssUploadRes } from "@/types/oss";
 
 // 上传
-export const cooOss = function(file: UploadFile & Blob, OssPaths: IOssPaths): Promise<IOssUploadRes | null> {
+export const cooOss = function(file: File & Blob, OssPaths: IOssPaths): Promise<IOssUploadRes | null> {
     return new Promise((resolve) => {
         fileMd5(file, async (md5) => {
             const fileExtension = file.name.split(".")[
@@ -87,7 +86,7 @@ const getToken = throttle(async function() {
 //     }
 // }
 
-const fileMd5 = (file: UploadFile & Blob, callback: (md5: string) => void) => {
+const fileMd5 = (file: File & Blob, callback: (md5: string) => void) => {
     const fileReader = new FileReader();
     const spark = new SparkMD5(); // 创建md5对象（基于SparkMD5）
     if (file.size > 1024 * 1024 * 10) {

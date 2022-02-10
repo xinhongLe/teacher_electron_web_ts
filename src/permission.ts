@@ -27,8 +27,8 @@ router.beforeEach((to, from, next) => {
         }
         const hasToken = get(STORAGE_TYPES.SET_TOKEN);
         if (hasToken) {
-            if (to.path === "/login") {
-                next({ path: "/" });
+            if (to.path === "/") {
+                next({ path: "/login" });
             } else {
                 next();
             }

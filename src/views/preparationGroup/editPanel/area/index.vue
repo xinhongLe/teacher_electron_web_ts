@@ -183,7 +183,6 @@ import { DiscussioncontentList, Fileginseng } from "@/types/preparationGroup";
 import { openFile, downLoad } from "@/utils";
 import { get, STORAGE_TYPES } from "@/utils/storage";
 import { getOssUrl, cooOss } from "@/utils/oss";
-import { UploadFile } from "element-plus/lib/components/upload/src/upload.type";
 import AddResearchContent from "../../popup-window/add-research-content.vue";
 import { addResourceResult } from "../../api";
 import isElectron from "is-electron";
@@ -385,7 +384,7 @@ export default defineComponent({
         };
 
         // 再次上传教案/课件
-        const uploadFileSuccess = async ({ file }: {file: UploadFile & Blob;}, id: string) => {
+        const uploadFileSuccess = async ({ file }: {file: File & Blob;}, id: string) => {
             if (file.name.length < 128) {
                 loadingShow.value = true;
                 const ossPath = get(STORAGE_TYPES.OSS_PATHS)?.["GroupLessonFile"];

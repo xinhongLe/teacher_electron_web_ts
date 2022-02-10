@@ -32,6 +32,7 @@
             @fullScreen="fullScreen"
             @clockFullScreen="clockFullScreen"
             @showWriteBoard="showWriteBoard"
+            @openShape="openShape"
             @hideWriteBoard="hideWriteBoard"
         />
     </div>
@@ -72,6 +73,10 @@ export default defineComponent({
         };
         const hideWriteBoard = () => {
             PageList.value.hideWriteBoard();
+        };
+        const openShape = (event) => {
+            PageList.value.hideWriteBoard();
+            PageList.value.openShape(event);
         };
         const changeRemark = (value) => {
             remark.value = value;
@@ -148,6 +153,7 @@ export default defineComponent({
             updateFlag,
             showWriteBoard,
             hideWriteBoard,
+            openShape,
             changeWinSize
         };
     }
