@@ -75,6 +75,7 @@ export default defineComponent({
             PageList.value.hideWriteBoard();
         };
         const openShape = (event) => {
+            PageList.value.hideWriteBoard();
             PageList.value.openShape(event);
         };
         const changeRemark = (value) => {
