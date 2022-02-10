@@ -179,8 +179,8 @@ export default defineComponent({
                 }
             }
             .week {
-                font-size: 18px;
-                font-weight: 400;
+                font-size: 18px !important;
+                font-weight: 400 !important;
                 color: #ffffff;
                 cursor: pointer;
             }
