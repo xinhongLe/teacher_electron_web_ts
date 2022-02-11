@@ -33,3 +33,15 @@ app.config.errorHandler = (err, vm, info) => {
 window.onerror = (event, source, lineno, colno, error) => {
     window.electron && window.electron.log.error(error);
 };
+
+async function onOpenCvReady() {
+    (window as any).cv = await (window as any).cv;
+}
+window.onload = () => {
+    const oHead = document.getElementsByTagName("head")[0]; // 在head标签中创建创建script
+    const oScript = document.createElement("script");
+    oScript.type = "text/javascript";
+    oScript.src = "./lib/opencv.js";
+    oScript.onload = onOpenCvReady;
+    oHead.appendChild(oScript);
+};
