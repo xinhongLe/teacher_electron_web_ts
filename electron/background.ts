@@ -124,6 +124,16 @@ async function createWindow() {
     ipcMain.handle("closeQuestion", () => {
         mainWindow!.webContents.send("closeQuestion");
     });
+
+    ipcMain.handle("openVirtualKeyBoard", () => {
+        const { exec } = require("child_process");
+        const os = require("os");
+        if (os.platform() === "win32") {
+            exec("osk.exe");
+        } else {
+            exec("onboard");
+        }
+    });
 }
 
 app.on("window-all-closed", () => {

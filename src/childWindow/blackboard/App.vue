@@ -593,9 +593,9 @@ export default defineComponent({
             selectPenMode();
         });
         watch(pageIndex, (v) => {
-            fabCanvas.loadFromJSON(storageCanvasData.value[v].data).renderAll();
             deleteState.value = [];
             currentState.value = [];
+            fabCanvas.loadFromJSON(storageCanvasData.value[v].data).renderAll();
         });
         return {
             isBlack,
