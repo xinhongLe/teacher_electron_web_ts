@@ -188,13 +188,7 @@ export default defineComponent({
         };
 
         const openVirtualKeyBoard = () => {
-            const { exec } = require("child_process");
-            const os = require("os");
-            if (os.platform() === "win32") {
-                exec("osk.exe");
-            } else {
-                exec("onboard");
-            }
+            window.electron.ipcRenderer.invoke("openVirtualKeyBoard");
         };
 
         const getCode = async () => {
