@@ -653,7 +653,9 @@ export default defineComponent({
                                                                     NotUnderstand: 0,
                                                                     ID: missionDetail?.MissionDetailID
                                                                 };
-                                                                CheckUpdateIns.push(cui);
+                                                                if (cui.ID) {
+                                                                    CheckUpdateIns.push(cui);
+                                                                }
                                                             }
                                                         });
                                                     }
