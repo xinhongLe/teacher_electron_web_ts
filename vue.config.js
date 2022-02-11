@@ -169,6 +169,7 @@ module.exports = {
                         url: "" // 更新服务器地址,可为空
                     }
                 ],
+                afterPack: "./build/afterPack.js",
                 dmg: {
                     contents: [
                         {
