@@ -113,7 +113,6 @@ export default defineComponent({
         }
     },
     setup(props) {
-        console.log(props.homeworkValue, "start");
         // 识别提示
         const IdentifyTip = ref("识别中,请先扫描学生二维码");
         // 识别出来的学生ID
@@ -175,7 +174,6 @@ export default defineComponent({
                     return item.State === 5 && item.Remark === "高拍仪完成";
                 });
                 studentMissions.value = res.result;
-                console.log(studentMissions.value, "studentMissions");
             }
         });
 
@@ -278,7 +276,6 @@ export default defineComponent({
                 const localVideo = videoRef.value;
                 // const localVideo = document.querySelector("video");
                 localVideo!.srcObject = mediaStream;
-                console.log(videoRef.value?.offsetWidth, "11111");
             });
         }
 
@@ -330,8 +327,6 @@ export default defineComponent({
             const e = event || window.event || arguments.callee.caller.arguments[0];
             if (!e) return;
             const { key, keyCode } = e;
-            console.log(keyCode);
-            console.log(key);
             // 如果是Enter
             if (keyCode === 13 && IdeStudentID.value && videoRef.value?.hidden === false) {
                 // 如果是回车键并且学生已经识别出来了则调用识别
@@ -467,11 +462,9 @@ export default defineComponent({
                             const imageData = context?.getImageData(0, 0, resultData.ImageWidth, resultData.ImageHeight);
                             const fileMat = cv.matFromImageData(imageData);
                             CheckQuestionResultList.value = resultData.CheckQuestionResultList;
-                            console.log(CheckQuestionResultList.value, "题目");
                             const correctColor = new cv.Scalar(0, 0, 255);
                             const errorColor = new cv.Scalar(255, 0, 0);
                             const wzColor = new cv.Scalar(255, 156, 47);
-                            console.log(CheckQuestionResultList);
                             CheckQuestionResultList.value.forEach((citem: {QuestionID: any; MarginLeft: any; MarginTop: any; SizeWidth: any; SizeHeight: any; Category: string; Number: int;}) => {
                                 const point1 = new cv.Point(citem.MarginLeft, citem.MarginTop);
                                 const point2 = new cv.Point(citem.MarginLeft + citem.SizeWidth, citem.MarginTop + citem.SizeHeight);
@@ -528,7 +521,6 @@ export default defineComponent({
                             const correctColor = new cv.Scalar(0, 0, 255);
                             const errorColor = new cv.Scalar(255, 0, 0);
                             const wzColor = new cv.Scalar(255, 156, 47);
-                            console.log(CheckQuestionResultList);
                             CheckQuestionResultList.value.forEach((citem: {QuestionID: any; MarginLeft: any; MarginTop: any; SizeWidth: any; SizeHeight: any; Category: string; Number: int;}) => {
                                 const point1 = new cv.Point(citem.MarginLeft, citem.MarginTop);
                                 const point2 = new cv.Point(citem.MarginLeft + citem.SizeWidth, citem.MarginTop + citem.SizeHeight);

@@ -265,7 +265,6 @@ export default defineComponent({
         };
 
         const choiceQuestionType = (type: PADModeQuestionType) => {
-            console.log(type);
             if (questionType.value === type) return;
             questionType.value = type;
             if (type === QuestionType.value.判断题) {
