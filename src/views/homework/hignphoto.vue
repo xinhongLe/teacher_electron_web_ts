@@ -612,7 +612,7 @@ export default defineComponent({
                                     if (resMat) {
                                         cv.imshow(canvasCheckRef.value, resMat);
                                         if (canvasCheckRef.value) {
-                                            var base64String = canvasCheckRef.value.toDataURL("image/png");
+                                            var base64String = canvasCheckRef.value.toDataURL("image/jepg", 0.5);
                                             SaveYuanshiImg({
                                                 MissionID: missionID as string + pageNumTemp.value as string,
                                                 Base64Img: base64String
