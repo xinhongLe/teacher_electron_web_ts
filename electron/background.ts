@@ -68,6 +68,7 @@ async function createWindow() {
 
     mainWindow.on("ready-to-show", () => {
         mainWindow!.show();
+        ElectronLog.info("app show");
     });
 
     mainWindow.on("closed", () => {
@@ -131,11 +132,16 @@ app.on("window-all-closed", () => {
     }
 });
 
+app.on("will-quit", () => {
+    ElectronLog.info("app quit");
+});
+
 app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
 });
 
 app.on("ready", async () => {
+    ElectronLog.info("app ready");
     if (isDevelopment && !process.env.IS_TEST) {
         try {
             // await installExtension(VUEJS_DEVTOOLS);

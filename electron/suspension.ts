@@ -38,6 +38,9 @@ const answerMachineURL = process.env.NODE_ENV === "development"
     : `file://${__dirname}/answerMachine.html`;
 
 function setSuspensionSize(isResetPosition = true, isCloseWelt = false) {
+    if (!suspensionWin) {
+        return;
+    }
     let width = 120;
     let height = 120;
     if (isShowTimer || isShowVideo || isShowBlackboard || isShowQuestion) {
@@ -52,20 +55,26 @@ function setSuspensionSize(isResetPosition = true, isCloseWelt = false) {
 }
 
 function checkIsWelt() {
+    if (!suspensionWin) {
+        return;
+    }
     const winPosition = suspensionWin.getPosition();
     const size = screen.getPrimaryDisplay().workAreaSize;
     const winSize = suspensionWin.getSize();
     if ((size.width - winPosition[0] - winSize[0]) < 10) {
-        suspensionWin && suspensionWin.webContents.send("showWelt");
+        suspensionWin.webContents.send("showWelt");
         suspensionWin.setPosition(size.width - 20, winPosition[1]);
         suspensionWin.setContentSize(20, 80);
     }
 }
 
 function setWelt() {
+    if (!suspensionWin) {
+        return;
+    }
     const winPosition = suspensionWin.getPosition();
     const size = screen.getPrimaryDisplay().workAreaSize;
-    suspensionWin && suspensionWin.webContents.send("showWelt");
+    suspensionWin.webContents.send("showWelt");
     suspensionWin.setPosition(size.width - 20, winPosition[1]);
     suspensionWin.setContentSize(20, 80);
 }
@@ -75,10 +84,13 @@ function hideSuspensionIcon () {
     isShowVideo = false;
     isShowQuestion = false;
     isShowBlackboard = false;
-    suspensionWin && suspensionWin.webContents.send("timerWinClose");
-    suspensionWin && suspensionWin.webContents.send("hideSuspensionVideo");
-    suspensionWin && suspensionWin.webContents.send("hideSuspensionBlackboard");
-    suspensionWin && suspensionWin.webContents.send("hideSuspensionQuestion");
+    if (suspensionWin) {
+        suspensionWin.webContents.send("timerWinClose");
+        suspensionWin.webContents.send("hideSuspensionVideo");
+        suspensionWin.webContents.send("hideSuspensionBlackboard");
+        suspensionWin.webContents.send("hideSuspensionQuestion");
+    }
+
     setSuspensionSize();
 }
 
