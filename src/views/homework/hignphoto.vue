@@ -255,7 +255,9 @@ export default defineComponent({
                                     studentName.value = smin.StudentName ?? "未知";
                                     IdentifyTip.value = "识别中,请翻到第" + pageNumTemp.value + "页";
                                 } else {
-                                    ElMessage({ type: "error", message: "此学生不属于这个班，请识别正确的二维码" });
+                                    if (studentId) {
+                                        ElMessage({ type: "error", message: "此学生不属于这个班，请识别正确的二维码" });
+                                    }
                                 }
                             }
                         }
@@ -612,7 +614,7 @@ export default defineComponent({
                                     if (resMat) {
                                         cv.imshow(canvasCheckRef.value, resMat);
                                         if (canvasCheckRef.value) {
-                                            var base64String = canvasCheckRef.value.toDataURL("image/jpeg", 0.5);
+                                            var base64String = canvasCheckRef.value.toDataURL("image/jpeg", 0.3);
                                             SaveYuanshiImg({
                                                 MissionID: missionID as string + pageNumTemp.value as string,
                                                 Base64Img: base64String
