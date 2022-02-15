@@ -196,6 +196,11 @@ export default defineComponent({
             if (ischeckResult.value) {
                 checkPageDetail();
             }
+            var pagenums = pageNumbersTemp.value as string[];
+            if (pagenums.indexOf(tab.paneName) < 0) {
+                pagenums.push(tab.paneName);
+                pageNumbersTemp.value = pagenums;
+            }
             if (!IdeStudentID.value) return false;
             IdentifyTip.value = "识别中,请翻到第" + pageNumTemp.value + "页";
         };
