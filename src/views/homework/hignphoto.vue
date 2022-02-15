@@ -48,7 +48,7 @@
               <span style="position: relative;top: -5px;left: -20px;">{{item.StudentName}}</span>
           </div>
         </div>
-        <div class="video" style="padding-left:18%">
+        <div class="video" style="padding-left:20%">
             <div v-if="showScan" class="line"></div>
           <video ref="videoRef" id="video" autoplay />
           <canvas ref="resultRef" @mousedown="mousedown" hidden></canvas>
@@ -105,6 +105,7 @@ import { BatchChangeResult, BatchCheckUpdate, ChangeResultForPhoto, GetCheckResu
 import { getOssUrl } from "@/utils/oss";
 import { nextTick } from "process";
 import { int } from "@zxing/library/esm/customTypings";
+import { max } from "moment";
 export default defineComponent({
     props: {
         homeworkValue: {
@@ -174,6 +175,7 @@ export default defineComponent({
                     return item.State === 5 && item.Remark === "高拍仪完成";
                 });
                 studentMissions.value = res.result;
+                console.log(studentMissions.value, "studentMissions");
             }
         });
 
@@ -284,27 +286,28 @@ export default defineComponent({
         const mousedown = (e: MouseEvent) => {
             const videoOfsetLeft = e.offsetX;
             const videoOfsetTop = e.offsetY;
+            // ElMessage({ type: "error", message: "请优先识别完剩余页面后进行修改" });
             // 获取页面上题目的信息
             if (CheckQuestionResultList.value) {
-                CheckQuestionResultList.value.forEach((citem: {QuestionID: any; MarginLeft: any; MarginTop: any; SizeWidth: any; SizeHeight: any; Category: string; Number:int; }) => {
-                    const MarginRight = citem.MarginLeft + citem.SizeWidth;
-                    const MarginBottom = citem.MarginTop + citem.SizeHeight;
-                    if ((pageNumbersTemp.value as string[]).length > 1) {
-                        ElMessage({ type: "warning", message: "请优先识别完剩余页面后进行修改" });
-                        return;
-                    }
-                    if ((videoOfsetLeft > citem.MarginLeft && videoOfsetLeft < MarginRight && videoOfsetTop > citem.MarginTop && videoOfsetTop < MarginBottom)) {
-                        selectResult.QuestionID = citem.QuestionID;
-                        selectResult.MarginLeft = citem.MarginLeft;
-                        selectResult.MarginTop = citem.MarginTop;
-                        selectResult.SizeWidth = citem.SizeWidth;
-                        selectResult.SizeHeight = citem.SizeHeight;
-                        selectResult.Category = citem.Category;
-                        selectResult.Number = citem.Number;
-                        resultVisible.value = true;
-                        discernVisible.value = false;
-                    }
-                });
+                if ((pageNumbersTemp.value as string[]).length > 1 && studentMission.value) {
+                    ElMessage({ type: "warning", message: "请优先识别完剩余页面后进行修改" });
+                } else {
+                    CheckQuestionResultList.value.forEach((citem: {QuestionID: any; MarginLeft: any; MarginTop: any; SizeWidth: any; SizeHeight: any; Category: string; Number:int; }) => {
+                        const MarginRight = citem.MarginLeft + citem.SizeWidth;
+                        const MarginBottom = citem.MarginTop + citem.SizeHeight;
+                        if ((videoOfsetLeft > citem.MarginLeft && videoOfsetLeft < MarginRight && videoOfsetTop > citem.MarginTop && videoOfsetTop < MarginBottom)) {
+                            selectResult.QuestionID = citem.QuestionID;
+                            selectResult.MarginLeft = citem.MarginLeft;
+                            selectResult.MarginTop = citem.MarginTop;
+                            selectResult.SizeWidth = citem.SizeWidth;
+                            selectResult.SizeHeight = citem.SizeHeight;
+                            selectResult.Category = citem.Category;
+                            selectResult.Number = citem.Number;
+                            resultVisible.value = true;
+                            discernVisible.value = false;
+                        }
+                    });
+                }
             }
         };
 
@@ -439,6 +442,8 @@ export default defineComponent({
         };
 
         const getMissionDetail = (hvalue: Homework, item: StudentMission) => {
+            pageNumbersTemp.value = props.homeworkValue.WorkbookPaperPageNum?.split(",");
+            activeName.value = (pageNumbersTemp.value as string[])[0];
             ischeckResult.value = true;
             studentMissionTemp.value = item;
             const obj = {
@@ -748,7 +753,7 @@ export default defineComponent({
                                                                 }, 10000);
                                                                 const correctColor = new cv.Scalar(0, 0, 255);
                                                                 const errorColor = new cv.Scalar(255, 0, 0);
-                                                                const wzColor = new cv.Scalar(47, 156, 255);
+                                                                const wzColor = new cv.Scalar(255, 156, 47);
                                                                 if (checkQuestionResultList.length > 0) {
                                                                     checkQuestionResultList.forEach(citem => {
                                                                         const point1 = new cv.Point(citem.MarginLeft, citem.MarginTop);
@@ -1097,7 +1102,7 @@ body {
         min-width: 0;
         min-height: 0;
         z-index: 10;
-        height: calc(100vh - 7rem);
+        height: calc(100vh - 15rem);
         overflow-y:auto ;
         .student-list-item{
             padding: 1.2rem 1rem;
@@ -1132,7 +1137,7 @@ body {
       border: 1px solid #a4c4f9;
       .line{
           position: absolute;
-          left:18%;
+          left:20%;
           z-index: 2;
           widows: 100%;
           width: 1211px;
