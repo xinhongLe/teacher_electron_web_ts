@@ -294,7 +294,7 @@ export default defineComponent({
             // ElMessage({ type: "error", message: "请优先识别完剩余页面后进行修改" });
             // 获取页面上题目的信息
             if (CheckQuestionResultList.value) {
-                if ((pageNumbersTemp.value as string[]).length > 1 && studentMission.value) {
+                if ((pageNumbersTemp.value as string[]).length > 1 && studentMissionTemp.value) {
                     ElMessage({ type: "warning", message: "请优先识别完剩余页面后进行修改" });
                 } else {
                     CheckQuestionResultList.value.forEach((citem: {QuestionID: any; MarginLeft: any; MarginTop: any; SizeWidth: any; SizeHeight: any; Category: string; Number:int; }) => {
@@ -450,10 +450,11 @@ export default defineComponent({
             pageNumbersTemp.value = props.homeworkValue.WorkbookPaperPageNum?.split(",");
             activeName.value = (pageNumbersTemp.value as string[])[0];
             ischeckResult.value = true;
+            pageNumTemp.value = Number((pageNumbersTemp.value as string[])[0]);
             studentMissionTemp.value = item;
             const obj = {
                 PaperID: hvalue.PaperID,
-                PageNum: pageNumTemp.value,
+                PageNum: activeName.value,
                 MissionID: item.MissionID,
                 ClassHomeworkPaperID: hvalue.ClassHomeworkPaperID
             };
