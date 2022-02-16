@@ -48,7 +48,7 @@
               <span style="position: relative;top: -5px;left: -20px;">{{item.StudentName}}</span>
           </div>
         </div>
-        <div class="video" style="padding-left:20%">
+        <div class="video" style="padding-left:22%">
             <div v-if="showScan" class="line"></div>
           <video ref="videoRef" id="video" autoplay />
           <canvas ref="resultRef" @mousedown="mousedown" hidden></canvas>
@@ -870,6 +870,7 @@ export default defineComponent({
         const initPage = () => {
             GetStudentMissionList({ ID: props.homeworkValue.ClassHomeworkPaperID }).then(res => {
                 if (res.resultCode === 200) {
+                    studentMissions.value = res.result;
                     studentFinishMissions.value = res.result.filter((item:any) => {
                         return item.State === 5 && item.Remark === "高拍仪完成";
                     });
@@ -1143,7 +1144,7 @@ body {
       border: 1px solid #a4c4f9;
       .line{
           position: absolute;
-          left:20%;
+          left:22%;
           z-index: 2;
           widows: 100%;
           width: 1211px;
