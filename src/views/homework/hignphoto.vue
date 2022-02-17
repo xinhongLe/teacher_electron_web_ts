@@ -768,14 +768,14 @@ export default defineComponent({
                                                         checkQuestionResultList.forEach(ckitem => {
                                                             checkResult.forEach((x: any) => {
                                                                 var RectA = {
-                                                                    top: x.bbox[0],
-                                                                    left: x.bbox[1],
-                                                                    right: x.bbox[1] + x.bbox[2],
-                                                                    bottom: x.bbox[0] + x.bbox[3]
+                                                                    left: x.bbox[0],
+                                                                    top: x.bbox[1],
+                                                                    right: x.bbox[0] + x.bbox[2],
+                                                                    bottom: x.bbox[1] + x.bbox[3]
                                                                 };
                                                                 var RectB = {
-                                                                    top: ckitem.MarginTop,
                                                                     left: ckitem.MarginLeft,
+                                                                    top: ckitem.MarginTop,
                                                                     right: ckitem.MarginLeft + ckitem.SizeWidth,
                                                                     bottom: ckitem.MarginTop + ckitem.SizeHeight
                                                                 };
