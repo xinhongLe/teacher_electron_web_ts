@@ -598,8 +598,12 @@ export default defineComponent({
                         IdeStudentID.value = "";
                         studentMission.value = null;
                         studentName.value = "识别中...";
-                        if (canvasRef.value) {
-                            const context = canvasRef.value.getContext("2d");
+                        if (resultRef.value) {
+                            resultRef.value.height = resultData.ImageHeight;
+                            resultRef.value.width = resultData.ImageWidth;
+                            const context = resultRef.value.getContext("2d");
+                            // console.log(resultData.ImageWidth, "resultData.ImageWidth");
+                            // console.log(resultData.ImageHeight, "resultData.ImageHeight");
                             context && context.drawImage(img, 0, 0, resultData.ImageWidth, resultData.ImageHeight);
                             // const base64Img = canvasRef.value.toDataURL("image/png");
                             const imageData = context?.getImageData(0, 0, resultData.ImageWidth, resultData.ImageHeight);
@@ -620,7 +624,9 @@ export default defineComponent({
                                 }
                             });
                             if (videoRef.value && resultRef.value) {
-                                resultRef.value.height = videoRef.value.clientHeight;
+                                const scale = videoRef.value.clientHeight / videoRef.value.clientWidth;
+                                resultRef.value.style.transform = "scale(" + scale + ")";
+                                resultRef.value.style.transformOrigin = "top left";
                                 videoRef.value.hidden = true;
                                 showScan.value = false;
                                 resultRef.value.hidden = false;
@@ -654,8 +660,10 @@ export default defineComponent({
                         studentMission.value = null;
                         studentMissionTemp.value = item;
                         studentName.value = "识别中...";
-                        if (canvasRef.value) {
-                            const context = canvasRef.value.getContext("2d");
+                        if (resultRef.value) {
+                            resultRef.value.height = resultData.ImageHeight;
+                            resultRef.value.width = resultData.ImageWidth;
+                            const context = resultRef.value.getContext("2d");
                             context && context.drawImage(img, 0, 0, resultData.ImageWidth, resultData.ImageHeight);
                             // const base64Img = canvasRef.value.toDataURL("image/png");
                             const imageData = context?.getImageData(0, 0, resultData.ImageWidth, resultData.ImageHeight);
@@ -676,6 +684,9 @@ export default defineComponent({
                                 }
                             });
                             if (videoRef.value && resultRef.value) {
+                                const scale = videoRef.value.clientHeight / videoRef.value.clientWidth;
+                                resultRef.value.style.transform = "scale(" + scale + ")";
+                                resultRef.value.style.transformOrigin = "top left";
                                 resultRef.value.height = videoRef.value.clientHeight;
                                 videoRef.value.hidden = true;
                                 showScan.value = false;
@@ -1229,6 +1240,7 @@ body {
     position: relative;
     padding: 5px;
     flex: 1;
+    overflow-y: auto;
     .students {
       position: absolute;
       top: 0;
@@ -1273,6 +1285,7 @@ body {
       height: 100%;
       background: #eef4ff;
       border: 1px solid #a4c4f9;
+      overflow-y: hidden;
       .line {
         position: absolute;
         left: 22%;

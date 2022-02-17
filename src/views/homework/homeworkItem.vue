@@ -494,6 +494,7 @@ export default defineComponent({
 .table-row{
     :deep(.el-dialog__body){
         padding: 0;
+        overflow: hidden;
     }
     :deep(.el-dialog__header){
         display: none;
