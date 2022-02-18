@@ -48,7 +48,7 @@ const dealCallback = (fileName: string, filePath: string) => {
 
 export const mkdirs = (dirname: string) => {
     return new Promise((resolve) => {
-        access(dirname).then(() => resolve("")).catch(() => mkdir(dirname).then(() => resolve("")));
+        access(dirname).then(() => resolve("")).catch(() => mkdir(dirname, { recursive: true }).then(() => resolve("")));
     });
 };
 
