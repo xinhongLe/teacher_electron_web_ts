@@ -1,4 +1,4 @@
-import { getPageDetailRes, updatePageRes, UpdatePageRemark } from "@/api/home";
+import { getPageDetailRes, updatePageRes, UpdatePageRemark, getVideoQuoteInfo } from "@/api/home";
 import { dealOldData } from "@/utils/dataParse";
 import { dealOldDataVideo, dealOldDataWord, dealOldDataTeach } from "@/utils/dataParsePage";
 import { IPageValue } from "@/types/home";
@@ -45,6 +45,18 @@ export default () => {
             callback(pageDetail);
         });
     };
+    const dealPauseVideo = async (slide: Slide) => {
+        for (const element of slide.elements) {
+            if (element.type === "video" && element.fileID) {
+                const res = await getVideoQuoteInfo({ FileIDs: [element.fileID] });
+                if (res.resultCode === 200 && res.result.length > 0) {
+                    element.src = res.result[0].File.FilePath + "/" + res.result[0].File.FileName + "." + res.result[0].File.Extention;
+                    element.pauseList = res.result[0].Pauses;
+                }
+            }
+        }
+        return slide;
+    };
     const dealPageDetail = async (page: IPageValue, res: any) => {
         // 后台返回
         if (res.resultCode) {
@@ -55,7 +67,7 @@ export default () => {
                     const slideString = res.result.Json || "{}";
                     const oldSlide = JSON.parse(slideString);
                     // 素材页如果是新数据直接赋值(更新id是为了避免复制卡过后id不统一问题)，旧数据dealOldData处理
-                    newSlide = oldSlide.type ? { ...oldSlide, id: page.ID } : await dealOldData(page.ID, page.originType, oldSlide);
+                    newSlide = oldSlide.type ? { ...await dealPauseVideo(oldSlide as Slide), id: page.ID } : await dealOldData(page.ID, page.originType, oldSlide);
                     cacheSildeFiles(newSlide);
                 } else if (page.Type === pageType.listen) {
                     newSlide = dealOldDataWord(page.ID, res.result);

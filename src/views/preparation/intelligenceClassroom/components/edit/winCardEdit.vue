@@ -6,6 +6,8 @@
             @onSave="onSave"
             @addCard="addCard"
             @selectVideo="selectVideo"
+            @setQuoteVideo="setQuoteVideo"
+            @updateQuoteVideo="updateQuoteVideo"
         />
         <!--选择弹卡-->
         <card-select-dialog
@@ -24,7 +26,7 @@
 <script lang="ts">
 import { watch, defineComponent, reactive, toRefs, PropType, ref, onUnmounted, computed } from "vue";
 import useHome from "@/hooks/useHome";
-import { Slide, IWin } from "wincard/src/types/slides";
+import { Slide, IWin, PPTVideoElement } from "wincard/src/types/slides";
 import CardSelectDialog from "./cardSelectDialog.vue";
 import { IPageValue, ICards } from "@/types/home";
 import SelectVideoDialog from "./selectVideoDialog.vue";
@@ -69,6 +71,7 @@ export default defineComponent({
         let pageIdIng: string | null = null; // 正在请求的页id
         const { getPageDetail, savePage, transformType } = useHome();
         const watchChange = computed(() => props.isWatchChange);
+        const updateVideoElement = ref<PPTVideoElement | null>(null);
         watch(() => props.pageValue, async (val: IPageValue, oldVal) => {
             if (transformType(val.Type) === -1 || !val.ID) {
                 page.value = {
@@ -218,11 +221,25 @@ export default defineComponent({
         };
 
         const selectVideo = () => {
+            updateVideoElement.value = null;
+            isSetQuoteVideo.value = false;
             state.dialogVisibleVideo = true;
         };
 
         const selectVideoVal = (val: any) => {
-            state.slide = Object.assign({}, state.slide, { follow: val });
+            if (isSetQuoteVideo.value) {
+                isSetQuoteVideo.value = false;
+                console.log(val);
+                if (updateVideoElement.value) {
+                    PPTEditRef.value.updateVideoElement({ ...updateVideoElement.value, src: val.src, fileID: val.fileID, pauseList: val.pauseList, ossSrc: "", ossPoster: "", ossIcon: "" });
+                    updateVideoElement.value = null;
+                } else {
+                    PPTEditRef.value.createQuoteVideo(val.src, val.fileID, val.pauseList);
+                }
+            } else {
+                delete val.fileID;
+                state.slide = Object.assign({}, state.slide, { follow: val });
+            }
             state.dialogVisibleVideo = false;
         };
 
@@ -244,6 +261,20 @@ export default defineComponent({
             return PPTEditRef.value.getDataIsChange();
         };
 
+        // 插入引用视频
+        const isSetQuoteVideo = ref(false);
+        const setQuoteVideo = () => {
+            updateVideoElement.value = null;
+            isSetQuoteVideo.value = true;
+            state.dialogVisibleVideo = true;
+        };
+
+        const updateQuoteVideo = (element: PPTVideoElement) => {
+            isSetQuoteVideo.value = true;
+            updateVideoElement.value = element;
+            state.dialogVisibleVideo = true;
+        };
+
         return {
             ...toRefs(state),
             onSave,
@@ -256,7 +287,9 @@ export default defineComponent({
             getIsScreening,
             execPrev,
             execNext,
-            getDataIsChange
+            getDataIsChange,
+            setQuoteVideo,
+            updateQuoteVideo
         };
     }
 });

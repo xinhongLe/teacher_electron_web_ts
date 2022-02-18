@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain } from "electron";
+import { app, ipcMain } from "electron";
 import { resolve } from "path";
 import { access, mkdir } from "fs/promises";
 import Axios from "Axios";
@@ -56,7 +56,7 @@ export const downloadFileAxios = async (url: string, fileName: string) => {
     const filePath =
         process.platform === "darwin"
             ? app.getPath("downloads") + fileName
-            : resolve("f:/", fileName);
+            : resolve(app.getPath("downloads"), fileName);
     const writer = createWriteStream(filePath);
     ElectronLog.info("start downloadFile fileName:", fileName);
     const response = await Axios({

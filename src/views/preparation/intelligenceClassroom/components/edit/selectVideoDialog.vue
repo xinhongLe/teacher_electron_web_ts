@@ -170,7 +170,8 @@ export default defineComponent({
             const follow = {
                 id: row.ElementFile.ID,
                 src: row.ElementFile.FilePath + "/" + row.ElementFile.FileName + "." + row.ElementFile.Extention,
-                pauseList: pauses
+                pauseList: pauses,
+                fileID: row.ElementID
             };
             emit("selectVideoVal", follow);
         };
