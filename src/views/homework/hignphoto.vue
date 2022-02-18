@@ -1,22 +1,21 @@
 <template>
-<!-- <div class="hign-photo-dialog"> -->
-  <el-dialog
-    v-model="dialogVisible"
-    width="100%"
-  >
+  <!-- <div class="hign-photo-dialog"> -->
+  <el-dialog v-model="dialogVisible" width="100%">
     <div class="container">
       <div class="top">
         <div class="workbook-info">
-            <img
-                    src="@/assets/images/homeworkNew/homework2.png"
-                    alt=""
-                />
-            <span>{{homeworkValue.WorkbookName}}</span>
+          <img src="@/assets/images/homeworkNew/homework2.png" alt="" />
+          <span>{{ homeworkValue.WorkbookName }}</span>
         </div>
         <div class="workbook-number">
-            <el-tabs v-model="activeName" @tab-click="handleClick">
-                <el-tab-pane v-for="(item, i) in homeworkValue.WorkbookPaperPageNum.split(',')" :key="i" :label="'第'+item+'页'" :name="item"></el-tab-pane>
-            </el-tabs>
+          <el-tabs v-model="activeName" @tab-click="handleClick">
+            <el-tab-pane
+              v-for="(item, i) in homeworkValue.WorkbookPaperPageNum.split(',')"
+              :key="i"
+              :label="'第' + item + '页'"
+              :name="item"
+            ></el-tab-pane>
+          </el-tabs>
         </div>
         <div class="camera-select">
           <img src="@/assets/images/suspension/icon_shexiangtou@2x.png" />
@@ -32,69 +31,188 @@
               :value="item.id"
             >
             </el-option>
-           </el-select>
+          </el-select>
         </div>
         <el-button type="danger" @click="close"> 关闭高拍仪 </el-button>
       </div>
       <div class="video-warp">
         <div class="students">
           <!-- <el-button type="primary" @click="recognition">{{studentName}}</el-button> -->
-          <div class="discern-now" style="width:30rem;padding:20px 10px">
-              <span>当前学生：</span><span style="font-size:24px;font-weight:bold;">{{studentName}}</span>
-              <el-button type="primary" @click="recognition" style="position:absolute;top:115px;left:226px;">重新识别</el-button>
+          <div class="discern-now" style="width: 30rem; padding: 20px 10px">
+            <span>当前学生：</span
+            ><span style="font-size: 24px; font-weight: bold">{{
+              studentName
+            }}</span>
+            <el-button
+              type="primary"
+              @click="recognition"
+              style="position: absolute; top: 115px; left: 226px"
+              >重新识别</el-button
+            >
           </div>
-          <div class="student-list-item" v-for="(item,index) in studentFinishMissions" :key="index" @click="getMissionDetail(homeworkValue,item)">
-              <img style="width: 20px;height: 20px;position: relative;left: 115px;" src="@/assets/homeworkImg/icon_success.png">
-              <span style="position: relative;top: -5px;left: -20px;">{{item.StudentName}}</span>
+          <div
+            class="student-list-item"
+            v-for="(item, index) in studentFinishMissions"
+            :key="index"
+            @click="getMissionDetail(homeworkValue, item)"
+          >
+            <img
+              style="width: 20px; height: 20px; position: relative; left: 115px"
+              src="@/assets/homeworkImg/icon_success.png"
+            />
+            <span style="position: relative; top: -5px; left: -20px">{{
+              item.StudentName
+            }}</span>
           </div>
         </div>
-        <div class="video" style="padding-left:18%">
-            <div v-if="showScan" class="line"></div>
+        <div class="video" style="padding-left: 22%">
+          <div v-if="showScan" class="line"></div>
           <video ref="videoRef" id="video" autoplay />
           <canvas ref="resultRef" @mousedown="mousedown" hidden></canvas>
-          <div class="overlay-wrapper"><span>{{IdentifyTip}}</span></div>
+          <div class="overlay-wrapper">
+            <span>{{ IdentifyTip }}</span>
+          </div>
         </div>
-        <div class="buttonDiscern" style="width:440px">
-            <div v-if="resultVisible" style="width:400px;height:280px;padding:20px;border-radius:12px;background: #000000;opacity: 0.6;color:white;">
-                <el-button style="position: absolute;left: 370px;top:5px" type="text" @click="closeResult"> ✖ </el-button>
-                <div style="padding: 10px 15px;"><span style="font-size:24px">题目{{selectResult.Number}}</span></div>
-                <div style="padding: 10px 15px;"><span>作答结果</span></div>
-                <div style="padding: 20px 20px;text-align: center;">
-                    <el-button style="width:140px" :type="selectResult.Category === 'Correct' ? 'success' : ''"  @click="checkCorrect">✔</el-button>
-                    <el-button @click="checkError" :type="selectResult.Category === 'Error' ? 'danger' : ''" style="width:140px">✖</el-button>
-                </div>
-                <div style="padding: 20px;text-align: center;"><el-button type="primary" @click="recognitionaForstu">重新识别此页</el-button></div>
+        <div class="buttonDiscern" style="width: 440px">
+          <div
+            v-if="resultVisible"
+            style="
+              width: 400px;
+              height: 280px;
+              padding: 20px;
+              border-radius: 12px;
+              background: #000000;
+              opacity: 0.6;
+              color: white;
+            "
+          >
+            <el-button
+              style="position: absolute; left: 370px; top: 5px"
+              type="text"
+              @click="closeResult"
+            >
+              ✖
+            </el-button>
+            <div style="padding: 10px 15px">
+              <span style="font-size: 24px">题目{{ selectResult.Number }}</span>
             </div>
-            <div v-if="discernVisible" style="width:406px;height:234px;padding:20px;border-radius:12px;background: #000000;opacity: 0.6;color:white;">
-                <el-button style="position: absolute;left: 370px;top:5px" type="text" @click="closeDiscern">✖</el-button>
-                <div style="padding: 10px 0px;"><img src="@/assets/homeworkImg/icon_success.png"><span style="font-size: 25px;position: relative;padding-left: 15px;top: -5px;">识别成功</span></div>
-                <div style="padding: 40px 10px;"><span>3秒后自动刷新，继续扫描<span v-if="pageNumbersTemp.length<2">下一位学生</span><span v-if="pageNumbersTemp.length>1">下一页</span></span></div>
-                <div style="text-align: center;">
-                    <el-button type="primary" @click="recognitionAgin">重新识别此页</el-button>
-                    <el-button type="success" v-if="pageNumbersTemp.length<2" @click="recognition">下一位</el-button>
-                    <el-button type="success" v-if="pageNumbersTemp.length>1" @click="nextPage">下一页</el-button>
-                </div>
+            <div style="padding: 10px 15px"><span>作答结果</span></div>
+            <div style="padding: 20px 20px; text-align: center">
+              <el-button
+                style="width: 140px"
+                :type="selectResult.Category === 'Correct' ? 'success' : ''"
+                @click="checkCorrect"
+                >✔</el-button
+              >
+              <el-button
+                @click="checkError"
+                :type="selectResult.Category === 'Error' ? 'danger' : ''"
+                style="width: 140px"
+                >✖</el-button
+              >
             </div>
-          <el-button type="primary" style="width:180px;height:80px;position:relative;top:380px;left:250px;" v-if="studentMission" @click="discern">识别(键盘[Enter]键)</el-button>
+            <div style="padding: 20px; text-align: center">
+              <el-button type="primary" @click="recognitionaForstu"
+                >重新识别此页</el-button
+              >
+            </div>
+          </div>
+          <div
+            v-if="discernVisible"
+            style="
+              width: 406px;
+              height: 234px;
+              padding: 20px;
+              border-radius: 12px;
+              background: #000000;
+              opacity: 0.6;
+              color: white;
+            "
+          >
+            <el-button
+              style="position: absolute; left: 370px; top: 5px"
+              type="text"
+              @click="closeDiscern"
+              >✖</el-button
+            >
+            <div style="padding: 10px 0px">
+              <img src="@/assets/homeworkImg/icon_success.png" /><span
+                style="
+                  font-size: 25px;
+                  position: relative;
+                  padding-left: 15px;
+                  top: -5px;
+                "
+                >识别成功</span
+              >
+            </div>
+            <div style="padding: 40px 10px">
+              <span
+                >3秒后自动刷新，继续扫描<span v-if="pageNumbersTemp.length < 2"
+                  >下一位学生</span
+                ><span v-if="pageNumbersTemp.length > 1">下一页</span></span
+              >
+            </div>
+            <div style="text-align: center">
+              <el-button type="primary" @click="recognitionAgin"
+                >重新识别此页</el-button
+              >
+              <el-button
+                type="success"
+                v-if="pageNumbersTemp.length < 2"
+                @click="recognition"
+                >下一位</el-button
+              >
+              <el-button
+                type="success"
+                v-if="pageNumbersTemp.length > 1"
+                @click="nextPage"
+                >下一页</el-button
+              >
+            </div>
+          </div>
+          <el-button
+            type="primary"
+            style="
+              width: 180px;
+              height: 80px;
+              position: relative;
+              top: 380px;
+              left: 250px;
+            "
+            v-if="studentMission"
+            @click="discern"
+            >识别(键盘[Enter]键)</el-button
+          >
         </div>
-        <canvas ref="canvasRef" id="canvas" style="display:none"></canvas>
-        <canvas ref="canvasCheckRef" id="canvasCheck" style="display:none"></canvas>
-        <img ref="img" :src="imageSrc" alt="">
+        <canvas ref="canvasRef" id="canvas" style="display: none"></canvas>
+        <canvas
+          ref="canvasCheckRef"
+          id="canvasCheck"
+          style="display: none"
+        ></canvas>
+        <img ref="img" :src="imageSrc" alt="" />
       </div>
     </div>
-    <el-dialog
-        title="提示"
-        v-model="centerDialogVisible"
-        width="380px"
+    <!-- <el-dialog
+      title="提示"
+      v-model="centerDialogVisible"
+      width="380px"
+      style="position: fixed; top: 100px; right: 100px"
+    >
+      <div style="height: 100px; padding: 40px">
+        <span style="color: blue">{{ studentName }}</span
+        ><span style="color: white">
+          已经上传过作答结果，要重新识别上传吗？</span
         >
-        <div style="height:100px;padding: 40px;"><span style="color:blue">{{studentName}}</span> 已经上传过作答结果，要重新识别上传吗？</div>
-        <div style="text-align: center;padding:20px">
-            <el-button @click="centerDialogVisible = false">再次上传</el-button>
-            <el-button @click="recognition" type="primary">换其他学生</el-button>
-        </div>
-    </el-dialog>
+      </div>
+      <div style="text-align: center; padding: 20px">
+        <el-button @click="centerDialogVisible = false">再次上传</el-button>
+        <el-button @click="recognition" type="primary">换其他学生</el-button>
+      </div>
+    </el-dialog> -->
   </el-dialog>
-<!-- </div> -->
+  <!-- </div> -->
 </template>
 <script lang="ts">
 import { CheckQuestionResult, Homework, StudentMission, WorkBookPageDetailAndImgSize, CheckUpdateIn, BatchCheckUpdateIn, PageInfo } from "@/types/homework";
@@ -105,6 +223,7 @@ import { BatchChangeResult, BatchCheckUpdate, ChangeResultForPhoto, GetCheckResu
 import { getOssUrl } from "@/utils/oss";
 import { nextTick } from "process";
 import { int } from "@zxing/library/esm/customTypings";
+import { max } from "moment";
 export default defineComponent({
     props: {
         homeworkValue: {
@@ -174,6 +293,7 @@ export default defineComponent({
                     return item.State === 5 && item.Remark === "高拍仪完成";
                 });
                 studentMissions.value = res.result;
+                console.log(studentMissions.value, "studentMissions");
             }
         });
 
@@ -193,6 +313,11 @@ export default defineComponent({
             pageNumTemp.value = tab.paneName;
             if (ischeckResult.value) {
                 checkPageDetail();
+            }
+            var pagenums = pageNumbersTemp.value as string[];
+            if (pagenums.indexOf(tab.paneName) < 0) {
+                pagenums.push(tab.paneName);
+                pageNumbersTemp.value = pagenums;
             }
             if (!IdeStudentID.value) return false;
             IdentifyTip.value = "识别中,请翻到第" + pageNumTemp.value + "页";
@@ -235,6 +360,7 @@ export default defineComponent({
                     if (code) {
                         if (code.data) {
                             const studentId = code.data.substr(code.data.indexOf(":") + 1);
+                            const isStu = code.data.substr(0, code.data.indexOf(":"));
                             IdeStudentID.value = studentId;
                             if (studentMissions.value) {
                                 const stuMissionArray = studentMissions.value;
@@ -245,15 +371,26 @@ export default defineComponent({
                                     pageNumbersTemp.value = props.homeworkValue.WorkbookPaperPageNum?.split(",");
                                     activeName.value = (pageNumbersTemp.value as string[])[0];
                                     pageNumTemp.value = Number(activeName.value);
-                                    if (smin.State === 5) {
-                                        centerDialogVisible.value = true;
-                                    }
                                     studentMission.value = smin;
                                     studentMissionTemp.value = smin;
                                     studentName.value = smin.StudentName ?? "未知";
                                     IdentifyTip.value = "识别中,请翻到第" + pageNumTemp.value + "页";
+                                    if (smin.State === 5) {
+                                        centerDialogVisible.value = true;
+                                        ElMessageBox.confirm(
+                                            `${studentName.value}，已经上传过作答结果，要重新识别上传吗？`,
+                                            {
+                                                confirmButtonText: "换其他学生",
+                                                cancelButtonText: "再次上传",
+                                                center: true
+                                            }
+                                        )
+                                            .then(() => {
+                                                recognition();
+                                            });
+                                    }
                                 } else {
-                                    if (studentId) {
+                                    if (isStu === "studentid") {
                                         ElMessage({ type: "error", message: "此学生不属于这个班，请识别正确的二维码" });
                                     }
                                 }
@@ -284,27 +421,28 @@ export default defineComponent({
         const mousedown = (e: MouseEvent) => {
             const videoOfsetLeft = e.offsetX;
             const videoOfsetTop = e.offsetY;
+            // ElMessage({ type: "error", message: "请优先识别完剩余页面后进行修改" });
             // 获取页面上题目的信息
             if (CheckQuestionResultList.value) {
-                CheckQuestionResultList.value.forEach((citem: {QuestionID: any; MarginLeft: any; MarginTop: any; SizeWidth: any; SizeHeight: any; Category: string; Number:int; }) => {
-                    const MarginRight = citem.MarginLeft + citem.SizeWidth;
-                    const MarginBottom = citem.MarginTop + citem.SizeHeight;
-                    if ((pageNumbersTemp.value as string[]).length > 1) {
-                        ElMessage({ type: "warning", message: "请优先识别完剩余页面后进行修改" });
-                        return;
-                    }
-                    if ((videoOfsetLeft > citem.MarginLeft && videoOfsetLeft < MarginRight && videoOfsetTop > citem.MarginTop && videoOfsetTop < MarginBottom)) {
-                        selectResult.QuestionID = citem.QuestionID;
-                        selectResult.MarginLeft = citem.MarginLeft;
-                        selectResult.MarginTop = citem.MarginTop;
-                        selectResult.SizeWidth = citem.SizeWidth;
-                        selectResult.SizeHeight = citem.SizeHeight;
-                        selectResult.Category = citem.Category;
-                        selectResult.Number = citem.Number;
-                        resultVisible.value = true;
-                        discernVisible.value = false;
-                    }
-                });
+                if ((pageNumbersTemp.value as string[]).length > 1 && studentMission.value) {
+                    ElMessage({ type: "warning", message: "请优先识别完剩余页面后进行修改" });
+                } else {
+                    CheckQuestionResultList.value.forEach((citem: {QuestionID: any; MarginLeft: any; MarginTop: any; SizeWidth: any; SizeHeight: any; Category: string; Number:int; }) => {
+                        const MarginRight = citem.MarginLeft + citem.SizeWidth;
+                        const MarginBottom = citem.MarginTop + citem.SizeHeight;
+                        if ((videoOfsetLeft > citem.MarginLeft && videoOfsetLeft < MarginRight && videoOfsetTop > citem.MarginTop && videoOfsetTop < MarginBottom)) {
+                            selectResult.QuestionID = citem.QuestionID;
+                            selectResult.MarginLeft = citem.MarginLeft;
+                            selectResult.MarginTop = citem.MarginTop;
+                            selectResult.SizeWidth = citem.SizeWidth;
+                            selectResult.SizeHeight = citem.SizeHeight;
+                            selectResult.Category = citem.Category;
+                            selectResult.Number = citem.Number;
+                            resultVisible.value = true;
+                            discernVisible.value = false;
+                        }
+                    });
+                }
             }
         };
 
@@ -439,11 +577,14 @@ export default defineComponent({
         };
 
         const getMissionDetail = (hvalue: Homework, item: StudentMission) => {
+            pageNumbersTemp.value = props.homeworkValue.WorkbookPaperPageNum?.split(",");
+            activeName.value = (pageNumbersTemp.value as string[])[0];
             ischeckResult.value = true;
+            pageNumTemp.value = Number((pageNumbersTemp.value as string[])[0]);
             studentMissionTemp.value = item;
             const obj = {
                 PaperID: hvalue.PaperID,
-                PageNum: pageNumTemp.value,
+                PageNum: activeName.value,
                 MissionID: item.MissionID,
                 ClassHomeworkPaperID: hvalue.ClassHomeworkPaperID
             };
@@ -457,8 +598,12 @@ export default defineComponent({
                         IdeStudentID.value = "";
                         studentMission.value = null;
                         studentName.value = "识别中...";
-                        if (canvasRef.value) {
-                            const context = canvasRef.value.getContext("2d");
+                        if (resultRef.value) {
+                            resultRef.value.height = resultData.ImageHeight;
+                            resultRef.value.width = resultData.ImageWidth;
+                            const context = resultRef.value.getContext("2d");
+                            // console.log(resultData.ImageWidth, "resultData.ImageWidth");
+                            // console.log(resultData.ImageHeight, "resultData.ImageHeight");
                             context && context.drawImage(img, 0, 0, resultData.ImageWidth, resultData.ImageHeight);
                             // const base64Img = canvasRef.value.toDataURL("image/png");
                             const imageData = context?.getImageData(0, 0, resultData.ImageWidth, resultData.ImageHeight);
@@ -479,7 +624,9 @@ export default defineComponent({
                                 }
                             });
                             if (videoRef.value && resultRef.value) {
-                                resultRef.value.height = videoRef.value.clientHeight;
+                                const scale = videoRef.value.clientHeight / videoRef.value.clientWidth;
+                                resultRef.value.style.transform = "scale(" + scale + ")";
+                                resultRef.value.style.transformOrigin = "top left";
                                 videoRef.value.hidden = true;
                                 showScan.value = false;
                                 resultRef.value.hidden = false;
@@ -513,8 +660,10 @@ export default defineComponent({
                         studentMission.value = null;
                         studentMissionTemp.value = item;
                         studentName.value = "识别中...";
-                        if (canvasRef.value) {
-                            const context = canvasRef.value.getContext("2d");
+                        if (resultRef.value) {
+                            resultRef.value.height = resultData.ImageHeight;
+                            resultRef.value.width = resultData.ImageWidth;
+                            const context = resultRef.value.getContext("2d");
                             context && context.drawImage(img, 0, 0, resultData.ImageWidth, resultData.ImageHeight);
                             // const base64Img = canvasRef.value.toDataURL("image/png");
                             const imageData = context?.getImageData(0, 0, resultData.ImageWidth, resultData.ImageHeight);
@@ -535,6 +684,9 @@ export default defineComponent({
                                 }
                             });
                             if (videoRef.value && resultRef.value) {
+                                const scale = videoRef.value.clientHeight / videoRef.value.clientWidth;
+                                resultRef.value.style.transform = "scale(" + scale + ")";
+                                resultRef.value.style.transformOrigin = "top left";
                                 resultRef.value.height = videoRef.value.clientHeight;
                                 videoRef.value.hidden = true;
                                 showScan.value = false;
@@ -617,6 +769,7 @@ export default defineComponent({
                                             });
                                             var CheckUpdateIns: CheckUpdateIn[] = [];
                                             var batchCheckUpDto: BatchCheckUpdateIn;
+                                            console.log(base64String);
                                             var outBase64 = base64String.substr(base64String.indexOf(",") + 1);
                                             GetCheckResult(outBase64).then((res: any) => {
                                                 if (res) {
@@ -626,14 +779,14 @@ export default defineComponent({
                                                         checkQuestionResultList.forEach(ckitem => {
                                                             checkResult.forEach((x: any) => {
                                                                 var RectA = {
-                                                                    top: x.bbox[0],
-                                                                    left: x.bbox[1],
-                                                                    right: x.bbox[1] + x.bbox[2],
-                                                                    bottom: x.bbox[0] + x.bbox[3]
+                                                                    left: x.bbox[0],
+                                                                    top: x.bbox[1],
+                                                                    right: x.bbox[0] + x.bbox[2],
+                                                                    bottom: x.bbox[1] + x.bbox[3]
                                                                 };
                                                                 var RectB = {
-                                                                    top: ckitem.MarginTop,
                                                                     left: ckitem.MarginLeft,
+                                                                    top: ckitem.MarginTop,
                                                                     right: ckitem.MarginLeft + ckitem.SizeWidth,
                                                                     bottom: ckitem.MarginTop + ckitem.SizeHeight
                                                                 };
@@ -653,7 +806,9 @@ export default defineComponent({
                                                                     NotUnderstand: 0,
                                                                     ID: missionDetail?.MissionDetailID
                                                                 };
-                                                                CheckUpdateIns.push(cui);
+                                                                if (cui.ID) {
+                                                                    CheckUpdateIns.push(cui);
+                                                                }
                                                             }
                                                         });
                                                     }
@@ -746,7 +901,7 @@ export default defineComponent({
                                                                 }, 10000);
                                                                 const correctColor = new cv.Scalar(0, 0, 255);
                                                                 const errorColor = new cv.Scalar(255, 0, 0);
-                                                                const wzColor = new cv.Scalar(47, 156, 255);
+                                                                const wzColor = new cv.Scalar(255, 156, 47);
                                                                 if (checkQuestionResultList.length > 0) {
                                                                     checkQuestionResultList.forEach(citem => {
                                                                         const point1 = new cv.Point(citem.MarginLeft, citem.MarginTop);
@@ -857,6 +1012,7 @@ export default defineComponent({
         const initPage = () => {
             GetStudentMissionList({ ID: props.homeworkValue.ClassHomeworkPaperID }).then(res => {
                 if (res.resultCode === 200) {
+                    studentMissions.value = res.result;
                     studentFinishMissions.value = res.result.filter((item:any) => {
                         return item.State === 5 && item.Remark === "高拍仪完成";
                     });
@@ -1054,16 +1210,16 @@ body {
   user-select: none;
   overflow: hidden;
 }
-.hign-photo-dialog{
-    :deep(.el-dialog){
-        margin: 0;
-        padding: 30px;
-        box-sizing: border-box;
-        background: rgba(0, 0, 0, 0.2);
-    }
-    :deep(.el-overlay-dialog){
-        height: calc(100vh + 36px);
-    }
+.hign-photo-dialog {
+  :deep(.el-dialog) {
+    margin: 0;
+    padding: 30px;
+    box-sizing: border-box;
+    background: rgba(0, 0, 0, 0.2);
+  }
+  :deep(.el-overlay-dialog) {
+    height: calc(100vh + 36px);
+  }
 }
 .container {
   display: flex;
@@ -1071,91 +1227,93 @@ body {
   height: 95vh;
   width: 100%;
   background: #cfe1ff;
-  :deep(.el-dialog){
-        margin: 0;
-        padding: 30px;
-        box-sizing: border-box;
-        background: rgba(0, 0, 0, 0.2);
-    }
-    :deep(.el-overlay-dialog){
-        height: calc(100vh + 36px);
-    }
+  :deep(.el-dialog) {
+    margin: 0;
+    padding: 30px;
+    box-sizing: border-box;
+    background: rgba(0, 0, 0, 0.2);
+  }
+  :deep(.el-overlay-dialog) {
+    height: calc(100vh + 36px);
+  }
   .video-warp {
     position: relative;
     padding: 5px;
     flex: 1;
-	.students{
-		position: absolute;
-        top: 0;
-        left: 0;
-		padding: 40px 30px;
-        display: flex;
-        flex-direction: column;
-        flex:1;
-        min-width: 0;
-        min-height: 0;
-        z-index: 10;
-        height: calc(100vh - 7rem);
-        overflow-y:auto ;
-        .student-list-item{
-            padding: 1.2rem 1rem;
-            background-color: #000000;
-            border-radius: 0.4rem;
-            opacity: 0.5;
-            color: white;
-            margin-top: 0.5rem;
-            width: 15.2rem;
-            height: 4.2rem;
-            cursor : pointer;
-        }
-        .discern-now{
-            widows: 33rem;
-            height: 12rem;
-            border:solid 1px cornflowerblue;
-            border-radius: 5px;
-        }
-	}
-	.buttonDiscern{
-		position: absolute;
-		bottom: 5px;
-		right: 30px;
-		widows: 440px;
-		height: 600px;
-	}
+    overflow-y: auto;
+    .students {
+      position: absolute;
+      top: 0;
+      left: 0;
+      padding: 40px 30px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-width: 0;
+      min-height: 0;
+      z-index: 10;
+      height: calc(100vh - 15rem);
+      overflow-y: auto;
+      .student-list-item {
+        padding: 1.2rem 1rem;
+        background-color: #000000;
+        border-radius: 0.4rem;
+        opacity: 0.5;
+        color: white;
+        margin-top: 0.5rem;
+        width: 15.2rem;
+        height: 4.2rem;
+        cursor: pointer;
+      }
+      .discern-now {
+        widows: 33rem;
+        height: 12rem;
+        border: solid 1px cornflowerblue;
+        border-radius: 5px;
+      }
+    }
+    .buttonDiscern {
+      position: absolute;
+      bottom: 5px;
+      right: 30px;
+      widows: 440px;
+      height: 600px;
+    }
     .video {
       position: relative;
       overflow: hidden;
       height: 100%;
       background: #eef4ff;
       border: 1px solid #a4c4f9;
-      .line{
-          position: absolute;
-          left:18%;
-          z-index: 2;
-          widows: 100%;
-          width: 1211px;
+      overflow-y: hidden;
+      .line {
+        position: absolute;
+        left: 22%;
+        z-index: 2;
+        widows: 100%;
+        width: 1211px;
         //   width: 100%;
-          height: 58px;
-          background: url("../../assets/homeworkImg/pic_saomiao.png");
-          animation: myScan 2s infinite alternate;
-          -webkit-animation: myScan 2s infinite alternate;
+        height: 58px;
+        background: url("../../assets/homeworkImg/pic_saomiao.png");
+        animation: myScan 2s infinite alternate;
+        -webkit-animation: myScan 2s infinite alternate;
       }
-      @keyframes  myScan{
-          0% {
-              transform: translate(0, 0);
-          }
-          100% {
-              transform: translate(0, 1550px);
-          }
-	}
-	@-webkit-keyframes  myScan{
-		0% {
-              transform: translate(0, 0);
+      @keyframes myScan {
+        0% {
+          transform: translate(0, 0);
         }
         100% {
-            transform: translate(0, 1550px);
+          transform: translate(0, 1550px);
         }
-	}
+      }
+      @-webkit-keyframes myScan {
+        0% {
+          transform: translate(0, 0);
+        }
+        100% {
+          transform: translate(0, 1550px);
+        }
+      }
       video {
         height: 100%;
         position: absolute;
@@ -1171,9 +1329,9 @@ body {
         border-radius: 32px;
         opacity: 0.3;
         left: 42%;
-        span{
-            color: white;
-            font-size:25px;
+        span {
+          color: white;
+          font-size: 25px;
         }
       }
     }
@@ -1187,28 +1345,28 @@ body {
     justify-content: flex-end;
     padding-right: 20px;
     .workbook-info {
-        position: absolute;
-        left:5%;
-        transform: translateX(-50%);
-        display: flex;
-        align-items: center;
-        span {
-            color: #0d0e11;
-            font-size: 20px;
-            margin-left: 15px;
-            margin-right: 5px;
-            font-weight: bold;
-        }
-        img {
+      position: absolute;
+      left: 5%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      span {
+        color: #0d0e11;
+        font-size: 20px;
+        margin-left: 15px;
+        margin-right: 5px;
+        font-weight: bold;
+      }
+      img {
         width: 36px;
       }
     }
-    .workbook-number{
-        position: absolute;
-        left: 45%;
-        transform: translateX(-50%);
-        display: flex;
-        align-items: center;
+    .workbook-number {
+      position: absolute;
+      left: 45%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
     }
     .camera-select {
       position: absolute;
