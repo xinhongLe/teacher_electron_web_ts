@@ -132,7 +132,7 @@ export const showFileIcon = (extention: string) => {
 export const openFile = (url: string, fileName = "") => {
     if (isElectron()) {
         return window.electron.ipcRenderer.invoke("downloadFile", url, fileName).then((filePath) => {
-            window.electron.shell.openPath(filePath);
+            filePath && window.electron.shell.openPath(filePath);
         });
     }
     window.open(url);
@@ -157,4 +157,10 @@ export const downLoad = (downUrl: string, fileName: string) => {
     a.target = "_parent";
     a.click();// 设置点击事件
     a.remove(); // 移除a标签
+};
+
+export const getSaveFilePath = (id: string) => {
+    const { join } = require("path");
+    const path = join(window.electron.getPath("userData"), "files", id, "/");
+    return path;
 };
