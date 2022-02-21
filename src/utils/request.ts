@@ -5,6 +5,7 @@ import router from "@/router/index";
 import { initAllState } from "@/store";
 import loading from "@/components/loading";
 import isElectron from "is-electron";
+import moment from "moment";
 
 const http = axios.create({
     baseURL: "/",
@@ -18,6 +19,7 @@ http.interceptors.request.use(
                 "Content-Type": "application/json-patch+json",
                 ...config.headers,
                 Token: get(STORAGE_TYPES.SET_TOKEN),
+                startTime: moment().format("YYYY-MM-DD HH:mm:ss.SSS"),
                 Authorization: "Bearer" + " " + get(STORAGE_TYPES.SET_TOKEN)
             };
         }
@@ -38,7 +40,7 @@ http.interceptors.response.use(
     (response) => {
         loading.hide();
         const res = response.data;
-        window.electron.log.info(`request url:${response.config.url}, request resultCode: ${res.resultCode}, request resultDesc: ${res.resultDesc}`);
+        window.electron.log.info(`request url:${response.config.url}, request resultCode: ${res.resultCode}, request resultDesc: ${res.resultDesc}, request startTime:${response?.config?.headers?.startTime}`);
         if (res.resultCode === 103) {
             if (!messageInterface) {
                 messageInterface = ElMessage({

@@ -1,4 +1,4 @@
-import { ipcMain } from "electron";
+import { app, ipcMain } from "electron";
 import { resolve } from "path";
 import { access, mkdir } from "fs/promises";
 import Axios from "Axios";
@@ -13,11 +13,6 @@ export const store = new Store({
 });
 const downloadingFileList: string[] = []; // 下载中的文件列表
 const downloadSuccessCallbackMap = new Map<string, func[]>();
-export const appPath =
-    process.platform === "darwin"
-        ? (process.env.HOME || process.env.USERPROFILE) +
-        "/.aixueshi_teacher_files/"
-        : resolve(process.env.APPDATA!, "Aixueshi/files/");
 export const isExistFile = (filePath: string): Promise<boolean> => {
     return new Promise((resolve) => {
         access(filePath)
@@ -51,18 +46,17 @@ const dealCallback = (fileName: string, filePath: string) => {
     }
 };
 
-const mkdirs = (dirname: string) => {
+export const mkdirs = (dirname: string) => {
     return new Promise((resolve) => {
-        access(dirname).then(() => resolve("")).catch(() => mkdir(dirname));
+        access(dirname).then(() => resolve("")).catch(() => mkdir(dirname, { recursive: true }).then(() => resolve("")));
     });
 };
 
 export const downloadFileAxios = async (url: string, fileName: string) => {
     const filePath =
         process.platform === "darwin"
-            ? appPath + fileName
-            : resolve(appPath, fileName);
-    await mkdirs(appPath);
+            ? app.getPath("downloads") + fileName
+            : resolve(app.getPath("downloads"), fileName);
     const writer = createWriteStream(filePath);
     ElectronLog.info("start downloadFile fileName:", fileName);
     const response = await Axios({
@@ -82,8 +76,8 @@ export const downloadFileAxios = async (url: string, fileName: string) => {
             ElectronLog.info("finish fileName:", fileName);
             resolve(true);
         });
-        writer.on("error", () => {
-            ElectronLog.info("error fileName", fileName);
+        writer.on("error", (err) => {
+            ElectronLog.info("error fileName", fileName, err.message);
             resolve(false);
         });
         writer.on("close", () => {
@@ -100,8 +94,8 @@ export default () => {
     const downloadFile = async (url: string, fileName: string) => {
         const filePath =
             process.platform === "darwin"
-                ? appPath + fileName
-                : resolve(appPath, fileName);
+                ? app.getPath("downloads") + fileName
+                : resolve(app.getPath("downloads"), fileName);
         if (downloadingFileList.includes(fileName)) return;
         const isExist = await isExistFile(filePath);
         if (isExist) {

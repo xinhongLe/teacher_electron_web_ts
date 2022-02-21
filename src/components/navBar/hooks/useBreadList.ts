@@ -1,6 +1,6 @@
 import { watch, ref } from "vue";
 import router from "@/router";
-import { Bread } from "./interface";
+import { Bread } from "../interface";
 
 export default () => {
     const breadList = ref([

@@ -1,6 +1,6 @@
 import { getCurrentWindow, app, dialog } from "@electron/remote";
 import electron, { OpenDialogOptions, remote, SaveDialogOptions } from "electron";
-import { appPath, isExistFile, store } from "./downloadFile";
+import { isExistFile, mkdirs, store } from "./downloadFile";
 import { resolve } from "path";
 import ElectronLog from "electron-log";
 import fs from "fs";
@@ -84,23 +84,23 @@ window.electron = {
     isExistFile: (fileName: string) => {
         const filePath =
             process.platform === "darwin"
-                ? appPath + fileName
-                : resolve(appPath, fileName);
+                ? app.getPath("downloads") + fileName
+                : resolve(app.getPath("downloads"), fileName);
         return isExistFile(filePath);
     },
     getFilePath: (fileName: string) => {
-        const filePath = process.platform === "darwin" ? appPath + fileName : resolve(appPath, fileName);
+        const filePath = process.platform === "darwin" ? app.getPath("downloads") + fileName : resolve(app.getPath("downloads"), fileName);
         return "file:///" + filePath.replaceAll("\\", "/");
     },
     log: ElectronLog,
     getCacheFile: async (fileName: string) => {
         if (!fileName) return "";
-        const filePath = process.platform === "darwin" ? appPath + fileName : resolve(appPath, fileName);
+        const filePath = process.platform === "darwin" ? app.getPath("downloads") + fileName : resolve(app.getPath("downloads"), fileName);
         const isExist = await isExistFile(filePath);
         return isExist ? "file://" + filePath.split("\\").join("/") : "";
     },
     getCachePath: (path: string) => {
-        return process.platform === "darwin" ? appPath + path : resolve(appPath, path);
+        return process.platform === "darwin" ? app.getPath("downloads") + path : resolve(app.getPath("downloads"), path);
     },
     readFile: (path: string, callback: (buffer: ArrayBuffer) => void) => {
         fs.readFile(path, (err, buffer) => {
@@ -125,6 +125,13 @@ window.electron = {
     showOpenDialog: (option: OpenDialogOptions) => {
         const currentWindow = getCurrentWindow();
         return dialog.showOpenDialog(currentWindow, option);
+    },
+    setPath: async (name, path) => {
+        await mkdirs(path);
+        app.setPath(name, path);
+    },
+    getPath: (name) => {
+        return app.getPath(name);
     },
     store: store,
     ...electron
