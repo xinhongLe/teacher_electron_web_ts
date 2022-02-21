@@ -215,7 +215,9 @@
                 :file="file"
             />
         </div>
-        <HignPhoto v-if="info.HomeworkPaperType == 2"
+    </div>
+    <div class="hign-photo-warp" v-if="info.HomeworkPaperType == 2">
+        <HignPhoto
         :homeworkValue="info"
         ref="hignPhotoRef"
         ></HignPhoto>
@@ -491,7 +493,7 @@ export default defineComponent({
         width: 30px;
     }
 }
-.table-row{
+.hign-photo-warp{
     :deep(.el-dialog__body){
         padding: 0;
         overflow: hidden;
