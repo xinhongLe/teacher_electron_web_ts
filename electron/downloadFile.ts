@@ -53,10 +53,12 @@ export const mkdirs = (dirname: string) => {
 };
 
 export const downloadFileAxios = async (url: string, fileName: string) => {
+    const downloadsPath = app.getPath("downloads");
     const filePath =
         process.platform === "darwin"
-            ? app.getPath("downloads") + fileName
-            : resolve(app.getPath("downloads"), fileName);
+            ? downloadsPath + fileName
+            : resolve(downloadsPath, fileName);
+    await mkdirs(downloadsPath);
     const writer = createWriteStream(filePath);
     ElectronLog.info("start downloadFile fileName:", fileName);
     const response = await Axios({
