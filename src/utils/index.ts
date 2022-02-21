@@ -3,6 +3,7 @@ import moment from "moment";
 import isElectron from "is-electron";
 import { MutationTypes, store } from "@/store";
 import { BookList } from "@/types/preparation";
+import "./dealMainEvent";
 
 export function formatClass(v: CourseBagClasses[]) {
     return v ? v.map((e) => e.ClassName).join(",") : "";

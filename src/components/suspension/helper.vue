@@ -132,7 +132,6 @@ import { getToolList } from "@/api/index";
 import { getOssUrl } from "@/utils/oss";
 import isElectron from "is-electron";
 import { ElMessage } from "element-plus";
-import { fetchSubjectPublisherBookList } from "@/views/preparation/api";
 import { BookList } from "@/types/preparation";
 import { get, STORAGE_TYPES, storeChange } from "@/utils/storage";
 import { fetchAllStudents } from "@/views/labelManage/api";
@@ -269,7 +268,7 @@ export default defineComponent({
         };
 
         const getBookList = async () => {
-            const res = await fetchSubjectPublisherBookList();
+            const res = await window.electron.ipcRenderer.invoke("fetchSubjectPublisherBookList");
             if (res.resultCode === 200) {
                 subjectPublisherBookList.value = [
                     ...initBookList,
