@@ -18,7 +18,7 @@
                     getCourseBagType(item.ClassifyType)
                 }}</span>
                 <span class="attributetype" v-if="item.type == 0"
-                    >{{ item.QuestionCount }}&nbsp;题</span
+                    >{{ item.Questions?.length || 0 }}&nbsp;题</span
                 >
                 <span class="attributetype" v-if="item.type == 1"
                     >时长:{{ formatDuration(item.VideoDuration) }}</span

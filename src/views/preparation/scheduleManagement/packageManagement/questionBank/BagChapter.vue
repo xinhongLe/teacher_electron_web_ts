@@ -19,7 +19,7 @@
                         alt=""
                     />
                     <span class="question_count"
-                        >{{ cont.QuestionCount }}题</span
+                        >{{ cont.Questions?.length || 0 }}题</span
                     >
                     <span class="question_type">{{
                         getCourseBagType(cont.ClassifyType)
@@ -46,7 +46,8 @@
                             lookQuestions({
                                 id: cont.PaperID,
                                 type: 1,
-                                courseBagId: courseBagId,
+                                courseBagId: ele.ID || '',
+                                deleteQuestionIds: deleteQuestionList.get(cont.PaperID)?.questionIDs || []
                             })
                         "
                         >查看题目</el-button
@@ -62,8 +63,10 @@ import useDrag from "@/hooks/useDrag";
 import { store } from "@/store";
 import { BagChapter, BagLessons, BagPapers } from "@/types/preparation";
 import { fetchBagChapter } from "@/views/preparation/api";
-import { computed, defineComponent, PropType, ref, watch } from "vue";
+import { computed, defineComponent, onActivated, onDeactivated, PropType, ref, watch } from "vue";
 import { lookVideo, lookQuestions, getCourseBagType } from "@/utils";
+import emitter from "@/utils/mitt";
+import { find, pullAllBy } from "lodash";
 export default defineComponent({
     props: {
         subjectPublisherBookValue: {
@@ -79,6 +82,12 @@ export default defineComponent({
         const teacherBookChapterList = ref<BagChapter[]>([]);
         const bagLessonsList = ref<BagLessons[]>([]);
         const { onDrag, onDragEnd, onDragStart } = useDrag();
+        const deleteQuestionList = ref<Map<string, {
+            courseBagId: string,
+            questionIDs: string[],
+            id: string,
+            paperId: string
+        }>>(new Map());
 
         const getBagChapter = async (id: string) => {
             const res = await fetchBagChapter({
@@ -86,9 +95,7 @@ export default defineComponent({
             });
             if (res.resultCode === 200) {
                 teacherBookChapterList.value = res.result;
-                bagLessonsList.value =
-                    res.result.find(({ ID }) => props.teacherBookChapter === ID)
-                        ?.BagLessons || [];
+                getBagLessonsList(props.teacherBookChapter);
             }
         };
 
@@ -111,9 +118,38 @@ export default defineComponent({
         );
 
         watch(() => props.teacherBookChapter, (id) => {
-            bagLessonsList.value =
-                    teacherBookChapterList.value.find(({ ID }) => id === ID)
-                        ?.BagLessons || [];
+            getBagLessonsList(id);
+        });
+
+        const getBagLessonsList = (id: string) => {
+            const bagLessons = teacherBookChapterList.value.find(({ ID }) => id === ID)
+                ?.BagLessons || [];
+            for (const [paperId, { courseBagId, questionIDs }] of deleteQuestionList.value) {
+                const bagPapers = find(bagLessons, { ID: courseBagId })?.BagPapers || [];
+                const questionInfo = find(bagPapers, { PaperID: paperId });
+                const questions = questionInfo?.Questions || [];
+                pullAllBy(questions, questionIDs.map(id => ({ QuestionID: id })), "QuestionID");
+                questionInfo && (questionInfo.QuestionCount = questions.length);
+            }
+            bagLessonsList.value = bagLessons;
+        };
+
+        onActivated(() => {
+            emitter.on("deleteQuestion", ({ courseBagId, paperId, questionID }) => {
+                const bagPapers = find(bagLessonsList.value, { ID: courseBagId })?.BagPapers || [];
+                const questionInfo = find(bagPapers, { PaperID: paperId });
+                const questions = questionInfo?.Questions || [];
+                pullAllBy(questions, [{ QuestionID: questionID }], "QuestionID");
+                questionInfo && (questionInfo.QuestionCount = questions.length);
+                const info = deleteQuestionList.value.get(paperId);
+                const questionIDs = info?.questionIDs || [];
+                questionIDs.push(questionID);
+                deleteQuestionList.value.set(paperId, { courseBagId, paperId, questionIDs, id: props.teacherBookChapter });
+            });
+        });
+
+        onDeactivated(() => {
+            emitter.off("deleteQuestion");
         });
 
         return {
@@ -125,6 +161,7 @@ export default defineComponent({
             courseBagId: computed(
                 () => store.state.preparation.selectCourseBag.ID
             ),
+            deleteQuestionList,
             getCourseBagType,
             lookQuestions
         };
