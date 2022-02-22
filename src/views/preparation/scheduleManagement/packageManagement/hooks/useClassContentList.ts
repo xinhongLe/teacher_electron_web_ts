@@ -13,7 +13,7 @@ export default () => {
     const classContentList = ref<ClassContent[]>([]);
 
     const queryClassContentList = async () => {
-        const { CourseBagType, ID } = store.state.preparation.selectCourseBag;
+        const { ID } = store.state.preparation.selectCourseBag;
 
         if (!ID) return;
 
@@ -28,22 +28,9 @@ export default () => {
             title: "课后作业"
         }];
 
-        let res;
-
-        if (CourseBagType === 1) {
-            const cloneCourseBagDetail = await cloneCourseBagToTeacher({
-                courseBagID: ID!
-            });
-            if (cloneCourseBagDetail.resultCode === 200) {
-                res = await getCourseByCourseBag(2, {
-                    courseBagTeacherID: cloneCourseBagDetail.result.CourseBagTeacher.ID
-                });
-            }
-        } else {
-            res = await getCourseByCourseBag(2, {
-                courseBagTeacherID: ID!
-            });
-        }
+        const res = await getCourseByCourseBag(2, {
+            courseBagTeacherID: ID!
+        });
 
         if (res?.resultCode === 200) {
             res.result.CourseWares.forEach(item => {
