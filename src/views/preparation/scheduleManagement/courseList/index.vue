@@ -29,7 +29,8 @@
 <script lang="ts">
 import { MutationTypes, store } from "@/store";
 import { Course } from "@/types/preparation";
-import { defineComponent, provide, ref, watchEffect } from "vue";
+import emitter from "@/utils/mitt";
+import { defineComponent, onMounted, provide, ref, watchEffect } from "vue";
 import { fetchTeacherLessonAndBagByChapter } from "../../api";
 import { teacherLessonAndBagFilter } from "../../logic";
 import CourseItem from "./CourseItem.vue";
@@ -63,6 +64,12 @@ export default defineComponent({
         watchEffect(getTeacherLessonAndBag);
 
         provide("getTeacherLessonAndBag", getTeacherLessonAndBag);
+
+        onMounted(() => {
+            emitter.on("preparationReLoad", () => {
+                getTeacherLessonAndBag();
+            });
+        });
 
         return {
             courseList,

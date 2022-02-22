@@ -6,6 +6,7 @@ type Events = {
         paperId: string,
         questionID: string
     };
+    preparationReLoad: null
 }
 
 const emitter = mitt<Events>();

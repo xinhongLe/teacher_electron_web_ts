@@ -1,7 +1,8 @@
 import { CourseWares, getCourseByCourseBag } from "@/api";
 import { store } from "@/store";
+import emitter from "@/utils/mitt";
 import { cloneCourseBagToTeacher } from "@/views/preparation/api";
-import { ref, watchEffect } from "vue";
+import { onMounted, ref, watchEffect } from "vue";
 
 export interface ClassContent {
     content: CourseWares[],
@@ -63,6 +64,12 @@ export default () => {
     };
 
     watchEffect(queryClassContentList);
+
+    onMounted(() => {
+        emitter.on("preparationReLoad", () => {
+            queryClassContentList();
+        });
+    });
 
     return {
         classContentList,

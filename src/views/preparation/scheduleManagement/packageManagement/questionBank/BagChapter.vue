@@ -58,7 +58,7 @@ import useDrag from "@/hooks/useDrag";
 import { store } from "@/store";
 import { BagChapter, BagLessons, BagPapers } from "@/types/preparation";
 import { fetchBagChapter } from "@/views/preparation/api";
-import { computed, defineComponent, onActivated, onDeactivated, PropType, ref, watch } from "vue";
+import { computed, defineComponent, onMounted, PropType, ref, watch } from "vue";
 import { lookVideo, lookQuestions, getCourseBagType } from "@/utils";
 import emitter from "@/utils/mitt";
 import { find, pullAllBy } from "lodash";
@@ -154,6 +154,12 @@ export default defineComponent({
 
         watch(() => props.teacherBookChapter, (id) => {
             getBagLessonsList(id);
+        });
+
+        onMounted(() => {
+            emitter.on("preparationReLoad", () => {
+                getBagChapter(props.subjectPublisherBookValue[1]);
+            });
         });
 
         return {
