@@ -110,7 +110,6 @@ export default (isPureQuestion: boolean, questionId = "", emit: (event: string, 
         }
 
         if (res.resultCode === 200) {
-            console.log(deleteQuestionIds);
             const { result } = res;
             !isPureQuestion && pullAllBy(result, deleteQuestionIds.map(id => ({ QuestionID: id })), "QuestionID");
             sum.value = result.length;
@@ -214,11 +213,12 @@ export default (isPureQuestion: boolean, questionId = "", emit: (event: string, 
         })
             .then(() => {
                 // 接口不对，后期会改，先本地假删除
-                const { courseBagId, id } = store.state.common.viewQuestionInfo;
+                const { courseBagId, id, type } = store.state.common.viewQuestionInfo;
+                const questionID = type === 3 ? questionList.value[number.value - 1].CoursebagQuestionID || "" : nowQuestionID.value;
                 emitter.emit("deleteQuestion", {
                     courseBagId,
                     paperId: id,
-                    questionID: nowQuestionID.value
+                    questionID
                 });
                 ElMessage.success("移除成功!");
                 audioRef.value!.pause();

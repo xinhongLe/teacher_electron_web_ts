@@ -220,6 +220,7 @@ export default defineComponent({
         };
 
         onMounted(() => {
+            emitter.off("deleteQuestion");
             emitter.on("deleteQuestion", ({ courseBagId, questionID, paperId }) => {
                 const bagPapers = find(allList.value[activeLeft.value].BagLessons, { ID: courseBagId })?.BagPapers || [];
                 const questions = find(bagPapers, { PaperID: paperId })?.Questions || [];

@@ -99,6 +99,7 @@ export interface Questions {
 
 export interface UpdateCourseWareListOfTeacherData {
     deletedCourseWareTeacherIDs?: string[];
+    deletedQuestionIDs?: string[];
     addedCourseWareTeacher?: {
         lessonID: string;
         CourseBagTeacherID: string;

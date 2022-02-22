@@ -43,12 +43,7 @@
                         size="mini"
                         plain
                         @click="
-                            lookQuestions({
-                                id: cont.PaperID,
-                                type: 1,
-                                courseBagId: ele.ID || '',
-                                deleteQuestionIds: deleteQuestionList.get(cont.PaperID)?.questionIDs || []
-                            })
+                            lookQuestions(ele.ID , cont.PaperID)
                         "
                         >查看题目</el-button
                     >
@@ -89,6 +84,19 @@ export default defineComponent({
             paperId: string
         }>>(new Map());
 
+        const getBagLessonsList = (id: string) => {
+            const bagLessons = teacherBookChapterList.value.find(({ ID }) => id === ID)
+                ?.BagLessons || [];
+            for (const [paperId, { courseBagId, questionIDs }] of deleteQuestionList.value) {
+                const bagPapers = find(bagLessons, { ID: courseBagId })?.BagPapers || [];
+                const questionInfo = find(bagPapers, { PaperID: paperId });
+                const questions = questionInfo?.Questions || [];
+                pullAllBy(questions, questionIDs.map(id => ({ QuestionID: id })), "QuestionID");
+                questionInfo && (questionInfo.QuestionCount = questions.length);
+            }
+            bagLessonsList.value = bagLessons;
+        };
+
         const getBagChapter = async (id: string) => {
             const res = await fetchBagChapter({
                 bookID: id
@@ -107,6 +115,33 @@ export default defineComponent({
             onDragStart(e, data);
         };
 
+        const _lookQuestions = (courseBagId: string, paperID: string) => {
+            lookQuestions({
+                id: paperID,
+                type: 1,
+                courseBagId: courseBagId || "",
+                deleteQuestionIds: deleteQuestionList.value.get(paperID)?.questionIDs || []
+            });
+            emitter.off("deleteQuestion");
+            emitter.on("deleteQuestion", ({ courseBagId, paperId, questionID }) => {
+                const bagPapers = find(bagLessonsList.value, { ID: courseBagId })?.BagPapers || [];
+                const questionInfo = find(bagPapers, { PaperID: paperId });
+                const questions = questionInfo?.Questions || [];
+                pullAllBy(questions, [{ QuestionID: questionID }], "QuestionID");
+                questionInfo && (questionInfo.QuestionCount = questions.length);
+                const info = deleteQuestionList.value.get(paperId);
+                const questionIDs = info?.questionIDs || [];
+                questionIDs.push(questionID);
+                deleteQuestionList.value.set(paperId, { courseBagId, paperId, questionIDs, id: props.teacherBookChapter });
+            });
+        };
+
+        watch(() => store.state.common.isShowQuestion, (v) => {
+            if (!v) {
+                emitter.off("deleteQuestion");
+            }
+        });
+
         watch(
             () => props.subjectPublisherBookValue,
             (value) => {
@@ -121,37 +156,6 @@ export default defineComponent({
             getBagLessonsList(id);
         });
 
-        const getBagLessonsList = (id: string) => {
-            const bagLessons = teacherBookChapterList.value.find(({ ID }) => id === ID)
-                ?.BagLessons || [];
-            for (const [paperId, { courseBagId, questionIDs }] of deleteQuestionList.value) {
-                const bagPapers = find(bagLessons, { ID: courseBagId })?.BagPapers || [];
-                const questionInfo = find(bagPapers, { PaperID: paperId });
-                const questions = questionInfo?.Questions || [];
-                pullAllBy(questions, questionIDs.map(id => ({ QuestionID: id })), "QuestionID");
-                questionInfo && (questionInfo.QuestionCount = questions.length);
-            }
-            bagLessonsList.value = bagLessons;
-        };
-
-        onActivated(() => {
-            emitter.on("deleteQuestion", ({ courseBagId, paperId, questionID }) => {
-                const bagPapers = find(bagLessonsList.value, { ID: courseBagId })?.BagPapers || [];
-                const questionInfo = find(bagPapers, { PaperID: paperId });
-                const questions = questionInfo?.Questions || [];
-                pullAllBy(questions, [{ QuestionID: questionID }], "QuestionID");
-                questionInfo && (questionInfo.QuestionCount = questions.length);
-                const info = deleteQuestionList.value.get(paperId);
-                const questionIDs = info?.questionIDs || [];
-                questionIDs.push(questionID);
-                deleteQuestionList.value.set(paperId, { courseBagId, paperId, questionIDs, id: props.teacherBookChapter });
-            });
-        });
-
-        onDeactivated(() => {
-            emitter.off("deleteQuestion");
-        });
-
         return {
             bagLessonsList,
             lookVideo,
@@ -163,7 +167,7 @@ export default defineComponent({
             ),
             deleteQuestionList,
             getCourseBagType,
-            lookQuestions
+            lookQuestions: _lookQuestions
         };
     }
 });
