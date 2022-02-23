@@ -145,7 +145,7 @@ export const GetCheckResult: RequestFun<string, PointsPackage[]> = (
     data
 ) => {
     return request({
-        baseURL: "http://47.116.10.26:5000",
+        baseURL: "https://shot.aixueshi.top",
         url: "/predict",
         headers: {
             "Content-Type": "application/json"
