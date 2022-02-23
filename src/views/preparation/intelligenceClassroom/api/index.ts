@@ -89,7 +89,7 @@ export function getChapters(data: IGetChapters): Promise<ChaptersResponse> {
 export function getWindowCards(data: IGetWindowCards): Promise<GetWindowCardsResponse> {
     return request({
         baseURL: AI_XUE_SHI_API,
-        url: "API/W1/Card/GetWindowCards",
+        url: "API/W4/Card/GetWindowCards",
         headers: {
             "Content-Type": "application/json-patch+json"
         },

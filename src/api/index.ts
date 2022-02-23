@@ -29,7 +29,7 @@ export function getOssToken(): Promise<IOssTokenRes> {
 export function getToolList({ name = "", bookID, bookIDs }: {name: string, bookID?: string, bookIDs?: string[]}): Promise<IResponse<Tools[]>> {
     return request({
         baseURL: AI_XUE_SHI_API,
-        url: "API/W1/TeachingMiniTool/ToolManage/GetToolList/V211125",
+        url: "API/W4/TeachingMiniTool/ToolManage/GetToolList/V211125",
         headers: {
             noLoading: "true"
         },

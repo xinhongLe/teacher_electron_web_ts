@@ -120,7 +120,7 @@ export function getChapters(data: IGetChapters): Promise<ChaptersResponse> {
 export function getSubjectPublisherBookListVideo(): Promise<GetPageResponse> {
     return request({
         baseURL: WINDOW_CRAD_API,
-        url: "/Api/W1/Book/GetSubjectPublisherBookListStaff",
+        url: "/Api/W4/Book/GetSubjectPublisherBookListStaff",
         method: "post",
         data: {}
     });
@@ -130,7 +130,7 @@ export function getSubjectPublisherBookListVideo(): Promise<GetPageResponse> {
 export function getChaptersVideo(data: IGetChaptersVideo): Promise<GetPageResponse> {
     return request({
         baseURL: WINDOW_CRAD_API,
-        url: "/API/W1/Card/GetChapters",
+        url: "/API/W4/Card/GetChapters",
         method: "post",
         data: Object.assign(data, { OriginType: originType })
     });
@@ -139,7 +139,7 @@ export function getChaptersVideo(data: IGetChaptersVideo): Promise<GetPageRespon
 // 选择跟读页视频 列表
 export function getElementsVideo(data: IElementsVideo): Promise<GetPageResponse> {
     return request({
-        url: "/API/W1/Chapter/GetElements",
+        url: "/API/W4/Chapter/GetElements",
         method: "post",
         baseURL: WINDOW_CRAD_API,
         data: Object.assign(data, { OriginType: originType })
@@ -148,7 +148,7 @@ export function getElementsVideo(data: IElementsVideo): Promise<GetPageResponse>
 // 获取窗下的卡、页
 export function getWindowCards(data: IGetWindowCards): Promise<GetWindowCardsResponse> {
     return request({
-        url: "API/W1/Card/GetWindowCards",
+        url: "API/W4/Card/GetWindowCards",
         headers: {
             "Content-Type": "application/json-patch+json"
         },
