@@ -7,13 +7,13 @@
             :key="index"
             @click="handleClick(index, item)"
         >
-            <p>{{ item.Name ? item.Name : "新卡" }}</p>
+            <span>{{ item.Name ? item.Name : "新卡" }}</span>
         </div>
     </div>
 </template>
 
 <script>
-import { computed, defineComponent, ref, watch } from "vue-demi";
+import { computed, defineComponent, ref, watch } from "vue";
 import cardList from "../hooks/cardList";
 import { ElMessage } from "element-plus";
 import TrackService, { EnumTrackEventType } from "@/utils/common";
@@ -109,64 +109,36 @@ function debounce (fn, delay) {
 .me-card {
     position: relative;
     width: 100%;
-    padding: 0 15px;
+    padding: 0 20px;
     box-sizing: border-box;
 }
 .me-card-item {
-    border: 1px solid #ddd;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 48px;
+    border: 1px solid #E0E2E7;
     background-color: #fff;
-    margin-bottom: 15px;
-    box-sizing: border-box;
-    border-radius: 5px;
-    font-size: 14px;
-    color: #444;
-    white-space: nowrap;
-    text-overflow: ellipsis;
+    margin-bottom: 12px;
+    border-radius: 4px;
+    font-size: 16px;
+    color: var(--app-color-dark);
+    @include text-ellipsis;
     cursor: pointer;
     position: relative;
-}
-
-.me-card-item p{
-  padding: 17px 10px;
-  overflow: hidden;
-  font-size: 16px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+    font-weight: 600;
+    span {
+        @include text-ellipsis;
+    }
+    &:last-child {
+        margin-bottom: 0;
+    }
 }
 
 .me-card-item.active {
-    border-color: #5560f1;
-    background-color: #5560f1;
-    color: #fff;
+    color: var(--app-color-primary);
+    border: 2px solid var(--app-color-primary);
+    background-color: #F0F4FF;
 }
 
-.me-card-item.active:after {
-    display: block;
-    content: "";
-    width: 10px;
-    height: 10px;
-    background-color: #5560f1;
-    transform: rotate(45deg);
-    position: absolute;
-    right: -5px;
-    top: 19px;
-}
-
-.operation-button {
-    border: 1px solid #b3d8ff;
-    border-radius: 4px;
-    padding: 10px;
-    text-align: center;
-    font-size: 20px;
-    color: #409eff;
-    font-weight: 800;
-
-    span {
-        cursor: pointer;
-
-        &:first-of-type {
-            margin-right: 20px;
-        }
-    }
-}
 </style>

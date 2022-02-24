@@ -86,29 +86,33 @@ export default defineComponent({
         display: flex;
         flex-direction: column;
         height: 100%;
+        background-color: #fff;
+        border-radius: 16px;
     }
 
     .content-header {
         display: flex;
         align-items: center;
+        background-color: #fff;
+        padding: 0 16px;
         .item {
             flex: 1;
-            height: 54px;
+            height: 32px;
             display: flex;
             align-items: center;
             justify-content: center;
             color: #5f626f;
             user-select: none;
             cursor: default;
-            font-size: 14px;
+            font-size: 12px;
             text-align: center;
-            border-left: 2px solid #e0e2e7;
-            border-bottom: 1px solid #e0e2e7;
+            background-color: #F5F6FA;
+            border-top: 1px solid #E0E2E7;
+            border-bottom: 1px solid #E0E2E7;
             &.current {
-                background: #a0b7ff;
-            }
-            &:last-child {
-                border-right: 2px solid #e0e2e7;
+                background: #98AEF6;
+                color: #fff;
+                border: 1px solid #98AEF6;
             }
         }
     }
@@ -117,21 +121,25 @@ export default defineComponent({
         flex: 1;
         flex-direction: column;
         overflow-y:overlay;
-        border-left: 2px solid #e0e2e7;
-        border-bottom: 1px solid #e0e2e7;
-        border-right: 2px solid #e0e2e7;
+        background-color: #fff;
+        border-bottom-left-radius: 16px;
+        border-bottom-right-radius: 16px;
+        padding: 0 16px 16px;
         .col {
-            height: 11rem;
+            height: 72px;
             display: flex;
             align-items: center;
             flex-shrink: 0;
             &:last-child {
-                border-bottom: none;
+                .cell {
+                    border-bottom: none;
+                }
             }
             .cell {
                 height: 100%;
                 flex: 1;
-                border: 1px solid #e0e2e7;
+                border-right: 1px solid #e0e2e7;
+                border-bottom: 1px solid #e0e2e7;
                 overflow: hidden;
                 &:last-child {
                     border-right: none;
@@ -142,7 +150,8 @@ export default defineComponent({
                 align-items: center;
                 justify-content: center;
                 font-size: 16px;
-                color: #5f626f;
+                color: var(--app-color-dark);
+                font-weight: 600;
                 user-select: none;
                 flex: 1;
                 border-left: none;

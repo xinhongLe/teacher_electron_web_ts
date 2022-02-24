@@ -76,6 +76,11 @@ module.exports = {
                     options: {
                         rewritePath: process.env.NODE_ENV === "production" ? process.platform === "win32" ? "./resources" : "../Resources" : "./node_modules/trtc-electron-sdk/build/Release" // 打包腾讯实时音视频sdk
                     }
+                },
+                {
+                    test: /\.mjs$/,
+                    include: /node_modules/,
+                    type: "javascript/auto"
                 }
             ]
         },

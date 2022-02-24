@@ -1,62 +1,42 @@
 <template>
     <div class="me-preview">
-        <div class="mep-container" :style="{ margin: hideTools ? '0' : '0' }">
+        <div class="mep-container">
             <PageList
                 class="preview-pagelist"
-                style="margin-right: 15px"
                 :pageListOption="pageList"
                 :WinActiveId="WinActiveIdProp"
                 :WindowName="WindowNameProp"
                 :LessonID="LessonIDProp"
                 :CardName="CardName"
                 :CardId="CardId"
-                v-model:hideTool="hideTool"
                 ref="PageList"
                 @changeRemark="changeRemark"
                 @lastPage="lastPage"
                 @firstPage="firstPage"
                 :showRemark="showRemark"
                 :winList="winList"
-                @changeWinSize="changeWinSize"
             />
             <transition name="fade">
-                <Remark :class="fullScreenStyle ? 'remark-fullSrceen' : ''" :value="remark" v-if="showRemark" />
+                <Remark :value="remark" v-if="showRemark" />
             </transition>
         </div>
-        <Tools
-            :class="fullScreenStyle ? 'tools-fullSrceen' : ''"
-            class="tools"
-            v-show="!hideTool"
-            :showRemark="showRemark"
-            @toggleRemark="toggleRemark"
-            @prevStep="prevStep"
-            @nextStep="nextStep"
-            @fullScreen="fullScreen"
-            @clockFullScreen="clockFullScreen"
-            @showWriteBoard="showWriteBoard"
-            @openShape="openShape"
-            @hideWriteBoard="hideWriteBoard"
-        />
     </div>
 </template>
 
-<script>
-import { computed, defineComponent, ref, toRefs, watch } from "vue-demi";
+<script lang="ts">
+import { computed, defineComponent, ref, toRefs, watch } from "vue";
 import preventRemark from "../../hooks/previewRemark";
 import Remark from "./remark.vue";
-import Tools from "./tools.vue";
 import PageList from "./pageList.vue";
 export default defineComponent({
     components: {
         Remark,
-        Tools,
         PageList
     },
-    props: ["options", "hideTools", "winActiveId", "WindowName", "LessonID", "winList"],
+    props: ["options", "winActiveId", "WindowName", "LessonID", "winList"],
     setup(props, { emit }) {
         const { data, showRemark, toggleRemark } = preventRemark();
         const pageList = ref({});
-        const hideTool = ref(false);
         const WinActiveIdProp = computed(() => props.winActiveId);
         const WindowNameProp = computed(() => props.WindowName);
         const LessonIDProp = computed(() => props.LessonID);
@@ -64,6 +44,9 @@ export default defineComponent({
         const PageList = ref();
         const CardId = ref("");
         const CardName = ref("");
+        const changeWinSize = () => {
+            emit("changeWinSize"); // 切换窗口大小，清除缓存的笔记列表
+        };
         const prevStep = () => {
             PageList.value.prevCard();
         };
@@ -76,11 +59,11 @@ export default defineComponent({
         const hideWriteBoard = () => {
             PageList.value.hideWriteBoard();
         };
-        const openShape = (event) => {
+        const openShape = (event: MouseEvent) => {
             PageList.value.hideWriteBoard();
             PageList.value.openShape(event);
         };
-        const changeRemark = (value) => {
+        const changeRemark = (value: string) => {
             remark.value = value;
         };
         const lastPage = () => {
@@ -89,25 +72,16 @@ export default defineComponent({
         const firstPage = () => {
             emit("firstPage");
         };
-        const fullScreenStyle = ref(false);
         const fullScreen = () => {
             showRemark.value = false;
-            fullScreenStyle.value = true;
-            PageList.value.fullScreen();
-            emit("fullScreen");
+            changeWinSize();
         };
         const clockFullScreen = () => {
             showRemark.value = true;
-            fullScreenStyle.value = false;
-            PageList.value.clockFullScreen();
-            emit("clockFullScreen");
+            changeWinSize();
         };
         const updateFlag = () => {
             PageList.value.updateFlags();
-        };
-
-        const changeWinSize = () => {
-            emit("changeWinSize"); // 切换窗口大小，清除缓存的笔记列表
         };
 
         watch(
@@ -139,11 +113,9 @@ export default defineComponent({
             LessonIDProp,
             remark,
             PageList,
-            fullScreenStyle,
             ...toRefs(data),
             showRemark,
             pageList,
-            hideTool,
             toggleRemark,
             prevStep,
             nextStep,

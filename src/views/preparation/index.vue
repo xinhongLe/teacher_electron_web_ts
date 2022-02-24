@@ -5,6 +5,7 @@
             :reload="reload"
         />
         <div class="content-wrapper">
+            <CourseList/>
             <keep-alive v-if="isRouterAlive">
                 <ScheduleManagement v-if="tabIndex === 0"/>
                 <IntelligenceClassroom v-else-if="tabIndex ===1"/>
@@ -18,6 +19,7 @@ import { defineComponent, ref, nextTick } from "vue";
 import Head from "./head/index.vue";
 import ScheduleManagement from "./scheduleManagement/index.vue";
 import IntelligenceClassroom from "./intelligenceClassroom/index.vue";
+import CourseList from "./courseList/index.vue";
 export default defineComponent({
     name: "Preparation",
     setup() {
@@ -37,7 +39,7 @@ export default defineComponent({
             reload
         };
     },
-    components: { Head, ScheduleManagement, IntelligenceClassroom }
+    components: { Head, ScheduleManagement, IntelligenceClassroom, CourseList }
 });
 </script>
 
@@ -55,6 +57,7 @@ export default defineComponent({
         flex:1;
         min-height: 0;
         min-width: 0;
+        background-color: #F5F6FA;
     }
 }
 </style>

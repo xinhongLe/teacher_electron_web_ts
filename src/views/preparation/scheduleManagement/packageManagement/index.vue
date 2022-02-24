@@ -1,5 +1,5 @@
 <template>
-    <div class="classBox">
+    <div class="class-box">
         <ClassContent/>
         <QuestionBank/>
     </div>
@@ -16,10 +16,12 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-.classBox {
+.class-box {
     width: 100%;
-    height: 98%;
+    height: 100%;
     display: flex;
     justify-content: space-between;
+    background-color: #fff;
+    padding: 20px;
 }
 </style>

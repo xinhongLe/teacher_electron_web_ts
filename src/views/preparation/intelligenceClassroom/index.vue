@@ -1,109 +1,60 @@
 <template>
-    <div class="intelligence">
-        <div class="left" v-if="showList">
-            <div>
-                <div class="left-content">
-                    <div v-if="winList.length === 0" class="empty">暂无数据</div>
-                    <template v-else>
-                        <div
-                            class="win-box"
-                            v-for="(item, index) in winList"
-                            :key="index"
-                        >
-                            <div>
-                                <div
-                                    v-for="(j, i) in item.TeachPageList"
-                                    :key="i"
-                                    :class="[
-                                        'win-bottom',
-                                        leftActiveIndex === index &&
-                                        winIndex === i
-                                            ? 'active'
-                                            : '',
-                                    ]"
-                                    @click="handleClickWin(j, i, index)"
-                                >
-                                    <p>{{ item.Lesson.Name }}</p>
-                                    <el-tooltip
-                                        class="item"
-                                        effect="dark"
-                                        :content="j.WindowName"
-                                        placement="bottom-start"
-                                    >
-                                        <div>{{ j.WindowName }}</div>
-                                    </el-tooltip>
-                                    <div class="win-bottom-edit">
-                                        <i
-                                            class="el-icon-edit-outline"
-                                            @click="windowEdit(j, i, item)"
-                                        ></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </template>
+    <div class="intelligence" :class="{'full-screen': isFullScreen}">
+        <div class="top">
+            <div
+                class="card-box-left"
+                :class="{
+                    hidden: isFullScreen && !isShowCardList,
+                }"
+            >
+                <div class="card-box-lefts">
+                    <CardList
+                        ref="cardListComponents"
+                        :winActiveId="winActiveId"
+                        :WindowName="WindowName"
+                        :cardList="cardList"
+                        :LessonID="LessonID"
+                        @updatePageList="updatePageList"
+                        @updateFlag="updateFlag"
+                    />
+                </div>
+                <div class="fold-btn" v-show="isFullScreen" @click="isShowCardList = !isShowCardList">
+                    <i :class="isShowCardList ? 'el-icon-arrow-left': 'el-icon-arrow-right'"></i>
+                </div>
+            </div>
+            <div class="card-detail">
+                <div class="card-detail-content">
+                    <PreviewSection
+                        ref="previewSection"
+                        :winList="cardList"
+                        :uuid="cardUuid"
+                        :isPreview="isPreview"
+                        :winActiveId="winActiveId"
+                        :WindowName="WindowName"
+                        :LessonID="LessonID"
+                        :options="previewOptions"
+                        @lastPage="lastPage"
+                        @firstPage="firstPage"
+                        @changeWinSize="changeWinSize"
+                    />
                 </div>
             </div>
         </div>
-        <div class="right">
-            <div class="right-bottom">
-                <div class="card-box-away" @click="showList = !showList">
-                    <span v-if="showList">
-                        <i class="el-icon-arrow-left"></i>
-                    </span>
-                    <span v-if="!showList">
-                        <i class="el-icon-arrow-right"></i>
-                    </span>
-                </div>
-                <div
-                    class="card-box-left"
-                    :class="{
-                        fullScreen: isFullScreen,
-                        hidden: isFullScreen && !isShowCardList,
-                    }"
-                >
-                    <div class="card-box-lefts">
-                        <CardList
-                            ref="cardListComponents"
-                            :winActiveId="winActiveId"
-                            :WindowName="WindowName"
-                            :cardList="cardList"
-                            :LessonID="LessonID"
-                            @updatePageList="updatePageList"
-                            @updateFlag="updateFlag"
-                        />
-                    </div>
-                    <div
-                        class="card-box-outbottom"
-                        v-show="!isFullScreen"
-                    ></div>
-                </div>
-                <div class="card-detail">
-                    <div class="card-detail-content">
-                        <PreviewSection
-                            ref="PreviewSection"
-                            :winList="cardList"
-                            :hideTools="hideTools"
-                            :uuid="cardUuid"
-                            :isPreview="isPreview"
-                            :winActiveId="winActiveId"
-                            :WindowName="WindowName"
-                            :LessonID="LessonID"
-                            :options="previewOptions"
-                            @lastPage="lastPage"
-                            @firstPage="firstPage"
-                            @changeWinSize="changeWinSize"
-                            @fullScreen="fullScreen"
-                            @clockFullScreen="clockFullScreen"
-                        />
-                    </div>
-                </div>
-            </div>
-        </div>
+        <Tools
+            :showRemark="previewSection?.showRemark"
+            @toggleRemark="toggleRemark"
+            @prevStep="prevStep"
+            @nextStep="nextStep"
+            @fullScreen="fullScreen"
+            @clockFullScreen="clockFullScreen"
+            @showWriteBoard="showWriteBoard"
+            @openShape="openShape"
+            @hideWriteBoard="hideWriteBoard"
+        />
     </div>
 </template>
 
-<script>
+<script lang="ts">
 import { store } from "@/store";
 import {
     defineComponent,
@@ -115,19 +66,21 @@ import {
     toRefs,
     watch
 } from "vue";
-import userSelectBookInfo from "./hooks/userSelectBookInfo";
+import userSelectBookInfo, { TeachPageList } from "./hooks/userSelectBookInfo";
 import CardList from "./cardList/index.vue";
 import PreviewSection from "./components/preview/previewSection.vue";
 import { useRouter } from "vue-router";
 import { CopyWindow } from "./api/index";
+import Tools from "./components/preview/tools.vue";
 export default defineComponent({
     components: {
         CardList,
-        PreviewSection
+        PreviewSection,
+        Tools
     },
     setup() {
         const router = useRouter();
-        const showList = ref(true);
+        const showList = ref(false);
         const isFullScreen = ref(false);
         const isShowCardList = ref(true);
         const {
@@ -165,10 +118,8 @@ export default defineComponent({
         onMounted(() => {
             const obj = { chapterID: store.state.preparation.selectChapterID };
             _getSchoolLessonWindow(obj);
-
-            // console.log(allData.cardList, "00000000000000");
         });
-        const windowEdit = async (j, i, item) => {
+        const windowEdit = async (j: TeachPageList) => {
             if (j.OriginType === 0) {
                 const obj = {
                     id: j.WindowID,
@@ -192,20 +143,50 @@ export default defineComponent({
         const firstPage = () => {
             cardListComponents.value.changeAddPage();
         };
-        const PreviewSection = ref();
+        const previewSection = ref<InstanceType<typeof PreviewSection>>();
         const updateFlag = () => {
-            PreviewSection.value.updateFlag();
+            previewSection.value && previewSection.value.updateFlag();
         };
         const fullScreen = () => {
             isFullScreen.value = true;
+            previewSection.value && previewSection.value.fullScreen();
         };
         const clockFullScreen = () => {
             isFullScreen.value = false;
+            previewSection.value && previewSection.value.clockFullScreen();
         };
+
+        const toggleRemark = () => {
+            previewSection.value && previewSection.value.toggleRemark();
+        };
+
+        const prevStep = () => {
+            previewSection.value && previewSection.value.prevStep();
+        };
+
+        const nextStep = () => {
+            previewSection.value && previewSection.value.nextStep();
+        };
+
+        const showWriteBoard = () => {
+            previewSection.value && previewSection.value.showWriteBoard();
+        };
+
+        const openShape = (event: MouseEvent) => {
+            previewSection.value && previewSection.value.openShape(event);
+        };
+
+        const hideWriteBoard = () => {
+            previewSection.value && previewSection.value.hideWriteBoard();
+        };
+
         onActivated(() => {
             document.onkeydown = (event) => {
                 event.preventDefault();
             };
+            if (activeIndex.winActiveId) {
+                _getWindowCards(activeIndex.winActiveId, true);
+            }
         });
         onDeactivated(() => {
             document.onkeydown = null;
@@ -220,21 +201,22 @@ export default defineComponent({
             cardListComponents,
             lastPage,
             firstPage,
-            PreviewSection,
+            previewSection,
             updateFlag,
             allPageList,
             _getWindowCards,
             changeWinSize,
             isFullScreen,
             fullScreen,
+            toggleRemark,
+            prevStep,
+            nextStep,
+            openShape,
             isShowCardList,
+            showWriteBoard,
+            hideWriteBoard,
             clockFullScreen
         };
-    },
-    activated() {
-        if (this.winActiveId) {
-            this._getWindowCards(this.winActiveId, true);
-        }
     }
 });
 </script>
@@ -243,273 +225,122 @@ export default defineComponent({
 $border-color: #f5f6fa;
 .intelligence {
     display: flex;
+    flex-direction: column;
     flex: 1;
     min-width: 0;
-    padding: 20px 0px 0px 0px;
     background-color: #f5f6fa;
-    .left {
-        position: relative;
-        width: 280px;
-        padding-bottom: 20px;
-        background-color: #fff;
-        > div {
-            height: 100%;
-            .left-top {
-                padding: 10px;
-                .el-cascader {
-                    width: 100%;
-                }
-                .select-bottom {
-                    margin-top: 10px;
-                    .el-select {
-                        width: 100%;
-                    }
-                }
-            }
-            .left-content {
-                height: 100%;
-                overflow-y: auto;
-                padding: 20px;
-                border-top: 1px solid $border-color;
-                .empty {
-                    width: 100%;
-                    height: 100%;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-size: 20px;
-                }
-                .win-box {
-                    margin-bottom: 20px;
-                    .win-top {
-                        display: flex;
-                        justify-content: space-between;
-                        margin-bottom: 20px;
-                        font-weight: 600;
-                        .el-button {
-                            padding: 0px;
-                        }
-                    }
-                    .win-no,
-                    .win-bottom {
-                        padding: 26px;
-                        cursor: not-allowed;
-                        background-color: #ffefc5;
-                        box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
-                    }
-                    .win-no {
-                        p {
-                            padding-bottom: 8px;
-                        }
-                    }
-                    .win-bottom {
-                        background-color: #a5b8f6;
-                        cursor: pointer;
-                        margin-bottom: 20px;
-                        position: relative;
-                        border-radius: 8px;
-                        > span {
-                            position: absolute;
-                            right: 8px;
-                            top: 4px;
-                            font-size: 12px;
-                            cursor: pointer;
-                            color: #000;
-                        }
-                        p {
-                            color: #000;
-                            overflow: hidden;
-                            overflow: hidden;
-                            text-overflow: ellipsis;
-                            white-space: nowrap;
-                            padding-bottom: 8px;
-                        }
-                        div {
-                            padding-top: 5px;
-                            font-size: 16px;
-                            color: #000;
-                            overflow: hidden;
-                            text-overflow: ellipsis;
-                            white-space: nowrap;
-                            margin-bottom: 20px;
-                        }
-                    }
-                    .win-bottom-edit {
-                        position: absolute;
-                        bottom: 0;
-                        right: 10px;
-                        color: white;
-                    }
-
-                    .active {
-                        background: #5560f1;
-                        p {
-                            color: #fff;
-                        }
-                        div {
-                            color: #fff;
-                        }
-                        span {
-                            color: #fff;
-                        }
-                    }
-                    .active:after {
-                        display: block;
-                        content: "";
-                        width: 20px;
-                        height: 20px;
-                        background-color: #5560f1;
-                        transform: rotate(45deg);
-                        position: absolute;
-                        right: -5px;
-                        top: 40px;
-                    }
-                }
-            }
-        }
-        .add-ks {
+    &.full-screen {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 1;
+    }
+    .top {
+        display: flex;
+        flex: 1;
+        min-width: 0;
+        min-height: 0;
+        .card-box-away {
             position: absolute;
-            bottom: 10px;
-            left: 0;
-            width: 100%;
-            height: 40px;
-            line-height: 40px;
+            top: calc(50% - 60px);
+            left: -20px;
+            width: 20px;
+            height: 120px;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            font-size: 20px;
+        }
+        .card-box-left {
+            width: 200px;
             text-align: center;
-            color: #4b71ee;
-            font-size: 12px;
-            cursor: pointer;
-            background-color: #fff;
+            padding: 20px 0;
+            box-sizing: border-box;
+            display: flex;
+            min-width: 0;
+            min-height: 0;
+            flex-direction: column;
+            background: #f5f6fa;
+            transition: width 0.3s;
+            position: relative;
+            &.hidden {
+                width: 0;
+            }
+            .fold-btn {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                position: absolute;
+                top: 50%;
+                transform: translateX(100%) translateY(-50%);
+                right: 0;
+                height: 104px;
+                width: 18px;
+                border-radius: 0px 8px 8px 0px;
+                background: #F5F6FA;
+                cursor: pointer;
+                z-index: 1;
+                i {
+                    color: #7E7F83;
+                    font-size: 18px;
+                    font-weight: 700;
+                }
+            }
         }
-        .expandcoll {
-            position: absolute;
-            top: 50%;
-            right: 0;
-            width: 50px;
-            height: 50px;
-            img {
-                width: 50px;
-                height: 50px;
+        .card-box-lefts {
+            display: flex;
+            flex: 1;
+            min-width: 0px;
+            min-height: 0;
+            overflow-y: auto;
+        }
+
+        .card-detail {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            justify-content: space-between;
+            padding-top: 12px;
+            .card-detail-content {
+                height: 100%;
+                display: flex;
+                flex: 1;
+                min-width: 0;
+                justify-content: space-between;
+            }
+
+            .me-page {
+                background-color: #fff;
+                display: flex;
+                flex-wrap: nowrap;
+                padding: 15px;
+                background-color: #fff;
+                border-top: 1px solid #ccc;
+                .me-page-item {
+                    background-color: #f0f3ff;
+                    color: #444;
+                    padding: 10px 20px;
+                    box-sizing: border-box;
+                    text-align: center;
+                    min-width: 100px;
+                    font-size: 14px;
+                    white-space: nowrap;
+                    margin-right: 10px;
+                    border: 2px solid #f0f3ff;
+                    cursor: pointer;
+                    position: relative;
+
+                    &.active {
+                        border: 2px solid #6675f4;
+                    }
+                }
             }
         }
     }
-    .right {
-        display: flex;
-        justify-content: space-between;
-        flex: 1;
-        min-width: 0;
-        margin-left: 20px;
-        background-color: #fff;
-        .right-top {
-            height: 80px;
-            line-height: 80px;
-            border-bottom: 1px solid $border-color;
-            text-align: center;
-            padding: 0 20px;
-            > p {
-                float: left;
-            }
-            > div {
-                cursor: pointer;
-            }
-        }
-
-        .right-bottom {
-            position: relative;
-            display: flex;
-            flex: 1;
-            min-width: 0;
-            justify-content: space-between;
-            .card-box-away {
-                position: absolute;
-                top: calc(50% - 60px);
-                left: -20px;
-                width: 20px;
-                height: 120px;
-                background: #fff;
-                display: flex;
-                align-items: center;
-                font-size: 20px;
-            }
-            .card-box-left {
-                // position: relative;
-                // height: 100%;
-                // overflow-y: auto;
-                width: 180px;
-                text-align: center;
-                padding: 20px 0 0 0;
-                box-sizing: border-box;
-                display: flex;
-                min-width: 0;
-                min-height: 0;
-                flex-direction: column;
-                background: #fff;
-                &.fullScreen {
-                    background: #f5f6fa;
-                    position: fixed;
-                    left: 0;
-                    top: 0;
-                    height: calc(100% - 84px);
-                    transition: width 0.3s;
-                }
-                &.hidden {
-                    width: 0;
-                }
-            }
-            .card-box-lefts {
-                display: flex;
-                flex: 1;
-                min-width: 0px;
-                min-height: 0;
-                overflow-y: auto;
-                margin-bottom: 20px;
-            }
-            .card-box-outbottom {
-                width: 100%;
-                height: 84px;
-                background: #bccfff;
-            }
-
-            .card-detail {
-                flex: 1;
-                min-width: 0;
-                display: flex;
-                justify-content: space-between;
-                .card-detail-content {
-                    height: 100%;
-                    display: flex;
-                    flex: 1;
-                    min-width: 0;
-                    justify-content: space-between;
-                }
-
-                .me-page {
-                    background-color: #fff;
-                    display: flex;
-                    flex-wrap: nowrap;
-                    padding: 15px;
-                    background-color: #fff;
-                    border-top: 1px solid #ccc;
-                    .me-page-item {
-                        background-color: #f0f3ff;
-                        color: #444;
-                        padding: 10px 20px;
-                        box-sizing: border-box;
-                        text-align: center;
-                        min-width: 100px;
-                        font-size: 14px;
-                        white-space: nowrap;
-                        margin-right: 10px;
-                        border: 2px solid #f0f3ff;
-                        cursor: pointer;
-                        position: relative;
-
-                        &.active {
-                            border: 2px solid #6675f4;
-                        }
-                    }
-                }
-            }
-        }
+    .bottom {
+        height: 88px;
     }
 }
 </style>

@@ -92,10 +92,12 @@ export const downloadFileAxios = async (url: string, fileName: string) => {
 
 export default () => {
     const downloadFile = async (url: string, fileName: string) => {
+        const downloadsPath = app.getPath("downloads");
         const filePath =
             process.platform === "darwin"
-                ? app.getPath("downloads") + fileName
-                : resolve(app.getPath("downloads"), fileName);
+                ? downloadsPath + fileName
+                : resolve(downloadsPath, fileName);
+        await mkdirs(downloadsPath);
         if (downloadingFileList.includes(fileName)) return;
         const isExist = await isExistFile(filePath);
         if (isExist) {

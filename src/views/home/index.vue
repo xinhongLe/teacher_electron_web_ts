@@ -17,7 +17,7 @@
                                 <div @click="weekPre" class="week">
                                     <i class="el-icon-arrow-left"></i>上周
                                 </div>
-                                <div>上课</div>
+                                <div class="title">上课</div>
                                 <div class="header-right">
                                     <div class="refresh" @click="slotProps.initSchedules">
                                         <i
@@ -149,6 +149,7 @@ export default defineComponent({
     flex-direction: column;
     min-height: 0px;
     flex: 1;
+    background-color: #E9EFFF;
     .main {
         padding: 20px 20px 20px 20px;
         width: 100%;
@@ -159,16 +160,17 @@ export default defineComponent({
         min-height: 0px;
         .header {
             width: 100%;
-            height: 50px;
+            height: 56px;
             display: flex;
             padding: 0 20px;
             justify-content: space-between;
             align-items: center;
             font-size: 20px;
-            background: #a0b7ff;
-            border-top-left-radius: 20px;
-            border-top-right-radius: 20px;
+            background: linear-gradient(270deg, #709DFF 0%, #5A80F7 100%);
+            border-top-left-radius: 16px;
+            border-top-right-radius: 16px;
             color: #ffffff;
+            margin-bottom: 16px;
             .header-right {
                 display: flex;
                 align-items: center;
@@ -178,16 +180,16 @@ export default defineComponent({
                     cursor: pointer;
                 }
             }
+            .title {
+                font-size: 28px;
+                color: #ffffff;
+                font-weight: 600;
+            }
             .week {
-                font-size: 18px !important;
-                font-weight: 400 !important;
+                font-size: 14px;
+                font-weight: 400;
                 color: #ffffff;
                 cursor: pointer;
-            }
-            div:nth-of-type(2) {
-                font-size: 22px;
-                font-weight: 800;
-                color: #ffffff;
             }
         }
         .top {

@@ -13,7 +13,7 @@
 </template>
 <script>
 import { ElMessage } from "element-plus";
-import { computed, defineComponent, ref } from "vue-demi";
+import { computed, defineComponent, ref } from "vue";
 import cardList from "../../hooks/cardList";
 export default defineComponent({
     props: {

@@ -61,7 +61,7 @@
 import { ElMessage } from "element-plus";
 import { cloneDeep } from "lodash";
 import moment from "moment";
-import { defineComponent, ref, getCurrentInstance, watch, onMounted, onBeforeUnmount } from "vue-demi";
+import { defineComponent, ref, getCurrentInstance, watch, onMounted, onBeforeUnmount } from "vue";
 import { AddAnnotation, DeleteAnnotation, EditAnnotation } from "../api";
 import { set, get, STORAGE_TYPES } from "@/utils/storage";
 export default defineComponent({

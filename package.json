@@ -21,6 +21,7 @@
     "dependencies": {
         "@element-plus/icons-vue": "^0.2.4",
         "@microsoft/signalr": "^6.0.1",
+        "@vueuse/core": "^7.6.2",
         "@zxing/library": "^0.18.4",
         "ali-oss": "^6.15.2",
         "axios": "^0.24.0",

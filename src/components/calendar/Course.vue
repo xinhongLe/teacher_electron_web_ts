@@ -34,66 +34,30 @@
                 </p>
             </div>
             <template #reference>
-                <div
-                    class="course-content"
-                    :style="{
-                        backgroundColor: colData.ClassActualEndTime
-                            ? '#DDFBE8'
-                            : colData.Classes
-                            ? '#CBDAFF'
-                            : '#FFE8E8',
-                    }"
-                >
-                    <div>
-                        <div class="title">
-                            <template v-if="colData.Classes">
-                                <span class="course-name">{{
-                                    colData.Classes && colData.ClassName
-                                }}</span>
-                                <i
-                                    class="el-icon-delete del-class"
-                                    v-if="colData.Classes"
-                                    @click.stop="deleteCourse(colData.ID)"
-                                />
-                            </template>
-                            <span
-                                class="course-name"
-                                v-if="isShowText && !colData.Classes"
-                                >缺课包</span
+                <div class="course-content-warp">
+                    <div class="course-content">
+                        <div class="course-name">
+                            {{ colData.Classes && colData.ClassName }}
+                        </div>
+                        <div class="bottom">
+                            <div class="class-name">
+                                {{
+                                    colData.Classes
+                                        ? colData.Classes.map(
+                                              (i) => i.ClassName
+                                          ).join()
+                                        : colData.ClassName
+                                }}
+                            </div>
+                            <div
+                                class="content-class"
+                                :style="{
+                                    backgroundColor: colData.bgColor,
+                                }"
                             >
+                                {{ colData.SubjectName?.substring(0, 1) }}
+                            </div>
                         </div>
-                        <div class="class-name">
-                            {{
-                                colData.Classes
-                                    ? colData.Classes.map(
-                                          (i) => i.ClassName
-                                      ).join()
-                                    : colData.ClassName
-                            }}
-                        </div>
-                    </div>
-                    <div
-                        class="content-detail"
-                        v-if="!colData.ClassActualEndTime && colData.Classes"
-                    >
-                        <span v-if="isShowDetailBtn" @click="openDeteil">详情</span>
-                        <!-- <span
-                            @click="
-                                $router.push({
-                                    path: '/attend-class',
-                                })
-                            "
-                        >
-                            去上课
-                        </span> -->
-                    </div>
-                    <div
-                        class="content-class"
-                        :style="{
-                            backgroundColor: colData.bgColor,
-                        }"
-                    >
-                        {{ colData.SubjectName }}
                     </div>
                 </div>
             </template>
@@ -313,65 +277,63 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .course {
-    position: relative;
     &.active {
         border: 2px solid #a5b8f6 !important;
     }
-    .course-content {
+    .course-content-warp {
+        padding: 2px;
         height: 100%;
         width: 100%;
-        padding: 10px 6px;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        .title {
+        .course-content {
+            height: 100%;
+            width: 100%;
             display: flex;
+            flex-direction: column;
             justify-content: space-between;
-            align-items: center;
-            font-size: 14px;
-            height: 24px;
+            position: relative;
+            background-color: #f0f2f6;
+            border-radius: 2px;
+            &.has-course {
+                border: 1px solid #456CED;
+                background: #CBDAFF;
+            }
             .course-name {
-                overflow: hidden;
-                white-space: nowrap;
+                overflow : hidden;
                 text-overflow: ellipsis;
-                color: #19203d;
-            }
-            .del-class {
-                width: 24px;
-                height: 24px;
-                line-height: 24px;
-                text-align: center;
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                padding: 8px 12px 0;
                 font-size: 14px;
-                color: #fff;
-                background: #000000;
+                flex: 1;
+                font-weight: 600;
+                line-height: 16px;
+                color: #19203d;
+                margin-bottom: 6px;
+            }
+            .bottom {
+                padding: 0 2px 2px 12px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            .class-name {
+                color: #19203d;
+                font-size: 12px;
+                flex: 1;
+                margin-right: 8px;
+                @include text-ellipsis();
+            }
+            .content-class {
+                height: 20px;
+                padding: 0 4px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                color: #ffffff;
+                font-size: 12px;
                 border-radius: 2px;
-                opacity: 0.2;
-                cursor: pointer;
             }
-        }
-        .class-name {
-            margin-top: 6px;
-            color: #5f626f;
-            font-size: 12px;
-        }
-        .content-detail {
-            cursor: pointer;
-            font-size: 14px;
-            color: #19203d;
-            span {
-                cursor: pointer;
-                &:first-child {
-                    margin-right: 10px;
-                }
-            }
-        }
-        .content-class {
-            position: absolute;
-            right: 0;
-            bottom: 0;
-            color: #ffffff;
-            font-size: 14px;
-            padding: 6px;
         }
     }
 }

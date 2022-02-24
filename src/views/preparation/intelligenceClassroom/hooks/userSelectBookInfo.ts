@@ -19,7 +19,7 @@ interface LessonList {
     ID: string,
     Name: string
 }
-interface TeachPageList {
+export interface TeachPageList {
     LessonID: string,
     LessonWindowID: string
     OriginType: number,
@@ -29,7 +29,7 @@ interface TeachPageList {
     WindowNickName: string,
     CardList: CardList[]
 }
-interface LessonWindow {
+export interface LessonWindow {
     IsHide: boolean,
     Type: number,
     Sort?: number,
@@ -82,7 +82,6 @@ export default () => {
         cardList: []
     });
     const activeIndex = reactive({
-        hideTools: true,
         isPreview: false,
         previewOptions: {},
         cardUuid: "",

@@ -120,7 +120,7 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .question-box {
-    width: 49%;
+    flex: 1;
     height: 100%;
     background: #edf3ff;
     border-radius: 4px;

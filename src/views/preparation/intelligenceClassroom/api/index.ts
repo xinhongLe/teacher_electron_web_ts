@@ -1,6 +1,6 @@
 import request from "@/utils/request";
 import { IResponse } from "@/types/response";
-import { ICardList, ITreeList } from "@/types/intelligence";
+import { ICardList, ICopyWindowRes, ITreeList } from "@/types/intelligence";
 import { AI_XUE_SHI_API, WINDOW_CRAD_API, originType } from "@/config";
 type BookListResponse = IResponse<ITreeList[]>
 
@@ -29,6 +29,11 @@ interface GetPageData {
     originType?: number,
 }
 
+interface GetPageInfos {
+    pageIDs: string[],
+    originType?: number
+}
+
 type GetPageResponse = IResponse<any>
 
 export interface IDelCardOrPage {
@@ -43,11 +48,11 @@ interface IAddPage{
 }
 interface CopyWindow {
     id: string,
-    originType: number,
+    originType: number | null,
     sourceLessonID: string
 }
 // 复制窗
-export function CopyWindow(data:CopyWindow) {
+export function CopyWindow(data:CopyWindow): Promise<IResponse<ICopyWindowRes>> {
     return request({
         baseURL: AI_XUE_SHI_API,
         url: "/Api/WCP/Teacher/CopyWindow",
@@ -115,7 +120,7 @@ export function getPageDetailRes(data:GetPageData, type: number): Promise<GetPag
     });
 }
 // 弹出卡 页列表
-export function getCardDetail(data: string[]): Promise<GetPageResponse> {
+export function getCardDetail(data: GetPageInfos): Promise<GetPageResponse> {
     return request({
         url: "/Api/WCP/Window/GetPageInfos",
         headers: { DeviceID: "Franchisee" },

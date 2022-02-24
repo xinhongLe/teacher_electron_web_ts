@@ -1,5 +1,5 @@
 <template>
-    <CourseList ref="courseListRef"/>
+    <!-- <CourseList ref="courseListRef"/> -->
     <div class="right">
         <PackageManagement/>
     </div>
@@ -21,7 +21,10 @@ export default defineComponent({
             courseListRef
         };
     },
-    components: { CourseList, PackageManagement }
+    components: {
+        // CourseList,
+        PackageManagement
+    }
 });
 </script>
 
@@ -29,9 +32,8 @@ export default defineComponent({
 .right {
     flex: 1;
     height: 100%;
-    padding: 20px;
+    padding: 12px 0 0 12px;
     overflow-y: auto;
-    background-color: #fff;
 
 }
 </style>

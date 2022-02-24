@@ -138,5 +138,6 @@ export default defineComponent({
     display: flex;
     flex: 1;
     overflow-y: auto;
+    -webkit-app-region: no-drag;
 }
 </style>

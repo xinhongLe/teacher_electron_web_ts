@@ -30,3 +30,9 @@ export interface ICards {
     name: string,
     slides: ISlides[]
 }
+
+export interface ICopyWindowRes {
+    ID: string,
+    Name: string,
+    Type: number
+}

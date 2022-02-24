@@ -295,7 +295,8 @@ export default defineComponent({
     background: #e0f8ec;
 }
 .class-content {
-    width: 49%;
+    flex: 1;
+    margin-right: 16px;
     height: 100%;
     background: #e0f8ec;
     border-radius: 4px;
