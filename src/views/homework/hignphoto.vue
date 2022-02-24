@@ -624,8 +624,8 @@ export default defineComponent({
                                 }
                             });
                             if (videoRef.value && resultRef.value) {
-                                const scale = videoRef.value.clientHeight / videoRef.value.clientWidth;
-                                resultRef.value.style.transform = "scale(" + scale + ")";
+                                // const scale = videoRef.value.clientHeight / videoRef.value.clientWidth;
+                                resultRef.value.style.transform = "scale(0.7)";
                                 resultRef.value.style.transformOrigin = "top left";
                                 videoRef.value.hidden = true;
                                 showScan.value = false;
@@ -684,8 +684,8 @@ export default defineComponent({
                                 }
                             });
                             if (videoRef.value && resultRef.value) {
-                                const scale = videoRef.value.clientHeight / videoRef.value.clientWidth;
-                                resultRef.value.style.transform = "scale(" + scale + ")";
+                                // const scale = videoRef.value.clientHeight / videoRef.value.clientWidth;
+                                resultRef.value.style.transform = "scale(0.7)";
                                 resultRef.value.style.transformOrigin = "top left";
                                 resultRef.value.height = videoRef.value.clientHeight;
                                 videoRef.value.hidden = true;

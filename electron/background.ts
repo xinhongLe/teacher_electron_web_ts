@@ -135,6 +135,15 @@ async function createWindow() {
             exec("onboard");
         }
     });
+
+    ipcMain.handle("fetchSubjectPublisherBookList", () => {
+        return new Promise((resolve) => {
+            ipcMain.once("fetchSubjectPublisherBookList", (_, data) => {
+                resolve(data);
+            });
+            mainWindow!.webContents.send("fetchSubjectPublisherBookList");
+        });
+    });
 }
 
 app.on("window-all-closed", () => {

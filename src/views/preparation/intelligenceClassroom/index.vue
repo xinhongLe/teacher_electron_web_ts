@@ -72,6 +72,7 @@ import PreviewSection from "./components/preview/previewSection.vue";
 import { useRouter } from "vue-router";
 import { CopyWindow } from "./api/index";
 import Tools from "./components/preview/tools.vue";
+import emitter from "@/utils/mitt";
 export default defineComponent({
     components: {
         CardList,
@@ -118,6 +119,10 @@ export default defineComponent({
         onMounted(() => {
             const obj = { chapterID: store.state.preparation.selectChapterID };
             _getSchoolLessonWindow(obj);
+            emitter.on("preparationReLoad", () => {
+                _getSchoolLessonWindow(obj);
+                _getWindowCards(activeIndex.winActiveId, true);
+            });
         });
         const windowEdit = async (j: TeachPageList) => {
             if (j.OriginType === 0) {

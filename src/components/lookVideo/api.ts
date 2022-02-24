@@ -42,7 +42,7 @@ export const getFileAndPauseByFile: RequestFun<
 > = (data) => {
     return request({
         baseURL: AI_XUE_SHI_API,
-        url: "/API/W1/File/GetFileAndPauseByFileID20210423",
+        url: "/API/W4/File/GetFileAndPauseByFileID20210423",
         headers: {
             "Content-Type": "application/json-patch+json"
         },

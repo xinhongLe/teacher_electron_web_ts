@@ -165,7 +165,7 @@ export default defineComponent({
                 return item.isChecked;
             });
 
-            const pauses = row.FilePauses ? row.FilePauses.map((item: string) => ({ time: item.split(".")[0] })) : [];
+            const pauses = row.FilePauses ? row.FilePauses.filter((item: any) => item.Type === 1).map((item: any) => ({ time: item.Time.split(".")[0] })) : [];
 
             const follow = {
                 id: row.ElementFile.ID,

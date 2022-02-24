@@ -179,7 +179,7 @@ export default () => {
                     ID: res.result.ID,
                     Type: data.Type,
                     TeachPageRelationID: res.result.TeachPageRelationID,
-                    State: res.result.State,
+                    State: true,
                     Name: res.result.Name
                 };
                 ElMessage({ type: "success", message: "新增页成功" });

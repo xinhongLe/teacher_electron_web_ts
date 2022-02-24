@@ -58,18 +58,14 @@ import { getCourseByCourseBag } from "@/api";
 import { MutationTypes, store } from "@/store";
 import { GetLastSelectBookRes } from "@/types/preparation";
 import { findFirstId } from "@/utils";
-import { computed, defineComponent, PropType, ref, watch } from "vue";
+import { computed, defineComponent, ref, watch } from "vue";
+import emitter from "@/utils/mitt";
 import { getLastSelectBook, setLastSelectBook } from "../api";
 import { Edit } from "@element-plus/icons-vue";
 import useBook from "../hooks/useBook";
 import { useTemplateRefsList, useElementSize } from "@vueuse/core";
 export default defineComponent({
     name: "head",
-    props: {
-        reload: {
-            type: Function as PropType<(payload: MouseEvent) => void>
-        }
-    },
     components: {
         Edit
     },
@@ -142,6 +138,9 @@ export default defineComponent({
         watch(width, (v) => {
             isShowSlideBtn.value = v > windowListWarpRef.value!.offsetWidth;
         });
+        const reload = () => {
+            emitter.emit("preparationReLoad", null);
+        };
 
         watch(teacherBookChapter, (value) => {
             store.commit(MutationTypes.SET_SELECT_CHAPTER_ID, value);
@@ -302,6 +301,7 @@ export default defineComponent({
             translateX,
             slideNext,
             slidePrev,
+            reload,
             getTeacherBookChapters
         };
     }

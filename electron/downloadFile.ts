@@ -48,15 +48,20 @@ const dealCallback = (fileName: string, filePath: string) => {
 
 export const mkdirs = (dirname: string) => {
     return new Promise((resolve) => {
-        access(dirname).then(() => resolve("")).catch(() => mkdir(dirname).then(() => resolve("")));
+        access(dirname).then(() => resolve(dirname)).catch(() => mkdir(dirname, { recursive: true }).then(() => resolve(dirname)).catch(() => resolve("")));
     });
 };
 
 export const downloadFileAxios = async (url: string, fileName: string) => {
+    const downloadsPath = app.getPath("downloads");
     const filePath =
         process.platform === "darwin"
-            ? app.getPath("downloads") + fileName
-            : resolve(app.getPath("downloads"), fileName);
+            ? downloadsPath + fileName
+            : resolve(downloadsPath, fileName);
+    const dirname = await mkdirs(downloadsPath);
+    if (!dirname) {
+        return dealCallback(fileName, "");
+    }
     const writer = createWriteStream(filePath);
     ElectronLog.info("start downloadFile fileName:", fileName);
     const response = await Axios({

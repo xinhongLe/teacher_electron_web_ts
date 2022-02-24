@@ -75,7 +75,7 @@
                         </div>
                         <div
                             class="problem_item"
-                            @click="data.Type === 1 ? lookQuestions({ id: data.ID, type: 3 }) : openFile(data.File)"
+                            @click="data.Type === 1 ? lookQuestions(data.ID) : openFile(data.File)"
                             :class="isDragging ? 'drag' : ''"
                         >
                             <div class="content">
@@ -134,7 +134,7 @@
 <script lang="ts">
 import { MutationTypes, store } from "@/store";
 import { ElMessage, ElMessageBox } from "element-plus";
-import { computed, defineComponent, inject, ref } from "vue";
+import { computed, defineComponent, inject, ref, watch } from "vue";
 import { delCourseBagTeacher, updateCourseWareListOfTeacher } from "../../api";
 import useClassContentList from "./hooks/useClassContentList";
 import ClassBagDialog from "../ClassBagDialog.vue";
@@ -144,6 +144,8 @@ import { lookVideo, lookQuestions, openFile } from "@/utils";
 import FileType from "@/components/fileType/index.vue";
 import { ElementFile } from "@/types/preparation";
 import { getOssUrl } from "@/utils/oss";
+import emitter from "@/utils/mitt";
+import { find } from "lodash";
 export default defineComponent({
     setup() {
         const dialogVisible = ref(false);
@@ -226,6 +228,31 @@ export default defineComponent({
             }
         };
 
+        const _lookQuestions = (id: string) => {
+            lookQuestions({ id, type: 3 });
+            emitter.off("deleteQuestion");
+            emitter.on("deleteQuestion", ({ paperId, questionID }) => {
+                const data = {
+                    deletedQuestionIDs: [questionID]
+                };
+                updateCourseWareListOfTeacher(data);
+                for (const data of classContentList.value) {
+                    const content = data?.content || [];
+                    const info = find(content, { ID: paperId });
+                    if (info) {
+                        info.QuestionCount = info.QuestionCount - 1;
+                        return;
+                    }
+                }
+            });
+        };
+
+        watch(() => store.state.common.isShowQuestion, (v) => {
+            if (!v) {
+                emitter.off("deleteQuestion");
+            }
+        });
+
         return {
             classContentList,
             selectCourseBag,
@@ -247,7 +274,7 @@ export default defineComponent({
             lookVideo,
             btnListRef,
             openFile: _openFile,
-            lookQuestions
+            lookQuestions: _lookQuestions
         };
     },
     components: { ClassBagDialog, FileType }
