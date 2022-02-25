@@ -335,6 +335,7 @@ interface IOldImageElement {
     UUID: string;
     Width: number;
     ZIndex: number;
+    IsZoom: boolean;
 }
 
 // 处理图片
@@ -363,6 +364,7 @@ const dealImage = (oldImage: IOldImageElement) => {
     element.display = oldImage.IsVisibility;
     element.fixedRatio = true;
     element.stretch = oldImage.ImageStretch;
+    element.preview = !!oldImage.IsZoom;
     return element;
 };
 
