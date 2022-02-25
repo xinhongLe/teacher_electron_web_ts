@@ -481,7 +481,10 @@ export default defineComponent({
             quickUpload
         };
     },
-    components: { FileItem, HignPhoto }
+    components: {
+        FileItem
+        // HignPhoto
+    }
 });
 </script>
 
