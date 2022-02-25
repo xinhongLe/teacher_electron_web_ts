@@ -2,6 +2,8 @@ const { NormalModuleReplacementPlugin } = require("webpack");
 
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 
+const moment = require("moment");
+
 module.exports = {
     productionSourceMap: false,
     pages: {
@@ -157,7 +159,7 @@ module.exports = {
                 appId: "com.leyixue.teacher",
                 productName: "爱学仕校园教师端", // 项目名
                 copyright: "Copyright © 2021", // 版权信息
-                artifactName: "${productName}-${version}.${ext}",
+                artifactName: "${productName}-${version}-" + moment().format("YYYYMMDDHHmm") + ".${ext}",
                 directories: {
                     output: "./dist_electron" // 输出文件路径
                 },

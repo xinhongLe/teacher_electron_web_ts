@@ -30,7 +30,7 @@ type GetWindowCardsResponse = IResponse<ICardList[]>
 export function getWindowCards(data: IGetWindowCards): Promise<GetWindowCardsResponse> {
     return request({
         baseURL: WINDOW_CRAD_API,
-        url: "API/W1/Card/GetWindowCards",
+        url: "API/W4/Card/GetWindowCards",
         headers: {
             "Content-Type": "application/json-patch+json"
         },
