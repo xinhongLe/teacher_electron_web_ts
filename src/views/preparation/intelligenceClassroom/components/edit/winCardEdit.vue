@@ -229,12 +229,11 @@ export default defineComponent({
         const selectVideoVal = (val: any) => {
             if (isSetQuoteVideo.value) {
                 isSetQuoteVideo.value = false;
-                console.log(val);
                 if (updateVideoElement.value) {
-                    PPTEditRef.value.updateVideoElement({ ...updateVideoElement.value, src: val.src, fileID: val.fileID, pauseList: val.pauseList, ossSrc: "", ossPoster: "", ossIcon: "" });
+                    PPTEditRef.value.updateVideoElement({ ...updateVideoElement.value, src: val.src, fileID: val.fileID, pauseList: val.pauseList.map((item: any) => item.time), ossSrc: "", ossPoster: "", ossIcon: "" });
                     updateVideoElement.value = null;
                 } else {
-                    PPTEditRef.value.createQuoteVideo(val.src, val.fileID, val.pauseList);
+                    PPTEditRef.value.createQuoteVideo(val.src, val.fileID, val.pauseList.map((item: any) => item.time));
                 }
             } else {
                 delete val.fileID;
