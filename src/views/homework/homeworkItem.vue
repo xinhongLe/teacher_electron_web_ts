@@ -216,12 +216,12 @@
             />
         </div>
     </div>
-    <div class="hign-photo-warp" v-if="info.HomeworkPaperType == 2">
+    <!-- <div class="hign-photo-warp" v-if="info.HomeworkPaperType == 2">
         <HignPhoto
         :homeworkValue="info"
         ref="hignPhotoRef"
         ></HignPhoto>
-    </div>
+    </div> -->
 </template>
 
 <script lang="ts">
