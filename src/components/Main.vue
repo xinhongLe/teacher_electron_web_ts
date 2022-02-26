@@ -54,7 +54,7 @@ export default defineComponent({
             isShowNarBar.value = !query.head && !wpfNames.includes(name as string);
             // 岳阳云平台内嵌备教端
             if (name === "集体备课") {
-                if (window?.top && (window.top[0]?.location?.origin?.indexOf("yueyangyun") > -1 || (window.top[0]?.location?.ancestorOrigins[0]?.indexOf("yueyangyun") > -1) || window.top[0]?.location?.origin?.indexOf("20.199") > -1)) {
+                if (window?.top && (window.top[0]?.location?.origin?.indexOf("yueyangyun") > -1 || (window.top[0]?.location?.ancestorOrigins[0]?.indexOf("yueyangyun") > -1) || window.top[0]?.location?.origin?.indexOf("localhost") > -1)) {
                     isShowNarBar.value = false;
                     localStorage.setItem(MutationTypes.LOCAL_IS_IFRAME, "1");
                     store.commit(MutationTypes.SET_IS_IFRAME, { flag: true });

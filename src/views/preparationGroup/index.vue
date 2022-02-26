@@ -148,7 +148,7 @@ export default defineComponent({
             getCardList(state.filterParams);
             tryInviteeLink();
             window.addEventListener("message", function(e) {
-                if (e.origin.indexOf("yueyangyun") > -1 || e.origin.indexOf("20.199") > -1) {
+                if (e.origin.indexOf("yueyangyun") > -1 || e.origin.indexOf("localhost") > -1) {
                     state.inviteID = e?.data?.inviteID || "";
                     state.platform = "iframe";
                     tryInviteeLink();
