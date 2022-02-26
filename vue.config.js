@@ -2,6 +2,8 @@ const { NormalModuleReplacementPlugin } = require("webpack");
 
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 
+const moment = require("moment");
+
 module.exports = {
     productionSourceMap: false,
     pages: {
@@ -41,6 +43,20 @@ module.exports = {
             filename: "rollCall.html",
             title: "",
             chunks: ["rollCall"]
+        },
+        answerMachine: {
+            entry: "src/childWindow/answerMachine/main.ts",
+            template: "public/index.html",
+            filename: "answerMachine.html",
+            title: "",
+            chunks: ["answerMachine"]
+        },
+        blackboard: {
+            entry: "src/childWindow/blackboard/main.ts",
+            template: "public/index.html",
+            filename: "blackboard.html",
+            title: "教学黑板",
+            chunks: ["blackboard"]
         }
     },
     css: {
@@ -99,6 +115,16 @@ module.exports = {
                     priority: 10,
                     test: "src/childWindow/rollCall/main.ts"
                 },
+                answerMachine: {
+                    name: "answerMachine",
+                    priority: 10,
+                    test: "src/childWindow/answerMachine/main.ts"
+                },
+                blackboard: {
+                    name: "blackboard",
+                    priority: 10,
+                    test: "src/childWindow/blackboard/main.ts"
+                },
                 timer: {
                     name: "timer",
                     priority: 10,
@@ -133,7 +159,7 @@ module.exports = {
                 appId: "com.leyixue.teacher",
                 productName: "爱学仕校园教师端", // 项目名
                 copyright: "Copyright © 2021", // 版权信息
-                artifactName: "${productName}-${version}.${ext}",
+                artifactName: "${productName}-${version}-" + moment().format("YYYYMMDDHHmm") + ".${ext}",
                 directories: {
                     output: "./dist_electron" // 输出文件路径
                 },
@@ -145,6 +171,7 @@ module.exports = {
                         url: "" // 更新服务器地址,可为空
                     }
                 ],
+                afterPack: "./build/afterPack.js",
                 dmg: {
                     contents: [
                         {

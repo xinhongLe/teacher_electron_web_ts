@@ -58,6 +58,7 @@
             class="welt"
             :style="isElectron ? undefined : { bottom: `${bottom}px` }"
             v-show="isShowWelt"
+            @touchstart="onmouseover"
             @mouseover="onmouseover"
         >
             <img src="@/assets/images/suspension/pic_shouqi@2x_copy.png" />
@@ -178,11 +179,11 @@ export default defineComponent({
                         isShowHelper.value = true;
                     }
                 }
-                isElectron() &&
-                    window.electron.ipcRenderer.invoke(
-                        "window-move-open",
-                        false
-                    );
+                // isElectron() &&
+                //     window.electron.ipcRenderer.invoke(
+                //         "window-move-open",
+                //         false
+                //     );
                 isMove.value = false;
                 isStartMove.value = false;
                 if (right.value < 10) {

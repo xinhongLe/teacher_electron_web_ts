@@ -1,7 +1,8 @@
 import { CourseWares, getCourseByCourseBag } from "@/api";
 import { store } from "@/store";
+import emitter from "@/utils/mitt";
 import { cloneCourseBagToTeacher } from "@/views/preparation/api";
-import { ref, watchEffect } from "vue";
+import { onMounted, ref, watchEffect } from "vue";
 
 export interface ClassContent {
     content: CourseWares[],
@@ -12,7 +13,7 @@ export default () => {
     const classContentList = ref<ClassContent[]>([]);
 
     const queryClassContentList = async () => {
-        const { CourseBagType, ID } = store.state.preparation.selectCourseBag;
+        const { ID } = store.state.preparation.selectCourseBag;
 
         if (!ID) return;
 
@@ -27,22 +28,9 @@ export default () => {
             title: "课后作业"
         }];
 
-        let res;
-
-        if (CourseBagType === 1) {
-            const cloneCourseBagDetail = await cloneCourseBagToTeacher({
-                courseBagID: ID!
-            });
-            if (cloneCourseBagDetail.resultCode === 200) {
-                res = await getCourseByCourseBag(2, {
-                    courseBagTeacherID: cloneCourseBagDetail.result.CourseBagTeacher.ID
-                });
-            }
-        } else {
-            res = await getCourseByCourseBag(2, {
-                courseBagTeacherID: ID!
-            });
-        }
+        const res = await getCourseByCourseBag(2, {
+            courseBagTeacherID: ID!
+        });
 
         if (res?.resultCode === 200) {
             res.result.CourseWares.forEach(item => {
@@ -63,6 +51,12 @@ export default () => {
     };
 
     watchEffect(queryClassContentList);
+
+    onMounted(() => {
+        emitter.on("preparationReLoad", () => {
+            queryClassContentList();
+        });
+    });
 
     return {
         classContentList,

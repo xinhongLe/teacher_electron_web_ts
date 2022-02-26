@@ -72,17 +72,13 @@ import { getCourseByCourseBag } from "@/api";
 import { MutationTypes, store } from "@/store";
 import { GetLastSelectBookRes } from "@/types/preparation";
 import { findFirstId } from "@/utils";
+import emitter from "@/utils/mitt";
 import { computed, defineComponent, ref, watch } from "vue";
 import { getLastSelectBook, setLastSelectBook } from "../api";
 import useBook from "../hooks/useBook";
 import ChapterDialog from "./chapterDialog.vue";
 export default defineComponent({
     name: "head",
-    props: {
-        reload: {
-            type: Function
-        }
-    },
     setup(props, { emit }) {
         const titleList = [{ title: "翻转课堂" }, { title: "数智课堂" }];
         const tabIndex = ref(0);
@@ -104,6 +100,10 @@ export default defineComponent({
             tabIndex.value = 0;
             store.commit(MutationTypes.SET_VIEW_COURSE_DETAIL_ING, false);
             store.commit(MutationTypes.SET_SELECT_COURSE_BAG, {});
+        };
+
+        const reload = () => {
+            emitter.emit("preparationReLoad", null);
         };
 
         watch(teacherBookChapter, (value) => {
@@ -216,6 +216,7 @@ export default defineComponent({
             dialogVisible,
             clickBtn,
             teacherBookChapter,
+            reload,
             getTeacherBookChapters
         };
     },

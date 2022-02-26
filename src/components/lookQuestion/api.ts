@@ -35,7 +35,8 @@ export const checkPureQuestionByQuestionID: RequestFun<CheckPureQuestionByQuesti
         baseURL: AI_XUE_SHI_API,
         url: "Api/W4/Question/CheckPureQuestionByQuestionID",
         headers: {
-            "Content-Type": "application/json-patch+json"
+            "Content-Type": "application/json-patch+json",
+            noLoading: "true"
         },
         method: "post",
         data

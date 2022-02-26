@@ -31,6 +31,7 @@ export interface AnswerFile {
 
 export interface Question {
     ChoiceCount: number;
+    CoursebagQuestionID?: string;
     ChoiceValue: string;
     Level: number;
     QuestionFiles: FileInfo[];

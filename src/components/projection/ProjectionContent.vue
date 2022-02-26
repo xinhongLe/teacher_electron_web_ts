@@ -68,6 +68,7 @@
                     :style="{ background: 'rgb(40, 40, 40)' }"
                     popper-class="brushPopup"
                     width="240px"
+                    tooltipEffect="dark"
                 >
                     <div>
                         <div class="color-box">

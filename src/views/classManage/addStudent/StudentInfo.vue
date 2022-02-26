@@ -41,7 +41,7 @@ export default defineComponent({
         const name = ref("");
 
         const searchStudent = () => {
-            tableList.value = allTableData.value.filter(v => v.Name.indexOf(name.value) > -1);
+            tableList.value = allTableData.value.filter(v => v.Name?.indexOf(name.value) > -1);
         };
 
         const getStudent = async () => {

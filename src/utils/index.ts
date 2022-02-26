@@ -3,6 +3,7 @@ import moment from "moment";
 import isElectron from "is-electron";
 import { MutationTypes, store } from "@/store";
 import { BookList } from "@/types/preparation";
+import "./dealMainEvent";
 
 export function formatClass(v: CourseBagClasses[]) {
     return v ? v.map((e) => e.ClassName).join(",") : "";
@@ -68,10 +69,11 @@ export const lookVideo = (id: string | undefined) => {
     store.commit(MutationTypes.SET_IS_SHOW_VIDEO, { flag: true, info: { id } });
 };
 
-export const lookQuestions = ({ id = "", type = 1, courseBagId = "" }) => {
+export const lookQuestions = ({ id = "", type = 1, courseBagId = "", deleteQuestionIds = [] }: {deleteQuestionIds?: string[], id: string, type: number, courseBagId?: string}) => {
     const info = {
         id,
         courseBagId,
+        deleteQuestionIds,
         type
     };
     store.commit(MutationTypes.SET_IS_SHOW_QUESTION, { flag: true, info });
@@ -132,7 +134,7 @@ export const showFileIcon = (extention: string) => {
 export const openFile = (url: string, fileName = "") => {
     if (isElectron()) {
         return window.electron.ipcRenderer.invoke("downloadFile", url, fileName).then((filePath) => {
-            window.electron.shell.openPath(filePath);
+            filePath && window.electron.shell.openPath(filePath);
         });
     }
     window.open(url);
@@ -157,4 +159,10 @@ export const downLoad = (downUrl: string, fileName: string) => {
     a.target = "_parent";
     a.click();// 设置点击事件
     a.remove(); // 移除a标签
+};
+
+export const getSaveFilePath = (id: string) => {
+    const { join } = require("path");
+    const path = join(window.electron.getPath("userData"), "files", id, "/");
+    return path;
 };

@@ -40,7 +40,7 @@
                     <div class="blackboard-text">黑板</div>
                     <!-- <div class="blackboard-btn" @click="openBlackboard()">打开</div> -->
                 </div>
-                <div class="blackboard-box" @click="uncultivated">
+                <div class="blackboard-box" @click="openAnswerMachineWindow">
                     <img
                         src="@/assets/images/suspension/img_datiqi.png"
                         alt=""
@@ -132,7 +132,6 @@ import { getToolList } from "@/api/index";
 import { getOssUrl } from "@/utils/oss";
 import isElectron from "is-electron";
 import { ElMessage } from "element-plus";
-import { fetchSubjectPublisherBookList } from "@/views/preparation/api";
 import { BookList } from "@/types/preparation";
 import { get, STORAGE_TYPES, storeChange } from "@/utils/storage";
 import { fetchAllStudents } from "@/views/labelManage/api";
@@ -237,6 +236,15 @@ export default defineComponent({
             }
         };
 
+        const openAnswerMachineWindow = () => {
+            if (allStudentList.value.length === 0) {
+                return ElMessage.error("请等待学员加载后答题！");
+            }
+            if (isElectron()) {
+                return window.electron.ipcRenderer.invoke("openAnswerMachineWindow", JSON.parse(JSON.stringify(allStudentList.value)));
+            }
+        };
+
         const close = () => {
             if (isElectron()) {
                 window.electron.ipcRenderer.invoke("hideUnfoldSuspensionWin");
@@ -260,7 +268,7 @@ export default defineComponent({
         };
 
         const getBookList = async () => {
-            const res = await fetchSubjectPublisherBookList();
+            const res = await window.electron.ipcRenderer.invoke("fetchSubjectPublisherBookList");
             if (res.resultCode === 200) {
                 subjectPublisherBookList.value = [
                     ...initBookList,
@@ -309,6 +317,7 @@ export default defineComponent({
             gameList,
             exitApp,
             clickKnowledge,
+            openAnswerMachineWindow,
             clickProjection,
             searchName,
             uncultivated,

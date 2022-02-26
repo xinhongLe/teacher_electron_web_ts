@@ -1,8 +1,8 @@
 <template>
-    <div class="look-video" v-show="!isMinimized">
+    <div class="look-video" v-show="!isMinimized" v-loading="videoLoading">
         <div class="warp">
             <div class="frames-box">
-                <span class="file-sn">{{fileSn}}</span>
+                <span class="file-sn">{{ fileSn }}</span>
                 <p>查看视频</p>
                 <div class="content">
                     <Brush ref="childRef"></Brush>
@@ -13,6 +13,8 @@
                             autoplay
                             @loadedmetadata="getAudioLength"
                             @timeupdate="videoTimeUpdate"
+                            @ended="videoEnded"
+                            @canplaythrough="canplaythrough"
                         >
                             您的浏览器不支持 video 标签。
                         </video>
@@ -55,19 +57,41 @@
                 <div @click="smallVideo" v-show="isElectron">
                     <p>最小化</p>
                 </div>
-                <div v-if="btnName == '暂停'" class="play" @click="playPause">
-                    <p>{{ btnName }}</p>
-                </div>
-                <div v-else class="stop" @click="playPause">
-                    <p>{{ btnName }}</p>
-                </div>
+                <template v-if="isVideoEnded">
+                    <div class="replay" @click="replay">
+                        <p>重播</p>
+                    </div>
+                    <div class="next" @click="closeVideo">
+                        <p>下一步</p>
+                    </div>
+                </template>
+                <template v-else>
+                    <div
+                        v-if="btnName == '暂停'"
+                        class="play"
+                        @click="playPause"
+                    >
+                        <p>{{ btnName }}</p>
+                    </div>
+                    <div v-else class="stop" @click="playPause">
+                        <p>{{ btnName }}</p>
+                    </div>
+                </template>
             </div>
         </div>
     </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, watchEffect, watch, onMounted, nextTick, onUnmounted } from "vue";
+import {
+    defineComponent,
+    ref,
+    watchEffect,
+    watch,
+    onMounted,
+    nextTick,
+    onUnmounted
+} from "vue";
 import isElectronFun from "is-electron";
 import { getFileAndPauseByFile } from "./api";
 import useVideo, { formateSeconds } from "./hooks/useVideo";
@@ -79,10 +103,11 @@ export default defineComponent({
         const isElectron = isElectronFun();
         const videoUrl = ref("");
         const btnType = ref(1);
-        const childRef = ref<InstanceType<typeof Brush>>();
+
         const fileSn = ref();
         const isMinimized = ref(false);
         const lastId = ref("");
+        const videoLoading = ref(false);
         const {
             changeData,
             marks,
@@ -93,7 +118,11 @@ export default defineComponent({
             videoRef,
             videoTimeUpdate,
             changeVideoTime,
-            playPause
+            videoEnded,
+            isVideoEnded,
+            playPause,
+            childRef,
+            replay
         } = useVideo();
 
         const brushHandle = () => {
@@ -142,12 +171,14 @@ export default defineComponent({
                 return;
             }
             lastId.value = id;
+            childRef.value && childRef.value!.clearBrush();
             getFileAndPauseByFile({
                 fileID: store.state.common.viewVideoInfo.id
             }).then(async (res) => {
                 if (res.resultCode === 200) {
                     const { FilePauses, VideoFile } = res.result;
-                    const { Extention, FilePath, FileName, Bucket, SN } = VideoFile;
+                    const { Extention, FilePath, FileName, Bucket, SN } =
+                        VideoFile;
                     filePauses.value = changeData(FilePauses);
                     fileSn.value = SN;
                     const key = Extention
@@ -156,6 +187,7 @@ export default defineComponent({
                     const url = await getOssUrl(key, Bucket);
                     if (url !== videoUrl.value) {
                         videoUrl.value = url;
+                        videoLoading.value = true;
                     }
                 }
             });
@@ -175,6 +207,10 @@ export default defineComponent({
             closeVideo();
         };
 
+        const canplaythrough = () => {
+            videoLoading.value = false;
+        };
+
         onMounted(() => {
             if (isElectron) {
                 window.electron.ipcRenderer.on("openVideoWin", openVideoWin);
@@ -184,8 +220,14 @@ export default defineComponent({
 
         onUnmounted(() => {
             if (isElectron) {
-                window.electron.ipcRenderer.removeListener("openVideoWin", openVideoWin);
-                window.electron.ipcRenderer.removeListener("closeVideoWin", closeVideoWin);
+                window.electron.ipcRenderer.removeListener(
+                    "openVideoWin",
+                    openVideoWin
+                );
+                window.electron.ipcRenderer.removeListener(
+                    "closeVideoWin",
+                    closeVideoWin
+                );
             }
         });
 
@@ -198,17 +240,22 @@ export default defineComponent({
             btnType,
             videoRef,
             closeVideo,
+            canplaythrough,
             smallVideo,
             isMinimized,
             videoTimeUpdate,
             getAudioLength,
             eraserHandle,
+            videoEnded,
+            isVideoEnded,
+            replay,
             playPause,
             changeVideoTime,
             brushHandle,
             isElectron,
             fileSn,
             childRef,
+            videoLoading,
             formateSeconds
         };
     },
@@ -232,7 +279,7 @@ export default defineComponent({
     width: 100vw;
     height: 100vh;
     position: fixed;
-    z-index: 9999;
+    z-index: 3000;
     overflow: hidden;
     background: #fff;
     -webkit-app-region: no-drag;
@@ -340,19 +387,25 @@ export default defineComponent({
         background: url("./../../assets/look/btn_zuixiaohua@2x.png");
         background-size: 100% 100%;
     }
-    > div:nth-of-type(6) {
+    .replay {
+        background: url("./../../assets/look/btn_chongbo@2x.png");
+        background-size: 100% 100%;
+    }
+    .play,
+    .stop,
+    .next {
         width: 120px;
         p {
             color: #fff;
         }
-    }
-    > div:nth-of-type(6).play {
-        background: url("./../../assets/look/btn_zanting@2x.png");
+        background-image: url("./../../assets/look/btn_zanting@2x.png");
         background-size: 100% 100%;
     }
-    > div:nth-of-type(6).stop {
-        background: url("./../../assets/look/btn_bofang@2x.png");
-        background-size: 100% 100%;
+    .stop {
+        background-image: url("./../../assets/look/btn_bofang@2x.png");
+    }
+    .next {
+        background-image: url("./../../assets/look/btn_xiayibu@2x.png");
     }
 }
 </style>

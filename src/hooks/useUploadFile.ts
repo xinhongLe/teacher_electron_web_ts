@@ -1,7 +1,6 @@
 import { IOssFileInfo, OssName } from "@/types/oss";
 import { cooOss } from "@/utils/oss";
 import { get, STORAGE_TYPES } from "@/utils/storage";
-import { UploadFile } from "element-plus/lib/components/upload/src/upload.type";
 import { ref, reactive } from "vue";
 
 export default (ossPathKey: OssName) => {
@@ -21,7 +20,7 @@ export default (ossPathKey: OssName) => {
         fileType: ""
     });
 
-    const uploadFile = async ({ file }: {file: UploadFile & Blob}) => {
+    const uploadFile = async ({ file }: {file: File & Blob}) => {
         const ossPath = get(STORAGE_TYPES.OSS_PATHS)?.[ossPathKey];
 
         loadingShow.value = true;
@@ -41,6 +40,7 @@ export default (ossPathKey: OssName) => {
             fileInfo.fileType = getFileType(file.name);
         }
         loadingShow.value = false;
+        return { ...fileInfo };
     };
 
     const resetFileInfo = () => {

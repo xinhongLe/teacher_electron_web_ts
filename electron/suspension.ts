@@ -1,11 +1,13 @@
 import { BrowserWindow, ipcMain, screen } from "electron";
 import { createWindow } from "./createWindow";
+import ElectronLog from "electron-log";
 let suspensionWin: BrowserWindow;
 let unfoldSuspensionWin: BrowserWindow;
 let blackboardWin: BrowserWindow;
 let timerWin: BrowserWindow;
 let projectionWin: BrowserWindow;
 let rollCallWin: BrowserWindow;
+let answerMachineWin: BrowserWindow;
 let isShowTimer = false; // 悬浮球是否显示时间
 let isShowVideo = false; // 悬浮球是否显示视频图标
 let isShowBlackboard = false; // 悬浮球是否显示黑板图标
@@ -24,14 +26,21 @@ const unfoldSuspensionURL = process.env.NODE_ENV === "development"
     : `file://${__dirname}/unfoldSuspension.html`;
 
 const blackboardURL = process.env.NODE_ENV === "development"
-    ? `${process.env.WEBPACK_DEV_SERVER_URL}blackboard/index.html`
-    : `file://${__dirname}/blackboard/index.html`;
+    ? `${process.env.WEBPACK_DEV_SERVER_URL}blackboard.html`
+    : `file://${__dirname}/blackboard.html`;
 
 const projectionURL = process.env.NODE_ENV === "development"
     ? `${process.env.WEBPACK_DEV_SERVER_URL}projection.html`
     : `file://${__dirname}/projection.html`;
 
+const answerMachineURL = process.env.NODE_ENV === "development"
+    ? `${process.env.WEBPACK_DEV_SERVER_URL}answerMachine.html`
+    : `file://${__dirname}/answerMachine.html`;
+
 function setSuspensionSize(isResetPosition = true, isCloseWelt = false) {
+    if (!suspensionWin) {
+        return;
+    }
     let width = 120;
     let height = 120;
     if (isShowTimer || isShowVideo || isShowBlackboard || isShowQuestion) {
@@ -46,6 +55,9 @@ function setSuspensionSize(isResetPosition = true, isCloseWelt = false) {
 }
 
 function checkIsWelt() {
+    if (!suspensionWin) {
+        return;
+    }
     const winPosition = suspensionWin.getPosition();
     const size = screen.getPrimaryDisplay().workAreaSize;
     const winSize = suspensionWin.getSize();
@@ -57,6 +69,9 @@ function checkIsWelt() {
 }
 
 function setWelt() {
+    if (!suspensionWin) {
+        return;
+    }
     const winPosition = suspensionWin.getPosition();
     const size = screen.getPrimaryDisplay().workAreaSize;
     suspensionWin.webContents.send("showWelt");
@@ -69,16 +84,19 @@ function hideSuspensionIcon () {
     isShowVideo = false;
     isShowQuestion = false;
     isShowBlackboard = false;
-    suspensionWin.webContents.send("timerWinClose");
-    suspensionWin.webContents.send("hideSuspensionVideo");
-    suspensionWin.webContents.send("hideSuspensionBlackboard");
-    suspensionWin.webContents.send("hideSuspensionQuestion");
+    if (suspensionWin) {
+        suspensionWin.webContents.send("timerWinClose");
+        suspensionWin.webContents.send("hideSuspensionVideo");
+        suspensionWin.webContents.send("hideSuspensionBlackboard");
+        suspensionWin.webContents.send("hideSuspensionQuestion");
+    }
+
     setSuspensionSize();
 }
 
 function hideTime() {
     isShowTimer = false;
-    suspensionWin.webContents.send("timerWinClose");
+    suspensionWin && suspensionWin.webContents.send("timerWinClose");
     setSuspensionSize();
 }
 
@@ -130,6 +148,7 @@ function createUnfoldSuspensionWindow() {
         show: false,
         useContentSize: true,
         transparent: true, // 设置透明
+        backgroundColor: "#00000000",
         alwaysOnTop: true // 窗口是否总是显示在其他窗口之前
     });
     // 设置黑板窗口位置
@@ -137,8 +156,13 @@ function createUnfoldSuspensionWindow() {
     const winSize = unfoldSuspensionWin.getSize(); // 获取窗口宽高
     unfoldSuspensionWin.setPosition(size.width - winSize[0] - 20, size.height - winSize[1]);
 
+    unfoldSuspensionWin.once("ready-to-show", () => {
+        unfoldSuspensionWin.setAlwaysOnTop(true, "pop-up-menu");
+    });
+
     unfoldSuspensionWin.on("closed", () => {
         unfoldSuspensionWin = null;
+        ElectronLog.info("unfoldSuspensionWin closed");
     });
 }
 
@@ -149,18 +173,46 @@ function createBlackboardWindow() {
         frame: false, // 要创建无边框窗口
         resizable: false,
         fullscreen: true,
+        show: false,
         useContentSize: true
     });
     blackboardWin.once("ready-to-show", () => {
         blackboardWin.show();
         blackboardWin.focus();
+        blackboardWin.setTitle("教学黑板");
     });
 
     blackboardWin.on("closed", () => {
         blackboardWin = null;
         isShowBlackboard = false;
-        suspensionWin.webContents.send("hideSuspensionBlackboard");
+        suspensionWin && suspensionWin.webContents.send("hideSuspensionBlackboard");
         setSuspensionSize();
+    });
+}
+
+function createAnswerMachineWindow(allStudentList: []) {
+    answerMachineWin = createWindow(answerMachineURL, {
+        width: 620,
+        height: 422,
+        center: true,
+        show: false,
+        useContentSize: true,
+        transparent: true,
+        backgroundColor: "#00000000",
+        type: "toolbar", // 创建的窗口类型为工具栏窗口
+        frame: false, // 要创建无边框窗口
+        alwaysOnTop: true,
+        resizable: false
+    });
+
+    answerMachineWin.on("ready-to-show", () => {
+        answerMachineWin.show();
+        answerMachineWin.focus();
+        answerMachineWin.webContents.send("sendAllStudentList", allStudentList);
+    });
+
+    answerMachineWin.on("closed", () => {
+        answerMachineWin = null;
     });
 }
 
@@ -209,6 +261,7 @@ export function createSuspensionWindow() {
         show: false,
         useContentSize: true,
         transparent: true, // 设置透明
+        backgroundColor: "#00000000",
         alwaysOnTop: true // 窗口是否总是显示在其他窗口之前
     });
     const size = screen.getPrimaryDisplay().workAreaSize; // 获取显示器的宽高
@@ -216,10 +269,12 @@ export function createSuspensionWindow() {
     suspensionWin.setPosition(size.width - winSize[0] - 80, size.height - winSize[1] - 50, false);
 
     suspensionWin.once("ready-to-show", () => {
+        suspensionWin.setAlwaysOnTop(true, "pop-up-menu");
         createUnfoldSuspensionWindow();
     });
     suspensionWin.on("closed", () => {
         suspensionWin = null;
+        ElectronLog.info("suspensionWin closed");
     });
 
     suspensionWin.on("moved", () => {
@@ -277,6 +332,7 @@ export function registerEvent() {
         suspensionWin && suspensionWin.hide();
         unfoldSuspensionWin && unfoldSuspensionWin.hide();
         rollCallWin && rollCallWin.destroy();
+        answerMachineWin && answerMachineWin.destroy();
         hideSuspensionIcon();
     });
 
@@ -295,7 +351,7 @@ export function registerEvent() {
 
     ipcMain.handle("openBlackboard", () => {
         isShowBlackboard = false;
-        suspensionWin.webContents.send("hideSuspensionBlackboard");
+        suspensionWin && suspensionWin.webContents.send("hideSuspensionBlackboard");
         showSuspension();
         setSuspensionSize();
         if (blackboardWin) {
@@ -315,13 +371,13 @@ export function registerEvent() {
 
     ipcMain.on("smallBlackboard", () => {
         isShowBlackboard = true;
-        suspensionWin.webContents.send("blackboardMinimized");
+        suspensionWin && suspensionWin.webContents.send("blackboardMinimized");
         blackboardWin.hide();
         setSuspensionSize();
     });
 
     ipcMain.handle("closeBlackboard", () => {
-        blackboardWin.close();
+        blackboardWin.destroy();
         setSuspensionSize();
     });
 
@@ -341,41 +397,41 @@ export function registerEvent() {
         }
     });
     ipcMain.handle("closeTimerWin", () => {
-        timerWin.close();
+        timerWin.destroy();
     });
 
     ipcMain.handle("timerWinHide", (_, time) => {
         showSuspension();
         isShowTimer = true;
         setSuspensionSize();
-        suspensionWin.webContents.send("timerWinHide", time);
+        suspensionWin && suspensionWin.webContents.send("timerWinHide", time);
     });
 
     ipcMain.handle("timeChange", (_, time) => {
-        suspensionWin.webContents.send("timeChange", time);
+        suspensionWin && suspensionWin.webContents.send("timeChange", time);
     });
 
     ipcMain.handle("videoMinimized", () => {
         isShowVideo = true;
-        suspensionWin.webContents.send("videoMinimized");
+        suspensionWin && suspensionWin.webContents.send("videoMinimized");
         setSuspensionSize();
     });
 
     ipcMain.handle("hideSuspensionVideo", () => {
         isShowVideo = false;
-        suspensionWin.webContents.send("hideSuspensionVideo");
+        suspensionWin && suspensionWin.webContents.send("hideSuspensionVideo");
         setSuspensionSize();
     });
 
     ipcMain.handle("questionMinimized", () => {
         isShowQuestion = true;
-        suspensionWin.webContents.send("questionMinimized");
+        suspensionWin && suspensionWin.webContents.send("questionMinimized");
         setSuspensionSize();
     });
 
     ipcMain.handle("hideSuspensionQuestion", () => {
         isShowQuestion = false;
-        suspensionWin.webContents.send("hideSuspensionQuestion");
+        suspensionWin && suspensionWin.webContents.send("hideSuspensionQuestion");
         setSuspensionSize();
     });
 
@@ -384,5 +440,16 @@ export function registerEvent() {
             return projectionWin.show();
         }
         createProjectionWindow();
+    });
+
+    ipcMain.handle("openAnswerMachineWindow", (_, allStudentList) => {
+        showSuspension();
+        if (!answerMachineWin) {
+            createAnswerMachineWindow(allStudentList);
+        }
+    });
+
+    ipcMain.handle("answer-jection", (_, data) => {
+        answerMachineWin && answerMachineWin.webContents.send("answer-jection", data);
     });
 }

@@ -63,6 +63,7 @@
                                         :index="index"
                                         :choicePaper="choicePaper(item.ID)"
                                         :isSelect="getIsSelect(item1.PaperID, 1)"
+                                        :course-bag-id="item.ID"
                                     />
                                 </template>
                                 <BagPaperItem
@@ -70,6 +71,8 @@
                                     :index="index"
                                     :choicePaper="choicePaper(item.ID)"
                                     :isSelect="getIsSelect(item1.PaperID, 0)"
+                                    :course-bag-id="item.ID"
+                                    :delete-question-ids="deleteQuestionList.get(item1.PaperID)?.questionIDs || []"
                                 />
                             </template>
                         </div>
@@ -93,10 +96,12 @@
 import { Student, SystemHomework } from "@/types/assignHomework";
 import { BagChapter, BagPapers } from "@/types/preparation";
 import { getCourseBagType, lookQuestions, lookVideo } from "@/utils";
-import { defineComponent, PropType, reactive, ref, watch } from "vue";
+import { defineComponent, onMounted, onUnmounted, PropType, reactive, ref, watch } from "vue";
 import { fetchBagChapter } from "../../preparation/api";
 import useBookList from "../hooks/useBookList";
 import BagPaperItem from "./BagPaperItem.vue";
+import emitter from "@/utils/mitt";
+import { find, pullAllBy } from "lodash";
 
 export default defineComponent({
     name: "systemHomeworkDialog",
@@ -118,6 +123,12 @@ export default defineComponent({
         const allList = ref<BagChapter[]>([]);
         const activeLeft = ref(0);
         const selectListMap = reactive<Record<string, SystemHomework[]>>({});
+        const deleteQuestionList = ref<Map<string, {
+            courseBagId: string,
+            questionIDs: string[],
+            id: string,
+            paperId: string
+        }>>(new Map());
 
         watch(
             subjectPublisherBookList,
@@ -143,7 +154,15 @@ export default defineComponent({
                 bookID: form.subjectPublisherBookValue[2]
             });
             if (res.resultCode === 200) {
-                allList.value = res.result;
+                const list = res.result;
+                for (const [paperId, { courseBagId, id, questionIDs }] of deleteQuestionList.value) {
+                    const bagLessons = find(list, { ID: id })?.BagLessons || [];
+                    const bagPapers = find(bagLessons, { ID: courseBagId })?.BagPapers || [];
+                    const questions = find(bagPapers, { PaperID: paperId })?.Questions || [];
+                    pullAllBy(questions, questionIDs.map(id => ({ QuestionID: id })), "QuestionID");
+                }
+                allList.value = list;
+                activeLeft.value = 0;
             }
         }
 
@@ -200,6 +219,23 @@ export default defineComponent({
             emit("updateSystemHomeworkList", Object.values(selectListMap).flat());
         };
 
+        onMounted(() => {
+            emitter.off("deleteQuestion");
+            emitter.on("deleteQuestion", ({ courseBagId, questionID, paperId }) => {
+                const bagPapers = find(allList.value[activeLeft.value].BagLessons, { ID: courseBagId })?.BagPapers || [];
+                const questions = find(bagPapers, { PaperID: paperId })?.Questions || [];
+                pullAllBy(questions, [{ QuestionID: questionID }], "QuestionID");
+                const info = deleteQuestionList.value.get(paperId);
+                const questionIDs = info?.questionIDs || [];
+                questionIDs.push(questionID);
+                deleteQuestionList.value.set(paperId, { courseBagId, paperId, questionIDs, id: allList.value[activeLeft.value].ID });
+            });
+        });
+
+        onUnmounted(() => {
+            emitter.off("deleteQuestion");
+        });
+
         return {
             handleClose,
             subjectPublisherBookList,
@@ -212,6 +248,7 @@ export default defineComponent({
             choicePaper,
             getIsSelect,
             submit,
+            deleteQuestionList,
             selectListMap,
             cascaderProps
         };

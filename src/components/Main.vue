@@ -19,7 +19,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, defineAsyncComponent, ref, watch, onUnmounted } from "vue";
+import { computed, defineComponent, defineAsyncComponent, ref, watch, onUnmounted, onMounted } from "vue";
 import NavBar from "./navBar/index.vue";
 import isElectron from "is-electron";
 import { useRoute } from "vue-router";
@@ -32,6 +32,7 @@ import LookQuestion from "./lookQuestion/index.vue";
 import { MutationTypes, store } from "@/store";
 import LookVideo from "./lookVideo/index.vue";
 import Projection from "./projection/index.vue";
+import { ElMessage } from "element-plus";
 
 export default defineComponent({
     components: {
@@ -80,19 +81,35 @@ export default defineComponent({
             }
         });
 
-        const projection = (e: any, data: any) => {
-            console.log(data);
+        const answerjection = (e: any, data: any) => {
+            window.electron.ipcRenderer.invoke("answer-jection", data);
         };
 
         if (isElectron()) {
-            window.electron.ipcRenderer.on("singalRData-Projection", projection);
+            window.electron.ipcRenderer.on("answer-jection", answerjection);
             window.electron.ipcRenderer.invoke("openSuspension");
             window.electron.maximizeWindow();
         }
 
+        onMounted(() => {
+            if (isElectron()) {
+                import("../utils/checkDiskSpace/index").then((data) => {
+                    data.default(window.electron.getPath("userData")).then((diskInfo) => {
+                        const { free, size } = diskInfo;
+                        if (free < size * 0.1) {
+                            ElMessage.error({
+                                message: "磁盘空间不足，请及时清理，以免影响使用",
+                                duration: 5000
+                            });
+                        }
+                    });
+                });
+            }
+        });
+
         onUnmounted(() => {
             if (isElectron()) {
-                window.electron.ipcRenderer.off("singalRData-Projection", projection);
+                window.electron.ipcRenderer.off("answer-jection", answerjection);
             }
         });
 
@@ -114,6 +131,7 @@ export default defineComponent({
     overflow: hidden;
     display: flex;
     flex-direction: column;
+    -webkit-app-region: no-drag;
 }
 
 .main-body {

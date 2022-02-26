@@ -67,6 +67,15 @@
                     alt=""
                 />
             </div>
+            <div
+                class="me-tool-btn"
+                @click="openShape"
+            >
+                <img
+                    src="../../images/icon_rest_xz_big.png"
+                    alt=""
+                />
+            </div>
         </div>
         <div class="me-tools-system">
             <template v-if="isShowFullscreen">
@@ -295,6 +304,11 @@ export default defineComponent({
         const showWriteBoard = () => {
             emit("showWriteBoard");
         };
+
+        const openShape = (event: MouseEvent) => {
+            emit("openShape", event);
+        };
+
         const hideWriteBoard = () => {
             emit("hideWriteBoard");
         };
@@ -328,6 +342,7 @@ export default defineComponent({
             NextSettingType,
             isShowMenu,
             selectNextType,
+            openShape,
             hideWriteBoard
         };
     }

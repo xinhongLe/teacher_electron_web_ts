@@ -70,7 +70,9 @@ export interface CommonState {
      */
     viewQuestionInfo: {
         type: number,
-        id: string
+        id: string,
+        deleteQuestionIds?: string[],
+        courseBagId: string
     }
     /**
      * 查看视频的信息

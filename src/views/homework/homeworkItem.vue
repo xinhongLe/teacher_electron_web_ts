@@ -48,8 +48,7 @@
                 <template v-if="info.HomeworkPaperType == 1"
                     >时长：{{
                         formatDuration(info.VideoDurationTick)
-                    }}</template
-                >
+                    }}</template>
             </span>
             <span>
                 <template
@@ -195,6 +194,7 @@
                     "
                     >查阅学生</el-button
                   > -->
+                <el-button size="small" v-if="info.HomeworkPaperType == 2" style="background-color:#00C0FF;" type="primary" @click="quickUpload(info)">快速上传</el-button>
                 <el-button size="small" type="primary" @click="review"
                     >查阅作业</el-button
                 >
@@ -216,6 +216,12 @@
             />
         </div>
     </div>
+    <!-- <div class="hign-photo-warp" v-if="info.HomeworkPaperType == 2">
+        <HignPhoto
+        :homeworkValue="info"
+        ref="hignPhotoRef"
+        ></HignPhoto>
+    </div> -->
 </template>
 
 <script lang="ts">
@@ -228,6 +234,7 @@ import { ElMessage, ElMessageBox } from "element-plus";
 import moment from "moment";
 import { computed, defineComponent, nextTick, PropType, ref } from "vue";
 import { rebackHomeworkPaper, ShowAnswer, HideAnswer } from "./api";
+import HignPhoto from "./hignphoto.vue";
 import FileItem from "./FileItem.vue";
 export default defineComponent({
     props: {
@@ -434,7 +441,27 @@ export default defineComponent({
                 }
             });
         };
+        const hignPhotoRef = ref();
+        const quickUpload = async (item: any) => {
+            const list: { label: string; id: string }[] = [];
+            const devices = await navigator.mediaDevices.enumerateDevices();
+            devices.forEach((device) => {
+                if (device.kind === "videoinput") {
+                    list.push({
+                        label: device.label,
+                        id: device.deviceId
+                    });
+                }
+            });
+            if (list.length === 0) {
+                ElMessage({ type: "warning", message: "没有摄像头" });
+            } else {
+                hignPhotoRef.value.dialogVisible = true;
+            }
+        };
+
         return {
+            hignPhotoRef,
             showdataPicker,
             date,
             dataBlur,
@@ -450,10 +477,14 @@ export default defineComponent({
             probability1,
             detailTime,
             publish,
-            hideAnswer
+            hideAnswer,
+            quickUpload
         };
     },
-    components: { FileItem }
+    components: {
+        FileItem
+        // HignPhoto
+    }
 });
 </script>
 
@@ -463,6 +494,24 @@ export default defineComponent({
         position: relative;
         z-index: -1;
         width: 30px;
+    }
+}
+.hign-photo-warp{
+    :deep(.el-dialog__body){
+        padding: 0;
+        overflow: hidden;
+    }
+    :deep(.el-dialog__header){
+        display: none;
+    }
+     :deep(.el-dialog){
+        margin: 0;
+        padding: 30px;
+        box-sizing: border-box;
+        background: rgba(0, 0, 0, 0.2);
+    }
+    :deep(.el-overlay-dialog){
+        height: calc(100vh + 36px);
     }
 }
 .table-row {

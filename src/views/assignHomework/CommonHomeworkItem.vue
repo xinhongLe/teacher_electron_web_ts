@@ -73,7 +73,6 @@
 <script lang="ts">
 import useUploadFile from "@/hooks/useUploadFile";
 import { CommHomework, Student } from "@/types/assignHomework";
-import { UploadFile } from "element-plus/lib/components/upload/src/upload.type";
 import { defineComponent, PropType, reactive, watch, ref } from "vue";
 import { showImg } from "./logic";
 import SelectLabel from "./SelectLabel.vue";
@@ -99,7 +98,7 @@ export default defineComponent({
         const delFile = (j: number) => {
             info.files.splice(j, 1);
         };
-        const uploadSuccess = async ({ file }: { file: UploadFile & Blob }) => {
+        const uploadSuccess = async ({ file }: { file: File & Blob }) => {
             await uploadFile({ file });
             const { name, fileExtension, fileName } = fileInfo;
             if (info.files.length < 5) {

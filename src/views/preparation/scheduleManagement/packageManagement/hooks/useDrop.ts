@@ -100,7 +100,8 @@ export default (callback: () => Promise<void>, classContentList: Ref<ClassConten
                     CourseWareTeacherQuestions: info.Questions,
                     isSelectedAll: false,
                     lessonID: teacherBookChapter
-                }]
+                }],
+                CourseBagTeacherID: store.state.preparation.selectCourseBag.ID!
             };
             const res = await updateCourseWareListOfTeacher(data);
             if (res.resultCode === 200) {

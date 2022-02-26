@@ -46,6 +46,7 @@ import { Course, CourseBag } from "@/types/preparation";
 import { computed, defineComponent, PropType, ref } from "vue";
 import ClassBagDialog from "../ClassBagDialog.vue";
 import useDrag from "@/hooks/useDrag";
+import { cloneCourseBagToTeacher } from "../../api";
 export default defineComponent({
     props: {
         item: {
@@ -65,8 +66,19 @@ export default defineComponent({
         const dialogVisible = ref(false);
         const { onDragStart, onDrag, onDragEnd } = useDrag();
 
-        const handleClickClassBag = (value: CourseBag) => {
+        const handleClickClassBag = async (value: CourseBag) => {
             if (value.Name === "无课包") { return; }
+            if (value.CourseBagType === 1) {
+                const cloneCourseBagDetail = await cloneCourseBagToTeacher({
+                    courseBagID: value.ID!
+                });
+                if (cloneCourseBagDetail.resultCode === 200) {
+                    value.ID = cloneCourseBagDetail.result.CourseBagTeacher.ID;
+                    value.CourseBagType = 2;
+                    emit("updateCourseList", props.index, value);
+                }
+            }
+
             store.commit(MutationTypes.SET_SELECT_COURSE_BAG, value);
             store.commit(MutationTypes.SET_VIEW_COURSE_DETAIL_ING, true);
             emit("update:startActiveIndex", props.index);

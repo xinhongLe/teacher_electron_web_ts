@@ -10,6 +10,7 @@
                 :LessonID="LessonIDProp"
                 :CardName="CardName"
                 :CardId="CardId"
+                v-model:hideTool="hideTool"
                 ref="PageList"
                 @changeRemark="changeRemark"
                 @lastPage="lastPage"
@@ -18,12 +19,14 @@
                 :winList="winList"
                 @changeWinSize="changeWinSize"
             />
-            <Remark :class="fullScreenStyle ? 'remark-fullSrceen' : ''" :value="remark" v-if="showRemark" />
+            <transition name="fade">
+                <Remark :class="fullScreenStyle ? 'remark-fullSrceen' : ''" :value="remark" v-if="showRemark" />
+            </transition>
         </div>
         <Tools
             :class="fullScreenStyle ? 'tools-fullSrceen' : ''"
             class="tools"
-            v-if="hideTool"
+            v-show="!hideTool"
             :showRemark="showRemark"
             @toggleRemark="toggleRemark"
             @prevStep="prevStep"
@@ -31,6 +34,7 @@
             @fullScreen="fullScreen"
             @clockFullScreen="clockFullScreen"
             @showWriteBoard="showWriteBoard"
+            @openShape="openShape"
             @hideWriteBoard="hideWriteBoard"
         />
     </div>
@@ -52,7 +56,7 @@ export default defineComponent({
     setup(props, { emit }) {
         const { data, showRemark, toggleRemark } = preventRemark();
         const pageList = ref({});
-        const hideTool = computed(() => props.hideTools);
+        const hideTool = ref(false);
         const WinActiveIdProp = computed(() => props.winActiveId);
         const WindowNameProp = computed(() => props.WindowName);
         const LessonIDProp = computed(() => props.LessonID);
@@ -71,6 +75,10 @@ export default defineComponent({
         };
         const hideWriteBoard = () => {
             PageList.value.hideWriteBoard();
+        };
+        const openShape = (event) => {
+            PageList.value.hideWriteBoard();
+            PageList.value.openShape(event);
         };
         const changeRemark = (value) => {
             remark.value = value;
@@ -147,6 +155,7 @@ export default defineComponent({
             updateFlag,
             showWriteBoard,
             hideWriteBoard,
+            openShape,
             changeWinSize
         };
     }
@@ -179,5 +188,16 @@ export default defineComponent({
         margin: 0;
         padding: 0;
     }
+}
+.fade-enter-active,
+.fade-leave-active {
+    transition-property: width, padding;
+    transition-duration: 0.3s;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+    width: 0;
+    padding: 0 !important;
 }
 </style>

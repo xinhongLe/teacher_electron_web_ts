@@ -1,6 +1,6 @@
 <template>
     <div class="pageListComponents">
-        <div class="me-work" :class=" fullscreenStyle ? 'fullscreen' : ''"  :style="{width: showRemarks ? 'calc(100% - 22rem)' : '100%', left: isShowCardList ? '180px' : '0'}">
+        <div class="me-work" :class=" fullscreenStyle ? 'fullscreen' : ''"  :style="{width: width, left: isShowCardList ? '180px' : '0'}">
                 <ScreenView
                 class="me-work-screen"
                 :inline="true"
@@ -73,6 +73,17 @@ export default defineComponent({
         const CardName = computed(() => props.CardName);
         const CardId = computed(() => props.CardId);
         const isShowCardList = inject("isShowCardList");
+        const width = computed(() => {
+            let width = "100%";
+            if (showRemarks.value && isShowCardList.value) {
+                width = "calc(100% - 22rem - 180px)";
+            } else if (showRemarks.value) {
+                width = "calc(100% - 22rem)";
+            } else if (isShowCardList.value) {
+                width = "calc(100% - 180px)";
+            }
+            return width;
+        });
         watch(
             () => props.showRemark,
             () => {
@@ -85,6 +96,7 @@ export default defineComponent({
                 if (!dialogVisible.value) {
                     keyDisabled.value = false;
                 }
+                emit("update:hideTool", dialogVisible.value);
             }
         );
         watch(
@@ -144,6 +156,9 @@ export default defineComponent({
         };
         const closeWriteBoard = () => {
             writeBoardVisible.value = false;
+        };
+        const openShape = (event) => {
+            screenRef.value.openShape(event);
         };
         const route = useRoute();
         watch(() => route.path, () => {
@@ -285,6 +300,8 @@ export default defineComponent({
             closeOpenCard,
             showWriteBoard,
             hideWriteBoard,
+            width,
+            openShape,
             closeWriteBoard
         };
     }
@@ -330,7 +347,8 @@ export default defineComponent({
     left: 0;
     width: calc(100% - 22rem);
     height: calc(100% - 84px);
-    transition: left 0.3s;
+    transition-property: left, width;
+    transition-duration: 0.3s;
 }
 .me-work {
     flex: 1;

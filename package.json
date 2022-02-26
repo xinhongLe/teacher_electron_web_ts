@@ -1,6 +1,6 @@
 {
     "name": "Aixueshi",
-    "version": "1.0.10",
+    "version": "1.0.16",
     "private": true,
     "main": "background.js",
     "config": {
@@ -21,6 +21,7 @@
     "dependencies": {
         "@element-plus/icons-vue": "^0.2.4",
         "@microsoft/signalr": "^6.0.1",
+        "@zxing/library": "^0.18.4",
         "ali-oss": "^6.15.2",
         "axios": "^0.24.0",
         "chartist": "^0.11.4",
@@ -30,8 +31,11 @@
         "echarts": "^5.1.2",
         "electron-store": "^8.0.1",
         "element-plus": "^1.1.0-beta.24",
+        "html2canvas": "^1.4.0",
         "is-electron": "^2.2.0",
+        "jpeg-js": "^0.4.3",
         "js-md5": "^0.7.3",
+        "jsqr": "^1.4.0",
         "lodash": "^4.17.21",
         "mitt": "^3.0.0",
         "moment": "^2.29.1",
@@ -39,12 +43,13 @@
         "postcss-px2rem-exclude": "0.0.6",
         "register-service-worker": "^1.7.1",
         "spark-md5": "^3.0.1",
-        "trtc-electron-sdk": "^8.9.102",
+        "trtc-electron-sdk": "8.9.102",
         "vue": "^3.0.0",
         "vue-router": "^4.0.0-0",
         "vuedraggable": "^2.24.3",
         "vuex": "^4.0.0-0",
-        "wincard": "^1.8.4"
+        "wincard": "^1.9.5",
+        "xlsx": "^0.17.5"
     },
     "devDependencies": {
         "@electron/remote": "^2.0.1",
@@ -67,6 +72,7 @@
         "@vue/compiler-sfc": "^3.0.0",
         "@vue/eslint-config-standard": "^5.1.2",
         "@vue/eslint-config-typescript": "^7.0.0",
+        "asarmor": "^2.0.0",
         "cross-env": "^7.0.3",
         "electron": "13.6.7",
         "electron-devtools-installer": "^3.1.0",

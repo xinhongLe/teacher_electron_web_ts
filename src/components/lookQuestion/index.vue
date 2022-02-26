@@ -21,7 +21,8 @@
                         <div
                             v-show="type !== 2 && slotProps.sum > 1"
                             class="btn"
-                            @click.stop="viewPureQuestion"
+                            :class="!isHasSimilarQuestion && 'disabled'"
+                            @click.stop="openSimilarQuestion"
                         >
                             <p>同类题</p>
                         </div>
@@ -48,7 +49,6 @@ import { computed, defineComponent, nextTick, onMounted, onUnmounted, provide, r
 import Question from "./Question.vue";
 import PureQuestionDialog from "./PureQuestionDialog.vue";
 import { checkPureQuestionByQuestionID } from "./api";
-import { ElMessage } from "element-plus";
 import { MutationTypes, store } from "@/store";
 import isElectron from "is-electron";
 export default defineComponent({
@@ -59,18 +59,19 @@ export default defineComponent({
         const dialogVisible = ref(false);
         const nowQuestionID = ref("");
         const isMinimized = ref(false);
+        const isHasSimilarQuestion = ref(false);
 
         const viewPureQuestion = async () => {
             const check = await checkPureQuestionByQuestionID({
                 questionID: nowQuestionID.value
             });
             if (check.resultCode === 200) {
-                if (check.result) {
-                    dialogVisible.value = true;
-                } else {
-                    ElMessage.warning("无同类题");
-                }
+                isHasSimilarQuestion.value = !!check.result;
             }
+        };
+
+        const openSimilarQuestion = () => {
+            if (isHasSimilarQuestion.value) dialogVisible.value = true;
         };
 
         const close = () => {
@@ -102,6 +103,12 @@ export default defineComponent({
             }
         });
 
+        watch(nowQuestionID, () => {
+            if (nowQuestionID.value) {
+                viewPureQuestion();
+            }
+        });
+
         onMounted(() => {
             if (isElectron()) {
                 window.electron.ipcRenderer.on("openQuestion", openQuestion);
@@ -119,6 +126,8 @@ export default defineComponent({
         return {
             type,
             viewPureQuestion,
+            isHasSimilarQuestion,
+            openSimilarQuestion,
             close,
             isShowDialog,
             isMinimized,
@@ -154,6 +163,11 @@ export default defineComponent({
         height: 64px;
         cursor: pointer;
         margin-right: 20px;
+        &.disabled {
+            p {
+                color: #BDC0C5;
+            }
+        }
         p {
             text-align: center;
             font-size: 12px;
@@ -165,6 +179,10 @@ export default defineComponent({
         &:nth-child(1) {
             background: url("./../../assets/look/btn_tongleiti@2x.png");
             background-size: 100% 100%;
+            &.disabled {
+                background: url("./../../assets/look/btn_tlt_disabled3@2x.png");
+                background-size: 100% 100%;
+            }
         }
         &:nth-child(2) {
             background: url("./../../assets/look/btn_yichu@2x.png");

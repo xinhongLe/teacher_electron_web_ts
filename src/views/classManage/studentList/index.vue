@@ -38,6 +38,12 @@ export default defineComponent({
         flex: 1;
         padding: 24px;
         overflow-y: scroll;
+        .list {
+            :deep(.el-col-5) {
+                max-width: 19.833333%;
+                flex: 0 0 19.833333%;
+            }
+        }
         .empty {
             width: 100%;
             height: 100%;

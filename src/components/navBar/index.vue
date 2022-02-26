@@ -73,6 +73,12 @@
                                     >问题反馈</span
                                 >
                             </el-dropdown-item>
+                            <el-dropdown-item v-if="isElectron()">
+                                <span @click="showCacheDialog = true" style="display: block"
+                                    >清理缓存</span
+                                >
+
+                            </el-dropdown-item>
                             <el-dropdown-item>
                                 <span @click="outlogin" style="display: block"
                                     >退出登录</span
@@ -92,6 +98,12 @@
         </div>
         <Feedback ref="feedbackRef"/>
         <ExitDialog v-model:visible="visible"/>
+        <Suspense>
+            <ClearCacheDialog v-if="showCacheDialog" v-model:showCacheDialog="showCacheDialog"/>
+        </Suspense>
+        <Suspense>
+            <AutoClearCache/>
+        </Suspense>
     </div>
 </template>
 
@@ -101,18 +113,22 @@ import useMaximizeWindow from "../../hooks/useMaximizeWindow";
 import useMinimizeWindow from "../../hooks/useMinimizeWindow";
 import isElectron from "is-electron";
 import { useRoute, useRouter } from "vue-router";
-import useBreadList from "./useBreadList";
+import useBreadList from "./hooks/useBreadList";
 import { Bread } from "./interface";
 import useOutLogin from "@/hooks/useOutLogin";
 import { store } from "@/store";
 import Feedback from "../feedback/index.vue";
 import ExitDialog from "./ExitDialog.vue";
+import ClearCacheDialog from "./clearCacheDialog.vue";
+import AutoClearCache from "./autoClearCache.vue";
 
 export default defineComponent({
     name: "NavBar",
     components: {
         Feedback,
-        ExitDialog
+        ExitDialog,
+        ClearCacheDialog,
+        AutoClearCache
     },
     setup() {
         const route = useRoute();
@@ -122,6 +138,7 @@ export default defineComponent({
         const name = computed(() => store.state.userInfo.name);
         const feedbackRef = ref<InstanceType<typeof Feedback>>();
         const visible = ref(false);
+        const showCacheDialog = ref(false);
 
         const showFeedBack = () => {
             feedbackRef!.value!.show();
@@ -163,6 +180,7 @@ export default defineComponent({
             close,
             visible,
             useMinimizeWindow,
+            showCacheDialog,
             useMaximizeWindow
         };
     }

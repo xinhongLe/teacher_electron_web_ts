@@ -25,6 +25,10 @@ export default class SingalRHelper {
         this.connection.on("Projection", (data: LYXSocketInputDTO) => {
             window.webContents.send("singalRData-Projection", data);
         });
+
+        this.connection.on("Answerjection", (data) => {
+            window.webContents.send("answer-jection", data);
+        });
     }
 
     private sleep(timeout: number) {

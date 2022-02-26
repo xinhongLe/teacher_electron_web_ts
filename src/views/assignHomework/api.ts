@@ -58,7 +58,7 @@ export const fetchWorkbookList: RequestFun<FetchWorkbookListData, Workbook[]> = 
 export const fetchGrade: RequestFun<null, Grade[]> = (data) => {
     return request({
         baseURL: AI_XUE_SHI_API,
-        url: "/API/W1/Grade/GetGrade",
+        url: "/API/W4/Grade/GetGrade",
         headers: {
             "Content-Type": "application/json-patch+json"
         },
