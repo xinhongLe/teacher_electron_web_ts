@@ -86,7 +86,7 @@
                             </div>
                         </el-upload>
                     </div>
-                    <div style="display:flex;align-items:center;flex-wrap: wrap;">
+                    <div style="display:flex;align-items:center;flex-wrap: wrap;" v-if="lessonItem.Attachments && lessonItem.Attachments.length > 0">
                         <div class="file-item" v-for="(item, index) in lessonItem.Attachments" :key="index">
                             <File :fileInfo="item" :action="isEdit ? 'upload' : 'download'" @close="deleteFileItem"></File>
                         </div>
@@ -215,6 +215,8 @@ export default defineComponent({
                         isLoading.value = false;
                     }, 500);
                 });
+            } else {
+                isLoading.value = false;
             }
         };
 
