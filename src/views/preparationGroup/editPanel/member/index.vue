@@ -69,8 +69,10 @@ export default defineComponent({
                     emit("SetTeacherCount", memberList.value.length);
                     sessionStorage.setItem("memberList", JSON.stringify(memberList.value));
                     nextTick(() => {
-                        const windowContent = (document.documentElement && document.documentElement.clientWidth) || 0;
-                        isShowMore.value = memberList.value.length * 92 > windowContent;
+                        setTimeout(() => {
+                            const windowContent = (document && document.documentElement && document.documentElement.clientWidth) || 0;
+                            isShowMore.value = memberList.value.length * 92 > windowContent;
+                        }, 500);
                     });
                 }
             }
