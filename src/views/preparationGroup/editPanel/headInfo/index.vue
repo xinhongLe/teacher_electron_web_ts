@@ -151,7 +151,7 @@ export default defineComponent({
                 id: route.params.preId as string
             });
             if (res.resultCode === 200) {
-                const { Attachments, CanEdit, CreateTime, EndTime, CreaterID, CreaterName, PreTitle, Status, TeacherCount = 0, LessonRange, LessonContent = "" } = res.result;
+                const { Attachments = [], CanEdit, CreateTime, EndTime, CreaterID, CreaterName, PreTitle, Status, LessonRange = "", LessonContent = "" } = res.result;
                 lessonItem.Attachments = [];
                 if (Attachments && Attachments.length > 0) {
                     Attachments.map((v: any) => {
@@ -171,9 +171,9 @@ export default defineComponent({
                 lessonItem.CreaterName = CreaterName;
                 lessonItem.PreTitle = PreTitle;
                 lessonItem.Status = Status;
-                lessonItem.TeacherCount = TeacherCount;
-                lessonItem.LessonRange = LessonRange || "";
-                lessonItem.LessonRangeIDs = lessonItem.LessonRange.split(",");
+                lessonItem.TeacherCount = 0;
+                lessonItem.LessonRange = LessonRange;
+                lessonItem.LessonRangeIDs = LessonRange.split(",") || [];
                 if (lessonItem.LessonRangeIDs.length > 0) {
                     let rangeText = "";
                     const levelOne = textBookGradeList.value.filter((v: any) => {
