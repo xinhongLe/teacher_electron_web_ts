@@ -34,7 +34,7 @@
                 </p>
             </div>
             <template #reference>
-                <div class="course-content-warp">
+                <div class="course-content-warp" @click="goToClass">
                     <div class="course-content">
                         <div class="course-name">
                             {{ colData.Classes && colData.ClassName }}
@@ -144,7 +144,6 @@ export default defineComponent({
                 LessonID,
                 CourseBagType: Type
             };
-            store.commit(MutationTypes.SET_SELECT_COURSE_BAG, info);
             store.commit(MutationTypes.SET_IS_CLICK_DETAIL, true);
             router.push("/preparation");
         };
@@ -261,6 +260,10 @@ export default defineComponent({
             }
         };
 
+        const goToClass = () => {
+            router.push("/attend-class");
+        };
+
         return {
             onDrop,
             dialogVisible,
@@ -268,6 +271,7 @@ export default defineComponent({
             isActive,
             isDragging: computed(() => store.state.common.isDragging),
             openDeteil,
+            goToClass,
             deleteCourse
         };
     },

@@ -77,7 +77,7 @@
                     <div class="blackboard-text">点名</div>
                 </div>
             </div>
-
+            <QuickOpen/>
             <div class="teach-list">
                 <div class="teach-list-title">
                     <span class="title">教学助手</span>
@@ -135,6 +135,7 @@ import { ElMessage } from "element-plus";
 import { BookList } from "@/types/preparation";
 import { get, STORAGE_TYPES, storeChange } from "@/utils/storage";
 import { fetchAllStudents } from "@/views/labelManage/api";
+import QuickOpen from "./quickOpen.vue";
 export default defineComponent({
     setup(props, { emit }) {
         const gameList = ref<Game[]>([]);
@@ -156,7 +157,6 @@ export default defineComponent({
         const isLoading = ref(false);
         const allStudentList = ref<unknown[]>([]);
         let userInfo = get(STORAGE_TYPES.USER_INFO);
-
         const openBlackboard = () => {
             if (isElectron()) {
                 return window.electron.ipcRenderer.invoke("openBlackboard");
@@ -186,9 +186,7 @@ export default defineComponent({
                 data.bookIDs =
                     subjectPublisherBookList.value
                         .find((item) => item.Value === selectBookList.value[0])
-                        ?.Children?.find(
-                            (item) => item.Value === selectBookList.value[1]
-                        )
+                        ?.Children?.find((item) => item.Value === selectBookList.value[1])
                         ?.Children?.map((x) => x?.Value || "") || [];
             } else {
                 data.bookID = selectBookList.value[2];
@@ -214,19 +212,13 @@ export default defineComponent({
         const openUrl = (url: string, name: string) => {
             if (isElectron()) {
                 url = url.startsWith("http") ? url : `https://${url}`;
-                return window.electron.ipcRenderer.invoke(
-                    "openSubjectTool",
-                    url,
-                    name
-                );
+                return window.electron.ipcRenderer.invoke("openSubjectTool", url, name);
             }
             window.open(url);
         };
-
         const clickKnowledge = () => {
             openUrl("https://knowledge.aixueshi.top/", "知识图谱");
         };
-
         const openRollCall = () => {
             if (allStudentList.value.length === 0) {
                 return ElMessage.error("请等待学员加载后点名！");
@@ -235,7 +227,6 @@ export default defineComponent({
                 return window.electron.ipcRenderer.invoke("openRollCall", JSON.parse(JSON.stringify(allStudentList.value)));
             }
         };
-
         const openAnswerMachineWindow = () => {
             if (allStudentList.value.length === 0) {
                 return ElMessage.error("请等待学员加载后答题！");
@@ -244,7 +235,6 @@ export default defineComponent({
                 return window.electron.ipcRenderer.invoke("openAnswerMachineWindow", JSON.parse(JSON.stringify(allStudentList.value)));
             }
         };
-
         const close = () => {
             if (isElectron()) {
                 window.electron.ipcRenderer.invoke("hideUnfoldSuspensionWin");
@@ -252,32 +242,25 @@ export default defineComponent({
                 emit("close-helper");
             }
         };
-
         const clickProjection = () => {
             if (isElectron()) {
                 window.electron.ipcRenderer.invoke("openProjectionWindow");
             }
         };
-
         const uncultivated = () => {
             ElMessage({ type: "warning", message: "功能暂未开发" });
         };
-
         const exitApp = () => {
             window.electron.ipcRenderer.invoke("exitApp");
         };
-
         const getBookList = async () => {
-            const res = await window.electron.ipcRenderer.invoke("fetchSubjectPublisherBookList");
-            if (res.resultCode === 200) {
-                subjectPublisherBookList.value = [
-                    ...initBookList,
-                    ...res.result
-                ];
-            }
+            const data = await window.electron.ipcRenderer.invoke("fetchSubjectPublisherBookList");
+            subjectPublisherBookList.value = [
+                ...initBookList,
+                ...data
+            ];
             getGradeList();
         };
-
         const getStudentList = async () => {
             allStudentList.value = [];
             const res = await fetchAllStudents(userInfo?.ID);
@@ -285,7 +268,6 @@ export default defineComponent({
                 allStudentList.value = res.result;
             }
         };
-
         onMounted(async () => {
             if (userInfo) {
                 getBookList();
@@ -301,9 +283,7 @@ export default defineComponent({
                 });
             }
         });
-
         watch(selectBookList, getGradeList);
-
         return {
             openBlackboard,
             openTimer,
@@ -324,7 +304,8 @@ export default defineComponent({
             isLoading,
             openRollCall
         };
-    }
+    },
+    components: { QuickOpen }
 });
 </script>
 
@@ -338,7 +319,7 @@ export default defineComponent({
     border-radius: 1rem;
     display: flex;
     flex-direction: column;
-    background: #1a1d3e;
+    background: var(--app-color-dark);
     .header {
         height: 55px;
         display: flex;
@@ -393,7 +374,7 @@ export default defineComponent({
         }
         .blackboard-box {
             padding: 10px;
-            background-color: #2b314b;
+            background-color: rgba(255, 255, 255, 0.12);
             border-radius: 8px;
             margin-right: 8px;
             margin-bottom: 10px;

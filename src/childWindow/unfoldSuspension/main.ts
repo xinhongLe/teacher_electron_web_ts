@@ -1,5 +1,6 @@
 import { createApp } from "vue";
 import App from "./App.vue";
+import "@/styles/index.scss";
 
 import { ElCascader, ElInput, ElButton, ElConfigProvider } from "element-plus";
 import "element-plus/dist/index.css";

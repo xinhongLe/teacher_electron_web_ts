@@ -6,30 +6,29 @@
                     :inline="true"
                     :isInit="isInitPage"
                     ref="screenRef"
-                    :slide="page"
+                    :slide="currentSlide"
                     :writeBoardVisible="writeBoardVisible"
                     :keyDisabled="keyDisabled"
                     :useScale="false"
-                    :winList="winList"
+                    :winList="cardList"
                     @openCard="openCard"
                     @pagePrev="pagePrev"
                     @pageNext="pageNext"
                     @closeWriteBoard="closeWriteBoard"
                 />
-            <open-card-view-dialog @closeOpenCard="closeOpenCard" v-if="dialogVisible" :cardList="cardList" v-model:dialogVisible="dialogVisible"></open-card-view-dialog>
+            <open-card-view-dialog @closeOpenCard="closeOpenCard" v-if="dialogVisible" :cardList="dialogCardList" v-model:dialogVisible="dialogVisible"></open-card-view-dialog>
             <div
                 class="me-page"
             >
-                <PageItem :pageList="pageList" :selected="selected" @selectPage="selectPage"/>
+                <PageItem :pageList="pageList" :selected="currentPageIndex" @selectPage="selectPage"/>
             </div>
         </div>
     </div>
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, ref, watch } from "vue";
+import { defineComponent, inject, ref, watch } from "vue";
 import TrackService, { EnumTrackEventType } from "@/utils/common";
-import pageListServer from "../../hooks/pageList";
 import useHome from "@/hooks/useHome";
 import OpenCardViewDialog from "../edit/openCardViewDialog.vue";
 import { getCardDetail } from "../../api";
@@ -37,29 +36,18 @@ import { getWinCardDBData } from "@/utils/database";
 import { ElMessage } from "element-plus";
 import { useRoute } from "vue-router";
 import PageItem from "../pageItem.vue";
+import { windowInfoKey } from "@/hooks/useWindowInfo";
+import { SchoolWindowPageInfo } from "@/types/preparation";
+import { find } from "lodash";
 export default defineComponent({
-    props: ["pageListOption", "showRemark", "WinActiveId", "WindowName", "LessonID", "CardName", "CardId", "winList"],
     components: { OpenCardViewDialog, PageItem },
     setup(props, { emit }) {
         const { getPageDetail, transformType } = useHome();
-        const pageList = ref<any[]>([]);
-        const page = ref({});
-        const { hasCheck, selected } = pageListServer();
+        const { currentCard, currentWindowInfo, cardList, currentPageIndex, currentSlide, pageList, currentPageInfo } = inject(windowInfoKey)!;
+
         const dialogVisible = ref(false);
         const prevPageFlag = ref(false);
-        const showRemarks = ref(false);
         const keyDisabled = ref(false);
-        const WinActiveId = computed(() => props.WinActiveId);
-        const WindowName = computed(() => props.WindowName);
-        const LessonID = computed(() => props.LessonID);
-        const CardName = computed(() => props.CardName);
-        const CardId = computed(() => props.CardId);
-        watch(
-            () => props.showRemark,
-            () => {
-                showRemarks.value = props.showRemark;
-            }
-        );
         watch(
             () => dialogVisible.value,
             () => {
@@ -68,45 +56,46 @@ export default defineComponent({
                 }
             }
         );
-        watch(
-            () => props.pageListOption,
-            () => {
-                if (prevPageFlag.value === true) {
-                    prevPageFlag.value = false;
-                    pageList.value = props.pageListOption;
-                    selected.value = props.pageListOption.length - 1;
-                    pageNextEnd();
-                } else {
-                    pageList.value = props.pageListOption;
-                    selected.value = -1;
-                    pageNext();
-                }
+
+        watch([pageList, currentCard], (newValues, prevValues) => {
+            const findPage = find(newValues[0], { ID: currentPageInfo.value?.ID });
+            if (newValues[1]?.ID === prevValues[1]?.ID && findPage) {
+                return;
             }
-        );
+            if (prevPageFlag.value === true) {
+                prevPageFlag.value = false;
+                currentPageIndex.value = newValues[0].length - 1;
+                pageNextEnd();
+            } else {
+                currentPageIndex.value = -1;
+                pageNext();
+            }
+        }, {
+            deep: true
+        });
         const writeBoardVisible = ref(false);
-        const selectPage = (index: number, item: any) => {
-            selected.value = index;
+        const selectPage = (index: number, item: SchoolWindowPageInfo) => {
+            currentPageIndex.value = index;
             const DataContext = {
                 Type: EnumTrackEventType.SelectPage,
-                LessonID: LessonID.value
+                LessonID: currentWindowInfo.LessonID
             };
             getDataBase(pageList.value[index].ID, pageList.value[index]);
-            TrackService.setTrack(EnumTrackEventType.SelectPage, WinActiveId.value, WindowName.value, CardId.value, CardName.value, item.ID, item.Name, "选择页", JSON.stringify(DataContext), item.ID);
-            emit("changeRemark", pageList.value[index].Remark || "");
+            TrackService.setTrack(EnumTrackEventType.SelectPage, currentWindowInfo.WindowID, currentWindowInfo.WindowName, currentCard.value?.ID, currentCard.value?.Name, item.ID, item.Name, "选择页", JSON.stringify(DataContext), item.ID);
         };
-        const getDataBase = async (str: string, obj:any) => {
+        const getDataBase = async (str: string, obj:SchoolWindowPageInfo) => {
             if (transformType(obj.Type) === -1) {
                 ElMessage({ type: "warning", message: "暂不支持该页面类型" });
-                page.value = {};
+                currentSlide.value = {};
                 return false;
             }
             const dbResArr = await getWinCardDBData(str);
             if (dbResArr.length > 0) {
-                page.value = JSON.parse(dbResArr[0].result);
+                currentSlide.value = JSON.parse(dbResArr[0].result);
             } else {
-                await getPageDetail(obj, obj.originType, (res: any) => {
+                await getPageDetail(obj, obj.OriginType, (res: any) => {
                     if (res && res.id) {
-                        page.value = res;
+                        currentSlide.value = res;
                     }
                 });
             }
@@ -138,14 +127,13 @@ export default defineComponent({
             }
         });
         const pagePrev = async () => {
-            if (selected.value > 0) {
-                selected.value--;
+            if (currentPageIndex.value > 0) {
+                currentPageIndex.value--;
                 isInitPage.value = false;
-                emit("changeRemark", pageList.value[selected.value].Remark);
-                getDataBase(pageList.value[selected.value].ID, pageList.value[selected.value]);
+                getDataBase(pageList.value[currentPageIndex.value].ID, pageList.value[currentPageIndex.value]);
                 return;
             }
-            if (selected.value === 0) {
+            if (currentPageIndex.value === 0) {
                 isInitPage.value = false;
                 prevPageFlag.value = true;
                 emit("firstPage");
@@ -159,21 +147,20 @@ export default defineComponent({
 
         const pageNext = async () => {
             if (pageList.value.length === 0) {
-                page.value = {};
+                currentSlide.value = {};
             }
-            if (selected.value === pageList.value.length - 1) {
+            if (currentPageIndex.value === pageList.value.length - 1) {
                 isInitPage.value = true;
                 emit("lastPage");
             } else {
-                selected.value++;
+                currentPageIndex.value++;
                 isInitPage.value = true;
                 const DataContext = {
                     Type: EnumTrackEventType.SelectPage,
-                    LessonID: LessonID.value
+                    LessonID: currentWindowInfo.LessonID
                 };
-                TrackService.setTrack(EnumTrackEventType.SelectPage, WinActiveId.value, WindowName.value, CardId.value, CardName.value, pageList.value[selected.value].ID, pageList.value[selected.value].Name, "选择页", JSON.stringify(DataContext), pageList.value[selected.value].ID);
-                emit("changeRemark", pageList.value[selected.value].Remark);
-                getDataBase(pageList.value[selected.value].ID, pageList.value[selected.value]);
+                TrackService.setTrack(EnumTrackEventType.SelectPage, currentWindowInfo.WindowID, currentWindowInfo.WindowName, currentCard.value?.ID, currentCard.value?.Name, pageList.value[currentPageIndex.value].ID, pageList.value[currentPageIndex.value].Name, "选择页", JSON.stringify(DataContext), pageList.value[currentPageIndex.value].ID);
+                getDataBase(pageList.value[currentPageIndex.value].ID, pageList.value[currentPageIndex.value]);
             }
         };
         const updateFlags = () => {
@@ -181,14 +168,12 @@ export default defineComponent({
         };
         const pageNextEnd = async () => {
             if (pageList.value.length > 0) {
-                emit("changeRemark", pageList.value[selected.value].Remark);
-                getDataBase(pageList.value[selected.value].ID, pageList.value[selected.value]);
+                getDataBase(pageList.value[currentPageIndex.value].ID, pageList.value[currentPageIndex.value]);
             } else {
-                emit("changeRemark", " ");
-                page.value = [];
+                currentSlide.value = [];
             }
         };
-        const cardList = ref<any[]>([]);
+        const dialogCardList = ref<any[]>([]);
         const openCard = async (wins: any) => {
             if (wins[0] && wins[0].cards) {
                 keyDisabled.value = true;
@@ -222,7 +207,7 @@ export default defineComponent({
                                 newPages.push({ Type: item.Type, ID: item.ID, Name: item.Name });
                             }
                         });
-                        cardList.value = newPages;
+                        dialogCardList.value = newPages;
                         dialogVisible.value = true;
                     } else {
                         keyDisabled.value = false;
@@ -237,13 +222,11 @@ export default defineComponent({
         return {
             screenRef,
             isInitPage,
-            page,
-            hasCheck,
-            selected,
+            currentSlide,
+            currentPageIndex,
             pageList,
             dialogVisible,
-            cardList,
-            showRemarks,
+            dialogCardList,
             keyDisabled,
             writeBoardVisible,
             openCard,
@@ -251,6 +234,7 @@ export default defineComponent({
             pagePrev,
             selectPage,
             nextCard,
+            cardList,
             pageNext,
             updateFlags,
             closeOpenCard,

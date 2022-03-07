@@ -10,11 +10,6 @@
                 <div class="card-box-lefts">
                     <CardList
                         ref="cardListComponents"
-                        :winActiveId="winActiveId"
-                        :WindowName="WindowName"
-                        :cardList="cardList"
-                        :LessonID="LessonID"
-                        @updatePageList="updatePageList"
                         @updateFlag="updateFlag"
                     />
                 </div>
@@ -26,13 +21,6 @@
                 <div class="card-detail-content">
                     <PreviewSection
                         ref="previewSection"
-                        :winList="cardList"
-                        :uuid="cardUuid"
-                        :isPreview="isPreview"
-                        :winActiveId="winActiveId"
-                        :WindowName="WindowName"
-                        :LessonID="LessonID"
-                        :options="previewOptions"
                         @lastPage="lastPage"
                         @firstPage="firstPage"
                         @changeWinSize="changeWinSize"
@@ -54,175 +42,109 @@
     </div>
 </template>
 
-<script lang="ts">
-import { store } from "@/store";
+<script lang="ts" setup>
 import {
-    defineComponent,
+    inject,
     onActivated,
     onDeactivated,
     onMounted,
     provide,
     ref,
-    toRefs,
-    watch
+    defineProps,
+    watchEffect,
+    toRef
 } from "vue";
-import userSelectBookInfo, { TeachPageList } from "./hooks/userSelectBookInfo";
 import CardList from "./cardList/index.vue";
 import PreviewSection from "./components/preview/previewSection.vue";
 import { useRouter } from "vue-router";
-import { CopyWindow } from "./api/index";
 import Tools from "./components/preview/tools.vue";
 import emitter from "@/utils/mitt";
-export default defineComponent({
-    components: {
-        CardList,
-        PreviewSection,
-        Tools
-    },
-    setup() {
-        const router = useRouter();
-        const showList = ref(false);
-        const isFullScreen = ref(false);
-        const isShowCardList = ref(true);
-        const {
-            allPageList,
-            activeIndex,
-            allData,
-            cardListComponents,
-            _getSchoolLessonWindow,
-            handleClickWin,
-            _getWindowCards,
-            updatePageList
-        } = userSelectBookInfo();
-        provide("isShowCardList", isShowCardList);
-        watch(
-            () => store.state.preparation.selectChapterID,
-            () => {
-                if (!store.state.preparation.selectChapterID) return false;
-                const obj = {
-                    chapterID: store.state.preparation.selectChapterID
-                };
-                _getSchoolLessonWindow(obj);
-            }
-        );
-        watch(
-            () => activeIndex.winActiveId,
-            (val) => {
-                if (val) {
-                    _getWindowCards(val, true);
-                }
-            }
-        );
-        const changeWinSize = () => {
-            allData.cardList = [...allData.cardList]; // 切换窗口大小，清除缓存的笔记列表
-        };
-        onMounted(() => {
-            const obj = { chapterID: store.state.preparation.selectChapterID };
-            _getSchoolLessonWindow(obj);
-            emitter.on("preparationReLoad", () => {
-                _getSchoolLessonWindow(obj);
-                _getWindowCards(activeIndex.winActiveId, true);
-            });
-        });
-        const windowEdit = async (j: TeachPageList) => {
-            if (j.OriginType === 0) {
-                const obj = {
-                    id: j.WindowID,
-                    originType: null,
-                    sourceLessonID: j.LessonID,
-                    targetLessonID: j.LessonID
-                };
-                const res = await CopyWindow(obj);
-                if (res.resultCode === 200) {
-                    router.push(`/windowcard-edit/${res.result.ID}/1`);
-                    j.OriginType = 1;
-                    j.WindowID = res.result.ID;
-                }
-            } else {
-                router.push(`/windowcard-edit/${j.WindowID}/1`);
-            }
-        };
-        const lastPage = () => {
-            cardListComponents.value.changeReducePage();
-        };
-        const firstPage = () => {
-            cardListComponents.value.changeAddPage();
-        };
-        const previewSection = ref<InstanceType<typeof PreviewSection>>();
-        const updateFlag = () => {
-            previewSection.value && previewSection.value.updateFlag();
-        };
-        const fullScreen = () => {
-            isFullScreen.value = true;
-            previewSection.value && previewSection.value.fullScreen();
-        };
-        const clockFullScreen = () => {
-            isFullScreen.value = false;
-            previewSection.value && previewSection.value.clockFullScreen();
-        };
-
-        const toggleRemark = () => {
-            previewSection.value && previewSection.value.toggleRemark();
-        };
-
-        const prevStep = () => {
-            previewSection.value && previewSection.value.prevStep();
-        };
-
-        const nextStep = () => {
-            previewSection.value && previewSection.value.nextStep();
-        };
-
-        const showWriteBoard = () => {
-            previewSection.value && previewSection.value.showWriteBoard();
-        };
-
-        const openShape = (event: MouseEvent) => {
-            previewSection.value && previewSection.value.openShape(event);
-        };
-
-        const hideWriteBoard = () => {
-            previewSection.value && previewSection.value.hideWriteBoard();
-        };
-
-        onActivated(() => {
-            document.onkeydown = (event) => {
-                event.preventDefault();
-            };
-            if (activeIndex.winActiveId) {
-                _getWindowCards(activeIndex.winActiveId, true);
-            }
-        });
-        onDeactivated(() => {
-            document.onkeydown = null;
-        });
-        return {
-            showList,
-            ...toRefs(allData),
-            ...toRefs(activeIndex),
-            handleClickWin,
-            updatePageList,
-            windowEdit,
-            cardListComponents,
-            lastPage,
-            firstPage,
-            previewSection,
-            updateFlag,
-            allPageList,
-            _getWindowCards,
-            changeWinSize,
-            isFullScreen,
-            fullScreen,
-            toggleRemark,
-            prevStep,
-            nextStep,
-            openShape,
-            isShowCardList,
-            showWriteBoard,
-            hideWriteBoard,
-            clockFullScreen
-        };
+import { windowInfoKey } from "@/hooks/useWindowInfo";
+const router = useRouter();
+const isFullScreen = ref(false);
+const isShowCardList = ref(true);
+const cardListComponents = ref<InstanceType<typeof CardList>>();
+const props = defineProps({
+    selectLessonId: {
+        type: String,
+        default: ""
     }
+});
+const selectLessonId = toRef(props, "selectLessonId");
+provide("isShowCardList", isShowCardList);
+const { getSchoolWindowList, winList, updateCurrentWindow, cardList, currentWindowInfo, refreshWindow } = inject(windowInfoKey)!;
+
+watchEffect(() => {
+    if (selectLessonId.value) {
+        getSchoolWindowList(selectLessonId.value).then(() => {
+            updateCurrentWindow(winList.value[0]);
+        });
+    }
+});
+const changeWinSize = () => {
+    cardList.value = [...cardList.value]; // 切换窗口大小，清除缓存的笔记列表
+};
+onMounted(() => {
+    emitter.on("preparationReLoad", () => {
+        refreshWindow(selectLessonId.value);
+    });
+});
+const windowEdit = async () => {
+    router.push(`/windowcard-edit/${currentWindowInfo.WindowID}/${currentWindowInfo.OriginType}/${currentWindowInfo.WindowName}`);
+};
+const lastPage = () => {
+    cardListComponents.value && cardListComponents.value.changeReducePage();
+};
+const firstPage = () => {
+    cardListComponents.value && cardListComponents.value.changeAddPage();
+};
+const previewSection = ref<InstanceType<typeof PreviewSection>>();
+const updateFlag = () => {
+    previewSection.value && previewSection.value.updateFlag();
+};
+const fullScreen = () => {
+    isFullScreen.value = true;
+    previewSection.value && previewSection.value.fullScreen();
+};
+const clockFullScreen = () => {
+    isFullScreen.value = false;
+    previewSection.value && previewSection.value.clockFullScreen();
+};
+
+const toggleRemark = () => {
+    previewSection.value && previewSection.value.toggleRemark();
+};
+
+const prevStep = () => {
+    previewSection.value && previewSection.value.prevStep();
+};
+
+const nextStep = () => {
+    previewSection.value && previewSection.value.nextStep();
+};
+
+const showWriteBoard = () => {
+    previewSection.value && previewSection.value.showWriteBoard();
+};
+
+const openShape = (event: MouseEvent) => {
+    previewSection.value && previewSection.value.openShape(event);
+};
+
+const hideWriteBoard = () => {
+    previewSection.value && previewSection.value.hideWriteBoard();
+};
+
+onActivated(() => {
+    document.onkeydown = (event) => {
+        event.preventDefault();
+    };
+    selectLessonId.value && refreshWindow(selectLessonId.value);
+    emitter.on("editWindow", windowEdit);
+});
+onDeactivated(() => {
+    document.onkeydown = null;
+    emitter.off("editWindow", windowEdit);
 });
 </script>
 

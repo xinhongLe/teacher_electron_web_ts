@@ -53,7 +53,7 @@ const routes: Array<RouteRecordRaw> = [
                 component: () => import("@/views/record/index.vue")
             },
             {
-                path: "windowcard-edit/:winValue/:originType",
+                path: "windowcard-edit/:winValue/:originType/:winName",
                 name: "编辑",
                 component: () => import("@/views/preparation/intelligenceClassroom/edit/index.vue"),
                 meta: {

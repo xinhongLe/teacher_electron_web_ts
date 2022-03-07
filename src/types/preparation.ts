@@ -270,12 +270,82 @@ export interface SetLastSelectBookData {
 
 export interface CloneCourseBagToTeacherRes {
     CourseBagTeacher: {
-        ID: string
-    }
+        ID: string;
+    };
 }
 
 export enum NextSettingType {
     Right = "right",
     Left = "left",
     All = "all",
+}
+
+export enum ClassroomType {
+    WindowClasses,
+    Classes,
+}
+
+export interface FetchSchoolLessonListData {
+    chapterID: string;
+}
+
+export interface FetchSchoolWindowListData {
+    lessonID: string;
+}
+
+export interface SchoolLesson {
+    ID: string;
+    IsHide: boolean;
+    LessonDetail?: string;
+    Name: string;
+}
+
+export interface SchoolWindowPageInfo {
+    ID: string;
+    Name: string;
+    NickName: string;
+    OriginType: number;
+    TeachPageRelationID: string;
+    Width: number;
+    Type: number;
+    Sort: number;
+    Height: number;
+    State: boolean;
+    Remark?: string;
+}
+
+export interface SchoolWindowCardInfo {
+    ID: string;
+    Name: string;
+    NickName?: string;
+    OriginType?: number;
+    Pages: SchoolWindowPageInfo[];
+}
+export interface SchoolWindowInfo {
+    LessonID: string;
+    LessonWindowID: string;
+    OriginType: number;
+    Sort: number;
+    WindowID: string;
+    WindowName: string;
+    WindowNickName: string;
+    CardList?: SchoolWindowCardInfo[];
+}
+
+export interface FetchBagBySchoolLessonData {
+    lessonID: string;
+}
+
+export interface SchoolBagInfo {
+    Changed: number;
+    CourseBagType: number;
+    ID: string;
+    LastUpdateTime: string;
+    LessonID: string;
+    Name: string;
+    OnSale: number;
+    Sort: number;
+    TeacherID: string;
+    Type: number;
+    Version: string;
 }

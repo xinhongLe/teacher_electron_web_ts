@@ -1,52 +1,65 @@
+<script lang="ts" setup>
+import { ClassroomType } from "@/types/preparation";
+import { ref } from "vue";
+
+const titleList = [{ title: "数智课堂", type: ClassroomType.WindowClasses }, { title: "翻转课堂", type: ClassroomType.Classes }];
+const currentTab = ref(ClassroomType.WindowClasses);
+</script>
+
 <template>
-    <div class="attend-class-container">
-        <Head
-            v-model:activeIndex="activeIndex"
-            @refresh="refresh"
-        />
-        <StayOnCourse v-if="activeIndex === 0" ref="stayOnCourseRef"/>
-        <HistoryCourse v-else ref="historyCourseRef"/>
+    <div class="attend-class-warp">
+        <div class="header">
+            <div v-for="item in titleList" :key="item.title" class="tab" :class="{active: item.type === currentTab}" @click="currentTab = item.type">
+                {{item.title}}
+            </div>
+        </div>
+        <div class="content-warp">
+
+        </div>
     </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, ref } from "vue";
-import Head from "./Head.vue";
-import StayOnCourse from "./stayOnCourse/index.vue";
-import HistoryCourse from "./historyCourse/index.vue";
-export default defineComponent({
-    name: "AttendClass",
-    setup() {
-        const activeIndex = ref(0);
-        const stayOnCourseRef = ref<InstanceType<typeof StayOnCourse>>();
-        const historyCourseRef = ref<InstanceType<typeof HistoryCourse>>();
-
-        const refresh = () => {
-            if (activeIndex.value === 0) {
-                stayOnCourseRef.value && stayOnCourseRef.value.getTeacherClasses();
-            } else {
-                historyCourseRef.value && historyCourseRef.value.getTeacherClasses();
-            }
-        };
-
-        return {
-            activeIndex,
-            historyCourseRef,
-            refresh,
-            stayOnCourseRef
-        };
-    },
-    components: { Head, StayOnCourse, HistoryCourse }
-});
-</script>
-
 <style lang="scss" scoped>
-.attend-class-container {
-    display: flex;
-    padding-top: 15px;
+.attend-class-warp {
+    width: 100%;
     height: 100%;
-    padding-bottom: 0;
-    box-sizing: border-box;
-    flex-flow: column;
+    background-color: #F5F6FA;
+    display: flex;
+    flex-direction: column;
+    .header {
+        height: 60px;
+        background-color: #fff;
+        padding-left: 20px;
+        display: flex;
+        align-items: center;
+        margin-bottom: 12px;
+        .tab {
+            display: flex;
+            align-items: center;
+            height: 100%;
+            font-size: 24px;
+            font-weight: 600;
+            color: #A7AAB4;
+            margin-right: 32px;
+            cursor: pointer;
+            &.active {
+                color: var(--app-color-dark);
+                position: relative;
+                &::before {
+                    content: "";
+                    position: absolute;
+                    width: 100%;
+                    height: 3px;
+                    background-color: var(--app-color-primary);
+                    bottom: 0;
+                }
+            }
+        }
+    }
+    .content-warp {
+        flex: 1;
+        background-color: #fff;
+        padding: 20px;
+    }
 }
 </style>

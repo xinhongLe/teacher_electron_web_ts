@@ -35,10 +35,6 @@ export interface PreparationState {
      */
     subjectPublisherBookValue: string[],
     /**
-     * 选择的课时
-     */
-    selectCourseBag: CourseBag,
-    /**
      * 是否在拖拽精品素材
      */
     isDraggingElement: boolean,
@@ -50,6 +46,10 @@ export interface PreparationState {
      * 窗卡页下一步按钮位置
      */
     selectNextType: string,
+    /**
+     * 选择的课时id
+     */
+    selectLessonId: string
 }
 
 export interface CommonState {

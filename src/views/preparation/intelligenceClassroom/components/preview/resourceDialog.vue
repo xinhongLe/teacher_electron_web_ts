@@ -1,12 +1,14 @@
 <script lang="ts" setup>
 import { onClickOutside } from "@vueuse/core";
-import { defineEmits, ref } from "vue";
-import ClassContent from "@/views/preparation/scheduleManagement/packageManagement/ClassContent.vue";
-import QuestionBank from "@/views/preparation/scheduleManagement/packageManagement/questionBank/index.vue";
+import { computed, defineEmits, ref } from "vue";
+import ScheduleManagement from "@/views/preparation/scheduleManagement/index.vue";
+import { store } from "@/store";
 
 const emits = defineEmits(["update:modelValue"]);
 
 const contentRef = ref<HTMLDivElement>();
+
+const selectLessonId = computed(() => store.state.preparation.selectLessonId);
 
 const close = () => {
     emits("update:modelValue", false);
@@ -18,8 +20,7 @@ onClickOutside(contentRef, close);
 <template>
     <div class="dialog-warp">
         <div class="content-container" ref="contentRef">
-            <ClassContent/>
-            <QuestionBank/>
+            <ScheduleManagement :is-operator="false" :select-lesson-id="selectLessonId"/>
         </div>
         <div class="close-btn" >
             关闭

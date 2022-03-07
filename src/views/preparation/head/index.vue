@@ -8,7 +8,7 @@
             ></el-cascader>
             <div class="header-title">
                 <p
-                    :class="[tabIndex === index ? 'active' : '']"
+                    :class="[tabIndex === item.type ? 'active' : '']"
                     v-for="(item, index) in titleList"
                     :key="index"
                     @click="clickTab(index)"
@@ -17,7 +17,7 @@
                 </p>
             </div>
         </div>
-        <div class="window-list-warp" v-show="tabIndex === 1">
+        <div class="window-list-warp" v-show="tabIndex === ClassroomType.WindowClasses && !showClassArrangement">
             <div class="slide-btn prev" :class="{ hidden: !isShowSlideBtn, 'disable': isDisablePrev }" @click="slidePrev">
                 <i class="el-icon-arrow-left"></i>
             </div>
@@ -25,13 +25,13 @@
                 <div class="window-list-swiper" ref="windowListRef" :style="{'transform': `translateX(-${translateX}px)`}">
                     <div
                         class="window-item"
-                        v-for="(item, index) in windowList"
-                        :key="item"
-                        :class="{ active: windowActiveIndex === index }"
-                        @click="windowActiveIndex = index"
+                        v-for="item in winList"
+                        :key="item.WindowID"
+                        :class="{ active: currentWindowInfo.WindowID === item.WindowID }"
+                        @click="updateCurrentWindow(item)"
                         :ref="windowItemRefs.set"
                     >
-                        {{ item }}
+                        {{ item.WindowName }}
                     </div>
                 </div>
             </div>
@@ -40,53 +40,49 @@
             </div>
         </div>
         <div class="right">
-            <div class="btn" v-show="tabIndex === 1">
+            <div class="btn" v-show="tabIndex === ClassroomType.WindowClasses && !showClassArrangement" @click="edit">
                 <el-icon :size="16" :style="{ marginRight: '4px' }"
                     ><edit /></el-icon
                 >编辑课件
             </div>
-            <div class="btn">
+            <div class="btn exit" @click="$emit('update:showClassArrangement', false)" v-if="showClassArrangement">
+                <img src="@/assets/images/preparation/icon_tuichu.svg" />退出排课
+            </div>
+            <div class="btn" @click="$emit('update:showClassArrangement', true)" v-else>
                 <img src="@/assets/images/preparation/icon_paike.svg" />去排课
             </div>
-            <div class="refresh-warp" @click="reload" />
+            <div class="refresh-warp" @click="reload" v-show="!showClassArrangement"/>
         </div>
     </div>
 </template>
 
 <script lang="ts">
-import { getCourseByCourseBag } from "@/api";
 import { MutationTypes, store } from "@/store";
-import { GetLastSelectBookRes } from "@/types/preparation";
+import { GetLastSelectBookRes, ClassroomType } from "@/types/preparation";
 import { findFirstId } from "@/utils";
-import { computed, defineComponent, ref, watch } from "vue";
+import { computed, defineComponent, inject, ref, watch } from "vue";
 import emitter from "@/utils/mitt";
 import { getLastSelectBook, setLastSelectBook } from "../api";
 import { Edit } from "@element-plus/icons-vue";
 import useBook from "../hooks/useBook";
 import { useTemplateRefsList, useElementSize } from "@vueuse/core";
+import { windowInfoKey } from "@/hooks/useWindowInfo";
+import useSubjectPublisherBookList, { subjectPublisherBookList } from "@/hooks/useSubjectPublisherBookList";
 export default defineComponent({
     name: "head",
     components: {
         Edit
     },
+    props: {
+        showClassArrangement: {
+            type: Boolean
+        }
+    },
     setup(props, { emit }) {
-        const titleList = [{ title: "翻转课堂" }, { title: "数智课堂" }];
-        const windowList = [
-            "窗1名称",
-            "窗2名称发的",
-            "窗2名称窗2名称窗2名称窗",
-            "窗2名称窗2名称窗2名称窗2",
-            "窗2名称窗2名称窗2名称窗2名",
-            "窗2名称窗2名称窗2名称窗2名称",
-            "窗2名称窗2名称窗2名称窗2名称窗",
-            "窗2名称窗2名称窗2名称窗2名称窗2",
-            "窗2名称窗2名称窗2名称窗2名称窗2名"
-        ];
-        const windowActiveIndex = ref(0);
-        const tabIndex = ref(0);
-        const courseBagDetail = ref<getCourseByCourseBag>();
+        const titleList = [{ title: "数智课堂", type: ClassroomType.WindowClasses }, { title: "翻转课堂", type: ClassroomType.Classes }];
+        const { winList, currentWindowInfo, updateCurrentWindow } = inject(windowInfoKey)!;
+        const tabIndex = ref(ClassroomType.WindowClasses);
         let selectBook: GetLastSelectBookRes;
-        let isFirst = true;
         const windowListRef = ref<HTMLDivElement>();
         const windowListWarpRef = ref<HTMLDivElement>();
         const isShowSlideBtn = ref(false);
@@ -95,13 +91,9 @@ export default defineComponent({
         const windowItemRefs = useTemplateRefsList<HTMLDivElement>();
         const { width } = useElementSize(windowListRef);
         const {
-            subjectPublisherBookList,
             subjectPublisherBookValue,
-            teacherBookChapterList,
             cascaderProps,
-            teacherBookChapter,
-            getTeacherBookChapters,
-            getSubjectPublisherBookList
+            teacherBookChapter
         } = useBook();
         const maxTranslateX = computed(() => width.value - (windowListWarpRef.value?.offsetWidth || 0));
         const isDisablePrev = computed(() => translateX.value === 0);
@@ -118,6 +110,10 @@ export default defineComponent({
             slideIndex.value++;
         };
 
+        const edit = () => {
+            emitter.emit("editWindow", null);
+        };
+
         const slidePrev = () => {
             if (isDisablePrev.value) return;
             const x = translateX.value - windowItemRefs.value[slideIndex.value].offsetWidth;
@@ -129,12 +125,6 @@ export default defineComponent({
             }
         };
 
-        const clickBtn = () => {
-            tabIndex.value = 0;
-            store.commit(MutationTypes.SET_VIEW_COURSE_DETAIL_ING, false);
-            store.commit(MutationTypes.SET_SELECT_COURSE_BAG, {});
-        };
-
         watch(width, (v) => {
             isShowSlideBtn.value = v > windowListWarpRef.value!.offsetWidth;
         });
@@ -144,7 +134,6 @@ export default defineComponent({
 
         watch(teacherBookChapter, (value) => {
             store.commit(MutationTypes.SET_SELECT_CHAPTER_ID, value);
-            store.commit(MutationTypes.SET_SELECT_COURSE_BAG, {});
             setLastSelectBook({
                 bookID: subjectPublisherBookValue.value[2],
                 chapterID: value,
@@ -159,30 +148,6 @@ export default defineComponent({
         watch(
             subjectPublisherBookValue,
             (value) => {
-                getTeacherBookChapters(value[2]).then(() => {
-                    if (
-                        selectBook &&
-                        Object.keys(selectBook).length !== 0 &&
-                        isFirst
-                    ) {
-                        isFirst = false;
-                        return (teacherBookChapter.value =
-                            selectBook.ChapterID);
-                    }
-                    if (courseBagDetail.value) {
-                        const { ChapterName } = courseBagDetail.value!;
-                        const info = teacherBookChapterList.value.find(
-                            ({ Name }) => ChapterName === Name
-                        );
-                        const id = info
-                            ? info.ID
-                            : teacherBookChapterList.value[0].ID;
-                        teacherBookChapter.value = id;
-                        return (courseBagDetail.value = undefined);
-                    }
-                    teacherBookChapter.value =
-                        teacherBookChapterList.value[0]?.ID;
-                });
                 store.commit(
                     MutationTypes.SET_SUBJECT_PUBLISHER_BOOK_VALUE,
                     value
@@ -193,68 +158,7 @@ export default defineComponent({
             }
         );
 
-        watch(
-            [
-                () => store.state.preparation.isClickDetail,
-                subjectPublisherBookList
-            ],
-            (v) => {
-                const [isClickDetail] = v;
-                const { selectCourseBag } = store.state.preparation;
-                if (isClickDetail) {
-                    const { Type, ID } = selectCourseBag;
-                    const courseBagData =
-                        Type === 1
-                            ? {
-                                courseBagID: ID!
-                            }
-                            : {
-                                courseBagTeacherID: ID!
-                            };
-                    getCourseByCourseBag(Type!, courseBagData).then((res) => {
-                        store.commit(MutationTypes.SET_IS_CLICK_DETAIL, false);
-                        if (res.resultCode === 200) {
-                            courseBagDetail.value = res.result;
-                            const { SubjectName, AlbumName, PublishName } =
-                                courseBagDetail.value!;
-                            subjectPublisherBookList.value.forEach((item) => {
-                                if (item.Lable === SubjectName) {
-                                    item.Children &&
-                                        item.Children.forEach((item1) => {
-                                            if (item1.Lable === PublishName) {
-                                                item1.Children &&
-                                                    item1.Children.forEach(
-                                                        (item2) => {
-                                                            if (
-                                                                item2.Lable ===
-                                                                AlbumName
-                                                            ) {
-                                                                subjectPublisherBookValue.value =
-                                                                    [
-                                                                        item.Value,
-                                                                        item1.Value,
-                                                                        item2.Value
-                                                                    ];
-                                                                return false;
-                                                            }
-                                                        }
-                                                    );
-                                            }
-                                        });
-                                }
-                            });
-                        } else {
-                            findFirstId(
-                                [subjectPublisherBookList.value[0]],
-                                subjectPublisherBookValue.value
-                            );
-                        }
-                    });
-                }
-            }
-        );
-
-        getSubjectPublisherBookList().then(async () => {
+        useSubjectPublisherBookList().then(async () => {
             if (store.state.preparation.isClickDetail) return;
             const selectBookRes = await getLastSelectBook({
                 subjectID: ""
@@ -282,16 +186,13 @@ export default defineComponent({
             subjectPublisherBookValue,
             subjectPublisherBookList,
             cascaderProps,
-            teacherBookChapterList: computed(() => [
-                ...teacherBookChapterList.value
-            ]),
             clickTab,
+            winList,
             windowListRef,
             tabIndex,
-            clickBtn,
             teacherBookChapter,
-            windowList,
-            windowActiveIndex,
+            currentWindowInfo,
+            updateCurrentWindow,
             windowItemRefs,
             windowListWarpRef,
             isShowSlideBtn,
@@ -301,8 +202,9 @@ export default defineComponent({
             translateX,
             slideNext,
             slidePrev,
-            reload,
-            getTeacherBookChapters
+            edit,
+            ClassroomType,
+            reload
         };
     }
 });
@@ -426,6 +328,9 @@ export default defineComponent({
                 background-color: #ff7802;
                 color: #fff;
                 margin-left: 12px;
+            }
+            &.exit {
+                background-color: #FF6B6B;
             }
         }
         .refresh-warp {

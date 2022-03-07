@@ -1,18 +1,66 @@
 <script lang="ts" setup>
 import { ArrowDownBold, ArrowUpBold } from "@element-plus/icons-vue";
-import { ref } from "vue";
-import { pull } from "lodash";
+import { computed, ref, watch } from "vue";
+import { pull, isEmpty } from "lodash";
 import CollapseTransition from "@/components/collapseTransition/index.vue";
+import useBook from "../hooks/useBook";
+import { MutationTypes, store } from "@/store";
+import { fetchSchoolLessonList } from "../api";
+import { SchoolLesson } from "@/types/preparation";
 
-const activeNames = ref<string[]>([]);
+const activeIds = ref<string[]>([]);
 const isShow = ref(true);
+const lessonListMap = ref<Map<string, SchoolLesson[]>>(new Map());
+const selectLessonId = computed(() => store.state.preparation.selectLessonId);
+const { teacherBookChapterList, getTeacherBookChapters } = useBook();
 
-const collapseClick = (name: string) => {
-    if (activeNames.value.includes(name)) {
-        pull(activeNames.value, name);
-    } else {
-        activeNames.value.push(name);
+const getLessonList = async (id: string) => {
+    const res = await fetchSchoolLessonList({
+        chapterID: id
+    });
+    if (res.resultCode === 200) {
+        lessonListMap.value.set(
+            id,
+            res.result.filter((item) => !item.IsHide)
+        );
     }
+};
+
+watch(
+    () => store.state.preparation.subjectPublisherBookValue,
+    async (value) => {
+        if (!value[2]) return;
+        await getTeacherBookChapters(value[2]);
+        const id = teacherBookChapterList.value[0]?.ID;
+        activeIds.value = [];
+        activeIds.value.push(id);
+        getLessonList(id).then(() => {
+            const lessonList = lessonListMap.value.get(id);
+            if (!isEmpty(lessonList)) {
+                store.commit(
+                    MutationTypes.SET_SELECT_LESSON_ID,
+                    lessonList![0]?.ID
+                );
+            }
+        });
+    }, {
+        deep: true
+    }
+);
+
+const collapseClick = (id: string) => {
+    if (activeIds.value.includes(id)) {
+        pull(activeIds.value, id);
+    } else {
+        activeIds.value.push(id);
+    }
+    if (!lessonListMap.value.has(id)) {
+        getLessonList(id);
+    }
+};
+
+const clickLesson = (id: string) => {
+    store.commit(MutationTypes.SET_SELECT_LESSON_ID, id);
 };
 </script>
 
@@ -21,75 +69,43 @@ const collapseClick = (name: string) => {
         <transition name="slide">
             <div class="course-list-warp" v-show="isShow">
                 <div class="course-list">
-                    <div class="chapter-warp">
-                        <div class="chapter-item" @click="collapseClick('1')">
-                            <span class="chapter">1单元 两位数的口算</span>
+                    <div
+                        class="chapter-warp"
+                        v-for="chapter in teacherBookChapterList"
+                        :key="chapter.ID"
+                    >
+                        <div
+                            class="chapter-item"
+                            @click="collapseClick(chapter.ID)"
+                        >
+                            <span class="chapter"
+                                >{{ chapter.Name }} {{ chapter.Detial }}</span
+                            >
                             <el-icon color="#979BA9"
                                 ><ArrowUpBold
                                     v-if="
-                                        activeNames.includes('1')
+                                        activeIds.includes(chapter.ID)
                                     " /><ArrowDownBold v-else
                             /></el-icon>
                         </div>
                         <CollapseTransition>
                             <div
-                                v-show="activeNames.includes('1')"
+                                v-show="activeIds.includes(chapter.ID)"
                                 class="chapter-course-list-warp"
                             >
-                                <div class="course active">
-                                    2.1 两位数加两位数口算
+                                <div
+                                    class="course"
+                                    v-for="lesson in lessonListMap.get(
+                                        chapter.ID
+                                    )"
+                                    :key="lesson.ID"
+                                    :class="{
+                                        active: selectLessonId === lesson.ID,
+                                    }"
+                                    @click="clickLesson(lesson.ID)"
+                                >
+                                    {{ lesson.Name }}
                                 </div>
-                                <div class="course">2.1 两位数加两位数口算</div>
-                                <div class="course">2.1 两位数加两位数口算</div>
-                                <div class="course">2.1 两位数加两位数口算</div>
-                            </div>
-                        </CollapseTransition>
-                    </div>
-                    <div class="chapter-warp">
-                        <div class="chapter-item" @click="collapseClick('2')">
-                            <span class="chapter">1单元 两位数的口算</span>
-                            <el-icon color="#979BA9"
-                                ><ArrowUpBold
-                                    v-if="
-                                        activeNames.includes('2')
-                                    " /><ArrowDownBold v-else
-                            /></el-icon>
-                        </div>
-                        <CollapseTransition>
-                            <div
-                                v-show="activeNames.includes('2')"
-                                class="chapter-course-list-warp"
-                            >
-                                <div class="course active">
-                                    2.1 两位数加两位数口算
-                                </div>
-                                <div class="course">2.1 两位数加两位数口算</div>
-                                <div class="course">2.1 两位数加两位数口算</div>
-                                <div class="course">2.1 两位数加两位数口算</div>
-                            </div>
-                        </CollapseTransition>
-                    </div>
-                    <div class="chapter-warp">
-                        <div class="chapter-item" @click="collapseClick('3')">
-                            <span class="chapter">1单元 两位数的口算</span>
-                            <el-icon color="#979BA9"
-                                ><ArrowUpBold
-                                    v-if="
-                                        activeNames.includes('3')
-                                    " /><ArrowDownBold v-else
-                            /></el-icon>
-                        </div>
-                        <CollapseTransition>
-                            <div
-                                v-show="activeNames.includes('3')"
-                                class="chapter-course-list-warp"
-                            >
-                                <div class="course active">
-                                    2.1 两位数加两位数口算
-                                </div>
-                                <div class="course">2.1 两位数加两位数口算</div>
-                                <div class="course">2.1 两位数加两位数口算</div>
-                                <div class="course">2.1 两位数加两位数口算</div>
                             </div>
                         </CollapseTransition>
                     </div>
@@ -178,7 +194,7 @@ const collapseClick = (name: string) => {
             .course {
                 height: 60px;
                 display: flex;
-                justify-content: center;
+                padding: 0 16px;
                 align-items: center;
                 color: var(--app-color-dark);
                 background-color: #f0f4ff;

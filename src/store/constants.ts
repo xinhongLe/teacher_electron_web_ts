@@ -67,10 +67,6 @@ export const enum MutationTypes {
      */
     SET_SUBJECT_PUBLISHER_BOOK_VALUE = "SET_SUBJECT_PUBLISHER_BOOK_VALUE",
     /**
-     * 设置备课页面选择的课时信息
-     */
-    SET_SELECT_COURSE_BAG = "SET_SELECT_COURSE_BAG",
-    /**
      * 设置是否在拖拽精品素材
      */
     SET_IS_DRAGGING_ELEMENT = "SET_IS_DRAGGING_ELEMENT",
@@ -89,8 +85,11 @@ export const enum MutationTypes {
     /**
      * 设置窗卡页下一步按钮位置
      */
-    SET_SELECT_NEXT_TYPE = "SET_SELECT_NEXT_TYPE"
-
+    SET_SELECT_NEXT_TYPE = "SET_SELECT_NEXT_TYPE",
+    /**
+     * 设置备课页面选择的课时id
+     */
+    SET_SELECT_LESSON_ID = "SET_SELECT_LESSON_ID"
 }
 
 export const enum ActionTypes {

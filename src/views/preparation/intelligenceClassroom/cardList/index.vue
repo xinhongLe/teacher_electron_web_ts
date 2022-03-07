@@ -2,8 +2,8 @@
     <div class="me-card">
         <div
             class="me-card-item"
-            :class="cardIndex === index && 'active'"
-            v-for="(item, index) in currentCardList"
+            :class="currentCardIndex === index && 'active'"
+            v-for="(item, index) in cardList"
             :key="index"
             @click="handleClick(index, item)"
         >
@@ -12,93 +12,49 @@
     </div>
 </template>
 
-<script>
-import { computed, defineComponent, ref, watch } from "vue";
-import cardList from "../hooks/cardList";
+<script lang="ts" setup>
+import { defineEmits, inject, defineExpose } from "vue";
 import { ElMessage } from "element-plus";
-import TrackService, { EnumTrackEventType } from "@/utils/common";
-export default defineComponent({
-    props: {
-        cardList: {
-            type: Array
-        },
-        LessonID: {
-            type: String
-        },
-        winActiveId: {
-            type: String
-        },
-        WindowName: {
-            type: String
-        }
-    },
-    setup(props, { emit }) {
-        const { dealCardData } = cardList();
-        const currentCardList = ref([]);
-        const winActiveId = computed(() => props.winActiveId);
-        const WindowName = computed(() => props.WindowName);
-        watch(
-            () => props.cardList,
-            () => {
-                currentCardList.value = props.cardList;
-            }
-        );
-        const cardIndex = ref(0);
-        const handleClick = (index, item) => {
-            cardIndex.value = index;
-            const pageDate = dealCardData(item, item.originType);
-            emit("updatePageList", pageDate);
-            TrackService.setTrack(EnumTrackEventType.SelectCard, winActiveId.value, WindowName.value, item.ID, item.Name, item.PageList.length > 0 ? item.PageList[0].ID : "", item.PageList.length > 0 ? item.PageList[0].Name : "", "选择卡", "", "");
-        };
-        const ToastFirstPage = debounce(() => {
-            return ElMessage({ type: "warning", message: "已经是第一页了" });
-        }, 200);
-        const ToastLastPage = debounce(() => {
-            return ElMessage({ type: "warning", message: "已经是最后页" });
-        }, 200);
-        const changeReducePage = () => {
-            if (currentCardList.value.length === 0) return false;
-            if (cardIndex.value + 1 === currentCardList.value.length) {
-                ToastLastPage();
-                return false;
-            }
-            handleClick(cardIndex.value + 1, currentCardList.value[cardIndex.value + 1]);
-        };
-        const changeAddPage = () => {
-            if (cardIndex.value === 0) {
-                emit("updateFlag");
-                ToastFirstPage();
-                return false;
-            }
-            handleClick(cardIndex.value - 1, currentCardList.value[cardIndex.value - 1]);
-        };
-        return {
-            currentCardList,
-            cardIndex,
-            handleClick,
-            changeReducePage,
-            changeAddPage,
-            ToastFirstPage,
-            ToastLastPage
-        };
-    },
-    activated () {
-        if (this.currentCardList.length > 0) {
-            this.handleClick(this.cardIndex, this.currentCardList[this.cardIndex]);
-        }
+import { SchoolWindowCardInfo } from "@/types/preparation";
+import { debounce } from "lodash";
+import { windowInfoKey } from "@/hooks/useWindowInfo";
+
+const emit = defineEmits(["updatePageList", "updateFlag"]);
+
+const { handleSelectCard, cardList, currentCardIndex } = inject(windowInfoKey)!;
+
+const handleClick = (index: number, item: SchoolWindowCardInfo) => {
+    currentCardIndex.value = index;
+    handleSelectCard(item);
+};
+const ToastFirstPage = debounce(() => {
+    return ElMessage({ type: "warning", message: "已经是第一页了" });
+}, 200);
+const ToastLastPage = debounce(() => {
+    return ElMessage({ type: "warning", message: "已经是最后页" });
+}, 200);
+const changeReducePage = () => {
+    if (cardList.value.length === 0) return false;
+    if (currentCardIndex.value + 1 === cardList.value.length) {
+        ToastLastPage();
+        return false;
     }
+    handleClick(currentCardIndex.value + 1, cardList.value[currentCardIndex.value + 1]);
+};
+const changeAddPage = () => {
+    if (currentCardIndex.value === 0) {
+        emit("updateFlag");
+        ToastFirstPage();
+        return false;
+    }
+    handleClick(currentCardIndex.value - 1, cardList.value[currentCardIndex.value - 1]);
+};
+
+defineExpose({
+    changeReducePage,
+    changeAddPage
 });
-function debounce (fn, delay) {
-    let timer;
-    return function () {
-        if (timer) {
-            clearTimeout(timer);
-        }
-        timer = setTimeout(() => {
-            fn();
-        }, delay);
-    };
-}
+
 </script>
 
 <style lang="scss" scoped>
@@ -127,6 +83,7 @@ function debounce (fn, delay) {
     cursor: pointer;
     position: relative;
     font-weight: 600;
+    padding: 0 12px;
     span {
         @include text-ellipsis;
     }

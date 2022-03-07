@@ -1,9 +1,9 @@
 import isElectron from "is-electron";
-import { fetchSubjectPublisherBookList } from "@/views/preparation/api";
+import useSubjectPublisherBookList, { subjectPublisherBookList } from "@/hooks/useSubjectPublisherBookList";
 
 if (isElectron()) {
     window.electron.ipcRenderer.on("fetchSubjectPublisherBookList", async (event) => {
-        const data = await fetchSubjectPublisherBookList();
-        event.sender.send("fetchSubjectPublisherBookList", data);
+        await useSubjectPublisherBookList();
+        event.sender.send("fetchSubjectPublisherBookList", JSON.parse(JSON.stringify(subjectPublisherBookList.value)));
     });
 }

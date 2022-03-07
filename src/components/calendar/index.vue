@@ -58,8 +58,7 @@ export default defineComponent({
         const currentDay = new Date().getDate();
         const { schedules, updateSchedules, updateClassSchedule, initSchedules } = useSchedules(days);
         const isCurrentDay = (day: string) => {
-            const currentDay = new Date().getDate();
-            return currentDay === moment(day).date();
+            return moment().isSame(day, "d");
         };
 
         provide("updateSchedules", updateSchedules);
@@ -95,9 +94,10 @@ export default defineComponent({
         align-items: center;
         background-color: #fff;
         padding: 0 16px;
+        height: 32px;
         .item {
             flex: 1;
-            height: 32px;
+            height: 100%;
             display: flex;
             align-items: center;
             justify-content: center;

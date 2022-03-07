@@ -25,9 +25,11 @@ interface State {
 export default () => {
     const route = useRoute();
     const defaultProps = ref({ children: "PageList", label: "Name", value: "ID" });
-    const pageValue = ref({
+    const pageValue = ref<IPageValue>({
         ID: "",
-        Type: 11
+        Type: 11,
+        TeachPageRelationID: "",
+        State: false
     });
     const cardsValue = ref({ ID: "" });
     const isSetCache = ref(false); // 是否需要更新窗下的数据
@@ -91,7 +93,7 @@ export default () => {
     };
 
     const _getWindowCards = (data: IGetWindowCards, isCache = false) => {
-        getWindowCards(data).then(res => {
+        return getWindowCards(data).then(res => {
             if (res.resultCode === 200) {
                 state.windowCards = res.result;
                 isSetCache.value = isCache;
@@ -154,8 +156,8 @@ export default () => {
             });
             TrackService.setTrack(EnumTrackEventType.DeleteCard, "", "", "", "", "", "", "删除卡或页");
             // 删除卡或页是当前展示的页面则清空页面
-            if (pageValue.value.ID === ID || cardsValue.value.ID === ID) {
-                pageValue.value = { ID: "", Type: 11 };
+            if (pageValue.value?.ID === ID || cardsValue.value.ID === ID) {
+                pageValue.value = { ...pageValue.value!, ID: "", Type: 11 };
             }
         }).catch((err) => {
             return err;

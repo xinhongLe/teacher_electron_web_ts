@@ -6,11 +6,12 @@ import { MutationTypes } from "..";
 const initState = (): PreparationState => ({
     isViewCourseDetailIng: false,
     selectChapterID: "",
-    selectCourseBag: {},
     isDraggingElement: false,
     isClickDetail: false,
     selectNextType: "",
-    subjectPublisherBookValue: []
+    subjectPublisherBookValue: [],
+    selectLessonId: ""
+
 });
 
 const mutations:MutationTree<PreparationState> = {
@@ -23,9 +24,6 @@ const mutations:MutationTree<PreparationState> = {
     [MutationTypes.SET_SUBJECT_PUBLISHER_BOOK_VALUE](state, value: string[]) {
         state.subjectPublisherBookValue = value;
     },
-    [MutationTypes.SET_SELECT_COURSE_BAG](state, info: CourseBag) {
-        state.selectCourseBag = info;
-    },
     [MutationTypes.SET_IS_DRAGGING_ELEMENT](state, flag) {
         state.isDraggingElement = flag;
     },
@@ -34,6 +32,9 @@ const mutations:MutationTree<PreparationState> = {
     },
     [MutationTypes.SET_SELECT_NEXT_TYPE](state, flag) {
         state.selectNextType = flag;
+    },
+    [MutationTypes.SET_SELECT_LESSON_ID](state, flag) {
+        state.selectLessonId = flag;
     },
     [MutationTypes.PREPARATION_STUDENT_RESET_STATE](state) {
         Object.assign(state, initState());

@@ -62,8 +62,6 @@
                            >
                                 <span
                                     class="label-class"
-                                    @mouseenter="mouseenter($event, node.label)"
-                                    @mouseleave="mouseleave"
                                 >
                                     <span :style="{color: !data.State &&node.level === 2 ? '#c0c4cc': pageValue.ID === data.ID ? '#409Eff' : '#333'}">{{ node.label }}</span>
                                 </span>
@@ -143,6 +141,7 @@
                 :pageValue="pageValue"
                 :isSetCache="isSetCache"
                 :allPageList="allPageList"
+                :slide="currentSlide"
             ></win-card-edit>
             <div
                 v-show="!pageValue.ID"
@@ -157,9 +156,8 @@
         ref="winCardViewRef"
         @offScreen="offScreen"
         v-if="winScreenView"
-        :pageList="pageList"
-        :activePageIndex="activePageIndex"
-        @stopGetAllPageList="stopGetAllPageList"
+        :pageList="previewPageList"
+        :activePageIndex="activePreviewPageIndex"
     ></win-card-view>
 
     <!-- 新增卡弹框-->
@@ -172,7 +170,7 @@
     <add-page-dialog
         v-if="dialogVisible"
         v-model:dialogVisible="dialogVisible"
-        @addPage="addPage"
+        @addPage="addPageCallback"
     ></add-page-dialog>
 
     <!-- 修改名称弹框-->
@@ -184,12 +182,12 @@
 </template>
 
 <script lang="ts">
-import { onMounted, onUnmounted, defineComponent, toRefs, ref, watch, nextTick } from "vue";
+import { onMounted, onUnmounted, defineComponent, toRefs, ref, watch, nextTick, toRef, computed } from "vue";
 import WinCardEdit from "../components/edit/winCardEdit.vue";
 import { IPageValue, ICardList } from "@/types/home";
 import Node from "element-plus/es/components/tree/src/model/node";
 import useSelectBookInfo from "@/hooks/useSelectBookInfo";
-import { enterFullscreen, isFullscreen } from "@/utils/fullscreen";
+import { isFullscreen } from "@/utils/fullscreen";
 import { MoreFilled } from "@element-plus/icons";
 import { ElMessage, ElMessageBox } from "element-plus";
 import AddPageDialog from "../components/edit/addPageDialog.vue";
@@ -197,134 +195,53 @@ import UpdateNameCardOrPage from "../components/edit/updateNameCardOrPage.vue";
 import WinCardView from "../components/edit/winScreenView.vue";
 import AddCardDialog from "../components/edit/addCardDialog.vue";
 import { useRoute } from "vue-router";
-import { sleep } from "@/utils/common";
+import usePreview from "./hooks/usePreview";
+import useCopyPage from "./hooks/useCopyPage";
+import useSelectPage from "./hooks/useSelectPage";
+import useDragPage from "./hooks/useDragPage";
+import useAddCard from "./hooks/useAddCard";
+import useAddPage from "./hooks/useAddPage";
+import useUpdateName from "./hooks/useUpdateName";
+import useGetPageSlide from "./hooks/useGetPageSlide";
 import isElectron from "is-electron";
 export default defineComponent({
     components: { AddCardDialog, WinCardView, UpdateNameCardOrPage, AddPageDialog, WinCardEdit, MoreFilled },
     name: "Edit",
     setup() {
         const showCollapse = ref(true);
-        const dialogVisible = ref(false);
-        const dialogVisibleCard = ref(false);
-        const dialogVisibleName = ref(false);
-        const tooltipShow = ref(true);
-        const winScreenView = ref(false);
-        const editRef = ref();
-        const cardListRef = ref();
-        const activeAllPageListIndex = ref(0);
-        const mouseenter = (event:any, lable: string) => {
-            const labelBox = event.target;
-            const labelText = event.target.firstChild;
-            tooltipShow.value = labelBox.offsetWidth > labelText.offsetWidth;
-            if (!tooltipShow.value) {
-                const div = document.createElement("div");
-                div.innerHTML = lable;
-                div.setAttribute("id", "tooltipShow");
-                div.setAttribute("class", "tooltip-class");
-                div.style.left = event.pageX + "px";
-                div.style.top = event.pageY - 60 + "px";
-                document.body.appendChild(div);
-            }
-        };
-        const mouseleave = () => {
-            tooltipShow.value = true;
-            const div = document.getElementById("tooltipShow");
-            if (div) {
-                div.remove();
-            }
-        };
+        const shrinkRef = ref();
 
-        // const state = {  // state的值
-        //     subjectPublisherBookList: [],
-        //     subjectPublisherBookValue: [],
-        //     chaptersList: [],
-        //     chaptersValue: "",
-        //     winList: [],
-        //     winValue: [],
-        //     windowCards: [],
-        //     oldWindowCards: []
-        // }
         const {
             state, cardsValue, defaultProps, pageValue, isSetCache, _getSubjectPublisherBookList, _getWindowCards,
             _deleteCardOrPage, _addPage, _renameCardOrPage,
             _setCardOrPageState, _addCard, _copyPage, dragDealData
         } = useSelectBookInfo();
 
-        const isWatchChange = ref(true); // 是否是监听改变的pageValue
+        const { previewPageList, handleView, winScreenView, keyDown, offScreen, activePreviewPageIndex } = usePreview(pageValue);
 
-        const handleNodeClick = (data: IPageValue, Node: Node | null) => {
-            if (Node) {
-                activeAllPageListIndex.value = allPageList.value.findIndex(item => item.ID === data.ID);
-            }
-            if (data.ID === pageValue.value.ID || (Node && Node.level === 1)) return;
-            if (editRef.value.getDataIsChange()) {
-                ElMessageBox.confirm("尚未保存修改, 是否继续操作?", "提示", {
-                    confirmButtonText: "确认",
-                    cancelButtonText: "取消",
-                    type: "warning"
-                })
-                    .then(() => {
-                        selectPageValue(data, false);
-                    })
-                    .catch((err) => {
-                        return err;
-                    });
-            } else {
-                selectPageValue(data, false);
-            }
-        };
+        const { handleCopy, handlePaste } = useCopyPage(_copyPage);
 
-        const selectPageValue = (data: { ID: string; Type: number }, flag: boolean) => {
-            isWatchChange.value = flag;
-            pageValue.value = data;
-            setDomClass();
-        };
+        const { handleNodeClick, selectPageValue, editRef, activeAllPageListIndex, allPageList, isWatchChange, cardListRef } = useSelectPage(pageValue);
 
-        const setDomClass = () => {
-            nextTick(() => {
-                const parentID = document.getElementById("activeBackground");
-                if (parentID) {
-                    parentID.removeAttribute("id");
-                }
-                const childrenDom: any = document.querySelector(".active-text");
-                const parentDom: any = childrenDom?.parentNode;
-                if (parentDom) {
-                    parentDom.setAttribute("id", "activeBackground");
-                }
-            });
-        };
+        const { handleDragEnd, allowDrop } = useDragPage(dragDealData);
 
-        const handleDragEnd = (draggingNode: Node, dropNode: Node, env: string) => {
-            dragDealData(draggingNode, dropNode, env);
-        };
+        const { handleAddCard, dialogVisibleCard } = useAddCard(_addCard, toRef(state, "windowCards"));
 
-        const allowDrop = (draggingNode: Node, dropNode: Node, type: any) => {
-            if ((draggingNode.data.PageList && dropNode.data.PageList && type !== "inner") ||
-                (!draggingNode.data.PageList && !dropNode.data.PageList && type !== "inner") ||
-                (!draggingNode.data.PageList && dropNode.data.PageList && type === "inner")
-            ) {
-                return true;
-            } else {
-                return false;
-            }
-        };
+        const { handleAdd, addPageCallback, dialogVisible } = useAddPage(shrinkRef, _addPage);
+
+        const { dialogVisibleName, currentValue, handleUpdateName, updateName } = useUpdateName(shrinkRef, _renameCardOrPage);
+
+        const { fetchAllPageSlide, allPageSlideListMap } = useGetPageSlide(pageValue);
 
         _getSubjectPublisherBookList();
         const route = useRoute();
         const winValue = route.params.winValue as string;
 
-        const handleAddCard = (name:string) => {
-            // _addCard({ WindowID: route.params.winValue as string, Sort: 0, Name: name });
-            const sort = state.windowCards ? state.windowCards.length : 0;
-            _addCard({ WindowID: route.params.winValue as string, Sort: sort, Name: name });
-            dialogVisibleCard.value = false;
-        };
-
         const handleDel = (node: Node, data: ICardList) => {
             // 删除的是卡 判断当前页是否在删除卡下
-            if (node.level === 1 && pageValue.value.ID) {
+            if (node.level === 1 && pageValue.value?.ID) {
                 const flag = data.PageList.find(
-                    (item) => item.ID === pageValue.value.ID
+                    (item) => item.ID === pageValue.value?.ID
                 );
                 if (flag) {
                     cardsValue.value = data;
@@ -335,116 +252,14 @@ export default defineComponent({
             });
         };
 
-        let copyValue = {
-            OldCardID: "",
-            PageID: "",
-            Name: ""
-        };
-        const handleCopy = (node: Node, data: ICardList) => {
-            copyValue = {
-                OldCardID: node.parent.data.ID,
-                PageID: data.ID,
-                Name: data.Name
-            };
-            if (copyValue.OldCardID && copyValue.PageID) {
-                ElMessage({ type: "success", message: "复制页成功" });
-            }
-        };
-
-        const handlePaste = (data: ICardList) => {
-            if (copyValue.OldCardID && copyValue.PageID) {
-                const value = {
-                    ...copyValue,
-                    CardID: data.ID
-                };
-                _copyPage(value);
-            } else {
-                ElMessage({ type: "warning", message: "请先复制页" });
-            }
-        };
-
-        const currentValue = ref();
-        const handleAdd = (node:Node, data:ICardList) => {
-            shrinkRef.value.click();
-            dialogVisible.value = true;
-            currentValue.value = data;
-        };
-
-        // 预览卡/窗
-        const pageList = ref();
-        const activePageIndex = ref(0);
-        const handleView = async (data: IPageValue[], flag: string) => { // flag first 首页预览  active 当前页预览
-            const activePageData: any = pageValue.value;
-            if (flag === "active" && !activePageData.State) {
-                return ElMessage({ type: "warning", message: "已下架的页, 暂不支持从当前页预览" });
-            }
-
-            // 预览只支持 已上架数据
-            pageList.value = data.filter((item: IPageValue) => item.State);
-            flag === "first" ? activePageIndex.value = 0 : activePageIndex.value = pageList.value.findIndex((item : IPageValue) => item.ID === pageValue.value.ID);
-            if (pageList.value.length > 0) {
-                if (
-                    (window as any).electron &&
-                    !(window as any).electron.isFullScreen() &&
-                    !(window as any).electron.isMac()
-                ) {
-                    (window as any).electron.setFullScreen();
-                    await sleep(300);
-                }
-                winScreenView.value = true;
-                enterFullscreen();
-            } else {
-                ElMessage({
-                    type: "warning",
-                    message: "请先添加页，在进行预览"
-                });
-            }
-        };
-        const offScreen = () => {
-            winScreenView.value = false;
-        };
-        const stopGetAllPageList = () => {
-            editRef.value.getAllPageList([]);
-        };
-        const handleUpdateName = (node:Node, data:ICardList) => {
-            shrinkRef.value.click();
-            dialogVisibleName.value = true;
-            currentValue.value = data;
-        };
-
-        const addPage = (data: { name: string, value: number}) => {
-            const value = {
-                CardID: currentValue.value.ID,
-                Name: data.name,
-                Type: data.value,
-                Sort: currentValue.value.PageList ? currentValue.value.PageList.length : 0
-            };
-            _addPage(value);
-            dialogVisible.value = false;
-        };
-
-        const updateName = (name: string) => {
-            const data = {
-                Name: name,
-                ID: currentValue.value.ID
-            };
-            _renameCardOrPage(data);
-            dialogVisibleName.value = false;
-        };
         const handleUpdateState = (node:Node, data:ICardList) => {
             _setCardOrPageState({ ID: data.TeachPageRelationID, State: data.State ? 0 : 1 });
         };
 
-        const keyDown = (e:any) => {
-            if (e.keyCode === 27) {
-                winScreenView.value = false;
-            }
-        };
-        const allPageList = ref<IPageValue[]>([]);
         watch(
             () => state.windowCards,
             () => {
-                allPageList.value = getAllPageList(state.windowCards);
+                allPageList.value = getAllPageList();
                 if (state.windowCards.length > 0) {
                     // 先判断是否是粘贴/新增的卡 如果是粘贴/新增卡先选中粘贴/新增卡
                     if (state.pastePage && state.pastePage.ID) {
@@ -455,13 +270,13 @@ export default defineComponent({
                     }
 
                     // 拖拽排序选中当前页
-                    if (pageValue.value.ID) {
+                    if (pageValue.value?.ID) {
                         // 需要更新当前选中页的上下架状态等
-                        const newPageValue = allPageList.value.find(item => item.ID === pageValue.value.ID);
+                        const newPageValue = allPageList.value.find(item => item.ID === pageValue.value?.ID);
                         if (newPageValue) {
                             pageValue.value = newPageValue;
                         }
-                        const obj: { ID: string; Type: number } = {
+                        const obj = {
                             ...pageValue.value
                         };
                         selectPageValue(obj, true);
@@ -474,7 +289,7 @@ export default defineComponent({
                 }
             }
         );
-        const getAllPageList = (list: ICardList[]) => {
+        const getAllPageList = () => {
             let data: IPageValue[] = [];
             state.windowCards.map((card) => {
                 data = data.concat(card.PageList);
@@ -486,33 +301,6 @@ export default defineComponent({
         };
         const handleMask = () => {
             ElMessage({ type: "warning", message: "请先选择页，在进行编辑" });
-        };
-
-        const pagePrev = () => {
-            if (activeAllPageListIndex.value === 0) {
-                cardListRef.value.scrollTo(0, 0); // 解决快捷键切换到第一个 滚动条会滚动到最下面
-                return ElMessage({ type: "warning", message: "已经是第一页" });
-            }
-            activeAllPageListIndex.value--;
-            handleNodeClick(allPageList.value[activeAllPageListIndex.value], null);
-        };
-
-        const pageNext = () => {
-            if (activeAllPageListIndex.value === allPageList.value.length - 1) {
-                cardListRef.value.scrollTo(0, cardListRef.value.scrollHeight); // 解决快捷键切换到最后一个 滚动条会滚动到最上面
-                return ElMessage({ type: "warning", message: "已经是最后页" });
-            }
-            activeAllPageListIndex.value++;
-            handleNodeClick(allPageList.value[activeAllPageListIndex.value], null);
-        };
-
-        const checkPageDownload = (e: any) => {
-            const key = e.key.toUpperCase();
-            if (key === "ARROWUP" || key === "PAGEUP") { // 上一页
-                pagePrev();
-            } else if (key === "ARROWDOWN" || key === "PAGEDOWN") { // 下一页
-                pageNext();
-            }
         };
 
         const importPPT = () => {
@@ -527,11 +315,10 @@ export default defineComponent({
 
         const winCardViewRef = ref();
         onMounted(() => {
-            _getWindowCards({ WindowID: route.params.winValue as string, OriginType: 1 }, true);
+            _getWindowCards({ WindowID: route.params.winValue as string, OriginType: Number(route.params.originType) }, true).then(() => {
+                fetchAllPageSlide(getAllPageList());
+            });
             window.addEventListener("keydown", keyDown);
-            if (cardListRef.value) {
-                cardListRef.value.addEventListener("keydown", checkPageDownload);
-            }
             if (isElectron()) {
                 (window as any).electron.registerEscKeyUp(() => {
                     if (!(window as any).electron.isFullScreen()) return;
@@ -553,7 +340,7 @@ export default defineComponent({
                 (window as any).electron.unRegisterEscKeyUp();
             }
         });
-        const shrinkRef = ref();
+
         return {
             editRef,
             shrinkRef,
@@ -566,17 +353,14 @@ export default defineComponent({
             defaultProps,
             pageValue,
             currentValue,
-            pageList,
-            activePageIndex,
+            previewPageList,
+            activePreviewPageIndex,
             showCollapse,
             dialogVisible,
             dialogVisibleCard,
             dialogVisibleName,
-            tooltipShow,
             winScreenView,
             isWatchChange,
-            mouseenter,
-            mouseleave,
             handleNodeClick,
             allowDrop,
             handleDragEnd,
@@ -586,14 +370,15 @@ export default defineComponent({
             handlePaste,
             handleDel,
             handleView,
-            stopGetAllPageList,
             handleUpdateName,
             handleUpdateState,
-            addPage,
+            addPageCallback,
             updateName,
+            allPageSlideListMap,
             _getWindowCards,
             offScreen,
             handleMask,
+            currentSlide: computed(() => allPageSlideListMap.value.get(pageValue.value.ID) || {}),
             importPPT
         };
     }
