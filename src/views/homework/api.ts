@@ -103,7 +103,8 @@ export const GetStudentMissionList: RequestFun<Object, StudentMission[]> = (
         baseURL: AI_XUE_SHI_API,
         url: "/Api/V2/Teacher/TeacherHightPhoto/GetStudentMissionList",
         headers: {
-            "Content-Type": "application/json-patch+json"
+            "Content-Type": "application/json-patch+json",
+            noLoading: "true"
         },
         method: "post",
         data
