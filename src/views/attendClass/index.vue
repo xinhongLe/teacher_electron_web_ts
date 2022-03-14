@@ -9,15 +9,15 @@ export default {
 <script lang="ts" setup>
 /* eslint-disable import/first */
 import { ClassroomType } from "@/types/preparation";
-import { computed, onMounted, onUnmounted, provide, ref } from "vue";
+import { computed, provide, ref, watch } from "vue";
 import ScheduleManagement from "../preparation/scheduleManagement/index.vue";
 import IntelligenceClassroom from "../preparation/intelligenceClassroom/index.vue";
 import { useRoute } from "vue-router";
 import useWindowInfo, { windowInfoKey } from "@/hooks/useWindowInfo";
 import useBag, { bagKey } from "@/hooks/useBag";
 import WindowList from "@/components/windowList/index.vue";
-import emitter from "@/utils/mitt";
 import useOpenWindow from "@/hooks/useOpenWindow";
+import { isEmpty } from "lodash";
 
 const titleList = [
     { title: "翻转课堂", type: ClassroomType.Classes },
@@ -30,13 +30,24 @@ const selectLessonId = computed(() => route.params.lessonId as string);
 const subjectId = computed(() => route.params.subjectId as string);
 
 const windowInfo = useWindowInfo();
+const bagInfo = useBag(selectLessonId);
+const isWindowLoadEnd = ref(false);
+const isBagLoadEnd = ref(false);
 
 provide(windowInfoKey, windowInfo);
-provide(bagKey, useBag());
+provide(bagKey, bagInfo);
 provide(
     "subjectId",
     computed(() => subjectId.value)
 );
+
+watch([isBagLoadEnd, isWindowLoadEnd], (v) => {
+    if (v[0] && v[1]) {
+        if (isEmpty(windowInfo.winList.value) && !isEmpty(bagInfo.bagList.value)) {
+            currentTab.value = ClassroomType.Classes;
+        }
+    }
+});
 
 useOpenWindow(currentTab, windowInfo.updateCurrentWindow);
 </script>
@@ -55,28 +66,34 @@ useOpenWindow(currentTab, windowInfo.updateCurrentWindow);
             <WindowList v-show="currentTab === ClassroomType.WindowClasses" />
         </div>
         <div class="content-warp">
-            <keep-alive>
+            <div
+                v-show="currentTab === ClassroomType.Classes"
+                class="schedule-management"
+            >
+                <ScheduleManagement
+                    :selectLessonId="selectLessonId"
+                    :isOperator="false"
+                    v-model:isBagLoadEnd="isBagLoadEnd"
+                />
+            </div>
+            <div v-show="currentTab === ClassroomType.WindowClasses" class="intelligence-classroom-container">
                 <div
-                    v-if="currentTab === ClassroomType.Classes"
-                    class="schedule-management"
+                    v-show="windowInfo.winList.value.length === 0"
+                    class="empty-warp"
                 >
-                    <ScheduleManagement
-                        :selectLessonId="selectLessonId"
-                        :isOperator="false"
-                    />
-                </div>
-                <template
-                    v-else-if="currentTab === ClassroomType.WindowClasses"
-                >
-                    <div v-if="windowInfo.winList.value.length === 0" class="empty-warp">
-                        <div class="empty-container">
-                            <img src="@/assets/images/attend-class/pic_wuneirong_big.svg"/>
-                            <span>暂无课件</span>
-                        </div>
+                    <div class="empty-container">
+                        <img
+                            src="@/assets/images/attend-class/pic_wuneirong_big.svg"
+                        />
+                        <span>暂无课件</span>
                     </div>
-                    <IntelligenceClassroom :selectLessonId="selectLessonId" v-else/>
-                </template>
-            </keep-alive>
+                </div>
+                <IntelligenceClassroom
+                    v-model:isWindowLoadEnd="isWindowLoadEnd"
+                    :selectLessonId="selectLessonId"
+                    v-show="windowInfo.winList.value.length !== 0"
+                />
+            </div>
         </div>
     </div>
 </template>
@@ -122,10 +139,15 @@ useOpenWindow(currentTab, windowInfo.updateCurrentWindow);
         flex: 1;
         background-color: #fff;
         display: flex;
+        .intelligence-classroom-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+        }
         .empty-warp {
             padding: 8px 20px 20px;
             flex: 1;
-            background-color: #F5F6FA;
+            background-color: #f5f6fa;
             .empty-container {
                 width: 100%;
                 height: 100%;
@@ -134,7 +156,7 @@ useOpenWindow(currentTab, windowInfo.updateCurrentWindow);
                 align-items: center;
                 justify-content: center;
                 background-color: #fff;
-                color: #5F626F;
+                color: #5f626f;
                 font-size: 20px;
                 flex-direction: column;
                 img {

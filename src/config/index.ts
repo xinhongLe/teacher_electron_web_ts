@@ -32,12 +32,12 @@ export const pageTypeList = [
     { name: "跟读页", value: 13, type: "follow" },
     { name: "教具页", value: 16, type: "teach" }
 ];
-export const pageType = {
-    element: 11,
-    listen: 12,
-    follow: 13,
-    teach: 16
-};
+export enum pageType {
+    element = 11,
+    listen = 12,
+    follow = 13,
+    teach = 16
+}
 export const originType = 1;
 
 export const fileTypeMap: Record<string, number> = {

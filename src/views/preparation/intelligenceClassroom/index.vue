@@ -52,6 +52,7 @@ import {
     ref,
     defineProps,
     watchEffect,
+    defineEmits,
     toRef
 } from "vue";
 import CardList from "./cardList/index.vue";
@@ -70,6 +71,7 @@ const props = defineProps({
         default: ""
     }
 });
+const emits = defineEmits(["update:isWindowLoadEnd"]);
 const selectLessonId = toRef(props, "selectLessonId");
 provide("isShowCardList", isShowCardList);
 const { getSchoolWindowList, winList, updateCurrentWindow, cardList, currentWindowInfo, refreshWindow } = inject(windowInfoKey)!;
@@ -77,6 +79,7 @@ const { getSchoolWindowList, winList, updateCurrentWindow, cardList, currentWind
 watchEffect(() => {
     if (selectLessonId.value) {
         getSchoolWindowList(selectLessonId.value).then(() => {
+            emits("update:isWindowLoadEnd", true);
             updateCurrentWindow(winList.value[0]);
         });
     }

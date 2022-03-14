@@ -30,15 +30,12 @@
     </div>
 </template>
 <script lang="ts">
-import { watch, defineComponent, reactive, toRefs, PropType, ref, onUnmounted, computed } from "vue";
-import useHome from "@/hooks/useHome";
+import { defineComponent, reactive, toRefs, ref } from "vue";
 import { Slide, IWin, PPTVideoElement, SaveType } from "wincard/src/types/slides";
 import CardSelectDialog from "./cardSelectDialog.vue";
 import { IPageValue, ICards } from "@/types/home";
 import SelectVideoDialog from "./selectVideoDialog.vue";
 import { useRoute } from "vue-router";
-import { getWinCardDBData } from "@/utils/database";
-import { set, STORAGE_TYPES } from "@/utils/storage";
 import { ElMessage } from "element-plus";
 import SaveDialog from "./saveDialog/saveDialog.vue";
 import SaveAsDialog from "./saveDialog/saveAsDialog.vue";
@@ -47,25 +44,9 @@ export default defineComponent({
     name: "winCardEdit",
     components: { SelectVideoDialog, CardSelectDialog, SaveDialog, SaveAsDialog },
     props: {
-        pageValue: {
-            type: Object as PropType<IPageValue>,
-            required: true
-        },
-        isSetCache: {
-            type: Boolean,
-            default: () => false
-        },
-        allPageList: {
-            type: Array as PropType<IPageValue[]>,
-            default: () => []
-        },
         slide: {
             type: Object,
             default: () => ({})
-        },
-        isWatchChange: {
-            type: Boolean,
-            default: () => true
         }
     },
     setup(props, { emit }) {
@@ -77,12 +58,6 @@ export default defineComponent({
         });
         const page = ref<IPageValue>();
         const originType = Number(route.params.originType as string);
-        const timer: any = null;
-        let noResPages: IPageValue[] = []; // 未请求的页面集合
-        const resPagesIds: string[] = []; // 已经请求过的页面ids
-        const pageIdIng: string | null = null; // 正在请求的页id
-        const { getPageDetail, savePage, transformType } = useHome();
-        const watchChange = computed(() => props.isWatchChange);
         const updateVideoElement = ref<PPTVideoElement | null>(null);
         const windowName = ref(route.params.winName as string);
 
@@ -93,12 +68,6 @@ export default defineComponent({
                 emit("updatePageSlide", slide);
             }
         };
-        // };
-        onUnmounted(() => {
-            // 页面销毁,断开请求，token过期
-            noResPages = [];
-            // getAllPageList([]);
-        });
 
         const isShowSaveDialog = ref(false);
         const isShowSaveAsDialog = ref(false);
@@ -154,6 +123,7 @@ export default defineComponent({
                 }
             } else {
                 delete val.fileID;
+                emit("updatePageSlide", Object.assign({}, props.slide, { follow: val }));
                 // state.slide = Object.assign({}, state.slide, { follow: val });
             }
             state.dialogVisibleVideo = false;

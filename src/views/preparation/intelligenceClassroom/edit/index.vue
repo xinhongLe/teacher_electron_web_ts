@@ -136,10 +136,6 @@
         <div class="right">
             <win-card-edit
                 ref="editRef"
-                :isWatchChange="isWatchChange"
-                :pageValue="pageValue"
-                :isSetCache="isSetCache"
-                :allPageList="allPageList"
                 :slide="currentSlide"
                 @onSave="onSave"
                 @updatePageSlide="updatePageSlide"
@@ -248,7 +244,7 @@ export default defineComponent({
 
         const { handleAddCard, dialogVisibleCard } = useAddCard(windowCards);
 
-        const { handleAdd, addPageCallback, dialogVisible } = useAddPage(shrinkRef, windowCards);
+        const { handleAdd, addPageCallback, dialogVisible } = useAddPage(shrinkRef, windowCards, allPageSlideListMap);
 
         const { dialogVisibleName, currentValue, handleUpdateName, updateName } = useUpdateName(shrinkRef);
 

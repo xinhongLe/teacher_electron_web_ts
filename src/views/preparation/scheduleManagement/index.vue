@@ -7,7 +7,7 @@
 import { bagKey } from "@/hooks/useBag";
 import emitter from "@/utils/mitt";
 import { findIndex, isEmpty } from "lodash";
-import { defineProps, inject, onMounted, provide, watchEffect } from "vue";
+import { defineProps, inject, onMounted, provide, watchEffect, defineEmits } from "vue";
 import ClassContent from "./ClassContent.vue";
 import QuestionBank from "./questionBank/index.vue";
 
@@ -22,13 +22,19 @@ const props = defineProps({
     }
 });
 
-const { getBagList, bagList, handleSelectBag, selectBag } = inject(bagKey)!;
+const emits = defineEmits(["update:isBagLoadEnd"]);
+
+const { getBagList, bagList, handleSelectBag, selectBag, classContentList } = inject(bagKey)!;
 
 provide("isOperator", props.isOperator);
 
 watchEffect(() => {
     if (props.selectLessonId) {
+        classContentList.value = [];
+        selectBag.value = undefined;
+        bagList.value = [];
         getBagList(props.selectLessonId).then(() => {
+            emits("update:isBagLoadEnd", true);
             if (!isEmpty(bagList.value)) {
                 handleSelectBag(bagList.value[0], 0);
             }

@@ -1,13 +1,13 @@
 import { CourseWares, getCourseByCourseBag } from "@/api";
-import { store } from "@/store";
 import { SchoolBagInfo } from "@/types/preparation";
 import { cloneCourseBagToTeacher, fetchBagBySchoolLesson } from "@/views/preparation/api";
-import { InjectionKey, onDeactivated, ref } from "vue";
+import { isEmpty } from "lodash";
+import { InjectionKey, onDeactivated, Ref, ref } from "vue";
 export interface ClassContent {
     content: CourseWares[],
     title: string
 }
-const useBag = () => {
+const useBag = (lessonID: Ref<string>) => {
     const bagList = ref<SchoolBagInfo[]>([]);
     const selectBag = ref<SchoolBagInfo>();
     const classContentList = ref<ClassContent[]>([]);
@@ -26,7 +26,7 @@ const useBag = () => {
         if (newBag.CourseBagType === 1) {
             const cloneCourseBagDetail = await cloneCourseBagToTeacher({
                 courseBagID: newBag.ID,
-                lessonID: store.state.preparation.selectLessonId
+                lessonID: lessonID.value
             });
             if (cloneCourseBagDetail.resultCode === 200) {
                 newBag.ID = cloneCourseBagDetail.result.CourseBagTeacher.ID;

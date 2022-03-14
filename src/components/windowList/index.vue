@@ -1,43 +1,17 @@
 <script lang="ts" setup>
+import useSwiper from "@/hooks/useSwiper";
 import { windowInfoKey } from "@/hooks/useWindowInfo";
-import { useElementSize, useTemplateRefsList } from "@vueuse/core";
-import { computed, inject, ref, watch } from "vue";
+import { inject, watch } from "vue";
 
-const windowListRef = ref<HTMLDivElement>();
-const windowListWarpRef = ref<HTMLDivElement>();
-const isShowSlideBtn = ref(false);
-const translateX = ref(0);
-const slideIndex = ref(0);
-const windowItemRefs = useTemplateRefsList<HTMLDivElement>();
-const { width } = useElementSize(windowListRef);
-
-const maxTranslateX = computed(() => width.value - (windowListWarpRef.value?.offsetWidth || 0));
-const isDisablePrev = computed(() => translateX.value === 0);
-const isDisableNext = computed(() => translateX.value >= maxTranslateX.value);
+const { slideNext, slidePrev, isDisableNext, isDisablePrev, isShowSlideBtn, translateX, listWarpRef, swiperItemRefs, swiperRef, slideIndex } = useSwiper();
 
 const { winList, currentWindowInfo, updateCurrentWindow } = inject(windowInfoKey)!;
 
-const slidePrev = () => {
-    if (isDisablePrev.value) return;
-    const x = translateX.value - windowItemRefs.value[slideIndex.value].offsetWidth;
-    translateX.value = x < 0 ? 0 : x;
-    if (translateX.value === 0) {
-        slideIndex.value = 0;
-    } else {
-        slideIndex.value--;
-    }
-};
-
-const slideNext = () => {
-    if (isDisableNext.value) return;
-    const x = translateX.value + windowItemRefs.value[slideIndex.value].offsetWidth;
-    translateX.value = x > maxTranslateX.value ? maxTranslateX.value : x;
-    slideIndex.value++;
-};
-
-watch(width, (v) => {
-    isShowSlideBtn.value = v > windowListWarpRef.value!.offsetWidth;
+watch(winList, () => {
+    slideIndex.value = 0;
+    translateX.value = 0;
 });
+
 </script>
 
 <template>
@@ -45,15 +19,15 @@ watch(width, (v) => {
             <div class="slide-btn prev" :class="{ hidden: !isShowSlideBtn, 'disable': isDisablePrev }" @click="slidePrev">
                 <i class="el-icon-arrow-left"></i>
             </div>
-            <div class="window-list" ref="windowListWarpRef">
-                <div class="window-list-swiper" ref="windowListRef" :style="{'transform': `translateX(-${translateX}px)`}">
+            <div class="window-list" ref="listWarpRef">
+                <div class="window-list-swiper" ref="swiperRef" :style="{'transform': `translateX(-${translateX}px)`}">
                     <div
                         class="window-item"
                         v-for="item in winList"
                         :key="item.WindowID"
                         :class="{ active: currentWindowInfo.WindowID === item.WindowID }"
                         @click="updateCurrentWindow(item)"
-                        :ref="windowItemRefs.set"
+                        :ref="swiperItemRefs.set"
                     >
                         {{ item.WindowName }}
                     </div>
