@@ -2,43 +2,23 @@
     <div class="preparation-header flex-between-center">
         <div class="left">
             <el-cascader
-                v-model="subjectPublisherBookValue"
+                :modelValue="subjectPublisherBookValue"
                 :props="cascaderProps"
                 :options="subjectPublisherBookList"
+                @change="onChange"
             ></el-cascader>
             <div class="header-title">
                 <p
                     :class="[tabIndex === item.type ? 'active' : '']"
                     v-for="(item, index) in titleList"
                     :key="index"
-                    @click="clickTab(index)"
+                    @click="clickTab(item.type)"
                 >
                     {{ item.title }}
                 </p>
             </div>
         </div>
-        <div class="window-list-warp" v-show="tabIndex === ClassroomType.WindowClasses && !showClassArrangement">
-            <div class="slide-btn prev" :class="{ hidden: !isShowSlideBtn, 'disable': isDisablePrev }" @click="slidePrev">
-                <i class="el-icon-arrow-left"></i>
-            </div>
-            <div class="window-list" ref="windowListWarpRef">
-                <div class="window-list-swiper" ref="windowListRef" :style="{'transform': `translateX(-${translateX}px)`}">
-                    <div
-                        class="window-item"
-                        v-for="item in winList"
-                        :key="item.WindowID"
-                        :class="{ active: currentWindowInfo.WindowID === item.WindowID }"
-                        @click="updateCurrentWindow(item)"
-                        :ref="windowItemRefs.set"
-                    >
-                        {{ item.WindowName }}
-                    </div>
-                </div>
-            </div>
-            <div class="slide-btn next" :class="{ hidden: !isShowSlideBtn, 'disable': isDisableNext }" @click="slideNext">
-                <i class="el-icon-arrow-right"></i>
-            </div>
-        </div>
+        <window-list v-show="tabIndex === ClassroomType.WindowClasses && !showClassArrangement"/>
         <div class="right">
             <div class="btn" v-show="tabIndex === ClassroomType.WindowClasses && !showClassArrangement" @click="edit">
                 <el-icon :size="16" :style="{ marginRight: '4px' }"
@@ -58,20 +38,20 @@
 
 <script lang="ts">
 import { MutationTypes, store } from "@/store";
-import { GetLastSelectBookRes, ClassroomType } from "@/types/preparation";
-import { findFirstId } from "@/utils";
-import { computed, defineComponent, inject, ref, watch } from "vue";
+import { ClassroomType } from "@/types/preparation";
+import { computed, defineComponent, inject, onMounted, onUnmounted, ref, watch } from "vue";
 import emitter from "@/utils/mitt";
-import { getLastSelectBook, setLastSelectBook } from "../api";
 import { Edit } from "@element-plus/icons-vue";
 import useBook from "../hooks/useBook";
-import { useTemplateRefsList, useElementSize } from "@vueuse/core";
 import { windowInfoKey } from "@/hooks/useWindowInfo";
 import useSubjectPublisherBookList, { subjectPublisherBookList } from "@/hooks/useSubjectPublisherBookList";
+import WindowList from "@/components/windowList/index.vue";
+import useOpenWindow from "@/hooks/useOpenWindow";
 export default defineComponent({
     name: "head",
     components: {
-        Edit
+        Edit,
+        WindowList
     },
     props: {
         showClassArrangement: {
@@ -79,67 +59,32 @@ export default defineComponent({
         }
     },
     setup(props, { emit }) {
-        const titleList = [{ title: "数智课堂", type: ClassroomType.WindowClasses }, { title: "翻转课堂", type: ClassroomType.Classes }];
-        const { winList, currentWindowInfo, updateCurrentWindow } = inject(windowInfoKey)!;
+        const titleList = [{ title: "翻转课堂", type: ClassroomType.Classes }, { title: "数智课堂", type: ClassroomType.WindowClasses }];
+        const { updateCurrentWindow } = inject(windowInfoKey)!;
         const tabIndex = ref(ClassroomType.WindowClasses);
-        let selectBook: GetLastSelectBookRes;
-        const windowListRef = ref<HTMLDivElement>();
-        const windowListWarpRef = ref<HTMLDivElement>();
-        const isShowSlideBtn = ref(false);
-        const translateX = ref(0);
-        const slideIndex = ref(0);
-        const windowItemRefs = useTemplateRefsList<HTMLDivElement>();
-        const { width } = useElementSize(windowListRef);
+        const subjectPublisherBookValue = computed(() => store.state.preparation.subjectPublisherBookValue);
         const {
-            subjectPublisherBookValue,
-            cascaderProps,
-            teacherBookChapter
+            cascaderProps
         } = useBook();
-        const maxTranslateX = computed(() => width.value - (windowListWarpRef.value?.offsetWidth || 0));
-        const isDisablePrev = computed(() => translateX.value === 0);
-        const isDisableNext = computed(() => translateX.value >= maxTranslateX.value);
 
         const clickTab = (index: number) => {
             tabIndex.value = index;
-        };
-
-        const slideNext = () => {
-            if (isDisableNext.value) return;
-            const x = translateX.value + windowItemRefs.value[slideIndex.value].offsetWidth;
-            translateX.value = x > maxTranslateX.value ? maxTranslateX.value : x;
-            slideIndex.value++;
         };
 
         const edit = () => {
             emitter.emit("editWindow", null);
         };
 
-        const slidePrev = () => {
-            if (isDisablePrev.value) return;
-            const x = translateX.value - windowItemRefs.value[slideIndex.value].offsetWidth;
-            translateX.value = x < 0 ? 0 : x;
-            if (translateX.value === 0) {
-                slideIndex.value = 0;
-            } else {
-                slideIndex.value--;
-            }
-        };
-
-        watch(width, (v) => {
-            isShowSlideBtn.value = v > windowListWarpRef.value!.offsetWidth;
-        });
         const reload = () => {
             emitter.emit("preparationReLoad", null);
         };
 
-        watch(teacherBookChapter, (value) => {
-            store.commit(MutationTypes.SET_SELECT_CHAPTER_ID, value);
-            setLastSelectBook({
-                bookID: subjectPublisherBookValue.value[2],
-                chapterID: value,
-                subjectID: subjectPublisherBookValue.value[0]
-            });
-        });
+        const onChange = (value : string[]) => {
+            store.commit(
+                MutationTypes.SET_SUBJECT_PUBLISHER_BOOK_VALUE,
+                value
+            );
+        };
 
         watch(tabIndex, (value) => {
             emit("update:tabIndex", value);
@@ -158,28 +103,9 @@ export default defineComponent({
             }
         );
 
-        useSubjectPublisherBookList().then(async () => {
-            if (store.state.preparation.isClickDetail) return;
-            const selectBookRes = await getLastSelectBook({
-                subjectID: ""
-            });
-            if (selectBookRes.resultCode === 200) {
-                selectBook = selectBookRes.result;
-            }
-            if (Object.keys(selectBookRes.result).length !== 0) {
-                const { BookID, PublisherID, SubjectID } = selectBook;
-                subjectPublisherBookValue.value = [
-                    SubjectID,
-                    PublisherID,
-                    BookID
-                ];
-            } else {
-                findFirstId(
-                    [subjectPublisherBookList.value[0]],
-                    subjectPublisherBookValue.value
-                );
-            }
-        });
+        useSubjectPublisherBookList();
+
+        useOpenWindow(tabIndex, updateCurrentWindow);
 
         return {
             titleList,
@@ -187,22 +113,10 @@ export default defineComponent({
             subjectPublisherBookList,
             cascaderProps,
             clickTab,
-            winList,
-            windowListRef,
             tabIndex,
-            teacherBookChapter,
-            currentWindowInfo,
             updateCurrentWindow,
-            windowItemRefs,
-            windowListWarpRef,
-            isShowSlideBtn,
-            isDisablePrev,
-            isDisableNext,
-            slideIndex,
-            translateX,
-            slideNext,
-            slidePrev,
             edit,
+            onChange,
             ClassroomType,
             reload
         };

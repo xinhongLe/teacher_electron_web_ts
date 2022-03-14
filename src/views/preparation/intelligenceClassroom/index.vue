@@ -90,7 +90,7 @@ onMounted(() => {
     });
 });
 const windowEdit = async () => {
-    router.push(`/windowcard-edit/${currentWindowInfo.WindowID}/${currentWindowInfo.OriginType}/${currentWindowInfo.WindowName}`);
+    router.push(`/windowcard-edit/${currentWindowInfo.WindowID}/${currentWindowInfo.OriginType}/${currentWindowInfo.WindowName}/${selectLessonId.value}`);
 };
 const lastPage = () => {
     cardListComponents.value && cardListComponents.value.changeReducePage();

@@ -37,6 +37,7 @@ export interface ILessonManagerResult {
     }[],
     Classes: LessonClasses[],
     Subjects: LessonSubject[],
+    UserCenterUserID: string,
     ID: string
 }
 

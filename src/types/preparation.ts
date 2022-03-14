@@ -83,6 +83,7 @@ export type SaveTeacherClassScheduleData = {
 
 export interface CloneCourseBagToTeacherData {
     courseBagID: string;
+    lessonID: string;
     courseBagTeacherName?: string;
 }
 
@@ -259,6 +260,7 @@ export interface GetLastSelectBookRes {
     AlbumID: string;
     PublisherID: string;
     ChapterID: string;
+    LessonID: string;
     LastSelectTime: string;
 }
 
@@ -266,6 +268,7 @@ export interface SetLastSelectBookData {
     subjectID: string;
     bookID: string;
     chapterID: string;
+    lessonID: string;
 }
 
 export interface CloneCourseBagToTeacherRes {

@@ -97,12 +97,13 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, inject, Ref, ref, watch } from "vue";
+import { computed, defineComponent, inject, onMounted, onUnmounted, Ref, ref, watch } from "vue";
 import isElectronFun from "is-electron";
 import useDetail from "./hooks/useDetail";
 import Brush from "@/components/brush/index.vue";
 import { store } from "@/store";
 import { set, STORAGE_TYPES } from "@/utils/storage";
+import emitter from "@/utils/mitt";
 export default defineComponent({
     props: {
         close: {
@@ -193,6 +194,16 @@ export default defineComponent({
 
         watch(resolutionSwitchValue, (v) => {
             set(STORAGE_TYPES.AUTO_PALY_RESOLUTION_SWITCH, String(v));
+        });
+
+        onMounted(() => {
+            if (!props.isPureQuestion) {
+                emitter.on("smallQuestion", smallQuestion);
+            }
+        });
+
+        onUnmounted(() => {
+            emitter.off("smallQuestion");
         });
 
         return {

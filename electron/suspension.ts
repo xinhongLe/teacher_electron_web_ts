@@ -452,4 +452,11 @@ export function registerEvent() {
     ipcMain.handle("answer-jection", (_, data) => {
         answerMachineWin && answerMachineWin.webContents.send("answer-jection", data);
     });
+
+    ipcMain.handle("getWindowList", (_, data) => {
+        unfoldSuspensionWin && unfoldSuspensionWin.webContents.send("getWindowList", data);
+    });
+    ipcMain.handle("getCourseWares", (_, data) => {
+        unfoldSuspensionWin && unfoldSuspensionWin.webContents.send("getCourseWares", data);
+    });
 }

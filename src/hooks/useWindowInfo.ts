@@ -1,9 +1,11 @@
 import { SchoolWindowInfo, SchoolWindowCardInfo, SchoolWindowPageInfo } from "@/types/preparation";
 import { fetchSchoolWindowList } from "@/views/preparation/api";
 import { find, isEmpty, filter } from "lodash";
-import { computed, InjectionKey, reactive, Ref, ref, watch } from "vue";
+import { computed, InjectionKey, onDeactivated, onMounted, onUnmounted, reactive, Ref, ref, watch } from "vue";
 import TrackService, { EnumTrackEventType } from "@/utils/common";
 import useHome from "@/hooks/useHome";
+import emitter from "@/utils/mitt";
+import isElectron from "is-electron";
 const dealCardData = (card:SchoolWindowCardInfo) => {
     const pages = card.Pages.map(page => {
         return {
@@ -19,6 +21,7 @@ const dealCardData = (card:SchoolWindowCardInfo) => {
 
 const useWindowInfo = () => {
     const { getPageDetail, transformType } = useHome();
+    let isToFirst = false;
     const currentWindowInfo = reactive<SchoolWindowInfo>({
         LessonID: "",
         WindowID: "",
@@ -59,6 +62,7 @@ const useWindowInfo = () => {
         cardList.value = getCardList();
         currentCardIndex.value = 0;
         currentCard.value = cardList.value[0];
+        TrackService.setTrack(EnumTrackEventType.SelectWindow, win?.WindowID, win?.WindowName, "", "", "", "", "选择窗");
     };
 
     const getSchoolWindowList = async (id: string) => {
@@ -78,12 +82,22 @@ const useWindowInfo = () => {
 
     const refreshWindow = (id: string) => {
         getSchoolWindowList(id).then(() => {
-            cardList.value = getCardList();
-            const cardInfo = find(cardList.value, { ID: currentCard.value?.ID });
-            if (cardInfo) {
-                currentCard.value = { ...cardInfo };
-            } else {
-                currentCard.value = cardList.value[0];
+            if (winList.value.length > 0) {
+                if (isToFirst) {
+                    updateCurrentWindow(winList.value[0]);
+                    isToFirst = false;
+                } else {
+                    const win = find(winList.value, { WindowID: currentWindowInfo.WindowID });
+                    win && updateCurrentWindow(win);
+                }
+
+                cardList.value = getCardList();
+                const cardInfo = find(cardList.value, { ID: currentCard.value?.ID });
+                if (cardInfo) {
+                    currentCard.value = { ...cardInfo };
+                } else {
+                    currentCard.value = cardList.value[0];
+                }
             }
         });
     };
@@ -116,6 +130,26 @@ const useWindowInfo = () => {
             return (isExecuting = false);
         }
     };
+
+    watch(winList, (v) => {
+        isElectron() && window.electron.ipcRenderer.invoke("getWindowList", JSON.parse(JSON.stringify(v)));
+    }, {
+        deep: true
+    });
+
+    onMounted(() => {
+        emitter.on("windowSaveAsSuc", () => {
+            isToFirst = true;
+        });
+    });
+
+    onUnmounted(() => {
+        emitter.off("windowSaveAsSuc");
+    });
+
+    onDeactivated(() => {
+        window.electron.ipcRenderer.invoke("getWindowList", []);
+    });
     return {
         winList,
         currentWindowInfo,

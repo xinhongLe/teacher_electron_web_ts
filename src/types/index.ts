@@ -19,7 +19,8 @@ type Electron = typeof electron & {
     getFilePath: (fileName: string) => string,
     isExistFile: (fileName: string) => Promise<boolean>,
     destroyWindow: () => void,
-    showWindow: () => void,
+    showWindow: (isMaximize?: boolean) => void,
+    parsePPT: (pptPath: string) => Promise<any>,
     setCenter: () => void,
     getCachePath: (path: string) => string,
     setPath: (name: string, path: string) => Promise<void>,
@@ -29,6 +30,7 @@ type Electron = typeof electron & {
     setPositionWin: (x: number, y: number) => void,
     showSaveDialog: (option: SaveDialogOptions) => Promise<SaveDialogReturnValue>,
     showOpenDialog: (option: OpenDialogOptions) => Promise<OpenDialogReturnValue>,
+    getPPTPath: (path: string) => string,
     store: Store,
     log: LogFunctions
 }

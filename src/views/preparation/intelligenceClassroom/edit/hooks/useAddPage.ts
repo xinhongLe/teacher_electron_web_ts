@@ -1,8 +1,9 @@
-import { IAddPage } from "@/api/home";
-import { ICardList } from "@/types/home";
+import { ICardList, IPageValue } from "@/types/home";
 import { Ref, ref } from "vue";
+import { v4 as uuidv4 } from "uuid";
+import { findIndex } from "lodash";
 
-export default (shrinkRef: Ref, addPage: (data: IAddPage) => void) => {
+export default (shrinkRef: Ref, windowCards:Ref<ICardList[]>) => {
     const dialogVisible = ref(false);
     const currentValue = ref();
     const handleAdd = (node:Node, data:ICardList) => {
@@ -12,13 +13,17 @@ export default (shrinkRef: Ref, addPage: (data: IAddPage) => void) => {
     };
 
     const addPageCallback = (data: { name: string, value: number}) => {
-        const value = {
-            CardID: currentValue.value.ID,
+        const cardIndex = findIndex(windowCards.value, { ID: currentValue.value.ID });
+        const page: IPageValue = {
+            ID: uuidv4(),
             Name: data.name,
             Type: data.value,
-            Sort: currentValue.value.PageList ? currentValue.value.PageList.length : 0
+            isAdd: true,
+            State: true
         };
-        addPage(value);
+        windowCards.value[cardIndex].PageList.push(page);
+        // 只有解构赋值，tree组件才刷新
+        windowCards.value = [...windowCards.value];
         dialogVisible.value = false;
     };
 

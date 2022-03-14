@@ -1,9 +1,9 @@
 <template>
     <div
-        @drop.prevent="isDrop ? onDrop($event, colData) : null"
-        @dragover="isDrop ? $event.preventDefault() : null"
-        @dragenter="isActive = true"
-        @dragleave="isActive = false"
+        @drop.prevent="isDrop && colData.Schedules ? onDrop($event, colData) : null"
+        @dragover="isDrop && colData.Schedules ? $event.preventDefault() : null"
+        @dragenter="isDrop && colData.Schedules ? isActive = true : null"
+        @dragleave="isDrop && colData.Schedules ? isActive = false : null"
         class="course cell"
         :class="[
             isActive ? 'active' : '',
@@ -14,269 +14,197 @@
             trigger="hover"
             placement="top"
             popper-class="preparation-popper-class"
-            v-if="colData.ClassName"
+            v-if="className"
         >
             <div>
-                <p v-show="colData.Classes">
-                    课程名称：{{ colData.Classes ? colData.ClassName : "" }}
+                <p v-show="colData.LessonName">
+                    课程名称：{{ colData.LessonName }}
                 </p>
                 <p>上课时间：{{ colData.fontShowTime }}</p>
-                <p>科目：{{ colData.SubjectName }}</p>
+                <p>科目：{{ subjectNames.join(",") }}</p>
                 <p>
                     班级：{{
-                        colData.Classes
-                            ? colData.Classes[0].ClassName
-                            : colData.ClassName
+                        className
                     }}
-                </p>
-                <p v-show="colData.Classes">
-                    课包：{{ colData.Classes ? colData.ClassName : "" }}
                 </p>
             </div>
             <template #reference>
-                <div class="course-content-warp" @click="goToClass">
-                    <div class="course-content">
+                <div class="course-content-warp" >
+                    <div class="course-content" :class="{'has-course': colData.LessonName, 'end': isEnd}" @click="goToClass">
                         <div class="course-name">
-                            {{ colData.Classes && colData.ClassName }}
+                            {{ colData.LessonName }}
                         </div>
                         <div class="bottom">
                             <div class="class-name">
-                                {{
-                                    colData.Classes
-                                        ? colData.Classes.map(
-                                              (i) => i.ClassName
-                                          ).join()
-                                        : colData.ClassName
-                                }}
+                                {{className}}
                             </div>
                             <div
                                 class="content-class"
                                 :style="{
-                                    backgroundColor: colData.bgColor,
+                                    backgroundColor: bgColor,
                                 }"
                             >
-                                {{ colData.SubjectName?.substring(0, 1) }}
+                                {{ subjectNames[0]?.substring(0, 1) }}
                             </div>
+                        </div>
+                        <div class="delete-icon-warp" v-if="colData.LessonID && isShowDelete" @click.stop="deleteCourse">
+                            <span class="line"></span>
                         </div>
                     </div>
                 </div>
             </template>
         </el-popover>
-        <ClassDialog
-            v-model:dialogVisible="dialogVisible"
-            v-if="dialogVisible"
-            :colData="colData"
-            :rowData="rowData"
-            :courseBag="courseBag"
-        />
     </div>
 </template>
 
-<script lang="ts">
-import {
-    getCourseByCourseBag,
-    HaveClassData,
-    HaveClassWithDefaultBagData,
-    updateClass
-} from "@/api";
-import useDeleteCourse from "@/hooks/useDeleteCourse";
+<script lang="ts" setup>
 import { ColData, Schedule } from "@/hooks/useSchedules";
-import { MutationTypes, store } from "@/store";
-import { CourseBag } from "@/types/preparation";
+import { CourseBag, SchoolLesson } from "@/types/preparation";
 import { ElMessage, ElMessageBox } from "element-plus";
-import { computed, defineComponent, inject, PropType, ref } from "vue";
+import moment from "moment";
+import { computed, inject, PropType, ref, defineProps } from "vue";
 import { useRouter } from "vue-router";
-import ClassDialog from "./ClassDialog.vue";
-import { addClasses } from "./logic";
-export default defineComponent({
-    props: {
-        rowData: {
-            type: Object as PropType<Schedule>,
-            default: () => ({})
-        },
-        colData: {
-            type: Object as PropType<ColData>,
-            default: () => ({})
-        },
-        isShowText: {
-            type: Boolean,
-            default: false
-        },
-        isShowDetailBtn: {
-            type: Boolean,
-            default: false
-        },
-        isDrop: {
-            type: Boolean,
-            default: false
-        }
+import { updateSchedule } from "@/api/timetable";
+import { store } from "@/store";
+
+const CourseBgColor: Record<string, string> = {
+    语文: "#4FCC94",
+    数学: "#63D1FA",
+    英语: "#9A69EB",
+    拼音: "#FFD152"
+};
+
+const props = defineProps({
+    rowData: {
+        type: Object as PropType<Schedule>,
+        default: () => ({})
     },
-    setup(props) {
-        const dialogVisible = ref(false);
-        const courseBag = ref<CourseBag>();
-        const isActive = ref(false);
-        const router = useRouter();
-
-        const updateSchedules = inject(
-            "updateSchedules"
-        ) as () => Promise<void>;
-
-        const { deleteCourse } = useDeleteCourse(updateSchedules);
-
-        const openDeteil = () => {
-            const {
-                Changed,
-                CourseBagTeacherID,
-                Type,
-                LessonID,
-                Name,
-                TeacherID,
-                OnSale
-            } = props.colData;
-            if (!CourseBagTeacherID) return;
-            const info = {
-                ID: CourseBagTeacherID,
-                TeacherID,
-                Name,
-                Type,
-                OnSale,
-                Changed,
-                LessonID,
-                CourseBagType: Type
-            };
-            store.commit(MutationTypes.SET_IS_CLICK_DETAIL, true);
-            router.push("/preparation");
-        };
-
-        const onDrop = async (ev: DragEvent, colData: ColData) => {
-            isActive.value = false;
-            const dragInfo = JSON.parse(
-                ev.dataTransfer?.getData("dragInfo") as string
-            ) as CourseBag;
-            if (!dragInfo.ID) {
-                return ElMessage.error("此课时无课包内容，请维护后再排课");
-            }
-            const courseBagData =
-                dragInfo.Type === 1
-                    ? {
-                        courseBagID: dragInfo.CourseBagID!
-                            ? dragInfo.CourseBagID!
-                            : dragInfo.ID!
-                    }
-                    : {
-                        courseBagTeacherID: dragInfo.ID!
-                    };
-            const courseBagDetail = await getCourseByCourseBag(
-                dragInfo.Type!,
-                courseBagData
-            );
-            if (courseBagDetail.resultCode === 200) {
-                if (
-                    !(
-                        Array.isArray(courseBagDetail.result.CourseWares) &&
-                        courseBagDetail.result.CourseWares.some(
-                            (item) => item.Process === 2
-                        )
-                    )
-                ) {
-                    return ElMessage.error("此课包无课中内容，请维护后再排课");
-                }
-                /// 第一种情况：有排课计划有课包，未上课
-                /// 第二种情况：有排课计划无课包
-                /// 第三种情况：未排课无大课表
-                if (colData.SubjectName) {
-                    // 有排课 肯定有学科
-                    // 课包科目与当前排课科目一致
-                    const isSameSubjectName =
-                        courseBagDetail.result.SubjectName ===
-                        colData.SubjectName;
-                    if (!isSameSubjectName) {
-                        return ElMessage.error(
-                            "选择课包科目与当前排课科目不一致，请重新选择！"
-                        );
-                    }
-                    const [startTime, endTime] =
-                        colData.fontShowTime!.split("~");
-                    const classPlanStartTime = `${colData.colDate} ${startTime}`;
-                    const classPlanEndTime = `${colData.colDate} ${endTime}`;
-                    let classIds: string[] = [];
-                    if (colData.Classes) {
-                        classIds = colData.Classes.map((i) => i.ClassID);
-                    } else {
-                        classIds = [colData.ClassID!];
-                    }
-                    const data = {
-                        className: dragInfo.Name!,
-                        classPlanStartTime,
-                        classPlanEndTime,
-                        subjectID: colData.SubjectID!,
-                        classIDs: classIds
-                    };
-                    if (dragInfo.Type === 1) {
-                        (data as HaveClassWithDefaultBagData).courseBagID =
-                            dragInfo.ID;
-                    } else {
-                        (data as HaveClassData).courseBagTeacherID =
-                            dragInfo.ID;
-                    }
-                    if (colData.Classes) {
-                        // 第一种情况：有排课计划有课包
-                        // 已上课 结束
-                        if (colData.ClassActualEndTime) {
-                            ElMessage.error("已经结束的课程无法重新排课");
-                        }
-                        // 未上课
-                        ElMessageBox.confirm(
-                            "当前时间点已有排课，是否覆盖？",
-                            "覆盖提示",
-                            {
-                                confirmButtonText: "确定",
-                                cancelButtonText: "取消",
-                                type: "warning"
-                            }
-                        ).then(async () => {
-                            const res = await updateClass(dragInfo.Type!, {
-                                ...data,
-                                courseBagTeacherLogID: colData.ID!,
-                                courseBagTeacherID: dragInfo.ID!
-                            });
-                            if (res.resultCode === 200) {
-                                ElMessage.success("更新成功");
-                                updateSchedules();
-                            }
-                        });
-                    } else {
-                        // 第二种情况：有排课计划无课包
-                        addClasses(
-                            dragInfo.Type!,
-                            data as HaveClassWithDefaultBagData | HaveClassData,
-                            updateSchedules
-                        );
-                    }
-                } else {
-                    dialogVisible.value = true;
-                    courseBag.value = dragInfo;
-                }
-            }
-        };
-
-        const goToClass = () => {
-            router.push("/attend-class");
-        };
-
-        return {
-            onDrop,
-            dialogVisible,
-            courseBag,
-            isActive,
-            isDragging: computed(() => store.state.common.isDragging),
-            openDeteil,
-            goToClass,
-            deleteCourse
-        };
+    colData: {
+        type: Object as PropType<ColData>,
+        default: () => ({})
     },
-    components: { ClassDialog }
+    isShowText: {
+        type: Boolean,
+        default: false
+    },
+    isShowDelete: {
+        type: Boolean,
+        default: false
+    },
+    isShowDetailBtn: {
+        type: Boolean,
+        default: false
+    },
+    isDrop: {
+        type: Boolean,
+        default: false
+    }
 });
+
+const isActive = ref(false);
+const router = useRouter();
+
+const isDragging = computed(() => store.state.common.isDragging);
+
+const className = computed(() => {
+    if (!props.colData.Schedules) return "";
+    const classNames = new Set(props.colData.Schedules.map(item => item.ClassName));
+    return [...classNames].join("，");
+});
+
+const subjectNames = computed(() => {
+    if (!props.colData.Schedules) return [];
+    const subjectNames = new Set(props.colData.Schedules.flatMap(item => {
+        if (item.MajorCourseName && item.MinorCourseName) {
+            return [item.MajorCourseName, item.MinorCourseName];
+        } else if (item.MinorCourseName) {
+            return [item.MinorCourseName];
+        } else if (item.MajorCourseName) {
+            return [item.MajorCourseName];
+        } else {
+            return [];
+        }
+    }));
+
+    return [...subjectNames];
+});
+
+const bgColor = computed(() => CourseBgColor[subjectNames.value[0]] || "#0057FE");
+const isEnd = computed(() => props.colData.ScheduleTime && moment().isAfter(props.colData.ScheduleTime));
+const scheduleIDs = computed(() => props.colData.Schedules ? props.colData.Schedules?.map(item => item.SchedulesID) : []);
+const scheduleTime = computed(() => props.colData.colDate + " " + props.colData.EndTime);
+
+const updateSchedules = inject(
+    "updateSchedules"
+) as () => Promise<void>;
+
+const deleteCourse = () => {
+    ElMessageBox.confirm("确定要删除这堂课吗？", "删除", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+    }).then(async () => {
+        const res = await updateSchedule({
+            lessonID: "",
+            scheduleTime: scheduleTime.value,
+            timetableMainID: props.colData.timetableID,
+            scheduleIDs: scheduleIDs.value
+        });
+        if (res.resultCode === 200) {
+            ElMessage.success("删除成功");
+            updateSchedules();
+        }
+    });
+};
+
+const addSchedule = async (id: string) => {
+    const res = await updateSchedule({
+        lessonID: id,
+        timetableMainID: props.colData.timetableID,
+        scheduleTime: scheduleTime.value,
+        scheduleIDs: scheduleIDs.value
+    });
+    return res;
+};
+
+const onDrop = async (ev: DragEvent, colData: ColData) => {
+    isActive.value = false;
+    const dragInfo = JSON.parse(
+                ev.dataTransfer?.getData("dragInfo") as string
+    ) as SchoolLesson;
+    if (!colData.Schedules) return;
+    if (isEnd.value) {
+        return ElMessage.error("已经结束的课程无法重新排课");
+    }
+    if (props.colData.LessonID) {
+        return ElMessageBox.confirm(
+            "当前时间点已有排课，是否覆盖？",
+            "覆盖提示",
+            {
+                confirmButtonText: "确定",
+                cancelButtonText: "取消",
+                type: "warning"
+            }
+        ).then(async () => {
+            const res = await addSchedule(dragInfo.ID);
+            if (res.resultCode === 200) {
+                ElMessage.success("更新成功");
+                updateSchedules();
+            }
+        });
+    }
+    const res = await addSchedule(dragInfo.ID);
+    if (res.resultCode === 200) {
+        ElMessage.success("排课成功");
+        updateSchedules();
+    }
+};
+
+const goToClass = () => {
+    if (!props.colData.LessonName) return;
+    router.push(`/attend-class/${props.colData.LessonID}/${props.colData.SubjectID}`);
+};
+
 </script>
 
 <style lang="scss" scoped>
@@ -288,18 +216,22 @@ export default defineComponent({
         padding: 2px;
         height: 100%;
         width: 100%;
+        position: relative;
         .course-content {
             height: 100%;
             width: 100%;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            position: relative;
             background-color: #f0f2f6;
             border-radius: 2px;
             &.has-course {
                 border: 1px solid #456CED;
                 background: #CBDAFF;
+            }
+            &.end {
+                background: #D7F6E7;
+                border: none;
             }
             .course-name {
                 overflow : hidden;
@@ -337,6 +269,24 @@ export default defineComponent({
                 color: #ffffff;
                 font-size: 12px;
                 border-radius: 2px;
+            }
+            .delete-icon-warp {
+                position: absolute;
+                right: 0;
+                top: 0;
+                width: 14px;
+                height: 14px;
+                background-color: #ff6b6b;
+                border-radius: 50%;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                cursor: pointer;
+                .line {
+                    background-color: #ffffff;
+                    height: 2px;
+                    width: 6px;
+                }
             }
         }
     }

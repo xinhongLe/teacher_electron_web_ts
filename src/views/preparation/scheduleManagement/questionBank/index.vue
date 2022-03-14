@@ -89,9 +89,13 @@ export default defineComponent({
             }
         });
 
+        const options = computed(() => {
+            return subjectPublisherBookList.value.find(({ Value }) => Value === subjectId.value)?.Children || [];
+        });
+
         watchEffect(() => {
             if (isEmpty(initSubjectPublisherBookValue.value)) {
-                findFirstId(subjectPublisherBookList.value, subjectPublisherBookValue.value);
+                !isEmpty(options.value) && findFirstId([options.value[0]], subjectPublisherBookValue.value);
             } else {
                 subjectPublisherBookValue.value = initSubjectPublisherBookValue.value.slice(1);
             }
@@ -102,10 +106,6 @@ export default defineComponent({
             getTeacherBookChapters(subjectPublisherBookValue.value[1]).then(() => {
                 teacherBookChapter.value = teacherBookChapterList.value[0]?.ID;
             });
-        });
-
-        const options = computed(() => {
-            return subjectPublisherBookList.value.find(({ Value }) => Value === subjectId.value)?.Children || [];
         });
 
         return {

@@ -28,7 +28,7 @@ provide("isOperator", props.isOperator);
 
 watchEffect(() => {
     if (props.selectLessonId) {
-        getBagList("39F7666ABD9E8041FB7E46A7089D1434").then(() => {
+        getBagList(props.selectLessonId).then(() => {
             if (!isEmpty(bagList.value)) {
                 handleSelectBag(bagList.value[0], 0);
             }

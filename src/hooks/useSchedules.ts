@@ -1,85 +1,83 @@
 import { CourseBag, fetchClassTime, fetchTeachClassSchedule, fetchWeekSchedule, GetClassTimeRes, GetTeachClassScheduleRes } from "@/api";
+import { fetchActiveTimetableID, fetchUserSchedules, fetchTimetableClassTime, TimetableClassTime, UserSchedules, IScheduleContent, fetchTermCodeBySchoolId, fetchScheduleContent } from "@/api/timetable";
 import { store } from "@/store";
+import { find } from "lodash";
 import moment from "moment";
-import { ref, Ref, watchEffect } from "vue";
+import { ref, Ref, watch, watchEffect } from "vue";
 
-enum CourseBgColor {
-    "语文" = "#4FCC94",
-    "数学" = "#63D1FA",
-    "英语" = "#9A69EB",
-    "拼音" = "#FFD152",
-}
-
-interface TeachClassSchedule extends GetTeachClassScheduleRes {
-    fontShowTime: string
-}
-
-interface WeekSchedule extends CourseBag {
-    fontShowDate: string,
+interface TeachClassSchedule extends UserSchedules {
     fontShowTime: string
 }
 
 export type ColData = {
     colDate: string,
-    bgColor?: CourseBgColor,
     index: number,
-} & Partial<WeekSchedule & TeachClassSchedule>
+    timetableID: string,
+} & Partial<IScheduleContent & TeachClassSchedule>
 
-export interface Schedule extends GetClassTimeRes{
+export interface Schedule extends TimetableClassTime{
     fontShowTime: string,
     colData: ColData[]
 }
 
 export default (days: Ref<string[]>) => {
     let teachClassScheduleArr: TeachClassSchedule[] = [];
-    let weekScheduleArr: WeekSchedule[] = [];
-    let classTimeArr: GetClassTimeRes[] = [];
+    let weekScheduleArr: IScheduleContent[] = [];
+    let classTimeArr: TimetableClassTime[] = [];
     const schedules = ref<Schedule[]>([]);
+    const timetableID = ref("");
+
+    const getTimetableID = async () => {
+        const schoolID = store.state.userInfo.Schools![0]?.UserCenterSchoolID;
+        if (!schoolID) {
+            return;
+        }
+
+        const termCodeRes = await fetchTermCodeBySchoolId({
+            id: schoolID
+        });
+
+        if (termCodeRes.resultCode === 200 && termCodeRes.result) {
+            const res = await fetchActiveTimetableID({
+                schoolID,
+                termCode: termCodeRes.result.TermCode
+            });
+            if (res.resultCode === 200 && res.result) {
+                timetableID.value = res.result.ID;
+            }
+        }
+    };
+
     const getTeachClassSchedule = async () => {
-        const res = await fetchTeachClassSchedule({
-            classID: "",
-            subjectID: ""
+        const res = await fetchUserSchedules({
+            timetableID: timetableID.value,
+            userID: store.state.userInfo.userCenterUserID
         });
         if (res.resultCode === 200) {
             teachClassScheduleArr = res.result.map(item => {
-                const fontShowTime = moment(item.BeginTime).format("HH:mm") +
-                "~" +
-                moment(item.EndTime).format("HH:mm");
+                const fontShowTime = `${item.BeginTime.substring(0, 5)}~${item.EndTime.substring(0, 5)}`;
                 return { ...item, fontShowTime };
             });
         }
     };
 
     const getWeekSchedule = async () => {
-        const data = {
-            firstDayOfWeek: days.value[0]
-        };
-        const res = await fetchWeekSchedule(data);
-        if (res.resultCode === 200) {
-            weekScheduleArr = res.result.Classes.map(item => {
-                const fontShowDate = moment(
-                    item.ClassPlanStartTime
-                ).format("YYYY-MM-DD");
-                const fontShowTime =
-                moment(item.ClassPlanStartTime).format("HH:mm") +
-                "~" +
-                moment(item.ClassPlanEndTime).format("HH:mm");
-                return { ...item, fontShowDate, fontShowTime };
-            });
+        const res = await fetchScheduleContent({
+            timetableMainID: timetableID.value,
+            beginTime: days.value[0],
+            endTime: days.value[days.value.length - 1]
+        });
+        if (res.resultCode === 200 && res.result) {
+            weekScheduleArr = res.result;
         }
     };
 
     const getClassTime = async () => {
-        const schoolId = store.state.userInfo.Schools![0]?.ID;
-        if (!schoolId) {
-            return;
-        }
-        const data = {
-            schoolID: schoolId
-        };
-        const res = await fetchClassTime(data);
+        const res = await fetchTimetableClassTime({
+            timetableID: timetableID.value
+        });
         if (res.resultCode === 200) {
-            classTimeArr = res.result;
+            classTimeArr = res.result.filter((item) => item.IsShow);
         }
     };
 
@@ -87,25 +85,22 @@ export default (days: Ref<string[]>) => {
         schedules.value = classTimeArr.map(classTime => {
             const colData: ColData[] = days.value.map((day, index) => ({
                 colDate: day,
+                timetableID: timetableID.value,
                 index
             }));
-            const fontShowTime =
-                moment(classTime.StartTime).format("HH:mm") +
-                "~" +
-                moment(classTime.EndTime).format("HH:mm");
+            const fontShowTime = `${classTime.BeginTime.substring(0, 5)}~${classTime.EndTime.substring(0, 5)}`;
             teachClassScheduleArr.forEach(item => {
                 if (item.fontShowTime === fontShowTime) {
-                    const SubjectName = item.SubjectName as keyof typeof CourseBgColor;
-                    const bgColor = CourseBgColor[SubjectName] || "";
-                    colData[item.DayOfWeek] = { ...item, ...colData[item.DayOfWeek], bgColor };
+                    colData[item.DayOfWeek] = { ...item, ...colData[item.DayOfWeek] };
                 }
             });
             weekScheduleArr.forEach(item => {
-                const index = colData.findIndex(data => item.fontShowDate === data.colDate && item.fontShowTime === fontShowTime);
+                const index = colData.findIndex(data => {
+                    if (!data.Schedules) return;
+                    return find(data.Schedules, { SchedulesID: item.ScheduleID });
+                });
                 if (index !== -1) {
-                    const SubjectName = item.SubjectName as keyof typeof CourseBgColor;
-                    const bgColor = CourseBgColor[SubjectName] || "";
-                    colData[index] = { ...colData[index], ...item, bgColor };
+                    colData[index] = { ...colData[index], ...item };
                 }
             });
             return {
@@ -117,6 +112,8 @@ export default (days: Ref<string[]>) => {
     };
 
     const initSchedules = async () => {
+        await getTimetableID();
+        if (!timetableID.value) return;
         await Promise.all([getTeachClassSchedule(), getWeekSchedule(), getClassTime()]);
         dealSchedules();
     };
@@ -136,6 +133,11 @@ export default (days: Ref<string[]>) => {
         if (id) {
             initSchedules();
         }
+    });
+
+    watch(days, () => {
+        console.warn("updateSchedules");
+        updateSchedules();
     });
 
     return {

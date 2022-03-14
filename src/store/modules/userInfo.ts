@@ -6,6 +6,7 @@ const initState = (): UserInfoState => ({
     Schools: [],
     name: "",
     account: "",
+    userCenterUserID: "",
     id: ""
 });
 

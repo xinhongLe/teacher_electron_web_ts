@@ -1,6 +1,7 @@
-import { watch, ref } from "vue";
+import { watch, ref, onMounted, onUnmounted } from "vue";
 import router from "@/router";
 import { Bread } from "../interface";
+import emitter from "@/utils/mitt";
 
 export default () => {
     const breadList = ref([
@@ -15,6 +16,7 @@ export default () => {
     ]);
 
     const value = sessionStorage.getItem("breadList");
+    let cancelAfterEach: () => void;
     if (value) {
         breadList.value = JSON.parse(value);
     }
@@ -44,11 +46,27 @@ export default () => {
         const index = breadList.value.findIndex((r) => {
             return r.name === item.name;
         });
-        breadList.value.splice(index, 1);
+
         if (router.currentRoute.value.name === item.name) {
-            router.push(breadList.value[breadList.value.length - 1].path);
+            router.push(breadList.value[breadList.value.length - 2].path);
+            cancelAfterEach = router.afterEach(() => {
+                breadList.value.splice(index, 1);
+                cancelAfterEach();
+            });
+        } else {
+            breadList.value.splice(index, 1);
         }
     };
+
+    onMounted(() => {
+        emitter.on("closeTab", (data) => {
+            closeTab(data);
+        });
+    });
+
+    onUnmounted(() => {
+        emitter.off("closeTab");
+    });
 
     watch(breadList, () => {
         sessionStorage.setItem("breadList", JSON.stringify(breadList.value));

@@ -8,8 +8,11 @@
             </div>
         </div>
         <div class="content">
-            <div class="col" v-for="(col, index) in schedules" :key="col.ClassIndex">
-                <div class="time cell">{{col.ShowType === 1 ? `第${index+1}节课` : col.fontShowTime}}</div>
+            <div class="col" v-for="(col) in schedules" :key="col.ClassIndex">
+                <div class="time cell">
+                    <span>{{col.fontShowTime}}</span>
+                    <span>{{col.SectionName}}</span>
+                </div>
                 <Course
                     v-for="item in col.colData"
                     :key="item.ID"
@@ -17,6 +20,7 @@
                     :colData="item"
                     :isDrop="isDrop"
                     :isShowText="isShowText"
+                    :isShowDelete="isShowDelete"
                     :isShowDetailBtn="isShowDetailBtn"
                 />
             </div>
@@ -43,6 +47,10 @@ export default defineComponent({
             default: false
         },
         isDrop: {
+            type: Boolean,
+            default: false
+        },
+        isShowDelete: {
             type: Boolean,
             default: false
         },
@@ -148,13 +156,14 @@ export default defineComponent({
             .time {
                 display: flex;
                 align-items: center;
-                justify-content: center;
+                justify-content: space-around;
                 font-size: 16px;
                 color: var(--app-color-dark);
                 font-weight: 600;
                 user-select: none;
                 flex: 1;
                 border-left: none;
+                flex-direction: column;
             }
             .course {
                 position: relative;

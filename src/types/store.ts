@@ -6,8 +6,10 @@ export interface UserInfoState {
     account?: string;
     Schools?: {
         ID: string,
+        UserCenterSchoolID: string,
         Name: string
     }[],
+    userCenterUserID: string;
     id: string
 }
 

@@ -1,3 +1,4 @@
+import { Bread } from "@/components/navBar/interface";
 import mitt from "mitt";
 
 type Events = {
@@ -8,6 +9,10 @@ type Events = {
     };
     preparationReLoad: null,
     logout: null,
+    windowSaveAsSuc: null,
+    smallVideo: null,
+    smallQuestion: null,
+    closeTab: Bread,
     editWindow: null
 }
 

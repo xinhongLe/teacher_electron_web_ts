@@ -4,11 +4,14 @@
             ref="PPTEditRef"
             :slide="slide"
             :isShowSaveAs="originType === 1"
+            v-model:windowName="windowName"
+            :isShowName="originType === 1"
             @onSave="onSave"
             @addCard="addCard"
             @selectVideo="selectVideo"
             @setQuoteVideo="setQuoteVideo"
             @updateQuoteVideo="updateQuoteVideo"
+            @updateSlide="updateSlide"
         />
         <!--选择弹卡-->
         <card-select-dialog
@@ -22,8 +25,8 @@
             v-model:dialogVisible="dialogVisibleVideo"
             @selectVideoVal="selectVideoVal"
         ></select-video-dialog>
-        <SaveDialog v-if="isShowSaveDialog" v-model:isShow="isShowSaveDialog"/>
-        <SaveAsDialog v-if="isShowSaveAsDialog" v-model:isShow="isShowSaveAsDialog"/>
+        <SaveDialog v-if="isShowSaveDialog" v-model:isShow="isShowSaveDialog" :name="$route.params.winName" @onSave="saveCallback"/>
+        <SaveAsDialog v-if="isShowSaveAsDialog" v-model:isShow="isShowSaveAsDialog" :name="$route.params.winName" @onSave="saveCallback"/>
     </div>
 </template>
 <script lang="ts">
@@ -39,6 +42,7 @@ import { set, STORAGE_TYPES } from "@/utils/storage";
 import { ElMessage } from "element-plus";
 import SaveDialog from "./saveDialog/saveDialog.vue";
 import SaveAsDialog from "./saveDialog/saveAsDialog.vue";
+import { isEqual } from "lodash";
 export default defineComponent({
     name: "winCardEdit",
     components: { SelectVideoDialog, CardSelectDialog, SaveDialog, SaveAsDialog },
@@ -64,7 +68,7 @@ export default defineComponent({
             default: () => true
         }
     },
-    setup(props) {
+    setup(props, { emit }) {
         const route = useRoute();
         const state = reactive({
             dialogVisible: false,
@@ -80,112 +84,15 @@ export default defineComponent({
         const { getPageDetail, savePage, transformType } = useHome();
         const watchChange = computed(() => props.isWatchChange);
         const updateVideoElement = ref<PPTVideoElement | null>(null);
-        // watch(() => props.pageValue, async (val: IPageValue, oldVal) => {
-        //     if (transformType(val.Type) === -1 || !val.ID) {
-        //         page.value = {
-        //             ID: val.ID,
-        //             Type: val.Type,
-        //             State: val.State,
-        //             TeachPageRelationID: val.TeachPageRelationID
-        //         };
-        //         state.slide = {};
-        //         return;
-        //     }
-        //     if (val && val !== oldVal) {
-        //         page.value = val;
-        //         if (watchChange.value && props.isSetCache) return; // 更新窗且执行默认选中第一个走props.allPageList监听
-        //         if (val.ID) {
-        //             console.time("getWinCardDBData 1111");
-        //             const dbResArr = await getWinCardDBData(val.ID);
-        //             console.timeEnd("getWinCardDBData 1111");
-        //             if (dbResArr.length > 0) {
-        //                 const data = JSON.parse(JSON.stringify(dbResArr[0].result));
-        //                 setSlide(JSON.parse(data));
-        //             } else {
-        //                 if (pageIdIng) {
-        //                     if (pageIdIng !== val.ID) {
-        //                         getAllPageList([]);
-        //                         const interval = setInterval(() => {
-        //                             if (!pageIdIng) {
-        //                                 noResPages.unshift(val);
-        //                                 clearInterval(interval);
-        //                                 getAllPageList(noResPages);
-        //                             }
-        //                         }, 300);
-        //                     }
-        //                 } else {
-        //                     if (noResPages.length === 0) {
-        //                         getAllPageList([val]);
-        //                     } else {
-        //                         getAllPageList([]);
-        //                         timer = setTimeout(() => {
-        //                             getAllPageList([val, ...noResPages]);
-        //                         }, 300);
-        //                     }
-        //                 }
-        //             }
-        //         }
-        //     }
-        // });
+        const windowName = ref(route.params.winName as string);
 
-        // watch(() => props.allPageList, async (val: IPageValue[]) => {
-        //     if (props.isSetCache) {
-        //         noResPages = [];
-        //         resPagesIds = [];
-        //         getAllPageList([]);
-        //         if (val && val.length > 0) {
-        //             const interval = setInterval(() => {
-        //                 if (!pageIdIng) {
-        //                     clearInterval(interval);
-        //                     getAllPageList(JSON.parse(JSON.stringify(val)));
-        //                 }
-        //             }, 300);
-        //         }
-        //     }
-        // }, { deep: true });
+        const PPTEditRef = ref();
 
-        // const getAllPageList = async (allPageList: IPageValue[]) => {
-        //     if (timer) clearTimeout(timer);
-        //     if (allPageList.length > 0) {
-        //         if (resPagesIds.includes(allPageList[0].ID) || transformType(allPageList[0].Type) === -1) {
-        //             allPageList.shift();
-        //             noResPages = allPageList;
-        //             timer = setTimeout(() => {
-        //                 getAllPageList(noResPages);
-        //             }, 300);
-        //         } else {
-        //             pageIdIng = allPageList[0].ID;
-        //             set(STORAGE_TYPES.SET_PAGEIDING, pageIdIng);
-        //             await getPageDetail(allPageList[0], 1, (res: any) => {
-        //                 if (res.from === "DB") {
-        //                     // 被点击的页时正在请求时
-        //                     if (page.value?.ID === allPageList[0].ID) {
-        //                         setSlide(res.result);
-        //                     }
-        //                 } else {
-        //                     if (res.id) { // 肯定是请求成功的
-        //                         // 被点击的页时正在请求的
-        //                         if (page.value?.ID === allPageList[0].ID) {
-        //                             setSlide(res);
-        //                         }
-        //                     }
-        //                     pageIdIng = null;
-        //                     set(STORAGE_TYPES.SET_PAGEIDING, pageIdIng);
-        //                     if (allPageList.length > 0) {
-        //                         if (res.id) { // 成功请求
-        //                             resPagesIds.push(allPageList[0].ID);
-        //                         }
-        //                         allPageList.shift();
-        //                         noResPages = allPageList;
-        //                         // set(STORAGE_TYPES.SET_NORESPAGES, pageIdIng);
-        //                         timer = setTimeout(() => {
-        //                             getAllPageList(noResPages);
-        //                         }, 300);
-        //                     }
-        //                 }
-        //             });
-        //         }
-        //     }
+        const updateSlide = (slide: Slide) => {
+            if (!isEqual(props.slide, slide)) {
+                emit("updatePageSlide", slide);
+            }
+        };
         // };
         onUnmounted(() => {
             // 页面销毁,断开请求，token过期
@@ -193,36 +100,26 @@ export default defineComponent({
             // getAllPageList([]);
         });
 
-        const timeOut:any = null;
-        // const setSlide = (res: any) => {
-        //     state.slide = {}; // 要先置空 否则wincard组件有些值监听不到改变
-        //     timeOut = setTimeout(() => {
-        //         state.slide = res;
-        //     }, 100);
-        // };
-
         const isShowSaveDialog = ref(false);
         const isShowSaveAsDialog = ref(false);
 
+        const saveCallback = (name: string) => {
+            emit("onSave", SaveType.SaveAs, name);
+        };
+
         const onSave = async (slide: Slide, type: SaveType) => {
-            console.log(slide);
-            if (type === SaveType.SaveAs) {
+            if (originType === 0) {
                 isShowSaveAsDialog.value = true;
-            } else if (originType === 0 && type === SaveType.Save) {
-                isShowSaveDialog.value = true;
+            } else {
+                if (type === SaveType.Save) {
+                    if (!windowName.value) {
+                        return ElMessage.warning("名称不能为空");
+                    }
+                    emit("onSave", type, windowName.value);
+                } else {
+                    isShowSaveDialog.value = true;
+                }
             }
-            savePage(slide);
-            // if (props.pageValue.ID) {
-            //     const data = await savePage(slide);
-            //     if (data) {
-            //         state.slide = {};
-            //         setTimeout(() => {
-            //             state.slide = data;
-            //         }, 100);
-            //     }
-            // } else {
-            //     ElMessage({ type: "warning", message: "请先选择页，再进行保存" });
-            // }
         };
 
         let fun: (win: IWin[]) => void;
@@ -263,7 +160,6 @@ export default defineComponent({
             state.dialogVisibleVideo = false;
         };
 
-        const PPTEditRef = ref();
         const closeScreen = () => {
             PPTEditRef.value.closeScreen();
         };
@@ -311,7 +207,10 @@ export default defineComponent({
             setQuoteVideo,
             originType,
             isShowSaveDialog,
+            updateSlide,
             isShowSaveAsDialog,
+            windowName,
+            saveCallback,
             updateQuoteVideo
         };
     }

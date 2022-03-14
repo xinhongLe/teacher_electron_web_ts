@@ -1,18 +1,23 @@
 <script lang="ts" setup>
 import { ArrowDownBold, ArrowUpBold } from "@element-plus/icons-vue";
-import { computed, ref, watch } from "vue";
-import { pull, isEmpty } from "lodash";
+import { computed, onMounted, ref, watch } from "vue";
+import { pull, isEmpty, find } from "lodash";
 import CollapseTransition from "@/components/collapseTransition/index.vue";
 import useBook from "../hooks/useBook";
 import { MutationTypes, store } from "@/store";
-import { fetchSchoolLessonList } from "../api";
-import { SchoolLesson } from "@/types/preparation";
+import { fetchSchoolLessonList, getLastSelectBook, setLastSelectBook } from "../api";
+import { GetLastSelectBookRes, SchoolLesson } from "@/types/preparation";
+import useDrag from "@/hooks/useDrag";
 
 const activeIds = ref<string[]>([]);
 const isShow = ref(true);
 const lessonListMap = ref<Map<string, SchoolLesson[]>>(new Map());
 const selectLessonId = computed(() => store.state.preparation.selectLessonId);
 const { teacherBookChapterList, getTeacherBookChapters } = useBook();
+const { onDragStart, onDrag, onDragEnd } = useDrag();
+const subjectPublisherBookValue = computed(() => store.state.preparation.subjectPublisherBookValue);
+let selectBook: GetLastSelectBookRes;
+let isInit = false;
 
 const getLessonList = async (id: string) => {
     const res = await fetchSchoolLessonList({
@@ -26,10 +31,48 @@ const getLessonList = async (id: string) => {
     }
 };
 
+onMounted(async () => {
+    const selectBookRes = await getLastSelectBook({
+        subjectID: ""
+    });
+    if (selectBookRes.resultCode === 200) {
+        selectBook = selectBookRes.result;
+    }
+    if (!isEmpty(selectBook)) {
+        const { BookID, PublisherID, SubjectID, ChapterID, LessonID } = selectBook;
+        store.commit(
+            MutationTypes.SET_SUBJECT_PUBLISHER_BOOK_VALUE,
+            [
+                SubjectID,
+                PublisherID,
+                BookID
+            ]
+        );
+        isInit = true;
+        await getTeacherBookChapters(BookID);
+        activeIds.value.push(ChapterID);
+        getLessonList(ChapterID).then(() => {
+            const lessonList = lessonListMap.value.get(ChapterID);
+            if (!isEmpty(lessonList)) {
+                store.commit(
+                    MutationTypes.SET_SELECT_LESSON_ID,
+                    LessonID || lessonList![0]?.ID
+                );
+            }
+        });
+        isInit = false;
+    } else {
+        // findFirstId(
+        //     [subjectPublisherBookList.value[0]],
+        //     subjectPublisherBookValue.value
+        // );
+    }
+});
+
 watch(
-    () => store.state.preparation.subjectPublisherBookValue,
+    subjectPublisherBookValue,
     async (value) => {
-        if (!value[2]) return;
+        if (!value[2] || isInit) return;
         await getTeacherBookChapters(value[2]);
         const id = teacherBookChapterList.value[0]?.ID;
         activeIds.value = [];
@@ -41,6 +84,12 @@ watch(
                     MutationTypes.SET_SELECT_LESSON_ID,
                     lessonList![0]?.ID
                 );
+                setLastSelectBook({
+                    bookID: subjectPublisherBookValue.value[2],
+                    chapterID: id,
+                    lessonID: selectLessonId.value,
+                    subjectID: subjectPublisherBookValue.value[0]
+                });
             }
         });
     }, {
@@ -59,9 +108,16 @@ const collapseClick = (id: string) => {
     }
 };
 
-const clickLesson = (id: string) => {
+const clickLesson = (id: string, chapterId: string) => {
     store.commit(MutationTypes.SET_SELECT_LESSON_ID, id);
+    setLastSelectBook({
+        bookID: subjectPublisherBookValue.value[2],
+        chapterID: chapterId,
+        lessonID: selectLessonId.value,
+        subjectID: subjectPublisherBookValue.value[0]
+    });
 };
+
 </script>
 
 <template>
@@ -102,7 +158,11 @@ const clickLesson = (id: string) => {
                                     :class="{
                                         active: selectLessonId === lesson.ID,
                                     }"
-                                    @click="clickLesson(lesson.ID)"
+                                    :draggable="true"
+                                    @dragstart="onDragStart($event, lesson)"
+                                    @dragend="onDragEnd($event)"
+                                    @drag="onDrag($event)"
+                                    @click="clickLesson(lesson.ID, chapter.ID)"
                                 >
                                     {{ lesson.Name }}
                                 </div>

@@ -48,7 +48,6 @@
                        :highlight-current="false"
                        :data="windowCards"
                        :props="defaultProps"
-                       @node-drag-end="handleDragEnd"
                        @node-click="handleNodeClick"
                    >
                        <template #default="{ node, data }">
@@ -142,6 +141,8 @@
                 :isSetCache="isSetCache"
                 :allPageList="allPageList"
                 :slide="currentSlide"
+                @onSave="onSave"
+                @updatePageSlide="updatePageSlide"
             ></win-card-edit>
             <div
                 v-show="!pageValue.ID"
@@ -150,7 +151,14 @@
             ></div>
         </div>
     </div>
-
+    <!--上传ppt遮罩-->
+    <div class="mask-ppt" v-if="loading">
+        <div class="ppt-content">
+            <el-progress :text-inside="true" :stroke-width="30" :percentage="percentage" />
+            <div v-if="parsePptPage === 0" class="ppt-text">正在上传中···</div>
+            <div v-else class="ppt-text">正在解析{{parsePptPage}}/{{pptPages}}</div>
+        </div>
+    </div>
     <!--预览界面-->
     <win-card-view
         ref="winCardViewRef"
@@ -182,7 +190,7 @@
 </template>
 
 <script lang="ts">
-import { onMounted, onUnmounted, defineComponent, toRefs, ref, watch, nextTick, toRef, computed } from "vue";
+import { onMounted, onUnmounted, defineComponent, toRefs, ref, watch, toRef, computed } from "vue";
 import WinCardEdit from "../components/edit/winCardEdit.vue";
 import { IPageValue, ICardList } from "@/types/home";
 import Node from "element-plus/es/components/tree/src/model/node";
@@ -194,7 +202,7 @@ import AddPageDialog from "../components/edit/addPageDialog.vue";
 import UpdateNameCardOrPage from "../components/edit/updateNameCardOrPage.vue";
 import WinCardView from "../components/edit/winScreenView.vue";
 import AddCardDialog from "../components/edit/addCardDialog.vue";
-import { useRoute } from "vue-router";
+import { onBeforeRouteLeave, useRoute, useRouter } from "vue-router";
 import usePreview from "./hooks/usePreview";
 import useCopyPage from "./hooks/useCopyPage";
 import useSelectPage from "./hooks/useSelectPage";
@@ -204,6 +212,15 @@ import useAddPage from "./hooks/useAddPage";
 import useUpdateName from "./hooks/useUpdateName";
 import useGetPageSlide from "./hooks/useGetPageSlide";
 import isElectron from "is-electron";
+import { SaveType, Slide } from "wincard/src/types/slides";
+import { saveWindows, saveAsWindows } from "../api";
+import { find, isEqual, pullAllBy, cloneDeep } from "lodash";
+import emitter from "@/utils/mitt";
+import exitDialog, { ExitType } from "./exitDialog";
+import TrackService, { EnumTrackEventType } from "@/utils/common";
+import useImportPPT from "@/hooks/useImportPPT";
+import { v4 as uuidv4 } from "uuid";
+import { pageType } from "@/config";
 export default defineComponent({
     components: { AddCardDialog, WinCardView, UpdateNameCardOrPage, AddPageDialog, WinCardEdit, MoreFilled },
     name: "Edit",
@@ -212,48 +229,173 @@ export default defineComponent({
         const shrinkRef = ref();
 
         const {
-            state, cardsValue, defaultProps, pageValue, isSetCache, _getSubjectPublisherBookList, _getWindowCards,
-            _deleteCardOrPage, _addPage, _renameCardOrPage,
-            _setCardOrPageState, _addCard, _copyPage, dragDealData
+            state, defaultProps, pageValue, isSetCache, _getWindowCards
         } = useSelectBookInfo();
+
+        const windowCards = toRef(state, "windowCards");
+
+        const oldWindowCards = toRef(state, "oldWindowCards");
+
+        const { fetchAllPageSlide, allPageSlideListMap, oldAllPageSlideListMap, isLoadEnd } = useGetPageSlide(pageValue);
 
         const { previewPageList, handleView, winScreenView, keyDown, offScreen, activePreviewPageIndex } = usePreview(pageValue);
 
-        const { handleCopy, handlePaste } = useCopyPage(_copyPage);
+        const { handleCopy, handlePaste, pastePage } = useCopyPage(windowCards, allPageSlideListMap);
 
         const { handleNodeClick, selectPageValue, editRef, activeAllPageListIndex, allPageList, isWatchChange, cardListRef } = useSelectPage(pageValue);
 
-        const { handleDragEnd, allowDrop } = useDragPage(dragDealData);
+        const { allowDrop } = useDragPage();
 
-        const { handleAddCard, dialogVisibleCard } = useAddCard(_addCard, toRef(state, "windowCards"));
+        const { handleAddCard, dialogVisibleCard } = useAddCard(windowCards);
 
-        const { handleAdd, addPageCallback, dialogVisible } = useAddPage(shrinkRef, _addPage);
+        const { handleAdd, addPageCallback, dialogVisible } = useAddPage(shrinkRef, windowCards);
 
-        const { dialogVisibleName, currentValue, handleUpdateName, updateName } = useUpdateName(shrinkRef, _renameCardOrPage);
+        const { dialogVisibleName, currentValue, handleUpdateName, updateName } = useUpdateName(shrinkRef);
 
-        const { fetchAllPageSlide, allPageSlideListMap } = useGetPageSlide(pageValue);
-
-        _getSubjectPublisherBookList();
         const route = useRoute();
-        const winValue = route.params.winValue as string;
+        const router = useRouter();
+        const winValue = route.params.winValue as string || "";
 
         const handleDel = (node: Node, data: ICardList) => {
-            // 删除的是卡 判断当前页是否在删除卡下
-            if (node.level === 1 && pageValue.value?.ID) {
-                const flag = data.PageList.find(
-                    (item) => item.ID === pageValue.value?.ID
-                );
-                if (flag) {
-                    cardsValue.value = data;
+            ElMessageBox.confirm(
+                "此操作将删除该数据, 是否继续?", "提示",
+                {
+                    confirmButtonText: "确认",
+                    cancelButtonText: "取消",
+                    type: "warning"
                 }
-            }
-            _deleteCardOrPage(data.ID, {
-                TeachPageRelationID: data.TeachPageRelationID
+            ).then(() => {
+                // 删除的是卡 判断当前页是否在删除卡下
+                if (node.level === 1) {
+                    const flag = data.PageList.find(
+                        (item) => item.ID === pageValue.value?.ID
+                    );
+                    pullAllBy(windowCards.value, [{ ID: data.ID }], "ID");
+                    if (flag) {
+                        pageValue.value = { ...pageValue.value!, ID: "", Type: 11 };
+                    }
+                } else {
+                    const cardId = node.parent.data.ID;
+                    const pageList = find(windowCards.value, { ID: cardId })?.PageList || [];
+                    pullAllBy(pageList, [{ ID: data.ID }], "ID");
+                    if (pageValue.value.ID === data.ID) {
+                        pageValue.value = { ...pageValue.value!, ID: "", Type: 11 };
+                    }
+                    windowCards.value = [...windowCards.value];
+                }
+                TrackService.setTrack(EnumTrackEventType.DeleteCard, "", "", "", "", "", "", "删除卡或页");
+            }).catch((err) => {
+                return err;
             });
         };
 
-        const handleUpdateState = (node:Node, data:ICardList) => {
-            _setCardOrPageState({ ID: data.TeachPageRelationID, State: data.State ? 0 : 1 });
+        const handleUpdateState = (node:Node, data:IPageValue) => {
+            data.State = !data.State;
+        };
+
+        const onSave = async (type: SaveType, windowName: string) => {
+            window.electron.log.info("user click save type:", SaveType[type], isLoadEnd.value);
+            if (isLoadEnd.value) {
+                return ElMessage.warning("资源正在加载，请稍后再试...");
+            }
+            const cardData = windowCards.value.map((card, index) => {
+                const cardID = card.isAdd ? "" : card.ID;
+                const cardName = card.Name;
+                const sort = index + 1;
+                const pageList = card.PageList;
+                const pageData = pageList.map((page, pageIndex) => {
+                    const { ID, Name, Type, State, isAdd } = page;
+                    const slide = allPageSlideListMap.value.get(ID);
+                    let json = "";
+                    const remark = slide?.remark || "";
+                    if (slide) {
+                        if (slide.type === "element") {
+                            json = JSON.stringify(slide);
+                        } else if (slide.type === "listen") {
+                            const Words = slide.listenWords?.map((word, index) => {
+                                return {
+                                    sort: index + 1,
+                                    WordID: word.id,
+                                    PageWordID: word.pageWordID ? null : word.pageWordID,
+                                    WordInterval: 2
+                                };
+                            });
+                            json = JSON.stringify(Words);
+                        } else if (slide.type === "follow") {
+                            json = slide.follow?.id || "";
+                        } else if (slide.type === "teach") {
+                            json = slide.teach?.id || "";
+                        }
+                    }
+                    return {
+                        pageID: isAdd ? "" : ID,
+                        pageName: Name || "",
+                        type: Type,
+                        remark,
+                        sort: pageIndex + 1,
+                        json,
+                        state: Number(State)
+                    };
+                });
+
+                return {
+                    cardID,
+                    sort,
+                    pageData,
+                    cardName
+                };
+            });
+
+            const data = {
+                cardData,
+                originType: 1,
+                windowName,
+                windowID: type === SaveType.Save ? winValue : ""
+            };
+
+            const lessonId = route.params.lessonId as string || "";
+            const message = "保存成功";
+
+            if (type === SaveType.Save) {
+                const res = await saveWindows(data);
+                if (res.resultCode === 200) {
+                    ElMessage.success({
+                        message,
+                        duration: 2000
+                    });
+                    route.params.winName = windowName;
+                    // router.push({
+                    //     name: "编辑",
+                    //     params: {
+                    //         winName: windowName
+                    //     }
+                    // });
+                    allPageSlideListMap.value.forEach((item, key) => {
+                        oldAllPageSlideListMap.value.set(key, cloneDeep(item));
+                    });
+                    oldWindowCards.value = cloneDeep(windowCards.value);
+                }
+            } else {
+                saveAsWindows({ ...data, lessonID: lessonId }).then(res => {
+                    if (res.resultCode === 200) {
+                        allPageSlideListMap.value.forEach((item, key) => {
+                            oldAllPageSlideListMap.value.set(key, cloneDeep(item));
+                        });
+                        oldWindowCards.value = cloneDeep(windowCards.value);
+                        // 回到备课页，打开最新的窗
+                        emitter.emit("windowSaveAsSuc", null);
+                        ElMessage.success({
+                            message,
+                            duration: 2000
+                        });
+                        router.push({ path: "/preparation" });
+                        emitter.emit("closeTab", {
+                            name: route.name as string,
+                            path: route.path
+                        });
+                    }
+                });
+            }
         };
 
         watch(
@@ -262,10 +404,10 @@ export default defineComponent({
                 allPageList.value = getAllPageList();
                 if (state.windowCards.length > 0) {
                     // 先判断是否是粘贴/新增的卡 如果是粘贴/新增卡先选中粘贴/新增卡
-                    if (state.pastePage && state.pastePage.ID) {
-                        selectPageValue(state.pastePage, false);
-                        activeAllPageListIndex.value = allPageList.value.findIndex(item => item.ID === state.pastePage!.ID);
-                        state.pastePage = null;
+                    if (pastePage.value && pastePage.value.ID) {
+                        selectPageValue(pastePage.value, false);
+                        activeAllPageListIndex.value = allPageList.value.findIndex(item => item.ID === pastePage.value!.ID);
+                        pastePage.value = undefined;
                         return;
                     }
 
@@ -287,6 +429,8 @@ export default defineComponent({
                         }
                     }
                 }
+            }, {
+                deep: true
             }
         );
         const getAllPageList = () => {
@@ -303,14 +447,41 @@ export default defineComponent({
             ElMessage({ type: "warning", message: "请先选择页，在进行编辑" });
         };
 
+        const { importByElectron, uploadFileName, loading, parsePptPage, pptPages, percentage, showImport } = useImportPPT();
+
         const importPPT = () => {
-            ElMessage({
-                type: "warning",
-                message: "功能尚未完善，敬请期待"
-            });
-            // importByElectron((result) => {
-            //     console.log("=====", result);
+            // ElMessage({
+            //     type: "warning",
+            //     message: "功能尚未完善，敬请期待"
             // });
+
+            importByElectron((result) => {
+                const name = uploadFileName.value.split("\\");
+                const pageList = result.slides.map((item, index) => {
+                    const id = uuidv4();
+                    allPageSlideListMap.value.set(id, item);
+                    return {
+                        ID: id,
+                        Name: name[name.length - 1] + "-" + (index + 1),
+                        Type: pageType.element,
+                        isAdd: true,
+                        State: true
+                    };
+                });
+                const card = {
+                    Name: name[name.length - 1],
+                    ID: uuidv4(),
+                    Sort: windowCards.value.length,
+                    isAdd: true,
+                    PageList: pageList
+                };
+                windowCards.value.push(card);
+            });
+        };
+
+        const updatePageSlide = (slide: Slide) => {
+            if (!pageValue.value.ID) return;
+            allPageSlideListMap.value.set(pageValue.value.ID, slide);
         };
 
         const winCardViewRef = ref();
@@ -341,6 +512,18 @@ export default defineComponent({
             }
         });
 
+        onBeforeRouteLeave(async () => {
+            const name = route.params.winName as string;
+            if (isEqual(allPageSlideListMap.value, oldAllPageSlideListMap.value) && isEqual(windowCards.value, oldWindowCards.value) && name === editRef.value?.windowName) return true;
+            const res = await exitDialog();
+            if (res === ExitType.Cancel) {
+                return false;
+            }
+            if (res === ExitType.Save) {
+                await onSave(SaveType.Save, editRef.value?.windowName);
+            }
+        });
+
         return {
             editRef,
             shrinkRef,
@@ -363,7 +546,6 @@ export default defineComponent({
             isWatchChange,
             handleNodeClick,
             allowDrop,
-            handleDragEnd,
             handleAddCard,
             handleAdd,
             handleCopy,
@@ -373,8 +555,15 @@ export default defineComponent({
             handleUpdateName,
             handleUpdateState,
             addPageCallback,
+            onSave,
             updateName,
+            loading,
+            percentage,
+            parsePptPage,
+            pptPages,
+            updatePageSlide,
             allPageSlideListMap,
+            oldAllPageSlideListMap,
             _getWindowCards,
             offScreen,
             handleMask,
@@ -515,6 +704,27 @@ export default defineComponent({
     div{
         cursor: pointer;
         padding: 4px 0;
+    }
+}
+.mask-ppt{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: rgba(255,255,255,0.6);
+    .ppt-content{
+        width: 300px;
+        text-align: center;
+        .ppt-text{
+            margin-top: 20px;
+            font-size: 18px;
+            color: #409eff;
+            font-weight: 600;
+        }
     }
 }
 </style>

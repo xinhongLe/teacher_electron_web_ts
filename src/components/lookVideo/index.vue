@@ -98,6 +98,7 @@ import useVideo, { formateSeconds } from "./hooks/useVideo";
 import { getOssUrl } from "@/utils/oss";
 import Brush from "@/components/brush/index.vue";
 import { MutationTypes, store } from "@/store";
+import emitter from "@/utils/mitt";
 export default defineComponent({
     setup() {
         const isElectron = isElectronFun();
@@ -212,6 +213,7 @@ export default defineComponent({
         };
 
         onMounted(() => {
+            emitter.on("smallVideo", smallVideo);
             if (isElectron) {
                 window.electron.ipcRenderer.on("openVideoWin", openVideoWin);
                 window.electron.ipcRenderer.on("closeVideoWin", closeVideoWin);
@@ -219,6 +221,7 @@ export default defineComponent({
         });
 
         onUnmounted(() => {
+            emitter.off("smallVideo");
             if (isElectron) {
                 window.electron.ipcRenderer.removeListener(
                     "openVideoWin",

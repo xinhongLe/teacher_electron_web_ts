@@ -133,7 +133,7 @@ export function saveTeacherClassSchedule(data: SaveTeacherClassScheduleData): Pr
 export function cloneCourseBagToTeacher(data: CloneCourseBagToTeacherData): Promise<IResponse<CloneCourseBagToTeacherRes>> {
     return request({
         baseURL: AI_XUE_SHI_API,
-        url: "API/W4/Teach/CloneCourseBagToTeacher",
+        url: "API/W4/Teach/CloneLessonCourseBagToTeacher",
         headers: {
             "Content-Type": "application/json-patch+json"
         },

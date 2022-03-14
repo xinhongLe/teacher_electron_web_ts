@@ -1,32 +1,86 @@
 <script lang="ts" setup>
+import { CourseWares } from "@/api";
+import { SchoolWindowInfo } from "@/types/preparation";
+import isElectron from "is-electron";
+import { onMounted, ref } from "vue";
 
+const windowList = ref<SchoolWindowInfo[]>([]);
+
+const courseWares = ref<CourseWares[]>([]);
+
+const openWindow = (win: SchoolWindowInfo) => {
+    window.electron.ipcRenderer.invoke(
+        "openWindow",
+        JSON.parse(JSON.stringify(win))
+    );
+    window.electron.ipcRenderer.invoke("hideUnfoldSuspensionWin");
+};
+
+const lookQuestions = (item: CourseWares) => {
+    window.electron.ipcRenderer.invoke("lookQuestions", {
+        id: item.ID,
+        type: 3
+    });
+    window.electron.ipcRenderer.invoke("hideUnfoldSuspensionWin");
+};
+
+const lookVideo = (id: string) => {
+    window.electron.ipcRenderer.invoke("lookVideo", id);
+    window.electron.ipcRenderer.invoke("hideUnfoldSuspensionWin");
+};
+
+onMounted(() => {
+    if (isElectron()) {
+        window.electron.ipcRenderer.on("getWindowList", (_, data) => {
+            windowList.value = data;
+        });
+
+        window.electron.ipcRenderer.on("getCourseWares", (_, data) => {
+            courseWares.value = data;
+        });
+    }
+});
 </script>
 
 <template>
-    <div class="quick-open-warp">
+    <div
+        class="quick-open-warp"
+        v-if="windowList.length !== 0 || courseWares.length !== 0"
+    >
         <span class="title">快速调用</span>
         <div class="list">
-            <div class="item active">
-                <img src="@/assets/images/suspension/icon_chuangkaye_big.svg" class="icon"/>
-                <span class="name">窗卡页名称1</span>
+            <div
+                class="item"
+                v-for="item in windowList"
+                :key="item.WindowID"
+                @click="openWindow(item)"
+            >
+                <img
+                    src="@/assets/images/suspension/icon_chuangkaye_big.svg"
+                    class="icon"
+                />
+                <span class="name">{{ item.WindowName }}</span>
             </div>
-            <div class="item">
-                <img src="@/assets/images/suspension/icon_viedo_big.svg" class="icon"/>
-                <span class="name">窗卡页名称1</span>
-            </div>
-            <div class="item">
-                <img src="@/assets/images/suspension/icon_timu_big.svg" class="icon"/>
-                <span class="name">窗卡页名称1窗卡页名称1窗卡页名称1</span>
-            </div>
-            <div class="item">
-
-            </div>
-            <div class="item">
-
-            </div>
-            <div class="item">
-
-            </div>
+            <template v-for="item in courseWares" :key="item.ID">
+                <div
+                    class="item"
+                    v-if="item.HasVideo"
+                    @click="lookVideo(item.FileID || '')"
+                >
+                    <img
+                        src="@/assets/images/suspension/icon_viedo_big.svg"
+                        class="icon"
+                    />
+                    <span class="name">{{ item.Name }}</span>
+                </div>
+                <div class="item" @click="lookQuestions(item)">
+                    <img
+                        src="@/assets/images/suspension/icon_timu_big.svg"
+                        class="icon"
+                    />
+                    <span class="name">{{ item.Name }}</span>
+                </div>
+            </template>
         </div>
     </div>
 </template>
@@ -37,7 +91,7 @@
     .title {
         font-size: 20px;
         font-weight: 600;
-        color: #FFFFFF;
+        color: #ffffff;
     }
     .list {
         margin-top: 14px;
@@ -56,6 +110,7 @@
             flex-direction: column;
             justify-content: space-between;
             cursor: pointer;
+            border: 2px solid transparent;
             .icon {
                 width: 28px;
                 height: 28px;
@@ -63,10 +118,10 @@
             .name {
                 font-size: 14px;
                 font-weight: 400;
-                color: #FFFFFF;
+                color: #ffffff;
                 @include text-ellipsis;
             }
-            &.active {
+            &:hover {
                 border: 2px solid var(--app-color-primary);
             }
         }

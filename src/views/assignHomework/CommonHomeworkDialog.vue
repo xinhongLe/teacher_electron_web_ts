@@ -1,7 +1,7 @@
 <template>
     <div class="add-common-homework">
         <el-dialog
-            title="普通作业"
+            title="自定义作业"
             :model-value="dialogVisible"
             width="80%"
             center

@@ -144,6 +144,18 @@ async function createWindow() {
             mainWindow!.webContents.send("fetchSubjectPublisherBookList");
         });
     });
+
+    ipcMain.handle("openWindow", (_, data) => {
+        mainWindow && mainWindow.webContents.send("openWindow", data);
+    });
+
+    ipcMain.handle("lookVideo", (_, data) => {
+        mainWindow && mainWindow.webContents.send("lookVideo", data);
+    });
+
+    ipcMain.handle("lookQuestions", (_, data) => {
+        mainWindow && mainWindow.webContents.send("lookQuestions", data);
+    });
 }
 
 app.on("window-all-closed", () => {

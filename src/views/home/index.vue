@@ -175,7 +175,7 @@ export default defineComponent({
                 display: flex;
                 align-items: center;
                 .refresh {
-                    font-size: 16px;
+                    font-size: 14px;
                     margin-right: 8px;
                     cursor: pointer;
                 }

@@ -236,57 +236,57 @@ export default () => {
     };
     const dragDealData = (draggingNode: Node, dropNode: Node, ev: string) => {
         // 拖拽的目标元素不是自己本身
-        if (draggingNode.data.ID !== dropNode.data.ID) {
-            // 卡的拖拽
-            if (draggingNode.data.PageList && dropNode.data.PageList) {
-                const data = state.windowCards.map((card, index) => {
-                    return {
-                        Sort: index + 1,
-                        TeachPageRelationID: card.TeachPageRelationID
-                    };
-                });
-                _updateCardSort({ Sort: data });
-            } else {
-                const draggingCard = state.oldWindowCards.find(card => {
-                    return card.PageList.find(page => page.ID === draggingNode.data.ID);
-                });
+        // if (draggingNode.data.ID !== dropNode.data.ID) {
+        //     // 卡的拖拽
+        //     if (draggingNode.data.PageList && dropNode.data.PageList) {
+        //         const data = state.windowCards.map((card, index) => {
+        //             return {
+        //                 Sort: index + 1,
+        //                 TeachPageRelationID: card.TeachPageRelationID
+        //             };
+        //         });
+        //         _updateCardSort({ Sort: data });
+        //     } else {
+        //         const draggingCard = state.oldWindowCards.find(card => {
+        //             return card.PageList.find(page => page.ID === draggingNode.data.ID);
+        //         });
 
-                const dropCard = state.oldWindowCards.find(card => {
-                    return card.PageList.find(page => page.ID === dropNode.data.ID);
-                });
-                // 同一个卡的 页拖拽
-                if (draggingCard && dropCard && draggingCard.ID === dropCard.ID) {
-                    const card = state.windowCards.find(card => {
-                        return card.PageList.find(page => page.ID === dropNode.data.ID);
-                    });
-                    const data = card!.PageList.map((page, index) => {
-                        return {
-                            CardID: dropCard.ID,
-                            Sort: index + 1,
-                            TeachPageRelationID: page.TeachPageRelationID
-                        };
-                    });
-                    _updateCardSort({ Sort: data });
-                    // 不同卡的 页拖拽
-                } else if (draggingCard && dropCard && draggingCard.ID !== dropCard.ID) {
-                    const data = {
-                        CardID: "",
-                        Sort: 0,
-                        TeachPageRelationID: ""
-                    };
-                    state.windowCards.forEach(card => {
-                        card.PageList.forEach((page, index) => {
-                            if (page.ID === draggingNode.data.ID) {
-                                data.CardID = card.ID;
-                                data.Sort = index + 1;
-                                data.TeachPageRelationID = page.TeachPageRelationID;
-                            }
-                        });
-                    });
-                    _movePage(data);
-                }
-            }
-        }
+        //         const dropCard = state.oldWindowCards.find(card => {
+        //             return card.PageList.find(page => page.ID === dropNode.data.ID);
+        //         });
+        //         // 同一个卡的 页拖拽
+        //         if (draggingCard && dropCard && draggingCard.ID === dropCard.ID) {
+        //             const card = state.windowCards.find(card => {
+        //                 return card.PageList.find(page => page.ID === dropNode.data.ID);
+        //             });
+        //             const data = card!.PageList.map((page, index) => {
+        //                 return {
+        //                     CardID: dropCard.ID,
+        //                     Sort: index + 1,
+        //                     TeachPageRelationID: page.TeachPageRelationID
+        //                 };
+        //             });
+        //             _updateCardSort({ Sort: data });
+        //             // 不同卡的 页拖拽
+        //         } else if (draggingCard && dropCard && draggingCard.ID !== dropCard.ID) {
+        //             const data = {
+        //                 CardID: "",
+        //                 Sort: 0,
+        //                 TeachPageRelationID: ""
+        //             };
+        //             state.windowCards.forEach(card => {
+        //                 card.PageList.forEach((page, index) => {
+        //                     if (page.ID === draggingNode.data.ID) {
+        //                         data.CardID = card.ID;
+        //                         data.Sort = index + 1;
+        //                         data.TeachPageRelationID = page.TeachPageRelationID;
+        //                     }
+        //                 });
+        //             });
+        //             _movePage(data);
+        //         }
+        //     }
+        // }
     };
 
     return {

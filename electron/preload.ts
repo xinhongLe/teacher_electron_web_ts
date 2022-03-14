@@ -1,9 +1,10 @@
 import { getCurrentWindow, app, dialog } from "@electron/remote";
 import electron, { OpenDialogOptions, remote, SaveDialogOptions } from "electron";
 import { isExistFile, mkdirs, store } from "./downloadFile";
-import { resolve } from "path";
+import { join, resolve } from "path";
 import ElectronLog from "electron-log";
 import fs from "fs";
+import { parsePPT, pptParsePath } from "./parsePPT";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 window.electron = {
     maximizeWindow: () => {
@@ -45,9 +46,12 @@ window.electron = {
         const currentWindow = getCurrentWindow();
         currentWindow.hide();
     },
-    showWindow: () => {
+    showWindow: (isMaximize = false) => {
         const currentWindow = getCurrentWindow();
         currentWindow.show();
+        if (isMaximize) {
+            currentWindow.maximize();
+        }
     },
     destroyWindow: () => {
         const currentWindow = getCurrentWindow();
@@ -133,6 +137,10 @@ window.electron = {
     getPath: (name) => {
         return app.getPath(name);
     },
+    getPPTPath: (path) => {
+        return join(pptParsePath, path);
+    },
     store: store,
+    parsePPT,
     ...electron
 };

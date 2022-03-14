@@ -1,52 +1,27 @@
 <script lang="ts" setup>
 import { Close } from "@element-plus/icons-vue";
 import { ElIcon } from "element-plus";
-import { defineProps, defineEmits, ref } from "vue";
-defineProps({
-    title: {
-        type: String
-    },
-    name: {
-        type: String
-    },
-    content: {
-        type: String
-    }
-});
+import { defineProps } from "vue";
 
-const emit = defineEmits(["close", "onSave"]);
-
-const inputRef = ref<HTMLInputElement>();
-
-const close = () => {
-    emit("close");
-};
-
-const onSave = () => {
-    const name = inputRef.value?.value;
-    emit("onSave", name);
-    emit("close");
-};
-
+defineProps(["onSave", "onCancel", "onExit"]);
 </script>
 
 <template>
     <div class="dialog-warp">
         <div class="dialog-content-warp">
             <div class="title-warp">
-                <div class="title">{{title}}</div>
-                <div class="close-icon" @click="close">
+                <div class="title">提示</div>
+                <div class="close-icon" @click="onCancel">
                     <el-icon color="#bcbcbc" :size="16"><Close /></el-icon>
                 </div>
             </div>
             <div class="content-warp">
-                <div v-if="content" class="content">{{content}}</div>
-                <div class="tips">课件名称：</div>
-                <input class="input" :value="`${name}（副本1）`" ref="inputRef"/>
+                <div  class="content">你已编辑，是否保存</div>
             </div>
             <div class="footer-warp">
-                <div class="btn" @click="close">取消</div>
-                <div class="btn" @click="onSave">保存</div>
+                <div class="btn" @click="onCancel">取消</div>
+                <div class="btn" @click="onExit">否</div>
+                <div class="btn" @click="onSave">是</div>
             </div>
         </div>
     </div>
@@ -131,10 +106,10 @@ const onSave = () => {
             font-size: 14px;
             color: #212121;
             cursor: pointer;
-            &:first-child {
+            &:first-child, &:nth-child(2) {
                 border: 1px solid #EBEFF1;
             }
-            &:last-child {
+            &:last-child{
                 margin-right: 0;
                 background: #2E95FF;
                 color: #fff;

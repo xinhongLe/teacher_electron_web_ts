@@ -53,7 +53,7 @@ const routes: Array<RouteRecordRaw> = [
                 component: () => import("@/views/record/index.vue")
             },
             {
-                path: "windowcard-edit/:winValue/:originType/:winName",
+                path: "windowcard-edit/:winValue/:originType/:winName/:lessonId",
                 name: "编辑",
                 component: () => import("@/views/preparation/intelligenceClassroom/edit/index.vue"),
                 meta: {
@@ -61,7 +61,7 @@ const routes: Array<RouteRecordRaw> = [
                 }
             },
             {
-                path: "attend-class",
+                path: "attend-class/:lessonId/:subjectId",
                 name: "上课",
                 component: () => import("@/views/attendClass/index.vue")
             },

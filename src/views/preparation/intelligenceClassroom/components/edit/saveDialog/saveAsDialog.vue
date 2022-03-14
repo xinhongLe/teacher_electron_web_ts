@@ -1,9 +1,20 @@
 <script lang="ts" setup>
 import BaseDialog from "./baseDialog.vue";
-import { defineEmits } from "vue";
-const emit = defineEmits(["update:isShow"]);
+import { defineEmits, defineProps } from "vue";
+
+defineProps({
+    name: {
+        type: String,
+        default: ""
+    }
+});
+const emit = defineEmits(["update:isShow", "onSave"]);
 const close = () => {
     emit("update:isShow", false);
+};
+
+const onSave = (name: string) => {
+    emit("onSave", name);
 };
 </script>
 
@@ -11,7 +22,9 @@ const close = () => {
     <BaseDialog
         title="提示"
         content="您正在编辑系统课件，保存后将自动为您生成自己的副本课件。"
+        :name="name"
         @close="close"
+        @onSave="onSave"
     >
     </BaseDialog>
 </template>

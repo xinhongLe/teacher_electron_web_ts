@@ -1,7 +1,8 @@
 import { CourseWares, getCourseByCourseBag } from "@/api";
+import { store } from "@/store";
 import { SchoolBagInfo } from "@/types/preparation";
 import { cloneCourseBagToTeacher, fetchBagBySchoolLesson } from "@/views/preparation/api";
-import { InjectionKey, ref } from "vue";
+import { InjectionKey, onDeactivated, ref } from "vue";
 export interface ClassContent {
     content: CourseWares[],
     title: string
@@ -24,7 +25,8 @@ const useBag = () => {
         const newBag = { ...bag };
         if (newBag.CourseBagType === 1) {
             const cloneCourseBagDetail = await cloneCourseBagToTeacher({
-                courseBagID: newBag.ID
+                courseBagID: newBag.ID,
+                lessonID: store.state.preparation.selectLessonId
             });
             if (cloneCourseBagDetail.resultCode === 200) {
                 newBag.ID = cloneCourseBagDetail.result.CourseBagTeacher.ID;
@@ -54,6 +56,7 @@ const useBag = () => {
         });
 
         if (res?.resultCode === 200) {
+            window.electron.ipcRenderer.invoke("getCourseWares", res.result.CourseWares);
             res.result.CourseWares.forEach(item => {
                 switch (item.Process) {
                 case 1:
@@ -70,6 +73,10 @@ const useBag = () => {
         }
         classContentList.value = list;
     };
+
+    onDeactivated(() => {
+        window.electron.ipcRenderer.invoke("getCourseWares", []);
+    });
 
     return {
         getBagList,

@@ -1,5 +1,5 @@
 import request from "@/utils/request";
-import { IResponse } from "@/types/response";
+import { IResponse, RequestFun } from "@/types/response";
 import { ICardList, ICopyWindowRes, ITreeList } from "@/types/intelligence";
 import { AI_XUE_SHI_API, WINDOW_CRAD_API, originType } from "@/config";
 type BookListResponse = IResponse<ITreeList[]>
@@ -50,6 +50,34 @@ interface CopyWindow {
     id: string,
     originType: number | null,
     sourceLessonID: string
+}
+
+export interface SaveWindowsPageData {
+    pageID: string;
+    pageName: string;
+    height?: number;
+    width?: number;
+    type: number;
+    sort: number;
+    state: number;
+    remark: string;
+    json: string;
+    franchiseeID?: string;
+}
+
+export interface SaveWindowsCardData {
+    cardID: string,
+    cardName: string,
+    sort: number,
+    pageData: SaveWindowsPageData[]
+}
+
+interface SaveWindowsData {
+    originType: number,
+    windowID: string,
+    windowName: string,
+    lessonID?:string,
+    cardData: SaveWindowsCardData[]
 }
 // 复制窗
 export function CopyWindow(data:CopyWindow): Promise<IResponse<ICopyWindowRes>> {
@@ -162,3 +190,27 @@ export function getSchoolLessonWindow(data: IGetLessonWindows): Promise<GetSchoo
         data
     });
 }
+
+export const saveWindows:RequestFun<SaveWindowsData, null> = (data) => {
+    return request({
+        baseURL: AI_XUE_SHI_API,
+        url: "Api/WCP/Window/SaveWindows",
+        headers: {
+            "Content-Type": "application/json-patch+json"
+        },
+        method: "post",
+        data
+    });
+};
+
+export const saveAsWindows:RequestFun<SaveWindowsData, null> = (data) => {
+    return request({
+        baseURL: AI_XUE_SHI_API,
+        url: "Api/WCP/Window/SaveAsWindows",
+        headers: {
+            "Content-Type": "application/json-patch+json"
+        },
+        method: "post",
+        data
+    });
+};

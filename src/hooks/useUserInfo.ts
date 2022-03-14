@@ -17,6 +17,7 @@ const dealUserInfo = async (useInfo:ILessonManagerResult) => {
             name: useInfo.Name,
             account: useInfo.Account,
             id: useInfo.ID,
+            userCenterUserID: useInfo.UserCenterUserID,
             Schools: useInfo.Schools
         });
 };

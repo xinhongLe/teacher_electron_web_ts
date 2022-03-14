@@ -6,6 +6,7 @@
             :isShowText="true"
             :isDrop="true"
             :isShowDetailBtn="true"
+            :isShowDelete="true"
         >
             <template v-slot:default="slotProps">
                 <header class="header">
@@ -36,16 +37,6 @@
                     </div>
                     <div class="right">
                         <div
-                            @click="templatesVisible = true"
-                            class="right-content-warp"
-                        >
-                            <img
-                                src="@/assets/images/preparation/icon_guanlimoban.svg"
-                                alt=""
-                            />
-                            <span>管理模板</span>
-                        </div>
-                        <div
                             class="right-content-warp"
                             @click="slotProps.initSchedules"
                         >
@@ -60,11 +51,6 @@
             </template>
         </Calendar>
         <div class="templates-dialog">
-            <ManageTemplates
-                v-if="templatesVisible"
-                v-model:dialogVisible="templatesVisible"
-                @success="success"
-            />
         </div>
     </div>
 </template>
@@ -73,7 +59,6 @@
 import useTime from "@/hooks/useTime";
 import { defineComponent, ref } from "vue";
 import Calendar from "@/components/calendar/index.vue";
-import ManageTemplates from "./ManageTemplates.vue";
 import { ArrowLeftBold, ArrowRightBold } from "@element-plus/icons-vue";
 export default defineComponent({
     setup() {
@@ -97,7 +82,7 @@ export default defineComponent({
             weekNext
         };
     },
-    components: { Calendar, ManageTemplates, ArrowRightBold, ArrowLeftBold }
+    components: { Calendar, ArrowRightBold, ArrowLeftBold }
 });
 </script>
 

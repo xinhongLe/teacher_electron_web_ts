@@ -19,7 +19,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, onUnmounted, provide, ref } from "vue";
+import { computed, defineComponent, onDeactivated, onUnmounted, provide, ref } from "vue";
 import Head from "./head/index.vue";
 import ScheduleManagement from "./scheduleManagement/index.vue";
 import IntelligenceClassroom from "./intelligenceClassroom/index.vue";
@@ -30,6 +30,7 @@ import useWindowInfo, { windowInfoKey } from "@/hooks/useWindowInfo";
 import useBag, { bagKey } from "@/hooks/useBag";
 import emitter from "@/utils/mitt";
 import { store } from "@/store";
+import isElectron from "is-electron";
 export default defineComponent({
     name: "Preparation",
     setup() {

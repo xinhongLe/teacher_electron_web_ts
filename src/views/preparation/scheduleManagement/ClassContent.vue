@@ -14,28 +14,7 @@
                 <span>取消</span>
             </p>
         </div>
-        <div class="title-bar">
-            <div
-                class="bag"
-                v-for="bag in bagList"
-                :key="bag?.ID"
-                :class="{ active: bag.ID === selectBag?.ID }"
-            >
-                {{ bag?.Name }}
-            </div>
-            <div class="icon-list-warp" v-if="selectBag?.ID && isOperator">
-                <div class="icon-warp" @click="dialogVisible = true">
-                    <i
-                        class="el-icon-edit-outline"
-                    ></i>
-                </div>
-                <div class="icon-warp" @click="delCourse">
-                    <i
-                        class="el-icon-delete"
-                    ></i>
-                </div>
-            </div>
-        </div>
+        <BagList/>
         <div class="contentBox" v-if="selectBag?.ID">
             <div
                 class="container"
@@ -144,21 +123,14 @@
             <img src="@/assets/images/preparation/pic_noclass@2x.png" />
             <p>未选择课包</p>
         </div>
-        <ClassBagDialog
-            v-model:dialogVisible="dialogVisible"
-            v-if="dialogVisible"
-            :isEdit="true"
-            :lessonOrBagValue="selectBag"
-        />
     </div>
 </template>
 
 <script lang="ts">
 import { store } from "@/store";
 import { ElMessage, ElMessageBox } from "element-plus";
-import { computed, defineComponent, inject, ref, watch } from "vue";
-import { delCourseBagTeacher, updateCourseWareListOfTeacher } from "../api";
-import ClassBagDialog from "./ClassBagDialog.vue";
+import { computed, defineComponent, inject, watch } from "vue";
+import { updateCourseWareListOfTeacher } from "../api";
 import useDrag from "@/hooks/useDrag";
 import useDrop from "./hooks/useDrop";
 import { lookVideo, lookQuestions, openFile } from "@/utils";
@@ -166,13 +138,12 @@ import FileType from "@/components/fileType/index.vue";
 import { ElementFile } from "@/types/preparation";
 import { getOssUrl } from "@/utils/oss";
 import emitter from "@/utils/mitt";
-import { find, pullAllBy } from "lodash";
+import { find } from "lodash";
 import { bagKey } from "@/hooks/useBag";
 import { onClickOutside } from "@vueuse/core";
+import BagList from "./BagList.vue";
 export default defineComponent({
     setup() {
-        const dialogVisible = ref(false);
-
         const { bagList, selectBag, classContentList, queryClassContentList } =
             inject(bagKey)!;
 
@@ -198,34 +169,6 @@ export default defineComponent({
         const _onDragEnd = (e: DragEvent) => {
             clearStyle();
             onDragEnd(e);
-        };
-
-        const delCourse = () => {
-            ElMessageBox.confirm(
-                `确认要删除此课包[${selectBag.value?.Name}]?`,
-                "提示",
-                {
-                    confirmButtonText: "确定",
-                    cancelButtonText: "取消",
-                    type: "warning"
-                }
-            )
-                .then(async () => {
-                    const res = await delCourseBagTeacher({
-                        id: selectBag.value?.ID || ""
-                    });
-                    if (res.resultCode === 200) {
-                        ElMessage.success("删除成功!");
-                        pullAllBy(
-                            bagList.value,
-                            [{ ID: selectBag.value?.ID }],
-                            "ID"
-                        );
-                    }
-                })
-                .catch(() => {
-                    ElMessage.info("已取消删除");
-                });
         };
 
         const delCourseware = (id: string) => {
@@ -299,9 +242,7 @@ export default defineComponent({
             onDrop,
             copy,
             clearStyle,
-            delCourse,
             delCourseware,
-            dialogVisible,
             onDragStart,
             onDrag,
             onDragleave,
@@ -317,7 +258,7 @@ export default defineComponent({
             lookQuestions: _lookQuestions
         };
     },
-    components: { ClassBagDialog, FileType }
+    components: { FileType, BagList }
 });
 </script>
 
@@ -370,6 +311,7 @@ export default defineComponent({
     background: #e0f8ec;
     border-radius: 4px;
     border: 1px solid #c7eedb;
+    min-width: 0;
     .title-bar {
         display: flex;
         justify-content: center;
