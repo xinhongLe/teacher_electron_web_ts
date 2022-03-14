@@ -66,7 +66,7 @@ const delCourse = () => {
                         @click="handleSelectBag(bag, index)"
                         :ref="swiperItemRefs.set"
                     >
-                        <span class="name" :class="{ active: bag.ID === selectBag?.ID }">{{ bag?.Name }}</span>
+                        <span class="name" :class="{ active: bag.ID === selectBag?.ID }" :title="bag?.Name">{{ bag?.Name }}</span>
                     </div>
                 </div>
             </div>

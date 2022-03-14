@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { CourseWares } from "@/api";
 import { SchoolWindowInfo } from "@/types/preparation";
+import { getOssUrl } from "@/utils/oss";
 import isElectron from "is-electron";
 import { onMounted, ref } from "vue";
 
@@ -22,6 +23,21 @@ const lookQuestions = (item: CourseWares) => {
         type: 3
     });
     window.electron.ipcRenderer.invoke("hideUnfoldSuspensionWin");
+};
+
+const openFile = async (item: CourseWares) => {
+    if (item.File) {
+        const file = item.File;
+        const name = `${file.FileName}.${file.Extention}`;
+        const key = `${file.FilePath}/${name}`;
+        const url = await getOssUrl(key, file.Bucket);
+        if (isElectron()) {
+            return window.electron.ipcRenderer.invoke("downloadFile", url, name).then((filePath) => {
+                filePath && window.electron.shell.openPath(filePath);
+            });
+        }
+        window.open(url);
+    }
 };
 
 const lookVideo = (id: string) => {
@@ -73,10 +89,16 @@ onMounted(() => {
                     />
                     <span class="name">{{ item.Name }}</span>
                 </div>
-                <div class="item" @click="lookQuestions(item)">
+                <div class="item" @click="item.Type === 1 ? lookQuestions(item) : openFile(item)">
                     <img
                         src="@/assets/images/suspension/icon_timu_big.svg"
                         class="icon"
+                        v-if="item.Type === 1"
+                    />
+                    <img
+                        src="@/assets/images/suspension/icon_zy.svg"
+                        class="icon"
+                        v-else
                     />
                     <span class="name">{{ item.Name }}</span>
                 </div>

@@ -28,6 +28,7 @@ watch(winList, () => {
                         :class="{ active: currentWindowInfo.WindowID === item.WindowID }"
                         @click="updateCurrentWindow(item)"
                         :ref="swiperItemRefs.set"
+                        :title="item.WindowName"
                     >
                         {{ item.WindowName }}
                     </div>
