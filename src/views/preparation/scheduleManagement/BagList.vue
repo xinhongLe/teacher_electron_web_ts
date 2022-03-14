@@ -20,6 +20,9 @@ watch(bagList, () => {
 });
 
 const delCourse = () => {
+    if (bagList.value.length === 1) {
+        return;
+    }
     ElMessageBox.confirm(
         `确认要删除此课包[${selectBag.value?.Name}]?`,
         "提示",
@@ -78,7 +81,7 @@ const delCourse = () => {
             <div class="icon-warp" @click="dialogVisible = true">
                 <i class="el-icon-edit-outline"></i>
             </div>
-            <div class="icon-warp" @click="delCourse">
+            <div class="icon-warp" @click="delCourse" :class="{'disable': bagList.length === 1}">
                 <i class="el-icon-delete"></i>
             </div>
         </div>
@@ -199,6 +202,10 @@ const delCourse = () => {
             justify-content: center;
             align-items: center;
             color: #fff;
+            &.disable {
+                color: #ccc;
+                cursor: default;
+            }
             &:first-child {
                 margin-right: 12px;
             }

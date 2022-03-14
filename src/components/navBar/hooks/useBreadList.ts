@@ -2,6 +2,7 @@ import { watch, ref, onMounted, onUnmounted } from "vue";
 import router from "@/router";
 import { Bread } from "../interface";
 import emitter from "@/utils/mitt";
+import { isNavigationFailure } from "vue-router";
 
 export default () => {
     const breadList = ref([
@@ -49,7 +50,8 @@ export default () => {
 
         if (router.currentRoute.value.name === item.name) {
             router.push(breadList.value[breadList.value.length - 2].path);
-            cancelAfterEach = router.afterEach(() => {
+            cancelAfterEach = router.afterEach((to, from, failure) => {
+                if (isNavigationFailure(failure)) return;
                 breadList.value.splice(index, 1);
                 cancelAfterEach();
             });

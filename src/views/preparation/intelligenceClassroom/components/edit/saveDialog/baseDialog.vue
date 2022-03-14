@@ -42,7 +42,7 @@ const onSave = () => {
             <div class="content-warp">
                 <div v-if="content" class="content">{{content}}</div>
                 <div class="tips">课件名称：</div>
-                <input class="input" :value="`${name}（副本1）`" ref="inputRef"/>
+                <input class="input" :value="`${name}（副本1）`" ref="inputRef" maxlength="20"/>
             </div>
             <div class="footer-warp">
                 <div class="btn" @click="close">取消</div>
