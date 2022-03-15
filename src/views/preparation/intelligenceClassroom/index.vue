@@ -57,11 +57,9 @@ import {
 } from "vue";
 import CardList from "./cardList/index.vue";
 import PreviewSection from "./components/preview/previewSection.vue";
-import { useRouter } from "vue-router";
 import Tools from "./components/preview/tools.vue";
 import emitter from "@/utils/mitt";
 import { windowInfoKey } from "@/hooks/useWindowInfo";
-const router = useRouter();
 const isFullScreen = ref(false);
 const isShowCardList = ref(true);
 const cardListComponents = ref<InstanceType<typeof CardList>>();
@@ -92,9 +90,6 @@ onMounted(() => {
         refreshWindow(selectLessonId.value);
     });
 });
-const windowEdit = async () => {
-    router.push(`/windowcard-edit/${currentWindowInfo.WindowID}/${currentWindowInfo.OriginType}/${currentWindowInfo.WindowName}/${selectLessonId.value}`);
-};
 const lastPage = () => {
     cardListComponents.value && cardListComponents.value.changeReducePage();
 };
@@ -143,11 +138,9 @@ onActivated(() => {
         event.preventDefault();
     };
     selectLessonId.value && refreshWindow(selectLessonId.value);
-    emitter.on("editWindow", windowEdit);
 });
 onDeactivated(() => {
     document.onkeydown = null;
-    emitter.off("editWindow", windowEdit);
 });
 </script>
 

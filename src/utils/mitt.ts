@@ -12,8 +12,7 @@ type Events = {
     windowSaveAsSuc: null,
     smallVideo: null,
     smallQuestion: null,
-    closeTab: Bread,
-    editWindow: null
+    closeTab: Bread
 }
 
 const emitter = mitt<Events>();

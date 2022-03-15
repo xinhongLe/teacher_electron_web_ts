@@ -1,8 +1,8 @@
 import { IPageValue } from "@/types/home";
 import { onUnmounted, Ref, ref, watch } from "vue";
 import useHome from "@/hooks/useHome";
-import router from "@/router";
 import { Slide } from "wincard/src/types/slides";
+import { store } from "@/store";
 
 export default (pageValue: Ref<IPageValue>) => {
     const { getPageDetail, transformType } = useHome();
@@ -18,7 +18,7 @@ export default (pageValue: Ref<IPageValue>) => {
             return;
         }
         currentReqId.value = page.ID;
-        const originType = Number(router.currentRoute.value.params.originType);
+        const originType = store.state.preparation.editWindowInfo.originType;
         return new Promise((resolve) => {
             let dbEnd = false;
             let requestEnd = false;

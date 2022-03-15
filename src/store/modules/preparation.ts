@@ -10,6 +10,13 @@ const initState = (): PreparationState => ({
     isClickDetail: false,
     selectNextType: "",
     subjectPublisherBookValue: [],
+    editWindowInfo: {
+        id: "",
+        name: "",
+        lessonId: "",
+        originType: 0,
+        allWindowNames: []
+    },
     selectLessonId: ""
 
 });
@@ -35,6 +42,9 @@ const mutations:MutationTree<PreparationState> = {
     },
     [MutationTypes.SET_SELECT_LESSON_ID](state, flag) {
         state.selectLessonId = flag;
+    },
+    [MutationTypes.SET_EDIT_WINDOW_INFO](state, flag: PreparationState["editWindowInfo"]) {
+        state.editWindowInfo = flag;
     },
     [MutationTypes.PREPARATION_STUDENT_RESET_STATE](state) {
         Object.assign(state, initState());

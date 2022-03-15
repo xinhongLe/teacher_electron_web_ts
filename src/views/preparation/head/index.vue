@@ -20,15 +20,15 @@
         </div>
         <window-list v-show="tabIndex === ClassroomType.WindowClasses && !showClassArrangement"/>
         <div class="right">
-            <div class="btn" v-show="tabIndex === ClassroomType.WindowClasses && !showClassArrangement" @click="edit">
+            <div class="btn" v-show="tabIndex === ClassroomType.WindowClasses && !showClassArrangement" @click="edit" :class="{disable: winList.length === 0}">
                 <el-icon :size="16" :style="{ marginRight: '4px' }"
                     ><edit /></el-icon
                 >编辑课件
             </div>
-            <div class="btn exit" @click="$emit('update:showClassArrangement', false)" v-if="showClassArrangement">
+            <div class="btn exit" @click="updateShowClassArrangement(false)" v-if="showClassArrangement">
                 <img src="@/assets/images/preparation/icon_tuichu.svg" />退出排课
             </div>
-            <div class="btn" @click="$emit('update:showClassArrangement', true)" v-else>
+            <div class="btn" @click="updateShowClassArrangement(true)" v-else>
                 <img src="@/assets/images/preparation/icon_paike.svg" />去排课
             </div>
             <div class="refresh-warp" @click="reload" v-show="!showClassArrangement"/>
@@ -39,7 +39,7 @@
 <script lang="ts">
 import { MutationTypes, store } from "@/store";
 import { ClassroomType } from "@/types/preparation";
-import { computed, defineComponent, inject, onMounted, onUnmounted, ref, watch } from "vue";
+import { computed, defineComponent, inject, ref, watch } from "vue";
 import emitter from "@/utils/mitt";
 import { Edit } from "@element-plus/icons-vue";
 import useBook from "../hooks/useBook";
@@ -47,6 +47,7 @@ import { windowInfoKey } from "@/hooks/useWindowInfo";
 import useSubjectPublisherBookList, { subjectPublisherBookList } from "@/hooks/useSubjectPublisherBookList";
 import WindowList from "@/components/windowList/index.vue";
 import useOpenWindow from "@/hooks/useOpenWindow";
+import { useRouter } from "vue-router";
 export default defineComponent({
     name: "head",
     components: {
@@ -60,19 +61,29 @@ export default defineComponent({
     },
     setup(props, { emit }) {
         const titleList = [{ title: "翻转课堂", type: ClassroomType.Classes }, { title: "数智课堂", type: ClassroomType.WindowClasses }];
-        const { updateCurrentWindow } = inject(windowInfoKey)!;
+        const { updateCurrentWindow, currentWindowInfo, winList } = inject(windowInfoKey)!;
         const tabIndex = ref(ClassroomType.WindowClasses);
         const subjectPublisherBookValue = computed(() => store.state.preparation.subjectPublisherBookValue);
         const {
             cascaderProps
         } = useBook();
 
+        const router = useRouter();
+
         const clickTab = (index: number) => {
             tabIndex.value = index;
         };
 
         const edit = () => {
-            emitter.emit("editWindow", null);
+            if (winList.value.length === 0) return;
+            store.commit(MutationTypes.SET_EDIT_WINDOW_INFO, {
+                id: currentWindowInfo.WindowID,
+                name: currentWindowInfo.WindowName,
+                lessonId: currentWindowInfo.LessonID,
+                originType: currentWindowInfo.OriginType,
+                allWindowNames: winList.value.map((item) => item.WindowName)
+            });
+            router.push("/windowcard-edit");
         };
 
         const reload = () => {
@@ -84,6 +95,10 @@ export default defineComponent({
                 MutationTypes.SET_SUBJECT_PUBLISHER_BOOK_VALUE,
                 value
             );
+        };
+
+        const updateShowClassArrangement = (flag: boolean) => {
+            emit("update:showClassArrangement", flag);
         };
 
         watch(tabIndex, (value) => {
@@ -105,7 +120,7 @@ export default defineComponent({
 
         useSubjectPublisherBookList();
 
-        useOpenWindow(tabIndex, updateCurrentWindow);
+        useOpenWindow(tabIndex, updateCurrentWindow, updateShowClassArrangement);
 
         return {
             titleList,
@@ -116,8 +131,10 @@ export default defineComponent({
             tabIndex,
             updateCurrentWindow,
             edit,
+            winList,
             onChange,
             ClassroomType,
+            updateShowClassArrangement,
             reload
         };
     }
@@ -237,6 +254,11 @@ export default defineComponent({
             &:first-child {
                 border: 1px solid var(--app-color-primary);
                 color: var(--app-color-primary);
+                &.disable {
+                    border-color: #ccc;
+                    color: #ccc;
+                    cursor: default;
+                }
             }
             &:nth-child(2) {
                 background-color: #ff7802;

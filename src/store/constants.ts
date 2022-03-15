@@ -89,7 +89,11 @@ export const enum MutationTypes {
     /**
      * 设置备课页面选择的课时id
      */
-    SET_SELECT_LESSON_ID = "SET_SELECT_LESSON_ID"
+    SET_SELECT_LESSON_ID = "SET_SELECT_LESSON_ID",
+    /**
+     * 设置当前编辑窗的信息
+     */
+    SET_EDIT_WINDOW_INFO = "SET_EDIT_WINDOW_INFO"
 }
 
 export const enum ActionTypes {

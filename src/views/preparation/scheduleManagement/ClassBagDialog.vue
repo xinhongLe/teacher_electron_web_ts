@@ -24,7 +24,7 @@
                 <el-button
                     type="primary"
                     @click="handleConfirm"
-                    > {{isEdit ? "编辑" : "确 定"}}</el-button
+                    > {{isEdit ? "保存" : "确 定"}}</el-button
                 >
             </span>
         </template>
@@ -34,10 +34,9 @@
 <script lang="ts">
 import { bagKey } from "@/hooks/useBag";
 import { ElFormType } from "@/types/elementType";
-import { CourseBag } from "@/types/preparation";
 import { find } from "lodash";
-import { defineComponent, inject, PropType, reactive, ref } from "vue";
-import { addCourseBagTeacher, updateCourseBagTeacher } from "../api";
+import { defineComponent, inject, reactive, ref } from "vue";
+import { updateCourseBagTeacher } from "../api";
 export default defineComponent({
     props: {
         dialogVisible: {

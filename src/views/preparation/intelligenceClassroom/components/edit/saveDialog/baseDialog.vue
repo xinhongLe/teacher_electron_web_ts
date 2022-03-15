@@ -1,13 +1,17 @@
 <script lang="ts" setup>
 import { Close } from "@element-plus/icons-vue";
 import { ElIcon } from "element-plus";
-import { defineProps, defineEmits, ref } from "vue";
-defineProps({
+import { defineProps, defineEmits, ref, PropType } from "vue";
+const props = defineProps({
     title: {
         type: String
     },
     name: {
         type: String
+    },
+    allNames: {
+        type: Array as PropType<string[]>,
+        default: () => []
     },
     content: {
         type: String
@@ -15,6 +19,16 @@ defineProps({
 });
 
 const emit = defineEmits(["close", "onSave"]);
+
+const getName = (index = 1): string => {
+    const name = `${props.name}（副本${index}）`;
+    if (props.allNames.includes(name)) {
+        return getName(index + 1);
+    }
+    return name;
+};
+
+const newName = ref(getName());
 
 const inputRef = ref<HTMLInputElement>();
 
@@ -42,7 +56,7 @@ const onSave = () => {
             <div class="content-warp">
                 <div v-if="content" class="content">{{content}}</div>
                 <div class="tips">课件名称：</div>
-                <input class="input" :value="`${name}（副本1）`" ref="inputRef" maxlength="20"/>
+                <input class="input" :value="newName" ref="inputRef" maxlength="20"/>
             </div>
             <div class="footer-warp">
                 <div class="btn" @click="close">取消</div>

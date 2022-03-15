@@ -3,9 +3,9 @@
         <PPTEditor
             ref="PPTEditRef"
             :slide="slide"
-            :isShowSaveAs="originType === 1"
+            :isShowSaveAs="windowInfo.originType === 1"
             v-model:windowName="windowName"
-            :isShowName="originType === 1"
+            :isShowName="windowInfo.originType === 1"
             @onSave="onSave"
             @addCard="addCard"
             @selectVideo="selectVideo"
@@ -25,24 +25,19 @@
             v-model:dialogVisible="dialogVisibleVideo"
             @selectVideoVal="selectVideoVal"
         ></select-video-dialog>
-        <SaveDialog v-if="isShowSaveDialog" v-model:isShow="isShowSaveDialog" :name="$route.params.winName" @onSave="saveCallback"/>
-        <SaveAsDialog v-if="isShowSaveAsDialog" v-model:isShow="isShowSaveAsDialog" :name="$route.params.winName" @onSave="saveCallback"/>
     </div>
 </template>
 <script lang="ts">
-import { defineComponent, reactive, toRefs, ref } from "vue";
+import { defineComponent, reactive, toRefs, ref, computed } from "vue";
 import { Slide, IWin, PPTVideoElement, SaveType } from "wincard/src/types/slides";
 import CardSelectDialog from "./cardSelectDialog.vue";
 import { IPageValue, ICards } from "@/types/home";
 import SelectVideoDialog from "./selectVideoDialog.vue";
-import { useRoute } from "vue-router";
-import { ElMessage } from "element-plus";
-import SaveDialog from "./saveDialog/saveDialog.vue";
-import SaveAsDialog from "./saveDialog/saveAsDialog.vue";
 import { isEqual } from "lodash";
+import { store } from "@/store";
 export default defineComponent({
     name: "winCardEdit",
-    components: { SelectVideoDialog, CardSelectDialog, SaveDialog, SaveAsDialog },
+    components: { SelectVideoDialog, CardSelectDialog },
     props: {
         slide: {
             type: Object,
@@ -50,16 +45,15 @@ export default defineComponent({
         }
     },
     setup(props, { emit }) {
-        const route = useRoute();
         const state = reactive({
             dialogVisible: false,
             dialogVisibleVideo: false
             // slide: {}
         });
         const page = ref<IPageValue>();
-        const originType = Number(route.params.originType as string);
+        const windowInfo = computed(() => store.state.preparation.editWindowInfo);
         const updateVideoElement = ref<PPTVideoElement | null>(null);
-        const windowName = ref(route.params.winName as string);
+        const windowName = ref(windowInfo.value.name);
 
         const PPTEditRef = ref();
 
@@ -72,23 +66,8 @@ export default defineComponent({
         const isShowSaveDialog = ref(false);
         const isShowSaveAsDialog = ref(false);
 
-        const saveCallback = (name: string) => {
-            emit("onSave", SaveType.SaveAs, name);
-        };
-
         const onSave = async (slide: Slide, type: SaveType) => {
-            if (originType === 0) {
-                isShowSaveAsDialog.value = true;
-            } else {
-                if (type === SaveType.Save) {
-                    if (!windowName.value) {
-                        return ElMessage.warning("名称不能为空");
-                    }
-                    emit("onSave", type, windowName.value);
-                } else {
-                    isShowSaveDialog.value = true;
-                }
-            }
+            emit("onSave", type, windowName.value);
         };
 
         let fun: (win: IWin[]) => void;
@@ -174,12 +153,11 @@ export default defineComponent({
             execNext,
             getDataIsChange,
             setQuoteVideo,
-            originType,
+            windowInfo,
             isShowSaveDialog,
             updateSlide,
             isShowSaveAsDialog,
             windowName,
-            saveCallback,
             updateQuoteVideo
         };
     }

@@ -1,11 +1,15 @@
 <script lang="ts" setup>
 import BaseDialog from "./baseDialog.vue";
-import { defineEmits, defineProps } from "vue";
+import { defineEmits, defineProps, PropType } from "vue";
 
 defineProps({
     name: {
         type: String,
         default: ""
+    },
+    allNames: {
+        type: Array as PropType<string[]>,
+        default: () => []
     }
 });
 const emit = defineEmits(["update:isShow", "onSave"]);
@@ -19,7 +23,7 @@ const onSave = (name: string) => {
 </script>
 
 <template>
-    <BaseDialog title="另存课件" :name="name" @close="close" @onSave="onSave"> </BaseDialog>
+    <BaseDialog title="另存课件" :name="name" @close="close" @onSave="onSave" :allNames="allNames"> </BaseDialog>
 </template>
 
 <style lang="scss" scoped></style>

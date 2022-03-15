@@ -51,7 +51,18 @@ export interface PreparationState {
     /**
      * 选择的课时id
      */
-    selectLessonId: string
+    selectLessonId: string,
+    /**
+     * 当前编辑的窗卡页信息
+     */
+    editWindowInfo: {
+        id: string,
+        name: string,
+        originType: number,
+        lessonId: string,
+        allWindowNames: string[]
+    }
+
 }
 
 export interface CommonState {
