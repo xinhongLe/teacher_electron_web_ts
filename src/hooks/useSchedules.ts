@@ -49,6 +49,7 @@ export default (days: Ref<string[]>) => {
     };
 
     const getTeachClassSchedule = async () => {
+        if (!timetableID.value) return;
         const res = await fetchUserSchedules({
             timetableID: timetableID.value,
             userID: store.state.userInfo.userCenterUserID
@@ -62,6 +63,7 @@ export default (days: Ref<string[]>) => {
     };
 
     const getWeekSchedule = async () => {
+        if (!timetableID.value) return;
         const res = await fetchScheduleContent({
             timetableMainID: timetableID.value,
             beginTime: days.value[0],
@@ -73,6 +75,7 @@ export default (days: Ref<string[]>) => {
     };
 
     const getClassTime = async () => {
+        if (!timetableID.value) return;
         const res = await fetchTimetableClassTime({
             timetableID: timetableID.value
         });

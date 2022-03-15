@@ -16,13 +16,11 @@
                     v-model="subjectPublisherBookValue"
                     :props="cascaderProps"
                     :options="options"
-                    :popper-append-to-body="false"
                 ></el-cascader>
                 <el-select
                     v-model="teacherBookChapter"
                     placeholder="请选择"
                     style="margin: 0 6px"
-                    :popper-append-to-body="false"
                 >
                     <el-option
                         v-for="(item, index) in teacherBookChapterList"
@@ -32,7 +30,7 @@
                     >
                     </el-option>
                 </el-select>
-                <el-select v-model="lessonID" v-if="titleIndex === 1" :popper-append-to-body="false">
+                <el-select v-model="lessonID" v-if="titleIndex === 1">
                     <el-option label="全部课时" :value="null" />
                     <el-option
                         v-for="item in lessons"

@@ -14,12 +14,11 @@ const close = () => {
     emits("update:modelValue", false);
 };
 
-onClickOutside(contentRef, close);
 </script>
 
 <template>
-    <div class="dialog-warp">
-        <div class="content-container" ref="contentRef">
+    <div class="dialog-warp" @click="close">
+        <div class="content-container" ref="contentRef" @click.stop="">
             <ScheduleManagement :is-operator="false" :select-lesson-id="selectLessonId"/>
         </div>
         <div class="close-btn" >
