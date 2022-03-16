@@ -112,6 +112,7 @@ useOpenWindow(currentTab, windowInfo.updateCurrentWindow);
         display: flex;
         align-items: center;
         margin-bottom: 12px;
+        flex-shrink: 0;
         .tab {
             display: flex;
             align-items: center;
@@ -139,6 +140,7 @@ useOpenWindow(currentTab, windowInfo.updateCurrentWindow);
         flex: 1;
         background-color: #fff;
         display: flex;
+        overflow: hidden;
         .intelligence-classroom-container {
             width: 100%;
             height: 100%;
