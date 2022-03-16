@@ -1,12 +1,10 @@
 import { ElMessageBox } from "element-plus";
-import { readdir, stat, unlink } from "fs/promises";
-import { Stats } from "fs";
+import { Stats, promises } from "fs";
 import moment from "moment";
 import { join } from "path";
 import { ref, watch, watchEffect } from "vue";
 import { store } from "@/store";
 import { getSaveFilePath } from "@/utils";
-
 interface FileInfo extends Stats{
     filePath: string
 }
@@ -40,7 +38,7 @@ export default async () => {
             clearCaching.value = true;
             for (const [index, info] of rangeFileList.value.entries()) {
                 try {
-                    await unlink(info.filePath);
+                    await promises.unlink(info.filePath);
                 } catch (error) {
                     window.electron.log.error("clearCache error", error);
                 }
@@ -59,10 +57,10 @@ export default async () => {
     watchEffect(() => {
         const id = store.state.userInfo.id;
         if (!id) return;
-        readdir(getSaveFilePath(id)).then(async (files) => {
+        promises.readdir(getSaveFilePath(id)).then(async (files) => {
             fileInfoList.value = await Promise.all(
                 files.map(async (file) => ({
-                    ...(await stat(join(window.electron.getCachePath(""), file))),
+                    ...(await promises.stat(join(window.electron.getCachePath(""), file))),
                     filePath: join(window.electron.getCachePath(""), file)
                 }))
             );

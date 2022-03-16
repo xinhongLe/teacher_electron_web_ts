@@ -161,8 +161,8 @@ module.exports = {
             mainProcessWatch: ["electron/**/*"],
             files: ["dist_electron/**/*"],
             builderOptions: {
-                appId: "com.leyixue.teacher",
-                productName: "爱学仕校园教师端", // 项目名
+                appId: process.env.VUE_APP_ID,
+                productName: process.env.VUE_APP_PRODUCT_NAME, // 项目名
                 copyright: "Copyright © 2021", // 版权信息
                 artifactName: "${productName}-${version}-" + moment().format("YYYYMMDDHHmm") + ".${ext}",
                 directories: {
@@ -202,7 +202,7 @@ module.exports = {
                     installerHeaderIcon: "./public/icon.ico", // 安装时头部图标
                     createDesktopShortcut: true, // 创建桌面图标
                     createStartMenuShortcut: true, // 创建开始菜单图标
-                    shortcutName: "爱学仕校园教师端" // 图标名称
+                    shortcutName: process.env.VUE_APP_PRODUCT_NAME // 图标名称
                 },
                 win: {
                     // win相关配置

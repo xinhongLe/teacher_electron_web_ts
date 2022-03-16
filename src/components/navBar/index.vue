@@ -98,17 +98,17 @@
         </div>
         <Feedback ref="feedbackRef"/>
         <ExitDialog v-model:visible="visible"/>
-        <Suspense>
-            <ClearCacheDialog v-if="showCacheDialog" v-model:showCacheDialog="showCacheDialog"/>
+        <Suspense v-if="isElectron()">
+            <ClearCacheDialog v-if="showCacheDialog" v-model:showCacheDialog="showCacheDialog" />
         </Suspense>
-        <Suspense>
+        <Suspense v-if="isElectron()">
             <AutoClearCache/>
         </Suspense>
     </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, computed, ref, onMounted } from "vue";
+import { defineComponent, computed, ref, onMounted, defineAsyncComponent } from "vue";
 import useMaximizeWindow from "../../hooks/useMaximizeWindow";
 import useMinimizeWindow from "../../hooks/useMinimizeWindow";
 import isElectron from "is-electron";
@@ -119,16 +119,14 @@ import useOutLogin from "@/hooks/useOutLogin";
 import { store } from "@/store";
 import Feedback from "../feedback/index.vue";
 import ExitDialog from "./ExitDialog.vue";
-import ClearCacheDialog from "./clearCacheDialog.vue";
-import AutoClearCache from "./autoClearCache.vue";
 
 export default defineComponent({
     name: "NavBar",
     components: {
         Feedback,
         ExitDialog,
-        ClearCacheDialog,
-        AutoClearCache
+        ClearCacheDialog: defineAsyncComponent(() => import("./clearCacheDialog.vue")),
+        AutoClearCache: defineAsyncComponent(() => import("./autoClearCache.vue"))
     },
     setup() {
         const route = useRoute();

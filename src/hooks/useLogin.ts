@@ -9,7 +9,6 @@ import {
 import useUserInfo from "@/hooks/useUserInfo";
 import { NavigationGuardNext } from "vue-router";
 import md5 from "js-md5";
-import isElectron from "is-electron";
 
 export default () => {
     const userLogin = async ({ account, password, next, code, isPassWordLogin = true } : {account: string, password: string, next?: NavigationGuardNext, code?: string, isPassWordLogin?: boolean}) => {
