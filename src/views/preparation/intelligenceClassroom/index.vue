@@ -53,7 +53,8 @@ import {
     defineProps,
     watchEffect,
     defineEmits,
-    toRef
+    toRef,
+    onUnmounted
 } from "vue";
 import CardList from "./cardList/index.vue";
 import PreviewSection from "./components/preview/previewSection.vue";
@@ -72,7 +73,7 @@ const props = defineProps({
 const emits = defineEmits(["update:isWindowLoadEnd"]);
 const selectLessonId = toRef(props, "selectLessonId");
 provide("isShowCardList", isShowCardList);
-const { getSchoolWindowList, winList, updateCurrentWindow, cardList, currentWindowInfo, refreshWindow } = inject(windowInfoKey)!;
+const { getSchoolWindowList, winList, updateCurrentWindow, cardList, refreshWindow } = inject(windowInfoKey)!;
 
 watchEffect(() => {
     if (selectLessonId.value) {
@@ -85,10 +86,13 @@ watchEffect(() => {
 const changeWinSize = () => {
     cardList.value = [...cardList.value]; // 切换窗口大小，清除缓存的笔记列表
 };
+
+const preparationReLoad = () => {
+    refreshWindow(selectLessonId.value);
+};
+
 onMounted(() => {
-    emitter.on("preparationReLoad", () => {
-        refreshWindow(selectLessonId.value);
-    });
+    emitter.on("preparationReLoad", preparationReLoad);
 });
 const lastPage = () => {
     cardListComponents.value && cardListComponents.value.changeReducePage();
@@ -141,6 +145,10 @@ onActivated(() => {
 });
 onDeactivated(() => {
     document.onkeydown = null;
+});
+
+onUnmounted(() => {
+    emitter.off("preparationReLoad", preparationReLoad);
 });
 </script>
 

@@ -59,7 +59,7 @@
 
 <script lang="ts" setup>
 import { ColData, Schedule } from "@/hooks/useSchedules";
-import { CourseBag, SchoolLesson } from "@/types/preparation";
+import { SchoolLesson } from "@/types/preparation";
 import { ElMessage, ElMessageBox } from "element-plus";
 import moment from "moment";
 import { computed, inject, PropType, ref, defineProps } from "vue";

@@ -73,7 +73,7 @@
 import { ElementFile, Lesson, Material } from "@/types/preparation";
 import { getOssUrl } from "@/utils/oss";
 import { deleteMaterial, queryMaterialList } from "@/views/preparation/api";
-import { defineComponent, inject, onMounted, PropType, ref, watchEffect } from "vue";
+import { defineComponent, inject, onMounted, onUnmounted, PropType, ref, watchEffect } from "vue";
 import AddOrEditMaterial from "./AddOrEditMaterial.vue";
 import useMaterialDialog from "./hooks/useMaterialDialog";
 import useDrag from "@/hooks/useDrag";
@@ -151,9 +151,11 @@ export default defineComponent({
         watchEffect(_queryMaterialList);
 
         onMounted(() => {
-            emitter.on("preparationReLoad", () => {
-                _queryMaterialList();
-            });
+            emitter.on("preparationReLoad", _queryMaterialList);
+        });
+
+        onUnmounted(() => {
+            emitter.off("preparationReLoad", _queryMaterialList);
         });
 
         return {
