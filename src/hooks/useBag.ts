@@ -1,8 +1,9 @@
 import { CourseWares, getCourseByCourseBag } from "@/api";
+import { store } from "@/store";
 import { SchoolBagInfo } from "@/types/preparation";
+import { set, STORAGE_TYPES } from "@/utils/storage";
 import { cloneCourseBagToTeacher, fetchBagBySchoolLesson } from "@/views/preparation/api";
-import { isEmpty } from "lodash";
-import { InjectionKey, onDeactivated, Ref, ref } from "vue";
+import { computed, InjectionKey, onDeactivated, Ref, ref } from "vue";
 export interface ClassContent {
     content: CourseWares[],
     title: string
@@ -21,6 +22,8 @@ const useBag = (lessonID: Ref<string>) => {
         }
     };
 
+    const selectBagIdKey = computed(() => STORAGE_TYPES.SELECT_BAG_ID + lessonID.value + "_" + store.state.userInfo.id);
+
     const handleSelectBag = async (bag: SchoolBagInfo, index: number) => {
         const newBag = { ...bag };
         if (newBag.CourseBagType === 1) {
@@ -35,6 +38,7 @@ const useBag = (lessonID: Ref<string>) => {
             }
         }
         selectBag.value = newBag;
+        set(selectBagIdKey.value, selectBag.value.ID); // 为了区分不同用户
         queryClassContentList();
     };
 
@@ -84,6 +88,7 @@ const useBag = (lessonID: Ref<string>) => {
         handleSelectBag,
         classContentList,
         queryClassContentList,
+        selectBagIdKey,
         bagList
     };
 };

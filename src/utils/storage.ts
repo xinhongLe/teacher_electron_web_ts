@@ -66,7 +66,11 @@ export enum STORAGE_TYPES {
     /**
      * 下一次自动清理提示时间
      */
-    NEXT_AUTO_CLEAR_TIME = "NEXT_AUTO_CLEAR_TIME_"
+    NEXT_AUTO_CLEAR_TIME = "NEXT_AUTO_CLEAR_TIME_",
+    /**
+     * 课时下选择的课包
+     */
+    SELECT_BAG_ID = "SELECT_BAG_ID_"
 }
 
 export const set = (name: STORAGE_TYPES | string, value: unknown, isEncrypt = false) => {

@@ -6,6 +6,7 @@
 <script lang="ts" setup>
 import { bagKey } from "@/hooks/useBag";
 import emitter from "@/utils/mitt";
+import { get } from "@/utils/storage";
 import { findIndex, isEmpty } from "lodash";
 import { defineProps, inject, onMounted, provide, watchEffect, defineEmits, onUnmounted } from "vue";
 import ClassContent from "./ClassContent.vue";
@@ -24,7 +25,7 @@ const props = defineProps({
 
 const emits = defineEmits(["update:isBagLoadEnd"]);
 
-const { getBagList, bagList, handleSelectBag, selectBag, classContentList } = inject(bagKey)!;
+const { getBagList, bagList, handleSelectBag, selectBag, classContentList, selectBagIdKey } = inject(bagKey)!;
 
 provide("isOperator", props.isOperator);
 
@@ -36,7 +37,17 @@ watchEffect(() => {
         getBagList(props.selectLessonId).then(() => {
             emits("update:isBagLoadEnd", true);
             if (!isEmpty(bagList.value)) {
-                handleSelectBag(bagList.value[0], 0);
+                const rememberBagId = get(selectBagIdKey.value);
+                let bag = bagList.value[0];
+                let index = 0;
+                if (rememberBagId) {
+                    const rememberBagIndex = findIndex(bagList.value, { ID: rememberBagId });
+                    if (rememberBagIndex !== -1) {
+                        bag = bagList.value[rememberBagIndex];
+                        index = rememberBagIndex;
+                    }
+                }
+                handleSelectBag(bag, index);
             }
         });
     }
@@ -44,8 +55,13 @@ watchEffect(() => {
 
 const preparationReLoad = () => {
     getBagList(props.selectLessonId).then(() => {
-        const index = findIndex(bagList.value, { ID: selectBag.value?.ID }) || 0;
-        handleSelectBag(selectBag.value || bagList.value[0], index);
+        let index = findIndex(bagList.value, { ID: selectBag.value?.ID });
+        let bag = selectBag.value || bagList.value[0];
+        if (index === -1) {
+            index = 0;
+            bag = bagList.value[0];
+        }
+        handleSelectBag(bag, index);
     });
 };
 
