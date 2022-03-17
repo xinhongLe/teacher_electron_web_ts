@@ -6,7 +6,9 @@
             :isShowSaveAs="windowInfo.originType === 1"
             v-model:windowName="windowName"
             :isShowName="windowInfo.originType === 1"
+            :isShowDeleteBtn="windowInfo.originType === 1"
             @onSave="onSave"
+            @onDeleteWin="onDeleteWin"
             @addCard="addCard"
             @selectVideo="selectVideo"
             @setQuoteVideo="setQuoteVideo"
@@ -35,6 +37,8 @@ import { IPageValue, ICards } from "@/types/home";
 import SelectVideoDialog from "./selectVideoDialog.vue";
 import { isEqual } from "lodash";
 import { store } from "@/store";
+import { ElMessage, ElMessageBox } from "element-plus";
+import { deleteWindow } from "../../api";
 export default defineComponent({
     name: "winCardEdit",
     components: { SelectVideoDialog, CardSelectDialog },
@@ -68,6 +72,20 @@ export default defineComponent({
 
         const onSave = async (slide: Slide, type: SaveType) => {
             emit("onSave", type, windowName.value);
+        };
+
+        const onDeleteWin = () => {
+            ElMessageBox.confirm("确定要删除当前课件吗？", "提示", {
+                confirmButtonText: "确定删除",
+                cancelButtonText: "取消"
+            }).then(async () => {
+                const res = await deleteWindow({
+                    windowID: windowInfo.value.id
+                });
+                if (res.resultCode === 200) {
+                    ElMessage.success("删除成功");
+                }
+            });
         };
 
         let fun: (win: IWin[]) => void;
@@ -158,6 +176,7 @@ export default defineComponent({
             updateSlide,
             isShowSaveAsDialog,
             windowName,
+            onDeleteWin,
             updateQuoteVideo
         };
     }

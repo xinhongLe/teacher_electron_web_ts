@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ArrowDownBold, ArrowUpBold } from "@element-plus/icons-vue";
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import { pull, isEmpty, find } from "lodash";
 import CollapseTransition from "@/components/collapseTransition/index.vue";
 import useBook from "../hooks/useBook";
@@ -8,6 +8,7 @@ import { MutationTypes, store } from "@/store";
 import { fetchSchoolLessonList, getLastSelectBook, setLastSelectBook } from "../api";
 import { GetLastSelectBookRes, SchoolLesson } from "@/types/preparation";
 import useDrag from "@/hooks/useDrag";
+import emitter from "@/utils/mitt";
 
 const activeIds = ref<string[]>([]);
 const isShow = ref(true);
@@ -18,6 +19,7 @@ const { onDragStart, onDrag, onDragEnd } = useDrag();
 const subjectPublisherBookValue = computed(() => store.state.preparation.subjectPublisherBookValue);
 let selectBook: GetLastSelectBookRes;
 let isInit = false;
+const activeId = ref("");
 
 const getLessonList = async (id: string) => {
     const res = await fetchSchoolLessonList({
@@ -31,7 +33,43 @@ const getLessonList = async (id: string) => {
     }
 };
 
+const collapseClick = (id: string) => {
+    if (activeIds.value.includes(id)) {
+        pull(activeIds.value, id);
+    } else {
+        activeIds.value.push(id);
+    }
+    if (!lessonListMap.value.has(id)) {
+        getLessonList(id);
+    }
+};
+
+const clickLesson = (id: string, chapterId: string) => {
+    store.commit(MutationTypes.SET_SELECT_LESSON_ID, id);
+    activeId.value = chapterId;
+    setLastSelectBook({
+        bookID: subjectPublisherBookValue.value[2],
+        chapterID: chapterId,
+        lessonID: selectLessonId.value,
+        subjectID: subjectPublisherBookValue.value[0]
+    });
+};
+
+const preparationReLoad = () => {
+    lessonListMap.value.forEach(async (value, key) => {
+        await getLessonList(key);
+        if (activeId.value === key) {
+            const lessonList = lessonListMap.value.get(key) || [];
+            const lesson = find(lessonList, { ID: selectLessonId.value });
+            if (!lesson) {
+                clickLesson(lessonList[0].ID, key);
+            }
+        }
+    });
+};
+
 onMounted(async () => {
+    emitter.on("preparationReLoad", preparationReLoad);
     const selectBookRes = await getLastSelectBook({
         subjectID: ""
     });
@@ -54,10 +92,7 @@ onMounted(async () => {
         getLessonList(ChapterID).then(() => {
             const lessonList = lessonListMap.value.get(ChapterID);
             if (!isEmpty(lessonList)) {
-                store.commit(
-                    MutationTypes.SET_SELECT_LESSON_ID,
-                    LessonID || lessonList![0]?.ID
-                );
+                clickLesson(LessonID || lessonList![0]?.ID || "", ChapterID);
             }
         });
         isInit = false;
@@ -67,6 +102,10 @@ onMounted(async () => {
         //     subjectPublisherBookValue.value
         // );
     }
+});
+
+onUnmounted(() => {
+    emitter.off("preparationReLoad", preparationReLoad);
 });
 
 watch(
@@ -80,43 +119,13 @@ watch(
         getLessonList(id).then(() => {
             const lessonList = lessonListMap.value.get(id);
             if (!isEmpty(lessonList)) {
-                store.commit(
-                    MutationTypes.SET_SELECT_LESSON_ID,
-                    lessonList![0]?.ID
-                );
-                setLastSelectBook({
-                    bookID: subjectPublisherBookValue.value[2],
-                    chapterID: id,
-                    lessonID: selectLessonId.value,
-                    subjectID: subjectPublisherBookValue.value[0]
-                });
+                clickLesson(lessonList![0]?.ID || "", id);
             }
         });
     }, {
         deep: true
     }
 );
-
-const collapseClick = (id: string) => {
-    if (activeIds.value.includes(id)) {
-        pull(activeIds.value, id);
-    } else {
-        activeIds.value.push(id);
-    }
-    if (!lessonListMap.value.has(id)) {
-        getLessonList(id);
-    }
-};
-
-const clickLesson = (id: string, chapterId: string) => {
-    store.commit(MutationTypes.SET_SELECT_LESSON_ID, id);
-    setLastSelectBook({
-        bookID: subjectPublisherBookValue.value[2],
-        chapterID: chapterId,
-        lessonID: selectLessonId.value,
-        subjectID: subjectPublisherBookValue.value[0]
-    });
-};
 
 </script>
 

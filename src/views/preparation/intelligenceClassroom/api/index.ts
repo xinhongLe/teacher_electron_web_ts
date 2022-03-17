@@ -214,3 +214,17 @@ export const saveAsWindows:RequestFun<SaveWindowsData, null> = (data) => {
         data
     });
 };
+
+export const deleteWindow:RequestFun<{
+    windowID: string
+}, null> = (data) => {
+    return request({
+        baseURL: AI_XUE_SHI_API,
+        url: "Api/WCP/Window/DeleteWindow",
+        headers: {
+            "Content-Type": "application/json-patch+json"
+        },
+        method: "post",
+        data
+    });
+};
