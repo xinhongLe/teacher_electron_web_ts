@@ -88,7 +88,11 @@ const useWindowInfo = () => {
                     isToFirst = false;
                 } else {
                     const win = find(winList.value, { WindowID: currentWindowInfo.WindowID });
-                    win && updateCurrentWindow(win);
+                    if (win) {
+                        updateCurrentWindow(win);
+                    } else {
+                        updateCurrentWindow(winList.value[0]);
+                    }
                 }
 
                 cardList.value = getCardList();

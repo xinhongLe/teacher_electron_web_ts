@@ -39,6 +39,8 @@ import { isEqual } from "lodash";
 import { store } from "@/store";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { deleteWindow } from "../../api";
+import { useRoute } from "vue-router";
+import emitter from "@/utils/mitt";
 export default defineComponent({
     name: "winCardEdit",
     components: { SelectVideoDialog, CardSelectDialog },
@@ -58,6 +60,7 @@ export default defineComponent({
         const windowInfo = computed(() => store.state.preparation.editWindowInfo);
         const updateVideoElement = ref<PPTVideoElement | null>(null);
         const windowName = ref(windowInfo.value.name);
+        const route = useRoute();
 
         const PPTEditRef = ref();
 
@@ -84,6 +87,10 @@ export default defineComponent({
                 });
                 if (res.resultCode === 200) {
                     ElMessage.success("删除成功");
+                    emitter.emit("closeTab", {
+                        name: route.name as string,
+                        path: route.path
+                    });
                 }
             });
         };
