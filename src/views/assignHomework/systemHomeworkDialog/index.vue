@@ -1,7 +1,7 @@
 <template>
     <div class="add-system-homework">
         <el-dialog
-            title="系统作业"
+            title="在线作业"
             :model-value="dialogVisible"
             width="80%"
             center=""
