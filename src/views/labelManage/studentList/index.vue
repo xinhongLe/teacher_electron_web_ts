@@ -18,8 +18,8 @@
                     <el-col
                         :span="6"
                         :lg="4"
-                        v-for="(item1, index1) in item.list"
-                        :key="index1"
+                        v-for="(item1) in item.list"
+                        :key="item1.StudentID"
                     >
                         <div
                             :class="
