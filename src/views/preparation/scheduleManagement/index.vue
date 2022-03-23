@@ -50,6 +50,10 @@ watchEffect(() => {
                 handleSelectBag(bag, index);
             }
         });
+    } else {
+        classContentList.value = [];
+        selectBag.value = undefined;
+        bagList.value = [];
     }
 });
 

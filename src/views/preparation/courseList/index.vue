@@ -117,10 +117,8 @@ watch(
         activeIds.value = [];
         activeIds.value.push(id);
         getLessonList(id).then(() => {
-            const lessonList = lessonListMap.value.get(id);
-            if (!isEmpty(lessonList)) {
-                clickLesson(lessonList![0]?.ID || "", id);
-            }
+            const lessonList = lessonListMap.value.get(id) || [];
+            clickLesson(lessonList![0]?.ID || "", id);
         });
     }, {
         deep: true
