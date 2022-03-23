@@ -14,6 +14,9 @@
                 @mousedown="mousedown"
                 @mousemove="mousemove"
                 @mouseup="mouseup"
+                @touchstart="touchStart"
+                @touchmove="touchMove"
+                @touchend="mouseup"
             />
             <transition name="fade">
                 <BoardList
@@ -282,6 +285,7 @@ import BoardHistoryList from "./boardHistoryList.vue";
 import useUploadFile from "@/hooks/useUploadFile";
 import { BlackboardFile, submitBlackboardHistory } from "./api";
 import CloseDialog from "./closeDialog.vue";
+import useMove from "./hooks/useMove";
 const chalKBlack = require("./ico/chalk_black.cur");
 const chalKBlue = require("./ico/chalk_blue.cur");
 const chalKOrange = require("./ico/chalk_orange.cur");
@@ -319,7 +323,7 @@ export default defineComponent({
             }
         ]);
         const pageIndex = ref(0);
-        let fabCanvas: any;
+        const fabCanvas = ref();
         const chalKColorMap: Record<string, unknown> = {
             "#000000": chalKBlack,
             "#4B71EE": chalKBlue,
@@ -335,8 +339,6 @@ export default defineComponent({
         const isShowBroadList = ref(false);
         const activeType = ref(ActiveType.Brush);
         let isAction = false;
-        const origin = { x: 0, y: 0 };
-        let isMoving = false;
         let actionSleep: any;
         const disabledPrevPage = computed(() => pageIndex.value === 0);
         const disabledNextPage = computed(
@@ -348,46 +350,47 @@ export default defineComponent({
         const isShowHistoryBroadList = ref(false);
         const { uploadFile } = useUploadFile("TeacherBlackboardFile");
         const isShowCloseDialog = ref(false);
+        const { mousedown, mousemove, mouseup, touchStart, touchMove } = useMove(fabCanvas);
 
         function init() {
-            fabCanvas = new window.fabric.Canvas(canvasRef.value, {
+            fabCanvas.value = new window.fabric.Canvas(canvasRef.value, {
                 backgroundColor: blackColor,
                 width: Number(boxRef.value?.offsetWidth),
                 height: Number(boxRef.value?.offsetHeight)
             });
             // 禁止橡皮擦除背景色
-            fabCanvas.get("backgroundColor").set({ erasable: false });
-            fabCanvas.freeDrawingBrush.width = 2;
+            fabCanvas.value.get("backgroundColor").set({ erasable: false });
+            fabCanvas.value.freeDrawingBrush.width = 2;
             selectPenMode();
         }
         // 画笔模式
         function selectPenMode() {
-            fabCanvas.freeDrawingBrush = new window.fabric.PencilBrush(
-                fabCanvas
+            fabCanvas.value.freeDrawingBrush = new window.fabric.PencilBrush(
+                fabCanvas.value
             );
-            fabCanvas.isDrawingMode = true;
-            fabCanvas.freeDrawingBrush.color =
+            fabCanvas.value.isDrawingMode = true;
+            fabCanvas.value.freeDrawingBrush.color =
                 penColor.value || PenColorMap.White;
-            fabCanvas.freeDrawingBrush.width = penSize.value || 2;
+            fabCanvas.value.freeDrawingBrush.width = penSize.value || 2;
             const cursor = `url(${
                 penColor.value
                     ? chalKColorMap[penColor.value]
                     : chalKColorMap.white
             }),auto`;
-            fabCanvas.freeDrawingCursor = cursor;
+            fabCanvas.value.freeDrawingCursor = cursor;
         }
         // 橡皮模式
         function selectEraseMode() {
-            fabCanvas.freeDrawingBrush = new window.fabric.EraserBrush(
-                fabCanvas
+            fabCanvas.value.freeDrawingBrush = new window.fabric.EraserBrush(
+                fabCanvas.value
             );
-            fabCanvas.freeDrawingBrush.width = 30;
-            fabCanvas.isDrawingMode = true;
-            fabCanvas.freeDrawingCursor = `url(${rubber2}),auto`;
+            fabCanvas.value.freeDrawingBrush.width = 30;
+            fabCanvas.value.isDrawingMode = true;
+            fabCanvas.value.freeDrawingCursor = `url(${rubber2}),auto`;
         }
         function getCanvasData() {
-            const dataUrl = fabCanvas.toJSON();
-            const canvasimg = fabCanvas.toDataURL();
+            const dataUrl = fabCanvas.value.toJSON();
+            const canvasimg = fabCanvas.value.toDataURL();
             const data = { data: dataUrl, img: canvasimg };
             return data;
         }
@@ -395,10 +398,10 @@ export default defineComponent({
             storageCanvasData.value[pageIndex.value] = getCanvasData();
         }
         function clear() {
-            fabCanvas.clear();
-            fabCanvas.setBackgroundColor(blackColor);
-            fabCanvas.get("backgroundColor").set({ erasable: false });
-            fabCanvas.renderAll();
+            fabCanvas.value.clear();
+            fabCanvas.value.setBackgroundColor(blackColor);
+            fabCanvas.value.get("backgroundColor").set({ erasable: false });
+            fabCanvas.value.renderAll();
         }
         const undoClick = () => {
             isAction = true;
@@ -408,7 +411,7 @@ export default defineComponent({
                 const jsonString =
                     currentState.value[currentState.value.length - 1];
                 const json = JSON.parse(jsonString);
-                fabCanvas.loadFromJSON(json).renderAll();
+                fabCanvas.value.loadFromJSON(json).renderAll();
             } else {
                 if (currentState.value.length === 1) {
                     const deleteJson = currentState.value.pop();
@@ -428,7 +431,7 @@ export default defineComponent({
                 const deleteJson = deleteState.value.pop();
                 currentState.value.push(deleteJson!);
                 const json = JSON.parse(deleteJson!);
-                fabCanvas.loadFromJSON(json).renderAll();
+                fabCanvas.value.loadFromJSON(json).renderAll();
             }
             clearTimeout(actionSleep);
             actionSleep = setTimeout(() => {
@@ -440,7 +443,7 @@ export default defineComponent({
         };
         const chooseClick = () => {
             activeType.value = ActiveType.Choose;
-            fabCanvas.isDrawingMode = false;
+            fabCanvas.value.isDrawingMode = false;
         };
         const brushClick = () => {
             activeType.value = ActiveType.Brush;
@@ -458,31 +461,6 @@ export default defineComponent({
             }).then(() => {
                 clear();
             });
-        };
-        const mousedown = (e: MouseEvent) => {
-            origin.x = e.x;
-            origin.y = e.y;
-            isMoving = true;
-        };
-        const mousemove = (e: MouseEvent) => {
-            if (!isMoving) {
-                return;
-            }
-            const left = e.x - origin.x;
-            const top = e.y - origin.y;
-            origin.x = e.x;
-            origin.y = e.y;
-            const objects = fabCanvas.getObjects();
-            objects.map((obj: any) => {
-                obj.set({
-                    left: obj.left + left,
-                    top: obj.top + top
-                });
-            });
-            fabCanvas.renderAll();
-        };
-        const mouseup = () => {
-            isMoving = false;
         };
         const changeStrokeStyle = (color: PenColorMap) => {
             penColor.value = color;
@@ -521,11 +499,11 @@ export default defineComponent({
         };
 
         const changeBoard = () => {
-            fabCanvas.setBackgroundColor(
+            fabCanvas.value.setBackgroundColor(
                 isBlack.value ? whiteColor : blackColor
             );
-            fabCanvas.get("backgroundColor").set({ erasable: false });
-            fabCanvas.renderAll();
+            fabCanvas.value.get("backgroundColor").set({ erasable: false });
+            fabCanvas.value.renderAll();
             isBlack.value = !isBlack.value;
             if (!isBlack.value && penColor.value === PenColorMap.White) {
                 penColor.value = PenColorMap.Black;
@@ -572,20 +550,20 @@ export default defineComponent({
         };
         onMounted(() => {
             init();
-            fabCanvas.on("object:added", function (e: any) {
+            fabCanvas.value.on("object:added", function (e: any) {
                 if (isAction) {
                     return;
                 }
                 deleteState.value = [];
-                const json = fabCanvas.toDatalessJSON(["clipPath"]);
+                const json = fabCanvas.value.toDatalessJSON(["clipPath"]);
                 currentState.value.push(JSON.stringify(json));
             });
-            fabCanvas.on("object:modified", function (e: any) {
+            fabCanvas.value.on("object:modified", function (e: any) {
                 if (isAction) {
                     return;
                 }
                 deleteState.value = [];
-                const json = fabCanvas.toDatalessJSON(["clipPath"]);
+                const json = fabCanvas.value.toDatalessJSON(["clipPath"]);
                 currentState.value.push(JSON.stringify(json));
             });
         });
@@ -595,7 +573,7 @@ export default defineComponent({
         watch(pageIndex, (v) => {
             deleteState.value = [];
             currentState.value = [];
-            fabCanvas.loadFromJSON(storageCanvasData.value[v].data).renderAll();
+            fabCanvas.value.loadFromJSON(storageCanvasData.value[v].data).renderAll();
         });
         return {
             isBlack,
@@ -635,6 +613,8 @@ export default defineComponent({
             isShowCloseDialog,
             isShowHistoryBroadList,
             PenColorMap,
+            touchStart,
+            touchMove,
             disabledRecoverBtn: computed(() => deleteState.value.length === 0),
             disabledUndoBtn: computed(() => currentState.value.length === 0)
         };
