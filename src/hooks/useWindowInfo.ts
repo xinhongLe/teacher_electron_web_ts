@@ -1,6 +1,6 @@
 import { SchoolWindowInfo, SchoolWindowCardInfo, SchoolWindowPageInfo } from "@/types/preparation";
 import { fetchSchoolWindowList } from "@/views/preparation/api";
-import { find, isEmpty, filter } from "lodash";
+import { find, isEmpty, filter, findIndex } from "lodash";
 import { computed, InjectionKey, onDeactivated, onMounted, onUnmounted, reactive, Ref, ref, watch } from "vue";
 import TrackService, { EnumTrackEventType } from "@/utils/common";
 import useHome from "@/hooks/useHome";
@@ -51,7 +51,7 @@ const useWindowInfo = () => {
         }));
     };
 
-    const updateCurrentWindow = (win: SchoolWindowInfo) => {
+    const updateCurrentWindow = (win: SchoolWindowInfo, isToCardFirst = true) => {
         currentWindowInfo.LessonID = win?.LessonID;
         currentWindowInfo.LessonWindowID = win?.LessonWindowID;
         currentWindowInfo.OriginType = win?.OriginType;
@@ -60,8 +60,11 @@ const useWindowInfo = () => {
         currentWindowInfo.WindowName = win?.WindowName;
         currentWindowInfo.WindowNickName = win?.WindowNickName;
         cardList.value = getCardList();
-        currentCardIndex.value = 0;
-        currentCard.value = cardList.value[0];
+        if (isToCardFirst) {
+            currentCardIndex.value = 0;
+            currentCard.value = cardList.value[0];
+        }
+
         TrackService.setTrack(EnumTrackEventType.SelectWindow, win?.WindowID, win?.WindowName, "", "", "", "", "选择窗");
     };
 
@@ -74,8 +77,9 @@ const useWindowInfo = () => {
         }
     };
 
-    const handleSelectCard = (card: SchoolWindowCardInfo) => {
+    const handleSelectCard = (card: SchoolWindowCardInfo, index: number) => {
         const newCard = dealCardData(card);
+        currentCardIndex.value = index;
         currentCard.value = newCard;
         TrackService.setTrack(EnumTrackEventType.SelectCard, currentWindowInfo.WindowID, currentWindowInfo.WindowName, card.ID, card.Name, card.Pages.length > 0 ? card.Pages[0].ID : "", card.Pages.length > 0 ? card.Pages[0].Name : "", "选择卡", "", "");
     };
@@ -89,19 +93,16 @@ const useWindowInfo = () => {
                 } else {
                     const win = find(winList.value, { WindowID: currentWindowInfo.WindowID });
                     if (win) {
-                        updateCurrentWindow(win);
+                        updateCurrentWindow(win, false);
                     } else {
-                        updateCurrentWindow(winList.value[0]);
+                        updateCurrentWindow(winList.value[0], false);
                     }
                 }
 
-                cardList.value = getCardList();
-                const cardInfo = find(cardList.value, { ID: currentCard.value?.ID });
-                if (cardInfo) {
-                    currentCard.value = { ...cardInfo };
-                } else {
-                    currentCard.value = cardList.value[0];
-                }
+                const findCardInfo = find(cardList.value, { ID: currentCard.value?.ID });
+                const cardIndex = findCardInfo ? findIndex(cardList.value, { ID: currentCard.value?.ID }) : 0;
+                const cardInfo = findCardInfo ? { ...findCardInfo } : cardList.value[0];
+                handleSelectCard(cardInfo, cardIndex);
             }
         });
     };

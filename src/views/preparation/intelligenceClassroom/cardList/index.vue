@@ -24,8 +24,7 @@ const emit = defineEmits(["updatePageList", "updateFlag"]);
 const { handleSelectCard, cardList, currentCardIndex } = inject(windowInfoKey)!;
 
 const handleClick = (index: number, item: SchoolWindowCardInfo) => {
-    currentCardIndex.value = index;
-    handleSelectCard(item);
+    handleSelectCard(item, index);
 };
 const ToastFirstPage = debounce(() => {
     return ElMessage({ type: "warning", message: "已经是第一页了" });
