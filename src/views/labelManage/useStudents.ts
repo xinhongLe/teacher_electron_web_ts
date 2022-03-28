@@ -1,10 +1,9 @@
 import router from "@/router";
-import { Student, StudentTag, Tag } from "@/types/labelManage";
+import { TagStudent, StudentTag, Tag } from "@/types/labelManage";
 import { LessonSubject } from "@/types/login";
 import { get, STORAGE_TYPES } from "@/utils/storage";
-import { groupBy } from "lodash";
-import { ref, Ref } from "vue";
-import { fetchAllStudents } from "./api";
+import { computed, ref, Ref } from "vue";
+import { fetchStudentsTagList } from "./api";
 
 const getSubjectName = (SelectSubjectId: string) => {
     const subjectList: LessonSubject[] = get(STORAGE_TYPES.USER_INFO).Subjects;
@@ -14,51 +13,53 @@ const getSubjectName = (SelectSubjectId: string) => {
 
 export default (tagList: Ref<Tag[]>, selectSubjectId: Ref<string>) => {
     const studentList = ref<StudentTag[]>([]);
-    const allStudentList = ref<Student[]>([]);
-    const allSubjectStudentList = ref<Student[][]>([]);
+    const allStudentList = ref<TagStudent[]>([]);
+    const allSubjectStudentList = ref<TagStudent[]>([]);
+    const selectSubjectName = computed(() => getSubjectName(selectSubjectId.value));
 
-    const dealStudentList = (students: Student[]) => {
+    const dealStudentList = (students: TagStudent[]) => {
         const newStudentList:StudentTag[] = [];
-        tagList.value.map((v) => {
+        const tagStudentListMap = new Map<string, TagStudent[]>();
+        tagList.value.forEach((v) => {
+            tagStudentListMap.set(v.TagName, []);
+        });
+        students.forEach((info) => {
+            const tagName = (info.SubjectsInfo || []).find(item => item.SubjectID === selectSubjectId.value)?.TagName || "未标记";
+            const list = tagStudentListMap.get(tagName) || [];
+            list.push(info);
+        });
+        tagStudentListMap.forEach((value, key) => {
             const obj: StudentTag = {
-                tagName: getSubjectName(selectSubjectId.value) + v.TagName,
-                list: []
+                tagName: selectSubjectName.value + key,
+                list: value
             };
-            students.map((e) => {
-                if (e.TagName === v.TagName) {
-                    obj.list.push(e);
-                }
-            });
             newStudentList.push(obj);
         });
         studentList.value = newStudentList;
     };
 
     const getAllStudents = async () => {
-        const res = await fetchAllStudents(get(STORAGE_TYPES.USER_INFO).ID);
+        const res = await fetchStudentsTagList({
+            classId: router.currentRoute.value.params.classId as string
+        });
         if (res.resultCode === 200) {
-            allStudentList.value = res.result;
-            const studentList = res.result.filter(
-                (v) => v.SubjectID === selectSubjectId.value && v.ClassID === router.currentRoute.value.params.classId
+            allStudentList.value = res.result.list;
+            const studentList = res.result.list.filter(
+                (v) => v.StudentSubjects && v.StudentSubjects.includes(selectSubjectName.value)
             );
             dealStudentList(studentList);
         }
     };
 
     const searchStudent = (subject: string, studentName: string) => {
-        const studentList = allStudentList.value.filter((v) => subject === "" || v.SubjectID === subject)
-            .filter(
-                (v) =>
-                    v.ClassID === router.currentRoute.value.params.classId
-            )
+        const studentList = allStudentList.value.filter((v) => subject === "" || (v.StudentSubjects && v.StudentSubjects.includes(getSubjectName(subject))))
             .filter(
                 (v) => studentName === "" || (v.Name && v.Name.indexOf(studentName) > -1) || (v.Account && v.Account.indexOf(studentName) > -1) || (v.Phone && v.Phone.indexOf(studentName) > -1)
             );
-        if (subject === "") {
-            const listMap = groupBy(studentList, "StudentID");
-            allSubjectStudentList.value = Object.values(listMap);
-        } else {
+        if (subject) {
             dealStudentList(studentList);
+        } else {
+            allSubjectStudentList.value = studentList;
         }
     };
 
