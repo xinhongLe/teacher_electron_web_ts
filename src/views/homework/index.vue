@@ -144,6 +144,7 @@ export default defineComponent({
 <style lang="scss" scoped>
 .homework-wrapper {
     height: 100%;
+    width: 100%;
     display: flex;
     flex: 1;
     flex-direction: column;
@@ -160,7 +161,7 @@ export default defineComponent({
         overflow: hidden;
         background-color: #fff;
         display: flex;
-        flex-wrap: wrap;
+        overflow-x: auto;
         flex-shrink: 0;
         p {
             display: flex;
@@ -173,6 +174,7 @@ export default defineComponent({
             background: #eff0f4;
             border-radius: 4px;
             cursor: pointer;
+            flex-shrink: 0;
             &.active {
                 color: #fff;
                 background: #4b71ee;

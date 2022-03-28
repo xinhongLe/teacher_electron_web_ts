@@ -181,11 +181,8 @@ export default defineComponent({
         };
 
         watch(nowQuestionID, (v) => {
-            emit("update:nowQuestionID", v);
-        });
-
-        watch(number, () => {
             childRef.value!.clearBrush();
+            emit("update:nowQuestionID", v);
         });
 
         watch(questionSwitchValue, (v) => {
