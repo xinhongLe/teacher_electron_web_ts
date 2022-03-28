@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icon_help</title>
+    <g id="页面-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="帮助中心入口" transform="translate(-1543.000000, -16.000000)">
+            <g id="编组-43" transform="translate(1543.000000, 14.000000)">
+                <g id="icon_help" transform="translate(0.000000, 2.000000)">
+                    <rect id="矩形" x="0" y="0" width="16" height="16"></rect>
+                    <g id="编组" transform="translate(1.000000, 1.000000)">
+                        <path d="M7,0 C3.13400675,7.10171439e-16 -4.73447626e-16,3.13400675 0,7 C4.73447626e-16,10.8659932 3.13400675,14 7,14 C10.8659932,14 14,10.8659932 14,7 C14,3.13400675 10.8659932,-4.26288512e-15 7,0 Z" id="路径" stroke="#FFFFFF" stroke-linejoin="round"></path>
+                        <path d="M7,8.54163333 L7,7.2083 C8.10456667,7.2083 9,6.31286667 9,5.2083 C9,4.10373333 8.10456667,3.2083 7,3.2083 C5.89543333,3.2083 5,4.10373333 5,5.2083" id="路径" stroke="#FFFFFF" stroke-linecap="round" stroke-linejoin="round"></path>
+                        <path d="M7,11.5416333 C7.46023333,11.5416333 7.83333333,11.1685333 7.83333333,10.7083 C7.83333333,10.2480667 7.46023333,9.87496667 7,9.87496667 C6.53976667,9.87496667 6.16666667,10.2480667 6.16666667,10.7083 C6.16666667,11.1685333 6.53976667,11.5416333 7,11.5416333 Z" id="路径" fill="#FFFFFF"></path>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

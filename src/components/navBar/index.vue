@@ -1,6 +1,6 @@
 <template>
     <div class="c-header">
-        <div class="tab-box">
+        <div class="tab-list">
             <div
                 class="tab-item"
                 v-for="(item, index) in breadList"
@@ -11,140 +11,65 @@
                 <div style="margin-right: 10px">{{ item.name }}</div>
                 <i
                     class="el-icon-close"
-                    v-if="
-                        item.name !== '首页' &&
-                        item.name !== '备课'
-                    "
+                    v-if="item.name !== '首页' && item.name !== '备课'"
                     @click.stop="closeTab(item)"
                 ></i>
             </div>
-            <div class="userInfo">
-                <el-dropdown
-                    class="avatar-container right-menu-item hover-effect"
-                    trigger="click"
-                >
-                    <div class="avatar-wrapper">
-                        <span>{{
-                            name
-                        }}</span>
-                        <i
-                            style="margin-left: 10px"
-                            class="el-icon-caret-bottom"
-                        />
-                    </div>
-                    <template #dropdown>
-                        <el-dropdown-menu
-                            style="text-align: center"
-                        >
-                            <el-dropdown-item>
-                                <div
-                                    style="
-                                        display: flex;
-                                        height: 43px;
-                                        width: 120px;
-                                        justify-content: space-around;
-                                    "
-                                >
-                                    <div style="display: flex">
-                                        <img
-                                            style="width: 43px"
-                                            src="@/assets/indexImages/touxiang.png"
-                                            class="user-avatar"
-                                        />
-                                    </div>
-                                    <div style="margin-left: 10px">
-                                        <p
-                                            style="
-                                                height: 20px;
-                                                line-height: 20px;
-                                                text-align: left;
-                                            "
-                                        >
-                                            {{ name }}
-                                        </p>
-                                        <p style="height: 20px; line-height: 20px">
-                                            {{ account }}
-                                        </p>
-                                    </div>
-                                </div>
-                            </el-dropdown-item>
-                            <el-dropdown-item divided>
-                                <span @click="showFeedBack" style="display: block"
-                                    >问题反馈</span
-                                >
-                            </el-dropdown-item>
-                            <el-dropdown-item v-if="isElectron()">
-                                <span @click="showCacheDialog = true" style="display: block"
-                                    >清理缓存</span
-                                >
-
-                            </el-dropdown-item>
-                            <el-dropdown-item>
-                                <span @click="outlogin" style="display: block"
-                                    >退出登录</span
-                                >
-                            </el-dropdown-item>
-                        </el-dropdown-menu>
-                    </template>
-                </el-dropdown>
+        </div>
+        <div class="header-right">
+            <div class="help-warp" @click="openHelp">
+                <img src="./img/icon_help.svg" class="help-icon"/>
+                <span>帮助中心</span>
+            </div>
+            <UserInfo />
+            <span class="line"></span>
+            <div class="header-window-control">
+                <div class="hwc-minimize" @click="useMinimizeWindow()"></div>
+                <div class="hwc-maximize" @click="useMaximizeWindow()"></div>
+                <div class="hwc-close" v-if="isElectron()" @click="close">
+                    <i class="el-icon-close"></i>
+                </div>
             </div>
         </div>
-        <div class="header-window-control">
-            <div class="hwc-minimize" @click="useMinimizeWindow()"></div>
-            <div class="hwc-maximize" @click="useMaximizeWindow()"></div>
-            <div class="hwc-close"  v-if="isElectron()" @click="close">
-                <i class="el-icon-close"></i>
-            </div>
-        </div>
-        <Feedback ref="feedbackRef"/>
-        <ExitDialog v-model:visible="visible"/>
-        <Suspense v-if="isElectron()">
-            <ClearCacheDialog v-if="showCacheDialog" v-model:showCacheDialog="showCacheDialog" />
-        </Suspense>
-        <Suspense v-if="isElectron()">
-            <AutoClearCache/>
-        </Suspense>
+        <ExitDialog v-model:visible="visible" />
     </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, computed, ref, onMounted, defineAsyncComponent } from "vue";
+import { defineComponent, ref, onMounted } from "vue";
 import useMaximizeWindow from "../../hooks/useMaximizeWindow";
 import useMinimizeWindow from "../../hooks/useMinimizeWindow";
 import isElectron from "is-electron";
 import { useRoute, useRouter } from "vue-router";
 import useBreadList from "./hooks/useBreadList";
 import { Bread } from "./interface";
-import useOutLogin from "@/hooks/useOutLogin";
-import { store } from "@/store";
-import Feedback from "../feedback/index.vue";
 import ExitDialog from "./ExitDialog.vue";
+import UserInfo from "./userInfo.vue";
 
 export default defineComponent({
     name: "NavBar",
     components: {
-        Feedback,
         ExitDialog,
-        ClearCacheDialog: defineAsyncComponent(() => import("./clearCacheDialog.vue")),
-        AutoClearCache: defineAsyncComponent(() => import("./autoClearCache.vue"))
+        UserInfo
     },
     setup() {
         const route = useRoute();
         const router = useRouter();
         const { breadList, closeTab } = useBreadList();
-        const account = computed(() => store.state.userInfo.account);
-        const name = computed(() => store.state.userInfo.name);
-        const feedbackRef = ref<InstanceType<typeof Feedback>>();
         const visible = ref(false);
-        const showCacheDialog = ref(false);
-
-        const showFeedBack = () => {
-            feedbackRef!.value!.show();
-        };
 
         const go = (item: Bread) => {
             if (route.name !== item.name) {
                 router.push(item.path);
+            }
+        };
+
+        const openHelp = () => {
+            const helpUrl = "https://doc.lyx-edu.com/project-4/";
+            if (isElectron()) {
+                window.electron.shell.openExternal(helpUrl);
+            } else {
+                window.open(helpUrl);
             }
         };
 
@@ -160,25 +85,15 @@ export default defineComponent({
             }
         });
 
-        const useLogout = () => {
-            useOutLogin();
-            isElectron() && window.electron.ipcRenderer.send("stopSingalR");
-        };
-
         return {
             isElectron,
             breadList,
-            account,
-            name,
             go,
-            feedbackRef,
-            outlogin: useLogout,
             closeTab,
-            showFeedBack,
             close,
             visible,
             useMinimizeWindow,
-            showCacheDialog,
+            openHelp,
             useMaximizeWindow
         };
     }
@@ -187,46 +102,55 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .c-header {
-    height: 55px;
-    background-color: #1a1d3e;
-    padding: 0 10px;
+    height: 48px;
+    background-color: var(--app-color-dark);
+    padding: 0 24px;
     display: flex;
+    justify-content: space-between;
     -webkit-app-region: drag;
     overflow: hidden;
-}
-.userInfo {
-    position: fixed;
-    top: 14px;
-    right: 150px;
-    background: #ffffff;
-    border-top-left-radius: 10px;
-    border-top-right-radius: 10px;
-    width: 124px;
-    height: 42px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    -webkit-app-region: no-drag;
-}
-.tab-box {
-    flex: 1;
-    overflow-x: auto;
-    overflow-y: hidden;
-    padding-top: 10px;
-    white-space: nowrap;
-    display: flex;
+    .tab-list {
+        display: flex;
+        align-items: flex-end;
+        overflow-x: overlay;
+        -webkit-app-region: no-drag;
+    }
+    .header-right {
+        display: flex;
+        flex-shrink: 0;
+        .help-warp {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            color: #ffffff;
+            margin-right: 40px;
+            cursor: pointer;
+            -webkit-app-region: no-drag;
+            .help-icon {
+                margin-right: 6px;
+            }
+        }
+        .line {
+            align-self: center;
+            width: 1px;
+            background-color: rgba(216, 216, 216, 0.2);
+            height: 24px;
+            margin: 0 32px;
+        }
+    }
 }
 
 .tab-item {
     display: flex;
     margin-right: 10px;
-    padding: 11px 20px;
+    padding: 0 20px;
     background-color: #313451;
     color: #aeb1bb;
-    font-size: 16px;
+    font-size: 14px;
     align-items: center;
     justify-content: space-between;
-    line-height: 25px;
+    align-items: center;
+    height: 40px;
     min-width: 140px;
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
@@ -244,15 +168,12 @@ export default defineComponent({
 
 .tab-item.active {
     background-color: #ffffff;
-    color: #1d2040;
+    color: #202124;
 }
 
 .header-window-control {
     display: flex;
-    width: 100px;
     align-items: center;
-    justify-content: space-around;
-    /* padding-bottom: 10px; */
     -webkit-app-region: no-drag;
 }
 
@@ -260,9 +181,14 @@ export default defineComponent({
 .hwc-maximize,
 .hwc-close {
     height: 24px;
+    margin-right: 20px;
     display: flex;
     align-items: center;
     cursor: pointer;
+}
+
+.hwc-close {
+    margin-right: 0;
 }
 
 .hwc-minimize:before {
@@ -290,6 +216,6 @@ export default defineComponent({
 
 .avatar-wrapper span {
     font-size: 18px;
-    text-align: center
+    text-align: center;
 }
 </style>
