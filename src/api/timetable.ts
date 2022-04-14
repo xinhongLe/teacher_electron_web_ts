@@ -1,10 +1,10 @@
 import request from "@/utils/request";
-import { TIMETABLE_API, AI_XUE_SHI_API } from "@/config";
+import { TIMETABLE_API, AI_XUE_SHI_API, SCHEDULE_API } from "@/config";
 import { RequestFun } from "@/types/response";
 
 interface FetchActiveTimetableIDData {
     schoolID: string;
-    termCode: string;
+    semesterDataID: string;
 }
 
 interface FetchGetUserSchedulesData {
@@ -94,7 +94,7 @@ export const fetchUserSchedules: RequestFun<
     UserSchedules[]
 > = (data) => {
     return request({
-        baseURL: TIMETABLE_API,
+        baseURL: SCHEDULE_API,
         url: "Api/Web/Schedule/GetUserSchedules",
         headers: {
             "Content-Type": "application/json-patch+json"
@@ -158,13 +158,14 @@ export const updateSchedule: RequestFun<
     });
 };
 
-// 更新排课内容
+// 根据学校ID 获取该学校的学期学年Code
 export const fetchTermCodeBySchoolId: RequestFun<
     {
         id: string
     },
     {
-        TermCode: string
+        TermCode: string,
+        TermId: string
     }
 > = (data) => {
     return request({

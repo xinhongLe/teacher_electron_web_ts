@@ -1,6 +1,7 @@
 export const AI_XUE_SHI_API = process.env.VUE_APP_AI_XUE_SHI_API;
 export const WINDOW_CRAD_API = process.env.VUE_APP_AI_XUE_SHI_API;
 export const TIMETABLE_API = process.env.VUE_APP_TIMETABLE_API;
+export const SCHEDULE_API = process.env.VUE_APP_SCHEDULE_API;
 // export const AI_XUE_SHI_API = "http://apitest.aixueshi.top:5002";
 // export const WINDOW_CRAD_API = "http://apitest.aixueshi.top:5002";
 export const UPLOAD_CRAD_API = "https://api.aixueshi.top:5015";

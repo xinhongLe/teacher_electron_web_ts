@@ -40,7 +40,7 @@ export default (days: Ref<string[]>) => {
         if (termCodeRes.resultCode === 200 && termCodeRes.result) {
             const res = await fetchActiveTimetableID({
                 schoolID,
-                termCode: termCodeRes.result.TermCode
+                semesterDataID: termCodeRes.result.TermId
             });
             if (res.resultCode === 200 && res.result) {
                 timetableID.value = res.result.ID;
