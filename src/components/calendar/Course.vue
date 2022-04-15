@@ -1,9 +1,9 @@
 <template>
     <div
-        @drop.prevent="isDrop && colData.Schedules ? onDrop($event, colData) : null"
-        @dragover="isDrop && colData.Schedules ? $event.preventDefault() : null"
-        @dragenter="isDrop && colData.Schedules ? isActive = true : null"
-        @dragleave="isDrop && colData.Schedules ? isActive = false : null"
+        @drop.prevent="isDrop && colData.Schedule ? onDrop($event, colData) : null"
+        @dragover="isDrop && colData.Schedule ? $event.preventDefault() : null"
+        @dragenter="isDrop && colData.Schedule ? isActive = true : null"
+        @dragleave="isDrop && colData.Schedule ? isActive = false : null"
         class="course cell"
         :class="[
             isActive ? 'active' : '',
@@ -21,7 +21,7 @@
                     课程名称：{{ colData.LessonName }}
                 </p>
                 <p>上课时间：{{ colData.fontShowTime }}</p>
-                <p>科目：{{ subjectNames.join(",") }}</p>
+                <p>科目：{{ subjectName }}</p>
                 <p>
                     班级：{{
                         className
@@ -39,12 +39,13 @@
                                 {{className}}
                             </div>
                             <div
+                                v-if="subjectName"
                                 class="content-class"
                                 :style="{
                                     backgroundColor: bgColor,
                                 }"
                             >
-                                {{ subjectNames[0]?.substring(0, 1) }}
+                                {{ subjectName?.substring(0, 1) }}
                             </div>
                         </div>
                         <div class="delete-icon-warp" v-if="colData.LessonID && isShowDelete" @click.stop="deleteCourse">
@@ -107,31 +108,26 @@ const router = useRouter();
 const isDragging = computed(() => store.state.common.isDragging);
 
 const className = computed(() => {
-    if (!props.colData.Schedules) return "";
-    const classNames = new Set(props.colData.Schedules.map(item => item.ClassName));
-    return [...classNames].join("，");
+    if (!props.colData.Schedule) return "";
+    return props.colData.Schedule.ClassName;
 });
 
-const subjectNames = computed(() => {
-    if (!props.colData.Schedules) return [];
-    const subjectNames = new Set(props.colData.Schedules.flatMap(item => {
-        if (item.MajorCourseName && item.MinorCourseName) {
-            return [item.MajorCourseName, item.MinorCourseName];
-        } else if (item.MinorCourseName) {
-            return [item.MinorCourseName];
-        } else if (item.MajorCourseName) {
-            return [item.MajorCourseName];
-        } else {
-            return [];
-        }
-    }));
-
-    return [...subjectNames];
+const subjectName = computed(() => {
+    if (!props.colData.Schedule) return "";
+    const { MajorUserID, MajorCourseName, MinorCourseName } = props.colData.Schedule;
+    let subjectName = "";
+    const userId = store.state.userInfo.userCenterUserID;
+    if (userId === MajorUserID) {
+        subjectName = MajorCourseName;
+    } else {
+        subjectName = MinorCourseName;
+    }
+    return subjectName;
 });
 
-const bgColor = computed(() => CourseBgColor[subjectNames.value[0]] || "#0057FE");
+const bgColor = computed(() => CourseBgColor[subjectName.value] || "#0057FE");
 const isEnd = computed(() => props.colData.ScheduleTime && moment().isAfter(props.colData.ScheduleTime));
-const scheduleIDs = computed(() => props.colData.Schedules ? props.colData.Schedules?.map(item => item.SchedulesID) : []);
+const scheduleIDs = computed(() => props.colData.Schedule ? [props.colData.Schedule?.SchedulesID] : []);
 const scheduleTime = computed(() => props.colData.colDate + " " + props.colData.EndTime);
 
 const updateSchedules = inject(
@@ -172,7 +168,7 @@ const onDrop = async (ev: DragEvent, colData: ColData) => {
     const dragInfo = JSON.parse(
                 ev.dataTransfer?.getData("dragInfo") as string
     ) as SchoolLesson;
-    if (!colData.Schedules) return;
+    if (!colData.Schedule) return;
     if (isEnd.value) {
         return ElMessage.error("已经结束的课程无法重新排课");
     }

@@ -42,19 +42,26 @@ export interface UserSchedules {
     EndTime: string;
     DayOfWeek: number;
     Apmp: number;
-    Schedules: ISchedulesInfo[];
+    Schedule: ISchedulesInfo;
 }
 
-export interface TimetableClassTime {
+export interface TimetableClassTimeDetailDto {
     SectionName: string;
     ClassIndex: number;
-    Apmp: number;
+    APMP: number;
     ShowType: number;
+    SectionIndex: number;
     BeginTime: string;
     EndTime: string;
     IsShow: boolean;
-    CourseTypeID: string;
-    CourseTypeName: string;
+    BindData: string;
+}
+
+export interface TimetableClassTime {
+    TimetableClassTimeDetailDtos: TimetableClassTimeDetailDto[],
+    GradeIds: string[],
+    TimetableClassTimeID: string,
+    TimetableClassTimeName: string,
 }
 
 export interface IScheduleContent {

@@ -15,7 +15,7 @@
                 </div>
                 <Course
                     v-for="item in col.colData"
-                    :key="item.ID"
+                    :key="item.index"
                     :rowData="col"
                     :colData="item"
                     :isDrop="isDrop"

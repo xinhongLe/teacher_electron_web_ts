@@ -1,7 +1,7 @@
 import { CourseBag, fetchClassTime, fetchTeachClassSchedule, fetchWeekSchedule, GetClassTimeRes, GetTeachClassScheduleRes } from "@/api";
-import { fetchActiveTimetableID, fetchUserSchedules, fetchTimetableClassTime, TimetableClassTime, UserSchedules, IScheduleContent, fetchTermCodeBySchoolId, fetchScheduleContent } from "@/api/timetable";
+import { fetchActiveTimetableID, fetchUserSchedules, fetchTimetableClassTime, TimetableClassTime, UserSchedules, IScheduleContent, fetchTermCodeBySchoolId, fetchScheduleContent, TimetableClassTimeDetailDto } from "@/api/timetable";
 import { store } from "@/store";
-import { find } from "lodash";
+import { find, uniqBy, uniqWith } from "lodash";
 import moment from "moment";
 import { ref, Ref, watch, watchEffect } from "vue";
 
@@ -15,7 +15,7 @@ export type ColData = {
     timetableID: string,
 } & Partial<IScheduleContent & TeachClassSchedule>
 
-export interface Schedule extends TimetableClassTime{
+export interface Schedule extends TimetableClassTimeDetailDto{
     fontShowTime: string,
     colData: ColData[]
 }
@@ -23,7 +23,7 @@ export interface Schedule extends TimetableClassTime{
 export default (days: Ref<string[]>) => {
     let teachClassScheduleArr: TeachClassSchedule[] = [];
     let weekScheduleArr: IScheduleContent[] = [];
-    let classTimeArr: TimetableClassTime[] = [];
+    let classTimeArr: TimetableClassTimeDetailDto[] = [];
     const schedules = ref<Schedule[]>([]);
     const timetableID = ref("");
 
@@ -79,8 +79,11 @@ export default (days: Ref<string[]>) => {
         const res = await fetchTimetableClassTime({
             timetableID: timetableID.value
         });
-        if (res.resultCode === 200) {
-            classTimeArr = res.result.filter((item) => item.IsShow);
+        if (res.resultCode === 200 && res.result[0]) {
+            const list = uniqWith(res.result[0].TimetableClassTimeDetailDtos, (arrVal, othVal) => {
+                return arrVal.APMP + "" + arrVal.SectionIndex === othVal.APMP + "" + othVal.SectionIndex;
+            });
+            classTimeArr = list.filter((item) => item.IsShow);
         }
     };
 
@@ -99,8 +102,8 @@ export default (days: Ref<string[]>) => {
             });
             weekScheduleArr.forEach(item => {
                 const index = colData.findIndex(data => {
-                    if (!data.Schedules) return;
-                    return find(data.Schedules, { SchedulesID: item.ScheduleID });
+                    if (!data.Schedule) return;
+                    return item.ScheduleID === data.Schedule.SchedulesID;
                 });
                 if (index !== -1) {
                     colData[index] = { ...colData[index], ...item };
