@@ -6,7 +6,6 @@
         <Avatar :file="HeadPortrait"></Avatar>
         <div class="student-otherinfo">
             <p class="student-name">{{ name }}</p>
-            <!-- <p class="student-phone">13327624630</p> -->
             <p class="student-unknow">{{ StudentAccount }}</p>
             <div class="student-progress">
                 <div>

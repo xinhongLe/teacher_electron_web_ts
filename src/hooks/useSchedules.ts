@@ -97,7 +97,8 @@ export default (days: Ref<string[]>) => {
             const fontShowTime = `${classTime.BeginTime.substring(0, 5)}~${classTime.EndTime.substring(0, 5)}`;
             teachClassScheduleArr.forEach(item => {
                 if (item.fontShowTime === fontShowTime) {
-                    colData[item.DayOfWeek] = { ...item, ...colData[item.DayOfWeek] };
+                    const week = item.DayOfWeek === 0 ? 6 : item.DayOfWeek - 1;
+                    colData[week] = { ...item, ...colData[week] };
                 }
             });
             weekScheduleArr.forEach(item => {
