@@ -1,9 +1,11 @@
 import { getCurrentWindow, app, dialog } from "@electron/remote";
 import electron, { OpenDialogOptions, remote, SaveDialogOptions } from "electron";
 import { isExistFile, mkdirs, store } from "./downloadFile";
-import { resolve } from "path";
+import { resolve, join } from "path";
 import ElectronLog from "electron-log";
 import fs from "fs";
+import { execFile as execFileFromAsar } from "child_process";
+const PATH_BINARY = join(__dirname, "mockingbot-color-picker-ia32.exe");
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 window.electron = {
     maximizeWindow: () => {
@@ -132,6 +134,12 @@ window.electron = {
     },
     getPath: (name) => {
         return app.getPath(name);
+    },
+    getColorHexRGB: () => {
+        return new Promise((resolve, reject) => execFileFromAsar(PATH_BINARY, (error, stdout, stderr) => {
+            if (error) return reject(error);
+            resolve(stdout);
+        }));
     },
     store: store,
     ...electron
