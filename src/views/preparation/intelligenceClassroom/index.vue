@@ -166,8 +166,9 @@ export default defineComponent({
         onMounted(() => {
             const obj = { chapterID: store.state.preparation.selectChapterID };
             _getSchoolLessonWindow(obj);
-            emitter.on("preparationReLoad", () => {
-                _getSchoolLessonWindow(obj);
+            emitter.on("preparationReLoad", async () => {
+                const obj = { chapterID: store.state.preparation.selectChapterID };
+                await _getSchoolLessonWindow(obj);
                 _getWindowCards(activeIndex.winActiveId, true);
             });
 
