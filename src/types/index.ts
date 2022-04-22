@@ -28,6 +28,7 @@ type Electron = typeof electron & {
     readFile: (path: string, callback: (buffer: ArrayBuffer) => void) => void,
     savePutFile: (path: string, buffer: NodeJS.ArrayBufferView) => void,
     setPositionWin: (x: number, y: number) => void,
+    getColorHexRGB: () => Promise<unknown>,
     showSaveDialog: (option: SaveDialogOptions) => Promise<SaveDialogReturnValue>,
     showOpenDialog: (option: OpenDialogOptions) => Promise<OpenDialogReturnValue>,
     getPPTPath: (path: string) => string,

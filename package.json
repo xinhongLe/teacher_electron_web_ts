@@ -1,6 +1,6 @@
 {
     "name": "Aixueshi",
-    "version": "1.0.16",
+    "version": "1.0.17",
     "private": true,
     "main": "background.js",
     "config": {
@@ -51,7 +51,7 @@
         "vue-router": "^4.0.0-0",
         "vuedraggable": "^2.24.3",
         "vuex": "^4.0.0-0",
-        "wincard": "^2.0.1",
+        "wincard": "^2.0.6",
         "xlsx": "^0.17.5"
     },
     "devDependencies": {
