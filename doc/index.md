@@ -128,7 +128,7 @@ useStudentMachine：绑定答题器的方法
 
 useSubjectPublisherBookList：获取科目书册数据的方法
 
-useSwiper：![image-20220419171122465](D:\document\备教端交接\image-20220419171122465.png)左右切换的方法
+useSwiper：![image-20220419171122465](.\image-20220419171122465.png)左右切换的方法
 
 useTagList：获取标签列表的方法
 
@@ -233,7 +233,7 @@ web：electron版有的全局属性，而web上没有的，在这里赋个空值
 
   作业布置弹框：TeachHomeworkDialog，作业展示：TeachHomeworkItem
 
-  ![image-20220414153714898](D:\document\备教端交接\image-20220414152636751.png)
+  ![image-20220414153714898](.\image-20220414152636751.png)
 
   SelectLabel.vue，每份作业可以选择学生，学生选择弹框：SelectStudent.vue
 
