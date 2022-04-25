@@ -4,7 +4,7 @@ import { isExistFile, mkdirs, store } from "./downloadFile";
 import { join, resolve } from "path";
 import ElectronLog from "electron-log";
 import fs from "fs";
-import { parsePPT, pptParsePath } from "./parsePPT";=
+import { parsePPT, pptParsePath } from "./parsePPT";
 import { execFile as execFileFromAsar } from "child_process";
 const PATH_BINARY = join(__dirname, "mockingbot-color-picker-ia32.exe");
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

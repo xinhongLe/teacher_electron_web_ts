@@ -13,7 +13,7 @@ interface FetchGetUserSchedulesData {
     courseMainIDs?: string[];
 }
 
-interface ISchedulesInfo {
+export interface ISchedulesInfo {
     SchedulesID: string;
     GradeID: string;
     GradeName: string;
@@ -58,10 +58,10 @@ export interface TimetableClassTimeDetailDto {
 }
 
 export interface TimetableClassTime {
-    TimetableClassTimeDetailDtos: TimetableClassTimeDetailDto[],
+    ClassTimeDetailDtos: TimetableClassTimeDetailDto[],
     GradeIds: string[],
-    TimetableClassTimeID: string,
-    TimetableClassTimeName: string,
+    ClassTimeID: string,
+    ClassTimeName: string,
 }
 
 export interface IScheduleContent {
@@ -112,15 +112,34 @@ export const fetchUserSchedules: RequestFun<
 };
 
 // 根据课表获取该课表的作息
+// export const fetchTimetableClassTime: RequestFun<
+//     {
+//         timetableID: string;
+//     },
+//     TimetableClassTime[]
+// > = (data) => {
+//     return request({
+//         baseURL: TIMETABLE_API,
+//         url: "Api/Web/Timetable/GetTimetableClassTime",
+//         headers: {
+//             "Content-Type": "application/json-patch+json"
+//         },
+//         method: "post",
+//         data
+//     });
+// };
 export const fetchTimetableClassTime: RequestFun<
     {
-        timetableID: string;
+        semesterDataID: string;
+        schoolID: string;
     },
-    TimetableClassTime[]
+    {
+        ClassTimes: TimetableClassTime[]
+    }
 > = (data) => {
     return request({
         baseURL: TIMETABLE_API,
-        url: "Api/Web/Timetable/GetTimetableClassTime",
+        url: "API/Web/ClassTime/GetClassTimeDetail",
         headers: {
             "Content-Type": "application/json-patch+json"
         },

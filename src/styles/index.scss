@@ -217,6 +217,7 @@ html {
 // 备课气泡样式
 .preparation-popper-class {
     background-color: rgba(0, 0, 0, 0.6) !important;
+    border: none !important;
     color: #fff !important;
     width: 220px !important;
     > div {
@@ -227,9 +228,13 @@ html {
             }
         }
     }
-    .popper__arrow {
-        &::after {
-            border-top-color: rgba(0, 0, 0, 0.6) !important;
+    .el-popper__arrow {
+        &:before {
+            width: 0;
+            height: 0;
+            background: transparent !important;
+            border: 5px solid !important;
+            border-color: transparent rgba(0, 0, 0, 0.6) rgba(0, 0, 0, 0.6) transparent !important;
         }
     }
 }

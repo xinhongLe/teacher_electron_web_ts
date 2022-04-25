@@ -26,6 +26,7 @@ export default (days: Ref<string[]>) => {
     let classTimeArr: TimetableClassTimeDetailDto[] = [];
     const schedules = ref<Schedule[]>([]);
     const timetableID = ref("");
+    const semesterDataID = ref(""); // 学期ID
 
     const getTimetableID = async () => {
         const schoolID = store.state.userInfo.Schools![0]?.UserCenterSchoolID;
@@ -37,6 +38,7 @@ export default (days: Ref<string[]>) => {
             id: schoolID
         });
 
+        semesterDataID.value = termCodeRes.result.TermId;
         if (termCodeRes.resultCode === 200 && termCodeRes.result) {
             const res = await fetchActiveTimetableID({
                 schoolID,
@@ -76,11 +78,14 @@ export default (days: Ref<string[]>) => {
 
     const getClassTime = async () => {
         if (!timetableID.value) return;
+        const schoolID = store.state.userInfo.Schools![0]?.UserCenterSchoolID;
         const res = await fetchTimetableClassTime({
-            timetableID: timetableID.value
+            semesterDataID: semesterDataID.value,
+            schoolID
         });
-        if (res.resultCode === 200 && res.result[0]) {
-            const list = uniqWith(res.result[0].TimetableClassTimeDetailDtos, (arrVal, othVal) => {
+        if (res.resultCode === 200) {
+            const classTimes = res.result.ClassTimes;
+            const list = uniqWith(classTimes[0].ClassTimeDetailDtos, (arrVal, othVal) => {
                 return arrVal.APMP + "" + arrVal.SectionIndex === othVal.APMP + "" + othVal.SectionIndex;
             });
             classTimeArr = list.filter((item) => item.IsShow);
@@ -95,6 +100,7 @@ export default (days: Ref<string[]>) => {
                 index
             }));
             const fontShowTime = `${classTime.BeginTime.substring(0, 5)}~${classTime.EndTime.substring(0, 5)}`;
+
             teachClassScheduleArr.forEach(item => {
                 if (item.fontShowTime === fontShowTime) {
                     const week = item.DayOfWeek === 0 ? 6 : item.DayOfWeek - 1;
