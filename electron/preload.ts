@@ -5,7 +5,8 @@ import { resolve, join } from "path";
 import ElectronLog from "electron-log";
 import fs from "fs";
 import { execFile as execFileFromAsar } from "child_process";
-const PATH_BINARY = join(__dirname, "mockingbot-color-picker-ia32.exe");
+import { darwinGetScreenPermissionGranted, darwinRequestScreenPermissionPopup } from "./darwin";
+const PATH_BINARY = process.platform === "darwin" ? join(__dirname, "../ColorPicker") : join(__dirname, "../mockingbot-color-picker-ia32.exe");
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 window.electron = {
     maximizeWindow: () => {
@@ -135,7 +136,11 @@ window.electron = {
     getPath: (name) => {
         return app.getPath(name);
     },
-    getColorHexRGB: () => {
+    getColorHexRGB: async () => {
+        if (process.platform === "darwin" && await darwinGetScreenPermissionGranted() === false) {
+            await darwinRequestScreenPermissionPopup();
+            return false;
+        }
         return new Promise((resolve, reject) => execFileFromAsar(PATH_BINARY, (error, stdout, stderr) => {
             if (error) return reject(error);
             resolve(stdout);
