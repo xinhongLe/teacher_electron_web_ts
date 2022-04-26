@@ -1,5 +1,5 @@
 import { ElMessageBox } from "element-plus";
-import { readdir, stat, unlink } from "fs/promises";
+const { readdir, stat, unlink } = require("fs").promises;
 import { Stats } from "fs";
 import moment from "moment";
 import { join } from "path";
@@ -59,7 +59,7 @@ export default async () => {
     watchEffect(() => {
         const id = store.state.userInfo.id;
         if (!id) return;
-        readdir(getSaveFilePath(id)).then(async (files) => {
+        readdir(getSaveFilePath(id)).then(async (files: string[]) => {
             fileInfoList.value = await Promise.all(
                 files.map(async (file) => ({
                     ...(await stat(join(window.electron.getCachePath(""), file))),
