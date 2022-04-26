@@ -30,6 +30,7 @@ type Electron = typeof electron & {
     getColorHexRGB: () => Promise<unknown>,
     showSaveDialog: (option: SaveDialogOptions) => Promise<SaveDialogReturnValue>,
     showOpenDialog: (option: OpenDialogOptions) => Promise<OpenDialogReturnValue>,
+    checkWindowSupportNet: (version: string) => Promise<boolean>,
     store: Store,
     log: LogFunctions
 }
