@@ -4,13 +4,21 @@ const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPl
 
 const moment = require("moment");
 
-const extraResources = process.platform === "darwin" ? [{
-    from: "./extraResources/mac/ColorPicker",
-    to: "ColorPicker"
-}] : [{
-    from: "./extraResources/win/mockingbot-color-picker-ia32.exe",
-    to: "mockingbot-color-picker-ia32.exe"
-}];
+const extraResources = process.platform === "darwin" ? [
+    {
+        from: "./extraResources/mac/ColorPicker",
+        to: "ColorPicker"
+    }
+] : [
+    {
+        from: "./extraResources/win/ball.exe",
+        to: "ball.exe"
+    },
+    {
+        from: "./extraResources/win/mockingbot-color-picker-ia32.exe",
+        to: "mockingbot-color-picker-ia32.exe"
+    }
+];
 
 module.exports = {
     productionSourceMap: false,

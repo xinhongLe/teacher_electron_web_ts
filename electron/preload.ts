@@ -4,8 +4,9 @@ import { isExistFile, mkdirs, store } from "./downloadFile";
 import { resolve, join } from "path";
 import ElectronLog from "electron-log";
 import fs from "fs";
-import { execFile as execFileFromAsar, exec } from "child_process";
+import { execFile as execFileFromAsar } from "child_process";
 import { darwinGetScreenPermissionGranted, darwinRequestScreenPermissionPopup } from "./darwin";
+import { checkWindowSupportNet } from "./util";
 const PATH_BINARY = process.platform === "darwin" ? join(__dirname, "../ColorPicker") : join(__dirname, "../mockingbot-color-picker-ia32.exe");
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 window.electron = {
@@ -146,16 +147,7 @@ window.electron = {
             resolve(stdout);
         }));
     },
-    checkWindowSupportNet: (version: string) => {
-        return new Promise(resolve => {
-            // 校验window是否支持net相对应版本
-            const cmdStr = "reg query \"HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\NET Framework Setup\\NDP\"";
-            exec(cmdStr, (error, stdout, stderr) => {
-                if (error) resolve(false);
-                resolve(stdout.indexOf(version) > -1);
-            });
-        });
-    },
+    checkWindowSupportNet,
     store: store,
     ...electron
 };

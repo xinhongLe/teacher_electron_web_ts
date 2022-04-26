@@ -1,13 +1,17 @@
 import { BrowserWindow, ipcMain, screen } from "electron";
 import { createWindow } from "./createWindow";
 import ElectronLog from "electron-log";
-let suspensionWin: BrowserWindow;
-let unfoldSuspensionWin: BrowserWindow;
-let blackboardWin: BrowserWindow;
-let timerWin: BrowserWindow;
-let projectionWin: BrowserWindow;
-let rollCallWin: BrowserWindow;
-let answerMachineWin: BrowserWindow;
+import { checkWindowSupportNet } from "./util";
+import { execFile } from "child_process";
+import { join } from "path";
+const PATH_BALL = join(__dirname, "../ball.exe");
+let suspensionWin: BrowserWindow | null;
+let unfoldSuspensionWin: BrowserWindow | null;
+let blackboardWin: BrowserWindow | null;
+let timerWin: BrowserWindow | null;
+let projectionWin: BrowserWindow | null;
+let rollCallWin: BrowserWindow | null;
+let answerMachineWin: BrowserWindow | null;
 let isShowTimer = false; // 悬浮球是否显示时间
 let isShowVideo = false; // 悬浮球是否显示视频图标
 let isShowBlackboard = false; // 悬浮球是否显示黑板图标
@@ -109,8 +113,8 @@ function createTimerWindow() {
         useContentSize: true
     });
     timerWin.on("ready-to-show", () => {
-        timerWin.show();
-        timerWin.setTitle("计时器");
+        timerWin && timerWin.show();
+        timerWin && timerWin.setTitle("计时器");
     });
     timerWin.on("show", () => {
         hideTime();
@@ -131,7 +135,7 @@ function createRollcall(allStudentList: []) {
     });
 
     rollCallWin.on("ready-to-show", () => {
-        rollCallWin.webContents.send("sendAllStudentList", allStudentList);
+        rollCallWin && rollCallWin.webContents.send("sendAllStudentList", allStudentList);
     });
 
     rollCallWin.on("closed", () => {
@@ -157,7 +161,7 @@ function createUnfoldSuspensionWindow() {
     unfoldSuspensionWin.setPosition(size.width - winSize[0] - 20, size.height - winSize[1]);
 
     unfoldSuspensionWin.once("ready-to-show", () => {
-        unfoldSuspensionWin.setAlwaysOnTop(true, "pop-up-menu");
+        unfoldSuspensionWin && unfoldSuspensionWin.setAlwaysOnTop(true, "pop-up-menu");
     });
 
     unfoldSuspensionWin.on("closed", () => {
@@ -177,9 +181,9 @@ function createBlackboardWindow() {
         useContentSize: true
     });
     blackboardWin.once("ready-to-show", () => {
-        blackboardWin.show();
-        blackboardWin.focus();
-        blackboardWin.setTitle("教学黑板");
+        blackboardWin && blackboardWin.show();
+        blackboardWin && blackboardWin.focus();
+        blackboardWin && blackboardWin.setTitle("教学黑板");
     });
 
     blackboardWin.on("closed", () => {
@@ -206,9 +210,9 @@ function createAnswerMachineWindow(allStudentList: []) {
     });
 
     answerMachineWin.on("ready-to-show", () => {
-        answerMachineWin.show();
-        answerMachineWin.focus();
-        answerMachineWin.webContents.send("sendAllStudentList", allStudentList);
+        answerMachineWin && answerMachineWin.show();
+        answerMachineWin && answerMachineWin.focus();
+        answerMachineWin && answerMachineWin.webContents.send("sendAllStudentList", allStudentList);
     });
 
     answerMachineWin.on("closed", () => {
@@ -227,7 +231,7 @@ function createProjectionWindow() {
     });
 
     projectionWin.once("ready-to-show", () => {
-        projectionWin.show();
+        projectionWin && projectionWin.show();
     });
 
     projectionWin.once("closed", () => {
@@ -235,7 +239,7 @@ function createProjectionWindow() {
     });
 }
 
-function createSubjectToolWindow(url, name) {
+function createSubjectToolWindow(url: string, name: string) {
     const win = createWindow(url, {
         alwaysOnTop: true,
         show: false,
@@ -251,55 +255,75 @@ function createSubjectToolWindow(url, name) {
     win.maximize();
 }
 
+function checkIsUseBallEXE (callback: (T: boolean) => void) {
+    if (process.platform === "win32") {
+        checkWindowSupportNet("v3.5").then(isOk => {
+            callback(isOk);
+        });
+    } else {
+        callback(false);
+    }
+}
+
 export function createSuspensionWindow() {
-    suspensionWin = createWindow(suspensionURL, {
-        width: 120,
-        height: 120,
-        type: "toolbar", // 创建的窗口类型为工具栏窗口
-        frame: false, // 要创建无边框窗口
-        resizable: false, // 禁止窗口大小缩放
-        show: false,
-        useContentSize: true,
-        transparent: true, // 设置透明
-        backgroundColor: "#00000000",
-        alwaysOnTop: true // 窗口是否总是显示在其他窗口之前
-    });
-    const size = screen.getPrimaryDisplay().workAreaSize; // 获取显示器的宽高
-    const winSize = suspensionWin.getSize(); // 获取窗口宽高
-    suspensionWin.setPosition(size.width - winSize[0] - 80, size.height - winSize[1] - 50, false);
-
-    suspensionWin.once("ready-to-show", () => {
-        suspensionWin.setAlwaysOnTop(true, "pop-up-menu");
-        createUnfoldSuspensionWindow();
-    });
-    suspensionWin.on("closed", () => {
-        suspensionWin = null;
-        ElectronLog.info("suspensionWin closed");
-    });
-
-    suspensionWin.on("moved", () => {
-        setSuspensionSize(false);
-        checkIsWelt();
-    });
-
-    suspensionWin.on("show", () => {
-        setTimeout(() => {
-            setWelt();
-        }, 3000);
+    checkIsUseBallEXE(isOk => {
+        if (isOk) {
+            execFile(PATH_BALL, (error, stdout, stderr) => {
+                if (error) return ElectronLog.error("ball open failed!!", error);
+                ElectronLog.info("ball open success!!");
+            });
+        } else {
+            suspensionWin = createWindow(suspensionURL, {
+                width: 120,
+                height: 120,
+                type: "toolbar", // 创建的窗口类型为工具栏窗口
+                frame: false, // 要创建无边框窗口
+                resizable: false, // 禁止窗口大小缩放
+                show: false,
+                useContentSize: true,
+                transparent: true, // 设置透明
+                backgroundColor: "#00000000",
+                alwaysOnTop: true // 窗口是否总是显示在其他窗口之前
+            });
+            const size = screen.getPrimaryDisplay().workAreaSize; // 获取显示器的宽高
+            const winSize = suspensionWin.getSize(); // 获取窗口宽高
+            suspensionWin.setPosition(size.width - winSize[0] - 80, size.height - winSize[1] - 50, false);
+        
+            suspensionWin.once("ready-to-show", () => {
+                suspensionWin && suspensionWin.setAlwaysOnTop(true, "pop-up-menu");
+                createUnfoldSuspensionWindow();
+            });
+            suspensionWin.on("closed", () => {
+                suspensionWin = null;
+                ElectronLog.info("suspensionWin closed");
+            });
+        
+            suspensionWin.on("moved", () => {
+                setSuspensionSize(false);
+                checkIsWelt();
+            });
+        
+            suspensionWin.on("show", () => {
+                setTimeout(() => {
+                    setWelt();
+                }, 3000);
+            });
+        }
     });
 }
 
 function showSuspension() {
-    unfoldSuspensionWin.hide();
-    suspensionWin.showInactive();
+    unfoldSuspensionWin && unfoldSuspensionWin.hide();
+    suspensionWin && suspensionWin.showInactive();
 }
 
 export function registerEvent() {
     let winStartPosition = { x: 0, y: 0 };
     let mouseStartPosition = { x: 0, y: 0 };
-    let movingInterval = null;
+    let movingInterval: any = null;
     ipcMain.handle("window-move-open", (events, canMoving) => {
         if (canMoving) {
+            if (!suspensionWin) return;
             // 读取原位置
             const winPosition = suspensionWin.getPosition();
             winStartPosition = { x: winPosition[0], y: winPosition[1] };
@@ -314,7 +338,7 @@ export function registerEvent() {
                 const cursorPosition = screen.getCursorScreenPoint();
                 const x = winStartPosition.x + cursorPosition.x - mouseStartPosition.x;
                 const y = winStartPosition.y + cursorPosition.y - mouseStartPosition.y;
-                suspensionWin.setPosition(x, y, false);
+                suspensionWin && suspensionWin.setPosition(x, y, false);
             }, 20);
         } else {
             clearInterval(movingInterval);
@@ -341,7 +365,7 @@ export function registerEvent() {
     });
 
     ipcMain.handle("openUnfoldSuspension", () => {
-        suspensionWin.hide();
+        suspensionWin && suspensionWin.hide();
         if (unfoldSuspensionWin) {
             unfoldSuspensionWin.showInactive();
         } else {
@@ -372,12 +396,12 @@ export function registerEvent() {
     ipcMain.on("smallBlackboard", () => {
         isShowBlackboard = true;
         suspensionWin && suspensionWin.webContents.send("blackboardMinimized");
-        blackboardWin.hide();
+        blackboardWin && blackboardWin.hide();
         setSuspensionSize();
     });
 
     ipcMain.handle("closeBlackboard", () => {
-        blackboardWin.destroy();
+        blackboardWin && blackboardWin.destroy();
         setSuspensionSize();
     });
 
@@ -397,7 +421,7 @@ export function registerEvent() {
         }
     });
     ipcMain.handle("closeTimerWin", () => {
-        timerWin.destroy();
+        timerWin && timerWin.destroy();
     });
 
     ipcMain.handle("timerWinHide", (_, time) => {
