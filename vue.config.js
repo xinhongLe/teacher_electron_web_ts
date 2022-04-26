@@ -4,8 +4,17 @@ const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPl
 
 const moment = require("moment");
 
+const extraResources = process.platform === "darwin" ? [{
+    from: "./extraResources/mac/ColorPicker",
+    to: "ColorPicker"
+}] : [{
+    from: "./extraResources/win/mockingbot-color-picker-ia32.exe",
+    to: "mockingbot-color-picker-ia32.exe"
+}];
+
 module.exports = {
     productionSourceMap: false,
+    lintOnSave: false,
     pages: {
         index: {
             entry: "src/main.ts",
@@ -172,6 +181,7 @@ module.exports = {
                     }
                 ],
                 afterPack: "./build/afterPack.js",
+                extraResources: extraResources, // 拷贝静态文件到指定位置
                 dmg: {
                     contents: [
                         {
