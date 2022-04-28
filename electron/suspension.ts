@@ -5,7 +5,7 @@ import { checkWindowSupportNet } from "./util";
 import { spawn, exec } from "child_process";
 import { join } from "path";
 import { Action, CallBack, SocketHelper } from "./socketHelper";
-const PATH_BALL = join(__dirname, app.isPackaged ? "../ball.exe" : "../extraResources/win/ball/ball.exe");
+const PATH_BALL = join(__dirname, "../extraResources/win/ball/ball.exe");
 let suspensionWin: BrowserWindow | null;
 let unfoldSuspensionWin: BrowserWindow | null;
 let blackboardWin: BrowserWindow | null;

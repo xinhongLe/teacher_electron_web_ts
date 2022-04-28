@@ -12,19 +12,19 @@ const extraResources = process.platform === "darwin" ? [
 ] : [
     {
         from: "./extraResources/win/ball/ball.exe",
-        to: "ball.exe"
+        to: "extraResources/win/ball/ball.exe"
     },
     {
         from: "./extraResources/win/ball/log4net.dll",
-        to: "log4net.dll"
+        to: "extraResources/win/ball/log4net.dll"
     },
     {
         from: "./extraResources/win/ball/Newtonsoft.Json.dll",
-        to: "Newtonsoft.Json.dll"
+        to: "extraResources/win/ball/Newtonsoft.Json.dll"
     },
     {
         from: "./extraResources/win/ball/Config/Log4Net.config",
-        to: "Config/Log4Net.config"
+        to: "extraResources/win/ball/Config/Log4Net.config"
     },
     {
         from: "./extraResources/win/mockingbot-color-picker-ia32.exe",
