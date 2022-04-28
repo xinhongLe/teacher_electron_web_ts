@@ -108,18 +108,36 @@ async function createWindow() {
         mainWindow!.webContents.send("exitApp");
     });
 
+    ipcMain.on("openVideoWin", () => {
+        mainWindow!.show();
+        mainWindow!.webContents.send("openVideoWin");
+    });
+
     ipcMain.handle("openVideoWin", () => {
         mainWindow!.show();
         mainWindow!.webContents.send("openVideoWin");
+    });
+
+    ipcMain.on("closeVideoWin", () => {
+        mainWindow!.webContents.send("closeVideoWin");
     });
 
     ipcMain.handle("closeVideoWin", () => {
         mainWindow!.webContents.send("closeVideoWin");
     });
 
+    ipcMain.on("openQuestion", () => {
+        mainWindow!.show();
+        mainWindow!.webContents.send("openQuestion");
+    });
+
     ipcMain.handle("openQuestion", () => {
         mainWindow!.show();
         mainWindow!.webContents.send("openQuestion");
+    });
+
+    ipcMain.on("closeQuestion", () => {
+        mainWindow!.webContents.send("closeQuestion");
     });
 
     ipcMain.handle("closeQuestion", () => {

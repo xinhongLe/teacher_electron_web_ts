@@ -1,10 +1,11 @@
-import { BrowserWindow, ipcMain, screen } from "electron";
+import { BrowserWindow, ipcMain, screen, app } from "electron";
 import { createWindow } from "./createWindow";
 import ElectronLog from "electron-log";
 import { checkWindowSupportNet } from "./util";
-import { execFile } from "child_process";
+import { spawn, exec } from "child_process";
 import { join } from "path";
-const PATH_BALL = join(__dirname, "../ball.exe");
+import { Action, CallBack, SocketHelper } from "./socketHelper";
+const PATH_BALL = join(__dirname, app.isPackaged ? "../ball.exe" : "../extraResources/win/ball/ball.exe");
 let suspensionWin: BrowserWindow | null;
 let unfoldSuspensionWin: BrowserWindow | null;
 let blackboardWin: BrowserWindow | null;
@@ -16,6 +17,7 @@ let isShowTimer = false; // 悬浮球是否显示时间
 let isShowVideo = false; // 悬浮球是否显示视频图标
 let isShowBlackboard = false; // 悬浮球是否显示黑板图标
 let isShowQuestion = false; // 悬浮球是否显示题目图标
+let socketHelper: SocketHelper;
 const timerURL = process.env.NODE_ENV === "development"
     ? `${process.env.WEBPACK_DEV_SERVER_URL}timer.html`
     : `file://${__dirname}/timer.html`;
@@ -83,7 +85,7 @@ function setWelt() {
     suspensionWin.setContentSize(20, 80);
 }
 
-function hideSuspensionIcon () {
+function hideSuspensionIcon() {
     isShowTimer = false;
     isShowVideo = false;
     isShowQuestion = false;
@@ -255,7 +257,7 @@ function createSubjectToolWindow(url: string, name: string) {
     win.maximize();
 }
 
-function checkIsUseBallEXE (callback: (T: boolean) => void) {
+function checkIsUseBallEXE(callback: (T: boolean) => void) {
     if (process.platform === "win32") {
         checkWindowSupportNet("v3.5").then(isOk => {
             callback(isOk);
@@ -265,12 +267,86 @@ function checkIsUseBallEXE (callback: (T: boolean) => void) {
     }
 }
 
+class CustomCallBack implements CallBack {
+    OnDataReceive(data: Action): void {
+        switch(data.METHOD) {
+            case "MENUSHOW":
+                socketHelper.sendMessage(new Action("SMALLMENUHIDE", ""));
+                if (unfoldSuspensionWin) {
+                    unfoldSuspensionWin.showInactive();
+                } else {
+                    createUnfoldSuspensionWindow();
+                }
+                break;
+            case "BLACKBOARDSHOW":
+                isShowBlackboard = true;
+                socketHelper.sendMessage(new Action("BLACKBOARDSHOW", ""));
+                if (blackboardWin) {
+                    blackboardWin.show();
+                } else {
+                    createBlackboardWindow();
+                }
+                break;
+            case "BLACKBOARDHIDE":
+                isShowBlackboard = false;
+                blackboardWin && blackboardWin.destroy();
+                break;
+            case "VIDEOSHOW":
+                isShowVideo = true;
+                socketHelper.sendMessage(new Action("VIDEOSHOW", ""));
+                ipcMain.emit("openVideoWin");
+                break;
+            case "VIDEOHIDE":
+                isShowVideo = false;
+                ipcMain.emit("closeVideoWin");
+                break;
+            case "QUESTIONSHOW":
+                isShowQuestion = true;
+                socketHelper.sendMessage(new Action("QUESTIONSHOW", ""));
+                ipcMain.emit("openQuestion");
+                break;
+            case "QUESTIONHIDE":
+                isShowQuestion = false;
+                ipcMain.emit("closeQuestion");
+                break;
+            case "QUICKTIMESHOW":
+                isShowTimer = true;
+                socketHelper.sendMessage(new Action("QUICKTIMESHOW", ""));
+                if (timerWin) {
+                    timerWin.show();
+                } else {
+                    createTimerWindow();
+                }
+                break;
+            case "QUICKTIMEHIDE":
+                isShowTimer = false;
+                timerWin && timerWin.destroy();
+                break;
+        }
+    }
+}
+
+function killProcess() {
+    return new Promise((resolve, reject) => {
+        exec(`taskkill /im ball.exe /t /f`, (err, stdout, stderr) => {
+            if (err) {
+                return resolve(true)
+            }
+            console.log('stdout', stdout)
+            console.log('stderr', stderr)
+            resolve(true)
+        })
+    })
+}
+
 export function createSuspensionWindow() {
     checkIsUseBallEXE(isOk => {
         if (isOk) {
-            execFile(PATH_BALL, (error, stdout, stderr) => {
-                if (error) return ElectronLog.error("ball open failed!!", error);
-                ElectronLog.info("ball open success!!");
+            killProcess().then(() => {
+                spawn(PATH_BALL);
+                console.log("started socket");
+                socketHelper = new SocketHelper(new CustomCallBack());
+                createUnfoldSuspensionWindow();
             });
         } else {
             suspensionWin = createWindow(suspensionURL, {
@@ -288,7 +364,7 @@ export function createSuspensionWindow() {
             const size = screen.getPrimaryDisplay().workAreaSize; // 获取显示器的宽高
             const winSize = suspensionWin.getSize(); // 获取窗口宽高
             suspensionWin.setPosition(size.width - winSize[0] - 80, size.height - winSize[1] - 50, false);
-        
+
             suspensionWin.once("ready-to-show", () => {
                 suspensionWin && suspensionWin.setAlwaysOnTop(true, "pop-up-menu");
                 createUnfoldSuspensionWindow();
@@ -297,12 +373,12 @@ export function createSuspensionWindow() {
                 suspensionWin = null;
                 ElectronLog.info("suspensionWin closed");
             });
-        
+
             suspensionWin.on("moved", () => {
                 setSuspensionSize(false);
                 checkIsWelt();
             });
-        
+
             suspensionWin.on("show", () => {
                 setTimeout(() => {
                     setWelt();
@@ -314,7 +390,11 @@ export function createSuspensionWindow() {
 
 function showSuspension() {
     unfoldSuspensionWin && unfoldSuspensionWin.hide();
-    suspensionWin && suspensionWin.showInactive();
+    if (socketHelper) {
+        socketHelper.sendMessage(new Action("SMALLMENUSHOW", ""));
+    } else {
+        suspensionWin && suspensionWin.showInactive();
+    }
 }
 
 export function registerEvent() {
@@ -349,11 +429,19 @@ export function registerEvent() {
     });
 
     ipcMain.handle("openSuspension", () => {
-        suspensionWin && suspensionWin.showInactive();
+        if (socketHelper) {
+            socketHelper.sendMessage(new Action("SMALLMENUSHOW", ""));
+        } else {
+            suspensionWin && suspensionWin.showInactive();
+        }
     });
 
     ipcMain.handle("closeSuspension", () => {
-        suspensionWin && suspensionWin.hide();
+        if (socketHelper) {
+            socketHelper.sendMessage(new Action("SMALLMENUHIDE", ""));
+        } else {
+            suspensionWin && suspensionWin.hide();
+        }
         unfoldSuspensionWin && unfoldSuspensionWin.hide();
         rollCallWin && rollCallWin.destroy();
         answerMachineWin && answerMachineWin.destroy();
@@ -365,7 +453,11 @@ export function registerEvent() {
     });
 
     ipcMain.handle("openUnfoldSuspension", () => {
-        suspensionWin && suspensionWin.hide();
+        if (socketHelper) {
+            socketHelper.sendMessage(new Action("SMALLMENUHIDE", ""));
+        } else {
+            suspensionWin && suspensionWin.hide();
+        }
         if (unfoldSuspensionWin) {
             unfoldSuspensionWin.showInactive();
         } else {
@@ -395,7 +487,11 @@ export function registerEvent() {
 
     ipcMain.on("smallBlackboard", () => {
         isShowBlackboard = true;
-        suspensionWin && suspensionWin.webContents.send("blackboardMinimized");
+        if (socketHelper) {
+            socketHelper.sendMessage(new Action("BLACKBOARDHIDE", ""));
+        } else {
+            suspensionWin && suspensionWin.webContents.send("blackboardMinimized");
+        }
         blackboardWin && blackboardWin.hide();
         setSuspensionSize();
     });
@@ -403,6 +499,9 @@ export function registerEvent() {
     ipcMain.handle("closeBlackboard", () => {
         blackboardWin && blackboardWin.destroy();
         setSuspensionSize();
+        if (socketHelper) {
+            socketHelper.sendMessage(new Action("BLACKBOARDSHOW", ""));
+        }
     });
 
     ipcMain.handle("openTimerWin", () => {
@@ -422,40 +521,67 @@ export function registerEvent() {
     });
     ipcMain.handle("closeTimerWin", () => {
         timerWin && timerWin.destroy();
+        if (socketHelper) {
+            socketHelper.sendMessage(new Action("QUICKTIMESHOW", ""));
+        }
     });
 
     ipcMain.handle("timerWinHide", (_, time) => {
         showSuspension();
         isShowTimer = true;
         setSuspensionSize();
-        suspensionWin && suspensionWin.webContents.send("timerWinHide", time);
+        if (socketHelper) {
+            socketHelper.sendMessage(new Action("QUICKTIMEHIDE", time));
+        } else {
+            suspensionWin && suspensionWin.webContents.send("timerWinHide", time);
+        }
     });
 
     ipcMain.handle("timeChange", (_, time) => {
-        suspensionWin && suspensionWin.webContents.send("timeChange", time);
+        if (socketHelper) {
+            socketHelper.sendMessage(new Action("QUICKTIMEHIDEINTERVAL", time));
+        } else {
+            suspensionWin && suspensionWin.webContents.send("timeChange", time);
+        }
     });
 
     ipcMain.handle("videoMinimized", () => {
         isShowVideo = true;
-        suspensionWin && suspensionWin.webContents.send("videoMinimized");
+        if (socketHelper) {
+            socketHelper.sendMessage(new Action("VIDEOHIDE", ""));
+        } else {
+            suspensionWin && suspensionWin.webContents.send("videoMinimized");
+        }
         setSuspensionSize();
     });
 
     ipcMain.handle("hideSuspensionVideo", () => {
         isShowVideo = false;
-        suspensionWin && suspensionWin.webContents.send("hideSuspensionVideo");
+        if (socketHelper) {
+            socketHelper.sendMessage(new Action("VIDEOSHOW", ""));
+        } else {
+            suspensionWin && suspensionWin.webContents.send("hideSuspensionVideo");
+        }
         setSuspensionSize();
     });
 
     ipcMain.handle("questionMinimized", () => {
         isShowQuestion = true;
-        suspensionWin && suspensionWin.webContents.send("questionMinimized");
+        if (socketHelper) {
+            socketHelper.sendMessage(new Action("QUESTIONHIDE", ""));
+        } else {
+            suspensionWin && suspensionWin.webContents.send("questionMinimized");
+        }
         setSuspensionSize();
     });
 
     ipcMain.handle("hideSuspensionQuestion", () => {
         isShowQuestion = false;
-        suspensionWin && suspensionWin.webContents.send("hideSuspensionQuestion");
+        if (socketHelper) {
+            socketHelper.sendMessage(new Action("QUESTIONSHOW", ""));
+        } else {
+            suspensionWin && suspensionWin.webContents.send("hideSuspensionQuestion");
+        }
         setSuspensionSize();
     });
 
