@@ -15,6 +15,10 @@ const extraResources = process.platform === "darwin" ? [
         to: "extraResources/win/ball/ball.exe"
     },
     {
+        from: "./extraResources/win/ball/ball.exe.config",
+        to: "extraResources/win/ball/ball.exe.config"
+    },
+    {
         from: "./extraResources/win/ball/log4net.dll",
         to: "extraResources/win/ball/log4net.dll"
     },

@@ -260,7 +260,10 @@ function createSubjectToolWindow(url: string, name: string) {
 function checkIsUseBallEXE(callback: (T: boolean) => void) {
     if (process.platform === "win32") {
         checkWindowSupportNet("v3.5").then(isOk => {
-            callback(isOk);
+            if (isOk) return callback(isOk);
+            checkWindowSupportNet("v4.0").then(isOk => {
+                if (isOk) return callback(isOk);
+            });
         });
     } else {
         callback(false);
