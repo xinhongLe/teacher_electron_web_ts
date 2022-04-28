@@ -280,6 +280,20 @@ class CustomCallBack implements CallBack {
                 } else {
                     createUnfoldSuspensionWindow();
                 }
+                const size = screen.getPrimaryDisplay().workAreaSize; 
+                const winSize = unfoldSuspensionWin.getSize();
+
+                let newLeft = parseInt(data.DATA.split(',')[0]);
+                if (newLeft + winSize[0] > size.width) {
+                    newLeft = size.width - winSize[0];
+                }
+
+                let newTop = parseInt(data.DATA.split(',')[1]);
+                if (newTop + winSize[1] > size.height) {
+                    newTop = size.height - winSize[1];
+                }
+
+                unfoldSuspensionWin.setPosition(newLeft, newTop);
                 break;
             case "BLACKBOARDSHOW":
                 isShowBlackboard = true;
@@ -520,6 +534,12 @@ export function registerEvent() {
             rollCallWin.show();
         } else {
             createRollcall(allStudentList);
+        }
+    });
+    ipcMain.handle("hideTimerWin", () => {
+        if (socketHelper) {
+            console.log("hideTimerWin");
+            socketHelper.sendMessage(new Action("QUICKTIMESHOW", ""));
         }
     });
     ipcMain.handle("closeTimerWin", () => {
