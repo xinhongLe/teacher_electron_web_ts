@@ -281,7 +281,7 @@ class CustomCallBack implements CallBack {
                     createUnfoldSuspensionWindow();
                 }
                 const size = screen.getPrimaryDisplay().workAreaSize; 
-                const winSize = unfoldSuspensionWin.getSize();
+                const winSize = unfoldSuspensionWin!.getSize();
 
                 let newLeft = parseInt(data.DATA.split(',')[0]);
                 if (newLeft + winSize[0] > size.width) {
@@ -293,7 +293,7 @@ class CustomCallBack implements CallBack {
                     newTop = size.height - winSize[1];
                 }
 
-                unfoldSuspensionWin.setPosition(newLeft, newTop);
+                unfoldSuspensionWin!.setPosition(newLeft, newTop);
                 break;
             case "BLACKBOARDSHOW":
                 isShowBlackboard = true;
