@@ -101,7 +101,7 @@
                         </div>
                     </el-form-item>
                 </el-form>
-                <div class="btns">
+                <!-- <div class="btns">
                     <span @click="close">取消</span>
                     <span
                         :class="{
@@ -112,9 +112,9 @@
                         }"
                         @click="save"
                         >保存</span
-                    >
+                    > -->
                     <!-- <span v-if="classType == 'edit'" @click="delClass">解散班级</span> -->
-                </div>
+                <!-- </div> -->
             </div>
             <AddTeacher
                 v-model:visible="showTeacher"
