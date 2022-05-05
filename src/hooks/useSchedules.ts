@@ -1,12 +1,10 @@
-import { CourseBag, fetchClassTime, fetchTeachClassSchedule, fetchWeekSchedule, GetClassTimeRes, GetTeachClassScheduleRes } from "@/api";
-import { fetchActiveTimetableID, fetchUserSchedules, fetchTimetableClassTime, TimetableClassTime, UserSchedules, IScheduleContent, fetchTermCodeBySchoolId, fetchScheduleContent, TimetableClassTimeDetailDto } from "@/api/timetable";
+import { fetchActiveTimetableID, fetchUserSchedules, IScheduleContent, fetchTermCodeBySchoolId, fetchScheduleContent, TableTime, IScheduleDetail } from "@/api/timetable";
 import { store } from "@/store";
-import { find, uniqBy, uniqWith } from "lodash";
-import moment from "moment";
 import { ref, Ref, watch, watchEffect } from "vue";
 
-interface TeachClassSchedule extends UserSchedules {
-    fontShowTime: string
+interface TeachClassSchedule extends IScheduleDetail {
+    DateOfWeek: number;
+    fontShowTime: string;
 }
 
 export type ColData = {
@@ -15,18 +13,19 @@ export type ColData = {
     timetableID: string,
 } & Partial<IScheduleContent & TeachClassSchedule>
 
-export interface Schedule extends TimetableClassTimeDetailDto{
+export interface Schedule extends TableTime{
     fontShowTime: string,
     colData: ColData[]
 }
 
 export default (days: Ref<string[]>) => {
-    let teachClassScheduleArr: TeachClassSchedule[] = [];
+    const teachClassScheduleArr: TeachClassSchedule[] = [];
     let weekScheduleArr: IScheduleContent[] = [];
-    let classTimeArr: TimetableClassTimeDetailDto[] = [];
+    let classTimeArr: TableTime[] = [];
     const schedules = ref<Schedule[]>([]);
     const timetableID = ref("");
     const semesterDataID = ref(""); // 学期ID
+    const termCode = ref("");
 
     const getTimetableID = async () => {
         const schoolID = store.state.userInfo.Schools![0]?.UserCenterSchoolID;
@@ -39,6 +38,7 @@ export default (days: Ref<string[]>) => {
         });
 
         semesterDataID.value = termCodeRes.result.TermId;
+        termCode.value = termCodeRes.result.TermCode;
         if (termCodeRes.resultCode === 200 && termCodeRes.result) {
             const res = await fetchActiveTimetableID({
                 schoolID,
@@ -51,15 +51,23 @@ export default (days: Ref<string[]>) => {
     };
 
     const getTeachClassSchedule = async () => {
-        if (!timetableID.value) return;
+        const schoolID = store.state.userInfo.Schools![0]?.UserCenterSchoolID;
+        if (!schoolID) return;
         const res = await fetchUserSchedules({
-            timetableID: timetableID.value,
-            userID: store.state.userInfo.userCenterUserID
+            StartTime: days.value[0],
+            EndTime: days.value[6],
+            TermCode: termCode.value,
+            SchoolID: schoolID,
+            TeacherID: store.state.userInfo.userCenterUserID
         });
+
         if (res.resultCode === 200) {
-            teachClassScheduleArr = res.result.map(item => {
-                const fontShowTime = `${item.BeginTime.substring(0, 5)}~${item.EndTime.substring(0, 5)}`;
-                return { ...item, fontShowTime };
+            classTimeArr = res.result.tableTimeList;
+            res.result.TeacherCourseList.forEach(item => {
+                item.ScheduleDetailData.forEach(schedule => {
+                    const fontShowTime = `${schedule.StartTime.substring(0, 5)}~${schedule.EndTime.substring(0, 5)}`;
+                    teachClassScheduleArr.push({ ...schedule, DateOfWeek: item.DateOfWeek, fontShowTime });
+                });
             });
         }
     };
@@ -76,22 +84,6 @@ export default (days: Ref<string[]>) => {
         }
     };
 
-    const getClassTime = async () => {
-        if (!timetableID.value) return;
-        const schoolID = store.state.userInfo.Schools![0]?.UserCenterSchoolID;
-        const res = await fetchTimetableClassTime({
-            semesterDataID: semesterDataID.value,
-            schoolID
-        });
-        if (res.resultCode === 200) {
-            const classTimes = res.result.ClassTimes;
-            const list = uniqWith(classTimes[0].ClassTimeDetailDtos, (arrVal, othVal) => {
-                return arrVal.APMP + "" + arrVal.SectionIndex === othVal.APMP + "" + othVal.SectionIndex;
-            });
-            classTimeArr = list.filter((item) => item.IsShow);
-        }
-    };
-
     const dealSchedules = () => {
         schedules.value = classTimeArr.map(classTime => {
             const colData: ColData[] = days.value.map((day, index) => ({
@@ -103,14 +95,14 @@ export default (days: Ref<string[]>) => {
 
             teachClassScheduleArr.forEach(item => {
                 if (item.fontShowTime === fontShowTime) {
-                    const week = item.DayOfWeek === 0 ? 6 : item.DayOfWeek - 1;
+                    const week = item.DateOfWeek === 0 ? 6 : item.DateOfWeek - 1;
                     colData[week] = { ...item, ...colData[week] };
                 }
             });
+            weekScheduleArr = [];
             weekScheduleArr.forEach(item => {
                 const index = colData.findIndex(data => {
-                    if (!data.Schedule) return;
-                    return item.ScheduleID === data.Schedule.SchedulesID;
+                    return item.ScheduleID === data.ID;
                 });
                 if (index !== -1) {
                     colData[index] = { ...colData[index], ...item };
@@ -127,12 +119,13 @@ export default (days: Ref<string[]>) => {
     const initSchedules = async () => {
         await getTimetableID();
         if (!timetableID.value) return;
-        await Promise.all([getTeachClassSchedule(), getWeekSchedule(), getClassTime()]);
+        await Promise.all([getTeachClassSchedule(), getWeekSchedule()]);
         dealSchedules();
     };
 
     const updateSchedules = async () => {
-        await getWeekSchedule();
+        // await getWeekSchedule();
+        await Promise.all([getTeachClassSchedule(), getWeekSchedule()]);
         dealSchedules();
     };
 

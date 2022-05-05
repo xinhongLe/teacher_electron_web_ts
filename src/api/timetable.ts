@@ -8,60 +8,11 @@ interface FetchActiveTimetableIDData {
 }
 
 interface FetchGetUserSchedulesData {
-    timetableID: string;
-    userID: string;
-    courseMainIDs?: string[];
-}
-
-export interface ISchedulesInfo {
-    SchedulesID: string;
-    GradeID: string;
-    GradeName: string;
-    ClassID: string;
-    ClassName: string;
-    IsDiffeWeek: boolean;
-    MajorUserID: string;
-    MajorUserName: string;
-    MajorCourseName: string;
-    MajorCourseID: string;
-    MajorCourseCode: string;
-    MajorScheduleType: number;
-    MajorIsConflict: boolean;
-    MinorUserID: string;
-    MinorUserName: string;
-    MinorCourseName: string;
-    MinorCourseCode: string;
-    MinorCourseID: string;
-    MinorScheduleType: number;
-    MinorIsConflict: boolean;
-}
-
-export interface UserSchedules {
-    SectionName: string;
-    BeginTime: string;
+    SchoolID: string;
+    TeacherID: string;
+    StartTime: string;
     EndTime: string;
-    DayOfWeek: number;
-    Apmp: number;
-    Schedule: ISchedulesInfo;
-}
-
-export interface TimetableClassTimeDetailDto {
-    SectionName: string;
-    ClassIndex: number;
-    APMP: number;
-    ShowType: number;
-    SectionIndex: number;
-    BeginTime: string;
-    EndTime: string;
-    IsShow: boolean;
-    BindData: string;
-}
-
-export interface TimetableClassTime {
-    ClassTimeDetailDtos: TimetableClassTimeDetailDto[],
-    GradeIds: string[],
-    ClassTimeID: string,
-    ClassTimeName: string,
+    TermCode: string;
 }
 
 export interface IScheduleContent {
@@ -73,10 +24,42 @@ export interface IScheduleContent {
 }
 
 interface UpdateScheduleRes {
-    lessonID: string;
-    scheduleTime: string;
-    timetableMainID: string;
-    scheduleIDs: string[];
+    ID: string;
+    ScheduleID: string;
+}
+
+export interface IScheduleDetail {
+    APMP: number;
+    AdjustTypeID: number;
+    ClassName: string;
+    CourseID: string;
+    CourseName: string;
+    CourseTypeID: string;
+    CourseTypeName: string;
+    EndTime: string;
+    GradeName: string;
+    ID: string;
+    SectionName: string;
+    StartTime: string;
+    TeacherID: string;
+    TeacherName: string;
+}
+
+export interface TeacherCourse {
+    Date: string;
+    DateOfWeek: number;
+    ScheduleDetailData: IScheduleDetail[]
+}
+
+export interface TableTime {
+    APMP: number;
+    BeginTime: string;
+    ClassIndex: number;
+    DayOfWeek: number;
+    EndTime: string;
+    IsShow: boolean;
+    SectionName: string;
+    ShowType: number;
 }
 
 // 根据学年学期获取正在生效状态的课表ID
@@ -98,48 +81,14 @@ export const fetchActiveTimetableID: RequestFun<
 // 通过课表ID获取该课表的 用户课表
 export const fetchUserSchedules: RequestFun<
     FetchGetUserSchedulesData,
-    UserSchedules[]
-> = (data) => {
-    return request({
-        baseURL: SCHEDULE_API,
-        url: "Api/Web/Schedule/GetUserSchedules",
-        headers: {
-            "Content-Type": "application/json-patch+json"
-        },
-        method: "post",
-        data
-    });
-};
-
-// 根据课表获取该课表的作息
-// export const fetchTimetableClassTime: RequestFun<
-//     {
-//         timetableID: string;
-//     },
-//     TimetableClassTime[]
-// > = (data) => {
-//     return request({
-//         baseURL: TIMETABLE_API,
-//         url: "Api/Web/Timetable/GetTimetableClassTime",
-//         headers: {
-//             "Content-Type": "application/json-patch+json"
-//         },
-//         method: "post",
-//         data
-//     });
-// };
-export const fetchTimetableClassTime: RequestFun<
     {
-        semesterDataID: string;
-        schoolID: string;
-    },
-    {
-        ClassTimes: TimetableClassTime[]
+        TeacherCourseList: TeacherCourse[],
+        tableTimeList: TableTime[]
     }
 > = (data) => {
     return request({
-        baseURL: TIMETABLE_API,
-        url: "API/Web/ClassTime/GetClassTimeDetail",
+        baseURL: SCHEDULE_API,
+        url: "Api/Web/WorkLoad/GetTeacherCourseData",
         headers: {
             "Content-Type": "application/json-patch+json"
         },
@@ -174,8 +123,8 @@ export const updateSchedule: RequestFun<
     IScheduleContent[]
 > = (data) => {
     return request({
-        baseURL: AI_XUE_SHI_API,
-        url: "Api/V5/Teach/UpdataSchedule",
+        baseURL: SCHEDULE_API,
+        url: "Api/Web/WorkLoad/TeacherScheduleChange",
         headers: {
             "Content-Type": "application/json-patch+json"
         },

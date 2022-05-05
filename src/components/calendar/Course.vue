@@ -1,9 +1,9 @@
 <template>
     <div
-        @drop.prevent="isDrop && colData.Schedule ? onDrop($event, colData) : null"
-        @dragover="isDrop && colData.Schedule ? $event.preventDefault() : null"
-        @dragenter="isDrop && colData.Schedule ? isActive = true : null"
-        @dragleave="isDrop && colData.Schedule ? isActive = false : null"
+        @drop.prevent="isDrop && colData.ID ? onDrop($event, colData) : null"
+        @dragover="isDrop && colData.ID ? $event.preventDefault() : null"
+        @dragenter="isDrop && colData.ID ? isActive = true : null"
+        @dragleave="isDrop && colData.ID ? isActive = false : null"
         class="course cell"
         :class="[
             isActive ? 'active' : '',
@@ -14,17 +14,17 @@
             trigger="hover"
             placement="top"
             popper-class="preparation-popper-class"
-            v-if="className"
+            v-if="colData.ClassName"
         >
             <div>
                 <p v-show="colData.LessonName">
                     课程名称：{{ colData.LessonName }}
                 </p>
                 <p>上课时间：{{ colData.fontShowTime }}</p>
-                <p>科目：{{ subjectName }}</p>
+                <p>科目：{{ colData.CourseName }}</p>
                 <p>
                     班级：{{
-                        className
+                        colData.ClassName
                     }}
                 </p>
             </div>
@@ -36,19 +36,19 @@
                         </div>
                         <div class="bottom">
                             <div class="class-name">
-                                {{className}}
+                                {{colData.ClassName}}
                             </div>
                             <div
-                                v-if="subjectName"
+                                v-if="colData.CourseName"
                                 class="content-class"
                                 :style="{
                                     backgroundColor: bgColor,
                                 }"
                             >
-                                {{ subjectName?.substring(0, 1) }}
+                                {{ colData.CourseName?.substring(0, 1) }}
                             </div>
                         </div>
-                        <div class="delete-icon-warp" v-if="colData.LessonID && isShowDelete" @click.stop="deleteCourse">
+                        <div class="delete-icon-warp" v-if="colData.LessonName && isShowDelete" @click.stop="deleteCourse">
                             <span class="line"></span>
                         </div>
                     </div>
@@ -72,7 +72,8 @@ const CourseBgColor: Record<string, string> = {
     语文: "#4FCC94",
     数学: "#63D1FA",
     英语: "#9A69EB",
-    拼音: "#FFD152"
+    拼音: "#FFD152",
+    其他: "#0057FE"
 };
 
 const props = defineProps({
@@ -107,27 +108,9 @@ const router = useRouter();
 
 const isDragging = computed(() => store.state.common.isDragging);
 
-const className = computed(() => {
-    if (!props.colData.Schedule) return "";
-    return props.colData.Schedule.ClassName;
-});
-
-const subjectName = computed(() => {
-    if (!props.colData.Schedule) return "";
-    const { MajorUserID, MajorCourseName, MinorCourseName } = props.colData.Schedule;
-    let subjectName = "";
-    const userId = store.state.userInfo.userCenterUserID;
-    if (userId === MajorUserID) {
-        subjectName = MajorCourseName;
-    } else {
-        subjectName = MinorCourseName;
-    }
-    return subjectName;
-});
-
-const bgColor = computed(() => CourseBgColor[subjectName.value] || "#0057FE");
+const bgColor = computed(() => CourseBgColor[props.colData.CourseName || "其他"]);
 const isEnd = computed(() => props.colData.ScheduleTime && moment().isAfter(props.colData.ScheduleTime));
-const scheduleIDs = computed(() => props.colData.Schedule ? [props.colData.Schedule?.SchedulesID] : []);
+const scheduleID = computed(() => props.colData.ID || "");
 const scheduleTime = computed(() => props.colData.colDate + " " + props.colData.EndTime);
 
 const updateSchedules = inject(
@@ -141,10 +124,8 @@ const deleteCourse = () => {
         type: "warning"
     }).then(async () => {
         const res = await updateSchedule({
-            lessonID: "",
-            scheduleTime: scheduleTime.value,
-            timetableMainID: props.colData.timetableID,
-            scheduleIDs: scheduleIDs.value
+            ID: "",
+            ScheduleID: scheduleID.value
         });
         if (res.resultCode === 200) {
             ElMessage.success("删除成功");
@@ -155,20 +136,19 @@ const deleteCourse = () => {
 
 const addSchedule = async (id: string) => {
     const res = await updateSchedule({
-        lessonID: id,
-        timetableMainID: props.colData.timetableID,
-        scheduleTime: scheduleTime.value,
-        scheduleIDs: scheduleIDs.value
+        ID: id,
+        ScheduleID: scheduleID.value
     });
     return res;
 };
 
 const onDrop = async (ev: DragEvent, colData: ColData) => {
+    console.log(colData);
     isActive.value = false;
     const dragInfo = JSON.parse(
                 ev.dataTransfer?.getData("dragInfo") as string
     ) as SchoolLesson;
-    if (!colData.Schedule) return;
+    if (!colData.ID) return;
     if (isEnd.value) {
         return ElMessage.error("已经结束的课程无法重新排课");
     }
