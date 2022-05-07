@@ -359,7 +359,7 @@ function killProcess() {
 
 export function createSuspensionWindow() {
     checkIsUseBallEXE(isOk => {
-        if (!isOk) {
+        if (isOk) {
             killProcess().then(() => {
                 spawn(PATH_BALL);
                 console.log("started socket");
