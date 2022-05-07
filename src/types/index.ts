@@ -32,6 +32,7 @@ type Electron = typeof electron & {
     showSaveDialog: (option: SaveDialogOptions) => Promise<SaveDialogReturnValue>,
     showOpenDialog: (option: OpenDialogOptions) => Promise<OpenDialogReturnValue>,
     getPPTPath: (path: string) => string,
+    checkWindowSupportNet: (version: string) => Promise<boolean>,
     store: Store,
     log: LogFunctions
 }

@@ -4,8 +4,41 @@ const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPl
 
 const moment = require("moment");
 
+const extraResources = process.platform === "darwin" ? [
+    {
+        from: "./extraResources/mac/ColorPicker",
+        to: "ColorPicker"
+    }
+] : [
+    {
+        from: "./extraResources/win/ball/ball.exe",
+        to: "extraResources/win/ball/ball.exe"
+    },
+    {
+        from: "./extraResources/win/ball/ball.exe.config",
+        to: "extraResources/win/ball/ball.exe.config"
+    },
+    {
+        from: "./extraResources/win/ball/log4net.dll",
+        to: "extraResources/win/ball/log4net.dll"
+    },
+    {
+        from: "./extraResources/win/ball/Newtonsoft.Json.dll",
+        to: "extraResources/win/ball/Newtonsoft.Json.dll"
+    },
+    {
+        from: "./extraResources/win/ball/Config/Log4Net.config",
+        to: "extraResources/win/ball/Config/Log4Net.config"
+    },
+    {
+        from: "./extraResources/win/mockingbot-color-picker-ia32.exe",
+        to: "mockingbot-color-picker-ia32.exe"
+    }
+];
+
 module.exports = {
     productionSourceMap: false,
+    lintOnSave: false,
     pages: {
         index: {
             entry: "src/main.ts",
@@ -177,6 +210,7 @@ module.exports = {
                     }
                 ],
                 afterPack: "./build/afterPack.js",
+                extraResources: extraResources, // 拷贝静态文件到指定位置
                 dmg: {
                     contents: [
                         {

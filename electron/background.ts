@@ -9,8 +9,10 @@ import downloadFile from "./downloadFile";
 import autoUpdater from "./autoUpdater";
 import SingalRHelper from "./singalr";
 import ElectronLog from "electron-log";
+import os from 'os';
+import { exec, spawn } from 'child_process';
 const isDevelopment = process.env.NODE_ENV !== "production";
-const path = require("path");
+import path from "path";
 initialize();
 
 protocol.registerSchemesAsPrivileged([
@@ -108,13 +110,27 @@ async function createWindow() {
         mainWindow!.webContents.send("exitApp");
     });
 
+    ipcMain.on("openVideoWin", () => {
+        mainWindow!.show();
+        mainWindow!.webContents.send("openVideoWin");
+    });
+
     ipcMain.handle("openVideoWin", () => {
         mainWindow!.show();
         mainWindow!.webContents.send("openVideoWin");
     });
 
+    ipcMain.on("closeVideoWin", () => {
+        mainWindow!.webContents.send("closeVideoWin");
+    });
+
     ipcMain.handle("closeVideoWin", () => {
         mainWindow!.webContents.send("closeVideoWin");
+    });
+
+    ipcMain.on("openQuestion", () => {
+        mainWindow!.show();
+        mainWindow!.webContents.send("openQuestion");
     });
 
     ipcMain.handle("openQuestion", () => {
@@ -122,15 +138,19 @@ async function createWindow() {
         mainWindow!.webContents.send("openQuestion");
     });
 
+    ipcMain.on("closeQuestion", () => {
+        mainWindow!.webContents.send("closeQuestion");
+    });
+
     ipcMain.handle("closeQuestion", () => {
         mainWindow!.webContents.send("closeQuestion");
     });
 
     ipcMain.handle("openVirtualKeyBoard", () => {
-        const { exec } = require("child_process");
-        const os = require("os");
         if (os.platform() === "win32") {
-            exec("osk.exe");
+            exec("osk", (err) => {
+                ElectronLog.error(err);
+            });
         } else {
             exec("onboard");
         }
