@@ -31,10 +31,10 @@
                         <el-option
                             v-for="(item, index) in recordAccountList"
                             :key="index"
-                            :label="item.account"
-                            :value="item.account"
+                            :label="(item as any).account"
+                            :value="(item as any).account"
                         >
-                            <span style="float: left">{{ item.account }}</span>
+                            <span style="float: left">{{ (item as any).account }}</span>
                             <span
                                 style="
                                     float: right;

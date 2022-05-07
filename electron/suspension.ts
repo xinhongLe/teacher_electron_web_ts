@@ -272,15 +272,16 @@ function checkIsUseBallEXE(callback: (T: boolean) => void) {
 
 class CustomCallBack implements CallBack {
     OnDataReceive(data: Action): void {
-        switch(data.METHOD) {
+        switch (data.METHOD) {
             case "MENUSHOW":
                 socketHelper.sendMessage(new Action("SMALLMENUHIDE", ""));
-                if (unfoldSuspensionWin) {
-                    unfoldSuspensionWin.showInactive();
-                } else {
+                if (!unfoldSuspensionWin) {
                     createUnfoldSuspensionWindow();
                 }
-                const size = screen.getPrimaryDisplay().workAreaSize; 
+                if (unfoldSuspensionWin) {
+                    unfoldSuspensionWin.showInactive();
+                }
+                const size = screen.getPrimaryDisplay().workAreaSize;
                 const winSize = unfoldSuspensionWin!.getSize();
 
                 let newLeft = parseInt(data.DATA.split(',')[0]);
@@ -358,12 +359,12 @@ function killProcess() {
 
 export function createSuspensionWindow() {
     checkIsUseBallEXE(isOk => {
-        if (isOk) {
+        if (!isOk) {
             killProcess().then(() => {
                 spawn(PATH_BALL);
                 console.log("started socket");
                 socketHelper = new SocketHelper(new CustomCallBack());
-                createUnfoldSuspensionWindow();
+                // createUnfoldSuspensionWindow();
             });
         } else {
             suspensionWin = createWindow(suspensionURL, {
@@ -384,7 +385,7 @@ export function createSuspensionWindow() {
 
             suspensionWin.once("ready-to-show", () => {
                 suspensionWin && suspensionWin.setAlwaysOnTop(true, "pop-up-menu");
-                createUnfoldSuspensionWindow();
+                // createUnfoldSuspensionWindow();
             });
             suspensionWin.on("closed", () => {
                 suspensionWin = null;
@@ -475,10 +476,11 @@ export function registerEvent() {
         } else {
             suspensionWin && suspensionWin.hide();
         }
+        if (!unfoldSuspensionWin) {
+            createUnfoldSuspensionWindow();
+        }
         if (unfoldSuspensionWin) {
             unfoldSuspensionWin.showInactive();
-        } else {
-            createUnfoldSuspensionWindow();
         }
     });
 
