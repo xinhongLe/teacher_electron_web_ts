@@ -124,8 +124,10 @@ const deleteCourse = () => {
         type: "warning"
     }).then(async () => {
         const res = await updateSchedule({
-            ID: "",
-            ScheduleID: scheduleID.value
+            ID: props.colData.ID,
+            LessonID: props.colData.LessonID,
+            LessonName: props.colData.LessonName,
+            Type: 2
         });
         if (res.resultCode === 200) {
             ElMessage.success("删除成功");
@@ -134,16 +136,17 @@ const deleteCourse = () => {
     });
 };
 
-const addSchedule = async (id: string) => {
+const addSchedule = async (dragInfo: SchoolLesson) => {
     const res = await updateSchedule({
-        ID: id,
-        ScheduleID: scheduleID.value
+        ID: scheduleID.value,
+        LessonID: dragInfo.ID,
+        LessonName: dragInfo.Name,
+        Type: 1
     });
     return res;
 };
 
 const onDrop = async (ev: DragEvent, colData: ColData) => {
-    console.log(colData);
     isActive.value = false;
     const dragInfo = JSON.parse(
                 ev.dataTransfer?.getData("dragInfo") as string
@@ -162,14 +165,14 @@ const onDrop = async (ev: DragEvent, colData: ColData) => {
                 type: "warning"
             }
         ).then(async () => {
-            const res = await addSchedule(dragInfo.ID);
+            const res = await addSchedule(dragInfo);
             if (res.resultCode === 200) {
                 ElMessage.success("更新成功");
                 updateSchedules();
             }
         });
     }
-    const res = await addSchedule(dragInfo.ID);
+    const res = await addSchedule(dragInfo);
     if (res.resultCode === 200) {
         ElMessage.success("排课成功");
         updateSchedules();
@@ -178,7 +181,7 @@ const onDrop = async (ev: DragEvent, colData: ColData) => {
 
 const goToClass = () => {
     if (!props.colData.LessonName) return;
-    router.push(`/attend-class/${props.colData.LessonID}/${props.colData.SubjectID}`);
+    router.push(`/attend-class/${props.colData.LessonID}/${props.colData.CourseID}`);
 };
 
 </script>

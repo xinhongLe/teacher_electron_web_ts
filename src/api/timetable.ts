@@ -25,7 +25,9 @@ export interface IScheduleContent {
 
 interface UpdateScheduleRes {
     ID: string;
-    ScheduleID: string;
+    LessonID: string;
+    LessonName: string;
+    Type: 1 | 2;
 }
 
 export interface IScheduleDetail {
@@ -89,26 +91,6 @@ export const fetchUserSchedules: RequestFun<
     return request({
         baseURL: SCHEDULE_API,
         url: "Api/Web/WorkLoad/GetTeacherCourseData",
-        headers: {
-            "Content-Type": "application/json-patch+json"
-        },
-        method: "post",
-        data
-    });
-};
-
-// 查询教师的排课内容
-export const fetchScheduleContent: RequestFun<
-    {
-        timetableMainID: string,
-        beginTime: string,
-        endTime: string
-    },
-    IScheduleContent[]
-> = (data) => {
-    return request({
-        baseURL: AI_XUE_SHI_API,
-        url: "Api/V5/Teach/GetScheduleContent",
         headers: {
             "Content-Type": "application/json-patch+json"
         },

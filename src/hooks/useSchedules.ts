@@ -1,4 +1,4 @@
-import { fetchActiveTimetableID, fetchUserSchedules, IScheduleContent, fetchTermCodeBySchoolId, fetchScheduleContent, TableTime, IScheduleDetail } from "@/api/timetable";
+import { fetchActiveTimetableID, fetchUserSchedules, IScheduleContent, fetchTermCodeBySchoolId, TableTime, IScheduleDetail } from "@/api/timetable";
 import { store } from "@/store";
 import { ref, Ref, watch, watchEffect } from "vue";
 
@@ -19,8 +19,7 @@ export interface Schedule extends TableTime{
 }
 
 export default (days: Ref<string[]>) => {
-    const teachClassScheduleArr: TeachClassSchedule[] = [];
-    let weekScheduleArr: IScheduleContent[] = [];
+    let teachClassScheduleArr: TeachClassSchedule[] = [];
     let classTimeArr: TableTime[] = [];
     const schedules = ref<Schedule[]>([]);
     const timetableID = ref("");
@@ -62,6 +61,7 @@ export default (days: Ref<string[]>) => {
         });
 
         if (res.resultCode === 200) {
+            teachClassScheduleArr = [];
             classTimeArr = res.result.tableTimeList;
             res.result.TeacherCourseList.forEach(item => {
                 item.ScheduleDetailData.forEach(schedule => {
@@ -69,18 +69,6 @@ export default (days: Ref<string[]>) => {
                     teachClassScheduleArr.push({ ...schedule, DateOfWeek: item.DateOfWeek, fontShowTime });
                 });
             });
-        }
-    };
-
-    const getWeekSchedule = async () => {
-        if (!timetableID.value) return;
-        const res = await fetchScheduleContent({
-            timetableMainID: timetableID.value,
-            beginTime: days.value[0],
-            endTime: days.value[days.value.length - 1]
-        });
-        if (res.resultCode === 200 && res.result) {
-            weekScheduleArr = res.result;
         }
     };
 
@@ -99,15 +87,6 @@ export default (days: Ref<string[]>) => {
                     colData[week] = { ...item, ...colData[week] };
                 }
             });
-            weekScheduleArr = [];
-            weekScheduleArr.forEach(item => {
-                const index = colData.findIndex(data => {
-                    return item.ScheduleID === data.ID;
-                });
-                if (index !== -1) {
-                    colData[index] = { ...colData[index], ...item };
-                }
-            });
             return {
                 ...classTime,
                 colData: colData,
@@ -119,13 +98,12 @@ export default (days: Ref<string[]>) => {
     const initSchedules = async () => {
         await getTimetableID();
         if (!timetableID.value) return;
-        await Promise.all([getTeachClassSchedule(), getWeekSchedule()]);
+        await getTeachClassSchedule();
         dealSchedules();
     };
 
     const updateSchedules = async () => {
-        // await getWeekSchedule();
-        await Promise.all([getTeachClassSchedule(), getWeekSchedule()]);
+        await getTeachClassSchedule();
         dealSchedules();
     };
 
@@ -148,7 +126,6 @@ export default (days: Ref<string[]>) => {
 
     return {
         teachClassScheduleArr,
-        getWeekSchedule,
         initSchedules,
         updateClassSchedule,
         updateSchedules,

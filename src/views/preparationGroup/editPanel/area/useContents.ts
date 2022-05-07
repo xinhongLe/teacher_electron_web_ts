@@ -8,7 +8,6 @@ export default () => {
     const getContents = async (params :AddChapterData) => {
         const res = await fetchGroupLessonDiscussionContents(params);
         if (res.resultCode === 200) {
-            console.log(res);
             const { result = [] } = res;
             Contents.value = result;
         }
