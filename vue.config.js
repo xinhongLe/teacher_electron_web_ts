@@ -31,6 +31,10 @@ const extraResources = process.platform === "darwin" ? [
         to: "extraResources/win/ball/Config/Log4Net.config"
     },
     {
+        from: "./extraResources/win/ball/Config/Interop.NetFwTypeLib.dll",
+        to: "extraResources/win/ball/Config/Interop.NetFwTypeLib.dll"
+    },
+    {
         from: "./extraResources/win/mockingbot-color-picker-ia32.exe",
         to: "mockingbot-color-picker-ia32.exe"
     }
