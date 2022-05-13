@@ -302,7 +302,8 @@ export const fetchSchoolLessonList: RequestFun<FetchSchoolLessonListData, School
         baseURL: AI_XUE_SHI_API,
         url: "Api/W4/Card/GetSchoolLesson",
         headers: {
-            "Content-Type": "application/json-patch+json"
+            "Content-Type": "application/json-patch+json",
+            noLoading: "true"
         },
         method: "post",
         data

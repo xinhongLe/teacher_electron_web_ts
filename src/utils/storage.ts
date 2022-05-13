@@ -70,7 +70,11 @@ export enum STORAGE_TYPES {
     /**
      * 课时下选择的课包
      */
-    SELECT_BAG_ID = "SELECT_BAG_ID_"
+    SELECT_BAG_ID = "SELECT_BAG_ID_",
+    /**
+     * 拖拽课时到课表提示
+     */
+    DRAGE_COURSE_TO_SCHEDULE = "DRAGE_COURSE_TO_SCHEDULE"
 }
 
 export const set = (name: STORAGE_TYPES | string, value: unknown, isEncrypt = false) => {

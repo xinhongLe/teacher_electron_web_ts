@@ -1,5 +1,5 @@
 import { Class, ClassStudent } from "./myStudent";
-import { CourseBag } from "./preparation";
+import { BookList } from "./preparation";
 
 export interface UserInfoState {
     name?: string;
@@ -37,6 +37,10 @@ export interface PreparationState {
      */
     subjectPublisherBookValue: string[],
     /**
+     * 教材列表菜单
+     */
+    subjectPublisherBookList: BookList[],
+    /**
      * 是否在拖拽精品素材
      */
     isDraggingElement: boolean,
@@ -62,7 +66,6 @@ export interface PreparationState {
         lessonId: string,
         allWindowNames: string[]
     }
-
 }
 
 export interface CommonState {

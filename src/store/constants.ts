@@ -67,6 +67,10 @@ export const enum MutationTypes {
      */
     SET_SUBJECT_PUBLISHER_BOOK_VALUE = "SET_SUBJECT_PUBLISHER_BOOK_VALUE",
     /**
+     * 设置教材列表
+     */
+    SET_SUBJECT_PUBLISHER_BOOK_LIST = "SET_SUBJECT_PUBLISHER_BOOK_LIST",
+    /**
      * 设置是否在拖拽精品素材
      */
     SET_IS_DRAGGING_ELEMENT = "SET_IS_DRAGGING_ELEMENT",

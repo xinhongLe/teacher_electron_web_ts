@@ -1,4 +1,4 @@
-import { CourseBag } from "@/types/preparation";
+import { BookList } from "@/types/preparation";
 import { PreparationState, RootState } from "@/types/store";
 import { Module, MutationTree } from "vuex";
 import { MutationTypes } from "..";
@@ -10,6 +10,7 @@ const initState = (): PreparationState => ({
     isClickDetail: false,
     selectNextType: "",
     subjectPublisherBookValue: [],
+    subjectPublisherBookList: [],
     editWindowInfo: {
         id: "",
         name: "",
@@ -48,6 +49,9 @@ const mutations:MutationTree<PreparationState> = {
     },
     [MutationTypes.PREPARATION_STUDENT_RESET_STATE](state) {
         Object.assign(state, initState());
+    },
+    [MutationTypes.SET_SUBJECT_PUBLISHER_BOOK_LIST](state, bookList: BookList[]) {
+        state.subjectPublisherBookList = bookList;
     }
 };
 

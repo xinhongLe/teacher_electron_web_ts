@@ -4,6 +4,13 @@ export interface BookList {
     Children?: BookList[];
 }
 
+// 选中科目数据
+export interface IBook {
+    name: string;
+    id: string;
+    subject: string;
+}
+
 export interface FetchTeacherBookChaptersData {
     bookID: string;
 }
