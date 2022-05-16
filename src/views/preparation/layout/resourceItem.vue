@@ -11,10 +11,10 @@
                 数学 / 人教版 / 一上 / 1单元 数一数 / 1.1 数一数
             </div>
             <div class="resource-message">
-                <el-icon :size="14"><refresh /></el-icon> &nbsp;&nbsp;更新时间：2021-10-20 11:5 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                <el-icon :size="14"><coin /></el-icon> &nbsp;&nbsp;大小：1.82 MB &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                <el-icon :size="14"><view /></el-icon> &nbsp;&nbsp;浏览：23 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                <el-icon :size="14"><compass /></el-icon> &nbsp;&nbsp;来源：系统来源 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <el-icon :size="14"><Refresh /></el-icon> &nbsp;&nbsp;更新时间：2021-10-20 11:5 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <el-icon :size="14"><Coin /></el-icon> &nbsp;&nbsp;大小：1.82 MB &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <el-icon :size="14"><View /></el-icon> &nbsp;&nbsp;浏览：23 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <el-icon :size="14"><Compass /></el-icon> &nbsp;&nbsp;来源：系统来源 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             </div>
         </div>
         <div class="resource-control">
