@@ -29,6 +29,7 @@
             </div>
         </div>
         <Tools
+            :dialog="dialog"
             :showRemark="previewSection?.showRemark"
             @toggleRemark="toggleRemark"
             @prevStep="prevStep"
@@ -68,6 +69,10 @@ const props = defineProps({
     selectLessonId: {
         type: String,
         default: ""
+    },
+    dialog: {
+        type: Boolean,
+        default: false
     }
 });
 const emits = defineEmits(["update:isWindowLoadEnd"]);
@@ -159,7 +164,7 @@ $border-color: #f5f6fa;
     flex-direction: column;
     flex: 1;
     min-width: 0;
-    background-color: #f5f6fa;
+    background-color: $border-color;
     &.full-screen {
         position: fixed;
         top: 0;
@@ -193,7 +198,8 @@ $border-color: #f5f6fa;
             min-width: 0;
             min-height: 0;
             flex-direction: column;
-            background: #f5f6fa;
+            background: #ffffff;
+            margin-right: 8px;
             transition: width 0.3s;
             position: relative;
             &.hidden {
@@ -233,7 +239,6 @@ $border-color: #f5f6fa;
             min-width: 0;
             display: flex;
             justify-content: space-between;
-            padding-top: 12px;
             .card-detail-content {
                 height: 100%;
                 display: flex;

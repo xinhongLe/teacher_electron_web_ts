@@ -33,9 +33,9 @@
                 <img src="../../images/btn_next.png" />
             </div>
         </div>
-        <div class="me-tool-btn invoking-btn-warp" @click="showResourceDialog = true">
+        <!-- <div class="me-tool-btn invoking-btn-warp" @click="showResourceDialog = true">
             <img src="../../images/btn_diaoyong@2x.png"/>
-        </div>
+        </div> -->
         <div class="me-tools-screen"></div>
         <div class="me-tools-canvas">
             <div
@@ -81,7 +81,7 @@
             </div>
         </div>
         <div class="me-tools-system">
-            <template v-if="isShowFullscreen">
+            <template v-if="isShowFullscreen && !dialog">
                 <div class="me-tool-btn" @click="fullScreen" v-if="!activeFlag">
                     <img src="../../images/quanping_rest.png" alt="" />
                 </div>
@@ -178,6 +178,10 @@ export default defineComponent({
             default: true
         },
         isShowClose: {
+            type: Boolean,
+            default: false
+        },
+        dialog: {
             type: Boolean,
             default: false
         }
@@ -343,8 +347,8 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .me-tools {
-    background-color: #bccfff;
-    padding: 10px;
+    background-color: #BED2FF;
+    padding: 14px;
     display: flex;
     position: relative;
     &.tools-fullSrceen {
@@ -446,8 +450,8 @@ export default defineComponent({
 .me-tool-btn.next-step {
     border: 2px solid #2f4fd8;
     box-shadow: 0 3px 0 #2f4fd8;
-    height: 60px;
-    width: 120px;
+    height: 55px;
+    width: 110px;
 }
 
 .me-tool-btn.next-step img {
@@ -475,8 +479,8 @@ export default defineComponent({
 
 .me-tool-btn img {
     display: block;
-    width: 60px;
-    height: 60px;
+    width: 55px;
+    height: 55px;
 }
 
 .me-draw-board {

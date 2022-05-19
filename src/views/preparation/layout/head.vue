@@ -2,6 +2,10 @@
     <div class="p-layout-head">
         <div class="p-head-filter">
             <div class="p-filter-content">
+                <div class="my-course-cart" :class="source === 'me' && 'active'" id="myCourseCart" :num="'99+'" @click="source = 'me'">
+                    <img src="@/assets/images/preparation/cart.png" alt="" />
+                    我的备课包
+                </div>
                 <el-radio-group
                     class="custom-radio"
                     v-model="source"
@@ -36,7 +40,7 @@
         <div class="p-head-filter">
             <div class="p-filter-content">
                 <el-radio-group
-                    class="custom-radio"
+                    class="custom-radio-two"
                     v-model="type"
                     size="small"
                     @change="onTypeChange"
@@ -197,7 +201,7 @@ export default defineComponent({
         const typeList = ref([
             {
                 value: "",
-                label: "全部类型"
+                label: "全部"
             },
             {
                 value: 2,
@@ -205,11 +209,39 @@ export default defineComponent({
             },
             {
                 value: 3,
-                label: "课件"
+                label: "导学案"
             },
             {
                 value: 4,
-                label: "作业"
+                label: "课件"
+            },
+            {
+                value: 5,
+                label: "微课视频"
+            },
+            {
+                value: 6,
+                label: "试卷"
+            },
+            {
+                value: 7,
+                label: "电子课本"
+            },
+            {
+                value: 8,
+                label: "教具"
+            },
+            {
+                value: 9,
+                label: "工具"
+            },
+            {
+                value: 10,
+                label: "素材"
+            },
+            {
+                value: 11,
+                label: "其他"
             }
         ]);
         const onTypeChange = () => {
@@ -273,6 +305,9 @@ export default defineComponent({
 .p-head-filter {
     display: flex;
     align-items: center;
+    padding: 15px;
+    border-radius: 5px;
+    background-color: #fff;
     & + .p-head-filter {
         margin-top: 15px;
     }
@@ -281,6 +316,8 @@ export default defineComponent({
 .p-filter-content {
     flex: 1;
     min-width: 0;
+    display: flex;
+    align-items: center;
 }
 
 .p-control-btns {
@@ -299,17 +336,70 @@ export default defineComponent({
     }
 }
 
+.my-course-cart {
+    margin-right: 10px;
+    border-radius: var(--el-border-radius-base);
+    border: 0;
+    background: #f5f6fa;
+    font-size: 14px;
+    padding: 9px 15px 9px 60px;
+    position: relative;
+    cursor: pointer;
+    &.active {
+        background-color: #272c42;
+        color: #fff;
+    }
+    &:before {
+        content: attr(num);
+        display: block;
+        padding: 3px;
+        border-radius: 15px;
+        font-size: 12px;
+        color: #fff;
+        background: var(--app-color-red);
+        position: absolute;
+        left: 40px;
+        top: -16px;
+        z-index: 1;
+    }
+    img {
+        position: absolute;
+        top: -16px;
+        width: 50px;
+        left: 10px;
+        display: block;
+    }
+}
+
 .custom-radio {
     :deep(.el-radio-button__inner) {
         margin-right: 10px;
         border-radius: var(--el-border-radius-base);
-        border: 1px solid #dcdfe6;
+        border: 0;
+        background: #f5f6fa;
     }
     :deep(.el-radio-button__original-radio:checked + .el-radio-button__inner) {
-        background-color: #fff;
-        color: var(--el-color-primary);
-        border: 1px solid var(--el-color-primary);
+        color: #fff;
         box-shadow: none;
+        background: #272c42;
+    }
+    :deep(.el-radio-button--small .el-radio-button__inner) {
+        font-size: 14px;
+    }
+}
+
+.custom-radio-two {
+    :deep(.el-radio-button__inner) {
+        margin-right: 10px;
+        border-radius: 16px;
+        border: 0;
+        background: #fff;
+    }
+    :deep(.el-radio-button__original-radio:checked + .el-radio-button__inner) {
+        color: #fff;
+        box-shadow: none;
+        background: #eef2ff;
+        color: #4b71ee;
     }
     :deep(.el-radio-button--small .el-radio-button__inner) {
         font-size: 14px;

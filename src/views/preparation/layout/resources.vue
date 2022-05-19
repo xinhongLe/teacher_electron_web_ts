@@ -30,19 +30,26 @@
             :target="target"
             v-model:visible="deleteVideoTipVisible"
         />
+
+        <ResourceView
+            :target="target"
+            v-model:visible="resourceVisible"
+        />
     </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from "vue";
+import { defineComponent, onMounted, ref } from "vue";
 import ResourceItem from "./resourceItem.vue";
 import DeleteTip from "./dialog/deleteTip.vue";
 import EditTip from "./dialog/editTip.vue";
 import ResourceVersion from "./dialog/resourceVersion.vue";
 import DeleteVideoTip from "./dialog/deleteVideoTip.vue";
+import ResourceView from "./dialog/resourceView.vue";
+import { getDomOffset, sleep } from "@/utils/common";
 
 export default defineComponent({
-    components: { ResourceItem, DeleteTip, EditTip, ResourceVersion, DeleteVideoTip },
+    components: { ResourceItem, DeleteTip, EditTip, ResourceVersion, DeleteVideoTip, ResourceView },
     setup() {
         const resourceList = ref([
             {
@@ -80,6 +87,42 @@ export default defineComponent({
                 updateTime: "2021-10-20 11:5",
                 size: 2343343,
                 view: 23
+            },
+            {
+                type: 3,
+                source: 3,
+                name: "补图形",
+                difficulty: 2,
+                updateTime: "2021-10-20 11:5",
+                size: 2343343,
+                view: 23
+            },
+            {
+                type: 3,
+                source: 3,
+                name: "补图形",
+                difficulty: 2,
+                updateTime: "2021-10-20 11:5",
+                size: 2343343,
+                view: 23
+            },
+            {
+                type: 3,
+                source: 3,
+                name: "补图形",
+                difficulty: 2,
+                updateTime: "2021-10-20 11:5",
+                size: 2343343,
+                view: 23
+            },
+            {
+                type: 3,
+                source: 3,
+                name: "补图形",
+                difficulty: 2,
+                updateTime: "2021-10-20 11:5",
+                size: 2343343,
+                view: 23
             }
         ]);
 
@@ -87,8 +130,11 @@ export default defineComponent({
         const editTipVisible = ref(false);
         const resourceVersionVisible = ref(false);
         const deleteVideoTipVisible = ref(false);
+        const resourceVisible = ref(false);
         const target = ref("");
-        const eventEmit = (event: string, data: any) => {
+        const leftEnd = ref(0);
+        const topEnd = ref(0);
+        const eventEmit = (event: string, data: any, e?: MouseEvent | TouchEvent) => {
             console.log(event, data);
             switch(event) {
                 case "delete":
@@ -100,8 +146,51 @@ export default defineComponent({
                 case "version":
                     resourceVersionVisible.value = true;
                     break;
+                case "download":
+                    break;
+                case "add":
+                    if (e) dealFly(e);
+                    break;
+                case "move":
+                    break;
+                case "detail":
+                    resourceVisible.value = true;
+                    break;
             }
         };
+
+        const dealFly = async (event: MouseEvent | TouchEvent) => {
+            // 简单的加入购物车动画
+            const x = event instanceof MouseEvent ? event.pageX : event.changedTouches[0].pageX;
+            const y = event instanceof MouseEvent ? event.pageY : event.changedTouches[0].pageY;
+            const img = document.createElement("img");
+            img.src = require("@/assets/images/preparation/resources/icon_cjkejian_star.png");
+            img.style.position = "fixed";
+            img.style.display = "block";
+            img.style.width = "50px";
+            img.style.height = "50px";
+            img.style.borderRadius = "25px";
+            img.style.top = y + "px";
+            img.style.left = x + "px";
+            img.style.transition = "all 0.5s linear,top 0.5s cubic-bezier(.28,.94,0,.8)";
+            img.onload = async () => {
+                document.body.appendChild(img);
+                await sleep(100);
+                img.style.left = leftEnd.value + "px";
+                img.style.top = topEnd.value + "px";
+                await sleep(500);
+                img.remove();
+            };
+        };
+
+        onMounted(() => {
+            const cart = document.getElementById("myCourseCart");
+            if (cart) {
+                const { left, top } = getDomOffset(cart);
+                leftEnd.value = left + 20;
+                topEnd.value = top - 40;
+            }
+        });
 
         return {
             resourceList,
@@ -110,7 +199,8 @@ export default defineComponent({
             editTipVisible,
             resourceVersionVisible,
             deleteVideoTipVisible,
-            eventEmit
+            eventEmit,
+            resourceVisible
         };
     }
 });
@@ -123,6 +213,7 @@ export default defineComponent({
     min-width: 0;
     position: relative;
     padding: 0 20px;
+    overflow-y: auto;
 }
 
 .tip {

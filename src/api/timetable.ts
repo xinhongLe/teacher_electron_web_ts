@@ -92,7 +92,10 @@ export const fetchUserSchedules: RequestFun<
         baseURL: SCHEDULE_API,
         url: "Api/Web/WorkLoad/GetTeacherCourseData",
         headers: {
-            "Content-Type": "application/json-patch+json"
+            "Content-Type": "application/json-patch+json",
+            OrgId: data ? data.SchoolID : "",
+            UserId: data ? data.TeacherID : "",
+            SystemId: ""
         },
         method: "post",
         data
