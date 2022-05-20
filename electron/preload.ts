@@ -148,6 +148,10 @@ window.electron = {
         }));
     },
     checkWindowSupportNet,
+    makeCacheFiles: async (data: string, files: []) => {
+        
+        return "";
+    },
     store: store,
     ...electron
 };

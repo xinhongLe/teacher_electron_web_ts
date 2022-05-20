@@ -31,6 +31,7 @@ type Electron = typeof electron & {
     showSaveDialog: (option: SaveDialogOptions) => Promise<SaveDialogReturnValue>,
     showOpenDialog: (option: OpenDialogOptions) => Promise<OpenDialogReturnValue>,
     checkWindowSupportNet: (version: string) => Promise<boolean>,
+    makeCacheFiles: (data: string, files: []) => Promise<string>,
     store: Store,
     log: LogFunctions
 }
