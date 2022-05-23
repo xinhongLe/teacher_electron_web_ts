@@ -17,10 +17,7 @@
                     alt=""
                 />
             </div>
-            <IntelligenceClassroom
-                :selectLessonId="'39FDF8A4E10242B4349A9F81C5E69B92'"
-                :dialog="true"
-            />
+            <ResourceViewList />
         </div>
     </el-dialog>
 </template>
@@ -30,11 +27,11 @@ import useWindowInfo, { windowInfoKey } from "@/hooks/useWindowInfo";
 import { sleep } from "@/utils/common";
 import { enterFullscreen, exitFullscreen } from "@/utils/fullscreen";
 import { defineComponent, provide, ref, watch } from "vue";
-import IntelligenceClassroom from "../../intelligenceClassroom/index.vue";
+import ResourceViewList from "@/views/resourceView/resourceViewList.vue";
 import ResourceItem from "../resourceItem.vue";
 
 export default defineComponent({
-    components: { IntelligenceClassroom, ResourceItem },
+    components: { ResourceViewList, ResourceItem },
     props: {
         target: {
             type: String,

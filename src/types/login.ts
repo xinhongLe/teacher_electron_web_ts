@@ -6,6 +6,33 @@ export interface ILoginData {
     code?: string;
 }
 
+interface IYunRole {
+    RoleName: string;
+    RoleCode: string;
+}
+
+interface IYunUserOrg {
+    OrgId: string;
+    orgName: string;
+    OrgTypeId: string;
+    RolesList: IYunRole[]
+}
+
+export interface IYunInfo {
+    OrgId: string;
+    OrgName: string;
+    OrgTypeId: string;
+    RolesList: IYunRole[];
+    SecretKey: string;
+    SystemId: string;
+    TermCode: number;
+    TokenValue: string;
+    UserAccount: string;
+    UserId: string;
+    UserName: string;
+    UserOrgionList: IYunUserOrg[]
+}
+
 export interface ILoginTokenData {
     token: string;
 }

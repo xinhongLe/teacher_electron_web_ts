@@ -74,7 +74,11 @@ export enum STORAGE_TYPES {
     /**
      * 拖拽课时到课表提示
      */
-    DRAGE_COURSE_TO_SCHEDULE = "DRAGE_COURSE_TO_SCHEDULE"
+    DRAGE_COURSE_TO_SCHEDULE = "DRAGE_COURSE_TO_SCHEDULE",
+    /**
+     * 云平台信息
+     */
+    YUN_INFO = "YUN_INFO"
 }
 
 export const set = (name: STORAGE_TYPES | string, value: unknown, isEncrypt = false) => {

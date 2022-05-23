@@ -1,6 +1,8 @@
 import request from "@/utils/request";
-import { TIMETABLE_API, AI_XUE_SHI_API, SCHEDULE_API } from "@/config";
+import { TIMETABLE_API, AI_XUE_SHI_API, SCHEDULE_API, systemId } from "@/config";
 import { RequestFun } from "@/types/response";
+import { get, STORAGE_TYPES } from "@/utils/storage";
+import { IYunInfo } from "@/types/login";
 
 interface FetchActiveTimetableIDData {
     schoolID: string;
@@ -88,14 +90,16 @@ export const fetchUserSchedules: RequestFun<
         tableTimeList: TableTime[]
     }
 > = (data) => {
+    const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
     return request({
         baseURL: SCHEDULE_API,
         url: "Api/Web/WorkLoad/GetTeacherCourseData",
         headers: {
             "Content-Type": "application/json-patch+json",
-            OrgId: data ? data.SchoolID : "",
-            UserId: data ? data.TeacherID : "",
-            SystemId: ""
+            OrgId: yunInfo.OrgId,
+            UserId: yunInfo.UserId,
+            SystemId: systemId,
+            SecretKey: yunInfo.SecretKey
         },
         method: "post",
         data
@@ -107,11 +111,16 @@ export const updateSchedule: RequestFun<
     UpdateScheduleRes,
     IScheduleContent[]
 > = (data) => {
+    const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
     return request({
         baseURL: SCHEDULE_API,
         url: "Api/Web/WorkLoad/TeacherScheduleChange",
         headers: {
-            "Content-Type": "application/json-patch+json"
+            "Content-Type": "application/json-patch+json",
+            OrgId: yunInfo.OrgId,
+            UserId: yunInfo.UserId,
+            SystemId: systemId,
+            SecretKey: yunInfo.SecretKey
         },
         method: "post",
         data

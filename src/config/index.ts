@@ -2,6 +2,7 @@ export const AI_XUE_SHI_API = process.env.VUE_APP_AI_XUE_SHI_API;
 export const WINDOW_CRAD_API = process.env.VUE_APP_AI_XUE_SHI_API;
 export const TIMETABLE_API = process.env.VUE_APP_TIMETABLE_API;
 export const SCHEDULE_API = process.env.VUE_APP_SCHEDULE_API;
+export const YUN_API = process.env.VUE_APP_YUN_API;
 // export const AI_XUE_SHI_API = "http://apitest.aixueshi.top:5002";
 // export const WINDOW_CRAD_API = "http://apitest.aixueshi.top:5002";
 export const UPLOAD_CRAD_API = "https://api.aixueshi.top:5015";
@@ -64,3 +65,6 @@ export const fileTypeMap: Record<string, number> = {
     xls: 12,
     xlsx: 12
 };
+
+// 乐易学云平台下备教systemId
+export const systemId = "16529394468916581254231961296573";
