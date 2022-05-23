@@ -1,4 +1,4 @@
-import electron, { Remote, SaveDialogReturnValue, SaveDialogOptions, OpenDialogOptions, OpenDialogReturnValue } from "electron";
+import electron, { SaveDialogReturnValue, SaveDialogOptions, OpenDialogOptions, OpenDialogReturnValue } from "electron";
 import { LogFunctions } from "electron-log";
 import Store from "electron-store";
 
@@ -31,7 +31,8 @@ type Electron = typeof electron & {
     showSaveDialog: (option: SaveDialogOptions) => Promise<SaveDialogReturnValue>,
     showOpenDialog: (option: OpenDialogOptions) => Promise<OpenDialogReturnValue>,
     checkWindowSupportNet: (version: string) => Promise<boolean>,
-    makeCacheFiles: (data: string, files: []) => Promise<string>,
+    unpackCacheFile: (zipFileName: string, newpath: string) => Promise<boolean>,
+    packCacheFiles: (cacheFiles: any) => Promise<string>,
     store: Store,
     log: LogFunctions
 }

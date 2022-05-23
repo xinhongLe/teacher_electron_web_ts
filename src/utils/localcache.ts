@@ -1,8 +1,9 @@
-import { getPageDetailRes, getWindowCards, IGetWindowCards } from '@/api/home';
+import { getCardDetail, getPageDetailRes, getVideoQuoteInfo, getWindowCards, IGetWindowCards } from '@/api/home';
 import { pageType } from '@/config';
 import { store } from '@/store';
 import { IPageValue } from '@/types/home';
-import { Slide } from 'wincard/src/types/slides';
+import path from 'path';
+import { PPTElement, Slide } from 'wincard/src/types/slides';
 import { dealOldData } from './dataParse';
 import { dealOldDataTeach, dealOldDataVideo, dealOldDataWord } from './dataParsePage';
 import { getOssUrl } from './oss';
@@ -53,18 +54,16 @@ export default class LocalCache {
     }
 
     // 此处只拉取线上数据, 不使用本地缓存数据
-    private async getPageDetail(page: IPageValue, originType: any) {
-        const data = { pageID: page.ID, OriginType: originType };
+    private async getPageDetail(page: IPageValue) {
+        const data = { pageID: page.ID };
         const type: number = this.transformType(page.Type);
         if (type < 0) {
             return null;
         }
-        return await getPageDetailRes(data, type, () => { });
+        return await getPageDetailRes(data, type, () => { }, false);
     };
 
-    private async cacheFile(src: string) : Promise<string> {
-        console.log(`cache file`, src);
-        
+    private async cacheFile(src: string): Promise<string> {
         return new Promise(resolve => {
             const fileName = src.replace(/(.*\/)*([^.]+)/i, "$2");
             if (fileName === "ElementFile/" || fileName === "null") return resolve("");
@@ -89,7 +88,7 @@ export default class LocalCache {
 
         // 元素中资源缓存
         if (slide.elements) {
-            for(let element of slide.elements) {
+            for (let element of slide.elements) {
                 if (element.type === "image" && element.src) {
                     cacheFiles.push(await this.cacheFile(element.src));
                 }
@@ -137,54 +136,145 @@ export default class LocalCache {
         return cacheFiles;
     }
 
-    async doCache(winInfo: IGetWindowCards) {
+    async dealPauseVideo(slide: Slide) {
+        for (const element of slide.elements) {
+            if (element.type === "video" && element.fileID) {
+                const res = await getVideoQuoteInfo({ FileIDs: [element.fileID] });
+                if (res.resultCode === 200 && res.result.length > 0) {
+                    element.src = res.result[0].File.FilePath + "/" + res.result[0].File.FileName + "." + res.result[0].File.Extention;
+                    element.pauseList = res.result[0].Pauses;
+                }
+            }
+        }
+        return slide;
+    };
+
+    async getElementWinCards(element: any, winpages: Array<{ id: string, result: string }>, slides: Array<Slide>) {
+        if (element.wins) {
+            for (let win of element.wins) {
+                const cards = win.cards;
+                let pages: Array<{ ID: string, Type: number, Name: string }> = [];
+
+                cards.map((card: any) => {
+                    pages = pages.concat(card.slides.map((page: any) => {
+                        return {
+                            ID: page.id,
+                            Type: page.type,
+                            Name: page.name
+                        };
+                    }));
+                });
+                const pageIDs = pages.map(page => page.ID);
+                const res = await getCardDetail({ pageIDs: pageIDs }, true);
+                if (res.resultCode === 200 && res.result && res.result.length > 0) {
+                    element.winIds = res.result;
+                    element.winPages = [];
+                    element.winSlides = [];
+                    for (let card of res.result) {
+                        await this.getPageSlide({ ID: (card as any).ID, Type: pages.find(p => p.ID === (card as any).ID)!.Type }, element.winPages, element.winSlides);
+                    }
+                    for (let winpage of element.winPages) {
+                        winpages.push(winpage);
+                    }
+                    for (let slide of element.winSlides) {
+                        slides.push(slide);
+                    }
+                }
+            }
+        }
+    }
+
+    async getPageSlide(page: any, pages: Array<{ id: string, result: string }>, slides: Array<Slide>) {
+        let res = await this.getPageDetail(page);
+        if (!res) {
+            return;
+        }
+        if (res.resultCode && res.resultCode === 200) {
+            pages.push({
+                id: page.ID,
+                result: res.result.Json || "{}"
+            });
+            let slide: Slide | null = null;
+            if (page.Type === pageType.element) {
+                const slideString = res.result.Json || "{}";
+                const oldSlide = JSON.parse(slideString);
+                // 素材页如果是新数据直接赋值，旧数据dealOldData处理
+                slide = oldSlide.type ? { ...await this.dealPauseVideo(oldSlide as Slide), id: page.ID } : await dealOldData(page.ID, page.originType, oldSlide);
+            } else if (page.Type === pageType.listen) {
+                slide = dealOldDataWord(page.ID, res.result);
+            } else if (page.Type === pageType.follow) {
+                slide = dealOldDataVideo(page.ID, res.result);
+            } else if (page.Type === pageType.teach) {
+                slide = dealOldDataTeach(page.ID, res.result);
+            }
+
+            if (slide !== null) {
+                slides.push(slide);
+                for (let element of slide.elements) {
+                    await this.getElementWinCards(element, pages, slides);
+                }
+            }
+        }
+    }
+
+    async doCache(winInfo: IGetWindowCards, cacheFileName: string) {
         this.cacheCallback?.cachingStatus(0);
 
         let cards = (await this.getWindowCards(winInfo)).result;
-        let pages = [];
+        let pages: Array<{ id: string, result: string }> = [];
         let cacheFiles: string[] = [];
         let slides: Array<Slide> = [];
 
+        let total = 0;
+        for (let card of cards) {
+            for (let {} of card.PageList) {
+                total++;
+            }
+        }
+
+        let current = 0;
         for (let card of cards) {
             for (let page of card.PageList) {
-                let res = await this.getPageDetail(page, page.OriginType);
-                if (!res) {
-                    continue;
-                }
-                pages.push({
-                    id: page.ID,
-                    result: res.result.Json || "{}"
-                });
-                let slide: Slide | null = null;
-                if (page.Type === pageType.element) {
-                    const slideString = res.result.Json || "{}";
-                    const oldSlide = JSON.parse(slideString);
-                    // 素材页如果是新数据直接赋值，旧数据dealOldData处理
-                    slide = oldSlide.type ? oldSlide : await dealOldData(page.ID, 0, oldSlide);
-                } else if (page.Type === pageType.listen) {
-                    slide = dealOldDataWord(page.ID, res.result);
-                } else if (page.Type === pageType.follow) {
-                    slide = dealOldDataVideo(page.ID, res.result);
-                } else if (page.Type === pageType.teach) {
-                    slide = dealOldDataTeach(page.ID, res.result);
-                }
-
-                if (slide !== null) {
-                    slides.push(slide);
-                }
+                current++;
+                await this.getPageSlide(page, pages, slides);
+                this.cacheCallback?.cachingStatus(parseInt(((30 / total) * (current)).toFixed(0)));
             }
         }
 
         this.cacheCallback?.cachingStatus(30);
 
-        for (let slide of slides) {
-            cacheFiles = [...cacheFiles, ...await this.cacheSlide(slide)];
+        for (let i = 0; i < slides.length; i++) {
+            cacheFiles = [...cacheFiles, ...await this.cacheSlide(slides[i])];
+            this.cacheCallback?.cachingStatus(30 + parseInt(((69 / slides.length) * (i + 1)).toFixed(0)));
         }
 
-        // 将json文件写入到指定文件夹，将缓存资源文件复制到指定文件夹，并对文件夹压缩后加密，形成离线包
-        console.log(cards, pages, cacheFiles);
+        this.cacheCallback?.cachingStatus(99);
 
-        store.state.userInfo.id
+        // 将json文件写入到指定文件夹，将缓存资源文件复制到指定文件夹，并对文件夹压缩后加密，形成离线包
+        let _slides: Array<Slide> = [];
+        for (let card of cards) {
+            for (let page of card.PageList) {
+                _slides.push(slides.find(p => p.id === page.ID)!);
+            }
+        }
+
+        const cacheData = {
+            fileId: cacheFileName,
+            cards,
+            pages,
+            slides: _slides,
+            userId: store.state.userInfo.id,
+            cacheFiles
+        }
+
+        let fileName = await window.electron.packCacheFiles(cacheData);
+        this.cacheCallback?.cachingStatus(100);
+        // 清空数组
+        cacheData.cacheFiles = [];
+        cacheData.pages = [];
+        cacheData.cards = [];
+        cacheData.slides = [];
+        console.log("done", fileName);
     }
 }
 

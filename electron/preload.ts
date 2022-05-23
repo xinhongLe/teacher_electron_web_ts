@@ -1,12 +1,17 @@
 import { getCurrentWindow, app, dialog } from "@electron/remote";
 import electron, { OpenDialogOptions, remote, SaveDialogOptions } from "electron";
 import { isExistFile, mkdirs, store } from "./downloadFile";
-import { resolve, join } from "path";
+import path, { resolve, join } from "path";
 import ElectronLog from "electron-log";
 import fs from "fs";
 import { execFile as execFileFromAsar } from "child_process";
 import { darwinGetScreenPermissionGranted, darwinRequestScreenPermissionPopup } from "./darwin";
 import { checkWindowSupportNet } from "./util";
+import { access, copyFile, mkdir, readFile, rm, stat, writeFile } from "fs/promises";
+// import archiver from 'archiver';
+// const encryptArchiver = require("archiver-zip-encrypted");
+// !archiver.isRegisteredFormat(encryptArchiver) && archiver.registerFormat('zip-encrypted', encryptArchiver);
+
 const PATH_BINARY = process.platform === "darwin" ? join(__dirname, "../ColorPicker") : join(__dirname, "../mockingbot-color-picker-ia32.exe");
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 window.electron = {
@@ -148,9 +153,93 @@ window.electron = {
         }));
     },
     checkWindowSupportNet,
-    makeCacheFiles: async (data: string, files: []) => {
-        
-        return "";
+    unpackCacheFile: async (zipFileName, newpath) => {
+        const customUnZipFolder = async (zipFileName: string, newpath: string) => {
+            let zipPack = await readFile(zipFileName);
+            let fileOffset = 0;
+            const readFilesBuffer = async (zipFile: Buffer) => {
+                if (fileOffset > zipFile.length - 1) {
+                    return
+                }
+                let filenameLength = zipFile.readUInt8(fileOffset);
+                fileOffset++;
+                let filename = zipFile.toString('utf8', fileOffset, fileOffset + filenameLength);
+                fileOffset += filenameLength;
+                let contentLength = zipFile.readUInt32BE(fileOffset);
+                fileOffset += 4;
+                let fileBuffer = zipFile.slice(fileOffset, fileOffset + contentLength);
+                fileOffset += contentLength;
+                await mkdirs(newpath);
+                await writeFile(path.join(newpath, filename), fileBuffer);
+                await readFilesBuffer(zipFile)
+            }
+
+            await readFilesBuffer(zipPack);
+        }
+
+        try {
+            await customUnZipFolder(zipFileName, newpath);
+            return true;
+        } catch (e) {
+            console.error(e);
+            return false;
+        }
+    },
+    packCacheFiles: async (cacheData) => {
+        const { fileId, userId, cards, pages, slides, cacheFiles } = cacheData;
+        const filePath = process.platform === "darwin" ? (app.getPath("userData") + "/files/" + userId + "/" + fileId) : resolve(app.getPath("userData"), "files", userId, fileId);
+
+        const mkdirs = (dirname: string) => {
+            return new Promise((resolve) => {
+                access(dirname).then(() => resolve(dirname)).catch(() => mkdir(dirname, { recursive: true }).then(() => resolve(dirname)).catch(() => resolve("")));
+            });
+        }
+
+        try {
+            await mkdirs(filePath);
+            // 生成JSON文件
+            await writeFile(filePath + "/app.json", JSON.stringify({
+                userId,
+                cards,
+                pages,
+                slides
+            }), { encoding: 'utf-8' });
+
+            for (let cacheFile of cacheFiles) {
+                cacheFile = cacheFile.replace("file:///", "").replace("file://", "");
+                await copyFile(cacheFile, filePath + "/" + path.basename(cacheFile));
+            }
+
+            const customZipFolder = async (cacheFiles: Array<string>) => {
+                let fileArray = [];
+                for (let cacheFile of cacheFiles) {
+                    let fileName = cacheFile.replace("file:///", "").replace("file://", "");
+                    let item = await stat(fileName);
+                    if (item.isFile()) {
+                        let nameLen = Buffer.alloc(1);
+                        nameLen.writeUInt8(path.basename(fileName).length);
+                        let name = Buffer.alloc(path.basename(fileName).length, path.basename(fileName));
+                        let content = fs.readFileSync(fileName);
+                        let contentLen = Buffer.alloc(4);
+                        contentLen.writeUInt32BE(content.length);
+                        fileArray.push(nameLen);
+                        fileArray.push(name);
+                        fileArray.push(contentLen);
+                        fileArray.push(content);
+                    }
+                }
+                await writeFile(filePath + ".lyxpkg", Buffer.concat(fileArray));
+                return filePath + ".lyxpkg";
+            }
+
+            let customZipFile = await customZipFolder([...cacheFiles, filePath + "/app.json"]);
+            return customZipFile;
+        } catch (e) {
+            console.error(e);
+            return "";
+        } finally {
+            await rm(filePath, { recursive: true, force: true });
+        }
     },
     store: store,
     ...electron
