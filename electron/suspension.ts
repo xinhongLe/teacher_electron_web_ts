@@ -635,3 +635,7 @@ export function registerEvent() {
         unfoldSuspensionWin && unfoldSuspensionWin.webContents.send("getCourseWares", data);
     });
 }
+
+export const unfoldSuspensionWinSendMessage = (event: string, message: string) => {
+    unfoldSuspensionWin && unfoldSuspensionWin.webContents.send(event, message);
+};

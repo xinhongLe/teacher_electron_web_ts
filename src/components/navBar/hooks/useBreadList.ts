@@ -3,6 +3,7 @@ import router from "@/router";
 import { Bread } from "../interface";
 import emitter from "@/utils/mitt";
 import { isNavigationFailure } from "vue-router";
+import isElectron from "is-electron";
 
 export default () => {
     const breadList = ref([
@@ -58,6 +59,13 @@ export default () => {
         } else {
             breadList.value.splice(index, 1);
         }
+
+        if (item.name === "上课" && isElectron()) {
+            window.electron.ipcRenderer.send("attendClass", "unfoldSuspension", {
+                type: "sysData",
+                resources: "[]"
+            });
+        } 
     };
 
     onMounted(() => {

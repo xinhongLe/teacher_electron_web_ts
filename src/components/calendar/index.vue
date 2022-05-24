@@ -59,7 +59,7 @@ export default defineComponent({
             default: false
         }
     },
-    setup(props) {
+    setup(props, { expose }) {
         const { weekNext, weekPre, initDays, formTime, formWeek } = useTime();
         initDays();
         const days = computed(() => props.days);
@@ -70,6 +70,8 @@ export default defineComponent({
         };
 
         provide("updateSchedules", updateSchedules);
+
+        expose({ initSchedules });
 
         return {
             weekNext,

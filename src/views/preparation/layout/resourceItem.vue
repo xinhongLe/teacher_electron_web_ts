@@ -44,6 +44,7 @@
                     <div class="resource-degree">易</div>
                     <div class="resource-type" :class="data.type < 9 && 'p-r-' + data.type">{{textResources[data.type]}}</div>
                     <el-dropdown
+                        v-if="btns"
                         trigger="click"
                         placement="bottom"
                         @command="handleCommand"

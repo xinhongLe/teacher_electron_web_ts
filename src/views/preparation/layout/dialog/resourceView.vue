@@ -17,7 +17,7 @@
                     alt=""
                 />
             </div>
-            <ResourceViewList />
+            <ResourceViewList v-if="visible" />
         </div>
     </el-dialog>
 </template>

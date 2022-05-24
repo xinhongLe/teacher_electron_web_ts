@@ -11,7 +11,7 @@
                     </div>
                 </div>
                 <div class="right">
-                    <Calendar :days="days" :isShowDetailBtn="true">
+                    <Calendar ref="calendar" :days="days" :isShowDetailBtn="true">
                         <template v-slot:default="slotProps">
                             <header class="header">
                                 <div @click="weekPre" class="week">
@@ -98,7 +98,7 @@
 <script lang="ts">
 import useTime from "@/hooks/useTime";
 import { ElMessage } from "element-plus";
-import { defineComponent } from "vue";
+import { defineComponent, onActivated, ref } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import Calendar from "../../components/calendar/index.vue";
 
@@ -130,11 +130,17 @@ export default defineComponent({
             }
         };
         turnToPage();
+
+        const calendar = ref();
+        onActivated(() => {
+            calendar.value.initSchedules();
+        });
         return {
             go,
             weekNext,
             weekPre,
-            days
+            days,
+            calendar
         };
     }
 });
