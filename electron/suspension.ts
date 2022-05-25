@@ -3,7 +3,7 @@ import { createWindow } from "./createWindow";
 import ElectronLog from "electron-log";
 import { checkWindowSupportNet } from "./util";
 import { spawn, exec } from "child_process";
-import { join } from "path";
+import path, { join } from "path";
 import { Action, CallBack, SocketHelper } from "./socketHelper";
 const PATH_BALL = join(__dirname, "../extraResources/win/ball/ball.exe");
 let suspensionWin: BrowserWindow | null;
@@ -42,6 +42,10 @@ const projectionURL = process.env.NODE_ENV === "development"
 const answerMachineURL = process.env.NODE_ENV === "development"
     ? `${process.env.WEBPACK_DEV_SERVER_URL}answerMachine.html`
     : `file://${__dirname}/answerMachine.html`;
+
+const localPreviewURL = process.env.NODE_ENV === "development"
+    ? `${process.env.WEBPACK_DEV_SERVER_URL}winView.html`
+    : `file://${__dirname}/winView.html`;
 
 function setSuspensionSize(isResetPosition = true, isCloseWelt = false) {
     if (!suspensionWin) {
@@ -241,17 +245,39 @@ function createProjectionWindow() {
     });
 }
 
+export function createLocalPreviewWindow(filePath: string) {
+    const win = createWindow(localPreviewURL + '?file=' + filePath, {
+        alwaysOnTop: true,
+        show: false,
+        frame: false,
+        webPreferences: {
+            enableRemoteModule: true,
+            webviewTag: true,
+            webSecurity: false,
+            nodeIntegration: true,
+            contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
+            preload: path.join(__dirname, "preload.js"),
+            devTools: !!process.env.WEBPACK_DEV_SERVER_URL
+        }
+    });
+    win.once("ready-to-show", () => {
+        win.show();
+    });
+
+    win.maximize();
+}
+
 function createSubjectToolWindow(url: string, name: string) {
     const win = createWindow(url, {
         alwaysOnTop: true,
         show: false,
+        title: `爱学仕学科工具《${name}》`,
         webPreferences: {
             nodeIntegration: false
         }
     });
     win.once("ready-to-show", () => {
         win.show();
-        win.setTitle(`爱学仕学科工具《${name}》`);
     });
 
     win.maximize();

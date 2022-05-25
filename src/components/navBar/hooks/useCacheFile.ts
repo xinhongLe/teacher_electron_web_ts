@@ -1,5 +1,5 @@
 import { ElMessageBox } from "element-plus";
-const { readdir, stat, unlink } = require("fs").promises;
+const { readdir, stat, unlink, rmdir } = require("fs").promises;
 import { Stats } from "fs";
 import moment from "moment";
 import { join } from "path";
@@ -40,7 +40,15 @@ export default async () => {
             clearCaching.value = true;
             for (const [index, info] of rangeFileList.value.entries()) {
                 try {
-                    await unlink(info.filePath);
+                    if ((await stat(info.filePath)).isDirectory()) {
+                        for (let file of (await readdir(info.filePath))) {
+                            await unlink(info.filePath + '/' + file);
+                        }
+                        await rmdir(info.filePath);
+                    }
+                    else {
+                        await unlink(info.filePath);
+                    }
                 } catch (error) {
                     window.electron.log.error("clearCache error", error);
                 }

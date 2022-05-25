@@ -8,14 +8,18 @@ import { dealOldData } from './dataParse';
 import { dealOldDataTeach, dealOldDataVideo, dealOldDataWord } from './dataParsePage';
 import { getOssUrl } from './oss';
 
-/**
- * new LocalCache({
-        cachingStatus: (status) => {}
-    }).doCache({
-        WindowID: "3A00ED06A2F5D58C6F9148CB48417B4D",
-        OriginType: 0
-    })
- */
+// new LocalCache({
+//     cachingStatus: (status) => {
+//         console.log(`status: ${status}`);
+//     }
+// }).doCache({
+//     WindowID: "3A00ED0688D9418E8CDEC35BEA2DA116",
+//     OriginType: 0
+// }, "《守株待兔》第一课时");
+
+// console.time(`unpackCacheFile`);
+// await window.electron.unpackCacheFile("C:/Users/admin/AppData/Roaming/Aixueshi/files/39F782A0B5361BBD1775139E3D0BC5EA/《守株待兔》第一课时.lyxpkg")
+// console.timeEnd(`unpackCacheFile`);
 
 export interface CacheCallback {
     cachingStatus(status: number): void
@@ -48,11 +52,6 @@ export default class LocalCache {
         }
     }
 
-    // 获取所有的卡页
-    private async getWindowCards(winInfo: IGetWindowCards) {
-        return await getWindowCards(winInfo);
-    }
-
     // 此处只拉取线上数据, 不使用本地缓存数据
     private async getPageDetail(page: IPageValue) {
         const data = { pageID: page.ID };
@@ -72,7 +71,7 @@ export default class LocalCache {
                     resolve(window.electron.getFilePath(fileName));
                 } else {
                     getOssUrl(src, "axsfile").then(filePath => {
-                        window.electron.ipcRenderer.invoke("downloadFile", filePath, fileName).then(path => resolve(path ? "file://" + path : ""));
+                        window.electron.ipcRenderer.invoke("downloadFile", filePath, fileName).then(path => resolve(path ? "file:///" + path : ""));
                     });
                 }
             });
@@ -167,17 +166,8 @@ export default class LocalCache {
                 const pageIDs = pages.map(page => page.ID);
                 const res = await getCardDetail({ pageIDs: pageIDs }, true);
                 if (res.resultCode === 200 && res.result && res.result.length > 0) {
-                    element.winIds = res.result;
-                    element.winPages = [];
-                    element.winSlides = [];
                     for (let card of res.result) {
-                        await this.getPageSlide({ ID: (card as any).ID, Type: pages.find(p => p.ID === (card as any).ID)!.Type }, element.winPages, element.winSlides);
-                    }
-                    for (let winpage of element.winPages) {
-                        winpages.push(winpage);
-                    }
-                    for (let slide of element.winSlides) {
-                        slides.push(slide);
+                        await this.getPageSlide({ ID: (card as any).ID, Type: pages.find(p => p.ID === (card as any).ID)!.Type }, winpages, slides);
                     }
                 }
             }
@@ -198,7 +188,6 @@ export default class LocalCache {
             if (page.Type === pageType.element) {
                 const slideString = res.result.Json || "{}";
                 const oldSlide = JSON.parse(slideString);
-                // 素材页如果是新数据直接赋值，旧数据dealOldData处理
                 slide = oldSlide.type ? { ...await this.dealPauseVideo(oldSlide as Slide), id: page.ID } : await dealOldData(page.ID, page.originType, oldSlide);
             } else if (page.Type === pageType.listen) {
                 slide = dealOldDataWord(page.ID, res.result);
@@ -220,7 +209,7 @@ export default class LocalCache {
     async doCache(winInfo: IGetWindowCards, cacheFileName: string) {
         this.cacheCallback?.cachingStatus(0);
 
-        let cards = (await this.getWindowCards(winInfo)).result;
+        let cards = (await getWindowCards(winInfo)).result;
         let pages: Array<{ id: string, result: string }> = [];
         let cacheFiles: string[] = [];
         let slides: Array<Slide> = [];
@@ -251,18 +240,13 @@ export default class LocalCache {
         this.cacheCallback?.cachingStatus(99);
 
         // 将json文件写入到指定文件夹，将缓存资源文件复制到指定文件夹，并对文件夹压缩后加密，形成离线包
-        let _slides: Array<Slide> = [];
-        for (let card of cards) {
-            for (let page of card.PageList) {
-                _slides.push(slides.find(p => p.id === page.ID)!);
-            }
-        }
 
         const cacheData = {
-            fileId: cacheFileName,
+            windowName: cacheFileName,
+            windowId: winInfo.WindowID,
             cards,
             pages,
-            slides: _slides,
+            slides,
             userId: store.state.userInfo.id,
             cacheFiles
         }

@@ -163,6 +163,6 @@ export const downLoad = (downUrl: string, fileName: string) => {
 
 export const getSaveFilePath = (id: string) => {
     const { join } = require("path");
-    const path = join(window.electron.getPath("userData"), "files", id, "/");
+    const path = join(window.electron.getPath("userData"), "files", "/");
     return path;
 };

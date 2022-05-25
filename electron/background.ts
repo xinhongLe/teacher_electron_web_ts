@@ -4,7 +4,7 @@ import { app, protocol, BrowserWindow, ipcMain, Menu } from "electron";
 import installExtension, { VUEJS3_DEVTOOLS } from "electron-devtools-installer";
 import { createProtocol } from "vue-cli-plugin-electron-builder/lib";
 import { initialize } from "@electron/remote/main";
-import { createSuspensionWindow, registerEvent } from "./suspension";
+import { createSuspensionWindow, createLocalPreviewWindow, registerEvent } from "./suspension";
 import downloadFile from "./downloadFile";
 import autoUpdater from "./autoUpdater";
 import SingalRHelper from "./singalr";
@@ -64,7 +64,6 @@ async function createWindow() {
         mainWindow.loadURL(process.env.WEBPACK_DEV_SERVER_URL);
         if (!process.env.IS_TEST) mainWindow.webContents.openDevTools();
     } else {
-        createProtocol("app");
         require("@electron/remote/main").enable(mainWindow.webContents);
         mainWindow.loadURL("app://./index.html");
     }
@@ -180,8 +179,33 @@ app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
 });
 
+// app.on("open-file", (event, path) => {
+//     ElectronLog.info(path);
+//     event.preventDefault();
+//     createLocalPreviewWindow(path);
+// })
+
+function createLocalPreview(args: Array<string>) {
+    let fileName = "";
+    args.forEach(arg => {
+        if (arg.endsWith(".lyxpkg")) {
+            fileName = arg;
+        }
+    });
+    if (fileName) {
+        createLocalPreviewWindow(fileName);
+        return true;
+    }
+    return false;
+}
+
 app.on("ready", async () => {
-    ElectronLog.info("app ready");
+    ElectronLog.info("app ready", process.argv);
+    createProtocol("app");
+    let result = false;
+    if (app.isPackaged) {
+        result = createLocalPreview(process.argv);
+    }
     if (isDevelopment && !process.env.IS_TEST) {
         try {
             await installExtension(VUEJS3_DEVTOOLS);
@@ -189,7 +213,9 @@ app.on("ready", async () => {
             console.error("Vue Devtools failed to install:", e);
         }
     }
-    createWindow();
+    if (!result) {
+        createWindow();
+    }
 });
 
 app.on("render-process-gone", (event, webContents, details) => {
@@ -205,12 +231,21 @@ const gotTheLock = app.requestSingleInstanceLock();
 if (!gotTheLock) {
     app.quit();
 } else {
-    app.on("second-instance", (event, commandLine, workingDirectory) => {
+    app.on("second-instance", (event, argv, workingDirectory) => {
         // 当运行第二个实例时,将会聚焦到mainWindow这个窗口
-        if (mainWindow) {
-            if (mainWindow.isMinimized()) mainWindow.restore();
-            mainWindow.focus();
-            mainWindow.show();
+        ElectronLog.info("second-args", argv);
+        let result = false;
+        if (app.isPackaged) {
+            result = createLocalPreview(argv);
+        }
+        if (!result) {
+            if (mainWindow) {
+                if (mainWindow.isMinimized()) mainWindow.restore();
+                mainWindow.focus();
+                mainWindow.show();
+            } else {
+                createWindow();
+            }
         }
     });
 }
