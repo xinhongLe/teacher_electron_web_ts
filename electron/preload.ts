@@ -7,7 +7,7 @@ import fs from "fs";
 import { execFile as execFileFromAsar } from "child_process";
 import { darwinGetScreenPermissionGranted, darwinRequestScreenPermissionPopup } from "./darwin";
 import { checkWindowSupportNet } from "./util";
-import { access, copyFile, mkdir, readFile, rm, stat, writeFile } from "fs/promises";
+import { access, copyFile, mkdir, readFile, rm, stat, writeFile, rmdir } from "fs/promises";
 import crypto from 'crypto';
 
 const PATH_BINARY = process.platform === "darwin" ? join(__dirname, "../ColorPicker") : join(__dirname, "../mockingbot-color-picker-ia32.exe");
@@ -214,7 +214,7 @@ window.electron = {
     },
     packCacheFiles: async (cacheData) => {
         const { windowId, windowName, userId, cards, pages, slides, cacheFiles } = cacheData;
-        const filePath = process.platform === "darwin" ? (app.getPath("userData") + "/files/" + userId + "/" + windowName) : resolve(app.getPath("userData"), "files", userId, windowName);
+        const filePath = process.platform === "darwin" ? (app.getPath("userData") + "/files/" + windowName) : resolve(app.getPath("userData"), "files", windowName);
         const guid = () => {
             return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
                 var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
