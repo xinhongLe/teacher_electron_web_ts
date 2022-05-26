@@ -58,6 +58,7 @@ import {
 import CardList from "./CardList.vue";
 import PreviewSection from "./previewSection.vue";
 import NavBar from "./NavBar.vue";
+import { set, STORAGE_TYPES } from "@/utils/storage";
 export default defineComponent({
     components: {
         CardList,
@@ -65,6 +66,9 @@ export default defineComponent({
         NavBar
     },
     setup() {
+        // 默认开启缓存
+        set(STORAGE_TYPES.SET_ISCACHE, true);
+        
         const isFullScreen = ref(false);
         const isShowCardList = ref(true);
         const cardListComponents = ref();

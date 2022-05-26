@@ -11,7 +11,6 @@
 import { computed, defineComponent, ref, watch } from "vue-demi";
 import cardList from "../../views/preparation/intelligenceClassroom/hooks/cardList";
 import { ElMessage } from "element-plus";
-import TrackService, { EnumTrackEventType } from "@/utils/common";
 export default defineComponent({
     props: {
         cardList: {
@@ -43,7 +42,6 @@ export default defineComponent({
             cardIndex.value = index;
             const pageDate = dealCardData(item, item.originType);
             emit("updatePageList", pageDate);
-            TrackService.setTrack(EnumTrackEventType.SelectCard, winActiveId.value, WindowName.value, item.ID, item.Name, item.PageList.length > 0 ? item.PageList[0].ID : "", item.PageList.length > 0 ? item.PageList[0].Name : "", "选择卡", "", "");
         };
         const debounce = (fn: any, delay: number) => {
             let timer: any = 0;

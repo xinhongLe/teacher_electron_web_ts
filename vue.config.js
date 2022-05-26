@@ -11,28 +11,8 @@ const extraResources = process.platform === "darwin" ? [
     }
 ] : [
     {
-        from: "./extraResources/win/ball/ball.exe",
-        to: "extraResources/win/ball/ball.exe"
-    },
-    {
-        from: "./extraResources/win/ball/ball.exe.config",
-        to: "extraResources/win/ball/ball.exe.config"
-    },
-    {
-        from: "./extraResources/win/ball/log4net.dll",
-        to: "extraResources/win/ball/log4net.dll"
-    },
-    {
-        from: "./extraResources/win/ball/Newtonsoft.Json.dll",
-        to: "extraResources/win/ball/Newtonsoft.Json.dll"
-    },
-    {
-        from: "./extraResources/win/ball/Config/Log4Net.config",
-        to: "extraResources/win/ball/Config/Log4Net.config"
-    },
-    {
-        from: "./extraResources/win/ball/Config/Interop.NetFwTypeLib.dll",
-        to: "extraResources/win/ball/Config/Interop.NetFwTypeLib.dll"
+        from: "./extraResources/win/ball",
+        to: "extraResources/win/ball"
     },
     {
         from: "./extraResources/win/mockingbot-color-picker-ia32.exe",
@@ -94,6 +74,13 @@ module.exports = {
             filename: "blackboard.html",
             title: "教学黑板",
             chunks: ["blackboard"]
+        },
+        winView: {
+            entry: "src/childWindow/winView/main.ts",
+            template: "public/index.html",
+            filename: "winView.html",
+            title: "",
+            chunks: ["winView"]
         }
     },
     css: {
@@ -166,6 +153,11 @@ module.exports = {
                     name: "timer",
                     priority: 10,
                     test: "src/childWindow/timer/main.ts"
+                },
+                winView: {
+                    name: "winView",
+                    priority: 10,
+                    test: "src/childWindow/winView/main.ts"
                 }
             }
         });
@@ -240,6 +232,12 @@ module.exports = {
                 win: {
                     // win相关配置
                     icon: "./public/icon.ico", // 图标，当前图标在根目录下，注意这里有两个坑
+                    fileAssociations: [
+                        {
+                            ext: 'lyxpkg',
+                            icon: './public/lyxpkg.ico'
+                        }
+                    ],
                     target: [
                         {
                             target: "nsis", // 利用nsis制作安装程序

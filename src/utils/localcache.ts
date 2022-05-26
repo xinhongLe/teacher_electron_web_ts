@@ -13,7 +13,7 @@ import { getOssUrl } from './oss';
 //         console.log(`status: ${status}`);
 //     }
 // }).doCache({
-//     WindowID: "3A00ED0688D9418E8CDEC35BEA2DA116",
+//     WindowID: "3A00ED0688D9418E8CDEC35BEA2DA116","3A00ED06A2F5D58C6F9148CB48417B4D"
 //     OriginType: 0
 // }, "《守株待兔》第一课时");
 

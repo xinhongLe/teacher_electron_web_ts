@@ -47,7 +47,6 @@
 
 <script lang="ts">
 import { computed, defineComponent, inject, ref, watch } from "vue";
-import TrackService, { EnumTrackEventType } from "@/utils/common";
 import pageListServer from "../../views/preparation/intelligenceClassroom/hooks/pageList";
 import OpenCardViewDialog from "./openCardViewDialog.vue";
 export default defineComponent({
@@ -112,12 +111,7 @@ export default defineComponent({
         const writeBoardVisible = ref(false);
         const selectPage = (index: number, item: any) => {
             selected.value = index;
-            const DataContext = {
-                Type: EnumTrackEventType.SelectPage,
-                LessonID: LessonID.value
-            };
             getDataBase((pageList.value[index] as any).ID, pageList.value[index]);
-            TrackService.setTrack(EnumTrackEventType.SelectPage, WinActiveId.value, WindowName.value, CardId.value, CardName.value, item.ID, item.Name, "选择页", JSON.stringify(DataContext), item.ID);
             emit("changeRemark", (pageList.value[index] as any).Remark || "");
         };
         const getDataBase = async (str: string, obj: any) => {
@@ -173,12 +167,6 @@ export default defineComponent({
             } else {
                 selected.value++;
                 isInitPage.value = true;
-                const DataContext = {
-                    Type: EnumTrackEventType.SelectPage,
-                    LessonID: LessonID.value
-                };
-                TrackService.setTrack(EnumTrackEventType.SelectPage, WinActiveId.value, WindowName.value, CardId.value, CardName.value, 
-                    (pageList.value[selected.value] as any).ID, (pageList.value[selected.value] as any).Name, "选择页", JSON.stringify(DataContext), (pageList.value[selected.value] as any).ID);
                 emit("changeRemark", (pageList.value[selected.value] as any).Remark);
                 getDataBase((pageList.value[selected.value] as any).ID, pageList.value[selected.value]);
             }

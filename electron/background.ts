@@ -54,7 +54,7 @@ async function createWindow() {
             devTools: !!process.env.WEBPACK_DEV_SERVER_URL
         }
     });
-    downloadFile();
+    
     autoUpdater(mainWindow!);
     createSuspensionWindow();
     registerEvent();
@@ -216,6 +216,7 @@ app.on("ready", async () => {
     if (!result) {
         createWindow();
     }
+    downloadFile();
 });
 
 app.on("render-process-gone", (event, webContents, details) => {
