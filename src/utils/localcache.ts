@@ -13,7 +13,7 @@ import { getOssUrl } from './oss';
 //         console.log(`status: ${status}`);
 //     }
 // }).doCache({
-//     WindowID: "3A00ED0688D9418E8CDEC35BEA2DA116","3A00ED06A2F5D58C6F9148CB48417B4D"
+//     WindowID: "3A00ED0688D9418E8CDEC35BEA2DA116","3A00ED06A2F5D58C6F9148CB48417B4D", "3A041AB5F76B1A682DA21259D0EC17A7",
 //     OriginType: 0
 // }, "《守株待兔》第一课时");
 
@@ -53,8 +53,8 @@ export default class LocalCache {
     }
 
     // 此处只拉取线上数据, 不使用本地缓存数据
-    private async getPageDetail(page: IPageValue) {
-        const data = { pageID: page.ID };
+    private async getPageDetail(page: IPageValue, originType: number) {
+        const data = { pageID: page.ID, OriginType: originType };
         const type: number = this.transformType(page.Type);
         if (type < 0) {
             return null;
@@ -132,6 +132,11 @@ export default class LocalCache {
             cacheFiles.push(await this.cacheFile(slide.follow.src));
         }
 
+        // 教具页
+        if (slide.teach && (slide.teach as any).file) {
+            cacheFiles.push(await this.cacheFile((slide.teach as any).file));
+        }
+
         return cacheFiles;
     }
 
@@ -148,7 +153,7 @@ export default class LocalCache {
         return slide;
     };
 
-    async getElementWinCards(element: any, winpages: Array<{ id: string, result: string }>, slides: Array<Slide>) {
+    async getElementWinCards(element: any, originType: number, winpages: Array<{ id: string, result: string }>, slides: Array<Slide>) {
         if (element.wins) {
             for (let win of element.wins) {
                 const cards = win.cards;
@@ -167,15 +172,15 @@ export default class LocalCache {
                 const res = await getCardDetail({ pageIDs: pageIDs }, true);
                 if (res.resultCode === 200 && res.result && res.result.length > 0) {
                     for (let card of res.result) {
-                        await this.getPageSlide({ ID: (card as any).ID, Type: pages.find(p => p.ID === (card as any).ID)!.Type }, winpages, slides);
+                        await this.getPageSlide({ ID: (card as any).ID, Type: pages.find(p => p.ID === (card as any).ID)!.Type }, originType, winpages, slides);
                     }
                 }
             }
         }
     }
 
-    async getPageSlide(page: any, pages: Array<{ id: string, result: string }>, slides: Array<Slide>) {
-        let res = await this.getPageDetail(page);
+    async getPageSlide(page: any, originType: number, pages: Array<{ id: string, result: string }>, slides: Array<Slide>) {
+        let res = await this.getPageDetail(page, originType);
         if (!res) {
             return;
         }
@@ -200,7 +205,7 @@ export default class LocalCache {
             if (slide !== null) {
                 slides.push(slide);
                 for (let element of slide.elements) {
-                    await this.getElementWinCards(element, pages, slides);
+                    await this.getElementWinCards(element, originType, pages, slides);
                 }
             }
         }
@@ -225,7 +230,7 @@ export default class LocalCache {
         for (let card of cards) {
             for (let page of card.PageList) {
                 current++;
-                await this.getPageSlide(page, pages, slides);
+                await this.getPageSlide(page, winInfo.OriginType!, pages, slides);
                 this.cacheCallback?.cachingStatus(parseInt(((30 / total) * (current)).toFixed(0)));
             }
         }

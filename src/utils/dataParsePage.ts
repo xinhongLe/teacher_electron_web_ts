@@ -114,10 +114,11 @@ export const dealOldDataTeach = (pageID: string, oldSlide: IOldTeach) => {
         elements: []
     };
     if (oldSlide && oldSlide.ToolFileModel) {
-        slide.teach = {
+        (slide.teach as any) = {
             id: oldSlide.ToolFileModel.ID,
             name: oldSlide.ToolFileModel.Name,
-            src: oldSlide.ToolFileModel.Url
+            src: oldSlide.ToolFileModel.Url,
+            file: !(oldSlide.ToolFileModel as any).File ? "" : (oldSlide.ToolFileModel as any).File.FilePath + "/" + (oldSlide.ToolFileModel as any).File.FileName + "." + (oldSlide.ToolFileModel as any).File.Extention,
         };
     }
     return slide;
