@@ -146,7 +146,7 @@ onActivated(() => {
     document.onkeydown = (event) => {
         event.preventDefault();
     };
-    selectLessonId.value && refreshWindow(selectLessonId.value);
+    // selectLessonId.value && refreshWindow(selectLessonId.value);
 });
 onDeactivated(() => {
     document.onkeydown = null;

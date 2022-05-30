@@ -68,7 +68,10 @@ const routes: Array<RouteRecordRaw> = [
             {
                 path: "resource/:type/:resourceId",
                 name: "资源中心",
-                component: () => import("@/views/resourceView/index.vue")
+                component: () => import("@/views/resourceView/index.vue"),
+                meta: {
+                    keepAlive: true
+                }
             },
             {
                 path: "homework",
