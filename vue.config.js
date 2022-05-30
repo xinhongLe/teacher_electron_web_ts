@@ -76,9 +76,9 @@ module.exports = {
         },
         rollCall: {
             entry: "src/childWindow/rollCall/main.ts",
-            template: "public/index.html",
+            template: "public/rollCall.html",
             filename: "rollCall.html",
-            title: "",
+            title: "点名",
             chunks: ["rollCall"]
         },
         answerMachine: {
