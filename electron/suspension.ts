@@ -17,7 +17,7 @@ let isShowTimer = false; // 悬浮球是否显示时间
 let isShowVideo = false; // 悬浮球是否显示视频图标
 let isShowBlackboard = false; // 悬浮球是否显示黑板图标
 let isShowQuestion = false; // 悬浮球是否显示题目图标
-let socketHelper: SocketHelper;
+let socketHelper: SocketHelper | null = null;
 const timerURL = process.env.NODE_ENV === "development"
     ? `${process.env.WEBPACK_DEV_SERVER_URL}timer.html`
     : `file://${__dirname}/timer.html`;
@@ -289,6 +289,7 @@ function checkIsUseBallEXE(callback: (T: boolean) => void) {
             if (isOk) return callback(isOk);
             checkWindowSupportNet("v4.0").then(isOk => {
                 if (isOk) return callback(isOk);
+                return callback(false);
             });
         });
     } else {
@@ -300,7 +301,7 @@ class CustomCallBack implements CallBack {
     OnDataReceive(data: Action): void {
         switch (data.METHOD) {
             case "MENUSHOW":
-                socketHelper.sendMessage(new Action("SMALLMENUHIDE", ""));
+                socketHelper && socketHelper.sendMessage(new Action("SMALLMENUHIDE", ""));
                 if (!unfoldSuspensionWin) {
                     createUnfoldSuspensionWindow();
                 }
@@ -324,7 +325,7 @@ class CustomCallBack implements CallBack {
                 break;
             case "BLACKBOARDSHOW":
                 isShowBlackboard = true;
-                socketHelper.sendMessage(new Action("BLACKBOARDSHOW", ""));
+                socketHelper && socketHelper.sendMessage(new Action("BLACKBOARDSHOW", ""));
                 if (blackboardWin) {
                     blackboardWin.show();
                 } else {
@@ -337,7 +338,7 @@ class CustomCallBack implements CallBack {
                 break;
             case "VIDEOSHOW":
                 isShowVideo = true;
-                socketHelper.sendMessage(new Action("VIDEOSHOW", ""));
+                socketHelper && socketHelper.sendMessage(new Action("VIDEOSHOW", ""));
                 ipcMain.emit("openVideoWin");
                 break;
             case "VIDEOHIDE":
@@ -346,7 +347,7 @@ class CustomCallBack implements CallBack {
                 break;
             case "QUESTIONSHOW":
                 isShowQuestion = true;
-                socketHelper.sendMessage(new Action("QUESTIONSHOW", ""));
+                socketHelper && socketHelper.sendMessage(new Action("QUESTIONSHOW", ""));
                 ipcMain.emit("openQuestion");
                 break;
             case "QUESTIONHIDE":
@@ -355,7 +356,7 @@ class CustomCallBack implements CallBack {
                 break;
             case "QUICKTIMESHOW":
                 isShowTimer = true;
-                socketHelper.sendMessage(new Action("QUICKTIMESHOW", ""));
+                socketHelper && socketHelper.sendMessage(new Action("QUICKTIMESHOW", ""));
                 if (timerWin) {
                     timerWin.show();
                 } else {
@@ -370,17 +371,74 @@ class CustomCallBack implements CallBack {
     }
 }
 
+function isRunning(query: string, cb: (result: boolean) => void) {
+    let platform = process.platform;
+    let cmd = '';
+    switch (platform) {
+        case 'win32': cmd = `tasklist`; break;
+        case 'darwin': cmd = `ps -ax | grep ${query}`; break;
+        case 'linux': cmd = `ps -A`; break;
+        default: break;
+    }
+    exec(cmd, (err, stdout, stderr) => {
+        cb(stdout.toLowerCase().indexOf(query.toLowerCase()) > -1);
+    });
+}
+
 function killProcess() {
     return new Promise((resolve, reject) => {
-        exec(`taskkill /im ball.exe /t /f`, (err, stdout, stderr) => {
-            if (err) {
-                return resolve(true)
+        isRunning("ball.exe", res => {
+            if (res) {
+                exec(`taskkill /im ball.exe /t /f`, (err, stdout, stderr) => {
+                    if (err) {
+                        return resolve(true)
+                    }
+                    console.log('stdout', stdout)
+                    console.log('stderr', stderr)
+                    resolve(true)
+                })
             }
-            console.log('stdout', stdout)
-            console.log('stderr', stderr)
-            resolve(true)
+            return resolve(true)
         })
     })
+}
+
+function createLocalSuspensionWindow() {
+    suspensionWin = createWindow(suspensionURL, {
+        width: 120,
+        height: 120,
+        type: "toolbar", // 创建的窗口类型为工具栏窗口
+        frame: false, // 要创建无边框窗口
+        resizable: false, // 禁止窗口大小缩放
+        show: false,
+        useContentSize: true,
+        transparent: true, // 设置透明
+        backgroundColor: "#00000000",
+        alwaysOnTop: true // 窗口是否总是显示在其他窗口之前
+    });
+    const size = screen.getPrimaryDisplay().workAreaSize; // 获取显示器的宽高
+    const winSize = suspensionWin.getSize(); // 获取窗口宽高
+    suspensionWin.setPosition(size.width - winSize[0] - 80, size.height - winSize[1] - 50, false);
+
+    suspensionWin.once("ready-to-show", () => {
+        suspensionWin && suspensionWin.setAlwaysOnTop(true, "pop-up-menu");
+        // createUnfoldSuspensionWindow();
+    });
+    suspensionWin.on("closed", () => {
+        suspensionWin = null;
+        ElectronLog.info("suspensionWin closed");
+    });
+
+    suspensionWin.on("moved", () => {
+        setSuspensionSize(false);
+        checkIsWelt();
+    });
+
+    suspensionWin.on("show", () => {
+        setTimeout(() => {
+            setWelt();
+        }, 3000);
+    });
 }
 
 export function createSuspensionWindow() {
@@ -391,43 +449,20 @@ export function createSuspensionWindow() {
                 console.log("started socket");
                 socketHelper = new SocketHelper(new CustomCallBack());
                 // createUnfoldSuspensionWindow();
+
+                // 2s后检查是否存在Ball.exe进程, 不存在则使用传统的小尖尖
+                setTimeout(() => {
+                    isRunning("ball.exe", res => {
+                        if (!res) {
+                            socketHelper = null;
+                            createLocalSuspensionWindow();
+                            showSuspension();
+                        }
+                    });
+                }, 2000);
             });
         } else {
-            suspensionWin = createWindow(suspensionURL, {
-                width: 120,
-                height: 120,
-                type: "toolbar", // 创建的窗口类型为工具栏窗口
-                frame: false, // 要创建无边框窗口
-                resizable: false, // 禁止窗口大小缩放
-                show: false,
-                useContentSize: true,
-                transparent: true, // 设置透明
-                backgroundColor: "#00000000",
-                alwaysOnTop: true // 窗口是否总是显示在其他窗口之前
-            });
-            const size = screen.getPrimaryDisplay().workAreaSize; // 获取显示器的宽高
-            const winSize = suspensionWin.getSize(); // 获取窗口宽高
-            suspensionWin.setPosition(size.width - winSize[0] - 80, size.height - winSize[1] - 50, false);
-
-            suspensionWin.once("ready-to-show", () => {
-                suspensionWin && suspensionWin.setAlwaysOnTop(true, "pop-up-menu");
-                // createUnfoldSuspensionWindow();
-            });
-            suspensionWin.on("closed", () => {
-                suspensionWin = null;
-                ElectronLog.info("suspensionWin closed");
-            });
-
-            suspensionWin.on("moved", () => {
-                setSuspensionSize(false);
-                checkIsWelt();
-            });
-
-            suspensionWin.on("show", () => {
-                setTimeout(() => {
-                    setWelt();
-                }, 3000);
-            });
+            createLocalSuspensionWindow();
         }
     });
 }
