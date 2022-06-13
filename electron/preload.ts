@@ -89,25 +89,22 @@ window.electron = {
         remote.globalShortcut.unregister("esc");
     },
     isExistFile: (fileName: string) => {
-        const filePath =
-            process.platform === "darwin"
-                ? app.getPath("downloads") + fileName
-                : resolve(app.getPath("downloads"), fileName);
+        const filePath = resolve(app.getPath("userData"), "files", fileName);
         return isExistFile(filePath);
     },
     getFilePath: (fileName: string) => {
-        const filePath = process.platform === "darwin" ? app.getPath("downloads") + fileName : resolve(app.getPath("downloads"), fileName);
+        const filePath = resolve(app.getPath("userData"), "files", fileName);
         return "file:///" + filePath.replaceAll("\\", "/");
     },
     log: ElectronLog,
     getCacheFile: async (fileName: string) => {
         if (!fileName) return "";
-        const filePath = process.platform === "darwin" ? app.getPath("downloads") + fileName : resolve(app.getPath("downloads"), fileName);
+        const filePath = resolve(app.getPath("userData"), "files", fileName);
         const isExist = await isExistFile(filePath);
         return isExist ? "file://" + filePath.split("\\").join("/") : "";
     },
     getCachePath: (path: string) => {
-        return process.platform === "darwin" ? app.getPath("downloads") + path : resolve(app.getPath("downloads"), path);
+        return resolve(app.getPath("userData"), "files", path);
     },
     readFile: (path: string, callback: (buffer: ArrayBuffer) => void) => {
         fs.readFile(path, (err, buffer) => {
@@ -167,7 +164,6 @@ window.electron = {
 
         let downloadFiles = join(app.getPath("userData"), "files", "/");
         await mkdirs(downloadFiles);
-        app.setPath("downloads", downloadFiles);
 
         if (!newpath) {
             newpath = downloadFiles;

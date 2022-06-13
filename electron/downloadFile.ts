@@ -53,11 +53,8 @@ export const mkdirs = (dirname: string) => {
 };
 
 export const downloadFileAxios = async (url: string, fileName: string) => {
-    const downloadsPath = app.getPath("downloads");
-    const filePath =
-        process.platform === "darwin"
-            ? downloadsPath + fileName
-            : resolve(downloadsPath, fileName);
+    const downloadsPath = resolve(app.getPath("userData"), "files");
+    const filePath = resolve(downloadsPath, fileName);
     const dirname = await mkdirs(downloadsPath);
     if (!dirname) {
         return dealCallback(fileName, "");
@@ -97,10 +94,7 @@ export const downloadFileAxios = async (url: string, fileName: string) => {
 
 export default () => {
     const downloadFile = async (url: string, fileName: string) => {
-        const filePath =
-            process.platform === "darwin"
-                ? app.getPath("downloads") + fileName
-                : resolve(app.getPath("downloads"), fileName);
+        const filePath = resolve(app.getPath("userData"), "files", fileName);
         if (downloadingFileList.includes(fileName)) return;
         const isExist = await isExistFile(filePath);
         if (isExist) {
