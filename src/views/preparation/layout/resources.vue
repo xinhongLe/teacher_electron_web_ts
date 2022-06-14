@@ -236,6 +236,7 @@ export default defineComponent({
 		const { source, type, course } = toRefs(props);
 		watch([source, type, course], () => {
 			resourceList.value = [];
+            pageNumber.value = 1;
 			getResources();
 		});
 
@@ -261,6 +262,8 @@ export default defineComponent({
 		const disabledScrollLoad = ref(false);
 		const load = () => {
 			console.log("============= loading");
+            pageNumber.value++;
+            getResources();
 		};
 
 		return {

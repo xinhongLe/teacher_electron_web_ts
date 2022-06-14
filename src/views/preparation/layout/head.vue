@@ -387,7 +387,11 @@ export default defineComponent({
                 isSchool: 2,
                 isShelf: 2,
                 knowledgePonitId: []
-            })
+            });
+
+            if (res.success) {
+                uploadResourceOpen.value = false;
+            }
 		};
 
 		const acceptList = ".ppt,.pptx,.doc,.docx,.pdf,.mp3,.mp4,.mkv,.flv,.jpg,.png,.jpeg";
@@ -424,7 +428,7 @@ export default defineComponent({
 			form.files.push({
 			    extension: res.fileExtension,
 			    md5: res.md5,
-			    fileName: res.fileName,
+			    fileName: file.name,
                 uid: file.uid,
                 size: res.size || 0
 			});

@@ -23,7 +23,7 @@
 					alt=""
 				/>
 			</div>
-			<ResourceViewList :type="resource.ResourceShowType" :target="target" v-if="visible" />
+			<ResourceViewList :type="resource.ResourceShowType" :resource="resource" :target="target" v-if="visible" />
 		</div>
 	</el-dialog>
 </template>
