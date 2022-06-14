@@ -97,7 +97,11 @@ export const enum MutationTypes {
     /**
      * 设置当前编辑窗的信息
      */
-    SET_EDIT_WINDOW_INFO = "SET_EDIT_WINDOW_INFO"
+    SET_EDIT_WINDOW_INFO = "SET_EDIT_WINDOW_INFO",
+    /**
+     * 设置学段
+     */
+    SET_TERM = "SET_TERM"
 }
 
 export const enum ActionTypes {

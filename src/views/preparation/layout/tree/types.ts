@@ -1,6 +1,5 @@
-export interface ITreeItem {
-  name: string;
-  id: string;
-  children?: ITreeItem[];
-  candrag?: boolean;
+import { ICourseItem } from "@/api/resource";
+export interface ITreeItem extends ICourseItem {
+  Children?: ITreeItem[];
+  Candrag?: boolean;
 }

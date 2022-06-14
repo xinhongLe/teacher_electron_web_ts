@@ -1,18 +1,18 @@
 <template>
     <div class="preparation">
-        <LeftMenu v-model:showClassArrangement="showClassArrangement" />
-        <div class="content-wrapper" v-if="!showClassArrangement">
-            <Head />
-            <Resources />
+        <LeftMenu v-model:showClassArrangement="showClassArrangement" v-model:course="course" />
+        <div class="content-wrapper" v-show="!showClassArrangement">
+            <Head :course="course" v-model:source="source" v-model:type="type" />
+            <Resources :course="course" :source="source" :type="type" />
         </div>
-        <div class="content-wrapper" v-else>
+        <div class="content-wrapper" v-show="showClassArrangement">
             <ClassArrangement />
         </div>
     </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from "vue";
+import { defineComponent, onMounted, ref } from "vue";
 import LeftMenu from "./layout/leftMenu.vue";
 import Head from "./layout/head.vue";
 import Resources from "./layout/resources.vue";
@@ -21,8 +21,18 @@ export default defineComponent({
     name: "Preparation",
     setup() {
         const showClassArrangement = ref(false);
+        const course = ref({
+            chapterId: "",
+            lessonId: ""
+        });
+        const source = ref("");
+        const type = ref("");
+
         return {
-            showClassArrangement
+            course,
+            showClassArrangement,
+            source,
+            type
         };
     },
     components: {

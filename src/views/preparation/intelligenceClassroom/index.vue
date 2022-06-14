@@ -62,11 +62,12 @@ import PreviewSection from "./components/preview/previewSection.vue";
 import Tools from "./components/preview/tools.vue";
 import emitter from "@/utils/mitt";
 import { windowInfoKey } from "@/hooks/useWindowInfo";
+import { getWindowCards } from "./api";
 const isFullScreen = ref(false);
 const isShowCardList = ref(true);
 const cardListComponents = ref<InstanceType<typeof CardList>>();
 const props = defineProps({
-    selectLessonId: {
+    resourceId: {
         type: String,
         default: ""
     },
@@ -75,17 +76,13 @@ const props = defineProps({
         default: false
     }
 });
-const emits = defineEmits(["update:isWindowLoadEnd"]);
-const selectLessonId = toRef(props, "selectLessonId");
+const resourceId = toRef(props, "resourceId");
 provide("isShowCardList", isShowCardList);
-const { getSchoolWindowList, winList, updateCurrentWindow, cardList, refreshWindow } = inject(windowInfoKey)!;
+const {cardList, refreshWindow, getCardList } = inject(windowInfoKey)!;
 
 watchEffect(() => {
-    if (selectLessonId.value) {
-        getSchoolWindowList(selectLessonId.value).then(() => {
-            emits("update:isWindowLoadEnd", true);
-            updateCurrentWindow(winList.value[0]);
-        });
+    if (resourceId.value) {
+        getCardList(resourceId.value, 0);
     }
 });
 const changeWinSize = () => {
@@ -93,7 +90,7 @@ const changeWinSize = () => {
 };
 
 const preparationReLoad = () => {
-    refreshWindow(selectLessonId.value);
+    // refreshWindow(selectLessonId.value);
 };
 
 onMounted(() => {

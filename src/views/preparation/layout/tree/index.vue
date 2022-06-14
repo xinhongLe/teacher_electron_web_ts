@@ -5,9 +5,9 @@
             :value="value"
             v-for="item in treeData"
             :zIndex="0"
-            :key="item.id"
+            :key="item.Id"
             :itemData="item"
-            :keys="[item.id]"
+            :keys="[item.Id]"
             :tipTarget="tipTarget"
             :showClassArrangement="showClassArrangement"
         />
@@ -36,8 +36,8 @@ export default defineComponent({
     },
     setup(props, { emit }) {
         const selectedTreeItem = (treeItem: ITreeItem, keys: string[]) => {
-            emit("update:value", treeItem.id);
-            emit("onTreeItemChange", treeItem.id, keys);
+            emit("update:value", treeItem.Id);
+            emit("onTreeItemChange", treeItem.Id, keys);
         };
         return {
             selectedTreeItem

@@ -1,9 +1,9 @@
 <template>
-    <div class="look-video" v-show="!isMinimized" v-loading="videoLoading">
+    <div class="look-video" :class="dialog && 'dialog-type'" v-show="!isMinimized" v-loading="videoLoading">
         <div class="warp">
             <div class="frames-box">
-                <span class="file-sn">{{ fileSn }}</span>
-                <p>查看视频</p>
+                <span class="file-sn" v-if="!dialog">{{ fileSn }}</span>
+                <p v-if="!dialog">查看视频</p>
                 <div class="content">
                     <Brush ref="childRef"></Brush>
                     <div class="material-box">
@@ -100,6 +100,12 @@ import Brush from "@/components/brush/index.vue";
 import { MutationTypes, store } from "@/store";
 import emitter from "@/utils/mitt";
 export default defineComponent({
+    props: {
+        dialog: {
+            type: Boolean,
+            default: false
+        }
+    },
     setup() {
         const isElectron = isElectronFun();
         const videoUrl = ref("");
@@ -286,6 +292,11 @@ export default defineComponent({
     overflow: hidden;
     background: #fff;
     -webkit-app-region: no-drag;
+    &.dialog-type {
+        width: 100%;
+        height: 100%;
+        position: relative;
+    }
 }
 .warp {
     height: 100%;

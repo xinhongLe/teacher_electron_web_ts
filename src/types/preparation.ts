@@ -329,7 +329,7 @@ export interface SchoolWindowCardInfo {
     Name: string;
     NickName?: string;
     OriginType?: number;
-    Pages: SchoolWindowPageInfo[];
+    PageList: SchoolWindowPageInfo[];
 }
 export interface SchoolWindowInfo {
     LessonID: string;

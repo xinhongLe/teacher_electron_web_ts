@@ -1,7 +1,8 @@
 import request from "@/utils/request";
 import { IResponse, RequestFun } from "@/types/response";
-import { ICardList, ICopyWindowRes, ITreeList } from "@/types/intelligence";
+import { ICopyWindowRes, ITreeList } from "@/types/intelligence";
 import { AI_XUE_SHI_API, WINDOW_CRAD_API, originType } from "@/config";
+import { SchoolWindowCardInfo } from "@/types/preparation";
 type BookListResponse = IResponse<ITreeList[]>
 
 export interface IGetChapters {
@@ -22,7 +23,7 @@ export interface IGetWindowCards {
     OriginType: number
 }
 
-type GetWindowCardsResponse = IResponse<ICardList[]>
+type GetWindowCardsResponse = IResponse<SchoolWindowCardInfo[]>
 type GetSchoolLessonWindow = IResponse<LessonWindow[]>
 interface GetPageData {
     pageID: string,

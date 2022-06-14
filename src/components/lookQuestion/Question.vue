@@ -1,7 +1,7 @@
 <template>
     <div class="warp">
         <div class="frames-box">
-            <span class="file-sn">{{questionSn}}</span>
+            <span class="file-sn" v-if="!dialog">{{questionSn}}</span>
             <slot name="title" />
             <div class="count">{{ number }} / {{ sum }}</div>
             <div class="material-box">
@@ -113,6 +113,10 @@ export default defineComponent({
         isPureQuestion: {
             type: Boolean,
             default: false
+        },
+        dialog: {
+            type: Boolean,
+            default: false
         }
     },
     setup(props, { emit }) {
@@ -146,17 +150,17 @@ export default defineComponent({
 
         const brushHandle = () => {
             btnType.value = 1;
-            childRef.value!.brushOn();
+            childRef.value?.brushOn();
         };
 
         const clearBoard = () => {
             btnType.value = 3;
-            childRef.value!.clearBrush();
+            childRef.value?.clearBrush();
         };
 
         const eraserHandle = () => {
             btnType.value = 2;
-            childRef.value!.eraserOn();
+            childRef.value?.eraserOn();
         };
 
         const lookSimilarQuestions = () => {
@@ -181,7 +185,7 @@ export default defineComponent({
         };
 
         watch(nowQuestionID, (v) => {
-            childRef.value!.clearBrush();
+            childRef.value?.clearBrush();
             emit("update:nowQuestionID", v);
         });
 

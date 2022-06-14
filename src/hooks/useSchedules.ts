@@ -1,10 +1,13 @@
+import { fetchClassArrangement } from "@/api/resource";
 import { fetchActiveTimetableID, fetchUserSchedules, IScheduleContent, fetchTermCodeBySchoolId, TableTime, IScheduleDetail } from "@/api/timetable";
-import { store } from "@/store";
+import { MutationTypes, store } from "@/store";
 import { ref, Ref, watch, watchEffect } from "vue";
 
 interface TeachClassSchedule extends IScheduleDetail {
     DateOfWeek: number;
     fontShowTime: string;
+    count: number;
+    bagId?: string;
 }
 
 export type ColData = {
@@ -36,6 +39,8 @@ export default (days: Ref<string[]>) => {
             id: schoolID
         });
 
+        store.commit(MutationTypes.SET_TERM, { id: termCodeRes.result.TermId, code: termCodeRes.result.TermCode });
+
         semesterDataID.value = termCodeRes.result.TermId;
         termCode.value = termCodeRes.result.TermCode;
         if (termCodeRes.resultCode === 200 && termCodeRes.result) {
@@ -63,10 +68,17 @@ export default (days: Ref<string[]>) => {
         if (res.resultCode === 200) {
             teachClassScheduleArr = [];
             classTimeArr = res.result.tableTimeList;
+
+            const classArrangementRes = await fetchClassArrangement({
+                startTime: days.value[0],
+                endTime: days.value[6],
+                schoolId: schoolID
+            });
             res.result.TeacherCourseList.forEach(item => {
                 item.ScheduleDetailData.forEach(schedule => {
+                    const obj = classArrangementRes.result.find(item => item.LessonId === schedule.LessonID);
                     const fontShowTime = `${schedule.StartTime.substring(0, 5)}~${schedule.EndTime.substring(0, 5)}`;
-                    teachClassScheduleArr.push({ ...schedule, DateOfWeek: item.DateOfWeek, fontShowTime });
+                    teachClassScheduleArr.push({ ...schedule, DateOfWeek: item.DateOfWeek, fontShowTime, count: obj?.BagCount || 0, bagId: obj?.Id });
                 });
             });
         }

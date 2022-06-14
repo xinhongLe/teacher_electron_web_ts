@@ -171,18 +171,18 @@ const getSlideStepData = (oldSteps: string[]) => {
 };
 
 // 根据 ZIndex 进行排序
-const sortElementsByZIndex = (oldElements: string[]) => {
-    return oldElements.sort((a, b) => {
-        return JSON.parse(a).ZIndex - JSON.parse(b).ZIndex;
+const sortElementsByZIndex = (oldElements: string[] | string) => {
+    return (typeof oldElements === "string" ? JSON.parse(oldElements) : oldElements).sort((a: string | Object, b: string | Object) => {
+        return (typeof a === "string" ? JSON.parse(a) : a).ZIndex - (typeof b === "string" ? JSON.parse(b) : b).ZIndex;
     });
 };
 
 // 处理获取元素集合
-const getElementsData = async (oldElements: string[], oldActions: string[], originType:number) => {
+const getElementsData = async (oldElements: string[], oldActions: string[], originType: number) => {
     const events: IEvent[] = getSlideEventData(oldActions);
     const elements: PPTElement[] = [];
     for (const item of oldElements) {
-        const oldElement = JSON.parse(item);
+        const oldElement = typeof item === "string" ? JSON.parse(item) : item;
         const actions: PPTElementAction[] = getElementActionsById(events, oldElement.UUID);
         const wins: IWin[] = getElementCustomById(events, oldElement.UUID, originType);
         switch (oldElement.Type) {

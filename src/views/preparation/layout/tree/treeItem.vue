@@ -1,9 +1,9 @@
 <template>
-    <div class="tree-box" :class="{'no-before': zIndex === 0, 'no-icon': !(itemData.children && itemData.children.length > 0 || zIndex === 0) }">
+    <div class="tree-box" :class="{'no-before': zIndex === 0, 'no-icon': !(itemData.Children && itemData.Children.length > 0 || zIndex === 0) }">
         <div class="tree-item">
             <img
                 class="tree-icon"
-                v-show="isOpen && value !== itemData.id"
+                v-show="isOpen && value !== itemData.Id"
                 :class="{
                     visible: true
                 }"
@@ -13,7 +13,7 @@
             />
             <img
                 class="tree-icon"
-                v-show="isOpen && value === itemData.id"
+                v-show="isOpen && value === itemData.Id"
                 :class="{
                     visible: true
                 }"
@@ -23,7 +23,7 @@
             />
             <img
                 class="tree-icon"
-                v-show="!isOpen && value !== itemData.id"
+                v-show="!isOpen && value !== itemData.Id"
                 :class="{
                     visible: true
                 }"
@@ -33,7 +33,7 @@
             />
             <img
                 class="tree-icon"
-                v-show="!isOpen && value === itemData.id"
+                v-show="!isOpen && value === itemData.Id"
                 :class="{
                     visible: true
                 }"
@@ -43,7 +43,7 @@
             />
             <div
                 class="tip-popover"
-                v-if="tipTarget === itemData.id && popoverVisible"
+                v-if="tipTarget === itemData.Id && popoverVisible"
                 :style="{ top: tipOffset.y - 66 + 'px' }"
             >
                 <div class="tip-title">拖动【课时】进右侧课表</div>
@@ -52,29 +52,30 @@
             <div
                 ref="treeName"
                 class="tree-name"
-                @click="selectedTreeItem(itemData, keys)"
-                :class="{ active: value === itemData.id }"
-                :title="itemData.name"
-                :draggable="!!itemData.candrag && showClassArrangement"
-                @dragstart="onDragStart($event, { ID: itemData.id, Name: itemData.name })"
+                @click="zIndex === 0 ? (isOpen = !isOpen) : selectedTreeItem(itemData, keys)"
+                :class="{ active: value === itemData.Id }"
+                :title="itemData.Name"
+                :draggable="!!candrag && showClassArrangement"
+                @dragstart="onDragStart($event, { ID: itemData.Id, Name: itemData.Name })"
                 @dragend="onDragEnd($event)"
                 @drag="onDrag($event)"
-            >{{ itemData.name }}</div>
+            >{{ itemData.Name }}</div>
             <div
                 class="selected-bg"
-                :class="{ active: value === itemData.id }"
+                :class="{ active: value === itemData.Id }"
                 :style="{ width: `calc(100% + ${zIndex * 20}px)` }"
             ></div>
         </div>
         <div class="tree-item-children" :class="{ close: !isOpen }">
             <TreeItem
                 :zIndex="zIndex + 1"
-                v-for="item in itemData.children"
-                :key="item.id"
+                v-for="item in itemData.Children"
+                :key="item.Id"
                 :itemData="item"
                 :value="value"
+                :candrag="true"
                 :selectedTreeItem="selectedTreeItem"
-                :keys="[...keys, item.id]"
+                :keys="[...keys, item.Id]"
                 :showClassArrangement="showClassArrangement"
                 :tipTarget="tipTarget"
             />
@@ -113,6 +114,10 @@ export default defineComponent({
         },
         tipTarget: {
             type: String
+        },
+        candrag: {
+            type: Boolean,
+            default: false
         }
     },
     setup(props) {

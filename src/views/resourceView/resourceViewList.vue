@@ -1,8 +1,11 @@
 <template>
     <div class="resource-view">
         <IntelligenceClassroom
-            :selectLessonId="'39FDF8A4E10242B4349A9F81C5E69B92'"
+            v-if="type === 1"
+            :resourceId="target"
         />
+        <LookVideo v-if="type === 2" :dialog="true" />
+        <LookQuestion v-if="type === 3" :dialog="true" />
     </div>
 </template>
 
@@ -10,13 +13,18 @@
 import useWindowInfo, { windowInfoKey } from "@/hooks/useWindowInfo";
 import { defineComponent, provide, ref, watch } from "vue";
 import IntelligenceClassroom from "../preparation/intelligenceClassroom/index.vue";
+import LookVideo from "@/components/lookVideo/index.vue";
+import LookQuestion from "@/components/lookQuestion/index.vue";
 
 export default defineComponent({
-    components: { IntelligenceClassroom },
+    components: { IntelligenceClassroom, LookVideo, LookQuestion },
     props: {
         target: {
             type: String,
             default: ""
+        },
+        type: {
+            type: Number
         },
         visible: {
             type: Boolean,

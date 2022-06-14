@@ -6,8 +6,9 @@ import TrackService, { EnumTrackEventType } from "@/utils/common";
 import useHome from "@/hooks/useHome";
 import emitter from "@/utils/mitt";
 import isElectron from "is-electron";
+import { getWindowCards } from "@/views/preparation/intelligenceClassroom/api";
 const dealCardData = (card:SchoolWindowCardInfo) => {
-    const pages = card.Pages.map(page => {
+    const pages = card.PageList.map(page => {
         return {
             ...page,
             Name: page.Name || ["普通页", "听写页", "跟读页"][page.Type]
@@ -38,34 +39,22 @@ const useWindowInfo = () => {
     const currentSlide = ref({});
     const cardList = ref<SchoolWindowCardInfo[]>([]);
     const allPageList = computed(() => {
-        return cardList.value.flatMap((item) => [...item.Pages]);
+        return cardList.value.flatMap((item) => [...item.PageList]);
     });
-    const pageList = computed(() => currentCard.value?.Pages || []);
+    const pageList = computed(() => currentCard.value?.PageList || []);
     const currentPageInfo = computed(() => pageList.value[currentPageIndex.value]);
 
-    const getCardList = () => {
-        const list = find(winList.value, { WindowID: currentWindowInfo.WindowID })?.CardList || [];
-        return list.filter(item => !isEmpty(item.Pages)).map(item => ({
-            ...item,
-            Pages: filter(item.Pages, { State: true })
-        }));
-    };
-
-    const updateCurrentWindow = (win: SchoolWindowInfo, isToCardFirst = true) => {
-        currentWindowInfo.LessonID = win?.LessonID;
-        currentWindowInfo.LessonWindowID = win?.LessonWindowID;
-        currentWindowInfo.OriginType = win?.OriginType;
-        currentWindowInfo.Sort = win?.Sort;
-        currentWindowInfo.WindowID = win?.WindowID;
-        currentWindowInfo.WindowName = win?.WindowName;
-        currentWindowInfo.WindowNickName = win?.WindowNickName;
-        cardList.value = getCardList();
-        if (isToCardFirst) {
-            currentCardIndex.value = 0;
-            currentCard.value = cardList.value[0];
-        }
-
-        TrackService.setTrack(EnumTrackEventType.SelectWindow, win?.WindowID, win?.WindowName, "", "", "", "", "选择窗");
+    const getCardList = (WindowID: string, OriginType: number) => {
+        getWindowCards({
+            WindowID,
+            OriginType
+        }).then(res => {
+            if (res.success) {
+                cardList.value = res.result;
+                currentCardIndex.value = 0;
+                currentCard.value = cardList.value[0];
+            }
+        });
     };
 
     const getSchoolWindowList = async (id: string) => {
@@ -81,30 +70,7 @@ const useWindowInfo = () => {
         const newCard = dealCardData(card);
         currentCardIndex.value = index;
         currentCard.value = newCard;
-        TrackService.setTrack(EnumTrackEventType.SelectCard, currentWindowInfo.WindowID, currentWindowInfo.WindowName, card.ID, card.Name, card.Pages.length > 0 ? card.Pages[0].ID : "", card.Pages.length > 0 ? card.Pages[0].Name : "", "选择卡", "", "");
-    };
-
-    const refreshWindow = (id: string) => {
-        getSchoolWindowList(id).then(() => {
-            if (winList.value.length > 0) {
-                if (isToFirst) {
-                    updateCurrentWindow(winList.value[0]);
-                    isToFirst = false;
-                } else {
-                    const win = find(winList.value, { WindowID: currentWindowInfo.WindowID });
-                    if (win) {
-                        updateCurrentWindow(win, false);
-                    } else {
-                        updateCurrentWindow(winList.value[0], false);
-                    }
-                }
-
-                const findCardInfo = find(cardList.value, { ID: currentCard.value?.ID });
-                const cardIndex = findCardInfo ? findIndex(cardList.value, { ID: currentCard.value?.ID }) : 0;
-                const cardInfo = findCardInfo ? { ...findCardInfo } : cardList.value[0];
-                handleSelectCard(cardInfo, cardIndex);
-            }
-        });
+        TrackService.setTrack(EnumTrackEventType.SelectCard, currentWindowInfo.WindowID, currentWindowInfo.WindowName, card.ID, card.Name, card.PageList.length > 0 ? card.PageList[0].ID : "", card.PageList.length > 0 ? card.PageList[0].Name : "", "选择卡", "", "");
     };
 
     let isExecuting = false;
@@ -160,16 +126,15 @@ const useWindowInfo = () => {
         currentWindowInfo,
         cardList,
         allPageList,
-        updateCurrentWindow,
         currentCard,
         handleSelectCard,
         currentPageIndex,
         currentCardIndex,
-        refreshWindow,
         currentSlide,
         pageList,
         currentPageInfo,
-        getSchoolWindowList
+        getSchoolWindowList,
+        getCardList
     };
 };
 

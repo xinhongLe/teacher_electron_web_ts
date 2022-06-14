@@ -1,3 +1,4 @@
+import { IBookItem, ICustomBookItem } from "@/api/resource";
 import { Class, ClassStudent } from "./myStudent";
 import { BookList } from "./preparation";
 
@@ -35,11 +36,11 @@ export interface PreparationState {
     /**
      * 选择的教材
      */
-    subjectPublisherBookValue: string[],
+    subjectPublisherBookValue: ICustomBookItem | undefined,
     /**
      * 教材列表菜单
      */
-    subjectPublisherBookList: BookList[],
+    subjectPublisherBookList: IBookItem[],
     /**
      * 是否在拖拽精品素材
      */
@@ -65,6 +66,13 @@ export interface PreparationState {
         originType: number,
         lessonId: string,
         allWindowNames: string[]
+    },
+    /**
+     * 学段s
+     */
+    term: {
+        id: string;
+        code: string;
     }
 }
 

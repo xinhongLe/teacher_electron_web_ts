@@ -39,6 +39,13 @@
                                 {{colData.ClassName}}
                             </div>
                             <div
+                                v-if="colData.count > 0"
+                                class="my-course-cart"
+                                :num="colData.count"
+                            >
+                                <img src="@/assets/images/preparation/cart.png" alt="" />
+                            </div>
+                            <div
                                 v-if="colData.CourseName"
                                 class="content-class"
                                 :style="{
@@ -67,6 +74,7 @@ import { computed, inject, PropType, ref, defineProps } from "vue";
 import { useRouter } from "vue-router";
 import { updateSchedule } from "@/api/timetable";
 import { store } from "@/store";
+import { addSchedulePackage, removeSchedulePackage } from "@/api/resource";
 
 const CourseBgColor: Record<string, string> = {
     语文: "#4FCC94",
@@ -112,6 +120,7 @@ const bgColor = computed(() => CourseBgColor[props.colData.CourseName || "其他
 const isEnd = computed(() => props.colData.ScheduleTime && moment().isAfter(props.colData.ScheduleTime));
 const scheduleID = computed(() => props.colData.ID || "");
 const scheduleTime = computed(() => props.colData.colDate + " " + props.colData.EndTime);
+const subjectPublisherBookValue = computed(() => store.state.preparation.subjectPublisherBookValue);
 
 const updateSchedules = inject(
     "updateSchedules"
@@ -123,6 +132,10 @@ const deleteCourse = () => {
         cancelButtonText: "取消",
         type: "warning"
     }).then(async () => {
+        // await removeSchedulePackage({
+        //     id: 
+        // });
+
         const res = await updateSchedule({
             ID: props.colData.ID,
             LessonID: props.colData.LessonID,
@@ -137,6 +150,16 @@ const deleteCourse = () => {
 };
 
 const addSchedule = async (dragInfo: SchoolLesson) => {
+    const schoolID = store.state.userInfo.Schools![0]?.UserCenterSchoolID;;
+    await addSchedulePackage({
+        scheduleId: scheduleID.value,
+        schoolId: schoolID,
+        acaSectionCode: subjectPublisherBookValue.value!.AcaSectionId,
+        lessonId: dragInfo.ID,
+        lessonName: dragInfo.Name,
+        lessonTime: props.colData.colDate + " " + props.colData.StartTime
+    });
+
     const res = await updateSchedule({
         ID: scheduleID.value,
         LessonID: dragInfo.ID,
@@ -268,6 +291,33 @@ const goToClass = () => {
                 }
             }
         }
+    }
+}
+
+.my-course-cart {
+	margin: 0 10px;
+	font-size: 14px;
+	position: relative;
+    &:before {
+		content: attr(num);
+		display: block;
+		padding: 3px;
+		border-radius: 15px;
+		font-size: 12px;
+		color: #fff;
+		background: var(--app-color-red);
+		position: absolute;
+		right: 5px;
+        transform: translateX(50%);
+		top: -10px;
+		z-index: 1;
+        min-width: 18px;
+        text-align: center;
+        line-height: 1;
+	}
+    img {
+        width: 30px;
+        display: block;
     }
 }
 </style>

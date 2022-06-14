@@ -47,6 +47,7 @@ export interface IScheduleDetail {
     StartTime: string;
     TeacherID: string;
     TeacherName: string;
+    LessonID: string;
 }
 
 export interface TeacherCourse {

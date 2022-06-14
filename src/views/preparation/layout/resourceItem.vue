@@ -1,48 +1,48 @@
 <template>
     <div
         class="p-resource-item"
-        :class="{ courseware: data.source === 2, hover: hover }"
+        :class="{ courseware: data.Source === '我的资源', hover: hover }"
         @click="handleCommand('detail')"
     >
         <div class="p-resource-mark">我的</div>
         <div class="p-resource-top">
             <div class="resource-icon">
-                <img :src="iconResources.selfStudy[data.type]" alt="" />
+                <img :src="iconResources.selfStudy[data.ResourceType]" alt="" />
             </div>
             <div class="resource-content">
-                <div class="resource-title">数一数</div>
+                <div class="resource-title">{{data.Name}}</div>
                 <div class="resource-message">
                     <img
                         src="@/assets/images/preparation/icon_gengxin.png"
                         alt=""
                     />
-                    &nbsp;&nbsp;更新时间：2021-10-20 11:5
+                    &nbsp;&nbsp;更新时间：{{dealTime(data.DateTime || data.CreateTime)}}
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     <img
                         src="@/assets/images/preparation/icon_download.png"
                         alt=""
                     />
-                    &nbsp;&nbsp;下载次数：22 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    &nbsp;&nbsp;下载次数：{{data.DownloadNum}} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     <img
                         src="@/assets/images/preparation/icon_liulan_grey.png"
                         alt=""
                     />
-                    &nbsp;&nbsp;浏览：23 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    &nbsp;&nbsp;浏览：{{data.BrowseNum}} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     <img
                         src="@/assets/images/preparation/icon_zhinanzhen.png"
                         alt=""
                     />
-                    &nbsp;&nbsp;来源：系统来源 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    &nbsp;&nbsp;来源：{{data.Source}} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 </div>
                 <div class="resource-classify">
                     <img src="@/assets/images/preparation/icon_mulu.png" alt="" />
-                    所属目录：数学 / 人教版 / 一上 / 1单元 数一数 / 1.1 数一数
+                    所属目录：{{directoryName}}
                 </div>
             </div>
             <div class="resource-control">
                 <div class="resource-control-up">
-                    <div class="resource-degree">易</div>
-                    <div class="resource-type" :class="data.type < 9 && 'p-r-' + data.type">{{textResources[data.type]}}</div>
+                    <div class="resource-degree" :class="['', 'difficult', 'middle', ''][data.Degree]">{{["", "高", "中", "易"][data.Degree]}}</div>
+                    <div class="resource-type" :class="typeResources[data.ResourceType] < 9 && 'p-r-' + typeResources[data.ResourceType]">{{textResources[data.ResourceType]}}</div>
                     <el-dropdown
                         v-if="btns"
                         trigger="click"
@@ -63,7 +63,7 @@
                                         &nbsp;&nbsp;版本记录
                                     </div>
                                 </el-dropdown-item>
-                                <el-dropdown-item command="delete">
+                                <el-dropdown-item command="delete" v-if="isMySelf">
                                     <div class="dropdown-item delete">
                                         <img
                                             src="@/assets/images/preparation/icon_delete.png"
@@ -77,19 +77,19 @@
                     </el-dropdown>
                 </div>
                 <div class="p-resource-bottom no-border" v-if="!hover && btns">
-                    <el-button class="p-control-btn" size="small" @click.stop="handleCommand('download')">
+                    <el-button class="p-control-btn" size="small" @click.stop="handleCommand('download')" v-if="canDownload">
                         <img src="@/assets/images/preparation/icon_download_white.png" alt="">
                         下载
                     </el-button>
-                    <el-button class="p-control-btn" size="small" @click.stop="handleCommand('edit')">
+                    <el-button class="p-control-btn" size="small" @click.stop="handleCommand('edit')" v-if="canEdit">
                         <img src="@/assets/images/preparation/icon_bianji.png" alt="">
                         编辑
                     </el-button>
-                    <el-button class="p-control-btn p-move" size="small" @click.stop="handleCommand('move')">
+                    <el-button class="p-control-btn p-move" size="small" v-if="data.IsBag" @click.stop="handleCommand('move')">
                         <img src="@/assets/images/preparation/icon_yichu.png" alt="">
                         移除备课包
                     </el-button>
-                    <el-button class="p-control-btn p-add" size="small" @click.stop="handleCommand('add')">
+                    <el-button class="p-control-btn p-add" size="small" v-if="!data.IsBag" @click.stop="handleCommand('add')">
                         <img src="@/assets/images/preparation/icon_add.png" alt="">
                         加入备课包
                     </el-button>
@@ -97,19 +97,19 @@
             </div>
         </div>
         <div class="p-resource-bottom" v-if="hover && btns">
-            <el-button class="p-control-btn" size="small" @click.stop="handleCommand('download')">
+            <el-button class="p-control-btn" size="small" @click.stop="handleCommand('download')" v-if="canDownload">
                 <img src="@/assets/images/preparation/icon_download_white.png" alt="">
                 下载
             </el-button>
-            <el-button class="p-control-btn" size="small" @click.stop="handleCommand('edit')">
+            <el-button class="p-control-btn" size="small" @click.stop="handleCommand('edit')" v-if="canEdit">
                 <img src="@/assets/images/preparation/icon_bianji.png" alt="">
                 编辑
             </el-button>
-            <el-button class="p-control-btn p-move" size="small" @click.stop="handleCommand('move')">
+            <el-button class="p-control-btn p-move" size="small" v-if="data.IsBag" @click.stop="handleCommand('move')">
                 <img src="@/assets/images/preparation/icon_yichu.png" alt="">
                 移除备课包
             </el-button>
-            <el-button class="p-control-btn p-add" size="small" @click.stop="$event => handleCommand('add', $event)">
+            <el-button class="p-control-btn p-add" size="small" v-if="!data.IsBag" @click.stop="$event => handleCommand('add', $event)">
                 <img src="@/assets/images/preparation/icon_add.png" alt="">
                 加入备课包
             </el-button>
@@ -138,14 +138,16 @@
  * 1: 校本资源
  * 2: 我的资源
  */
-import { defineComponent, PropType } from "vue";
+import { computed, defineComponent, PropType } from "vue";
 import { Refresh, MoreFilled } from "@element-plus/icons-vue";
-import { iconResources, textResources } from "@/config/resource";
+import { iconResources, textResources, typeResources } from "@/config/resource";
+import { IResourceItem } from "@/api/resource";
+import moment from "moment";
 export default defineComponent({
     components: { Refresh, MoreFilled },
     props: {
         data: {
-            type: Object as PropType<any>,
+            type: Object as PropType<IResourceItem>,
             required: true
         },
         hover: {
@@ -155,18 +157,47 @@ export default defineComponent({
         btns: {
             type: Boolean,
             default: true
+        },
+        lessonId: {
+            type: String,
+            required: true
         }
     },
     setup(props, { emit }) {
         const handleCommand = (command: string, event?: MouseEvent | TouchEvent) => {
-            console.log(event);
             emit("eventEmit", command, props.data, event);
         };
 
+        const dealTime = (time: string) => {
+            return moment(time).format("YYYY-MM-DD HH:mm");
+        };
+
+        // 是否是我的
+        const isMySelf = computed(() => props.data.IsSchool === 2);
+
+        const canEdit = computed(() => [2, 3, 4, 5].indexOf(props.data.ResourceShowType) === -1);
+
+        const canDownload = computed(() => [1, 2, 3, 4, 5].indexOf(props.data.ResourceShowType) === -1);
+
+        const directoryName = computed(() =>  {
+            if (!props.data.TextBooks) return "--";
+            const book = props.data.TextBooks.find(item =>  {
+                return props.lessonId === item.LessonID;
+            });
+
+            return book ? book.SubjectName + " / " + book.PublisherName + " / " + book.AlbumName + " / " + book.ChapterName + " / " + book.LessonName : "--";
+        });
+
         return {
             handleCommand,
+            dealTime,
             iconResources,
-            textResources
+            textResources,
+            directoryName,
+            typeResources,
+            isMySelf,
+            canEdit,
+            canDownload
         };
     }
 });
