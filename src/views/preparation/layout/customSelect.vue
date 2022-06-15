@@ -21,7 +21,7 @@
 <script lang="ts">
 import { fetchCourseDataByBookId, IBookItem } from "@/api/resource";
 import { useStore } from "@/store";
-import { computed, defineComponent, PropType, reactive, ref } from "vue";
+import { computed, defineComponent, PropType, reactive, ref, watch } from "vue";
 
 interface IDirectoryItem {
     id: string;
@@ -46,7 +46,8 @@ interface IOption {
 export default defineComponent({
 	props: {
 		directory: {
-			type: Object as PropType<IDirectory>
+			type: Object as PropType<IDirectory>,
+            required: true
 		}
 	},
 	setup(props, { emit }) {
@@ -73,6 +74,11 @@ export default defineComponent({
 			chapterAndLesson: [],
 			book: []
 		});
+
+        watch(() => props.directory, () => {
+            form.book = [props.directory.schoolSection, props.directory.subject, props.directory.version, props.directory.grade];
+            form.chapterAndLesson = [props.directory.chapter, props.directory.lesson];
+        });
 
 		const bookChange = async () => {
             emit("update:directory", {

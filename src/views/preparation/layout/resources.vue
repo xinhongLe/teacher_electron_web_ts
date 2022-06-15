@@ -4,10 +4,10 @@
 		v-infinite-scroll="load"
 		:infinite-scroll-disabled="disabledScrollLoad"
 	>
-		<!-- <div class="tip">
+		<div class="tip" v-if="resourceList.length === 0">
             <img src="@/assets/images/preparation/pic_finish_buzhi.png" alt="">
-            请选择书册
-        </div> -->
+            没有相关资源
+        </div>
 		<ResourceItem
 			v-for="(item, index) in resourceList"
 			:key="index"
@@ -16,7 +16,7 @@
 			@eventEmit="eventEmit"
 		/>
 
-		<DeleteTip :target="target" v-model:visible="deleteTipVisible" />
+		<DeleteTip :target="target" v-model:visible="deleteTipVisible" @onDeleteSuccess="onDeleteSuccess" />
 
 		<EditTip :target="target" v-model:visible="editTipVisible" />
 
@@ -27,6 +27,7 @@
 
 		<DeleteVideoTip
 			:target="target"
+            :resource="resource"
 			v-model:visible="deleteVideoTipVisible"
 		/>
 
@@ -41,7 +42,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, PropType, ref, toRefs, watch } from "vue";
+import { defineComponent, onMounted, onUnmounted, PropType, ref, toRefs, watch } from "vue";
 import ResourceItem from "./resourceItem.vue";
 import DeleteTip from "./dialog/deleteTip.vue";
 import EditTip from "./dialog/editTip.vue";
@@ -84,7 +85,7 @@ export default defineComponent({
 			required: true
 		}
 	},
-	setup(props) {
+	setup(props, { expose }) {
 		const resourceList = ref<IResourceItem[]>([]);
 
 		const deleteTipVisible = ref(false);
@@ -147,7 +148,8 @@ export default defineComponent({
 		) => {
 			switch (event) {
 				case "delete":
-					deleteVideoTipVisible.value = true;
+                    target.value = data.ResourceId;
+					deleteTipVisible.value = true;
 					break;
 				case "edit":
                     if (data.IsSchool === 2) {
@@ -226,7 +228,13 @@ export default defineComponent({
 				leftEnd.value = left + 20;
 				topEnd.value = top - 40;
 			}
+
+            emitter.on("updateResourceList", update);
 		});
+
+        onUnmounted(() => {
+            emitter.off("updateResourceList");
+        });
 
 		const pageNumber = ref(1);
 		const pageSize = ref(10);
@@ -235,10 +243,14 @@ export default defineComponent({
 
 		const { source, type, course } = toRefs(props);
 		watch([source, type, course], () => {
-			resourceList.value = [];
+			update();
+		});
+
+        const update = () => {
+            resourceList.value = [];
             pageNumber.value = 1;
 			getResources();
-		});
+        };
 
 		const getResources = async () => {
 			if (course.value.chapterId && course.value.lessonId) {
@@ -261,10 +273,16 @@ export default defineComponent({
 
 		const disabledScrollLoad = ref(false);
 		const load = () => {
-			console.log("============= loading");
             pageNumber.value++;
             getResources();
 		};
+
+        const onDeleteSuccess = (id: string) => {
+            const i = resourceList.value.findIndex(item => item.ResourceId === id);
+            resourceList.value.splice(i, 1);
+        };
+
+        expose({ update });
 
 		return {
 			resourceList,
@@ -277,7 +295,9 @@ export default defineComponent({
 			eventEmit,
 			resourceVisible,
 			load,
-			disabledScrollLoad
+			disabledScrollLoad,
+            onDeleteSuccess,
+            update
 		};
 	}
 });

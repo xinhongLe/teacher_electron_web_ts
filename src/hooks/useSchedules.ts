@@ -8,6 +8,7 @@ interface TeachClassSchedule extends IScheduleDetail {
     fontShowTime: string;
     count: number;
     bagId?: string;
+    chapterId?: string;
 }
 
 export type ColData = {
@@ -78,7 +79,7 @@ export default (days: Ref<string[]>) => {
                 item.ScheduleDetailData.forEach(schedule => {
                     const obj = classArrangementRes.result.find(item => item.LessonId === schedule.LessonID);
                     const fontShowTime = `${schedule.StartTime.substring(0, 5)}~${schedule.EndTime.substring(0, 5)}`;
-                    teachClassScheduleArr.push({ ...schedule, DateOfWeek: item.DateOfWeek, fontShowTime, count: obj?.BagCount || 0, bagId: obj?.Id });
+                    teachClassScheduleArr.push({ ...schedule, DateOfWeek: item.DateOfWeek, fontShowTime, count: obj?.BagCount || 0, bagId: obj?.Id, chapterId: obj?.ChapterId });
                 });
             });
         }

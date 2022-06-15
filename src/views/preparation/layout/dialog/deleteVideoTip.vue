@@ -2,7 +2,7 @@
     <el-dialog
         custom-class="custom-dialog"
         center
-        title="删除视频"
+        title="删除资源"
         width="450px"
         :model-value="visible"
         @close="close()"
@@ -15,27 +15,24 @@
             </div>
         </div>
         <div class="checkbox-content">
-            <div>
-                <el-checkbox label="数学 人教版 一上 / 数一数 / 数一" />
-            </div>
-            <div>
-                <el-checkbox label="数学 人教版 一上 / 数一数 / 数一" />
-            </div>
-            <div>
-                <el-checkbox label="数学 人教版 一上 / 数一数 / 数一" />
-            </div>
+            <el-checkbox-group v-model="checkList">
+                <div v-for="(item, index) in directorys" :key="index">
+                    <el-checkbox :label="item.ResourceId">{{item.SubjectName + ' / ' + item.PublisherName + ' / ' + item.AlbumName + ' / ' + item.ChapterName + ' / ' + item.LessonName}}</el-checkbox>
+                </div>
+            </el-checkbox-group>
         </div>
         <template #footer>
             <span class="dialog-footer">
                 <el-button @click="close()">取消</el-button>
-                <el-button type="danger"> 确认删除 </el-button>
+                <el-button type="danger" @click="sure()"> 确认删除 </el-button>
             </span>
         </template>
     </el-dialog>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { IResourceItem } from "@/api/resource";
+import { computed, defineComponent, PropType, ref } from "vue";
 
 export default defineComponent({
     props: {
@@ -43,17 +40,36 @@ export default defineComponent({
             type: String,
             default: ""
         },
+        resource: {
+            type: Object as PropType<IResourceItem>,
+            required: true
+        },
         visible: {
             type: Boolean,
             default: false
         }
     },
     setup(props, { emit }) {
+        const checkList = ref<string[]>([]);
+
         const close = () => {
             emit("update:visible", false);
         };
+
+        const directorys = computed(() => props.resource.TextBooks);
+
+        const sure = async () => {
+            console.log(checkList.value);
+            // await deleteResource({
+            //     id: "",
+            //     type: 1
+            // })
+        };
         return {
-            close
+            sure,
+            close,
+            directorys,
+            checkList
         };
     }
 });

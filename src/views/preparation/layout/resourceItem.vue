@@ -1,7 +1,7 @@
 <template>
     <div
         class="p-resource-item"
-        :class="{ courseware: data.Source === '我的资源', hover: hover }"
+        :class="{ courseware: isMySelf, hover: hover }"
         @click="handleCommand('detail')"
     >
         <div class="p-resource-mark">我的</div>
@@ -143,6 +143,7 @@ import { Refresh, MoreFilled } from "@element-plus/icons-vue";
 import { iconResources, textResources, typeResources } from "@/config/resource";
 import { IResourceItem } from "@/api/resource";
 import moment from "moment";
+import { useStore } from "@/store";
 export default defineComponent({
     components: { Refresh, MoreFilled },
     props: {
@@ -164,6 +165,8 @@ export default defineComponent({
         }
     },
     setup(props, { emit }) {
+        const store = useStore();
+
         const handleCommand = (command: string, event?: MouseEvent | TouchEvent) => {
             emit("eventEmit", command, props.data, event);
         };
@@ -173,7 +176,7 @@ export default defineComponent({
         };
 
         // 是否是我的
-        const isMySelf = computed(() => props.data.IsSchool === 2);
+        const isMySelf = computed(() => props.data.UserId === store.state.userInfo.userCenterUserID);
 
         const canEdit = computed(() => [2, 3, 4, 5].indexOf(props.data.ResourceShowType) === -1);
 

@@ -132,9 +132,9 @@ const deleteCourse = () => {
         cancelButtonText: "取消",
         type: "warning"
     }).then(async () => {
-        // await removeSchedulePackage({
-        //     id: 
-        // });
+        await removeSchedulePackage({
+            id: props.colData.bagId
+        });
 
         const res = await updateSchedule({
             ID: props.colData.ID,
@@ -204,7 +204,7 @@ const onDrop = async (ev: DragEvent, colData: ColData) => {
 
 const goToClass = () => {
     if (!props.colData.LessonName) return;
-    router.push(`/attend-class/${props.colData.LessonID}/${props.colData.CourseID}`);
+    router.push(`/attend-class/${props.colData.chapterId}/${props.colData.LessonID}`);
 };
 
 </script>

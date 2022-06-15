@@ -121,6 +121,7 @@ interface IResponseClassArrangement {
     LessonId: string;
     LessonName: string;
     LessonTime: string;
+    ChapterId: string;
 }
 
 interface IRequestAddPreparationPackage {
@@ -450,6 +451,27 @@ export const uploadResource: RequestFun<
     return request({
         baseURL: RESOURCE_API,
         url: "Api/Resouce/TeacherResource/AddResourceByTea",
+        headers: {
+            "Content-Type": "application/json-patch+json",
+            OrgId: yunInfo.OrgId,
+            UserId: yunInfo.UserId,
+            SystemId: systemId,
+            SecretKey: yunInfo.SecretKey,
+        },
+        method: "post",
+        data,
+    });
+};
+
+// 删除资源
+export const deleteResource: RequestFun<
+    { id: string; type: number; },
+    boolean
+> = (data) => {
+    const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
+    return request({
+        baseURL: RESOURCE_API,
+        url: "Api/Resouce/TeacherResource/DelResouceByTea",
         headers: {
             "Content-Type": "application/json-patch+json",
             OrgId: yunInfo.OrgId,

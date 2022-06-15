@@ -5,7 +5,7 @@
             <Head :course="course" v-model:source="source" v-model:type="type" />
             <Resources :course="course" :source="source" :type="type" />
         </div>
-        <div class="content-wrapper" v-show="showClassArrangement">
+        <div class="content-wrapper" v-if="showClassArrangement">
             <ClassArrangement />
         </div>
     </div>

@@ -13,7 +13,8 @@ type Events = {
     smallVideo: null,
     smallQuestion: null,
     closeTab: Bread,
-    updatePackageCount: null
+    updatePackageCount: null,
+    updateResourceList: undefined
 }
 
 const emitter = mitt<Events>();

@@ -6,7 +6,9 @@
         />
         <LookVideo v-if="type === 2" :dialog="true" />
         <LookQuestion v-if="type === 3" :dialog="true" />
-        <iframe :src="url" v-if="type === 0"></iframe>
+        <div class="iframe-box" v-if="type === 0">
+            <iframe :src="url"></iframe>
+        </div>
     </div>
 </template>
 
@@ -45,10 +47,10 @@ export default defineComponent({
         const initIframeSrc = async () => {
             if (!props.resource || !props.resource.File || props.type !== 0) return;
             const { FilePath, FileMD5, FileExtention, FileBucket } = props.resource.File;
-            const key = `${FilePath}/${FileMD5}${FileExtention}`;
+            const key = `${FilePath}/${FileMD5}.${FileExtention}`;
             const fileUrl = await getOssUrl(key, FileBucket);
             console.log(fileUrl);
-            url.value = "https://owa.lyx-edu.com/wv/wordviewerframe.aspx?WOPISrc=" + encodeURIComponent(fileUrl);
+            url.value = "http://stu-resource-api.longyanedu.net/preview/op/view.aspx?src=" + encodeURIComponent(fileUrl);
             console.log(url.value);
         };
 
@@ -66,9 +68,15 @@ export default defineComponent({
     min-height: 0;
     display: flex;
     flex-direction: column;
-    iframe {
+    .iframe-box {
         width: 100%;
         height: 100%;
+        overflow: hidden;
+    }
+    iframe {
+        width: 100%;
+        height: calc(100% + 55px);
+        margin-top: -55px;
     }
 }
 </style>

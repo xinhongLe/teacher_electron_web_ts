@@ -4,10 +4,16 @@
 			<div class="p-filter-content">
 				<div
 					class="my-course-cart"
-					:class="{ active: source === 'me', hide: packageCount === 0 }"
+					:class="{
+						active: source === 'me',
+						hide: packageCount === 0
+					}"
 					id="myCourseCart"
 					:num="packageCount > 99 ? '99+' : packageCount"
-					@click="source = 'me';onSourceChange()"
+					@click="
+						source = 'me';
+						onSourceChange();
+					"
 				>
 					<img src="@/assets/images/preparation/cart.png" alt="" />
 					我的备课包
@@ -27,17 +33,14 @@
 				</el-radio-group>
 			</div>
 			<div class="p-control-btns">
-				<el-button
-					size="small"
-					type="primary"
-					@click="uploadResourceOpen = true"
-				>
+				<el-button size="small" type="primary" @click="openUpload">
 					&nbsp;&nbsp;&nbsp;
 					<el-icon :size="12"><plus /></el-icon>
 					&nbsp;上&nbsp;传&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 				</el-button>
 				<img
 					class="refresh-btn"
+                    @click="refreshResourceList"
 					src="@/assets/images/preparation/icon_shuaxin_rest.svg"
 					alt=""
 				/>
@@ -67,15 +70,16 @@
 			center
 			title="上传资源"
 			width="550px"
+			:destroy-on-close="true"
 		>
 			<el-form class="custom-form" :model="form" label-width="100px">
-				<el-form-item label="资源：">
+				<el-form-item label="资源：" required>
 					<el-upload
 						ref="upload"
 						action=""
 						:accept="acceptList"
 						:show-file-list="true"
-                        :before-remove="beforeRemove"
+						:before-remove="beforeRemove"
 						:before-upload="beforeUpload"
 						:http-request="(e) => uploadSuccess(e, index)"
 					>
@@ -90,10 +94,10 @@
 						</el-button>
 					</el-upload>
 				</el-form-item>
-				<el-form-item label="资源名称：">
+				<el-form-item label="资源名称：" required>
 					<el-input v-model="form.name" />
 				</el-form-item>
-				<el-form-item label="类型：">
+				<el-form-item label="类型：" required>
 					<el-radio-group
 						class="custom-radio"
 						v-model="form.type"
@@ -114,7 +118,7 @@
 						</el-radio-button>
 					</el-radio-group>
 				</el-form-item>
-				<el-form-item label="目录：">
+				<el-form-item label="目录：" required>
 					<div
 						class="select-box"
 						v-for="(item, index) in form.directorys"
@@ -142,7 +146,7 @@
 						新增目录
 					</el-button>
 				</el-form-item>
-				<el-form-item label="难易程度：">
+				<el-form-item label="难易程度：" required>
 					<el-select
 						v-model="form.degree"
 						placeholder="请选择"
@@ -153,20 +157,20 @@
 						<el-option label="易" value="3" />
 					</el-select>
 				</el-form-item>
-				<el-form-item label="关联知识点：">
+				<!-- <el-form-item label="关联知识点：">
 					<el-select
 						class="select-block"
 						v-model="form.knowledge"
 						placeholder="请选择"
 					>
-						<!-- <el-option
+						<el-option
 							v-for="item in chapterList"
 							:key="item.value"
 							:label="item.label"
 							:value="item.value"
-						/> -->
+						/>
 					</el-select>
-				</el-form-item>
+				</el-form-item> -->
 			</el-form>
 			<template #footer>
 				<span class="dialog-footer">
@@ -183,9 +187,21 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onUnmounted, PropType, reactive, ref, toRefs, watch } from "vue";
+import {
+	defineComponent,
+	onUnmounted,
+	PropType,
+	reactive,
+	ref,
+	toRefs,
+	watch
+} from "vue";
 import { Plus, Refresh, Upload } from "@element-plus/icons-vue";
-import { fetchMyPackageNum, fetchResourceType, uploadResource } from "@/api/resource";
+import {
+	fetchMyPackageNum,
+	fetchResourceType,
+	uploadResource
+} from "@/api/resource";
 import CustomSelect from "./customSelect.vue";
 import { ElMessage } from "element-plus";
 import useUploadFile from "@/hooks/useUploadFile";
@@ -193,8 +209,8 @@ import emitter from "@/utils/mitt";
 import { useStore } from "@/store";
 
 interface IDirectoryItem {
-    id: string;
-    name: string;
+	id: string;
+	name: string;
 }
 
 interface IDirectory {
@@ -207,61 +223,61 @@ interface IDirectory {
 }
 
 interface IFile {
-    uid: number;
-    extension: string;
-    md5: string;
-    fileName: string;
-    size: number;
+	uid: number;
+	extension: string;
+	md5: string;
+	fileName: string;
+	size: number;
 }
 
 interface IForm {
-    name: string;
-    type: {
-        Id: string;
-        Name: string;
-    };
-    directorys: IDirectory[];
-    degree: string;
-    knowledge: string;
-    files: IFile[];
+	name: string;
+	type: {
+		Id: string;
+		Name: string;
+	};
+	directorys: IDirectory[];
+	degree: string;
+	knowledge: string;
+	files: IFile[];
 }
 
 interface ICourse {
-    chapterId: string;
-    lessonId: string;
+	chapterId: string;
+	lessonId: string;
 }
 
 export default defineComponent({
-    props: {
-        course: {
-            type: Object as PropType<ICourse>,
-            required: true
-        }
-    },
+	props: {
+		course: {
+			type: Object as PropType<ICourse>,
+			required: true
+		}
+	},
 	components: { Plus, Refresh, Upload, CustomSelect },
 	setup(props, { emit }) {
-        const store = useStore();
-        const { course } = toRefs(props);
-        watch(course, () => {
-            getMyPackageNum();
-        });
-        const packageCount = ref(0);
-        const getMyPackageNum = async () => {
-            const res = await fetchMyPackageNum({
-                chapterId: course.value.chapterId,
-                lessonId: course.value.lessonId
-            });
+		const store = useStore();
+		const { course } = toRefs(props);
+		watch(course, () => {
+			getMyPackageNum();
+		});
+		const packageCount = ref(0);
+		const getMyPackageNum = async () => {
+			const res = await fetchMyPackageNum({
+				chapterId: course.value.chapterId,
+				lessonId: course.value.lessonId
+			});
 
-            packageCount.value = res.result.BagCount;
-        }
+			packageCount.value = res.result.BagCount;
+		};
 
-        emitter.on("updatePackageCount", () => {
-            getMyPackageNum();
-        });
+		emitter.on("updatePackageCount", () => {
+			getMyPackageNum();
+		});
 
-        onUnmounted(() => {
-            emitter.off("updatePackageCount");
-        });
+		onUnmounted(() => {
+			emitter.off("updatePackageCount");
+		});
 
 		const source = ref("");
 		const sourceList = ref([
@@ -286,7 +302,7 @@ export default defineComponent({
 			emit("update:source", source.value);
 		};
 
-		const form = reactive<IForm>({
+		const formEmpty = {
 			name: "",
 			type: {
 				Id: "",
@@ -302,10 +318,11 @@ export default defineComponent({
 					lesson: { id: "", name: "" }
 				}
 			],
-			degree: "",
+			degree: "3",
 			knowledge: "",
 			files: []
-		});
+		};
+		const form = reactive<IForm>(JSON.parse(JSON.stringify(formEmpty)));
 
 		const uploadResourceOpen = ref(false);
 
@@ -351,50 +368,77 @@ export default defineComponent({
 		// 确认上传
 		const sureUpload = async () => {
 			console.log(form);
-            const school = store.state.userInfo.Schools![0];
-            const lessonTrees = form.directorys.map(item => {
-                return {
-                    acaSectionId: item.schoolSection.id,
-                    acaSectionName: item.schoolSection.name,
-                    subjectID: item.subject.id,
-                    subjectName: item.subject.name,
-                    publisherID: item.version.id,
-                    publisherName: item.version.name,
-                    albumID: item.grade.id,
-                    albumName: item.grade.name,
-                    chapterID: item.chapter.id,
-                    chapterName: item.chapter.name,
-                    lessonID: item.lesson.id,
-                    lessonName: item.lesson.name
-                }
-            });
-            const resourceFiles = form.files.map(item => {
-                return {
-                    fileName: item.fileName,
-                    mD5: item.md5,
-                    size: item.size
-                }
-            });
-            const res = await uploadResource({
-                lessonTrees,
-                rescourceTypeId: form.type.Id,
-                rescourceTypeName: form.type.Name,
-                name: form.name,
-                schoolId: school.UserCenterSchoolID,
-                schoolName: school.Name,
-                degree: form.degree,
-                resourceFiles,
-                isSchool: 2,
-                isShelf: 2,
-                knowledgePonitId: []
-            });
+            if (form.files.length === 0) return ElMessage.warning("请上传资源文件！");
+			if (!form.name) return ElMessage.warning("资源名称不能为空！");
+			if (!form.type.Id) return ElMessage.warning("请选择资源类型！");
+			if (form.directorys.length === 0)
+				return ElMessage.warning("请选择资源目录！");
+			if (form.directorys.length > 0) {
+				let empty = false;
+				for (let i = 0; i < form.directorys.length; i++) {
+					if (
+						!form.directorys[i].schoolSection.id ||
+						!form.directorys[i].subject.id ||
+						!form.directorys[i].version.id ||
+						!form.directorys[i].grade.id ||
+						!form.directorys[i].chapter.id
+					) {
+						empty = true;
+					}
+				}
+                if (empty) return ElMessage.warning("请将资源目录补充完整！");
+			}
+			const school = store.state.userInfo.Schools![0];
+			const lessonTrees = form.directorys.map((item) => {
+				return {
+					acaSectionId: item.schoolSection.id,
+					acaSectionName: item.schoolSection.name,
+					subjectID: item.subject.id,
+					subjectName: item.subject.name,
+					publisherID: item.version.id,
+					publisherName: item.version.name,
+					albumID: item.grade.id,
+					albumName: item.grade.name,
+					chapterID: item.chapter.id,
+					chapterName: item.chapter.name,
+					lessonID: item.lesson.id,
+					lessonName: item.lesson.name
+				};
+			});
+			const resourceFiles = form.files.map((item) => {
+				return {
+					fileName: item.fileName,
+					mD5: item.md5,
+					size: item.size
+				};
+			});
+			const res = await uploadResource({
+				lessonTrees,
+				rescourceTypeId: form.type.Id,
+				rescourceTypeName: form.type.Name,
+				name: form.name,
+				schoolId: school.UserCenterSchoolID,
+				schoolName: school.Name,
+				degree: form.degree,
+				resourceFiles,
+				isSchool: 2,
+				isShelf: 2,
+				knowledgePonitId: []
+			});
 
-            if (res.success) {
-                uploadResourceOpen.value = false;
-            }
+			if (res.success) {
+				uploadResourceOpen.value = false;
+
+				emitter.emit("updateResourceList");
+			}
 		};
 
-		const acceptList = ".ppt,.pptx,.doc,.docx,.pdf,.mp3,.mp4,.mkv,.flv,.jpg,.png,.jpeg";
+        const refreshResourceList = () => {
+            emitter.emit("updateResourceList");
+        };
+
+		const acceptList =
+			".ppt,.pptx,.doc,.docx,.pdf,.mp3,.mp4,.mkv,.flv,.jpg,.png,.jpeg";
 
 		const beforeUpload = ({ name }: { name: string }) => {
 			const fileType = name.substring(name.lastIndexOf(".") + 1);
@@ -420,25 +464,40 @@ export default defineComponent({
 			}
 		};
 
-        const { uploadFile } = useUploadFile("RescourceFile");
+		const { uploadFile } = useUploadFile("RescourceFile");
 
-		const uploadSuccess = async ({ file }: { file: File & Blob & { uid: number } }) => {
+		const uploadSuccess = async ({
+			file
+		}: {
+			file: File & Blob & { uid: number };
+		}) => {
 			console.log(file.uid);
 			const res = await uploadFile({ file });
 			form.files.push({
-			    extension: res.fileExtension,
-			    md5: res.md5,
-			    fileName: file.name,
-                uid: file.uid,
-                size: res.size || 0
+				extension: res.fileExtension,
+				md5: res.md5,
+				fileName: file.name,
+				uid: file.uid,
+				size: res.size || 0
 			});
 		};
 
-        const beforeRemove = (file: File & Blob & { uid: number }) => {
-            console.log("=dddd", file)
-            const index = form.files.findIndex(item => item.uid === file.uid);
-            form.files.splice(index, 1);
-        };
+		const beforeRemove = (file: File & Blob & { uid: number }) => {
+			console.log("=dddd", file);
+			const index = form.files.findIndex((item) => item.uid === file.uid);
+			form.files.splice(index, 1);
+		};
+
+		const openUpload = () => {
+			const empty = JSON.parse(JSON.stringify(formEmpty));
+			form.name = empty.name;
+			form.type = empty.type;
+			form.directorys = empty.directorys;
+			form.degree = empty.degree;
+			form.files = empty.files;
+			form.knowledge = empty.knowledge;
+			uploadResourceOpen.value = true;
+		};
 
 		return {
 			source,
@@ -454,9 +513,11 @@ export default defineComponent({
 			sureUpload,
 			acceptList,
 			beforeUpload,
-            uploadSuccess,
-            beforeRemove,
-            packageCount
+			uploadSuccess,
+			beforeRemove,
+			packageCount,
+			openUpload,
+            refreshResourceList
 		};
 	}
 });
@@ -514,11 +575,11 @@ export default defineComponent({
 		background-color: #272c42;
 		color: #fff;
 	}
-    &.hide {
-        &:before {
-            display: none;
-        }
-    }
+	&.hide {
+		&:before {
+			display: none;
+		}
+	}
 	&:before {
 		content: attr(num);
 		display: block;
@@ -531,8 +592,8 @@ export default defineComponent({
 		left: 40px;
 		top: -16px;
 		z-index: 1;
-        min-width: 18px;
-        text-align: center;
+		min-width: 18px;
+		text-align: center;
 	}
 	img {
 		position: absolute;

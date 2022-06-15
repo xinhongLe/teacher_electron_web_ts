@@ -1,13 +1,14 @@
 <template>
     <div class="resource-content">
         <div class="resource-list">
-            <ResourceItem
+            <!-- <ResourceItem
                 v-for="(item, index) in resourceList"
                 :key="index"
                 :data="item"
                 :btns="false"
                 @eventEmit="eventEmit"
-            />
+            /> -->
+            <Resources :course="course" :source="source" :type="type" />
         </div>
         <div class="resource-filter">
             <el-radio-group
@@ -17,10 +18,10 @@
             >
                 <el-radio-button
                     v-for="item in typeList"
-                    :key="item.value"
-                    :label="item.value"
+                    :key="item.Id"
+                    :label="item.Id"
                 >
-                    {{ item.label }}
+                    {{ item.Name }}
                 </el-radio-button>
             </el-radio-group>
             
@@ -33,90 +34,27 @@
 </template>
 
 <script lang="ts">
+import { fetchResourceType, IResourceItem } from "@/api/resource";
 import { IpcRendererEvent } from "electron";
 import isElectron from "is-electron";
 import { defineComponent, onActivated, onMounted, ref, onUnmounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import ResourceItem from "../preparation/layout/resourceItem.vue";
+import Resources from "../preparation/layout/resources.vue";
 
 export default defineComponent({
-    components: { ResourceItem },
+    components: { ResourceItem, Resources },
     setup() {
-        const resourceList = ref([
-            {
-                type: 0,
-                source: 0,
-                name: "数一数",
-                difficulty: 0,
-                updateTime: "2021-10-20 11:5",
-                size: 182912,
-                view: 23
-            },
-            {
-                type: 1,
-                source: 1,
-                name: "数一数",
-                difficulty: 0,
-                updateTime: "2021-10-20 11:5",
-                size: 453322,
-                view: 23
-            },
-            {
-                type: 2,
-                source: 2,
-                name: "数一数",
-                difficulty: 1,
-                updateTime: "2021-10-20 11:5",
-                size: 342245,
-                view: 23
-            },
-            {
-                type: 3,
-                source: 3,
-                name: "补图形",
-                difficulty: 2,
-                updateTime: "2021-10-20 11:5",
-                size: 2343343,
-                view: 23
-            },
-            {
-                type: 3,
-                source: 3,
-                name: "补图形",
-                difficulty: 2,
-                updateTime: "2021-10-20 11:5",
-                size: 2343343,
-                view: 23
-            },
-            {
-                type: 3,
-                source: 3,
-                name: "补图形",
-                difficulty: 2,
-                updateTime: "2021-10-20 11:5",
-                size: 2343343,
-                view: 23
-            },
-            {
-                type: 3,
-                source: 3,
-                name: "补图形",
-                difficulty: 2,
-                updateTime: "2021-10-20 11:5",
-                size: 2343343,
-                view: 23
-            },
-            {
-                type: 3,
-                source: 3,
-                name: "补图形",
-                difficulty: 2,
-                updateTime: "2021-10-20 11:5",
-                size: 2343343,
-                view: 23
-            }
-        ]);
+        const resourceList = ref<IResourceItem[]>([]);
         const router = useRouter();
+        const route = useRoute();
+
+        const course = ref({
+            chapterId: "",
+            lessonId: ""
+        });
+
+        const source = ref("");
 
         const eventEmit = (event: string, data: any, e?: MouseEvent | TouchEvent) => {
             console.log(event, data);
@@ -132,55 +70,18 @@ export default defineComponent({
         };
 
         const type = ref("");
-        const typeList = ref([
-            {
-                value: "",
-                label: "全部"
-            },
-            {
-                value: 2,
-                label: "教案"
-            },
-            {
-                value: 3,
-                label: "导学案"
-            },
-            {
-                value: 4,
-                label: "课件"
-            },
-            {
-                value: 5,
-                label: "微课视频"
-            },
-            {
-                value: 6,
-                label: "试卷"
-            },
-            {
-                value: 7,
-                label: "电子课本"
-            },
-            {
-                value: 8,
-                label: "教具"
-            },
-            {
-                value: 9,
-                label: "工具"
-            },
-            {
-                value: 10,
-                label: "素材"
-            },
-            {
-                value: 11,
-                label: "其他"
-            }
-        ]);
-        const onTypeChange = () => {
-            //
-        };
+        const typeList = ref<{ Id: string; Name: string }[]>([]);
+
+        const getResourceType = async () => {
+			const res = await fetchResourceType();
+			if (res.success) {
+				res.result.push({
+					Id: "",
+					Name: "全部"
+				});
+				typeList.value = res.result.reverse();
+			}
+		};
 
         const isSwitch = ref(false);
         const sendResourceData = () => {
@@ -213,23 +114,33 @@ export default defineComponent({
         }
 
         onMounted(() => {
+            console.log(route.params);
+            getResourceType();
+            course.value.lessonId = route.params.lessonId as string;
+            course.value.chapterId = route.params.chapterId as string;
             if (isElectron()) {
-                console.log("================xxxxxxxxxxxxxxxxxxx===========================");
                 window.electron.ipcRenderer.on("attendClass", onWatchAttendClass);
             }
         });
 
         onUnmounted(() => {
             if (isElectron()) {
-                console.log("===========================================");
                 window.electron.ipcRenderer.off("attendClass", onWatchAttendClass);
             }
         });
 
         const switchClass = () => {
+            console.log(course.value, type.value)
             isSwitch.value = !isSwitch.value;
             window.electron.ipcRenderer.send("attendClass", "unfoldSuspension", { type: "switchClass", switch: isSwitch.value });
             sendResourceData();
+
+            if (isSwitch.value) {
+                source.value = "";
+            } else {
+                // 获取我的备课包
+                source.value = "me";
+            }
         };
 
         return {
@@ -237,9 +148,10 @@ export default defineComponent({
             eventEmit,
             type,
             typeList,
-            onTypeChange,
             isSwitch,
-            switchClass
+            switchClass,
+            course,
+            source
         }
     }
 });
