@@ -14,6 +14,10 @@ export const enum MutationTypes {
      */
     SET_IS_SHOW_VIDEO = "SET_IS_SHOW_VIDEO",
     /**
+     * 设置显示窗卡页
+     */
+    SET_IS_WINCARD = "SET_IS_WINCARD",
+    /**
      * 重置common module
      */
     COMMON_RESET_STATE = "COMMON_RESET_STATE",

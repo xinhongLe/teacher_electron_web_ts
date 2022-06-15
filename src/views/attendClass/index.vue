@@ -8,7 +8,7 @@
                 :btns="false"
                 @eventEmit="eventEmit"
             /> -->
-            <Resources :course="course" :source="source" :type="type" />
+            <Resources name="attendClass" :course="course" :source="source" :type="type" />
         </div>
         <div class="resource-filter">
             <el-radio-group
@@ -94,6 +94,10 @@ export default defineComponent({
         };
 
         onActivated(() => {
+            course.value = {
+                lessonId: route.params.lessonId as string,
+                chapterId: route.params.chapterId as string
+            };
             sendResourceData();
         });
 
@@ -114,10 +118,7 @@ export default defineComponent({
         }
 
         onMounted(() => {
-            console.log(route.params);
             getResourceType();
-            course.value.lessonId = route.params.lessonId as string;
-            course.value.chapterId = route.params.chapterId as string;
             if (isElectron()) {
                 window.electron.ipcRenderer.on("attendClass", onWatchAttendClass);
             }
@@ -135,7 +136,7 @@ export default defineComponent({
             window.electron.ipcRenderer.send("attendClass", "unfoldSuspension", { type: "switchClass", switch: isSwitch.value });
             sendResourceData();
 
-            if (isSwitch.value) {
+            if (!isSwitch.value) {
                 source.value = "";
             } else {
                 // 获取我的备课包
@@ -161,7 +162,7 @@ export default defineComponent({
 .resource-content {
     flex: 1;
     min-height: 0;
-    padding: 15px;
+    padding: 15px 0;
     height: 100%;
     background-color: #F5F6FA;
     display: flex;
@@ -178,7 +179,7 @@ export default defineComponent({
 .resource-filter {
     padding: 15px;
     background-color: #fff;
-    margin: 0 -15px -15px;
+    margin: 0 0 -15px;
     display: flex;
     align-items: center;
     justify-content: space-between;

@@ -54,7 +54,7 @@
                 <div @click="closeVideo">
                     <p>关闭</p>
                 </div>
-                <div @click="smallVideo" v-show="isElectron">
+                <div @click="smallVideo" v-show="isElectron && !dialog">
                     <p>最小化</p>
                 </div>
                 <template v-if="isVideoEnded">

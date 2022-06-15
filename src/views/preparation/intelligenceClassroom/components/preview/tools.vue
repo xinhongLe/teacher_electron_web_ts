@@ -90,6 +90,10 @@
                 </div>
             </template>
 
+            <div @click.stop="closeWincard" v-if="!dialog" class="me-tool-btn close-button">
+                <p>关闭</p>
+            </div>
+
             <div
                 class="me-tool-btn"
                 @click="toggleRemark"
@@ -316,6 +320,11 @@ export default defineComponent({
             changeNextType(type || NextSettingType.All);
         }
         getLocalNextType();
+
+        const closeWincard = () => {
+            store.commit(MutationTypes.SET_IS_WINCARD, { flag: false,  id: "" });
+        }
+
         return {
             scale,
             type,
@@ -338,7 +347,8 @@ export default defineComponent({
             isShowMenu,
             selectNextType,
             openShape,
-            hideWriteBoard
+            hideWriteBoard,
+            closeWincard
         };
     },
     components: { ResourceDialog }
@@ -521,6 +531,23 @@ export default defineComponent({
     img {
         width: 180px;
         height: 64px;
+    }
+}
+
+.close-button {
+    background: url("~@/assets/look/btn_guanbi@2x.png");
+    background-size: 100% 100%;
+    box-sizing: content-box;
+    width: 55px;
+    height: 55px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    p {
+        color: #fff;
+        font-size: 12px;
+        font-weight: 600;
+        margin-bottom: 5px;
     }
 }
 </style>

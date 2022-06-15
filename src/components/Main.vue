@@ -4,6 +4,11 @@
         <Suspension v-if="!isElectron && !isIframe"/>
         <LookQuestion v-if="isShowQuestion"/>
         <LookVideo v-if="isShowVideo"/>
+        <div class="wincard-fixed" v-if="isShowWincard">
+            <div class="wincard-box">
+                <IntelligenceClassroom :resourceId="wincardId" />
+            </div>
+        </div>
         <Projection/>
         <Suspense v-if="isElectron">
             <VideoProjection/>
@@ -33,6 +38,7 @@ import { MutationTypes, store } from "@/store";
 import LookVideo from "./lookVideo/index.vue";
 import Projection from "./projection/index.vue";
 import { ElMessage } from "element-plus";
+import IntelligenceClassroom from "../views/preparation/intelligenceClassroom/index.vue";
 
 export default defineComponent({
     components: {
@@ -41,7 +47,8 @@ export default defineComponent({
         LookQuestion,
         LookVideo,
         Projection,
-        VideoProjection: defineAsyncComponent(() => import("./videoProjection/index.vue"))
+        VideoProjection: defineAsyncComponent(() => import("./videoProjection/index.vue")),
+        IntelligenceClassroom
     },
     setup() {
         const route = useRoute();
@@ -118,6 +125,8 @@ export default defineComponent({
             isShowQuestion: computed(() => store.state.common.isShowQuestion),
             isIframe: computed(() => localStorage.getItem(MutationTypes.LOCAL_IS_IFRAME) === "1" || store.state.common.isIframe),
             isShowVideo: computed(() => store.state.common.isShowVideo),
+            isShowWincard: computed(() => store.state.common.isShowWincard),
+            wincardId: computed(() => store.state.common.wincardId),
             isShowNarBar,
             keepExcludeArr
         };
@@ -139,5 +148,20 @@ export default defineComponent({
     flex: 1;
     overflow-y: auto;
     -webkit-app-region: no-drag;
+}
+
+.wincard-fixed {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 10000;
+    .wincard-box {
+        height: 100%;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+    }
 }
 </style>

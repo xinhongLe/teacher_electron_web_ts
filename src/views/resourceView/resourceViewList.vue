@@ -3,6 +3,7 @@
         <IntelligenceClassroom
             v-if="type === 1"
             :resourceId="target"
+            :dialog="true"
         />
         <LookVideo v-if="type === 2" :dialog="true" />
         <LookQuestion v-if="type === 3" :dialog="true" />
@@ -13,7 +14,6 @@
 </template>
 
 <script lang="ts">
-import useWindowInfo, { windowInfoKey } from "@/hooks/useWindowInfo";
 import { defineComponent, PropType, provide, ref, watchEffect } from "vue";
 import IntelligenceClassroom from "../preparation/intelligenceClassroom/index.vue";
 import LookVideo from "@/components/lookVideo/index.vue";
@@ -41,8 +41,6 @@ export default defineComponent({
         }
     },
     setup(props, { emit }) {
-        provide(windowInfoKey, useWindowInfo());
-
         const url = ref("");
         const initIframeSrc = async () => {
             if (!props.resource || !props.resource.File || props.type !== 0) return;

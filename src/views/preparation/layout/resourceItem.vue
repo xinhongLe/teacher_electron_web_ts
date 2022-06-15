@@ -44,7 +44,7 @@
                     <div class="resource-degree" :class="['', 'difficult', 'middle', ''][data.Degree]">{{["", "高", "中", "易"][data.Degree]}}</div>
                     <div class="resource-type" :class="typeResources[data.ResourceType] < 9 && 'p-r-' + typeResources[data.ResourceType]">{{textResources[data.ResourceType]}}</div>
                     <el-dropdown
-                        v-if="btns"
+                        v-if="btns && name !== 'attendClass'"
                         trigger="click"
                         placement="bottom"
                         @command="handleCommand"
@@ -76,7 +76,7 @@
                         </template>
                     </el-dropdown>
                 </div>
-                <div class="p-resource-bottom no-border" v-if="!hover && btns">
+                <div class="p-resource-bottom no-border" v-if="!hover && btns && name !== 'attendClass'">
                     <el-button class="p-control-btn" size="small" @click.stop="handleCommand('download')" v-if="canDownload">
                         <img src="@/assets/images/preparation/icon_download_white.png" alt="">
                         下载
@@ -96,7 +96,7 @@
                 </div>
             </div>
         </div>
-        <div class="p-resource-bottom" v-if="hover && btns">
+        <div class="p-resource-bottom" v-if="hover && btns && name !== 'attendClass'">
             <el-button class="p-control-btn" size="small" @click.stop="handleCommand('download')" v-if="canDownload">
                 <img src="@/assets/images/preparation/icon_download_white.png" alt="">
                 下载
@@ -162,7 +162,11 @@ export default defineComponent({
         lessonId: {
             type: String,
             required: true
-        }
+        },
+        name: {
+			type: String,
+			default: ""
+		}
     },
     setup(props, { emit }) {
         const store = useStore();

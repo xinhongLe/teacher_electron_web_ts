@@ -12,6 +12,7 @@
 			v-for="(item, index) in resourceList"
 			:key="index"
 			:data="item"
+			:name="name"
 			:lessonId="course.lessonId"
 			@eventEmit="eventEmit"
 		/>
@@ -32,6 +33,7 @@
 		/>
 
 		<ResourceView
+			:name="name"
 			:target="target"
 			:resource="resource"
             :lessonId="course.lessonId"
@@ -50,6 +52,7 @@ import ResourceVersion from "./dialog/resourceVersion.vue";
 import DeleteVideoTip from "./dialog/deleteVideoTip.vue";
 import ResourceView from "./dialog/resourceView.vue";
 import { getDomOffset, sleep } from "@/utils/common";
+import loading from "@/components/loading";
 import {
 	addPreparationPackage,
 	fetchResourceList,
@@ -58,6 +61,7 @@ import {
 } from "@/api/resource";
 import { MutationTypes, useStore } from "@/store";
 import emitter from "@/utils/mitt";
+import { getOssUrl } from "@/utils/oss";
 interface ICourse {
 	chapterId: string;
 	lessonId: string;
@@ -83,6 +87,10 @@ export default defineComponent({
 		type: {
 			type: String,
 			required: true
+		},
+		name: {
+			type: String,
+			default: ""
 		}
 	},
 	setup(props, { expose }) {
@@ -141,6 +149,44 @@ export default defineComponent({
 			}
 		};
 
+		const loadingShow = ref(false);
+
+		const download = async (data: IResourceItem) => {
+            if (data.File) {
+				loading.show();;
+                const url = await getOssUrl(`${data.File.FilePath}/${data.File.FileMD5}.${data.File.FileExtention}`, data.File.FileBucket);
+                getBlob(url, function(blob: any) {
+                    saveAs(blob, data.File.FileName);
+                });
+            }
+        };
+
+        const getBlob = (url: string, cb: any) => {
+            const xhr = new XMLHttpRequest();
+            xhr.open("GET", url, true);
+            xhr.responseType = "blob";
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    cb(xhr.response);
+                }
+            };
+            xhr.send();
+        };
+        const saveAs = (blob: any, name: string) => {
+            const link = document.createElement("a");
+            const body = document.querySelectorAll("body");
+            link.href = window.URL.createObjectURL(blob);
+            link.download = name;
+            link.style.display = "none";
+            body[0].appendChild(link);
+            link.click();
+            body[0].removeChild(link);
+            window.URL.revokeObjectURL(link.href);
+            setTimeout(() => {
+                loading.destroy();
+            }, 500);
+        };
+
 		const eventEmit = (
 			event: string,
 			data: IResourceItem,
@@ -162,6 +208,17 @@ export default defineComponent({
 					resourceVersionVisible.value = true;
 					break;
 				case "download":
+					download(data);
+					// window.electron
+					// 	.showSaveDialog({
+					// 		defaultPath: data.File.FileName,
+					// 		filters: []
+					// 	})
+					// 	.then(({ filePath }) => {
+					// 		console.log(filePath);
+					// 		// filePath && XLSX.writeFile(newWorkbook, filePath);
+					// 		// ElMessage.success("模板文件下载成功");
+					// 	});
 					break;
 				case "add":
 					if (e) dealFly(e);
@@ -173,19 +230,26 @@ export default defineComponent({
 				case "detail":
                     if (data.ResourceShowType === 2) {
                         // 断点视频
-                        store.commit(MutationTypes.SET_IS_SHOW_VIDEO, { flag: false, info: { id: data.OldResourceId } });
+                        store.commit(MutationTypes.SET_IS_SHOW_VIDEO, { flag: props.name === "attendClass", info: { id: data.OldResourceId } });
                     } else if (data.ResourceShowType === 3) {
                         // 练习卷
-                        store.commit(MutationTypes.SET_IS_SHOW_QUESTION, { flag: false, info: {
+                        store.commit(MutationTypes.SET_IS_SHOW_QUESTION, { flag: props.name === "attendClass", info: {
                             id: data.OldResourceId,
                             courseBagId: "",
                             deleteQuestionIds: [],
                             type: 1
                         } });
-                    }
-					resource.value = data;
-					target.value = data.OldResourceId;
-					resourceVisible.value = true;
+                    } else if (data.ResourceShowType === 1) {
+						if (props.name === "attendClass") {
+							store.commit(MutationTypes.SET_IS_WINCARD, { flag: props.name === "attendClass", id: data.OldResourceId });
+						}
+					}
+					
+					if (props.name === "" || data.ResourceShowType === 0) {
+						resource.value = data;
+						target.value = data.OldResourceId;
+						resourceVisible.value = true;
+					}
 					break;
 			}
 		};
@@ -253,6 +317,7 @@ export default defineComponent({
         };
 
 		const getResources = async () => {
+			console.log(source.value);
 			if (course.value.chapterId && course.value.lessonId) {
 				const res = await fetchResourceList({
 					chapterId: course.value.chapterId,

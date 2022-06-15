@@ -8,6 +8,7 @@
 		<template #title>
 			<div class="resource-header">
 				<ResourceItem
+					:name="name"
 					:hover="false"
 					v-if="resource"
 					:data="resource"
@@ -53,6 +54,10 @@ export default defineComponent({
 			default: false
 		},
 		lessonId: {
+			type: String,
+			default: ""
+		},
+		name: {
 			type: String,
 			default: ""
 		}

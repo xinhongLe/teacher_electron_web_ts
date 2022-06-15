@@ -72,7 +72,7 @@
                         <p>关闭</p>
                     </div>
                     <div
-                        v-show="isElectron && type != 2 && !isPureQuestion"
+                        v-show="isElectron && type != 2 && !isPureQuestion && !dialog"
                         @click.stop="smallQuestion"
                         class="button"
                     >

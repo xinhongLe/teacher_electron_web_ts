@@ -90,6 +90,14 @@ export interface CommonState {
      */
     isShowVideo: boolean,
     /**
+     * 是否显示窗卡
+     */
+    isShowWincard: boolean,
+    /**
+     * 窗ID
+     */
+    wincardId: string;
+    /**
      * 查看题目的信息
      */
     viewQuestionInfo: {

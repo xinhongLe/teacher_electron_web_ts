@@ -5,6 +5,8 @@ import { MutationTypes } from "..";
 const initState = (): CommonState => ({
     isDragging: false,
     isShowVideo: false,
+    isShowWincard: false,
+    wincardId: "",
     viewQuestionInfo: {
         type: 1,
         id: "",
@@ -34,6 +36,10 @@ const mutations:MutationTree<CommonState> = {
     },
     [MutationTypes.SET_IS_IFRAME](state, { flag }) {
         state.isIframe = flag;
+    },
+    [MutationTypes.SET_IS_WINCARD](state, { flag, id }) {
+        state.isShowWincard = flag;
+        state.wincardId = id;
     }
 };
 
