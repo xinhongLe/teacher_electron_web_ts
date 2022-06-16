@@ -14,6 +14,7 @@
             trigger="hover"
             placement="top"
             popper-class="preparation-popper-class"
+            :append-to-body="false"
             v-if="colData.ClassName"
         >
             <div>
@@ -260,6 +261,8 @@ const goToClass = () => {
                 font-size: 12px;
                 flex: 1;
                 margin-right: 8px;
+                overflow: hidden;
+                min-width: 0;
                 @include text-ellipsis();
             }
             .content-class {

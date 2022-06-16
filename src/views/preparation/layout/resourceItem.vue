@@ -44,7 +44,7 @@
                     <div class="resource-degree" :class="['', 'difficult', 'middle', ''][data.Degree]">{{["", "高", "中", "易"][data.Degree]}}</div>
                     <div class="resource-type" :class="typeResources[data.ResourceType] < 9 && 'p-r-' + typeResources[data.ResourceType]">{{textResources[data.ResourceType]}}</div>
                     <el-dropdown
-                        v-if="btns && name !== 'attendClass'"
+                        v-if="btns && name !== 'attendClass' && (data.ResourceShowType === 0 || (data.ResourceShowType === 1 && isMySelf))"
                         trigger="click"
                         placement="bottom"
                         @command="handleCommand"
@@ -54,7 +54,7 @@
                         </div>
                         <template #dropdown>
                             <el-dropdown-menu>
-                                <el-dropdown-item command="version">
+                                <el-dropdown-item command="version" v-if="data.ResourceShowType === 0">
                                     <div class="dropdown-item">
                                         <img
                                             src="@/assets/images/preparation/icon_bbjl_blue.png"

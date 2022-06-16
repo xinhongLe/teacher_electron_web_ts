@@ -189,9 +189,11 @@ export default defineComponent({
         // 常用书册
         const bookList = ref<ICustomBookItem[]>([]);
         // 获取常用配置书册
-        const getCustomBookList = async () => {
+        const getCustomBookList = async (needSwitch?: boolean) => {
             const res = await fetchCustomBookList();
             bookList.value = res.result;
+			// 选中的被删除了 置空选中的id
+			if (needSwitch) selectedBook.value.Id = "";
             if (bookList.value.length > 0 && !selectedBook.value.Id) {
                 // 默认选中第一个
                 selectBook(bookList.value[0]);

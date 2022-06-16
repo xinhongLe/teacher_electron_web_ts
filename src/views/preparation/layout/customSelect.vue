@@ -21,7 +21,7 @@
 <script lang="ts">
 import { fetchCourseDataByBookId, IBookItem } from "@/api/resource";
 import { useStore } from "@/store";
-import { computed, defineComponent, PropType, reactive, ref, watch } from "vue";
+import { computed, defineComponent, onMounted, PropType, reactive, ref, watch } from "vue";
 
 interface IDirectoryItem {
     id: string;
@@ -75,10 +75,25 @@ export default defineComponent({
 			book: []
 		});
 
-        watch(() => props.directory, () => {
-            form.book = [props.directory.schoolSection, props.directory.subject, props.directory.version, props.directory.grade];
+		onMounted(() => {
+			form.book = [props.directory.schoolSection, props.directory.subject, props.directory.version, props.directory.grade];
             form.chapterAndLesson = [props.directory.chapter, props.directory.lesson];
-        });
+			if (props.directory.grade.id) {
+				getChapterAndLessonTree();
+			}
+		});
+
+		const getChapterAndLessonTree = async () => {
+			if (form.book.length === 4) {
+				const res = await fetchCourseDataByBookId({
+					bookId: form.book[3].id
+				});
+
+                if (res.success) {
+                    chapterList.value = dealCascader(res.result);
+                }
+			}
+		};
 
 		const bookChange = async () => {
             emit("update:directory", {
@@ -89,15 +104,8 @@ export default defineComponent({
                 chapter: { name: "", id: "" },
                 lesson: { name: "", id: "" }
             });
-			if (form.book.length === 4) {
-				const res = await fetchCourseDataByBookId({
-					bookId: form.book[3].id
-				});
 
-                if (res.success) {
-                    chapterList.value = dealCascader(res.result);
-                }
-			}
+			getChapterAndLessonTree();
 		};
 
         const chapterChange = async () => {

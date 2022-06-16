@@ -62,7 +62,6 @@ import PreviewSection from "./components/preview/previewSection.vue";
 import Tools from "./components/preview/tools.vue";
 import emitter from "@/utils/mitt";
 import useWindowInfo, { windowInfoKey } from "@/hooks/useWindowInfo";
-import { getWindowCards } from "./api";
 const isFullScreen = ref(false);
 const isShowCardList = ref(true);
 const cardListComponents = ref<InstanceType<typeof CardList>>();
@@ -74,16 +73,19 @@ const props = defineProps({
     dialog: {
         type: Boolean,
         default: false
+    },
+    isMySelf: {
+        type: Boolean,
+        default: 0
     }
 });
 const resourceId = toRef(props, "resourceId");
 provide("isShowCardList", isShowCardList);
-const {cardList, refreshWindow, getCardList } = useWindowInfo();
-provide(windowInfoKey, useWindowInfo());
+const {cardList, refreshWindow, getCardList } = inject(windowInfoKey)!;
 
 watchEffect(() => {
     if (resourceId.value) {
-        getCardList(resourceId.value, 0);
+        getCardList(resourceId.value, props.isMySelf ? 1 : 0);
     }
 });
 const changeWinSize = () => {

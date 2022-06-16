@@ -148,9 +148,9 @@ export default defineComponent({
             .cell {
                 height: 100%;
                 flex: 1;
+                min-width: 0;
                 border-right: 1px solid #e0e2e7;
                 border-bottom: 1px solid #e0e2e7;
-                overflow: hidden;
                 &:last-child {
                     border-right: none;
                 }

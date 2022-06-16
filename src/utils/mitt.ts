@@ -1,3 +1,4 @@
+import { IResourceItem } from "@/api/resource";
 import { Bread } from "@/components/navBar/interface";
 import mitt from "mitt";
 
@@ -14,7 +15,8 @@ type Events = {
     smallQuestion: null,
     closeTab: Bread,
     updatePackageCount: null,
-    updateResourceList: undefined
+    updateResourceList: undefined,
+    openEditResource: IResourceItem
 }
 
 const emitter = mitt<Events>();

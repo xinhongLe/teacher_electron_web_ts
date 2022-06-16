@@ -8,7 +8,7 @@
                 :btns="false"
                 @eventEmit="eventEmit"
             /> -->
-            <Resources name="attendClass" :course="course" :source="source" :type="type" />
+            <Resources name="attendClass" @updateResourceList="updateResourceList" :course="course" :source="source" :type="type" />
         </div>
         <div class="resource-filter">
             <el-radio-group
@@ -34,11 +34,12 @@
 </template>
 
 <script lang="ts">
-import { fetchResourceType, IResourceItem } from "@/api/resource";
+import { fetchResourceType, IResourceItem, logView } from "@/api/resource";
+import { MutationTypes, useStore } from "@/store";
 import { IpcRendererEvent } from "electron";
 import isElectron from "is-electron";
 import { defineComponent, onActivated, onMounted, ref, onUnmounted } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { useRoute } from "vue-router";
 import ResourceItem from "../preparation/layout/resourceItem.vue";
 import Resources from "../preparation/layout/resources.vue";
 
@@ -46,8 +47,8 @@ export default defineComponent({
     components: { ResourceItem, Resources },
     setup() {
         const resourceList = ref<IResourceItem[]>([]);
-        const router = useRouter();
         const route = useRoute();
+        const store = useStore();
 
         const course = ref({
             chapterId: "",
@@ -55,20 +56,6 @@ export default defineComponent({
         });
 
         const source = ref("");
-
-        const eventEmit = (event: string, data: any, e?: MouseEvent | TouchEvent) => {
-            console.log(event, data);
-            switch(event) {
-                case "delete":
-                    break;
-                case "version":
-                     break;
-                case "detail":
-                    router.push("/resource/" + data.type + "/" + data.id);
-                    break;
-            }
-        };
-
         const type = ref("");
         const typeList = ref<{ Id: string; Name: string }[]>([]);
 
@@ -98,7 +85,7 @@ export default defineComponent({
                 lessonId: route.params.lessonId as string,
                 chapterId: route.params.chapterId as string
             };
-            sendResourceData();
+            // sendResourceData();
         });
 
         const onWatchAttendClass = (e: IpcRendererEvent, event: any) => {
@@ -109,7 +96,22 @@ export default defineComponent({
                     break;
                 case "openResource":
                     const resource = JSON.parse(event.resource);
-                    router.push("/resource/" + resource.type + "/" + resource.id);
+                    if (resource.ResourceShowType === 2) {
+                        // 断点视频
+                        store.commit(MutationTypes.SET_IS_SHOW_VIDEO, { flag: true, info: { id: resource.OldResourceId } });
+                    } else if (resource.ResourceShowType === 3) {
+                        // 练习卷
+                        store.commit(MutationTypes.SET_IS_SHOW_QUESTION, { flag: true, info: {
+                            id: resource.OldResourceId,
+                            courseBagId: "",
+                            deleteQuestionIds: [],
+                            type: 1
+                        } });
+                    } else if (resource.ResourceShowType === 1) {
+						store.commit(MutationTypes.SET_IS_WINCARD, { flag: true, id: resource.OldResourceId });
+					}
+					
+					logView({ id: resource.ResourceId });
                     break;
                 case "switchClass":
                     switchClass();
@@ -131,7 +133,6 @@ export default defineComponent({
         });
 
         const switchClass = () => {
-            console.log(course.value, type.value)
             isSwitch.value = !isSwitch.value;
             window.electron.ipcRenderer.send("attendClass", "unfoldSuspension", { type: "switchClass", switch: isSwitch.value });
             sendResourceData();
@@ -144,15 +145,20 @@ export default defineComponent({
             }
         };
 
+        const updateResourceList = (data: IResourceItem[]) => {
+            resourceList.value = data;
+            sendResourceData();
+        };
+
         return {
             resourceList,
-            eventEmit,
             type,
             typeList,
             isSwitch,
             switchClass,
             course,
-            source
+            source,
+            updateResourceList
         }
     }
 });

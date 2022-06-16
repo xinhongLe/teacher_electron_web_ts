@@ -22,6 +22,7 @@
 
 <script lang="ts">
 import { fetchDeleteCustomBookList, ICustomBookItem } from "@/api/resource";
+import { useStore } from "@/store";
 import { ElMessageBox } from "element-plus";
 import { computed, defineComponent, PropType } from "vue";
 
@@ -33,6 +34,7 @@ export default defineComponent({
 		}
 	},
 	setup(props, { emit }) {
+		const store = useStore();
 		const totalBookCover: { [key: string]: string } = {
 			历史: require("@/assets/images/preparation/book/cover_lishi.png"),
 			语文: require("@/assets/images/preparation/book/cover_yuwen.png"),
@@ -52,6 +54,8 @@ export default defineComponent({
 			);
 		});
 
+		const bookId = computed(() => store.state.preparation.subjectPublisherBookValue?.Id);
+
 		const deleteCustomBook = async (id: string) => {
 			ElMessageBox.confirm("确认删除该书册吗？", "提示", {
 				confirmButtonText: "确定",
@@ -60,7 +64,7 @@ export default defineComponent({
 			}).then(async () => {
                 const res = await fetchDeleteCustomBookList({ id });
                 if (res.success) {
-                    emit("update");
+                    emit("update", bookId.value === id);
                 }
 			}).catch(() => {});
 		};

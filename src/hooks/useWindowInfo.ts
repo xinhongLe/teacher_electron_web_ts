@@ -1,5 +1,4 @@
 import { SchoolWindowInfo, SchoolWindowCardInfo, SchoolWindowPageInfo } from "@/types/preparation";
-import { fetchSchoolWindowList } from "@/views/preparation/api";
 import { find, isEmpty, filter, findIndex } from "lodash";
 import { computed, InjectionKey, onDeactivated, onMounted, onUnmounted, reactive, Ref, ref, watch } from "vue";
 import TrackService, { EnumTrackEventType } from "@/utils/common";
@@ -50,7 +49,19 @@ const useWindowInfo = () => {
             OriginType
         }).then(res => {
             if (res.success) {
-                cardList.value = res.result;
+                // 返回页的数据originType全是0 这里先手动全部处理成 对应的originType
+                cardList.value = res.result.map(item => {
+                    const PageList = item.PageList.map(page => {
+                        return {
+                            ...page,
+                            OriginType: OriginType
+                        }
+                    });
+                    return {
+                        ...item,
+                        PageList
+                    }
+                });
                 currentCardIndex.value = 0;
                 currentCard.value = cardList.value[0];
             }
@@ -58,12 +69,12 @@ const useWindowInfo = () => {
     };
 
     const getSchoolWindowList = async (id: string) => {
-        const res = await fetchSchoolWindowList({
-            lessonID: id
-        });
-        if (res.resultCode === 200) {
-            winList.value = res.result;
-        }
+        // const res = await fetchSchoolWindowList({
+        //     lessonID: id
+        // });
+        // if (res.resultCode === 200) {
+        //     winList.value = res.result;
+        // }
     };
 
     const handleSelectCard = (card: SchoolWindowCardInfo, index: number) => {

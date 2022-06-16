@@ -19,7 +19,7 @@
 
 		<DeleteTip :target="target" v-model:visible="deleteTipVisible" @onDeleteSuccess="onDeleteSuccess" />
 
-		<EditTip :target="target" v-model:visible="editTipVisible" />
+		<EditTip @update="update()" :resource="resource" v-model:visible="editTipVisible" />
 
 		<ResourceVersion
 			:target="target"
@@ -44,7 +44,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, onUnmounted, PropType, ref, toRefs, watch } from "vue";
+import { computed, defineComponent, onDeactivated, onMounted, onUnmounted, PropType, ref, toRefs, watch } from "vue";
 import ResourceItem from "./resourceItem.vue";
 import DeleteTip from "./dialog/deleteTip.vue";
 import EditTip from "./dialog/editTip.vue";
@@ -57,6 +57,8 @@ import {
 	addPreparationPackage,
 	fetchResourceList,
 	IResourceItem,
+	logDownload,
+	logView,
 	removePreparationPackage
 } from "@/api/resource";
 import { MutationTypes, useStore } from "@/store";
@@ -93,7 +95,7 @@ export default defineComponent({
 			default: ""
 		}
 	},
-	setup(props, { expose }) {
+	setup(props, { expose, emit }) {
 		const resourceList = ref<IResourceItem[]>([]);
 
 		const deleteTipVisible = ref(false);
@@ -158,6 +160,9 @@ export default defineComponent({
                 getBlob(url, function(blob: any) {
                     saveAs(blob, data.File.FileName);
                 });
+
+				logDownload({ id: data.ResourceId });
+				data.DownloadNum++;
             }
         };
 
@@ -172,6 +177,7 @@ export default defineComponent({
             };
             xhr.send();
         };
+
         const saveAs = (blob: any, name: string) => {
             const link = document.createElement("a");
             const body = document.querySelectorAll("body");
@@ -198,27 +204,19 @@ export default defineComponent({
 					deleteTipVisible.value = true;
 					break;
 				case "edit":
-                    if (data.IsSchool === 2) {
-                        // 我的资源
-                    } else {
-                        editTipVisible.value = true;
-                    }
+					if ((data.ResourceShowType === 1 || data.ResourceShowType === 0) && data.UserId !== userId.value) {
+						resource.value = data;
+						editTipVisible.value = true;
+					} else {
+						emitter.emit("openEditResource", data);
+					}
 					break;
 				case "version":
+					target.value = data.ResourceId;
 					resourceVersionVisible.value = true;
 					break;
 				case "download":
 					download(data);
-					// window.electron
-					// 	.showSaveDialog({
-					// 		defaultPath: data.File.FileName,
-					// 		filters: []
-					// 	})
-					// 	.then(({ filePath }) => {
-					// 		console.log(filePath);
-					// 		// filePath && XLSX.writeFile(newWorkbook, filePath);
-					// 		// ElMessage.success("模板文件下载成功");
-					// 	});
 					break;
 				case "add":
 					if (e) dealFly(e);
@@ -250,6 +248,9 @@ export default defineComponent({
 						target.value = data.OldResourceId;
 						resourceVisible.value = true;
 					}
+
+					logView({ id: data.ResourceId });
+					data.BrowseNum++;
 					break;
 			}
 		};
@@ -292,7 +293,6 @@ export default defineComponent({
 				leftEnd.value = left + 20;
 				topEnd.value = top - 40;
 			}
-
             emitter.on("updateResourceList", update);
 		});
 
@@ -303,7 +303,8 @@ export default defineComponent({
 		const pageNumber = ref(1);
 		const pageSize = ref(10);
 		const store = useStore();
-		const schoolID = store.state.userInfo.Schools![0]?.UserCenterSchoolID;
+		const schoolId = computed(() => store.state.userInfo.Schools![0]?.UserCenterSchoolID);
+		const userId = computed(() => store.state.userInfo.userCenterUserID);
 
 		const { source, type, course } = toRefs(props);
 		watch([source, type, course], () => {
@@ -317,14 +318,13 @@ export default defineComponent({
         };
 
 		const getResources = async () => {
-			console.log(source.value);
 			if (course.value.chapterId && course.value.lessonId) {
 				const res = await fetchResourceList({
 					chapterId: course.value.chapterId,
 					lessonId: course.value.lessonId,
 					resourceTypeId: type.value,
 					resourceType: source.value,
-					schoolId: schoolID,
+					schoolId: schoolId.value,
 					pager: {
 						pageNumber: pageNumber.value,
 						pageSize: pageSize.value
@@ -333,6 +333,8 @@ export default defineComponent({
 
 				resourceList.value = resourceList.value.concat(res.result.list);
 				disabledScrollLoad.value = res.result.pager.IsLastPage;
+
+				emit("updateResourceList", resourceList.value);
 			}
 		};
 

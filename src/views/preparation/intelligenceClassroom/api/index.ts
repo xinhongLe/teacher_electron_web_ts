@@ -49,7 +49,7 @@ interface IAddPage{
 }
 interface CopyWindow {
     id: string,
-    originType: number | null,
+    originType?: number | null,
     sourceLessonID: string
 }
 

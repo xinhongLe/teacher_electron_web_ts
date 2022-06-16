@@ -15,20 +15,23 @@
         <template #footer>
             <span class="dialog-footer">
                 <el-button @click="close()">取消</el-button>
-                <el-button type="primary"> 保存为我的文件 </el-button>
+                <el-button type="primary" @click="save()"> 保存为我的文件 </el-button>
             </span>
         </template>
     </el-dialog>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { IResourceItem, saveToMyResource, sysWincardResource } from "@/api/resource";
+import { useStore } from "@/store";
+import { computed, defineComponent, PropType } from "vue";
+import { CopyWindow } from "../../intelligenceClassroom/api";
 
 export default defineComponent({
     props: {
-        target: {
-            type: String,
-            default: ""
+        resource: {
+            type: Object as PropType<IResourceItem>,
+            required: true
         },
         visible: {
             type: Boolean,
@@ -39,8 +42,37 @@ export default defineComponent({
         const close = () => {
             emit("update:visible", false);
         };
+
+        const store = useStore();
+        const userId = computed(() => store.state.userInfo.userCenterUserID);
+        const lessonId = computed(() => store.state.preparation.selectLessonId);
+
+        const save = async () => {
+            // const res = await saveToMyResource({
+            //     resourceId: props.resource.ResourceId,
+            //     schoolId,
+            //     schoolName
+            // });
+            const res = await CopyWindow({
+                id: props.resource.OldResourceId,
+                originType: 1,
+                sourceLessonID: store.state.preparation.selectLessonId
+            });
+            
+            if (res.success) {
+                const sysRes = await sysWincardResource({
+                    id: res.result.ID,
+                    userId: userId.value,
+                    lessonID: lessonId.value
+                });
+                emit("update:visible", false);
+                emit("update");
+            }
+        };
+
         return {
-            close
+            close,
+            save
         }
     }
 });

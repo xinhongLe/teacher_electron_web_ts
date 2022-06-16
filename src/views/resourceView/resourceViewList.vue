@@ -4,6 +4,7 @@
             v-if="type === 1"
             :resourceId="target"
             :dialog="true"
+            :isMySelf="isMySelf"
         />
         <LookVideo v-if="type === 2" :dialog="true" />
         <LookQuestion v-if="type === 3" :dialog="true" />
@@ -14,12 +15,14 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, provide, ref, watchEffect } from "vue";
+import { computed, defineComponent, PropType, provide, ref, watchEffect } from "vue";
 import IntelligenceClassroom from "../preparation/intelligenceClassroom/index.vue";
 import LookVideo from "@/components/lookVideo/index.vue";
 import LookQuestion from "@/components/lookQuestion/index.vue";
 import { IResourceItem } from "@/api/resource";
 import { getOssUrl } from "@/utils/oss";
+import useWindowInfo, { windowInfoKey } from "@/hooks/useWindowInfo";
+import { useStore } from "@/store";
 
 export default defineComponent({
     components: { IntelligenceClassroom, LookVideo, LookQuestion },
@@ -41,20 +44,24 @@ export default defineComponent({
         }
     },
     setup(props, { emit }) {
+        const store = useStore();
         const url = ref("");
         const initIframeSrc = async () => {
             if (!props.resource || !props.resource.File || props.type !== 0) return;
             const { FilePath, FileMD5, FileExtention, FileBucket } = props.resource.File;
             const key = `${FilePath}/${FileMD5}.${FileExtention}`;
             const fileUrl = await getOssUrl(key, FileBucket);
-            console.log(fileUrl);
-            url.value = "http://stu-resource-api.longyanedu.net/preview/op/view.aspx?src=" + encodeURIComponent(fileUrl);
-            console.log(url.value);
+            url.value = "https://owa.lyx-edu.com/op/view.aspx?src=" + encodeURIComponent(fileUrl);
         };
+
+        provide(windowInfoKey, useWindowInfo());
+
+        const isMySelf = computed(() => props.resource!.UserId === store.state.userInfo.userCenterUserID);
 
         watchEffect(initIframeSrc);
         return {
-            url
+            url,
+            isMySelf
         };
     }
 });

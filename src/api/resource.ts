@@ -140,6 +140,12 @@ interface IRequestAddPreparationPackage {
     lessonName: string;
 }
 
+interface resourceFile {
+    fileName: string;
+    mD5: string;
+    size: number;
+}
+
 interface IUploadResourceRequest {
     lessonTrees: {
         acaSectionId: string;
@@ -162,14 +168,33 @@ interface IUploadResourceRequest {
     schoolName: string;
     degree: string;
     resourceCourseware?: string;
-    resourceFiles: {
-        fileName: string;
-        mD5: string;
-        size: number;
-    }[];
+    resourceFiles?: resourceFile[];
     isSchool: number;
     isShelf: number;
     knowledgePonitId: string[];
+}
+
+interface IEditResourceRequest extends IUploadResourceRequest {
+    resourceId: string;
+    resourceFile: resourceFile;
+    userId: string;
+    toCourseware: boolean;
+}
+
+interface IHistoryListResponse {
+    UserName: string;
+    DateTime: string;
+    File: {
+        Id: string;
+        Name: string;
+        FileName: string;
+        Size: number;
+        FileBucket: string;
+        FilePath: string;
+        FileExtention: string;
+        FileMD5: string;
+        OldFileID: string;
+    };
 }
 
 // 获取书册列表
@@ -463,6 +488,27 @@ export const uploadResource: RequestFun<
     });
 };
 
+// 编辑资源
+export const editResource: RequestFun<
+    IEditResourceRequest,
+    boolean
+> = (data) => {
+    const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
+    return request({
+        baseURL: RESOURCE_API,
+        url: "Api/Resouce/TeacherResource/UpdateResourceByTeea",
+        headers: {
+            "Content-Type": "application/json-patch+json",
+            OrgId: yunInfo.OrgId,
+            UserId: yunInfo.UserId,
+            SystemId: systemId,
+            SecretKey: yunInfo.SecretKey,
+        },
+        method: "post",
+        data,
+    });
+};
+
 // 删除资源
 export const deleteResource: RequestFun<
     { id: string; type: number; },
@@ -474,6 +520,136 @@ export const deleteResource: RequestFun<
         url: "Api/Resouce/TeacherResource/DelResouceByTea",
         headers: {
             "Content-Type": "application/json-patch+json",
+            OrgId: yunInfo.OrgId,
+            UserId: yunInfo.UserId,
+            SystemId: systemId,
+            SecretKey: yunInfo.SecretKey,
+        },
+        method: "post",
+        data,
+    });
+};
+
+// 保存为我的资源
+export const saveToMyResource: RequestFun<
+    { resourceId: string; schoolId: string; schoolName: string; },
+    IResourceItem
+> = (data) => {
+    const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
+    return request({
+        baseURL: RESOURCE_API,
+        url: "Api/Resouce/TeacherResource/SaveMyResource",
+        headers: {
+            "Content-Type": "application/json-patch+json",
+            OrgId: yunInfo.OrgId,
+            UserId: yunInfo.UserId,
+            SystemId: systemId,
+            SecretKey: yunInfo.SecretKey,
+        },
+        method: "post",
+        data,
+    });
+};
+
+// 获取知识点
+export const getKnowledgeList: RequestFun<
+    { lessonId: string; }[],
+    boolean
+> = (data) => {
+    const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
+    return request({
+        baseURL: RESOURCE_API,
+        url: "Api/Resouce/TeacherResource/GetKnowledgelib",
+        headers: {
+            "Content-Type": "application/json-patch+json",
+            OrgId: yunInfo.OrgId,
+            UserId: yunInfo.UserId,
+            SystemId: systemId,
+            SecretKey: yunInfo.SecretKey,
+        },
+        method: "post",
+        data,
+    });
+};
+
+// 记录下载次数
+export const logDownload: RequestFun<
+    { id: string; },
+    boolean
+> = (data) => {
+    const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
+    return request({
+        baseURL: RESOURCE_API,
+        url: "Api/Resouce/TeacherResource/DownloadNum",
+        headers: {
+            "Content-Type": "application/json-patch+json",
+            noLoading: "true",
+            OrgId: yunInfo.OrgId,
+            UserId: yunInfo.UserId,
+            SystemId: systemId,
+            SecretKey: yunInfo.SecretKey,
+        },
+        method: "post",
+        data,
+    });
+};
+
+// 记录浏览次数
+export const logView: RequestFun<
+    { id: string; },
+    boolean
+> = (data) => {
+    const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
+    return request({
+        baseURL: RESOURCE_API,
+        url: "Api/Resouce/TeacherResource/BrowseNumber",
+        headers: {
+            "Content-Type": "application/json-patch+json",
+            noLoading: "true",
+            OrgId: yunInfo.OrgId,
+            UserId: yunInfo.UserId,
+            SystemId: systemId,
+            SecretKey: yunInfo.SecretKey,
+        },
+        method: "post",
+        data,
+    });
+};
+
+// 获取资源历史版本记录
+export const getResourceHistory: RequestFun<
+    { id: string; },
+    IHistoryListResponse[]
+> = (data) => {
+    const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
+    return request({
+        baseURL: RESOURCE_API,
+        url: "Api/Resouce/TeacherResource/GetResourceHistory",
+        headers: {
+            "Content-Type": "application/json-patch+json",
+            noLoading: "true",
+            OrgId: yunInfo.OrgId,
+            UserId: yunInfo.UserId,
+            SystemId: systemId,
+            SecretKey: yunInfo.SecretKey,
+        },
+        method: "post",
+        data,
+    });
+};
+
+// 同步窗数据
+export const sysWincardResource: RequestFun<
+    { id: string; userId: string; lessonID: string; },
+    IHistoryListResponse[]
+> = (data) => {
+    const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
+    return request({
+        baseURL: RESOURCE_API,
+        url: "api/sync/aixueshi/window/SyncToMy",
+        headers: {
+            "Content-Type": "application/json-patch+json",
+            noLoading: "true",
             OrgId: yunInfo.OrgId,
             UserId: yunInfo.UserId,
             SystemId: systemId,

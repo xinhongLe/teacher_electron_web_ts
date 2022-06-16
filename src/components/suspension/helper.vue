@@ -46,12 +46,12 @@
                         </div>
                     </template>
                     <div class="resource-list">
-                        <div class="resource-item" :class="{ courseware: resource.source === 2 }" v-for="(resource, index) in resourceList" :key="index" @click="openResource(resource)">
+                        <div class="resource-item" :class="{ courseware: resource.UserId === userId }" v-for="(resource, index) in resourceList" :key="index" @click="openResource(resource)">
                             <div class="resource-left-title">
-                                <img :src="iconResources.selfStudy[resource.type]" alt="" />
-                                {{resource.name}}
+                                <img :src="iconResources.selfStudy[resource.ResourceType]" alt="" />
+                                {{resource.Name}}
                             </div>
-                            <div class="resource-type" :class="resource.type < 9 && 'p-r-' + resource.type">{{textResources[resource.type]}}</div>
+                            <div class="resource-type" :class="typeResources[resource.ResourceType] < 9 && 'p-r-' + typeResources[resource.ResourceType]">{{textResources[resource.ResourceType]}}</div>
                         </div>
                     </div>
                 </el-collapse-item>
@@ -179,7 +179,8 @@ import { BookList } from "@/types/preparation";
 import { get, STORAGE_TYPES, storeChange } from "@/utils/storage";
 import { fetchAllStudents } from "@/views/labelManage/api";
 import { IpcRendererEvent } from "electron";
-import { iconResources, textResources } from "@/config/resource";
+import { iconResources, textResources, typeResources } from "@/config/resource";
+
 export default defineComponent({
     setup(props, { emit }) {
         const gameList = ref<Game[]>([]);
@@ -201,6 +202,7 @@ export default defineComponent({
         const isLoading = ref(false);
         const allStudentList = ref<unknown[]>([]);
         let userInfo = get(STORAGE_TYPES.USER_INFO);
+        const userId = ref(userInfo.userCenterUserID);
         const openBlackboard = () => {
             if (isElectron()) {
                 return window.electron.ipcRenderer.invoke("openBlackboard");
@@ -328,6 +330,7 @@ export default defineComponent({
                 storeChange(STORAGE_TYPES.USER_INFO, (value) => {
                     if (value) {
                         userInfo = get(STORAGE_TYPES.USER_INFO);
+                        userId.value = userInfo.userCenterUserID;
                         getBookList();
                         getStudentList();
                     }
@@ -380,7 +383,9 @@ export default defineComponent({
             textResources,
             openResource,
             isSwitch,
-            switchClass
+            switchClass,
+            typeResources,
+            userId
         };
     }
 });

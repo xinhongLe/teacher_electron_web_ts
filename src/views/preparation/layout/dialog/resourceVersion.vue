@@ -22,7 +22,25 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from "vue";
+import { getResourceHistory } from "@/api/resource";
+import moment from "moment";
+import { defineComponent, ref, watch } from "vue";
+interface IHistroy {
+    time: string;
+    name: string;
+    fileName: string;
+    file: {
+        Id: string;
+        Name: string;
+        FileName: string;
+        Size: number;
+        FileBucket: string;
+        FilePath: string;
+        FileExtention: string;
+        FileMD5: string;
+        OldFileID: string;
+    }
+} 
 
 export default defineComponent({
     props: {
@@ -40,23 +58,23 @@ export default defineComponent({
             emit("update:visible", false);
         };
 
-        const tableData = ref([
-            {
-                time: "1975-05-03 08:35",
-                name: "李老师",
-                fileName: "数一数教案.doc"
-            },
-            {
-                time: "1975-05-03 08:35",
-                name: "李老师",
-                fileName: "数一数教案.doc"
-            },
-            {
-                time: "1975-05-03 08:35",
-                name: "李老师",
-                fileName: "数一数教案.doc"
+        const tableData = ref<IHistroy[]>([]);
+
+        watch(() => props.visible, () => {
+            if (props.visible) {
+                getResourceHistory({ id: props.target }).then(res => {
+                    tableData.value = res.result.map(item => {
+                        return {
+                            time: moment(item.DateTime).format("YYYY-MM-DD HH:mm"),
+                            name: item.UserName,
+                            fileName: item.File.FileName,
+                            file: item.File
+                        }
+                    });
+                });
             }
-        ]);
+        });
+
         return {
             close,
             tableData

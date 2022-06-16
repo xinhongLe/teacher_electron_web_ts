@@ -65,6 +65,7 @@ export default defineComponent({
                 chapterId: keys[0],
                 lessonId: value
             });
+			store.commit(MutationTypes.SET_SELECT_LESSON_ID, value);
 		};
 		const selectedID = ref("");
 
@@ -77,16 +78,21 @@ export default defineComponent({
 			const res = await fetchCourseDataByBookId({ bookId });
 			treeData.value = res.result;
 
-			if (
-				treeData.value.length > 0 &&
-				treeData.value[0].Children &&
-				treeData.value[0].Children.length > 0
-			) {
-				selectedID.value = treeData.value[0].Children[0].Id;
-				emit("update:course", {
-                    chapterId: treeData.value[0].Id,
-                    lessonId: selectedID.value
-                });
+			// selectedID.value = treeData.value[0].Children[0].Id;
+			getFirstLessonId();
+			emit("update:course", {
+				chapterId: treeData.value[0].Id,
+				lessonId: selectedID.value
+			});
+			store.commit(MutationTypes.SET_SELECT_LESSON_ID, selectedID.value);
+		};
+
+		const getFirstLessonId = () => {
+			for (let i = 0; i < treeData.value.length; i++) {
+				if (treeData.value[i].Children && treeData.value[i].Children!.length > 0) {
+					selectedID.value = treeData.value[i].Children![0].Id;
+					break;
+				}
 			}
 		};
 
