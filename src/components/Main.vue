@@ -6,7 +6,7 @@
         <LookVideo v-if="isShowVideo"/>
         <div class="wincard-fixed" v-if="isShowWincard">
             <div class="wincard-box">
-                <IntelligenceClassroom :resourceId="wincardId" />
+                <IntelligenceClassroom :resourceId="wincardId" :isMySelf="isMySelf" />
             </div>
         </div>
         <Projection/>
@@ -126,7 +126,8 @@ export default defineComponent({
             isIframe: computed(() => localStorage.getItem(MutationTypes.LOCAL_IS_IFRAME) === "1" || store.state.common.isIframe),
             isShowVideo: computed(() => store.state.common.isShowVideo),
             isShowWincard: computed(() => store.state.common.isShowWincard),
-            wincardId: computed(() => store.state.common.wincardId),
+            wincardId: computed(() => store.state.common.wincard.id),
+            isMySelf: computed(() => store.state.common.wincard.isMySelf),
             isShowNarBar,
             keepExcludeArr
         };

@@ -136,7 +136,7 @@ export default defineComponent({
         border-bottom-right-radius: 16px;
         padding: 0 16px 16px;
         .col {
-            height: 72px;
+            height: 80px;
             display: flex;
             align-items: center;
             flex-shrink: 0;

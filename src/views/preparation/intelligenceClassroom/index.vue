@@ -81,7 +81,9 @@ const props = defineProps({
 });
 const resourceId = toRef(props, "resourceId");
 provide("isShowCardList", isShowCardList);
-const {cardList, refreshWindow, getCardList } = inject(windowInfoKey)!;
+const windowInfo = useWindowInfo();
+provide(windowInfoKey, windowInfo);
+const {cardList, refreshWindow, getCardList } = windowInfo;
 
 watchEffect(() => {
     if (resourceId.value) {

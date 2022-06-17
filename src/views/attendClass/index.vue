@@ -38,7 +38,7 @@ import { fetchResourceType, IResourceItem, logView } from "@/api/resource";
 import { MutationTypes, useStore } from "@/store";
 import { IpcRendererEvent } from "electron";
 import isElectron from "is-electron";
-import { defineComponent, onActivated, onMounted, ref, onUnmounted } from "vue";
+import { defineComponent, onActivated, onMounted, ref, onUnmounted, provide } from "vue";
 import { useRoute } from "vue-router";
 import ResourceItem from "../preparation/layout/resourceItem.vue";
 import Resources from "../preparation/layout/resources.vue";

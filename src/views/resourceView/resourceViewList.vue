@@ -21,7 +21,6 @@ import LookVideo from "@/components/lookVideo/index.vue";
 import LookQuestion from "@/components/lookQuestion/index.vue";
 import { IResourceItem } from "@/api/resource";
 import { getOssUrl } from "@/utils/oss";
-import useWindowInfo, { windowInfoKey } from "@/hooks/useWindowInfo";
 import { useStore } from "@/store";
 
 export default defineComponent({
@@ -53,8 +52,6 @@ export default defineComponent({
             const fileUrl = await getOssUrl(key, FileBucket);
             url.value = "https://owa.lyx-edu.com/op/view.aspx?src=" + encodeURIComponent(fileUrl);
         };
-
-        provide(windowInfoKey, useWindowInfo());
 
         const isMySelf = computed(() => props.resource!.UserId === store.state.userInfo.userCenterUserID);
 

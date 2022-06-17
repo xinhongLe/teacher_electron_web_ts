@@ -12,7 +12,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, ref } from "vue";
+import { defineComponent, onMounted, provide, ref } from "vue";
 import LeftMenu from "./layout/leftMenu.vue";
 import Head from "./layout/head.vue";
 import Resources from "./layout/resources.vue";

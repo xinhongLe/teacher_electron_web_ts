@@ -30,7 +30,6 @@
 </template>
 
 <script lang="ts">
-import useWindowInfo, { windowInfoKey } from "@/hooks/useWindowInfo";
 import { sleep } from "@/utils/common";
 import { enterFullscreen, exitFullscreen } from "@/utils/fullscreen";
 import { defineComponent, PropType, provide, ref, watch } from "vue";
@@ -63,7 +62,6 @@ export default defineComponent({
 		}
 	},
 	setup(props, { emit }) {
-		provide(windowInfoKey, useWindowInfo());
 		const isFullScreen = ref(false);
 		const close = () => {
 			emit("update:visible", false);

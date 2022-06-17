@@ -96,7 +96,10 @@ export interface CommonState {
     /**
      * 窗ID
      */
-    wincardId: string;
+    wincard: {
+        id: string;
+        isMySelf: boolean;
+    };
     /**
      * 查看题目的信息
      */
