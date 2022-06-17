@@ -26,6 +26,7 @@ import { computed, defineComponent, onMounted, PropType, reactive, ref, watch } 
 interface IDirectoryItem {
     id: string;
     name: string;
+	bookId?: string;
 }
 
 interface IDirectory {
@@ -56,7 +57,7 @@ export default defineComponent({
 			return data.map((item) => {
 				const children = dealCascader(item.Children || []);
 				return {
-					value: { id: item.BookId || item.Id, name: item.Name },
+					value: { id: item.Id, name: item.Name, ...item.BookId ? { bookId: item.BookId } : {} },
 					label: item.Name,
 					...(!item.Children ? {} : { children })
 				};
@@ -78,7 +79,7 @@ export default defineComponent({
 		onMounted(() => {
 			form.book = [props.directory.schoolSection, props.directory.subject, props.directory.version, props.directory.grade];
             form.chapterAndLesson = [props.directory.chapter, props.directory.lesson];
-			if (props.directory.grade.id) {
+			if (props.directory.grade.bookId) {
 				getChapterAndLessonTree();
 			}
 		});
@@ -86,7 +87,7 @@ export default defineComponent({
 		const getChapterAndLessonTree = async () => {
 			if (form.book.length === 4) {
 				const res = await fetchCourseDataByBookId({
-					bookId: form.book[3].id
+					bookId: form.book[3].bookId as string
 				});
 
                 if (res.success) {
@@ -104,7 +105,7 @@ export default defineComponent({
                 chapter: { name: "", id: "" },
                 lesson: { name: "", id: "" }
             });
-
+			console.log(form.book[3])
 			getChapterAndLessonTree();
 		};
 

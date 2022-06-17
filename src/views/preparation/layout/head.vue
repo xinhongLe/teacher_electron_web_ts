@@ -73,7 +73,7 @@
 			:destroy-on-close="true"
 		>
 			<el-form class="custom-form" :model="form" label-width="100px">
-				<el-form-item label="资源：" required v-if="!isWincard">
+				<el-form-item label="资源：" required v-if="!isWincard || currentEditType === 'add'">
 					<el-upload
 						ref="upload"
 						action=""
@@ -241,6 +241,7 @@ import { useRouter } from "vue-router";
 interface IDirectoryItem {
 	id: string;
 	name: string;
+	bookId?: string;
 }
 
 interface IDirectory {
@@ -339,6 +340,7 @@ export default defineComponent({
 						name: item.PublisherName
 					},
 					grade: {
+						bookId: item.BookId,
 						id: item.AlbumID,
 						name: item.AlbumName
 					},
@@ -509,6 +511,7 @@ export default defineComponent({
 					subjectName: item.subject.name,
 					publisherID: item.version.id,
 					publisherName: item.version.name,
+					bookId: item.grade.bookId as string,
 					albumID: item.grade.id,
 					albumName: item.grade.name,
 					chapterID: item.chapter.id,

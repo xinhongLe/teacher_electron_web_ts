@@ -46,6 +46,7 @@ export default defineComponent({
         const store = useStore();
         const userId = computed(() => store.state.userInfo.userCenterUserID);
         const lessonId = computed(() => store.state.preparation.selectLessonId);
+        const school = computed(() => store.state.userInfo.Schools![0]!);
 
         const save = async () => {
             // const res = await saveToMyResource({
@@ -63,7 +64,9 @@ export default defineComponent({
                 const sysRes = await sysWincardResource({
                     id: res.result.ID,
                     userId: userId.value,
-                    lessonID: lessonId.value
+                    lessonID: lessonId.value,
+                    schoolId: school.value.UserCenterSchoolID,
+                    schoolName: school.value.Name
                 });
                 emit("update:visible", false);
                 emit("update");

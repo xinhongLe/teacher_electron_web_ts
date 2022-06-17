@@ -45,6 +45,7 @@ interface ILesson {
     AcaSectionName: string;
     AlbumID: string;
     AlbumName: string;
+    BookId: string;
     ChapterID: string;
     ChapterName: string;
     LessonID: string;
@@ -154,6 +155,7 @@ interface IUploadResourceRequest {
         subjectName: string;
         publisherID: string;
         publisherName: string;
+        bookId: string;
         albumID: string;
         albumName: string;
         chapterID: string;
@@ -640,7 +642,7 @@ export const getResourceHistory: RequestFun<
 
 // 同步窗数据
 export const sysWincardResource: RequestFun<
-    { id: string; userId: string; lessonID: string; },
+    { id: string; userId: string; lessonID: string; schoolId: string; schoolName: string; },
     IHistoryListResponse[]
 > = (data) => {
     const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
