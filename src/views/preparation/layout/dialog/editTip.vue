@@ -55,7 +55,7 @@ export default defineComponent({
             // });
             const res = await CopyWindow({
                 id: props.resource.OldResourceId,
-                originType: 1,
+                originType: props.resource.UserId ? 1 : null,
                 sourceLessonID: store.state.preparation.selectLessonId
             });
             
