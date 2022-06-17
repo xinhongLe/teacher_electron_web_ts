@@ -194,6 +194,17 @@ export default defineComponent({
             bookList.value = res.result;
 			// 选中的被删除了 置空选中的id
 			if (needSwitch) selectedBook.value.Id = "";
+			if (bookList.value.length === 0) {
+				// 一本书都没有
+				selectBook({
+					AlbumName: "",
+					BookId: "",
+					PublisherName: "",
+					SubjectName: "",
+					Id: "",
+					AcaSectionId: ""
+				});
+			}
             if (bookList.value.length > 0 && !selectedBook.value.Id) {
                 // 默认选中第一个
                 selectBook(bookList.value[0]);

@@ -296,6 +296,10 @@ export default defineComponent({
 		});
 		const packageCount = ref(0);
 		const getMyPackageNum = async () => {
+			if (!course.value.chapterId || !course.value.lessonId) {
+				packageCount.value = 0;
+				return;
+			}
 			const res = await fetchMyPackageNum({
 				chapterId: course.value.chapterId,
 				lessonId: course.value.lessonId

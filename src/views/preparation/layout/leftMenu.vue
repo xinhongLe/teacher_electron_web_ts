@@ -75,6 +75,14 @@ export default defineComponent({
 		const getCourseData = async (bookId: string) => {
 			treeData.value = [];
 			tipTarget.value = "";
+			if (!bookId) {
+				emit("update:course", {
+					chapterId: "",
+					lessonId: ""
+				});
+				store.commit(MutationTypes.SET_SELECT_LESSON_ID, "");
+				return;
+			}
 			const res = await fetchCourseDataByBookId({ bookId });
 			treeData.value = res.result;
 
