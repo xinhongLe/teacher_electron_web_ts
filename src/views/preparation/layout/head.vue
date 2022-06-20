@@ -113,7 +113,7 @@
 						&nbsp;编&nbsp;辑&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 					</el-button>
 				</el-form-item>
-				<el-form-item label="资源名称：" required>
+				<el-form-item label="资源名称：" required v-if="form.files.length < 2">
 					<el-input v-model="form.name" />
 				</el-form-item>
 				<el-form-item label="类型：" required>
@@ -483,7 +483,7 @@ export default defineComponent({
 		const sureUpload = async () => {
 			if (form.files.length === 0 && !isWincard.value)
 				return ElMessage.warning("请上传资源文件！");
-			if (!form.name) return ElMessage.warning("资源名称不能为空！");
+			if (!form.name && form.files.length < 2) return ElMessage.warning("资源名称不能为空！");
 			if (!form.type.Id) return ElMessage.warning("请选择资源类型！");
 			if (form.directorys.length === 0)
 				return ElMessage.warning("请选择资源目录！");
