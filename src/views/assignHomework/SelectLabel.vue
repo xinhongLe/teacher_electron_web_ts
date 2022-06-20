@@ -25,7 +25,7 @@
             type="text"
             @click="dialogVisible = true"
         >
-            <i class="el-icon-edit-outline" style="margin-left: 30px"></i>
+            <i class="el-icon-edit-outline" style="margin-left: 10px; margin-right: 30px;"></i>
         </el-button>
 
         <SelectStudent
