@@ -66,6 +66,8 @@ export default defineComponent({
                 lessonId: value
             });
 			store.commit(MutationTypes.SET_SELECT_LESSON_ID, value);
+
+			tipTarget.value = value;
 		};
 		const selectedID = ref("");
 
@@ -93,6 +95,8 @@ export default defineComponent({
 				lessonId: selectedID.value
 			});
 			store.commit(MutationTypes.SET_SELECT_LESSON_ID, selectedID.value);
+
+			tipTarget.value = selectedID.value;
 		};
 
 		const getFirstLessonId = () => {
