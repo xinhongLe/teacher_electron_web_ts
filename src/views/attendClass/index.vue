@@ -40,11 +40,10 @@ import { IpcRendererEvent } from "electron";
 import isElectron from "is-electron";
 import { defineComponent, onActivated, onMounted, ref, onUnmounted, provide } from "vue";
 import { useRoute } from "vue-router";
-import ResourceItem from "../preparation/layout/resourceItem.vue";
 import Resources from "../preparation/layout/resources.vue";
 
 export default defineComponent({
-    components: { ResourceItem, Resources },
+    components: { Resources },
     setup() {
         const resourceList = ref<IResourceItem[]>([]);
         const route = useRoute();

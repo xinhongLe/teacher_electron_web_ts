@@ -76,7 +76,7 @@
                         </template>
                     </el-dropdown>
                 </div>
-                <div class="p-resource-bottom no-border" v-if="!hover && btns && name !== 'attendClass'">
+                <div class="p-resource-bottom no-border" v-if="!hover && btns && name !== 'attendClass' && name !== 'preview'">
                     <el-button class="p-control-btn" size="small" @click.stop="handleCommand('download')" v-if="canDownload">
                         <img src="@/assets/images/preparation/icon_download_white.png" alt="">
                         下载
@@ -96,7 +96,7 @@
                 </div>
             </div>
         </div>
-        <div class="p-resource-bottom" v-if="hover && btns && name !== 'attendClass'">
+        <div class="p-resource-bottom" v-if="hover && btns && name !== 'attendClass' && name !== 'preview'">
             <el-button class="p-control-btn" size="small" @click.stop="handleCommand('download')" v-if="canDownload">
                 <img src="@/assets/images/preparation/icon_download_white.png" alt="">
                 下载

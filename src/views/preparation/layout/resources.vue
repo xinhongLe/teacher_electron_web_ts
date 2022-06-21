@@ -243,7 +243,7 @@ export default defineComponent({
 						}
 					}
 					
-					if (props.name === "" || data.ResourceShowType === 0) {
+					if (props.name !== "attendClass" || data.ResourceShowType === 0) {
 						resource.value = data;
 						target.value = data.OldResourceId;
 						resourceVisible.value = true;
@@ -308,6 +308,7 @@ export default defineComponent({
 
 		const { source, type, course } = toRefs(props);
 		watch([source, type, course], () => {
+			console.log("===========");
 			update();
 		});
 

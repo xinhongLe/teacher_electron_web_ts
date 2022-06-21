@@ -44,7 +44,7 @@
             <div
                 class="tip-popover"
                 v-if="tipTarget === itemData.Id && popoverVisible"
-                :style="{ top: tipOffset.y - 66 + 'px' }"
+                :style="{ top: tipOffset.y - 20 + 'px', left: '300px' }"
             >
                 <div class="tip-title">拖动【课时】进右侧课表</div>
                 <el-button type="primary" size="small" @click="know()">知道了</el-button>
@@ -305,18 +305,18 @@ export default defineComponent({
         align-items: center;
     }
     &:after {
-        border: 0.1rem solid var(--el-border-color-light);
+        border: 1px solid var(--el-border-color-light);
         background: var(--el-color-white);
         position: absolute;
-        width: 1rem;
-        height: 1rem;
+        width: 10px;
+        height: 10px;
         z-index: 1;
         content: " ";
         transform: rotate(45deg);
         border-top-color: transparent;
-        border-left-color: transparent;
-        bottom: -5px;
-        left: 40px;
+        border-right-color: transparent;
+        bottom: 20px;
+        left: -5px;
     }
 }
 </style>

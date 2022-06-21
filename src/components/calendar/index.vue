@@ -22,6 +22,7 @@
                     :isShowText="isShowText"
                     :isShowDelete="isShowDelete"
                     :isShowDetailBtn="isShowDetailBtn"
+                    @openCourse="openCourse"
                 />
             </div>
         </div>
@@ -29,7 +30,7 @@
 </template>
 
 <script lang="ts">
-import useSchedules from "@/hooks/useSchedules";
+import useSchedules, { ColData } from "@/hooks/useSchedules";
 import useTime from "@/hooks/useTime";
 import moment from "moment";
 import { computed, defineComponent, PropType, provide } from "vue";
@@ -59,7 +60,7 @@ export default defineComponent({
             default: false
         }
     },
-    setup(props, { expose }) {
+    setup(props, { expose, emit }) {
         const { weekNext, weekPre, initDays, formTime, formWeek } = useTime();
         initDays();
         const days = computed(() => props.days);
@@ -73,6 +74,10 @@ export default defineComponent({
 
         expose({ initSchedules });
 
+        const openCourse = (data: ColData) => {
+            emit("openCourse", data);
+        };
+
         return {
             weekNext,
             weekPre,
@@ -82,7 +87,8 @@ export default defineComponent({
             initSchedules,
             currentDay,
             isCurrentDay,
-            formWeek
+            formWeek,
+            openCourse
         };
     },
 

@@ -71,7 +71,7 @@ import { ColData, Schedule } from "@/hooks/useSchedules";
 import { SchoolLesson } from "@/types/preparation";
 import { ElMessage, ElMessageBox } from "element-plus";
 import moment from "moment";
-import { computed, inject, PropType, ref, defineProps } from "vue";
+import { computed, inject, PropType, ref, defineProps, defineEmits } from "vue";
 import { useRouter } from "vue-router";
 import { updateSchedule } from "@/api/timetable";
 import { store } from "@/store";
@@ -203,8 +203,11 @@ const onDrop = async (ev: DragEvent, colData: ColData) => {
     }
 };
 
+const emit = defineEmits(["openCourse"]);
+
 const goToClass = () => {
     if (!props.colData.LessonName) return;
+    if (props.isDrop) return emit("openCourse", props.colData);
     router.push(`/attend-class/${props.colData.chapterId}/${props.colData.LessonID}`);
 };
 
