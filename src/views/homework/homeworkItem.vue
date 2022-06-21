@@ -648,7 +648,7 @@ export default defineComponent({
     flex-wrap: wrap;
     > .file-info {
         width: auto;
-        max-width: 20%;
+        // max-width: 20%;
     }
 }
 </style>

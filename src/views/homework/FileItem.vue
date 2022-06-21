@@ -43,7 +43,7 @@ export default defineComponent({
 <style lang="scss" scoped>
 .file-info {
     position: relative;
-    margin-right: 20px;
+    // margin-right: 20px;
     padding: 10px 20px;
     background-color: #f3f7ff;
     border-radius: 4px;
