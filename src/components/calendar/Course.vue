@@ -12,8 +12,7 @@
     >
         <el-popover
             trigger="hover"
-            placement="top"
-            popper-class="preparation-popper-class"
+            popper-class="preparation-popper-class-adjust"
             :append-to-body="false"
             v-if="colData.ClassName"
         >

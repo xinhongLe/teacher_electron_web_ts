@@ -14,7 +14,7 @@ export default () => {
     const userLogin = async ({ account, password, next, code, isPassWordLogin = true } : {account: string, password: string, next?: NavigationGuardNext, code?: string, isPassWordLogin?: boolean}) => {
         const loginRes: ILoginResponse = await Login({ account, password, code }, isPassWordLogin);
         if (loginRes.resultCode === 200) {
-            LoginForCloud(loginRes.result.token).then(cloudRes =>  {
+            LoginForCloud(loginRes.result.token).then(cloudRes => {
                 set(STORAGE_TYPES.YUN_INFO, cloudRes.result);
             });
             recordAccount({ account, password });

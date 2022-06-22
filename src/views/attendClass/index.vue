@@ -146,10 +146,6 @@ export default defineComponent({
 
         const updateResourceList = (data: IResourceItem[]) => {
             resourceList.value = data;
-            if (data.length == 0 && source.value === "me") {
-                // 备课篮没有资源 切换到全部
-                return switchClass();
-            }
             sendResourceData();
         };
 
@@ -181,8 +177,9 @@ export default defineComponent({
 
 .resource-list {
     flex: 1;
-    min-height: 0;
-    overflow-y: auto;
+    min-height: 0;    
+    display: flex;
+    flex-direction: column;
 }
 
 .resource-filter {

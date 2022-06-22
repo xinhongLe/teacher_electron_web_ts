@@ -491,6 +491,9 @@ export function registerEvent() {
         setSuspensionSize();
         if (blackboardWin) {
             blackboardWin.show();
+            setTimeout(() => {
+                if (process.platform === "darwin") blackboardWin && blackboardWin.setFullScreen(true);
+            }, 1000);
         } else {
             createBlackboardWindow();
         }
@@ -511,7 +514,14 @@ export function registerEvent() {
         } else {
             suspensionWin && suspensionWin.webContents.send("blackboardMinimized");
         }
-        blackboardWin && blackboardWin.hide();
+        if (process.platform === "darwin") {
+            blackboardWin && blackboardWin.setFullScreen(false);
+            setTimeout(() => {
+                blackboardWin && blackboardWin.hide();
+            }, 1000);
+        } else {
+            blackboardWin && blackboardWin.hide();
+        }
         setSuspensionSize();
     });
 

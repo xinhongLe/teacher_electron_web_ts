@@ -67,7 +67,7 @@
                         :btns="false"
                         @eventEmit="eventEmit"
                     /> -->
-                    <Resources name="preview" @updateResourceList="updateResourceList" :course="course" :source="source" :type="type" />
+                    <Resources name="preview" :course="course" :source="source" :type="type" />
                 </div>
                 <div class="resource-filter">
                     <el-radio-group
@@ -162,13 +162,6 @@ export default defineComponent({
             }
         }
 
-        const updateResourceList = (data: IResourceItem[]) => {
-            if (data.length == 0 && source.value === "me") {
-                // 备课篮没有资源 切换到全部
-                return switchClass();
-            }
-        };
-
         const close = () => {
             visible.value = false;
         };
@@ -191,8 +184,7 @@ export default defineComponent({
             source,
             type,
             switchClass,
-            close,
-            updateResourceList
+            close
 		};
 	},
 	components: { Calendar, ArrowRightBold, ArrowLeftBold, Resources }
@@ -323,8 +315,9 @@ export default defineComponent({
 .resource-list {
     flex: 1;
     min-height: 0;
-    overflow-y: auto;
     margin: 0 -15px;
+    display: flex;
+    flex-direction: column;
 }
 
 .resource-filter {
