@@ -247,7 +247,7 @@ const goToClass = () => {
                 -webkit-box-orient: vertical;
                 padding: 8px 12px 0;
                 font-size: 14px;
-                flex: 1;
+                // flex: 1;
                 font-weight: 600;
                 line-height: 16px;
                 color: #19203d;

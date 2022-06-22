@@ -30,14 +30,14 @@ import { CopyWindow } from "../../intelligenceClassroom/api";
 export default defineComponent({
     props: {
         resource: {
-            type: Object as PropType<IResourceItem>,
-            required: true
+            type: Object as PropType<IResourceItem>
         },
         visible: {
             type: Boolean,
             default: false
         }
     },
+    emits: ["update", "update:visible"],
     setup(props, { emit }) {
         const close = () => {
             emit("update:visible", false);
@@ -54,22 +54,24 @@ export default defineComponent({
             //     schoolId,
             //     schoolName
             // });
-            const res = await CopyWindow({
-                id: props.resource.OldResourceId,
-                originType: props.resource.UserId ? 1 : null,
-                sourceLessonID: store.state.preparation.selectLessonId
-            });
-            
-            if (res.success) {
-                const sysRes = await sysWincardResource({
-                    id: res.result.ID,
-                    userId: userId.value,
-                    lessonID: lessonId.value,
-                    schoolId: school.value.UserCenterSchoolID,
-                    schoolName: school.value.Name
+            if (props.resource) {
+                const res = await CopyWindow({
+                    id: props.resource.OldResourceId,
+                    originType: props.resource.UserId ? 1 : null,
+                    sourceLessonID: store.state.preparation.selectLessonId
                 });
-                emit("update:visible", false);
-                emit("update");
+                
+                if (res.success) {
+                    const sysRes = await sysWincardResource({
+                        id: res.result.ID,
+                        userId: userId.value,
+                        lessonID: lessonId.value,
+                        schoolId: school.value.UserCenterSchoolID,
+                        schoolName: school.value.Name
+                    });
+                    emit("update:visible", false);
+                    emit("update");
+                }
             }
         };
 

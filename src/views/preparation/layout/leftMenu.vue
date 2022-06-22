@@ -53,6 +53,7 @@ export default defineComponent({
 			type: Object as PropType<ICourse>
 		}
 	},
+	emits: ["update:showClassArrangement", "update:course"],
 	setup(props, { emit }) {
 		const store = useStore();
 		const updateShowClassArrangement = (flag: boolean) => {

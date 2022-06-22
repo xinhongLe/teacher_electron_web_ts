@@ -124,8 +124,10 @@ import { BookList } from "@/types/preparation";
 import { MutationTypes, useStore } from "@/store";
 import Book from "./book.vue";
 import { fetchAllBookList, IBookItem, ICustomBookItem, fetchCustomBookList, fetchAddCustomBookList } from "@/api/resource";
+import { get, set, STORAGE_TYPES } from "@/utils/storage";
 export default defineComponent({
     components: { Book },
+	emits: ["onChangeBook"],
     setup(props, { emit }) {
         const store = useStore();
         
@@ -206,6 +208,11 @@ export default defineComponent({
 				});
 			}
             if (bookList.value.length > 0 && !selectedBook.value.Id) {
+				const book: ICustomBookItem | null = get(STORAGE_TYPES.SELECT_BOOK_ID);
+				const hasBook = !!bookList.value.find(item => item.Id === book?.Id);
+				if (hasBook && book) {
+					return selectBook(book);
+				}
                 // 默认选中第一个
                 selectBook(bookList.value[0]);
             }
@@ -234,6 +241,7 @@ export default defineComponent({
         const selectBook = (data: ICustomBookItem) => {
             selectedBook.value = data;
             bookSelectOpen.value = false;
+			set(STORAGE_TYPES.SELECT_BOOK_ID, data);
             store.commit(MutationTypes.SET_SUBJECT_PUBLISHER_BOOK_VALUE, data);
             emit("onChangeBook", data);
         };

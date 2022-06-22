@@ -45,8 +45,7 @@ export default defineComponent({
 			default: ""
 		},
 		resource: {
-			type: Object as PropType<IResourceItem | undefined>,
-			required: true
+			type: Object as PropType<IResourceItem>
 		},
 		visible: {
 			type: Boolean,
@@ -61,6 +60,7 @@ export default defineComponent({
 			default: ""
 		}
 	},
+	emits: ["eventEmit", "update:visible"],
 	setup(props, { emit }) {
 		const isFullScreen = ref(false);
 		const close = () => {
@@ -119,12 +119,21 @@ export default defineComponent({
 		border-bottom-right-radius: 6px;
 		padding: var(--el-dialog-padding-primary);
 	}
+	.el-dialog__headerbtn {
+		right: -30px;
+		top: 0;
+		background: rgba(255, 255, 255, .3);
+    	border: 1px solid white;
+		.el-dialog__close {
+			color: white;
+		}
+	}
 }
 </style>
 
 <style lang="scss" scoped>
 .resource-header {
-	padding-right: 30px;
+	// padding-right: 30px;
 }
 
 .resource-content {

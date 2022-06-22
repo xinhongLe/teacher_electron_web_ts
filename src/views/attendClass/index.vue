@@ -54,7 +54,7 @@ export default defineComponent({
             lessonId: ""
         });
 
-        const source = ref("");
+        const source = ref("me");
         const type = ref("");
         const typeList = ref<{ Id: string; Name: string }[]>([]);
 
@@ -69,7 +69,7 @@ export default defineComponent({
 			}
 		};
 
-        const isSwitch = ref(false);
+        const isSwitch = ref(true);
         const sendResourceData = () => {
             if (isElectron()) {
                 window.electron.ipcRenderer.send("attendClass", "unfoldSuspension", {
@@ -146,6 +146,10 @@ export default defineComponent({
 
         const updateResourceList = (data: IResourceItem[]) => {
             resourceList.value = data;
+            if (data.length == 0 && source.value === "me") {
+                // 备课篮没有资源 切换到全部
+                return switchClass();
+            }
             sendResourceData();
         };
 

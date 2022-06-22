@@ -288,6 +288,7 @@ export default defineComponent({
 		}
 	},
 	components: { Plus, Refresh, Upload, CustomSelect, Edit },
+	emits: ["update:source", "update:type"],
 	setup(props, { emit }) {
 		const store = useStore();
 		const userId = computed(() => store.state.userInfo.userCenterUserID);

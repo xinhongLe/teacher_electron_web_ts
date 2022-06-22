@@ -53,6 +53,7 @@ export default defineComponent({
             default: false
         }
     },
+    emits: ["update:visible"],
     setup(props, { emit }) {
         const close = () => {
             emit("update:visible", false);

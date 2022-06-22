@@ -95,6 +95,7 @@ export default defineComponent({
 			default: ""
 		}
 	},
+	emits: ["updateResourceList"],
 	setup(props, { expose, emit }) {
 		const resourceList = ref<IResourceItem[]>([]);
 
@@ -308,7 +309,6 @@ export default defineComponent({
 
 		const { source, type, course } = toRefs(props);
 		watch([source, type, course], () => {
-			console.log("===========");
 			update();
 		});
 

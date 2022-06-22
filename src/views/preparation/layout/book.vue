@@ -33,6 +33,7 @@ export default defineComponent({
 			required: true
 		}
 	},
+	emits: ["update"],
 	setup(props, { emit }) {
 		const store = useStore();
 		const totalBookCover: { [key: string]: string } = {

@@ -43,7 +43,7 @@
             />
             <div
                 class="tip-popover"
-                v-if="tipTarget === itemData.Id && popoverVisible"
+                v-if="tipTarget === itemData.Id && popoverVisible && showClassArrangement"
                 :style="{ top: tipOffset.y - 20 + 'px', left: '300px' }"
             >
                 <div class="tip-title">拖动【课时】进右侧课表</div>

@@ -67,7 +67,7 @@
                         :btns="false"
                         @eventEmit="eventEmit"
                     /> -->
-                    <Resources name="preview" :course="course" :source="source" :type="type" />
+                    <Resources name="preview" @updateResourceList="updateResourceList" :course="course" :source="source" :type="type" />
                 </div>
                 <div class="resource-filter">
                     <el-radio-group
@@ -115,10 +115,11 @@ export default defineComponent({
 		};
 
         const visible = ref(false);
-        const isSwitch = ref(false);
+        const isSwitch = ref(true);
 		const openCourse = (data: ColData) => {
             visible.value = true;
             setTimeout(() => {
+                source.value = "me";
                 course.value = {
                     chapterId: data.chapterId as string,
                     lessonId: data.LessonID as string
@@ -133,7 +134,7 @@ export default defineComponent({
             lessonId: ""
         });
 
-        const source = ref("");
+        const source = ref("me");
         const type = ref("");
         const typeList = ref<{ Id: string; Name: string }[]>([]);
 
@@ -161,6 +162,13 @@ export default defineComponent({
             }
         }
 
+        const updateResourceList = (data: IResourceItem[]) => {
+            if (data.length == 0 && source.value === "me") {
+                // 备课篮没有资源 切换到全部
+                return switchClass();
+            }
+        };
+
         const close = () => {
             visible.value = false;
         };
@@ -183,7 +191,8 @@ export default defineComponent({
             source,
             type,
             switchClass,
-            close
+            close,
+            updateResourceList
 		};
 	},
 	components: { Calendar, ArrowRightBold, ArrowLeftBold, Resources }
@@ -194,6 +203,9 @@ export default defineComponent({
 .class-arrangement-warp {
 	flex: 1;
 	padding: 12px 0 0 12px;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
 	.templates-dialog {
 		:deep(.el-overlay-dialog) {
 			display: flex;

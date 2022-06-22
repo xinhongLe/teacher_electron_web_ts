@@ -41,14 +41,14 @@ export default defineComponent({
             default: ""
         },
         resource: {
-            type: Object as PropType<IResourceItem>,
-            required: true
+            type: Object as PropType<IResourceItem>
         },
         visible: {
             type: Boolean,
             default: false
         }
     },
+    emits: ["update:visible"],
     setup(props, { emit }) {
         const checkList = ref<string[]>([]);
 
@@ -56,7 +56,7 @@ export default defineComponent({
             emit("update:visible", false);
         };
 
-        const directorys = computed(() => props.resource.TextBooks);
+        const directorys = computed(() => props.resource?.TextBooks || []);
 
         const sure = async () => {
             console.log(checkList.value);

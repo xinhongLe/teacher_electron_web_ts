@@ -51,6 +51,7 @@ export default defineComponent({
             required: true
 		}
 	},
+	emits: ["update:directory"],
 	setup(props, { emit }) {
 		// 处理书册数据 注意最后一级不是去Id 而是取bookId
 		const dealCascader = (data: IBookItem[]): IOption[] => {
