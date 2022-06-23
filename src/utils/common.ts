@@ -2,6 +2,7 @@ import { padStart } from "lodash";
 import request from "./request";
 import isElectron from "is-electron";
 import { get, STORAGE_TYPES } from "./storage";
+import { TRACK_API } from "@/config";
 
 export enum EnumTrackEventType {
     /// <summary>
@@ -289,7 +290,7 @@ export const sleep = (time: number) => {
 export default class TrackService {
     private static TRACKAPIPATH = "Api/Track/create";
     public static IsEnableTrack = true;
-    public static TrackBaseUrl = "https://api.aixueshi.top:5019/";
+    public static TrackBaseUrl = TRACK_API;
 
     private static trackModels: Array<TrackModel> = [];
 
