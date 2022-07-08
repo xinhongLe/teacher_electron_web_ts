@@ -156,7 +156,7 @@ export default defineComponent({
 
 		const download = async (data: IResourceItem) => {
             if (data.File) {
-				loading.show();;
+				loading.show();
                 const url = await getOssUrl(`${data.File.FilePath}/${data.File.FileMD5}.${data.File.FileExtention}`, data.File.FileBucket);
                 getBlob(url, function(blob: any) {
                     saveAs(blob, data.File.FileName);

@@ -206,6 +206,9 @@ export default defineComponent({
 					Id: "",
 					AcaSectionId: ""
 				});
+
+				// 弹出书册选择
+				setbookSelectOpen.value = true;
 			}
             if (bookList.value.length > 0 && !selectedBook.value.Id) {
 				const book: ICustomBookItem | null = get(STORAGE_TYPES.SELECT_BOOK_ID);
