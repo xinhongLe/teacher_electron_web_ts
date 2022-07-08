@@ -3,7 +3,7 @@
 		书册
 		<div
 			class="book-select"
-			:class="bookSelectOpen && 'active'"
+			:class="{active: bookSelectOpen, noBook: !selectedBookName.trim()}"
 			@click.stop="bookSelectOpen = !bookSelectOpen"
 			v-click-outside="() => (bookSelectOpen = false)"
 		>
@@ -324,6 +324,9 @@ export default defineComponent({
 		&:before {
 			transform: translateY(calc(-50% - 4px)) rotate(180deg);
 		}
+	}
+	&.noBook {
+		color: #f60000;
 	}
 }
 
