@@ -199,7 +199,7 @@
 			</el-form>
 			<template #footer>
 				<span class="dialog-footer">
-					<el-button @click="setbookSelectOpen = false"
+					<el-button @click="uploadResourceOpen = false"
 						>取消</el-button
 					>
 					<el-button type="primary" @click="sureUpload()">
