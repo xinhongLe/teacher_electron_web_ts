@@ -6,8 +6,8 @@
             :dialog="true"
             :isMySelf="isMySelf"
         />
-        <LookVideo v-if="type === 2" :dialog="true" />
-        <LookQuestion v-if="type === 3" :dialog="true" />
+        <LookVideo v-if="type === 2" :dialog="true" :close="close" />
+        <LookQuestion v-if="type === 3" :dialog="true" :close="close" />
         <div class="iframe-box" v-if="type === 0">
             <iframe :src="url"></iframe>
         </div>
@@ -40,6 +40,10 @@ export default defineComponent({
         visible: {
             type: Boolean,
             default: false
+        },
+        close: {
+            type: Function,
+            default: () => {}
         }
     },
     setup(props, { emit }) {

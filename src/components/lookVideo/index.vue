@@ -104,9 +104,13 @@ export default defineComponent({
         dialog: {
             type: Boolean,
             default: false
+        },
+        close: {
+            type: Function,
+            default: () => {}
         }
     },
-    setup() {
+    setup(props) {
         const isElectron = isElectronFun();
         const videoUrl = ref("");
         const btnType = ref(1);
@@ -148,6 +152,7 @@ export default defineComponent({
         };
 
         const closeVideo = () => {
+            if (props.dialog) props.close();
             store.commit(MutationTypes.SET_IS_SHOW_VIDEO, {
                 flag: false,
                 info: {}

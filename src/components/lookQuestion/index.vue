@@ -6,7 +6,7 @@
         <div v-else style="height: 20px"></div>
         <Question
             dialog
-            :close="close"
+            :close="dialog ? close : closeDialog"
             ref="questionRef"
             v-model:nowQuestionID="nowQuestionID"
             v-model:isMinimized="isMinimized"
@@ -51,6 +51,11 @@ export default defineComponent({
         dialog: {
             type: Boolean,
             default: false
+        },
+
+        close: {
+            type: Function,
+            default: () => {}
         }
     },
     setup() {
@@ -74,7 +79,7 @@ export default defineComponent({
             if (isHasSimilarQuestion.value) dialogVisible.value = true;
         };
 
-        const close = () => {
+        const closeDialog = () => {
             isShowDialog.value = false;
             nextTick(() => {
                 store.commit(MutationTypes.SET_IS_SHOW_QUESTION, {
@@ -92,7 +97,7 @@ export default defineComponent({
 
         const closeQuestion = () => {
             window.electron.ipcRenderer.invoke("hideSuspensionQuestion");
-            close();
+            closeDialog();
         };
 
         watch(isMinimized, (v) => {
@@ -128,7 +133,7 @@ export default defineComponent({
             viewPureQuestion,
             isHasSimilarQuestion,
             openSimilarQuestion,
-            close,
+            closeDialog,
             isShowDialog,
             isMinimized,
             nowQuestionID,

@@ -25,7 +25,7 @@
 					alt=""
 				/>
 			</div>
-			<ResourceViewList :type="resource.ResourceShowType" :resource="resource" :target="target" v-if="visible" />
+			<ResourceViewList :type="resource?.ResourceShowType" :resource="resource" :target="target" v-if="visible" :close="close" />
 		</div>
 	</el-dialog>
 </template>
