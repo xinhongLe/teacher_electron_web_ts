@@ -2,6 +2,7 @@
 	<div
 		class="book-item"
 		:style="{ background: `url(${cover})`, backgroundSize: 'cover' }"
+		:class="book.Id === bookId && 'active'"
 	>
 		<div class="book-title">
 			{{ book.SubjectName }}
@@ -71,6 +72,7 @@ export default defineComponent({
 		};
 
 		return {
+			bookId,
 			cover,
 			deleteCustomBook
 		};
@@ -83,6 +85,10 @@ export default defineComponent({
 	width: 80px;
 	height: 112.7px;
 	position: relative;
+	border-radius: 5px;
+	.active {
+		border: 2px solid var(--app-color-primary);
+	}
 }
 
 .book-title {
