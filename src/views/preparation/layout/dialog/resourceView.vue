@@ -2,6 +2,7 @@
 	<el-dialog
 		custom-class="custom-dialog resource-dialog"
 		width="90%"
+		:close-on-press-escape="false"
 		:model-value="visible"
 		@close="close()"
 	>
@@ -32,7 +33,7 @@
 <script lang="ts">
 import { sleep } from "@/utils/common";
 import { enterFullscreen, exitFullscreen } from "@/utils/fullscreen";
-import { defineComponent, PropType, provide, ref, watch } from "vue";
+import { defineComponent, onMounted, onUnmounted, PropType, provide, ref, watch } from "vue";
 import ResourceViewList from "@/views/resourceView/resourceViewList.vue";
 import ResourceItem from "../resourceItem.vue";
 import { IResourceItem } from "@/api/resource";
@@ -65,13 +66,6 @@ export default defineComponent({
 		const isFullScreen = ref(false);
 		const close = () => {
 			emit("update:visible", false);
-			if (isFullScreen.value) {
-				isFullScreen.value = false;
-				setTimeout(() => {
-					emit("update:visible", true);
-				}, 100);
-			} else {
-			}
 		};
 
 		const setFullScreen = async () => {
@@ -90,6 +84,20 @@ export default defineComponent({
 				exitFullscreen();
 			}
 		};
+
+		const checkFullScreen = () => {
+			if (!(window as any).electron.isFullScreen() && isFullScreen.value) {
+				isFullScreen.value = false;
+			}
+		};
+
+		onMounted(() => {
+			window.addEventListener("resize", checkFullScreen);
+		});
+
+		onUnmounted(() => {
+			window.removeEventListener("resize", checkFullScreen);
+		});
 
         const eventEmit = (command: string, data: IResourceItem, event?: MouseEvent | TouchEvent) => {
             emit("eventEmit", command, data, event);

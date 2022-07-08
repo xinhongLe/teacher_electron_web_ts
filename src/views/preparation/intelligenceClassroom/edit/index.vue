@@ -686,14 +686,7 @@ export default defineComponent({
                 fetchAllPageSlide(getAllPageList());
             });
             window.addEventListener("keydown", keyDown);
-            if (isElectron()) {
-                (window as any).electron.registerEscKeyUp(() => {
-                    if (!(window as any).electron.isFullScreen()) return;
-                    (window as any).electron.minimizeWindow();
-                    winScreenView.value = false;
-                    editRef.value.closeScreen();
-                });
-            }
+            
             // 监听退出全屏事件浏览器
             window.onresize = function () {
                 if (!isFullscreen()) {

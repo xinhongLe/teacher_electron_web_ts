@@ -173,6 +173,7 @@ export default defineComponent({
         const store = useStore();
 
         const handleCommand = (command: string, event?: MouseEvent | TouchEvent) => {
+            if (!props.hover && command === "detail") return;
             emit("eventEmit", command, props.data, event);
         };
 
