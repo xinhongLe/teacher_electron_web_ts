@@ -42,6 +42,7 @@ import { fetchCourseDataByBookId, ICustomBookItem } from "@/api/resource";
 interface ICourse {
     chapterId: string;
     lessonId: string;
+	lessonName: string;
 }
 export default defineComponent({
 	components: { BookSelect, Tree },
@@ -61,16 +62,19 @@ export default defineComponent({
 		};
 
 		const treeData = ref<ITreeItem[]>([]);
-		const selectedCourse = (value: string, keys: string[]) => {
+		const selectedCourse = (tree: ITreeItem, keys: string[]) => {
 			emit("update:course", {
                 chapterId: keys[0],
-                lessonId: value
+                lessonId: tree.Id,
+				lessonName: tree.Name
             });
-			store.commit(MutationTypes.SET_SELECT_LESSON_ID, value);
+			store.commit(MutationTypes.SET_SELECT_LESSON_ID, tree.Id);
 
-			tipTarget.value = value;
+			tipTarget.value = tree.Id;
 		};
+		const selectedChapterID = ref("");
 		const selectedID = ref("");
+		const selectedName = ref("");
 
 		// 操作提示使用
 		const tipTarget = ref("");
@@ -81,7 +85,8 @@ export default defineComponent({
 			if (!bookId) {
 				emit("update:course", {
 					chapterId: "",
-					lessonId: ""
+					lessonId: "",
+					lessonName: ""
 				});
 				store.commit(MutationTypes.SET_SELECT_LESSON_ID, "");
 				return;
@@ -92,8 +97,9 @@ export default defineComponent({
 			// selectedID.value = treeData.value[0].Children[0].Id;
 			getFirstLessonId();
 			emit("update:course", {
-				chapterId: treeData.value[0].Id,
-				lessonId: selectedID.value
+				chapterId: selectedChapterID.value,
+				lessonId: selectedID.value,
+				lessonName: selectedName.value
 			});
 			store.commit(MutationTypes.SET_SELECT_LESSON_ID, selectedID.value);
 
@@ -103,7 +109,9 @@ export default defineComponent({
 		const getFirstLessonId = () => {
 			for (let i = 0; i < treeData.value.length; i++) {
 				if (treeData.value[i].Children && treeData.value[i].Children!.length > 0) {
+					selectedChapterID.value = treeData.value[i].Id;
 					selectedID.value = treeData.value[i].Children![0].Id;
+					selectedName.value = treeData.value[i].Children![0].Name;
 					break;
 				}
 			}

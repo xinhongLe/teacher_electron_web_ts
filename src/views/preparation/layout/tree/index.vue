@@ -38,7 +38,7 @@ export default defineComponent({
     setup(props, { emit }) {
         const selectedTreeItem = (treeItem: ITreeItem, keys: string[]) => {
             emit("update:value", treeItem.Id);
-            emit("onTreeItemChange", treeItem.Id, keys);
+            emit("onTreeItemChange", treeItem, keys);
         };
         return {
             selectedTreeItem

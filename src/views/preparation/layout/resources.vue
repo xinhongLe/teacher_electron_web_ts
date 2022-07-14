@@ -67,6 +67,7 @@ import { getOssUrl } from "@/utils/oss";
 interface ICourse {
 	chapterId: string;
 	lessonId: string;
+	lessonName: string;
 }
 export default defineComponent({
 	components: {
@@ -112,7 +113,7 @@ export default defineComponent({
 		// 加入备课包
 		const addPackage = async (data: IResourceItem) => {
 			const book = data.TextBooks.find((item) => {
-				return item.LessonID === course.value.lessonId;
+				return item.LessonID === course.value.lessonId || (item.ChapterID === course.value.chapterId && !item.LessonID);
 			});
 			if (!book) return;
 			const res = await addPreparationPackage({
@@ -127,8 +128,8 @@ export default defineComponent({
 				albumName: book.AlbumName,
 				chapterId: book.ChapterID,
 				chapterName: book.ChapterName,
-				lessonId: book.LessonID,
-				lessonName: book.LessonName
+				lessonId: book.LessonID || course.value.lessonId,
+				lessonName: book.LessonName || course.value.lessonName
 			});
 
 			if (res.success) {

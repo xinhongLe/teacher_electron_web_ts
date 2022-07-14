@@ -23,7 +23,8 @@ export default defineComponent({
         const showClassArrangement = ref(false);
         const course = ref({
             chapterId: "",
-            lessonId: ""
+            lessonId: "",
+            lessonName: ""
         });
         const source = ref("");
         const type = ref("");

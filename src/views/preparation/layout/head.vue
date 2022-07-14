@@ -278,6 +278,7 @@ interface IForm {
 interface ICourse {
 	chapterId: string;
 	lessonId: string;
+	lessonName: string;
 }
 
 export default defineComponent({
@@ -517,8 +518,8 @@ export default defineComponent({
 					albumName: item.grade.name,
 					chapterID: item.chapter.id,
 					chapterName: item.chapter.name,
-					lessonID: item.lesson.id,
-					lessonName: item.lesson.name
+					lessonID: item.lesson ? item.lesson.id : props.course.lessonId,
+					lessonName: item.lesson ? item.lesson.name : props.course.lessonName
 				};
 			});
 			const resourceFiles = form.files.map((item) => {
