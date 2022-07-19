@@ -20,7 +20,7 @@
 <script>
 import { nextTick } from "process";
 import { EditAnnotation } from "../api";
-import { defineComponent, onMounted, ref, getCurrentInstance, onBeforeUnmount, reactive, toRefs } from "vue-demi";
+import { defineComponent, onMounted, ref, getCurrentInstance, onBeforeUnmount, reactive, toRefs } from "vue";
 import { get, STORAGE_TYPES } from "@/utils/storage";
 export default defineComponent({
     setup(props, { emit }) {

@@ -1,46 +1,40 @@
 <template>
-    <div class="look-question" v-show="!isMinimized">
-        <el-dialog
-            :fullscreen="true"
-            :model-value="true"
-            :show-close="false"
-            custom-class="look-question-dialog"
-            v-if="isShowDialog"
+    <div class="look-question" :class="dialog && 'dialog-type'" v-show="!isMinimized">
+        <div class="question-header" v-if="!dialog">
+            <p>查看视频</p>
+        </div>
+        <div v-else style="height: 20px"></div>
+        <Question
+            dialog
+            :close="dialog ? close : closeDialog"
+            ref="questionRef"
+            v-model:nowQuestionID="nowQuestionID"
+            v-model:isMinimized="isMinimized"
         >
-            <template #title>
-                <p class="title">查看题目</p>
-            </template>
-            <Question
-                :close="close"
-                ref="questionRef"
-                v-model:nowQuestionID="nowQuestionID"
-                v-model:isMinimized="isMinimized"
-            >
-                <template v-slot:footerBtn="slotProps">
-                    <div class="btn-list">
-                        <div
-                            v-show="type !== 2 && slotProps.sum > 1"
-                            class="btn"
-                            :class="!isHasSimilarQuestion && 'disabled'"
-                            @click.stop="openSimilarQuestion"
-                        >
-                            <p>同类题</p>
-                        </div>
-                        <div
-                            v-show="type !== 2"
-                            @click.stop="slotProps.removeQuestion"
-                            class="btn"
-                        >
-                            <p>移除题目</p>
-                        </div>
+            <template v-slot:footerBtn="slotProps">
+                <div class="btn-list">
+                    <div
+                        v-show="type !== 2 && slotProps.sum > 1"
+                        class="btn"
+                        :class="!isHasSimilarQuestion && 'disabled'"
+                        @click.stop="openSimilarQuestion"
+                    >
+                        <p>同类题</p>
                     </div>
-                </template>
-            </Question>
-            <PureQuestionDialog
-                v-if="dialogVisible"
-                v-model:visible="dialogVisible"
-            />
-        </el-dialog>
+                    <div
+                        v-show="type !== 2"
+                        @click.stop="slotProps.removeQuestion"
+                        class="btn"
+                    >
+                        <p>移除题目</p>
+                    </div>
+                </div>
+            </template>
+        </Question>
+        <PureQuestionDialog
+            v-if="dialogVisible"
+            v-model:visible="dialogVisible"
+        />
     </div>
 </template>
 
@@ -53,6 +47,17 @@ import { MutationTypes, store } from "@/store";
 import isElectron from "is-electron";
 export default defineComponent({
     name: "LookQuestion",
+    props: {
+        dialog: {
+            type: Boolean,
+            default: false
+        },
+
+        close: {
+            type: Function,
+            default: () => {}
+        }
+    },
     setup() {
         const type = computed(() => store.state.common.viewQuestionInfo.type);
         const isShowDialog = ref(true);
@@ -74,7 +79,7 @@ export default defineComponent({
             if (isHasSimilarQuestion.value) dialogVisible.value = true;
         };
 
-        const close = () => {
+        const closeDialog = () => {
             isShowDialog.value = false;
             nextTick(() => {
                 store.commit(MutationTypes.SET_IS_SHOW_QUESTION, {
@@ -92,7 +97,7 @@ export default defineComponent({
 
         const closeQuestion = () => {
             window.electron.ipcRenderer.invoke("hideSuspensionQuestion");
-            close();
+            closeDialog();
         };
 
         watch(isMinimized, (v) => {
@@ -128,7 +133,7 @@ export default defineComponent({
             viewPureQuestion,
             isHasSimilarQuestion,
             openSimilarQuestion,
-            close,
+            closeDialog,
             isShowDialog,
             isMinimized,
             nowQuestionID,
@@ -143,18 +148,31 @@ export default defineComponent({
 <style lang="scss" scoped>
 .look-question {
     background: #fff;
-    :deep(.look-question-dialog) {
-        -webkit-app-region: no-drag;
-        &.el-dialog {
-            display: flex;
-            flex-direction: column;
-        }
-        .el-dialog__body {
-            padding: 0;
-            flex: 1;
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    z-index: 3000;
+    overflow: hidden;
+    background: #fff;
+    -webkit-app-region: no-drag;
+    display: flex;
+    flex-direction: column;
+    .question-header {
+        p {
+            font-size: 20px;
+            font-weight: 600;
+            color: #19203d;
+            line-height: 28px;
+            text-align: center;
+            margin-top: 16px;
+            margin-bottom: 16px;
         }
     }
-
+    &.dialog-type {
+        width: 100%;
+        height: 100%;
+        position: relative;
+    }
     .btn-list {
         display: flex;
     }
@@ -188,13 +206,6 @@ export default defineComponent({
             background: url("./../../assets/look/btn_yichu@2x.png");
             background-size: 100% 100%;
         }
-    }
-    .title {
-        font-size: 20px;
-        font-weight: 600;
-        color: #19203d;
-        line-height: 28px;
-        text-align: center;
     }
 }
 </style>

@@ -19,25 +19,25 @@
                         :span="6"
                         :lg="4"
                         v-for="(item1) in item.list"
-                        :key="item1.StudentID"
+                        :key="item1.ID"
                     >
                         <div
                             :class="
-                                selectStudentId.includes(item1.StudentID)
+                                selectStudentId.includes(item1.ID)
                                     ? 'item item-active'
                                     : 'item'
                             "
                             :style="{ cursor: canEdit ? 'pointer' : '' }"
-                            @click="checkStudent(item1.StudentID)"
+                            @click="checkStudent(item1.ID)"
                         >
                             <div v-if="canEdit">
                                 <el-checkbox
                                     :model-value="
                                         selectStudentId.includes(
-                                            item1.StudentID
+                                            item1.ID
                                         )
                                     "
-                                    @change="checkStudent(item1.StudentID)"
+                                    @change="checkStudent(item1.ID)"
                                 ></el-checkbox>
                             </div>
                             <Avatar :file="item1.HeadPortrait"></Avatar>

@@ -1,9 +1,10 @@
 import { getCurrentWindow, app, dialog } from "@electron/remote";
 import electron, { OpenDialogOptions, remote, SaveDialogOptions } from "electron";
 import { isExistFile, mkdirs, store } from "./downloadFile";
-import { resolve, join } from "path";
+import { join, resolve } from "path";
 import ElectronLog from "electron-log";
 import fs from "fs";
+import { parsePPT, pptParsePath } from "./parsePPT";
 import { execFile as execFileFromAsar } from "child_process";
 import { darwinGetScreenPermissionGranted, darwinRequestScreenPermissionPopup } from "./darwin";
 import { checkWindowSupportNet } from "./util";
@@ -49,9 +50,12 @@ window.electron = {
         const currentWindow = getCurrentWindow();
         currentWindow.hide();
     },
-    showWindow: () => {
+    showWindow: (isMaximize = false) => {
         const currentWindow = getCurrentWindow();
         currentWindow.show();
+        if (isMaximize) {
+            currentWindow.maximize();
+        }
     },
     destroyWindow: () => {
         const currentWindow = getCurrentWindow();
@@ -137,6 +141,9 @@ window.electron = {
     getPath: (name) => {
         return app.getPath(name);
     },
+    getPPTPath: (path) => {
+        return join(pptParsePath, path);
+    },
     getColorHexRGB: async () => {
         if (process.platform === "darwin" && await darwinGetScreenPermissionGranted() === false) {
             await darwinRequestScreenPermissionPopup();
@@ -149,5 +156,6 @@ window.electron = {
     },
     checkWindowSupportNet,
     store: store,
+    parsePPT,
     ...electron
 };

@@ -1,13 +1,16 @@
+import { IBookItem, ICustomBookItem } from "@/api/resource";
 import { Class, ClassStudent } from "./myStudent";
-import { CourseBag } from "./preparation";
+import { BookList } from "./preparation";
 
 export interface UserInfoState {
     name?: string;
     account?: string;
     Schools?: {
         ID: string,
+        UserCenterSchoolID: string,
         Name: string
     }[],
+    userCenterUserID: string;
     id: string
 }
 
@@ -33,11 +36,11 @@ export interface PreparationState {
     /**
      * 选择的教材
      */
-    subjectPublisherBookValue: string[],
+    subjectPublisherBookValue: ICustomBookItem | undefined,
     /**
-     * 选择的课时
+     * 教材列表菜单
      */
-    selectCourseBag: CourseBag,
+    subjectPublisherBookList: IBookItem[],
     /**
      * 是否在拖拽精品素材
      */
@@ -50,6 +53,27 @@ export interface PreparationState {
      * 窗卡页下一步按钮位置
      */
     selectNextType: string,
+    /**
+     * 选择的课时id
+     */
+    selectLessonId: string,
+    /**
+     * 当前编辑的窗卡页信息
+     */
+    editWindowInfo: {
+        id: string,
+        name: string,
+        originType: number,
+        lessonId: string,
+        allWindowNames: string[]
+    },
+    /**
+     * 学段s
+     */
+    term: {
+        id: string;
+        code: string;
+    }
 }
 
 export interface CommonState {
@@ -65,6 +89,17 @@ export interface CommonState {
      * 是否显示查看视频弹框
      */
     isShowVideo: boolean,
+    /**
+     * 是否显示窗卡
+     */
+    isShowWincard: boolean,
+    /**
+     * 窗ID
+     */
+    wincard: {
+        id: string;
+        isMySelf: boolean;
+    };
     /**
      * 查看题目的信息
      */

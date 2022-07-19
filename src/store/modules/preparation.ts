@@ -1,4 +1,4 @@
-import { CourseBag } from "@/types/preparation";
+import { IBookItem, ICustomBookItem } from "@/api/resource";
 import { PreparationState, RootState } from "@/types/store";
 import { Module, MutationTree } from "vuex";
 import { MutationTypes } from "..";
@@ -6,11 +6,24 @@ import { MutationTypes } from "..";
 const initState = (): PreparationState => ({
     isViewCourseDetailIng: false,
     selectChapterID: "",
-    selectCourseBag: {},
     isDraggingElement: false,
     isClickDetail: false,
     selectNextType: "",
-    subjectPublisherBookValue: []
+    subjectPublisherBookValue: undefined,
+    subjectPublisherBookList: [],
+    editWindowInfo: {
+        id: "",
+        name: "",
+        lessonId: "",
+        originType: 0,
+        allWindowNames: []
+    },
+    selectLessonId: "",
+    term: {
+        id: "",
+        code: ""
+    }
+
 });
 
 const mutations:MutationTree<PreparationState> = {
@@ -20,11 +33,8 @@ const mutations:MutationTree<PreparationState> = {
     [MutationTypes.SET_VIEW_COURSE_DETAIL_ING](state, flag: boolean) {
         state.isViewCourseDetailIng = flag;
     },
-    [MutationTypes.SET_SUBJECT_PUBLISHER_BOOK_VALUE](state, value: string[]) {
+    [MutationTypes.SET_SUBJECT_PUBLISHER_BOOK_VALUE](state, value: ICustomBookItem) {
         state.subjectPublisherBookValue = value;
-    },
-    [MutationTypes.SET_SELECT_COURSE_BAG](state, info: CourseBag) {
-        state.selectCourseBag = info;
     },
     [MutationTypes.SET_IS_DRAGGING_ELEMENT](state, flag) {
         state.isDraggingElement = flag;
@@ -35,8 +45,20 @@ const mutations:MutationTree<PreparationState> = {
     [MutationTypes.SET_SELECT_NEXT_TYPE](state, flag) {
         state.selectNextType = flag;
     },
+    [MutationTypes.SET_SELECT_LESSON_ID](state, flag) {
+        state.selectLessonId = flag;
+    },
+    [MutationTypes.SET_EDIT_WINDOW_INFO](state, flag: PreparationState["editWindowInfo"]) {
+        state.editWindowInfo = flag;
+    },
     [MutationTypes.PREPARATION_STUDENT_RESET_STATE](state) {
         Object.assign(state, initState());
+    },
+    [MutationTypes.SET_SUBJECT_PUBLISHER_BOOK_LIST](state, bookList: IBookItem[]) {
+        state.subjectPublisherBookList = bookList;
+    },
+    [MutationTypes.SET_TERM](state, term: { id: string; code: string; }) {
+        state.term = term;
     }
 };
 

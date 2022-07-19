@@ -4,6 +4,7 @@
         <div class="me-remark-content">
             <ul v-if="value">
                 <li v-for="(item, index) in remark.split('\n')" :key="index">
+                    <span class="dot"></span>
                     {{ item }}
                 </li>
             </ul>
@@ -12,7 +13,7 @@
 </template>
 
 <script>
-import { computed, defineComponent } from "vue-demi";
+import { computed, defineComponent } from "vue";
 export default defineComponent({
     props: ["value"],
     setup(props) {
@@ -26,7 +27,7 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .me-remark {
-    width: 220px;
+    width: 240px;
     background-color: #fff;
     box-sizing: border-box;
     padding: 20px !important;
@@ -35,7 +36,7 @@ export default defineComponent({
 .me-remark-title {
     font-weight: 600;
     font-size: 16px;
-    color: #444;
+    color: var(--app-color-dark);
     text-align: left;
 }
 
@@ -46,14 +47,24 @@ export default defineComponent({
 
 .me-remark-content ul {
     margin-top: 20px;
-    padding-left: 20px;
     font-size: 14px;
-    color: #888;
+    color: #5F626F;
     text-align: left;
 }
 
 .me-remark-content ul li {
-    margin-bottom: 8px;
+    margin-bottom: 16px;
+    line-height: 20px;
     word-break: break-all;
+    display: flex;
+    .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        margin-top: 8px;
+        margin-right: 8px;
+        flex-shrink: 0;
+        background-color: #CCCED3;
+    }
 }
 </style>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="14px" height="14px" viewBox="0 0 14 14" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icon_tuichu</title>
+    <g id="页面-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" stroke-linecap="round">
+        <g id="排课" transform="translate(-1799.000000, -71.000000)" stroke="#FFFFFF" stroke-width="1.33333333">
+            <g id="top" transform="translate(0.000000, 48.000000)">
+                <g id="编组-21" transform="translate(1780.000000, 12.000000)">
+                    <g id="编组-11" transform="translate(20.000000, 7.000000)">
+                        <g id="icon_tuichu" transform="translate(0.000000, 5.000000)">
+                            <path d="M5.99723333,0 L1,0 C0.44771525,1.01453063e-16 -6.76353751e-17,0.44771525 0,1 L0,11 C6.76353751e-17,11.5522847 0.44771525,12 1,12 L6,12 L6,12" id="路径" stroke-linejoin="round"></path>
+                            <polyline id="路径" stroke-linejoin="round" points="9 9 12 6 9 3"></polyline>
+                            <line x1="3" y1="6" x2="12" y2="6" id="路径"></line>
+                        </g>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

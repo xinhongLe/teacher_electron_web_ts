@@ -1,6 +1,6 @@
+import useSubjectPublisherBookList, { subjectPublisherBookList } from "@/hooks/useSubjectPublisherBookList";
 import router from "@/router";
 import { BookList } from "@/types/preparation";
-import { fetchSubjectPublisherBookList } from "@/views/preparation/api";
 import { ref } from "vue";
 
 export default () => {
@@ -10,17 +10,15 @@ export default () => {
         label: "Lable"
     };
 
-    const subjectPublisherBookList = ref<BookList[]>([]);
+    const list = ref<BookList[]>([]);
 
-    fetchSubjectPublisherBookList().then((res) => {
+    useSubjectPublisherBookList().then(() => {
         const subjectId = router.currentRoute.value.params.subjectId;
-        if (res.resultCode === 200) {
-            subjectPublisherBookList.value = res.result.filter(({ Value }) => Value === subjectId);
-        }
+        list.value = subjectPublisherBookList.value.filter(({ Value }) => Value === subjectId);
     });
 
     return {
         cascaderProps,
-        subjectPublisherBookList
+        subjectPublisherBookList: list
     };
 };

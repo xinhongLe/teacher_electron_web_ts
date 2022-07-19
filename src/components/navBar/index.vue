@@ -8,7 +8,7 @@
                 :class="item.name === $route.name && 'active'"
                 @click="go(item)"
             >
-                <font style="margin-right: 10px">{{ item.name }}</font>
+                <div style="margin-right: 10px">{{ item.name }}</div>
                 <i
                     class="el-icon-close"
                     v-if="item.name !== '首页' && item.name !== '备课'"

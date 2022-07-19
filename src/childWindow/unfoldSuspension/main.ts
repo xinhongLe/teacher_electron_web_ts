@@ -1,10 +1,11 @@
 import { createApp } from "vue";
 import App from "./App.vue";
+import "@/styles/index.scss";
 
-import { ElCascader, ElInput, ElButton, ElConfigProvider } from "element-plus";
+import { ElCascader, ElInput, ElButton, ElConfigProvider, ElCollapse, ElCollapseItem } from "element-plus";
 import "element-plus/dist/index.css";
 
-const components = [ElCascader, ElButton, ElInput, ElConfigProvider];
+const components = [ElCascader, ElButton, ElInput, ElConfigProvider, ElCollapse, ElCollapseItem];
 const app = createApp(App);
 
 components.forEach((component) => {

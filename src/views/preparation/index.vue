@@ -1,32 +1,47 @@
 <template>
     <div class="preparation">
-        <Head
-            v-model:tabIndex="tabIndex"
-        />
-        <div class="content-wrapper">
-            <keep-alive>
-                <ScheduleManagement v-if="tabIndex === 0"/>
-                <IntelligenceClassroom v-else-if="tabIndex ===1"/>
-            </keep-alive>
+        <LeftMenu v-model:showClassArrangement="showClassArrangement" v-model:course="course" />
+        <div class="content-wrapper" v-show="!showClassArrangement">
+            <Head :course="course" v-model:source="source" v-model:type="type" />
+            <Resources :course="course" :source="source" :type="type" />
+        </div>
+        <div class="content-wrapper" v-if="showClassArrangement">
+            <ClassArrangement />
         </div>
     </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from "vue";
-import Head from "./head/index.vue";
-import ScheduleManagement from "./scheduleManagement/index.vue";
-import IntelligenceClassroom from "./intelligenceClassroom/index.vue";
+import { defineComponent, onMounted, provide, ref } from "vue";
+import LeftMenu from "./layout/leftMenu.vue";
+import Head from "./layout/head.vue";
+import Resources from "./layout/resources.vue";
+import ClassArrangement from "./classArrangement/index.vue";
 export default defineComponent({
     name: "Preparation",
     setup() {
-        const tabIndex = ref(0);
+        const showClassArrangement = ref(false);
+        const course = ref({
+            chapterId: "",
+            lessonId: "",
+            lessonName: ""
+        });
+        const source = ref("");
+        const type = ref("");
 
         return {
-            tabIndex
+            course,
+            showClassArrangement,
+            source,
+            type
         };
     },
-    components: { Head, ScheduleManagement, IntelligenceClassroom }
+    components: {
+        LeftMenu,
+        Head,
+        Resources,
+        ClassArrangement
+    }
 });
 </script>
 
@@ -35,15 +50,16 @@ export default defineComponent({
     width: 100%;
     height: 100%;
     display: flex;
-    flex-direction: column;
     min-width: 0;
     min-height: 0;
-    background-color: #f5f6fa;
+    background-color: #F5F6FA;
     .content-wrapper {
         display: flex;
-        flex:1;
+        flex: 1;
+        flex-direction: column;
         min-height: 0;
         min-width: 0;
+        background-color: #F5F6FA;
     }
 }
 </style>

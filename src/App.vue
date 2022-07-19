@@ -81,6 +81,13 @@ export default defineComponent({
             });
         }
 
+        if (isElectron()) {
+            (window as any).electron.registerEscKeyUp(() => {
+                if (!(window as any).electron.isFullScreen()) return;
+                (window as any).electron.minimizeWindow();
+            });
+        }
+
         return {
             isShowUpdate,
             newVersionView,

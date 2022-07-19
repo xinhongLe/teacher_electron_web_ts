@@ -31,102 +31,145 @@
             </div>
         </div>
         <div class="container">
-            <div class="tool-list">
-                <div class="blackboard-box" @click="openBlackboard()">
-                    <img
-                        src="@/assets/images/suspension/pic_blackboard@2x.png"
-                        alt=""
-                    />
-                    <div class="blackboard-text">黑板</div>
-                    <!-- <div class="blackboard-btn" @click="openBlackboard()">打开</div> -->
-                </div>
-                <div class="blackboard-box" @click="openAnswerMachineWindow">
-                    <img
-                        src="@/assets/images/suspension/img_datiqi.png"
-                        alt=""
-                    />
-                    <div class="blackboard-text">答题器</div>
-                </div>
-                <div class="blackboard-box" @click="clickProjection">
-                    <img
-                        src="@/assets/images/suspension/pic_touying@2x.png"
-                        alt=""
-                    />
-                    <div class="blackboard-text">投影</div>
-                </div>
-                <div class="blackboard-box" @click="clickKnowledge">
-                    <img
-                        src="@/assets/images/suspension/pic_zhishitupu@2x.png"
-                        alt=""
-                    />
-                    <div class="blackboard-text">知识图谱</div>
-                </div>
-                <div class="blackboard-box" @click="openTimer">
-                    <img
-                        src="@/assets/images/suspension/pic_timer@2x.png"
-                        alt=""
-                    />
-                    <div class="blackboard-text">计时器</div>
-                </div>
-                <!-- openRollCall -->
-                <div class="blackboard-box" @click="openRollCall">
-                    <img
-                        src="@/assets/images/suspension/pic_namer@2x.png"
-                        alt=""
-                    />
-                    <div class="blackboard-text">点名</div>
-                </div>
-            </div>
-
-            <div class="teach-list">
-                <div class="teach-list-title">
-                    <span class="title">教学助手</span>
-                    <el-cascader
-                        v-model="selectBookList"
-                        :props="cascaderProps"
-                        :options="subjectPublisherBookList"
-                    />
-                    <div class="search-input">
-                        <el-input
-                            placeholder="搜索教具名称"
-                            v-model="searchName"
-                        >
-                            <template #append>
-                                <el-button
-                                    icon="el-icon-search"
-                                    @click="getGradeList"
-                                ></el-button>
-                            </template>
-                        </el-input>
-                    </div>
-                </div>
-                <div class="teach-class" v-show="!isLoading">
-                    <div class="list-empty" v-if="gameList.length === 0">
-                        <img src="@/assets/images/suspension/empty_tool.png" />
-                        <span
-                            >本书册下暂无教具，可切换为“全部”查看更多教具内容</span
-                        >
-                    </div>
-                    <div v-else class="teach-content-warp">
-                        <div
-                            class="teach-content"
-                            v-for="(item, index) in gameList"
-                            :key="index"
-                            @click="openUrl(item.url, item.name)"
-                        >
-                            <div class="img-warp">
-                                <img :src="item.imgUrl" />
+            <el-collapse class="collapse-custom" v-model="activeModes" @change="handleChange">
+                <el-collapse-item name="0" v-if="resourceList.length > 0">
+                    <template #title>
+                        <div class="collapse-header">
+                            <div class="collapse-title">
+                                <img src="@/assets/images/suspension/icon_sk.png" alt="">
+                                上课
                             </div>
-                            <p>{{ item.name }}</p>
+                            <div class="attend-class-view" @click.stop="switchClass()">
+                                <img src="@/assets/images/preparation/icon_qiehuan_1.png" alt="">
+                                {{isSwitch ? "全部显示" : "仅显示备课篮"}}
+                            </div>
+                        </div>
+                    </template>
+                    <div class="resource-list">
+                        <div class="resource-item" :class="{ courseware: resource.UserId === userId }" v-for="(resource, index) in resourceList" :key="index" @click="openResource(resource)">
+                            <div class="resource-left-title">
+                                <img :src="iconResources.selfStudy[resource.ResourceType]" alt="" />
+                                {{resource.Name}}
+                            </div>
+                            <div class="resource-type" :class="typeResources[resource.ResourceType] < 9 && 'p-r-' + typeResources[resource.ResourceType]">{{textResources[resource.ResourceType]}}</div>
                         </div>
                     </div>
-                </div>
-            </div>
+                </el-collapse-item>
+                <el-collapse-item name="1">
+                    <template #title>
+                        <div class="collapse-header">
+                            <div class="collapse-title">
+                                <img src="@/assets/images/suspension/icon_gj.png" alt="">
+                                工具
+                            </div>
+                        </div>
+                    </template>
+                    <div class="tool-list">
+                        <div class="blackboard-box" @click="openBlackboard()">
+                            <img
+                                src="@/assets/images/suspension/pic_blackboard@2x.png"
+                                alt=""
+                            />
+                            <div class="blackboard-text">黑板</div>
+                            <!-- <div class="blackboard-btn" @click="openBlackboard()">打开</div> -->
+                        </div>
+                        <div class="blackboard-box" @click="openAnswerMachineWindow">
+                            <img
+                                src="@/assets/images/suspension/img_datiqi.png"
+                                alt=""
+                            />
+                            <div class="blackboard-text">答题器</div>
+                        </div>
+                        <div class="blackboard-box" @click="clickProjection">
+                            <img
+                                src="@/assets/images/suspension/pic_touying@2x.png"
+                                alt=""
+                            />
+                            <div class="blackboard-text">投影</div>
+                        </div>
+                        <div class="blackboard-box" @click="clickKnowledge">
+                            <img
+                                src="@/assets/images/suspension/pic_zhishitupu@2x.png"
+                                alt=""
+                            />
+                            <div class="blackboard-text">知识图谱</div>
+                        </div>
+                        <div class="blackboard-box" @click="openTimer">
+                            <img
+                                src="@/assets/images/suspension/pic_timer@2x.png"
+                                alt=""
+                            />
+                            <div class="blackboard-text">计时器</div>
+                        </div>
+                        <!-- openRollCall -->
+                        <div class="blackboard-box" @click="openRollCall">
+                            <img
+                                src="@/assets/images/suspension/pic_namer@2x.png"
+                                alt=""
+                            />
+                            <div class="blackboard-text">点名</div>
+                        </div>
+                    </div>
+                </el-collapse-item>
+                <el-collapse-item name="2">
+                    <template #title>
+                        <div class="collapse-header">
+                            <div class="collapse-title">
+                                <img src="@/assets/images/suspension/icon_jj.png" alt="">
+                                教学助手
+                            </div>
+                            <div class="teach-list-title">
+                                <el-cascader
+                                    v-model="selectBookList"
+                                    :props="cascaderProps"
+                                    :options="subjectPublisherBookList"
+                                />
+                                <div class="search-input">
+                                    <el-input
+                                        placeholder="搜索教具名称"
+                                        v-model="searchName"
+                                    >
+                                        <template #append>
+                                            <el-button
+                                                icon="el-icon-search"
+                                                @click="getGradeList"
+                                            ></el-button>
+                                        </template>
+                                    </el-input>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                    <div class="teach-list">
+                        <div class="teach-class" v-show="!isLoading">
+                            <div class="list-empty" v-if="gameList.length === 0">
+                                <img src="@/assets/images/suspension/empty_tool.png" />
+                                <span
+                                    >本书册下暂无教具，可切换为“全部”查看更多教具内容</span
+                                >
+                            </div>
+                            <div v-else class="teach-content-warp">
+                                <div
+                                    class="teach-content"
+                                    v-for="(item, index) in gameList"
+                                    :key="index"
+                                    @click="openUrl(item.url, item.name)"
+                                >
+                                    <div class="img-warp">
+                                        <img :src="item.imgUrl" />
+                                    </div>
+                                    <p>{{ item.name }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </el-collapse-item>
+            </el-collapse>
         </div>
     </div>
 </template>
 <script lang="ts">
-import { defineComponent, onMounted, ref, watch } from "vue";
+import { defineComponent, onMounted, onUnmounted, PropType, ref, watch } from "vue";
 import { Game } from "./interface";
 import { getToolList } from "@/api/index";
 import { getOssUrl } from "@/utils/oss";
@@ -135,6 +178,9 @@ import { ElMessage } from "element-plus";
 import { BookList } from "@/types/preparation";
 import { get, STORAGE_TYPES, storeChange } from "@/utils/storage";
 import { fetchAllStudents } from "@/views/labelManage/api";
+import { IpcRendererEvent } from "electron";
+import { iconResources, textResources, typeResources } from "@/config/resource";
+
 export default defineComponent({
     setup(props, { emit }) {
         const gameList = ref<Game[]>([]);
@@ -156,7 +202,7 @@ export default defineComponent({
         const isLoading = ref(false);
         const allStudentList = ref<unknown[]>([]);
         let userInfo = get(STORAGE_TYPES.USER_INFO);
-
+        const userId = ref(userInfo.userCenterUserID);
         const openBlackboard = () => {
             if (isElectron()) {
                 return window.electron.ipcRenderer.invoke("openBlackboard");
@@ -186,9 +232,7 @@ export default defineComponent({
                 data.bookIDs =
                     subjectPublisherBookList.value
                         .find((item) => item.Value === selectBookList.value[0])
-                        ?.Children?.find(
-                            (item) => item.Value === selectBookList.value[1]
-                        )
+                        ?.Children?.find((item) => item.Value === selectBookList.value[1])
                         ?.Children?.map((x) => x?.Value || "") || [];
             } else {
                 data.bookID = selectBookList.value[2];
@@ -214,19 +258,13 @@ export default defineComponent({
         const openUrl = (url: string, name: string) => {
             if (isElectron()) {
                 url = url.startsWith("http") ? url : `https://${url}`;
-                return window.electron.ipcRenderer.invoke(
-                    "openSubjectTool",
-                    url,
-                    name
-                );
+                return window.electron.ipcRenderer.invoke("openSubjectTool", url, name);
             }
             window.open(url);
         };
-
         const clickKnowledge = () => {
             openUrl("https://knowledge.aixueshi.top/", "知识图谱");
         };
-
         const openRollCall = () => {
             if (allStudentList.value.length === 0) {
                 return ElMessage.error("请等待学员加载后点名！");
@@ -235,7 +273,6 @@ export default defineComponent({
                 return window.electron.ipcRenderer.invoke("openRollCall", JSON.parse(JSON.stringify(allStudentList.value)));
             }
         };
-
         const openAnswerMachineWindow = () => {
             if (allStudentList.value.length === 0) {
                 return ElMessage.error("请等待学员加载后答题！");
@@ -244,7 +281,6 @@ export default defineComponent({
                 return window.electron.ipcRenderer.invoke("openAnswerMachineWindow", JSON.parse(JSON.stringify(allStudentList.value)));
             }
         };
-
         const close = () => {
             if (isElectron()) {
                 window.electron.ipcRenderer.invoke("hideUnfoldSuspensionWin");
@@ -252,32 +288,25 @@ export default defineComponent({
                 emit("close-helper");
             }
         };
-
         const clickProjection = () => {
             if (isElectron()) {
                 window.electron.ipcRenderer.invoke("openProjectionWindow");
             }
         };
-
         const uncultivated = () => {
             ElMessage({ type: "warning", message: "功能暂未开发" });
         };
-
         const exitApp = () => {
             window.electron.ipcRenderer.invoke("exitApp");
         };
-
         const getBookList = async () => {
-            const res = await window.electron.ipcRenderer.invoke("fetchSubjectPublisherBookList");
-            if (res.resultCode === 200) {
-                subjectPublisherBookList.value = [
-                    ...initBookList,
-                    ...res.result
-                ];
-            }
+            const data = await window.electron.ipcRenderer.invoke("fetchSubjectPublisherBookList");
+            subjectPublisherBookList.value = [
+                ...initBookList,
+                ...data
+            ];
             getGradeList();
         };
-
         const getStudentList = async () => {
             allStudentList.value = [];
             const res = await fetchAllStudents(userInfo?.ID);
@@ -285,6 +314,12 @@ export default defineComponent({
                 allStudentList.value = res.result;
             }
         };
+
+        const resourceList = ref([]);
+        const onResources = (event: IpcRendererEvent, data: any) => {
+            if (data.type === "sysData") resourceList.value = JSON.parse(data.resources || "[]");
+            if (data.type === "switchClass") isSwitch.value = data.switch;
+        }
 
         onMounted(async () => {
             if (userInfo) {
@@ -295,15 +330,34 @@ export default defineComponent({
                 storeChange(STORAGE_TYPES.USER_INFO, (value) => {
                     if (value) {
                         userInfo = get(STORAGE_TYPES.USER_INFO);
+                        userId.value = userInfo.userCenterUserID;
                         getBookList();
                         getStudentList();
                     }
                 });
+
+                window.electron.ipcRenderer.send("attendClass", "main", { type: "sysData" });
+
+                window.electron.ipcRenderer.on("attendClass", onResources);
             }
         });
 
-        watch(selectBookList, getGradeList);
+        onUnmounted(() => {
+            window.electron.ipcRenderer.off("attendClass", onResources);
+        });
 
+        const activeModes = ref(["0", "1", "2"]);
+        const isSwitch = ref(false);
+
+        const openResource = (resource: any) => {
+            window.electron.ipcRenderer.send("attendClass", "main", { type: "openResource", resource: JSON.stringify(resource) });
+        };
+
+        const switchClass = () => {
+            window.electron.ipcRenderer.send("attendClass", "main", { type: "switchClass" });
+        };
+
+        watch(selectBookList, getGradeList);
         return {
             openBlackboard,
             openTimer,
@@ -322,7 +376,16 @@ export default defineComponent({
             searchName,
             uncultivated,
             isLoading,
-            openRollCall
+            openRollCall,
+            resourceList,
+            activeModes,
+            iconResources,
+            textResources,
+            openResource,
+            isSwitch,
+            switchClass,
+            typeResources,
+            userId
         };
     }
 });
@@ -338,7 +401,7 @@ export default defineComponent({
     border-radius: 1rem;
     display: flex;
     flex-direction: column;
-    background: #1a1d3e;
+    background: var(--app-color-dark);
     .header {
         height: 55px;
         display: flex;
@@ -393,7 +456,7 @@ export default defineComponent({
         }
         .blackboard-box {
             padding: 10px;
-            background-color: #2b314b;
+            background-color: rgba(255, 255, 255, 0.12);
             border-radius: 8px;
             margin-right: 8px;
             margin-bottom: 10px;
@@ -429,33 +492,6 @@ export default defineComponent({
             flex: 1;
             display: flex;
             flex-direction: column;
-            .teach-list-title {
-                margin: 20px 0;
-                color: #ffffff;
-                font-weight: 600;
-                font-size: 18px;
-                display: flex;
-                align-items: center;
-                .title {
-                    margin-right: 5px;
-                    flex-shrink: 0;
-                }
-                .search-input {
-                    margin-left: 5px;
-                    :deep(.el-input-group__append) {
-                        background: #0c1222;
-                        border: none;
-                    }
-                }
-                :deep(.el-input__inner) {
-                    background: #0c1222;
-                    border: none;
-                    color: #fdfdfd;
-                    &::placeholder {
-                        color: #8b8e95;
-                    }
-                }
-            }
             .teach-class {
                 flex: 1;
                 display: flex;
@@ -480,6 +516,7 @@ export default defineComponent({
                     font-size: 16px;
                     background: #0c1222;
                     flex-direction: column;
+                    padding: 30px 0;
                 }
                 &::-webkit-scrollbar {
                     display: none;
@@ -507,6 +544,144 @@ export default defineComponent({
                     }
                 }
             }
+        }
+    }
+}
+
+.collapse-custom {
+    --el-collapse-header-background-color: transparent;
+    --el-collapse-border-color: transparent;
+    --el-collapse-content-background-color: transparent;
+    --el-collapse-header-font-color: #FFFFFF;
+    .collapse-header {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        .collapse-title {
+            display: flex;
+            align-items: center;
+            font-size: 18px;
+            color: #fff;
+            font-weight: 600;
+            img {
+                display: block;
+                margin-right: 3px;
+            }
+        }
+    }
+    .attend-class-view {
+        display: flex;
+        align-items: center;
+        color: #BEC3D6;
+        cursor: pointer;
+        margin-right: 15px;
+        img {
+            display: block;
+            margin-right: 3px;
+        }
+    }
+    .resource-list {
+        .resource-item {
+            &.courseware {
+                background: #243260;
+                border-left: 2px solid #4b71ee;
+            }
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-radius: 4px;
+            background-color: rgba(255, 255, 255, .14);
+            padding: 8px 5px 8px 10px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            .resource-left-title {
+                display: flex;
+                align-items: center;
+                font-size: 16px;
+                color: #fff;
+                img {
+                    width: 30px;
+                    display: block;
+                    margin-right: 5px;
+                }
+            }
+            .resource-type {
+                display: flex;
+                align-items: center;
+                border-radius: 4px;
+                padding: 1px 10px;
+                color: var(--app-resource-type-qita);
+                border: 1px solid var(--app-resource-type-qita);
+                font-size: 12px;
+                margin: 0 10px 0 10px;
+                &.p-r-0 {
+                    color: var(--app-resource-type-jiaoan);
+                    border: 1px solid var(--app-resource-type-jiaoan);
+                }
+                &.p-r-1 {
+                    color: var(--app-resource-type-daoxuean);
+                    border: 1px solid var(--app-resource-type-daoxuean);
+                }
+                &.p-r-2 {
+                    color: var(--app-resource-type-kejian);
+                    border: 1px solid var(--app-resource-type-kejian);
+                }
+                &.p-r-3 {
+                    color: var(--app-resource-type-weikeshipin);
+                    border: 1px solid var(--app-resource-type-weikeshipin);
+                }
+                &.p-r-4 {
+                    color: var(--app-resource-type-zuoye);
+                    border: 1px solid var(--app-resource-type-zuoye);
+                }
+                &.p-r-5 {
+                    color: var(--app-resource-type-dianzikeben);
+                    border: 1px solid var(--app-resource-type-dianzikeben);
+                }
+                &.p-r-6 {
+                    color: var(--app-resource-type-jiaoju);
+                    border: 1px solid var(--app-resource-type-jiaoju);
+                }
+                &.p-r-7 {
+                    color: var(--app-resource-type-gongju);
+                    border: 1px solid var(--app-resource-type-gongju);
+                }
+                &.p-r-8 {
+                    color: var(--app-resource-type-sucai);
+                    border: 1px solid var(--app-resource-type-sucai);
+                }
+            }
+        }
+    }
+}
+
+.teach-list-title {
+    flex: 1;
+    min-width: 0;
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    .title {
+        margin-right: 5px;
+        flex-shrink: 0;
+    }
+    .search-input {
+        margin-left: 5px;
+        :deep(.el-input-group__append) {
+            background: #0c1222;
+            border: none;
+        }
+    }
+    :deep(.el-input__inner) {
+        background: #0c1222;
+        border: none;
+        color: #fdfdfd;
+        &::placeholder {
+            color: #8b8e95;
         }
     }
 }

@@ -16,7 +16,7 @@
                     <span>{{ item.CreateTime }}</span>
                     <el-icon color="#bec3d6"><caret-bottom v-if="activeNames.includes(item.CreateTime)"/><caret-top v-else/></el-icon>
                 </div>
-                <transition name="fade" v-on="on">
+                <CollapseTransition>
                     <div
                         class="img-list-warp"
                         v-show="activeNames.includes(item.CreateTime)"
@@ -34,7 +34,7 @@
                             </div>
                         </div>
                     </div>
-                </transition>
+                </CollapseTransition>
             </div>
         </div>
         <div class="enlarge-img-warp" v-if="enlargeImgSrc">
@@ -55,6 +55,7 @@ import { defineComponent, ref } from "vue";
 import { deleteBlackboardHistory, fetchBlackboardHistoryList, HistoryList } from "./api";
 import Title from "./title.vue";
 import { pull } from "lodash";
+import CollapseTransition from "@/components/collapseTransition/index.vue";
 
 export default defineComponent({
     setup(props, { emit }) {
@@ -175,7 +176,7 @@ export default defineComponent({
             on
         };
     },
-    components: { Title }
+    components: { Title, CollapseTransition }
 });
 </script>
 
@@ -226,11 +227,6 @@ export default defineComponent({
                 height: 712px;
             }
         }
-    }
-    .fade-enter-active,
-    .fade-leave-active {
-        transition: 0.3s height ease-in-out, 0.3s padding-top ease-in-out,
-            0.3s padding-bottom ease-in-out;
     }
     .list {
         flex: 1;

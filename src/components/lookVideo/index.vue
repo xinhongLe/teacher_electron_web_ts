@@ -1,9 +1,9 @@
 <template>
-    <div class="look-video" v-show="!isMinimized" v-loading="videoLoading">
+    <div class="look-video" :class="dialog && 'dialog-type'" v-show="!isMinimized" v-loading="videoLoading">
         <div class="warp">
             <div class="frames-box">
-                <span class="file-sn">{{ fileSn }}</span>
-                <p>查看视频</p>
+                <span class="file-sn" v-if="!dialog">{{ fileSn }}</span>
+                <p v-if="!dialog">查看视频</p>
                 <div class="content">
                     <Brush ref="childRef"></Brush>
                     <div class="material-box">
@@ -54,7 +54,7 @@
                 <div @click="closeVideo">
                     <p>关闭</p>
                 </div>
-                <div @click="smallVideo" v-show="isElectron">
+                <div @click="smallVideo" v-show="isElectron && !dialog">
                     <p>最小化</p>
                 </div>
                 <template v-if="isVideoEnded">
@@ -98,8 +98,19 @@ import useVideo, { formateSeconds } from "./hooks/useVideo";
 import { getOssUrl } from "@/utils/oss";
 import Brush from "@/components/brush/index.vue";
 import { MutationTypes, store } from "@/store";
+import emitter from "@/utils/mitt";
 export default defineComponent({
-    setup() {
+    props: {
+        dialog: {
+            type: Boolean,
+            default: false
+        },
+        close: {
+            type: Function,
+            default: () => {}
+        }
+    },
+    setup(props) {
         const isElectron = isElectronFun();
         const videoUrl = ref("");
         const btnType = ref(1);
@@ -141,6 +152,7 @@ export default defineComponent({
         };
 
         const closeVideo = () => {
+            if (props.dialog) props.close();
             store.commit(MutationTypes.SET_IS_SHOW_VIDEO, {
                 flag: false,
                 info: {}
@@ -212,6 +224,7 @@ export default defineComponent({
         };
 
         onMounted(() => {
+            emitter.on("smallVideo", smallVideo);
             if (isElectron) {
                 window.electron.ipcRenderer.on("openVideoWin", openVideoWin);
                 window.electron.ipcRenderer.on("closeVideoWin", closeVideoWin);
@@ -219,6 +232,7 @@ export default defineComponent({
         });
 
         onUnmounted(() => {
+            emitter.off("smallVideo");
             if (isElectron) {
                 window.electron.ipcRenderer.removeListener(
                     "openVideoWin",
@@ -283,6 +297,11 @@ export default defineComponent({
     overflow: hidden;
     background: #fff;
     -webkit-app-region: no-drag;
+    &.dialog-type {
+        width: 100%;
+        height: 100%;
+        position: relative;
+    }
 }
 .warp {
     height: 100%;

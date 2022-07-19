@@ -12,27 +12,28 @@
             :slide="slideView"
         />
         <div class="cardLis-class">
-                <div
-                    class="me-page-item"
-                    :class="selected === index && 'active'"
-                    v-for="(item, index) in cardList"
-                    @click="checkPage(index)"
-                    :key="item.ID"
-                >
-                    {{ item.Name }}
-                </div>
-            </div>
-            <Tools
-                @prevStep="prevCard"
-                @nextStep="nextCard"
-                @showWriteBoard="showWriteBoard"
-                @hideWriteBoard="hideWriteBoard"
-                @close="close"
-                @openShape="openShape"
-                :isShowFullscreen="false"
-                :isShowRemarkBtn="false"
-                :isShowClose="true"
-            />
+            <PageItem :pageList="cardList" :selected="selected" @selectPage="checkPage"/>
+            <!-- <div
+                class="me-page-item"
+                :class="selected === index && 'active'"
+                v-for="(item, index) in cardList"
+                @click="checkPage(index)"
+                :key="item.ID"
+            >
+                {{ item.Name }}
+            </div> -->
+        </div>
+        <Tools
+            @prevStep="prevCard"
+            @nextStep="nextCard"
+            @showWriteBoard="showWriteBoard"
+            @hideWriteBoard="hideWriteBoard"
+            @close="close"
+            @openShape="openShape"
+            :isShowFullscreen="false"
+            :isShowRemarkBtn="false"
+            :isShowClose="true"
+        />
     </div>
 </template>
 
@@ -42,6 +43,7 @@ import useHome from "@/hooks/useHome";
 import { getWinCardDBData } from "@/utils/database";
 import { ElMessage } from "element-plus";
 import Tools from "../preview/tools.vue";
+import PageItem from "../pageItem.vue";
 export default defineComponent({
     name: "openCardViewDia",
     props: {
@@ -154,7 +156,7 @@ export default defineComponent({
             close
         };
     },
-    components: { Tools }
+    components: { Tools, PageItem }
 });
 </script>
 

@@ -294,7 +294,7 @@ $btn_color: #4b71ee;
         padding: 0 40px;
         .login-logo {
             text-align: center;
-            margin-bottom: 35px;
+            margin-bottom: 15px;
             img {
                 width: 95px;
                 height: 95px;
@@ -330,7 +330,7 @@ $btn_color: #4b71ee;
             width: 100%;
             .el-form-item {
                 position: relative;
-                margin-bottom: 32px;
+                margin-bottom: 20px;
                 -webkit-app-region: no-drag;
                 .key-board-img {
                     width: 21px;
@@ -393,12 +393,12 @@ $btn_color: #4b71ee;
         }
         .prompt-text {
             position: absolute;
-            bottom: 10px;
+            bottom: 5px;
             text-align: center;
             color: #ccc;
-            font-size: 16px;
+            font-size: 12px;
             p {
-                margin-bottom: 10px;
+                margin-bottom: 5px;
             }
         }
     }

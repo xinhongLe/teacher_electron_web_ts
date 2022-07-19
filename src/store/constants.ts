@@ -14,6 +14,10 @@ export const enum MutationTypes {
      */
     SET_IS_SHOW_VIDEO = "SET_IS_SHOW_VIDEO",
     /**
+     * 设置显示窗卡页
+     */
+    SET_IS_WINCARD = "SET_IS_WINCARD",
+    /**
      * 重置common module
      */
     COMMON_RESET_STATE = "COMMON_RESET_STATE",
@@ -67,9 +71,9 @@ export const enum MutationTypes {
      */
     SET_SUBJECT_PUBLISHER_BOOK_VALUE = "SET_SUBJECT_PUBLISHER_BOOK_VALUE",
     /**
-     * 设置备课页面选择的课时信息
+     * 设置教材列表
      */
-    SET_SELECT_COURSE_BAG = "SET_SELECT_COURSE_BAG",
+    SET_SUBJECT_PUBLISHER_BOOK_LIST = "SET_SUBJECT_PUBLISHER_BOOK_LIST",
     /**
      * 设置是否在拖拽精品素材
      */
@@ -89,8 +93,19 @@ export const enum MutationTypes {
     /**
      * 设置窗卡页下一步按钮位置
      */
-    SET_SELECT_NEXT_TYPE = "SET_SELECT_NEXT_TYPE"
-
+    SET_SELECT_NEXT_TYPE = "SET_SELECT_NEXT_TYPE",
+    /**
+     * 设置备课页面选择的课时id
+     */
+    SET_SELECT_LESSON_ID = "SET_SELECT_LESSON_ID",
+    /**
+     * 设置当前编辑窗的信息
+     */
+    SET_EDIT_WINDOW_INFO = "SET_EDIT_WINDOW_INFO",
+    /**
+     * 设置学段
+     */
+    SET_TERM = "SET_TERM"
 }
 
 export const enum ActionTypes {

@@ -1,7 +1,7 @@
 <template>
     <div class="warp">
         <div class="frames-box">
-            <span class="file-sn">{{questionSn}}</span>
+            <span class="file-sn" v-if="!dialog">{{questionSn}}</span>
             <slot name="title" />
             <div class="count">{{ number }} / {{ sum }}</div>
             <div class="material-box">
@@ -72,7 +72,7 @@
                         <p>关闭</p>
                     </div>
                     <div
-                        v-show="isElectron && type != 2 && !isPureQuestion"
+                        v-show="isElectron && type != 2 && !isPureQuestion && !dialog"
                         @click.stop="smallQuestion"
                         class="button"
                     >
@@ -97,12 +97,13 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, inject, Ref, ref, watch } from "vue";
+import { computed, defineComponent, inject, onMounted, onUnmounted, Ref, ref, watch } from "vue";
 import isElectronFun from "is-electron";
 import useDetail from "./hooks/useDetail";
 import Brush from "@/components/brush/index.vue";
 import { store } from "@/store";
 import { set, STORAGE_TYPES } from "@/utils/storage";
+import emitter from "@/utils/mitt";
 export default defineComponent({
     props: {
         close: {
@@ -110,6 +111,10 @@ export default defineComponent({
             required: true
         },
         isPureQuestion: {
+            type: Boolean,
+            default: false
+        },
+        dialog: {
             type: Boolean,
             default: false
         }
@@ -145,17 +150,17 @@ export default defineComponent({
 
         const brushHandle = () => {
             btnType.value = 1;
-            childRef.value!.brushOn();
+            childRef.value?.brushOn();
         };
 
         const clearBoard = () => {
             btnType.value = 3;
-            childRef.value!.clearBrush();
+            childRef.value?.clearBrush();
         };
 
         const eraserHandle = () => {
             btnType.value = 2;
-            childRef.value!.eraserOn();
+            childRef.value?.eraserOn();
         };
 
         const lookSimilarQuestions = () => {
@@ -180,7 +185,7 @@ export default defineComponent({
         };
 
         watch(nowQuestionID, (v) => {
-            childRef.value!.clearBrush();
+            childRef.value?.clearBrush();
             emit("update:nowQuestionID", v);
         });
 
@@ -190,6 +195,16 @@ export default defineComponent({
 
         watch(resolutionSwitchValue, (v) => {
             set(STORAGE_TYPES.AUTO_PALY_RESOLUTION_SWITCH, String(v));
+        });
+
+        onMounted(() => {
+            if (!props.isPureQuestion) {
+                emitter.on("smallQuestion", smallQuestion);
+            }
+        });
+
+        onUnmounted(() => {
+            emitter.off("smallQuestion");
         });
 
         return {

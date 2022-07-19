@@ -8,16 +8,21 @@
             </div>
         </div>
         <div class="content">
-            <div class="col" v-for="(col, index) in schedules" :key="col.ClassIndex">
-                <div class="time cell">{{col.ShowType === 1 ? `第${index+1}节课` : col.fontShowTime}}</div>
+            <div class="col" v-for="(col) in schedules" :key="col.ClassIndex">
+                <div class="time cell">
+                    <span>{{col.fontShowTime}}</span>
+                    <span>{{col.SectionName}}</span>
+                </div>
                 <Course
                     v-for="item in col.colData"
-                    :key="item.ID"
+                    :key="item.index"
                     :rowData="col"
                     :colData="item"
                     :isDrop="isDrop"
                     :isShowText="isShowText"
+                    :isShowDelete="isShowDelete"
                     :isShowDetailBtn="isShowDetailBtn"
+                    @openCourse="openCourse"
                 />
             </div>
         </div>
@@ -25,7 +30,7 @@
 </template>
 
 <script lang="ts">
-import useSchedules from "@/hooks/useSchedules";
+import useSchedules, { ColData } from "@/hooks/useSchedules";
 import useTime from "@/hooks/useTime";
 import moment from "moment";
 import { computed, defineComponent, PropType, provide } from "vue";
@@ -46,23 +51,32 @@ export default defineComponent({
             type: Boolean,
             default: false
         },
+        isShowDelete: {
+            type: Boolean,
+            default: false
+        },
         isShowDetailBtn: {
             type: Boolean,
             default: false
         }
     },
-    setup(props) {
+    setup(props, { expose, emit }) {
         const { weekNext, weekPre, initDays, formTime, formWeek } = useTime();
         initDays();
         const days = computed(() => props.days);
         const currentDay = new Date().getDate();
         const { schedules, updateSchedules, updateClassSchedule, initSchedules } = useSchedules(days);
         const isCurrentDay = (day: string) => {
-            const currentDay = new Date().getDate();
-            return currentDay === moment(day).date();
+            return moment().isSame(day, "d");
         };
 
         provide("updateSchedules", updateSchedules);
+
+        expose({ initSchedules });
+
+        const openCourse = (data: ColData) => {
+            emit("openCourse", data);
+        };
 
         return {
             weekNext,
@@ -73,7 +87,8 @@ export default defineComponent({
             initSchedules,
             currentDay,
             isCurrentDay,
-            formWeek
+            formWeek,
+            openCourse
         };
     },
 
@@ -86,29 +101,34 @@ export default defineComponent({
         display: flex;
         flex-direction: column;
         height: 100%;
+        background-color: #fff;
+        border-radius: 16px;
     }
 
     .content-header {
         display: flex;
         align-items: center;
+        background-color: #fff;
+        padding: 0 16px;
+        height: 32px;
         .item {
             flex: 1;
-            height: 54px;
+            height: 100%;
             display: flex;
             align-items: center;
             justify-content: center;
             color: #5f626f;
             user-select: none;
             cursor: default;
-            font-size: 14px;
+            font-size: 12px;
             text-align: center;
-            border-left: 2px solid #e0e2e7;
-            border-bottom: 1px solid #e0e2e7;
+            background-color: #F5F6FA;
+            border-top: 1px solid #E0E2E7;
+            border-bottom: 1px solid #E0E2E7;
             &.current {
-                background: #a0b7ff;
-            }
-            &:last-child {
-                border-right: 2px solid #e0e2e7;
+                background: #98AEF6;
+                color: #fff;
+                border: 1px solid #98AEF6;
             }
         }
     }
@@ -117,22 +137,26 @@ export default defineComponent({
         flex: 1;
         flex-direction: column;
         overflow-y:overlay;
-        border-left: 2px solid #e0e2e7;
-        border-bottom: 1px solid #e0e2e7;
-        border-right: 2px solid #e0e2e7;
+        background-color: #fff;
+        border-bottom-left-radius: 16px;
+        border-bottom-right-radius: 16px;
+        padding: 0 16px 16px;
         .col {
-            height: 11rem;
+            height: 80px;
             display: flex;
             align-items: center;
             flex-shrink: 0;
             &:last-child {
-                border-bottom: none;
+                .cell {
+                    border-bottom: none;
+                }
             }
             .cell {
                 height: 100%;
                 flex: 1;
-                border: 1px solid #e0e2e7;
-                overflow: hidden;
+                min-width: 0;
+                border-right: 1px solid #e0e2e7;
+                border-bottom: 1px solid #e0e2e7;
                 &:last-child {
                     border-right: none;
                 }
@@ -140,12 +164,14 @@ export default defineComponent({
             .time {
                 display: flex;
                 align-items: center;
-                justify-content: center;
+                justify-content: space-around;
                 font-size: 16px;
-                color: #5f626f;
+                color: var(--app-color-dark);
+                font-weight: 600;
                 user-select: none;
                 flex: 1;
                 border-left: none;
+                flex-direction: column;
             }
             .course {
                 position: relative;

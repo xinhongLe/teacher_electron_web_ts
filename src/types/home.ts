@@ -9,19 +9,22 @@ export interface ITreeList {
 export interface IPageValue {
     ID: string,
     Type: number,
-    TeachPageRelationID: string,
+    TeachPageRelationID?: string,
     Name?: string,
     Remark?: string,
     originType?: number,
     OriginType?: number,
+    isAdd?: boolean,
     State: boolean
 }
 
 export interface ICardList {
     ID:string,
     Name: string,
-    TeachPageRelationID: string,
+    TeachPageRelationID?: string,
+    Sort: number,
     PageList: IPageValue[],
+    isAdd?: boolean,
     State?: boolean
 }
 

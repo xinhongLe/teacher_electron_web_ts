@@ -38,7 +38,7 @@ export default defineComponent({
             default: () => 0
         }
     },
-    emits: ["stopGetAllPageList", "offScreen"],
+    emits: ["offScreen"],
     setup(props, { emit }) {
         const showCollapse = ref(false);
         const slideView = ref({});

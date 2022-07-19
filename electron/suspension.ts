@@ -491,6 +491,9 @@ export function registerEvent() {
         setSuspensionSize();
         if (blackboardWin) {
             blackboardWin.show();
+            setTimeout(() => {
+                if (process.platform === "darwin") blackboardWin && blackboardWin.setFullScreen(true);
+            }, 1000);
         } else {
             createBlackboardWindow();
         }
@@ -511,7 +514,14 @@ export function registerEvent() {
         } else {
             suspensionWin && suspensionWin.webContents.send("blackboardMinimized");
         }
-        blackboardWin && blackboardWin.hide();
+        if (process.platform === "darwin") {
+            blackboardWin && blackboardWin.setFullScreen(false);
+            setTimeout(() => {
+                blackboardWin && blackboardWin.hide();
+            }, 1000);
+        } else {
+            blackboardWin && blackboardWin.hide();
+        }
         setSuspensionSize();
     });
 
@@ -627,4 +637,15 @@ export function registerEvent() {
     ipcMain.handle("answer-jection", (_, data) => {
         answerMachineWin && answerMachineWin.webContents.send("answer-jection", data);
     });
+
+    ipcMain.handle("getWindowList", (_, data) => {
+        unfoldSuspensionWin && unfoldSuspensionWin.webContents.send("getWindowList", data);
+    });
+    ipcMain.handle("getCourseWares", (_, data) => {
+        unfoldSuspensionWin && unfoldSuspensionWin.webContents.send("getCourseWares", data);
+    });
 }
+
+export const unfoldSuspensionWinSendMessage = (event: string, message: string) => {
+    unfoldSuspensionWin && unfoldSuspensionWin.webContents.send(event, message);
+};

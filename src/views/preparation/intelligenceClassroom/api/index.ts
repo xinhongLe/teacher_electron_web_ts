@@ -1,7 +1,8 @@
 import request from "@/utils/request";
-import { IResponse } from "@/types/response";
-import { ICardList, ITreeList } from "@/types/intelligence";
+import { IResponse, RequestFun } from "@/types/response";
+import { ICopyWindowRes, ITreeList } from "@/types/intelligence";
 import { AI_XUE_SHI_API, WINDOW_CRAD_API, originType } from "@/config";
+import { SchoolWindowCardInfo } from "@/types/preparation";
 type BookListResponse = IResponse<ITreeList[]>
 
 export interface IGetChapters {
@@ -22,11 +23,16 @@ export interface IGetWindowCards {
     OriginType: number
 }
 
-type GetWindowCardsResponse = IResponse<ICardList[]>
+type GetWindowCardsResponse = IResponse<SchoolWindowCardInfo[]>
 type GetSchoolLessonWindow = IResponse<LessonWindow[]>
 interface GetPageData {
     pageID: string,
     originType?: number,
+}
+
+interface GetPageInfos {
+    pageIDs: string[],
+    originType?: number
 }
 
 type GetPageResponse = IResponse<any>
@@ -43,11 +49,39 @@ interface IAddPage{
 }
 interface CopyWindow {
     id: string,
-    originType: number,
+    originType?: number | null,
     sourceLessonID: string
 }
+
+export interface SaveWindowsPageData {
+    pageID: string;
+    pageName: string;
+    height?: number;
+    width?: number;
+    type: number;
+    sort: number;
+    state: number;
+    remark: string;
+    json: string;
+    franchiseeID?: string;
+}
+
+export interface SaveWindowsCardData {
+    cardID: string,
+    cardName: string,
+    sort: number,
+    pageData: SaveWindowsPageData[]
+}
+
+interface SaveWindowsData {
+    originType: number,
+    windowID: string,
+    windowName: string,
+    lessonID?:string,
+    cardData: SaveWindowsCardData[]
+}
 // 复制窗
-export function CopyWindow(data:CopyWindow) {
+export function CopyWindow(data:CopyWindow): Promise<IResponse<ICopyWindowRes>> {
     return request({
         baseURL: AI_XUE_SHI_API,
         url: "/Api/WCP/Teacher/CopyWindow",
@@ -115,7 +149,7 @@ export function getPageDetailRes(data:GetPageData, type: number): Promise<GetPag
     });
 }
 // 弹出卡 页列表
-export function getCardDetail(data: string[]): Promise<GetPageResponse> {
+export function getCardDetail(data: GetPageInfos): Promise<GetPageResponse> {
     return request({
         url: "/Api/WCP/Window/GetPageInfos",
         headers: { DeviceID: "Franchisee" },
@@ -157,3 +191,41 @@ export function getSchoolLessonWindow(data: IGetLessonWindows): Promise<GetSchoo
         data
     });
 }
+
+export const saveWindows:RequestFun<SaveWindowsData, null> = (data) => {
+    return request({
+        baseURL: AI_XUE_SHI_API,
+        url: "Api/WCP/Window/SaveWindows",
+        headers: {
+            "Content-Type": "application/json-patch+json"
+        },
+        method: "post",
+        data
+    });
+};
+
+export const saveAsWindows:RequestFun<SaveWindowsData, null> = (data) => {
+    return request({
+        baseURL: AI_XUE_SHI_API,
+        url: "Api/WCP/Window/SaveAsWindows",
+        headers: {
+            "Content-Type": "application/json-patch+json"
+        },
+        method: "post",
+        data
+    });
+};
+
+export const deleteWindow:RequestFun<{
+    windowID: string
+}, null> = (data) => {
+    return request({
+        baseURL: AI_XUE_SHI_API,
+        url: "Api/WCP/Window/DeleteWindow",
+        headers: {
+            "Content-Type": "application/json-patch+json"
+        },
+        method: "post",
+        data
+    });
+};
