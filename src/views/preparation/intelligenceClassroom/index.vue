@@ -120,6 +120,7 @@ import CardList from "./cardList/index.vue";
 import PreviewSection from "./components/preview/previewSection.vue";
 import { useRouter } from "vue-router";
 import { CopyWindow } from "./api/index";
+import emitter from "@/utils/mitt";
 export default defineComponent({
     components: {
         CardList,
@@ -165,6 +166,11 @@ export default defineComponent({
         onMounted(() => {
             const obj = { chapterID: store.state.preparation.selectChapterID };
             _getSchoolLessonWindow(obj);
+            emitter.on("preparationReLoad", async () => {
+                const obj = { chapterID: store.state.preparation.selectChapterID };
+                await _getSchoolLessonWindow(obj);
+                _getWindowCards(activeIndex.winActiveId, true);
+            });
 
             // console.log(allData.cardList, "00000000000000");
         });

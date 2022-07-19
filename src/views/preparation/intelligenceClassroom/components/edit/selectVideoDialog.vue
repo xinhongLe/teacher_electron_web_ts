@@ -165,12 +165,13 @@ export default defineComponent({
                 return item.isChecked;
             });
 
-            const pauses = row.FilePauses ? row.FilePauses.map((item: string) => ({ time: item.split(".")[0] })) : [];
+            const pauses = row.FilePauses ? row.FilePauses.filter((item: any) => item.Type === 1).map((item: any) => ({ time: item.Time.split(".")[0] })) : [];
 
             const follow = {
                 id: row.ElementFile.ID,
                 src: row.ElementFile.FilePath + "/" + row.ElementFile.FileName + "." + row.ElementFile.Extention,
-                pauseList: pauses
+                pauseList: pauses,
+                fileID: row.ElementID
             };
             emit("selectVideoVal", follow);
         };

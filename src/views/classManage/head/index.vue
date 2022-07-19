@@ -22,7 +22,7 @@
             <span class="btn" @click="goLabel">管理标签</span>
             <!-- <span class="btn" @click="deleteStudentMachine">全部解绑</span>
             <span class="btn" @click="bulkImport">批量导入</span> -->
-            <span class="btn" @click="showAddStudent = true">添加学生</span>
+            <!-- <span class="btn" @click="showAddStudent = true">添加学生</span> -->
         </div>
         <AddStudent v-model:visible="showAddStudent" v-if="showAddStudent" />
     </div>

@@ -7,7 +7,8 @@ const initState = (): CommonState => ({
     isShowVideo: false,
     viewQuestionInfo: {
         type: 1,
-        id: ""
+        id: "",
+        courseBagId: ""
     },
     viewVideoInfo: {
         id: ""

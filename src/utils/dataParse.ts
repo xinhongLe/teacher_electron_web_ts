@@ -335,6 +335,7 @@ interface IOldImageElement {
     UUID: string;
     Width: number;
     ZIndex: number;
+    IsZoom: boolean;
 }
 
 // 处理图片
@@ -363,6 +364,7 @@ const dealImage = (oldImage: IOldImageElement) => {
     element.display = oldImage.IsVisibility;
     element.fixedRatio = true;
     element.stretch = oldImage.ImageStretch;
+    element.preview = !!oldImage.IsZoom;
     return element;
 };
 
@@ -595,7 +597,9 @@ const dealVideo = async (oldVideo: IOldVideo) => {
         showType: 0,
         rotate: 0,
         poster: "",
-        icon: ""
+        icon: "",
+        pauseList: [],
+        fileID: ""
     };
 
     if (oldVideo.Type === 10 || oldVideo.Type === 13) {
@@ -603,6 +607,7 @@ const dealVideo = async (oldVideo: IOldVideo) => {
             await getVideoQuoteInfo({ FileIDs: [oldVideo.FileID] }).then(res => {
                 if (res.resultCode === 200 && res.result.length > 0) {
                     oldVideo.OssFileName = res.result[0].File.FileName + "." + res.result[0].File.Extention;
+                    element.pauseList = res.result[0].Pauses;
                 } else {
                     oldVideo.OssFileName = "";
                 }
@@ -622,6 +627,7 @@ const dealVideo = async (oldVideo: IOldVideo) => {
     element.autoPlay = oldVideo.IsAutoPlay;
     element.poster = oldVideo.OssCoverFileName ? OSS_PATH + "/" + oldVideo.OssCoverFileName : "";
     element.icon = oldVideo.OssImageFileName ? OSS_PATH + "/" + oldVideo.OssImageFileName : (oldVideo.OssDisplayCoverFileNmae ? OSS_PATH + "/" + oldVideo.OssDisplayCoverFileNmae : "");
+    element.fileID = oldVideo.FileID ? oldVideo.FileID : "";
     return element;
 };
 

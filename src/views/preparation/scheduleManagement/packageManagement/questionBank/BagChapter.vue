@@ -19,7 +19,7 @@
                         alt=""
                     />
                     <span class="question_count"
-                        >{{ cont.QuestionCount }}题</span
+                        >{{ cont.Questions?.length || 0 }}题</span
                     >
                     <span class="question_type">{{
                         getCourseBagType(cont.ClassifyType)
@@ -43,11 +43,7 @@
                         size="mini"
                         plain
                         @click="
-                            lookQuestions({
-                                id: cont.PaperID,
-                                type: 1,
-                                courseBagId: courseBagId,
-                            })
+                            lookQuestions(ele.ID , cont.PaperID)
                         "
                         >查看题目</el-button
                     >
@@ -62,8 +58,10 @@ import useDrag from "@/hooks/useDrag";
 import { store } from "@/store";
 import { BagChapter, BagLessons, BagPapers } from "@/types/preparation";
 import { fetchBagChapter } from "@/views/preparation/api";
-import { computed, defineComponent, PropType, ref, watch } from "vue";
+import { computed, defineComponent, onMounted, PropType, ref, watch } from "vue";
 import { lookVideo, lookQuestions, getCourseBagType } from "@/utils";
+import emitter from "@/utils/mitt";
+import { find, pullAllBy } from "lodash";
 export default defineComponent({
     props: {
         subjectPublisherBookValue: {
@@ -79,6 +77,25 @@ export default defineComponent({
         const teacherBookChapterList = ref<BagChapter[]>([]);
         const bagLessonsList = ref<BagLessons[]>([]);
         const { onDrag, onDragEnd, onDragStart } = useDrag();
+        const deleteQuestionList = ref<Map<string, {
+            courseBagId: string,
+            questionIDs: string[],
+            id: string,
+            paperId: string
+        }>>(new Map());
+
+        const getBagLessonsList = (id: string) => {
+            const bagLessons = teacherBookChapterList.value.find(({ ID }) => id === ID)
+                ?.BagLessons || [];
+            for (const [paperId, { courseBagId, questionIDs }] of deleteQuestionList.value) {
+                const bagPapers = find(bagLessons, { ID: courseBagId })?.BagPapers || [];
+                const questionInfo = find(bagPapers, { PaperID: paperId });
+                const questions = questionInfo?.Questions || [];
+                pullAllBy(questions, questionIDs.map(id => ({ QuestionID: id })), "QuestionID");
+                questionInfo && (questionInfo.QuestionCount = questions.length);
+            }
+            bagLessonsList.value = bagLessons;
+        };
 
         const getBagChapter = async (id: string) => {
             const res = await fetchBagChapter({
@@ -86,9 +103,7 @@ export default defineComponent({
             });
             if (res.resultCode === 200) {
                 teacherBookChapterList.value = res.result;
-                bagLessonsList.value =
-                    res.result.find(({ ID }) => props.teacherBookChapter === ID)
-                        ?.BagLessons || [];
+                getBagLessonsList(props.teacherBookChapter);
             }
         };
 
@@ -99,6 +114,33 @@ export default defineComponent({
             };
             onDragStart(e, data);
         };
+
+        const _lookQuestions = (courseBagId: string, paperID: string) => {
+            lookQuestions({
+                id: paperID,
+                type: 1,
+                courseBagId: courseBagId || "",
+                deleteQuestionIds: deleteQuestionList.value.get(paperID)?.questionIDs || []
+            });
+            emitter.off("deleteQuestion");
+            emitter.on("deleteQuestion", ({ courseBagId, paperId, questionID }) => {
+                const bagPapers = find(bagLessonsList.value, { ID: courseBagId })?.BagPapers || [];
+                const questionInfo = find(bagPapers, { PaperID: paperId });
+                const questions = questionInfo?.Questions || [];
+                pullAllBy(questions, [{ QuestionID: questionID }], "QuestionID");
+                questionInfo && (questionInfo.QuestionCount = questions.length);
+                const info = deleteQuestionList.value.get(paperId);
+                const questionIDs = info?.questionIDs || [];
+                questionIDs.push(questionID);
+                deleteQuestionList.value.set(paperId, { courseBagId, paperId, questionIDs, id: props.teacherBookChapter });
+            });
+        };
+
+        watch(() => store.state.common.isShowQuestion, (v) => {
+            if (!v) {
+                emitter.off("deleteQuestion");
+            }
+        });
 
         watch(
             () => props.subjectPublisherBookValue,
@@ -111,9 +153,13 @@ export default defineComponent({
         );
 
         watch(() => props.teacherBookChapter, (id) => {
-            bagLessonsList.value =
-                    teacherBookChapterList.value.find(({ ID }) => id === ID)
-                        ?.BagLessons || [];
+            getBagLessonsList(id);
+        });
+
+        onMounted(() => {
+            emitter.on("preparationReLoad", () => {
+                getBagChapter(props.subjectPublisherBookValue[1]);
+            });
         });
 
         return {
@@ -125,8 +171,9 @@ export default defineComponent({
             courseBagId: computed(
                 () => store.state.preparation.selectCourseBag.ID
             ),
+            deleteQuestionList,
             getCourseBagType,
-            lookQuestions
+            lookQuestions: _lookQuestions
         };
     }
 });

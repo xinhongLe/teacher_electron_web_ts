@@ -1,6 +1,6 @@
 import { watch, ref } from "vue";
 import router from "@/router";
-import { Bread } from "./interface";
+import { Bread } from "../interface";
 
 export default () => {
     const breadList = ref([
@@ -20,12 +20,19 @@ export default () => {
     }
 
     watch(() => ({ name: router.currentRoute.value.name, path: router.currentRoute.value.path }), ({ name, path }) => {
-        if (
-            breadList.value.findIndex((r) => {
-                return r.name === name;
-            }) > -1 || path === "/login"
-        ) {
+        if (path === "/login") {
             return;
+        }
+        const index = breadList.value.findIndex((r) => {
+            return r.name === name;
+        });
+        if (
+            index > -1
+        ) {
+            return breadList.value.splice(index, 1, {
+                name: name as string,
+                path: path
+            });
         }
         breadList.value.push({
             name: name as string,

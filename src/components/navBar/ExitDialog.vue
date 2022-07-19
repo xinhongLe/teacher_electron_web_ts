@@ -91,13 +91,14 @@ export default defineComponent({
     padding: 0 20px 0 20px;
     justify-content: space-between;
     .close-icon {
-        width: 32px;
-        height: 32px;
+        width: 22px;
+        height: 22px;
+        cursor: pointer;
     }
 }
 
 .fixed .center {
-    padding: 20px;
+    padding: 35px 20px 20px;
     display: flex;
 }
 
@@ -111,7 +112,8 @@ export default defineComponent({
 }
 .fixed .center > .right > .top {
     font-size: 20px;
-    margin-top: 15px;
+    margin-top: 10px;
+    margin-bottom: 10px;
 }
 .fixed .center > .right > .bottom {
     display: flex;
@@ -120,10 +122,10 @@ export default defineComponent({
 .fixed .center > .right > .bottom button {
     margin-top: 15px;
     width: 70px;
-    height: 36px;
+    height: 30px;
     outline: none;
     border: none;
-    border-radius: 10px;
+    border-radius: 5px;
     cursor: pointer;
 }
 .fixed .center > .right > .bottom button:nth-of-type(2) {
@@ -131,7 +133,7 @@ export default defineComponent({
     color: #ffffff;
 }
 .fixed .center > .right > .bottom button:hover {
-    box-shadow: 0 0 5px 4px #918f8f; /*盒子阴影*/
+    box-shadow: 0 0 5px 4px #eee; /*盒子阴影*/
     transition: all 0.5s; /*持续时间*/
 }
 </style>

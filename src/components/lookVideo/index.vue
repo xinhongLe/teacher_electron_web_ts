@@ -103,7 +103,7 @@ export default defineComponent({
         const isElectron = isElectronFun();
         const videoUrl = ref("");
         const btnType = ref(1);
-        const childRef = ref<InstanceType<typeof Brush>>();
+
         const fileSn = ref();
         const isMinimized = ref(false);
         const lastId = ref("");
@@ -121,6 +121,7 @@ export default defineComponent({
             videoEnded,
             isVideoEnded,
             playPause,
+            childRef,
             replay
         } = useVideo();
 

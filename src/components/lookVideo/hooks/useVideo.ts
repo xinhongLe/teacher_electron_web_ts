@@ -1,5 +1,6 @@
 import { ref, reactive } from "vue";
 import { FilePause } from "../api";
+import Brush from "@/components/brush/index.vue";
 
 function timeEvent(e:string) {
     const time = e;
@@ -37,8 +38,11 @@ export function formateSeconds(endTime: number) {
 export default () => {
     const filePauses = ref<{time: number, hasView: boolean}[]>([]);
     const marks = ref<Record<number, string>>({});
+    const canvasDataList = ref<{time: number, data: string, hasView: boolean}[]>([]);
     const videoRef = ref<HTMLVideoElement>();
+    const childRef = ref<InstanceType<typeof Brush>>();
     const isVideoEnded = ref(false);
+    let lastRange = 0;
     const initVideo = reactive({
         videoLength: 0, // 时长
         currentTime: 0, // 当前播放时间
@@ -49,12 +53,25 @@ export default () => {
     // 改变视频节点数据
     const changeData = (data: FilePause[]) => {
         if (!data) return [];
-        const playPoint = data.map(({ Time }) => {
-            marks.value[timeEvent(Time)] = "";
-            return {
-                time: timeEvent(Time),
-                hasView: false
-            };
+        const playPoint: {
+            time: number,
+            hasView: boolean
+        }[] = [];
+        data.forEach(({ Time, Type }) => {
+            const time = timeEvent(Time);
+            if (Type === 1) {
+                marks.value[timeEvent(Time)] = "";
+                playPoint.push({
+                    time,
+                    hasView: false
+                });
+            } else if (Type === 3) {
+                canvasDataList.value.push({
+                    time,
+                    hasView: false,
+                    data: ""
+                });
+            }
         });
         return playPoint;
     };
@@ -83,6 +100,22 @@ export default () => {
                         btnName.value = "播放";
                     }
                 });
+
+                let currentRange = 0;
+                for (const [index, e] of canvasDataList.value.entries()) {
+                    if (e.time > 0 && time < e.time) {
+                        currentRange = index;
+                        break;
+                    }
+                }
+
+                if (currentRange !== lastRange) {
+                    canvasDataList.value[lastRange].data = childRef.value?.fabCanvas.toJSON();
+                    childRef.value!.clearBrush();
+                    const dataUrl = canvasDataList.value[currentRange].data;
+                    dataUrl && childRef.value!.fabCanvas.loadFromJSON(dataUrl).renderAll();
+                    lastRange = currentRange;
+                }
                 if (time >= initVideo.videoLength) {
                     btnName.value = "暂停";
                 }
@@ -129,6 +162,7 @@ export default () => {
         changeVideoTime,
         isVideoEnded,
         replay,
+        childRef,
         changeData
     };
 };

@@ -2,8 +2,47 @@ const { NormalModuleReplacementPlugin } = require("webpack");
 
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 
+const moment = require("moment");
+
+const extraResources = process.platform === "darwin" ? [
+    {
+        from: "./extraResources/mac/ColorPicker",
+        to: "ColorPicker"
+    }
+] : [
+    {
+        from: "./extraResources/win/ball/ball.exe",
+        to: "extraResources/win/ball/ball.exe"
+    },
+    {
+        from: "./extraResources/win/ball/ball.exe.config",
+        to: "extraResources/win/ball/ball.exe.config"
+    },
+    {
+        from: "./extraResources/win/ball/log4net.dll",
+        to: "extraResources/win/ball/log4net.dll"
+    },
+    {
+        from: "./extraResources/win/ball/Newtonsoft.Json.dll",
+        to: "extraResources/win/ball/Newtonsoft.Json.dll"
+    },
+    {
+        from: "./extraResources/win/ball/Config/Log4Net.config",
+        to: "extraResources/win/ball/Config/Log4Net.config"
+    },
+    {
+        from: "./extraResources/win/ball/Config/Interop.NetFwTypeLib.dll",
+        to: "extraResources/win/ball/Config/Interop.NetFwTypeLib.dll"
+    },
+    {
+        from: "./extraResources/win/mockingbot-color-picker-ia32.exe",
+        to: "mockingbot-color-picker-ia32.exe"
+    }
+];
+
 module.exports = {
     productionSourceMap: false,
+    lintOnSave: false,
     pages: {
         index: {
             entry: "src/main.ts",
@@ -37,9 +76,9 @@ module.exports = {
         },
         rollCall: {
             entry: "src/childWindow/rollCall/main.ts",
-            template: "public/index.html",
+            template: "public/rollCall.html",
             filename: "rollCall.html",
-            title: "",
+            title: "点名",
             chunks: ["rollCall"]
         },
         answerMachine: {
@@ -157,7 +196,7 @@ module.exports = {
                 appId: "com.leyixue.teacher",
                 productName: "爱学仕校园教师端", // 项目名
                 copyright: "Copyright © 2021", // 版权信息
-                artifactName: "${productName}-${version}.${ext}",
+                artifactName: "${productName}-${version}-" + moment().format("YYYYMMDDHHmm") + ".${ext}",
                 directories: {
                     output: "./dist_electron" // 输出文件路径
                 },
@@ -169,6 +208,8 @@ module.exports = {
                         url: "" // 更新服务器地址,可为空
                     }
                 ],
+                afterPack: "./build/afterPack.js",
+                extraResources: extraResources, // 拷贝静态文件到指定位置
                 dmg: {
                     contents: [
                         {

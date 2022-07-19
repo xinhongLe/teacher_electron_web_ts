@@ -14,6 +14,9 @@
                 @mousedown="mousedown"
                 @mousemove="mousemove"
                 @mouseup="mouseup"
+                @touchstart="touchStart"
+                @touchmove="touchMove"
+                @touchend="mouseup"
             />
             <transition name="fade">
                 <BoardList
@@ -275,229 +278,57 @@
 </template>
 
 <script lang="ts">
-import { ElMessageBox } from "element-plus";
 import { computed, defineComponent, onMounted, ref, watch } from "vue";
 import BoardList from "./boardList.vue";
 import BoardHistoryList from "./boardHistoryList.vue";
 import useUploadFile from "@/hooks/useUploadFile";
 import { BlackboardFile, submitBlackboardHistory } from "./api";
 import CloseDialog from "./closeDialog.vue";
-const chalKBlack = require("./ico/chalk_black.cur");
-const chalKBlue = require("./ico/chalk_blue.cur");
-const chalKOrange = require("./ico/chalk_orange.cur");
-const chalKRed = require("./ico/chalk_red.cur");
-const chalKWhite = require("./ico/chalk_white.cur");
-const rubber2 = require("./ico/icon-rubber2.cur");
-enum ActiveType {
-    Move,
-    Choose,
-    Brush,
-    Eraser,
-}
+import useMove from "./hooks/useMove";
+import usePen from "./hooks/usePen";
+import useErase from "./hooks/useErase";
+import usePage from "./hooks/usePage";
+import useUndoOrRecover from "./hooks/useUndoOrRecover";
+import useClear from "./hooks/useClear";
+import { ActiveType, PenColorMap } from "./enum";
 
-enum PenColorMap {
-    White = "#FFFFFF",
-    Black = "#000000",
-    Red = "#F21E1E",
-    Orange = "#E4AB07",
-    Blue = "#4B71EE",
-}
 export default defineComponent({
     setup() {
         const canvasRef = ref<HTMLCanvasElement>();
-        const penSize = ref(2);
-        const penColor = ref(PenColorMap.White);
-        const storageCanvasData = ref<
-            {
-                data: string;
-                img: string;
-            }[]
-        >([
-            {
-                data: "",
-                img: ""
-            }
-        ]);
-        const pageIndex = ref(0);
-        let fabCanvas: any;
-        const chalKColorMap: Record<string, unknown> = {
-            "#000000": chalKBlack,
-            "#4B71EE": chalKBlue,
-            "#E4AB07": chalKOrange,
-            "#F21E1E": chalKRed,
-            "#FFFFFF": chalKWhite
-        };
-        // 记录黑板数据
-        const currentState = ref<string[]>([]);
-        // 记录删除黑板数据
-        const deleteState = ref<string[]>([]);
+        const fabCanvas = ref();
         const boxRef = ref<HTMLDivElement>();
         const isShowBroadList = ref(false);
         const activeType = ref(ActiveType.Brush);
-        let isAction = false;
-        const origin = { x: 0, y: 0 };
-        let isMoving = false;
-        let actionSleep: any;
-        const disabledPrevPage = computed(() => pageIndex.value === 0);
-        const disabledNextPage = computed(
-            () => pageIndex.value === storageCanvasData.value.length - 1
-        );
         const isBlack = ref(true);
         const blackColor = "#0C3E31";
         const whiteColor = "#F5F6FA";
         const isShowHistoryBroadList = ref(false);
         const { uploadFile } = useUploadFile("TeacherBlackboardFile");
         const isShowCloseDialog = ref(false);
+        const { clear, clearClick } = useClear(fabCanvas, blackColor);
+        const { mousedown, mousemove, mouseup, touchStart, touchMove } = useMove(fabCanvas);
+        const { penColor, penSize, selectPenMode, brushClick, changeLineWidth, changeStrokeStyle } = usePen(fabCanvas, activeType);
+        const { eraserClick } = useErase(fabCanvas, activeType);
+        const { prevPage, nextPage, pageIndex, storageCanvasData, disabledNextPage, disabledPrevPage, saveCurrentCanvasData, addPage, createBroad, deleteBoard } = usePage(fabCanvas, clear);
+        const { undoClick, recoverClick, isAction, deleteState, currentState } = useUndoOrRecover(fabCanvas, clear);
 
         function init() {
-            fabCanvas = new window.fabric.Canvas(canvasRef.value, {
+            fabCanvas.value = new window.fabric.Canvas(canvasRef.value, {
                 backgroundColor: blackColor,
                 width: Number(boxRef.value?.offsetWidth),
                 height: Number(boxRef.value?.offsetHeight)
             });
             // 禁止橡皮擦除背景色
-            fabCanvas.get("backgroundColor").set({ erasable: false });
-            fabCanvas.freeDrawingBrush.width = 2;
+            fabCanvas.value.get("backgroundColor").set({ erasable: false });
+            fabCanvas.value.freeDrawingBrush.width = 2;
             selectPenMode();
         }
-        // 画笔模式
-        function selectPenMode() {
-            fabCanvas.freeDrawingBrush = new window.fabric.PencilBrush(
-                fabCanvas
-            );
-            fabCanvas.isDrawingMode = true;
-            fabCanvas.freeDrawingBrush.color =
-                penColor.value || PenColorMap.White;
-            fabCanvas.freeDrawingBrush.width = penSize.value || 2;
-            const cursor = `url(${
-                penColor.value
-                    ? chalKColorMap[penColor.value]
-                    : chalKColorMap.white
-            }),auto`;
-            fabCanvas.freeDrawingCursor = cursor;
-        }
-        // 橡皮模式
-        function selectEraseMode() {
-            fabCanvas.freeDrawingBrush = new window.fabric.EraserBrush(
-                fabCanvas
-            );
-            fabCanvas.freeDrawingBrush.width = 30;
-            fabCanvas.isDrawingMode = true;
-            fabCanvas.freeDrawingCursor = `url(${rubber2}),auto`;
-        }
-        function getCanvasData() {
-            const dataUrl = fabCanvas.toJSON();
-            const canvasimg = fabCanvas.toDataURL();
-            const data = { data: dataUrl, img: canvasimg };
-            return data;
-        }
-        function saveCurrentCanvasData() {
-            storageCanvasData.value[pageIndex.value] = getCanvasData();
-        }
-        function clear() {
-            fabCanvas.clear();
-            fabCanvas.setBackgroundColor(blackColor);
-            fabCanvas.get("backgroundColor").set({ erasable: false });
-            fabCanvas.renderAll();
-        }
-        const undoClick = () => {
-            isAction = true;
-            if (currentState.value.length > 1) {
-                const deleteJson = currentState.value.pop();
-                deleteState.value.push(deleteJson!);
-                const jsonString =
-                    currentState.value[currentState.value.length - 1];
-                const json = JSON.parse(jsonString);
-                fabCanvas.loadFromJSON(json).renderAll();
-            } else {
-                if (currentState.value.length === 1) {
-                    const deleteJson = currentState.value.pop();
-                    deleteState.value.push(deleteJson!);
-                }
-                currentState.value = [];
-                clear();
-            }
-            clearTimeout(actionSleep);
-            actionSleep = setTimeout(() => {
-                isAction = false;
-            }, 500);
-        };
-        const recoverClick = () => {
-            isAction = true;
-            if (deleteState.value.length > 0) {
-                const deleteJson = deleteState.value.pop();
-                currentState.value.push(deleteJson!);
-                const json = JSON.parse(deleteJson!);
-                fabCanvas.loadFromJSON(json).renderAll();
-            }
-            clearTimeout(actionSleep);
-            actionSleep = setTimeout(() => {
-                isAction = false;
-            }, 500);
-        };
         const moveClick = () => {
             activeType.value = ActiveType.Move;
         };
         const chooseClick = () => {
             activeType.value = ActiveType.Choose;
-            fabCanvas.isDrawingMode = false;
-        };
-        const brushClick = () => {
-            activeType.value = ActiveType.Brush;
-            selectPenMode();
-        };
-        const eraserClick = () => {
-            activeType.value = ActiveType.Eraser;
-            selectEraseMode();
-        };
-        const clearClick = () => {
-            ElMessageBox.confirm("是否清空黑板?", "警告", {
-                type: "warning",
-                confirmButtonText: "确定",
-                cancelButtonText: "取消"
-            }).then(() => {
-                clear();
-            });
-        };
-        const mousedown = (e: MouseEvent) => {
-            origin.x = e.x;
-            origin.y = e.y;
-            isMoving = true;
-        };
-        const mousemove = (e: MouseEvent) => {
-            if (!isMoving) {
-                return;
-            }
-            const left = e.x - origin.x;
-            const top = e.y - origin.y;
-            origin.x = e.x;
-            origin.y = e.y;
-            const objects = fabCanvas.getObjects();
-            objects.map((obj: any) => {
-                obj.set({
-                    left: obj.left + left,
-                    top: obj.top + top
-                });
-            });
-            fabCanvas.renderAll();
-        };
-        const mouseup = () => {
-            isMoving = false;
-        };
-        const changeStrokeStyle = (color: PenColorMap) => {
-            penColor.value = color;
-        };
-        const changeLineWidth = (width: number) => {
-            penSize.value = width;
-        };
-        const createBroad = () => {
-            clear();
-            storageCanvasData.value.push(getCanvasData());
-            pageIndex.value = storageCanvasData.value.length - 1;
-        };
-        const addPage = () => {
-            saveCurrentCanvasData();
-            createBroad();
+            fabCanvas.value.isDrawingMode = false;
         };
 
         const showBoardList = () => {
@@ -505,27 +336,13 @@ export default defineComponent({
             isShowBroadList.value = true;
             isShowHistoryBroadList.value = false;
         };
-        const prevPage = () => {
-            if (disabledPrevPage.value) {
-                return;
-            }
-            saveCurrentCanvasData();
-            pageIndex.value--;
-        };
-        const nextPage = () => {
-            if (disabledNextPage.value) {
-                return;
-            }
-            saveCurrentCanvasData();
-            pageIndex.value++;
-        };
 
         const changeBoard = () => {
-            fabCanvas.setBackgroundColor(
+            fabCanvas.value.setBackgroundColor(
                 isBlack.value ? whiteColor : blackColor
             );
-            fabCanvas.get("backgroundColor").set({ erasable: false });
-            fabCanvas.renderAll();
+            fabCanvas.value.get("backgroundColor").set({ erasable: false });
+            fabCanvas.value.renderAll();
             isBlack.value = !isBlack.value;
             if (!isBlack.value && penColor.value === PenColorMap.White) {
                 penColor.value = PenColorMap.Black;
@@ -562,38 +379,30 @@ export default defineComponent({
             isShowCloseDialog.value = true;
         };
 
-        const deleteBoard = (index: number) => {
-            if (index === pageIndex.value) {
-                pageIndex.value = 0;
-            } else if (pageIndex.value > index) {
-                pageIndex.value--;
-            }
-            storageCanvasData.value.splice(index, 1);
-        };
         onMounted(() => {
             init();
-            fabCanvas.on("object:added", function (e: any) {
-                if (isAction) {
+            fabCanvas.value.on("object:added", function (e: any) {
+                if (isAction.value) {
                     return;
                 }
                 deleteState.value = [];
-                const json = fabCanvas.toDatalessJSON(["clipPath"]);
+                const json = fabCanvas.value.toDatalessJSON(["clipPath"]);
                 currentState.value.push(JSON.stringify(json));
             });
-            fabCanvas.on("object:modified", function (e: any) {
-                if (isAction) {
+            fabCanvas.value.on("object:modified", function (e: any) {
+                if (isAction.value) {
                     return;
                 }
                 deleteState.value = [];
-                const json = fabCanvas.toDatalessJSON(["clipPath"]);
+                const json = fabCanvas.value.toDatalessJSON(["clipPath"]);
                 currentState.value.push(JSON.stringify(json));
             });
         });
-        watch([penColor, penSize], () => {
-            selectPenMode();
-        });
+
         watch(pageIndex, (v) => {
-            fabCanvas.loadFromJSON(storageCanvasData.value[v].data).renderAll();
+            deleteState.value = [];
+            currentState.value = [];
+            fabCanvas.value.loadFromJSON(storageCanvasData.value[v].data).renderAll();
         });
         return {
             isBlack,
@@ -633,6 +442,8 @@ export default defineComponent({
             isShowCloseDialog,
             isShowHistoryBroadList,
             PenColorMap,
+            touchStart,
+            touchMove,
             disabledRecoverBtn: computed(() => deleteState.value.length === 0),
             disabledUndoBtn: computed(() => currentState.value.length === 0)
         };

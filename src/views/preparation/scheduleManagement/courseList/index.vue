@@ -8,6 +8,7 @@
                     :item="item"
                     :index="index"
                     v-model:startActiveIndex="startActiveIndex"
+                    @updateCourseList="updateCourseList"
                 />
             </div>
             <p class="add-ks" @click="dialogVisible = true">
@@ -28,9 +29,11 @@
 
 <script lang="ts">
 import { MutationTypes, store } from "@/store";
-import { Course } from "@/types/preparation";
-import { defineComponent, provide, ref, watchEffect } from "vue";
-import { fetchTeacherLessonAndBagByChapter } from "../../api";
+import { Course, CourseBag } from "@/types/preparation";
+import emitter from "@/utils/mitt";
+import _ from "lodash";
+import { defineComponent, onMounted, provide, ref, watchEffect } from "vue";
+import { cloneCourseBagToTeacher, fetchTeacherLessonAndBagByChapter } from "../../api";
 import { teacherLessonAndBagFilter } from "../../logic";
 import CourseItem from "./CourseItem.vue";
 import LessonDialog from "./LessonDialog.vue";
@@ -41,18 +44,32 @@ export default defineComponent({
         const dialogVisible = ref(false);
         const showList = ref(true);
         const startActiveIndex = ref(0);
+        const updateCourseList = (index: number, info: CourseBag) => {
+            const findIndex = _.findIndex(courseList.value[index].CourseBags, { CourseBagID: info.CourseBagID });
+            courseList.value[index].CourseBags[findIndex] = info;
+        };
         const getTeacherLessonAndBag = () => {
             const chapterID = store.state.preparation.selectChapterID;
             if (chapterID) {
                 fetchTeacherLessonAndBagByChapter({
                     chapterID
-                }).then(res => {
+                }).then(async res => {
                     if (res.resultCode === 200) {
                         startActiveIndex.value = res.result.findIndex(({ CourseBags }) => CourseBags.length !== 0);
                         courseList.value = teacherLessonAndBagFilter(res.result);
                         const { selectCourseBag } = store.state.preparation;
                         if (startActiveIndex.value !== -1 && !selectCourseBag?.ID) { // 当正在查看课包内容且课包列表中有课包且当前选中的课包为空时
                             const info = courseList.value[startActiveIndex.value]?.CourseBags[0] || {};
+                            if (info.CourseBagType === 1) {
+                                const cloneCourseBagDetail = await cloneCourseBagToTeacher({
+                                    courseBagID: info.ID!
+                                });
+                                if (cloneCourseBagDetail.resultCode === 200) {
+                                    info.ID = cloneCourseBagDetail.result.CourseBagTeacher.ID;
+                                    info.CourseBagType = 2;
+                                    updateCourseList(startActiveIndex.value, info);
+                                }
+                            }
                             store.commit(MutationTypes.SET_SELECT_COURSE_BAG, info);
                         }
                     }
@@ -64,11 +81,18 @@ export default defineComponent({
 
         provide("getTeacherLessonAndBag", getTeacherLessonAndBag);
 
+        onMounted(() => {
+            emitter.on("preparationReLoad", () => {
+                getTeacherLessonAndBag();
+            });
+        });
+
         return {
             courseList,
             getTeacherLessonAndBag,
             startActiveIndex,
             dialogVisible,
+            updateCourseList,
             showList
         };
     },

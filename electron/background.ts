@@ -1,14 +1,18 @@
 "use strict";
 
 import { app, protocol, BrowserWindow, ipcMain, Menu } from "electron";
+import installExtension, { VUEJS3_DEVTOOLS } from "electron-devtools-installer";
 import { createProtocol } from "vue-cli-plugin-electron-builder/lib";
 import { initialize } from "@electron/remote/main";
 import { createSuspensionWindow, registerEvent } from "./suspension";
 import downloadFile from "./downloadFile";
 import autoUpdater from "./autoUpdater";
 import SingalRHelper from "./singalr";
+import ElectronLog from "electron-log";
+import os from 'os';
+import { exec, spawn } from 'child_process';
 const isDevelopment = process.env.NODE_ENV !== "production";
-const path = require("path");
+import path from "path";
 initialize();
 
 protocol.registerSchemesAsPrivileged([
@@ -67,6 +71,7 @@ async function createWindow() {
 
     mainWindow.on("ready-to-show", () => {
         mainWindow!.show();
+        ElectronLog.info("app show");
     });
 
     mainWindow.on("closed", () => {
@@ -105,13 +110,27 @@ async function createWindow() {
         mainWindow!.webContents.send("exitApp");
     });
 
+    ipcMain.on("openVideoWin", () => {
+        mainWindow!.show();
+        mainWindow!.webContents.send("openVideoWin");
+    });
+
     ipcMain.handle("openVideoWin", () => {
         mainWindow!.show();
         mainWindow!.webContents.send("openVideoWin");
     });
 
+    ipcMain.on("closeVideoWin", () => {
+        mainWindow!.webContents.send("closeVideoWin");
+    });
+
     ipcMain.handle("closeVideoWin", () => {
         mainWindow!.webContents.send("closeVideoWin");
+    });
+
+    ipcMain.on("openQuestion", () => {
+        mainWindow!.show();
+        mainWindow!.webContents.send("openQuestion");
     });
 
     ipcMain.handle("openQuestion", () => {
@@ -119,8 +138,31 @@ async function createWindow() {
         mainWindow!.webContents.send("openQuestion");
     });
 
+    ipcMain.on("closeQuestion", () => {
+        mainWindow!.webContents.send("closeQuestion");
+    });
+
     ipcMain.handle("closeQuestion", () => {
         mainWindow!.webContents.send("closeQuestion");
+    });
+
+    ipcMain.handle("openVirtualKeyBoard", () => {
+        if (os.platform() === "win32") {
+            exec("osk", (err) => {
+                ElectronLog.error(err);
+            });
+        } else {
+            exec("onboard");
+        }
+    });
+
+    ipcMain.handle("fetchSubjectPublisherBookList", () => {
+        return new Promise((resolve) => {
+            ipcMain.once("fetchSubjectPublisherBookList", (_, data) => {
+                resolve(data);
+            });
+            mainWindow!.webContents.send("fetchSubjectPublisherBookList");
+        });
     });
 }
 
@@ -130,19 +172,33 @@ app.on("window-all-closed", () => {
     }
 });
 
+app.on("will-quit", () => {
+    ElectronLog.info("app quit");
+});
+
 app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
 });
 
 app.on("ready", async () => {
+    ElectronLog.info("app ready");
     if (isDevelopment && !process.env.IS_TEST) {
         try {
-            // await installExtension(VUEJS_DEVTOOLS);
+            await installExtension(VUEJS3_DEVTOOLS);
         } catch (e) {
             console.error("Vue Devtools failed to install:", e);
         }
     }
     createWindow();
+});
+
+app.on("render-process-gone", (event, webContents, details) => {
+    ElectronLog.error(`render-process-gone, webContents title: ${webContents.getTitle()}, reason: ${details.reason}, exitCode: ${details.exitCode}`);
+});
+
+app.on("child-process-gone", (event, details) => {
+    const { type, reason, exitCode, serviceName, name } = details;
+    ElectronLog.error(`child-process-gone, reason: ${reason}, exitCode: ${exitCode}, type:${type}, serviceName: ${serviceName}, name: ${name}`);
 });
 
 const gotTheLock = app.requestSingleInstanceLock();

@@ -31,10 +31,10 @@
                         <el-option
                             v-for="(item, index) in recordAccountList"
                             :key="index"
-                            :label="item.account"
-                            :value="item.account"
+                            :label="(item as any).account"
+                            :value="(item as any).account"
                         >
-                            <span style="float: left">{{ item.account }}</span>
+                            <span style="float: left">{{ (item as any).account }}</span>
                             <span
                                 style="
                                     float: right;
@@ -153,8 +153,9 @@ export default defineComponent({
             const { account, password, code } = form;
             if ((isPassWordLogin.value && (account.length === 0 || password.length === 0)) || (!isPassWordLogin.value && (account.length === 0 || code.length === 0))) return false;
             loading.value = true;
-            await userLogin({ account, password, code, isPassWordLogin: isPassWordLogin.value });
+            const loginSuccess = await userLogin({ account, password, code, isPassWordLogin: isPassWordLogin.value });
             loading.value = false;
+            if (!loginSuccess) return;
             const redirect: any = route.redirectedFrom;
             if (redirect && redirect.path !== "/" && !isElectron()) {
                 const params: any = redirect?.query;
@@ -188,13 +189,7 @@ export default defineComponent({
         };
 
         const openVirtualKeyBoard = () => {
-            const { exec } = require("child_process");
-            const os = require("os");
-            if (os.platform() === "win32") {
-                exec("osk.exe");
-            } else {
-                exec("onboard");
-            }
+            window.electron.ipcRenderer.invoke("openVirtualKeyBoard");
         };
 
         const getCode = async () => {

@@ -86,7 +86,7 @@
                             </div>
                         </el-upload>
                     </div>
-                    <div style="display:flex;align-items:center;flex-wrap: wrap;">
+                    <div style="display:flex;align-items:center;flex-wrap: wrap;" v-if="lessonItem.Attachments && lessonItem.Attachments.length > 0">
                         <div class="file-item" v-for="(item, index) in lessonItem.Attachments" :key="index">
                             <File :fileInfo="item" :action="isEdit ? 'upload' : 'download'" @close="deleteFileItem"></File>
                         </div>
@@ -151,7 +151,7 @@ export default defineComponent({
                 id: route.params.preId as string
             });
             if (res.resultCode === 200) {
-                const { Attachments, CanEdit, CreateTime, EndTime, CreaterID, CreaterName, PreTitle, Status, TeacherCount = 0, LessonRange, LessonContent = "" } = res.result;
+                const { Attachments = [], CanEdit, CreateTime, EndTime, CreaterID, CreaterName, PreTitle, Status, LessonRange = "", LessonContent = "" } = res.result;
                 lessonItem.Attachments = [];
                 if (Attachments && Attachments.length > 0) {
                     Attachments.map((v: any) => {
@@ -171,9 +171,9 @@ export default defineComponent({
                 lessonItem.CreaterName = CreaterName;
                 lessonItem.PreTitle = PreTitle;
                 lessonItem.Status = Status;
-                lessonItem.TeacherCount = TeacherCount;
-                lessonItem.LessonRange = LessonRange || "";
-                lessonItem.LessonRangeIDs = lessonItem.LessonRange.split(",");
+                lessonItem.TeacherCount = 0;
+                lessonItem.LessonRange = LessonRange;
+                lessonItem.LessonRangeIDs = LessonRange.split(",") || [];
                 if (lessonItem.LessonRangeIDs.length > 0) {
                     let rangeText = "";
                     const levelOne = textBookGradeList.value.filter((v: any) => {
@@ -215,6 +215,8 @@ export default defineComponent({
                         isLoading.value = false;
                     }, 500);
                 });
+            } else {
+                isLoading.value = false;
             }
         };
 

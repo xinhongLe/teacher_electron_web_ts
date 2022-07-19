@@ -19,7 +19,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, defineAsyncComponent, ref, watch, onUnmounted } from "vue";
+import { computed, defineComponent, defineAsyncComponent, ref, watch, onUnmounted, onMounted } from "vue";
 import NavBar from "./navBar/index.vue";
 import isElectron from "is-electron";
 import { useRoute } from "vue-router";
@@ -32,6 +32,7 @@ import LookQuestion from "./lookQuestion/index.vue";
 import { MutationTypes, store } from "@/store";
 import LookVideo from "./lookVideo/index.vue";
 import Projection from "./projection/index.vue";
+import { ElMessage } from "element-plus";
 
 export default defineComponent({
     components: {
@@ -54,7 +55,7 @@ export default defineComponent({
             isShowNarBar.value = !query.head && !wpfNames.includes(name as string);
             // 岳阳云平台内嵌备教端
             if (name === "集体备课") {
-                if (window?.top && (window.top[0]?.location?.origin?.indexOf("yueyangyun") > -1 || (window.top[0]?.location?.ancestorOrigins[0]?.indexOf("yueyangyun") > -1) || window.top[0]?.location?.origin?.indexOf("20.199") > -1)) {
+                if (window?.top && (window.top[0]?.location?.origin?.indexOf("yueyangyun") > -1 || (window.top[0]?.location?.ancestorOrigins[0]?.indexOf("yueyangyun") > -1) || window.top[0]?.location?.origin?.indexOf("localhost") > -1)) {
                     isShowNarBar.value = false;
                     localStorage.setItem(MutationTypes.LOCAL_IS_IFRAME, "1");
                     store.commit(MutationTypes.SET_IS_IFRAME, { flag: true });
@@ -89,6 +90,22 @@ export default defineComponent({
             window.electron.ipcRenderer.invoke("openSuspension");
             window.electron.maximizeWindow();
         }
+
+        onMounted(() => {
+            if (isElectron()) {
+                import("../utils/checkDiskSpace/index").then((data) => {
+                    data.default(window.electron.getPath("userData")).then((diskInfo) => {
+                        const { free, size } = diskInfo;
+                        if (free < size * 0.1) {
+                            ElMessage.error({
+                                message: "磁盘空间不足，请及时清理，以免影响使用",
+                                duration: 5000
+                            });
+                        }
+                    });
+                });
+            }
+        });
 
         onUnmounted(() => {
             if (isElectron()) {

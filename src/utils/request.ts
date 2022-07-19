@@ -4,6 +4,8 @@ import { clear, get, STORAGE_TYPES } from "./storage";
 import router from "@/router/index";
 import { initAllState } from "@/store";
 import loading from "@/components/loading";
+import isElectron from "is-electron";
+import moment from "moment";
 
 const http = axios.create({
     baseURL: "/",
@@ -17,6 +19,7 @@ http.interceptors.request.use(
                 "Content-Type": "application/json-patch+json",
                 ...config.headers,
                 Token: get(STORAGE_TYPES.SET_TOKEN),
+                startTime: moment().format("YYYY-MM-DD HH:mm:ss.SSS"),
                 Authorization: "Bearer" + " " + get(STORAGE_TYPES.SET_TOKEN)
             };
         }
@@ -37,6 +40,7 @@ http.interceptors.response.use(
     (response) => {
         loading.hide();
         const res = response.data;
+        window.electron.log.info(`request url:${response.config.url}, request resultCode: ${res.resultCode}, request resultDesc: ${res.resultDesc}, request startTime:${response?.config?.headers?.startTime}`);
         if (res.resultCode === 103) {
             if (!messageInterface) {
                 messageInterface = ElMessage({
@@ -51,7 +55,7 @@ http.interceptors.response.use(
             clear();
             router.push("/login");
             // 登录超时，外部系统返回登录页
-            if (window.top && window.top[0]?.location?.origin?.indexOf("yueyangyun") > -1) {
+            if (window.top && window.top[0]?.location?.origin?.indexOf("yueyangyun") > -1 && !isElectron()) {
                 if (window.parent && window.parent.window && window.parent.window[0] && window.parent.window[0].location && window.parent.window[0].location.ancestorOrigins) {
                     window.top.location.href = `${window.parent.window[0].location.ancestorOrigins[0]}?isReset=true`;
                 } else if (window.top && window.top.parent) {

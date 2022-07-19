@@ -1,10 +1,12 @@
 import { store } from "@/store";
 import { FileInfo, Question } from "@/types/lookQuestion";
+import emitter from "@/utils/mitt";
 import { getOssUrl } from "@/utils/oss";
 import { get, STORAGE_TYPES } from "@/utils/storage";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { computed, ref, watchEffect, Ref } from "vue";
 import { fetchPureQuestionByQuestionID, getCourseBagQuestionsByIds, getQuestionsByIds } from "../api";
+import { pullAllBy } from "lodash";
 
 export default (isPureQuestion: boolean, questionId = "", emit: (event: string, ...args: any[]) => void, childRef: Ref<any>) => {
     const imageUrl = ref<string[]>([]);
@@ -70,7 +72,7 @@ export default (isPureQuestion: boolean, questionId = "", emit: (event: string, 
     }
 
     const getDetail = async () => {
-        const { type, id } = store.state.common.viewQuestionInfo;
+        const { type, id, deleteQuestionIds = [] } = store.state.common.viewQuestionInfo;
         if (!id) return;
         emit("update:isMinimized", false);
         if (id === lastId.value) return;
@@ -109,6 +111,7 @@ export default (isPureQuestion: boolean, questionId = "", emit: (event: string, 
 
         if (res.resultCode === 200) {
             const { result } = res;
+            !isPureQuestion && pullAllBy(result, deleteQuestionIds.map(id => ({ QuestionID: id })), "QuestionID");
             sum.value = result.length;
             questionList.value = result;
             getFileList(questionList.value[0].QuestionFiles, 1);
@@ -163,6 +166,7 @@ export default (isPureQuestion: boolean, questionId = "", emit: (event: string, 
                     const question = questionList.value[number.value - 1];
                     getFileList(question.QuestionFiles, 1);
                     getFileList(question.AnswerFiles[0].Files, 2);
+                    nowQuestionID.value = question.QuestionID;
                 } else {
                     isNextBtn.value = true;
                 }
@@ -209,6 +213,13 @@ export default (isPureQuestion: boolean, questionId = "", emit: (event: string, 
         })
             .then(() => {
                 // 接口不对，后期会改，先本地假删除
+                const { courseBagId, id, type } = store.state.common.viewQuestionInfo;
+                const questionID = type === 3 ? questionList.value[number.value - 1].CoursebagQuestionID || "" : nowQuestionID.value;
+                emitter.emit("deleteQuestion", {
+                    courseBagId,
+                    paperId: id,
+                    questionID
+                });
                 ElMessage.success("移除成功!");
                 audioRef.value!.pause();
                 questionList.value.splice(number.value - 1, 1);

@@ -73,13 +73,14 @@
 import { ElementFile, Lesson, Material } from "@/types/preparation";
 import { getOssUrl } from "@/utils/oss";
 import { deleteMaterial, queryMaterialList } from "@/views/preparation/api";
-import { defineComponent, PropType, ref, watchEffect } from "vue";
+import { defineComponent, onMounted, PropType, ref, watchEffect } from "vue";
 import AddOrEditMaterial from "./AddOrEditMaterial.vue";
 import useMaterialDialog from "./hooks/useMaterialDialog";
 import useDrag from "@/hooks/useDrag";
 import { MutationTypes, store } from "@/store";
 import { openFile } from "@/utils";
 import FileType from "@/components/fileType/index.vue";
+import emitter from "@/utils/mitt";
 export default defineComponent({
     props: {
         lessonID: {
@@ -147,6 +148,12 @@ export default defineComponent({
         };
 
         watchEffect(_queryMaterialList);
+
+        onMounted(() => {
+            emitter.on("preparationReLoad", () => {
+                _queryMaterialList();
+            });
+        });
 
         return {
             materialList,

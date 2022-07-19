@@ -124,7 +124,7 @@ export default defineComponent({
         };
         const turnToPage = () => {
             // 岳阳云平台内嵌备教端，页面跳转
-            if (route.redirectedFrom && window?.top && (window?.top[0]?.location.origin.indexOf("yueyangyun") > -1 || (window?.top[0]?.location?.ancestorOrigins[0].indexOf("yueyangyun") > -1) || window?.top[0]?.location?.origin.indexOf("20.199") > -1)) {
+            if (route.redirectedFrom && window?.top && (window?.top[0]?.location.origin.indexOf("yueyangyun") > -1 || (window?.top[0]?.location?.ancestorOrigins[0].indexOf("yueyangyun") > -1) || window?.top[0]?.location?.origin.indexOf("localhost") > -1)) {
                 const path = route.redirectedFrom.path.split("#/")[1] || "";
                 router.replace(`${path}`);
             }
@@ -179,8 +179,8 @@ export default defineComponent({
                 }
             }
             .week {
-                font-size: 18px;
-                font-weight: 400;
+                font-size: 18px !important;
+                font-weight: 400 !important;
                 color: #ffffff;
                 cursor: pointer;
             }

@@ -12,7 +12,7 @@
                 src="@/assets/images/homeworkNew/icon_shipin.png"
                 alt=""
             />
-            <p class="text-class" v-if="type === 0">{{ info.QuestionCount }}题</p>
+            <p class="text-class" v-if="type === 0">{{ info.Questions?.length || 0 }}题</p>
             <p class="text-class" v-else>时长:{{ formatDuration(info.VideoDuration) }}</p>
             <span class="before-class">{{
                 getCourseBagType(info.ClassifyType)
@@ -39,7 +39,7 @@
                 type="primary"
                 plain
                 icon="el-icon-search"
-                @click="lookQuestions({ id: info.PaperID, type: 1 })"
+                @click="lookQuestions({ id: info.PaperID, type: 1, courseBagId, deleteQuestionIds })"
                 >查看题目</el-button
             >
         </div>
@@ -71,6 +71,14 @@ export default defineComponent({
         choicePaper: {
             type: Function,
             required: true
+        },
+        courseBagId: {
+            type: String,
+            required: true
+        },
+        deleteQuestionIds: {
+            type: Array as PropType<string[]>,
+            default: () => []
         },
         type: {
             type: Number,

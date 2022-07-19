@@ -101,9 +101,10 @@ export const GetStudentMissionList: RequestFun<Object, StudentMission[]> = (
 ) => {
     return request({
         baseURL: AI_XUE_SHI_API,
-        url: "/Api/W4/HomeworkIntegration/GetStudentMissionList",
+        url: "/Api/V2/Teacher/TeacherHightPhoto/GetStudentMissionList",
         headers: {
-            "Content-Type": "application/json-patch+json"
+            "Content-Type": "application/json-patch+json",
+            noLoading: "true"
         },
         method: "post",
         data
@@ -116,7 +117,7 @@ export const GetWorkbookPageInfo: RequestFun<PageInfo, any> = (
 ) => {
     return request({
         baseURL: AI_XUE_SHI_API,
-        url: "/API/W4/HomeworkIntegration/GetWorkbookPageInfo",
+        url: "/API/V2/Teacher/TeacherHightPhoto/GetWorkbookPageInfo",
         headers: {
             "Content-Type": "application/json-patch+json"
         },
@@ -131,7 +132,7 @@ export const GetMissionDetail: RequestFun<any, any> = (
 ) => {
     return request({
         baseURL: AI_XUE_SHI_API,
-        url: "/API/W4/HomeworkIntegration/GetStudentMissionDetail",
+        url: "/API/V2/Teacher/TeacherHightPhoto/GetStudentMissionDetail",
         headers: {
             "Content-Type": "application/json-patch+json"
         },
@@ -145,7 +146,7 @@ export const GetCheckResult: RequestFun<string, PointsPackage[]> = (
     data
 ) => {
     return request({
-        baseURL: "http://47.116.10.26:5000",
+        baseURL: "https://shot.aixueshi.top",
         url: "/predict",
         headers: {
             "Content-Type": "application/json"
@@ -160,7 +161,7 @@ export const BatchCheckUpdate: RequestFun<any, any> = (
 ) => {
     return request({
         baseURL: AI_XUE_SHI_API,
-        url: "/Api/V2/Student/Study/BatchCheckUpdate",
+        url: "/Api/V2/Teacher/TeacherHightPhoto/BatchCheckUpdate",
         headers: {
             "Content-Type": "application/json-patch+json"
         },
@@ -174,7 +175,7 @@ export const ChangeResultForPhoto: RequestFun<any, any> = (
 ) => {
     return request({
         baseURL: AI_XUE_SHI_API,
-        url: "/API/W4/HomeworkIntegration/ChangeResultForPhoto",
+        url: "/API/V2/Teacher/TeacherHightPhoto/ChangeResultForPhoto",
         headers: {
             "Content-Type": "application/json-patch+json"
         },
@@ -188,7 +189,7 @@ export const BatchChangeResult: RequestFun<any, any> = (
 ) => {
     return request({
         baseURL: AI_XUE_SHI_API,
-        url: "/API/W4/HomeworkIntegration/BatchChangeResult",
+        url: "/API/V2/Teacher/TeacherHightPhoto/BatchChangeResult",
         headers: {
             "Content-Type": "application/json-patch+json"
         },
@@ -202,7 +203,7 @@ export const SaveYuanshiImg: RequestFun<SvImgIn, any> = (
 ) => {
     return request({
         baseURL: AI_XUE_SHI_API,
-        url: "/API/W4/HomeworkIntegration/SaveYuanshiImg",
+        url: "/API/V2/Teacher/TeacherHightPhoto/SaveYuanshiImg",
         headers: {
             "Content-Type": "application/json-patch+json"
         },

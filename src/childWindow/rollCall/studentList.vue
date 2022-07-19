@@ -31,7 +31,7 @@
             </div>
         </div>
 
-        <div>
+        <div class="cotrol-btn">
             <el-button type="primary" @click="reset">重置</el-button>
             <el-button type="primary" @click="start" v-if="!isStart">开始</el-button>
             <el-button type="primary" @click="stop" v-else>停止</el-button>
@@ -190,6 +190,11 @@ export default defineComponent({
         flex-direction: column;
         align-items: center;
         padding: 20px 40px;
+        position: absolute;
+        z-index: 1;
+        top: 35%;
+        left: 50%;
+        transform: translate(-50%, -50%);
         .name {
             height: 50px;
         }
@@ -200,7 +205,7 @@ export default defineComponent({
         position: relative;
         transform-style: preserve-3d;
         transform: perspective(800px) rotateX(-15deg) rotateY(0deg);
-        margin: 100px 0 370px;
+        margin-top: 35vh;
         .student {
             position: absolute;
             display: flex;
@@ -211,6 +216,14 @@ export default defineComponent({
                 height: 20px;
             }
         }
+    }
+
+    .cotrol-btn {
+        position: absolute;
+        bottom: 50px;
+        left: 50%;
+        z-index: 1;
+        transform: translateX(-50%);
     }
 }
 </style>

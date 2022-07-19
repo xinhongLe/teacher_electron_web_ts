@@ -14,14 +14,14 @@
                             plain
                             icon="el-icon-plus"
                             @click="commonHomeworkDialog = true"
-                            >普通作业</el-button
+                            >自定义作业</el-button
                         >
                         <el-button
                             plain
                             type="primary"
                             icon="el-icon-plus"
                             @click="systemHomeworkDialog = true"
-                            >系统作业</el-button
+                            >在线作业</el-button
                         >
                         <el-button
                             plain

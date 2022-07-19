@@ -194,7 +194,11 @@
                     "
                     >查阅学生</el-button
                   > -->
+<<<<<<< HEAD
                 <el-button size="small" v-if="info.HomeworkPaperType == 2" style="background-color:#00C0FF;" type="primary" @click="quickUpload(info)">快速上传</el-button>
+=======
+                <!-- <el-button size="small" v-if="info.HomeworkPaperType == 2" style="background-color:#00C0FF;" type="primary" @click="quickUpload(info)">快速上传</el-button> -->
+>>>>>>> roll-call
                 <el-button size="small" type="primary" @click="review"
                     >查阅作业</el-button
                 >
@@ -215,7 +219,13 @@
                 :file="file"
             />
         </div>
+<<<<<<< HEAD
         <HignPhoto v-if="info.HomeworkPaperType == 2"
+=======
+    </div>
+    <div class="hign-photo-warp" v-if="info.HomeworkPaperType == 2">
+        <HignPhoto
+>>>>>>> roll-call
         :homeworkValue="info"
         ref="hignPhotoRef"
         ></HignPhoto>
@@ -479,7 +489,10 @@ export default defineComponent({
             quickUpload
         };
     },
-    components: { FileItem, HignPhoto }
+    components: {
+        FileItem,
+        HignPhoto
+    }
 });
 </script>
 
@@ -491,9 +504,10 @@ export default defineComponent({
         width: 30px;
     }
 }
-.table-row{
+.hign-photo-warp{
     :deep(.el-dialog__body){
         padding: 0;
+        overflow: hidden;
     }
     :deep(.el-dialog__header){
         display: none;

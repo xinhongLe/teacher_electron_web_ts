@@ -5,9 +5,9 @@
             <div class="rch-center">
                 <span v-if="chooseFlag">选择班级</span>
             </div>
-            <div class="rch-right" @click="close">
+            <!-- <div class="rch-right" @click="close">
                 <img src="@/assets/images/suspension/guanbi.png" alt="" />
-            </div>
+            </div> -->
         </div>
         <div class="" v-if="chooseFlag">
             <div class="class-tree" >

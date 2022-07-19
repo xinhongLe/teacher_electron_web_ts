@@ -228,6 +228,7 @@ export default defineComponent({
                         clearInterval(timer.value);
                         isPlay.value = false;
                         isElectron() && window.electron.showWindow();
+                        isElectron() && window.electron.ipcRenderer.invoke("hideTimerWin");
                     }
                     second.value--;
                     setCountDownList();

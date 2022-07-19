@@ -96,7 +96,7 @@ export default () => {
     });
     const cardListComponents = ref();
     const _getSchoolLessonWindow = (data: IGetLessonWindows) => {
-        getSchoolLessonWindow(data).then((res) => {
+        return getSchoolLessonWindow(data).then((res) => {
             if (res.resultCode === 200) {
                 allData.winList = res.result.filter((item:any) => {
                     return item.TeachPageList.length > 0;
