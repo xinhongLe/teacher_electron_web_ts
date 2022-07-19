@@ -194,11 +194,7 @@
                     "
                     >查阅学生</el-button
                   > -->
-<<<<<<< HEAD
                 <el-button size="small" v-if="info.HomeworkPaperType == 2" style="background-color:#00C0FF;" type="primary" @click="quickUpload(info)">快速上传</el-button>
-=======
-                <!-- <el-button size="small" v-if="info.HomeworkPaperType == 2" style="background-color:#00C0FF;" type="primary" @click="quickUpload(info)">快速上传</el-button> -->
->>>>>>> roll-call
                 <el-button size="small" type="primary" @click="review"
                     >查阅作业</el-button
                 >
@@ -219,15 +215,10 @@
                 :file="file"
             />
         </div>
-<<<<<<< HEAD
-        <HignPhoto v-if="info.HomeworkPaperType == 2"
-=======
-    </div>
-    <div class="hign-photo-warp" v-if="info.HomeworkPaperType == 2">
-        <HignPhoto
->>>>>>> roll-call
-        :homeworkValue="info"
-        ref="hignPhotoRef"
+        <HignPhoto 
+            v-if="info.HomeworkPaperType == 2"
+            :homeworkValue="info"
+            ref="hignPhotoRef"
         ></HignPhoto>
     </div>
 </template>
