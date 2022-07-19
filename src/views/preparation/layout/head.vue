@@ -502,6 +502,7 @@ export default defineComponent({
 						empty = true;
 					}
 				}
+				console.log(form.directorys);
 				if (empty) return ElMessage.warning("请将资源目录补充完整！");
 			}
 			const school = store.state.userInfo.Schools![0];
