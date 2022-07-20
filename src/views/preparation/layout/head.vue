@@ -195,6 +195,12 @@
 						v-model="form.isSchool"
 						label="是否保存为校本资源"
 					/>
+
+					<el-checkbox
+						v-if="form.isSchool"
+						v-model="form.isShelf"
+						label="上架"
+					/>
 				</el-form-item>
 			</el-form>
 			<template #footer>
@@ -273,6 +279,7 @@ interface IForm {
 	knowledge: string;
 	files: IFile[];
 	isSchool: boolean;
+	isShelf: boolean;
 }
 
 interface ICourse {
@@ -384,6 +391,8 @@ export default defineComponent({
 
 			form.isSchool = resource.IsSchool === 1;
 
+			form.isShelf = form.isSchool ? resource.IsShelf === 1 : true;
+
 			currentEditType.value = "edit";
 			uploadResourceOpen.value = true;
 		});
@@ -436,7 +445,8 @@ export default defineComponent({
 			degree: "3",
 			knowledge: "",
 			files: [],
-			isSchool: false
+			isSchool: false,
+			isShelf: true
 		};
 		const form = reactive<IForm>(JSON.parse(JSON.stringify(formEmpty)));
 
@@ -543,7 +553,7 @@ export default defineComponent({
 					degree: form.degree,
 					resourceFiles,
 					isSchool: form.isSchool ? 1 : 2,
-					isShelf: 2,
+					isShelf: form.isSchool ? (form.isShelf ? 1 : 2) : 2,
 					knowledgePonitId: []
 				});
 			} else {
@@ -558,7 +568,7 @@ export default defineComponent({
 					degree: form.degree,
 					resourceFile: resourceFiles[0],
 					isSchool: form.isSchool ? 1 : 2,
-					isShelf: 2,
+					isShelf: form.isSchool ? (form.isShelf ? 1 : 2) : 2,
 					knowledgePonitId: [],
 					toCourseware: false,
 					userId: userId.value

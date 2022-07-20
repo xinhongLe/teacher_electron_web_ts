@@ -4,7 +4,8 @@
         :class="{ courseware: isMySelf, hover: hover }"
         @click="handleCommand('detail')"
     >
-        <div class="p-resource-mark">我的</div>
+        <div class="p-resource-mark" v-if="data.IsSchool !== 1">我的</div>
+        <div class="p-resource-school-mark" v-if="data.IsSchool === 1">校本</div>
         <div class="p-resource-top">
             <div class="resource-icon">
                 <img :src="iconResources.selfStudy[data.ResourceType]" alt="" />
@@ -253,6 +254,17 @@ export default defineComponent({
         bottom: 20px;
         left: -8px;
         color: #4B71EE;
+        font-size: 12px;
+    }
+    .p-resource-school-mark {
+        background: url(~@/assets/images/preparation/bg_tab2@2x.png) no-repeat;
+        background-size: cover;
+        padding: 8px 15px 5px 8px;
+        overflow: hidden;
+        position: absolute;
+        bottom: 20px;
+        left: -8px;
+        color: #F98A33;
         font-size: 12px;
     }
     &.courseware {
