@@ -354,7 +354,7 @@ $btn_color: #4b71ee;
                     background: #f5f6fa !important;
                     border: none;
                     padding-left: 50px;
-                    padding-right: 95px;
+                    // padding-right: 95px;
                 }
                 .el-input__prefix, .el-input__suffix-inner {
                     display: flex;
@@ -370,9 +370,9 @@ $btn_color: #4b71ee;
                     right: 12px;
                 }
                 .zh-class {
-                    width: 90%;
+                    width: calc(100% - 40px);
                     z-index: 1;
-                    padding-right: 40px;
+                    // padding-right: 40px;
                 }
                 .el-select {
                     position: absolute;
