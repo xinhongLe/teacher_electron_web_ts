@@ -40,7 +40,7 @@ interface IResourceRequest {
     };
 }
 
-interface ILesson {
+export interface ILesson {
     AcaSectionId: string;
     AcaSectionName: string;
     AlbumID: string;
@@ -205,25 +205,11 @@ interface IPager {
 }
 
 export interface ICourseCartOption {
-    createTime: string;
-    oprateName: string;
-    resourceTypeName: string;
-    resourceName: string;
-    lessons: {
-        acaSectionId: string;
-        acaSectionName: string;
-        subjectID: string;
-        subjectName: string;
-        publisherID: string;
-        publisherName: string;
-        bookId: string;
-        albumID: string;
-        albumName: string;
-        chapterID: string;
-        chapterName: string;
-        lessonID: string;
-        lessonName: string;
-    }[];
+    CreateTime: string;
+    OprateName: string;
+    ResourceTypeName: string;
+    ResourceName: string;
+    Lessons: ILesson[];
 }
 
 interface ICourseCartOptionsResponse {

@@ -279,6 +279,7 @@ import {
 	fetchMyPackageNum,
 	fetchResourceType,
 	getCartOptionList,
+	ILesson,
 	IResourceItem,
 	uploadResource
 } from "@/api/resource";
@@ -341,22 +342,6 @@ interface ICourseCartOption {
 	type: string;
 	resource: string;
 	directory: string;
-}
-
-interface ILesson {
-	acaSectionId: string;
-	acaSectionName: string;
-	subjectID: string;
-	subjectName: string;
-	publisherID: string;
-	publisherName: string;
-	bookId: string;
-	albumID: string;
-	albumName: string;
-	chapterID: string;
-	chapterName: string;
-	lessonID: string;
-	lessonName: string;
 }
 
 export default defineComponent({
@@ -779,11 +764,11 @@ export default defineComponent({
 			}).then(res => {
 				tableData.value = res.result.list.map(item => {
 					return {
-						time: moment(item.createTime).format("YYYY-MM-DD HH:mm"),
-						name: item.oprateName,
-						type: item.resourceTypeName,
-						resource: item.resourceName,
-						directory: directoryName(item.lessons)
+						time: moment(item.CreateTime).format("YYYY-MM-DD HH:mm"),
+						name: item.OprateName,
+						type: item.ResourceTypeName,
+						resource: item.ResourceName,
+						directory: directoryName(item.Lessons)
 					};
 				});
 				total.value = res.result.pager.Total;
