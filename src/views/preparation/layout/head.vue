@@ -239,13 +239,7 @@
 				<el-table-column prop="name" label="动作" />
 				<el-table-column prop="type" label="资源类型" />
 				<el-table-column prop="resource" label="资源名称" />
-				<el-table-column prop="directory" label="资源目录">
-					<template #default="scope">
-						<el-button type="text">
-							{{scope.row.directory}}
-						</el-button>
-					</template>
-				</el-table-column>
+				<el-table-column prop="directory" label="资源目录"></el-table-column>
 			</el-table>
 
 			<div class="p-pagination" v-if="total > 10">
