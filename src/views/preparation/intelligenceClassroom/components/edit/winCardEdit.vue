@@ -14,6 +14,7 @@
             @setQuoteVideo="setQuoteVideo"
             @updateQuoteVideo="updateQuoteVideo"
             @updateSlide="updateSlide"
+            @openLessonDesign="openLessonDesign"
         />
         <!--选择弹卡-->
         <card-select-dialog
@@ -27,6 +28,8 @@
             v-model:dialogVisible="dialogVisibleVideo"
             @selectVideoVal="selectVideoVal"
         ></select-video-dialog>
+
+        <lesson-design v-model:lessonDesignVisible="lessonDesignVisible" :winId="winId" />
     </div>
 </template>
 <script lang="ts">
@@ -35,6 +38,7 @@ import { Slide, IWin, PPTVideoElement, SaveType } from "wincard/src/types/slides
 import CardSelectDialog from "./cardSelectDialog.vue";
 import { IPageValue, ICards } from "@/types/home";
 import SelectVideoDialog from "./selectVideoDialog.vue";
+import LessonDesign from "./lessonDesign.vue";
 import { isEqual } from "lodash";
 import { store } from "@/store";
 import { ElMessage, ElMessageBox } from "element-plus";
@@ -43,11 +47,15 @@ import { useRoute } from "vue-router";
 import emitter from "@/utils/mitt";
 export default defineComponent({
     name: "winCardEdit",
-    components: { SelectVideoDialog, CardSelectDialog },
+    components: { SelectVideoDialog, CardSelectDialog, LessonDesign },
     props: {
         slide: {
             type: Object,
             default: () => ({})
+        },
+        winId: {
+            type: String,
+            required: true
         }
     },
     setup(props, { emit }) {
@@ -164,6 +172,11 @@ export default defineComponent({
             state.dialogVisibleVideo = true;
         };
 
+        const lessonDesignVisible = ref(true);
+        const openLessonDesign = () => {
+            lessonDesignVisible.value = true;
+        };
+
         return {
             ...toRefs(state),
             onSave,
@@ -184,7 +197,9 @@ export default defineComponent({
             isShowSaveAsDialog,
             windowName,
             onDeleteWin,
-            updateQuoteVideo
+            updateQuoteVideo,
+            lessonDesignVisible,
+            openLessonDesign
         };
     }
 });

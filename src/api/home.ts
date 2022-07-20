@@ -89,6 +89,104 @@ export interface ICardOrPageState{
     State:number
 }
 
+interface IGetLessonPlan {
+    TeachPageID: string;
+    TeacherID?: string;
+}
+
+interface ILessonPlanProcess {
+    ID: string;
+    IsSystem: number;
+    TeachPageID: string;
+    Name: string;
+    Value?: string;
+    IsShow: number; // 是否在教案中显示
+    Type: number; // 1 卡 2 页
+    Status: number; // 0 未启用 1 启用
+    Sort: number;
+    AcademicPresupposition: string;
+    DesignIntent: string;
+    Childrens: ILessonPlanProcess[]
+}
+
+interface ILessonPlanClassType {
+    ID: string;
+    Name: string;
+    Value: string;
+    Status: number;
+    IsSelect: number; // 0 未选中 1 选中
+    Sort: number;
+    IsSystem: number;
+}
+
+interface ILessonPlanDetail {
+    ID: string;
+    Name: string;
+    Value?: string;
+    Sort: number;
+    FieldType: number; // 0 自定义字段 1 标题 2 教材字段 3单元字段 4 课时字段 5 课型 6 教学分析 7教学目标 8教学难点 9教学重点 10教学准备 11教学过程 12教学反思 13 课后作业
+    SelectType: number; // 0 单行文本 1关联文本 2 多个单行文本 3多行文本 4 下拉框 5 多选框 6单选框 7 单日期 8包含时分日期
+    IsSystem: number;
+    LessonPlanMainID: string;
+    LessonPlanDetailPages: ILessonPlanProcess[]; // 教学过程
+    LessonPlanDetailOptions: ILessonPlanClassType[];
+}
+
+interface IGetLessonPlanResponse {
+    IsSystem: number;
+    ID: string;
+    Name: string;
+    TeachPageName: string;
+    Sort: number;
+    Status: number;
+    FranchiseeID: string;
+    TeachPageID: string;
+    LessonPlanTemplateMainID: string;
+    TeacherID: string;
+    LessonPlanDetails: ILessonPlanDetail[];
+}
+
+interface ISaveLessonPlanProcess {
+    ID?: string;
+    Name?: string;
+    Value?: string;
+    IsShow?: number; // 是否在教案中显示
+    Type?: number; // 1 卡 2 页
+    Status?: number; // 0 未启用 1 启用
+    Sort?: number;
+    AcademicPresupposition?: string;
+    DesignIntent?: string;
+    Childrens?: ISaveLessonPlanProcess[]
+}
+
+interface ISaveLessonPlanClassType {
+    ID?: string;
+    Name?: string;
+    Value?: string;
+    Status?: number;
+    IsSelect?: number; // 0 未选中 1 选中
+    Sort?: number;
+    IsSystem?: number;
+}
+
+interface ISaveLessonPlanDetail {
+    ID: string;
+    Name: string;
+    Value: string;
+    Sort: number;
+    FieldType: number;
+    LessonPlanDetailPages: ISaveLessonPlanProcess[];
+    LessonPlanDetailOptions: ISaveLessonPlanClassType[];
+}
+
+export interface ISaveLessonPlan {
+    ID: string;
+    Name: string;
+    Sort: number;
+    Status: number;
+    LessonPlanDetails: ISaveLessonPlanDetail[]
+}
+
 // 获取书本信息
 export function getSubjectPublisherBookList(): Promise<BookListResponse> {
     return request({
@@ -329,6 +427,28 @@ export function getCardDetail(data: string[]): Promise<GetPageResponse> {
 export function setCardOrPageState(data: ICardOrPageState) : Promise<GetPageResponse> {
     return request({
         url: "/Api/WCP/Window/SetCardOrPageState",
+        method: "post",
+        baseURL: WINDOW_CRAD_API,
+        data: Object.assign(data, { OriginType: originType })
+    });
+}
+
+// 获取窗卡页教案数据
+export function getLessonPlan(data: IGetLessonPlan) : Promise<IResponse<IGetLessonPlanResponse>> {
+    return request({
+        url: "/Api/WCP/LessonPlan/GetLessonPlanMain",
+        headers: { DeviceID: "Franchisee" },
+        method: "post",
+        baseURL: WINDOW_CRAD_API,
+        data: Object.assign(data, { OriginType: originType })
+    });
+}
+
+// 保存教案数据
+export function saveLessonPlan(data: ISaveLessonPlan) : Promise<IResponse<unknown>> {
+    return request({
+        url: "/Api/WCP/LessonPlan/SaveLessonPlanMain",
+        headers: { DeviceID: "Franchisee" },
         method: "post",
         baseURL: WINDOW_CRAD_API,
         data: Object.assign(data, { OriginType: originType })
