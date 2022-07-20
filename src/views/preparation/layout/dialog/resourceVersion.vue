@@ -8,12 +8,12 @@
         @close="close()"
     >
         <el-table class="custom-table" :data="tableData" stripe>
-            <el-table-column prop="time" label="编辑时间" />
-            <el-table-column prop="name" label="编辑人员" />
+            <el-table-column width="140px" prop="time" label="编辑时间" />
+            <el-table-column width="120px" prop="name" label="编辑人员" />
             <el-table-column prop="fileName" label="资源">
                 <template #default="scope">
                     <el-button type="text">
-                        {{scope.row.fileName}}
+                        <div class="file-text">{{scope.row.fileName}}</div>
                     </el-button>
                 </template>
             </el-table-column>
@@ -99,5 +99,11 @@ export default defineComponent({
         padding: 4px 0;
         border-bottom: 0 !important;
     }
+}
+
+.file-text {
+    width: 278px;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 </style>

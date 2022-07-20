@@ -32,6 +32,10 @@
 					>
 				</el-radio-group>
 			</div>
+			<div class="p-course-cart-options" @click="openCourseCartOptions()">
+				<img src="@/assets/images/preparation/icon_chakan@2x.png" alt="">
+				备课包操作记录
+			</div>
 			<div class="p-control-btns">
 				<el-button size="small" type="primary" @click="openUpload">
 					&nbsp;&nbsp;&nbsp;
@@ -214,6 +218,47 @@
 				</span>
 			</template>
 		</el-dialog>
+
+		<el-dialog
+			custom-class="custom-dialog"
+			v-model="courseCartOpen"
+			center
+			title="备课包操作记录"
+			width="1200px"
+			:destroy-on-close="true"
+		>
+			<el-date-picker
+				v-model="dateRange"
+				type="daterange"
+				start-placeholder="请选择开始时间"
+				end-placeholder="请选择结束使劲"
+				@change="dateRangeChange"
+			/>
+			<el-table class="custom-table" :data="tableData" stripe>
+				<el-table-column prop="time" label="操作时间" />
+				<el-table-column prop="name" label="动作" />
+				<el-table-column prop="type" label="资源类型" />
+				<el-table-column prop="resource" label="资源名称" />
+				<el-table-column prop="directory" label="资源目录">
+					<template #default="scope">
+						<el-button type="text">
+							{{scope.row.directory}}
+						</el-button>
+					</template>
+				</el-table-column>
+			</el-table>
+
+			<div class="p-pagination" v-if="total > 10">
+				<el-pagination
+					small
+					background
+					layout="prev, pager, next"
+					:total="total"
+					v-model="pageNumber"
+					@current-change="pageChange"
+				/>
+			</div>
+		</el-dialog>
 	</div>
 </template>
 
@@ -233,6 +278,7 @@ import {
 	editResource,
 	fetchMyPackageNum,
 	fetchResourceType,
+	getCartOptionList,
 	IResourceItem,
 	uploadResource
 } from "@/api/resource";
@@ -243,6 +289,7 @@ import emitter from "@/utils/mitt";
 import { MutationTypes, useStore } from "@/store";
 import { getOssUrl } from "@/utils/oss";
 import { useRouter } from "vue-router";
+import moment from "moment";
 
 interface IDirectoryItem {
 	id: string;
@@ -285,6 +332,30 @@ interface IForm {
 interface ICourse {
 	chapterId: string;
 	lessonId: string;
+	lessonName: string;
+}
+
+interface ICourseCartOption {
+	time: string;
+	name: string;
+	type: string;
+	resource: string;
+	directory: string;
+}
+
+interface ILesson {
+	acaSectionId: string;
+	acaSectionName: string;
+	subjectID: string;
+	subjectName: string;
+	publisherID: string;
+	publisherName: string;
+	bookId: string;
+	albumID: string;
+	albumName: string;
+	chapterID: string;
+	chapterName: string;
+	lessonID: string;
 	lessonName: string;
 }
 
@@ -671,6 +742,54 @@ export default defineComponent({
             router.push("/windowcard-edit");
 		};
 
+		const courseCartOpen = ref(false);
+		const tableData = ref<ICourseCartOption[]>([]);
+		const pageNumber = ref(0);
+		const dateRange = ref("");
+		const total = ref(0);
+		const openCourseCartOptions = () => {
+			if (!course.value.lessonId) return;
+			courseCartOpen.value = true;
+			pageNumber.value = 1;
+			getCourseCartOption();
+		};
+		const dateRangeChange = () => {
+			getCourseCartOption();
+		};
+		const pageChange = (value: number) => {
+			pageNumber.value = value;
+			getCourseCartOption();
+		};
+		const directoryName = (lessons: ILesson[]) =>  {
+            const book = lessons.find(item =>  {
+                return course.value.lessonId === item.LessonID || !item.LessonID;
+            });
+
+            return book ? book.SubjectName + " / " + book.PublisherName + " / " + book.AlbumName + " / " + book.ChapterName + (book.LessonName ? " / " + book.LessonName : "") : "--";
+        };
+		const getCourseCartOption = () => {
+			getCartOptionList({
+				lessonId: course.value.lessonId,
+				startTime: dateRange.value[0] ? moment(dateRange.value[0]).format("YYYY-MM-DD 00:00:00") : "",
+				endTime: dateRange.value[1] ? moment(dateRange.value[1]).format("YYYY-MM-DD 00:00:00") : "",
+				paper: {
+					pageNumber: pageNumber.value,
+					pageSize: 10
+				}
+			}).then(res => {
+				tableData.value = res.result.list.map(item => {
+					return {
+						time: moment(item.createTime).format("YYYY-MM-DD HH:mm"),
+						name: item.oprateName,
+						type: item.resourceTypeName,
+						resource: item.resourceName,
+						directory: directoryName(item.lessons)
+					};
+				});
+				total.value = res.result.pager.Total;
+			});
+		}
+
 		return {
 			source,
 			sourceList,
@@ -694,7 +813,15 @@ export default defineComponent({
 			currentEditType,
 			onExceed,
 			isWincard,
-			editWincard
+			editWincard,
+			courseCartOpen,
+			tableData,
+			dateRange,
+			pageNumber,
+			dateRangeChange,
+			total,
+			pageChange,
+			openCourseCartOptions
 		};
 	}
 });
@@ -721,6 +848,22 @@ export default defineComponent({
 	min-width: 0;
 	display: flex;
 	align-items: center;
+}
+
+.p-course-cart-options {
+	color: #4B71EE;
+	font-size: 14px;
+	margin-right: 20px;
+	display: flex;
+	align-items: center;
+	cursor: pointer;
+	img {
+		width: 16px;
+		display: block;
+		margin-right: 3px;
+		position: relative;
+		top: -1px;
+	}
 }
 
 .p-control-btns {
@@ -852,5 +995,28 @@ export default defineComponent({
 
 .add-btn {
 	width: 100%;
+}
+
+.custom-table {
+	margin-top: 15px;
+    width: 100%;
+    &:before {
+        display: none;
+    }
+    :deep(.el-table__header-wrapper .el-table__cell) {
+        padding: 12px 0;
+        font-weight: 600;
+        background-color: #fafafa;
+    }
+    :deep(.el-table__cell) {
+        padding: 4px 0;
+        border-bottom: 0 !important;
+    }
+}
+
+.p-pagination {
+	margin-top: 15px;
+	display: flex;
+	justify-content: flex-end;
 }
 </style>

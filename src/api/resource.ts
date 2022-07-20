@@ -98,7 +98,7 @@ export interface IResourceItem {
 }
 
 export interface IResourceResponse {
-    list: IResourceItem[],
+    list: IResourceItem[];
     pager: {
         IsFirstPage: boolean;
         IsLastPage: boolean;
@@ -106,7 +106,7 @@ export interface IResourceResponse {
         PageSize: number;
         Pages: number;
         Total: number;
-    }
+    };
 }
 
 interface IRequestClassArrangement {
@@ -196,6 +196,43 @@ interface IHistoryListResponse {
         FileExtention: string;
         FileMD5: string;
         OldFileID: string;
+    };
+}
+
+interface IPager {
+    pageNumber: number;
+    pageSize: number;
+}
+
+export interface ICourseCartOption {
+    createTime: string;
+    oprateName: string;
+    resourceTypeName: string;
+    resourceName: string;
+    lessons: {
+        acaSectionId: string;
+        acaSectionName: string;
+        subjectID: string;
+        subjectName: string;
+        publisherID: string;
+        publisherName: string;
+        bookId: string;
+        albumID: string;
+        albumName: string;
+        chapterID: string;
+        chapterName: string;
+        lessonID: string;
+        lessonName: string;
+    }[];
+}
+
+interface ICourseCartOptionsResponse {
+    list: ICourseCartOption[];
+    pager: {
+        PageNumber: number;
+        PageSize: number;
+        Pages: number;
+        Total: number;
     };
 }
 
@@ -320,7 +357,12 @@ export const fetchResourceList: RequestFun<
     const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
     return request({
         baseURL: RESOURCE_API,
-        url: data?.resourceType === "4" ? "Api/Resouce/TeacherResource/GetMyResList" :  data?.resourceType === "me" ? "Api/Prepare/Prepare/GetMyLessonBag" : "Api/Resouce/TeacherResource/GetResourceList",
+        url:
+            data?.resourceType === "4"
+                ? "Api/Resouce/TeacherResource/GetMyResList"
+                : data?.resourceType === "me"
+                ? "Api/Prepare/Prepare/GetMyLessonBag"
+                : "Api/Resouce/TeacherResource/GetResourceList",
         headers: {
             "Content-Type": "application/json-patch+json",
             OrgId: yunInfo.OrgId,
@@ -331,8 +373,10 @@ export const fetchResourceList: RequestFun<
         method: "post",
         data: {
             ...data,
-            ... data?.resourceType === "me" ? { typeId: data.resourceTypeId } : {}
-        }
+            ...(data?.resourceType === "me"
+                ? { typeId: data.resourceTypeId }
+                : {}),
+        },
     });
 };
 
@@ -359,7 +403,7 @@ export const fetchClassArrangement: RequestFun<
 
 // 获取课时备课包数量
 export const fetchMyPackageNum: RequestFun<
-    { chapterId: string; lessonId: string; },
+    { chapterId: string; lessonId: string },
     { BagCount: number }
 > = (data) => {
     const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
@@ -400,10 +444,9 @@ export const addPreparationPackage: RequestFun<
 };
 
 // 移除备课包
-export const removePreparationPackage: RequestFun<
-    { id: string },
-    boolean
-> = (data) => {
+export const removePreparationPackage: RequestFun<{ id: string }, boolean> = (
+    data
+) => {
     const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
     return request({
         baseURL: RESOURCE_API,
@@ -449,10 +492,9 @@ export const addSchedulePackage: RequestFun<
 };
 
 // 删除排课计划，和备课包数量有关
-export const removeSchedulePackage: RequestFun<
-    { id: string },
-    boolean
-> = (data) => {
+export const removeSchedulePackage: RequestFun<{ id: string }, boolean> = (
+    data
+) => {
     const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
     return request({
         baseURL: RESOURCE_API,
@@ -470,10 +512,9 @@ export const removeSchedulePackage: RequestFun<
 };
 
 // 上传资源
-export const uploadResource: RequestFun<
-    IUploadResourceRequest,
-    boolean
-> = (data) => {
+export const uploadResource: RequestFun<IUploadResourceRequest, boolean> = (
+    data
+) => {
     const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
     return request({
         baseURL: RESOURCE_API,
@@ -491,10 +532,9 @@ export const uploadResource: RequestFun<
 };
 
 // 编辑资源
-export const editResource: RequestFun<
-    IEditResourceRequest,
-    boolean
-> = (data) => {
+export const editResource: RequestFun<IEditResourceRequest, boolean> = (
+    data
+) => {
     const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
     return request({
         baseURL: RESOURCE_API,
@@ -512,29 +552,27 @@ export const editResource: RequestFun<
 };
 
 // 删除资源
-export const deleteResource: RequestFun<
-    { id: string; type: number; },
-    boolean
-> = (data) => {
-    const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
-    return request({
-        baseURL: RESOURCE_API,
-        url: "Api/Resouce/TeacherResource/DelResouceByTea",
-        headers: {
-            "Content-Type": "application/json-patch+json",
-            OrgId: yunInfo.OrgId,
-            UserId: yunInfo.UserId,
-            SystemId: systemId,
-            SecretKey: yunInfo.SecretKey,
-        },
-        method: "post",
-        data,
-    });
-};
+export const deleteResource: RequestFun<{ id: string; type: number }, boolean> =
+    (data) => {
+        const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
+        return request({
+            baseURL: RESOURCE_API,
+            url: "Api/Resouce/TeacherResource/DelResouceByTea",
+            headers: {
+                "Content-Type": "application/json-patch+json",
+                OrgId: yunInfo.OrgId,
+                UserId: yunInfo.UserId,
+                SystemId: systemId,
+                SecretKey: yunInfo.SecretKey,
+            },
+            method: "post",
+            data,
+        });
+    };
 
 // 保存为我的资源
 export const saveToMyResource: RequestFun<
-    { resourceId: string; schoolId: string; schoolName: string; },
+    { resourceId: string; schoolId: string; schoolName: string },
     IResourceItem
 > = (data) => {
     const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
@@ -554,10 +592,9 @@ export const saveToMyResource: RequestFun<
 };
 
 // 获取知识点
-export const getKnowledgeList: RequestFun<
-    { lessonId: string; }[],
-    boolean
-> = (data) => {
+export const getKnowledgeList: RequestFun<{ lessonId: string }[], boolean> = (
+    data
+) => {
     const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
     return request({
         baseURL: RESOURCE_API,
@@ -575,10 +612,7 @@ export const getKnowledgeList: RequestFun<
 };
 
 // 记录下载次数
-export const logDownload: RequestFun<
-    { id: string; },
-    boolean
-> = (data) => {
+export const logDownload: RequestFun<{ id: string }, boolean> = (data) => {
     const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
     return request({
         baseURL: RESOURCE_API,
@@ -597,10 +631,7 @@ export const logDownload: RequestFun<
 };
 
 // 记录浏览次数
-export const logView: RequestFun<
-    { id: string; },
-    boolean
-> = (data) => {
+export const logView: RequestFun<{ id: string }, boolean> = (data) => {
     const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
     return request({
         baseURL: RESOURCE_API,
@@ -620,7 +651,7 @@ export const logView: RequestFun<
 
 // 获取资源历史版本记录
 export const getResourceHistory: RequestFun<
-    { id: string; },
+    { id: string },
     IHistoryListResponse[]
 > = (data) => {
     const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
@@ -642,13 +673,41 @@ export const getResourceHistory: RequestFun<
 
 // 同步窗数据
 export const sysWincardResource: RequestFun<
-    { id: string; userId: string; lessonID: string; schoolId: string; schoolName: string; },
+    {
+        id: string;
+        userId: string;
+        lessonID: string;
+        schoolId: string;
+        schoolName: string;
+    },
     IHistoryListResponse[]
 > = (data) => {
     const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
     return request({
         baseURL: RESOURCE_API,
         url: "api/sync/aixueshi/window/SyncToMy",
+        headers: {
+            "Content-Type": "application/json-patch+json",
+            noLoading: "true",
+            OrgId: yunInfo.OrgId,
+            UserId: yunInfo.UserId,
+            SystemId: systemId,
+            SecretKey: yunInfo.SecretKey,
+        },
+        method: "post",
+        data,
+    });
+};
+
+// 获取备课包操作记录
+export const getCartOptionList: RequestFun<
+    { lessonId: string; startTime: string; endTime: string; paper: IPager },
+    ICourseCartOptionsResponse
+> = (data) => {
+    const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
+    return request({
+        baseURL: RESOURCE_API,
+        url: "/Api/Prepare/Prepare/PrepareGetLessonBagRec",
         headers: {
             "Content-Type": "application/json-patch+json",
             noLoading: "true",
