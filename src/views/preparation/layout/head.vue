@@ -235,10 +235,10 @@
 				@change="dateRangeChange"
 			/>
 			<el-table class="custom-table" :data="tableData" stripe>
-				<el-table-column prop="time" label="操作时间" />
-				<el-table-column prop="name" label="动作" />
-				<el-table-column prop="type" label="资源类型" />
-				<el-table-column prop="resource" label="资源名称" />
+				<el-table-column width="140px" prop="time" label="操作时间" />
+				<el-table-column width="120px" prop="name" label="动作" />
+				<el-table-column width="120px" prop="type" label="资源类型" />
+				<el-table-column width="120px" prop="resource" label="资源名称" />
 				<el-table-column prop="directory" label="资源目录"></el-table-column>
 			</el-table>
 
@@ -988,7 +988,7 @@ export default defineComponent({
         background-color: #fafafa;
     }
     :deep(.el-table__cell) {
-        padding: 4px 0;
+        padding: 12px 0;
         border-bottom: 0 !important;
     }
 }
