@@ -6,33 +6,17 @@ const moment = require("moment");
 
 const extraResources = process.platform === "darwin" ? [
     {
+        from: "./extraResources/ball/",
+        to: "extraResources/ball/"
+    },
+    {
         from: "./extraResources/mac/ColorPicker",
         to: "ColorPicker"
     }
 ] : [
     {
-        from: "./extraResources/win/ball/ball.exe",
-        to: "extraResources/win/ball/ball.exe"
-    },
-    {
-        from: "./extraResources/win/ball/ball.exe.config",
-        to: "extraResources/win/ball/ball.exe.config"
-    },
-    {
-        from: "./extraResources/win/ball/log4net.dll",
-        to: "extraResources/win/ball/log4net.dll"
-    },
-    {
-        from: "./extraResources/win/ball/Newtonsoft.Json.dll",
-        to: "extraResources/win/ball/Newtonsoft.Json.dll"
-    },
-    {
-        from: "./extraResources/win/ball/Config/Log4Net.config",
-        to: "extraResources/win/ball/Config/Log4Net.config"
-    },
-    {
-        from: "./extraResources/win/ball/Config/Interop.NetFwTypeLib.dll",
-        to: "extraResources/win/ball/Config/Interop.NetFwTypeLib.dll"
+        from: "./extraResources/ball/",
+        to: "extraResources/ball/"
     },
     {
         from: "./extraResources/win/mockingbot-color-picker-ia32.exe",
