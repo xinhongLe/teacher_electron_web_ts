@@ -1,7 +1,7 @@
 "use strict";
 
 import { app, protocol, BrowserWindow, ipcMain, Menu } from "electron";
-import installExtension, { VUEJS3_DEVTOOLS } from "electron-devtools-installer";
+// import installExtension, { VUEJS3_DEVTOOLS } from "electron-devtools-installer";
 import { createProtocol } from "vue-cli-plugin-electron-builder/lib";
 import { initialize } from "@electron/remote/main";
 import { createSuspensionWindow, registerEvent, unfoldSuspensionWinSendMessage } from "./suspension";
@@ -200,13 +200,13 @@ app.on("activate", () => {
 
 app.on("ready", async () => {
     ElectronLog.info("app ready");
-    if (isDevelopment && !process.env.IS_TEST) {
-        try {
-            await installExtension(VUEJS3_DEVTOOLS);
-        } catch (e) {
-            console.error("Vue Devtools failed to install:", e);
-        }
-    }
+    // if (isDevelopment && !process.env.IS_TEST) {
+    //     try {
+    //         await installExtension(VUEJS3_DEVTOOLS);
+    //     } catch (e) {
+    //         console.error("Vue Devtools failed to install:", e);
+    //     }
+    // }
     createWindow();
 });
 

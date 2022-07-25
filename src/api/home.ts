@@ -187,6 +187,13 @@ export interface ISaveLessonPlan {
     LessonPlanDetails: ISaveLessonPlanDetail[]
 }
 
+export interface IAddTemplateFieldRes {
+    LessonPlanTemplateMainID: string,
+    Name: string,
+    SelectType: number,
+    Options?: {ID: string, Name: string, Sort: number}[]
+}
+
 // 获取书本信息
 export function getSubjectPublisherBookList(): Promise<BookListResponse> {
     return request({
@@ -433,7 +440,7 @@ export function setCardOrPageState(data: ICardOrPageState) : Promise<GetPageResp
     });
 }
 
-// 获取窗卡页教案数据
+// 获取教案数据
 export function getLessonPlan(data: IGetLessonPlan) : Promise<IResponse<IGetLessonPlanResponse>> {
     return request({
         url: "/Api/WCP/LessonPlan/GetLessonPlanMain",
@@ -448,6 +455,61 @@ export function getLessonPlan(data: IGetLessonPlan) : Promise<IResponse<IGetLess
 export function saveLessonPlan(data: ISaveLessonPlan) : Promise<IResponse<unknown>> {
     return request({
         url: "/Api/WCP/LessonPlan/SaveLessonPlanMain",
+        headers: { DeviceID: "Franchisee" },
+        method: "post",
+        baseURL: WINDOW_CRAD_API,
+        data: Object.assign(data, { OriginType: originType })
+    });
+}
+
+// 获取模板列表
+export function getLessonPlanTemplate() : Promise<GetPageResponse> {
+    return request({
+        url: "/Api/WCP/LessonPlan/GetLessonPlanTemplate",
+        headers: { DeviceID: "Franchisee" },
+        method: "post",
+        baseURL: WINDOW_CRAD_API,
+        data: Object.assign({ OriginType: originType })
+    });
+}
+
+// 获取模板自定义字段列表
+export function getLessonPlanTemplateDetail(data:{ LessonPlanTemplateID: string }) : Promise<GetPageResponse> {
+    return request({
+        url: "/Api/WCP/LessonPlan/GetLessonPlanTemplateDetail",
+        headers: { DeviceID: "Franchisee" },
+        method: "post",
+        baseURL: WINDOW_CRAD_API,
+        data: Object.assign(data, { OriginType: originType })
+    });
+}
+
+// 新增字段
+export function addTemplateField(data:IAddTemplateFieldRes) : Promise<IResponse<GetPageResponse>> {
+    return request({
+        url: "/Api/WCP/LessonPlan/AddLessonPlanTemplateField",
+        headers: { DeviceID: "Franchisee" },
+        method: "post",
+        baseURL: WINDOW_CRAD_API,
+        data: Object.assign(data, { OriginType: originType })
+    });
+}
+
+// 编辑字段
+export function editTemplateField(data:any) : Promise<IResponse<unknown>> {
+    return request({
+        url: "/Api/WCP/LessonPlan/UpdateLessonPlanTemplateField",
+        headers: { DeviceID: "Franchisee" },
+        method: "post",
+        baseURL: WINDOW_CRAD_API,
+        data: Object.assign(data, { OriginType: originType })
+    });
+}
+
+// 删除字段
+export function delTemplateField(data:{ID: string}) : Promise<IResponse<unknown>> {
+    return request({
+        url: "/Api/WCP/LessonPlan/DeleteLessonPlanTemplateField",
         headers: { DeviceID: "Franchisee" },
         method: "post",
         baseURL: WINDOW_CRAD_API,

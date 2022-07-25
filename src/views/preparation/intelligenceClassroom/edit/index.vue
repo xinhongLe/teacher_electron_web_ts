@@ -200,7 +200,7 @@
                 :slide="currentSlide"
                 @onSave="saveClick"
                 @updatePageSlide="updatePageSlide"
-                :winId="windowInfo?.value?.id"
+                :winId="windowInfo?.id"
             ></win-card-edit>
 <!--            <div-->
 <!--                v-show="!pageValue.ID"-->

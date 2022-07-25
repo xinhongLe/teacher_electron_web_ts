@@ -3,10 +3,10 @@
         <div class="content">
             <div class="left">
                 <div class="left-content">
-                    <div v-for="(item,index) in leftList" :key="index"> {{item.name}}</div>
+                    <div :class="[currentTemplate.ID === item.ID ? 'active' : '']" @click="handleTemplate(item)" v-for="(item,index) in templateList" :key="index"> {{item.Name}}</div>
                 </div>
                 <div class="left-add">
-                    <span type="primary" @click="handleAddEvaluation">+ 创建评价表</span>
+                    <span  @click="handleAddEvaluation">+ 创建新模板</span>
                 </div>
             </div>
             <div class="center">
@@ -23,7 +23,7 @@
                     <div>
                         <div class="title">
                             <span>自定义字段</span>
-                            <span class="manage">管理</span>
+                            <span class="manage" @click="fieldManage">管理</span>
                         </div>
                         <el-checkbox v-for="(item,i) in 5" :key="i" v-model="item.checked" label="Option 1" size="large" />
                     </div>
@@ -52,56 +52,97 @@
             <el-button type="primary" @click="handleComfirm">确定</el-button>
           </span>
         </template>
+
+        <lesson-field-mange :currentTemplate="currentTemplate" v-model:dialogVisible="fieldManageVisible"></lesson-field-mange>
+
     </el-dialog>
 </template>
 
-<script>
-
-</script>
 <script lang="ts">
-import { computed, defineComponent, reactive, toRefs, ref } from "vue";
+import { computed, defineComponent, reactive, toRefs, ref, watch, PropType } from "vue";
 import draggable from "vuedraggable";
+import { ITemplateList, IFrom } from "@/types/lessonDesign.ts";
+import LessonFieldMange from "@/views/preparation/intelligenceClassroom/components/edit/lessonFieldMange.vue";
+interface State {
+    fieldManageVisible: boolean,
+    form: IFrom,
+    currentTemplate: ITemplateList,
+    rightList: {name:string, value: number}[]
+}
 export default defineComponent({
     name: "lessonTemplateSet",
-    components: {draggable},
+    components: { draggable, LessonFieldMange },
     props: {
         dialogVisible: {
             type: Boolean,
             require: true
         },
+        templateList: {
+            type: Array as PropType<ITemplateList[]>,
+            default: () => []
+        }
     },
     emits: ["update:dialogVisible"],
     setup(props, { emit }) {
-        const state = reactive({
-           leftList: [
-               {name: "系统默认模板", value: 1},
-               {name: "小学通用模板", value: 2},
-               {name: "通用模板", value: 3},
-           ],
+        const state = reactive<State>({
+            fieldManageVisible: false,
+            form: {
+                title: "",
+                book: "",
+                chapter: "",
+                lesson: "",
+                templateType: "",
+                classType: "",
+                analyze: "",
+                targets: [{ value: "", id: "" }],
+                teachingDifficulty: "",
+                teachingFocus: "",
+                teachingPreparation: "",
+                teachProgress: [],
+                teachingReflection: "",
+                homework: ""
+            },
+            currentTemplate: { Name: "", ID: "" },
             rightList: [
-                {name: "教材1", value: 1},
-                {name: "教材2", value: 2},
-                {name: "教材3", value: 3},
+                { name: "教材1", value: 1 },
+                { name: "教材2", value: 2 },
+                { name: "教材3", value: 3 }
             ]
 
         });
         const visible = computed(() => props.dialogVisible);
 
-        const handleComfirm = () => {
-           console.log("ok")
+        watch(() => props.templateList, (val:ITemplateList[]) => {
+            state.currentTemplate = val?.length > 0 ? val[0] : {} as ITemplateList;
+            console.log(state.currentTemplate, "state.currentTemplate======");
+        }, { immediate: true });
+
+        const transformData = (templateList:any[]) => {
+            // state.form.titleValue = templateList.find((item:any) => item.Sort === 1) || {}
         };
+
+        const handleComfirm = () => {
+            console.log("ok");
+        };
+
+        const handleTemplate = (item:ITemplateList) => {
+            state.currentTemplate = item;
+        };
+
         const close = () => {
             emit("update:dialogVisible", false);
         };
 
-        const handleDragEnd = (eventData: { newIndex: number; oldIndex: number; }) => {
-           console.log(eventData)
+        const fieldManage = () => {
+            state.fieldManageVisible = true;
         };
+
         return {
             ...toRefs(state),
             visible,
-            handleDragEnd,
+            handleTemplate,
             handleComfirm,
+            fieldManage,
             close
         };
     }
@@ -147,19 +188,9 @@ export default defineComponent({
                     background-color: rgba(0, 87, 254, 0.1);
                 }
             }
-
             .active {
                 background-color: rgba(0, 87, 254, 0.1);
                 color: #0057FE;
-                &::after {
-                    content: '';
-                    position: absolute;
-                    right: 0;
-                    top: 0;
-                    width: 4px;
-                    height: 46px;
-                    background-color: #0057FE;;
-                }
             }
         }
         .left-add {

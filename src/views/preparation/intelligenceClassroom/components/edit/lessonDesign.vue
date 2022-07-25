@@ -2,7 +2,7 @@
     <el-dialog v-model="visible" title="教案设计" width="1100px" center @close="close">
        <div class="template-select">
            <el-select v-model="form.templateType" style="width: 100%" placeholder="请选择课型" size="small">
-               <el-option v-for="item in templateList" :key="item.value" :label="item.label" :value="item.value"/>
+               <el-option v-for="item in templateList" :key="item.ID" :label="item.Name" :value="item.ID"/>
                <div @click="templateSet" style="cursor: pointer; padding: 10px 20px;border-top: 1px solid #EBEFF1">
                    <el-icon style="vertical-align: bottom;margin-right: 6px;"><Setting/></el-icon>
                    <span>设置</span>
@@ -149,53 +149,20 @@
         </template>
     </el-dialog>
 
-    <lesson-template-set v-model:dialogVisible="dialogVisible"></lesson-template-set>
+    <lesson-template-set v-model:dialogVisible="dialogVisible" :templateList="templateList"></lesson-template-set>
 
 </template>
 
 <script lang="ts">
-import { getLessonPlan, ISaveLessonPlan, saveLessonPlan } from "@/api/home";
+import { getLessonPlan, getLessonPlanTemplate, ISaveLessonPlan, saveLessonPlan } from "@/api/home";
 import { ElMessage } from "element-plus";
 // import { result } from "lodash";
 import { defineComponent, PropType, reactive, ref, watch } from "vue";
 import draggable from "vuedraggable";
 import { Setting } from "@element-plus/icons";
 import LessonTemplateSet from "@/views/preparation/intelligenceClassroom/components/edit/lessonTemplateSet.vue";
-interface IData {
-    id: string;
-    value: string;
-}
-interface IContent {
-    id: string;
-    progress: string;
-    design: string;
-}
-interface ITeachProgress {
-    id: string;
-    title: string;
-    contents: IContent[];
-}
-interface ITemplateList {
-   label: string;
-   value: string;
-}
-
-interface IFrom {
-    title: string;
-    book: string;
-    chapter: string;
-    lesson: string;
-    templateType: string;
-    classType: string;
-    analyze: string;
-    targets: IData[];
-    teachingDifficulty: string;
-    teachingFocus: string;
-    teachingPreparation: string;
-    teachProgress: ITeachProgress[];
-    teachingReflection: string;
-    homework: string;
-}
+import { get, STORAGE_TYPES } from "@/utils/storage";
+import { ITemplateList, IFrom } from "@/types/lessonDesign.ts";
 export default defineComponent({
     components: { LessonTemplateSet, draggable, Setting },
     props: {
@@ -211,7 +178,7 @@ export default defineComponent({
     setup(props, { emit }) {
         const visible = ref(props.lessonDesignVisible);
         const classTypeList = ref<{label: string; value: string;}[]>([]);
-        const templateList = ref<{label: string; value: string;}[]>([{ label: "系统默认模板", value: "1" }]);
+        const templateList = ref<ITemplateList[]>([]);
         const saveData: ISaveLessonPlan = {
             ID: "",
             Name: "",
@@ -224,9 +191,7 @@ export default defineComponent({
             () => {
                 visible.value = props.lessonDesignVisible;
                 if (visible.value) {
-                    getLessonPlan({
-                        TeachPageID: props.winId
-                    }).then(res => {
+                    getLessonPlan({ TeachPageID: props.winId }).then(res => {
                         res.result.LessonPlanDetails.map(item => {
                             switch (item.FieldType) {
                             case 1: {
@@ -314,7 +279,6 @@ export default defineComponent({
                             }
                             }
                         });
-
                         saveData.ID = res.result.ID;
                         saveData.Name = res.result.Name;
                         saveData.Sort = res.result.Sort;
@@ -353,6 +317,7 @@ export default defineComponent({
                             };
                         });
                     });
+                    _getLessonPlanTemplate();
                 }
             }
         );
@@ -479,9 +444,19 @@ export default defineComponent({
             });
         };
 
-        const dialogVisible = ref(true);
+        const dialogVisible = ref(false);
         const templateSet = () => {
+            console.log(get(STORAGE_TYPES.USER_INFO), "-------");
             dialogVisible.value = true;
+        };
+
+        const _getLessonPlanTemplate = () => {
+            getLessonPlanTemplate().then(res => {
+                if (res.resultCode === 200) {
+                    templateList.value = res.result || [];
+                    form.templateType = templateList.value.length > 0 ? templateList.value[0].ID : "";
+                }
+            });
         };
 
         return {

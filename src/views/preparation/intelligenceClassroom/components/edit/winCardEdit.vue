@@ -172,7 +172,7 @@ export default defineComponent({
             state.dialogVisibleVideo = true;
         };
 
-        const lessonDesignVisible = ref(true);
+        const lessonDesignVisible = ref(false);
         const openLessonDesign = () => {
             lessonDesignVisible.value = true;
         };
