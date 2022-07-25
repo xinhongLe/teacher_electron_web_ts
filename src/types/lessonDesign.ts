@@ -30,7 +30,16 @@ export interface IFrom {
     homework: string;
 }
 
+export interface ITemplateItem {
+    Status: number
+    Name: string;
+    ID?: string;
+}
+
 export interface ITemplateList {
     Name: string;
     ID: string;
+    Sort: number,
+    IsSystem: number,
+    Detail: { Name: string, ID:string }[]
 }

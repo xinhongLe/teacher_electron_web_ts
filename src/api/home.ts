@@ -473,6 +473,17 @@ export function getLessonPlanTemplate() : Promise<GetPageResponse> {
     });
 }
 
+// 更新模板
+export function updateLessonPlanTemplate(data:any) : Promise<GetPageResponse> {
+    return request({
+        url: "/Api/WCP/LessonPlan/UpdateLessonPlanTemplate",
+        headers: { DeviceID: "Franchisee" },
+        method: "post",
+        baseURL: WINDOW_CRAD_API,
+        data: Object.assign(data,{ OriginType: originType })
+    });
+}
+
 // 获取模板自定义字段列表
 export function getLessonPlanTemplateDetail(data:{ LessonPlanTemplateID: string }) : Promise<GetPageResponse> {
     return request({

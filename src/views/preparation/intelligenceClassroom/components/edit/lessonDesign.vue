@@ -149,7 +149,7 @@
         </template>
     </el-dialog>
 
-    <lesson-template-set v-model:dialogVisible="dialogVisible" :templateList="templateList"></lesson-template-set>
+    <lesson-template-set v-model:dialogVisible="dialogVisible" @updateLessonPlanTemplateList="_getLessonPlanTemplate" :templateList="templateList"></lesson-template-set>
 
 </template>
 
@@ -465,6 +465,7 @@ export default defineComponent({
             templateList,
             classTypeList,
             dialogVisible,
+            _getLessonPlanTemplate,
             templateSet,
             close,
             handleDragEnd,

@@ -6,26 +6,36 @@
                     <div :class="[currentTemplate.ID === item.ID ? 'active' : '']" @click="handleTemplate(item)" v-for="(item,index) in templateList" :key="index"> {{item.Name}}</div>
                 </div>
                 <div class="left-add">
-                    <span  @click="handleAddEvaluation">+ 创建新模板</span>
+                    <span  @click="handleAddTemplate">+ 创建新模板</span>
                 </div>
             </div>
             <div class="center">
                <div>
                    <div class="title">模板名称</div>
-                   <el-input size="small"></el-input>
+                   <el-input v-model="currentTemplate.Name" size="small"></el-input>
                </div>
                 <div>
-                    <div v-for="(item,index) in 5" :key="index">
+                    <div>
                         <div class="title">基础字段</div>
-                        <el-checkbox v-for="(item,i) in 5" :key="i" v-model="item.checked" label="Option 1" size="large" />
+                        <el-checkbox v-for="(item,i) in form.basicValueList" @change="changeCheckbox" :key="i" :true-label="1" :false-label="0" v-model="item.Status" :label="item.Name" size="large" />
                     </div>
 
                     <div>
+                        <div class="title">概要字段</div>
+                        <el-checkbox v-for="(item,i) in form.synopsisValueList" @change="changeCheckbox" :key="i" :true-label="1" :false-label="0" v-model="item.Status" :label="item.Name" size="large" />
+                    </div>
+
+                    <div>
+                        <div class="title">教学过程字段</div>
+                        <el-checkbox v-for="(item,i) in form.processValueList" :disabled="true" :key="i" :true-label="1" :false-label="0" v-model="item.Status" :label="item.Name" size="large" />
+                    </div>
+
+                    <div v-if="currentTemplate.ID && currentTemplate.IsSystem !== 1">
                         <div class="title">
                             <span>自定义字段</span>
                             <span class="manage" @click="fieldManage">管理</span>
                         </div>
-                        <el-checkbox v-for="(item,i) in 5" :key="i" v-model="item.checked" label="Option 1" size="large" />
+                        <el-checkbox v-for="(item,i) in form.customValueList" @change="changeCheckbox" :key="i" :true-label="1" :false-label="0" v-model="item.Status" :label="item.Name" size="large" />
                     </div>
                 </div>
             </div>
@@ -37,9 +47,9 @@
                             <div class="row">
                                 <div>
                                     <img class="drag" src="@/assets/indexImages/icon_yidong@2x.png" alt="">
-                                    <span>{{element.name}}</span>
+                                    <span>{{element.Name}}</span>
                                 </div>
-                                <img class="drag" src="@/assets/indexImages/icon_close_small.png" alt="">
+                                <img @click="delCheckbox(element)" class="drag" src="@/assets/indexImages/icon_close_small.png" alt="">
                             </div>
                         </template>
                     </draggable>
@@ -59,15 +69,22 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, reactive, toRefs, ref, watch, PropType } from "vue";
+import { computed, defineComponent, reactive, toRefs, ref, watch, PropType, nextTick } from "vue";
 import draggable from "vuedraggable";
-import { ITemplateList, IFrom } from "@/types/lessonDesign.ts";
+import { ITemplateList, IFrom, ITemplateItem } from "@/types/lessonDesign.ts";
 import LessonFieldMange from "@/views/preparation/intelligenceClassroom/components/edit/lessonFieldMange.vue";
+import { updateLessonPlanTemplate } from "@/api/home.ts";
 interface State {
     fieldManageVisible: boolean,
-    form: IFrom,
+    form: {
+        // titleValue: ITemplateItem,
+        basicValueList: ITemplateItem[],
+        synopsisValueList: ITemplateItem[],
+        processValueList: ITemplateItem[],
+        customValueList: ITemplateItem[],
+    },
     currentTemplate: ITemplateList,
-    rightList: {name:string, value: number}[]
+    rightList: ITemplateItem[]
 }
 export default defineComponent({
     name: "lessonTemplateSet",
@@ -82,51 +99,96 @@ export default defineComponent({
             default: () => []
         }
     },
-    emits: ["update:dialogVisible"],
+    emits: ["update:dialogVisible", "updateLessonPlanTemplateList"],
     setup(props, { emit }) {
         const state = reactive<State>({
             fieldManageVisible: false,
             form: {
-                title: "",
-                book: "",
-                chapter: "",
-                lesson: "",
-                templateType: "",
-                classType: "",
-                analyze: "",
-                targets: [{ value: "", id: "" }],
-                teachingDifficulty: "",
-                teachingFocus: "",
-                teachingPreparation: "",
-                teachProgress: [],
-                teachingReflection: "",
-                homework: ""
+                // titleValue: { Name: "", Status: 1 },
+                basicValueList: [],
+                synopsisValueList: [],
+                processValueList: [
+                    { Name: "学情预设", Status: 1 },
+                    { Name: "设计意图", Status: 1 }
+                ],
+                customValueList: []
+                // title: "",
+                // book: "",
+                // chapter: "",
+                // lesson: "",
+                // templateType: "",
+                // classType: "",
+                // analyze: "",
+                // targets: [{ value: "", id: "" }],
+                // teachingDifficulty: "",
+                // teachingFocus: "",
+                // teachingPreparation: "",
+                // teachProgress: [],
+                // teachingReflection: "",
+                // homework: ""
             },
-            currentTemplate: { Name: "", ID: "" },
-            rightList: [
-                { name: "教材1", value: 1 },
-                { name: "教材2", value: 2 },
-                { name: "教材3", value: 3 }
-            ]
+            currentTemplate: { Name: "", ID: "", Sort: 0, IsSystem: 0, Detail: [] },
+            rightList: []
 
         });
         const visible = computed(() => props.dialogVisible);
 
         watch(() => props.templateList, (val:ITemplateList[]) => {
-            state.currentTemplate = val?.length > 0 ? val[0] : {} as ITemplateList;
-            console.log(state.currentTemplate, "state.currentTemplate======");
+            nextTick(() => {
+                state.currentTemplate = val?.length > 0 ? val[0] : { Name: "", ID: "", Sort: 0, IsSystem: 0, Detail: [] };
+                transformData(state.currentTemplate?.Detail);
+                console.log(state.currentTemplate, "state.currentTemplate======");
+            });
         }, { immediate: true });
 
         const transformData = (templateList:any[]) => {
-            // state.form.titleValue = templateList.find((item:any) => item.Sort === 1) || {}
+            // state.form.titleValue = templateList.find((item:any) => item.Sort === 1) || { Name: "", Status: 1 };
+            state.form.basicValueList = templateList.filter((item:any) => item.Sort === 2);
+            state.form.synopsisValueList = templateList.filter((item:any) => item.GroupName === "概要字段");
+            state.form.customValueList = templateList.filter((item:any) => item.Sort === 0);
+            changeCheckbox();
+        };
+
+        const changeCheckbox = () => {
+            const list = [...state.form.basicValueList, ...state.form.synopsisValueList, ...state.form.customValueList];
+            state.rightList = list.filter((item:ITemplateItem) => item.Status);
+        };
+
+        const delCheckbox = (item:ITemplateItem) => {
+            item.Status = 0;
+            changeCheckbox();
+        };
+
+        const handleAddTemplate = () => {
+            state.form.basicValueList = state.form.basicValueList.map(item => {
+                return { ...item, Status: 0 };
+            });
+            state.form.synopsisValueList = state.form.synopsisValueList.map(item => {
+                return { ...item, Status: 0 };
+            });
+            state.form.customValueList = [];
+            state.currentTemplate = { Name: "", ID: "", Sort: 0, IsSystem: 0, Detail: [] };
         };
 
         const handleComfirm = () => {
-            console.log("ok");
+            const data = {
+                ID: state.currentTemplate.ID,
+                Name: state.currentTemplate.Name,
+                Sort: state.currentTemplate.Sort,
+                IsSystem: state.currentTemplate.IsSystem,
+                Detail: [...state.form.basicValueList,
+                    ...state.form.synopsisValueList, ...state.form.customValueList]
+            };
+            updateLessonPlanTemplate(data).then(res => {
+                if (res.resultCode === 200) {
+                    emit("updateLessonPlanTemplateList");
+                }
+            });
         };
 
         const handleTemplate = (item:ITemplateList) => {
             state.currentTemplate = item;
+            transformData(state.currentTemplate?.Detail);
         };
 
         const close = () => {
@@ -140,7 +202,10 @@ export default defineComponent({
         return {
             ...toRefs(state),
             visible,
+            handleAddTemplate,
             handleTemplate,
+            changeCheckbox,
+            delCheckbox,
             handleComfirm,
             fieldManage,
             close
