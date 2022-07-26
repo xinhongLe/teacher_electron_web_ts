@@ -127,12 +127,12 @@ export default (days: Ref<string[]>) => {
         dealSchedules();
     };
 
-    watchEffect(() => {
-        const id = store.state.userInfo.schoolId;
-        if (id) {
-            initSchedules();
-        }
-    });
+    // watchEffect(() => {
+    //     const id = store.state.userInfo.schoolId;
+    //     if (id) {
+    //         initSchedules();
+    //     }
+    // });
 
     watch(days, () => {
         console.warn("updateSchedules");
