@@ -3,10 +3,7 @@
         <PPTEditor
             ref="PPTEditRef"
             :slide="slide"
-            :isShowSaveAs="windowInfo.originType === 1"
             v-model:windowName="windowName"
-            :isShowName="windowInfo.originType === 1"
-            :isShowDeleteBtn="windowInfo.originType === 1"
             @onSave="onSave"
             @onDeleteWin="onDeleteWin"
             @addCard="addCard"

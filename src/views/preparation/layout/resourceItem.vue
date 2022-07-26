@@ -88,7 +88,7 @@
                     </el-button>
                     <el-button class="p-control-btn p-move" size="small" v-if="data.IsBag" @click.stop="handleCommand('move')">
                         <img src="@/assets/images/preparation/icon_yichu.png" alt="">
-                        移除备课包
+                        移出备课包
                     </el-button>
                     <el-button class="p-control-btn p-add" size="small" v-if="!data.IsBag" @click.stop="handleCommand('add')">
                         <img src="@/assets/images/preparation/icon_add.png" alt="">
@@ -108,7 +108,7 @@
             </el-button>
             <el-button class="p-control-btn p-move" size="small" v-if="data.IsBag" @click.stop="handleCommand('move')">
                 <img src="@/assets/images/preparation/icon_yichu.png" alt="">
-                移除备课包
+                移出备课包
             </el-button>
             <el-button class="p-control-btn p-add" size="small" v-if="!data.IsBag" @click.stop="$event => handleCommand('add', $event)">
                 <img src="@/assets/images/preparation/icon_add.png" alt="">

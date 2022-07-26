@@ -429,7 +429,7 @@ export const addPreparationPackage: RequestFun<
     });
 };
 
-// 移除备课包
+// 移出备课包
 export const removePreparationPackage: RequestFun<{ id: string }, boolean> = (
     data
 ) => {

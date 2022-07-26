@@ -139,7 +139,7 @@ export default defineComponent({
 			}
 		};
 
-		// 移除备课包
+		// 移出备课包
 		const removePackage = async (data: IResourceItem) => {
 			const res = await removePreparationPackage({ id: data.BagId });
 			if (res.success) {
