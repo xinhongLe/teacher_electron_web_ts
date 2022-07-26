@@ -106,7 +106,7 @@
 						</el-button>
 					</el-upload>
 				</el-form-item>
-				<el-form-item v-else>
+				<el-form-item label="资源文件：" v-else>
 					<el-button
 						type="primary"
 						size="small"
@@ -170,7 +170,7 @@
 						新增目录
 					</el-button>
 				</el-form-item>
-				<el-form-item label="难易程度：" required>
+				<el-form-item label="难易程度：">
 					<el-select
 						v-model="form.degree"
 						placeholder="请选择"
