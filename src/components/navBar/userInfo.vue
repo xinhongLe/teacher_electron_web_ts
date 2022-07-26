@@ -48,7 +48,6 @@ const useLogout = () => {
             class="avatar-container"
             :ellipsis="false"
             mode="horizontal"
-            menu-trigger="click"
         >
             <el-sub-menu index="user">
                 <template #title>

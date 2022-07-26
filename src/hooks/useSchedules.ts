@@ -115,7 +115,7 @@ export default (days: Ref<string[]>) => {
         dealSchedules();
     };
 
-    watch(schoolID, initSchedules)
+    // watch(schoolID, initSchedules)
 
     const updateSchedules = async () => {
         await getTeachClassSchedule();
@@ -127,12 +127,12 @@ export default (days: Ref<string[]>) => {
         dealSchedules();
     };
 
-    // watchEffect(() => {
-    //     const id = store.state.userInfo.schoolId;
-    //     if (id) {
-    //         initSchedules();
-    //     }
-    // });
+    watchEffect(() => {
+        const id = store.state.userInfo.schoolId;
+        if (id) {
+            initSchedules();
+        }
+    });
 
     watch(days, () => {
         console.warn("updateSchedules");
