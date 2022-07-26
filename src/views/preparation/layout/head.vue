@@ -682,6 +682,9 @@ export default defineComponent({
 				uid: file.uid,
 				size: res.size || 0
 			});
+			if (form.files.length === 1) {
+				form.name = file.name;
+			}
 		};
 
 		const onExceed = () => {
