@@ -10,8 +10,10 @@ export interface UserInfoState {
         UserCenterSchoolID: string,
         Name: string
     }[],
+    schoolId: string;
+    schoolName: string;
     userCenterUserID: string;
-    id: string
+    id: string;
 }
 
 export interface MyStudentState {

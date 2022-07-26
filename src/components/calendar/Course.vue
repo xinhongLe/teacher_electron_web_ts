@@ -150,7 +150,7 @@ const deleteCourse = () => {
 };
 
 const addSchedule = async (dragInfo: SchoolLesson) => {
-    const schoolID = store.state.userInfo.Schools![0]?.UserCenterSchoolID;;
+    const schoolID = store.state.userInfo.schoolId;
     await addSchedulePackage({
         scheduleId: scheduleID.value,
         schoolId: schoolID,

@@ -305,8 +305,12 @@ export default defineComponent({
 		const pageNumber = ref(1);
 		const pageSize = ref(10);
 		const store = useStore();
-		const schoolId = computed(() => store.state.userInfo.Schools![0]?.UserCenterSchoolID);
+		const schoolId = computed(() => store.state.userInfo.schoolId);
 		const userId = computed(() => store.state.userInfo.userCenterUserID);
+
+		watch(schoolId, () => {
+			update();
+		});
 
 		const { source, type, course } = toRefs(props);
 		watch([source, type, course], () => {

@@ -566,7 +566,8 @@ export default defineComponent({
 				console.log(form.directorys);
 				if (empty) return ElMessage.warning("请将资源目录补充完整！");
 			}
-			const school = store.state.userInfo.Schools![0];
+			const schoolId = store.state.userInfo.schoolId;
+			const schoolName = store.state.userInfo.schoolName;
 			const lessonTrees = form.directorys.map((item) => {
 				return {
 					acaSectionId: item.schoolSection.id,
@@ -599,8 +600,8 @@ export default defineComponent({
 					rescourceTypeId: form.type.Id,
 					rescourceTypeName: form.type.Name,
 					name: form.name,
-					schoolId: school.UserCenterSchoolID,
-					schoolName: school.Name,
+					schoolId: schoolId,
+					schoolName: schoolName,
 					degree: form.degree,
 					resourceFiles,
 					isSchool: form.isSchool ? 1 : 2,
@@ -614,8 +615,8 @@ export default defineComponent({
 					rescourceTypeId: form.type.Id,
 					rescourceTypeName: form.type.Name,
 					name: form.name,
-					schoolId: school.UserCenterSchoolID,
-					schoolName: school.Name,
+					schoolId: schoolId,
+					schoolName: schoolName,
 					degree: form.degree,
 					resourceFile: resourceFiles[0],
 					isSchool: form.isSchool ? 1 : 2,

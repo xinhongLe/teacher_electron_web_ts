@@ -52,7 +52,8 @@ export default defineComponent({
         const store = useStore();
         const userId = computed(() => store.state.userInfo.userCenterUserID);
         const lessonId = computed(() => store.state.preparation.selectLessonId);
-        const school = computed(() => store.state.userInfo.Schools![0]!);
+        const schoolId = computed(() => store.state.userInfo.schoolId);
+        const schoolName = computed(() => store.state.userInfo.schoolName);
 
         const save = async () => {
             if (props.resource) {
@@ -68,8 +69,8 @@ export default defineComponent({
                             id: res.result.ID,
                             userId: userId.value,
                             lessonID: lessonId.value,
-                            schoolId: school.value.UserCenterSchoolID,
-                            schoolName: school.value.Name,
+                            schoolId: schoolId.value,
+                            schoolName: schoolName.value
                         });
                         emit("update:visible", false);
                         emit("update");
@@ -77,8 +78,8 @@ export default defineComponent({
                 } else {
                     const res = await saveToMyResource({
                         resourceId: props.resource.ResourceId,
-                        schoolId: school.value.UserCenterSchoolID,
-                        schoolName: school.value.Name
+                        schoolId: schoolId.value,
+                        schoolName: schoolName.value
                     });
                     if (res.success) {
                         emit("update:visible", false);

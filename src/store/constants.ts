@@ -105,7 +105,11 @@ export const enum MutationTypes {
     /**
      * 设置学段
      */
-    SET_TERM = "SET_TERM"
+    SET_TERM = "SET_TERM",
+    /**
+     * 设置选中学校
+     */
+    UPDATE_SELECTED_SCHOOL = "UPDATE_SELECTED_SCHOOL"
 }
 
 export const enum ActionTypes {
