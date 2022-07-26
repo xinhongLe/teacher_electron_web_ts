@@ -8,6 +8,7 @@
 						active: source === 'me',
 						hide: packageCount === 0
 					}"
+					:style="'font-size:' + (packageCount > 99 ? '12px' : '14px')"
 					id="myCourseCart"
 					:num="packageCount > 99 ? '99+' : packageCount"
 					@click="

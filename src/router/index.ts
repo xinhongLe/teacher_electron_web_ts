@@ -121,7 +121,13 @@ const routes: Array<RouteRecordRaw> = [
                 path: "annotation/:id/:preId/:teacherCount",
                 name: "批注",
                 component: () => import("@/views/preparationGroup/annotation/index.vue")
+            },
+            {
+                path: "resource-center",
+                name: "资源中心",
+                component: () => import("@/views/resourceCenter/index.vue")
             }
+
         ]
     }
 ];
