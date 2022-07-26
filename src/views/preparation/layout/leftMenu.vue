@@ -96,7 +96,6 @@ export default defineComponent({
 
 			// selectedID.value = treeData.value[0].Children[0].Id;
 			getFirstLessonId();
-			console.log(selectedID.value, "==============", selectedChapterID.value, selectedName.value);
 			emit("update:course", {
 				chapterId: selectedChapterID.value,
 				lessonId: selectedID.value,

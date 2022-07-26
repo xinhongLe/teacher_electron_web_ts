@@ -94,11 +94,13 @@
 								: 5
 						"
 						:on-exceed="onExceed"
+						:disabled="currentEditType === 'edit' && form.files.length > 0"
 					>
 						<el-button
 							type="primary"
 							size="small"
 							style="font-size: 14px"
+							:disabled="currentEditType === 'edit' && form.files.length > 0"
 						>
 							&nbsp;&nbsp;&nbsp;
 							<el-icon :size="14"><upload /></el-icon>
