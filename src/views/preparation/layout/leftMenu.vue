@@ -96,6 +96,7 @@ export default defineComponent({
 
 			// selectedID.value = treeData.value[0].Children[0].Id;
 			getFirstLessonId();
+			console.log(selectedID.value, "==============", selectedChapterID.value, selectedName.value);
 			emit("update:course", {
 				chapterId: selectedChapterID.value,
 				lessonId: selectedID.value,
@@ -107,13 +108,20 @@ export default defineComponent({
 		};
 
 		const getFirstLessonId = () => {
+			let hasLesson = false;
 			for (let i = 0; i < treeData.value.length; i++) {
 				if (treeData.value[i].Children && treeData.value[i].Children!.length > 0) {
+					hasLesson = true;
 					selectedChapterID.value = treeData.value[i].Id;
 					selectedID.value = treeData.value[i].Children![0].Id;
 					selectedName.value = treeData.value[i].Children![0].Name;
 					break;
 				}
+			}
+			if (!hasLesson) {
+				selectedChapterID.value = "";
+				selectedID.value = "";
+				selectedName.value = "";
 			}
 		};
 

@@ -255,7 +255,10 @@ export default defineComponent({
             const res = await fetchAddCustomBookList({
                 bookId: grade.value
             });
-           getCustomBookList();
+           await getCustomBookList();
+		   const book = bookList.value.find(item => item.BookId === grade.value);
+		   console.log(book);
+		   if (book) selectBook(book);
         };
 
         return {
