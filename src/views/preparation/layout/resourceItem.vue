@@ -1,10 +1,10 @@
 <template>
     <div
         class="p-resource-item"
-        :class="{ courseware: isMySelf, hover: hover }"
+        :class="{ 'resource-courseware': data.ResourceType === '8C47DA089BAA57ECEF2B0B6AAE5CAC84', hover: hover }"
         @click="handleCommand('detail')"
     >
-        <div class="p-resource-mark" v-if="data.IsSchool !== 1">我的</div>
+        <div class="p-resource-mark" v-if="data.IsMine === 1 && data.IsSchool !== 1">我的</div>
         <div class="p-resource-school-mark" v-if="data.IsSchool === 1">校本</div>
         <div class="p-resource-top">
             <div class="resource-icon">
@@ -119,26 +119,6 @@
 </template>
 
 <script lang="ts">
-/**
- * type 类型
- * 0: 教案
- * 1: 导学案
- * 2: 课件
- * 3: 微课视频
- * 4: 试卷
- * 5: 电子课本
- * 6: 教具
- * 7: 工具
- * 8: 素材
- * 9: 其他
- */
-
-/**
- * source 来源
- * 0: 系统资源
- * 1: 校本资源
- * 2: 我的资源
- */
 import { computed, defineComponent, PropType } from "vue";
 import { Refresh, MoreFilled } from "@element-plus/icons-vue";
 import { iconResources, textResources, typeResources } from "@/config/resource";
@@ -245,7 +225,6 @@ export default defineComponent({
         box-shadow: 0px 6px 16px 0px rgba(0, 0, 0, 0.16);
     }
     .p-resource-mark {
-        display: none;
         background: url(~@/assets/images/preparation/bg_tab1.png) no-repeat;
         background-size: cover;
         padding: 8px 15px 5px 8px;
@@ -267,12 +246,9 @@ export default defineComponent({
         color: #F98A33;
         font-size: 12px;
     }
-    &.courseware {
+    &.resource-courseware {
         background: #e6f1ff;
         border-left: 4px solid #4b71ee;
-        .p-resource-mark {
-            display: block;
-        }
     }
     .resource-icon {
         width: 60px;
