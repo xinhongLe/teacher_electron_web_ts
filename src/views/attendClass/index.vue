@@ -80,6 +80,11 @@ export default defineComponent({
         };
 
         onActivated(() => {
+            if (route.params.lessonId !== course.value.lessonId || route.params.chapterId !== course.value.chapterId) {
+                isSwitch.value = true;
+                type.value = "";
+            }
+
             course.value = {
                 lessonId: route.params.lessonId as string,
                 chapterId: route.params.chapterId as string
