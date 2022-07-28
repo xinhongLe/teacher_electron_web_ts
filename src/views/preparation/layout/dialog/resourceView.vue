@@ -123,6 +123,7 @@ export default defineComponent({
 	.el-dialog__body {
 		background-color: #f5f6fa;
 		flex: 1;
+		min-height: 0;
 		border-bottom-left-radius: 6px;
 		border-bottom-right-radius: 6px;
 		padding: var(--el-dialog-padding-primary);
