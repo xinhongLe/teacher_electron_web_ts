@@ -7,7 +7,7 @@
 			@click.stop="bookSelectOpen = !bookSelectOpen"
 			v-click-outside="() => (bookSelectOpen = false)"
 		>
-			{{ selectedBookName.trim() ? selectedBookName : "请选择书册" }}
+			<div class="book-select-text">{{ selectedBookName.trim() ? selectedBookName : "请选择书册" }}</div>
 			<div
 				class="book-select-box"
 				v-if="bookSelectOpen"
@@ -257,7 +257,6 @@ export default defineComponent({
             });
            await getCustomBookList();
 		   const book = bookList.value.find(item => item.BookId === grade.value);
-		   console.log(book);
 		   if (book) selectBook(book);
         };
 
@@ -305,6 +304,11 @@ export default defineComponent({
 	margin-left: 15px;
 	cursor: pointer;
 	position: relative;
+	.book-select-text {
+		overflow: hidden;
+		white-space: nowrap;
+		text-overflow: ellipsis;
+	}
 	&:hover {
 		border-color: var(--app-color-primary);
 		&:before {
