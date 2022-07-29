@@ -353,6 +353,7 @@ export default defineComponent({
 	setup(props, { emit }) {
 		const store = useStore();
 		const userId = computed(() => store.state.userInfo.userCenterUserID);
+		const selectedBook = computed(() => store.state.preparation.subjectPublisherBookValue);
 		const { course } = toRefs(props);
 		watch(course, () => {
 			getMyPackageNum();
@@ -503,6 +504,10 @@ export default defineComponent({
 		};
 		const form = reactive<IForm>(JSON.parse(JSON.stringify(formEmpty)));
 
+		if (selectedBook.value && currentEditType.value === "add") {
+			// form.directorys[0].schoolSection.id = selectedBook.value.AcaSectionId;
+		}
+
 		const uploadResourceOpen = ref(false);
 
 		const type = ref("");
@@ -630,8 +635,14 @@ export default defineComponent({
 
 			if (res.success) {
 				uploadResourceOpen.value = false;
-
-				emitter.emit("updateResourceList");
+				if (currentEditType.value === "add") {
+					type.value = "";
+					source.value = "4";
+					emit("update:type", type.value);
+					emit("update:source", source.value);
+				} else {
+					emitter.emit("updateResourceList");
+				}
 			}
 		};
 
