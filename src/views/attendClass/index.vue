@@ -8,7 +8,15 @@
                 :btns="false"
                 @eventEmit="eventEmit"
             /> -->
-            <Resources ref="resourceRef" name="attendClass" @updateResourceList="updateResourceList" :course="course" :source="source" :type="type" />
+            <Resources
+                ref="resourceRef"
+                name="attendClass"
+                @updateResourceList="updateResourceList"
+                :course="course"
+                :source="source"
+                :type="type"
+                :bookId="bookId"
+            />
         </div>
         <div class="resource-filter">
             <el-radio-group
@@ -56,6 +64,7 @@ export default defineComponent({
 
         const source = ref("me");
         const type = ref("");
+        const bookId = ref("");
         const typeList = ref<{ Id: string; Name: string }[]>([]);
 
         const resourceRef = ref();
@@ -82,7 +91,7 @@ export default defineComponent({
         };
 
         onActivated(() => {
-            if (route.params.lessonId !== course.value.lessonId || route.params.chapterId !== course.value.chapterId) {
+            if (route.params.lessonId !== course.value.lessonId || route.params.chapterId !== course.value.chapterId || route.params.bookId !== bookId.value) {
                 isSwitch.value = true;
                 type.value = "";
             }
@@ -91,6 +100,7 @@ export default defineComponent({
                 lessonId: route.params.lessonId as string,
                 chapterId: route.params.chapterId as string
             };
+            bookId.value = route.params.bookId as string;
             // sendResourceData();
         });
 
@@ -166,6 +176,7 @@ export default defineComponent({
             switchClass,
             course,
             source,
+            bookId,
             updateResourceList,
             resourceRef
         }

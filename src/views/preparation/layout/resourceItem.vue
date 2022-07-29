@@ -174,8 +174,7 @@ export default defineComponent({
             const book = props.data.TextBooks.find(item =>  {
                 return props.lessonId === item.LessonID || !item.LessonID;
             });
-
-            return book ? book.SubjectName + " / " + book.PublisherName + " / " + book.AlbumName + " / " + book.ChapterName + (book.LessonName ? " / " + book.LessonName : "") : "--";
+            return book ? book.SubjectName + " / " + book.PublisherName + " / " + book.AlbumName + (book.ChapterName ? " / " + book.ChapterName : "") + (book.LessonName ? " / " + book.LessonName : "") : "--";
         });
 
         return {

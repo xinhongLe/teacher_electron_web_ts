@@ -209,7 +209,7 @@ const emit = defineEmits(["openCourse"]);
 const goToClass = () => {
     if (!props.colData.LessonName) return;
     if (props.isDrop) return emit("openCourse", props.colData);
-    router.push(`/attend-class/${props.colData.chapterId}/${props.colData.LessonID}`);
+    router.push(`/attend-class/${props.colData.chapterId}/${props.colData.LessonID}/${props.colData.bookId}`);
 };
 
 </script>

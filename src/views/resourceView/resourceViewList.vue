@@ -11,6 +11,9 @@
         <div class="iframe-box" v-if="type === 0">
             <iframe :src="url"></iframe>
         </div>
+        <div class="iframe-box" v-if="type === 4">
+            <iframe :src="url"></iframe>
+        </div>
     </div>
 </template>
 
@@ -50,11 +53,17 @@ export default defineComponent({
         const store = useStore();
         const url = ref("");
         const initIframeSrc = async () => {
-            if (!props.resource || !props.resource.File || props.type !== 0) return;
-            const { FilePath, FileMD5, FileExtention, FileBucket } = props.resource.File;
-            const key = `${FilePath}/${FileMD5}.${FileExtention}`;
-            const fileUrl = await getOssUrl(key, FileBucket);
-            url.value = "https://owa.lyx-edu.com/op/view.aspx?src=" + encodeURIComponent(fileUrl);
+            if (!props.resource || !props.resource.File || (props.type !== 0 && props.type !== 4)) return;
+            if (props.type === 0) {
+                const { FilePath, FileMD5, FileExtention, FileBucket } = props.resource.File;
+                const key = `${FilePath}/${FileMD5}.${FileExtention}`;
+                const fileUrl = await getOssUrl(key, FileBucket);
+                url.value = "https://owa.lyx-edu.com/op/view.aspx?src=" + encodeURIComponent(fileUrl);
+            }
+
+            if (props.type === 4) {
+                // 
+            }
         };
 
         const isMySelf = computed(() => props.resource!.UserId === store.state.userInfo.userCenterUserID);

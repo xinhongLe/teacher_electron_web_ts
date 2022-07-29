@@ -34,6 +34,7 @@ interface IResourceRequest {
     resourceType: string;
     isResearch?: number;
     type?: number;
+    bookId: string;
     pager: {
         pageNumber: number;
         pageSize: number;
@@ -119,6 +120,7 @@ interface IRequestClassArrangement {
 interface IResponseClassArrangement {
     BagCount: number;
     Id: string;
+    BookId: string;
     LessonId: string;
     LessonName: string;
     LessonTime: string;

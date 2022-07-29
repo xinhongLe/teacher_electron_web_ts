@@ -52,9 +52,12 @@ export default defineComponent({
 		},
 		course: {
 			type: Object as PropType<ICourse>
+		},
+		bookId: {
+			type: String
 		}
 	},
-	emits: ["update:showClassArrangement", "update:course"],
+	emits: ["update:showClassArrangement", "update:course", "update:bookId"],
 	setup(props, { emit }) {
 		const store = useStore();
 		const updateShowClassArrangement = (flag: boolean) => {
@@ -129,7 +132,7 @@ export default defineComponent({
 			//     MutationTypes.SET_SUBJECT_PUBLISHER_BOOK_VALUE,
 			//     [data.id]
 			// );
-
+			emit("update:bookId", data.BookId);
 			getCourseData(data.BookId);
 		};
 

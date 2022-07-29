@@ -99,6 +99,10 @@ export default defineComponent({
 			type: String,
 			required: true
 		},
+		bookId: {
+			type: String,
+			required: true
+		},
 		name: {
 			type: String,
 			default: ""
@@ -327,8 +331,8 @@ export default defineComponent({
 		const schoolId = computed(() => store.state.userInfo.schoolId);
 		const userId = computed(() => store.state.userInfo.userCenterUserID);
 
-		const { source, type, course } = toRefs(props);
-		watch([source, type, course, schoolId], () => {
+		const { source, type, course, bookId } = toRefs(props);
+		watch([source, type, course, schoolId, bookId], () => {
 			update();
 		});
 
@@ -346,6 +350,7 @@ export default defineComponent({
 					resourceTypeId: type.value,
 					resourceType: source.value,
 					schoolId: schoolId.value,
+					bookId: bookId.value,
 					pager: {
 						pageNumber: pageNumber.value,
 						pageSize: pageSize.value
