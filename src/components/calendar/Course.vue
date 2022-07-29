@@ -151,14 +151,16 @@ const deleteCourse = () => {
 
 const addSchedule = async (dragInfo: SchoolLesson) => {
     const schoolID = store.state.userInfo.schoolId;
-    await addSchedulePackage({
-        scheduleId: scheduleID.value,
-        schoolId: schoolID,
-        acaSectionCode: subjectPublisherBookValue.value!.AcaSectionId,
-        lessonId: dragInfo.ID,
-        lessonName: dragInfo.Name,
-        lessonTime: props.colData.colDate + " " + props.colData.StartTime
-    });
+    if (!props.colData.LessonID) {
+        await addSchedulePackage({
+            scheduleId: scheduleID.value,
+            schoolId: schoolID,
+            acaSectionCode: subjectPublisherBookValue.value!.AcaSectionId,
+            lessonId: dragInfo.ID,
+            lessonName: dragInfo.Name,
+            lessonTime: props.colData.colDate + " " + props.colData.StartTime
+        });
+    }
 
     const res = await updateSchedule({
         ID: scheduleID.value,
