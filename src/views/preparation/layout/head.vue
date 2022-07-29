@@ -73,7 +73,7 @@
 			custom-class="custom-dialog"
 			v-model="uploadResourceOpen"
 			center
-			title="上传资源"
+			:title="currentEditType === 'edit' ? '编辑资源' : '上传资源'"
 			width="550px"
 			:destroy-on-close="true"
 		>
@@ -565,7 +565,6 @@ export default defineComponent({
 						empty = true;
 					}
 				}
-				console.log(form.directorys);
 				if (empty) return ElMessage.warning("请将资源目录补充完整！");
 			}
 			const schoolId = store.state.userInfo.schoolId;

@@ -40,6 +40,12 @@
 			v-model:visible="resourceVisible"
 			@eventEmit="eventEmit"
 		/>
+
+		<ScreenViewFile
+			v-if="showScreenViewFile"
+			:resource="resource"
+			@close="showScreenViewFile = false"
+		/>
 	</div>
 </template>
 
@@ -64,6 +70,7 @@ import {
 import { MutationTypes, useStore } from "@/store";
 import emitter from "@/utils/mitt";
 import { getOssUrl } from "@/utils/oss";
+import ScreenViewFile from "@/views/resourceView/screenViewFile.vue";
 interface ICourse {
 	chapterId: string;
 	lessonId: string;
@@ -76,7 +83,8 @@ export default defineComponent({
 		EditTip,
 		ResourceVersion,
 		DeleteVideoTip,
-		ResourceView
+		ResourceView,
+		ScreenViewFile
 	},
 	props: {
 		course: {
@@ -109,6 +117,7 @@ export default defineComponent({
 		const leftEnd = ref(0);
 		const topEnd = ref(0);
 		const resource = ref<IResourceItem>();
+		const showScreenViewFile = ref(false);
 
 		// 加入备课包
 		const addPackage = async (data: IResourceItem) => {
@@ -243,18 +252,28 @@ export default defineComponent({
 						if (props.name === "attendClass") {
 							store.commit(MutationTypes.SET_IS_WINCARD, { flag: props.name === "attendClass", id: data.OldResourceId, isMySelf: data.UserId === userId.value });
 						}
+					} else if (data.ResourceShowType === 0) {
+						if (props.name === "attendClass") {
+							resource.value = data;
+							target.value = data.OldResourceId;
+							showScreenViewFile.value = true;
+						}
 					}
 					
-					if (props.name !== "attendClass" || data.ResourceShowType === 0) {
-						resource.value = data;
-						target.value = data.OldResourceId;
-						resourceVisible.value = true;
+					if (props.name !== "attendClass") {
+						openResource(data);
 					}
 
 					logView({ id: data.ResourceId });
 					data.BrowseNum++;
 					break;
 			}
+		};
+
+		const openResource = (data: IResourceItem) => {
+			resource.value = data;
+			target.value = data.OldResourceId;
+			resourceVisible.value = true;
 		};
 
 		const dealFly = async (event: MouseEvent | TouchEvent) => {
@@ -355,7 +374,7 @@ export default defineComponent({
             resourceList.value.splice(i, 1);
         };
 
-        expose({ update });
+        expose({ update, openResource });
 
 		return {
 			resourceList,
@@ -370,7 +389,9 @@ export default defineComponent({
 			load,
 			disabledScrollLoad,
             onDeleteSuccess,
-            update
+            update,
+			openResource,
+			showScreenViewFile
 		};
 	}
 });

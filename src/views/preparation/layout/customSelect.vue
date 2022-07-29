@@ -106,7 +106,6 @@ export default defineComponent({
                 chapter: { name: "", id: "" },
                 lesson: { name: "", id: "" }
             });
-			console.log(form.book[3])
 			getChapterAndLessonTree();
 		};
 

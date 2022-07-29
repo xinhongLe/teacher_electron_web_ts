@@ -8,7 +8,7 @@
                 :btns="false"
                 @eventEmit="eventEmit"
             /> -->
-            <Resources name="attendClass" @updateResourceList="updateResourceList" :course="course" :source="source" :type="type" />
+            <Resources ref="resourceRef" name="attendClass" @updateResourceList="updateResourceList" :course="course" :source="source" :type="type" />
         </div>
         <div class="resource-filter">
             <el-radio-group
@@ -58,6 +58,8 @@ export default defineComponent({
         const type = ref("");
         const typeList = ref<{ Id: string; Name: string }[]>([]);
 
+        const resourceRef = ref();
+
         const getResourceType = async () => {
 			const res = await fetchResourceType();
 			if (res.success) {
@@ -99,7 +101,7 @@ export default defineComponent({
                     sendResourceData();
                     break;
                 case "openResource":
-                    const resource = JSON.parse(event.resource);
+                    const resource: IResourceItem = JSON.parse(event.resource);
                     if (resource.ResourceShowType === 2) {
                         // 断点视频
                         store.commit(MutationTypes.SET_IS_SHOW_VIDEO, { flag: true, info: { id: resource.OldResourceId } });
@@ -113,7 +115,9 @@ export default defineComponent({
                         } });
                     } else if (resource.ResourceShowType === 1) {
 						store.commit(MutationTypes.SET_IS_WINCARD, { flag: true, id: resource.OldResourceId });
-					}
+					} else if (resource.ResourceShowType === 0) {
+                        resourceRef.value.openResource(resource);
+                    }
 					
 					logView({ id: resource.ResourceId });
                     break;
@@ -162,7 +166,8 @@ export default defineComponent({
             switchClass,
             course,
             source,
-            updateResourceList
+            updateResourceList,
+            resourceRef
         }
     }
 });
