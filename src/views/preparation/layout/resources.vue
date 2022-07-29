@@ -327,12 +327,8 @@ export default defineComponent({
 		const schoolId = computed(() => store.state.userInfo.schoolId);
 		const userId = computed(() => store.state.userInfo.userCenterUserID);
 
-		watch(schoolId, () => {
-			update();
-		});
-
 		const { source, type, course } = toRefs(props);
-		watch([source, type, course], () => {
+		watch([source, type, course, schoolId], () => {
 			update();
 		});
 
@@ -363,7 +359,7 @@ export default defineComponent({
 			}
 		};
 
-		const disabledScrollLoad = ref(false);
+		const disabledScrollLoad = ref(true);
 		const load = () => {
             pageNumber.value++;
             getResources();
