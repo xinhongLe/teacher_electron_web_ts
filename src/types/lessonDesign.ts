@@ -13,21 +13,35 @@ interface ITeachProgress {
     contents: IContent[];
 }
 
+export interface ItemForm {
+    Name: string,
+    Value: string,
+    isSelectId: string | string[],
+    FieldType: number,
+    SelectType: number,
+    Sort: number,
+    Status: number,
+    LessonPlanDetailOptions: any[],
+    LessonPlanDetailPages: any[],
+}
+
 export interface IFrom {
-    title: string;
-    book: string;
-    chapter: string;
-    lesson: string;
+    // titleValue: ItemForm
     templateType: string;
-    classType: string;
-    analyze: string;
-    targets: IData[];
-    teachingDifficulty: string;
-    teachingFocus: string;
-    teachingPreparation: string;
-    teachProgress: ITeachProgress[];
-    teachingReflection: string;
-    homework: string;
+    lessonBasicInfoList: ItemForm[],
+    // title: string;
+    // book: string;
+    // chapter: string;
+    // lesson: string;
+    // classType: string;
+    // analyze: string;
+    // targets: IData[];
+    // teachingDifficulty: string;
+    // teachingFocus: string;
+    // teachingPreparation: string;
+    // teachProgress: ITeachProgress[];
+    // teachingReflection: string;
+    // homework: string;
 }
 
 export interface ITemplateItem {

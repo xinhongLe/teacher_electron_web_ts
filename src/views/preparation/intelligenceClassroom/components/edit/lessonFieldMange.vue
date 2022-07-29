@@ -33,7 +33,7 @@
     <el-dialog v-model="filedVisible" :title="openFieldType === 'add' ? '新增自定义字段' : '编辑自定义字段'" width="600px"  center @close="closeField">
         <div class="page-type-box">
             <el-form ref="ruleForm" :model="form" :rules="rules" label-width="120px">
-                <el-form-item label="字段名称：" prop="name">
+                <el-form-item label="字段名称：" prop="Name">
                     <el-input v-model="form.Name"></el-input>
                     <span>*最多30字符，且不能与系统字段、其他自定义字段重名</span>
                 </el-form-item>
@@ -43,7 +43,7 @@
                     </el-select>
                     <span>*字段类型会对配置字段产生影响</span>
                 </el-form-item>
-                <el-form-item v-if="[3,4,6].includes(form.SelectType)" label="字段值选项：" >
+                <el-form-item v-if="showOptionType.includes(form.SelectType)" label="字段值选项：" >
                     <draggable v-model="fieldList"  @start="drag = true" @end="drag = false" item-key="index">
                         <template #item="{element, index}">
                             <div class="sort-input">
@@ -93,7 +93,7 @@ export default defineComponent({
             default: {}
         }
     },
-    emits: ["update:dialogVisible", "handleAddCard"],
+    emits: ["update:dialogVisible", "updateTemplateList"],
     setup(props, { emit }) {
         const state = reactive({
             rules: {
@@ -110,12 +110,15 @@ export default defineComponent({
                 ID: ''
             },
             tableData: [],
+            showOptionType: [4,5,6],
+            //  0 单行文本 1关联文本 2 多个单行文本  3多行文本 4 下拉框 5 多选框 6单选框 7 单日期 8包含时分日期
             fieldTypeList: [
                 {label: "单行文本", value: 0},
-                {label: "多行单行文本", value: 1},
-                {label: "多行文本", value: 2},
-                {label: "单选下拉框", value: 3},
-                {label: "多选框", value: 4},
+                {label: "关联文本", value: 1},
+                {label: "多个单行文本", value: 2},
+                {label: "多行文本", value: 3},
+                {label: "下拉框", value: 4},
+                {label: "多选框", value: 5},
                 {label: "单选框", value: 6},
                 {label: "单日期", value: 7},
                 {label: "包含时分日期", value: 8},
@@ -124,44 +127,50 @@ export default defineComponent({
         });
 
         watch(() => props.dialogVisible, (val:boolean) => {
-            console.log("警惕试i")
             state.visible = val;
             if(val){
                 _getLessonPlanTemplateDetail()
             }
         })
 
+        const ruleForm = ref();
         const handleComfirm = () => {
-            const Options = state.fieldList.map((item, index) => {
-                return {
-                    Sort: index,
-                    ...item
+            ruleForm.value.validate((valid:boolean) => {
+                if(valid){
+                    const Options = state.fieldList.map((item, index) => {
+                        return {
+                            Sort: index,
+                            ...item
+                        }
+                    })
+                    const data = state.showOptionType.includes(state.form.SelectType) ?  {
+                        LessonPlanTemplateMainID: props.currentTemplate.ID,
+                        Options: Options,
+                        ...state.form
+                    } : { LessonPlanTemplateMainID: props.currentTemplate.ID, ...state.form}
+                    if(state.openFieldType === 'add'){
+                        addTemplateField(data).then(res => {
+                            if(res.resultCode === 200){
+                                _getLessonPlanTemplateDetail()
+                                ElMessage({ type: "success", message: "新增字段成功" });
+                                state.filedVisible = false
+                            }
+                        })
+                    }else {
+                        editTemplateField(data).then(res => {
+                            if(res.resultCode === 200){
+                                _getLessonPlanTemplateDetail()
+                                ElMessage({ type: "success", message: "编辑字段成功" });
+                                state.filedVisible = false
+                            }
+                        })
+                    }
                 }
             })
-            const data = [3,4,6].includes(state.form.SelectType) ?  {
-                LessonPlanTemplateMainID: props.currentTemplate.ID,
-                Options: Options,
-                ...state.form
-            } : { LessonPlanTemplateMainID: props.currentTemplate.ID, ...state.form}
-            if(state.openFieldType === 'add'){
-                addTemplateField(data).then(res => {
-                    if(res.resultCode === 200){
-                        _getLessonPlanTemplateDetail()
-                        ElMessage({ type: "success", message: "新增字段成功" });
-                        state.filedVisible = false
-                    }
-                })
-            }else {
-                editTemplateField(data).then(res => {
-                    if(res.resultCode === 200){
-                        _getLessonPlanTemplateDetail()
-                        ElMessage({ type: "success", message: "编辑字段成功" });
-                        state.filedVisible = false
-                    }
-                })
-            }
+
         };
         const close = () => {
+            emit("updateTemplateList");
             emit("update:dialogVisible", false);
         };
 
@@ -196,7 +205,7 @@ export default defineComponent({
                 SelectType: 0,
                 ID: ''
             }
-            state.fieldList = []
+            state.fieldList = [{Name: "", ID: ''}]
             state.filedVisible = false
         }
 
@@ -217,6 +226,7 @@ export default defineComponent({
         }
 
         return {
+            ruleForm,
             ...toRefs(state),
             openFieldDialog,
             editFiled,

@@ -3,10 +3,15 @@
         <div class="content">
             <div class="left">
                 <div class="left-content">
-                    <div :class="[currentTemplate.ID === item.ID ? 'active' : '']" @click="handleTemplate(item)" v-for="(item,index) in templateList" :key="index"> {{item.Name}}</div>
+                    <div :class="[currentTemplate.ID === item.ID ? 'active' : '']" @click="handleTemplate(item)" v-for="(item,index) in templateList" :key="index">
+                        <span class="text">{{item.Name}}</span>
+                        <span class="del-btn" @click.stop="delTemplate(item)">
+                            <img src="@/assets/indexImages/icon_delete.png" alt="">
+                        </span>
+                    </div>
                 </div>
-                <div class="left-add">
-                    <span  @click="handleAddTemplate">+ 创建新模板</span>
+                <div class="left-add"  @click="handleAddTemplate">
+                    <span>+ 创建新模板</span>
                 </div>
             </div>
             <div class="center">
@@ -63,7 +68,7 @@
           </span>
         </template>
 
-        <lesson-field-mange :currentTemplate="currentTemplate" v-model:dialogVisible="fieldManageVisible"></lesson-field-mange>
+        <lesson-field-mange :currentTemplate="currentTemplate" @updateTemplateList="updateTemplateList" v-model:dialogVisible="fieldManageVisible"></lesson-field-mange>
 
     </el-dialog>
 </template>
@@ -73,11 +78,11 @@ import { computed, defineComponent, reactive, toRefs, ref, watch, PropType, next
 import draggable from "vuedraggable";
 import { ITemplateList, IFrom, ITemplateItem } from "@/types/lessonDesign.ts";
 import LessonFieldMange from "@/views/preparation/intelligenceClassroom/components/edit/lessonFieldMange.vue";
-import { updateLessonPlanTemplate } from "@/api/home.ts";
+import { updateLessonPlanTemplate, delLessonPlanTemplate, addLessonPlanTemplate } from "@/api/home.ts";
+import { ElMessage, ElMessageBox } from "element-plus";
 interface State {
     fieldManageVisible: boolean,
     form: {
-        // titleValue: ITemplateItem,
         basicValueList: ITemplateItem[],
         synopsisValueList: ITemplateItem[],
         processValueList: ITemplateItem[],
@@ -112,20 +117,6 @@ export default defineComponent({
                     { Name: "设计意图", Status: 1 }
                 ],
                 customValueList: []
-                // title: "",
-                // book: "",
-                // chapter: "",
-                // lesson: "",
-                // templateType: "",
-                // classType: "",
-                // analyze: "",
-                // targets: [{ value: "", id: "" }],
-                // teachingDifficulty: "",
-                // teachingFocus: "",
-                // teachingPreparation: "",
-                // teachProgress: [],
-                // teachingReflection: "",
-                // homework: ""
             },
             currentTemplate: { Name: "", ID: "", Sort: 0, IsSystem: 0, Detail: [] },
             rightList: []
@@ -135,17 +126,22 @@ export default defineComponent({
 
         watch(() => props.templateList, (val:ITemplateList[]) => {
             nextTick(() => {
-                state.currentTemplate = val?.length > 0 ? val[0] : { Name: "", ID: "", Sort: 0, IsSystem: 0, Detail: [] };
+                if (state.currentTemplate.ID) {
+                    state.currentTemplate = val.find((item:ITemplateList) => item.ID === state.currentTemplate.ID) || { Name: "", ID: "", Sort: 0, IsSystem: 0, Detail: [] };
+                } else {
+                    state.currentTemplate = val?.length > 0 ? val[0] : { Name: "", ID: "", Sort: 0, IsSystem: 0, Detail: [] };
+                }
+
+                // state.currentTemplate = state.currentTemplate.ID ? state.currentTemplate : val?.length > 0 ? val[0] : { Name: "", ID: "", Sort: 0, IsSystem: 0, Detail: [] };
+                console.log(state.currentTemplate, "state.currentTemplate====");
                 transformData(state.currentTemplate?.Detail);
-                console.log(state.currentTemplate, "state.currentTemplate======");
             });
         }, { immediate: true });
 
         const transformData = (templateList:any[]) => {
-            // state.form.titleValue = templateList.find((item:any) => item.Sort === 1) || { Name: "", Status: 1 };
-            state.form.basicValueList = templateList.filter((item:any) => item.Sort === 2);
+            state.form.basicValueList = templateList.filter((item:any) => item.GroupName === "基础字段");
             state.form.synopsisValueList = templateList.filter((item:any) => item.GroupName === "概要字段");
-            state.form.customValueList = templateList.filter((item:any) => item.Sort === 0);
+            state.form.customValueList = templateList.filter((item:any) => item.GroupName === "自定义字段");
             changeCheckbox();
         };
 
@@ -160,29 +156,51 @@ export default defineComponent({
         };
 
         const handleAddTemplate = () => {
-            state.form.basicValueList = state.form.basicValueList.map(item => {
-                return { ...item, Status: 0 };
+            addLessonPlanTemplate().then(res => {
+                if (res.resultCode === 200) {
+                    state.currentTemplate = { Name: res.result.Name, ID: res.result.ID, Sort: 0, IsSystem: 0, Detail: res.result.Detail };
+                    transformData(state.currentTemplate?.Detail);
+                }
             });
-            state.form.synopsisValueList = state.form.synopsisValueList.map(item => {
-                return { ...item, Status: 0 };
-            });
-            state.form.customValueList = [];
-            state.currentTemplate = { Name: "", ID: "", Sort: 0, IsSystem: 0, Detail: [] };
         };
 
         const handleComfirm = () => {
+            const detail = state.rightList.map((item, index) => {
+                return {
+                    ...item,
+                    Sort: index + 1
+                };
+            });
             const data = {
                 ID: state.currentTemplate.ID,
                 Name: state.currentTemplate.Name,
                 Sort: state.currentTemplate.Sort,
                 IsSystem: state.currentTemplate.IsSystem,
-                Detail: [...state.form.basicValueList,
-                    ...state.form.synopsisValueList, ...state.form.customValueList]
+                Detail: detail
             };
             updateLessonPlanTemplate(data).then(res => {
                 if (res.resultCode === 200) {
+                    ElMessage({ type: "success", message: state.currentTemplate.ID ? "更新模板成功" : "新增模板成功" });
                     emit("updateLessonPlanTemplateList");
                 }
+            });
+        };
+
+        const delTemplate = (item:ITemplateList) => {
+            ElMessageBox.confirm("是否删除该模板?", "提示", {
+                confirmButtonText: "确认",
+                cancelButtonText: "取消",
+                type: "warning"
+            }).then(() => {
+                delLessonPlanTemplate({ ID: item.ID }).then(res => {
+                    if (res.resultCode === 200) {
+                        state.currentTemplate = { Name: "", ID: "", Sort: 0, IsSystem: 0, Detail: [] };
+                        emit("updateLessonPlanTemplateList");
+                        ElMessage({ type: "success", message: "删除模板成功" });
+                    }
+                });
+            }).catch((err) => {
+                return err;
             });
         };
 
@@ -191,7 +209,12 @@ export default defineComponent({
             transformData(state.currentTemplate?.Detail);
         };
 
+        const updateTemplateList = () => {
+            emit("updateLessonPlanTemplateList");
+        };
+
         const close = () => {
+            emit("updateLessonPlanTemplateList");
             emit("update:dialogVisible", false);
         };
 
@@ -202,6 +225,8 @@ export default defineComponent({
         return {
             ...toRefs(state),
             visible,
+            updateTemplateList,
+            delTemplate,
             handleAddTemplate,
             handleTemplate,
             changeCheckbox,
@@ -228,29 +253,46 @@ export default defineComponent({
         flex-direction: column;
         position: relative;
         width: 240px;
-        padding: 10px 0 60px;
+        padding: 0px 0 70px;
         background: #F6F7F8;
         margin-right: 15px;
         .left-content {
             flex: 1;
             overflow-y: auto;
+            padding-top: 20px;
             > div {
+                position: relative;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 border: 1px solid #EBEFF1;
                 background: #FFFFFF;
-                height: 40px;
+                height: 46px;
                 cursor: pointer;
                 font-size: 14px;
                 color: #212121;
-                margin: 0 10px 10px;
-                position: relative;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                white-space: nowrap;
+                margin: 0 10px 16px;
                 &:hover {
                     background-color: rgba(0, 87, 254, 0.1);
+                    .del-btn{
+                        display: block;
+                    }
+                }
+                .del-btn{
+                    position: absolute;
+                    right: 0px;
+                    top: -12px;
+                    display: inline-block;
+                    background-color: rgba(0, 0, 0, 0.3);
+                    padding: 4px;
+                    border-radius: 50%;
+                    font-size: 12px;
+                    display: none;
+                }
+                .text{
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
                 }
             }
             .active {
@@ -260,8 +302,8 @@ export default defineComponent({
         }
         .left-add {
             position: absolute;
-            left: 1rem;
-            bottom: 1rem;
+            left: 10px;
+            bottom: 20px;
             border-radius: 4px;
             border: 0.1rem solid #2E95FF;
             color: #2E95FF;
@@ -269,6 +311,7 @@ export default defineComponent({
             line-height: 40px;
             width: 220px;
             text-align: center;
+            cursor: pointer;
         }
     }
     .center{

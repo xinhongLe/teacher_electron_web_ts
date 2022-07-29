@@ -127,6 +127,7 @@ interface ILessonPlanDetail {
     FieldType: number; // 0 自定义字段 1 标题 2 教材字段 3单元字段 4 课时字段 5 课型 6 教学分析 7教学目标 8教学难点 9教学重点 10教学准备 11教学过程 12教学反思 13 课后作业
     SelectType: number; // 0 单行文本 1关联文本 2 多个单行文本 3多行文本 4 下拉框 5 多选框 6单选框 7 单日期 8包含时分日期
     IsSystem: number;
+    isSelectId?: string;
     LessonPlanMainID: string;
     LessonPlanDetailPages: ILessonPlanProcess[]; // 教学过程
     LessonPlanDetailOptions: ILessonPlanClassType[];
@@ -441,7 +442,7 @@ export function setCardOrPageState(data: ICardOrPageState) : Promise<GetPageResp
 }
 
 // 获取教案数据
-export function getLessonPlan(data: IGetLessonPlan) : Promise<IResponse<IGetLessonPlanResponse>> {
+export function getLessonPlan(data: IGetLessonPlan) : Promise<GetPageResponse> {
     return request({
         url: "/Api/WCP/LessonPlan/GetLessonPlanMain",
         headers: { DeviceID: "Franchisee" },
@@ -473,6 +474,17 @@ export function getLessonPlanTemplate() : Promise<GetPageResponse> {
     });
 }
 
+// 新增模板
+export function addLessonPlanTemplate() : Promise<GetPageResponse> {
+    return request({
+        url: "/Api/WCP/LessonPlan/AddLessonPlanTemplate",
+        headers: { DeviceID: "Franchisee" },
+        method: "post",
+        baseURL: WINDOW_CRAD_API,
+        data: Object.assign({ OriginType: originType })
+    });
+}
+
 // 更新模板
 export function updateLessonPlanTemplate(data:any) : Promise<GetPageResponse> {
     return request({
@@ -480,7 +492,29 @@ export function updateLessonPlanTemplate(data:any) : Promise<GetPageResponse> {
         headers: { DeviceID: "Franchisee" },
         method: "post",
         baseURL: WINDOW_CRAD_API,
-        data: Object.assign(data,{ OriginType: originType })
+        data: Object.assign(data, { OriginType: originType })
+    });
+}
+
+// 删除模板
+export function delLessonPlanTemplate(data:{ ID: string }) : Promise<GetPageResponse> {
+    return request({
+        url: "/Api/WCP/LessonPlan/DeleteLessonPlanTemplate",
+        headers: { DeviceID: "Franchisee" },
+        method: "post",
+        baseURL: WINDOW_CRAD_API,
+        data: Object.assign(data, { OriginType: originType })
+    });
+}
+
+// 切换模板
+export function changeLessonPlanTemplate(data:{ LessonPlanTemplateMainID: string, TeachPageID: string }) : Promise<GetPageResponse> {
+    return request({
+        url: "/Api/WCP/LessonPlan/ChangeTeachPageTemplate",
+        headers: { DeviceID: "Franchisee" },
+        method: "post",
+        baseURL: WINDOW_CRAD_API,
+        data: Object.assign(data, { OriginType: originType })
     });
 }
 
