@@ -11,7 +11,7 @@
         <div class="iframe-box" v-if="type === 0">
             <iframe :src="url"></iframe>
         </div>
-        <div class="iframe-box" v-if="type === 4">
+        <div class="iframe-teach-box" v-if="type === 4">
             <iframe :src="url"></iframe>
         </div>
     </div>
@@ -53,8 +53,8 @@ export default defineComponent({
         const store = useStore();
         const url = ref("");
         const initIframeSrc = async () => {
-            if (!props.resource || !props.resource.File || (props.type !== 0 && props.type !== 4)) return;
-            if (props.type === 0) {
+            if (!props.resource) return;
+            if (props.type === 0 && props.resource.File) {
                 const { FilePath, FileMD5, FileExtention, FileBucket } = props.resource.File;
                 const key = `${FilePath}/${FileMD5}.${FileExtention}`;
                 const fileUrl = await getOssUrl(key, FileBucket);
@@ -62,7 +62,7 @@ export default defineComponent({
             }
 
             if (props.type === 4) {
-                // 
+                url.value = props.resource.ResourceToolUrl;
             }
         };
 
@@ -87,11 +87,19 @@ export default defineComponent({
         width: 100%;
         height: 100%;
         overflow: hidden;
+        iframe {
+            height: calc(100% + 55px);
+            margin-top: -55px;
+        }
+    }
+    .iframe-teach-box {
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
     }
     iframe {
         width: 100%;
-        height: calc(100% + 55px);
-        margin-top: -55px;
+        height: 100%;
     }
 }
 </style>

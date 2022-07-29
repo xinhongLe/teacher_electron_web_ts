@@ -331,6 +331,7 @@ interface ICourse {
 	chapterId: string;
 	lessonId: string;
 	lessonName: string;
+	chapterName: string;
 }
 
 interface ICourseCartOption {
@@ -503,10 +504,6 @@ export default defineComponent({
 			isShelf: true
 		};
 		const form = reactive<IForm>(JSON.parse(JSON.stringify(formEmpty)));
-
-		if (selectedBook.value && currentEditType.value === "add") {
-			// form.directorys[0].schoolSection.id = selectedBook.value.AcaSectionId;
-		}
 
 		const uploadResourceOpen = ref(false);
 
@@ -724,6 +721,20 @@ export default defineComponent({
 			form.isSchool = false;
 			fileList.value = [];
 			currentEditType.value = "add";
+			if (selectedBook.value) {
+				form.directorys[0].schoolSection.id = selectedBook.value.AcaSectionId;
+				form.directorys[0].schoolSection.name = selectedBook.value.AcaSectionName;
+				form.directorys[0].subject.id = selectedBook.value.SubjectId;
+				form.directorys[0].subject.name = selectedBook.value.SubjectName;
+				form.directorys[0].version.id = selectedBook.value.PublisherId;
+				form.directorys[0].version.name = selectedBook.value.PublisherName;
+				form.directorys[0].grade.id = selectedBook.value.AlbumId;
+				form.directorys[0].grade.name = selectedBook.value.AlbumName;
+				form.directorys[0].chapter.id = course.value.chapterId;
+				form.directorys[0].chapter.name = course.value.chapterName;
+				form.directorys[0].lesson.id = course.value.lessonId;
+				form.directorys[0].lesson.name = course.value.lessonName;
+			}
 			uploadResourceOpen.value = true;
 		};
 

@@ -199,12 +199,16 @@ export default defineComponent({
 			if (bookList.value.length === 0) {
 				// 一本书都没有
 				selectBook({
+					AlbumId: "",
 					AlbumName: "",
 					BookId: "",
+					PublisherId: "",
 					PublisherName: "",
+					SubjectId: "",
 					SubjectName: "",
 					Id: "",
-					AcaSectionId: ""
+					AcaSectionId: "",
+					AcaSectionName: ""
 				});
 
 				// 弹出书册选择
@@ -229,12 +233,16 @@ export default defineComponent({
         init();
 
         const selectedBook = ref<ICustomBookItem>({
+			AlbumId: "",
             AlbumName: "",
             BookId: "",
+			PublisherId: "",
             PublisherName: "",
+			SubjectId: "",
             SubjectName: "",
             Id: "",
-            AcaSectionId: ""
+            AcaSectionId: "",
+			AcaSectionName: ""
         });
 
         const selectedBookName = computed(() => {
@@ -255,9 +263,9 @@ export default defineComponent({
             const res = await fetchAddCustomBookList({
                 bookId: grade.value
             });
-           await getCustomBookList();
-		   const book = bookList.value.find(item => item.BookId === grade.value);
-		   if (book) selectBook(book);
+			await getCustomBookList();
+			const book = bookList.value.find(item => item.BookId === grade.value);
+			if (book) selectBook(book);
         };
 
         return {

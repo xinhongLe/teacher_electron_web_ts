@@ -12,12 +12,16 @@ export interface IBookItem {
 }
 
 export interface ICustomBookItem {
+    SubjectId: string;
     SubjectName: string;
+    PublisherId: string;
     PublisherName: string;
+    AlbumId: string;
     AlbumName: string;
     Id: string;
     BookId: string;
     AcaSectionId: string;
+    AcaSectionName: string;
 }
 
 export interface ICourseItem {
@@ -85,6 +89,7 @@ export interface IResourceItem {
     ShareNum: number;
     Source: string;
     BagId: string;
+    ResourceToolUrl: string;
     File: {
         Id: string;
         Name: string;

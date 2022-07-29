@@ -39,7 +39,7 @@ interface IDirectory {
 }
 
 interface IOption {
-    value: IDirectoryItem;
+    value: string;
     label: string;
     children?: IOption[];
 }
@@ -58,7 +58,7 @@ export default defineComponent({
 			return data.map((item) => {
 				const children = dealCascader(item.Children || []);
 				return {
-					value: { id: item.Id, name: item.Name, ...item.BookId ? { bookId: item.BookId } : {} },
+					value: item.Id,
 					label: item.Name,
 					...(!item.Children ? {} : { children })
 				};
@@ -72,37 +72,62 @@ export default defineComponent({
 			);
 		});
 		const chapterList = ref<IOption[]>([]);
-		const form = reactive<{ chapterAndLesson: IDirectoryItem[]; book: IDirectoryItem[] }>({
+		let storeChapterList: IBookItem[] = [];
+		const form = reactive<{ chapterAndLesson: string[]; book: string[] }>({
 			chapterAndLesson: [],
 			book: []
 		});
 
-		onMounted(() => {
-			form.book = [props.directory.schoolSection, props.directory.subject, props.directory.version, props.directory.grade];
-            form.chapterAndLesson = [props.directory.chapter, props.directory.lesson];
-			if (props.directory.grade.bookId) {
+		const init = () => {
+			form.book = [props.directory.schoolSection.id, props.directory.subject.id, props.directory.version.id, props.directory.grade.id];
+            form.chapterAndLesson = [props.directory.chapter.id, props.directory.lesson.id];
+			if (props.directory.grade.id) {
 				getChapterAndLessonTree();
 			}
+		};
+
+		watch(() => props.directory, () => init, { deep: true });
+
+		onMounted(() => {
+			init();
 		});
+
+		const getBook = () => {
+			const subjectPublisherBookList = store.state.preparation.subjectPublisherBookList;
+			const A = subjectPublisherBookList.find(item => item.Id === form.book[0]);
+			const B = A?.Children?.find(item => item.Id === form.book[1]);
+			const C = B?.Children?.find(item => item.Id === form.book[2]);
+			const D = C?.Children?.find(item => item.Id === form.book[3]);
+			return [{ id: A?.Id, name: A?.Name }, { id: B?.Id, name: B?.Name }, { id: C?.Id, name: C?.Name }, { id: D?.Id, name: D?.Name, bookId: D?.BookId }];
+		};
+
+		const getChapter = () => {
+			const chapter = storeChapterList.find(item => item.Id === form.chapterAndLesson[0]);
+			const lesson = (chapter && chapter.Children) ? chapter.Children.find(item => item.Id === form.chapterAndLesson[1]) : { Id: "", Name: "" };
+			return [{ id: chapter?.Id, name: chapter?.Name }, { id: lesson?.Id, name: lesson?.Name }];
+		};
 
 		const getChapterAndLessonTree = async () => {
 			if (form.book.length === 4) {
+				const book = getBook();
 				const res = await fetchCourseDataByBookId({
-					bookId: form.book[3].bookId as string
+					bookId: book[3].bookId as string
 				});
 
                 if (res.success) {
+					storeChapterList = res.result;
                     chapterList.value = dealCascader(res.result);
                 }
 			}
 		};
 
 		const bookChange = async () => {
+			const book = getBook();
             emit("update:directory", {
-                schoolSection: form.book[0],
-                subject: form.book[1],
-                version: form.book[2],
-                grade: form.book[3],
+                schoolSection: book[0],
+                subject: book[1],
+                version: book[2],
+                grade: book[3],
                 chapter: { name: "", id: "" },
                 lesson: { name: "", id: "" }
             });
@@ -110,13 +135,15 @@ export default defineComponent({
 		};
 
         const chapterChange = async () => {
+			const book = getBook();
+			const chapter = getChapter();
             emit("update:directory", {
-                schoolSection: form.book[0],
-                subject: form.book[1],
-                version: form.book[2],
-                grade: form.book[3],
-                chapter: form.chapterAndLesson[0],
-                lesson: form.chapterAndLesson[1]
+                schoolSection: book[0],
+                subject: book[1],
+                version: book[2],
+                grade: book[3],
+                chapter: chapter[0],
+                lesson: chapter[1]
             });
         }
 

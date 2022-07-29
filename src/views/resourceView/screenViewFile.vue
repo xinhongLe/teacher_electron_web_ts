@@ -24,11 +24,8 @@ export default defineComponent({
     setup(props, { emit }) {
         const url = ref("");
         const initIframeSrc = async () => {
-            if (!props.resource || !props.resource.File) return;
-            const { FilePath, FileMD5, FileExtention, FileBucket } = props.resource.File;
-            const key = `${FilePath}/${FileMD5}.${FileExtention}`;
-            const fileUrl = await getOssUrl(key, FileBucket);
-            url.value = "https://owa.lyx-edu.com/op/view.aspx?src=" + encodeURIComponent(fileUrl);
+            if (!props.resource || !props.resource.ResourceToolUrl) return;
+            url.value = props.resource.ResourceToolUrl;
         };
 
         watchEffect(initIframeSrc);

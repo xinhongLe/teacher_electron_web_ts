@@ -43,6 +43,7 @@ interface ICourse {
     chapterId: string;
     lessonId: string;
 	lessonName: string;
+	chapterName: string;
 }
 export default defineComponent({
 	components: { BookSelect, Tree },
@@ -66,16 +67,19 @@ export default defineComponent({
 
 		const treeData = ref<ITreeItem[]>([]);
 		const selectedCourse = (tree: ITreeItem, keys: string[]) => {
+			const chapter = treeData.value.find(item => item.Id === keys[0]);
 			emit("update:course", {
-                chapterId: keys[0],
+                chapterId: chapter?.Id,
                 lessonId: tree.Id,
-				lessonName: tree.Name
+				lessonName: tree.Name,
+				chapterName: chapter?.Name
             });
 			store.commit(MutationTypes.SET_SELECT_LESSON_ID, tree.Id);
 
 			tipTarget.value = tree.Id;
 		};
 		const selectedChapterID = ref("");
+		const selectedChapterName = ref("");
 		const selectedID = ref("");
 		const selectedName = ref("");
 
@@ -89,7 +93,8 @@ export default defineComponent({
 				emit("update:course", {
 					chapterId: "",
 					lessonId: "",
-					lessonName: ""
+					lessonName: "",
+					chapterName: ""
 				});
 				store.commit(MutationTypes.SET_SELECT_LESSON_ID, "");
 				return;
@@ -102,7 +107,8 @@ export default defineComponent({
 			emit("update:course", {
 				chapterId: selectedChapterID.value,
 				lessonId: selectedID.value,
-				lessonName: selectedName.value
+				lessonName: selectedName.value,
+				chapterName: selectedChapterName.value
 			});
 			store.commit(MutationTypes.SET_SELECT_LESSON_ID, selectedID.value);
 
@@ -115,6 +121,7 @@ export default defineComponent({
 				if (treeData.value[i].Children && treeData.value[i].Children!.length > 0) {
 					hasLesson = true;
 					selectedChapterID.value = treeData.value[i].Id;
+					selectedChapterName.value = treeData.value[i].Name;
 					selectedID.value = treeData.value[i].Children![0].Id;
 					selectedName.value = treeData.value[i].Children![0].Name;
 					break;
@@ -122,6 +129,7 @@ export default defineComponent({
 			}
 			if (!hasLesson) {
 				selectedChapterID.value = "";
+				selectedChapterName.value = "";
 				selectedID.value = "";
 				selectedName.value = "";
 			}
