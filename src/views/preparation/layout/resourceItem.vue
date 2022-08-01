@@ -8,7 +8,7 @@
         <div class="p-resource-school-mark" v-if="data.IsSchool === 1">校本</div>
         <div class="p-resource-top">
             <div class="resource-icon">
-                <img :src="iconResources.selfStudy[data.ResourceType]" alt="" />
+                <img :src="data.IsSysFile === 1 ? iconResources.selfStudy[data.ResourceType] : iconResources.other[data.ResourceType]" alt="" />
             </div>
             <div class="resource-content">
                 <div class="resource-title">{{data.Name}}</div>
