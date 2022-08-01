@@ -3,6 +3,7 @@ import { LogFunctions } from "electron-log";
 import Store from "electron-store";
 
 type Electron = typeof electron & {
+    exportWord: (filePath: string) => void,
     exit: () => void,
     maximizeWindow: () => void,
     unmaximizeWindow: () => void,

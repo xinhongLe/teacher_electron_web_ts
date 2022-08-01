@@ -11,6 +11,10 @@ const extraResources = process.platform === "darwin" ? [
     }
 ] : [
     {
+        from: "./extraResources/exportWord/template.docx",
+        to: "extraResources/exportWord/template.docx"
+    },
+    {
         from: "./extraResources/win/ball/ball.exe",
         to: "extraResources/win/ball/ball.exe"
     },

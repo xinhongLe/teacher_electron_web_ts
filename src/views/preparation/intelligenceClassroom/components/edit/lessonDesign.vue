@@ -10,6 +10,10 @@
            </el-select>
        </div>
 
+        <div class="export-btn">
+            <el-button type="primary" @click="handleExportWord">导出</el-button>
+        </div>
+
         <div class="lesson-design-form" v-for="(item, i) in form.lessonBasicInfoList" :key="i">
            <div v-if="item.Status === 1">
                <div class="lesson-design-label">
@@ -100,6 +104,9 @@ import { Setting } from "@element-plus/icons";
 import LessonTemplateSet from "@/views/preparation/intelligenceClassroom/components/edit/lessonTemplateSet.vue";
 import { get, STORAGE_TYPES } from "@/utils/storage";
 import { ITemplateList, IFrom, ItemForm } from "@/types/lessonDesign.ts";
+import XLSX from "xlsx";
+import moment from "moment";
+// import { exportWord } from "@/utils/exportWord";
 export default defineComponent({
     components: { LessonTemplateSet, draggable, Setting },
     props: {
@@ -152,6 +159,27 @@ export default defineComponent({
 
         const reduceTarget = (index: number, item:any) => {
             item.LessonPlanDetailOptions.splice(index, 1);
+        };
+
+        const handleExportWord = () => {
+            const defaultPath = `${new Date().getTime()}.docx`;
+            window.electron.showSaveDialog({
+                defaultPath,
+                filters: [
+                    {
+                        name: "doc文件",
+                        extensions: ["doc"]
+                    },
+                    {
+                        name: "docx文件",
+                        extensions: ["docx"]
+                    }
+                ]
+            }).then(({ filePath }) => {
+                console.log(filePath, "----123");
+                window.electron.exportWord(filePath || "");
+                ElMessage.success("模板文件下载成功");
+            });
         };
 
         const save = () => {
@@ -237,6 +265,8 @@ export default defineComponent({
             templateList,
             classTypeList,
             dialogVisible,
+            // exportWord,
+            handleExportWord,
             _getLessonPlanTemplate,
             changeTemplate,
             templateSet,
@@ -258,6 +288,12 @@ export default defineComponent({
         padding: 10px 20px;
         border-top: 1px solid #EBEFF1;
     }
+}
+
+.export-btn{
+    position: absolute;
+    top: 20px;
+    right: 80px;
 }
 
 .lesson-design-form {
