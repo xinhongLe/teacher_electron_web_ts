@@ -327,7 +327,7 @@ export default defineComponent({
         });
 
 		const pageNumber = ref(1);
-		const pageSize = ref(10);
+		const pageSize = ref(20);
 		const store = useStore();
 		const schoolId = computed(() => store.state.userInfo.schoolId);
 		const userId = computed(() => store.state.userInfo.userCenterUserID);

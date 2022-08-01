@@ -76,6 +76,10 @@ export enum STORAGE_TYPES {
      */
     SELECT_BOOK_ID = "SELECT_BOOK_ID",
     /**
+     * 选中单元课时
+     */
+    SELECT_CHAPTER_LESSON = "SELECT_CHAPTER_LESSON",
+    /**
      * 拖拽课时到课表提示
      */
     DRAGE_COURSE_TO_SCHEDULE = "DRAGE_COURSE_TO_SCHEDULE",

@@ -124,7 +124,7 @@ import { BookList } from "@/types/preparation";
 import { MutationTypes, useStore } from "@/store";
 import Book from "./book.vue";
 import { fetchAllBookList, IBookItem, ICustomBookItem, fetchCustomBookList, fetchAddCustomBookList } from "@/api/resource";
-import { get, set, STORAGE_TYPES } from "@/utils/storage";
+import { get, remove, set, STORAGE_TYPES } from "@/utils/storage";
 export default defineComponent({
     components: { Book },
 	emits: ["onChangeBook"],

@@ -39,6 +39,7 @@ import Tree from "./tree/index.vue";
 import { ITreeItem } from "./tree/types";
 import { MutationTypes, useStore } from "@/store";
 import { fetchCourseDataByBookId, ICustomBookItem } from "@/api/resource";
+import { get, set, STORAGE_TYPES } from "@/utils/storage";
 interface ICourse {
     chapterId: string;
     lessonId: string;
@@ -68,6 +69,14 @@ export default defineComponent({
 		const treeData = ref<ITreeItem[]>([]);
 		const selectedCourse = (tree: ITreeItem, keys: string[]) => {
 			const chapter = treeData.value.find(item => item.Id === keys[0]);
+			const book = store.state.preparation.subjectPublisherBookValue;
+			set(STORAGE_TYPES.SELECT_CHAPTER_LESSON, {
+				id: book?.Id,
+				chapterId: chapter?.Id,
+                lessonId: tree.Id,
+				lessonName: tree.Name,
+				chapterName: chapter?.Name
+			});
 			emit("update:course", {
                 chapterId: chapter?.Id,
                 lessonId: tree.Id,
@@ -103,7 +112,16 @@ export default defineComponent({
 			treeData.value = res.result;
 
 			// selectedID.value = treeData.value[0].Children[0].Id;
-			getFirstLessonId();
+			const chapterAndLesson = get(STORAGE_TYPES.SELECT_CHAPTER_LESSON);
+			const book = store.state.preparation.subjectPublisherBookValue;
+			if (chapterAndLesson.id === book?.Id) {
+				selectedChapterID.value = chapterAndLesson.chapterId;
+				selectedID.value = chapterAndLesson.lessonId;
+				selectedName.value = chapterAndLesson.lessonName;
+				selectedChapterName.value = chapterAndLesson.chapterName;
+			} else {
+				getFirstLessonId();
+			}
 			emit("update:course", {
 				chapterId: selectedChapterID.value,
 				lessonId: selectedID.value,

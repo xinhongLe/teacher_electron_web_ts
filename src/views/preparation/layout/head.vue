@@ -356,11 +356,13 @@ export default defineComponent({
 		const userId = computed(() => store.state.userInfo.userCenterUserID);
 		const selectedBook = computed(() => store.state.preparation.subjectPublisherBookValue);
 		const { course } = toRefs(props);
+		let isInit = true;
 		watch(course, () => {
 			getMyPackageNum();
 		});
 		const packageCount = ref(0);
 		const getMyPackageNum = async () => {
+			isInit = false;
 			if (!course.value.chapterId || !course.value.lessonId) {
 				packageCount.value = 0;
 				return;
@@ -371,6 +373,10 @@ export default defineComponent({
 			});
 
 			packageCount.value = res.result.BagCount;
+			if (packageCount.value > 0 && isInit) {
+				source.value = "me";
+				emit("update:source", source.value);
+			}
 		};
 
 		emitter.on("updatePackageCount", () => {
