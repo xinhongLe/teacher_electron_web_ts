@@ -8,11 +8,18 @@
         />
         <LookVideo v-if="type === 2" :dialog="true" :close="close" />
         <LookQuestion v-if="type === 3" :dialog="true" :close="close" />
-        <div class="iframe-box" v-if="type === 0">
-            <iframe :src="url"></iframe>
-        </div>
-        <div class="iframe-teach-box" v-if="type === 4">
-            <iframe :src="url"></iframe>
+        <div class="iframe-teach-box" v-if="type === 4 || type === 0">
+            <iframe v-if="type === 4" :src="url"></iframe>
+            <iframe class="office-iframe" v-if="isOffice" :src="url"></iframe>
+            <div class="iframe-image" v-if="isImage">
+                <img :src="url" />
+            </div>
+            <div class="iframe-audio" v-if="isAudio">
+                <audio :src="url" controls controlsList="nodownload" />
+            </div>
+            <div class="iframe-video" v-if="isVideo">
+                <video :src="url" controls />
+            </div>
         </div>
     </div>
 </template>
@@ -58,7 +65,7 @@ export default defineComponent({
                 const { FilePath, FileMD5, FileExtention, FileBucket } = props.resource.File;
                 const key = `${FilePath}/${FileMD5}.${FileExtention}`;
                 const fileUrl = await getOssUrl(key, FileBucket);
-                url.value = "https://owa.lyx-edu.com/op/view.aspx?src=" + encodeURIComponent(fileUrl);
+                url.value = isOffice.value ? "https://owa.lyx-edu.com/op/view.aspx?src=" + encodeURIComponent(fileUrl) : fileUrl;
             }
 
             if (props.type === 4) {
@@ -67,11 +74,19 @@ export default defineComponent({
         };
 
         const isMySelf = computed(() => props.resource!.UserId === store.state.userInfo.userCenterUserID);
+        const isOffice = computed(() => ["ppt", "pptx", "doc", "docx", "xls", "xlsx", "pdf"].indexOf(props.resource!.File?.FileExtention) > -1);
+        const isImage = computed(() => ["gif", "png", "jpg", "jpeg"].indexOf(props.resource!.File?.FileExtention) > -1);
+        const isAudio = computed(() => ["mp3", "wav"].indexOf(props.resource!.File?.FileExtention) > -1);
+        const isVideo = computed(() => ["mp4"].indexOf(props.resource!.File?.FileExtention) > -1);
 
         watchEffect(initIframeSrc);
         return {
             url,
-            isMySelf
+            isMySelf,
+            isOffice,
+            isImage,
+            isAudio,
+            isVideo
         };
     }
 });
@@ -83,23 +98,37 @@ export default defineComponent({
     min-height: 0;
     display: flex;
     flex-direction: column;
-    .iframe-box {
-        width: 100%;
-        height: 100%;
-        overflow: hidden;
-        iframe {
-            height: calc(100% + 55px);
-            margin-top: -55px;
-        }
-    }
     .iframe-teach-box {
         width: 100%;
         height: 100%;
         overflow: hidden;
-    }
-    iframe {
-        width: 100%;
-        height: 100%;
+        background: #fff;
+        iframe {
+            width: 100%;
+            height: 100%;
+        }
+        .office-iframe {
+            height: calc(100% + 55px);
+            margin-top: -55px;
+        }
+        .iframe-image, .iframe-video, .iframe-audio {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            img {
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+                display: block;
+            }
+            video {
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+            }
+        }
     }
 }
 </style>

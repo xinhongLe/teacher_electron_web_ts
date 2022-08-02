@@ -114,7 +114,8 @@ export default defineComponent({
 			// selectedID.value = treeData.value[0].Children[0].Id;
 			const chapterAndLesson = get(STORAGE_TYPES.SELECT_CHAPTER_LESSON);
 			const book = store.state.preparation.subjectPublisherBookValue;
-			if (chapterAndLesson.id === book?.Id) {
+
+			if (chapterAndLesson && chapterAndLesson.id === book?.Id) {
 				selectedChapterID.value = chapterAndLesson.chapterId;
 				selectedID.value = chapterAndLesson.lessonId;
 				selectedName.value = chapterAndLesson.lessonName;
@@ -145,6 +146,7 @@ export default defineComponent({
 					break;
 				}
 			}
+
 			if (!hasLesson) {
 				selectedChapterID.value = "";
 				selectedChapterName.value = "";

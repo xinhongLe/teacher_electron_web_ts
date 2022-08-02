@@ -109,7 +109,11 @@ export const enum MutationTypes {
     /**
      * 设置选中学校
      */
-    UPDATE_SELECTED_SCHOOL = "UPDATE_SELECTED_SCHOOL"
+    UPDATE_SELECTED_SCHOOL = "UPDATE_SELECTED_SCHOOL",
+    /**
+     * 弹框展示文件
+     */
+    SET_SHOW_VIEW_FILE = "SET_SHOW_VIEW_FILE"
 }
 
 export const enum ActionTypes {

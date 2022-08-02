@@ -125,10 +125,9 @@ export default defineComponent({
                         } });
                     } else if (resource.ResourceShowType === 1) {
 						store.commit(MutationTypes.SET_IS_WINCARD, { flag: true, id: resource.OldResourceId });
-					} else if (resource.ResourceShowType === 0) {
-                        resourceRef.value.openResource(resource);
+					} else if (resource.ResourceShowType === 0 || resource.ResourceShowType === 4) {
+                        resourceRef.value.eventEmit("detail", resource);
                     }
-					
 					logView({ id: resource.ResourceId });
                     break;
                 case "switchClass":

@@ -1,6 +1,18 @@
 <template>
     <div class="iframe-box">
-        <iframe class="iframe-content" :src="url"></iframe>
+        <div class="iframe-content" v-if="type === 4 || type === 0">
+            <iframe class="office-iframe" v-if="isOffice" :src="url"></iframe>
+            <iframe v-if="type === 4" :src="url"></iframe>
+            <div class="iframe-image" v-if="isImage">
+                <img :src="url" />
+            </div>
+            <div class="iframe-audio" v-if="isAudio">
+                <audio :src="url" controls controlsList="nodownload" />
+            </div>
+            <div class="iframe-video" v-if="isVideo">
+                <video :src="url" controls />
+            </div>
+        </div>
         <div class="iframe-footer">
             <div class="iframe-footer-btn" @click="close">
                 <p>关闭</p>
@@ -11,31 +23,52 @@
 
 <script lang="ts">
 import { IResourceItem } from "@/api/resource";
+import { MutationTypes, useStore } from "@/store";
 import { getOssUrl } from "@/utils/oss";
-import { defineComponent, PropType, ref, watchEffect } from "vue";
+import { computed, defineComponent, PropType, ref, watchEffect } from "vue";
 
 export default defineComponent({
-    props: {
-        resource: {
-			type: Object as PropType<IResourceItem | undefined>,
-			required: true
-		}
-    },
     setup(props, { emit }) {
+        const store = useStore();
         const url = ref("");
+        const resource = computed(() => store.state.common.resource);
+        const showScreenViewFile = computed(() => store.state.common.showScreenViewFile);
+        const type = computed(() => resource.value?.ResourceShowType);
+        const isOffice = computed(() => ["ppt", "pptx", "doc", "docx", "xls", "xlsx", "pdf"].indexOf(resource.value!.File?.FileExtention) > -1);
+        const isImage = computed(() => ["gif", "png", "jpg", "jpeg"].indexOf(resource.value!.File?.FileExtention) > -1);
+        const isAudio = computed(() => ["mp3", "wav"].indexOf(resource.value!.File?.FileExtention) > -1);
+        const isVideo = computed(() => ["mp4"].indexOf(resource.value!.File?.FileExtention) > -1);
+
         const initIframeSrc = async () => {
-            if (!props.resource || !props.resource.ResourceToolUrl) return;
-            url.value = props.resource.ResourceToolUrl;
+            if (!resource.value) return;
+
+            if (resource.value.ResourceShowType === 0 && resource.value.File) {
+                const { FilePath, FileMD5, FileExtention, FileBucket } = resource.value.File;
+                const key = `${FilePath}/${FileMD5}.${FileExtention}`;
+                const fileUrl = await getOssUrl(key, FileBucket);
+                url.value = isOffice.value ? "https://owa.lyx-edu.com/op/view.aspx?src=" + encodeURIComponent(fileUrl) : fileUrl;
+            }
+
+            if (resource.value.ResourceShowType === 4 && resource.value.ResourceToolUrl) {
+                url.value = resource.value.ResourceToolUrl;
+            }
         };
 
         watchEffect(initIframeSrc);
 
         const close = () => {
-            emit("close");
+            store.commit(MutationTypes.SET_SHOW_VIEW_FILE, { flag: false, id: "", data: null });
         };
         return {
             close,
-            url
+            type,
+            url,
+            isOffice,
+            isImage,
+            isAudio,
+            isVideo,
+            resource,
+            showScreenViewFile
         }
     }
 });
@@ -55,9 +88,36 @@ export default defineComponent({
     background: #fff;
     overflow: hidden;
     .iframe-content {
-        margin-top: -55px;
+        overflow: hidden;
         flex: 1;
-        min-height: 0;
+        min-height: 0; 
+        background: #fff;
+        iframe {
+            height: 100%;
+            width: 100%;
+        }
+        .office-iframe {
+            height: calc(100% + 55px);
+            margin-top: -55px;
+        }
+        .iframe-image, .iframe-video, .iframe-audio {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            img {
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+                display: block;
+            }
+            video {
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+            }
+        }
     }
     .iframe-footer {
         width: 100%;

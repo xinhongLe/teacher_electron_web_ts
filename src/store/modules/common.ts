@@ -19,7 +19,9 @@ const initState = (): CommonState => ({
         id: ""
     },
     isShowQuestion: false,
-    isIframe: false
+    isIframe: false,
+    showScreenViewFile: false,
+    resource: null
 });
 
 const mutations:MutationTree<CommonState> = {
@@ -46,6 +48,10 @@ const mutations:MutationTree<CommonState> = {
             id,
             isMySelf
         };
+    },
+    [MutationTypes.SET_SHOW_VIEW_FILE](state, { flag, id, data }) {
+        state.showScreenViewFile = flag;
+        state.resource = data;
     }
 };
 

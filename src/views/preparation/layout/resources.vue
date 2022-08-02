@@ -40,12 +40,6 @@
 			v-model:visible="resourceVisible"
 			@eventEmit="eventEmit"
 		/>
-
-		<ScreenViewFile
-			v-if="showScreenViewFile"
-			:resource="resource"
-			@close="showScreenViewFile = false"
-		/>
 	</div>
 </template>
 
@@ -70,7 +64,6 @@ import {
 import { MutationTypes, useStore } from "@/store";
 import emitter from "@/utils/mitt";
 import { getOssUrl } from "@/utils/oss";
-import ScreenViewFile from "@/views/resourceView/screenViewFile.vue";
 interface ICourse {
 	chapterId: string;
 	lessonId: string;
@@ -84,8 +77,7 @@ export default defineComponent({
 		EditTip,
 		ResourceVersion,
 		DeleteVideoTip,
-		ResourceView,
-		ScreenViewFile
+		ResourceView
 	},
 	props: {
 		course: {
@@ -122,7 +114,7 @@ export default defineComponent({
 		const leftEnd = ref(0);
 		const topEnd = ref(0);
 		const resource = ref<IResourceItem>();
-		const showScreenViewFile = ref(false);
+		const name = computed(() => props.name);
 
 		// 加入备课包
 		const addPackage = async (data: IResourceItem) => {
@@ -257,11 +249,12 @@ export default defineComponent({
 						if (props.name === "attendClass") {
 							store.commit(MutationTypes.SET_IS_WINCARD, { flag: props.name === "attendClass", id: data.OldResourceId, isMySelf: data.UserId === userId.value });
 						}
-					} else if (data.ResourceShowType === 0) {
+					} else if (data.ResourceShowType === 0 || data.ResourceShowType === 4) {
 						if (props.name === "attendClass") {
-							resource.value = data;
-							target.value = data.OldResourceId;
-							showScreenViewFile.value = true;
+							// resource.value = data;
+							// target.value = data.OldResourceId;
+							// showScreenViewFile.value = true;
+							store.commit(MutationTypes.SET_SHOW_VIEW_FILE, { flag: props.name === "attendClass", id: data.OldResourceId, data });
 						}
 					}
 					
@@ -376,7 +369,7 @@ export default defineComponent({
             resourceList.value.splice(i, 1);
         };
 
-        expose({ update, openResource });
+        expose({ update, openResource, eventEmit });
 
 		return {
 			resourceList,
@@ -393,7 +386,7 @@ export default defineComponent({
             onDeleteSuccess,
             update,
 			openResource,
-			showScreenViewFile
+			name
 		};
 	}
 });

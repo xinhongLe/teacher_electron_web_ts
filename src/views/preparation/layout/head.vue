@@ -654,7 +654,7 @@ export default defineComponent({
 		};
 
 		const acceptList =
-			".ppt,.pptx,.doc,.docx,.pdf,.mp3,.mp4,.mkv,.flv,.jpg,.png,.jpeg";
+			".ppt,.pptx,.doc,.docx,.xls,.xlsx,.pdf,.mp3,.mp4,.gif,.jpg,.png,.jpeg,.wav";
 
 		const beforeUpload = ({ name }: { name: string }) => {
 			const fileType = name.substring(name.lastIndexOf(".") + 1);
@@ -663,18 +663,20 @@ export default defineComponent({
 				"pptx",
 				"doc",
 				"docx",
+				"xls",
+				"xlsx",
 				"pdf",
 				"mp3",
 				"mp4",
-				"mkv",
-				"flv",
+				"gif",
 				"jpg",
 				"png",
-				"jpeg"
+				"jpeg",
+				"wav"
 			];
 			if (whiteList.indexOf(fileType) === -1) {
 				ElMessage.error(
-					"上传文件只能是 ppt,pptx,doc,docx,pdf,mp3,mp4,mkv,flv,jpg,png,jpeg格式"
+					"上传文件只能是 ppt,pptx,doc,docx,xls,xlsx,pdf,mp3,mp4,gif,jpg,png,jpeg格式"
 				);
 				return false;
 			}
