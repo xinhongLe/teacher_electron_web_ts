@@ -10,7 +10,7 @@
         <LookQuestion v-if="type === 3" :dialog="true" :close="close" />
         <div class="iframe-teach-box" v-if="type === 4 || type === 0">
             <iframe v-if="type === 4" :src="url"></iframe>
-            <iframe class="office-iframe" v-if="isOffice" :src="url"></iframe>
+            <iframe class="office-iframe" sandbox="allow-same-origin allow-scripts" v-if="isOffice" :src="url"></iframe>
             <div class="iframe-image" v-if="isImage">
                 <img :src="url" />
             </div>
