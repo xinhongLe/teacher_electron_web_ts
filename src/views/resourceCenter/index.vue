@@ -7,7 +7,7 @@
 <script lang="ts">
 import { get, STORAGE_TYPES } from "@/utils/storage";
 import { defineComponent } from "vue";
-import { systemId } from '@/config/index'
+import { RESOURCE_WEB, systemId } from '@/config/index'
 import { IYunInfo } from "@/types/login";
 
 // ts
@@ -47,7 +47,7 @@ export default defineComponent({
         //platType 平台码
         const platType = systemId;
         //webview地址
-        const url = `http://leyixueresource.aixueshi.top?TOKEN=${token}&USERID=${userId}&ORGID=${orgID}&SECRETKEY=${secretKey}&USERTYPE=${userType}&SCHOOLID=${schoolId}&SCHOOLNAME=${schoolName}&PLATTYPE=${platType}`;
+        const url = `${RESOURCE_WEB}?TOKEN=${token}&USERID=${userId}&ORGID=${orgID}&SECRETKEY=${secretKey}&USERTYPE=${userType}&SCHOOLID=${schoolId}&SCHOOLNAME=${schoolName}&PLATTYPE=${platType}`;
         // console.log('url----', url);
         return {
             url
