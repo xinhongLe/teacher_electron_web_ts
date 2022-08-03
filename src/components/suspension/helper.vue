@@ -618,6 +618,7 @@ export default defineComponent({
                 border: 1px solid var(--app-resource-type-qita);
                 font-size: 12px;
                 margin: 0 10px 0 10px;
+                white-space: nowrap;
                 &.p-r-0 {
                     color: var(--app-resource-type-jiaoan);
                     border: 1px solid var(--app-resource-type-jiaoan);
