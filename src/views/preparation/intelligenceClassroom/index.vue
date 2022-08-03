@@ -165,6 +165,7 @@ $border-color: #f5f6fa;
     display: flex;
     flex-direction: column;
     flex: 1;
+    min-height: 0;
     min-width: 0;
     background-color: $border-color;
     &.full-screen {
