@@ -119,6 +119,7 @@ const isDragging = computed(() => store.state.common.isDragging);
 const bgColor = computed(() => CourseBgColor[props.colData.CourseName || "其他"]);
 const isEnd = computed(() => props.colData.ScheduleTime && moment().isAfter(props.colData.ScheduleTime));
 const scheduleID = computed(() => props.colData.ID || "");
+const originScheduleID = computed(() => props.colData.OriginScheduleID || "");
 const scheduleTime = computed(() => props.colData.colDate + " " + props.colData.EndTime);
 const subjectPublisherBookValue = computed(() => store.state.preparation.subjectPublisherBookValue);
 
@@ -137,7 +138,7 @@ const deleteCourse = () => {
         });
 
         const res = await updateSchedule({
-            ID: props.colData.ID,
+            ID: props.colData.OriginScheduleID,
             LessonID: props.colData.LessonID,
             LessonName: props.colData.LessonName,
             Type: 2
@@ -163,7 +164,7 @@ const addSchedule = async (dragInfo: SchoolLesson) => {
     }
 
     const res = await updateSchedule({
-        ID: scheduleID.value,
+        ID: originScheduleID.value,
         LessonID: dragInfo.ID,
         LessonName: dragInfo.Name,
         Type: 1
