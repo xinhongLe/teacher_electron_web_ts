@@ -52,7 +52,7 @@ import ResourceVersion from "./dialog/resourceVersion.vue";
 import DeleteVideoTip from "./dialog/deleteVideoTip.vue";
 import ResourceView from "./dialog/resourceView.vue";
 import { getDomOffset, sleep } from "@/utils/common";
-import loading from "@/components/loading";
+import useDownloadFile from "@/hooks/useDownloadFile";
 import {
 	addPreparationPackage,
 	fetchResourceList,
@@ -160,45 +160,18 @@ export default defineComponent({
 		};
 
 		const loadingShow = ref(false);
+		const { download } = useDownloadFile();
 
-		const download = async (data: IResourceItem) => {
+		const downloadFile = async (data: IResourceItem) => {
             if (data.File) {
-				loading.show();
                 const url = await getOssUrl(`${data.File.FilePath}/${data.File.FileMD5}.${data.File.FileExtention}`, data.File.FileBucket);
-                getBlob(url, function(blob: any) {
-                    saveAs(blob, data.File.FileName);
-                });
+				const success = await download(url, data.File.FileName);
 
-				logDownload({ id: data.ResourceId });
-				data.DownloadNum++;
+				if (success) {
+					logDownload({ id: data.ResourceId });
+					data.DownloadNum++;
+				}
             }
-        };
-
-        const getBlob = (url: string, cb: any) => {
-            const xhr = new XMLHttpRequest();
-            xhr.open("GET", url, true);
-            xhr.responseType = "blob";
-            xhr.onload = function() {
-                if (xhr.status === 200) {
-                    cb(xhr.response);
-                }
-            };
-            xhr.send();
-        };
-
-        const saveAs = (blob: any, name: string) => {
-            const link = document.createElement("a");
-            const body = document.querySelectorAll("body");
-            link.href = window.URL.createObjectURL(blob);
-            link.download = name;
-            link.style.display = "none";
-            body[0].appendChild(link);
-            link.click();
-            body[0].removeChild(link);
-            window.URL.revokeObjectURL(link.href);
-            setTimeout(() => {
-                loading.destroy();
-            }, 500);
         };
 
 		const eventEmit = (
@@ -224,7 +197,7 @@ export default defineComponent({
 					resourceVersionVisible.value = true;
 					break;
 				case "download":
-					download(data);
+					downloadFile(data);
 					break;
 				case "add":
 					if (e) dealFly(e);
