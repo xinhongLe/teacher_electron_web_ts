@@ -1,97 +1,98 @@
 <template>
-    <el-dialog v-model="visible" title="教案设计" width="1100px" center @close="close">
-       <div class="template-select">
-           <el-select v-model="form.templateType" @change="changeTemplate" style="width: 100%" placeholder="请选择课型" size="small">
-               <el-option v-for="item in templateList" :key="item.ID" :label="item.Name" :value="item.ID"/>
-               <div @click="templateSet" style="cursor: pointer; padding: 10px 20px;border-top: 1px solid #EBEFF1">
-                   <el-icon style="vertical-align: bottom;margin-right: 6px;"><Setting/></el-icon>
-                   <span>设置</span>
-               </div>
-           </el-select>
-       </div>
-
-        <div class="export-btn">
-            <el-button type="primary" @click="handleExportWord">导出</el-button>
-        </div>
-
-        <div class="lesson-design-form" v-for="(item, i) in form.lessonBasicInfoList" :key="i">
-           <div v-if="item.Status === 1">
-               <div class="lesson-design-label">
-                   <span v-if="item.FieldType === 1">*</span>
-                   {{item.Name}}
-               </div>
-               <div class="lesson-design-content" v-if="item.Name === '教学过程'">
-                   <table class="lesson-design-table" border="1" v-for="(item, index) in item.LessonPlanDetailPages" :key="index">
-                       <tr>
-                           <td colspan="2">
-                               <div class="lesson-design-table-header">
-                                   {{item.Name}}
-                               </div>
-                           </td>
-                       </tr>
-                       <tr>
-                           <td>
-                               <div class="lesson-design-table-title">教学过程</div>
-                           </td>
-                           <td>
-                               <div class="lesson-design-table-title">设计意图</div>
-                           </td>
-                       </tr>
-                       <tr v-for="(content, i) in item.Childrens" :key="i">
-                           <td>
-                               <div class="lesson-design-table-content grey">
-                                   <el-input type="textarea" placeholder="点击输入教学回顾" v-model="content.AcademicPresupposition"></el-input>
-                               </div>
-                           </td>
-                           <td>
-                               <div class="lesson-design-table-content">
-                                   <el-input type="textarea" placeholder="点击输入设计意图" v-model="content.DesignIntent"></el-input>
-                               </div>
-                           </td>
-                       </tr>
-                   </table>
-               </div>
-               <div class="lesson-design-content" v-else>
-                   <el-input v-if="item.SelectType === 0 || item.SelectType === 1" :disabled="item.SelectType === 1 ? true : false" v-model="item.Value" size="small"></el-input>
-                   <draggable v-if="item.SelectType === 2" v-model="item.LessonPlanDetailOptions" :animation="300"  @start="drag = true" @end="drag = false" itemKey="index">
-                       <template #item="{element, index}">
-                           <div class="sort-input">
-                               <img class="drag" src="@/assets/indexImages/icon_yidong@2x.png" alt="">
-                               <el-input v-model="element.Value" placeholder="请输入教学目标" size="small"></el-input>
-                               <img class="option-btn" src="@/assets/indexImages/icon_add@2x.png" alt="" @click="addTarget(index, item)" />
-                               <img class="option-btn" src="@/assets/indexImages/icon_del@2x.png" v-if="item.LessonPlanDetailOptions.length > 1" alt="" @click="reduceTarget(index, item)" />
-                           </div>
-                       </template>
-                   </draggable>
-                   <el-input v-if="item.SelectType === 3" type="textarea" v-model="item.Value" placeholder="请输入教材分析" size="small"></el-input>
-                   <el-select v-if="item.SelectType === 4" v-model="item.isSelectId" style="width: 100%" placeholder="请选择课型" size="small">
-                       <el-option v-for="item in item.LessonPlanDetailOptions" :key="item.ID" :label="item.Name" :value="item.ID"/>
-                   </el-select>
-
-                   <el-checkbox-group  v-if="item.SelectType === 5" v-model="item.isSelectId">
-                       <el-checkbox v-for="i in item.LessonPlanDetailOptions" :key="i.ID" :label="i.ID">{{i.Name}}</el-checkbox>
-                   </el-checkbox-group>
-
-                   <el-radio-group v-if="item.SelectType === 6" v-model="item.isSelectId">
-                       <el-radio v-for="i in item.LessonPlanDetailOptions" :key="i.ID" :label="i.ID">{{i.Name}}</el-radio>
-                   </el-radio-group>
-
-                   <el-date-picker v-if="item.SelectType === 7" v-model="item.Value" type="date" format="YYYY-MM-DD" value-format="YYYY-MM-DD"/>
-
-                   <el-date-picker v-if="item.SelectType === 8" v-model="item.Value" type="datetime"  format="YYYY-MM-DD hh:mm" value-format="YYYY-MM-DD h:m"/>
-               </div>
-           </div>
-        </div>
-
-        <template #footer>
-            <div class="lesson-design-footer">
-                <el-button type="primary" size="small" @click="save()">完成</el-button>
+    <div class="lesson-box">
+        <el-dialog v-model="visible" title="教案设计" width="1100px" center @close="close">
+            <div class="template-select">
+                <el-select v-model="form.templateType" @change="changeTemplate" style="width: 100%" placeholder="请选择课型" size="small">
+                    <el-option v-for="item in templateList" :key="item.ID" :label="item.Name" :value="item.ID"/>
+                    <div @click="templateSet" style="cursor: pointer; padding: 10px 20px;border-top: 1px solid #EBEFF1">
+                        <el-icon style="vertical-align: bottom;margin-right: 6px;"><Setting/></el-icon>
+                        <span>设置</span>
+                    </div>
+                </el-select>
             </div>
-        </template>
-    </el-dialog>
 
-    <lesson-template-set v-model:dialogVisible="dialogVisible" @updateLessonPlanTemplateList="_getLessonPlanTemplate" :templateList="templateList"></lesson-template-set>
+            <div class="export-btn">
+                <el-button type="primary" @click="handleExportWord">导出</el-button>
+            </div>
 
+            <div class="lesson-design-form" v-for="(item, i) in form.lessonBasicInfoList" :key="i">
+                <div v-if="item.Status === 1">
+                    <div class="lesson-design-label">
+                        <span v-if="item.FieldType === 1">*</span>
+                        {{item.Name}}
+                    </div>
+                    <div class="lesson-design-content" v-if="item.Name === '教学过程'">
+                        <table class="lesson-design-table" border="1" v-for="(item, index) in item.LessonPlanDetailPages" :key="index">
+                            <tr>
+                                <td colspan="2">
+                                    <div class="lesson-design-table-header">
+                                        {{item.Name}}
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="lesson-design-table-title">教学过程</div>
+                                </td>
+                                <td>
+                                    <div class="lesson-design-table-title">设计意图</div>
+                                </td>
+                            </tr>
+                            <tr v-for="(content, i) in item.Childrens" :key="i">
+                                <td>
+                                    <div class="lesson-design-table-content grey">
+                                        <el-input type="textarea" placeholder="点击输入教学回顾" v-model="content.AcademicPresupposition"></el-input>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="lesson-design-table-content">
+                                        <el-input type="textarea" placeholder="点击输入设计意图" v-model="content.DesignIntent"></el-input>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="lesson-design-content" v-else>
+                        <el-input v-if="item.SelectType === 0 || item.SelectType === 1" :disabled="item.SelectType === 1 ? true : false" v-model="item.Value" size="small"></el-input>
+                        <draggable v-if="item.SelectType === 2" v-model="item.LessonPlanDetailOptions" :animation="300"  @start="drag = true" @end="drag = false" itemKey="index">
+                            <template #item="{element, index}">
+                                <div class="sort-input">
+                                    <img class="drag" src="@/assets/indexImages/icon_yidong@2x.png" alt="">
+                                    <el-input v-model="element.Value" placeholder="请输入教学目标" size="small"></el-input>
+                                    <img class="option-btn" src="@/assets/indexImages/icon_add@2x.png" alt="" @click="addTarget(index, item)" />
+                                    <img class="option-btn" src="@/assets/indexImages/icon_del@2x.png" v-if="item.LessonPlanDetailOptions.length > 1" alt="" @click="reduceTarget(index, item)" />
+                                </div>
+                            </template>
+                        </draggable>
+                        <el-input v-if="item.SelectType === 3" type="textarea" v-model="item.Value" placeholder="请输入教材分析" size="small"></el-input>
+                        <el-select v-if="item.SelectType === 4" v-model="item.isSelectId" style="width: 100%" placeholder="请选择课型" size="small">
+                            <el-option v-for="item in item.LessonPlanDetailOptions" :key="item.ID" :label="item.Name" :value="item.ID"/>
+                        </el-select>
+
+                        <el-checkbox-group  v-if="item.SelectType === 5" v-model="item.isSelectId">
+                            <el-checkbox v-for="i in item.LessonPlanDetailOptions" :key="i.ID" :label="i.ID">{{i.Name}}</el-checkbox>
+                        </el-checkbox-group>
+
+                        <el-radio-group v-if="item.SelectType === 6" v-model="item.isSelectId">
+                            <el-radio v-for="i in item.LessonPlanDetailOptions" :key="i.ID" :label="i.ID">{{i.Name}}</el-radio>
+                        </el-radio-group>
+
+                        <el-date-picker v-if="item.SelectType === 7" v-model="item.Value" type="date" format="YYYY-MM-DD" value-format="YYYY-MM-DD"/>
+
+                        <el-date-picker v-if="item.SelectType === 8" v-model="item.Value" type="datetime"  format="YYYY-MM-DD hh:mm" value-format="YYYY-MM-DD h:m"/>
+                    </div>
+                </div>
+            </div>
+
+            <template #footer>
+                <div class="lesson-design-footer">
+                    <el-button type="primary" size="small" @click="save()">完成</el-button>
+                </div>
+            </template>
+        </el-dialog>
+
+        <lesson-template-set v-model:dialogVisible="dialogVisible" @updateLessonPlanTemplateList="_getLessonPlanTemplate" :templateList="templateList"></lesson-template-set>
+    </div>
 </template>
 
 <script lang="ts">
@@ -162,7 +163,38 @@ export default defineComponent({
         };
 
         const handleExportWord = () => {
-            const defaultPath = `${new Date().getTime()}.docx`;
+            const title = form.lessonBasicInfoList.find((item:any) => item.Name === "标题")!.Value;
+            const list = form.lessonBasicInfoList.filter((item:any) => (!["标题", "教学过程", "教学反思"].includes(item.Name) && item.Status)).map((j:any) => {
+                return {
+                    title: j.Name,
+                    contents: [{ content: j.Value || "" }]
+                };
+            });
+            const cardValue = form.lessonBasicInfoList.find((item:any) => item.Name === "教学过程");
+            const cards = cardValue!.LessonPlanDetailPages.map((j:any) => {
+                return {
+                    title: j.Name,
+                    pages: j.Childrens.map((i:any) => ({
+                        title: i.Name,
+                        processes: [{ process: i.AcademicPresupposition || "" }],
+                        designs: [{ design: i.DesignIntent || "" }]
+                    }))
+                };
+            });
+
+            const list2Value = form.lessonBasicInfoList.find((item:any) => (item.Name === "教学反思" && item.Status)) || {Name: "", Value: ""};
+
+            const fileData = {
+                title: title,
+                list: list,
+                cards: cards,
+                list2: [{
+                    title: list2Value!.Name,
+                    contents: [{ content: list2Value!.Value || "" }]
+                }]
+            };
+
+            const defaultPath = `${new Date().getTime()}_教案设计.docx`;
             window.electron.showSaveDialog({
                 defaultPath,
                 filters: [
@@ -176,8 +208,7 @@ export default defineComponent({
                     }
                 ]
             }).then(({ filePath }) => {
-                console.log(filePath, "----123");
-                window.electron.exportWord(filePath || "");
+                window.electron.exportWord(filePath || "", fileData);
                 ElMessage.success("模板文件下载成功");
             });
         };
@@ -280,6 +311,13 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
+.lesson-box{
+    :deep(.el-dialog__body){
+        height: 750px !important;
+        overflow-y: auto !important;
+    }
+}
+
 .template-select{
     width: 200px;
     position: absolute;
