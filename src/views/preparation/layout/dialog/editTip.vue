@@ -58,9 +58,10 @@ export default defineComponent({
                 const res = await CopyWindow({
                     id: props.resource.OldResourceId,
                     originType: props.resource.UserId ? 1 : null,
-                    sourceLessonID: store.state.preparation.selectLessonId
+                    sourceLessonID: store.state.preparation.selectLessonId,
+                    targetLessonID: store.state.preparation.selectLessonId,
                 });
-                
+
                 if (res.success) {
                     const sysRes = await sysWincardResource({
                         id: res.result.ID,

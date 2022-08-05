@@ -26,7 +26,7 @@ const fs = require("fs");
 const path = require("path");
 const __dirname = path.resolve();
 
-const PATH = process.env.NODE_ENV === "development" ? path.resolve(__dirname, "./extraResources/exportWord/template.docx") : path.resolve(__dirname, "../template.docx");
+const PATH = process.env.NODE_ENV === "development" ? path.resolve(__dirname, "./extraResources/exportWord/template1.docx") : path.resolve(__dirname, "../template1.docx");
 
 const content = fs.readFileSync(PATH, "binary");
 

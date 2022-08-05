@@ -53,19 +53,19 @@
                         </table>
                     </div>
                     <div class="lesson-design-content" v-else>
-                        <el-input v-if="item.SelectType === 0 || item.SelectType === 1" :disabled="item.SelectType === 1 ? true : false" v-model="item.Value" size="small"></el-input>
+                        <el-input v-if="item.SelectType === 0 || item.SelectType === 1" :disabled="item.SelectType === 1 ? true : false" placeholder="请输入" v-model="item.Value" size="small"></el-input>
                         <draggable v-if="item.SelectType === 2" v-model="item.LessonPlanDetailOptions" :animation="300"  @start="drag = true" @end="drag = false" itemKey="index">
                             <template #item="{element, index}">
                                 <div class="sort-input">
                                     <img class="drag" src="@/assets/indexImages/icon_yidong@2x.png" alt="">
-                                    <el-input v-model="element.Value" placeholder="请输入教学目标" size="small"></el-input>
+                                    <el-input v-model="element.Value" placeholder="请输入" size="small"></el-input>
                                     <img class="option-btn" src="@/assets/indexImages/icon_add@2x.png" alt="" @click="addTarget(index, item)" />
                                     <img class="option-btn" src="@/assets/indexImages/icon_del@2x.png" v-if="item.LessonPlanDetailOptions.length > 1" alt="" @click="reduceTarget(index, item)" />
                                 </div>
                             </template>
                         </draggable>
-                        <el-input v-if="item.SelectType === 3" type="textarea" v-model="item.Value" placeholder="请输入教材分析" size="small"></el-input>
-                        <el-select v-if="item.SelectType === 4" v-model="item.isSelectId" style="width: 100%" placeholder="请选择课型" size="small">
+                        <el-input v-if="item.SelectType === 3" type="textarea" v-model="item.Value" placeholder="请输入" size="small"></el-input>
+                        <el-select v-if="item.SelectType === 4" v-model="item.isSelectId" style="width: 100%" placeholder="请选择" size="small">
                             <el-option v-for="item in item.LessonPlanDetailOptions" :key="item.ID" :label="item.Name" :value="item.ID"/>
                         </el-select>
 
@@ -77,39 +77,40 @@
                             <el-radio v-for="i in item.LessonPlanDetailOptions" :key="i.ID" :label="i.ID">{{i.Name}}</el-radio>
                         </el-radio-group>
 
-                        <el-date-picker v-if="item.SelectType === 7" v-model="item.Value" type="date" format="YYYY-MM-DD" value-format="YYYY-MM-DD"/>
+                        <el-date-picker v-if="item.SelectType === 7" v-model="item.Value" type="date" placeholder="请选择" format="YYYY-MM-DD" value-format="YYYY-MM-DD"/>
 
-                        <el-date-picker v-if="item.SelectType === 8" v-model="item.Value" type="datetime"  format="YYYY-MM-DD hh:mm" value-format="YYYY-MM-DD h:m"/>
+                        <el-date-picker v-if="item.SelectType === 8" v-model="item.Value" type="datetime" placeholder="请选择" format="YYYY-MM-DD hh:mm" value-format="YYYY-MM-DD h:m"/>
                     </div>
                 </div>
             </div>
 
             <template #footer>
                 <div class="lesson-design-footer">
+                    <el-button type="primary" plain size="small" @click="preview()">预览</el-button>
                     <el-button type="primary" size="small" @click="save()">完成</el-button>
                 </div>
             </template>
         </el-dialog>
 
         <lesson-template-set v-model:dialogVisible="dialogVisible" @updateLessonPlanTemplateList="_getLessonPlanTemplate" :templateList="templateList"></lesson-template-set>
+
+        <lesson-preview v-model:previewDialog="previewDialog" :url="url"></lesson-preview>
     </div>
 </template>
 
 <script lang="ts">
 import { getLessonPlan, getLessonPlanTemplate, changeLessonPlanTemplate, ISaveLessonPlan, saveLessonPlan } from "@/api/home";
 import { ElMessage } from "element-plus";
-// import { result } from "lodash";
-import { defineComponent, PropType, reactive, ref, watch } from "vue";
+import { defineComponent, reactive, ref, watch } from "vue";
 import draggable from "vuedraggable";
 import { Setting } from "@element-plus/icons";
 import LessonTemplateSet from "@/views/preparation/intelligenceClassroom/components/edit/lessonTemplateSet.vue";
 import { get, STORAGE_TYPES } from "@/utils/storage";
 import { ITemplateList, IFrom, ItemForm } from "@/types/lessonDesign.ts";
-import XLSX from "xlsx";
-import moment from "moment";
-// import { exportWord } from "@/utils/exportWord";
+import { cooOss, getOssUrl } from "@/utils/oss";
+import LessonPreview from "@/views/preparation/intelligenceClassroom/components/edit/lessonPreview.vue";
 export default defineComponent({
-    components: { LessonTemplateSet, draggable, Setting },
+    components: { LessonPreview, LessonTemplateSet, draggable, Setting },
     props: {
         lessonDesignVisible: {
             type: Boolean,
@@ -162,14 +163,16 @@ export default defineComponent({
             item.LessonPlanDetailOptions.splice(index, 1);
         };
 
-        const handleExportWord = () => {
+        const transFormFileData = () => {
             const title = form.lessonBasicInfoList.find((item:any) => item.Name === "标题")!.Value;
+
             const list = form.lessonBasicInfoList.filter((item:any) => (!["标题", "教学过程", "教学反思"].includes(item.Name) && item.Status)).map((j:any) => {
                 return {
                     title: j.Name,
                     contents: [{ content: j.Value || "" }]
                 };
             });
+
             const cardValue = form.lessonBasicInfoList.find((item:any) => item.Name === "教学过程");
             const cards = cardValue!.LessonPlanDetailPages.map((j:any) => {
                 return {
@@ -182,7 +185,7 @@ export default defineComponent({
                 };
             });
 
-            const list2Value = form.lessonBasicInfoList.find((item:any) => (item.Name === "教学反思" && item.Status)) || {Name: "", Value: ""};
+            const list2Value = form.lessonBasicInfoList.find((item:any) => (item.Name === "教学反思" && item.Status)) || { Name: "", Value: "" };
 
             const fileData = {
                 title: title,
@@ -194,9 +197,18 @@ export default defineComponent({
                 }]
             };
 
-            const defaultPath = `${new Date().getTime()}_教案设计.docx`;
+            const fileName = `/${new Date().getTime()}_教案设计.docx`;
+
+            return {
+                fileData: fileData,
+                fileName: fileName
+            };
+        };
+
+        const handleExportWord = () => {
+            const { fileData, fileName } = transFormFileData();
             window.electron.showSaveDialog({
-                defaultPath,
+                defaultPath: fileName,
                 filters: [
                     {
                         name: "doc文件",
@@ -240,6 +252,27 @@ export default defineComponent({
             });
         };
 
+        const url = ref();
+        const previewDialog = ref(false);
+        const preview = () => {
+            const { fileData, fileName } = transFormFileData();
+            const filePath = window.electron.getCachePath("");
+            window.electron.exportWord(filePath + fileName || "", fileData);
+            setTimeout(() => {
+                (window as any).electron.readFile(filePath + fileName, async (buffer: ArrayBuffer) => {
+                    const newFile = new File([buffer], fileName);
+                    const ossPath = get(STORAGE_TYPES.OSS_PATHS)?.["ElementFile"];
+                    const res = await cooOss(newFile, ossPath);
+                    if (res?.code === 200) {
+                        const urlImg = await getOssUrl(res.objectKey as string, get(STORAGE_TYPES.OSS_PATHS)?.["ElementFile"].Bucket);
+                        url.value = "https://owa.lyx-edu.com/op/view.aspx?src=" + encodeURIComponent(urlImg);
+                        previewDialog.value = true;
+                        console.log("-----111")
+                    }
+                });
+            }, 100);
+        };
+
         const dialogVisible = ref(false);
         const templateSet = () => {
             dialogVisible.value = true;
@@ -273,6 +306,8 @@ export default defineComponent({
                 });
 
                 form.lessonBasicInfoList = infoList;
+                console.log(infoList, "infoList----");
+
                 saveData.ID = res.result.ID;
                 saveData.Name = res.result.Name;
                 saveData.Sort = res.result.Sort;
@@ -293,6 +328,8 @@ export default defineComponent({
         return {
             visible,
             form,
+            url,
+            previewDialog,
             templateList,
             classTypeList,
             dialogVisible,
@@ -304,7 +341,8 @@ export default defineComponent({
             close,
             addTarget,
             reduceTarget,
-            save
+            save,
+            preview
         };
     }
 });
