@@ -155,8 +155,8 @@ window.electron = {
             resolve(stdout);
         }));
     },
-    exportWord: (filePath:string, fileData:IFileData) => {
-        exportWord(filePath, fileData);
+    exportWord: (filePath:string, fileData:IFileData, styleType:number) => {
+        exportWord(filePath, fileData, styleType);
     },
     checkWindowSupportNet,
     store: store,

@@ -11,10 +11,6 @@
                 </el-select>
             </div>
 
-            <div class="export-btn">
-                <el-button type="primary" @click="handleExportWord">导出</el-button>
-            </div>
-
             <div class="lesson-design-form" v-for="(item, i) in form.lessonBasicInfoList" :key="i">
                 <div v-if="item.Status === 1">
                     <div class="lesson-design-label">
@@ -94,7 +90,7 @@
 
         <lesson-template-set v-model:dialogVisible="dialogVisible" @updateLessonPlanTemplateList="_getLessonPlanTemplate" :templateList="templateList"></lesson-template-set>
 
-        <lesson-preview v-model:previewDialog="previewDialog" :url="url"></lesson-preview>
+        <lesson-preview v-model:previewDialog="previewDialog" :form="form" ></lesson-preview>
     </div>
 </template>
 
@@ -105,9 +101,7 @@ import { defineComponent, reactive, ref, watch } from "vue";
 import draggable from "vuedraggable";
 import { Setting } from "@element-plus/icons";
 import LessonTemplateSet from "@/views/preparation/intelligenceClassroom/components/edit/lessonTemplateSet.vue";
-import { get, STORAGE_TYPES } from "@/utils/storage";
 import { ITemplateList, IFrom, ItemForm } from "@/types/lessonDesign.ts";
-import { cooOss, getOssUrl } from "@/utils/oss";
 import LessonPreview from "@/views/preparation/intelligenceClassroom/components/edit/lessonPreview.vue";
 export default defineComponent({
     components: { LessonPreview, LessonTemplateSet, draggable, Setting },
@@ -163,68 +157,6 @@ export default defineComponent({
             item.LessonPlanDetailOptions.splice(index, 1);
         };
 
-        const transFormFileData = () => {
-            const title = form.lessonBasicInfoList.find((item:any) => item.Name === "标题")!.Value;
-
-            const list = form.lessonBasicInfoList.filter((item:any) => (!["标题", "教学过程", "教学反思"].includes(item.Name) && item.Status)).map((j:any) => {
-                return {
-                    title: j.Name,
-                    contents: [{ content: j.Value || "" }]
-                };
-            });
-
-            const cardValue = form.lessonBasicInfoList.find((item:any) => item.Name === "教学过程");
-            const cards = cardValue!.LessonPlanDetailPages.map((j:any) => {
-                return {
-                    title: j.Name,
-                    pages: j.Childrens.map((i:any) => ({
-                        title: i.Name,
-                        processes: [{ process: i.AcademicPresupposition || "" }],
-                        designs: [{ design: i.DesignIntent || "" }]
-                    }))
-                };
-            });
-
-            const list2Value = form.lessonBasicInfoList.find((item:any) => (item.Name === "教学反思" && item.Status)) || { Name: "", Value: "" };
-
-            const fileData = {
-                title: title,
-                list: list,
-                cards: cards,
-                list2: [{
-                    title: list2Value!.Name,
-                    contents: [{ content: list2Value!.Value || "" }]
-                }]
-            };
-
-            const fileName = `/${new Date().getTime()}_教案设计.docx`;
-
-            return {
-                fileData: fileData,
-                fileName: fileName
-            };
-        };
-
-        const handleExportWord = () => {
-            const { fileData, fileName } = transFormFileData();
-            window.electron.showSaveDialog({
-                defaultPath: fileName,
-                filters: [
-                    {
-                        name: "doc文件",
-                        extensions: ["doc"]
-                    },
-                    {
-                        name: "docx文件",
-                        extensions: ["docx"]
-                    }
-                ]
-            }).then(({ filePath }) => {
-                window.electron.exportWord(filePath || "", fileData);
-                ElMessage.success("模板文件下载成功");
-            });
-        };
-
         const save = () => {
             saveData.LessonPlanDetails = form.lessonBasicInfoList.map((item:any) => {
                 if (item.SelectType === 2) {
@@ -254,23 +186,9 @@ export default defineComponent({
 
         const url = ref();
         const previewDialog = ref(false);
+        const previewData = ref();
         const preview = () => {
-            const { fileData, fileName } = transFormFileData();
-            const filePath = window.electron.getCachePath("");
-            window.electron.exportWord(filePath + fileName || "", fileData);
-            setTimeout(() => {
-                (window as any).electron.readFile(filePath + fileName, async (buffer: ArrayBuffer) => {
-                    const newFile = new File([buffer], fileName);
-                    const ossPath = get(STORAGE_TYPES.OSS_PATHS)?.["ElementFile"];
-                    const res = await cooOss(newFile, ossPath);
-                    if (res?.code === 200) {
-                        const urlImg = await getOssUrl(res.objectKey as string, get(STORAGE_TYPES.OSS_PATHS)?.["ElementFile"].Bucket);
-                        url.value = "https://owa.lyx-edu.com/op/view.aspx?src=" + encodeURIComponent(urlImg);
-                        previewDialog.value = true;
-                        console.log("-----111")
-                    }
-                });
-            }, 100);
+            previewDialog.value = true;
         };
 
         const dialogVisible = ref(false);
@@ -306,14 +224,12 @@ export default defineComponent({
                 });
 
                 form.lessonBasicInfoList = infoList;
-                console.log(infoList, "infoList----");
-
+                form.templateType = res.result.LessonPlanTemplateMainID;
+                console.log(form, "------1111");
                 saveData.ID = res.result.ID;
                 saveData.Name = res.result.Name;
                 saveData.Sort = res.result.Sort;
                 saveData.Status = res.result.Status;
-
-                form.templateType = res.result.LessonPlanTemplateMainID;
             });
         };
 
@@ -330,11 +246,10 @@ export default defineComponent({
             form,
             url,
             previewDialog,
+            previewData,
             templateList,
             classTypeList,
             dialogVisible,
-            // exportWord,
-            handleExportWord,
             _getLessonPlanTemplate,
             changeTemplate,
             templateSet,
@@ -364,12 +279,6 @@ export default defineComponent({
         padding: 10px 20px;
         border-top: 1px solid #EBEFF1;
     }
-}
-
-.export-btn{
-    position: absolute;
-    top: 20px;
-    right: 80px;
 }
 
 .lesson-design-form {

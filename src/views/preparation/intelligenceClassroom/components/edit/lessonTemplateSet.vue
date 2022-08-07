@@ -109,7 +109,6 @@ export default defineComponent({
         const state = reactive<State>({
             fieldManageVisible: false,
             form: {
-                // titleValue: { Name: "", Status: 1 },
                 basicValueList: [],
                 synopsisValueList: [],
                 processValueList: [

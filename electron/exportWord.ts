@@ -26,13 +26,12 @@ const fs = require("fs");
 const path = require("path");
 const __dirname = path.resolve();
 
-const PATH = process.env.NODE_ENV === "development" ? path.resolve(__dirname, "./extraResources/exportWord/template1.docx") : path.resolve(__dirname, "../template1.docx");
+export const exportWord = (filePath:string, fileData:IFileData, styleType:number) => {
+    let PATH = process.env.NODE_ENV === "development" ? path.resolve(__dirname, `./extraResources/exportWord/${styleType === 1 ? "template.docx" : "template_table.docx"}`) : path.resolve(__dirname, `../${styleType === 1 ? "template.docx" : "template_table.docx"}`);
 
-const content = fs.readFileSync(PATH, "binary");
+    let content = fs.readFileSync(PATH, "binary");
 
-const zip = new PizZip(content);
-
-export const exportWord = (filePath:string, fileData:IFileData) => {
+    let zip = new PizZip(content);
     let doc = new Docxtemplater(zip, {
         paragraphLoop: true,
         linebreaks: true
@@ -43,5 +42,8 @@ export const exportWord = (filePath:string, fileData:IFileData) => {
         compression: "DEFLATE"
     });
     fs.writeFileSync(path.resolve(filePath), buf);
+    PATH = null;
+    content = null;
+    zip = null;
     doc = null;
 };
