@@ -5,7 +5,7 @@ import { checkWindowSupportNet } from "./util";
 import { spawn, exec } from "child_process";
 import { join } from "path";
 import { Action, CallBack, SocketHelper } from "./socketHelper";
-const PATH_BALL = join(__dirname, "../extraResources/win/ball/ball.exe");
+const PATH_BALL = join(__dirname, "../extraResources/ball/ball.exe");
 let suspensionWin: BrowserWindow | null;
 let unfoldSuspensionWin: BrowserWindow | null;
 let blackboardWin: BrowserWindow | null;
@@ -358,52 +358,56 @@ function killProcess() {
 }
 
 export function createSuspensionWindow() {
-    checkIsUseBallEXE(isOk => {
-        if (isOk) {
-            killProcess().then(() => {
-                spawn(PATH_BALL);
-                console.log("started socket");
-                socketHelper = new SocketHelper(new CustomCallBack());
-                // createUnfoldSuspensionWindow();
-            });
-        } else {
-            suspensionWin = createWindow(suspensionURL, {
-                width: 120,
-                height: 120,
-                type: "toolbar", // 创建的窗口类型为工具栏窗口
-                frame: false, // 要创建无边框窗口
-                resizable: false, // 禁止窗口大小缩放
-                show: false,
-                useContentSize: true,
-                transparent: true, // 设置透明
-                backgroundColor: "#00000000",
-                alwaysOnTop: true // 窗口是否总是显示在其他窗口之前
-            });
-            const size = screen.getPrimaryDisplay().workAreaSize; // 获取显示器的宽高
-            const winSize = suspensionWin.getSize(); // 获取窗口宽高
-            suspensionWin.setPosition(size.width - winSize[0] - 80, size.height - winSize[1] - 50, false);
+    if (process.platform === "darwin") {
+        suspensionWin = createWindow(suspensionURL, {
+            width: 120,
+            height: 120,
+            type: "toolbar", // 创建的窗口类型为工具栏窗口
+            frame: false, // 要创建无边框窗口
+            resizable: false, // 禁止窗口大小缩放
+            show: false,
+            useContentSize: true,
+            transparent: true, // 设置透明
+            backgroundColor: "#00000000",
+            alwaysOnTop: true // 窗口是否总是显示在其他窗口之前
+        });
+        const size = screen.getPrimaryDisplay().workAreaSize; // 获取显示器的宽高
+        const winSize = suspensionWin.getSize(); // 获取窗口宽高
+        suspensionWin.setPosition(size.width - winSize[0] - 80, size.height - winSize[1] - 50, false);
 
-            suspensionWin.once("ready-to-show", () => {
-                suspensionWin && suspensionWin.setAlwaysOnTop(true, "pop-up-menu");
-                // createUnfoldSuspensionWindow();
-            });
-            suspensionWin.on("closed", () => {
-                suspensionWin = null;
-                ElectronLog.info("suspensionWin closed");
-            });
+        suspensionWin.once("ready-to-show", () => {
+            suspensionWin && suspensionWin.setAlwaysOnTop(true, "pop-up-menu");
+            // createUnfoldSuspensionWindow();
+        });
+        suspensionWin.on("closed", () => {
+            suspensionWin = null;
+            ElectronLog.info("suspensionWin closed");
+        });
 
-            suspensionWin.on("moved", () => {
-                setSuspensionSize(false);
-                checkIsWelt();
-            });
+        suspensionWin.on("moved", () => {
+            setSuspensionSize(false);
+            checkIsWelt();
+        });
 
-            suspensionWin.on("show", () => {
-                setTimeout(() => {
-                    setWelt();
-                }, 3000);
-            });
-        }
-    });
+        suspensionWin.on("show", () => {
+            setTimeout(() => {
+                setWelt();
+            }, 3000);
+        });
+    } else {
+        killProcess().then(() => {
+            spawn(PATH_BALL);
+            socketHelper = new SocketHelper(new CustomCallBack());
+            // createUnfoldSuspensionWindow();
+        });
+    }
+    // checkIsUseBallEXE(isOk => {
+    //     if (isOk) {
+            
+    //     } else {
+            
+    //     }
+    // });
 }
 
 function showSuspension() {

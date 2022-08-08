@@ -39,16 +39,26 @@
                 <div class="item" @click="go('report-center')">
                     <div class="item_div">
                         <img
-                            src="../../assets/indexImages/pic_baobiao.png"
+                            src="../../assets/indexImages/pic_baobiao_new.png"
                             alt=""
                         />
                         <span>报表中心</span>
                     </div>
                 </div>
+                <!-- 2022-7-25 annan -->
+                <div class="item" @click="go('resource-center')">
+                    <div class="item_div">
+                        <img
+                            src="../../assets/indexImages/pic_zyzx.png"
+                            alt=""
+                        />
+                        <span>资源中心</span>
+                    </div>
+                </div>
                 <div class="item" @click="go('assessment-center')">
                     <div class="item_div">
                         <img
-                            src="../../assets/indexImages/pic_kaoshi.png"
+                            src="../../assets/indexImages/pic_kaoshi_new.png"
                             alt=""
                         />
                         <span>测评中心</span>
@@ -57,7 +67,7 @@
                 <div class="item" @click="go('course-time')">
                     <div class="item_div">
                         <img
-                            src="../../assets/indexImages/pic_kehou.png"
+                            src="../../assets/indexImages/icon_kehou_new.png"
                             alt=""
                         />
                         <span>课后延时</span>
@@ -75,7 +85,7 @@
                 <div class="item" @click="go('')">
                     <div class="item_div">
                         <img
-                            src="../../assets/indexImages/pic_zhibo.png"
+                            src="../../assets/indexImages/icon_zhibo_new.png"
                             alt=""
                         />
                         <span>直播课堂</span>
@@ -84,7 +94,7 @@
                 <div class="item" @click="go('class-manage')">
                     <div class="item_div">
                         <img
-                            src="../../assets/indexImages/pic_xuesheng.png"
+                            src="../../assets/indexImages/icon_banji_new.png"
                             alt=""
                         />
                         <span>班级管理</span>

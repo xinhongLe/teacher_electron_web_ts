@@ -4,6 +4,7 @@ export const TIMETABLE_API = process.env.VUE_APP_TIMETABLE_API;
 export const SCHEDULE_API = process.env.VUE_APP_SCHEDULE_API;
 export const YUN_API = process.env.VUE_APP_YUN_API;
 export const RESOURCE_API = process.env.VUE_APP_RESOURCE_API;
+export const RESOURCE_WEB = process.env.VUE_APP_RESOURCE_WEB;
 
 export const TRACK_API = process.env.VUE_APP_TRACK;
 // export const AI_XUE_SHI_API = "http://apitest.aixueshi.top:5002";

@@ -1,7 +1,7 @@
 import { fetchClassArrangement } from "@/api/resource";
 import { fetchActiveTimetableID, fetchUserSchedules, IScheduleContent, fetchTermCodeBySchoolId, TableTime, IScheduleDetail } from "@/api/timetable";
 import { MutationTypes, store } from "@/store";
-import { ref, Ref, watch, watchEffect } from "vue";
+import { computed, ref, Ref, watch, watchEffect } from "vue";
 
 interface TeachClassSchedule extends IScheduleDetail {
     DateOfWeek: number;
@@ -9,6 +9,7 @@ interface TeachClassSchedule extends IScheduleDetail {
     count: number;
     bagId?: string;
     chapterId?: string;
+    bookId?: string;
 }
 
 export type ColData = {
@@ -29,15 +30,15 @@ export default (days: Ref<string[]>) => {
     const timetableID = ref("");
     const semesterDataID = ref(""); // 学期ID
     const termCode = ref("");
+    const schoolID = computed(() => store.state.userInfo.schoolId);
 
     const getTimetableID = async () => {
-        const schoolID = store.state.userInfo.Schools![0]?.UserCenterSchoolID;
-        if (!schoolID) {
+        if (!schoolID.value) {
             return;
         }
 
         const termCodeRes = await fetchTermCodeBySchoolId({
-            id: schoolID
+            id: schoolID.value
         });
 
         store.commit(MutationTypes.SET_TERM, { id: termCodeRes.result.TermId, code: termCodeRes.result.TermCode });
@@ -46,7 +47,7 @@ export default (days: Ref<string[]>) => {
         termCode.value = termCodeRes.result.TermCode;
         if (termCodeRes.resultCode === 200 && termCodeRes.result) {
             const res = await fetchActiveTimetableID({
-                schoolID,
+                schoolID: schoolID.value,
                 semesterDataID: termCodeRes.result.TermId
             });
             if (res.resultCode === 200 && res.result) {
@@ -56,7 +57,7 @@ export default (days: Ref<string[]>) => {
     };
 
     const getTeachClassSchedule = async () => {
-        const schoolID = store.state.userInfo.Schools![0]?.UserCenterSchoolID;
+        const schoolID = store.state.userInfo.schoolId;
         if (!schoolID) return;
         const res = await fetchUserSchedules({
             StartTime: days.value[0],
@@ -79,7 +80,7 @@ export default (days: Ref<string[]>) => {
                 item.ScheduleDetailData.forEach(schedule => {
                     const obj = classArrangementRes.result.find(item => item.LessonId === schedule.LessonID);
                     const fontShowTime = `${schedule.StartTime.substring(0, 5)}~${schedule.EndTime.substring(0, 5)}`;
-                    teachClassScheduleArr.push({ ...schedule, DateOfWeek: item.DateOfWeek, fontShowTime, count: obj?.BagCount || 0, bagId: obj?.Id, chapterId: obj?.ChapterId });
+                    teachClassScheduleArr.push({ ...schedule, DateOfWeek: item.DateOfWeek, fontShowTime, count: obj?.BagCount || 0, bagId: obj?.Id, chapterId: obj?.ChapterId, bookId: obj?.BookId });
                 });
             });
         }
@@ -115,6 +116,8 @@ export default (days: Ref<string[]>) => {
         dealSchedules();
     };
 
+    // watch(schoolID, initSchedules)
+
     const updateSchedules = async () => {
         await getTeachClassSchedule();
         dealSchedules();
@@ -126,7 +129,7 @@ export default (days: Ref<string[]>) => {
     };
 
     watchEffect(() => {
-        const id = store.state.userInfo.Schools![0]?.ID;
+        const id = store.state.userInfo.schoolId;
         if (id) {
             initSchedules();
         }

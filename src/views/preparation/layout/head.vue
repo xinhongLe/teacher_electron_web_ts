@@ -8,6 +8,7 @@
 						active: source === 'me',
 						hide: packageCount === 0
 					}"
+					:style="'font-size:' + (packageCount > 99 ? '12px' : '14px')"
 					id="myCourseCart"
 					:num="packageCount > 99 ? '99+' : packageCount"
 					@click="
@@ -31,6 +32,10 @@
 						>{{ item.label }}</el-radio-button
 					>
 				</el-radio-group>
+			</div>
+			<div class="p-course-cart-options" @click="openCourseCartOptions()">
+				<img src="@/assets/images/preparation/icon_chakan@2x.png" alt="">
+				备课包操作记录
 			</div>
 			<div class="p-control-btns">
 				<el-button size="small" type="primary" @click="openUpload">
@@ -68,7 +73,7 @@
 			custom-class="custom-dialog"
 			v-model="uploadResourceOpen"
 			center
-			title="上传资源"
+			:title="currentEditType === 'edit' ? '编辑资源' : '上传资源'"
 			width="550px"
 			:destroy-on-close="true"
 		>
@@ -101,7 +106,7 @@
 						</el-button>
 					</el-upload>
 				</el-form-item>
-				<el-form-item v-else>
+				<el-form-item label="资源文件：" v-else>
 					<el-button
 						type="primary"
 						size="small"
@@ -165,7 +170,7 @@
 						新增目录
 					</el-button>
 				</el-form-item>
-				<el-form-item label="难易程度：" required>
+				<el-form-item label="难易程度：">
 					<el-select
 						v-model="form.degree"
 						placeholder="请选择"
@@ -195,6 +200,12 @@
 						v-model="form.isSchool"
 						label="是否保存为校本资源"
 					/>
+
+					<el-checkbox
+						v-if="form.isSchool"
+						v-model="form.isShelf"
+						label="上架"
+					/>
 				</el-form-item>
 			</el-form>
 			<template #footer>
@@ -207,6 +218,41 @@
 					</el-button>
 				</span>
 			</template>
+		</el-dialog>
+
+		<el-dialog
+			custom-class="custom-dialog"
+			v-model="courseCartOpen"
+			center
+			title="备课包操作记录"
+			width="1200px"
+			:destroy-on-close="true"
+		>
+			<el-date-picker
+				v-model="dateRange"
+				type="daterange"
+				start-placeholder="请选择开始时间"
+				end-placeholder="请选择结束使劲"
+				@change="dateRangeChange"
+			/>
+			<el-table class="custom-table" :data="tableData" stripe>
+				<el-table-column width="140px" prop="time" label="操作时间" />
+				<el-table-column width="120px" prop="name" label="动作" />
+				<el-table-column width="120px" prop="type" label="资源类型" />
+				<el-table-column prop="resource" label="资源名称" />
+				<el-table-column prop="directory" label="资源目录"></el-table-column>
+			</el-table>
+
+			<div class="p-pagination" v-if="total > 10">
+				<el-pagination
+					small
+					background
+					layout="prev, pager, next"
+					:total="total"
+					v-model="pageNumber"
+					@current-change="pageChange"
+				/>
+			</div>
 		</el-dialog>
 	</div>
 </template>
@@ -227,6 +273,8 @@ import {
 	editResource,
 	fetchMyPackageNum,
 	fetchResourceType,
+	getCartOptionList,
+	ILesson,
 	IResourceItem,
 	uploadResource
 } from "@/api/resource";
@@ -237,6 +285,7 @@ import emitter from "@/utils/mitt";
 import { MutationTypes, useStore } from "@/store";
 import { getOssUrl } from "@/utils/oss";
 import { useRouter } from "vue-router";
+import moment from "moment";
 
 interface IDirectoryItem {
 	id: string;
@@ -273,12 +322,22 @@ interface IForm {
 	knowledge: string;
 	files: IFile[];
 	isSchool: boolean;
+	isShelf: boolean;
 }
 
 interface ICourse {
 	chapterId: string;
 	lessonId: string;
 	lessonName: string;
+	chapterName: string;
+}
+
+interface ICourseCartOption {
+	time: string;
+	name: string;
+	type: string;
+	resource: string;
+	directory: string;
 }
 
 export default defineComponent({
@@ -293,12 +352,15 @@ export default defineComponent({
 	setup(props, { emit }) {
 		const store = useStore();
 		const userId = computed(() => store.state.userInfo.userCenterUserID);
+		const selectedBook = computed(() => store.state.preparation.subjectPublisherBookValue);
 		const { course } = toRefs(props);
+		let isInit = true;
 		watch(course, () => {
 			getMyPackageNum();
 		});
 		const packageCount = ref(0);
 		const getMyPackageNum = async () => {
+			isInit = false;
 			if (!course.value.chapterId || !course.value.lessonId) {
 				packageCount.value = 0;
 				return;
@@ -309,6 +371,10 @@ export default defineComponent({
 			});
 
 			packageCount.value = res.result.BagCount;
+			if (packageCount.value > 0 && isInit) {
+				source.value = "me";
+				emit("update:source", source.value);
+			}
 		};
 
 		emitter.on("updatePackageCount", () => {
@@ -384,6 +450,8 @@ export default defineComponent({
 
 			form.isSchool = resource.IsSchool === 1;
 
+			form.isShelf = form.isSchool ? resource.IsShelf === 1 : true;
+
 			currentEditType.value = "edit";
 			uploadResourceOpen.value = true;
 		});
@@ -436,7 +504,8 @@ export default defineComponent({
 			degree: "3",
 			knowledge: "",
 			files: [],
-			isSchool: false
+			isSchool: false,
+			isShelf: true
 		};
 		const form = reactive<IForm>(JSON.parse(JSON.stringify(formEmpty)));
 
@@ -502,10 +571,10 @@ export default defineComponent({
 						empty = true;
 					}
 				}
-				console.log(form.directorys);
 				if (empty) return ElMessage.warning("请将资源目录补充完整！");
 			}
-			const school = store.state.userInfo.Schools![0];
+			const schoolId = store.state.userInfo.schoolId;
+			const schoolName = store.state.userInfo.schoolName;
 			const lessonTrees = form.directorys.map((item) => {
 				return {
 					acaSectionId: item.schoolSection.id,
@@ -538,12 +607,12 @@ export default defineComponent({
 					rescourceTypeId: form.type.Id,
 					rescourceTypeName: form.type.Name,
 					name: form.name,
-					schoolId: school.UserCenterSchoolID,
-					schoolName: school.Name,
+					schoolId: schoolId,
+					schoolName: schoolName,
 					degree: form.degree,
 					resourceFiles,
 					isSchool: form.isSchool ? 1 : 2,
-					isShelf: 2,
+					isShelf: form.isSchool ? (form.isShelf ? 1 : 2) : 2,
 					knowledgePonitId: []
 				});
 			} else {
@@ -553,12 +622,12 @@ export default defineComponent({
 					rescourceTypeId: form.type.Id,
 					rescourceTypeName: form.type.Name,
 					name: form.name,
-					schoolId: school.UserCenterSchoolID,
-					schoolName: school.Name,
+					schoolId: schoolId,
+					schoolName: schoolName,
 					degree: form.degree,
 					resourceFile: resourceFiles[0],
 					isSchool: form.isSchool ? 1 : 2,
-					isShelf: 2,
+					isShelf: form.isSchool ? (form.isShelf ? 1 : 2) : 2,
 					knowledgePonitId: [],
 					toCourseware: false,
 					userId: userId.value
@@ -567,8 +636,14 @@ export default defineComponent({
 
 			if (res.success) {
 				uploadResourceOpen.value = false;
-
-				emitter.emit("updateResourceList");
+				if (currentEditType.value === "add") {
+					type.value = "";
+					source.value = "4";
+					emit("update:type", type.value);
+					emit("update:source", source.value);
+				} else {
+					emitter.emit("updateResourceList");
+				}
 			}
 		};
 
@@ -577,7 +652,7 @@ export default defineComponent({
 		};
 
 		const acceptList =
-			".ppt,.pptx,.doc,.docx,.pdf,.mp3,.mp4,.mkv,.flv,.jpg,.png,.jpeg";
+			".ppt,.pptx,.doc,.docx,.xls,.xlsx,.pdf,.mp3,.mp4,.gif,.jpg,.png,.jpeg,.wav";
 
 		const beforeUpload = ({ name }: { name: string }) => {
 			const fileType = name.substring(name.lastIndexOf(".") + 1);
@@ -586,18 +661,20 @@ export default defineComponent({
 				"pptx",
 				"doc",
 				"docx",
+				"xls",
+				"xlsx",
 				"pdf",
 				"mp3",
 				"mp4",
-				"mkv",
-				"flv",
+				"gif",
 				"jpg",
 				"png",
-				"jpeg"
+				"jpeg",
+				"wav"
 			];
 			if (whiteList.indexOf(fileType) === -1) {
 				ElMessage.error(
-					"上传文件只能是 ppt,pptx,doc,docx,pdf,mp3,mp4,mkv,flv,jpg,png,jpeg格式"
+					"上传文件只能是 ppt,pptx,doc,docx,xls,xlsx,pdf,mp3,mp4,gif,jpg,png,jpeg格式"
 				);
 				return false;
 			}
@@ -620,6 +697,9 @@ export default defineComponent({
 				uid: file.uid,
 				size: res.size || 0
 			});
+			if (form.files.length === 1) {
+				form.name = file.name;
+			}
 		};
 
 		const onExceed = () => {
@@ -647,6 +727,20 @@ export default defineComponent({
 			form.isSchool = false;
 			fileList.value = [];
 			currentEditType.value = "add";
+			if (selectedBook.value) {
+				form.directorys[0].schoolSection.id = selectedBook.value.AcaSectionId;
+				form.directorys[0].schoolSection.name = selectedBook.value.AcaSectionName;
+				form.directorys[0].subject.id = selectedBook.value.SubjectId;
+				form.directorys[0].subject.name = selectedBook.value.SubjectName;
+				form.directorys[0].version.id = selectedBook.value.PublisherId;
+				form.directorys[0].version.name = selectedBook.value.PublisherName;
+				form.directorys[0].grade.id = selectedBook.value.AlbumId;
+				form.directorys[0].grade.name = selectedBook.value.AlbumName;
+				form.directorys[0].chapter.id = course.value.chapterId;
+				form.directorys[0].chapter.name = course.value.chapterName;
+				form.directorys[0].lesson.id = course.value.lessonId;
+				form.directorys[0].lesson.name = course.value.lessonName;
+			}
 			uploadResourceOpen.value = true;
 		};
 
@@ -660,6 +754,54 @@ export default defineComponent({
             });
             router.push("/windowcard-edit");
 		};
+
+		const courseCartOpen = ref(false);
+		const tableData = ref<ICourseCartOption[]>([]);
+		const pageNumber = ref(0);
+		const dateRange = ref("");
+		const total = ref(0);
+		const openCourseCartOptions = () => {
+			if (!course.value.lessonId) return;
+			courseCartOpen.value = true;
+			pageNumber.value = 1;
+			getCourseCartOption();
+		};
+		const dateRangeChange = () => {
+			getCourseCartOption();
+		};
+		const pageChange = (value: number) => {
+			pageNumber.value = value;
+			getCourseCartOption();
+		};
+		const directoryName = (lessons: ILesson[]) =>  {
+            const book = lessons.find(item =>  {
+                return course.value.lessonId === item.LessonID || !item.LessonID;
+            });
+
+            return book ? book.SubjectName + " / " + book.PublisherName + " / " + book.AlbumName + " / " + book.ChapterName + (book.LessonName ? " / " + book.LessonName : "") : "--";
+        };
+		const getCourseCartOption = () => {
+			getCartOptionList({
+				lessonId: course.value.lessonId,
+				startTime: dateRange.value[0] ? moment(dateRange.value[0]).format("YYYY-MM-DD 00:00:00") : "",
+				endTime: dateRange.value[1] ? moment(dateRange.value[1]).format("YYYY-MM-DD 00:00:00") : "",
+				paper: {
+					pageNumber: pageNumber.value,
+					pageSize: 10
+				}
+			}).then(res => {
+				tableData.value = res.result.list.map(item => {
+					return {
+						time: moment(item.CreateTime).format("YYYY-MM-DD HH:mm"),
+						name: item.OprateName,
+						type: item.ResourceTypeName,
+						resource: item.ResourceName,
+						directory: directoryName(item.Lessons)
+					};
+				});
+				total.value = res.result.pager.Total;
+			});
+		}
 
 		return {
 			source,
@@ -684,7 +826,15 @@ export default defineComponent({
 			currentEditType,
 			onExceed,
 			isWincard,
-			editWincard
+			editWincard,
+			courseCartOpen,
+			tableData,
+			dateRange,
+			pageNumber,
+			dateRangeChange,
+			total,
+			pageChange,
+			openCourseCartOptions
 		};
 	}
 });
@@ -711,6 +861,22 @@ export default defineComponent({
 	min-width: 0;
 	display: flex;
 	align-items: center;
+}
+
+.p-course-cart-options {
+	color: #4B71EE;
+	font-size: 14px;
+	margin-right: 20px;
+	display: flex;
+	align-items: center;
+	cursor: pointer;
+	img {
+		width: 16px;
+		display: block;
+		margin-right: 3px;
+		position: relative;
+		top: -1px;
+	}
 }
 
 .p-control-btns {
@@ -842,5 +1008,28 @@ export default defineComponent({
 
 .add-btn {
 	width: 100%;
+}
+
+.custom-table {
+	margin-top: 15px;
+    width: 100%;
+    &:before {
+        display: none;
+    }
+    :deep(.el-table__header-wrapper .el-table__cell) {
+        padding: 12px 0;
+        font-weight: 600;
+        background-color: #fafafa;
+    }
+    :deep(.el-table__cell) {
+        padding: 12px 0;
+        border-bottom: 0 !important;
+    }
+}
+
+.p-pagination {
+	margin-top: 15px;
+	display: flex;
+	justify-content: flex-end;
 }
 </style>

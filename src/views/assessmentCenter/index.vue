@@ -15,6 +15,7 @@
 </template>
 
 <script lang="ts">
+import { get, STORAGE_TYPES } from "@/utils/storage";
 import isElectron from "is-electron";
 import { defineComponent } from "vue";
 // ts
@@ -29,7 +30,8 @@ export default defineComponent({
                 location.href = e.data.url;
             }
         };
-        const url = `http://tiku.leyixue.net/?time=${new Date().getTime()}`;
+        const token = get(STORAGE_TYPES.SET_TOKEN);
+        const url = `http://tiku.leyixue.net/?time=${new Date().getTime()}&s=Homepc&m=SyncUser&a=index&token=${token}`;
         return {
             url,
             isElectron: isElectron()

@@ -100,7 +100,7 @@ export default defineComponent({
             required: true
         },
         keys: {
-            type: Array as PropType<number[]>,
+            type: Array as PropType<string[]>,
             required: true
         },
         value: String,

@@ -8,21 +8,27 @@
         @close="close()"
     >
         <div class="tip-box">
-            <img src="@/assets/images/preparation/icon_tips_popup.png" alt="">
+            <img src="@/assets/images/preparation/icon_tips_popup.png" alt="" />
             该资源不可编辑，<br />
             需要【保存为我的文件】才可编辑哦。
         </div>
         <template #footer>
             <span class="dialog-footer">
                 <el-button @click="close()">取消</el-button>
-                <el-button type="primary" @click="save()"> 保存为我的文件 </el-button>
+                <el-button type="primary" @click="save()">
+                    保存为我的文件
+                </el-button>
             </span>
         </template>
     </el-dialog>
 </template>
 
 <script lang="ts">
-import { IResourceItem, saveToMyResource, sysWincardResource } from "@/api/resource";
+import {
+    IResourceItem,
+    saveToMyResource,
+    sysWincardResource,
+} from "@/api/resource";
 import { useStore } from "@/store";
 import { computed, defineComponent, PropType } from "vue";
 import { CopyWindow } from "../../intelligenceClassroom/api";
@@ -30,12 +36,12 @@ import { CopyWindow } from "../../intelligenceClassroom/api";
 export default defineComponent({
     props: {
         resource: {
-            type: Object as PropType<IResourceItem>
+            type: Object as PropType<IResourceItem>,
         },
         visible: {
             type: Boolean,
-            default: false
-        }
+            default: false,
+        },
     },
     emits: ["update", "update:visible"],
     setup(props, { emit }) {
@@ -46,41 +52,49 @@ export default defineComponent({
         const store = useStore();
         const userId = computed(() => store.state.userInfo.userCenterUserID);
         const lessonId = computed(() => store.state.preparation.selectLessonId);
-        const school = computed(() => store.state.userInfo.Schools![0]!);
+        const schoolId = computed(() => store.state.userInfo.schoolId);
+        const schoolName = computed(() => store.state.userInfo.schoolName);
 
         const save = async () => {
-            // const res = await saveToMyResource({
-            //     resourceId: props.resource.ResourceId,
-            //     schoolId,
-            //     schoolName
-            // });
             if (props.resource) {
-                const res = await CopyWindow({
-                    id: props.resource.OldResourceId,
-                    originType: props.resource.UserId ? 1 : null,
-                    sourceLessonID: store.state.preparation.selectLessonId,
-                    targetLessonID: store.state.preparation.selectLessonId,
-                });
-
-                if (res.success) {
-                    const sysRes = await sysWincardResource({
-                        id: res.result.ID,
-                        userId: userId.value,
-                        lessonID: lessonId.value,
-                        schoolId: school.value.UserCenterSchoolID,
-                        schoolName: school.value.Name
+                if (props.resource.ResourceShowType === 1) {
+                    const res = await CopyWindow({
+                        id: props.resource.OldResourceId,
+                        originType: props.resource.UserId ? 1 : null,
+                        sourceLessonID: store.state.preparation.selectLessonId,
+                        targetLessonID: store.state.preparation.selectLessonId
                     });
-                    emit("update:visible", false);
-                    emit("update");
+
+                    if (res.success) {
+                        const sysRes = await sysWincardResource({
+                            id: res.result.ID,
+                            userId: userId.value,
+                            lessonID: lessonId.value,
+                            schoolId: schoolId.value,
+                            schoolName: schoolName.value
+                        });
+                        emit("update:visible", false);
+                        emit("update");
+                    }
+                } else {
+                    const res = await saveToMyResource({
+                        resourceId: props.resource.ResourceId,
+                        schoolId: schoolId.value,
+                        schoolName: schoolName.value
+                    });
+                    if (res.success) {
+                        emit("update:visible", false);
+                        emit("update");
+                    }
                 }
             }
         };
 
         return {
             close,
-            save
-        }
-    }
+            save,
+        };
+    },
 });
 </script>
 
