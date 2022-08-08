@@ -29,6 +29,7 @@ type Electron = typeof electron & {
     getPath: (name: "home" | "appData" | "userData" | "cache" | "temp" | "exe" | "module" | "desktop" | "documents" | "downloads" | "music" | "pictures" | "videos" | "recent" | "logs" | "crashDumps") => string,
     readFile: (path: string, callback: (buffer: ArrayBuffer) => void) => void,
     savePutFile: (path: string, buffer: NodeJS.ArrayBufferView) => void,
+    deleteFile: (path: string) => void,
     setPositionWin: (x: number, y: number) => void,
     getColorHexRGB: () => Promise<unknown>,
     showSaveDialog: (option: SaveDialogOptions) => Promise<SaveDialogReturnValue>,
