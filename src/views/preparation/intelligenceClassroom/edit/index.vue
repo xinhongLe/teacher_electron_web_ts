@@ -200,12 +200,13 @@
                 :slide="currentSlide"
                 @onSave="saveClick"
                 @updatePageSlide="updatePageSlide"
+                :winId="windowInfo?.id"
             ></win-card-edit>
-            <div
-                v-show="!pageValue.ID"
-                class="mask-right"
-                @click.stop="handleMask"
-            ></div>
+<!--            <div-->
+<!--                v-show="!pageValue.ID"-->
+<!--                class="mask-right"-->
+<!--                @click.stop="handleMask"-->
+<!--            ></div>-->
         </div>
     </div>
     <!--上传ppt遮罩-->
@@ -686,7 +687,7 @@ export default defineComponent({
                 fetchAllPageSlide(getAllPageList());
             });
             window.addEventListener("keydown", keyDown);
-            
+
             // 监听退出全屏事件浏览器
             window.onresize = function () {
                 if (!isFullscreen()) {

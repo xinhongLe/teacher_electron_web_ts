@@ -50,7 +50,8 @@ interface IAddPage{
 interface CopyWindow {
     id: string,
     originType?: number | null,
-    sourceLessonID: string
+    sourceLessonID: string,
+    targetLessonID: string,
 }
 
 export interface SaveWindowsPageData {

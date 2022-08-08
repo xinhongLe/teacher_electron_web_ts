@@ -62,6 +62,7 @@ export default defineComponent({
                         id: props.resource.OldResourceId,
                         originType: props.resource.UserId ? 1 : null,
                         sourceLessonID: store.state.preparation.selectLessonId,
+                        targetLessonID: store.state.preparation.selectLessonId
                     });
 
                     if (res.success) {

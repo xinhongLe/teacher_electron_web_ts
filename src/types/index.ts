@@ -1,8 +1,10 @@
 import electron, { Remote, SaveDialogReturnValue, SaveDialogOptions, OpenDialogOptions, OpenDialogReturnValue } from "electron";
 import { LogFunctions } from "electron-log";
 import Store from "electron-store";
+import { IFileData } from "../../electron/exportWord";
 
 type Electron = typeof electron & {
+    exportWord: (filePath: string, fileData:IFileData, styleType:number) => void,
     exit: () => void,
     maximizeWindow: () => void,
     unmaximizeWindow: () => void,
