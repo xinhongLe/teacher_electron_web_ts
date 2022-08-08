@@ -184,9 +184,7 @@ export default defineComponent({
             });
         };
 
-        const url = ref();
         const previewDialog = ref(false);
-        const previewData = ref();
         const preview = () => {
             previewDialog.value = true;
         };
@@ -244,9 +242,7 @@ export default defineComponent({
         return {
             visible,
             form,
-            url,
             previewDialog,
-            previewData,
             templateList,
             classTypeList,
             dialogVisible,
