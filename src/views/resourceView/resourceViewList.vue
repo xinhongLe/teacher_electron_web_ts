@@ -4,7 +4,7 @@
             v-if="type === 1"
             :resourceId="target"
             :dialog="true"
-            :isMySelf="isMySelf"
+            :isSystem="isSystem"
         />
         <LookVideo v-if="type === 2" :dialog="true" :close="close" />
         <LookQuestion v-if="type === 3" :dialog="true" :close="close" />
@@ -73,7 +73,7 @@ export default defineComponent({
             }
         };
 
-        const isMySelf = computed(() => props.resource!.UserId === store.state.userInfo.userCenterUserID);
+        const isSystem = computed(() => props.resource!.IsSysFile === 1)
         const isOffice = computed(() => ["ppt", "pptx", "doc", "docx", "xls", "xlsx", "pdf"].indexOf(props.resource!.File?.FileExtention) > -1);
         const isImage = computed(() => ["gif", "png", "jpg", "jpeg"].indexOf(props.resource!.File?.FileExtention) > -1);
         const isAudio = computed(() => ["mp3", "wav"].indexOf(props.resource!.File?.FileExtention) > -1);
@@ -82,7 +82,7 @@ export default defineComponent({
         watchEffect(initIframeSrc);
         return {
             url,
-            isMySelf,
+            isSystem,
             isOffice,
             isImage,
             isAudio,

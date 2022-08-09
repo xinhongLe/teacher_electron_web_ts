@@ -220,7 +220,7 @@ export default defineComponent({
                         } });
                     } else if (data.ResourceShowType === 1) {
 						if (props.name === "attendClass") {
-							store.commit(MutationTypes.SET_IS_WINCARD, { flag: props.name === "attendClass", id: data.OldResourceId, isMySelf: data.UserId === userId.value });
+							store.commit(MutationTypes.SET_IS_WINCARD, { flag: props.name === "attendClass", id: data.OldResourceId, isSystem: data.IsSysFile === 1 });
 						}
 					} else if (data.ResourceShowType === 0 || data.ResourceShowType === 4) {
 						if (props.name === "attendClass") {

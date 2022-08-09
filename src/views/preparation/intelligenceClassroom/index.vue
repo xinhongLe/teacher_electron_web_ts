@@ -74,7 +74,7 @@ const props = defineProps({
         type: Boolean,
         default: false
     },
-    isMySelf: {
+    isSystem: {
         type: Boolean,
         default: 0
     }
@@ -87,7 +87,7 @@ const {cardList, refreshWindow, getCardList } = windowInfo;
 
 watchEffect(() => {
     if (resourceId.value) {
-        getCardList(resourceId.value, props.isMySelf ? 1 : 0);
+        getCardList(resourceId.value, props.isSystem ? 0 : 1);
     }
 });
 const changeWinSize = () => {
