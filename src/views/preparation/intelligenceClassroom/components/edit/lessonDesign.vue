@@ -1,6 +1,15 @@
 <template>
-    <div class="lesson-box">
-        <el-dialog v-model="visible" title="教案设计" width="1100px" center @close="close">
+    <div>
+        <el-dialog
+            custom-class="custom-dialog resource1-dialog"
+            v-model="visible"
+            title="教案设计"
+            width="1100px"
+            center
+            :close-on-click-modal="false"
+            :close-on-press-escape="false"
+            :before-close="close"
+            >
             <div class="template-select">
                 <el-select v-model="form.templateType" @change="changeTemplate" style="width: 100%" placeholder="请选择课型" size="small">
                     <el-option v-for="item in templateList" :key="item.ID" :label="item.Name" :value="item.ID"/>
@@ -20,13 +29,16 @@
                     <div class="lesson-design-content" v-if="item.Name === '教学过程'">
                         <table class="lesson-design-table" border="1" v-for="(item, index) in item.LessonPlanDetailPages" :key="index">
                             <tr>
-                                <td colspan="2">
+                                <td colspan="3">
                                     <div class="lesson-design-table-header">
                                         {{item.Name}}
                                     </div>
                                 </td>
                             </tr>
                             <tr>
+                                <td>
+                                    <div class="lesson-design-table-title">步骤</div>
+                                </td>
                                 <td>
                                     <div class="lesson-design-table-title">教学过程</div>
                                 </td>
@@ -35,47 +47,50 @@
                                 </td>
                             </tr>
                             <tr v-for="(content, i) in item.Childrens" :key="i">
+                                <td class="lesson-page-title-box">
+                                    <div class="lesson-page-title">{{content.Name}}</div>
+                                </td>
                                 <td>
                                     <div class="lesson-design-table-content grey">
-                                        <el-input type="textarea" placeholder="点击输入教学回顾" v-model="content.AcademicPresupposition"></el-input>
+                                        <el-input type="textarea" placeholder="点击输入教学回顾"  maxlength="2000" show-word-limit resize="none" autosize @input="textareaInput" v-model="content.AcademicPresupposition"></el-input>
                                     </div>
                                 </td>
                                 <td>
                                     <div class="lesson-design-table-content">
-                                        <el-input type="textarea" placeholder="点击输入设计意图" v-model="content.DesignIntent"></el-input>
+                                        <el-input type="textarea" placeholder="点击输入设计意图"  maxlength="2000" show-word-limit resize="none" autosize @input="textareaInput" v-model="content.DesignIntent"></el-input>
                                     </div>
                                 </td>
                             </tr>
                         </table>
                     </div>
                     <div class="lesson-design-content" v-else>
-                        <el-input v-if="item.SelectType === 0 || item.SelectType === 1" :disabled="item.SelectType === 1 ? true : false" placeholder="请输入" v-model="item.Value" size="small"></el-input>
-                        <draggable v-if="item.SelectType === 2" v-model="item.LessonPlanDetailOptions" :animation="300"  @start="drag = true" @end="drag = false" itemKey="index">
+                        <el-input v-if="item.SelectType === 0 || item.SelectType === 1"  maxlength="100" show-word-limit @input="textareaInput" :disabled="item.SelectType === 1 ? true : false" placeholder="请输入" v-model="item.Value" size="small"></el-input>
+                        <draggable v-if="item.SelectType === 2"  @end="textareaInput"  v-model="item.LessonPlanDetailOptions" :animation="300"  @start="drag = true"  itemKey="index">
                             <template #item="{element, index}">
                                 <div class="sort-input">
                                     <img class="drag" src="@/assets/indexImages/icon_yidong@2x.png" alt="">
-                                    <el-input v-model="element.Value" placeholder="请输入" size="small"></el-input>
+                                    <el-input v-model="element.Value" placeholder="请输入" maxlength="100" show-word-limit @input="textareaInput" size="small"></el-input>
                                     <img class="option-btn" src="@/assets/indexImages/icon_add@2x.png" alt="" @click="addTarget(index, item)" />
                                     <img class="option-btn" src="@/assets/indexImages/icon_del@2x.png" v-if="item.LessonPlanDetailOptions.length > 1" alt="" @click="reduceTarget(index, item)" />
                                 </div>
                             </template>
                         </draggable>
-                        <el-input v-if="item.SelectType === 3" type="textarea" v-model="item.Value" placeholder="请输入" size="small"></el-input>
-                        <el-select v-if="item.SelectType === 4" v-model="item.isSelectId" style="width: 100%" placeholder="请选择" size="small">
+                        <el-input v-if="item.SelectType === 3" type="textarea" resize="none" maxlength="2000" show-word-limit autosize @input="textareaInput" v-model="item.Value" placeholder="请输入" size="small"></el-input>
+                        <el-select v-if="item.SelectType === 4" v-model="item.isSelectId"  @changge="textareaInput" style="width: 100%" placeholder="请选择" size="small">
                             <el-option v-for="item in item.LessonPlanDetailOptions" :key="item.ID" :label="item.Name" :value="item.ID"/>
                         </el-select>
 
-                        <el-checkbox-group  v-if="item.SelectType === 5" v-model="item.isSelectId">
+                        <el-checkbox-group  v-if="item.SelectType === 5" v-model="item.isSelectId" @changge="textareaInput">
                             <el-checkbox v-for="i in item.LessonPlanDetailOptions" :key="i.ID" :label="i.ID">{{i.Name}}</el-checkbox>
                         </el-checkbox-group>
 
-                        <el-radio-group v-if="item.SelectType === 6" v-model="item.isSelectId">
+                        <el-radio-group v-if="item.SelectType === 6" v-model="item.isSelectId" @changge="textareaInput">
                             <el-radio v-for="i in item.LessonPlanDetailOptions" :key="i.ID" :label="i.ID">{{i.Name}}</el-radio>
                         </el-radio-group>
 
-                        <el-date-picker v-if="item.SelectType === 7" v-model="item.Value" type="date" placeholder="请选择" format="YYYY-MM-DD" value-format="YYYY-MM-DD"/>
+                        <el-date-picker v-if="item.SelectType === 7" @changge="textareaInput" v-model="item.Value" type="date" placeholder="请选择" format="YYYY-MM-DD" value-format="YYYY-MM-DD"/>
 
-                        <el-date-picker v-if="item.SelectType === 8" v-model="item.Value" type="datetime" placeholder="请选择" format="YYYY-MM-DD hh:mm" value-format="YYYY-MM-DD h:m"/>
+                        <el-date-picker v-if="item.SelectType === 8" @changge="textareaInput" v-model="item.Value" type="datetime" placeholder="请选择" format="YYYY-MM-DD hh:mm" value-format="YYYY-MM-DD h:m"/>
                     </div>
                 </div>
             </div>
@@ -88,9 +103,28 @@
             </template>
         </el-dialog>
 
+        <el-dialog
+            custom-class="custom-dialog tip-dialog"
+            v-model="tipVisible"
+            title="提示"
+            center
+            :close-on-click-modal="false"
+            :close-on-press-escape="false"
+            @close="tipVisible = false"
+        >
+            <div class="tip-content">
+                <img src="@/assets/indexImages/tip.png" alt="">
+                <div class="tip-title">是否保存本页面的修改？</div>
+                <div class="tip-btns">
+                    <el-button @click="closeTip()">不保存</el-button>
+                    <el-button type="primary" @click="save()">保存</el-button>
+                </div>
+            </div>
+        </el-dialog>
+
         <lesson-template-set v-model:dialogVisible="dialogVisible" @updateLessonPlanTemplateList="_getLessonPlanTemplate" :templateList="templateList"></lesson-template-set>
 
-        <lesson-preview v-model:previewDialog="previewDialog" :form="form" ></lesson-preview>
+        <lesson-preview v-model:previewDialog="previewDialog" :wordName="saveData.TeachPageName" :form="form" ></lesson-preview>
     </div>
 </template>
 
@@ -122,12 +156,18 @@ export default defineComponent({
         const saveData: ISaveLessonPlan = {
             ID: "",
             Name: "",
+            TeachPageName: "",
             Sort: 0,
             Status: 0,
             LessonPlanDetails: []
         };
+
+        const tipVisible = ref(false);
+        const isEditChange = ref(false);
+
         watch(() => props.lessonDesignVisible, async () => {
             visible.value = props.lessonDesignVisible;
+            isEditChange.value = false;
             if (visible.value) {
                 await _getLessonPlanTemplate();
                 await _getLessonPlan();
@@ -145,8 +185,12 @@ export default defineComponent({
             await _getLessonPlan();
         };
 
-        const close = () => {
-            emit("update:lessonDesignVisible", false);
+        const close = (done: () => void) => {
+            if (isEditChange.value) {
+                tipVisible.value = true;
+            } else {
+                emit("update:lessonDesignVisible", false);
+            }
         };
 
         const addTarget = (index: number, item:any) => {
@@ -179,7 +223,8 @@ export default defineComponent({
             saveLessonPlan(saveData).then(res => {
                 if (res.success) {
                     ElMessage.success("教案设计修改成功！");
-                    close();
+                    tipVisible.value = false;
+                    emit("update:lessonDesignVisible", false);
                 }
             });
         };
@@ -223,9 +268,9 @@ export default defineComponent({
 
                 form.lessonBasicInfoList = infoList;
                 form.templateType = res.result.LessonPlanTemplateMainID;
-                console.log(form, "------1111");
                 saveData.ID = res.result.ID;
                 saveData.Name = res.result.Name;
+                saveData.TeachPageName = res.result.TeachPageName || "";
                 saveData.Sort = res.result.Sort;
                 saveData.Status = res.result.Status;
             });
@@ -238,18 +283,31 @@ export default defineComponent({
                 }
             });
         };
+        const closeTip = () => {
+            tipVisible.value = false;
+            emit("update:lessonDesignVisible", false);
+        };
+
+        const textareaInput = () => {
+            isEditChange.value = true;
+        };
 
         return {
             visible,
             form,
+            saveData,
             previewDialog,
             templateList,
             classTypeList,
             dialogVisible,
+            isEditChange,
+            tipVisible,
             _getLessonPlanTemplate,
             changeTemplate,
             templateSet,
             close,
+            textareaInput,
+            closeTip,
             addTarget,
             reduceTarget,
             save,
@@ -260,10 +318,19 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-.lesson-box{
-    :deep(.el-dialog__body){
-        height: 750px !important;
-        overflow-y: auto !important;
+:deep(.resource1-dialog) {
+    --el-dialog-margin-top: 5vh;
+    height: 90vh;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    .el-dialog__body{
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+        border-bottom-left-radius: 6px;
+        border-bottom-right-radius: 6px;
+        padding: var(--el-dialog-padding-primary);
     }
 }
 
@@ -329,6 +396,23 @@ export default defineComponent({
             background: #F6F7F8;
         }
 
+        .lesson-page-title-box {
+            vertical-align: top;
+            .lesson-page-title {
+                font-size: 16px;
+                font-weight: 500;
+                padding: 30px;
+                color: #333;
+            }
+        }
+
+        .lesson-design-adjust {
+            :deep(.el-textarea__inner) {
+                color: #333;
+                font-weight: 500;
+            }
+        }
+
         .lesson-design-table-title {
             padding: 10px 24px;
             color: #212121;
@@ -339,7 +423,6 @@ export default defineComponent({
         }
 
         .lesson-design-table-content {
-            height: 248px;
             padding: 24px;
             font-size: 12px;
             color: #212121;
@@ -351,14 +434,13 @@ export default defineComponent({
             }
             ::v-deep(.el-textarea__inner) {
                 border: 0;
-                resize: none;
-                height: 100%;
             }
         }
     }
 
     .lesson-design-table, td {
         border: 1px solid #EBEFF1;
+        vertical-align: top;
     }
 }
 
@@ -380,6 +462,25 @@ export default defineComponent({
         &:last-child {
             margin-right: 0;
         }
+    }
+}
+
+.tip-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    img {
+        display: block;
+        width: 140px;
+        margin-bottom: 30px;
+    }
+    .tip-title {
+        font-weight: 500;
+        font-size: 18px;
+        color: #333;
+    }
+    .tip-btns {
+        margin-top: 30px;
     }
 }
 </style>

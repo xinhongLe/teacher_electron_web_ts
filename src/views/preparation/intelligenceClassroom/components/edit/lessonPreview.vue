@@ -1,16 +1,18 @@
 <template>
-    <div class="box">
-        <el-dialog v-model="visible" title="预览" width="80%" @close="close">
-            <el-select v-model="styleType" @change="changeStyle" placeholder="请选择">
-                <el-option
-                    v-for="item in options"
-                    :key="item.value"
-                    :label="item.name"
-                    :value="item.value"
-                />
-            </el-select>
-            <div class="export-btn">
-                <el-button type="primary" @click="handleExportWord">导出</el-button>
+    <div>
+        <el-dialog custom-class="custom-dialog resource1-dialog" v-model="visible" title="预览" width="80%" @close="close">
+            <div class="header">
+                <el-select v-model="styleType" size="small" @change="changeStyle" placeholder="请选择">
+                    <el-option
+                        v-for="item in options"
+                        :key="item.value"
+                        :label="item.name"
+                        :value="item.value"
+                    />
+                </el-select>
+                <div class="export-btn">
+                    <el-button type="primary" size="small" @click="handleExportWord">导出</el-button>
+                </div>
             </div>
             <div class="iframe-box">
                 <iframe :src="url"></iframe>
@@ -33,7 +35,7 @@ export default defineComponent({
             type: Boolean,
             require: true
         },
-        url: {
+        wordName: {
             type: String,
             default: () => ""
         },
@@ -52,7 +54,7 @@ export default defineComponent({
         const state = reactive({
             visible: false,
             url: "",
-            styleType: 1,
+            styleType: 2,
             options: [
                 { name: "简约风", value: 1 },
                 { name: "表格风", value: 2 }
@@ -121,7 +123,7 @@ export default defineComponent({
                 }]
             };
 
-            const fileName = `/${new Date().getTime()}_教案设计.docx`;
+            const fileName = `/${props.wordName}_教案设计_${new Date().getTime()}.docx`;
 
             return {
                 fileData: fileData,
@@ -136,7 +138,6 @@ export default defineComponent({
         const preview = () => {
             const { fileData, fileName } = transFormFileData();
             const filePath = window.electron.getCachePath("");
-            console.log(filePath, "filepath-----");
             window.electron.exportWord(filePath + fileName || "", fileData, state.styleType);
             setTimeout(() => {
                 (window as any).electron.readFile(filePath + fileName, async (buffer: ArrayBuffer) => {
@@ -168,7 +169,7 @@ export default defineComponent({
                 ]
             }).then(({ filePath }) => {
                 window.electron.exportWord(filePath || "", fileData, state.styleType);
-                ElMessage.success("模板文件下载成功");
+                ElMessage.success("教案下载成功");
                 window.electron.deleteFile(filePath + fileName);
             }).catch((err) => {
                 console.log(err);
@@ -176,7 +177,7 @@ export default defineComponent({
         };
         const close = () => {
             state.url = "";
-            state.styleType = 1;
+            state.styleType = 2;
             emit("update:previewDialog", false);
         };
 
@@ -193,17 +194,27 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-.box{
-    flex: 1;
-    .export-btn{
-        position: absolute;
-        top: 20px;
-        right: 80px;
-    }
+:deep(.resource1-dialog) {
+    --el-dialog-margin-top: 5vh;
+    height: 90vh;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+.header{
+    position: absolute;
+    display: flex;
+    justify-content: flex-start;
+    width: calc(100% - 40px);
+    background-color: #fff;
+    padding-bottom: 20px;
+}
+.export-btn{
+    margin-left: 20px;
 }
  .iframe-box{
      width: 100%;
-     height: 100%;
+     height: calc(100% - 40px)!important;
      iframe{
          width: 100%;
          height: 100%;

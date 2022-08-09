@@ -183,6 +183,7 @@ interface ISaveLessonPlanDetail {
 export interface ISaveLessonPlan {
     ID: string;
     Name: string;
+    TeachPageName: string;
     Sort: number;
     Status: number;
     LessonPlanDetails: ISaveLessonPlanDetail[]
