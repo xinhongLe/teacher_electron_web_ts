@@ -100,7 +100,7 @@ export interface CommonState {
      */
     wincard: {
         id: string;
-        isMySelf: boolean;
+        isSystem: boolean;
     };
     /**
      * 查看题目的信息

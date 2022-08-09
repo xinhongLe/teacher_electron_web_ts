@@ -8,7 +8,7 @@ const initState = (): CommonState => ({
     isShowWincard: false,
     wincard: {
         id: "",
-        isMySelf: false
+        isSystem: false
     },
     viewQuestionInfo: {
         type: 1,
@@ -42,11 +42,11 @@ const mutations:MutationTree<CommonState> = {
     [MutationTypes.SET_IS_IFRAME](state, { flag }) {
         state.isIframe = flag;
     },
-    [MutationTypes.SET_IS_WINCARD](state, { flag, id, isMySelf }) {
+    [MutationTypes.SET_IS_WINCARD](state, { flag, id, isSystem }) {
         state.isShowWincard = flag;
         state.wincard = {
             id,
-            isMySelf
+            isSystem
         };
     },
     [MutationTypes.SET_SHOW_VIEW_FILE](state, { flag, id, data }) {

@@ -124,7 +124,7 @@ export default defineComponent({
                             type: 1
                         } });
                     } else if (resource.ResourceShowType === 1) {
-						store.commit(MutationTypes.SET_IS_WINCARD, { flag: true, id: resource.OldResourceId });
+						store.commit(MutationTypes.SET_IS_WINCARD, { flag: true, id: resource.OldResourceId, isSystem: resource.IsSysFile === 1 });
 					} else if (resource.ResourceShowType === 0 || resource.ResourceShowType === 4) {
                         resourceRef.value.eventEmit("detail", resource);
                     }

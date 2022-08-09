@@ -6,7 +6,7 @@
         <LookVideo v-if="isShowVideo"/>
         <div class="wincard-fixed" v-if="isShowWincard">
             <div class="wincard-box">
-                <IntelligenceClassroom :resourceId="wincardId" :isMySelf="isMySelf" />
+                <IntelligenceClassroom :resourceId="wincardId" :isSystem="isSystem" />
             </div>
         </div>
         <ScreenViewFile
@@ -132,7 +132,7 @@ export default defineComponent({
             isShowVideo: computed(() => store.state.common.isShowVideo),
             isShowWincard: computed(() => store.state.common.isShowWincard),
             wincardId: computed(() => store.state.common.wincard.id),
-            isMySelf: computed(() => store.state.common.wincard.isMySelf),
+            isSystem: computed(() => store.state.common.wincard.isSystem),
             showScreenViewFile: computed(() => store.state.common.showScreenViewFile),
             isShowNarBar,
             keepExcludeArr

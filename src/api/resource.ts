@@ -90,6 +90,7 @@ export interface IResourceItem {
     Source: string;
     BagId: string;
     ResourceToolUrl: string;
+    IsSysFile: number;
     File: {
         Id: string;
         Name: string;
