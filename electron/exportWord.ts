@@ -1,3 +1,5 @@
+import { join, resolve } from "path";
+
 interface IListItem {
     title: string,
     contents: {content: string}[]
@@ -23,11 +25,9 @@ const PizZip = require("pizzip");
 const Docxtemplater = require("docxtemplater");
 
 const fs = require("fs");
-const path = require("path");
-const __dirname = path.resolve();
 
 export const exportWord = (filePath:string, fileData:IFileData, styleType:number) => {
-    let PATH = process.env.NODE_ENV === "development" ? path.resolve(__dirname, `./extraResources/exportWord/${styleType === 1 ? "template.docx" : "template_table.docx"}`) : path.resolve(__dirname, `../${styleType === 1 ? "template.docx" : "template_table.docx"}`);
+    let PATH: string | null = process.env.NODE_ENV === "development" ? join(__dirname, `./extraResources/exportWord/${styleType === 1 ? "template.docx" : "template_table.docx"}`) : join(__dirname, `../extraResources/exportWord/${styleType === 1 ? "template.docx" : "template_table.docx"}`);
 
     let content = fs.readFileSync(PATH, "binary");
 
@@ -41,7 +41,8 @@ export const exportWord = (filePath:string, fileData:IFileData, styleType:number
         type: "nodebuffer",
         compression: "DEFLATE"
     });
-    fs.writeFileSync(path.resolve(filePath), buf);
+
+    fs.writeFileSync(resolve(filePath), buf);
     PATH = null;
     content = null;
     zip = null;

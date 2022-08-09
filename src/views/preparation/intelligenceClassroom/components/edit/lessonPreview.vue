@@ -100,7 +100,7 @@ export default defineComponent({
             const cardValue = props.form.lessonBasicInfoList.find((item:ItemForm) => item.Name === "教学过程");
             const cards = cardValue!.LessonPlanDetailPages.map((j:any, index:number) => {
                 return {
-                    title: "风格" + toChinesNum(index + 1) + "：" + j.Name,
+                    title: "环节" + toChinesNum(index + 1) + "：" + j.Name,
                     pages: j.Childrens.map((i:any) => ({
                         title: i.Name,
                         processes: [{ process: i.AcademicPresupposition || "" }],
@@ -145,6 +145,7 @@ export default defineComponent({
                     if (res?.code === 200) {
                         const urlImg = await getOssUrl(res.objectKey as string, get(STORAGE_TYPES.OSS_PATHS)?.["ElementFile"].Bucket);
                         state.url = "https://owa.lyx-edu.com/op/view.aspx?src=" + encodeURIComponent(urlImg);
+                        window.electron.deleteFile(filePath + fileName);
                     }
                 });
             }, 100);
@@ -167,6 +168,7 @@ export default defineComponent({
             }).then(({ filePath }) => {
                 window.electron.exportWord(filePath || "", fileData, state.styleType);
                 ElMessage.success("模板文件下载成功");
+                window.electron.deleteFile(filePath + fileName);
             }).catch((err) => {
                 console.log(err);
             });

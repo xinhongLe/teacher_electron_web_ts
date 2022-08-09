@@ -127,6 +127,9 @@ window.electron = {
             }
         });
     },
+    deleteFile: (path: string) => {
+        fs.unlinkSync(path);
+    },
     showSaveDialog: (option: SaveDialogOptions) => {
         const currentWindow = getCurrentWindow();
         return dialog.showSaveDialog(currentWindow, option);
