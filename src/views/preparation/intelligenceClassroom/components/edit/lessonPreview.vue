@@ -136,7 +136,6 @@ export default defineComponent({
         const preview = () => {
             const { fileData, fileName } = transFormFileData();
             const filePath = window.electron.getCachePath("");
-            console.log(filePath, "filepath-----");
             window.electron.exportWord(filePath + fileName || "", fileData, state.styleType);
             setTimeout(() => {
                 (window as any).electron.readFile(filePath + fileName, async (buffer: ArrayBuffer) => {
