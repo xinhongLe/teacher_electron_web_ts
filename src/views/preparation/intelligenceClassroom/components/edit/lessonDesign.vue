@@ -268,6 +268,9 @@ export default defineComponent({
 
                 form.lessonBasicInfoList = infoList;
                 form.templateType = res.result.LessonPlanTemplateMainID;
+                console.log(res.result, "res.result");
+                console.log(form.lessonBasicInfoList, "form.lessonBasicInfoList");
+
                 saveData.ID = res.result.ID;
                 saveData.Name = res.result.Name;
                 saveData.TeachPageName = res.result.TeachPageName || "";

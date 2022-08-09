@@ -68,35 +68,44 @@ export default defineComponent({
             }
         });
 
+        const transFormFileItemData = (j:ItemForm) => {
+            if (j.SelectType === 2) { // 多行单行文本
+                return {
+                    title: j.Name,
+                    contents: j.LessonPlanDetailOptions.map((i:any) => {
+                        return { content: i.Value || "" };
+                    })
+                };
+            } else if (j.SelectType === 5) { // 多选框
+                return {
+                    title: j.Name,
+                    contents: j.LessonPlanDetailOptions.filter((i:any) => j.isSelectId.includes(i.ID)).map((v:any) => ({ content: v.Name || "" }))
+                };
+            } else if (j.SelectType === 4 || j.SelectType === 6) { // 下拉、单选框
+                const selectValue = j.LessonPlanDetailOptions.find((i:any) => j.isSelectId === i.ID);
+                return {
+                    title: j.Name,
+                    contents: [{ content: selectValue.Name || "" }]
+                };
+            } else {
+                return {
+                    title: j.Name,
+                    contents: [{ content: j.Value || "" }]
+                };
+            }
+        };
+
         const transFormFileData = () => {
-            console.log(props.form, "props.form---");
             const title = props.form.lessonBasicInfoList.find((item:ItemForm) => item.Name === "标题")!.Value;
 
-            const list = props.form.lessonBasicInfoList.filter((item:ItemForm) => (!["标题", "教学过程", "教学反思"].includes(item.Name) && item.Status)).map((j:any) => {
-                if (j.SelectType === 2) { // 多行单行文本
-                    return {
-                        title: j.Name,
-                        contents: j.LessonPlanDetailOptions.map((i:any) => {
-                            return { content: i.Value || "" };
-                        })
-                    };
-                } else if (j.SelectType === 5) { // 多选框
-                    return {
-                        title: j.Name,
-                        contents: j.LessonPlanDetailOptions.filter((i:any) => j.isSelectId.includes(i.ID)).map((v:any) => ({ content: v.Name || "" }))
-                    };
-                } else if (j.SelectType === 4 || j.SelectType === 6) { // 下拉、单选框
-                    const selectValue = j.LessonPlanDetailOptions.find((i:any) => j.isSelectId === i.ID);
-                    return {
-                        title: j.Name,
-                        contents: [{ content: selectValue.Name || "" }]
-                    };
-                } else {
-                    return {
-                        title: j.Name,
-                        contents: [{ content: j.Value || "" }]
-                    };
-                }
+            const newData = props.form.lessonBasicInfoList.filter((item:ItemForm) => (item.Name !== "标题" && item.Status));
+            const index = newData.findIndex((item:ItemForm) => item.Name === "教学过程");
+            const firstList = newData.splice(0, index);
+            const endList = newData.splice(1, newData.length - 1);
+
+            const list = firstList.map((j:any) => {
+                const item = transFormFileItemData(j);
+                return item;
             });
 
             const cardValue = props.form.lessonBasicInfoList.find((item:ItemForm) => item.Name === "教学过程");
@@ -111,16 +120,15 @@ export default defineComponent({
                 };
             });
 
-            const list2Value = props.form.lessonBasicInfoList.find((item:any) => (item.Name === "教学反思" && item.Status)) || { Name: "", Value: "" };
-
+            const list2 = endList.map((j:any) => {
+                const item = transFormFileItemData(j);
+                return item;
+            });
             const fileData = {
                 title: title,
                 list: list,
                 cards: cards,
-                list2: [{
-                    title: list2Value!.Name,
-                    contents: [{ content: list2Value!.Value || "" }]
-                }]
+                list2: list2
             };
 
             const fileName = `/${props.wordName}_教案设计_${new Date().getTime()}.docx`;
@@ -144,6 +152,7 @@ export default defineComponent({
                     const newFile = new File([buffer], fileName);
                     const ossPath = get(STORAGE_TYPES.OSS_PATHS)?.["ElementFile"];
                     const res = await cooOss(newFile, ossPath);
+                    console.log(res, "res123");
                     if (res?.code === 200) {
                         const urlImg = await getOssUrl(res.objectKey as string, get(STORAGE_TYPES.OSS_PATHS)?.["ElementFile"].Bucket);
                         state.url = "https://owa.lyx-edu.com/op/view.aspx?src=" + encodeURIComponent(urlImg);
