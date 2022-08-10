@@ -196,6 +196,12 @@ export interface IAddTemplateFieldRes {
     Options?: {ID: string, Name: string, Sort: number}[]
 }
 
+export interface ISaveProcessAndDesignData {
+    ID: string;
+    AcademicPresupposition: string;
+    DesignIntent: string;
+}
+
 // 获取书本信息
 export function getSubjectPublisherBookList(): Promise<BookListResponse> {
     return request({
@@ -560,5 +566,15 @@ export function delTemplateField(data:{ID: string}) : Promise<IResponse<unknown>
         method: "post",
         baseURL: WINDOW_CRAD_API,
         data: Object.assign(data, { OriginType: originType })
+    });
+}
+
+// 保存教学过程设计意图
+export function saveLessonProcessAndDesign(data: ISaveProcessAndDesignData) : Promise<IResponse<unknown>> {
+    return request({
+        baseURL: WINDOW_CRAD_API,
+        url: "/Api/WCP/LessonPlan/SaveTeachPageDesignIntent",
+        method: "post",
+        data
     });
 }
