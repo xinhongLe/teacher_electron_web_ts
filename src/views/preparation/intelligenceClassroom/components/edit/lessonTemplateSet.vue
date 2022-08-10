@@ -17,7 +17,7 @@
             <div class="center">
                <div>
                    <div class="title">模板名称</div>
-                   <el-input v-model="currentTemplate.Name" size="small"></el-input>
+                   <el-input maxlength="100" v-model="currentTemplate.Name" size="small"></el-input>
                </div>
                 <div>
                     <div>

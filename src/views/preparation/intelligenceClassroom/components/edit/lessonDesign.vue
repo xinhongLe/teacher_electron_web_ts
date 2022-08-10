@@ -31,7 +31,7 @@
                             <tr>
                                 <td colspan="3">
                                     <div class="lesson-design-table-header">
-                                        {{item.Name}}
+                                        {{ "环节" + toChinesNum(index + 1) + "：" + item.Name}}
                                     </div>
                                 </td>
                             </tr>
@@ -134,6 +134,7 @@ import { ElMessage } from "element-plus";
 import { defineComponent, reactive, ref, watch } from "vue";
 import draggable from "vuedraggable";
 import { Setting } from "@element-plus/icons";
+import { toChinesNum } from "@/utils/common";
 import LessonTemplateSet from "@/views/preparation/intelligenceClassroom/components/edit/lessonTemplateSet.vue";
 import { ITemplateList, IFrom, ItemForm } from "@/types/lessonDesign.ts";
 import LessonPreview from "@/views/preparation/intelligenceClassroom/components/edit/lessonPreview.vue";
@@ -305,6 +306,7 @@ export default defineComponent({
             dialogVisible,
             isEditChange,
             tipVisible,
+            toChinesNum,
             _getLessonPlanTemplate,
             changeTemplate,
             templateSet,
