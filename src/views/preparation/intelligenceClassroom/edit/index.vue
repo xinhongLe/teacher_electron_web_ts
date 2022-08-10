@@ -472,7 +472,7 @@ export default defineComponent({
                 SaveType[type],
                 isLoadEnd.value
             );
-            if (isLoadEnd.value) {
+            if (!isLoadEnd.value) {
                 return ElMessage.warning("资源正在加载，请稍后再试...");
             }
             const cardData = windowCards.value.map((card, index) => {

@@ -44,7 +44,7 @@ export default (pageValue: Ref<IPageValue>) => {
     };
 
     const fetchAllPageSlide = async (allPageList: IPageValue[]) => {
-        isLoadEnd.value = true;
+        isLoadEnd.value = false;
         for (const page of allPageList) {
             if (isUnmounted.value) {
                 return;
@@ -55,7 +55,7 @@ export default (pageValue: Ref<IPageValue>) => {
             currentReqId.value = page.ID;
             await fetchPageSlide(page);
         }
-        isLoadEnd.value = false;
+        isLoadEnd.value = true;
     };
 
     watch(pageValue, (v) => {
