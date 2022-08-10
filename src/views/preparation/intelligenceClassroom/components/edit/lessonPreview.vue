@@ -1,16 +1,18 @@
 <template>
-    <div class="box">
-        <el-dialog v-model="visible" title="预览" width="80%" @close="close">
-            <el-select v-model="styleType" @change="changeStyle" placeholder="请选择">
-                <el-option
-                    v-for="item in options"
-                    :key="item.value"
-                    :label="item.name"
-                    :value="item.value"
-                />
-            </el-select>
-            <div class="export-btn">
-                <el-button type="primary" @click="handleExportWord">导出</el-button>
+    <div>
+        <el-dialog custom-class="custom-dialog resource1-dialog" v-model="visible" title="预览" width="80%" @close="close">
+            <div class="header">
+                <el-select v-model="styleType" size="small" @change="changeStyle" placeholder="请选择">
+                    <el-option
+                        v-for="item in options"
+                        :key="item.value"
+                        :label="item.name"
+                        :value="item.value"
+                    />
+                </el-select>
+                <div class="export-btn">
+                    <el-button type="primary" size="small" @click="handleExportWord">导出</el-button>
+                </div>
             </div>
             <div class="iframe-box">
                 <iframe :src="url"></iframe>
@@ -33,7 +35,7 @@ export default defineComponent({
             type: Boolean,
             require: true
         },
-        url: {
+        wordName: {
             type: String,
             default: () => ""
         },
@@ -52,7 +54,7 @@ export default defineComponent({
         const state = reactive({
             visible: false,
             url: "",
-            styleType: 1,
+            styleType: 2,
             options: [
                 { name: "简约风", value: 1 },
                 { name: "表格风", value: 2 }
@@ -66,35 +68,44 @@ export default defineComponent({
             }
         });
 
+        const transFormFileItemData = (j:ItemForm) => {
+            if (j.SelectType === 2) { // 多行单行文本
+                return {
+                    title: j.Name,
+                    contents: j.LessonPlanDetailOptions.map((i:any) => {
+                        return { content: i.Value || "" };
+                    })
+                };
+            } else if (j.SelectType === 5) { // 多选框
+                return {
+                    title: j.Name,
+                    contents: j.LessonPlanDetailOptions.filter((i:any) => j.isSelectId.includes(i.ID)).map((v:any) => ({ content: v.Name || "" }))
+                };
+            } else if (j.SelectType === 4 || j.SelectType === 6) { // 下拉、单选框
+                const selectValue = j.LessonPlanDetailOptions.find((i:any) => j.isSelectId === i.ID);
+                return {
+                    title: j.Name,
+                    contents: [{ content: selectValue.Name || "" }]
+                };
+            } else {
+                return {
+                    title: j.Name,
+                    contents: [{ content: j.Value || "" }]
+                };
+            }
+        };
+
         const transFormFileData = () => {
-            console.log(props.form, "props.form---");
             const title = props.form.lessonBasicInfoList.find((item:ItemForm) => item.Name === "标题")!.Value;
 
-            const list = props.form.lessonBasicInfoList.filter((item:ItemForm) => (!["标题", "教学过程", "教学反思"].includes(item.Name) && item.Status)).map((j:any) => {
-                if (j.SelectType === 2) { // 多行单行文本
-                    return {
-                        title: j.Name,
-                        contents: j.LessonPlanDetailOptions.map((i:any) => {
-                            return { content: i.Value || "" };
-                        })
-                    };
-                } else if (j.SelectType === 5) { // 多选框
-                    return {
-                        title: j.Name,
-                        contents: j.LessonPlanDetailOptions.filter((i:any) => j.isSelectId.includes(i.ID)).map((v:any) => ({ content: v.Name || "" }))
-                    };
-                } else if (j.SelectType === 4 || j.SelectType === 6) { // 下拉、单选框
-                    const selectValue = j.LessonPlanDetailOptions.find((i:any) => j.isSelectId === i.ID);
-                    return {
-                        title: j.Name,
-                        contents: [{ content: selectValue.Name || "" }]
-                    };
-                } else {
-                    return {
-                        title: j.Name,
-                        contents: [{ content: j.Value || "" }]
-                    };
-                }
+            const newData = props.form.lessonBasicInfoList.filter((item:ItemForm) => (item.Name !== "标题" && item.Status));
+            const index = newData.findIndex((item:ItemForm) => item.Name === "教学过程");
+            const firstList = newData.splice(0, index);
+            const endList = newData.splice(1, newData.length - 1);
+
+            const list = firstList.map((j:any) => {
+                const item = transFormFileItemData(j);
+                return item;
             });
 
             const cardValue = props.form.lessonBasicInfoList.find((item:ItemForm) => item.Name === "教学过程");
@@ -109,19 +120,18 @@ export default defineComponent({
                 };
             });
 
-            const list2Value = props.form.lessonBasicInfoList.find((item:any) => (item.Name === "教学反思" && item.Status)) || { Name: "", Value: "" };
-
+            const list2 = endList.map((j:any) => {
+                const item = transFormFileItemData(j);
+                return item;
+            });
             const fileData = {
                 title: title,
                 list: list,
                 cards: cards,
-                list2: [{
-                    title: list2Value!.Name,
-                    contents: [{ content: list2Value!.Value || "" }]
-                }]
+                list2: list2
             };
 
-            const fileName = `/${new Date().getTime()}_教案设计.docx`;
+            const fileName = `/${props.wordName}_教案设计_${new Date().getTime()}.docx`;
 
             return {
                 fileData: fileData,
@@ -142,6 +152,7 @@ export default defineComponent({
                     const newFile = new File([buffer], fileName);
                     const ossPath = get(STORAGE_TYPES.OSS_PATHS)?.["ElementFile"];
                     const res = await cooOss(newFile, ossPath);
+                    console.log(res, "res123");
                     if (res?.code === 200) {
                         const urlImg = await getOssUrl(res.objectKey as string, get(STORAGE_TYPES.OSS_PATHS)?.["ElementFile"].Bucket);
                         state.url = "https://owa.lyx-edu.com/op/view.aspx?src=" + encodeURIComponent(urlImg);
@@ -167,7 +178,7 @@ export default defineComponent({
                 ]
             }).then(({ filePath }) => {
                 window.electron.exportWord(filePath || "", fileData, state.styleType);
-                ElMessage.success("模板文件下载成功");
+                ElMessage.success("教案下载成功");
                 window.electron.deleteFile(filePath + fileName);
             }).catch((err) => {
                 console.log(err);
@@ -175,7 +186,7 @@ export default defineComponent({
         };
         const close = () => {
             state.url = "";
-            state.styleType = 1;
+            state.styleType = 2;
             emit("update:previewDialog", false);
         };
 
@@ -192,17 +203,27 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-.box{
-    flex: 1;
-    .export-btn{
-        position: absolute;
-        top: 20px;
-        right: 80px;
-    }
+:deep(.resource1-dialog) {
+    --el-dialog-margin-top: 5vh;
+    height: 90vh;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+.header{
+    position: absolute;
+    display: flex;
+    justify-content: flex-start;
+    width: calc(100% - 40px);
+    background-color: #fff;
+    padding-bottom: 20px;
+}
+.export-btn{
+    margin-left: 20px;
 }
  .iframe-box{
      width: 100%;
-     height: 100%;
+     height: calc(100% - 40px)!important;
      iframe{
          width: 100%;
          height: 100%;

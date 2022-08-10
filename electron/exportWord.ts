@@ -27,7 +27,7 @@ const Docxtemplater = require("docxtemplater");
 const fs = require("fs");
 
 export const exportWord = (filePath:string, fileData:IFileData, styleType:number) => {
-    let PATH: string | null = process.env.NODE_ENV === "development" ? join(__dirname, `./extraResources/exportWord/${styleType === 1 ? "template.docx" : "template_table.docx"}`) : join(__dirname, `../extraResources/exportWord/${styleType === 1 ? "template.docx" : "template_table.docx"}`);
+    let PATH: string | null = process.env.NODE_ENV === "development" ? join(__dirname, `../extraResources/exportWord/${styleType === 1 ? "template.docx" : "template_table.docx"}`) : join(__dirname, `../extraResources/exportWord/${styleType === 1 ? "template.docx" : "template_table.docx"}`);
 
     let content = fs.readFileSync(PATH, "binary");
 
