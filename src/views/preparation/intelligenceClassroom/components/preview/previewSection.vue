@@ -8,7 +8,7 @@
                 @firstPage="firstPage"
             />
             <transition name="fade">
-                <Remark :value="remark" v-if="showRemark" />
+                <Remark :teachProcess="teachProcess" :design="design" v-if="showRemark" />
             </transition>
         </div>
     </div>
@@ -29,7 +29,8 @@ export default defineComponent({
     setup(props, { emit }) {
         const { data, showRemark, toggleRemark } = preventRemark();
         const { currentPageIndex, currentCard } = inject(windowInfoKey)!;
-        const remark = computed(() => !isEmpty(currentCard.value?.PageList) && currentCard.value?.PageList[currentPageIndex.value]?.Remark);
+        const teachProcess = computed(() => !isEmpty(currentCard.value?.PageList) && currentCard.value?.PageList[currentPageIndex.value]?.AcademicPresupposition);
+        const design = computed(() => !isEmpty(currentCard.value?.PageList) && currentCard.value?.PageList[currentPageIndex.value]?.DesignIntent);
         const pageListRef = ref();
         const changeWinSize = () => {
             emit("changeWinSize"); // 切换窗口大小，清除缓存的笔记列表
@@ -69,7 +70,8 @@ export default defineComponent({
         };
 
         return {
-            remark,
+            teachProcess,
+            design,
             pageListRef,
             ...toRefs(data),
             showRemark,

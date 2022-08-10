@@ -1,10 +1,18 @@
 <template>
     <div class="me-remark">
-        <div class="me-remark-title">教学建议</div>
         <div class="me-remark-content">
-            <ul v-if="value">
-                <li v-for="(item, index) in remark.split('\n')" :key="index">
-                    <span class="dot"></span>
+            <div class="me-remark-title" v-if="teachProcess">教学过程</div>
+            <ul v-if="teachProcess">
+                <li v-for="(item, index) in teachProcess.split('\n')" :key="index">
+                    <span class="dot" v-if="item"></span>
+                    {{ item }}
+                </li>
+            </ul>
+            <div class="h-place"></div>
+            <div class="me-remark-title" v-if="design">设计意图</div>
+            <ul v-if="design">
+                <li v-for="(item, index) in design.split('\n')" :key="index">
+                    <span class="dot" v-if="item"></span>
                     {{ item }}
                 </li>
             </ul>
@@ -15,11 +23,14 @@
 <script>
 import { computed, defineComponent } from "vue";
 export default defineComponent({
-    props: ["value"],
+    props: ["teachProcess", "design"],
     setup(props) {
-        const remark = computed(() => props.value);
+        const teachProcess = computed(() => props.teachProcess);
+        const design = computed(() => props.design);
+        console.log(design.value, teachProcess.value);
         return {
-            remark
+            teachProcess,
+            design
         };
     }
 });
@@ -66,5 +77,9 @@ export default defineComponent({
         flex-shrink: 0;
         background-color: #CCCED3;
     }
+}
+
+.h-place {
+    height: 20px;
 }
 </style>
