@@ -340,6 +340,8 @@ export default defineComponent({
         const onDeleteSuccess = (id: string) => {
             const i = resourceList.value.findIndex(item => item.ResourceId === id);
             resourceList.value.splice(i, 1);
+			// 更新一下备课包数量
+			emitter.emit("updatePackageCount", null);
         };
 
         expose({ update, openResource, eventEmit });
