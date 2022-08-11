@@ -342,7 +342,7 @@ export default defineComponent({
 .template-select{
     width: 200px;
     position: absolute;
-    top: 20px;
+    top: 10px;
     .template-set{
         padding: 10px 20px;
         border-top: 1px solid #EBEFF1;
