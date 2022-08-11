@@ -62,7 +62,9 @@ export interface SaveWindowsPageData {
     type: number;
     sort: number;
     state: number;
-    remark: string;
+    remark?: string;
+    academicPresupposition?: string;
+    designIntent?: string;
     json: string;
     franchiseeID?: string;
 }
@@ -76,6 +78,8 @@ export interface SaveWindowsCardData {
 
 interface SaveWindowsData {
     originType: number,
+    franchiseeID: string,
+    teacherID: string,
     windowID: string,
     windowName: string,
     lessonID?:string,

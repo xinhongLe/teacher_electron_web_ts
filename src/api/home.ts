@@ -91,7 +91,8 @@ export interface ICardOrPageState{
 
 interface IGetLessonPlan {
     TeachPageID: string;
-    TeacherID?: string;
+    TeacherID: string;
+    FranchiseeID: string;
 }
 
 interface ILessonPlanProcess {
@@ -200,6 +201,11 @@ export interface ISaveProcessAndDesignData {
     ID: string;
     AcademicPresupposition: string;
     DesignIntent: string;
+}
+
+export interface ILessonCommonData {
+    TeacherID:string,
+    FranchiseeID:string
 }
 
 // 获取书本信息
@@ -471,24 +477,24 @@ export function saveLessonPlan(data: ISaveLessonPlan) : Promise<IResponse<unknow
 }
 
 // 获取模板列表
-export function getLessonPlanTemplate() : Promise<GetPageResponse> {
+export function getLessonPlanTemplate(data: {FranchiseeID:string}) : Promise<GetPageResponse> {
     return request({
         url: "/Api/WCP/LessonPlan/GetLessonPlanTemplate",
         headers: { DeviceID: "Franchisee" },
         method: "post",
         baseURL: WINDOW_CRAD_API,
-        data: Object.assign({ OriginType: originType })
+        data: Object.assign(data, { OriginType: originType })
     });
 }
 
 // 新增模板
-export function addLessonPlanTemplate() : Promise<GetPageResponse> {
+export function addLessonPlanTemplate(data: ILessonCommonData) : Promise<GetPageResponse> {
     return request({
         url: "/Api/WCP/LessonPlan/AddLessonPlanTemplate",
         headers: { DeviceID: "Franchisee" },
         method: "post",
         baseURL: WINDOW_CRAD_API,
-        data: Object.assign({ OriginType: originType })
+        data: Object.assign(data, { OriginType: originType })
     });
 }
 
@@ -504,7 +510,7 @@ export function updateLessonPlanTemplate(data:any) : Promise<GetPageResponse> {
 }
 
 // 删除模板
-export function delLessonPlanTemplate(data:{ ID: string }) : Promise<GetPageResponse> {
+export function delLessonPlanTemplate(data:{ ID: string, TeacherID:string }) : Promise<GetPageResponse> {
     return request({
         url: "/Api/WCP/LessonPlan/DeleteLessonPlanTemplate",
         headers: { DeviceID: "Franchisee" },
@@ -515,7 +521,7 @@ export function delLessonPlanTemplate(data:{ ID: string }) : Promise<GetPageResp
 }
 
 // 切换模板
-export function changeLessonPlanTemplate(data:{ LessonPlanTemplateMainID: string, TeachPageID: string }) : Promise<GetPageResponse> {
+export function changeLessonPlanTemplate(data:{ LessonPlanTemplateMainID: string, TeachPageID: string, TeacherID:string, FranchiseeID:string }) : Promise<GetPageResponse> {
     return request({
         url: "/Api/WCP/LessonPlan/ChangeTeachPageTemplate",
         headers: { DeviceID: "Franchisee" },

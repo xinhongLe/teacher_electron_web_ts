@@ -198,6 +198,7 @@
             <win-card-edit
                 ref="editRef"
                 :slide="currentSlide"
+                :allPageSlideListMap="allPageSlideListMap"
                 @onSave="saveClick"
                 @updatePageSlide="updatePageSlide"
                 :winId="windowInfo?.id"
@@ -484,7 +485,8 @@ export default defineComponent({
                     const { ID, Name, Type, State, isAdd } = page;
                     const slide = allPageSlideListMap.value.get(ID);
                     let json = "";
-                    const remark = slide?.remark || "";
+                    const academicPresupposition = slide?.remark || "";
+                    const designIntent = slide?.design || "";
                     if (slide) {
                         if (slide.type === "element") {
                             json = JSON.stringify(slide);
@@ -512,7 +514,8 @@ export default defineComponent({
                         pageID: isAdd ? "" : ID,
                         pageName: Name || "",
                         type: Type,
-                        remark,
+                        academicPresupposition,
+                        designIntent,
                         sort: pageIndex + 1,
                         json,
                         state: Number(State)
@@ -528,6 +531,8 @@ export default defineComponent({
             });
 
             const data = {
+                franchiseeID: store.state.userInfo.schoolId,
+                teacherID: store.state.userInfo.id,
                 cardData,
                 originType: 1,
                 windowName,

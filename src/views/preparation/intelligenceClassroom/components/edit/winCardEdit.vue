@@ -26,11 +26,12 @@
             @selectVideoVal="selectVideoVal"
         ></select-video-dialog>
 
-        <lesson-design v-model:lessonDesignVisible="lessonDesignVisible" :winId="winId" />
+        <!--教案设计-->
+        <lesson-design v-model:lessonDesignVisible="lessonDesignVisible" @updateLesson="updateLesson" :winId="winId" />
     </div>
 </template>
 <script lang="ts">
-import { defineComponent, reactive, toRefs, ref, computed } from "vue";
+import { defineComponent, reactive, toRefs, ref, watch, computed, PropType } from "vue";
 import { Slide, IWin, PPTVideoElement, SaveType } from "wincard/src/types/slides";
 import CardSelectDialog from "./cardSelectDialog.vue";
 import { IPageValue, ICards } from "@/types/home";
@@ -42,19 +43,24 @@ import { ElMessage, ElMessageBox } from "element-plus";
 import { deleteWindow } from "../../api";
 import { useRoute } from "vue-router";
 import emitter from "@/utils/mitt";
+import { getWindowCards } from "@/api/home";
 export default defineComponent({
     name: "winCardEdit",
     components: { SelectVideoDialog, CardSelectDialog, LessonDesign },
     props: {
         slide: {
-            type: Object,
+            type: Object as PropType<Slide>,
             default: () => ({})
         },
         winId: {
             type: String,
             required: true
+        },
+        allPageSlideListMap: {
+            required: true
         }
     },
+
     setup(props, { emit }) {
         const state = reactive({
             dialogVisible: false,
@@ -68,6 +74,23 @@ export default defineComponent({
         const route = useRoute();
 
         const PPTEditRef = ref();
+
+        // watch(() => props.slide, () => {
+        //     console.log(props.allPageSlideListMap, "改变了---");
+        // });
+
+        let newPageList:IPageValue[] = [];
+        const updateLesson = () => {
+            // console.log(props.slide, "slide------");
+            // getWindowCards({ WindowID: props.winId }).then(res => {
+            //     if (res.resultCode === 200) {
+            //         res.result.forEach(item => {
+            //             newPageList = newPageList.concat(item.PageList);
+            //         });
+            //         updateSlide(props.slide);
+            //     }
+            // });
+        };
 
         const updateSlide = (slide: Slide) => {
             if (!isEqual(props.slide, slide)) {
@@ -196,7 +219,8 @@ export default defineComponent({
             onDeleteWin,
             updateQuoteVideo,
             lessonDesignVisible,
-            openLessonDesign
+            openLessonDesign,
+            updateLesson
         };
     }
 });

@@ -80,6 +80,7 @@ import draggable from "vuedraggable";
 import { getLessonPlanTemplateDetail, addTemplateField, editTemplateField, delTemplateField } from "@/api/home.ts";
 import { ITemplateList } from "@/types/lessonDesign.ts";
 import { ElMessage } from "element-plus";
+import { store } from "@/store";
 export default defineComponent({
     name: "lessonFieldMange",
     components: { draggable },
@@ -143,6 +144,7 @@ export default defineComponent({
                     });
                     const data = state.showOptionType.includes(state.form.SelectType) ? {
                         LessonPlanTemplateMainID: props.currentTemplate!.ID,
+                        TeacherID: store.state.userInfo.id,
                         Options: Options,
                         ...state.form
                     } : { LessonPlanTemplateMainID: props.currentTemplate!.ID, ...state.form };

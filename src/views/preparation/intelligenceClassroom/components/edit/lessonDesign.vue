@@ -122,7 +122,7 @@
             </div>
         </el-dialog>
 
-        <lesson-template-set v-model:dialogVisible="dialogVisible" @updateLessonPlanTemplateList="_getLessonPlanTemplate" :templateList="templateList"></lesson-template-set>
+        <lesson-template-set v-model:dialogVisible="dialogVisible" @updateLessonPlanTemplateList="updateLessonPlanTemplateList" :templateList="templateList"></lesson-template-set>
 
         <lesson-preview v-model:previewDialog="previewDialog" :wordName="saveData.TeachPageName" :form="form" ></lesson-preview>
     </div>
@@ -138,6 +138,7 @@ import { toChinesNum } from "@/utils/common";
 import LessonTemplateSet from "@/views/preparation/intelligenceClassroom/components/edit/lessonTemplateSet.vue";
 import { ITemplateList, IFrom, ItemForm } from "@/types/lessonDesign.ts";
 import LessonPreview from "@/views/preparation/intelligenceClassroom/components/edit/lessonPreview.vue";
+import { store } from "@/store";
 export default defineComponent({
     components: { LessonPreview, LessonTemplateSet, draggable, Setting },
     props: {
@@ -150,6 +151,7 @@ export default defineComponent({
             required: true
         }
     },
+    emits: ["update:lessonDesignVisible", "updateLesson"],
     setup(props, { emit }) {
         const visible = ref(props.lessonDesignVisible);
         const classTypeList = ref<{label: string; value: string;}[]>([]);
@@ -170,6 +172,7 @@ export default defineComponent({
             visible.value = props.lessonDesignVisible;
             isEditChange.value = false;
             if (visible.value) {
+                console.log(store.state, "----");
                 await _getLessonPlanTemplate();
                 await _getLessonPlan();
             }
@@ -192,6 +195,7 @@ export default defineComponent({
             } else {
                 emit("update:lessonDesignVisible", false);
             }
+            // emit("updateLesson");
         };
 
         const addTarget = (index: number, item:any) => {
@@ -240,10 +244,17 @@ export default defineComponent({
             dialogVisible.value = true;
         };
 
+        const updateLessonPlanTemplateList = async() => {
+            await _getLessonPlanTemplate();
+            await _getLessonPlan();
+        };
+
         const _changeLessonPlanTemplate = (val:string) => {
             const data = {
                 TeachPageID: props.winId,
-                LessonPlanTemplateMainID: val
+                LessonPlanTemplateMainID: val,
+                TeacherID: store.state.userInfo.id,
+                FranchiseeID: store.state.userInfo.schoolId
             };
             return changeLessonPlanTemplate(data).then(res => {
                 if (res.resultCode === 200) {
@@ -253,35 +264,40 @@ export default defineComponent({
         };
 
         const _getLessonPlan = () => {
-            return getLessonPlan({ TeachPageID: props.winId }).then(res => {
-                const infoList:ItemForm[] = res.result.LessonPlanDetails.map((item:ItemForm) => {
-                    if (item.SelectType === 2 && item.LessonPlanDetailOptions.length === 0) {
-                        item.LessonPlanDetailOptions = [{ ID: "", Value: "" }];
-                    } else if (item.SelectType === 4 || item.SelectType === 6) {
-                        const selectValue = item.LessonPlanDetailOptions.find((item:any) => item.IsSelect === 1);
-                        item.isSelectId = selectValue ? selectValue.ID : "";
-                    } else if (item.SelectType === 5) {
-                        const selectValue = item.LessonPlanDetailOptions.filter((item:any) => item.IsSelect);
-                        item.isSelectId = selectValue.map((i:any) => i.ID);
-                    }
-                    return item;
-                });
+            const data = {
+                TeachPageID: props.winId,
+                TeacherID: store.state.userInfo.id,
+                FranchiseeID: store.state.userInfo.schoolId
+            };
+            return getLessonPlan(data).then(res => {
+                if (res.resultCode === 200) {
+                    const infoList:ItemForm[] = res.result.LessonPlanDetails.map((item:ItemForm) => {
+                        if (item.SelectType === 2 && item.LessonPlanDetailOptions.length === 0) {
+                            item.LessonPlanDetailOptions = [{ ID: "", Value: "" }];
+                        } else if (item.SelectType === 4 || item.SelectType === 6) {
+                            const selectValue = item.LessonPlanDetailOptions.find((item:any) => item.IsSelect === 1);
+                            item.isSelectId = selectValue ? selectValue.ID : "";
+                        } else if (item.SelectType === 5) {
+                            const selectValue = item.LessonPlanDetailOptions.filter((item:any) => item.IsSelect);
+                            item.isSelectId = selectValue.map((i:any) => i.ID);
+                        }
+                        return item;
+                    });
 
-                form.lessonBasicInfoList = infoList;
-                form.templateType = res.result.LessonPlanTemplateMainID;
-                console.log(res.result, "res.result");
-                console.log(form.lessonBasicInfoList, "form.lessonBasicInfoList");
+                    form.lessonBasicInfoList = infoList;
+                    form.templateType = res.result.LessonPlanTemplateMainID;
 
-                saveData.ID = res.result.ID;
-                saveData.Name = res.result.Name;
-                saveData.TeachPageName = res.result.TeachPageName || "";
-                saveData.Sort = res.result.Sort;
-                saveData.Status = res.result.Status;
+                    saveData.ID = res.result.ID;
+                    saveData.Name = res.result.Name;
+                    saveData.TeachPageName = res.result.TeachPageName || "";
+                    saveData.Sort = res.result.Sort;
+                    saveData.Status = res.result.Status;
+                }
             });
         };
 
         const _getLessonPlanTemplate = () => {
-            return getLessonPlanTemplate().then(res => {
+            return getLessonPlanTemplate({ FranchiseeID: store.state.userInfo.schoolId }).then(res => {
                 if (res.resultCode === 200) {
                     templateList.value = res.result || [];
                 }
@@ -307,6 +323,7 @@ export default defineComponent({
             isEditChange,
             tipVisible,
             toChinesNum,
+            updateLessonPlanTemplateList,
             _getLessonPlanTemplate,
             changeTemplate,
             templateSet,

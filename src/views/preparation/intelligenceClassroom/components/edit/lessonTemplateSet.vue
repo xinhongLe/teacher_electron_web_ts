@@ -1,5 +1,5 @@
 <template>
-    <el-dialog v-if="visible" v-model="visible" title="教案模板设计" width="1100px" center @close="close">
+    <el-dialog v-if="visible" v-model="visible" :close-on-click-modal="false" title="教案模板设计" width="1100px" center @close="close">
         <div class="content">
             <div class="left">
                 <div class="left-content">
@@ -48,13 +48,13 @@
                <div class="title">已选字段</div>
                 <div>
                     <draggable v-model="rightList"  @start="drag = true" @end="drag = false" item-key="index">
-                        <template #item="{element, index}">
+                        <template #item="{ element }">
                             <div class="row">
                                 <div>
                                     <img class="drag" src="@/assets/indexImages/icon_yidong@2x.png" alt="">
                                     <span>{{element.Name}}</span>
                                 </div>
-                                <img @click="delCheckbox(element)" class="drag" src="@/assets/indexImages/icon_close_small.png" alt="">
+                                <img v-if="element.Name !== '教学过程'" @click="delCheckbox(element)" class="drag" src="@/assets/indexImages/icon_close_small.png" alt="">
                             </div>
                         </template>
                     </draggable>
@@ -76,16 +76,18 @@
 <script lang="ts">
 import { computed, defineComponent, reactive, toRefs, ref, watch, PropType, nextTick } from "vue";
 import draggable from "vuedraggable";
-import { ITemplateList, IFrom, ITemplateItem } from "@/types/lessonDesign.ts";
+import { ITemplateList, ITemplateItem } from "@/types/lessonDesign.ts";
 import LessonFieldMange from "@/views/preparation/intelligenceClassroom/components/edit/lessonFieldMange.vue";
 import { updateLessonPlanTemplate, delLessonPlanTemplate, addLessonPlanTemplate } from "@/api/home.ts";
 import { ElMessage, ElMessageBox } from "element-plus";
+import { store } from "@/store";
 interface State {
     fieldManageVisible: boolean,
     form: {
         basicValueList: ITemplateItem[],
         synopsisValueList: ITemplateItem[],
         processValueList: ITemplateItem[],
+        teachProcess: ITemplateItem[],
         customValueList: ITemplateItem[],
     },
     currentTemplate: ITemplateList,
@@ -115,6 +117,7 @@ export default defineComponent({
                     { Name: "学情预设", Status: 1 },
                     { Name: "设计意图", Status: 1 }
                 ],
+                teachProcess: [],
                 customValueList: []
             },
             currentTemplate: { Name: "", ID: "", Sort: 0, IsSystem: 0, Detail: [] },
@@ -140,12 +143,13 @@ export default defineComponent({
         const transformData = (templateList:any[]) => {
             state.form.basicValueList = templateList.filter((item:any) => item.GroupName === "基础字段");
             state.form.synopsisValueList = templateList.filter((item:any) => item.GroupName === "概要字段");
+            state.form.teachProcess = templateList.filter((item:any) => item.GroupName === "教学过程");
             state.form.customValueList = templateList.filter((item:any) => item.GroupName === "自定义字段");
             changeCheckbox();
         };
 
         const changeCheckbox = () => {
-            const list = [...state.form.basicValueList, ...state.form.synopsisValueList, ...state.form.customValueList];
+            const list = [...state.form.basicValueList, ...state.form.synopsisValueList, ...state.form.teachProcess, ...state.form.customValueList];
             state.rightList = list.filter((item:ITemplateItem) => item.Status);
         };
 
@@ -155,7 +159,11 @@ export default defineComponent({
         };
 
         const handleAddTemplate = () => {
-            addLessonPlanTemplate().then(res => {
+            const data = {
+                TeacherID: store.state.userInfo.id,
+                FranchiseeID: store.state.userInfo.schoolId
+            };
+            addLessonPlanTemplate(data).then(res => {
                 if (res.resultCode === 200) {
                     state.currentTemplate = { Name: res.result.Name, ID: res.result.ID, Sort: 0, IsSystem: 0, Detail: res.result.Detail };
                     transformData(state.currentTemplate?.Detail);
@@ -175,12 +183,15 @@ export default defineComponent({
                 Name: state.currentTemplate.Name,
                 Sort: state.currentTemplate.Sort,
                 IsSystem: state.currentTemplate.IsSystem,
+                FranchiseeID: store.state.userInfo.schoolId,
+                TeacherID: store.state.userInfo.id,
                 Detail: detail
             };
             updateLessonPlanTemplate(data).then(res => {
                 if (res.resultCode === 200) {
                     ElMessage({ type: "success", message: state.currentTemplate.ID ? "更新模板成功" : "新增模板成功" });
                     emit("updateLessonPlanTemplateList");
+                    emit("update:dialogVisible", false);
                 }
             });
         };
@@ -191,7 +202,7 @@ export default defineComponent({
                 cancelButtonText: "取消",
                 type: "warning"
             }).then(() => {
-                delLessonPlanTemplate({ ID: item.ID }).then(res => {
+                delLessonPlanTemplate({ ID: item.ID, TeacherID: store.state.userInfo.id, }).then(res => {
                     if (res.resultCode === 200) {
                         state.currentTemplate = { Name: "", ID: "", Sort: 0, IsSystem: 0, Detail: [] };
                         emit("updateLessonPlanTemplateList");
