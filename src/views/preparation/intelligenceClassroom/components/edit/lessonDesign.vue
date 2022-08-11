@@ -340,6 +340,7 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
+
 :deep(.resource1-dialog) {
     --el-dialog-margin-top: 5vh;
     height: 90vh;
@@ -354,6 +355,9 @@ export default defineComponent({
         border-bottom-right-radius: 6px;
         padding: var(--el-dialog-padding-primary);
     }
+    .el-input__inner{
+        padding-right: 60px;
+    };
 }
 
 .template-select{
