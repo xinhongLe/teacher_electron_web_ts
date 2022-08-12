@@ -13,7 +13,8 @@
             <div class="template-select">
                 <el-select v-model="form.templateType" @change="changeTemplate" style="width: 100%" placeholder="请选择课型" size="small">
                     <el-option v-for="item in templateList" :key="item.ID" :label="item.Name" :value="item.ID"/>
-                    <div @click="templateSet" style="cursor: pointer; padding: 10px 20px;border-top: 1px solid #EBEFF1">
+<!--                    v-if="showSetBtn"-->
+                    <div  @click="templateSet" style="cursor: pointer; padding: 10px 20px;border-top: 1px solid #EBEFF1">
                         <el-icon style="vertical-align: bottom;margin-right: 6px;"><Setting/></el-icon>
                         <span>设置</span>
                     </div>
@@ -90,7 +91,7 @@
 
                         <el-date-picker v-if="item.SelectType === 7" @changge="textareaInput" v-model="item.Value" type="date" placeholder="请选择" format="YYYY-MM-DD" value-format="YYYY-MM-DD"/>
 
-                        <el-date-picker v-if="item.SelectType === 8" @changge="textareaInput" v-model="item.Value" type="datetime" placeholder="请选择" format="YYYY-MM-DD hh:mm" value-format="YYYY-MM-DD h:m"/>
+                        <el-date-picker v-if="item.SelectType === 8" @changge="textareaInput" v-model="item.Value" type="datetime" placeholder="请选择" format="YYYY-MM-DD HH:mm:ss" value-format="YYYY-MM-DD HH:mm:ss"/>
                     </div>
                 </div>
             </div>
@@ -139,6 +140,8 @@ import LessonTemplateSet from "@/views/preparation/intelligenceClassroom/compone
 import { ITemplateList, IFrom, ItemForm } from "@/types/lessonDesign.ts";
 import LessonPreview from "@/views/preparation/intelligenceClassroom/components/edit/lessonPreview.vue";
 import { store } from "@/store";
+import { IYunInfo } from "@/types/login";
+import { get, STORAGE_TYPES } from "@/utils/storage";
 export default defineComponent({
     components: { LessonPreview, LessonTemplateSet, draggable, Setting },
     props: {
@@ -165,6 +168,7 @@ export default defineComponent({
             LessonPlanDetails: []
         };
 
+        const showSetBtn = ref(false);
         const tipVisible = ref(false);
         const isEditChange = ref(false);
 
@@ -172,12 +176,17 @@ export default defineComponent({
             visible.value = props.lessonDesignVisible;
             isEditChange.value = false;
             if (visible.value) {
-                console.log(store.state, "----");
+                handleShowSetBtn();
                 await _getLessonPlanTemplate();
                 await _getLessonPlan();
             }
         }
         );
+
+        const handleShowSetBtn = () => {
+            const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO); // 校长和副校长
+            showSetBtn.value = yunInfo.RolesList.some((item:any) => ["020100", "020200"].includes(item.RoleCode));
+        };
 
         const form = reactive<IFrom>({
             templateType: "",
@@ -195,7 +204,6 @@ export default defineComponent({
             } else {
                 emit("update:lessonDesignVisible", false);
             }
-            // emit("updateLesson");
         };
 
         const addTarget = (index: number, item:any) => {
@@ -229,6 +237,7 @@ export default defineComponent({
                 if (res.success) {
                     ElMessage.success("教案设计修改成功！");
                     tipVisible.value = false;
+                    emit("updateLesson", saveData);
                     emit("update:lessonDesignVisible", false);
                 }
             });
@@ -313,6 +322,7 @@ export default defineComponent({
         };
 
         return {
+            showSetBtn,
             visible,
             form,
             saveData,
@@ -358,6 +368,9 @@ export default defineComponent({
     .el-input__inner{
         padding-right: 60px;
     };
+    .el-date-editor{
+        width: 260px;
+    }
 }
 
 .template-select{

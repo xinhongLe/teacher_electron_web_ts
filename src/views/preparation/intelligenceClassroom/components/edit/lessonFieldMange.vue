@@ -31,14 +31,14 @@
             <!--        </template>-->
         </el-dialog>
 
-        <el-dialog v-if="filedVisible" v-model="filedVisible" :title="openFieldType === 'add' ? '新增自定义字段' : '编辑自定义字段'" width="600px"  center @close="closeField">
+        <el-dialog v-if="filedVisible" v-model="filedVisible" :title="openFieldType === 'add' ? '新增自定义字段' : '编辑自定义字段'" width="600px" center @close="closeField">
             <div class="page-type-box">
                 <el-form ref="ruleForm" :model="form" :rules="rules" label-width="120px">
                     <el-form-item label="字段名称：" prop="Name">
                         <el-input v-model="form.Name"></el-input>
                         <span>*最多30字符，且不能与系统字段、其他自定义字段重名</span>
                     </el-form-item>
-                    <el-form-item label="字段类型：" prop="name">
+                    <el-form-item label="字段类型：">
                         <el-select style="width: 100%" v-model="form.SelectType"  placeholder="请选择课型" >
                             <el-option v-for="item in fieldTypeList" :key="item.value" :label="item.label" :value="item.value"/>
                         </el-select>
@@ -51,10 +51,10 @@
                                     <img class="drag" src="@/assets/indexImages/icon_yidong@2x.png" alt="">
                                     <el-input v-model="element.Name" placeholder="请输入字段名称" size="small"></el-input>
                                     <img class="option-btn" src="@/assets/indexImages/icon_add@2x.png" alt="" @click="addTarget(index)" />
-                                    <img class="option-btn" src="@/assets/indexImages/icon_del@2x.png" v-if="fieldList.length > 1" alt="" @click="reduceTarget(index)" />
+                                    <img class="optiots/indexImages/icon_del@2x.png" v-if="fieldList.length > 1" alt="" @click="reduceTarget(index)" />
                                 </div>
                             </template>
-                        </draggable>
+                        </draggable>n-btn" src="@/asse
                     </el-form-item>
 
                     <!--                <el-form-item prop="name">-->
@@ -66,7 +66,7 @@
             <template #footer>
               <span class="dialog-footer">
                 <el-button @click="closeField">取消</el-button>
-                <el-button type="primary" @click="handleConfirm">确定</el-button>
+                <el-button type="primary" :disabled="!form.Name" @click="handleConfirm">确定</el-button>
               </span>
             </template>
         </el-dialog>
@@ -98,7 +98,10 @@ export default defineComponent({
     setup(props, { emit }) {
         const state = reactive({
             rules: {
-                Name: [{ required: true, message: "请输入名称", trigger: "change" }]
+                Name: [
+                    { required: true, message: "请输入名称", trigger: "blur" },
+                    { max: 30, message: "最多30字符", trigger: "blur" }
+                ]
             },
             visible: false,
             filedVisible: false,
@@ -153,7 +156,7 @@ export default defineComponent({
                             if (res.resultCode === 200) {
                                 _getLessonPlanTemplateDetail();
                                 ElMessage({ type: "success", message: "新增字段成功" });
-                                state.filedVisible = false;
+                                closeField();
                             }
                         });
                     } else {
@@ -161,7 +164,7 @@ export default defineComponent({
                             if (res.resultCode === 200) {
                                 _getLessonPlanTemplateDetail();
                                 ElMessage({ type: "success", message: "编辑字段成功" });
-                                state.filedVisible = false;
+                                closeField();
                             }
                         });
                     }

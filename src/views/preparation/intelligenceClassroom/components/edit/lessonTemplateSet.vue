@@ -64,7 +64,7 @@
         <template #footer>
           <span class="dialog-footer">
             <el-button @click="close">取消</el-button>
-            <el-button type="primary" @click="handleComfirm">确定</el-button>
+            <el-button type="primary" @click="handleComfirm">保存</el-button>
           </span>
         </template>
 
@@ -198,7 +198,7 @@ export default defineComponent({
 
         const delTemplate = (item:ITemplateList) => {
             ElMessageBox.confirm("是否删除该模板?", "提示", {
-                confirmButtonText: "确认",
+                confirmButtonText: "删除",
                 cancelButtonText: "取消",
                 type: "warning"
             }).then(() => {
