@@ -12,6 +12,9 @@
             <div class="iframe-video" v-if="isVideo">
                 <video :src="url" controls />
             </div>
+            <div class="not-preview" v-if="!isVideo && !isAudio && !isImage && !isOffice && type !== 4">
+                该资源不支持预览
+            </div>
         </div>
         <div class="iframe-footer">
             <div class="iframe-footer-btn" @click="close">
@@ -92,6 +95,17 @@ export default defineComponent({
         flex: 1;
         min-height: 0; 
         background: #fff;
+        .not-preview {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #fff;
+            font-size: 30px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
         iframe {
             height: 100%;
             width: 100%;
