@@ -201,11 +201,11 @@
 						label="是否保存为校本资源"
 					/>
 
-					<el-checkbox
+					<!-- <el-checkbox
 						v-if="form.isSchool"
 						v-model="form.isShelf"
 						label="上架"
-					/>
+					/> -->
 				</el-form-item>
 			</el-form>
 			<template #footer>
