@@ -157,5 +157,6 @@ export default defineComponent({
     width: 278px;
     overflow: hidden;
     text-overflow: ellipsis;
+    text-align: left;
 }
 </style>
