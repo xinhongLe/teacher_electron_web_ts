@@ -22,7 +22,7 @@
             </div>
 
             <div class="not-preview" v-if="!isVideo && !isAudio && !isImage && !isOffice && type !== 4">
-                该资源不支持预览
+                暂不支持预览，请下载查看
             </div>
         </div>
     </div>
