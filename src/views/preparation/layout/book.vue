@@ -112,6 +112,7 @@ export default defineComponent({
 	top: 55px;
 	left: 50%;
 	transform: translateX(-50%) scale(0.8);
+	white-space: nowrap;
 }
 
 .book-version {
