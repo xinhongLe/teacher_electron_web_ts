@@ -5,7 +5,7 @@
                 <div class="left-content">
                     <div :class="[currentTemplate.ID === item.ID ? 'active' : '']" @click="handleTemplate(item)" v-for="(item,index) in templateList" :key="index">
                         <span class="text">{{item.Name}}</span>
-                        <span class="del-btn" @click.stop="delTemplate(item)">
+                        <span class="del-btn" v-if="item.IsSystem !== 1" @click.stop="openDelTemplate(item)">
                             <img src="@/assets/indexImages/icon_delete.png" alt="">
                         </span>
                     </div>
@@ -70,6 +70,19 @@
 
         <lesson-field-mange :currentTemplate="currentTemplate" @updateTemplateList="updateTemplateList" v-model:dialogVisible="fieldManageVisible"></lesson-field-mange>
 
+        <el-dialog v-model="delDialogVisible" title="提示" width="476px" center>
+                <div class="del-content">
+                    <img src="@/assets/indexImages/icon_tips_popup.png" alt="">
+                    <div>是否删除该模板？</div>
+                </div>
+            <template #footer>
+              <span class="dialog-footer">
+                <el-button @click="delDialogVisible = false">取消</el-button>
+                <el-button type="danger" @click="delTemplate">删除</el-button>
+              </span>
+            </template>
+        </el-dialog>
+
     </el-dialog>
 </template>
 
@@ -83,6 +96,8 @@ import { ElMessage, ElMessageBox } from "element-plus";
 import { store } from "@/store";
 interface State {
     fieldManageVisible: boolean,
+    delDialogVisible: boolean,
+    delTemplateId: string,
     form: {
         basicValueList: ITemplateItem[],
         synopsisValueList: ITemplateItem[],
@@ -110,6 +125,8 @@ export default defineComponent({
     setup(props, { emit }) {
         const state = reactive<State>({
             fieldManageVisible: false,
+            delDialogVisible: false,
+            delTemplateId: "",
             form: {
                 basicValueList: [],
                 synopsisValueList: [],
@@ -134,8 +151,6 @@ export default defineComponent({
                     state.currentTemplate = val?.length > 0 ? val[0] : { Name: "", ID: "", Sort: 0, IsSystem: 0, Detail: [] };
                 }
 
-                // state.currentTemplate = state.currentTemplate.ID ? state.currentTemplate : val?.length > 0 ? val[0] : { Name: "", ID: "", Sort: 0, IsSystem: 0, Detail: [] };
-                console.log(state.currentTemplate, "state.currentTemplate====");
                 transformData(state.currentTemplate?.Detail);
             });
         }, { immediate: true });
@@ -196,21 +211,22 @@ export default defineComponent({
             });
         };
 
-        const delTemplate = (item:ITemplateList) => {
-            ElMessageBox.confirm("是否删除该模板?", "提示", {
-                confirmButtonText: "删除",
-                cancelButtonText: "取消",
-                type: "warning"
-            }).then(() => {
-                delLessonPlanTemplate({ ID: item.ID, TeacherID: store.state.userInfo.id, }).then(res => {
-                    if (res.resultCode === 200) {
+        const openDelTemplate = (item:ITemplateList) => {
+            state.delTemplateId = item.ID;
+            state.delDialogVisible = true;
+        };
+
+        const delTemplate = () => {
+            delLessonPlanTemplate({ ID: state.delTemplateId, TeacherID: store.state.userInfo.id }).then(res => {
+                if (res.resultCode === 200) {
+                    state.delDialogVisible = false;
+                    if (state.delTemplateId === state.currentTemplate.ID) {
                         state.currentTemplate = { Name: "", ID: "", Sort: 0, IsSystem: 0, Detail: [] };
-                        emit("updateLessonPlanTemplateList");
-                        ElMessage({ type: "success", message: "删除模板成功" });
                     }
-                });
-            }).catch((err) => {
-                return err;
+                    state.delTemplateId = "";
+                    emit("updateLessonPlanTemplateList");
+                    ElMessage({ type: "success", message: "删除模板成功" });
+                }
             });
         };
 
@@ -236,6 +252,7 @@ export default defineComponent({
             ...toRefs(state),
             visible,
             updateTemplateList,
+            openDelTemplate,
             delTemplate,
             handleAddTemplate,
             handleTemplate,
@@ -347,6 +364,17 @@ export default defineComponent({
                 cursor: pointer;
             }
         }
+    }
+}
+
+.del-content{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    img{
+        width: 60px;
+        height: 60px;
+        margin-right: 20px;
     }
 }
 </style>

@@ -69,13 +69,13 @@
                             <template #item="{element, index}">
                                 <div class="sort-input">
                                     <img class="drag" src="@/assets/indexImages/icon_yidong@2x.png" alt="">
-                                    <el-input v-model="element.Value" placeholder="请输入" maxlength="100" show-word-limit @input="textareaInput" size="small"></el-input>
+                                    <el-input v-model="element.Value" placeholder="请输入" class="textarea-right"  resize="none" type="textarea"  maxlength="500" show-word-limit  autosize @input="textareaInput" size="small"></el-input>
                                     <img class="option-btn" src="@/assets/indexImages/icon_add@2x.png" alt="" @click="addTarget(index, item)" />
                                     <img class="option-btn" src="@/assets/indexImages/icon_del@2x.png" v-if="item.LessonPlanDetailOptions.length > 1" alt="" @click="reduceTarget(index, item)" />
                                 </div>
                             </template>
                         </draggable>
-                        <el-input v-if="item.SelectType === 3" type="textarea" resize="none" maxlength="2000" show-word-limit autosize @input="textareaInput" v-model="item.Value" placeholder="请输入" size="small"></el-input>
+                        <el-input v-if="item.SelectType === 3"  class="textarea-right" type="textarea" resize="none" maxlength="2000" show-word-limit autosize @input="textareaInput" v-model="item.Value" placeholder="请输入" size="small"></el-input>
                         <el-select v-if="item.SelectType === 4" v-model="item.isSelectId"  @changge="textareaInput" style="width: 100%" placeholder="请选择" size="small">
                             <el-option v-for="item in item.LessonPlanDetailOptions" :key="item.ID" :label="item.Name" :value="item.ID"/>
                         </el-select>
@@ -368,6 +368,11 @@ export default defineComponent({
     .el-input__inner{
         padding-right: 60px;
     };
+    .textarea-right{
+        .el-textarea__inner{
+            padding-right: 60px;
+        }
+    }
     .el-date-editor{
         width: 260px;
     }
@@ -470,6 +475,9 @@ export default defineComponent({
             }
             ::v-deep(.el-textarea) {
                 height: 100%;
+                .el-input__count{
+                    bottom: -12px;
+                }
             }
             ::v-deep(.el-textarea__inner) {
                 border: 0;

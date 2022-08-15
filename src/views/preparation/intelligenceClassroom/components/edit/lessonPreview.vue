@@ -1,8 +1,8 @@
 <template>
     <div>
-        <el-dialog custom-class="custom-dialog resource1-dialog" v-model="visible" title="预览" width="80%" @close="close">
+        <el-dialog custom-class="custom-dialog resource1-dialog" v-model="visible"  width="1100px" @close="close">
             <div class="header">
-                <el-select v-model="styleType" size="small" @change="changeStyle" placeholder="请选择">
+                <el-select v-model="styleType"  @change="changeStyle" placeholder="请选择">
                     <el-option
                         v-for="item in options"
                         :key="item.value"
@@ -11,7 +11,7 @@
                     />
                 </el-select>
                 <div class="export-btn">
-                    <el-button type="primary" size="small" @click="handleExportWord">导出</el-button>
+                    <el-button type="primary" @click="handleExportWord">导出</el-button>
                 </div>
             </div>
             <div class="iframe-box">
@@ -204,6 +204,14 @@ export default defineComponent({
 
 <style scoped lang="scss">
 :deep(.resource1-dialog) {
+    .el-dialog__header{
+        padding: 30px;
+        border-bottom: none;
+    }
+    .el-dialog__headerbtn{
+        top:30px;
+        z-index: 2;
+    }
     --el-dialog-margin-top: 5vh;
     height: 90vh;
     display: flex;
@@ -213,17 +221,20 @@ export default defineComponent({
 .header{
     position: absolute;
     display: flex;
-    justify-content: flex-start;
+    top:25px;
+    justify-content: space-between;
     width: calc(100% - 40px);
     background-color: #fff;
-    padding-bottom: 20px;
+    padding-bottom: 78px;
 }
 .export-btn{
-    margin-left: 20px;
+    margin-right: 60px;
 }
  .iframe-box{
-     width: 100%;
-     height: calc(100% - 40px)!important;
+     width: calc(100% - 70px);
+     height: calc(100% - 4rem) !important;
+     margin: 0 auto;
+     box-shadow: 0px 6px 14px 6px rgba(0,0,0,0.04);
      iframe{
          width: 100%;
          height: 100%;
