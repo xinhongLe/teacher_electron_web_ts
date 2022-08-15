@@ -13,8 +13,7 @@
             <div class="template-select">
                 <el-select v-model="form.templateType" @change="changeTemplate" style="width: 100%" placeholder="请选择课型" size="small">
                     <el-option v-for="item in templateList" :key="item.ID" :label="item.Name" :value="item.ID"/>
-<!--                    v-if="showSetBtn"-->
-                    <div  @click="templateSet" style="cursor: pointer; padding: 10px 20px;border-top: 1px solid #EBEFF1">
+                    <div   v-if="showSetBtn" @click="templateSet" style="cursor: pointer; padding: 10px 20px;border-top: 1px solid #EBEFF1">
                         <el-icon style="vertical-align: bottom;margin-right: 6px;"><Setting/></el-icon>
                         <span>设置</span>
                     </div>
@@ -237,7 +236,8 @@ export default defineComponent({
                 if (res.success) {
                     ElMessage.success("教案设计修改成功！");
                     tipVisible.value = false;
-                    emit("updateLesson", saveData);
+                    const lessonProcessList = saveData.LessonPlanDetails.find(item => item.Name === "教学过程");
+                    emit("updateLesson", lessonProcessList);
                     emit("update:lessonDesignVisible", false);
                 }
             });

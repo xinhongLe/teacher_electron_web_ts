@@ -57,6 +57,7 @@ export default defineComponent({
             required: true
         },
         allPageSlideListMap: {
+            type: Object as PropType<Map<string, Slide>>,
             required: true
         }
     },
@@ -75,21 +76,20 @@ export default defineComponent({
 
         const PPTEditRef = ref();
 
-        // watch(() => props.slide, () => {
-        //     console.log(props.allPageSlideListMap, "改变了---");
-        // });
-
-        let newPageList:IPageValue[] = [];
-        const updateLesson = () => {
-            // console.log(props.slide, "slide------");
-            // getWindowCards({ WindowID: props.winId }).then(res => {
-            //     if (res.resultCode === 200) {
-            //         res.result.forEach(item => {
-            //             newPageList = newPageList.concat(item.PageList);
-            //         });
-            //         updateSlide(props.slide);
-            //     }
-            // });
+        const updateLesson = (lessonProcessList:any) => {
+            let allPageList:any[] = [];
+            lessonProcessList.LessonPlanDetailPages.forEach((item:any) => {
+                allPageList = allPageList.concat(item.Childrens);
+            });
+            allPageList.forEach((item:any) => {
+                const value = props.allPageSlideListMap.get(item.TeachPageID);
+                const newValue = {
+                    ...value,
+                    remark: item.AcademicPresupposition || "",
+                    design: item.DesignIntent || ""
+                };
+                props.allPageSlideListMap.set(item.TeachPageID, newValue as Slide);
+            });
         };
 
         const updateSlide = (slide: Slide) => {
