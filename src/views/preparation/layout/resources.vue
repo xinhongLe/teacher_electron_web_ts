@@ -165,7 +165,7 @@ export default defineComponent({
 		const downloadFile = async (data: IResourceItem) => {
             if (data.File) {
                 const url = await getOssUrl(`${data.File.FilePath}/${data.File.FileMD5}.${data.File.FileExtention}`, data.File.FileBucket);
-				const success = await download(url, data.File.FileName);
+				const success = await download(url, data.File.FileName, data.File.FileExtention);
 
 				if (success) {
 					logDownload({ id: data.ResourceId });
