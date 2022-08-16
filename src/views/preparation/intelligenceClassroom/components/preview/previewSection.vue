@@ -8,7 +8,7 @@
                 @firstPage="firstPage"
             />
             <transition name="fade">
-                <Remark :teachProcess="teachProcess" :design="design" v-if="showRemark" />
+                <Remark :teachProcess="teachProcess" :resourceId="resourceId" :design="design" v-if="showRemark" />
             </transition>
         </div>
     </div>
@@ -22,6 +22,12 @@ import PageList from "./pageList.vue";
 import { windowInfoKey } from "@/hooks/useWindowInfo";
 import { isEmpty } from "lodash";
 export default defineComponent({
+    props: {
+        resourceId: {
+            type: String,
+            default: ""
+        }
+    },
     components: {
         Remark,
         PageList
