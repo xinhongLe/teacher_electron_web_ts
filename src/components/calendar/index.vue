@@ -9,6 +9,7 @@
         </div>
         <div class="content">
             <div class="no-schedules" v-if="schedules.length === 0">
+                <img src="@/assets/indexImages/pic_none.png" alt="">
                 未检测到教师课表
             </div>
             <div class="col" v-for="(col) in schedules" :key="col.ClassIndex">
@@ -112,8 +113,14 @@ export default defineComponent({
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 20px;
+            font-size: 16px;
             font-weight: 500;
+            color: #9E9EA7;
+            flex-direction: column;
+            img {
+                margin-bottom: 20px;
+                display: block;
+            }
         }
     }
 
