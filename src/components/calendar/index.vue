@@ -8,6 +8,9 @@
             </div>
         </div>
         <div class="content">
+            <div class="no-schedules" v-if="schedules.length === 0">
+                未检测到教师课表
+            </div>
             <div class="col" v-for="(col) in schedules" :key="col.ClassIndex">
                 <div class="time cell">
                     <span>{{col.fontShowTime}}</span>
@@ -103,6 +106,15 @@ export default defineComponent({
         height: 100%;
         background-color: #fff;
         border-radius: 16px;
+
+        .no-schedules {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 500;
+        }
     }
 
     .content-header {

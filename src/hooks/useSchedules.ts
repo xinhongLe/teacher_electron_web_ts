@@ -45,7 +45,7 @@ export default (days: Ref<string[]>) => {
 
         semesterDataID.value = termCodeRes.result.TermId;
         termCode.value = termCodeRes.result.TermCode;
-        if (termCodeRes.resultCode === 200 && termCodeRes.result) {
+        if (termCodeRes.resultCode === 200 && termCodeRes.result.TermId) {
             const res = await fetchActiveTimetableID({
                 schoolID: schoolID.value,
                 semesterDataID: termCodeRes.result.TermId
