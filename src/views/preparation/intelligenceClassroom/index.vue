@@ -21,6 +21,7 @@
                 <div class="card-detail-content">
                     <PreviewSection
                         ref="previewSection"
+                        :resourceId="resourceId"
                         @lastPage="lastPage"
                         @firstPage="firstPage"
                         @changeWinSize="changeWinSize"
