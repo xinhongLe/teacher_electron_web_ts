@@ -21,6 +21,7 @@
                 <div class="card-detail-content">
                     <PreviewSection
                         ref="previewSection"
+                        :isSystem="isSystem"
                         :resourceId="resourceId"
                         @lastPage="lastPage"
                         @firstPage="firstPage"
@@ -77,7 +78,7 @@ const props = defineProps({
     },
     isSystem: {
         type: Boolean,
-        default: 0
+        default: false
     }
 });
 const resourceId = toRef(props, "resourceId");
