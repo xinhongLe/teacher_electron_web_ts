@@ -461,7 +461,7 @@ export function getLessonPlan(data: IGetLessonPlan) : Promise<GetPageResponse> {
         headers: { DeviceID: "Franchisee" },
         method: "post",
         baseURL: WINDOW_CRAD_API,
-        data: Object.assign(data, { OriginType: originType })
+        data: Object.assign({ OriginType: originType }, data) // 不能调换Object.assign合并的顺序
     });
 }
 

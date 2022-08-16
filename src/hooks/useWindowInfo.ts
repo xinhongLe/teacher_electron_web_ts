@@ -15,6 +15,7 @@ const dealCardData = (card:SchoolWindowCardInfo) => {
     });
     return {
         ...card,
+        PageList: card.PageList.filter(page => page.State), // 预览过滤掉未上架页
         Pages: pages
     };
 };

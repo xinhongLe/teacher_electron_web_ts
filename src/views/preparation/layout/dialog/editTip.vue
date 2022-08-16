@@ -15,9 +15,7 @@
         <template #footer>
             <span class="dialog-footer">
                 <el-button @click="close()">取消</el-button>
-                <el-button type="primary" @click="save()">
-                    保存为我的文件
-                </el-button>
+                <el-button type="primary" :disabled="disabledBtn" @click="save()">保存为我的文件</el-button>
             </span>
         </template>
     </el-dialog>
@@ -30,7 +28,7 @@ import {
     sysWincardResource,
 } from "@/api/resource";
 import { useStore } from "@/store";
-import { computed, defineComponent, PropType } from "vue";
+import { computed, defineComponent, PropType, ref } from "vue";
 import { CopyWindow } from "../../intelligenceClassroom/api";
 import loading from "@/components/loading";
 
@@ -46,18 +44,16 @@ export default defineComponent({
     },
     emits: ["update", "update:visible"],
     setup(props, { emit }) {
-        const close = () => {
-            emit("update:visible", false);
-        };
-
         const store = useStore();
         const userId = computed(() => store.state.userInfo.userCenterUserID);
         const lessonId = computed(() => store.state.preparation.selectLessonId);
         const schoolId = computed(() => store.state.userInfo.schoolId);
         const schoolName = computed(() => store.state.userInfo.schoolName);
 
+        const disabledBtn = ref(false);
         const save = async () => {
             if (props.resource) {
+                disabledBtn.value = true;
                 if (props.resource.ResourceShowType === 1) {
                     loading.show();
                     const res = await CopyWindow({
@@ -90,14 +86,21 @@ export default defineComponent({
                         emit("update");
                     }
                 }
+
+                disabledBtn.value = false;
             }
+        };
+        const close = () => {
+            disabledBtn.value = false;
+            emit("update:visible", false);
         };
 
         return {
+            disabledBtn,
             close,
-            save,
+            save
         };
-    },
+    }
 });
 </script>
 
