@@ -32,6 +32,7 @@ import {
 import { useStore } from "@/store";
 import { computed, defineComponent, PropType } from "vue";
 import { CopyWindow } from "../../intelligenceClassroom/api";
+import loading from "@/components/loading";
 
 export default defineComponent({
     props: {
@@ -58,6 +59,7 @@ export default defineComponent({
         const save = async () => {
             if (props.resource) {
                 if (props.resource.ResourceShowType === 1) {
+                    loading.show();
                     const res = await CopyWindow({
                         id: props.resource.OldResourceId,
                         originType: props.resource.UserId ? 1 : null,
@@ -66,13 +68,14 @@ export default defineComponent({
                     });
 
                     if (res.success) {
-                        const sysRes = await sysWincardResource({
+                        await sysWincardResource({
                             id: res.result.ID,
                             userId: userId.value,
                             lessonID: lessonId.value,
                             schoolId: schoolId.value,
                             schoolName: schoolName.value
                         });
+                        loading.destroy();
                         emit("update:visible", false);
                         emit("update");
                     }
