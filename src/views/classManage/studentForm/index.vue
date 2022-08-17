@@ -2,6 +2,7 @@
     <el-form ref="formRef" :model="formData" :rules="rules" label-width="150px">
         <el-form-item label="学生姓名：" prop="name">
             <el-input
+                disabled
                 v-model="formData.name"
                 @change="getSystemAccountPwd"
                 :maxlength="20"
@@ -17,7 +18,7 @@
         <el-form-item label="账号：" prop="account">
             <el-input  v-model="formData.account" disabled></el-input>
         </el-form-item>
-        <el-form-item label="密码：" prop="password">
+        <!-- <el-form-item label="密码：" prop="password">
             <el-input
                 :disabled="isEdit"
                  v-model="formData.password"
@@ -34,14 +35,15 @@
                     </div></template
                 >
             </el-input>
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item label="性别：">
-            <el-radio  v-model="formData.sex" :label="1">男孩</el-radio>
-            <el-radio  v-model="formData.sex" :label="2">女孩</el-radio>
+            <el-radio disabled v-model="formData.sex" :label="1">男孩</el-radio>
+            <el-radio disabled v-model="formData.sex" :label="2">女孩</el-radio>
         </el-form-item>
         <el-form-item label="生日：">
             <el-date-picker
-                 v-model="formData.birthday"
+                disabled
+                v-model="formData.birthday"
                 type="date"
                 value-format="YYYY-MM-DD"
                 placeholder="选择日期"
@@ -53,7 +55,8 @@
             <div class="config">
                 <p>集中攻克完成量<span>（每日至少完成的数量）</span></p>
                 <el-input-number
-                     v-model="formData.num"
+                    disabled
+                    v-model="formData.num"
                     :min="0"
                     :max="50"
                     label="描述文字"
