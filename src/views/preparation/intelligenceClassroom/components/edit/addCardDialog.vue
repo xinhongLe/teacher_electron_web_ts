@@ -53,6 +53,7 @@ export default defineComponent({
             ruleForm.value.validate((valid: Boolean) => {
                 if(valid){
                     emit("handleAddCard", form.value.name);
+                    close();
                 }
             })
         };

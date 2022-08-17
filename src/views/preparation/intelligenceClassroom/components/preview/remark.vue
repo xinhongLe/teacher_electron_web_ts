@@ -38,11 +38,10 @@ import { getLessonPlan } from "@/api/home";
 import LessonPreview from "@/views/preparation/intelligenceClassroom/components/edit/lessonPreview.vue";
 export default defineComponent({
     components: { ArrowRight, LessonPreview },
-    props: ["teachProcess", "design", "resourceId"],
+    props: ["teachProcess", "design", "resourceId", "isSystem"],
     setup(props) {
         const teachProcess = computed(() => props.teachProcess);
         const design = computed(() => props.design);
-        console.log(design.value, teachProcess.value);
 
         const form = reactive<IFrom>({
             templateType: "",
@@ -59,7 +58,8 @@ export default defineComponent({
             const data = {
                 TeachPageID: props.resourceId,
                 TeacherID: store.state.userInfo.id,
-                FranchiseeID: store.state.userInfo.schoolId
+                FranchiseeID: store.state.userInfo.schoolId,
+                OriginType: props.isSystem ? 0 : 1
             };
             return getLessonPlan(data).then(res => {
                 if (res.resultCode === 200) {
@@ -80,7 +80,6 @@ export default defineComponent({
                     form.templateType = res.result.LessonPlanTemplateMainID;
                     wordName.value = res.result.TeachPageName || "";
 
-                    console.log(form, "-----122222");
                     previewDialog.value = true;
                 }
             });

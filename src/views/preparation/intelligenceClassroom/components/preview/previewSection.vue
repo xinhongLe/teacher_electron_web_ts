@@ -8,7 +8,7 @@
                 @firstPage="firstPage"
             />
             <transition name="fade">
-                <Remark :teachProcess="teachProcess" :resourceId="resourceId" :design="design" v-if="showRemark" />
+                <Remark :teachProcess="teachProcess" :isSystem="isSystem" :resourceId="resourceId" :design="design" v-if="showRemark" />
             </transition>
         </div>
     </div>
@@ -26,6 +26,10 @@ export default defineComponent({
         resourceId: {
             type: String,
             default: ""
+        },
+        isSystem: {
+            type: Boolean,
+            default: false
         }
     },
     components: {

@@ -1,6 +1,12 @@
 <template>
     <div class="container">
-        <webview class="iframe" :src="url"></webview>
+        <webview v-if="isElectron" class="iframe" :src="url"></webview>
+        <iframe
+            :src="url"
+            sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-top-navigation-by-user-activation"
+            class="iframe"
+            v-else
+        />
     </div>
 </template>
 
@@ -9,6 +15,7 @@ import { get, STORAGE_TYPES } from "@/utils/storage";
 import { defineComponent } from "vue";
 import { RESOURCE_WEB, systemId } from '@/config/index'
 import { IYunInfo } from "@/types/login";
+import isElectron from "is-electron";
 
 // ts
 export default defineComponent({
@@ -47,10 +54,11 @@ export default defineComponent({
         //platType 平台码
         const platType = systemId;
         //webview地址
-        const url = `${RESOURCE_WEB}?TOKEN=${token}&USERID=${userId}&ORGID=${orgID}&SECRETKEY=${secretKey}&USERTYPE=${userType}&SCHOOLID=${schoolId}&SCHOOLNAME=${schoolName}&PLATTYPE=${platType}`;
+        const url = `${RESOURCE_WEB}/#/resource?TOKEN=${token}&USERID=${userId}&ORGID=${orgID}&SECRETKEY=${secretKey}&USERTYPE=${userType}&SCHOOLID=${schoolId}&SCHOOLNAME=${schoolName}&PLATTYPE=${platType}`;
         // console.log('url----', url);
         return {
-            url
+            url,
+            isElectron: isElectron()
         };
     }
 });

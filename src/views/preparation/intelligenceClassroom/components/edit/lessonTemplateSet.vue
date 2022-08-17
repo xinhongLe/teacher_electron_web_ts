@@ -164,8 +164,8 @@ export default defineComponent({
         };
 
         const changeCheckbox = () => {
-            const list = [...state.form.basicValueList, ...state.form.synopsisValueList, ...state.form.teachProcess, ...state.form.customValueList];
-            state.rightList = list.filter((item:ITemplateItem) => item.Status);
+            // const list = [...state.form.basicValueList, ...state.form.synopsisValueList, ...state.form.teachProcess, ...state.form.customValueList];
+            state.rightList = state.currentTemplate!.Detail.filter((item:ITemplateItem) => item.Status);
         };
 
         const delCheckbox = (item:ITemplateItem) => {

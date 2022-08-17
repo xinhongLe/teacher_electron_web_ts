@@ -91,7 +91,8 @@ export function CopyWindow(data:CopyWindow): Promise<IResponse<ICopyWindowRes>> 
         baseURL: AI_XUE_SHI_API,
         url: "/Api/WCP/Teacher/CopyWindow",
         headers: {
-            "Content-Type": "application/json-patch+json"
+            "Content-Type": "application/json-patch+json",
+            noLoading: "true"
         },
         method: "post",
         data
