@@ -153,7 +153,6 @@ export default defineComponent({
                     const newFile = new File([buffer], fileName);
                     const ossPath = get(STORAGE_TYPES.OSS_PATHS)?.["ElementFile"];
                     const res = await cooOss(newFile, ossPath);
-                    console.log(res, "res123");
                     if (res?.code === 200) {
                         const urlImg = await getOssUrl(res.objectKey as string, get(STORAGE_TYPES.OSS_PATHS)?.["ElementFile"].Bucket);
                         state.url = "https://owa.lyx-edu.com/op/view.aspx?src=" + encodeURIComponent(urlImg);

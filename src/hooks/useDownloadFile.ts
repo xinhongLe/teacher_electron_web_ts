@@ -13,7 +13,6 @@ export default () => {
                     resove(false);
                 } else {
                     loading.show();
-                    console.log(url);
                     const success = await window.electron.ipcRenderer.invoke("downloadFileToPath", url, fileName, file.filePath);
                     loading.destroy();
                     resove(success);

@@ -13,10 +13,10 @@
             />
         </div>
 
-        <div class="add-btn" @click="showDialog">
+        <!-- <div class="add-btn" @click="showDialog">
             <img src="@/assets/my-student/icon_add_rest@2x.png" />
             <span>创建班级</span>
-        </div>
+        </div> -->
         <AddOrEditClass v-if="isShowClassDialog"/>
     </div>
 </template>

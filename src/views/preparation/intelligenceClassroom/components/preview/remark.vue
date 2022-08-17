@@ -42,7 +42,6 @@ export default defineComponent({
     setup(props) {
         const teachProcess = computed(() => props.teachProcess);
         const design = computed(() => props.design);
-        console.log(design.value, teachProcess.value);
 
         const form = reactive<IFrom>({
             templateType: "",
