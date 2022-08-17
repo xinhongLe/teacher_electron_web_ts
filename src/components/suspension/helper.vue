@@ -1,38 +1,21 @@
 <template>
     <div class="helper-container">
         <div class="header">
-            <span class="exit" v-if="isElectron" @click="exitApp"
-                >退出程序</span
-            >
-            <img
-                src="@/assets/images/suspension/pic_tittle_zhike@2x.png"
-                alt=""
-            />
+            <span class="exit" v-if="isElectron" @click="clicKBuryPoint('退出程序'),exitApp()">退出程序</span>
+            <img src="@/assets/images/suspension/pic_tittle_zhike@2x.png" alt="" />
             <div class="right-btns">
-                <i class="el-icon-refresh-right refresh" @click="getGradeList"></i>
-                <div class="right-btn" @click="close">
-                    <svg
-                        t="1623303211083"
-                        class="icon"
-                        viewBox="0 0 1024 1024"
-                        version="1.1"
-                        xmlns="http://www.w3.org/2000/svg"
-                        p-id="2457"
-                        width="200"
-                        height="200"
-                    >
-                        <path
-                            d="M128 448h768v128H128z"
-                            p-id="2458"
-                            fill="#ffffff"
-                        ></path>
+                <i class="el-icon-refresh-right refresh" @click="clicKBuryPoint('刷新'),getGradeList()"></i>
+                <div class="right-btn" @click="clicKBuryPoint('最小化'),close()">
+                    <svg t="1623303211083" class="icon" viewBox="0 0 1024 1024" version="1.1"
+                        xmlns="http://www.w3.org/2000/svg" p-id="2457" width="200" height="200">
+                        <path d="M128 448h768v128H128z" p-id="2458" fill="#ffffff"></path>
                     </svg>
                 </div>
             </div>
         </div>
         <div class="container">
             <el-collapse class="collapse-custom" v-model="activeModes" @change="handleChange">
-                <el-collapse-item name="0" v-if="resourceList.length > 0">
+                <el-collapse-item name="0" v-if="resourceList.length > 0" @click="currentClickCol('0', '上课')">
                     <template #title>
                         <div class="collapse-header">
                             <div class="collapse-title">
@@ -41,23 +24,26 @@
                             </div>
                             <div class="attend-class-view" @click.stop="switchClass()">
                                 <img src="@/assets/images/preparation/icon_qiehuan_1.png" alt="">
-                                {{isSwitch ? "全部显示" : "仅显示备课篮"}}
+                                {{ isSwitch ? "全部显示" : "仅显示备课篮" }}
                             </div>
                         </div>
                     </template>
                     <div class="resource-list">
-                        <div class="resource-item" :class="{ courseware: resource.UserId === userId }" v-for="(resource, index) in resourceList" :key="index" @click="openResource(resource)">
+                        <div class="resource-item" :class="{ courseware: resource.UserId === userId }"
+                            v-for="(resource, index) in resourceList" :key="index" @click="classClicKBuryPoint(resource.Name),openResource(resource)">
                             <div class="resource-left-title">
                                 <img :src="iconResources.selfStudy[resource.ResourceType]" alt="" />
-                                {{resource.Name}}
+                                {{ resource.Name }}
                             </div>
-                            <div class="resource-type" :class="typeResources[resource.ResourceType] < 9 && 'p-r-' + typeResources[resource.ResourceType]">{{textResources[resource.ResourceType]}}</div>
+                            <div class="resource-type"
+                                :class="typeResources[resource.ResourceType] < 9 && 'p-r-' + typeResources[resource.ResourceType]">
+                                {{ textResources[resource.ResourceType] }}</div>
                         </div>
                     </div>
                 </el-collapse-item>
-                <el-collapse-item name="1">
+                <el-collapse-item name="1" @click="currentClickCol('1', '工具')">
                     <template #title>
-                        <div class="collapse-header">
+                        <div class="collapse-header" >
                             <div class="collapse-title">
                                 <img src="@/assets/images/suspension/icon_gj.png" alt="">
                                 工具
@@ -65,53 +51,35 @@
                         </div>
                     </template>
                     <div class="tool-list">
-                        <div class="blackboard-box" @click="openBlackboard()">
-                            <img
-                                src="@/assets/images/suspension/pic_blackboard@2x.png"
-                                alt=""
-                            />
+                        <div class="blackboard-box" @click.stop="clicKBuryPoint('黑板'), openBlackboard()">
+                            <img src="@/assets/images/suspension/pic_blackboard@2x.png" alt="" />
                             <div class="blackboard-text">黑板</div>
                             <!-- <div class="blackboard-btn" @click="openBlackboard()">打开</div> -->
                         </div>
-                        <div class="blackboard-box" @click="openAnswerMachineWindow">
-                            <img
-                                src="@/assets/images/suspension/img_datiqi.png"
-                                alt=""
-                            />
+                        <div class="blackboard-box" @click.stop="clicKBuryPoint('答题器'), openAnswerMachineWindow()">
+                            <img src="@/assets/images/suspension/img_datiqi.png" alt="" />
                             <div class="blackboard-text">答题器</div>
                         </div>
-                        <div class="blackboard-box" @click="clickProjection">
-                            <img
-                                src="@/assets/images/suspension/pic_touying@2x.png"
-                                alt=""
-                            />
+                        <div class="blackboard-box" @click.stop="clicKBuryPoint('投影'), clickProjection()">
+                            <img src="@/assets/images/suspension/pic_touying@2x.png" alt="" />
                             <div class="blackboard-text">投影</div>
                         </div>
-                        <div class="blackboard-box" @click="clickKnowledge">
-                            <img
-                                src="@/assets/images/suspension/pic_zhishitupu@2x.png"
-                                alt=""
-                            />
+                        <div class="blackboard-box" @click.stop="clicKBuryPoint('知识图谱'), clickKnowledge()">
+                            <img src="@/assets/images/suspension/pic_zhishitupu@2x.png" alt="" />
                             <div class="blackboard-text">知识图谱</div>
                         </div>
-                        <div class="blackboard-box" @click="openTimer">
-                            <img
-                                src="@/assets/images/suspension/pic_timer@2x.png"
-                                alt=""
-                            />
+                        <div class="blackboard-box" @click.stop="clicKBuryPoint('计时器'), openTimer()">
+                            <img src="@/assets/images/suspension/pic_timer@2x.png" alt="" />
                             <div class="blackboard-text">计时器</div>
                         </div>
                         <!-- openRollCall -->
-                        <div class="blackboard-box" @click="openRollCall">
-                            <img
-                                src="@/assets/images/suspension/pic_namer@2x.png"
-                                alt=""
-                            />
+                        <div class="blackboard-box" @click.stop="clicKBuryPoint('点名'), openRollCall()">
+                            <img src="@/assets/images/suspension/pic_namer@2x.png" alt="" />
                             <div class="blackboard-text">点名</div>
                         </div>
                     </div>
                 </el-collapse-item>
-                <el-collapse-item name="2">
+                <el-collapse-item name="2"  @click="currentClickCol('2', '教学助手')">
                     <template #title>
                         <div class="collapse-header">
                             <div class="collapse-title">
@@ -119,21 +87,12 @@
                                 教学助手
                             </div>
                             <div class="teach-list-title">
-                                <el-cascader
-                                    v-model="selectBookList"
-                                    :props="cascaderProps"
-                                    :options="subjectPublisherBookList"
-                                />
+                                <el-cascader v-model="selectBookList" :props="cascaderProps"
+                                    :options="subjectPublisherBookList" />
                                 <div class="search-input">
-                                    <el-input
-                                        placeholder="搜索教具名称"
-                                        v-model="searchName"
-                                    >
+                                    <el-input placeholder="搜索教具名称" v-model="searchName">
                                         <template #append>
-                                            <el-button
-                                                icon="el-icon-search"
-                                                @click="getGradeList"
-                                            ></el-button>
+                                            <el-button icon="el-icon-search" @click="getGradeList"></el-button>
                                         </template>
                                     </el-input>
                                 </div>
@@ -144,17 +103,11 @@
                         <div class="teach-class" v-show="!isLoading">
                             <div class="list-empty" v-if="gameList.length === 0">
                                 <img src="@/assets/images/suspension/empty_tool.png" />
-                                <span
-                                    >本书册下暂无教具，可切换为“全部”查看更多教具内容</span
-                                >
+                                <span>本书册下暂无教具，可切换为“全部”查看更多教具内容</span>
                             </div>
                             <div v-else class="teach-content-warp">
-                                <div
-                                    class="teach-content"
-                                    v-for="(item, index) in gameList"
-                                    :key="index"
-                                    @click="openUrl(item.url, item.name)"
-                                >
+                                <div class="teach-content" v-for="(item, index) in gameList" :key="index"
+                                    @click.stop="clicKBuryPoint(item.name),openUrl(item.url, item.name)">
                                     <div class="img-warp">
                                         <img :src="item.imgUrl" />
                                     </div>
@@ -180,7 +133,7 @@ import { get, STORAGE_TYPES, storeChange } from "@/utils/storage";
 import { fetchAllStudents } from "@/views/labelManage/api";
 import { IpcRendererEvent } from "electron";
 import { iconResources, textResources, typeResources } from "@/config/resource";
-
+import usePageEvent from "@/hooks/usePageEvent";
 export default defineComponent({
     setup(props, { emit }) {
         const gameList = ref<Game[]>([]);
@@ -319,7 +272,24 @@ export default defineComponent({
         const onResources = (event: IpcRendererEvent, data: any) => {
             if (data.type === "sysData") resourceList.value = JSON.parse(data.resources || "[]");
             if (data.type === "switchClass") isSwitch.value = data.switch;
-        }
+        };
+        //collapse 改变事件
+        const handleChange = (data: []) => {
+            // console.log(data);
+        };
+        //智课助手界面里面-工具、按钮、最小化、退出、教具等的 点击埋点事件
+        const clicKBuryPoint = (name: string) => {
+            usePageEvent('click', '智课助手', `${name}-click`, name)
+        };
+        //智课助手界面上课模块资源点击 埋点事件
+        const classClicKBuryPoint = (name:string) =>{
+            usePageEvent('click', '智课助手', `上课-${name}-click`, name)
+        };
+        //当前点击是哪个展开/收起项
+        const currentClickCol = (item: string, name: string) => {
+            const awayOrExpend = activeModes.value.includes(item) ? '展开' : '收起';//点击的项是否在已展开的数组里
+            usePageEvent('click', '智课助手', `${awayOrExpend}${name}-click`, name)
+        };
 
         onMounted(async () => {
             if (userInfo) {
@@ -385,7 +355,11 @@ export default defineComponent({
             isSwitch,
             switchClass,
             typeResources,
-            userId
+            userId,
+            clicKBuryPoint,
+            classClicKBuryPoint,
+            handleChange,
+            currentClickCol
         };
     }
 });
@@ -402,6 +376,7 @@ export default defineComponent({
     display: flex;
     flex-direction: column;
     background: var(--app-color-dark);
+
     .header {
         height: 55px;
         display: flex;
@@ -411,28 +386,34 @@ export default defineComponent({
         box-sizing: border-box;
         padding: 0 15px;
         -webkit-app-region: drag;
+
         .exit {
             color: #fff;
             font-size: 16px;
             -webkit-app-region: no-drag;
         }
+
         img {
             width: 150px;
             display: block;
         }
+
         .right-btns {
             display: flex;
             align-items: center;
             -webkit-app-region: no-drag;
+
             .refresh {
                 font-size: 25px;
                 color: #ffffff;
                 margin-right: 20px;
                 cursor: pointer;
             }
+
             .right-btn {
                 width: 25px;
                 height: 25px;
+
                 svg {
                     width: 25px;
                     height: 25px;
@@ -441,12 +422,14 @@ export default defineComponent({
             }
         }
     }
+
     .container {
         flex: 1;
         display: flex;
         padding: 0 15px 15px;
         overflow-y: overlay;
         flex-direction: column;
+
         .tool-list {
             display: flex;
             justify-content: flex-start;
@@ -454,6 +437,7 @@ export default defineComponent({
             color: #fff;
             margin: 10px 0 10px 0;
         }
+
         .blackboard-box {
             padding: 10px;
             background-color: rgba(255, 255, 255, 0.12);
@@ -488,10 +472,12 @@ export default defineComponent({
             border-color: #aaaaaa;
             color: #aaaaaa;
         }
+
         .teach-list {
             flex: 1;
             display: flex;
             flex-direction: column;
+
             .teach-class {
                 flex: 1;
                 display: flex;
@@ -500,6 +486,7 @@ export default defineComponent({
                 color: #fff;
                 overflow-y: auto;
                 margin: 10px 0;
+
                 .teach-content-warp {
                     padding: 0 5px;
                     display: flex;
@@ -507,6 +494,7 @@ export default defineComponent({
                     flex-wrap: wrap;
                     width: 100%;
                 }
+
                 .list-empty {
                     display: flex;
                     justify-content: center;
@@ -518,21 +506,25 @@ export default defineComponent({
                     flex-direction: column;
                     padding: 30px 0;
                 }
+
                 &::-webkit-scrollbar {
                     display: none;
                 }
+
                 .teach-content {
                     margin-bottom: 10px;
                     text-align: center;
                     cursor: pointer;
                     width: 21%;
                     margin-right: 20px;
+
                     .img-warp {
                         height: 108px;
                         background: #d1eaff;
                         display: flex;
                         justify-content: center;
                         border-radius: 4px;
+
                         img {
                             object-fit: contain;
                             width: 100%;
@@ -553,40 +545,47 @@ export default defineComponent({
     --el-collapse-border-color: transparent;
     --el-collapse-content-background-color: transparent;
     --el-collapse-header-font-color: #FFFFFF;
+
     .collapse-header {
         flex: 1;
         display: flex;
         align-items: center;
         justify-content: space-between;
+
         .collapse-title {
             display: flex;
             align-items: center;
             font-size: 18px;
             color: #fff;
             font-weight: 600;
+
             img {
                 display: block;
                 margin-right: 3px;
             }
         }
     }
+
     .attend-class-view {
         display: flex;
         align-items: center;
         color: #BEC3D6;
         cursor: pointer;
         margin-right: 15px;
+
         img {
             display: block;
             margin-right: 3px;
         }
     }
+
     .resource-list {
         .resource-item {
             &.courseware {
                 background: #243260;
                 border-left: 2px solid #4b71ee;
             }
+
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -595,17 +594,20 @@ export default defineComponent({
             padding: 8px 5px 8px 10px;
             margin-bottom: 8px;
             cursor: pointer;
+
             .resource-left-title {
                 display: flex;
                 align-items: center;
                 font-size: 16px;
                 color: #fff;
+
                 img {
                     width: 30px;
                     display: block;
                     margin-right: 5px;
                 }
             }
+
             .resource-type {
                 display: flex;
                 align-items: center;
@@ -615,38 +617,47 @@ export default defineComponent({
                 border: 1px solid var(--app-resource-type-qita);
                 font-size: 12px;
                 margin: 0 10px 0 10px;
+
                 &.p-r-0 {
                     color: var(--app-resource-type-jiaoan);
                     border: 1px solid var(--app-resource-type-jiaoan);
                 }
+
                 &.p-r-1 {
                     color: var(--app-resource-type-daoxuean);
                     border: 1px solid var(--app-resource-type-daoxuean);
                 }
+
                 &.p-r-2 {
                     color: var(--app-resource-type-kejian);
                     border: 1px solid var(--app-resource-type-kejian);
                 }
+
                 &.p-r-3 {
                     color: var(--app-resource-type-weikeshipin);
                     border: 1px solid var(--app-resource-type-weikeshipin);
                 }
+
                 &.p-r-4 {
                     color: var(--app-resource-type-zuoye);
                     border: 1px solid var(--app-resource-type-zuoye);
                 }
+
                 &.p-r-5 {
                     color: var(--app-resource-type-dianzikeben);
                     border: 1px solid var(--app-resource-type-dianzikeben);
                 }
+
                 &.p-r-6 {
                     color: var(--app-resource-type-jiaoju);
                     border: 1px solid var(--app-resource-type-jiaoju);
                 }
+
                 &.p-r-7 {
                     color: var(--app-resource-type-gongju);
                     border: 1px solid var(--app-resource-type-gongju);
                 }
+
                 &.p-r-8 {
                     color: var(--app-resource-type-sucai);
                     border: 1px solid var(--app-resource-type-sucai);
@@ -665,21 +676,26 @@ export default defineComponent({
     display: flex;
     align-items: center;
     padding: 0 10px;
+
     .title {
         margin-right: 5px;
         flex-shrink: 0;
     }
+
     .search-input {
         margin-left: 5px;
+
         :deep(.el-input-group__append) {
             background: #0c1222;
             border: none;
         }
     }
+
     :deep(.el-input__inner) {
         background: #0c1222;
         border: none;
         color: #fdfdfd;
+
         &::placeholder {
             color: #8b8e95;
         }

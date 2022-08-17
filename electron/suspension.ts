@@ -161,7 +161,7 @@ function createUnfoldSuspensionWindow() {
     const size = screen.getPrimaryDisplay().workAreaSize; // 获取显示器的宽高
     const winSize = unfoldSuspensionWin.getSize(); // 获取窗口宽高
     unfoldSuspensionWin.setPosition(size.width - winSize[0] - 20, size.height - winSize[1]);
-
+    // unfoldSuspensionWin.webContents.openDevTools()
     unfoldSuspensionWin.once("ready-to-show", () => {
         unfoldSuspensionWin && unfoldSuspensionWin.setAlwaysOnTop(true, "pop-up-menu");
     });
@@ -295,6 +295,9 @@ class CustomCallBack implements CallBack {
                 }
 
                 unfoldSuspensionWin!.setPosition(newLeft, newTop);
+                
+                //主进程悬浮球点击事件分发
+                ipcMain.emit("suspensionClick");
                 break;
             case "BLACKBOARDSHOW":
                 isShowBlackboard = true;
@@ -366,7 +369,7 @@ export function createSuspensionWindow() {
     });
     // checkIsUseBallEXE(isOk => {
     //     if (isOk) {
-            
+
     //     } else {
     //         suspensionWin = createWindow(suspensionURL, {
     //             width: 120,

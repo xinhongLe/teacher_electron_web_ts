@@ -1,21 +1,23 @@
 <template>
     <div class="my-student">
-        <Head/>
+
+        <Head />
         <div class="list-box">
-            <GradeList/>
-            <StudentList/>
+            <GradeList />
+            <StudentList />
         </div>
     </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, onUnmounted } from "vue";
+import { defineComponent, onUnmounted} from "vue";
 import Head from "./head/index.vue";
 import GradeList from "./gradeList/index.vue";
 import StudentList from "./studentList/index.vue";
 import { useRoute } from "vue-router";
 import useUserInfo from "@/hooks/useUserInfo";
 import { MutationTypes, store } from "@/store";
+import usePageEvent from '@/hooks/usePageEvent'
 
 export default defineComponent({
     name: "ClassManage",
@@ -25,6 +27,8 @@ export default defineComponent({
         StudentList
     },
     setup() {
+          //埋点需求
+        usePageEvent('page', '班级管理')
         const route = useRoute();
         const { queryUserInfoByTeacherId } = useUserInfo();
         if (route.query.teacherId) {
@@ -45,6 +49,7 @@ export default defineComponent({
     height: 100%;
     flex-direction: column;
     justify-content: space-between;
+
     .list-box {
         flex: 1;
         width: 100%;
