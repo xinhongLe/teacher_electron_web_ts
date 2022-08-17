@@ -369,8 +369,11 @@ export default defineComponent({
         padding-right: 60px;
     };
     .textarea-right{
+        .el-textarea {
+            height: 100%;
+        }
         .el-textarea__inner{
-            padding-right: 60px;
+            padding: 15px 10px;
         }
     }
     .el-date-editor{

@@ -15,6 +15,7 @@
                 </div>
             </div>
             <div class="iframe-box">
+                <div class="iframe-top"></div>
                 <iframe :src="url"></iframe>
             </div>
         </el-dialog>
@@ -205,8 +206,11 @@ export default defineComponent({
 <style scoped lang="scss">
 :deep(.resource1-dialog) {
     .el-dialog__header{
-        padding: 30px;
+        padding: 40px;
         border-bottom: none;
+    }
+    .el-dialog__body{
+        background-color: #fff !important;
     }
     .el-dialog__headerbtn{
         top:30px;
@@ -221,20 +225,26 @@ export default defineComponent({
 .header{
     position: absolute;
     display: flex;
-    top:25px;
+    top: 20px;
     justify-content: space-between;
     width: calc(100% - 40px);
     background-color: #fff;
-    padding-bottom: 78px;
 }
 .export-btn{
     margin-right: 60px;
 }
  .iframe-box{
+     position: relative;
      width: calc(100% - 70px);
-     height: calc(100% - 4rem) !important;
+     height: calc(100% - 40px) !important;
      margin: 0 auto;
      box-shadow: 0px 6px 14px 6px rgba(0,0,0,0.04);
+     .iframe-top{
+         width: 100%;
+         position: absolute;
+         height: 52px;
+         background-color: #fff;
+     }
      iframe{
          width: 100%;
          height: 100%;
