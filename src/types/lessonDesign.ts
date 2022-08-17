@@ -55,5 +55,5 @@ export interface ITemplateList {
     ID: string;
     Sort: number,
     IsSystem: number,
-    Detail: { Name: string, ID:string }[]
+    Detail: { Name: string, ID?:string, Status: number }[]
 }

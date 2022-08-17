@@ -373,7 +373,7 @@ export default defineComponent({
             height: 100%;
         }
         .el-textarea__inner{
-            padding: 15px 10px;
+            padding: 10px 10px 15px;
         }
     }
     .el-date-editor{
