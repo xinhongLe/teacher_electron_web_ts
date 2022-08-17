@@ -1,33 +1,35 @@
 <template>
-	<el-dialog
-		custom-class="custom-dialog resource-dialog"
-		width="90%"
-		:close-on-press-escape="false"
-		:model-value="visible"
-		@close="close()"
-	>
-		<template #title>
-			<div class="resource-header">
-				<ResourceItem
-					:name="name"
-					:hover="false"
-					v-if="resource"
-					:data="resource"
-					:lessonId="lessonId"
-                    @eventEmit="eventEmit"
-				/>
-			</div>
-		</template>
-		<div class="resource-content" :class="{ 'full-screen': isFullScreen }">
-			<div class="full-screen-set" @click="setFullScreen()">
-				<img
-					src="@/assets/images/preparation/icon_quanping.png"
-					alt=""
-				/>
-			</div>
-			<ResourceViewList :type="resource?.ResourceShowType" :resource="resource" :target="target" v-if="visible" :close="close" />
-		</div>
-	</el-dialog>
+	<div class="resource-view">
+      <el-dialog
+          custom-class="custom-dialog resource-dialog"
+          width="90%"
+          :close-on-press-escape="false"
+          :model-value="visible"
+          @close="close()"
+      >
+          <template #title>
+              <div class="resource-header">
+                  <ResourceItem
+                      :name="name"
+                      :hover="false"
+                      v-if="resource"
+                      :data="resource"
+                      :lessonId="lessonId"
+                      @eventEmit="eventEmit"
+                  />
+              </div>
+          </template>
+          <div class="resource-content" :class="{ 'full-screen': isFullScreen }">
+              <div class="full-screen-set" @click="setFullScreen()">
+                  <img
+                      src="@/assets/images/preparation/icon_quanping.png"
+                      alt=""
+                  />
+              </div>
+              <ResourceViewList :type="resource?.ResourceShowType" :resource="resource" :target="target" v-if="visible" :close="close" />
+          </div>
+      </el-dialog>
+  </div>
 </template>
 
 <script lang="ts">
@@ -114,29 +116,33 @@ export default defineComponent({
 </script>
 
 <style lang="scss">
-.resource-dialog {
-	--el-dialog-margin-top: 5vh;
-	height: 90vh;
-	display: flex;
-	flex-direction: column;
-	min-height: 0;
-	.el-dialog__body {
-		background-color: #f5f6fa;
-		flex: 1;
-		border-bottom-left-radius: 6px;
-		border-bottom-right-radius: 6px;
-		padding: var(--el-dialog-padding-primary);
-	}
-	.el-dialog__headerbtn {
-		right: -30px;
-		top: 0;
-		background: rgba(255, 255, 255, .3);
-    	border: 1px solid white;
-		.el-dialog__close {
-			color: white;
-		}
-	}
+.resource-view{
+    .resource-dialog {
+        --el-dialog-margin-top: 5vh;
+        height: 90vh;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+        .el-dialog__body {
+            background-color: #f5f6fa;
+            flex: 1;
+            min-height: 0;
+            border-bottom-left-radius: 6px;
+            border-bottom-right-radius: 6px;
+            padding: var(--el-dialog-padding-primary);
+        }
+        .el-dialog__headerbtn {
+            right: -30px;
+            top: 0;
+            background: rgba(255, 255, 255, .3);
+            border: 1px solid white;
+            .el-dialog__close {
+                color: white;
+            }
+        }
+    }
 }
+
 </style>
 
 <style lang="scss" scoped>

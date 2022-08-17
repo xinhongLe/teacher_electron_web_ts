@@ -12,6 +12,8 @@ export interface IPageValue {
     TeachPageRelationID?: string,
     Name?: string,
     Remark?: string,
+    AcademicPresupposition?: string;
+    DesignIntent?: string;
     originType?: number,
     OriginType?: number,
     isAdd?: boolean,

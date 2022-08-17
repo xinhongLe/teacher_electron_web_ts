@@ -21,6 +21,8 @@
                 <div class="card-detail-content">
                     <PreviewSection
                         ref="previewSection"
+                        :isSystem="isSystem"
+                        :resourceId="resourceId"
                         @lastPage="lastPage"
                         @firstPage="firstPage"
                         @changeWinSize="changeWinSize"
@@ -74,9 +76,9 @@ const props = defineProps({
         type: Boolean,
         default: false
     },
-    isMySelf: {
+    isSystem: {
         type: Boolean,
-        default: 0
+        default: false
     }
 });
 const resourceId = toRef(props, "resourceId");
@@ -87,7 +89,7 @@ const {cardList, refreshWindow, getCardList } = windowInfo;
 
 watchEffect(() => {
     if (resourceId.value) {
-        getCardList(resourceId.value, props.isMySelf ? 1 : 0);
+        getCardList(resourceId.value, props.isSystem ? 0 : 1);
     }
 });
 const changeWinSize = () => {
@@ -165,6 +167,7 @@ $border-color: #f5f6fa;
     display: flex;
     flex-direction: column;
     flex: 1;
+    min-height: 0;
     min-width: 0;
     background-color: $border-color;
     &.full-screen {

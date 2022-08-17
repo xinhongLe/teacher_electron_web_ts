@@ -14,7 +14,7 @@ export default async () => {
         const res = await fetchSubjectPublisherBookList();
         if (res.resultCode === 200) {
             subjectPublisherBookList.value = res.result;
-            store.commit(MutationTypes.SET_SUBJECT_PUBLISHER_BOOK_LIST, res.result);
+            store && store.commit(MutationTypes.SET_SUBJECT_PUBLISHER_BOOK_LIST, res.result);
         }
     };
 

@@ -49,10 +49,12 @@
         "uuid": "^8.3.2",
         "vue": "^3.0.0",
         "vue-router": "^4.0.0-0",
-        "vuedraggable": "^2.24.3",
+        "vuedraggable": "^4.1.0",
         "vuex": "^4.0.0-0",
-        "wincard": "^2.0.7",
-        "xlsx": "^0.17.5"
+        "wincard": "^2.1.1",
+        "xlsx": "^0.17.5",
+        "docxtemplater": "^3.31.2",
+        "pizzip": "^3.1.1"
     },
     "devDependencies": {
         "@electron/remote": "^2.0.1",

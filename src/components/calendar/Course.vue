@@ -119,6 +119,7 @@ const isDragging = computed(() => store.state.common.isDragging);
 const bgColor = computed(() => CourseBgColor[props.colData.CourseName || "其他"]);
 const isEnd = computed(() => props.colData.ScheduleTime && moment().isAfter(props.colData.ScheduleTime));
 const scheduleID = computed(() => props.colData.ID || "");
+const originScheduleID = computed(() => props.colData.OriginScheduleID || "");
 const scheduleTime = computed(() => props.colData.colDate + " " + props.colData.EndTime);
 const subjectPublisherBookValue = computed(() => store.state.preparation.subjectPublisherBookValue);
 
@@ -137,7 +138,7 @@ const deleteCourse = () => {
         });
 
         const res = await updateSchedule({
-            ID: props.colData.ID,
+            ID: props.colData.OriginScheduleID,
             LessonID: props.colData.LessonID,
             LessonName: props.colData.LessonName,
             Type: 2
@@ -150,18 +151,20 @@ const deleteCourse = () => {
 };
 
 const addSchedule = async (dragInfo: SchoolLesson) => {
-    const schoolID = store.state.userInfo.Schools![0]?.UserCenterSchoolID;;
-    await addSchedulePackage({
-        scheduleId: scheduleID.value,
-        schoolId: schoolID,
-        acaSectionCode: subjectPublisherBookValue.value!.AcaSectionId,
-        lessonId: dragInfo.ID,
-        lessonName: dragInfo.Name,
-        lessonTime: props.colData.colDate + " " + props.colData.StartTime
-    });
+    const schoolID = store.state.userInfo.schoolId;
+    if (!props.colData.LessonID) {
+        await addSchedulePackage({
+            scheduleId: scheduleID.value,
+            schoolId: schoolID,
+            acaSectionCode: subjectPublisherBookValue.value!.AcaSectionId,
+            lessonId: dragInfo.ID,
+            lessonName: dragInfo.Name,
+            lessonTime: props.colData.colDate + " " + props.colData.StartTime
+        });
+    }
 
     const res = await updateSchedule({
-        ID: scheduleID.value,
+        ID: originScheduleID.value,
         LessonID: dragInfo.ID,
         LessonName: dragInfo.Name,
         Type: 1
@@ -207,7 +210,7 @@ const emit = defineEmits(["openCourse"]);
 const goToClass = () => {
     if (!props.colData.LessonName) return;
     if (props.isDrop) return emit("openCourse", props.colData);
-    router.push(`/attend-class/${props.colData.chapterId}/${props.colData.LessonID}`);
+    router.push(`/attend-class/${props.colData.chapterId}/${props.colData.LessonID}/${props.colData.bookId}`);
 };
 
 </script>

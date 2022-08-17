@@ -95,6 +95,35 @@ export const downloadFileAxios = async (url: string, fileName: string) => {
     dealCallback(fileName, state ? filePath : "");
 };
 
+export const downloadFileToPath = async (url: string, fileName: string, path: string): Promise<boolean> => {
+    const writer = createWriteStream(path);
+    const response = await Axios({
+        url,
+        method: "GET",
+        responseType: "stream"
+    });
+    if (response.status === 200) {
+        response.data.pipe(writer);
+    } else {
+        writer.destroy();
+    }
+
+    return new Promise((resolve) => {
+        writer.on("finish", () => {
+            ElectronLog.info("finish fileName:", fileName);
+            resolve(true);
+        });
+        writer.on("error", (err) => {
+            ElectronLog.info("error fileName", fileName, err.message);
+            resolve(false);
+        });
+        writer.on("close", () => {
+            ElectronLog.info("close fileName", fileName);
+            resolve(false);
+        });
+    });
+}
+
 export default () => {
     const downloadFile = async (url: string, fileName: string) => {
         const downloadsPath = app.getPath("downloads");
@@ -129,5 +158,9 @@ export default () => {
             }
             downloadFile(url, fileName);
         });
+    });
+
+    ipcMain.handle("downloadFileToPath", (_, url: string, fileName: string, path: string) => {
+        return downloadFileToPath(url, fileName, path);
     });
 };

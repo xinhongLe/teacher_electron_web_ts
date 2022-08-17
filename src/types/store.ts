@@ -1,4 +1,4 @@
-import { IBookItem, ICustomBookItem } from "@/api/resource";
+import { IBookItem, ICustomBookItem, IResourceItem } from "@/api/resource";
 import { Class, ClassStudent } from "./myStudent";
 import { BookList } from "./preparation";
 
@@ -10,8 +10,10 @@ export interface UserInfoState {
         UserCenterSchoolID: string,
         Name: string
     }[],
+    schoolId: string;
+    schoolName: string;
     userCenterUserID: string;
-    id: string
+    id: string;
 }
 
 export interface MyStudentState {
@@ -98,7 +100,7 @@ export interface CommonState {
      */
     wincard: {
         id: string;
-        isMySelf: boolean;
+        isSystem: boolean;
     };
     /**
      * 查看题目的信息
@@ -118,7 +120,15 @@ export interface CommonState {
     /**
      * 备教端是否被嵌套在某个iframe里
      */
-    isIframe: boolean
+    isIframe: boolean,
+    /**
+     * 预览文件弹窗
+     */
+    showScreenViewFile: boolean,
+    /**
+     * 展示资源暂存
+     */
+    resource: IResourceItem | null
 }
 export interface RootState {
     userInfo: UserInfoState,

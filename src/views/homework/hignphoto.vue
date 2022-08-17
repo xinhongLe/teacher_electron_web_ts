@@ -296,7 +296,6 @@ export default defineComponent({
                     return item.State === 5 && item.Remark === "高拍仪完成";
                 });
                 studentMissions.value = res.result;
-                console.log(studentMissions.value, "studentMissions");
             }
         });
 

@@ -36,7 +36,8 @@ export default (pageValue: Ref<IPageValue>) => {
                     requestEnd = true;
                     requestedIds.value.push(page.ID);
                 }
-                if (dbEnd && requestEnd) {
+                // DB数据可能不存在，这边会不会卡掉。。。。。 移除dbEnd判断
+                if (requestEnd) {
                     resolve("");
                 }
             });
@@ -44,7 +45,7 @@ export default (pageValue: Ref<IPageValue>) => {
     };
 
     const fetchAllPageSlide = async (allPageList: IPageValue[]) => {
-        isLoadEnd.value = true;
+        isLoadEnd.value = false;
         for (const page of allPageList) {
             if (isUnmounted.value) {
                 return;
@@ -55,7 +56,7 @@ export default (pageValue: Ref<IPageValue>) => {
             currentReqId.value = page.ID;
             await fetchPageSlide(page);
         }
-        isLoadEnd.value = false;
+        isLoadEnd.value = true;
     };
 
     watch(pageValue, (v) => {
@@ -67,6 +68,7 @@ export default (pageValue: Ref<IPageValue>) => {
 
     onUnmounted(() => {
         isUnmounted.value = true;
+        isLoadEnd.value = true;
     });
 
     return {

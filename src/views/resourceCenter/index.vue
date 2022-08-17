@@ -1,21 +1,28 @@
 <template>
     <div class="container">
-        <webview class="iframe" :src="url"></webview>
+        <webview v-if="isElectron" class="iframe" :src="url"></webview>
+        <iframe
+            :src="url"
+            sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-top-navigation-by-user-activation"
+            class="iframe"
+            v-else
+        />
     </div>
 </template>
 
 <script lang="ts">
 import { get, STORAGE_TYPES } from "@/utils/storage";
 import { defineComponent, onActivated, onDeactivated } from "vue";
-import { systemId } from '@/config/index'
+import { RESOURCE_WEB, systemId } from "@/config";
 import { IYunInfo } from "@/types/login";
-import usePageEvent from '@/hooks/usePageEvent'
+import usePageEvent from "@/hooks/usePageEvent";
+import isElectron from "is-electron";
 
 // ts
 export default defineComponent({
     name: "assessmentCenter",
     setup() {
-        usePageEvent('page', '资源中心')
+        usePageEvent("page", "资源中心");
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         window.onmessage = (e: any, d: any) => {
@@ -49,12 +56,13 @@ export default defineComponent({
         //platType 平台码
         const platType = systemId;
         //webview地址
-        const url = `http://leyixueresource.aixueshi.top?TOKEN=${token}&USERID=${userId}&ORGID=${orgID}&SECRETKEY=${secretKey}&USERTYPE=${userType}&SCHOOLID=${schoolId}&SCHOOLNAME=${schoolName}&PLATTYPE=${platType}`;
-        // console.log('url----', url);     
+        const url = `${RESOURCE_WEB}/#/resource?TOKEN=${token}&USERID=${userId}&ORGID=${orgID}&SECRETKEY=${secretKey}&USERTYPE=${userType}&SCHOOLID=${schoolId}&SCHOOLNAME=${schoolName}&PLATTYPE=${platType}`;
+        // console.log('url----', url);
         return {
-            url
+            url,
+            isElectron: isElectron(),
         };
-    }
+    },
 });
 </script>
 

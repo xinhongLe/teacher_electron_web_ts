@@ -6,10 +6,13 @@
         <LookVideo v-if="isShowVideo"/>
         <div class="wincard-fixed" v-if="isShowWincard">
             <div class="wincard-box">
-                <IntelligenceClassroom :resourceId="wincardId" :isMySelf="isMySelf" />
+                <IntelligenceClassroom :resourceId="wincardId" :isSystem="isSystem" />
             </div>
         </div>
-        <Projection/>
+        <ScreenViewFile
+			v-if="showScreenViewFile"
+		/>
+        <Projection />
         <Suspense v-if="isElectron">
             <VideoProjection/>
         </Suspense>
@@ -39,6 +42,7 @@ import LookVideo from "./lookVideo/index.vue";
 import Projection from "./projection/index.vue";
 import { ElMessage } from "element-plus";
 import IntelligenceClassroom from "../views/preparation/intelligenceClassroom/index.vue";
+import ScreenViewFile from "../views/resourceView/screenViewFile.vue";
 
 export default defineComponent({
     components: {
@@ -48,6 +52,7 @@ export default defineComponent({
         LookVideo,
         Projection,
         VideoProjection: defineAsyncComponent(() => import("./videoProjection/index.vue")),
+        ScreenViewFile,
         IntelligenceClassroom
     },
     setup() {
@@ -127,7 +132,8 @@ export default defineComponent({
             isShowVideo: computed(() => store.state.common.isShowVideo),
             isShowWincard: computed(() => store.state.common.isShowWincard),
             wincardId: computed(() => store.state.common.wincard.id),
-            isMySelf: computed(() => store.state.common.wincard.isMySelf),
+            isSystem: computed(() => store.state.common.wincard.isSystem),
+            showScreenViewFile: computed(() => store.state.common.showScreenViewFile),
             isShowNarBar,
             keepExcludeArr
         };

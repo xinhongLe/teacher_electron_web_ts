@@ -3,10 +3,7 @@
         <PPTEditor
             ref="PPTEditRef"
             :slide="slide"
-            :isShowSaveAs="windowInfo.originType === 1"
             v-model:windowName="windowName"
-            :isShowName="windowInfo.originType === 1"
-            :isShowDeleteBtn="windowInfo.originType === 1"
             @onSave="onSave"
             @onDeleteWin="onDeleteWin"
             @addCard="addCard"
@@ -14,6 +11,7 @@
             @setQuoteVideo="setQuoteVideo"
             @updateQuoteVideo="updateQuoteVideo"
             @updateSlide="updateSlide"
+            @openLessonDesign="openLessonDesign"
         />
         <!--选择弹卡-->
         <card-select-dialog
@@ -27,29 +25,43 @@
             v-model:dialogVisible="dialogVisibleVideo"
             @selectVideoVal="selectVideoVal"
         ></select-video-dialog>
+
+        <!--教案设计-->
+        <lesson-design v-model:lessonDesignVisible="lessonDesignVisible" @updateLesson="updateLesson" :winId="winId" />
     </div>
 </template>
 <script lang="ts">
-import { defineComponent, reactive, toRefs, ref, computed } from "vue";
+import { defineComponent, reactive, toRefs, ref, watch, computed, PropType } from "vue";
 import { Slide, IWin, PPTVideoElement, SaveType } from "wincard/src/types/slides";
 import CardSelectDialog from "./cardSelectDialog.vue";
 import { IPageValue, ICards } from "@/types/home";
 import SelectVideoDialog from "./selectVideoDialog.vue";
+import LessonDesign from "./lessonDesign.vue";
 import { isEqual } from "lodash";
 import { store } from "@/store";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { deleteWindow } from "../../api";
 import { useRoute } from "vue-router";
 import emitter from "@/utils/mitt";
+import { getWindowCards } from "@/api/home";
 export default defineComponent({
     name: "winCardEdit",
-    components: { SelectVideoDialog, CardSelectDialog },
+    components: { SelectVideoDialog, CardSelectDialog, LessonDesign },
     props: {
         slide: {
-            type: Object,
+            type: Object as PropType<Slide>,
             default: () => ({})
+        },
+        winId: {
+            type: String,
+            required: true
+        },
+        allPageSlideListMap: {
+            type: Object as PropType<Map<string, Slide>>,
+            required: true
         }
     },
+
     setup(props, { emit }) {
         const state = reactive({
             dialogVisible: false,
@@ -63,6 +75,22 @@ export default defineComponent({
         const route = useRoute();
 
         const PPTEditRef = ref();
+
+        const updateLesson = (lessonProcessList:any) => {
+            let allPageList:any[] = [];
+            lessonProcessList.LessonPlanDetailPages.forEach((item:any) => {
+                allPageList = allPageList.concat(item.Childrens);
+            });
+            allPageList.forEach((item:any) => {
+                const value = props.allPageSlideListMap.get(item.TeachPageID);
+                const newValue = {
+                    ...value,
+                    remark: item.AcademicPresupposition || "",
+                    design: item.DesignIntent || ""
+                };
+                props.allPageSlideListMap.set(item.TeachPageID, newValue as Slide);
+            });
+        };
 
         const updateSlide = (slide: Slide) => {
             if (!isEqual(props.slide, slide)) {
@@ -164,6 +192,11 @@ export default defineComponent({
             state.dialogVisibleVideo = true;
         };
 
+        const lessonDesignVisible = ref(false);
+        const openLessonDesign = () => {
+            lessonDesignVisible.value = true;
+        };
+
         return {
             ...toRefs(state),
             onSave,
@@ -184,7 +217,10 @@ export default defineComponent({
             isShowSaveAsDialog,
             windowName,
             onDeleteWin,
-            updateQuoteVideo
+            updateQuoteVideo,
+            lessonDesignVisible,
+            openLessonDesign,
+            updateLesson
         };
     }
 });

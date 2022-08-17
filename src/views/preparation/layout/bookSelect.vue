@@ -7,7 +7,7 @@
 			@click.stop="bookSelectOpen = !bookSelectOpen"
 			v-click-outside="() => (bookSelectOpen = false)"
 		>
-			{{ selectedBookName.trim() ? selectedBookName : "请选择书册" }}
+			<div class="book-select-text">{{ selectedBookName.trim() ? selectedBookName : "请选择书册" }}</div>
 			<div
 				class="book-select-box"
 				v-if="bookSelectOpen"
@@ -124,7 +124,7 @@ import { BookList } from "@/types/preparation";
 import { MutationTypes, useStore } from "@/store";
 import Book from "./book.vue";
 import { fetchAllBookList, IBookItem, ICustomBookItem, fetchCustomBookList, fetchAddCustomBookList } from "@/api/resource";
-import { get, set, STORAGE_TYPES } from "@/utils/storage";
+import { get, remove, set, STORAGE_TYPES } from "@/utils/storage";
 export default defineComponent({
     components: { Book },
 	emits: ["onChangeBook"],
@@ -199,12 +199,16 @@ export default defineComponent({
 			if (bookList.value.length === 0) {
 				// 一本书都没有
 				selectBook({
+					AlbumId: "",
 					AlbumName: "",
 					BookId: "",
+					PublisherId: "",
 					PublisherName: "",
+					SubjectId: "",
 					SubjectName: "",
 					Id: "",
-					AcaSectionId: ""
+					AcaSectionId: "",
+					AcaSectionName: ""
 				});
 
 				// 弹出书册选择
@@ -229,12 +233,16 @@ export default defineComponent({
         init();
 
         const selectedBook = ref<ICustomBookItem>({
+			AlbumId: "",
             AlbumName: "",
             BookId: "",
+			PublisherId: "",
             PublisherName: "",
+			SubjectId: "",
             SubjectName: "",
             Id: "",
-            AcaSectionId: ""
+            AcaSectionId: "",
+			AcaSectionName: ""
         });
 
         const selectedBookName = computed(() => {
@@ -255,7 +263,9 @@ export default defineComponent({
             const res = await fetchAddCustomBookList({
                 bookId: grade.value
             });
-           getCustomBookList();
+			await getCustomBookList();
+			const book = bookList.value.find(item => item.BookId === grade.value);
+			if (book) selectBook(book);
         };
 
         return {
@@ -302,6 +312,11 @@ export default defineComponent({
 	margin-left: 15px;
 	cursor: pointer;
 	position: relative;
+	.book-select-text {
+		overflow: hidden;
+		white-space: nowrap;
+		text-overflow: ellipsis;
+	}
 	&:hover {
 		border-color: var(--app-color-primary);
 		&:before {

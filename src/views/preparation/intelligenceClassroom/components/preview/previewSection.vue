@@ -8,7 +8,7 @@
                 @firstPage="firstPage"
             />
             <transition name="fade">
-                <Remark :value="remark" v-if="showRemark" />
+                <Remark :teachProcess="teachProcess" :isSystem="isSystem" :resourceId="resourceId" :design="design" v-if="showRemark" />
             </transition>
         </div>
     </div>
@@ -22,6 +22,16 @@ import PageList from "./pageList.vue";
 import { windowInfoKey } from "@/hooks/useWindowInfo";
 import { isEmpty } from "lodash";
 export default defineComponent({
+    props: {
+        resourceId: {
+            type: String,
+            default: ""
+        },
+        isSystem: {
+            type: Boolean,
+            default: false
+        }
+    },
     components: {
         Remark,
         PageList
@@ -29,7 +39,8 @@ export default defineComponent({
     setup(props, { emit }) {
         const { data, showRemark, toggleRemark } = preventRemark();
         const { currentPageIndex, currentCard } = inject(windowInfoKey)!;
-        const remark = computed(() => !isEmpty(currentCard.value?.PageList) && currentCard.value?.PageList[currentPageIndex.value]?.Remark);
+        const teachProcess = computed(() => !isEmpty(currentCard.value?.PageList) && currentCard.value?.PageList[currentPageIndex.value]?.AcademicPresupposition);
+        const design = computed(() => !isEmpty(currentCard.value?.PageList) && currentCard.value?.PageList[currentPageIndex.value]?.DesignIntent);
         const pageListRef = ref();
         const changeWinSize = () => {
             emit("changeWinSize"); // 切换窗口大小，清除缓存的笔记列表
@@ -69,7 +80,8 @@ export default defineComponent({
         };
 
         return {
-            remark,
+            teachProcess,
+            design,
             pageListRef,
             ...toRefs(data),
             showRemark,

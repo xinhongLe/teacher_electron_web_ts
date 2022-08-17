@@ -1,6 +1,7 @@
 <template>
 	<div
 		class="book-item"
+		:title="book.SubjectName"
 		:style="{ background: `url(${cover})`, backgroundSize: 'cover' }"
 		:class="book.Id === bookId && 'active'"
 	>
@@ -98,6 +99,11 @@ export default defineComponent({
 	left: 50%;
 	transform: translateX(-50%);
 	top: 30px;
+	white-space: nowrap;
+    text-align: center;
+    width: 80%;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .book-grade {
@@ -106,6 +112,7 @@ export default defineComponent({
 	top: 55px;
 	left: 50%;
 	transform: translateX(-50%) scale(0.8);
+	white-space: nowrap;
 }
 
 .book-version {

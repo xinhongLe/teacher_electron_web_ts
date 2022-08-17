@@ -19,6 +19,10 @@ const extraResources = process.platform === "darwin" ? [
         to: "extraResources/ball/"
     },
     {
+        from: "./extraResources/exportWord/",
+        to: "extraResources/exportWord/"
+    },
+    {
         from: "./extraResources/win/mockingbot-color-picker-ia32.exe",
         to: "mockingbot-color-picker-ia32.exe"
     }

@@ -1,10 +1,10 @@
 <template>
     <div class="preparation">
-        <LeftMenu v-model:showClassArrangement="showClassArrangement" v-model:course="course" />
+        <LeftMenu v-model:showClassArrangement="showClassArrangement" v-model:course="course" v-model:bookId="bookId" />
         <div class="content-wrapper" v-show="!showClassArrangement">
 
             <Head :course="course" v-model:source="source" v-model:type="type" />
-            <Resources :course="course" :source="source" :type="type" />
+            <Resources :course="course" :source="source" :type="type" :bookId="bookId" />
         </div>
         <div class="content-wrapper" v-if="showClassArrangement">
             <ClassArrangement />
@@ -32,11 +32,14 @@ export default defineComponent({
         });
         const source = ref("");
         const type = ref("");
+        const bookId = ref("");
+
         return {
             course,
             showClassArrangement,
             source,
-            type
+            type,
+            bookId
         };
     },
     components: {

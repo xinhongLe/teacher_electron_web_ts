@@ -8,6 +8,7 @@ import { parsePPT, pptParsePath } from "./parsePPT";
 import { execFile as execFileFromAsar } from "child_process";
 import { darwinGetScreenPermissionGranted, darwinRequestScreenPermissionPopup } from "./darwin";
 import { checkWindowSupportNet } from "./util";
+import { exportWord, IFileData } from "./exportWord";
 const PATH_BINARY = process.platform === "darwin" ? join(__dirname, "../ColorPicker") : join(__dirname, "../mockingbot-color-picker-ia32.exe");
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 window.electron = {
@@ -126,6 +127,9 @@ window.electron = {
             }
         });
     },
+    deleteFile: (path: string) => {
+        fs.unlinkSync(path);
+    },
     showSaveDialog: (option: SaveDialogOptions) => {
         const currentWindow = getCurrentWindow();
         return dialog.showSaveDialog(currentWindow, option);
@@ -153,6 +157,9 @@ window.electron = {
             if (error) return reject(error);
             resolve(stdout);
         }));
+    },
+    exportWord: (filePath:string, fileData:IFileData, styleType:number) => {
+        exportWord(filePath, fileData, styleType);
     },
     checkWindowSupportNet,
     store: store,
