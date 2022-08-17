@@ -211,6 +211,7 @@ export default defineComponent({
     }
     .el-dialog__body{
         background-color: #fff !important;
+        height: 100%;
     }
     .el-dialog__headerbtn{
         top:30px;

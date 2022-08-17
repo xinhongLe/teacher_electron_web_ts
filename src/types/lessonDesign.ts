@@ -48,6 +48,7 @@ export interface ITemplateItem {
     Status: number
     Name: string;
     ID?: string;
+    GroupName?: string;
 }
 
 export interface ITemplateList {
