@@ -300,6 +300,22 @@ export default defineComponent({
 			}
 		}
 	}
+
+	:deep(.resource-dialog) {
+		--el-dialog-margin-top: 5vh;
+		height: 90vh;
+		display: flex;
+		flex-direction: column;
+		min-height: 0;
+		.el-dialog__body {
+			background-color: #f5f6fa;
+			flex: 1;
+			min-height: 0;
+			border-bottom-left-radius: 6px;
+			border-bottom-right-radius: 6px;
+			padding: var(--el-dialog-padding-primary);
+		}
+	}
 }
 
 .resource-content {

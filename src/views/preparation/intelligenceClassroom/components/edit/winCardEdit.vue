@@ -81,15 +81,7 @@ export default defineComponent({
             lessonProcessList.LessonPlanDetailPages.forEach((item:any) => {
                 allPageList = allPageList.concat(item.Childrens);
             });
-            allPageList.forEach((item:any) => {
-                const value = props.allPageSlideListMap.get(item.TeachPageID);
-                const newValue = {
-                    ...value,
-                    remark: item.AcademicPresupposition || "",
-                    design: item.DesignIntent || ""
-                };
-                props.allPageSlideListMap.set(item.TeachPageID, newValue as Slide);
-            });
+            emit("updateAllPageSlideListMap", allPageList);
         };
 
         const updateSlide = (slide: Slide) => {
