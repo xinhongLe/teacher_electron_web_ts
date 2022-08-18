@@ -2,7 +2,7 @@
     <div>
         <el-dialog custom-class="custom-dialog resource1-dialog" v-model="visible"  width="1100px" @close="close">
             <div class="header">
-                <el-select v-model="styleType"  @change="changeStyle" placeholder="请选择">
+                <el-select popper-class="lesson-preview-select" v-model="styleType"  @change="changeStyle" placeholder="请选择">
                     <el-option
                         v-for="item in options"
                         :key="item.value"
@@ -86,7 +86,7 @@ export default defineComponent({
                 const selectValue = j.LessonPlanDetailOptions.find((i:any) => j.isSelectId === i.ID);
                 return {
                     title: j.Name,
-                    contents: [{ content: selectValue.Name || "" }]
+                    contents: selectValue ? [{ content: selectValue.Name || "" }] : []
                 };
             } else {
                 return {

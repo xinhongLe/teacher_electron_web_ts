@@ -123,7 +123,7 @@ export default defineComponent({
                 { label: "下拉框", value: 4 },
                 { label: "多选框", value: 5 },
                 { label: "单选框", value: 6 },
-                { label: "单日期", value: 7 }
+                { label: "日期", value: 7 }
                 // { label: "包含时分日期", value: 8 }
             ],
             fieldList: [{ Name: "", ID: "" }]
