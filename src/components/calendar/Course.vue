@@ -117,11 +117,12 @@ const router = useRouter();
 const isDragging = computed(() => store.state.common.isDragging);
 
 const bgColor = computed(() => CourseBgColor[props.colData.CourseName || "其他"]);
-const isEnd = computed(() => props.colData.ScheduleTime && moment().isAfter(props.colData.ScheduleTime));
+console.log(props.colData);
 const scheduleID = computed(() => props.colData.ID || "");
 const originScheduleID = computed(() => props.colData.OriginScheduleID || "");
 const scheduleTime = computed(() => props.colData.colDate + " " + props.colData.EndTime);
 const subjectPublisherBookValue = computed(() => store.state.preparation.subjectPublisherBookValue);
+const isEnd = computed(() => scheduleTime.value && moment().isAfter(scheduleTime.value));
 
 const updateSchedules = inject(
     "updateSchedules"
