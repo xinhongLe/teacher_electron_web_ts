@@ -86,7 +86,7 @@
                     
                     <el-button class="switch-btn" size="small" type="default" @click="switchClass()">
                         <img src="@/assets/images/preparation/icon_qiehuan.png" alt="">
-                        {{isSwitch ? "全部显示" : "仅显示备课篮"}}
+                        {{isSwitch ? "全部显示" : "仅显示备课包"}}
                     </el-button>
                 </div>
             </div>
