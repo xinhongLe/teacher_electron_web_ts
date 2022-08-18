@@ -13,6 +13,15 @@ export default (pageValue: Ref<IPageValue>) => {
     const isLoadEnd = ref(false); // 页的数据是否全部加载完成
     const isUnmounted = ref(false);
 
+    const resetPageSlide = () => {
+        allPageSlideListMap.value = (new Map());
+        oldAllPageSlideListMap.value = (new Map());
+        currentReqId.value = "";
+        requestedIds.value = [];
+        isLoadEnd.value = false;
+        isUnmounted.value = false;
+    };
+
     const fetchPageSlide = (page: IPageValue) => {
         if (requestedIds.value.includes(page.ID) || transformType(page.Type) === -1) {
             return;
@@ -72,6 +81,7 @@ export default (pageValue: Ref<IPageValue>) => {
     });
 
     return {
+        resetPageSlide,
         allPageSlideListMap,
         oldAllPageSlideListMap,
         isLoadEnd,
