@@ -385,6 +385,7 @@ export const fetchClassArrangement: RequestFun<
         url: "Api/Schedule/CourseScheduling/GetCurrentUserSchedulingInfo",
         headers: {
             "Content-Type": "application/json-patch+json",
+            noLoading: "true",
             OrgId: yunInfo.OrgId,
             UserId: yunInfo.UserId,
             SystemId: systemId,
