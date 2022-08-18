@@ -74,6 +74,8 @@ export default defineComponent({
                         loading.destroy();
                         emit("update:visible", false);
                         emit("update");
+                    } else {
+                        loading.destroy();
                     }
                 } else {
                     const res = await saveToMyResource({
