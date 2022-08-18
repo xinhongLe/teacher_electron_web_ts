@@ -51,16 +51,16 @@
                                     <img class="drag" src="@/assets/indexImages/icon_yidong@2x.png" alt="">
                                     <el-input v-model="element.Name" placeholder="请输入字段名称" size="small"></el-input>
                                     <img class="option-btn" src="@/assets/indexImages/icon_add@2x.png" alt="" @click="addTarget(index)" />
-                                    <img class="optiots/indexImages/icon_del@2x.png" v-if="fieldList.length > 1" alt="" @click="reduceTarget(index)" />
+                                    <img class="option-btn" src="@/assets/indexImages/icon_del@2x.png" v-if="fieldList.length > 1" alt="" @click="reduceTarget(index)" />
                                 </div>
                             </template>
-                        </draggable>n-btn" src="@/asse
+                        </draggable>
                     </el-form-item>
 
-                    <!--                <el-form-item prop="name">-->
-                    <!--                    <el-checkbox v-model="form.checked1" label="包含时分" size="large" />-->
-                    <!--                    <div>*带时分的日期型字段将会展示如：2014-10-13 13:00</div>-->
-                    <!--                </el-form-item>-->
+                    <el-form-item prop="name" v-if="form.SelectType === 7">
+                        <el-checkbox v-model="form.havingTime" :true-label="1" :false-label="0" label="包含时分" size="large" />
+                        <div>*带时分的日期型字段将会展示如：2014-10-13 13:00</div>
+                    </el-form-item>
                 </el-form>
             </div>
             <template #footer>
@@ -109,6 +109,7 @@ export default defineComponent({
             form: {
                 Name: "",
                 SelectType: 0,
+                havingTime: 0,
                 ID: ""
             },
             tableData: [],
@@ -116,14 +117,14 @@ export default defineComponent({
             //  0 单行文本 1关联文本 2 多个单行文本  3多行文本 4 下拉框 5 多选框 6单选框 7 单日期 8包含时分日期
             fieldTypeList: [
                 { label: "单行文本", value: 0 },
-                { label: "关联文本", value: 1 },
+                // { label: "关联文本", value: 1 },
                 { label: "多个单行文本", value: 2 },
                 { label: "多行文本", value: 3 },
                 { label: "下拉框", value: 4 },
                 { label: "多选框", value: 5 },
                 { label: "单选框", value: 6 },
-                { label: "单日期", value: 7 },
-                { label: "包含时分日期", value: 8 }
+                { label: "单日期", value: 7 }
+                // { label: "包含时分日期", value: 8 }
             ],
             fieldList: [{ Name: "", ID: "" }]
         });
@@ -189,7 +190,8 @@ export default defineComponent({
             state.form = {
                 Name: row.Name,
                 SelectType: row.SelectType,
-                ID: row.ID
+                ID: row.ID,
+                havingTime: row.HavingTime
             };
             state.fieldList = row.Options;
             state.filedVisible = true;
@@ -208,6 +210,7 @@ export default defineComponent({
             state.form = {
                 Name: "",
                 SelectType: 0,
+                havingTime: 0,
                 ID: ""
             };
             state.fieldList = [{ Name: "", ID: "" }];
