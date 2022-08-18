@@ -556,21 +556,10 @@ export default defineComponent({
                         name: windowName
                     });
                     oldWindowName = editRef.value?.windowName;
-                    // allPageSlideListMap.value.forEach((item, key) => {
-                    //     oldAllPageSlideListMap.value.set(key, cloneDeep(item));
-                    // });
-                    // oldWindowCards.value = cloneDeep(windowCards.value);
-                    // 目的是和教案数据同步，更新教案数据
-                    resetPageSlide();
-                    _getWindowCards(
-                        {
-                            WindowID: windowInfo.value.id,
-                            OriginType: windowInfo.value.originType
-                        },
-                        true
-                    ).then(() => {
-                        fetchAllPageSlide(getAllPageList());
+                    allPageSlideListMap.value.forEach((item, key) => {
+                        oldAllPageSlideListMap.value.set(key, cloneDeep(item));
                     });
+                    oldWindowCards.value = cloneDeep(windowCards.value);
                 }
             } else {
                 saveAsWindows({ ...data, lessonID: lessonId }).then((res) => {
@@ -695,8 +684,6 @@ export default defineComponent({
 
         // 同步教案的数据
         const updateAllPageSlideListMap = (newAllPageList:any[]) => {
-            console.log(newAllPageList, "newAllPageList-----");
-            console.log(allPageSlideListMap.value, "allPageSlideListMap.value-----");
             newAllPageList.forEach((item:any) => {
                 const value = allPageSlideListMap.value.get(item.TeachPageID);
                 const newValue = {
@@ -705,6 +692,7 @@ export default defineComponent({
                     design: item.DesignIntent || ""
                 };
                 allPageSlideListMap.value.set(item.TeachPageID, newValue as Slide);
+                oldAllPageSlideListMap.value.set(item.TeachPageID, cloneDeep(newValue as Slide));
             });
         };
 
