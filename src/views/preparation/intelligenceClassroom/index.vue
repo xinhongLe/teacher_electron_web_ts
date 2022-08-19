@@ -21,6 +21,7 @@
                 <div class="card-detail-content">
                     <PreviewSection
                         ref="previewSection"
+                        :dialog="dialog"
                         :isSystem="isSystem"
                         :resourceId="resourceId"
                         @lastPage="lastPage"

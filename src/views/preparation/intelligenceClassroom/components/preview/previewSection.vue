@@ -30,6 +30,10 @@ export default defineComponent({
         isSystem: {
             type: Boolean,
             default: false
+        },
+        dialog: {
+            type: Boolean,
+            default: false
         }
     },
     components: {
@@ -37,7 +41,7 @@ export default defineComponent({
         PageList
     },
     setup(props, { emit }) {
-        const { data, showRemark, toggleRemark } = preventRemark();
+        const { data, showRemark, toggleRemark } = preventRemark(props.dialog);
         const { currentPageIndex, currentCard } = inject(windowInfoKey)!;
         const teachProcess = computed(() => !isEmpty(currentCard.value?.PageList) && currentCard.value?.PageList[currentPageIndex.value]?.AcademicPresupposition);
         const design = computed(() => !isEmpty(currentCard.value?.PageList) && currentCard.value?.PageList[currentPageIndex.value]?.DesignIntent);

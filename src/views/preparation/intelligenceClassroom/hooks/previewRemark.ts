@@ -1,6 +1,6 @@
 import { reactive, ref } from "vue";
-export default () => {
-    const showRemark = ref(true);
+export default (isShowRemark = true) => {
+    const showRemark = ref(isShowRemark);
     const data = reactive({
         selectedCard: -1,
         hideTools: false
