@@ -370,8 +370,6 @@ export default defineComponent({
 
         const { allowDrop } = useDragPage();
 
-        const { handleAddCard, dialogVisibleCard } = useAddCard(windowCards);
-
         const { handleAdd, addPageCallback, dialogVisible } = useAddPage(
             shrinkRef,
             windowCards,
@@ -391,6 +389,8 @@ export default defineComponent({
             () => store.state.preparation.editWindowInfo
         );
         let oldWindowName = windowInfo.value.name;
+
+        const { handleAddCard, dialogVisibleCard } = useAddCard(windowCards, windowInfo);
 
         const handleDel = (node: Node, data: ICardList) => {
             ElMessageBox.confirm("此操作将删除该数据, 是否继续?", "提示", {
