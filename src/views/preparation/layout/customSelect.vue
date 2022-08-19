@@ -131,6 +131,7 @@ export default defineComponent({
                 chapter: { name: "", id: "" },
                 lesson: { name: "", id: "" }
             });
+			form.chapterAndLesson = ["", ""];
 			getChapterAndLessonTree();
 		};
 

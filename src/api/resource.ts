@@ -359,6 +359,7 @@ export const fetchResourceList: RequestFun<
                 : "Api/Resouce/TeacherResource/GetResourceList",
         headers: {
             "Content-Type": "application/json-patch+json",
+            noLoading: "true",
             OrgId: yunInfo.OrgId,
             UserId: yunInfo.UserId,
             SystemId: systemId,

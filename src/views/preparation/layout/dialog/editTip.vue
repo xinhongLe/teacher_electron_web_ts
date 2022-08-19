@@ -73,7 +73,7 @@ export default defineComponent({
                         });
                         loading.destroy();
                         emit("update:visible", false);
-                        emit("update");
+                        emit("update", "");
                     }
                 } else {
                     const res = await saveToMyResource({
@@ -83,7 +83,7 @@ export default defineComponent({
                     });
                     if (res.success) {
                         emit("update:visible", false);
-                        emit("update");
+                        emit("update", res.result.ResourceId);
                     }
                 }
 

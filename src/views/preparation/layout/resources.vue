@@ -1,6 +1,7 @@
 <template>
 	<div
 		class="p-layout-list"
+		ref="resourceScroll"
 		v-infinite-scroll="load"
 		:infinite-scroll-disabled="disabledScrollLoad"
 	>
@@ -9,6 +10,7 @@
             没有相关资源
         </div>
 		<ResourceItem
+			:class="[`resource-${item.ResourceId}`, item.ResourceId === resourceId ? 'doing' : 'custom']"
 			v-for="(item, index) in resourceList"
 			:key="index"
 			:data="item"
@@ -19,7 +21,7 @@
 
 		<DeleteTip :target="target" v-model:visible="deleteTipVisible" @onDeleteSuccess="onDeleteSuccess" />
 
-		<EditTip @update="update()" :resource="resource" v-model:visible="editTipVisible" />
+		<EditTip @update="update" :resource="resource" v-model:visible="editTipVisible" />
 
 		<ResourceVersion
 			:target="target"
@@ -44,7 +46,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, onDeactivated, onMounted, onUnmounted, PropType, ref, toRefs, watch } from "vue";
+import { computed, defineComponent, nextTick, onDeactivated, onMounted, onUnmounted, PropType, ref, toRefs, watch } from "vue";
 import ResourceItem from "./resourceItem.vue";
 import DeleteTip from "./dialog/deleteTip.vue";
 import EditTip from "./dialog/editTip.vue";
@@ -115,6 +117,8 @@ export default defineComponent({
 		const topEnd = ref(0);
 		const resource = ref<IResourceItem>();
 		const name = computed(() => props.name);
+		const resourceId = ref("");
+		const resourceScroll = ref<HTMLDivElement>();
 
 		// 加入备课包
 		const addPackage = async (data: IResourceItem) => {
@@ -285,7 +289,9 @@ export default defineComponent({
 				leftEnd.value = left + 20;
 				topEnd.value = top - 40;
 			}
-            emitter.on("updateResourceList", update);
+            emitter.on("updateResourceList", (id: string) => {
+				update(id);
+			});
 		});
 
         onUnmounted(() => {
@@ -293,19 +299,20 @@ export default defineComponent({
         });
 
 		const pageNumber = ref(1);
-		const pageSize = ref(20);
+		const pageSize = ref(200);
 		const store = useStore();
 		const schoolId = computed(() => store.state.userInfo.schoolId);
 		const userId = computed(() => store.state.userInfo.userCenterUserID);
 
 		const { source, type, course, bookId } = toRefs(props);
 		watch([source, type, course, schoolId, bookId], () => {
-			update();
+			update("");
 		});
 
-        const update = () => {
+        const update = (id: string) => {
             resourceList.value = [];
             pageNumber.value = 1;
+			resourceId.value = id;
 			getResources();
         };
 
@@ -328,6 +335,20 @@ export default defineComponent({
 				disabledScrollLoad.value = res.result.pager.IsLastPage;
 
 				emit("updateResourceList", resourceList.value);
+
+				nextTick(() => {
+					if (resourceId.value && resourceScroll.value) {
+						const resourceDom = resourceScroll.value.getElementsByClassName(`resource-${resourceId.value}`);
+						if (resourceDom.length > 0) {
+							// 找到目标dom
+							const top = (resourceDom[0] as HTMLElement).offsetTop;
+							resourceScroll.value.scrollTo({
+								top,
+								behavior: "smooth"
+							});
+						}
+					}
+				});
 			}
 		};
 
@@ -361,7 +382,9 @@ export default defineComponent({
             onDeleteSuccess,
             update,
 			openResource,
-			name
+			name,
+			resourceScroll,
+			resourceId
 		};
 	}
 });
@@ -375,6 +398,10 @@ export default defineComponent({
 	position: relative;
 	padding: 0 20px;
 	overflow-y: auto;
+	.doing {
+		border-left: 4px solid #4b71ee;
+		box-shadow: 0px 6px 16px 0px rgba(0, 0, 0, 0.16);
+	}
 }
 
 .tip {

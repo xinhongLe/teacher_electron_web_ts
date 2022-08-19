@@ -15,7 +15,7 @@ type Events = {
     smallQuestion: null,
     closeTab: Bread,
     updatePackageCount: null,
-    updateResourceList: undefined,
+    updateResourceList: string,
     openEditResource: IResourceItem
 }
 

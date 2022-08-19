@@ -247,7 +247,7 @@ export default defineComponent({
     }
     &.resource-courseware {
         background: #e6f1ff;
-        border-left: 4px solid #4b71ee;
+        // border-left: 4px solid #4b71ee;
     }
     .resource-icon {
         width: 60px;
