@@ -41,16 +41,18 @@ export default (windowCards:Ref<ICardList[]>, allPageSlideListMap: Ref<Map<strin
             };
             copyPage(value).then(res => {
                 if (res.resultCode === 200) {
+                    const cardIndex = findIndex(windowCards.value, { ID: data.ID });
+                    const slide = allPageSlideListMap.value.get(copyValue.ID);
                     pastePage.value = {
                         ...copyValue,
                         // isAdd: true,
                         isAdd: false,
                         ID: res.result.ID,
+                        AcademicPresupposition: res.result.AcademicPresupposition ? res.result.AcademicPresupposition : slide?.remark,
+                        DesignIntent: res.result.DesignIntent ? res.result.DesignIntent : slide?.design,
                         Name: copyValue.Name + str
                     };
-                    const cardIndex = findIndex(windowCards.value, { ID: data.ID });
-                    const slide = allPageSlideListMap.value.get(copyValue.ID);
-                    slide && allPageSlideListMap.value.set(pastePage.value.ID, { ...slide });
+                    slide && allPageSlideListMap.value.set(pastePage.value.ID, { ...slide, id: pastePage.value.ID });
                     windowCards.value[cardIndex].PageList.push(pastePage.value);
                     windowCards.value = [...windowCards.value];
                     TrackService.setTrack(EnumTrackEventType.PastePage, "", "", "", "", "", "", "粘贴卡");

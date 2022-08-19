@@ -168,7 +168,10 @@ export default defineComponent({
 
         const changeCheckbox = () => {
             // const list = [...state.form.basicValueList, ...state.form.synopsisValueList, ...state.form.teachProcess, ...state.form.customValueList];
-            state.rightList = state.currentTemplate!.Detail.filter((item:ITemplateItem) => item.Status && item.GroupName !== "模板名称");
+            const list = state.currentTemplate!.Detail.filter((item:ITemplateItem) => item.Status && item.GroupName !== "模板名称");
+            state.rightList = list.sort(function (a:any, b:any) {
+                return a.Sort - b.Sort;
+            });
         };
 
         const delCheckbox = (item:ITemplateItem) => {

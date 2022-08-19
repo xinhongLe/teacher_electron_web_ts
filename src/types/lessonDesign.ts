@@ -49,6 +49,7 @@ export interface ITemplateItem {
     Name: string;
     ID?: string;
     GroupName?: string;
+    Sort?: number;
 }
 
 export interface ITemplateList {
