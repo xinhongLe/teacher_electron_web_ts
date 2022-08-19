@@ -3,7 +3,7 @@
         <div class="content">
             <div class="left">
                 <div class="left-content">
-                    <div :class="[currentTemplate.ID === item.ID ? 'active' : '']" @click="handleTemplate(item)" v-for="(item,index) in templateList" :key="index">
+                    <div :class="[currentTemplate.ID === item.ID ? 'active' : '']" @click="handleTemplate(item)" v-for="(item,index) in leftList" :key="index">
                         <span class="text">{{item.Name}}</span>
                         <span class="del-btn" v-if="item.IsSystem !== 1" @click.stop="openDelTemplate(item)">
                             <img src="@/assets/indexImages/icon_delete.png" alt="">
@@ -105,6 +105,7 @@ interface State {
         teachProcess: ITemplateItem[],
         customValueList: ITemplateItem[],
     },
+    leftList: ITemplateList[],
     currentTemplate: ITemplateList,
     rightList: ITemplateItem[]
 }
@@ -137,6 +138,7 @@ export default defineComponent({
                 teachProcess: [],
                 customValueList: []
             },
+            leftList: [],
             currentTemplate: { Name: "", ID: "", Sort: 0, IsSystem: 0, Detail: [] },
             rightList: []
 
@@ -145,6 +147,7 @@ export default defineComponent({
 
         watch(() => props.templateList, (val:ITemplateList[]) => {
             nextTick(() => {
+                state.leftList = val;
                 if (state.currentTemplate.ID) {
                     state.currentTemplate = val.find((item:ITemplateList) => item.ID === state.currentTemplate.ID) || { Name: "", ID: "", Sort: 0, IsSystem: 0, Detail: [] };
                 } else {
@@ -181,6 +184,7 @@ export default defineComponent({
             addLessonPlanTemplate(data).then(res => {
                 if (res.resultCode === 200) {
                     state.currentTemplate = { Name: res.result.Name, ID: res.result.ID, Sort: 0, IsSystem: 0, Detail: res.result.Detail };
+                    state.leftList.push(state.currentTemplate);
                     transformData(state.currentTemplate?.Detail);
                 }
             });

@@ -7,6 +7,7 @@ export interface ITreeList {
 }
 
 export interface IPageValue {
+    OldCardID?: string,
     ID: string,
     Type: number,
     TeachPageRelationID?: string,
