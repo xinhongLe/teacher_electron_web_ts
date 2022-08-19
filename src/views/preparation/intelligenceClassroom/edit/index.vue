@@ -366,7 +366,7 @@ export default defineComponent({
             allPageList,
             isWatchChange,
             cardListRef
-        } = useSelectPage(pageValue);
+        } = useSelectPage(pageValue, allPageSlideListMap);
 
         const { allowDrop } = useDragPage();
 
@@ -724,6 +724,9 @@ export default defineComponent({
         });
 
         onBeforeRouteLeave(async () => {
+            // 先更新一下当前页
+            const slide = editRef.value.getCurrentSlide();
+            allPageSlideListMap.value.set(pageValue.value.ID, slide);
             if (
                 isEqual(
                     allPageSlideListMap.value,
