@@ -571,6 +571,7 @@ export default defineComponent({
 						empty = true;
 					}
 				}
+				console.log(form.directorys);
 				if (empty) return ElMessage.warning("请将资源目录补充完整！");
 			}
 			const schoolId = store.state.userInfo.schoolId;
@@ -642,13 +643,13 @@ export default defineComponent({
 					emit("update:type", type.value);
 					emit("update:source", source.value);
 				} else {
-					emitter.emit("updateResourceList");
+					emitter.emit("updateResourceList", currentEditType.value === "add" ? "" : form.resourceId);
 				}
 			}
 		};
 
 		const refreshResourceList = () => {
-			emitter.emit("updateResourceList");
+			emitter.emit("updateResourceList", "");
 		};
 
 		const acceptList =

@@ -73,7 +73,7 @@ export default defineComponent({
                         });
                         loading.destroy();
                         emit("update:visible", false);
-                        emit("update");
+                        emit("update", "");
                     } else {
                         loading.destroy();
                     }
@@ -85,7 +85,7 @@ export default defineComponent({
                     });
                     if (res.success) {
                         emit("update:visible", false);
-                        emit("update");
+                        emit("update", res.result.ResourceId);
                     }
                 }
 
