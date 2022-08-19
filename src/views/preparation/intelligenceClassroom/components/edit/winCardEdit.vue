@@ -85,15 +85,17 @@ export default defineComponent({
         };
 
         const updateSlide = (slide: Slide) => {
-            if (!isEqual(props.slide, slide)) {
-                emit("updatePageSlide", slide);
-            }
+            // if (!isEqual(props.slide, slide)) {
+                // emit("updatePageSlide", storeSilde);
+            // }
         };
 
         const isShowSaveDialog = ref(false);
         const isShowSaveAsDialog = ref(false);
 
         const onSave = async (slide: Slide, type: SaveType) => {
+            // 保存时更新slide
+            emit("updatePageSlide", slide);
             emit("onSave", type, windowName.value);
         };
 
@@ -159,6 +161,9 @@ export default defineComponent({
         const getIsScreening = () => {
             return PPTEditRef.value.getIsScreening();
         };
+        const getCurrentSlide = () => {
+            return PPTEditRef.value.getCurrentSlide();
+        };
         const execPrev = () => {
             PPTEditRef.value.execPrev();
         };
@@ -202,6 +207,7 @@ export default defineComponent({
             execPrev,
             execNext,
             getDataIsChange,
+            getCurrentSlide,
             setQuoteVideo,
             windowInfo,
             isShowSaveDialog,
