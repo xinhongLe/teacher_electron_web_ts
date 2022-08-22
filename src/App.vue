@@ -1,7 +1,7 @@
 <template>
     <router-view />
     <el-dialog
-        v-model="isShowUpdate"
+        v-model="updateVisible"
         title="更新下载"
         :show-close="false"
         :close-on-click-modal="false"
@@ -50,7 +50,7 @@ export default defineComponent({
         const handleUpdate = () => {
             newVersionView.value = false;
             updateVisible.value = true;
-            window.electron.ipcRenderer.send("isUpdateNow");
+            window.electron.ipcRenderer.invoke("isUpdateNow");
         };
 
         getOssPaths().then((res) => {
@@ -66,14 +66,11 @@ export default defineComponent({
             getUpdateJson();
             window.electron.ipcRenderer.invoke("checkForUpdate");
             window.electron.ipcRenderer.on("updateMessage", (_, text) => {
-                // console.log(text);
             });
 
-            window.electron.ipcRenderer.on(
-                "downloadProgress",
-                (_, progressObj) => {
-                    downloadPercent.value = progressObj.percent || 0;
-                }
+            window.electron.ipcRenderer.on("downloadProgress", (_, progressObj) => {
+                downloadPercent.value = progressObj.percent || 0;
+            }
             );
 
             window.electron.ipcRenderer.on("isUpdateNow", () => {
