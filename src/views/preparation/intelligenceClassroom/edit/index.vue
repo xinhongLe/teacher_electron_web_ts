@@ -718,9 +718,9 @@ export default defineComponent({
         });
         onUnmounted(() => {
             window.removeEventListener("keydown", keyDown);
-            if (isElectron()) {
-                (window as any).electron.unRegisterEscKeyUp();
-            }
+            // if (isElectron()) {
+            //     (window as any).electron.unRegisterEscKeyUp();
+            // }
         });
 
         onBeforeRouteLeave(async () => {
