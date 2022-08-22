@@ -366,11 +366,9 @@ export default defineComponent({
             allPageList,
             isWatchChange,
             cardListRef
-        } = useSelectPage(pageValue);
+        } = useSelectPage(pageValue, allPageSlideListMap);
 
         const { allowDrop } = useDragPage();
-
-        const { handleAddCard, dialogVisibleCard } = useAddCard(windowCards);
 
         const { handleAdd, addPageCallback, dialogVisible } = useAddPage(
             shrinkRef,
@@ -391,6 +389,8 @@ export default defineComponent({
             () => store.state.preparation.editWindowInfo
         );
         let oldWindowName = windowInfo.value.name;
+
+        const { handleAddCard, dialogVisibleCard } = useAddCard(windowCards, windowInfo);
 
         const handleDel = (node: Node, data: ICardList) => {
             ElMessageBox.confirm("此操作将删除该数据, 是否继续?", "提示", {
@@ -724,6 +724,9 @@ export default defineComponent({
         });
 
         onBeforeRouteLeave(async () => {
+            // 先更新一下当前页
+            const slide = editRef.value.getCurrentSlide();
+            allPageSlideListMap.value.set(pageValue.value.ID, slide);
             if (
                 isEqual(
                     allPageSlideListMap.value,

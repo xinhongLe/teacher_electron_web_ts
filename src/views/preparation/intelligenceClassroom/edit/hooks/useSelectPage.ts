@@ -2,8 +2,9 @@ import { IPageValue } from "@/types/home";
 import { ElMessage, ElMessageBox } from "element-plus";
 import Node from "element-plus/es/components/tree/src/model/node";
 import { nextTick, onMounted, onUnmounted, Ref, ref } from "vue";
+import { Slide } from "wincard/src/types/slides";
 
-export default (pageValue: Ref<IPageValue>) => {
+export default (pageValue: Ref<IPageValue>, allPageSlideListMap: Ref<Map<string, Slide>>) => {
     const allPageList = ref<IPageValue[]>([]);
     const activeAllPageListIndex = ref(0);
     const isWatchChange = ref(true); // 是否是监听改变的pageValue
@@ -35,20 +36,25 @@ export default (pageValue: Ref<IPageValue>) => {
         }
         if (data.ID === pageValue.value?.ID || (Node && Node.level === 1)) return;
         if (editRef.value.getDataIsChange()) {
-            ElMessageBox.confirm("尚未保存修改, 是否继续操作?", "提示", {
-                confirmButtonText: "确认",
-                cancelButtonText: "取消",
-                type: "warning"
-            })
-                .then(() => {
-                    selectPageValue(data, false);
-                })
-                .catch((err) => {
-                    return err;
-                });
-        } else {
-            selectPageValue(data, false);
+            const slide = editRef.value.getCurrentSlide();
+            allPageSlideListMap.value.set(pageValue.value.ID, slide);
         }
+        selectPageValue(data, false);
+        // if (editRef.value.getDataIsChange()) {
+        //     ElMessageBox.confirm("尚未保存修改, 是否继续操作?", "提示", {
+        //         confirmButtonText: "确认",
+        //         cancelButtonText: "取消",
+        //         type: "warning"
+        //     })
+        //         .then(() => {
+        //             selectPageValue(data, false);
+        //         })
+        //         .catch((err) => {
+        //             return err;
+        //         });
+        // } else {
+        //     selectPageValue(data, false);
+        // }
     };
 
     const pagePrev = () => {
