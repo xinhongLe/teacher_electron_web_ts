@@ -133,7 +133,7 @@ export default defineComponent({
                 getDataBase(pageList.value[currentPageIndex.value].ID, pageList.value[currentPageIndex.value]);
                 return;
             }
-            if (currentPageIndex.value === 0) {
+            if (currentPageIndex.value === 0 || currentPageIndex.value === -1) {
                 isInitPage.value = false;
                 prevPageFlag.value = true;
                 emit("firstPage");
