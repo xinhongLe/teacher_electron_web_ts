@@ -29,6 +29,7 @@
             @showWriteBoard="showWriteBoard"
             @hideWriteBoard="hideWriteBoard"
             @close="close"
+            :dialog="dialog"
             @openShape="openShape"
             :isShowFullscreen="false"
             :isShowRemarkBtn="false"
@@ -54,6 +55,10 @@ export default defineComponent({
         cardList: {
             type: Array,
             default: () => []
+        },
+        dialog: {
+            type: Boolean,
+            default: false
         }
     },
     emits: ["closeOpenCard"],

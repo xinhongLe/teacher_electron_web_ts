@@ -6,6 +6,7 @@
                 ref="pageListRef"
                 @lastPage="lastPage"
                 @firstPage="firstPage"
+                :dialog="dialog"
             />
             <transition name="fade">
                 <Remark :teachProcess="teachProcess" :isSystem="isSystem" :resourceId="resourceId" :design="design" v-if="showRemark" />

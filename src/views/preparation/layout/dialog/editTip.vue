@@ -64,7 +64,7 @@ export default defineComponent({
                     });
 
                     if (res.success) {
-                        await sysWincardResource({
+                        const sysRes = await sysWincardResource({
                             id: res.result.ID,
                             userId: userId.value,
                             lessonID: lessonId.value,
@@ -73,7 +73,7 @@ export default defineComponent({
                         });
                         loading.destroy();
                         emit("update:visible", false);
-                        emit("update", "");
+                        emit("update", sysRes.result.Id);
                     } else {
                         loading.destroy();
                     }

@@ -676,7 +676,7 @@ export const sysWincardResource: RequestFun<
         schoolId: string;
         schoolName: string;
     },
-    IHistoryListResponse[]
+    { Id: string }
 > = (data) => {
     const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
     return request({
