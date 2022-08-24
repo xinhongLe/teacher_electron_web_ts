@@ -784,8 +784,8 @@ export default defineComponent({
 		const getCourseCartOption = () => {
 			getCartOptionList({
 				lessonId: course.value.lessonId,
-				startTime: dateRange.value[0] ? moment(dateRange.value[0]).format("YYYY-MM-DD 00:00:00") : "",
-				endTime: dateRange.value[1] ? moment(dateRange.value[1]).format("YYYY-MM-DD 23:59:59") : "",
+				startTime: dateRange.value && dateRange.value[0] ? moment(dateRange.value[0]).format("YYYY-MM-DD 00:00:00") : "",
+				endTime: dateRange.value && dateRange.value[1] ? moment(dateRange.value[1]).format("YYYY-MM-DD 23:59:59") : "",
 				paper: {
 					pageNumber: pageNumber.value,
 					pageSize: 10
