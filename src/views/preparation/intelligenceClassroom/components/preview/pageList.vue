@@ -16,7 +16,7 @@
                     @pageNext="pageNext"
                     @closeWriteBoard="closeWriteBoard"
                 />
-            <open-card-view-dialog @closeOpenCard="closeOpenCard" v-if="dialogVisible" :cardList="dialogCardList" v-model:dialogVisible="dialogVisible"></open-card-view-dialog>
+            <open-card-view-dialog @closeOpenCard="closeOpenCard" v-if="dialogVisible" :dialog="dialog" :cardList="dialogCardList" v-model:dialogVisible="dialogVisible"></open-card-view-dialog>
             <div
                 class="me-page"
             >
@@ -40,6 +40,12 @@ import { windowInfoKey } from "@/hooks/useWindowInfo";
 import { SchoolWindowPageInfo } from "@/types/preparation";
 import { find } from "lodash";
 export default defineComponent({
+    props: {
+        dialog: {
+            type: Boolean,
+            default: false
+        }
+    },
     components: { OpenCardViewDialog, PageItem },
     setup(props, { emit }) {
         const { getPageDetail, transformType } = useHome();
@@ -133,7 +139,7 @@ export default defineComponent({
                 getDataBase(pageList.value[currentPageIndex.value].ID, pageList.value[currentPageIndex.value]);
                 return;
             }
-            if (currentPageIndex.value === 0) {
+            if (currentPageIndex.value === 0 || currentPageIndex.value === -1) {
                 isInitPage.value = false;
                 prevPageFlag.value = true;
                 emit("firstPage");

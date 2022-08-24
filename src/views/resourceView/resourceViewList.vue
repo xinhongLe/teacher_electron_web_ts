@@ -3,6 +3,7 @@
         <IntelligenceClassroom
             v-if="type === 1"
             :resourceId="target"
+            :isShowClose="false"
             :dialog="true"
             :isSystem="isSystem"
         />

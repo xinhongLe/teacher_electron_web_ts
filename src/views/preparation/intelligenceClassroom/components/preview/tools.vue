@@ -226,6 +226,7 @@ export default defineComponent({
         const changeNextType = (type: NextSettingType) => {
             store.commit(MutationTypes.SET_SELECT_NEXT_TYPE, type);
             set(STORAGE_TYPES.NEXT_SETTING + store.state.userInfo.id, type);
+            hideMenu();
         };
         const hideMenu = () => {
             isShowMenu.value = false;

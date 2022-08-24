@@ -232,7 +232,7 @@
 				v-model="dateRange"
 				type="daterange"
 				start-placeholder="请选择开始时间"
-				end-placeholder="请选择结束使劲"
+				end-placeholder="请选择结束时间"
 				@change="dateRangeChange"
 			/>
 			<el-table class="custom-table" :data="tableData" stripe>
@@ -785,7 +785,7 @@ export default defineComponent({
 			getCartOptionList({
 				lessonId: course.value.lessonId,
 				startTime: dateRange.value[0] ? moment(dateRange.value[0]).format("YYYY-MM-DD 00:00:00") : "",
-				endTime: dateRange.value[1] ? moment(dateRange.value[1]).format("YYYY-MM-DD 00:00:00") : "",
+				endTime: dateRange.value[1] ? moment(dateRange.value[1]).format("YYYY-MM-DD 23:59:59") : "",
 				paper: {
 					pageNumber: pageNumber.value,
 					pageSize: 10
