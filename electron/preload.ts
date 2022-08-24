@@ -15,6 +15,7 @@ import {
     darwinRequestScreenPermissionPopup,
 } from "./darwin";
 import { checkWindowSupportNet } from "./util";
+import { exportWord, IFileData } from "./exportWord";
 const PATH_BINARY =
     process.platform === "darwin"
         ? join(__dirname, "../ColorPicker")
@@ -144,6 +145,9 @@ window.electron = {
             }
         });
     },
+    deleteFile: (path: string) => {
+        fs.unlinkSync(path);
+    },
     showSaveDialog: (option: SaveDialogOptions) => {
         const currentWindow = getCurrentWindow();
         return dialog.showSaveDialog(currentWindow, option);
@@ -176,6 +180,9 @@ window.electron = {
                 resolve(stdout);
             })
         );
+    },
+    exportWord: (filePath: string, fileData: IFileData, styleType: number) => {
+        exportWord(filePath, fileData, styleType);
     },
     checkWindowSupportNet,
     store: store,

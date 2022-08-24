@@ -11,7 +11,6 @@ export default defineComponent({
     components: { ResourceViewList },
     setup() {
         const route = useRoute();
-        console.log("xxxxxxxxxxxxx", route.params);
     }
 });
 </script>

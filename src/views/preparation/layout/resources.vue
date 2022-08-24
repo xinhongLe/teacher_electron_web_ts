@@ -52,7 +52,7 @@ import ResourceVersion from "./dialog/resourceVersion.vue";
 import DeleteVideoTip from "./dialog/deleteVideoTip.vue";
 import ResourceView from "./dialog/resourceView.vue";
 import { getDomOffset, sleep } from "@/utils/common";
-import loading from "@/components/loading";
+import useDownloadFile from "@/hooks/useDownloadFile";
 import {
 	addPreparationPackage,
 	fetchResourceList,
@@ -68,6 +68,7 @@ interface ICourse {
 	chapterId: string;
 	lessonId: string;
 	lessonName: string;
+	chapterName: string;
 }
 export default defineComponent({
 	components: {
@@ -91,6 +92,10 @@ export default defineComponent({
 			type: String,
 			required: true
 		},
+		bookId: {
+			type: String,
+			required: true
+		},
 		name: {
 			type: String,
 			default: ""
@@ -109,11 +114,12 @@ export default defineComponent({
 		const leftEnd = ref(0);
 		const topEnd = ref(0);
 		const resource = ref<IResourceItem>();
+		const name = computed(() => props.name);
 
 		// 加入备课包
 		const addPackage = async (data: IResourceItem) => {
 			const book = data.TextBooks.find((item) => {
-				return item.LessonID === course.value.lessonId || (item.ChapterID === course.value.chapterId && !item.LessonID);
+				return item.LessonID === course.value.lessonId || (item.ChapterID === course.value.chapterId && !item.LessonID) || (!item.ChapterID && item.BookId === bookId.value);
 			});
 			if (!book) return;
 			const res = await addPreparationPackage({
@@ -126,8 +132,8 @@ export default defineComponent({
 				publisherName: book.PublisherName,
 				albumId: book.AlbumID,
 				albumName: book.AlbumName,
-				chapterId: book.ChapterID,
-				chapterName: book.ChapterName,
+				chapterId: book.ChapterID || course.value.chapterId,
+				chapterName: book.ChapterName || course.value.chapterName,
 				lessonId: book.LessonID || course.value.lessonId,
 				lessonName: book.LessonName || course.value.lessonName
 			});
@@ -139,7 +145,7 @@ export default defineComponent({
 			}
 		};
 
-		// 移除备课包
+		// 移出备课包
 		const removePackage = async (data: IResourceItem) => {
 			const res = await removePreparationPackage({ id: data.BagId });
 			if (res.success) {
@@ -154,45 +160,18 @@ export default defineComponent({
 		};
 
 		const loadingShow = ref(false);
+		const { download } = useDownloadFile();
 
-		const download = async (data: IResourceItem) => {
+		const downloadFile = async (data: IResourceItem) => {
             if (data.File) {
-				loading.show();
                 const url = await getOssUrl(`${data.File.FilePath}/${data.File.FileMD5}.${data.File.FileExtention}`, data.File.FileBucket);
-                getBlob(url, function(blob: any) {
-                    saveAs(blob, data.File.FileName);
-                });
+				const success = await download(url, data.File.FileName, data.File.FileExtention);
 
-				logDownload({ id: data.ResourceId });
-				data.DownloadNum++;
+				if (success) {
+					logDownload({ id: data.ResourceId });
+					data.DownloadNum++;
+				}
             }
-        };
-
-        const getBlob = (url: string, cb: any) => {
-            const xhr = new XMLHttpRequest();
-            xhr.open("GET", url, true);
-            xhr.responseType = "blob";
-            xhr.onload = function() {
-                if (xhr.status === 200) {
-                    cb(xhr.response);
-                }
-            };
-            xhr.send();
-        };
-
-        const saveAs = (blob: any, name: string) => {
-            const link = document.createElement("a");
-            const body = document.querySelectorAll("body");
-            link.href = window.URL.createObjectURL(blob);
-            link.download = name;
-            link.style.display = "none";
-            body[0].appendChild(link);
-            link.click();
-            body[0].removeChild(link);
-            window.URL.revokeObjectURL(link.href);
-            setTimeout(() => {
-                loading.destroy();
-            }, 500);
         };
 
 		const eventEmit = (
@@ -218,7 +197,7 @@ export default defineComponent({
 					resourceVersionVisible.value = true;
 					break;
 				case "download":
-					download(data);
+					downloadFile(data);
 					break;
 				case "add":
 					if (e) dealFly(e);
@@ -241,20 +220,31 @@ export default defineComponent({
                         } });
                     } else if (data.ResourceShowType === 1) {
 						if (props.name === "attendClass") {
-							store.commit(MutationTypes.SET_IS_WINCARD, { flag: props.name === "attendClass", id: data.OldResourceId, isMySelf: data.UserId === userId.value });
+							store.commit(MutationTypes.SET_IS_WINCARD, { flag: props.name === "attendClass", id: data.OldResourceId, isSystem: data.IsSysFile === 1 });
+						}
+					} else if (data.ResourceShowType === 0 || data.ResourceShowType === 4) {
+						if (props.name === "attendClass") {
+							// resource.value = data;
+							// target.value = data.OldResourceId;
+							// showScreenViewFile.value = true;
+							store.commit(MutationTypes.SET_SHOW_VIEW_FILE, { flag: props.name === "attendClass", id: data.OldResourceId, data });
 						}
 					}
 					
-					if (props.name !== "attendClass" || data.ResourceShowType === 0) {
-						resource.value = data;
-						target.value = data.OldResourceId;
-						resourceVisible.value = true;
+					if (props.name !== "attendClass") {
+						openResource(data);
 					}
 
 					logView({ id: data.ResourceId });
 					data.BrowseNum++;
 					break;
 			}
+		};
+
+		const openResource = (data: IResourceItem) => {
+			resource.value = data;
+			target.value = data.OldResourceId;
+			resourceVisible.value = true;
 		};
 
 		const dealFly = async (event: MouseEvent | TouchEvent) => {
@@ -303,13 +293,13 @@ export default defineComponent({
         });
 
 		const pageNumber = ref(1);
-		const pageSize = ref(10);
+		const pageSize = ref(20);
 		const store = useStore();
-		const schoolId = computed(() => store.state.userInfo.Schools![0]?.UserCenterSchoolID);
+		const schoolId = computed(() => store.state.userInfo.schoolId);
 		const userId = computed(() => store.state.userInfo.userCenterUserID);
 
-		const { source, type, course } = toRefs(props);
-		watch([source, type, course], () => {
+		const { source, type, course, bookId } = toRefs(props);
+		watch([source, type, course, schoolId, bookId], () => {
 			update();
 		});
 
@@ -327,6 +317,7 @@ export default defineComponent({
 					resourceTypeId: type.value,
 					resourceType: source.value,
 					schoolId: schoolId.value,
+					bookId: bookId.value,
 					pager: {
 						pageNumber: pageNumber.value,
 						pageSize: pageSize.value
@@ -340,7 +331,7 @@ export default defineComponent({
 			}
 		};
 
-		const disabledScrollLoad = ref(false);
+		const disabledScrollLoad = ref(true);
 		const load = () => {
             pageNumber.value++;
             getResources();
@@ -349,9 +340,11 @@ export default defineComponent({
         const onDeleteSuccess = (id: string) => {
             const i = resourceList.value.findIndex(item => item.ResourceId === id);
             resourceList.value.splice(i, 1);
+			// 更新一下备课包数量
+			emitter.emit("updatePackageCount", null);
         };
 
-        expose({ update });
+        expose({ update, openResource, eventEmit });
 
 		return {
 			resourceList,
@@ -366,7 +359,9 @@ export default defineComponent({
 			load,
 			disabledScrollLoad,
             onDeleteSuccess,
-            update
+            update,
+			openResource,
+			name
 		};
 	}
 });

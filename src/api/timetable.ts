@@ -45,6 +45,7 @@ export interface IScheduleDetail {
     ID: string;
     SectionName: string;
     StartTime: string;
+    OriginScheduleID: string;
     TeacherID: string;
     TeacherName: string;
     LessonID: string;

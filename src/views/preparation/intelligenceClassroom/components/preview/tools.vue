@@ -322,7 +322,7 @@ export default defineComponent({
         getLocalNextType();
 
         const closeWincard = () => {
-            store.commit(MutationTypes.SET_IS_WINCARD, { flag: false,  id: "" });
+            store.commit(MutationTypes.SET_IS_WINCARD, { flag: false,  id: "", isSystem: false });
         }
 
         return {

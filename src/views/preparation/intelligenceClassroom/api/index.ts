@@ -50,7 +50,8 @@ interface IAddPage{
 interface CopyWindow {
     id: string,
     originType?: number | null,
-    sourceLessonID: string
+    sourceLessonID: string,
+    targetLessonID: string,
 }
 
 export interface SaveWindowsPageData {
@@ -61,7 +62,9 @@ export interface SaveWindowsPageData {
     type: number;
     sort: number;
     state: number;
-    remark: string;
+    remark?: string;
+    academicPresupposition?: string;
+    designIntent?: string;
     json: string;
     franchiseeID?: string;
 }
@@ -75,6 +78,8 @@ export interface SaveWindowsCardData {
 
 interface SaveWindowsData {
     originType: number,
+    franchiseeID: string,
+    teacherID: string,
     windowID: string,
     windowName: string,
     lessonID?:string,
@@ -86,7 +91,8 @@ export function CopyWindow(data:CopyWindow): Promise<IResponse<ICopyWindowRes>> 
         baseURL: AI_XUE_SHI_API,
         url: "/Api/WCP/Teacher/CopyWindow",
         headers: {
-            "Content-Type": "application/json-patch+json"
+            "Content-Type": "application/json-patch+json",
+            noLoading: "true"
         },
         method: "post",
         data

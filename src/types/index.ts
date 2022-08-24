@@ -1,8 +1,10 @@
 import electron, { Remote, SaveDialogReturnValue, SaveDialogOptions, OpenDialogOptions, OpenDialogReturnValue } from "electron";
 import { LogFunctions } from "electron-log";
 import Store from "electron-store";
+import { IFileData } from "../../electron/exportWord";
 
 type Electron = typeof electron & {
+    exportWord: (filePath: string, fileData:IFileData, styleType:number) => void,
     exit: () => void,
     maximizeWindow: () => void,
     unmaximizeWindow: () => void,
@@ -27,6 +29,7 @@ type Electron = typeof electron & {
     getPath: (name: "home" | "appData" | "userData" | "cache" | "temp" | "exe" | "module" | "desktop" | "documents" | "downloads" | "music" | "pictures" | "videos" | "recent" | "logs" | "crashDumps") => string,
     readFile: (path: string, callback: (buffer: ArrayBuffer) => void) => void,
     savePutFile: (path: string, buffer: NodeJS.ArrayBufferView) => void,
+    deleteFile: (path: string) => void,
     setPositionWin: (x: number, y: number) => void,
     getColorHexRGB: () => Promise<unknown>,
     showSaveDialog: (option: SaveDialogOptions) => Promise<SaveDialogReturnValue>,

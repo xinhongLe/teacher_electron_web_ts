@@ -73,7 +73,7 @@
 			custom-class="custom-dialog"
 			v-model="uploadResourceOpen"
 			center
-			title="上传资源"
+			:title="currentEditType === 'edit' ? '编辑资源' : '上传资源'"
 			width="550px"
 			:destroy-on-close="true"
 		>
@@ -106,7 +106,7 @@
 						</el-button>
 					</el-upload>
 				</el-form-item>
-				<el-form-item v-else>
+				<el-form-item label="资源文件：" v-else>
 					<el-button
 						type="primary"
 						size="small"
@@ -170,7 +170,7 @@
 						新增目录
 					</el-button>
 				</el-form-item>
-				<el-form-item label="难易程度：" required>
+				<el-form-item label="难易程度：">
 					<el-select
 						v-model="form.degree"
 						placeholder="请选择"
@@ -201,11 +201,11 @@
 						label="是否保存为校本资源"
 					/>
 
-					<el-checkbox
+					<!-- <el-checkbox
 						v-if="form.isSchool"
 						v-model="form.isShelf"
 						label="上架"
-					/>
+					/> -->
 				</el-form-item>
 			</el-form>
 			<template #footer>
@@ -239,7 +239,7 @@
 				<el-table-column width="140px" prop="time" label="操作时间" />
 				<el-table-column width="120px" prop="name" label="动作" />
 				<el-table-column width="120px" prop="type" label="资源类型" />
-				<el-table-column width="120px" prop="resource" label="资源名称" />
+				<el-table-column prop="resource" label="资源名称" />
 				<el-table-column prop="directory" label="资源目录"></el-table-column>
 			</el-table>
 
@@ -329,6 +329,7 @@ interface ICourse {
 	chapterId: string;
 	lessonId: string;
 	lessonName: string;
+	chapterName: string;
 }
 
 interface ICourseCartOption {
@@ -351,12 +352,15 @@ export default defineComponent({
 	setup(props, { emit }) {
 		const store = useStore();
 		const userId = computed(() => store.state.userInfo.userCenterUserID);
+		const selectedBook = computed(() => store.state.preparation.subjectPublisherBookValue);
 		const { course } = toRefs(props);
+		let isInit = true;
 		watch(course, () => {
 			getMyPackageNum();
 		});
 		const packageCount = ref(0);
 		const getMyPackageNum = async () => {
+			isInit = false;
 			if (!course.value.chapterId || !course.value.lessonId) {
 				packageCount.value = 0;
 				return;
@@ -367,6 +371,10 @@ export default defineComponent({
 			});
 
 			packageCount.value = res.result.BagCount;
+			if (packageCount.value > 0 && isInit) {
+				source.value = "me";
+				emit("update:source", source.value);
+			}
 		};
 
 		emitter.on("updatePackageCount", () => {
@@ -563,10 +571,10 @@ export default defineComponent({
 						empty = true;
 					}
 				}
-				console.log(form.directorys);
 				if (empty) return ElMessage.warning("请将资源目录补充完整！");
 			}
-			const school = store.state.userInfo.Schools![0];
+			const schoolId = store.state.userInfo.schoolId;
+			const schoolName = store.state.userInfo.schoolName;
 			const lessonTrees = form.directorys.map((item) => {
 				return {
 					acaSectionId: item.schoolSection.id,
@@ -599,8 +607,8 @@ export default defineComponent({
 					rescourceTypeId: form.type.Id,
 					rescourceTypeName: form.type.Name,
 					name: form.name,
-					schoolId: school.UserCenterSchoolID,
-					schoolName: school.Name,
+					schoolId: schoolId,
+					schoolName: schoolName,
 					degree: form.degree,
 					resourceFiles,
 					isSchool: form.isSchool ? 1 : 2,
@@ -614,8 +622,8 @@ export default defineComponent({
 					rescourceTypeId: form.type.Id,
 					rescourceTypeName: form.type.Name,
 					name: form.name,
-					schoolId: school.UserCenterSchoolID,
-					schoolName: school.Name,
+					schoolId: schoolId,
+					schoolName: schoolName,
 					degree: form.degree,
 					resourceFile: resourceFiles[0],
 					isSchool: form.isSchool ? 1 : 2,
@@ -628,8 +636,14 @@ export default defineComponent({
 
 			if (res.success) {
 				uploadResourceOpen.value = false;
-
-				emitter.emit("updateResourceList");
+				if (currentEditType.value === "add") {
+					type.value = "";
+					source.value = "4";
+					emit("update:type", type.value);
+					emit("update:source", source.value);
+				} else {
+					emitter.emit("updateResourceList");
+				}
 			}
 		};
 
@@ -638,7 +652,7 @@ export default defineComponent({
 		};
 
 		const acceptList =
-			".ppt,.pptx,.doc,.docx,.pdf,.mp3,.mp4,.mkv,.flv,.jpg,.png,.jpeg";
+			".ppt,.pptx,.doc,.docx,.xls,.xlsx,.pdf,.mp3,.mp4,.gif,.jpg,.png,.jpeg,.wav";
 
 		const beforeUpload = ({ name }: { name: string }) => {
 			const fileType = name.substring(name.lastIndexOf(".") + 1);
@@ -647,18 +661,20 @@ export default defineComponent({
 				"pptx",
 				"doc",
 				"docx",
+				"xls",
+				"xlsx",
 				"pdf",
 				"mp3",
 				"mp4",
-				"mkv",
-				"flv",
+				"gif",
 				"jpg",
 				"png",
-				"jpeg"
+				"jpeg",
+				"wav"
 			];
 			if (whiteList.indexOf(fileType) === -1) {
 				ElMessage.error(
-					"上传文件只能是 ppt,pptx,doc,docx,pdf,mp3,mp4,mkv,flv,jpg,png,jpeg格式"
+					"上传文件只能是 ppt,pptx,doc,docx,xls,xlsx,pdf,mp3,mp4,gif,jpg,png,jpeg格式"
 				);
 				return false;
 			}
@@ -681,6 +697,9 @@ export default defineComponent({
 				uid: file.uid,
 				size: res.size || 0
 			});
+			if (form.files.length === 1) {
+				form.name = file.name;
+			}
 		};
 
 		const onExceed = () => {
@@ -708,6 +727,20 @@ export default defineComponent({
 			form.isSchool = false;
 			fileList.value = [];
 			currentEditType.value = "add";
+			if (selectedBook.value) {
+				form.directorys[0].schoolSection.id = selectedBook.value.AcaSectionId;
+				form.directorys[0].schoolSection.name = selectedBook.value.AcaSectionName;
+				form.directorys[0].subject.id = selectedBook.value.SubjectId;
+				form.directorys[0].subject.name = selectedBook.value.SubjectName;
+				form.directorys[0].version.id = selectedBook.value.PublisherId;
+				form.directorys[0].version.name = selectedBook.value.PublisherName;
+				form.directorys[0].grade.id = selectedBook.value.AlbumId;
+				form.directorys[0].grade.name = selectedBook.value.AlbumName;
+				form.directorys[0].chapter.id = course.value.chapterId;
+				form.directorys[0].chapter.name = course.value.chapterName;
+				form.directorys[0].lesson.id = course.value.lessonId;
+				form.directorys[0].lesson.name = course.value.lessonName;
+			}
 			uploadResourceOpen.value = true;
 		};
 

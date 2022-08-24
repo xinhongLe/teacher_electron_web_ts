@@ -209,15 +209,18 @@
                                 教学助手
                             </div>
                             <div class="teach-list-title">
-                                <el-cascader
-                                    v-model="selectBookList"
-                                    :props="cascaderProps"
-                                    :options="subjectPublisherBookList"
-                                />
+                                <div @click.stop="() => null">
+                                    <el-cascader
+                                        v-model="selectBookList"
+                                        :props="cascaderProps"
+                                        :options="subjectPublisherBookList"
+                                    />
+                                </div>
                                 <div class="search-input">
                                     <el-input
                                         placeholder="搜索教具名称"
                                         v-model="searchName"
+                                        @click.stop="() => null"
                                     >
                                         <template #append>
                                             <el-button
@@ -469,8 +472,8 @@ export default defineComponent({
         };
 
         onMounted(async () => {
+            getBookList();
             if (userInfo) {
-                getBookList();
                 getStudentList();
             }
             if (isElectron()) {
@@ -801,7 +804,7 @@ export default defineComponent({
                 border: 1px solid var(--app-resource-type-qita);
                 font-size: 12px;
                 margin: 0 10px 0 10px;
-
+                white-space: nowrap;
                 &.p-r-0 {
                     color: var(--app-resource-type-jiaoan);
                     border: 1px solid var(--app-resource-type-jiaoan);

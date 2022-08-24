@@ -12,12 +12,16 @@ export interface IBookItem {
 }
 
 export interface ICustomBookItem {
+    SubjectId: string;
     SubjectName: string;
+    PublisherId: string;
     PublisherName: string;
+    AlbumId: string;
     AlbumName: string;
     Id: string;
     BookId: string;
     AcaSectionId: string;
+    AcaSectionName: string;
 }
 
 export interface ICourseItem {
@@ -34,6 +38,7 @@ interface IResourceRequest {
     resourceType: string;
     isResearch?: number;
     type?: number;
+    bookId: string;
     pager: {
         pageNumber: number;
         pageSize: number;
@@ -84,6 +89,8 @@ export interface IResourceItem {
     ShareNum: number;
     Source: string;
     BagId: string;
+    ResourceToolUrl: string;
+    IsSysFile: number;
     File: {
         Id: string;
         Name: string;
@@ -119,6 +126,7 @@ interface IRequestClassArrangement {
 interface IResponseClassArrangement {
     BagCount: number;
     Id: string;
+    BookId: string;
     LessonId: string;
     LessonName: string;
     LessonTime: string;
@@ -429,7 +437,7 @@ export const addPreparationPackage: RequestFun<
     });
 };
 
-// 移除备课包
+// 移出备课包
 export const removePreparationPackage: RequestFun<{ id: string }, boolean> = (
     data
 ) => {

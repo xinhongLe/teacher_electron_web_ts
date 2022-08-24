@@ -322,6 +322,8 @@ export interface SchoolWindowPageInfo {
     Height: number;
     State: boolean;
     Remark?: string;
+    AcademicPresupposition?: string;
+    DesignIntent?: string;
 }
 
 export interface SchoolWindowCardInfo {

@@ -1,14 +1,14 @@
 <template>
     <div
         class="p-resource-item"
-        :class="{ courseware: isMySelf, hover: hover }"
+        :class="{ 'resource-courseware': data.ResourceType === '8C47DA089BAA57ECEF2B0B6AAE5CAC84', hover: hover }"
         @click="handleCommand('detail')"
     >
-        <div class="p-resource-mark" v-if="data.IsSchool !== 1">我的</div>
+        <div class="p-resource-mark" v-if="data.IsMine === 1 && data.IsSchool !== 1">我的</div>
         <div class="p-resource-school-mark" v-if="data.IsSchool === 1">校本</div>
         <div class="p-resource-top">
             <div class="resource-icon">
-                <img :src="iconResources.selfStudy[data.ResourceType]" alt="" />
+                <img :src="data.IsSysFile === 1 ? iconResources.selfStudy[data.ResourceType] : iconResources.other[data.ResourceType]" alt="" />
             </div>
             <div class="resource-content">
                 <div class="resource-title">{{data.Name}}</div>
@@ -88,7 +88,7 @@
                     </el-button>
                     <el-button class="p-control-btn p-move" size="small" v-if="data.IsBag" @click.stop="handleCommand('move')">
                         <img src="@/assets/images/preparation/icon_yichu.png" alt="">
-                        移除备课包
+                        移出备课包
                     </el-button>
                     <el-button class="p-control-btn p-add" size="small" v-if="!data.IsBag" @click.stop="handleCommand('add')">
                         <img src="@/assets/images/preparation/icon_add.png" alt="">
@@ -108,7 +108,7 @@
             </el-button>
             <el-button class="p-control-btn p-move" size="small" v-if="data.IsBag" @click.stop="handleCommand('move')">
                 <img src="@/assets/images/preparation/icon_yichu.png" alt="">
-                移除备课包
+                移出备课包
             </el-button>
             <el-button class="p-control-btn p-add" size="small" v-if="!data.IsBag" @click.stop="$event => handleCommand('add', $event)">
                 <img src="@/assets/images/preparation/icon_add.png" alt="">
@@ -119,26 +119,6 @@
 </template>
 
 <script lang="ts">
-/**
- * type 类型
- * 0: 教案
- * 1: 导学案
- * 2: 课件
- * 3: 微课视频
- * 4: 试卷
- * 5: 电子课本
- * 6: 教具
- * 7: 工具
- * 8: 素材
- * 9: 其他
- */
-
-/**
- * source 来源
- * 0: 系统资源
- * 1: 校本资源
- * 2: 我的资源
- */
 import { computed, defineComponent, PropType } from "vue";
 import { Refresh, MoreFilled } from "@element-plus/icons-vue";
 import { iconResources, textResources, typeResources } from "@/config/resource";
@@ -194,8 +174,7 @@ export default defineComponent({
             const book = props.data.TextBooks.find(item =>  {
                 return props.lessonId === item.LessonID || !item.LessonID;
             });
-
-            return book ? book.SubjectName + " / " + book.PublisherName + " / " + book.AlbumName + " / " + book.ChapterName + (book.LessonName ? " / " + book.LessonName : "") : "--";
+            return book ? book.SubjectName + " / " + book.PublisherName + " / " + book.AlbumName + (book.ChapterName ? " / " + book.ChapterName : "") + (book.LessonName ? " / " + book.LessonName : "") : "--";
         });
 
         return {
@@ -245,7 +224,6 @@ export default defineComponent({
         box-shadow: 0px 6px 16px 0px rgba(0, 0, 0, 0.16);
     }
     .p-resource-mark {
-        display: none;
         background: url(~@/assets/images/preparation/bg_tab1.png) no-repeat;
         background-size: cover;
         padding: 8px 15px 5px 8px;
@@ -267,12 +245,9 @@ export default defineComponent({
         color: #F98A33;
         font-size: 12px;
     }
-    &.courseware {
+    &.resource-courseware {
         background: #e6f1ff;
         border-left: 4px solid #4b71ee;
-        .p-resource-mark {
-            display: block;
-        }
     }
     .resource-icon {
         width: 60px;

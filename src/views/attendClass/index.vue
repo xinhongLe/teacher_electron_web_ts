@@ -9,11 +9,13 @@
                 @eventEmit="eventEmit"
             /> -->
             <Resources
+                ref="resourceRef"
                 name="attendClass"
                 @updateResourceList="updateResourceList"
                 :course="course"
                 :source="source"
                 :type="type"
+                :bookId="bookId"
             />
         </div>
         <div class="resource-filter">
@@ -77,7 +79,10 @@ export default defineComponent({
 
         const source = ref("me");
         const type = ref("");
+        const bookId = ref("");
         const typeList = ref<{ Id: string; Name: string }[]>([]);
+
+        const resourceRef = ref();
 
         const getResourceType = async () => {
             const res = await fetchResourceType();
@@ -105,10 +110,20 @@ export default defineComponent({
         };
 
         onActivated(() => {
+            if (
+                route.params.lessonId !== course.value.lessonId ||
+                route.params.chapterId !== course.value.chapterId ||
+                route.params.bookId !== bookId.value
+            ) {
+                isSwitch.value = true;
+                type.value = "";
+            }
+
             course.value = {
                 lessonId: route.params.lessonId as string,
                 chapterId: route.params.chapterId as string,
             };
+            bookId.value = route.params.bookId as string;
             // sendResourceData();
         });
 
@@ -123,7 +138,7 @@ export default defineComponent({
                     sendResourceData();
                     break;
                 case "openResource":
-                    const resource = JSON.parse(event.resource);
+                    const resource: IResourceItem = JSON.parse(event.resource);
                     if (resource.ResourceShowType === 2) {
                         // 断点视频
                         store.commit(MutationTypes.SET_IS_SHOW_VIDEO, {
@@ -145,9 +160,14 @@ export default defineComponent({
                         store.commit(MutationTypes.SET_IS_WINCARD, {
                             flag: true,
                             id: resource.OldResourceId,
+                            isSystem: resource.IsSysFile === 1,
                         });
+                    } else if (
+                        resource.ResourceShowType === 0 ||
+                        resource.ResourceShowType === 4
+                    ) {
+                        resourceRef.value.eventEmit("detail", resource);
                     }
-
                     logView({ id: resource.ResourceId });
                     break;
                 case "switchClass":
@@ -205,7 +225,9 @@ export default defineComponent({
             switchClass,
             course,
             source,
+            bookId,
             updateResourceList,
+            resourceRef,
         };
     },
 });
@@ -255,6 +277,9 @@ export default defineComponent({
     }
     :deep(.el-radio-button--small .el-radio-button__inner) {
         font-size: 14px;
+    }
+    :deep(.el-radio-button:focus:not(.is-focus):not(:active):not(.is-disabled)) {
+        box-shadow: none;
     }
 }
 
