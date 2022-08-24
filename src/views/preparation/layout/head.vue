@@ -232,7 +232,7 @@
 				v-model="dateRange"
 				type="daterange"
 				start-placeholder="请选择开始时间"
-				end-placeholder="请选择结束使劲"
+				end-placeholder="请选择结束时间"
 				@change="dateRangeChange"
 			/>
 			<el-table class="custom-table" :data="tableData" stripe>
