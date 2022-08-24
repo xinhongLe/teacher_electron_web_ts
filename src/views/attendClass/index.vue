@@ -8,7 +8,13 @@
                 :btns="false"
                 @eventEmit="eventEmit"
             /> -->
-            <Resources name="attendClass" @updateResourceList="updateResourceList" :course="course" :source="source" :type="type" />
+            <Resources
+                name="attendClass"
+                @updateResourceList="updateResourceList"
+                :course="course"
+                :source="source"
+                :type="type"
+            />
         </div>
         <div class="resource-filter">
             <el-radio-group
@@ -24,10 +30,18 @@
                     {{ item.Name }}
                 </el-radio-button>
             </el-radio-group>
-            
-            <el-button class="switch-btn" size="small" type="default" @click="switchClass()">
-                <img src="@/assets/images/preparation/icon_qiehuan.png" alt="">
-                {{isSwitch ? "全部显示" : "仅显示备课篮"}}
+
+            <el-button
+                class="switch-btn"
+                size="small"
+                type="default"
+                @click="switchClass()"
+            >
+                <img
+                    src="@/assets/images/preparation/icon_qiehuan.png"
+                    alt=""
+                />
+                {{ isSwitch ? "全部显示" : "仅显示备课篮" }}
             </el-button>
         </div>
     </div>
@@ -38,7 +52,14 @@ import { fetchResourceType, IResourceItem, logView } from "@/api/resource";
 import { MutationTypes, useStore } from "@/store";
 import { IpcRendererEvent } from "electron";
 import isElectron from "is-electron";
-import { defineComponent, onActivated, onMounted, ref, onUnmounted, provide } from "vue";
+import {
+    defineComponent,
+    onActivated,
+    onMounted,
+    ref,
+    onUnmounted,
+    provide,
+} from "vue";
 import { useRoute } from "vue-router";
 import Resources from "../preparation/layout/resources.vue";
 
@@ -51,7 +72,7 @@ export default defineComponent({
 
         const course = ref({
             chapterId: "",
-            lessonId: ""
+            lessonId: "",
         });
 
         const source = ref("me");
@@ -59,81 +80,108 @@ export default defineComponent({
         const typeList = ref<{ Id: string; Name: string }[]>([]);
 
         const getResourceType = async () => {
-			const res = await fetchResourceType();
-			if (res.success) {
-				res.result.push({
-					Id: "",
-					Name: "全部"
-				});
-				typeList.value = res.result.reverse();
-			}
-		};
+            const res = await fetchResourceType();
+            if (res.success) {
+                res.result.push({
+                    Id: "",
+                    Name: "全部",
+                });
+                typeList.value = res.result.reverse();
+            }
+        };
 
         const isSwitch = ref(true);
         const sendResourceData = () => {
             if (isElectron()) {
-                window.electron.ipcRenderer.send("attendClass", "unfoldSuspension", {
-                    type: "sysData",
-                    resources: JSON.stringify(resourceList.value)
-                });
+                window.electron.ipcRenderer.send(
+                    "attendClass",
+                    "unfoldSuspension",
+                    {
+                        type: "sysData",
+                        resources: JSON.stringify(resourceList.value),
+                    }
+                );
             }
         };
 
         onActivated(() => {
             course.value = {
                 lessonId: route.params.lessonId as string,
-                chapterId: route.params.chapterId as string
+                chapterId: route.params.chapterId as string,
             };
             // sendResourceData();
         });
 
         const onWatchAttendClass = (e: IpcRendererEvent, event: any) => {
-            switch(event.type) {
+            switch (event.type) {
                 case "sysData":
-                    window.electron.ipcRenderer.send("attendClass", "unfoldSuspension", { type: "switchClass", switch: isSwitch.value });
+                    window.electron.ipcRenderer.send(
+                        "attendClass",
+                        "unfoldSuspension",
+                        { type: "switchClass", switch: isSwitch.value }
+                    );
                     sendResourceData();
                     break;
                 case "openResource":
                     const resource = JSON.parse(event.resource);
                     if (resource.ResourceShowType === 2) {
                         // 断点视频
-                        store.commit(MutationTypes.SET_IS_SHOW_VIDEO, { flag: true, info: { id: resource.OldResourceId } });
+                        store.commit(MutationTypes.SET_IS_SHOW_VIDEO, {
+                            flag: true,
+                            info: { id: resource.OldResourceId },
+                        });
                     } else if (resource.ResourceShowType === 3) {
                         // 练习卷
-                        store.commit(MutationTypes.SET_IS_SHOW_QUESTION, { flag: true, info: {
-                            id: resource.OldResourceId,
-                            courseBagId: "",
-                            deleteQuestionIds: [],
-                            type: 1
-                        } });
+                        store.commit(MutationTypes.SET_IS_SHOW_QUESTION, {
+                            flag: true,
+                            info: {
+                                id: resource.OldResourceId,
+                                courseBagId: "",
+                                deleteQuestionIds: [],
+                                type: 1,
+                            },
+                        });
                     } else if (resource.ResourceShowType === 1) {
-						store.commit(MutationTypes.SET_IS_WINCARD, { flag: true, id: resource.OldResourceId });
-					}
-					
-					logView({ id: resource.ResourceId });
+                        store.commit(MutationTypes.SET_IS_WINCARD, {
+                            flag: true,
+                            id: resource.OldResourceId,
+                        });
+                    }
+
+                    logView({ id: resource.ResourceId });
                     break;
                 case "switchClass":
                     switchClass();
                     break;
             }
-        }
+        };
 
         onMounted(() => {
             getResourceType();
             if (isElectron()) {
-                window.electron.ipcRenderer.on("attendClass", onWatchAttendClass);
+                window.electron.ipcRenderer.on(
+                    "attendClass",
+                    onWatchAttendClass
+                );
             }
         });
 
         onUnmounted(() => {
             if (isElectron()) {
-                window.electron.ipcRenderer.off("attendClass", onWatchAttendClass);
+                window.electron.ipcRenderer.off(
+                    "attendClass",
+                    onWatchAttendClass
+                );
             }
         });
 
         const switchClass = () => {
             isSwitch.value = !isSwitch.value;
-            window.electron.ipcRenderer.send("attendClass", "unfoldSuspension", { type: "switchClass", switch: isSwitch.value });
+            window.electron.ipcRenderer.send(
+                "attendClass",
+                "unfoldSuspension",
+                { type: "switchClass", switch: isSwitch.value }
+            );
             sendResourceData();
 
             if (!isSwitch.value) {
@@ -157,9 +205,9 @@ export default defineComponent({
             switchClass,
             course,
             source,
-            updateResourceList
-        }
-    }
+            updateResourceList,
+        };
+    },
 });
 </script>
 
@@ -169,7 +217,7 @@ export default defineComponent({
     min-height: 0;
     padding: 15px 0;
     height: 100%;
-    background-color: #F5F6FA;
+    background-color: #f5f6fa;
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -177,7 +225,7 @@ export default defineComponent({
 
 .resource-list {
     flex: 1;
-    min-height: 0;    
+    min-height: 0;
     display: flex;
     flex-direction: column;
 }
@@ -196,14 +244,14 @@ export default defineComponent({
         margin-right: 10px;
         border-radius: 4px;
         border: 0;
-        background: #F0F4FF;
+        background: #f0f4ff;
         min-width: 80px;
-        color: #4B71EE;
+        color: #4b71ee;
     }
     :deep(.el-radio-button__original-radio:checked + .el-radio-button__inner) {
         color: #fff;
         box-shadow: none;
-        background: #4B71EE;
+        background: #4b71ee;
     }
     :deep(.el-radio-button--small .el-radio-button__inner) {
         font-size: 14px;

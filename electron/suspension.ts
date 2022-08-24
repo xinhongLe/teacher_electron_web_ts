@@ -18,30 +18,37 @@ let isShowVideo = false; // 悬浮球是否显示视频图标
 let isShowBlackboard = false; // 悬浮球是否显示黑板图标
 let isShowQuestion = false; // 悬浮球是否显示题目图标
 let socketHelper: SocketHelper;
-const timerURL = process.env.NODE_ENV === "development"
-    ? `${process.env.WEBPACK_DEV_SERVER_URL}timer.html`
-    : `file://${__dirname}/timer.html`;
-const callURL = process.env.NODE_ENV === "development"
-    ? `${process.env.WEBPACK_DEV_SERVER_URL}rollCall.html`
-    : `file://${__dirname}/rollCall.html`;
-const suspensionURL = process.env.NODE_ENV === "development"
-    ? `${process.env.WEBPACK_DEV_SERVER_URL}suspension.html`
-    : `file://${__dirname}/suspension.html`;
-const unfoldSuspensionURL = process.env.NODE_ENV === "development"
-    ? `${process.env.WEBPACK_DEV_SERVER_URL}unfoldSuspension.html`
-    : `file://${__dirname}/unfoldSuspension.html`;
+const timerURL =
+    process.env.NODE_ENV === "development"
+        ? `${process.env.WEBPACK_DEV_SERVER_URL}timer.html`
+        : `file://${__dirname}/timer.html`;
+const callURL =
+    process.env.NODE_ENV === "development"
+        ? `${process.env.WEBPACK_DEV_SERVER_URL}rollCall.html`
+        : `file://${__dirname}/rollCall.html`;
+const suspensionURL =
+    process.env.NODE_ENV === "development"
+        ? `${process.env.WEBPACK_DEV_SERVER_URL}suspension.html`
+        : `file://${__dirname}/suspension.html`;
+const unfoldSuspensionURL =
+    process.env.NODE_ENV === "development"
+        ? `${process.env.WEBPACK_DEV_SERVER_URL}unfoldSuspension.html`
+        : `file://${__dirname}/unfoldSuspension.html`;
 
-const blackboardURL = process.env.NODE_ENV === "development"
-    ? `${process.env.WEBPACK_DEV_SERVER_URL}blackboard.html`
-    : `file://${__dirname}/blackboard.html`;
+const blackboardURL =
+    process.env.NODE_ENV === "development"
+        ? `${process.env.WEBPACK_DEV_SERVER_URL}blackboard.html`
+        : `file://${__dirname}/blackboard.html`;
 
-const projectionURL = process.env.NODE_ENV === "development"
-    ? `${process.env.WEBPACK_DEV_SERVER_URL}projection.html`
-    : `file://${__dirname}/projection.html`;
+const projectionURL =
+    process.env.NODE_ENV === "development"
+        ? `${process.env.WEBPACK_DEV_SERVER_URL}projection.html`
+        : `file://${__dirname}/projection.html`;
 
-const answerMachineURL = process.env.NODE_ENV === "development"
-    ? `${process.env.WEBPACK_DEV_SERVER_URL}answerMachine.html`
-    : `file://${__dirname}/answerMachine.html`;
+const answerMachineURL =
+    process.env.NODE_ENV === "development"
+        ? `${process.env.WEBPACK_DEV_SERVER_URL}answerMachine.html`
+        : `file://${__dirname}/answerMachine.html`;
 
 function setSuspensionSize(isResetPosition = true, isCloseWelt = false) {
     if (!suspensionWin) {
@@ -55,8 +62,13 @@ function setSuspensionSize(isResetPosition = true, isCloseWelt = false) {
     }
     const winPosition = suspensionWin.getPosition();
     const winSize = suspensionWin.getSize();
-    if (isResetPosition) suspensionWin.setPosition(winPosition[0] + (winSize[0] - width), winPosition[1] + (winSize[1] - height));
-    if (isCloseWelt) suspensionWin.setPosition(winPosition[0] - width, winPosition[1]);
+    if (isResetPosition)
+        suspensionWin.setPosition(
+            winPosition[0] + (winSize[0] - width),
+            winPosition[1] + (winSize[1] - height)
+        );
+    if (isCloseWelt)
+        suspensionWin.setPosition(winPosition[0] - width, winPosition[1]);
     suspensionWin.setContentSize(width, height);
 }
 
@@ -67,7 +79,7 @@ function checkIsWelt() {
     const winPosition = suspensionWin.getPosition();
     const size = screen.getPrimaryDisplay().workAreaSize;
     const winSize = suspensionWin.getSize();
-    if ((size.width - winPosition[0] - winSize[0]) < 10) {
+    if (size.width - winPosition[0] - winSize[0] < 10) {
         suspensionWin.webContents.send("showWelt");
         suspensionWin.setPosition(size.width - 20, winPosition[1]);
         suspensionWin.setContentSize(20, 80);
@@ -112,7 +124,7 @@ function createTimerWindow() {
         frame: false, // 要创建无边框窗口
         resizable: false, // 禁止窗口大小缩放
         height: 500,
-        useContentSize: true
+        useContentSize: true,
     });
     timerWin.on("ready-to-show", () => {
         timerWin && timerWin.show();
@@ -133,11 +145,12 @@ function createRollcall(allStudentList: []) {
         // frame: false, // 要创建无边框窗口
         // resizable: false, // 禁止窗口大小缩放
         height: 500,
-        useContentSize: true
+        useContentSize: true,
     });
 
     rollCallWin.on("ready-to-show", () => {
-        rollCallWin && rollCallWin.webContents.send("sendAllStudentList", allStudentList);
+        rollCallWin &&
+            rollCallWin.webContents.send("sendAllStudentList", allStudentList);
     });
 
     rollCallWin.on("closed", () => {
@@ -155,15 +168,19 @@ function createUnfoldSuspensionWindow() {
         useContentSize: true,
         transparent: true, // 设置透明
         backgroundColor: "#00000000",
-        alwaysOnTop: true // 窗口是否总是显示在其他窗口之前
+        alwaysOnTop: true, // 窗口是否总是显示在其他窗口之前
     });
     // 设置黑板窗口位置
     const size = screen.getPrimaryDisplay().workAreaSize; // 获取显示器的宽高
     const winSize = unfoldSuspensionWin.getSize(); // 获取窗口宽高
-    unfoldSuspensionWin.setPosition(size.width - winSize[0] - 20, size.height - winSize[1]);
-    // unfoldSuspensionWin.webContents.openDevTools()
+    unfoldSuspensionWin.setPosition(
+        size.width - winSize[0] - 20,
+        size.height - winSize[1]
+    );
+    // unfoldSuspensionWin.webContents.openDevTools(); //这是打开智课助手悬浮球打开窗口的的调试器
     unfoldSuspensionWin.once("ready-to-show", () => {
-        unfoldSuspensionWin && unfoldSuspensionWin.setAlwaysOnTop(true, "pop-up-menu");
+        unfoldSuspensionWin &&
+            unfoldSuspensionWin.setAlwaysOnTop(true, "pop-up-menu");
     });
 
     unfoldSuspensionWin.on("closed", () => {
@@ -180,7 +197,7 @@ function createBlackboardWindow() {
         resizable: false,
         fullscreen: true,
         show: false,
-        useContentSize: true
+        useContentSize: true,
     });
     blackboardWin.once("ready-to-show", () => {
         blackboardWin && blackboardWin.show();
@@ -191,7 +208,8 @@ function createBlackboardWindow() {
     blackboardWin.on("closed", () => {
         blackboardWin = null;
         isShowBlackboard = false;
-        suspensionWin && suspensionWin.webContents.send("hideSuspensionBlackboard");
+        suspensionWin &&
+            suspensionWin.webContents.send("hideSuspensionBlackboard");
         setSuspensionSize();
     });
 }
@@ -208,13 +226,17 @@ function createAnswerMachineWindow(allStudentList: []) {
         type: "toolbar", // 创建的窗口类型为工具栏窗口
         frame: false, // 要创建无边框窗口
         alwaysOnTop: true,
-        resizable: false
+        resizable: false,
     });
 
     answerMachineWin.on("ready-to-show", () => {
         answerMachineWin && answerMachineWin.show();
         answerMachineWin && answerMachineWin.focus();
-        answerMachineWin && answerMachineWin.webContents.send("sendAllStudentList", allStudentList);
+        answerMachineWin &&
+            answerMachineWin.webContents.send(
+                "sendAllStudentList",
+                allStudentList
+            );
     });
 
     answerMachineWin.on("closed", () => {
@@ -229,7 +251,7 @@ function createProjectionWindow() {
         type: "toolbar", // 创建的窗口类型为工具栏窗口
         frame: false, // 要创建无边框窗口
         alwaysOnTop: true,
-        resizable: false
+        resizable: false,
     });
 
     projectionWin.once("ready-to-show", () => {
@@ -246,8 +268,8 @@ function createSubjectToolWindow(url: string, name: string) {
         alwaysOnTop: true,
         show: false,
         webPreferences: {
-            nodeIntegration: false
-        }
+            nodeIntegration: false,
+        },
     });
     win.once("ready-to-show", () => {
         win.show();
@@ -259,9 +281,9 @@ function createSubjectToolWindow(url: string, name: string) {
 
 function checkIsUseBallEXE(callback: (T: boolean) => void) {
     if (process.platform === "win32") {
-        checkWindowSupportNet("v3.5").then(isOk => {
+        checkWindowSupportNet("v3.5").then((isOk) => {
             if (isOk) return callback(isOk);
-            checkWindowSupportNet("v4.0").then(isOk => {
+            checkWindowSupportNet("v4.0").then((isOk) => {
                 if (isOk) return callback(isOk);
             });
         });
@@ -284,18 +306,18 @@ class CustomCallBack implements CallBack {
                 const size = screen.getPrimaryDisplay().workAreaSize;
                 const winSize = unfoldSuspensionWin!.getSize();
 
-                let newLeft = parseInt(data.DATA.split(',')[0]);
+                let newLeft = parseInt(data.DATA.split(",")[0]);
                 if (newLeft + winSize[0] > size.width) {
                     newLeft = size.width - winSize[0];
                 }
 
-                let newTop = parseInt(data.DATA.split(',')[1]);
+                let newTop = parseInt(data.DATA.split(",")[1]);
                 if (newTop + winSize[1] > size.height) {
                     newTop = size.height - winSize[1];
                 }
 
                 unfoldSuspensionWin!.setPosition(newLeft, newTop);
-                
+
                 //主进程悬浮球点击事件分发
                 ipcMain.emit("suspensionClick");
                 break;
@@ -351,13 +373,13 @@ function killProcess() {
     return new Promise((resolve, reject) => {
         exec(`taskkill /im ball.exe /t /f`, (err, stdout, stderr) => {
             if (err) {
-                return resolve(true)
+                return resolve(true);
             }
-            console.log('stdout', stdout)
-            console.log('stderr', stderr)
-            resolve(true)
-        })
-    })
+            console.log("stdout", stdout);
+            console.log("stderr", stderr);
+            resolve(true);
+        });
+    });
 }
 
 export function createSuspensionWindow() {
@@ -438,8 +460,14 @@ export function registerEvent() {
             movingInterval = setInterval(() => {
                 // 实时更新位置
                 const cursorPosition = screen.getCursorScreenPoint();
-                const x = winStartPosition.x + cursorPosition.x - mouseStartPosition.x;
-                const y = winStartPosition.y + cursorPosition.y - mouseStartPosition.y;
+                const x =
+                    winStartPosition.x +
+                    cursorPosition.x -
+                    mouseStartPosition.x;
+                const y =
+                    winStartPosition.y +
+                    cursorPosition.y -
+                    mouseStartPosition.y;
                 suspensionWin && suspensionWin.setPosition(x, y, false);
             }, 20);
         } else {
@@ -490,13 +518,15 @@ export function registerEvent() {
 
     ipcMain.handle("openBlackboard", () => {
         isShowBlackboard = false;
-        suspensionWin && suspensionWin.webContents.send("hideSuspensionBlackboard");
+        suspensionWin &&
+            suspensionWin.webContents.send("hideSuspensionBlackboard");
         showSuspension();
         setSuspensionSize();
         if (blackboardWin) {
             blackboardWin.show();
             setTimeout(() => {
-                if (process.platform === "darwin") blackboardWin && blackboardWin.setFullScreen(true);
+                if (process.platform === "darwin")
+                    blackboardWin && blackboardWin.setFullScreen(true);
             }, 1000);
         } else {
             createBlackboardWindow();
@@ -516,7 +546,8 @@ export function registerEvent() {
         if (socketHelper) {
             socketHelper.sendMessage(new Action("BLACKBOARDHIDE", ""));
         } else {
-            suspensionWin && suspensionWin.webContents.send("blackboardMinimized");
+            suspensionWin &&
+                suspensionWin.webContents.send("blackboardMinimized");
         }
         if (process.platform === "darwin") {
             blackboardWin && blackboardWin.setFullScreen(false);
@@ -572,7 +603,8 @@ export function registerEvent() {
         if (socketHelper) {
             socketHelper.sendMessage(new Action("QUICKTIMEHIDE", time));
         } else {
-            suspensionWin && suspensionWin.webContents.send("timerWinHide", time);
+            suspensionWin &&
+                suspensionWin.webContents.send("timerWinHide", time);
         }
     });
 
@@ -599,7 +631,8 @@ export function registerEvent() {
         if (socketHelper) {
             socketHelper.sendMessage(new Action("VIDEOSHOW", ""));
         } else {
-            suspensionWin && suspensionWin.webContents.send("hideSuspensionVideo");
+            suspensionWin &&
+                suspensionWin.webContents.send("hideSuspensionVideo");
         }
         setSuspensionSize();
     });
@@ -609,7 +642,8 @@ export function registerEvent() {
         if (socketHelper) {
             socketHelper.sendMessage(new Action("QUESTIONHIDE", ""));
         } else {
-            suspensionWin && suspensionWin.webContents.send("questionMinimized");
+            suspensionWin &&
+                suspensionWin.webContents.send("questionMinimized");
         }
         setSuspensionSize();
     });
@@ -619,7 +653,8 @@ export function registerEvent() {
         if (socketHelper) {
             socketHelper.sendMessage(new Action("QUESTIONSHOW", ""));
         } else {
-            suspensionWin && suspensionWin.webContents.send("hideSuspensionQuestion");
+            suspensionWin &&
+                suspensionWin.webContents.send("hideSuspensionQuestion");
         }
         setSuspensionSize();
     });
@@ -639,17 +674,23 @@ export function registerEvent() {
     });
 
     ipcMain.handle("answer-jection", (_, data) => {
-        answerMachineWin && answerMachineWin.webContents.send("answer-jection", data);
+        answerMachineWin &&
+            answerMachineWin.webContents.send("answer-jection", data);
     });
 
     ipcMain.handle("getWindowList", (_, data) => {
-        unfoldSuspensionWin && unfoldSuspensionWin.webContents.send("getWindowList", data);
+        unfoldSuspensionWin &&
+            unfoldSuspensionWin.webContents.send("getWindowList", data);
     });
     ipcMain.handle("getCourseWares", (_, data) => {
-        unfoldSuspensionWin && unfoldSuspensionWin.webContents.send("getCourseWares", data);
+        unfoldSuspensionWin &&
+            unfoldSuspensionWin.webContents.send("getCourseWares", data);
     });
 }
 
-export const unfoldSuspensionWinSendMessage = (event: string, message: string) => {
+export const unfoldSuspensionWinSendMessage = (
+    event: string,
+    message: string
+) => {
     unfoldSuspensionWin && unfoldSuspensionWin.webContents.send(event, message);
 };

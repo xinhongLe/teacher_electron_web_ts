@@ -1,98 +1,229 @@
 <template>
     <div class="helper-container">
         <div class="header">
-            <span class="exit" v-if="isElectron" @click="clicKBuryPoint('退出程序'),exitApp()">退出程序</span>
-            <img src="@/assets/images/suspension/pic_tittle_zhike@2x.png" alt="" />
+            <span
+                class="exit"
+                v-if="isElectron"
+                @click="clicKBuryPoint('退出程序'), exitApp()"
+                >退出程序</span
+            >
+            <img
+                src="@/assets/images/suspension/pic_tittle_zhike@2x.png"
+                alt=""
+            />
             <div class="right-btns">
-                <i class="el-icon-refresh-right refresh" @click="clicKBuryPoint('刷新'),getGradeList()"></i>
-                <div class="right-btn" @click="clicKBuryPoint('最小化'),close()">
-                    <svg t="1623303211083" class="icon" viewBox="0 0 1024 1024" version="1.1"
-                        xmlns="http://www.w3.org/2000/svg" p-id="2457" width="200" height="200">
-                        <path d="M128 448h768v128H128z" p-id="2458" fill="#ffffff"></path>
+                <i
+                    class="el-icon-refresh-right refresh"
+                    @click="clicKBuryPoint('刷新'), getGradeList()"
+                ></i>
+                <div
+                    class="right-btn"
+                    @click="clicKBuryPoint('最小化'), close()"
+                >
+                    <svg
+                        t="1623303211083"
+                        class="icon"
+                        viewBox="0 0 1024 1024"
+                        version="1.1"
+                        xmlns="http://www.w3.org/2000/svg"
+                        p-id="2457"
+                        width="200"
+                        height="200"
+                    >
+                        <path
+                            d="M128 448h768v128H128z"
+                            p-id="2458"
+                            fill="#ffffff"
+                        ></path>
                     </svg>
                 </div>
             </div>
         </div>
         <div class="container">
-            <el-collapse class="collapse-custom" v-model="activeModes" @change="handleChange">
-                <el-collapse-item name="0" v-if="resourceList.length > 0" @click="currentClickCol('0', '上课')">
+            <el-collapse
+                class="collapse-custom"
+                v-model="activeModes"
+                @change="handleChange"
+            >
+                <el-collapse-item
+                    name="0"
+                    v-if="resourceList.length > 0"
+                    @click="currentClickCol('0', '上课')"
+                >
                     <template #title>
                         <div class="collapse-header">
                             <div class="collapse-title">
-                                <img src="@/assets/images/suspension/icon_sk.png" alt="">
+                                <img
+                                    src="@/assets/images/suspension/icon_sk.png"
+                                    alt=""
+                                />
                                 上课
                             </div>
-                            <div class="attend-class-view" @click.stop="switchClass()">
-                                <img src="@/assets/images/preparation/icon_qiehuan_1.png" alt="">
+                            <div
+                                class="attend-class-view"
+                                @click.stop="switchClass()"
+                            >
+                                <img
+                                    src="@/assets/images/preparation/icon_qiehuan_1.png"
+                                    alt=""
+                                />
                                 {{ isSwitch ? "全部显示" : "仅显示备课篮" }}
                             </div>
                         </div>
                     </template>
                     <div class="resource-list">
-                        <div class="resource-item" :class="{ courseware: resource.UserId === userId }"
-                            v-for="(resource, index) in resourceList" :key="index" @click="classClicKBuryPoint(resource.Name),openResource(resource)">
+                        <div
+                            class="resource-item"
+                            :class="{ courseware: resource.UserId === userId }"
+                            v-for="(resource, index) in resourceList"
+                            :key="index"
+                            @click.stop="
+                                classClicKBuryPoint(resource),
+                                    openResource(resource)
+                            "
+                        >
                             <div class="resource-left-title">
-                                <img :src="iconResources.selfStudy[resource.ResourceType]" alt="" />
+                                <img
+                                    :src="
+                                        iconResources.selfStudy[
+                                            resource.ResourceType
+                                        ]
+                                    "
+                                    alt=""
+                                />
                                 {{ resource.Name }}
                             </div>
-                            <div class="resource-type"
-                                :class="typeResources[resource.ResourceType] < 9 && 'p-r-' + typeResources[resource.ResourceType]">
-                                {{ textResources[resource.ResourceType] }}</div>
+                            <div
+                                class="resource-type"
+                                :class="
+                                    typeResources[resource.ResourceType] < 9 &&
+                                    'p-r-' +
+                                        typeResources[resource.ResourceType]
+                                "
+                            >
+                                {{ textResources[resource.ResourceType] }}
+                            </div>
                         </div>
                     </div>
                 </el-collapse-item>
-                <el-collapse-item name="1" @click="currentClickCol('1', '工具')">
+                <el-collapse-item
+                    name="1"
+                    @click="currentClickCol('1', '工具')"
+                >
                     <template #title>
-                        <div class="collapse-header" >
+                        <div class="collapse-header">
                             <div class="collapse-title">
-                                <img src="@/assets/images/suspension/icon_gj.png" alt="">
+                                <img
+                                    src="@/assets/images/suspension/icon_gj.png"
+                                    alt=""
+                                />
                                 工具
                             </div>
                         </div>
                     </template>
                     <div class="tool-list">
-                        <div class="blackboard-box" @click.stop="clicKBuryPoint('黑板'), openBlackboard()">
-                            <img src="@/assets/images/suspension/pic_blackboard@2x.png" alt="" />
+                        <div
+                            class="blackboard-box"
+                            @click.stop="
+                                clicKBuryPoint('黑板'), openBlackboard()
+                            "
+                        >
+                            <img
+                                src="@/assets/images/suspension/pic_blackboard@2x.png"
+                                alt=""
+                            />
                             <div class="blackboard-text">黑板</div>
                             <!-- <div class="blackboard-btn" @click="openBlackboard()">打开</div> -->
                         </div>
-                        <div class="blackboard-box" @click.stop="clicKBuryPoint('答题器'), openAnswerMachineWindow()">
-                            <img src="@/assets/images/suspension/img_datiqi.png" alt="" />
+                        <div
+                            class="blackboard-box"
+                            @click.stop="
+                                clicKBuryPoint('答题器'),
+                                    openAnswerMachineWindow()
+                            "
+                        >
+                            <img
+                                src="@/assets/images/suspension/img_datiqi.png"
+                                alt=""
+                            />
                             <div class="blackboard-text">答题器</div>
                         </div>
-                        <div class="blackboard-box" @click.stop="clicKBuryPoint('投影'), clickProjection()">
-                            <img src="@/assets/images/suspension/pic_touying@2x.png" alt="" />
+                        <div
+                            class="blackboard-box"
+                            @click.stop="
+                                clicKBuryPoint('投影'), clickProjection()
+                            "
+                        >
+                            <img
+                                src="@/assets/images/suspension/pic_touying@2x.png"
+                                alt=""
+                            />
                             <div class="blackboard-text">投影</div>
                         </div>
-                        <div class="blackboard-box" @click.stop="clicKBuryPoint('知识图谱'), clickKnowledge()">
-                            <img src="@/assets/images/suspension/pic_zhishitupu@2x.png" alt="" />
+                        <div
+                            class="blackboard-box"
+                            @click.stop="
+                                clicKBuryPoint('知识图谱'), clickKnowledge()
+                            "
+                        >
+                            <img
+                                src="@/assets/images/suspension/pic_zhishitupu@2x.png"
+                                alt=""
+                            />
                             <div class="blackboard-text">知识图谱</div>
                         </div>
-                        <div class="blackboard-box" @click.stop="clicKBuryPoint('计时器'), openTimer()">
-                            <img src="@/assets/images/suspension/pic_timer@2x.png" alt="" />
+                        <div
+                            class="blackboard-box"
+                            @click.stop="clicKBuryPoint('计时器'), openTimer()"
+                        >
+                            <img
+                                src="@/assets/images/suspension/pic_timer@2x.png"
+                                alt=""
+                            />
                             <div class="blackboard-text">计时器</div>
                         </div>
                         <!-- openRollCall -->
-                        <div class="blackboard-box" @click.stop="clicKBuryPoint('点名'), openRollCall()">
-                            <img src="@/assets/images/suspension/pic_namer@2x.png" alt="" />
+                        <div
+                            class="blackboard-box"
+                            @click.stop="clicKBuryPoint('点名'), openRollCall()"
+                        >
+                            <img
+                                src="@/assets/images/suspension/pic_namer@2x.png"
+                                alt=""
+                            />
                             <div class="blackboard-text">点名</div>
                         </div>
                     </div>
                 </el-collapse-item>
-                <el-collapse-item name="2"  @click="currentClickCol('2', '教学助手')">
+                <el-collapse-item
+                    name="2"
+                    @click="currentClickCol('2', '教学助手')"
+                >
                     <template #title>
                         <div class="collapse-header">
                             <div class="collapse-title">
-                                <img src="@/assets/images/suspension/icon_jj.png" alt="">
+                                <img
+                                    src="@/assets/images/suspension/icon_jj.png"
+                                    alt=""
+                                />
                                 教学助手
                             </div>
                             <div class="teach-list-title">
-                                <el-cascader v-model="selectBookList" :props="cascaderProps"
-                                    :options="subjectPublisherBookList" />
+                                <el-cascader
+                                    v-model="selectBookList"
+                                    :props="cascaderProps"
+                                    :options="subjectPublisherBookList"
+                                />
                                 <div class="search-input">
-                                    <el-input placeholder="搜索教具名称" v-model="searchName">
+                                    <el-input
+                                        placeholder="搜索教具名称"
+                                        v-model="searchName"
+                                    >
                                         <template #append>
-                                            <el-button icon="el-icon-search" @click="getGradeList"></el-button>
+                                            <el-button
+                                                icon="el-icon-search"
+                                                @click="getGradeList"
+                                            ></el-button>
                                         </template>
                                     </el-input>
                                 </div>
@@ -101,13 +232,27 @@
                     </template>
                     <div class="teach-list">
                         <div class="teach-class" v-show="!isLoading">
-                            <div class="list-empty" v-if="gameList.length === 0">
-                                <img src="@/assets/images/suspension/empty_tool.png" />
-                                <span>本书册下暂无教具，可切换为“全部”查看更多教具内容</span>
+                            <div
+                                class="list-empty"
+                                v-if="gameList.length === 0"
+                            >
+                                <img
+                                    src="@/assets/images/suspension/empty_tool.png"
+                                />
+                                <span
+                                    >本书册下暂无教具，可切换为“全部”查看更多教具内容</span
+                                >
                             </div>
                             <div v-else class="teach-content-warp">
-                                <div class="teach-content" v-for="(item, index) in gameList" :key="index"
-                                    @click.stop="clicKBuryPoint(item.name),openUrl(item.url, item.name)">
+                                <div
+                                    class="teach-content"
+                                    v-for="(item, index) in gameList"
+                                    :key="index"
+                                    @click.stop="
+                                        clicKBuryPoint(item),
+                                            openUrl(item.url, item.name)
+                                    "
+                                >
                                     <div class="img-warp">
                                         <img :src="item.imgUrl" />
                                     </div>
@@ -122,7 +267,14 @@
     </div>
 </template>
 <script lang="ts">
-import { defineComponent, onMounted, onUnmounted, PropType, ref, watch } from "vue";
+import {
+    defineComponent,
+    onMounted,
+    onUnmounted,
+    PropType,
+    ref,
+    watch,
+} from "vue";
 import { Game } from "./interface";
 import { getToolList } from "@/api/index";
 import { getOssUrl } from "@/utils/oss";
@@ -140,15 +292,15 @@ export default defineComponent({
         const initBookList = [
             {
                 Lable: "全部教具",
-                Value: "全部教具"
-            }
+                Value: "全部教具",
+            },
         ];
         const subjectPublisherBookList = ref<BookList[]>(initBookList);
         const cascaderProps = {
             value: "Value",
             children: "Children",
             label: "Lable",
-            checkStrictly: true
+            checkStrictly: true,
         };
         const searchName = ref("");
         const selectBookList = ref(["全部教具"]);
@@ -173,7 +325,7 @@ export default defineComponent({
             const data = {
                 name: searchName.value,
                 bookID: "",
-                bookIDs: [] as string[]
+                bookIDs: [] as string[],
             };
             if (selectBookList.value.length === 1) {
                 data.bookIDs =
@@ -185,7 +337,9 @@ export default defineComponent({
                 data.bookIDs =
                     subjectPublisherBookList.value
                         .find((item) => item.Value === selectBookList.value[0])
-                        ?.Children?.find((item) => item.Value === selectBookList.value[1])
+                        ?.Children?.find(
+                            (item) => item.Value === selectBookList.value[1]
+                        )
                         ?.Children?.map((x) => x?.Value || "") || [];
             } else {
                 data.bookID = selectBookList.value[2];
@@ -203,7 +357,7 @@ export default defineComponent({
                 gameList.value = list.map((item, index) => ({
                     url: item.Url,
                     imgUrl: imgList[index],
-                    name: item.Name
+                    name: item.Name,
                 }));
             }
             isLoading.value = false;
@@ -211,7 +365,11 @@ export default defineComponent({
         const openUrl = (url: string, name: string) => {
             if (isElectron()) {
                 url = url.startsWith("http") ? url : `https://${url}`;
-                return window.electron.ipcRenderer.invoke("openSubjectTool", url, name);
+                return window.electron.ipcRenderer.invoke(
+                    "openSubjectTool",
+                    url,
+                    name
+                );
             }
             window.open(url);
         };
@@ -223,7 +381,10 @@ export default defineComponent({
                 return ElMessage.error("请等待学员加载后点名！");
             }
             if (isElectron()) {
-                return window.electron.ipcRenderer.invoke("openRollCall", JSON.parse(JSON.stringify(allStudentList.value)));
+                return window.electron.ipcRenderer.invoke(
+                    "openRollCall",
+                    JSON.parse(JSON.stringify(allStudentList.value))
+                );
             }
         };
         const openAnswerMachineWindow = () => {
@@ -231,7 +392,10 @@ export default defineComponent({
                 return ElMessage.error("请等待学员加载后答题！");
             }
             if (isElectron()) {
-                return window.electron.ipcRenderer.invoke("openAnswerMachineWindow", JSON.parse(JSON.stringify(allStudentList.value)));
+                return window.electron.ipcRenderer.invoke(
+                    "openAnswerMachineWindow",
+                    JSON.parse(JSON.stringify(allStudentList.value))
+                );
             }
         };
         const close = () => {
@@ -253,11 +417,10 @@ export default defineComponent({
             window.electron.ipcRenderer.invoke("exitApp");
         };
         const getBookList = async () => {
-            const data = await window.electron.ipcRenderer.invoke("fetchSubjectPublisherBookList");
-            subjectPublisherBookList.value = [
-                ...initBookList,
-                ...data
-            ];
+            const data = await window.electron.ipcRenderer.invoke(
+                "fetchSubjectPublisherBookList"
+            );
+            subjectPublisherBookList.value = [...initBookList, ...data];
             getGradeList();
         };
         const getStudentList = async () => {
@@ -270,7 +433,8 @@ export default defineComponent({
 
         const resourceList = ref([]);
         const onResources = (event: IpcRendererEvent, data: any) => {
-            if (data.type === "sysData") resourceList.value = JSON.parse(data.resources || "[]");
+            if (data.type === "sysData")
+                resourceList.value = JSON.parse(data.resources || "[]");
             if (data.type === "switchClass") isSwitch.value = data.switch;
         };
         //collapse 改变事件
@@ -278,17 +442,30 @@ export default defineComponent({
             // console.log(data);
         };
         //智课助手界面里面-工具、按钮、最小化、退出、教具等的 点击埋点事件
-        const clicKBuryPoint = (name: string) => {
-            usePageEvent('click', '智课助手', `${name}-click`, name)
+        const clicKBuryPoint = (item: any) => {
+            usePageEvent(1, "智课助手", `${item.name}`, item.name);
         };
         //智课助手界面上课模块资源点击 埋点事件
-        const classClicKBuryPoint = (name:string) =>{
-            usePageEvent('click', '智课助手', `上课-${name}-click`, name)
+        const classClicKBuryPoint = (resource: any) => {
+            // console.log(resource);
+            const data = Object.assign({}, resource);
+            //先赋值给第1项---
+            data.TextBooks = data.TextBooks[0];
+            console.log(data);
+            usePageEvent(
+                1,
+                "智课助手",
+                `上课-${resource.Name}`,
+                resource.Name,
+                data
+            );
         };
         //当前点击是哪个展开/收起项
         const currentClickCol = (item: string, name: string) => {
-            const awayOrExpend = activeModes.value.includes(item) ? '展开' : '收起';//点击的项是否在已展开的数组里
-            usePageEvent('click', '智课助手', `${awayOrExpend}${name}-click`, name)
+            const awayOrExpend = activeModes.value.includes(item)
+                ? "展开"
+                : "收起"; //点击的项是否在已展开的数组里
+            usePageEvent(1, "智课助手", `${awayOrExpend}${name}`, name);
         };
 
         onMounted(async () => {
@@ -306,7 +483,9 @@ export default defineComponent({
                     }
                 });
 
-                window.electron.ipcRenderer.send("attendClass", "main", { type: "sysData" });
+                window.electron.ipcRenderer.send("attendClass", "main", {
+                    type: "sysData",
+                });
 
                 window.electron.ipcRenderer.on("attendClass", onResources);
             }
@@ -320,11 +499,16 @@ export default defineComponent({
         const isSwitch = ref(false);
 
         const openResource = (resource: any) => {
-            window.electron.ipcRenderer.send("attendClass", "main", { type: "openResource", resource: JSON.stringify(resource) });
+            window.electron.ipcRenderer.send("attendClass", "main", {
+                type: "openResource",
+                resource: JSON.stringify(resource),
+            });
         };
 
         const switchClass = () => {
-            window.electron.ipcRenderer.send("attendClass", "main", { type: "switchClass" });
+            window.electron.ipcRenderer.send("attendClass", "main", {
+                type: "switchClass",
+            });
         };
 
         watch(selectBookList, getGradeList);
@@ -359,9 +543,9 @@ export default defineComponent({
             clicKBuryPoint,
             classClicKBuryPoint,
             handleChange,
-            currentClickCol
+            currentClickCol,
         };
-    }
+    },
 });
 </script>
 
@@ -544,7 +728,7 @@ export default defineComponent({
     --el-collapse-header-background-color: transparent;
     --el-collapse-border-color: transparent;
     --el-collapse-content-background-color: transparent;
-    --el-collapse-header-font-color: #FFFFFF;
+    --el-collapse-header-font-color: #ffffff;
 
     .collapse-header {
         flex: 1;
@@ -569,7 +753,7 @@ export default defineComponent({
     .attend-class-view {
         display: flex;
         align-items: center;
-        color: #BEC3D6;
+        color: #bec3d6;
         cursor: pointer;
         margin-right: 15px;
 
@@ -590,7 +774,7 @@ export default defineComponent({
             align-items: center;
             justify-content: space-between;
             border-radius: 4px;
-            background-color: rgba(255, 255, 255, .14);
+            background-color: rgba(255, 255, 255, 0.14);
             padding: 8px 5px 8px 10px;
             margin-bottom: 8px;
             cursor: pointer;

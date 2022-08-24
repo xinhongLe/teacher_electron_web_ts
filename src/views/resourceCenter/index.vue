@@ -7,15 +7,15 @@
 <script lang="ts">
 import { get, STORAGE_TYPES } from "@/utils/storage";
 import { defineComponent, onActivated, onDeactivated } from "vue";
-import { systemId } from '@/config/index'
+import { systemId } from "@/config/index";
 import { IYunInfo } from "@/types/login";
-import usePageEvent from '@/hooks/usePageEvent'
+import usePageEvent from "@/hooks/usePageEvent";
 
 // ts
 export default defineComponent({
     name: "assessmentCenter",
     setup() {
-        usePageEvent('page', '资源中心')
+        usePageEvent(4, "资源中心", "资源中心");
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         window.onmessage = (e: any, d: any) => {
@@ -50,11 +50,11 @@ export default defineComponent({
         const platType = systemId;
         //webview地址
         const url = `http://leyixueresource.aixueshi.top?TOKEN=${token}&USERID=${userId}&ORGID=${orgID}&SECRETKEY=${secretKey}&USERTYPE=${userType}&SCHOOLID=${schoolId}&SCHOOLNAME=${schoolName}&PLATTYPE=${platType}`;
-        // console.log('url----', url);     
+        // console.log('url----', url);
         return {
-            url
+            url,
         };
-    }
+    },
 });
 </script>
 

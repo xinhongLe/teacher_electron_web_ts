@@ -183,7 +183,7 @@ async function createWindow() {
         if (to === "main") mainWindow!.webContents.send("attendClass", data)
     });
 
-    //悬浮球点击事件
+    //悬浮球点击消息通知事件
     ipcMain.on("suspensionClick", () => {
         mainWindow!.show();
         mainWindow!.webContents.send("suspensionClick");

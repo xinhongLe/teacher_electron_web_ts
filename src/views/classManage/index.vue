@@ -1,6 +1,5 @@
 <template>
     <div class="my-student">
-
         <Head />
         <div class="list-box">
             <GradeList />
@@ -10,25 +9,25 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onUnmounted} from "vue";
+import { defineComponent, onUnmounted } from "vue";
 import Head from "./head/index.vue";
 import GradeList from "./gradeList/index.vue";
 import StudentList from "./studentList/index.vue";
 import { useRoute } from "vue-router";
 import useUserInfo from "@/hooks/useUserInfo";
 import { MutationTypes, store } from "@/store";
-import usePageEvent from '@/hooks/usePageEvent'
+import usePageEvent from "@/hooks/usePageEvent";
 
 export default defineComponent({
     name: "ClassManage",
     components: {
         Head,
         GradeList,
-        StudentList
+        StudentList,
     },
     setup() {
-          //埋点需求
-        usePageEvent('page', '班级管理')
+        //埋点需求
+        usePageEvent(4, "班级管理", "班级管理");
         const route = useRoute();
         const { queryUserInfoByTeacherId } = useUserInfo();
         if (route.query.teacherId) {
@@ -38,7 +37,7 @@ export default defineComponent({
         onUnmounted(() => {
             store.commit(MutationTypes.UPDATE_SELECT_CLASS_INFO, {});
         });
-    }
+    },
 });
 </script>
 

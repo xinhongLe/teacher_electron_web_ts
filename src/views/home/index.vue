@@ -3,26 +3,51 @@
         <div class="main">
             <div class="top">
                 <div class="left">
-                    <div class="left-one" @click="go('preparation'), clicKBuryPoint('备课', '备课-click')">
+                    <div
+                        class="left-one"
+                        @click="go('preparation'), clicKBuryPoint('备课')"
+                    >
                         <span>备课</span>
                     </div>
-                    <div class="left-two" @click="go('homework'), clicKBuryPoint('作业', '作业-click')">
+                    <div
+                        class="left-two"
+                        @click="go('homework'), clicKBuryPoint('作业')"
+                    >
                         <span>作业</span>
                     </div>
                 </div>
                 <div class="right">
-                    <Calendar ref="calendar" :days="days" :isShowDetailBtn="true">
+                    <Calendar
+                        ref="calendar"
+                        :days="days"
+                        :isShowDetailBtn="true"
+                    >
                         <template v-slot:default="slotProps">
                             <header class="header">
-                                <div @click="weekPre, clicKBuryPoint('上周', '上周-click')" class="week">
+                                <div
+                                    @click="weekPre, clicKBuryPoint('上周')"
+                                    class="week"
+                                >
                                     <i class="el-icon-arrow-left"></i>上周
                                 </div>
                                 <div class="title">上课</div>
                                 <div class="header-right">
-                                    <div class="refresh" @click="slotProps.initSchedules">
-                                        <i class="el-icon-refresh-right" :style="{ marginRight: '4px' }"></i>刷新课表
+                                    <div
+                                        class="refresh"
+                                        @click="slotProps.initSchedules"
+                                    >
+                                        <i
+                                            class="el-icon-refresh-right"
+                                            :style="{ marginRight: '4px' }"
+                                        ></i
+                                        >刷新课表
                                     </div>
-                                    <div @click="weekNext, clicKBuryPoint('下周', '下周-click')" class="week">
+                                    <div
+                                        @click="
+                                            weekNext, clicKBuryPoint('下周')
+                                        "
+                                        class="week"
+                                    >
                                         下周<i class="el-icon-arrow-right"></i>
                                     </div>
                                 </div>
@@ -32,28 +57,52 @@
                 </div>
             </div>
             <div class="bottom">
-                <div class="item" @click="go('report-center'), clicKBuryPoint('报表中心', '报表中心-click')">
+                <div
+                    class="item"
+                    @click="go('report-center'), clicKBuryPoint('报表中心')"
+                >
                     <div class="item_div">
-                        <img src="../../assets/indexImages/pic_baobiao_new.png" alt="" />
+                        <img
+                            src="../../assets/indexImages/pic_baobiao_new.png"
+                            alt=""
+                        />
                         <span>报表中心</span>
                     </div>
                 </div>
                 <!-- 2022-7-25 annan -->
-                <div class="item" @click="go('resource-center'), clicKBuryPoint('资源中心', '资源中心-click')">
+                <div
+                    class="item"
+                    @click="go('resource-center'), clicKBuryPoint('资源中心')"
+                >
                     <div class="item_div">
-                        <img src="../../assets/indexImages/pic_zyzx.png" alt="" />
+                        <img
+                            src="../../assets/indexImages/pic_zyzx.png"
+                            alt=""
+                        />
                         <span>资源中心</span>
                     </div>
                 </div>
-                <div class="item" @click="go('assessment-center'), clicKBuryPoint('评测中心', '评测中心-click')">
+                <div
+                    class="item"
+                    @click="go('assessment-center'), clicKBuryPoint('评测中心')"
+                >
                     <div class="item_div">
-                        <img src="../../assets/indexImages/pic_kaoshi_new.png" alt="" />
+                        <img
+                            src="../../assets/indexImages/pic_kaoshi_new.png"
+                            alt=""
+                        />
                         <span>测评中心</span>
                     </div>
                 </div>
-                <div class="item" @click="go('course-time'), clicKBuryPoint('课后延时', '课后延时-click')">
+                <div
+                    class="item"
+                    @click="go('course-time'), clicKBuryPoint('课后延时')"
+                >
                     <div class="item_div">
-                        <img src="../../assets/indexImages/icon_kehou_new.png" alt="" />
+                        <img
+                            src="../../assets/indexImages/icon_kehou_new.png"
+                            alt=""
+                        />
                         <span>课后延时</span>
                     </div>
                 </div>
@@ -66,15 +115,24 @@
                         <span>集体备课</span>
                     </div>
                 </div> -->
-                <div class="item" @click="go(''), clicKBuryPoint('直播课堂', '直播课堂-click')">
+                <div class="item" @click="go(''), clicKBuryPoint('直播课堂')">
                     <div class="item_div">
-                        <img src="../../assets/indexImages/icon_zhibo_new.png" alt="" />
+                        <img
+                            src="../../assets/indexImages/icon_zhibo_new.png"
+                            alt=""
+                        />
                         <span>直播课堂</span>
                     </div>
                 </div>
-                <div class="item" @click="go('class-manage'), clicKBuryPoint('班级管理', '班级管理-click')">
+                <div
+                    class="item"
+                    @click="go('class-manage'), clicKBuryPoint('班级管理')"
+                >
                     <div class="item_div">
-                        <img src="../../assets/indexImages/icon_banji_new.png" alt="" />
+                        <img
+                            src="../../assets/indexImages/icon_banji_new.png"
+                            alt=""
+                        />
                         <span>班级管理</span>
                     </div>
                 </div>
@@ -90,12 +148,12 @@ import { defineComponent, onActivated, ref, onMounted, onUnmounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import Calendar from "../../components/calendar/index.vue";
 import usePageEvent from "@/hooks/usePageEvent";
-import isElectron from "is-electron";
+import isElectron from "is-electron"; 
 
 export default defineComponent({
     name: "Home",
     components: {
-        Calendar
+        Calendar,
     },
     setup() {
         const router = useRouter();
@@ -106,19 +164,27 @@ export default defineComponent({
         const go = (val: string) => {
             if (val === "") {
                 ElMessage.warning({
-                    message: "功能建设中 敬请期待"
+                    message: "功能建设中 敬请期待",
                 });
             } else {
                 router.push(`/${val}`);
             }
         };
         //首页点击埋点事件
-        const clicKBuryPoint = (name: string, eventId: string) => {
-            usePageEvent('click', '首页', eventId, name)
+        const clicKBuryPoint = (name: string) => {
+            usePageEvent(1, "首页", name, name);
         };
         const turnToPage = () => {
             // 岳阳云平台内嵌备教端，页面跳转
-            if (route.redirectedFrom && window?.top && (window?.top[0]?.location.origin.indexOf("yueyangyun") > -1 || (window?.top[0]?.location?.ancestorOrigins[0].indexOf("yueyangyun") > -1) || window?.top[0]?.location?.origin.indexOf("localhost") > -1)) {
+            if (
+                route.redirectedFrom &&
+                window?.top &&
+                (window?.top[0]?.location.origin.indexOf("yueyangyun") > -1 ||
+                    window?.top[0]?.location?.ancestorOrigins[0].indexOf(
+                        "yueyangyun"
+                    ) > -1 ||
+                    window?.top[0]?.location?.origin.indexOf("localhost") > -1)
+            ) {
                 const path = route.redirectedFrom.path.split("#/")[1] || "";
                 router.replace(`${path}`);
             }
@@ -127,8 +193,8 @@ export default defineComponent({
 
         //定义悬浮球的点击事件，悬浮球埋点需求
         const suspensionClick = () => {
-            usePageEvent('click', '智课助手', '智课助手-click', '智课助手')
-        }
+            usePageEvent(1, "智课助手", "智课助手", "智课助手");
+        };
 
         const calendar = ref();
         onActivated(() => {
@@ -138,13 +204,19 @@ export default defineComponent({
         onMounted(() => {
             if (isElectron()) {
                 //注册悬浮球点击事件
-                window.electron.ipcRenderer.on("suspensionClick", suspensionClick);
+                window.electron.ipcRenderer.on(
+                    "suspensionClick",
+                    suspensionClick
+                );
             }
         });
         onUnmounted(() => {
             if (isElectron()) {
                 //销毁悬浮球点击事件
-                window.electron.ipcRenderer.removeListener("suspensionClick", suspensionClick);
+                window.electron.ipcRenderer.removeListener(
+                    "suspensionClick",
+                    suspensionClick
+                );
             }
         });
         return {
@@ -153,9 +225,9 @@ export default defineComponent({
             weekPre,
             days,
             calendar,
-            clicKBuryPoint
+            clicKBuryPoint,
         };
-    }
+    },
 });
 </script>
 
@@ -169,7 +241,7 @@ export default defineComponent({
     flex-direction: column;
     min-height: 0px;
     flex: 1;
-    background-color: #E9EFFF;
+    background-color: #e9efff;
 
     .main {
         padding: 20px 20px 20px 20px;
@@ -188,7 +260,7 @@ export default defineComponent({
             justify-content: space-between;
             align-items: center;
             font-size: 20px;
-            background: linear-gradient(270deg, #709DFF 0%, #5A80F7 100%);
+            background: linear-gradient(270deg, #709dff 0%, #5a80f7 100%);
             border-top-left-radius: 16px;
             border-top-right-radius: 16px;
             color: #ffffff;
@@ -250,7 +322,8 @@ export default defineComponent({
                     box-sizing: border-box;
                     margin-bottom: 28px;
                     cursor: pointer;
-                    background: url("./../../assets/indexImages/card_beike.png") no-repeat;
+                    background: url("./../../assets/indexImages/card_beike.png")
+                        no-repeat;
                     background-position: center center;
                     background-size: cover;
                     border-radius: 15px;
@@ -271,7 +344,8 @@ export default defineComponent({
                     position: relative;
                     cursor: pointer;
                     flex: 1;
-                    background: url("./../../assets/indexImages/card_zuoye.png") no-repeat;
+                    background: url("./../../assets/indexImages/card_zuoye.png")
+                        no-repeat;
                     background-position: center center;
                     background-size: cover;
                     border-radius: 15px;

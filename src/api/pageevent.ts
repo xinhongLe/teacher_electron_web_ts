@@ -11,7 +11,7 @@ export function createBuryingPoint(
 ) {
     return request({
         baseURL: TRACK_API,
-        url: "/Api/Track/createBuryingPoint",
+        url: "/Api/Track/CreateByMq",
         headers: {
             "Content-Type": "application/json-patch+json",
             noLoading: "true"
