@@ -20,7 +20,7 @@ export default (windowCards:Ref<ICardList[]>, windowInfo:any) => {
                     Name: name,
                     ID: res.result.ID,
                     Sort: sort,
-                    isAdd: true,
+                    isAdd: false,
                     PageList: []
                 };
                 windowCards.value.push(card);
