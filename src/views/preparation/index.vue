@@ -1,9 +1,22 @@
 <template>
     <div class="preparation">
-        <LeftMenu v-model:showClassArrangement="showClassArrangement" v-model:course="course" v-model:bookId="bookId" />
+        <LeftMenu
+            v-model:showClassArrangement="showClassArrangement"
+            v-model:course="course"
+            v-model:bookId="bookId"
+        />
         <div class="content-wrapper" v-show="!showClassArrangement">
-            <Head :course="course" v-model:source="source" v-model:type="type" />
-            <Resources :course="course" :source="source" :type="type" :bookId="bookId" />
+            <Head
+                :course="course"
+                v-model:source="source"
+                v-model:type="type"
+            />
+            <Resources
+                :course="course"
+                :source="source"
+                :type="type"
+                :bookId="bookId"
+            />
         </div>
         <div class="content-wrapper" v-if="showClassArrangement">
             <ClassArrangement />
@@ -12,19 +25,29 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, provide, ref } from "vue";
+import {
+    defineComponent,
+    onMounted,
+    provide,
+    ref,
+    onActivated,
+    onDeactivated,
+} from "vue";
 import LeftMenu from "./layout/leftMenu.vue";
 import Head from "./layout/head.vue";
 import Resources from "./layout/resources.vue";
 import ClassArrangement from "./classArrangement/index.vue";
+import usePageEvent from "@/hooks/usePageEvent";
 export default defineComponent({
     name: "Preparation",
     setup() {
+        //埋点需求
+        usePageEvent(4, "备课", "备课");
         const showClassArrangement = ref(false);
         const course = ref({
             chapterId: "",
             lessonId: "",
-            lessonName: ""
+            lessonName: "",
         });
         const source = ref("");
         const type = ref("");
@@ -35,15 +58,15 @@ export default defineComponent({
             showClassArrangement,
             source,
             type,
-            bookId
+            bookId,
         };
     },
     components: {
         LeftMenu,
         Head,
         Resources,
-        ClassArrangement
-    }
+        ClassArrangement,
+    },
 });
 </script>
 
@@ -54,14 +77,15 @@ export default defineComponent({
     display: flex;
     min-width: 0;
     min-height: 0;
-    background-color: #F5F6FA;
+    background-color: #f5f6fa;
+
     .content-wrapper {
         display: flex;
         flex: 1;
         flex-direction: column;
         min-height: 0;
         min-width: 0;
-        background-color: #F5F6FA;
+        background-color: #f5f6fa;
     }
 }
 </style>

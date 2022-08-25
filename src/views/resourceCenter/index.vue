@@ -12,15 +12,17 @@
 
 <script lang="ts">
 import { get, STORAGE_TYPES } from "@/utils/storage";
-import { defineComponent } from "vue";
-import { RESOURCE_WEB, systemId } from '@/config/index'
+import { defineComponent, onActivated, onDeactivated } from "vue";
+import { RESOURCE_WEB, systemId } from "@/config";
 import { IYunInfo } from "@/types/login";
+import usePageEvent from "@/hooks/usePageEvent";
 import isElectron from "is-electron";
 
 // ts
 export default defineComponent({
     name: "assessmentCenter",
     setup() {
+        usePageEvent(4, "资源中心", "资源中心");
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         window.onmessage = (e: any, d: any) => {
@@ -58,9 +60,9 @@ export default defineComponent({
         // console.log('url----', url);
         return {
             url,
-            isElectron: isElectron()
+            isElectron: isElectron(),
         };
-    }
+    },
 });
 </script>
 
