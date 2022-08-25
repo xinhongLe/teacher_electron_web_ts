@@ -15,7 +15,6 @@ const dealCardData = (card:SchoolWindowCardInfo) => {
     });
     return {
         ...card,
-        PageList: card.PageList.filter(page => page.State), // 预览过滤掉未上架页
         Pages: pages
     };
 };
@@ -56,12 +55,12 @@ const useWindowInfo = () => {
                         return {
                             ...page,
                             OriginType: OriginType
-                        }
+                        };
                     });
                     return {
                         ...item,
-                        PageList
-                    }
+                        PageList: PageList.filter(page => page.State) // 预览过滤掉未上架页
+                    };
                 });
                 currentCardIndex.value = 0;
                 currentCard.value = cardList.value[0];
