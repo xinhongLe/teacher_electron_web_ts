@@ -16,7 +16,7 @@
         "serve:pro": "cross-env NODE_ENV=production vue-cli-service serve --mode production",
         "build:pro": "cross-env NODE_ENV=production vue-cli-service build --mode production",
         "lint": "vue-cli-service lint",
-        "rebuild": "electron-rebuild -f"
+        "rebuild": "electron-rebuild -f"  
     },
     "dependencies": {
         "@element-plus/icons-vue": "^0.2.4",
