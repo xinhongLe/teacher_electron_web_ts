@@ -1,6 +1,6 @@
 <template>
     <div class="container">
-        <iframe :src="src" class="iframe"/>
+        <iframe :src="src" class="iframe" />
     </div>
 </template>
 
@@ -13,7 +13,7 @@ export default defineComponent({
     setup() {
         const url = process.env.VUE_APP_IFRAME;
         const userInfo = get(STORAGE_TYPES.USER_INFO);
-        return	{
+        return {
             src: computed(() => `${url}/#/allStudyStatisticsData?TeacherID=${store.state.userInfo.id}&hideHeader=1&FranchiseeID=${userInfo.FranchiseeID}&FranchiseeMaster=${userInfo.IsFranchiseeMaster}`)
         };
     }
@@ -24,6 +24,7 @@ export default defineComponent({
 .container {
     flex: 1;
     height: 100%;
+
     .iframe {
         width: 100%;
         height: 100%;

@@ -1,9 +1,9 @@
 <template>
     <div class="my-student">
-        <Head/>
+        <Head />
         <div class="list-box">
-            <GradeList/>
-            <StudentList/>
+            <GradeList />
+            <StudentList />
         </div>
     </div>
 </template>
@@ -16,15 +16,18 @@ import StudentList from "./studentList/index.vue";
 import { useRoute } from "vue-router";
 import useUserInfo from "@/hooks/useUserInfo";
 import { MutationTypes, store } from "@/store";
+import usePageEvent from "@/hooks/usePageEvent";
 
 export default defineComponent({
     name: "ClassManage",
     components: {
         Head,
         GradeList,
-        StudentList
+        StudentList,
     },
     setup() {
+        //埋点需求
+        usePageEvent(4, "班级管理", "班级管理");
         const route = useRoute();
         const { queryUserInfoByTeacherId } = useUserInfo();
         if (route.query.teacherId) {
@@ -34,7 +37,7 @@ export default defineComponent({
         onUnmounted(() => {
             store.commit(MutationTypes.UPDATE_SELECT_CLASS_INFO, {});
         });
-    }
+    },
 });
 </script>
 
@@ -45,6 +48,7 @@ export default defineComponent({
     height: 100%;
     flex-direction: column;
     justify-content: space-between;
+
     .list-box {
         flex: 1;
         width: 100%;
