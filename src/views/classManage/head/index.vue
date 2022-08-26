@@ -43,9 +43,11 @@ import { useRoute, useRouter } from "vue-router";
 import AddStudent from "../addStudent/index.vue";
 import BulkImportDialog from "./bulkImportDialog.vue";
 import usePageEvent from "@/hooks/usePageEvent"; //埋点事件hooks
+import { EVENT_TYPE } from "@/config/event";
 export default defineComponent({
     name: "Head",
     setup() {
+        const { createBuryingPointFn } = usePageEvent("班级管理");
         const showAddStudent = ref(false);
         const showBulkImport = ref(false);
         const route = useRoute();
@@ -90,7 +92,7 @@ export default defineComponent({
 
         //班级管理页面点击埋点事件
         const clicKBuryPoint = (name: string) => {
-            usePageEvent(1, "班级管理", name, name);
+            createBuryingPointFn(EVENT_TYPE.PageClick, name, name);
         };
 
         watch(

@@ -61,7 +61,14 @@
                             </div>
                             <div
                                 class="attend-class-view"
-                                @click.stop="switchClass()"
+                                @click.stop="
+                                    switchClass(),
+                                        clicKBuryPoint(
+                                            isSwitch
+                                                ? '全部显示'
+                                                : '仅显示备课篮'
+                                        )
+                                "
                             >
                                 <img
                                     src="@/assets/images/preparation/icon_qiehuan_1.png"
@@ -289,8 +296,11 @@ import { fetchAllStudents } from "@/views/labelManage/api";
 import { IpcRendererEvent } from "electron";
 import { iconResources, textResources, typeResources } from "@/config/resource";
 import usePageEvent from "@/hooks/usePageEvent";
+import { EVENT_TYPE } from "@/config/event";
 export default defineComponent({
     setup(props, { emit }) {
+        const { createBuryingPointFn } = usePageEvent("智课助手");
+
         const gameList = ref<Game[]>([]);
         const initBookList = [
             {
@@ -446,7 +456,11 @@ export default defineComponent({
         };
         //智课助手界面里面-工具、按钮、最小化、退出、教具等的 点击埋点事件
         const clicKBuryPoint = (item: any) => {
-            usePageEvent(1, "智课助手", `${item.name}`, item.name);
+            createBuryingPointFn(
+                EVENT_TYPE.PageClick,
+                item.name || item,
+                item.name || item
+            );
         };
         //智课助手界面上课模块资源点击 埋点事件
         const classClicKBuryPoint = (resource: any) => {
@@ -454,10 +468,9 @@ export default defineComponent({
             const data = Object.assign({}, resource);
             //先赋值给第1项---
             data.TextBooks = data.TextBooks[0];
-            console.log(data);
-            usePageEvent(
-                1,
-                "智课助手",
+            // console.log(data);
+            createBuryingPointFn(
+                EVENT_TYPE.PageClick,
                 `上课-${resource.Name}`,
                 resource.Name,
                 data
@@ -468,7 +481,11 @@ export default defineComponent({
             const awayOrExpend = activeModes.value.includes(item)
                 ? "展开"
                 : "收起"; //点击的项是否在已展开的数组里
-            usePageEvent(1, "智课助手", `${awayOrExpend}${name}`, name);
+            createBuryingPointFn(
+                EVENT_TYPE.PageClick,
+                `${awayOrExpend}${name}`,
+                name
+            );
         };
 
         onMounted(async () => {

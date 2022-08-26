@@ -42,7 +42,7 @@ export default defineComponent({
     name: "Preparation",
     setup() {
         //埋点需求
-        usePageEvent(4, "备课", "备课");
+        const { createBuryingPointFn } = usePageEvent("备课", true);
         const showClassArrangement = ref(false);
         const course = ref({
             chapterId: "",

@@ -148,7 +148,8 @@ import { defineComponent, onActivated, ref, onMounted, onUnmounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import Calendar from "../../components/calendar/index.vue";
 import usePageEvent from "@/hooks/usePageEvent";
-import isElectron from "is-electron"; 
+import isElectron from "is-electron";
+import { EVENT_TYPE } from "@/config/event";
 
 export default defineComponent({
     name: "Home",
@@ -156,6 +157,7 @@ export default defineComponent({
         Calendar,
     },
     setup() {
+        const { createBuryingPointFn } = usePageEvent("首页");
         const router = useRouter();
         const route = useRoute();
         const { weekNext, weekPre, initDays, days } = useTime();
@@ -172,7 +174,7 @@ export default defineComponent({
         };
         //首页点击埋点事件
         const clicKBuryPoint = (name: string) => {
-            usePageEvent(1, "首页", name, name);
+            createBuryingPointFn(EVENT_TYPE.PageClick, name, name);
         };
         const turnToPage = () => {
             // 岳阳云平台内嵌备教端，页面跳转
@@ -193,7 +195,7 @@ export default defineComponent({
 
         //定义悬浮球的点击事件，悬浮球埋点需求
         const suspensionClick = () => {
-            usePageEvent(1, "智课助手", "智课助手", "智课助手");
+            createBuryingPointFn(EVENT_TYPE.PageClick, "智课助手", "智课助手");
         };
 
         const calendar = ref();
