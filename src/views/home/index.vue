@@ -15,6 +15,12 @@
                     >
                         <span>作业</span>
                     </div>
+                    <div
+                        class="left-three"
+                        @click="go('wrongbook'), clicKBuryPoint('班级错题本')"
+                    >
+                        <span>班级错题本</span>
+                    </div>
                 </div>
                 <div class="right">
                     <Calendar
@@ -148,7 +154,7 @@ import { defineComponent, onActivated, ref, onMounted, onUnmounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import Calendar from "../../components/calendar/index.vue";
 import usePageEvent from "@/hooks/usePageEvent";
-import isElectron from "is-electron"; 
+import isElectron from "is-electron";
 
 export default defineComponent({
     name: "Home",
@@ -341,10 +347,38 @@ export default defineComponent({
 
                 .left-two {
                     box-sizing: border-box;
+                    margin-bottom: 28px;
                     position: relative;
                     cursor: pointer;
                     flex: 1;
                     background: url("./../../assets/indexImages/card_zuoye.png")
+                        no-repeat;
+                    background-position: center center;
+                    background-size: cover;
+                    border-radius: 15px;
+
+                    img {
+                        // width: 100%;
+                        height: 100%;
+                        border-radius: 15px;
+                    }
+
+                    span {
+                        position: absolute;
+                        top: 10%;
+                        left: 6%;
+                        font-size: 46px;
+                        font-family: PingFang-SC-Heavy, PingFang-SC;
+                        font-weight: 800;
+                        color: #ffffff;
+                    }
+                }
+                .left-three {
+                    box-sizing: border-box;
+                    position: relative;
+                    cursor: pointer;
+                    flex: 1;
+                    background: url("./../../assets/indexImages/card_cuotiben.png")
                         no-repeat;
                     background-position: center center;
                     background-size: cover;
