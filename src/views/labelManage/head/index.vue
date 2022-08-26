@@ -45,7 +45,8 @@
                                         'searchStudent',
                                         formData.subject,
                                         formData.studentName
-                                    )
+                                    ),
+                                        clicKBuryPoint('搜索')
                                 "
                             >
                                 搜索
@@ -84,6 +85,7 @@
 import { get, STORAGE_TYPES } from "@/utils/storage";
 import { defineComponent, reactive, ref, watch } from "vue";
 import usePageEvent from "@/hooks/usePageEvent"; //埋点事件hooks
+import { EVENT_TYPE } from "@/config/event";
 
 export default defineComponent({
     name: "Head",
@@ -98,6 +100,7 @@ export default defineComponent({
         },
     },
     setup(props, { emit }) {
+        const { createBuryingPointFn } = usePageEvent("班级管理");
         const formData = reactive({
             subject: "",
             studentName: "",
@@ -120,7 +123,7 @@ export default defineComponent({
 
         //班级管理页面编辑标签点击埋点事件
         const clicKBuryPoint = (name: string) => {
-            usePageEvent(1, "班级管理", name, name);
+            createBuryingPointFn(EVENT_TYPE.PageClick, name, name);
         };
         return {
             formData,

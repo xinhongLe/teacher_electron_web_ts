@@ -27,7 +27,7 @@ export default defineComponent({
     },
     setup() {
         //埋点需求
-        usePageEvent(4, "班级管理", "班级管理");
+        const { createBuryingPointFn } = usePageEvent("班级管理", true);
         const route = useRoute();
         const { queryUserInfoByTeacherId } = useUserInfo();
         if (route.query.teacherId) {

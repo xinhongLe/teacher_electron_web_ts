@@ -22,7 +22,7 @@ import isElectron from "is-electron";
 export default defineComponent({
     name: "assessmentCenter",
     setup() {
-        usePageEvent(4, "资源中心", "资源中心");
+        const { createBuryingPointFn } = usePageEvent("资源中心", true);
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         window.onmessage = (e: any, d: any) => {

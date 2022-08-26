@@ -394,11 +394,15 @@ export function createSuspensionWindow() {
             useContentSize: true,
             transparent: true, // 设置透明
             backgroundColor: "#00000000",
-            alwaysOnTop: true // 窗口是否总是显示在其他窗口之前
+            alwaysOnTop: true, // 窗口是否总是显示在其他窗口之前
         });
         const size = screen.getPrimaryDisplay().workAreaSize; // 获取显示器的宽高
         const winSize = suspensionWin.getSize(); // 获取窗口宽高
-        suspensionWin.setPosition(size.width - winSize[0] - 80, size.height - winSize[1] - 50, false);
+        suspensionWin.setPosition(
+            size.width - winSize[0] - 80,
+            size.height - winSize[1] - 50,
+            false
+        );
 
         suspensionWin.once("ready-to-show", () => {
             suspensionWin && suspensionWin.setAlwaysOnTop(true, "pop-up-menu");
@@ -430,7 +434,7 @@ export function createSuspensionWindow() {
     //     if (isOk) {
 
     //     } else {
-            
+
     //     }
     // });
 }

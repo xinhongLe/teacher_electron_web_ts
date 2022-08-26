@@ -86,7 +86,8 @@ import { updateSchedule } from "@/api/timetable";
 import { store } from "@/store";
 import { addSchedulePackage, removeSchedulePackage } from "@/api/resource";
 import usePageEvent from "@/hooks/usePageEvent";
-
+import { EVENT_TYPE } from "@/config/event";
+const { createBuryingPointFn } = usePageEvent("备课");
 const CourseBgColor: Record<string, string> = {
     语文: "#4FCC94",
     数学: "#63D1FA",
@@ -163,7 +164,12 @@ const deleteCourse = () => {
         if (res.resultCode === 200) {
             ElMessage.success("删除成功");
             updateSchedules();
-            usePageEvent(20, "备课", "取消排课", "删除", props.colData);
+            createBuryingPointFn(
+                EVENT_TYPE.ScheduleOff,
+                "取消排课",
+                "删除",
+                props.colData
+            );
         }
     });
 };
@@ -216,7 +222,12 @@ const onDrop = async (ev: DragEvent, colData: ColData) => {
                 ElMessage.success("更新成功");
                 updateSchedules();
                 //拖动课程进入课表成功后，调用埋点接口
-                usePageEvent(10, "备课", "排课", "课表", colData);
+                createBuryingPointFn(
+                    EVENT_TYPE.ScheduleStart,
+                    "排课",
+                    "课表",
+                    colData
+                );
             }
         });
     }
@@ -225,7 +236,7 @@ const onDrop = async (ev: DragEvent, colData: ColData) => {
         ElMessage.success("排课成功");
         updateSchedules();
         //拖动课程进入课表成功后，调用埋点接口
-        usePageEvent(10, "备课", "排课", "课表", colData);
+        createBuryingPointFn(EVENT_TYPE.ScheduleStart, "排课", "课表", colData);
     }
 };
 
@@ -243,7 +254,12 @@ const goToClass = () => {
 const clicKBuryPoint = () => {
     //没有课程的话，就不埋点了
     if (!props.colData.LessonName) return;
-    usePageEvent(1, "首页", props.colData.LessonName, "上课", props.colData);
+    createBuryingPointFn(
+        EVENT_TYPE.PageClick,
+        props.colData.LessonName,
+        "上课",
+        props.colData
+    );
 };
 </script>
 
