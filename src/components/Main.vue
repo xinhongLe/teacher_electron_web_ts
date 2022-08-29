@@ -34,7 +34,7 @@ import { useRoute } from "vue-router";
 import { GetGradeClassTree } from "@/views/login/api";
 import { IGradeClassTreeResponse } from "@/types/login";
 import { set, STORAGE_TYPES } from "@/utils/storage";
-import useUserInfo from "@/hooks/useUserInfo";
+// import useUserInfo from "@/hooks/useUserInfo";
 import useTagList from "@/hooks/useTagList";
 import LookQuestion from "./lookQuestion/index.vue";
 import { MutationTypes, store } from "@/store";
@@ -59,7 +59,7 @@ export default defineComponent({
         const route = useRoute();
         const isShowNarBar = ref(true);
         const wpfNames = ["wpf班级管理", "wpf管理标签", "wpf学习记录"];
-        const { queryUserInfo } = useUserInfo();
+        // const { queryUserInfo } = useUserInfo();
         const { getTagList } = useTagList();
         const keepExcludeArr = ["LabelManage", "Record", "Edit", "AssignHomework", "CheckHomework", "preparationGroup", "preparationEdit", "AttendClass"];
 
@@ -86,12 +86,12 @@ export default defineComponent({
 
         getTagList();
 
-        queryUserInfo().then(success => {
-            // 获取到用户信息, 开始配置全局监听器
-            if (success) {
-                isElectron() && window.electron.ipcRenderer.send("startSingalR", store.state.userInfo.id);
-            }
-        });
+        // queryUserInfo().then(success => {
+        //     // 获取到用户信息, 开始配置全局监听器
+        //     if (success) {
+        //         isElectron() && window.electron.ipcRenderer.send("startSingalR", store.state.userInfo.id);
+        //     }
+        // });
 
         const answerjection = (e: any, data: any) => {
             window.electron.ipcRenderer.invoke("answer-jection", data);
