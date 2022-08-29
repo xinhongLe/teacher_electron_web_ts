@@ -1,7 +1,7 @@
 <template>
     <div
         class="p-resource-item"
-        :class="{ 'resource-courseware': data.ResourceType === '8C47DA089BAA57ECEF2B0B6AAE5CAC84', hover: hover }"
+        :class="{ 'resource-courseware': data.ResourceType === '8C47DA089BAA57ECEF2B0B6AAE5CAC84' && data.IsSysFile === 1, hover: hover }"
         @click="handleCommand('detail')"
     >
         <div class="p-resource-mark" v-if="data.IsMine === 1 && data.IsSchool !== 1">我的</div>
