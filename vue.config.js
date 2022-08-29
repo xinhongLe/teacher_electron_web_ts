@@ -69,6 +69,13 @@ module.exports = {
             title: "点名",
             chunks: ["rollCall"]
         },
+        quickAnswer: {
+            entry: "src/childWindow/quickAnswer/main.ts",
+            template: "public/quickAnswer.html",
+            filename: "quickAnswer.html",
+            title: "抢答",
+            chunks: ["quickAnswer"]
+        },
         answerMachine: {
             entry: "src/childWindow/answerMachine/main.ts",
             template: "public/index.html",

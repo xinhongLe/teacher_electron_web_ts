@@ -1,7 +1,7 @@
 <template>
     <div class="roll-call" :style="{'background-color': chooseFlag ? '#fff' : '#efefef'}">
         <div class="roll-call-header">
-            <div class="rch-left"></div>
+<!--            <div class="rch-left"></div>-->
             <div class="rch-center">
                 <span v-if="chooseFlag">选择班级</span>
             </div>
@@ -194,7 +194,7 @@ body {
 .roll-call-header {
     padding: 0 20px;
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
     .rch-center {
         font-size: 18px;
