@@ -27,6 +27,7 @@ import { MutationTypes, store } from "@/store";
 import { Class } from "@/types/myStudent";
 import { computed, defineComponent, PropType } from "vue";
 import usePageEvent from "@/hooks/usePageEvent"; //埋点事件hooks
+import { EVENT_TYPE } from "@/config/event";
 export default defineComponent({
     props: {
         grade: {
@@ -35,6 +36,7 @@ export default defineComponent({
         },
     },
     setup(props) {
+        const { createBuryingPointFn } = usePageEvent("班级管理");
         const openDialog = () => {
             store.commit(MutationTypes.SHOW_CLASS_DIALOG, {
                 info: props.grade,
@@ -48,7 +50,7 @@ export default defineComponent({
         };
         //班级管理页面点击埋点事件-班级信息
         const clicKBuryPoint = (name: string) => {
-            usePageEvent(1, "班级管理", name, name);
+            createBuryingPointFn(EVENT_TYPE.PageClick, name, name);
         };
         return {
             isSelect: computed(

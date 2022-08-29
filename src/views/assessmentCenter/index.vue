@@ -19,8 +19,8 @@ import usePageEvent from "@/hooks/usePageEvent";
 export default defineComponent({
     name: "assessmentCenter",
     setup() {
+        const { createBuryingPointFn } = usePageEvent("评测中心", true);
         //埋点需求
-        usePageEvent(4, "评测中心", "评测中心");
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         window.onmessage = (e: any, d: any) => {
