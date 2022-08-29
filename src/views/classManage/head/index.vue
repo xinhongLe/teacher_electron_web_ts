@@ -11,7 +11,10 @@
                             placeholder="请输入要搜索的学生"
                         >
                             <template #append>
-                                <el-button @click="searchStudent"
+                                <el-button
+                                    @click="
+                                        searchStudent(), clicKBuryPoint('搜索')
+                                    "
                                     >搜索</el-button
                                 >
                             </template>
@@ -19,14 +22,16 @@
                     </el-form-item>
                 </el-form>
             </div>
-            <span class="btn" @click="goLabel">管理标签</span>
+            <span class="btn" @click="goLabel(), clicKBuryPoint('管理标签')"
+                >管理标签</span
+            >
             <!-- <span class="btn" @click="deleteStudentMachine">全部解绑</span>
             <span class="btn" @click="bulkImport">批量导入</span> -->
             <!-- <span class="btn" @click="showAddStudent = true">添加学生</span> -->
         </div>
         <AddStudent v-model:visible="showAddStudent" v-if="showAddStudent" />
     </div>
-    <BulkImportDialog v-model:isShow="showBulkImport"/>
+    <BulkImportDialog v-model:isShow="showBulkImport" />
 </template>
 
 <script lang="ts">
@@ -36,17 +41,19 @@ import { ElMessage, ElMessageBox } from "element-plus";
 import { defineComponent, reactive, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import AddStudent from "../addStudent/index.vue";
-
 import BulkImportDialog from "./bulkImportDialog.vue";
+import usePageEvent from "@/hooks/usePageEvent"; //埋点事件hooks
+import { EVENT_TYPE } from "@/config/event";
 export default defineComponent({
     name: "Head",
     setup() {
+        const { createBuryingPointFn } = usePageEvent("班级管理");
         const showAddStudent = ref(false);
         const showBulkImport = ref(false);
         const route = useRoute();
         const router = useRouter();
         const form = reactive({
-            studentName: ""
+            studentName: "",
         });
         const { deleteStudentMachine } = useStudentMachine();
         const searchStudent = () => {
@@ -65,16 +72,14 @@ export default defineComponent({
             if (store.state.myStudent.allStudentList.length === 0) {
                 return ElMessage.warning("请添加学生");
             }
-            ElMessageBox.confirm(
-                "确定是否全部解绑",
-                "提示",
-                {
-                    confirmButtonText: "确定",
-                    cancelButtonText: "取消",
-                    type: "warning"
-                }
-            ).then(() => {
-                deleteStudentMachine({ classID: store.state.myStudent.selectClassInfo.ID });
+            ElMessageBox.confirm("确定是否全部解绑", "提示", {
+                confirmButtonText: "确定",
+                cancelButtonText: "取消",
+                type: "warning",
+            }).then(() => {
+                deleteStudentMachine({
+                    classID: store.state.myStudent.selectClassInfo.ID,
+                });
             });
         };
 
@@ -83,6 +88,11 @@ export default defineComponent({
                 return ElMessage.warning("请添加学生");
             }
             showBulkImport.value = true;
+        };
+
+        //班级管理页面点击埋点事件
+        const clicKBuryPoint = (name: string) => {
+            createBuryingPointFn(EVENT_TYPE.PageClick, name, name);
         };
 
         watch(
@@ -99,10 +109,11 @@ export default defineComponent({
             showBulkImport,
             bulkImport,
             deleteStudentMachine: _deleteStudentMachine,
-            showAddStudent
+            showAddStudent,
+            clicKBuryPoint,
         };
     },
-    components: { AddStudent, BulkImportDialog }
+    components: { AddStudent, BulkImportDialog },
 });
 </script>
 

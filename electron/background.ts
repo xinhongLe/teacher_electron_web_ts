@@ -182,6 +182,18 @@ async function createWindow() {
         if (to === "unfoldSuspension") unfoldSuspensionWinSendMessage("attendClass", data);
         if (to === "main") mainWindow!.webContents.send("attendClass", data)
     });
+
+    //悬浮球点击消息通知事件
+    ipcMain.on("suspensionClick", () => {
+        mainWindow!.show();
+        mainWindow!.webContents.send("suspensionClick");
+    });
+
+    //悬浮球点击事件
+    ipcMain.handle("suspensionClick", () => {
+        mainWindow!.show();
+        mainWindow!.webContents.send("suspensionClick");
+    });
 }
 
 app.on("window-all-closed", () => {

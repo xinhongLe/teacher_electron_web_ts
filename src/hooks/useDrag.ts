@@ -5,7 +5,7 @@ export default () => {
     let dragDom: HTMLElement | null;
     const origin = {
         layerX: 0, // 鼠标.x 相对于元素左上角.left 的偏移
-        layerY: 0 // 鼠标.y 相对于元素左上角.top  的偏移
+        layerY: 0, // 鼠标.y 相对于元素左上角.top  的偏移
     };
 
     const dragStartIndex = ref();
@@ -48,6 +48,6 @@ export default () => {
     return {
         onDragStart,
         onDragEnd,
-        onDrag
+        onDrag,
     };
 };

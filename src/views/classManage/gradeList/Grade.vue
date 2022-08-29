@@ -7,11 +7,18 @@
     >
         <p class="name">{{ grade.GradeAlbum + grade.Name }}</p>
         <p class="count">学生： {{ grade.StudentCount }}</p>
-        <div class="info" @click.stop="openDialog">
+        <div
+            class="info"
+            @click.stop="openDialog(), clicKBuryPoint('班级信息')"
+        >
             <i class="el-icon-warning-outline" />
             班级信息
         </div>
-        <img v-if="isSelect" src="@/assets/my-student/arrow_blue@2x.png" class="arrow">
+        <img
+            v-if="isSelect"
+            src="@/assets/my-student/arrow_blue@2x.png"
+            class="arrow"
+        />
     </div>
 </template>
 
@@ -19,29 +26,42 @@
 import { MutationTypes, store } from "@/store";
 import { Class } from "@/types/myStudent";
 import { computed, defineComponent, PropType } from "vue";
+import usePageEvent from "@/hooks/usePageEvent"; //埋点事件hooks
+import { EVENT_TYPE } from "@/config/event";
 export default defineComponent({
     props: {
         grade: {
             type: Object as PropType<Class>,
-            required: true
-        }
+            required: true,
+        },
     },
     setup(props) {
+        const { createBuryingPointFn } = usePageEvent("班级管理");
         const openDialog = () => {
-            store.commit(MutationTypes.SHOW_CLASS_DIALOG, { info: props.grade, isEdit: true });
+            store.commit(MutationTypes.SHOW_CLASS_DIALOG, {
+                info: props.grade,
+                isEdit: true,
+            });
         };
 
         const updateClassId = (grade: Class) => {
             store.commit(MutationTypes.UPDATE_SELECT_CLASS_INFO, grade);
             store.commit(MutationTypes.UPDATE_SEARCH_STUDENT, "");
         };
-
-        return {
-            isSelect: computed(() => store.state.myStudent.selectClassInfo.ID === props.grade.ID),
-            openDialog,
-            updateClassId
+        //班级管理页面点击埋点事件-班级信息
+        const clicKBuryPoint = (name: string) => {
+            createBuryingPointFn(EVENT_TYPE.PageClick, name, name);
         };
-    }
+        return {
+            isSelect: computed(
+                () =>
+                    store.state.myStudent.selectClassInfo.ID === props.grade.ID
+            ),
+            openDialog,
+            updateClassId,
+            clicKBuryPoint,
+        };
+    },
 });
 </script>
 
@@ -50,26 +70,26 @@ export default defineComponent({
     flex-shrink: 0;
     width: 280px;
     height: 140px;
-    background: #FFFFFF;
+    background: #ffffff;
     border-radius: 4px;
     padding: 20px;
     box-sizing: border-box;
-    border: 1px solid #E0E2E7;
+    border: 1px solid #e0e2e7;
     margin-bottom: 16px;
     cursor: pointer;
     .name {
         font-size: 18px;
         font-weight: 600;
-        color: #19203D;
+        color: #19203d;
         line-height: 24px;
         overflow: hidden;
-        text-overflow:ellipsis;
+        text-overflow: ellipsis;
         white-space: nowrap;
     }
     .count {
-            margin-top: 12px;
+        margin-top: 12px;
         font-size: 14px;
-        color: #5F626F;
+        color: #5f626f;
         line-height: 18px;
         display: flex;
         justify-content: space-between;
@@ -77,7 +97,7 @@ export default defineComponent({
     .info {
         font-size: 14px;
         font-weight: 500;
-        color: #4B71EE;
+        color: #4b71ee;
         line-height: 20px;
         margin-top: 25px;
         display: flex;
@@ -88,13 +108,14 @@ export default defineComponent({
         }
     }
     &.active {
-        background: #4B71EE;
+        background: #4b71ee;
         position: relative;
-        .name, .info {
+        .name,
+        .info {
             color: #fff;
         }
         .count {
-            color: rgba(255, 255, 255, .6)
+            color: rgba(255, 255, 255, 0.6);
         }
         .arrow {
             position: absolute;
