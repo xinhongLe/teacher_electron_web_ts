@@ -240,7 +240,7 @@ const onDrop = async (ev: DragEvent, colData: ColData) => {
     }
 };
 
-const emit = defineEmits(["openCourse"]);
+const emit = defineEmits(["openCourse", "createHomePoint"]);
 
 const goToClass = () => {
     if (!props.colData.LessonName) return;
@@ -254,12 +254,7 @@ const goToClass = () => {
 const clicKBuryPoint = () => {
     //没有课程的话，就不埋点了
     if (!props.colData.LessonName) return;
-    createBuryingPointFn(
-        EVENT_TYPE.PageClick,
-        props.colData.LessonName,
-        "上课",
-        props.colData
-    );
+    emit("createHomePoint", props.colData);
 };
 </script>
 
