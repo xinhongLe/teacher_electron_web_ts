@@ -182,14 +182,14 @@
                             <img src="@/assets/images/suspension/pic_namer@2x.png" alt=""/>
                             <div class="blackboard-text">随机点名</div>
                         </div>
-                        <div class="blackboard-box" @click="openQuickAnswer">
-                            <img src="@/assets/images/suspension/pic_qd.png" alt=""/>
-                            <div class="blackboard-text">抢答</div>
-                        </div>
-                        <div class="blackboard-box" @click="openRollCall">
-                            <img src="@/assets/images/suspension/pic_sp.png" alt=""/>
-                            <div class="blackboard-text">锁屏管理</div>
-                        </div>
+<!--                        <div class="blackboard-box" @click="openQuickAnswer">-->
+<!--                            <img src="@/assets/images/suspension/pic_qd.png" alt=""/>-->
+<!--                            <div class="blackboard-text">抢答</div>-->
+<!--                        </div>-->
+<!--                        <div class="blackboard-box" @click="openRollCall">-->
+<!--                            <img src="@/assets/images/suspension/pic_sp.png" alt=""/>-->
+<!--                            <div class="blackboard-text">锁屏管理</div>-->
+<!--                        </div>-->
                     </div>
                 </el-collapse-item>
                 <el-collapse-item
