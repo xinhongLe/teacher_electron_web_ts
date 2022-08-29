@@ -62,6 +62,7 @@ import { useRoute, useRouter } from "vue-router";
 import { store } from "@/store";
 import useStudentMachine from "@/hooks/useStudentMachine";
 import usePageEvent from "@/hooks/usePageEvent"; //埋点事件hooks
+import { EVENT_TYPE } from "@/config/event";
 
 export default defineComponent({
     components: { Avatar, StudentDetail },
@@ -72,6 +73,7 @@ export default defineComponent({
         },
     },
     setup(props) {
+        const { createBuryingPointFn } = usePageEvent("班级管理");
         const showDetail = ref(false);
         const route = useRoute();
         const router = useRouter();
@@ -108,7 +110,7 @@ export default defineComponent({
         };
         //班级管理页面点击埋点事件
         const clicKBuryPoint = (name: string) => {
-            usePageEvent(1, "班级管理", name, name);
+            createBuryingPointFn(EVENT_TYPE.PageClick, name, name);
         };
         return {
             showDetail,

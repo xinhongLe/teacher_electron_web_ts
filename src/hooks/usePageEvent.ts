@@ -7,97 +7,94 @@ import moment from "moment";
 import { screen } from "@electron/remote";
 import { systemId } from "@/config";
 import { machineId, machineIdSync } from "node-machine-id";
-//定义页面事件 (event：事件类型【page-in,page-out,page-stay,click...】，pageName：页面名称，enentId：事件ID，tabName：所点击的区域或者按钮名称)
-const usePageEvent = (
-    event: number,
-    pageName: string,
-    eventId: string | undefined,
-    tabName?: string,
-    otherData?: any
-) => {
-    //记录页面进入 page-in 时间
-    const pageintime = ref("");
-    //记录页面进入 page-out 时间
-    const pageouttime = ref("");
-    //记录页面停留时间 stay
-    const pagestay = ref(0);
+import { EVENT_TYPE } from "@/config/event";
+//记录页面进入 page-in 时间
+const pageintime = ref("");
+//记录页面进入 page-out 时间
+const pageouttime = ref("");
+//记录页面停留时间 stay
+const pagestay = ref(0);
 
-    //获取唯一设备id
-    const deviceId = machineIdSync(true);
-    console.log("deviceId", deviceId);
+//获取唯一设备id
+const deviceId = machineIdSync(true);
+console.log("deviceId", deviceId);
 
-    //获取设备信息
-    const deviceInfo = require("os");
-    //获取分辨率
-    const displayScreen = screen.getPrimaryDisplay().workAreaSize;
-    const display = displayScreen.width + "*" + displayScreen.height;
-    //用户信息
-    const userInfo = get(STORAGE_TYPES.USER_INFO);
-    // console.log("userInfo", userInfo);
-    //处理班级信息
-    const classInfo = userInfo.Classes.map((item: any) => {
-        return {
-            ClassId: item.ID,
-            ClassName: item.Name,
-        };
-    });
-    //处理年级信息
-    const gradeInfo = userInfo.GradeIDs.map((item: any) => {
-        return {
-            GradeID: item,
-            GradeName: "",
-        };
-    });
-    //处理科目信息
-    const subjectInfo = userInfo.Subjects.map((item: any) => {
-        return {
-            SubjectID: item.ID,
-            SubjectName: item.Name,
-        };
-    });
-
-    //云平台信息
-    const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
-    // console.log("yunInfo", yunInfo);
-
-    //token 令牌
-    const token = get(STORAGE_TYPES.SET_TOKEN);
-
-    //获取 设备信息
-    const getPcMsg: Function = () => {
-        let interfaces = require("os").networkInterfaces();
-        let pcObj = reactive([]);
-        let pcMessage = reactive([]);
-        for (let key in interfaces) {
-            if (
-                key.indexOf("WLAN") !== -1 ||
-                key.indexOf("无线网络连接") !== -1
-            ) {
-                pcObj = interfaces[key];
-                break;
-            } else if (
-                key.indexOf("以太网") !== -1 ||
-                key.indexOf("本地连接") !== -1
-            ) {
-                pcObj = interfaces[key];
-            } else if (Object.keys(pcObj).length < 1) {
-                pcObj = interfaces[key];
-            }
-        }
-        pcMessage = pcObj.filter((item: any) => {
-            if (item.family === "IPv4") {
-                return item;
-            }
-        });
-        return pcMessage[0];
+//获取设备信息
+const deviceInfo = require("os");
+//获取分辨率
+const displayScreen = screen.getPrimaryDisplay().workAreaSize;
+const display = displayScreen.width + "*" + displayScreen.height;
+//用户信息
+const userInfo = get(STORAGE_TYPES.USER_INFO);
+// console.log("userInfo", userInfo);
+//处理班级信息
+const classInfo = userInfo.Classes.map((item: any) => {
+    return {
+        ClassId: item.ID,
+        ClassName: item.Name,
     };
+});
+//处理年级信息
+const gradeInfo = userInfo.GradeIDs.map((item: any) => {
+    return {
+        GradeID: item,
+        GradeName: "",
+    };
+});
+//处理科目信息
+const subjectInfo = userInfo.Subjects.map((item: any) => {
+    return {
+        SubjectID: item.ID,
+        SubjectName: item.Name,
+    };
+});
 
-    //获取网络连接
-    const navigatorNew: any = window.navigator;
-    // console.log(navigatorNew.connection.effectiveType);
+//云平台信息
+const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
+// console.log("yunInfo", yunInfo);
 
+//token 令牌
+const token = get(STORAGE_TYPES.SET_TOKEN);
+
+//获取 设备信息
+const getPcMsg: Function = () => {
+    let interfaces = require("os").networkInterfaces();
+    let pcObj = reactive([]);
+    let pcMessage = reactive([]);
+    for (let key in interfaces) {
+        if (key.indexOf("WLAN") !== -1 || key.indexOf("无线网络连接") !== -1) {
+            pcObj = interfaces[key];
+            break;
+        } else if (
+            key.indexOf("以太网") !== -1 ||
+            key.indexOf("本地连接") !== -1
+        ) {
+            pcObj = interfaces[key];
+        } else if (Object.keys(pcObj).length < 1) {
+            pcObj = interfaces[key];
+        }
+    }
+    pcMessage = pcObj.filter((item: any) => {
+        if (item.family === "IPv4") {
+            return item;
+        }
+    });
+    return pcMessage[0];
+};
+
+//获取网络连接
+const navigatorNew: any = window.navigator;
+// console.log(navigatorNew.connection.effectiveType);
+
+//定义页面事件 (event：事件类型【page-in,page-out,page-stay,click...】，pageName：页面名称，enentId：事件ID，tabName：所点击的区域或者按钮名称)
+const usePageEvent = (pageName: string, isPage?: boolean) => {
     //创建埋点
-    const createBuryingPointFn = async (eventData: number) => {
+    const createBuryingPointFn = async (
+        event: number, //事件行为
+        eventId?: string | undefined, //事件id
+        tabName?: string, //按钮或者区域名称
+        otherData?: any //可能会携带的一些其他参数
+    ) => {
         //埋点信息
         const pointData: createBuryingPointData = {
             TrackPlatform: "1",
@@ -128,8 +125,8 @@ const usePageEvent = (
             PlantName: "爱学仕校园教师", //平台名称
             TrackData: {
                 //跟踪数据
-                Event: eventData, //事件行为(1,2,3,4,5,6)
-                EventId: eventId, //时间id
+                Event: event, //事件行为
+                EventId: eventId, //事件id
                 PageName: pageName, //页面名称 -事件源：评测中心，课后延时，班级管理等
                 // StayTime: 0, //当前页停留时间
                 TabName: tabName, //区域名称 按钮名称
@@ -166,12 +163,18 @@ const usePageEvent = (
                     ParentKnowledge: "", //所属知识点
                     StageId: "", //切换的学段id
                     StageName: "", //切换的学段名称
-                    SubjectId: otherData?.TextBooks?.SubjectID, //切换的科目ID
-                    SubjectName: otherData?.TextBooks?.SubjectName, //切换的科目名称
-                    BookId: "", //切换的书册ID
+                    SubjectId:
+                        otherData?.TextBooks?.SubjectID || otherData?.SubjectId, //切换的科目ID
+                    SubjectName:
+                        otherData?.TextBooks?.SubjectName ||
+                        otherData?.SubjectName, //切换的科目名称
+                    BookId: otherData?.BookId, //切换的书册ID
                     BookName: "", //切换的书册名称
-                    ChapterId: otherData?.TextBooks?.ChapterID, //切换的章节ID
-                    ChapterName: otherData?.TextBooks?.ChapterName, //切换的章节名称
+                    ChapterId:
+                        otherData?.TextBooks?.ChapterID || otherData?.ChapterId, //切换的章节ID
+                    ChapterName:
+                        otherData?.TextBooks?.ChapterName ||
+                        otherData?.ChapterName, //切换的章节名称
                     Sharer: "", //分享人
                     Sender: "", //发送人
                 },
@@ -182,7 +185,7 @@ const usePageEvent = (
         const res = await createBuryingPoint(pointData);
         // console.log(res);
     };
-    if (event === 4 || event === 5) {
+    if (isPage) {
         //如果是页面的进入/出去事件
         //页面激活
         onActivated(() => {
@@ -191,7 +194,7 @@ const usePageEvent = (
                 pagestay.value = 0;
             }
             pageintime.value = moment().format("YYYY-MM-DD HH:mm:ss"); //获取进入的当前时间
-            createBuryingPointFn(4); //创建page-in埋点
+            createBuryingPointFn(EVENT_TYPE.PageIn); //创建page-in埋点
         });
         //页面失活
         onDeactivated(() => {
@@ -201,25 +204,10 @@ const usePageEvent = (
                 "seconds"
             ); //停留时间（多少秒）
             console.log(pagestay.value);
-            createBuryingPointFn(5); //创建page-out埋点
+            createBuryingPointFn(EVENT_TYPE.PageOut); //创建page-out埋点
         });
-    } else {
-        //如果是页面区域或者按钮的或者其它的点击事件
-        createBuryingPointFn(event); //创建click埋点
     }
-
-    // if (event === 1) {
-    //如果是页面区域或者按钮的点击事件
-    // createBuryingPointFn(event); //创建click埋点
-    // }
-
     return {
-        pageintime,
-        pageouttime,
-        pagestay,
-        userInfo,
-        deviceInfo,
-        yunInfo,
         createBuryingPointFn,
     };
 };

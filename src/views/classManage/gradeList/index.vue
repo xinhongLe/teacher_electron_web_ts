@@ -23,14 +23,16 @@ import { computed, defineComponent } from "vue";
 import Grade from "./Grade.vue";
 import AddOrEditClass from "../addOrEditClass/index.vue";
 import usePageEvent from "@/hooks/usePageEvent"; //埋点事件hooks
+import { EVENT_TYPE } from "@/config/event";
 
 export default defineComponent({
     name: "GradeList",
     setup() {
+        const { createBuryingPointFn } = usePageEvent("班级管理");
         store.dispatch(ActionTypes.FETCH_CLASS_LIST, true);
         //班级管理页面点击埋点事件
         const clicKBuryPoint = (name: string) => {
-            usePageEvent(1, "班级管理", name, name);
+            createBuryingPointFn(EVENT_TYPE.PageClick, name, name);
         };
         return {
             classList: computed(() => store.state.myStudent.classList),

@@ -44,6 +44,7 @@ import { MutationTypes, useStore } from "@/store";
 import { fetchCourseDataByBookId, ICustomBookItem } from "@/api/resource";
 import { get, set, STORAGE_TYPES } from "@/utils/storage";
 import usePageEvent from "@/hooks/usePageEvent"; //埋点事件hooks
+import { EVENT_TYPE } from "@/config/event";
 interface ICourse {
     chapterId: string;
     lessonId: string;
@@ -65,6 +66,7 @@ export default defineComponent({
     },
     emits: ["update:showClassArrangement", "update:course", "update:bookId"],
     setup(props, { emit }) {
+        const { createBuryingPointFn } = usePageEvent("备课");
         const store = useStore();
         const updateShowClassArrangement = (flag: boolean) => {
             emit("update:showClassArrangement", flag);
@@ -90,6 +92,19 @@ export default defineComponent({
             store.commit(MutationTypes.SET_SELECT_LESSON_ID, tree.Id);
 
             tipTarget.value = tree.Id;
+            const params = Object.assign(
+                {
+                    ChapterName: tree.Name,
+                    ChapterID: tree.Id,
+                },
+                book
+            );
+            createBuryingPointFn(
+                EVENT_TYPE.PageClick,
+                "切换章节课时",
+                "章节课时",
+                params
+            );
         };
         const selectedChapterID = ref("");
         const selectedChapterName = ref("");
@@ -173,7 +188,7 @@ export default defineComponent({
 
         //备课排课页面点击退出排课事件-课程信息
         const clicKBuryPoint = (name: string) => {
-            usePageEvent(30, "备课", name, name);
+            createBuryingPointFn(EVENT_TYPE.ScheduleOut, name, name);
         };
 
         return {
