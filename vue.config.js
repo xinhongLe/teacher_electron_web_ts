@@ -196,7 +196,7 @@ module.exports = {
                 appId: process.env.VUE_APP_ID,
                 productName: process.env.VUE_APP_PRODUCT_NAME, // 项目名
                 copyright: "Copyright © 2021", // 版权信息
-                artifactName: "${productName}-${version}-" + moment().format("YYYYMMDDHHmm") + ".${ext}",
+                artifactName: "${productName}-${version}" + ".${ext}",
                 directories: {
                     output: "./dist_electron" // 输出文件路径
                 },
