@@ -126,7 +126,7 @@ import { defineComponent, onMounted, onUnmounted, reactive, ref } from "vue";
 import useLogin from "@/hooks/useLogin";
 import { useRouter, useRoute } from "vue-router";
 import { ILoginData } from "@/types/login";
-import { STORAGE_TYPES, get, set } from "@/utils/storage";
+import { STORAGE_TYPES, get, set, clear } from "@/utils/storage";
 import isElectron from "is-electron";
 import { sendMsg } from "./api";
 export default defineComponent({
@@ -211,6 +211,7 @@ export default defineComponent({
         const version = ref(require("../../../package.json").version);
 
         onMounted(() => {
+            clear();
             document.addEventListener("keyup", onEnter);
         });
 
