@@ -1,6 +1,6 @@
 {
     "name": "Aixueshi",
-    "version": "1.0.18",
+    "version": "1.0.20",
     "private": true,
     "main": "background.js",
     "config": {

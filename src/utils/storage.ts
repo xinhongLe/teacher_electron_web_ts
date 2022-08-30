@@ -133,8 +133,8 @@ export const clear = () => {
         const record = get(STORAGE_TYPES.RECORD_LOGIN_LIST);
         const paths = get(STORAGE_TYPES.OSS_PATHS);
         (window as any).electron.store.clear();
-        set(STORAGE_TYPES.RECORD_LOGIN_LIST, record);
-        set(STORAGE_TYPES.OSS_PATHS, paths);
+        record && set(STORAGE_TYPES.RECORD_LOGIN_LIST, record);
+        paths && set(STORAGE_TYPES.OSS_PATHS, paths);
     } else {
         Object.keys(localStorage).forEach((name) => {
             const REGEXP = /^VUE_(.+)/;

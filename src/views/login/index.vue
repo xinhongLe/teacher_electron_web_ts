@@ -152,6 +152,7 @@ export default defineComponent({
         const login = async () => {
             const { account, password, code } = form;
             if ((isPassWordLogin.value && (account.length === 0 || password.length === 0)) || (!isPassWordLogin.value && (account.length === 0 || code.length === 0))) return false;
+            clear();
             loading.value = true;
             const loginSuccess = await userLogin({ account, password, code, isPassWordLogin: isPassWordLogin.value });
             loading.value = false;
@@ -211,7 +212,6 @@ export default defineComponent({
         const version = ref(require("../../../package.json").version);
 
         onMounted(() => {
-            clear();
             document.addEventListener("keyup", onEnter);
         });
 
