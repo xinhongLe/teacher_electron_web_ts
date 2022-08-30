@@ -182,14 +182,14 @@
                             <img src="@/assets/images/suspension/pic_namer@2x.png" alt=""/>
                             <div class="blackboard-text">随机点名</div>
                         </div>
-<!--                        <div class="blackboard-box" @click="openQuickAnswer">-->
-<!--                            <img src="@/assets/images/suspension/pic_qd.png" alt=""/>-->
-<!--                            <div class="blackboard-text">抢答</div>-->
-<!--                        </div>-->
-<!--                        <div class="blackboard-box" @click="openRollCall">-->
-<!--                            <img src="@/assets/images/suspension/pic_sp.png" alt=""/>-->
-<!--                            <div class="blackboard-text">锁屏管理</div>-->
-<!--                        </div>-->
+                        <div class="blackboard-box" @click="openQuickAnswer">
+                            <img src="@/assets/images/suspension/pic_qd.png" alt=""/>
+                            <div class="blackboard-text">抢答</div>
+                        </div>
+                        <div class="blackboard-box" @click="openRollCall">
+                            <img src="@/assets/images/suspension/pic_sp.png" alt=""/>
+                            <div class="blackboard-text">锁屏管理</div>
+                        </div>
                     </div>
                 </el-collapse-item>
                 <el-collapse-item
@@ -438,6 +438,7 @@ export default defineComponent({
         const getStudentList = async () => {
             allStudentList.value = [];
             const res = await fetchAllStudents(userInfo?.ID);
+            console.log(res, "--------------");
             if (res.resultCode === 200) {
                 allStudentList.value = res.result;
             }
@@ -490,6 +491,7 @@ export default defineComponent({
         onMounted(async () => {
             getBookList();
             if (userInfo) {
+                console.log("userInfo", userInfo);
                 getStudentList();
             }
             if (isElectron()) {

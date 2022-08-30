@@ -14,15 +14,25 @@
                    </el-select>
                </div>
                <div class="process">
-                   <div class="title">还未开始抢答</div>
-                   <img src="@/assets/images/suspension/pic_avatar.png" alt="">
-               </div>
+                   <div class="title">{{message === 0 ? "还未开始抢答" : (message === 1 ? "抢答中…" : "抢答成功学生")}}</div>
+                   <img class="photo" v-if="message === 0" src="@/assets/images/suspension/pic_avatar.png" alt="">
+                   <div class="quick-success" v-if="message === 2">
+                       <div style="text-align: center;">
+                           <img class="photo" src="@/assets/images/suspension/pic_avatar.png" alt="">
+                           <div class="name">木卿欣</div>
+                       </div>
+                       <div class="zan">
+                           <img v-if="status === 0" src="@/assets/images/suspension/icon_zan1.png" alt="">
+                           <img v-else src="@/assets/images/suspension/icon_zan_selected1.png" alt="">
+                       </div>
+                   </div>
            </div>
            <div class="footer">
-               <div class="custom-btn">开始抢答</div>
+               <div :class="['custom-btn', message === 0 ? '' : 'canCle-btn']">{{message === 0 ? "开始抢答" : (message === 1 ? "取消抢答" : "再抢一次")}}</div>
            </div>
        </div>
 
+       </div>
        <div class="close-row">
            <div class="close-btn" @click="close">
                <el-icon :size="14" color="#FFFFFF"><close /></el-icon>
@@ -39,6 +49,8 @@ export default defineComponent({
     setup() {
         const state = reactive({
             currentClass: 1,
+            status: 0,
+            message: 2, // 0未开始抢答 1抢答中 2抢答成功
             leftList: [
                 { label: "一年级1班", value: 1 },
                 { label: "二年级1班", value: 2 },
@@ -66,6 +78,7 @@ export default defineComponent({
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-direction: column;
     position: relative;
     width: 100%;
     height: 280px;
@@ -92,11 +105,29 @@ export default defineComponent({
         .title{
             font-size: 20px;
             color: #FFFFFF;
-            margin: 40px 0;
+            margin: 40px 0 20px;
         }
-        img{
+        .photo{
             width: 88px;
             height: 88px;
+        }
+        .quick-success{
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            .name{
+                font-size: 16px;
+                color: #FFFFFF;
+                margin-top: 10px;
+            }
+            .zan{
+                cursor: pointer;
+                position: absolute;
+                top: 30px;
+                right: -50px;
+                margin-left: 30px;
+            }
         }
     }
 }
@@ -117,6 +148,9 @@ export default defineComponent({
         color: #FFFFFF;
         background: url("../../assets/images/suspension/btn_qd.png") no-repeat center center;
         background-size: 100% 100%;
+    }
+    .canCle-btn{
+        background: url("../../assets/images/suspension/btn_quxiao.png") no-repeat center center;
     }
 }
 

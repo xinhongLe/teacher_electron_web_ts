@@ -257,9 +257,9 @@ function createQuickAnswerWindow(allStudentList: []) {
         center: true,
         show: false,
         useContentSize: true,
-        transparent: true,
+        // transparent: true,
         type: "toolbar", // 创建的窗口类型为工具栏窗口
-        frame: false, // 要创建无边框窗口
+        // frame: false, // 要创建无边框窗口
         alwaysOnTop: true
     });
 
