@@ -25,7 +25,7 @@
                         <template v-slot:default="slotProps">
                             <header class="header">
                                 <div
-                                    @click="weekPre, clicKBuryPoint('上周')"
+                                    @click="weekPre(), clicKBuryPoint('上周')"
                                     class="week"
                                 >
                                     <i class="el-icon-arrow-left"></i>上周
@@ -44,7 +44,7 @@
                                     </div>
                                     <div
                                         @click="
-                                            weekNext, clicKBuryPoint('下周')
+                                            weekNext(), clicKBuryPoint('下周')
                                         "
                                         class="week"
                                     >
