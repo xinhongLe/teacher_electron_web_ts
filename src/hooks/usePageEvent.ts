@@ -20,7 +20,6 @@ const usePageEvent = (pageName: string, isPage?: boolean) => {
 
     //获取唯一设备id
     const deviceId = machineIdSync(true);
-    console.log("deviceId", deviceId);
 
     //获取设备信息
     const deviceInfo = require("os");

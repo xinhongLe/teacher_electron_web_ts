@@ -1,5 +1,5 @@
 <template>
-    <div class="wrongbook-wrapper">
+    <div class="wrongbook-wrapper" v-if="!state.isShowDetails">
         <header class="wrongbook-header">
             <div class="header-left">
                 <div
@@ -82,18 +82,25 @@
                     <LeftOne></LeftOne>
                 </div>
                 <div class="con-right">
-                    <LessonList></LessonList>
+                    <LessonList
+                        @openWrongDetails="openWrongDetails"
+                    ></LessonList>
                 </div>
             </div>
         </main>
     </div>
+    <WrongDetails
+        v-if="state.isShowDetails"
+        v-model:isShowDetails="state.isShowDetails"
+    ></WrongDetails>
 </template>
 
 <script lang="ts" setup>
-import { onMounted, reactive, ref } from "vue";
+import { onMounted, reactive, ref, defineExpose } from "vue";
 import { ArrowDown, Search } from "@element-plus/icons-vue";
 import LeftOne from "./components/LeftOne.vue";
 import LessonList from "./components/LessonList.vue";
+import WrongDetails from "./components/WrongDetails.vue";
 const state = reactive({
     //顶部年级列表
     classList: [
@@ -119,6 +126,8 @@ const state = reactive({
             Name: "全部题型",
         },
     ],
+    //是否显示详情页面
+    isShowDetails: false,
 });
 //顶部表单搜索项
 const searchForm = ref({
@@ -135,6 +144,13 @@ const leftSearch = ref({
 const switchClass = (value: number) => {
     state.currentClassId = value;
 };
+//打开错题本详情页面
+const openWrongDetails = (data: any) => {
+    state.isShowDetails = true;
+    console.log(data);
+};
+
+defineExpose(openWrongDetails);
 </script>
 
 <style lang="scss" scoped>
@@ -226,7 +242,7 @@ const switchClass = (value: number) => {
             display: flex;
             height: calc(100% - 57px);
             .con-left {
-                width: 22%;
+                width: 20%;
                 background: #ffffff;
                 border-right: 1px solid #f3f4f4;
             }
