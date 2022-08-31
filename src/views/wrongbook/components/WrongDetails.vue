@@ -118,25 +118,45 @@
                         </div>
                     </div>
                     <div class="A-floor" v-for="item in state.detailList">
-                        <div class="left">
-                            <p class="title">A层(<span>0</span>)</p>
-                            <p class="desc">
-                                ( 答错<span> 0</span> / 未答<span> 0</span> /
-                                总<span style="padding-right: 8px"> 10</span>
-                                完成率<span> 100%</span> / 错误率<span>
-                                    0%</span
-                                >
-                                )
-                            </p>
+                        <div class="top-area">
+                            <div class="left">
+                                <p class="title">
+                                    {{ item.name }}(<span>{{ item.count }}</span
+                                    >)
+                                </p>
+                                <p class="desc">
+                                    ( 答错<span> 0</span> / 未答<span> 0</span>
+                                    / 总<span style="padding-right: 8px">
+                                        10</span
+                                    >
+                                    完成率<span> 100%</span> / 错误率<span>
+                                        0%</span
+                                    >
+                                    )
+                                </p>
+                            </div>
+                            <div>
+                                <img
+                                    src="~@/assets/images/wrongbook/icon_xiala.png"
+                                    alt=""
+                                />
+                            </div>
                         </div>
-                        <div>
-                            <img
-                                src="~@/assets/images/wrongbook/icon_xiala.png"
-                                alt=""
-                            />
+                        <div class="person-list">
+                            <div class="list-item">
+                                <div class="images">
+                                    <img
+                                        src="~@/assets/images/wrongbook/ps1.png"
+                                        alt=""
+                                    />
+                                </div>
+                                <div class="name-number">
+                                    <p class="name">巢浩真</p>
+                                    <p class="number">mg57086112</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="B-floor"></div>
                 </div>
             </div>
         </main>
@@ -487,28 +507,61 @@ const backList = () => {
                 .A-floor {
                     cursor: pointer;
                     width: 100%;
-                    height: 42px;
                     background: #f9fafc;
                     border-radius: 4px;
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    padding: 12px 16px;
+                    padding: 14px 16px;
                     margin-bottom: 12px;
-                    .left {
+                    box-sizing: border-box;
+                    .top-area {
+                        width: 100%;
+                        // height: 42px;
                         display: flex;
+                        justify-content: space-between;
                         align-items: center;
-                        .title {
-                            font-size: 14px;
-                            font-family: HarmonyOS_Sans_SC_Medium;
-                            color: #19203d;
-                            font-weight: bold;
-                            margin-right: 12px;
+                        .left {
+                            display: flex;
+                            align-items: center;
+                            .title {
+                                font-size: 14px;
+                                font-family: HarmonyOS_Sans_SC_Medium;
+                                color: #19203d;
+                                font-weight: bold;
+                                margin-right: 12px;
+                            }
+                            .desc {
+                                font-size: 12px;
+                                font-family: HarmonyOS_Sans_SC;
+                                color: #a7aab4;
+                            }
                         }
-                        .desc {
-                            font-size: 12px;
-                            font-family: HarmonyOS_Sans_SC;
-                            color: #a7aab4;
+                    }
+                    .person-list {
+                        margin-top: 14px;
+                        .list-item {
+                            padding: 10px 12px;
+                            background-color: #ffffff;
+                            display: flex;
+                            width: 167px;
+                            border-radius: 5px;
+                            .images {
+                                width: 36px;
+                                height: 36px;
+                                border-radius: 50%;
+                            }
+                            .name-number {
+                                margin-left: 16px;
+                                .name {
+                                    font-size: 14px;
+                                    font-family: HarmonyOS_Sans_SC;
+                                    color: #19203d;
+                                }
+                                .number {
+                                    font-size: 12px;
+                                    font-family: HarmonyOS_Sans_SC;
+                                    color: #a7aab4;
+                                    margin-top: 5px;
+                                }
+                            }
                         }
                     }
                 }

@@ -8,88 +8,84 @@ import { screen } from "@electron/remote";
 import { systemId } from "@/config";
 import { machineId, machineIdSync } from "node-machine-id";
 import { EVENT_TYPE } from "@/config/event";
+//记录页面进入 page-in 时间
+const pageintime = ref("");
+//记录页面进入 page-out 时间
+const pageouttime = ref("");
+//记录页面停留时间 stay
+const pagestay = ref(0);
 
+//获取唯一设备id
+const deviceId = machineIdSync(true);
+
+//获取设备信息
+const deviceInfo = require("os");
+//获取分辨率
+const displayScreen = screen.getPrimaryDisplay().workAreaSize;
+const display = displayScreen.width + "*" + displayScreen.height;
+//用户信息
+const userInfo = get(STORAGE_TYPES.USER_INFO);
+// console.log("userInfo", userInfo);
+//处理班级信息
+const classInfo = userInfo.Classes.map((item: any) => {
+    return {
+        ClassId: item.ID,
+        ClassName: item.Name,
+    };
+});
+//处理年级信息
+const gradeInfo = userInfo.GradeIDs.map((item: any) => {
+    return {
+        GradeID: item,
+        GradeName: "",
+    };
+});
+//处理科目信息
+const subjectInfo = userInfo.Subjects.map((item: any) => {
+    return {
+        SubjectID: item.ID,
+        SubjectName: item.Name,
+    };
+});
+
+//云平台信息
+const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
+// console.log("yunInfo", yunInfo);
+
+//token 令牌
+const token = get(STORAGE_TYPES.SET_TOKEN);
+
+//获取 设备信息
+const getPcMsg: Function = () => {
+    let interfaces = require("os").networkInterfaces();
+    let pcObj = reactive([]);
+    let pcMessage = reactive([]);
+    for (let key in interfaces) {
+        if (key.indexOf("WLAN") !== -1 || key.indexOf("无线网络连接") !== -1) {
+            pcObj = interfaces[key];
+            break;
+        } else if (
+            key.indexOf("以太网") !== -1 ||
+            key.indexOf("本地连接") !== -1
+        ) {
+            pcObj = interfaces[key];
+        } else if (Object.keys(pcObj).length < 1) {
+            pcObj = interfaces[key];
+        }
+    }
+    pcMessage = pcObj.filter((item: any) => {
+        if (item.family === "IPv4") {
+            return item;
+        }
+    });
+    return pcMessage[0];
+};
+
+//获取网络连接
+const navigatorNew: any = window.navigator;
+// console.log(navigatorNew.connection.effectiveType);
 //定义页面事件 (event：事件类型【page-in,page-out,page-stay,click...】，pageName：页面名称，enentId：事件ID，tabName：所点击的区域或者按钮名称)
 const usePageEvent = (pageName: string, isPage?: boolean) => {
-    //记录页面进入 page-in 时间
-    const pageintime = ref("");
-    //记录页面进入 page-out 时间
-    const pageouttime = ref("");
-    //记录页面停留时间 stay
-    const pagestay = ref(0);
-
-    //获取唯一设备id
-    const deviceId = machineIdSync(true);
-
-    //获取设备信息
-    const deviceInfo = require("os");
-    //获取分辨率
-    const displayScreen = screen.getPrimaryDisplay().workAreaSize;
-    const display = displayScreen.width + "*" + displayScreen.height;
-    //用户信息
-    const userInfo = get(STORAGE_TYPES.USER_INFO);
-    // console.log("userInfo", userInfo);
-    //处理班级信息
-    const classInfo = userInfo.Classes.map((item: any) => {
-        return {
-            ClassId: item.ID,
-            ClassName: item.Name,
-        };
-    });
-    //处理年级信息
-    const gradeInfo = userInfo.GradeIDs.map((item: any) => {
-        return {
-            GradeID: item,
-            GradeName: "",
-        };
-    });
-    //处理科目信息
-    const subjectInfo = userInfo.Subjects.map((item: any) => {
-        return {
-            SubjectID: item.ID,
-            SubjectName: item.Name,
-        };
-    });
-
-    //云平台信息
-    const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
-    // console.log("yunInfo", yunInfo);
-
-    //token 令牌
-    const token = get(STORAGE_TYPES.SET_TOKEN);
-
-    //获取 设备信息
-    const getPcMsg: Function = () => {
-        let interfaces = require("os").networkInterfaces();
-        let pcObj = reactive([]);
-        let pcMessage = reactive([]);
-        for (let key in interfaces) {
-            if (
-                key.indexOf("WLAN") !== -1 ||
-                key.indexOf("无线网络连接") !== -1
-            ) {
-                pcObj = interfaces[key];
-                break;
-            } else if (
-                key.indexOf("以太网") !== -1 ||
-                key.indexOf("本地连接") !== -1
-            ) {
-                pcObj = interfaces[key];
-            } else if (Object.keys(pcObj).length < 1) {
-                pcObj = interfaces[key];
-            }
-        }
-        pcMessage = pcObj.filter((item: any) => {
-            if (item.family === "IPv4") {
-                return item;
-            }
-        });
-        return pcMessage[0];
-    };
-
-    //获取网络连接
-    const navigatorNew: any = window.navigator;
-    // console.log(navigatorNew.connection.effectiveType);
     //创建埋点
     const createBuryingPointFn = async (
         event: number, //事件行为
