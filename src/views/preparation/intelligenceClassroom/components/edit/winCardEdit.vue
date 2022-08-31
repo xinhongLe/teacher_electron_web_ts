@@ -76,9 +76,9 @@ export default defineComponent({
 
         const PPTEditRef = ref();
 
-        const updateLesson = (lessonProcessList:any) => {
-            let allPageList:any[] = [];
-            lessonProcessList.LessonPlanDetailPages.forEach((item:any) => {
+        const updateLesson = (lessonProcessList: any) => {
+            let allPageList: any[] = [];
+            lessonProcessList.LessonPlanDetailPages.forEach((item: any) => {
                 allPageList = allPageList.concat(item.Childrens);
             });
             emit("updateAllPageSlideListMap", allPageList);

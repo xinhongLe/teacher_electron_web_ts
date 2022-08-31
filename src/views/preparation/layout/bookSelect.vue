@@ -33,11 +33,9 @@
                     class="book-item"
                     v-for="(item, index) in bookList"
                     :key="index"
-                    @click.stop="
-                        selectBook(item), selectBookCreateBurying(item)
-                    "
+                    @click.stop="selectBook(item), selectBookCreateBurying(item)"
                 >
-                    <Book :book="item" @update="getCustomBookList" />
+                    <Book :book="item" @updateBook="getCustomBookList" />
                 </div>
                 <div
                     class="book-add-btn"
@@ -134,7 +132,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, ref, watch } from "vue";
+import { computed, defineComponent, onUnmounted, ref, watch } from "vue";
 import { BookList } from "@/types/preparation";
 import { MutationTypes, useStore } from "@/store";
 import Book from "./book.vue";
@@ -148,6 +146,7 @@ import {
 import { get, remove, set, STORAGE_TYPES } from "@/utils/storage";
 import usePageEvent from "@/hooks/usePageEvent";
 import { EVENT_TYPE } from "@/config/event";
+import emitter from "@/utils/mitt";
 export default defineComponent({
     components: { Book },
     emits: ["onChangeBook"],
@@ -270,6 +269,12 @@ export default defineComponent({
                 selectBook(bookList.value[0]);
             }
         };
+
+        emitter.on("updateBookList", getCustomBookList);
+
+        onUnmounted(() => {
+            emitter.off("updateBookList", getCustomBookList);
+        });
 
         const init = () => {
             getAllBookList();

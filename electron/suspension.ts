@@ -712,7 +712,6 @@ export function registerEvent() {
     ipcMain.handle("openQuickAnswerWindow", (_, allStudentList) => {
         showSuspension();
         if (!answerMachineWin) {
-            console.log(allStudentList, "allStudentList===");
             createQuickAnswerWindow(allStudentList);
         }
     });
