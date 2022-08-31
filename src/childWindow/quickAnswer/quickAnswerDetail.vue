@@ -27,9 +27,9 @@
                        </div>
                    </div>
            </div>
-           <div class="footer">
-               <div :class="['custom-btn', message === 0 ? '' : 'canCle-btn']">{{message === 0 ? "开始抢答" : (message === 1 ? "取消抢答" : "再抢一次")}}</div>
-           </div>
+       </div>
+       <div class="footer">
+           <div :class="['custom-btn', message === 1 ? 'canCle-btn' : '']">{{message === 0 ? "开始抢答" : (message === 1 ? "取消抢答" : "再抢一次")}}</div>
        </div>
 
        </div>
@@ -50,7 +50,7 @@ export default defineComponent({
         const state = reactive({
             currentClass: 1,
             status: 0,
-            message: 2, // 0未开始抢答 1抢答中 2抢答成功
+            message: 1, // 0未开始抢答 1抢答中 2抢答成功
             leftList: [
                 { label: "一年级1班", value: 1 },
                 { label: "二年级1班", value: 2 },
@@ -71,8 +71,8 @@ export default defineComponent({
 
 <style scoped lang="scss">
 .quick-detail{
+    border-radius: 12px;
     background-color: #fff;
-    border-radius: 8px;
 }
 .content{
     display: flex;
@@ -81,7 +81,7 @@ export default defineComponent({
     flex-direction: column;
     position: relative;
     width: 100%;
-    height: 280px;
+    height: 260px;
     background-image: url("../../assets/images/suspension/qiangda_bg.png") !important;
     background-position: center center;
     background-size: 100% 100%;
@@ -132,12 +132,14 @@ export default defineComponent({
     }
 }
 .footer{
+    background-color: #fff;
     display: flex;
     justify-content: center;
     align-items: center;
     flex-direction: column;
     width: 100%;
-    margin-top: 20px;
+    padding: 2rem 0 10px;
+    border-radius: 12px;
     .custom-btn{
         cursor: pointer;
         width: 196px;
@@ -169,11 +171,10 @@ export default defineComponent({
         text-align: center;
         font-size: 14px;
         color: #FFFFFF;
-        background: rgba(0,0,0,0.2);
+        background: rgba(255,255,255,0.2);
         border-radius: 18px;
         border: 1px solid #FFFFFF;
-        margin-top: 10px;
-        //background-color: pink;
+        margin-top: 20px;
         >span{
             margin-left: 4px;
         }

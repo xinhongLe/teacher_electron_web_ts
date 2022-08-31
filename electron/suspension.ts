@@ -250,23 +250,24 @@ function createAnswerMachineWindow(allStudentList: []) {
     });
 }
 
-function createQuickAnswerWindow(allStudentList: []) {
+function createQuickAnswerWindow(allStudentList: [], isAnswer = false) {
     quickAnswerWin = createWindow(quickAnswerURL, {
-        width: 620,
-        height: 420,
+        // width: 1200,
+        // height: 820,
+        fullscreen: true,
         center: true,
         show: false,
         useContentSize: true,
-        // transparent: true,
+        transparent: true,
         type: "toolbar", // 创建的窗口类型为工具栏窗口
-        // frame: false, // 要创建无边框窗口
+        frame: false, // 要创建无边框窗口
         alwaysOnTop: true
     });
 
     quickAnswerWin.on("ready-to-show", () => {
         quickAnswerWin && quickAnswerWin.show();
         quickAnswerWin && quickAnswerWin.focus();
-        quickAnswerWin && quickAnswerWin.webContents.send("sendAllStudentList", allStudentList);
+        quickAnswerWin && quickAnswerWin.webContents.send("sendAllStudentList", allStudentList, isAnswer);
     });
 
     quickAnswerWin.on("closed", () => {
@@ -709,11 +710,11 @@ export function registerEvent() {
         }
     });
 
-    ipcMain.handle("openQuickAnswerWindow", (_, allStudentList) => {
+    ipcMain.handle("openQuickAnswerWindow", (_, allStudentList, isAnswer) => {
         showSuspension();
         if (!answerMachineWin) {
             console.log(allStudentList, "allStudentList===");
-            createQuickAnswerWindow(allStudentList);
+            createQuickAnswerWindow(allStudentList, isAnswer);
         }
     });
 

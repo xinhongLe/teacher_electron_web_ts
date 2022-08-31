@@ -182,11 +182,11 @@
                             <img src="@/assets/images/suspension/pic_namer@2x.png" alt=""/>
                             <div class="blackboard-text">随机点名</div>
                         </div>
-                        <div class="blackboard-box" @click="openQuickAnswer">
+                        <div class="blackboard-box" @click="openQuickAnswer(true)">
                             <img src="@/assets/images/suspension/pic_qd.png" alt=""/>
                             <div class="blackboard-text">抢答</div>
                         </div>
-                        <div class="blackboard-box" @click="openRollCall">
+                        <div class="blackboard-box" @click="openQuickAnswer(false)">
                             <img src="@/assets/images/suspension/pic_sp.png" alt=""/>
                             <div class="blackboard-text">锁屏管理</div>
                         </div>
@@ -402,12 +402,12 @@ export default defineComponent({
             }
         };
 
-        const openQuickAnswer = () => {
-            if (allStudentList.value.length === 0) {
-                return ElMessage.error("请等待学员加载后答题！");
-            }
+        const openQuickAnswer = (isAnswer: boolean) => {
+            // if (allStudentList.value.length === 0) {
+            //     return ElMessage.error("请等待学员加载后答题！");
+            // }
             if (isElectron()) {
-                return window.electron.ipcRenderer.invoke("openQuickAnswerWindow", JSON.parse(JSON.stringify(allStudentList.value)));
+                return window.electron.ipcRenderer.invoke("openQuickAnswerWindow", JSON.parse(JSON.stringify(allStudentList.value)), isAnswer);
             }
         };
         const close = () => {

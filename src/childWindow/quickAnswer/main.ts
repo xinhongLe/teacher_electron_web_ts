@@ -5,6 +5,7 @@ import "../../styles/index.scss";
 import "element-plus/dist/index.css";
 
 import {
+    ElSwitch,
     ElAvatar,
     ElIcon,
     ElButton,
@@ -25,6 +26,7 @@ const components = [
     ElOption,
     ElCheckbox,
     ElProgress,
+    ElSwitch,
     Close,
     ElConfigProvider
 ];
