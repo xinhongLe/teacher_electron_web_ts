@@ -270,7 +270,7 @@ function createQuickAnswerWindow(allStudentList: []) {
     });
 
     quickAnswerWin.on("closed", () => {
-        answerMachineWin = null;
+        quickAnswerWin = null;
     });
 }
 

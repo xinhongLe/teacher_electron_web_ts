@@ -42,6 +42,7 @@ import { defineComponent, ref } from "vue";
 import { getOssPaths } from "./api";
 import { set, STORAGE_TYPES } from "./utils/storage";
 import useUpdate from "./hooks/useUpdate";
+import { ENV } from "@/config";
 export default defineComponent({
     setup() {
         const isShowUpdate = ref(false);
@@ -62,7 +63,7 @@ export default defineComponent({
         // 默认开启缓存
         set(STORAGE_TYPES.SET_ISCACHE, true);
 
-        if (isElectron() && !window.electron.isMac()) {
+        if (isElectron() && !window.electron.isMac() && ENV !== "development") {
             getUpdateJson();
             window.electron.ipcRenderer.invoke("checkForUpdate");
             window.electron.ipcRenderer.on("updateMessage", (_, text) => {

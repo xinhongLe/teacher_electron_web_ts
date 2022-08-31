@@ -1,3 +1,5 @@
+export const ENV = process.env.VUE_APP_ENV;
+
 export const AI_XUE_SHI_API = process.env.VUE_APP_AI_XUE_SHI_API;
 export const WINDOW_CRAD_API = process.env.VUE_APP_AI_XUE_SHI_API;
 export const TIMETABLE_API = process.env.VUE_APP_TIMETABLE_API;
