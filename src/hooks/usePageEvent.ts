@@ -5,11 +5,11 @@ import { get, STORAGE_TYPES } from "@/utils/storage";
 import { IYunInfo } from "@/types/login";
 import moment from "moment";
 import { systemId } from "@/config";
-import { machineId, machineIdSync } from "node-machine-id";
+// import { machineId, machineIdSync } from "node-machine-id";
 import { EVENT_TYPE } from "@/config/event";
 
 //获取唯一设备id
-const deviceId = machineIdSync(true);
+// const deviceId = machineIdSync(true);
 
 //获取设备信息
 const deviceInfo = require("os");
@@ -46,6 +46,8 @@ const getPcMsg: Function = () => {
     return pcMessage[0];
 };
 
+const MacId = getPcMsg().mac;
+
 //定义页面事件 (event：事件类型【page-in,page-out,page-stay,click...】，pageName：页面名称，enentId：事件ID，tabName：所点击的区域或者按钮名称)
 const usePageEvent = (pageName: string, isPage?: boolean) => {
     //记录页面进入 page-in 时间
@@ -54,7 +56,7 @@ const usePageEvent = (pageName: string, isPage?: boolean) => {
     const pageouttime = ref("");
     //记录页面停留时间 stay
     const pagestay = ref(0);
-    
+
     //用户信息
     const userInfo = get(STORAGE_TYPES.USER_INFO);
     // console.log("userInfo", userInfo);
@@ -79,14 +81,14 @@ const usePageEvent = (pageName: string, isPage?: boolean) => {
             SubjectName: item.Name,
         };
     });
-    
+
     //云平台信息
     const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
     // console.log("yunInfo", yunInfo);
-    
+
     //token 令牌
     const token = get(STORAGE_TYPES.SET_TOKEN);
-    
+
     //获取网络连接
     const navigatorNew: any = window.navigator;
     // console.log(navigatorNew.connection.effectiveType);
@@ -101,9 +103,9 @@ const usePageEvent = (pageName: string, isPage?: boolean) => {
         const pointData: createBuryingPointData = {
             TrackPlatform: "1",
             DeviceType: "windows", //设备类型
-            Mac: getPcMsg().mac, //mac地址
+            Mac: MacId, //mac地址
             Platform: process.platform,
-            DeviceId: deviceId, //设备id
+            DeviceId: MacId, //设备id
             Display: display, //分辨率
             // Ip: getPcMsg().address, //ip地址
             Token: token, //token
