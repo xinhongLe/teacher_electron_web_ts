@@ -36,7 +36,7 @@ router.beforeEach(async(to, from, next) => {
             if (to.path === "/") {
                 next({ path: "/login" });
             } else {
-                if (!get(STORAGE_TYPES.USER_INFO) || !store.state.userInfo.id) {
+                if ((!get(STORAGE_TYPES.USER_INFO) || !store.state.userInfo.id) && to.path !== "/login") {
                     await queryUserInfo().then(success => {
                         // 获取到用户信息, 开始配置全局监听器
                         if (success) {
