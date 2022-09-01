@@ -18,7 +18,9 @@
             </div>
             <div
                 class="book-select-box"
-                v-if="bookSelectOpen"
+                :class="{
+                    visible: bookSelectOpen
+                }"
                 :style="{
                     width: `${
                         bookList.length < 10
@@ -146,7 +148,6 @@ import {
 import { get, remove, set, STORAGE_TYPES } from "@/utils/storage";
 import usePageEvent from "@/hooks/usePageEvent";
 import { EVENT_TYPE } from "@/config/event";
-import emitter from "@/utils/mitt";
 export default defineComponent({
     components: { Book },
     emits: ["onChangeBook"],
@@ -269,12 +270,6 @@ export default defineComponent({
                 selectBook(bookList.value[0]);
             }
         };
-
-        emitter.on("updateBookList", getCustomBookList);
-
-        onUnmounted(() => {
-            emitter.off("updateBookList", getCustomBookList);
-        });
 
         const init = () => {
             getAllBookList();
@@ -441,9 +436,12 @@ export default defineComponent({
     background: #fff;
     box-shadow: 0px 8px 24px 0px rgba(0, 0, 0, 0.16);
     border-radius: 4px;
-    display: flex;
     flex-wrap: wrap;
     min-width: 0;
+    display: none;
+    &.visible {
+        display: flex;
+    }
 }
 
 .book-item {

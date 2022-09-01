@@ -26,10 +26,9 @@
 import { fetchAddCustomBookList, fetchDeleteCustomBookList, ICustomBookItem } from "@/api/resource";
 import { useStore } from "@/store";
 import { ElMessageBox } from "element-plus";
-import { computed, defineComponent, PropType } from "vue";
+import { computed, defineComponent, onMounted, onUnmounted, PropType } from "vue";
 import usePageEvent from "@/hooks/usePageEvent"; //埋点事件hooks
 import { EVENT_TYPE } from "@/config/event";
-import emitter from "@/utils/mitt";
 export default defineComponent({
     props: {
         book: {
@@ -81,7 +80,8 @@ export default defineComponent({
                             "删除",
                             props.book
                         );
-                        emitter.emit("updateBookList", bookId.value === id);
+
+                        emit("updateBook", bookId.value === id);
                     };
                 })
                 .catch(() => {});
