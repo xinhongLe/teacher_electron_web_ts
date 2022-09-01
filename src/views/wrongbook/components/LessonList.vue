@@ -13,11 +13,75 @@
                         </div>
                     </div>
                     <div class="item-middle">
-                        <!-- <div class="frequency">
-                            <p>出现频次</p>
-                            <span> 1次 </span>
-                        </div> -->
-                        <div class="ratedata">
+                        <div
+                            class="frequency"
+                            v-if="
+                                props.currentWrongType == 3 ||
+                                props.currentWrongType == 4
+                            "
+                        >
+                            <p class="title">出现频次</p>
+                            <p class="count">1次</p>
+                        </div>
+                        <div
+                            class="ratedata"
+                            v-if="
+                                props.currentWrongType == 3 ||
+                                props.currentWrongType == 4
+                            "
+                        >
+                            <el-progress
+                                :show-text="false"
+                                type="circle"
+                                :percentage="25"
+                                :width="40"
+                            />
+                            <div class="content">
+                                <p class="title">最近完成率</p>
+                                <p class="rate">90%</p>
+                            </div>
+                        </div>
+                        <div
+                            class="ratedata"
+                            v-if="
+                                props.currentWrongType == 3 ||
+                                props.currentWrongType == 4
+                            "
+                        >
+                            <el-progress
+                                :show-text="false"
+                                type="circle"
+                                :percentage="25"
+                                :width="40"
+                            />
+                            <div class="content">
+                                <p class="title">最近错误率</p>
+                                <div class="rate">
+                                    <span> 20% </span>
+                                    <!-- <div class="arrow">
+                                        <img
+                                            src="~@/assets/images/wrongbook/arrow_next_rest1.png"
+                                            alt=""
+                                        />
+                                        <div class="bg"></div>
+                                    </div> -->
+                                    <div class="arrowtwo">
+                                        <img
+                                            src="~@/assets/images/wrongbook/arrow_next_rest.png"
+                                            alt=""
+                                        />
+                                        <div class="bg"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div
+                            class="ratedata"
+                            v-if="
+                                props.currentWrongType == 1 ||
+                                props.currentWrongType == 2
+                            "
+                        >
                             <el-progress
                                 :show-text="false"
                                 type="circle"
@@ -29,7 +93,13 @@
                                 <p class="rate">90%</p>
                             </div>
                         </div>
-                        <div class="ratedata">
+                        <div
+                            class="ratedata"
+                            v-if="
+                                props.currentWrongType == 1 ||
+                                props.currentWrongType == 2
+                            "
+                        >
                             <el-progress
                                 :show-text="false"
                                 type="circle"
@@ -41,7 +111,13 @@
                                 <p class="rate">90%</p>
                             </div>
                         </div>
-                        <div class="wrong-ratedata">
+                        <div
+                            class="wrong-ratedata"
+                            v-if="
+                                props.currentWrongType == 1 ||
+                                props.currentWrongType == 2
+                            "
+                        >
                             <p class="title">分层错误率</p>
                             <!-- <span>暂未分层</span> -->
                             <p class="text">A3%，B暂无学生，C暂无学生</p>
@@ -92,8 +168,15 @@
     </div>
 </template>
 <script lang="ts" setup>
-import { ref, defineEmits } from "vue";
-
+import { state } from "@/store/modules/state";
+import { ref, defineEmits, defineProps } from "vue";
+const props = defineProps({
+    currentWrongType: {
+        type: Number,
+        default: null,
+        required: true,
+    },
+});
 const emit = defineEmits(["openWrongDetails"]);
 //分页参数
 const pagers = ref({
@@ -121,7 +204,7 @@ const openWrongDetails = (data?: any) => {
     padding: 16px;
     overflow: auto;
     h3 {
-        font-size: 20px;
+        font-size: 18px;
         font-family: HarmonyOS_Sans_SC_Bold;
         font-weight: bold;
         color: #19203d;
@@ -141,6 +224,7 @@ const openWrongDetails = (data?: any) => {
             .item-content {
                 display: flex;
                 align-items: center;
+                width: 70%;
                 .item-index {
                     font-size: 16px;
                     color: #19203d;
@@ -182,6 +266,16 @@ const openWrongDetails = (data?: any) => {
                     margin-left: 68px;
                     display: flex;
                     align-items: center;
+                    .frequency {
+                        margin-right: 26px;
+                        .title {
+                            color: #5f626f;
+                        }
+                        .count {
+                            color: #19203d;
+                            padding-top: 6px;
+                        }
+                    }
                     .ratedata {
                         display: flex;
                         align-items: center;
@@ -194,6 +288,39 @@ const openWrongDetails = (data?: any) => {
                         .rate {
                             color: #19203d;
                             padding-top: 6px;
+                            display: flex;
+                            .arrow {
+                                position: relative;
+                                img {
+                                    position: absolute;
+                                    bottom: 0px;
+                                    left: 3px;
+                                }
+                                .bg {
+                                    width: 1px;
+                                    height: 9px;
+                                    border: 1px solid #2ee18e;
+                                    position: absolute;
+                                    top: 1px;
+                                    left: 5px;
+                                }
+                            }
+                            .arrowtwo {
+                                position: relative;
+                                img {
+                                    position: absolute;
+                                    top: 0px;
+                                    left: 4px;
+                                }
+                                .bg {
+                                    width: 1px;
+                                    height: 9px;
+                                    border: 1px solid #ff6b6b;
+                                    position: absolute;
+                                    bottom: 1px;
+                                    left: 5px;
+                                }
+                            }
                         }
                     }
                     .wrong-ratedata {

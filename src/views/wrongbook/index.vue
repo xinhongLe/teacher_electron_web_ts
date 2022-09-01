@@ -52,10 +52,18 @@
         <main class="wrongbook-main">
             <header class="top-search">
                 <div class="left-btn">
-                    <el-button size="small">按作业</el-button>
-                    <el-button size="small">按试卷</el-button>
-                    <el-button size="small">按章节</el-button>
-                    <el-button size="small">按知识点</el-button>
+                    <el-button size="small" @click="state.currentWrongType = 1"
+                        >按作业</el-button
+                    >
+                    <el-button size="small" @click="state.currentWrongType = 2"
+                        >按试卷</el-button
+                    >
+                    <el-button size="small" @click="state.currentWrongType = 3"
+                        >按章节</el-button
+                    >
+                    <el-button size="small" @click="state.currentWrongType = 4"
+                        >按知识点</el-button
+                    >
                 </div>
                 <div class="right-sel">
                     <el-dropdown trigger="click">
@@ -79,12 +87,57 @@
             <div class="top-line"></div>
             <div class="content">
                 <div class="con-left">
-                    <LeftOne></LeftOne>
+                    <LeftOne v-if="state.currentWrongType == 1"></LeftOne>
+                    <LeftTwo v-if="state.currentWrongType == 2"></LeftTwo>
+                    <LeftThree
+                        v-if="
+                            state.currentWrongType == 3 ||
+                            state.currentWrongType == 4
+                        "
+                        :currentWrongType="state.currentWrongType"
+                    ></LeftThree>
                 </div>
                 <div class="con-right">
                     <LessonList
+                        v-if="state.isEmpty"
                         @openWrongDetails="openWrongDetails"
+                        :currentWrongType="state.currentWrongType"
                     ></LessonList>
+                    <div v-else class="empty">
+                        <div
+                            v-if="state.currentWrongType == 4"
+                            class="knowpoint"
+                        >
+                            <p class="count">
+                                收录错题：<span style="color: #4b71ee">{{
+                                    0
+                                }}</span
+                                >题
+                            </p>
+                            <p class="rate">
+                                班级平均知识点掌握度：<span
+                                    style="color: #4b71ee"
+                                    >30%</span
+                                >
+                                <span style="color: #a7aab4"
+                                    >（其中A层知识点掌握度<span
+                                        style="color: #4b71ee"
+                                        >90%</span
+                                    >，B层知识点掌握度 70%，C层知识点掌握度
+                                    10%）</span
+                                >
+                            </p>
+                        </div>
+                        <div class="emptyimg">
+                            <div class="img-text">
+                                <img
+                                    src="~@/assets/images/wrongbook/pic_kongtai1.png"
+                                    alt=""
+                                />
+                                <p>暂无收录错题</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>
@@ -92,6 +145,7 @@
     <WrongDetails
         v-if="state.isShowDetails"
         v-model:isShowDetails="state.isShowDetails"
+        :currentWrongType="state.currentWrongType"
     ></WrongDetails>
 </template>
 
@@ -99,6 +153,8 @@
 import { onMounted, reactive, ref, defineExpose } from "vue";
 import { ArrowDown, Search } from "@element-plus/icons-vue";
 import LeftOne from "./components/LeftOne.vue";
+import LeftTwo from "./components/LeftTwo.vue";
+import LeftThree from "./components/LeftThree.vue";
 import LessonList from "./components/LessonList.vue";
 import WrongDetails from "./components/WrongDetails.vue";
 const state = reactive({
@@ -128,6 +184,10 @@ const state = reactive({
     ],
     //是否显示详情页面
     isShowDetails: false,
+    //当前选择的那个类型展示错题本
+    currentWrongType: 1,
+    //是否是空态
+    isEmpty: true,
 });
 //顶部表单搜索项
 const searchForm = ref({
@@ -249,6 +309,48 @@ defineExpose(openWrongDetails);
             .con-right {
                 flex: 1;
                 background: #ffffff;
+                .empty {
+                    padding: 16px;
+                    height: 100%;
+                    .knowpoint {
+                        display: flex;
+                        .count {
+                            margin-right: 24px;
+                            font-size: 12px;
+                            font-family: HarmonyOS_Sans_SC;
+                            color: #5f626f;
+                        }
+                        .rate {
+                            font-size: 12px;
+                            font-family: HarmonyOS_Sans_SC;
+                            color: #5f626f;
+                        }
+                    }
+                    .emptyimg {
+                        height: calc(100% - 12px);
+                        position: relative;
+                        .img-text {
+                            width: 230px;
+                            height: 160px;
+                            background-color: #fff;
+                            position: absolute;
+                            top: 0;
+                            bottom: 10%;
+                            left: 0;
+                            right: 0;
+                            margin: auto;
+                            img {
+                            }
+                            p {
+                                font-size: 14px;
+                                font-family: HarmonyOS_Sans_SC;
+                                color: #a7aab4;
+                                margin-top: 15px;
+                                text-align: center;
+                            }
+                        }
+                    }
+                }
             }
         }
     }

@@ -1,5 +1,10 @@
 <template>
     <div class="wrongdetail-wrapper">
+        <LookQuestion
+            v-if="state.isShowQuestion"
+            :dialog="true"
+            :close="close"
+        />
         <header class="wrongdetail-header">
             <div class="header-left">
                 <img
@@ -60,7 +65,13 @@
                             <div class="bto">先数一数，再照样子涂一涂</div>
                             <div class="line"></div>
                         </div>
-                        <div class="ratedata">
+                        <div
+                            class="ratedata"
+                            v-if="
+                                props.currentWrongType == 1 ||
+                                props.currentWrongType == 2
+                            "
+                        >
                             <el-progress
                                 :show-text="false"
                                 type="circle"
@@ -70,6 +81,26 @@
                             <div class="content">
                                 <p class="rate-title">平均错误率</p>
                                 <p class="rate">90%</p>
+                            </div>
+                        </div>
+                        <div class="ratedata-two">
+                            <p>出现频次<span>2</span></p>
+                            <div class="wrong-rate">
+                                最近错误率<span>90%</span>
+                                <!-- <div class="arrow">
+                                        <img
+                                            src="~@/assets/images/wrongbook/arrow_next_rest1.png"
+                                            alt=""
+                                        />
+                                        <div class="bg"></div>
+                                    </div> -->
+                                <div class="arrowtwo">
+                                    <img
+                                        src="~@/assets/images/wrongbook/arrow_next_rest.png"
+                                        alt=""
+                                    />
+                                    <div class="bg"></div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -89,7 +120,11 @@
                             </div>
                         </div>
                         <div class="right">
-                            <el-button type="primary" plain size="small"
+                            <el-button
+                                type="primary"
+                                plain
+                                size="small"
+                                @click="state.isShowQuestion = true"
                                 >讲解题目</el-button
                             >
                             <el-button type="primary" plain size="small"
@@ -103,7 +138,13 @@
                     <div class="line"></div>
                 </div>
                 <div class="answer-details">
-                    <div class="top-title">
+                    <div
+                        class="top-title"
+                        v-if="
+                            props.currentWrongType == 1 ||
+                            props.currentWrongType == 2
+                        "
+                    >
                         <p class="title">学生答题详情</p>
                         <div class="text-line">
                             <p class="text">答错 <span>1</span></p>
@@ -115,6 +156,64 @@
                             <p class="text">完成率 <span> 60%</span></p>
                             <div class="line"></div>
                             <p class="text">平均错误率 <span>90%</span></p>
+                        </div>
+                    </div>
+                    <div v-else class="top-title-two">
+                        <div class="title">
+                            <p class="text">学生答题详情</p>
+                            <p class="switch">
+                                仅看重复错误的学生<el-switch
+                                    size="small"
+                                    style="padding-left: 8px"
+                                    v-model="state.isRepeat"
+                                />
+                            </p>
+                        </div>
+                        <div class="statistics">
+                            <div
+                                class="statistics-list"
+                                v-for="item in state.statisticsList"
+                                :key="item.id"
+                                @click="state.currentStatisticIndex = item.id"
+                                :class="{
+                                    isActive:
+                                        state.currentStatisticIndex == item.id,
+                                }"
+                            >
+                                <div class="statistics-title">
+                                    <img
+                                        src="~@/assets/images/wrongbook/icon_timu.png"
+                                        alt=""
+                                    />
+                                    <p>{{ item.name }}</p>
+                                </div>
+                                <div class="dates">{{ item.date }}</div>
+                                <div class="bot-rate">
+                                    <div class="count-text">
+                                        <p class="count">30</p>
+                                        <p class="text">总答</p>
+                                    </div>
+                                    <div class="count-text">
+                                        <p class="count">1</p>
+                                        <p class="text">答错</p>
+                                    </div>
+                                    <div class="count-text">
+                                        <p class="count">10</p>
+                                        <p class="text">未答</p>
+                                    </div>
+                                    <div class="count-text">
+                                        <p class="count">66%</p>
+                                        <p class="text">完成率</p>
+                                    </div>
+                                    <div class="count-text">
+                                        <p class="count" style="color: #f76b6b">
+                                            90%
+                                        </p>
+                                        <p class="text">平均错误率</p>
+                                    </div>
+                                </div>
+                                <div class="bto-arrow"></div>
+                            </div>
                         </div>
                     </div>
                     <div class="A-floor" v-for="item in state.detailList">
@@ -135,15 +234,26 @@
                                     )
                                 </p>
                             </div>
-                            <div>
+                            <div @click="expendStudent(item)">
                                 <img
-                                    src="~@/assets/images/wrongbook/icon_xiala.png"
+                                    :src="
+                                        item.isExpend
+                                            ? require('../../../assets/images/wrongbook/icon_shouqi.png')
+                                            : require('../../..//assets/images/wrongbook/icon_xiala.png')
+                                    "
                                     alt=""
                                 />
                             </div>
                         </div>
-                        <div class="person-list">
-                            <div class="list-item">
+                        <div
+                            class="person-list"
+                            v-if="item.list?.length && item.isExpend"
+                        >
+                            <div
+                                class="list-item"
+                                v-for="person in item.list"
+                                :key="person.number"
+                            >
                                 <div class="images">
                                     <img
                                         src="~@/assets/images/wrongbook/ps1.png"
@@ -151,8 +261,8 @@
                                     />
                                 </div>
                                 <div class="name-number">
-                                    <p class="name">巢浩真</p>
-                                    <p class="number">mg57086112</p>
+                                    <p class="name">{{ person.name }}</p>
+                                    <p class="number">{{ person.number }}</p>
                                 </div>
                             </div>
                         </div>
@@ -164,11 +274,21 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, defineEmits } from "vue";
+import { ref, reactive, defineEmits, defineProps } from "vue";
+import LookQuestion from "@/components/lookQuestion/index.vue";
+
+const props = defineProps({
+    currentWrongType: {
+        type: Number,
+        default: null,
+        required: true,
+    },
+});
 const emit = defineEmits(["update:isShowDetails"]);
 //题型
 const questionType = ref("");
 const state = reactive({
+    isRepeat: false, //时候查看重复错误的学生
     questionTypeList: [
         {
             ID: 1,
@@ -256,25 +376,101 @@ const state = reactive({
             id: 1,
             name: "A层",
             count: 0,
+            isExpend: false,
         },
         {
             id: 2,
             name: "B层",
             count: 9,
-            list: [],
+            isExpend: false,
+
+            list: [
+                {
+                    img: "~@/assets/images/wrongbook/ps1.png",
+                    name: "巢浩真",
+                    number: "mg57086112",
+                },
+                {
+                    img: "~@/assets/images/wrongbook/ps1.png",
+                    name: "岩炎岩",
+                    number: "mg57086113",
+                },
+                {
+                    img: "~@/assets/images/wrongbook/ps1.png",
+                    name: "万东伯",
+                    number: "mg57086114",
+                },
+                {
+                    img: "~@/assets/images/wrongbook/ps1.png",
+                    name: "居建冰",
+                    number: "mg57086115",
+                },
+                {
+                    img: "~@/assets/images/wrongbook/ps1.png",
+                    name: "洪莉",
+                    number: "mg57086116",
+                },
+                {
+                    img: "~@/assets/images/wrongbook/ps1.png",
+                    name: "宰茜",
+                    number: "mg57086117",
+                },
+                {
+                    img: "~@/assets/images/wrongbook/ps1.png",
+                    name: "欧岚",
+                    number: "mg57086118",
+                },
+                {
+                    img: "~@/assets/images/wrongbook/ps1.png",
+                    name: "樊琳",
+                    number: "mg57086119",
+                },
+                {
+                    img: "~@/assets/images/wrongbook/ps1.png",
+                    name: "段舒园",
+                    number: "mg57086120",
+                },
+            ],
         },
         {
             id: 3,
             name: "C层",
             count: 11,
+            isExpend: false,
         },
         {
             id: 4,
             name: "未标记",
             count: 0,
+            isExpend: false,
         },
     ],
+    //答题详情统计卡片list
+    statisticsList: [
+        {
+            id: 1,
+            name: "求倍数的错题巩固联系",
+            date: "2022-07-05 (周二)",
+        },
+        {
+            id: 2,
+            name: "求倍数的错题巩固联系",
+            date: "2022-07-05 (周二)",
+        },
+        {
+            id: 3,
+            name: "求倍数的错题巩固联系",
+            date: "2022-07-05 (周二)",
+        },
+    ],
+    //当前选中的答题详情卡片
+    currentStatisticIndex: 1,
+    //讲解题目 公共组件显示
+    isShowQuestion: false,
 });
+const close = () => {
+    console.log(12);
+};
 //切换左侧错题项
 const switchWrongItem = (item: any) => {
     state.currentIndex = item.id;
@@ -282,6 +478,11 @@ const switchWrongItem = (item: any) => {
 //返回列表页
 const backList = () => {
     emit("update:isShowDetails", false);
+};
+//展开收起学生列表
+const expendStudent = (item: any) => {
+    console.log(item);
+    item.isExpend = !item.isExpend;
 };
 </script>
 <style lang="scss" scoped>
@@ -347,6 +548,7 @@ const backList = () => {
                     margin-bottom: 10px;
                     border-radius: 6px;
                     cursor: pointer;
+
                     .title {
                         padding: 14px 0 0 14px;
                         .top {
@@ -392,6 +594,30 @@ const backList = () => {
                             }
                         }
                     }
+                    .ratedata-two {
+                        padding: 10px 12px;
+                        display: flex;
+                        align-items: center;
+                        p {
+                            font-size: 12px;
+                            color: #5f626f;
+                            span {
+                                padding-left: 3px;
+                                color: #19203d;
+                            }
+                        }
+                        .wrong-rate {
+                            font-size: 12px;
+                            color: #5f626f;
+                            margin-left: 20px;
+                            display: flex;
+                            align-items: center;
+                            span {
+                                padding-left: 3px;
+                                color: #f76b6b;
+                            }
+                        }
+                    }
                 }
                 .isActive {
                     transition: 0.3s;
@@ -412,6 +638,20 @@ const backList = () => {
                         }
                         .rate {
                             color: #ffffff !important;
+                        }
+                    }
+                    .ratedata-two {
+                        p {
+                            color: #ffffff !important;
+                            span {
+                                color: #ffffff !important;
+                            }
+                        }
+                        .wrong-rate {
+                            color: #ffffff !important;
+                            span {
+                                color: #ffffff !important;
+                            }
                         }
                     }
                 }
@@ -504,8 +744,101 @@ const backList = () => {
                         }
                     }
                 }
+                .top-title-two {
+                    padding: 16px 0;
+                    .title {
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                        .text {
+                            font-size: 16px;
+                            font-family: HarmonyOS_Sans_SC_Bold;
+                            color: #19203d;
+                            font-weight: bold;
+                            margin-right: 12px;
+                        }
+                        .switch {
+                            font-size: 12px;
+                            font-family: HarmonyOS_Sans_SC;
+                            color: #19203d;
+                        }
+                    }
+                    .statistics {
+                        margin-top: 12px;
+                        display: flex;
+                        .statistics-list {
+                            cursor: pointer;
+                            width: 264px;
+                            // height: 92px;
+                            background: #ffffff;
+                            border: 1px solid #e0e2e7;
+                            padding: 8px 12px;
+                            border-radius: 4px;
+                            margin-right: 20px;
+                            .statistics-title {
+                                display: flex;
+                                align-items: center;
+                                p {
+                                    margin-left: 5px;
+                                    font-size: 14px;
+                                    font-family: HarmonyOS_Sans_SC;
+                                    color: #19203d;
+                                }
+                            }
+                            .dates {
+                                margin-top: 8px;
+                                font-size: 12px;
+                                font-family: HarmonyOS_Sans_SC;
+                                color: #a7aab4;
+                                padding-left: 22px;
+                            }
+                            .bot-rate {
+                                margin-top: 8px;
+                                display: flex;
+                                align-items: center;
+                                justify-content: space-around;
+                                padding-left: 16px;
+                                .count-text {
+                                    display: flex;
+                                    flex-direction: column;
+                                    justify-content: center;
+                                    align-items: center;
+                                    font-size: 12px;
+                                    .text {
+                                        margin-top: 2px;
+                                    }
+                                }
+                            }
+                        }
+                        .isActive {
+                            position: relative;
+                            background: #e6ecff;
+                            border: 1px solid #4b71ee;
+                            transition: 0.3s;
+                            .bto-arrow {
+                                position: absolute;
+                                bottom: -20px;
+                                left: 47%;
+                                display: block;
+                                width: 0;
+                                height: 0;
+                                border: 10px solid transparent;
+                                border-top-color: #4b71ee;
+                            }
+                            .bto-arrow:after {
+                                content: "";
+                                width: 0;
+                                height: 0;
+                                position: absolute;
+                                left: -9px;
+                                top: -10px;
+                                border: 9px solid transparent;
+                                border-top-color: #e6ecff;
+                            }
+                        }
+                    }
+                }
                 .A-floor {
-                    cursor: pointer;
                     width: 100%;
                     background: #f9fafc;
                     border-radius: 4px;
@@ -518,6 +851,7 @@ const backList = () => {
                         display: flex;
                         justify-content: space-between;
                         align-items: center;
+                        cursor: pointer;
                         .left {
                             display: flex;
                             align-items: center;
@@ -536,17 +870,27 @@ const backList = () => {
                         }
                     }
                     .person-list {
+                        transition: 0.5s;
                         margin-top: 14px;
+                        display: flex;
+                        flex-wrap: wrap;
                         .list-item {
+                            cursor: pointer;
                             padding: 10px 12px;
                             background-color: #ffffff;
                             display: flex;
                             width: 167px;
                             border-radius: 5px;
+                            margin-right: 12px;
+                            margin-bottom: 12px;
                             .images {
                                 width: 36px;
                                 height: 36px;
-                                border-radius: 50%;
+                                img {
+                                    width: 100%;
+                                    height: 100%;
+                                    border-radius: 50%;
+                                }
                             }
                             .name-number {
                                 margin-left: 16px;
@@ -566,6 +910,38 @@ const backList = () => {
                     }
                 }
             }
+        }
+    }
+    .arrow {
+        position: relative;
+        img {
+            position: absolute;
+            bottom: 0px;
+            left: 3px;
+        }
+        .bg {
+            width: 1px;
+            height: 9px;
+            border: 1px solid #2ee18e;
+            position: absolute;
+            top: 1px;
+            left: 5px;
+        }
+    }
+    .arrowtwo {
+        position: relative;
+        img {
+            position: absolute;
+            top: -7px;
+            left: 4px;
+        }
+        .bg {
+            width: 1px;
+            height: 9px;
+            border: 1px solid #ff6b6b;
+            position: absolute;
+            bottom: -5px;
+            left: 5px;
         }
     }
 }
