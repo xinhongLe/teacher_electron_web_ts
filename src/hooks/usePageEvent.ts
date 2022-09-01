@@ -5,6 +5,7 @@ import { get, STORAGE_TYPES } from "@/utils/storage";
 import { IYunInfo } from "@/types/login";
 import moment from "moment";
 import { systemId } from "@/config";
+import { screen } from "@electron/remote";
 // import { machineId, machineIdSync } from "node-machine-id";
 import { EVENT_TYPE } from "@/config/event";
 
@@ -14,7 +15,7 @@ import { EVENT_TYPE } from "@/config/event";
 //获取设备信息
 const deviceInfo = require("os");
 //获取分辨率
-const displayScreen = window.electron.remote.screen.getPrimaryDisplay().workAreaSize;
+const displayScreen = screen.getPrimaryDisplay().workAreaSize;
 const display = displayScreen.width + "*" + displayScreen.height;
 
 //获取 设备信息
@@ -56,7 +57,6 @@ const usePageEvent = (pageName: string, isPage?: boolean) => {
     const pageouttime = ref("");
     //记录页面停留时间 stay
     const pagestay = ref(0);
-
     //用户信息
     const userInfo = get(STORAGE_TYPES.USER_INFO);
     // console.log("userInfo", userInfo);
@@ -93,7 +93,7 @@ const usePageEvent = (pageName: string, isPage?: boolean) => {
     const navigatorNew: any = window.navigator;
     // console.log(navigatorNew.connection.effectiveType);
     //创建埋点
-    const createBuryingPointFn = async (
+    const createBuryingPointFn = (
         event: number, //事件行为
         eventId?: string | undefined, //事件id
         tabName?: string, //按钮或者区域名称
@@ -186,7 +186,7 @@ const usePageEvent = (pageName: string, isPage?: boolean) => {
         };
         //调用埋点接口
         // return;
-        const res = await createBuryingPoint(pointData);
+        createBuryingPoint(pointData);
         // console.log(res);
     };
     if (isPage) {
