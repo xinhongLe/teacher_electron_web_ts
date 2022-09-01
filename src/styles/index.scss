@@ -9,6 +9,9 @@ html {
         -moz-osx-font-smoothing: grayscale;
         -webkit-font-smoothing: antialiased;
         text-rendering: optimizeLegibility;
+        .el-overlay.is-message-box{
+            z-index: 999999 !important;
+        }
         .el-dialog {
             -webkit-app-region: no-drag;
         }
