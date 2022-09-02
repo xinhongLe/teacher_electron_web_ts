@@ -16,8 +16,7 @@ type Events = {
     closeTab: Bread,
     updatePackageCount: null,
     updateResourceList: string,
-    openEditResource: IResourceItem,
-    updateBookList: boolean
+    openEditResource: IResourceItem
 }
 
 const emitter = mitt<Events>();
