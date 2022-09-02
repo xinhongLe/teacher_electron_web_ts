@@ -1,6 +1,6 @@
 <template>
     <el-config-provider :locale="locale">
-        <div>
+        <div class="answer-app">
             <StartAnswer
                 :allStudentList="allStudentList"
                 v-if="!(isShowTimer || isShowAnswerResult)"
@@ -70,7 +70,7 @@ export default defineComponent({
             selectStudentList.value = studentList;
             selectQuestionType.value = type;
             mqttInfo.value = data;
-            questionOption.value = data.QuestionOption;
+            // questionOption.value = data.QuestionOption;
         };
 
         const endAnswer = async (time: string, studentList: Student[]) => {
@@ -85,11 +85,9 @@ export default defineComponent({
             }
         };
 
-        window.electron.ipcRenderer.on(
-            "sendAllStudentList",
-            (_, studentList) => {
-                allStudentList.value = studentList;
-            }
+        window.electron.ipcRenderer.on("sendAllStudentList", (_, studentList) => {
+            allStudentList.value = studentList;
+        }
         );
         return {
             locale: zhCn,
@@ -118,5 +116,13 @@ body {
         --el-button-background-color: #4b71ee;
         --el-button-border-color: #4b71ee;
     }
+}
+.answer-app{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0,0,0,0.4);
 }
 </style>

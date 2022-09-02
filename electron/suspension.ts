@@ -1,4 +1,4 @@
-import { BrowserWindow, ipcMain, screen, app } from "electron";
+import { BrowserWindow, ipcMain, screen } from "electron";
 import { createWindow } from "./createWindow";
 import ElectronLog from "electron-log";
 import { checkWindowSupportNet } from "./util";
@@ -222,17 +222,18 @@ function createBlackboardWindow() {
 
 function createAnswerMachineWindow(allStudentList: []) {
     answerMachineWin = createWindow(answerMachineURL, {
-        width: 620,
-        height: 422,
+        width: 1200,
+        height: 860,
+        // fullscreen: true,
         center: true,
         show: false,
         useContentSize: true,
-        transparent: true,
+        // transparent: true,
         backgroundColor: "#00000000",
         type: "toolbar", // 创建的窗口类型为工具栏窗口
-        frame: false, // 要创建无边框窗口
-        alwaysOnTop: true,
-        resizable: false
+        // frame: false, // 要创建无边框窗口
+        alwaysOnTop: true
+        // resizable: false
     });
 
     answerMachineWin.on("ready-to-show", () => {
@@ -252,8 +253,8 @@ function createAnswerMachineWindow(allStudentList: []) {
 
 function createQuickAnswerWindow(allStudentList: [], isAnswer = false) {
     quickAnswerWin = createWindow(quickAnswerURL, {
-        // width: 1200,
-        // height: 820,
+        // width: 620,
+        // height: 420,
         fullscreen: true,
         center: true,
         show: false,
@@ -425,7 +426,7 @@ export function createSuspensionWindow() {
             useContentSize: true,
             transparent: true, // 设置透明
             backgroundColor: "#00000000",
-            alwaysOnTop: true, // 窗口是否总是显示在其他窗口之前
+            alwaysOnTop: true // 窗口是否总是显示在其他窗口之前
         });
         const size = screen.getPrimaryDisplay().workAreaSize; // 获取显示器的宽高
         const winSize = suspensionWin.getSize(); // 获取窗口宽高
@@ -712,7 +713,7 @@ export function registerEvent() {
 
     ipcMain.handle("openQuickAnswerWindow", (_, allStudentList, isAnswer) => {
         showSuspension();
-        if (!answerMachineWin) {
+        if (!quickAnswerWin) {
             console.log(allStudentList, "allStudentList===");
             createQuickAnswerWindow(allStudentList, isAnswer);
         }

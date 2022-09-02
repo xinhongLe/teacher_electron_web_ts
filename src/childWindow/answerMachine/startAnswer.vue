@@ -37,66 +37,56 @@
                     >查看</span
                 >
             </div>
-            <div class="select-warp">
-                <span class="label">请选择类型：</span>
-                <el-button
-                    @click="choiceQuestionType(QuestionType.单选题)"
-                    :type="
-                        questionType === QuestionType.单选题
-                            ? 'primary'
-                            : 'default'
-                    "
-                    >单选题</el-button
-                >
-                <el-button
-                    @click="choiceQuestionType(QuestionType.多选题)"
-                    :type="
-                        questionType === QuestionType.多选题
-                            ? 'primary'
-                            : 'default'
-                    "
+            <div class="row" v-for="(item, i) in topicList" :key="i">
+                <div class="select-warp">
+                    <span class="label">
+                        <span style="float: left">题{{i + 1}}</span>
+                        <span>类型：</span>
+                    </span>
+                    <el-button
+                        @click="choiceQuestionType(item, QuestionType.单选题)"
+                        :type="item.questionType === QuestionType.单选题 ? 'primary' : 'default'"
+                    >单选题</el-button>
+                    <el-button
+                        @click="choiceQuestionType(item, QuestionType.多选题)"
+                        :type="item.questionType === QuestionType.多选题 ? 'primary' : 'default'"
                     >多选题</el-button
-                >
-                <el-button
-                    @click="choiceQuestionType(QuestionType.判断题)"
-                    :type="
-                        questionType === QuestionType.判断题
-                            ? 'primary'
-                            : 'default'
-                    "
+                    >
+                    <el-button
+                        @click="choiceQuestionType(item, QuestionType.判断题)"
+                        :type="item.questionType === QuestionType.判断题 ? 'primary' : 'default'"
                     >判断题</el-button
-                >
-            </div>
-            <div class="select-warp" v-show="answerMode === AnswerMode.PAD">
-                <span class="label">选项设置：</span>
-                <el-cascader
-                    :options="option"
-                    v-model="selectSetting"
-                    v-if="isSelected"
-                    :disabled="!option"
-                    placeholder="请选择类型"
-                />
+                    >
+                </div>
+                <div class="select-warp" v-show="answerMode === AnswerMode.PAD">
+                    <span class="label">选项：</span>
+                    <el-cascader
+                        :options="item.option"
+                        v-model="item.selectSetting"
+                        :disabled="!(item.selectSetting.length > 0)"
+                        placeholder="请选择类型"
+                    />
+                </div>
+                <div v-if="topicList.length > 0" class="del-btn" @click="delRow(i)">
+                    <img src="@/assets/images/suspension/icon_delete.png" alt="">
+                </div>
             </div>
         </div>
+        <div class="add-btn" @click="addRow">
+            <img src="@/assets/images/suspension/icon_add.png" alt="">
+            <span>添加题目</span>
+        </div>
         <div class="footer">
-            <el-button @click="close">取消</el-button>
-            <el-button
-                type="primary"
-                @click="start"
-                :disabled="
-                    answerMode === AnswerMode.PAD
-                        ? !(
-                              selectClass &&
-                              questionType &&
-                              selectSetting.length !== 0
-                          )
-                        : !(
-                              studentMachineListByClassIdMap[selectClass]
-                                  ?.length > 0 && questionType
-                          )
-                "
-                >确定</el-button
-            >
+           <div>
+               <el-button @click="close">取消</el-button>
+               <el-tooltip content="您可以提前准备好题目并【保存为草稿】下次打开可直接使用" placement="top">
+                   <el-button  type="primary" plain >保存为草稿</el-button>
+               </el-tooltip>
+
+               <el-tooltip content="您可以提前准备好题目并【加入当前备课包】上课时打开备课包可直接使用" placement="top">
+                   <el-button type="primary" @click="start">确定</el-button>
+               </el-tooltip>
+           </div>
         </div>
     </div>
     <StudentList
@@ -111,7 +101,7 @@ import { computed, defineComponent, inject, PropType, Ref, ref, watch } from "vu
 import { get, STORAGE_TYPES } from "@/utils/storage";
 import { LessonClasses } from "@/types/login";
 import { Student } from "@/types/labelManage";
-import { groupBy, uniqBy } from "lodash";
+import { groupBy, uniqBy, cloneDeep } from "lodash";
 import { sendMQTTInfo, MQTTInfoData } from "./api";
 import { AnswerMode, PADModeQuestionType } from "./enum";
 import useStudentMachine from "@/hooks/useStudentMachine";
@@ -171,36 +161,29 @@ export default defineComponent({
         const classList = userInfo?.Classes as LessonClasses[];
         const selectClass = ref("");
         const selectSetting = ref<string[]>([]);
-        const isSelected = ref(true);
+        // const isSelected = ref(true);
         const isShowStudentList = ref(false);
         const choiceQuestion = getChoiceQuestion();
-        const QuestionType = inject(
-            "QuestionType",
-            ref(PADModeQuestionType)
-        );
+        const QuestionType = inject("QuestionType", ref(PADModeQuestionType));
+        console.log(QuestionType, "QuestionType");
         const questionnaireOption = [
             {
                 value: "2",
                 label: "2",
                 children: [
-                    {
-                        value: "√ ×",
-                        label: "√ ×"
-                    },
-                    {
-                        value: "T F",
-                        label: "T F"
-                    }
+                    { value: "√ ×", label: "√ ×" },
+                    { value: "T F", label: "T F" }
                 ]
             }
         ];
         const option = ref();
         const questionType = ref();
-        const {
-            studentMachineListByClassIdMap,
-            getStudentMachineListMap,
-            studentMachineListMap
-        } = useStudentMachine();
+        const topicList = ref(
+            [
+                { questionType: 0, selectSetting: [], option: [] }
+            ]
+        );
+        const { studentMachineListByClassIdMap, getStudentMachineListMap, studentMachineListMap } = useStudentMachine();
 
         const allStudentListMap = computed(() => {
             const allListMap = groupBy(props.allStudentList, "ClassID");
@@ -214,9 +197,7 @@ export default defineComponent({
         const selectStudentList = computed(() => {
             getStudentMachineListMap(selectClass.value);
             return allStudentListMap.value[selectClass.value]?.filter(
-                (item) =>
-                    studentMachineListMap.value &&
-                    studentMachineListMap.value[item.Account]);
+                (item) => studentMachineListMap.value && studentMachineListMap.value[item.Account]);
         });
 
         const close = () => {
@@ -224,35 +205,44 @@ export default defineComponent({
         };
 
         const start = async () => {
+            console.log(topicList.value, "-----");
             const data: MQTTInfoData = {
                 TeacherId: userInfo.ID,
                 ClassId: selectClass.value,
                 QuestionId: `question_${new Date().getTime()}`,
-                QuestionType: questionType.value,
-                QuestionOption: selectSetting.value[1].replaceAll(" ", ";"),
-                QuestionNum: Number(selectSetting.value[0]),
+                // QuestionType: questionType.value,
+                // QuestionOption: selectSetting.value[1].replaceAll(" ", ";"),
+                // QuestionNum: Number(selectSetting.value[0]),
                 IsEnd: false,
                 TimeStamp: null,
-                Topic: `answer_${selectClass.value}`
+                Topic: `answer_${selectClass.value}`,
+                TopicList: topicList.value.map((item:any) => {
+                    return {
+                        QuestionType: item.questionType,
+                        QuestionOption: item.selectSetting[1].replaceAll(" ", ";"),
+                        QuestionNum: Number(item.selectSetting[0])
+                    };
+                })
             };
-            if (props.answerMode === AnswerMode.PAD) {
-                const res = await sendMQTTInfo(data);
-                if (res.resultCode === 200) {
-                    emit(
-                        "start",
-                        allStudentListMap.value[selectClass.value] || [],
-                        questionType.value,
-                        data
-                    );
-                }
-            } else {
-                emit(
-                    "start",
-                    allStudentListMap.value[selectClass.value] || [],
-                    questionType.value,
-                    data
-                );
-            }
+            console.log(data, "data-----");
+            // if (props.answerMode === AnswerMode.PAD) {
+            //     // const res = await sendMQTTInfo(data);
+            //     const res = { resultCode: 200 };
+            //     if (res.resultCode === 200) {
+            //         emit("start",
+            //             allStudentListMap.value[selectClass.value] || [],
+            //             questionType.value,
+            //             // data
+            //         );
+            //     }
+            // } else {
+            //     emit(
+            //         "start",
+            //         allStudentListMap.value[selectClass.value] || [],
+            //         questionType.value,
+            //         // data
+            //     );
+            // }
         };
 
         const changeMode = () => {
@@ -264,18 +254,36 @@ export default defineComponent({
             );
         };
 
-        const choiceQuestionType = (type: PADModeQuestionType) => {
-            if (questionType.value === type) return;
-            questionType.value = type;
+        const addRow = () => {
+            topicList.value.push(cloneDeep({ questionType: 0, selectSetting: [], option: [] }));
+        };
+
+        const delRow = (index:number) => {
+            topicList.value.splice(index, 1);
+        };
+
+        const choiceQuestionType = (item:any, type: PADModeQuestionType) => {
+            if (item.questionType === type) return;
+            item.questionType = type;
             if (type === QuestionType.value.判断题) {
-                option.value = questionnaireOption;
-                selectSetting.value = [
+                // option.value = questionnaireOption;
+                // selectSetting.value = [
+                //     questionnaireOption[0].value,
+                //     questionnaireOption[0].children[0].value
+                // ];
+                item.option = questionnaireOption;
+                item.selectSetting = [
                     questionnaireOption[0].value,
                     questionnaireOption[0].children[0].value
                 ];
             } else {
-                option.value = choiceQuestion;
-                selectSetting.value = [
+                // option.value = choiceQuestion;
+                // selectSetting.value = [
+                //     choiceQuestion[3].value,
+                //     choiceQuestion[3].children[0].value
+                // ];
+                item.option = choiceQuestion;
+                item.selectSetting = [
                     choiceQuestion[3].value,
                     choiceQuestion[3].children[0].value
                 ];
@@ -297,7 +305,10 @@ export default defineComponent({
             allStudentListMap,
             option,
             selectSetting,
-            isSelected,
+            // isSelected,
+            topicList,
+            addRow,
+            delRow,
             choiceQuestionType,
             selectStudentList,
             questionType,
@@ -317,7 +328,7 @@ export default defineComponent({
 $blue: #4b71ee;
 .main {
     width: 620px;
-    height: 422px;
+    height:550px;
     border-radius: 8px;
     background: #fff;
     box-shadow: 0px 6px 16px -8px rgba(0, 0, 0, 0.12),
@@ -329,9 +340,10 @@ $blue: #4b71ee;
     padding-bottom: 24px;
     -webkit-app-region: no-drag;
     .content {
-        padding-left: 70px;
+        padding-left: 50px;
         margin-top: 48px;
         flex: 1;
+        overflow-y: auto;
         .change-mode {
             display: flex;
             padding-right: 60px;
@@ -357,6 +369,10 @@ $blue: #4b71ee;
                     margin-left: 16px;
                 }
             }
+            .el-button--primary:focus, .el-button--primary:hover{
+                background: #4b71ee;
+                border-color: #4b71ee;
+            }
             .label {
                 width: 100px;
                 font-size: 16px;
@@ -367,6 +383,9 @@ $blue: #4b71ee;
             :deep(.el-select) {
                 width: 362px;
             }
+            :deep(.el-cascader) {
+                width: 362px;
+            }
             .view-btn {
                 cursor: pointer;
                 margin-left: 16px;
@@ -374,17 +393,40 @@ $blue: #4b71ee;
                 font-size: 14px;
             }
         }
+        .row{
+            position: relative;
+        }
+        .del-btn{
+            position: absolute;
+            right: 30px;
+            top:40px;
+            cursor: pointer;
+        }
+    }
+    .add-btn{
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        font-size: 14px;
+        color: #4B71EE;
+        margin: 20px 0 20px 50px;
+        span{
+            margin-left: 8px;
+        }
     }
     .footer {
         display: flex;
-        justify-content: center;
+        justify-content: flex-end;
         flex-shrink: 0;
+        margin-right: 20px;
         :deep(.el-button) {
             width: 120px;
-            + .el-button {
-                margin-left: 24px;
-            }
+            margin-left: 24px;
         }
+        //:deep(.el-popper.is-customized) {
+        //    padding: 6px 12px;
+        //    background-color: rgba(0,0,0,0.3);
+        //}
     }
 }
 </style>

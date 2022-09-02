@@ -180,13 +180,13 @@
                             @click.stop="clicKBuryPoint('点名'), openRollCall()"
                         >
                             <img src="@/assets/images/suspension/pic_namer@2x.png" alt=""/>
-                            <div class="blackboard-text">随机点名</div>
+                            <div class="blackboard-text">点名</div>
                         </div>
-                        <div class="blackboard-box" @click="openQuickAnswer(true)">
+                        <div class="blackboard-box" @click.stop="openQuickAnswer(true)">
                             <img src="@/assets/images/suspension/pic_qd.png" alt=""/>
                             <div class="blackboard-text">抢答</div>
                         </div>
-                        <div class="blackboard-box" @click="openQuickAnswer(false)">
+                        <div class="blackboard-box" @click.stop="openQuickAnswer(false)">
                             <img src="@/assets/images/suspension/pic_sp.png" alt=""/>
                             <div class="blackboard-text">锁屏管理</div>
                         </div>
@@ -391,9 +391,9 @@ export default defineComponent({
             }
         };
         const openAnswerMachineWindow = () => {
-            if (allStudentList.value.length === 0) {
-                return ElMessage.error("请等待学员加载后答题！");
-            }
+            // if (allStudentList.value.length === 0) {
+            //     return ElMessage.error("请等待学员加载后答题！");
+            // }
             if (isElectron()) {
                 return window.electron.ipcRenderer.invoke(
                     "openAnswerMachineWindow",

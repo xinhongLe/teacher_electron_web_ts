@@ -6,12 +6,17 @@ export interface MQTTInfoData {
     TeacherId: string;
     ClassId: string;
     QuestionId: string;
-    QuestionType: number;
-    QuestionOption: string;
-    QuestionNum: number;
+    QuestionType?: number;
+    QuestionOption?: string;
+    QuestionNum?: number;
     IsEnd: boolean;
     TimeStamp: null;
     Topic: string;
+    TopicList?: {
+        QuestionType: number;
+        QuestionOption: string;
+        QuestionNum: number;
+    }[]
 }
 
 export interface StudentAnswerInfo {
