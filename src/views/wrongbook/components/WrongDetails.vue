@@ -1,10 +1,5 @@
 <template>
     <div class="wrongdetail-wrapper">
-        <LookQuestion
-            v-if="state.isShowQuestion"
-            :dialog="true"
-            :close="close"
-        />
         <header class="wrongdetail-header">
             <div class="header-left">
                 <img
@@ -124,10 +119,14 @@
                                 type="primary"
                                 plain
                                 size="small"
-                                @click="state.isShowQuestion = true"
+                                @click="explainQuestion()"
                                 >讲解题目</el-button
                             >
-                            <el-button type="primary" plain size="small"
+                            <el-button
+                                type="primary"
+                                plain
+                                size="small"
+                                @click="state.pureQuestionVisible = true"
                                 >查看同类题</el-button
                             >
                         </div>
@@ -254,15 +253,31 @@
                                 v-for="person in item.list"
                                 :key="person.number"
                             >
-                                <div class="images">
-                                    <img
-                                        src="~@/assets/images/wrongbook/ps1.png"
-                                        alt=""
-                                    />
+                                <div class="top-data">
+                                    <div class="images">
+                                        <img
+                                            src="~@/assets/images/wrongbook/ps1.png"
+                                            alt=""
+                                        />
+                                    </div>
+                                    <div class="name-number">
+                                        <p class="name">{{ person.name }}</p>
+                                        <p class="number">
+                                            {{ person.number }}
+                                        </p>
+                                    </div>
                                 </div>
-                                <div class="name-number">
-                                    <p class="name">{{ person.name }}</p>
-                                    <p class="number">{{ person.number }}</p>
+
+                                <div class="wrong-repeat" v-if="state.isRepeat">
+                                    <div class="wrong-count">
+                                        答错<span>{{ 2 }}</span
+                                        >次
+                                    </div>
+                                    <div class="line"></div>
+                                    <div class="practise-count">
+                                        练习<span>{{ 2 }}</span
+                                        >次
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -271,11 +286,36 @@
             </div>
         </main>
     </div>
+    <!-- <div class="question-dialog">
+        <el-dialog
+            v-model="state.visible"
+            :show-close="false"
+            :close-on-click-modal="false"
+            width="80%"
+        >
+            <template #title>
+                <div class="my-header">讲解题目</div>
+            </template>
+            <lookQuestion
+                v-if="state.isShowQuestion"
+                :dialog="true"
+                :close="close"
+            >
+            </lookQuestion>
+        </el-dialog>
+    </div>
+    -->
+    <PureQuestionDialog
+        v-if="state.pureQuestionVisible"
+        v-model:visible="state.pureQuestionVisible"
+    />
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, defineEmits, defineProps } from "vue";
-import LookQuestion from "@/components/lookQuestion/index.vue";
+import { ref, reactive, defineEmits, defineProps, watch } from "vue";
+import lookQuestion from "@/components/lookQuestion/index.vue";
+import PureQuestionDialog from "@/components/lookQuestion/PureQuestionDialog.vue";
+import { MutationTypes, useStore } from "@/store";
 
 const props = defineProps({
     currentWrongType: {
@@ -467,9 +507,23 @@ const state = reactive({
     currentStatisticIndex: 1,
     //讲解题目 公共组件显示
     isShowQuestion: false,
+    //弹框
+    visible: false,
+    //查看同类问题
+    pureQuestionVisible: false,
 });
+//监听是否仅看重复错误的学生
+watch(
+    () => state.isRepeat,
+    (value) => {
+        console.log(value);
+    }
+);
+//关闭
 const close = () => {
     console.log(12);
+    state.isShowQuestion = false;
+    state.visible = false;
 };
 //切换左侧错题项
 const switchWrongItem = (item: any) => {
@@ -483,6 +537,23 @@ const backList = () => {
 const expendStudent = (item: any) => {
     console.log(item);
     item.isExpend = !item.isExpend;
+};
+const store = useStore();
+
+//讲解题目
+const explainQuestion = () => {
+    // state.visible = true;
+    // state.isShowQuestion = true;
+    store.commit(MutationTypes.SET_IS_SHOW_QUESTION, {
+        flag: true,
+        info: {
+            id: "",
+            courseBagId: "",
+            deleteQuestionIds: [],
+            type: 1,
+        },
+    });
+    // console.log(1);
 };
 </script>
 <style lang="scss" scoped>
@@ -876,34 +947,58 @@ const expendStudent = (item: any) => {
                         flex-wrap: wrap;
                         .list-item {
                             cursor: pointer;
-                            padding: 10px 12px;
+
                             background-color: #ffffff;
-                            display: flex;
                             width: 167px;
                             border-radius: 5px;
                             margin-right: 12px;
                             margin-bottom: 12px;
-                            .images {
-                                width: 36px;
-                                height: 36px;
-                                img {
-                                    width: 100%;
-                                    height: 100%;
-                                    border-radius: 50%;
+                            .top-data {
+                                padding: 10px 12px;
+                                display: flex;
+                                .images {
+                                    width: 36px;
+                                    height: 36px;
+                                    img {
+                                        width: 100%;
+                                        height: 100%;
+                                        border-radius: 50%;
+                                    }
+                                }
+                                .name-number {
+                                    margin-left: 16px;
+                                    .name {
+                                        font-size: 14px;
+                                        font-family: HarmonyOS_Sans_SC;
+                                        color: #19203d;
+                                    }
+                                    .number {
+                                        font-size: 12px;
+                                        font-family: HarmonyOS_Sans_SC;
+                                        color: #a7aab4;
+                                        margin-top: 5px;
+                                    }
                                 }
                             }
-                            .name-number {
-                                margin-left: 16px;
-                                .name {
-                                    font-size: 14px;
-                                    font-family: HarmonyOS_Sans_SC;
-                                    color: #19203d;
+
+                            .wrong-repeat {
+                                display: flex;
+                                justify-content: space-around;
+                                align-items: center;
+                                // padding: 05px;
+                                padding: 5px 8px;
+                                font-size: 12px;
+                                color: #a7aab4;
+                                border-top: 1px solid #f3f4f4;
+                                .wrong-count {
+                                    span {
+                                        color: #ff6b6b;
+                                    }
                                 }
-                                .number {
-                                    font-size: 12px;
-                                    font-family: HarmonyOS_Sans_SC;
-                                    color: #a7aab4;
-                                    margin-top: 5px;
+                                .line {
+                                    width: 1px;
+                                    height: 12px;
+                                    background: #e7e7e7;
                                 }
                             }
                         }
@@ -943,6 +1038,26 @@ const expendStudent = (item: any) => {
             bottom: -5px;
             left: 5px;
         }
+    }
+}
+.question-dialog {
+    :deep(.el-dialog) {
+        .el-dialog__header {
+            // padding: 0;
+        }
+        .el-dialog__body {
+            padding: 0;
+        }
+    }
+    .my-header {
+        font-size: 16px;
+        font-family: HarmonyOS_Sans_SC_Bold;
+        color: #19203d;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
     }
 }
 </style>

@@ -28,13 +28,19 @@
     </div>
 </template>
 <script lang="ts" setup>
-import { reactive, ref } from "vue";
+import { reactive, ref, watch } from "vue";
 import { Search } from "@element-plus/icons-vue";
-
+const props = defineProps({
+    parentSearch: {
+        type: Object,
+        default: () => {},
+    },
+});
 //搜索区域表单
 const form = ref({
     keyword: "",
 });
+
 //数据源
 const state = reactive({
     currentLessonIndex: 1,
@@ -56,6 +62,18 @@ const state = reactive({
         },
     ],
 });
+// watch(
+//     () => props.parentSearch,
+//     (data) => {
+//         console.log("data", data);
+//         form.value = Object.assign(form.value, data);
+//         queryLeftMenuByHomeWork(form.value);
+//     },
+//     {
+//         deep: true,
+//         // immediate: true,
+//     }
+// );
 
 //下面是请求方法
 //切换左侧课程卡片

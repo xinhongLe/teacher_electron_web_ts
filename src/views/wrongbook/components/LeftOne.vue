@@ -1,46 +1,45 @@
 <template>
     <div class="leftone">
         <div>
-            <el-select
+            <el-cascader
                 size="small"
-                style="width: 100%; margin-right: 16px"
-                v-model="form.questionType"
-            >
-                <el-option
-                    v-for="item in state.list"
-                    :label="item.Name"
-                    :value="item.ID"
-                    :key="item.ID"
-                >
-                </el-option>
-            </el-select>
+                style="width: 100%"
+                v-model="form.BookId"
+                :props="cascaderProps"
+                :options="state.subjectPublisherBookList"
+                @change="changeBook"
+                clearable
+            ></el-cascader>
         </div>
         <div class="leftone-input">
             <el-input
                 size="small"
                 style="width: 100%"
-                v-model="form.keyword"
+                v-model="form.Name"
                 class="w-50 m-2"
                 placeholder="请输入关键词"
+                @input="queryLeftMenuByHomeWork(form)"
             >
                 <template #prefix>
                     <el-icon><search /></el-icon>
                 </template>
             </el-input>
         </div>
-        <div class="leftone-list">
+        <div class="leftone-list" v-loading="state.loading">
             <div
                 class="list-item"
-                :class="item.id == state.currentLessonIndex ? 'isActive' : ''"
-                v-for="item in state.lessonList"
-                :key="item.id"
+                :class="
+                    item.PaperId == state.currentLessonIndex ? 'isActive' : ''
+                "
+                v-for="item in (state.lessonList as any)"
+                :key="item.PaperId"
                 @click="switchLessonCard(item)"
             >
                 <div class="item-top">
-                    <div style="display: flex; align-items: center">
+                    <div class="item-top-con">
                         <div class="top-icon">
                             <img
-                                v-if="item.id == state.currentLessonIndex"
+                                v-if="item.PaperId == state.currentLessonIndex"
                                 src="~@/assets/images/wrongbook/icon_timu_active.png"
                                 alt=""
                             />
@@ -50,79 +49,118 @@
                                 alt=""
                             />
                         </div>
-                        <div class="top-title">{{ item.title }}</div>
+                        <div class="top-title">{{ item.PaperName }}</div>
                     </div>
 
-                    <div class="top-count">{{ item.count }}题</div>
+                    <div class="top-count">{{ item.ErrQuestionTotal }}题</div>
                 </div>
                 <div class="item-bto">
-                    <span>{{ item.date }}</span>
+                    <span>{{ item.PublishTime }}</span>
                 </div>
             </div>
+            <p
+                v-if="!state.lessonList.length"
+                style="text-align: center; margin-top: 20%"
+            >
+                暂无数据
+            </p>
         </div>
     </div>
 </template>
 <script lang="ts" setup>
-import { reactive, ref } from "vue";
+import { reactive, ref, defineProps, watch, onMounted } from "vue";
 import { Search } from "@element-plus/icons-vue";
+import { searchLeftMenuByHomeWork, LeftMenuParams } from "@/api/errorbook";
+import { fetchSubjectPublisherBookList } from "@/views/preparation/api";
+import useBookList from "@/views/assignHomework/hooks/useBookList";
+const { cascaderProps } = useBookList();
+console.log("subjectPublisherBookList");
 
+const props = defineProps({
+    parentSearch: {
+        type: Object,
+        default: () => {},
+    },
+});
 //搜索区域表单
 const form = ref({
-    questionType: "",
-    keyword: "",
+    BookId: "",
+    Name: "",
 });
+
 //数据源
 const state = reactive({
     currentLessonIndex: 1,
-    list: [
-        {
-            Name: "数学 苏教版 一上",
-            ID: 1,
-        },
-    ],
-    lessonList: [
-        {
-            id: 1,
-            title: "求倍数的实际应用",
-            count: 3,
-            date: "2022-08-16 周二",
-        },
-        {
-            id: 2,
-            title: "倍数的巩固训练",
-            count: 2,
-            date: "2022-08-16 周二",
-        },
-        {
-            id: 3,
-            title: "圆的体积公式求和",
-            count: 3,
-            date: "2022-08-16 周二",
-        },
-        {
-            id: 4,
-            title: "最小公约数",
-            count: 3,
-            date: "2022-08-16 周二",
-        },
-    ],
+    lessonList: [],
+    loading: false,
+    subjectPublisherBookList: [],
 });
-
+const getSubjectPublisherBookList = async () => {
+    const res: any = await fetchSubjectPublisherBookList();
+    if (res.resultCode === 200) {
+        state.subjectPublisherBookList = res.result;
+    }
+};
 //下面是请求方法
 //切换左侧课程卡片
 const switchLessonCard = (item: any) => {
     console.log(item);
     state.currentLessonIndex = item.id;
 };
+//查询左侧树的方法
+const queryLeftMenuByHomeWork = async (params: LeftMenuParams) => {
+    state.loading = true;
+    console.log("params", params);
+    const res: any = await searchLeftMenuByHomeWork(params);
+    console.log(res);
+    if (res.resultCode === 200) {
+        state.loading = false;
+        state.lessonList = res.result;
+    } else {
+        state.lessonList = [];
+        state.loading = false;
+    }
+};
+//改变左侧书册下拉
+const changeBook = (value: string) => {
+    console.log(value);
+    if (value && value.length) {
+        form.value.BookId = value[value.length - 1];
+    } else {
+        form.value.BookId = "";
+    }
+    queryLeftMenuByHomeWork(form.value);
+};
+watch(
+    () => props.parentSearch,
+    (data) => {
+        console.log("data", data);
+        form.value = Object.assign(form.value, data);
+        queryLeftMenuByHomeWork(form.value);
+    },
+    {
+        deep: true,
+        // immediate: true,
+    }
+);
+onMounted(() => {
+    getSubjectPublisherBookList();
+    if (props.parentSearch.ClassId) {
+        form.value = Object.assign(form.value, props.parentSearch);
+        queryLeftMenuByHomeWork(form.value);
+    }
+});
 </script>
 <style lang="scss" scoped>
 .leftone {
     background-color: #fff;
     padding: 12px 16px;
     width: 100%;
+    height: 100%;
     .leftone-input,
     .leftone-list {
         margin-top: 8px;
+
         .list-item {
             cursor: pointer;
             width: 100%;
@@ -136,20 +174,30 @@ const switchLessonCard = (item: any) => {
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
-                .top-icon {
+                .item-top-con {
                     display: flex;
                     align-items: center;
-                }
-                .top-title {
-                    margin-left: 8px;
-                    font-size: 15px;
-                    font-family: HarmonyOS_Sans_SC;
-                    color: #19203d;
-                }
-                .top-count {
-                    font-size: 13px;
-                    font-family: HarmonyOS_Sans_SC;
-                    color: #a7aab4;
+                    width: 80%;
+
+                    .top-icon {
+                        display: flex;
+                        align-items: center;
+                    }
+                    .top-title {
+                        width: 100%;
+                        margin-left: 8px;
+                        font-size: 15px;
+                        font-family: HarmonyOS_Sans_SC;
+                        color: #19203d;
+                        overflow: hidden;
+                        white-space: nowrap;
+                        text-overflow: ellipsis;
+                    }
+                    .top-count {
+                        font-size: 13px;
+                        font-family: HarmonyOS_Sans_SC;
+                        color: #a7aab4;
+                    }
                 }
             }
             .item-bto {
@@ -158,6 +206,10 @@ const switchLessonCard = (item: any) => {
                 font-family: HarmonyOS_Sans_SC;
                 color: #a7aab4;
                 padding-left: 25px;
+                width: 100%;
+                overflow: hidden;
+                white-space: nowrap;
+                text-overflow: ellipsis;
             }
         }
         .isActive {
@@ -169,6 +221,10 @@ const switchLessonCard = (item: any) => {
                 color: #fff !important;
             }
         }
+    }
+    .leftone-list {
+        height: calc(100% - 80px);
+        overflow: auto;
     }
 }
 </style>

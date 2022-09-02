@@ -5,9 +5,9 @@
             :value="value"
             v-for="item in (treeData as any)"
             :zIndex="0"
-            :key="item.Id"
+            :key="item.Id || item.ChapterId"
             :itemData="item"
-            :keys="[item.Id]"
+            :keys="[item.Id || item.ChapterId]"
         />
     </div>
 </template>

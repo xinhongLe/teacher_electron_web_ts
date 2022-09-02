@@ -4,7 +4,7 @@
         :class="{
             'no-before': zIndex === 0,
             'no-icon': !(
-                (itemData.Children && itemData.Children.length > 0) ||
+                (itemData.Lessons && itemData.Lessons.length > 0) ||
                 zIndex === 0
             ),
         }"
@@ -12,7 +12,7 @@
         <div class="tree-item">
             <img
                 class="tree-icon"
-                v-show="isOpen && value !== itemData.Id"
+                v-show="isOpen && value !== (itemData.Id || itemData.ChapterId)"
                 :class="{
                     visible: true,
                 }"
@@ -21,7 +21,7 @@
             />
             <img
                 class="tree-icon"
-                v-show="isOpen && value === itemData.Id"
+                v-show="isOpen && value === (itemData.Id || itemData.ChapterId)"
                 :class="{
                     visible: true,
                 }"
@@ -30,7 +30,9 @@
             />
             <img
                 class="tree-icon"
-                v-show="!isOpen && value !== itemData.Id"
+                v-show="
+                    !isOpen && value !== (itemData.Id || itemData.ChapterId)
+                "
                 :class="{
                     visible: true,
                 }"
@@ -39,7 +41,9 @@
             />
             <img
                 class="tree-icon"
-                v-show="!isOpen && value === itemData.Id"
+                v-show="
+                    !isOpen && value === (itemData.Id || itemData.ChapterId)
+                "
                 :class="{
                     visible: true,
                 }"
@@ -55,28 +59,36 @@
                 "
                 ref="treeName"
                 class="tree-name"
-                :class="{ active: value === itemData.Id }"
-                :title="itemData.Name"
+                :class="{
+                    active: value === (itemData.Id || itemData.ChapterId),
+                }"
+                :title="itemData.Name || itemData.ChapterName"
             >
-                <span class="name">{{ itemData.Name }}</span>
-                <span class="count">{{ itemData.count }}题</span>
+                <span class="name">{{
+                    itemData.Name || itemData.ChapterName
+                }}</span>
+                <span class="count"
+                    >{{ itemData.count || itemData.ErrQuestionTotal }}题</span
+                >
             </div>
             <div
                 class="selected-bg"
-                :class="{ active: value === itemData.Id }"
+                :class="{
+                    active: value === (itemData.Id || itemData.ChapterId),
+                }"
                 :style="{ width: `calc(100% + ${zIndex * 20}px)` }"
             ></div>
         </div>
         <div class="tree-item-children" :class="{ close: !isOpen }">
             <TreeItem
                 :zIndex="zIndex + 1"
-                v-for="item in itemData.Children"
-                :key="item.Id"
+                v-for="item in itemData.Lessons"
+                :key="itemData.Id || itemData.ChapterId"
                 :itemData="item"
                 :value="value"
                 :candrag="true"
                 :selectedTreeItem="selectedTreeItem"
-                :keys="[...keys, item.Id]"
+                :keys="[...keys, itemData.Id || itemData.ChapterId]"
             />
         </div>
     </div>

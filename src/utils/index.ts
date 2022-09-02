@@ -55,13 +55,13 @@ export function formatDate(v: string) {
     } else if (val === 7) {
         str = "日";
     }
-    if (
-        moment(v).format("YYYY-MM-DD") === moment().format("YYYY-MM-DD")
-    ) { str = str + " (今日)"; }
+    if (moment(v).format("YYYY-MM-DD") === moment().format("YYYY-MM-DD")) {
+        str = str + " (今日)";
+    }
     return moment(v).format("YYYY年MM月DD日 星期" + str);
 }
 
-export function formatTime(v:string|number) {
+export function formatTime(v: string | number) {
     return moment(v).format("hh:mm");
 }
 
@@ -69,12 +69,22 @@ export const lookVideo = (id: string | undefined) => {
     store.commit(MutationTypes.SET_IS_SHOW_VIDEO, { flag: true, info: { id } });
 };
 
-export const lookQuestions = ({ id = "", type = 1, courseBagId = "", deleteQuestionIds = [] }: {deleteQuestionIds?: string[], id: string, type: number, courseBagId?: string}) => {
+export const lookQuestions = ({
+    id = "",
+    type = 1,
+    courseBagId = "",
+    deleteQuestionIds = [],
+}: {
+    deleteQuestionIds?: string[];
+    id: string;
+    type: number;
+    courseBagId?: string;
+}) => {
     const info = {
         id,
         courseBagId,
         deleteQuestionIds,
-        type
+        type,
     };
     store.commit(MutationTypes.SET_IS_SHOW_QUESTION, { flag: true, info });
 };
@@ -82,60 +92,62 @@ export const lookQuestions = ({ id = "", type = 1, courseBagId = "", deleteQuest
 export const getCourseBagType = (type: number) => {
     let typeNme = "课前";
     switch (type) {
-    case 1:
-        typeNme = "拓展延伸";
-        break;
-    case 2:
-        typeNme = "课前预习";
-        break;
-    case 3:
-        typeNme = "课中小练";
-        break;
-    case 4:
-        typeNme = "课后作业";
-        break;
-    case 5:
-        typeNme = "名师专题";
-        break;
-    case 6:
-        typeNme = "单元考试";
-        break;
-    case 7:
-        typeNme = "重点巩固";
-        break;
-    case 8:
-        typeNme = "难点突破";
-        break;
+        case 1:
+            typeNme = "拓展延伸";
+            break;
+        case 2:
+            typeNme = "课前预习";
+            break;
+        case 3:
+            typeNme = "课中小练";
+            break;
+        case 4:
+            typeNme = "课后作业";
+            break;
+        case 5:
+            typeNme = "名师专题";
+            break;
+        case 6:
+            typeNme = "单元考试";
+            break;
+        case 7:
+            typeNme = "重点巩固";
+            break;
+        case 8:
+            typeNme = "难点突破";
+            break;
     }
     return typeNme;
 };
 
 export const showFileIcon = (extention: string) => {
     switch (extention) {
-    case "doc":
-    case "docx":
-        return "icon_word@2x";
-    case "png":
-    case "jpg":
-    case "jpge":
-    case "pdf":
-        return "icon_pic@2x";
-    case "mp3":
-    case "mkv":
-    case "flv":
-        return "icon_music@2x";
-    case "mp4":
-        return "icon_video@2x";
-    default:
-        return "icon_other@2x";
+        case "doc":
+        case "docx":
+            return "icon_word@2x";
+        case "png":
+        case "jpg":
+        case "jpge":
+        case "pdf":
+            return "icon_pic@2x";
+        case "mp3":
+        case "mkv":
+        case "flv":
+            return "icon_music@2x";
+        case "mp4":
+            return "icon_video@2x";
+        default:
+            return "icon_other@2x";
     }
 };
 
 export const openFile = (url: string, fileName = "") => {
     if (isElectron()) {
-        return window.electron.ipcRenderer.invoke("downloadFile", url, fileName).then((filePath) => {
-            filePath && window.electron.shell.openPath(filePath);
-        });
+        return window.electron.ipcRenderer
+            .invoke("downloadFile", url, fileName)
+            .then((filePath) => {
+                filePath && window.electron.shell.openPath(filePath);
+            });
     }
     window.open(url);
 };
@@ -150,14 +162,14 @@ export const findFirstId = (tree: BookList[], ids: string[]) => {
 };
 
 export const downLoad = (downUrl: string, fileName: string) => {
-    const a = document.createElement("a");// 创建a标签
+    const a = document.createElement("a"); // 创建a标签
     if ("download" in a) {
-        a.download = fileName;// 设置下载文件的文件名
+        a.download = fileName; // 设置下载文件的文件名
     }
     (document.body || document.documentElement).appendChild(a);
-    a.href = downUrl;// downUrl为后台返回的下载地址
+    a.href = downUrl; // downUrl为后台返回的下载地址
     a.target = "_parent";
-    a.click();// 设置点击事件
+    a.click(); // 设置点击事件
     a.remove(); // 移除a标签
 };
 
@@ -165,4 +177,37 @@ export const getSaveFilePath = (id: string) => {
     const { join } = require("path");
     const path = join(window.electron.getPath("userData"), "files", id, "/");
     return path;
+};
+
+//用moment获取昨日今日本周日期
+export const getFormatDate = (type: number) => {
+    switch (type) {
+        // 获取今天0时0分0秒
+        case 1: {
+            return [
+                moment().startOf("day").format("YYYY-MM-DD HH:mm:ss"),
+                moment().endOf("day").format("YYYY-MM-DD HH:mm:ss"),
+            ];
+        }
+        //获取昨天的
+        case 2: {
+            return [
+                moment()
+                    .subtract(1, "day")
+                    .startOf("day")
+                    .format("YYYY-MM-DD HH:mm:ss"),
+                moment()
+                    .subtract(1, "day")
+                    .endOf("day")
+                    .format("YYYY-MM-DD HH:mm:ss"),
+            ];
+        }
+        //获取本周的
+        case 3: {
+            return [
+                moment().startOf("week").format("YYYY-MM-DD HH:mm:ss"),
+                moment().endOf("week").format("YYYY-MM-DD HH:mm:ss"),
+            ];
+        }
+    }
 };

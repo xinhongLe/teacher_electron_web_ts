@@ -1,21 +1,21 @@
 <template>
-    <div class="wrongbook-wrapper" v-if="!state.isShowDetails">
+    <div class="wrongbook-wrapper" v-show="!state.isShowDetails">
         <header class="wrongbook-header">
             <div class="header-left">
                 <div
-                    @click="switchClass(item.id)"
+                    @click="switchClass(item.ID)"
                     class="class-item"
-                    :class="item.id == state.currentClassId ? 'isActive' : ''"
-                    v-for="item in state.classList"
+                    :class="item.ID == state.currentClassId ? 'isActive' : ''"
+                    v-for="item in classList"
                 >
-                    <span>{{ item.name }}</span>
+                    <span>{{ item.Name }}</span>
                 </div>
             </div>
             <div class="header-right">
                 <el-select
                     size="small"
                     style="width: 140px; margin-right: 16px"
-                    v-model="searchForm.questionType"
+                    v-model="state.QuestionType"
                 >
                     <el-option
                         v-for="item in state.questionTypeList"
@@ -35,17 +35,25 @@
                     <el-radio-button label="small">本周</el-radio-button>
                 </el-radio-group> -->
                 <el-button-group style="margin-right: 16px">
-                    <el-button size="small">昨日</el-button>
-                    <el-button size="small">今日</el-button>
-                    <el-button size="small">本周</el-button>
+                    <el-button size="small" @click="toFormatDate(2)"
+                        >昨日</el-button
+                    >
+                    <el-button size="small" @click="toFormatDate(1)"
+                        >今日</el-button
+                    >
+                    <el-button size="small" @click="toFormatDate(3)"
+                        >本周</el-button
+                    >
                 </el-button-group>
                 <el-date-picker
                     size="small"
                     style="width: 225px"
-                    v-model="searchForm.date"
+                    v-model="state.dateRange"
                     type="daterange"
                     start-placeholder="开始时间"
                     end-placeholder="结束时间"
+                    value-format="YYYY-MM-DD HH:mm:ss"
+                    format="YYYY-MM-DD HH:mm:ss"
                 />
             </div>
         </header>
@@ -87,14 +95,21 @@
             <div class="top-line"></div>
             <div class="content">
                 <div class="con-left">
-                    <LeftOne v-if="state.currentWrongType == 1"></LeftOne>
-                    <LeftTwo v-if="state.currentWrongType == 2"></LeftTwo>
+                    <LeftOne
+                        v-if="state.currentWrongType == 1"
+                        :parentSearch="searchForm"
+                    ></LeftOne>
+                    <LeftTwo
+                        v-if="state.currentWrongType == 2"
+                        :parentSearch="searchForm"
+                    ></LeftTwo>
                     <LeftThree
                         v-if="
                             state.currentWrongType == 3 ||
                             state.currentWrongType == 4
                         "
                         :currentWrongType="state.currentWrongType"
+                        :parentSearch="searchForm"
                     ></LeftThree>
                 </div>
                 <div class="con-right">
@@ -150,36 +165,59 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, reactive, ref, defineExpose } from "vue";
+import {
+    onMounted,
+    reactive,
+    ref,
+    defineExpose,
+    watch,
+    onActivated,
+    nextTick,
+} from "vue";
 import { ArrowDown, Search } from "@element-plus/icons-vue";
 import LeftOne from "./components/LeftOne.vue";
 import LeftTwo from "./components/LeftTwo.vue";
 import LeftThree from "./components/LeftThree.vue";
 import LessonList from "./components/LessonList.vue";
 import WrongDetails from "./components/WrongDetails.vue";
+import { get, STORAGE_TYPES } from "@/utils/storage";
+import { getFormatDate } from "@/utils";
+
+const classList = get(STORAGE_TYPES.USER_INFO).Classes;
+console.log(get(STORAGE_TYPES.USER_INFO).Classes);
+
 const state = reactive({
+    //顶部时间选择区间
+    dateRange: [],
     //顶部年级列表
-    classList: [
-        {
-            name: "一年级1班",
-            id: 1,
-        },
-        {
-            name: "一年级2班",
-            id: 2,
-        },
-        {
-            name: "一年级3班",
-            id: 3,
-        },
-    ],
+    classList: "",
     //当前选中的班级
-    currentClassId: 1,
+    currentClassId: classList.length ? classList[0]?.ID : "",
     //题型数据源
     questionTypeList: [
         {
-            ID: 1,
-            Name: "全部题型",
+            ID: [1, 2],
+            Name: "选择题",
+        },
+        {
+            ID: [3, 4],
+            Name: "判断题",
+        },
+        {
+            ID: [5],
+            Name: "填空题",
+        },
+        {
+            ID: [6],
+            Name: "应用题",
+        },
+        {
+            ID: [7],
+            Name: "语音题",
+        },
+        {
+            ID: [8],
+            Name: "解答题",
         },
     ],
     //是否显示详情页面
@@ -188,21 +226,53 @@ const state = reactive({
     currentWrongType: 1,
     //是否是空态
     isEmpty: true,
+    //问题类型
+    QuestionType: "",
 });
+
+watch(
+    () => state.dateRange,
+    (value) => {
+        if (value) {
+            searchForm.value.StartTime = value[0];
+            searchForm.value.EndTime = value[1];
+        } else {
+            searchForm.value.StartTime = "";
+            searchForm.value.EndTime = "";
+        }
+        console.log(value);
+    }
+);
+watch(
+    () => state.currentWrongType,
+    (val) => {
+        console.log(val);
+    }
+);
+onMounted(() => {
+    nextTick(() => {
+        state.currentClassId = classList.length ? classList[0]?.ID : "";
+        searchForm.value.ClassId = classList.length ? classList[0]?.ID : "";
+    });
+});
+//顶部的昨日，今日，本周时间过滤
+const toFormatDate = (type: number) => {
+    const data: any = getFormatDate(type);
+    console.log(data);
+    if (data) {
+        state.dateRange = data;
+    }
+};
 //顶部表单搜索项
 const searchForm = ref({
-    questionType: "", //题型
-    date: "", //日期范围
-    dateType: "", //日期类型
-});
-//左侧搜索表单
-const leftSearch = ref({
-    questionType: "",
-    keyword: "",
+    ClassId: classList.length ? classList[0]?.ID : "", //班级Id
+    EndTime: "",
+    StartTime: "", //日期范围
 });
 //切换顶部选中的班级
-const switchClass = (value: number) => {
+const switchClass = (value: string) => {
     state.currentClassId = value;
+    searchForm.value.ClassId = value;
 };
 //打开错题本详情页面
 const openWrongDetails = (data: any) => {
@@ -222,7 +292,7 @@ defineExpose(openWrongDetails);
     background: #f5f6fa;
     .wrongbook-header {
         width: 100%;
-        height: 56px;
+        height: 58px;
         background: #ffffff;
         padding: 0 16px;
         display: flex;
@@ -232,13 +302,16 @@ defineExpose(openWrongDetails);
             height: 100%;
             display: flex;
             align-items: center;
-            width: 40%;
+            width: 60%;
             font-size: 14px;
             color: #a7aab4;
             font-family: HarmonyOS_Sans_SC;
+            overflow-x: scroll;
+            padding: 5px 0;
             .class-item {
                 margin-right: 32px;
                 cursor: pointer;
+                white-space: nowrap;
             }
             .isActive {
                 font-size: 16px;
@@ -253,7 +326,7 @@ defineExpose(openWrongDetails);
                 width: 74px;
                 height: 3px;
                 background: #4b71ee;
-                bottom: -19px;
+                bottom: -16px;
                 /* left: -74px; */
                 right: 0;
                 transition: 0.2s;
@@ -268,7 +341,7 @@ defineExpose(openWrongDetails);
     .wrongbook-main {
         margin-top: 8px;
         background-color: #ffffff;
-        height: calc(100% - 64px);
+        height: calc(100% - 66px);
         .top-search {
             height: 56px;
             display: flex;
