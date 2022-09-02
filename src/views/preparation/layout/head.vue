@@ -154,8 +154,8 @@
                             v-for="item in typeList.slice(1)"
                             :disabled="
                                 [
-                                    '8C47DA0818CB7747E6A5ACBD6AC2EC42',
-                                    '8C47DA0823D0950663B3A370010320CA',
+                                    RESOURCE_TYPE.TEACHING_AIDS,
+                                    RESOURCE_TYPE.TOOL
                                 ].indexOf(item.Id) > -1
                             "
                             :key="item.Id"
@@ -317,6 +317,7 @@ import { useRouter } from "vue-router";
 import moment from "moment";
 import usePageEvent from "@/hooks/usePageEvent"; //埋点事件hooks
 import { EVENT_TYPE } from "@/config/event";
+import { RESOURCE_TYPE } from "@/config/resource";
 interface IDirectoryItem {
     id: string;
     name: string;
@@ -556,7 +557,7 @@ export default defineComponent({
 
         const uploadResourceOpen = ref(false);
 
-        const type = ref("");
+        const type = ref<string>(RESOURCE_TYPE.COURSEWARD);
         const typeList = ref<{ Id: string; Name: string }[]>([]);
         const onTypeChange = () => {
             emit("update:type", type.value);
@@ -932,6 +933,7 @@ export default defineComponent({
             pageChange,
             openCourseCartOptions,
             clicKBuryPoint,
+            RESOURCE_TYPE
         };
     },
 });

@@ -1,7 +1,7 @@
 <template>
     <div
         class="p-resource-item"
-        :class="{ 'resource-courseware': data.ResourceType === '8C47DA089BAA57ECEF2B0B6AAE5CAC84' && data.IsSysFile === 1, hover: hover }"
+        :class="{ 'resource-courseware': data.ResourceType === RESOURCE_TYPE.COURSEWARD && data.IsSysFile === 1, hover: hover }"
         @click="handleCommand('detail')"
     >
         <div class="p-resource-mark" v-if="data.IsMine === 1 && data.IsSchool !== 1">我的</div>
@@ -128,6 +128,7 @@ import { iconResources, textResources, typeResources } from "@/config/resource";
 import { IResourceItem } from "@/api/resource";
 import moment from "moment";
 import { useStore } from "@/store";
+import { RESOURCE_TYPE } from "@/config/resource";
 export default defineComponent({
     components: { Refresh, MoreFilled },
     props: {
@@ -210,7 +211,8 @@ export default defineComponent({
             isMySelf,
             canEdit,
             canDownload,
-            formatImg
+            formatImg,
+            RESOURCE_TYPE
         };
     }
 });
