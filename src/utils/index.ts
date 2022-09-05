@@ -66,17 +66,17 @@ export function formatTime(v:string|number) {
 }
 
 export const lookVideo = (id: string | undefined) => {
-    store.commit(MutationTypes.SET_IS_SHOW_VIDEO, { flag: true, info: { id } });
+    // store.commit(MutationTypes.SET_IS_SHOW_VIDEO, { flag: true, info: { id } });
 };
 
 export const lookQuestions = ({ id = "", type = 1, courseBagId = "", deleteQuestionIds = [] }: {deleteQuestionIds?: string[], id: string, type: number, courseBagId?: string}) => {
-    const info = {
-        id,
-        courseBagId,
-        deleteQuestionIds,
-        type
-    };
-    store.commit(MutationTypes.SET_IS_SHOW_QUESTION, { flag: true, info });
+    // const info = {
+    //     id,
+    //     courseBagId,
+    //     deleteQuestionIds,
+    //     type
+    // };
+    // store.commit(MutationTypes.SET_IS_SHOW_QUESTION, { flag: true, info });
 };
 
 export const getCourseBagType = (type: number) => {

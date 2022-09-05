@@ -28,19 +28,25 @@
 import { IResourceItem } from "@/api/resource";
 import { MutationTypes, useStore } from "@/store";
 import { getOssUrl } from "@/utils/oss";
-import { computed, defineComponent, PropType, ref, watchEffect } from "vue";
+import { computed, defineComponent, onUnmounted, PropType, ref, watchEffect } from "vue";
 
 export default defineComponent({
+    props: {
+        index: {
+            type: Number,
+            default: 0
+        }
+    },
     setup(props, { emit }) {
         const store = useStore();
         const url = ref("");
-        const resource = computed(() => store.state.common.resource);
-        const showScreenViewFile = computed(() => store.state.common.showScreenViewFile);
+        const resource = computed(() => store.state.common.showResourceFullScreen.length > 0 ? store.state.common.showResourceFullScreen[props.index].resource : null);
         const type = computed(() => resource.value?.ResourceShowType);
-        const isOffice = computed(() => ["ppt", "pptx", "doc", "docx", "xls", "xlsx", "pdf"].indexOf(resource.value!.File?.FileExtention) > -1);
-        const isImage = computed(() => ["gif", "png", "jpg", "jpeg"].indexOf(resource.value!.File?.FileExtention) > -1);
-        const isAudio = computed(() => ["mp3", "wav"].indexOf(resource.value!.File?.FileExtention) > -1);
-        const isVideo = computed(() => ["mp4"].indexOf(resource.value!.File?.FileExtention) > -1);
+        const extention = computed(() => (resource.value && resource.value.File) ? resource.value.File.FileExtention : "")
+        const isOffice = computed(() => ["ppt", "pptx", "doc", "docx", "xls", "xlsx", "pdf"].indexOf(extention.value) > -1);
+        const isImage = computed(() => ["gif", "png", "jpg", "jpeg"].indexOf(extention.value) > -1);
+        const isAudio = computed(() => ["mp3", "wav"].indexOf(extention.value) > -1);
+        const isVideo = computed(() => ["mp4"].indexOf(extention.value) > -1);
 
         const initIframeSrc = async () => {
             if (!resource.value) return;
@@ -60,7 +66,7 @@ export default defineComponent({
         watchEffect(initIframeSrc);
 
         const close = () => {
-            store.commit(MutationTypes.SET_SHOW_VIEW_FILE, { flag: false, id: "", data: null });
+            store.commit(MutationTypes.REMOVE_FULLSCREEN_RESOURCE, resource.value?.id);
         };
         return {
             close,
@@ -70,8 +76,7 @@ export default defineComponent({
             isImage,
             isAudio,
             isVideo,
-            resource,
-            showScreenViewFile
+            resource
         }
     }
 });
@@ -87,7 +92,7 @@ export default defineComponent({
     bottom: 0;
     left: 0;
     right: 0;
-    z-index: 100;
+    z-index: 10000;
     background: #fff;
     overflow: hidden;
     .iframe-content {

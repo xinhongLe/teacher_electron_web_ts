@@ -113,7 +113,15 @@ export const enum MutationTypes {
     /**
      * 弹框展示文件
      */
-    SET_SHOW_VIEW_FILE = "SET_SHOW_VIEW_FILE"
+    SET_SHOW_VIEW_FILE = "SET_SHOW_VIEW_FILE",
+    /**
+     * 新增全屏预览资源
+     */
+    SET_FULLSCREEN_RESOURCE = "SET_FULLSCREEN_RESOURCE",
+    /**
+     * 移除全屏预览资源
+     */
+    REMOVE_FULLSCREEN_RESOURCE = "REMOVE_FULLSCREEN_RESOURCE"
 }
 
 export const enum ActionTypes {

@@ -117,31 +117,31 @@ export default defineComponent({
         };
 
         const _lookQuestions = (courseBagId: string, paperID: string) => {
-            lookQuestions({
-                id: paperID,
-                type: 1,
-                courseBagId: courseBagId || "",
-                deleteQuestionIds: deleteQuestionList.value.get(paperID)?.questionIDs || []
-            });
-            emitter.off("deleteQuestion");
-            emitter.on("deleteQuestion", ({ courseBagId, paperId, questionID }) => {
-                const bagPapers = find(bagLessonsList.value, { ID: courseBagId })?.BagPapers || [];
-                const questionInfo = find(bagPapers, { PaperID: paperId });
-                const questions = questionInfo?.Questions || [];
-                pullAllBy(questions, [{ QuestionID: questionID }], "QuestionID");
-                questionInfo && (questionInfo.QuestionCount = questions.length);
-                const info = deleteQuestionList.value.get(paperId);
-                const questionIDs = info?.questionIDs || [];
-                questionIDs.push(questionID);
-                deleteQuestionList.value.set(paperId, { courseBagId, paperId, questionIDs, id: props.teacherBookChapter });
-            });
+            // lookQuestions({
+            //     id: paperID,
+            //     type: 1,
+            //     courseBagId: courseBagId || "",
+            //     deleteQuestionIds: deleteQuestionList.value.get(paperID)?.questionIDs || []
+            // });
+            // emitter.off("deleteQuestion");
+            // emitter.on("deleteQuestion", ({ courseBagId, paperId, questionID }) => {
+            //     const bagPapers = find(bagLessonsList.value, { ID: courseBagId })?.BagPapers || [];
+            //     const questionInfo = find(bagPapers, { PaperID: paperId });
+            //     const questions = questionInfo?.Questions || [];
+            //     pullAllBy(questions, [{ QuestionID: questionID }], "QuestionID");
+            //     questionInfo && (questionInfo.QuestionCount = questions.length);
+            //     const info = deleteQuestionList.value.get(paperId);
+            //     const questionIDs = info?.questionIDs || [];
+            //     questionIDs.push(questionID);
+            //     deleteQuestionList.value.set(paperId, { courseBagId, paperId, questionIDs, id: props.teacherBookChapter });
+            // });
         };
 
-        watch(() => store.state.common.isShowQuestion, (v) => {
-            if (!v) {
-                emitter.off("deleteQuestion");
-            }
-        });
+        // watch(() => store.state.common.isShowQuestion, (v) => {
+        //     if (!v) {
+        //         emitter.off("deleteQuestion");
+        //     }
+        // });
 
         watchEffect(() => {
             const id = props.subjectPublisherBookValue[1];
