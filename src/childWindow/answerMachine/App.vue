@@ -3,18 +3,18 @@
         <div class="answer-app">
             <StartAnswer
                 :allStudentList="allStudentList"
-                v-if="!(isShowTimer || isShowAnswerResult)"
+                v-if="false"
                 @start="start"
                 v-model:answerMode="answerMode"
             />
             <answer-timer
-                v-if="isShowTimer"
+                v-if="false"
                 :studentList="selectStudentList"
                 :questionType="selectQuestionType"
                 @endAnswer="endAnswer"
             />
             <answer-result
-                v-if="isShowAnswerResult"
+                v-if="true"
                 :time="answerTime"
                 :unAnswerStudentList="unAnswerStudentList"
                 :studentAnswerInfoList="studentAnswerInfoList"
@@ -61,14 +61,14 @@ export default defineComponent({
 
         provide("QuestionType", QuestionType);
 
-        const start = (
-            studentList: Student[],
-            type: number,
-            data: MQTTInfoData
-        ) => {
+        const start = (studentList: Student[], data: MQTTInfoData) => {
             isShowTimer.value = true;
             selectStudentList.value = studentList;
-            selectQuestionType.value = type;
+            if (data.TopicList?.length === 1) {
+                selectQuestionType.value = QuestionType.value[data.TopicList[0].QuestionType];
+            } else {
+                selectQuestionType.value = `${data.TopicList?.length}题`;
+            }
             mqttInfo.value = data;
             // questionOption.value = data.QuestionOption;
         };
@@ -87,6 +87,7 @@ export default defineComponent({
 
         window.electron.ipcRenderer.on("sendAllStudentList", (_, studentList) => {
             allStudentList.value = studentList;
+            console.log(allStudentList.value, "allStudentList.value");
         }
         );
         return {

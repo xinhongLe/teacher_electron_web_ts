@@ -152,11 +152,8 @@
                         >
                     </div>
                     <div class="detail" style="margin-left: 10px" v-else>
-                        <span
-                            >手动发布
-                            <i
-
-                                @click="changeTag"
+                        <span>手动发布
+                            <i @click="changeTag"
                                 class="el-icon-edit-outline"
                                 style="margin: 0 10px; color: #4b71ee"
                                 color="#4B71EE"
@@ -172,54 +169,25 @@
                             >
                             </el-date-picker>
                         </span>
-                        <el-button
-                            size="small"
-                            type="success"
-                            @click="publish(info)"
-                            >立即发布</el-button
-                        >
+                        <el-button size="small" type="success" @click="publish(info)">立即发布</el-button>
                     </div>
                 </div>
             </div>
 
             <div class="btn-list">
-                <!-- <el-button
-                    size="small"
-                    type="primary"
-                    plain
-                    @click="
-                      $router.push({
-                        path: '/lookStudents',
-                      })
-                    "
-                    >查阅学生</el-button
-                  > -->
+                <!-- <el-button size="small" type="primary" plain @click="$router.push({path: '/lookStudents',})">查阅学生</el-button> -->
                 <el-button size="small" v-if="info.HomeworkPaperType == 2" style="background-color:#00C0FF;" type="primary" @click="quickUpload(info)">快速上传</el-button>
-                <el-button size="small" type="primary" @click="review"
-                    >查阅作业</el-button
-                >
-                <el-button
-                    size="small"
-                    type="danger"
-                    plain
-                    icon="el-icon-delete"
-                    @click="deleteHomework"
-                    >删除</el-button
-                >
+                <el-button size="small" plain type="warning" @click="handleMistakesCollect">收集错题</el-button>
+                <el-button size="small" type="primary" @click="review">查阅作业</el-button>
+                <el-button size="small" type="danger" plain  @click="deleteHomework" >删除</el-button>
             </div>
         </div>
         <div v-if="info.HomeworkPaperFiles.length > 0" class="file">
-            <FileItem
-                v-for="(file, j) in info.HomeworkPaperFiles"
-                :key="j"
-                :file="file"
-            />
+            <FileItem v-for="(file, j) in info.HomeworkPaperFiles" :key="j" :file="file" />
         </div>
-        <HignPhoto 
-            v-if="info.HomeworkPaperType == 2"
-            :homeworkValue="info"
-            ref="hignPhotoRef"
-        ></HignPhoto>
+        <HignPhoto v-if="info.HomeworkPaperType == 2" :homeworkValue="info" ref="hignPhotoRef" ></HignPhoto>
+
+        <mistakes-collect  v-model:dialogVisible="mistakesCollectDialog"></mistakes-collect>
     </div>
 </template>
 
@@ -235,6 +203,7 @@ import { computed, defineComponent, nextTick, PropType, ref } from "vue";
 import { rebackHomeworkPaper, ShowAnswer, HideAnswer } from "./api";
 import HignPhoto from "./hignphoto.vue";
 import FileItem from "./FileItem.vue";
+import MistakesCollect from "@/views/homework/components/mistakesCollect.vue";
 export default defineComponent({
     props: {
         info: {
@@ -459,6 +428,11 @@ export default defineComponent({
             }
         };
 
+        const mistakesCollectDialog = ref(false);
+        const handleMistakesCollect = () => {
+            mistakesCollectDialog.value = true;
+        };
+
         return {
             hignPhotoRef,
             showdataPicker,
@@ -477,10 +451,13 @@ export default defineComponent({
             detailTime,
             publish,
             hideAnswer,
-            quickUpload
+            quickUpload,
+            mistakesCollectDialog,
+            handleMistakesCollect
         };
     },
     components: {
+        MistakesCollect,
         FileItem,
         HignPhoto
     }

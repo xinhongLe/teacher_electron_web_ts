@@ -1,0 +1,150 @@
+<template>
+    <el-dialog v-if="visible" v-model="visible" title="提示" width="362px" center @close="close">
+        <div class="content">
+            <img  v-if="status === 0" class="img_class" src="@/assets/images/homeworkNew/pic_ctsj.png" alt="">
+            <div  v-if="status === 1" class="bg-img">
+                <img class="search_class" src="@/assets/images/homeworkNew/ctsj_zhuti.png" alt="">
+            </div>
+            <div class="content-text" v-if="status === 0">
+                <div class="text">请学生准备好一卡通</div>
+                <div class="text">进入【错题收集】应用开始点选错题</div>
+            </div>
+            <div class="content-text" v-if="status === 1">
+                <div class="text">
+                    <span>正在收集…</span>
+                    <span>0/3</span>
+                </div>
+                <div class="text-gary">请学生进入一卡通的【错题收集】应用</div>
+            </div>
+        </div>
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button v-if="status === 0" type="primary" @click="handleComfirm">开始</el-button>
+            <el-button v-if="status === 1" type="danger"  plain @click="handleComfirm">结束收集</el-button>
+          </span>
+        </template>
+    </el-dialog>
+</template>
+
+<script lang="ts">
+import { computed, defineComponent, reactive, toRefs, ref } from "vue";
+
+export default defineComponent({
+    name: "mistakesCollect",
+    props: {
+        dialogVisible: {
+            type: Boolean,
+            require: true
+        }
+    },
+    emits: ["update:dialogVisible", "handleAddCard"],
+    setup(props, { emit }) {
+        const state = reactive({
+            status: 0
+        });
+        const visible = computed(() => props.dialogVisible);
+
+        const handleComfirm = () => {
+            state.status = 1;
+            // emit("handleAddCard");
+            // close();
+        };
+        const close = () => {
+            state.status = 0;
+            emit("update:dialogVisible", false);
+        };
+        return {
+            ...toRefs(state),
+            visible,
+            handleComfirm,
+            close
+        };
+    }
+});
+</script>
+<style lang="scss" scoped>
+.content{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    .content-text{
+        text-align: center;
+    }
+    .img_class{
+        width: 72px;
+        height: 72px;
+        margin-bottom: 20px;
+    }
+    .bg-img{
+        position: relative;
+        width: 72px;
+        height: 72px;
+        background-image: url("../../../assets/images/homeworkNew/ctsj_bg.png");
+        background-size: 100% 100%;
+        margin-bottom: 20px;
+        .search_class{
+            position: absolute;
+            left: 15px;
+            top: 15px;
+            width: 36px;
+            height: 37px;
+            animation: mySearch 3s linear infinite;
+        }
+    }
+    .text{
+        font-size: 14px;
+        color: #19203D;
+        margin-bottom: 10px;
+        font-weight: 600;
+    }
+    .text-gary{
+        font-size: 12px;
+        color: #5F626F;
+        margin-bottom: 10px;
+    }
+}
+
+@keyframes mySearch {
+    10% {
+        left: 20px;
+        top: 10px;
+    }
+    20% {
+        left: 25px;
+        top: 10px;
+    }
+    30% {
+        left: 30px;
+        top: 15px;
+    }
+    40% {
+        left: 35px;
+        top: 25px;
+    }
+    50% {
+        left: 30px;
+        top: 30px;
+    }
+    60% {
+        left: 25px;
+        top: 30px;
+    }
+    70% {
+        left: 20px;
+        top: 30px;
+    }
+    80% {
+        left: 15px;
+        top: 30px;
+    }
+    90% {
+        left: 10px;
+        top: 25px;
+    }
+    100% {
+        left: 15px;
+        top: 15px;
+    }
+}
+</style>

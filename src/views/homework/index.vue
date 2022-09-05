@@ -44,7 +44,7 @@
                 v-for="(item, index) in classList"
                 :key="index"
                 :class="selectClassId === item.ID ? 'active' : ''"
-                @click="selectClassId = item.ID"
+                @click="selectClassId = '39F86691B2191CD9ED8E80B291F83635' "
             >
                 {{ item.Name
                 }}<span>({{ homeworkListMap[item.ID]?.length || 0 }})</span>

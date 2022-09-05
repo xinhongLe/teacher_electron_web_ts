@@ -5,6 +5,8 @@ import "../../styles/index.scss";
 import "element-plus/dist/index.css";
 
 import {
+    ElForm,
+    ElFormItem,
     ElTooltip,
     ElAvatar,
     ElIcon,
@@ -26,6 +28,8 @@ import {
 } from "@element-plus/icons-vue";
 
 const components = [
+    ElForm,
+    ElFormItem,
     ElTooltip,
     ElAvatar,
     ElIcon,

@@ -1,35 +1,40 @@
 <template>
     <div class="answer-result-warp">
         <div class="title-warp">
-            <el-icon :size="24" color="#8B8B8F"><clock /></el-icon>
-            <span class="title">答题计时：{{time}}</span>
             <div class="progress-warp">
-                <span class="progress-text">提交 {{studentAnswerInfoList.length}}/{{studentList.length}}</span>
+                <el-icon :size="22" color="#8B8B8F"><clock /></el-icon>
+                <span class="text">答题计时：{{time}}</span>
+            </div>
+            <div class="title-center ">答题统计</div>
+            <div class="progress-warp">
+                <span class="text">提交 {{studentAnswerInfoList.length}}/{{studentList.length}}</span>
                 <div :style="{width: '214px'}">
                     <el-progress :percentage="percentage" :color="customColorMethod"></el-progress>
                 </div>
             </div>
-            <div class="close-btn" @click="close">
-                <el-icon :size="14" color="#9C9FAA"><close /></el-icon>
-            </div>
+<!--            <div class="close-btn" @click="close">-->
+<!--                <el-icon :size="14" color="#9C9FAA"><close /></el-icon>-->
+<!--            </div>-->
         </div>
-        <div class="content-warp">
-            <div class="content-container">
-                <span class="title">答题统计</span>
-                <div class="statistics">
-                    <div class="type">{{QuestionType[questionType]}}</div>
-                    <div class="echart-warp" ref="echartRef"></div>
-                </div>
-            </div>
-            <div class="content-container" v-for="value in questionOptionList" :key="value">
-                <span class="title">选择{{value}}项</span>
-                <StudentInfoList :studentList="studentAnswerInfoListMap.get(value) || []"/>
-            </div>
-            <div class="content-container">
-                <span class="title">未完成</span>
-                <StudentInfoList :studentList="unAnswerStudentList"/>
-            </div>
-        </div>
+       <div class="content-box">
+           <div class="content-warp" v-for="item in [1,2,3]" :key="item">
+               <div class="content-container">
+                   <!--                <span class="title">答题统计</span>-->
+                   <div class="statistics">
+                       <div class="type">{{QuestionType[questionType]}}</div>
+                       <div class="echart-warp" ref="echartRef"></div>
+                   </div>
+               </div>
+               <div class="content-container" v-for="value in questionOptionList" :key="value">
+                   <span class="title">选择{{value}}项</span>
+                   <StudentInfoList :studentList="studentAnswerInfoListMap.get(value) || []"/>
+               </div>
+               <div class="content-container">
+                   <span class="title">未完成</span>
+                   <StudentInfoList :studentList="unAnswerStudentList"/>
+               </div>
+           </div>
+       </div>
         <div class="footer">
             <el-button type="primary" @click="close" >关闭</el-button>
         </div>
@@ -192,23 +197,26 @@ export default defineComponent({
             margin-left: 8px;
         }
     .title-warp {
-        position: relative;
+        //position: relative;
         background: #fff;
         height: 60px;
         display: flex;
         align-items: center;
+        justify-content: space-between;
         padding-left: 24px;
         border-radius: 8px 8px 0px 0px;
 
+        .title-center{
+            font-size: 16px;
+            color: #19203D;
+            font-weight: 600;
+        }
         .progress-warp {
             display: flex;
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
             align-items: center;
-            .progress-text {
+            .text {
                 color: #19203D;
-                font-size: 16px;
+                font-size: 14px;
                 font-weight: 400;
                 margin-right: 16px;
             }
@@ -229,14 +237,18 @@ export default defineComponent({
             justify-content: center;
         }
     }
-    .content-warp {
-        padding: 24px;
-        overflow: overlay;
+    .content-box{
         flex: 1;
+        overflow-y: auto;
+    }
+    .content-warp {
+        margin: 20px;
+        padding: 10px;
+        background: #fff;
         .content-container {
             display: flex;
             flex-direction: column;
-            margin-bottom: 24px;
+            margin-bottom: 20px;
             .title {
                 margin-bottom: 16px;
             }
@@ -271,7 +283,6 @@ export default defineComponent({
         align-items: center;
         height: 72px;
         border-radius: 0px 0px 8px 8px;
-        background: #fff;
     }
 }
 </style>

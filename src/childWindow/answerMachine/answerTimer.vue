@@ -3,7 +3,7 @@
         <div class="title-warp">
             <el-icon :size="20"><alarm-clock /></el-icon>
             <span class="title">计时</span>
-            <span class="question-type">{{QuestionType[questionType]}}</span>
+            <span class="question-type">{{questionType}}</span>
         </div>
         <div class="content-warp">
             <span class="time">{{showTime}}</span>
@@ -18,9 +18,7 @@
                 </div>
             </div>
         </div>
-        <div class="footer" @click="endAnswer">
-            收题
-        </div>
+        <div class="footer" @click="endAnswer">收题</div>
     </div>
 </template>
 
@@ -38,8 +36,8 @@ export default defineComponent({
             default: () => []
         },
         questionType: {
-            type: Number,
-            default: -1
+            type: String,
+            default: ""
         }
     },
     setup(props, { emit }) {
@@ -112,10 +110,11 @@ export default defineComponent({
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 0 12px;
-            background: #4B71EE;
-            border-radius: 8px 4px 4px 0px;
+            padding: 4px 16px;
+            border-radius: 8px;
             font-size: 14px;
+            border: 1px solid #fff;
+            margin: 10px 16px;
         }
     }
     .content-warp {
