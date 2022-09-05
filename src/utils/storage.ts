@@ -109,8 +109,8 @@ export const get = (name: STORAGE_TYPES | string, isDecrypt = false) => {
     let result;
     try {
         item = isDecrypt ? decrypt(item as string || "") : item;
-        result = item === null ? null : JSON.parse(item as string);
-    } catch {
+        result = !item ? null : JSON.parse(item as string);
+    } catch(err) {
         result = item;
     }
     return result;

@@ -31,10 +31,10 @@
                         <el-option
                             v-for="(item, index) in recordAccountList"
                             :key="index"
-                            :label="(item as any).account"
-                            :value="(item as any).account"
+                            :label="item.account"
+                            :value="item.account"
                         >
-                            <span style="float: left">{{ (item as any).account }}</span>
+                            <span style="float: left">{{ item.account }}</span>
                             <span
                                 style="
                                     float: right;
@@ -144,8 +144,9 @@ export default defineComponent({
         const recordAccountList = ref([]);
         const isPassWordLogin = ref(true);
         const codeTime = ref(0);
-        let timer:any;
+        let timer: any;
         recordAccountList.value = get(STORAGE_TYPES.RECORD_LOGIN_LIST, true) || [];
+        console.log(recordAccountList.value);
 
         const { userLogin } = useLogin();
 

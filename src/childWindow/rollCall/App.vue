@@ -9,7 +9,7 @@
                 <img src="@/assets/images/suspension/guanbi.png" alt="" />
             </div> -->
         </div>
-        <div class="" v-if="chooseFlag">
+        <div class="roll-call-content" v-if="chooseFlag">
             <div class="class-tree" >
                 <el-tree
                     ref="treeRef"
@@ -208,13 +208,22 @@ body {
         }
     }
 }
+.roll-call-content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    padding: 10px;
+}
 .class-tree {
-    height: 400px;
+    flex: 1;
+    min-height: 0;
     overflow-y: auto;
 }
 .roll-call-footer {
     display: flex;
     justify-content: center;
+    padding-top: 10px;
     .el-button {
         width: 100px;
     }

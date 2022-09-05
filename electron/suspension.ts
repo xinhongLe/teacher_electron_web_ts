@@ -148,15 +148,15 @@ function createTimerWindow() {
 function createRollcall(allStudentList: []) {
     rollCallWin = createWindow(callURL, {
         width: 800,
-        frame: false, // 要创建无边框窗口
-        resizable: false, // 禁止窗口大小缩放
+        // frame: false, // 要创建无边框窗口
+        resizable: true, // 禁止窗口大小缩放
         height: 500,
         useContentSize: true
     });
 
     rollCallWin.on("ready-to-show", () => {
-        rollCallWin &&
-            rollCallWin.webContents.send("sendAllStudentList", allStudentList);
+        rollCallWin && rollCallWin.webContents.send("sendAllStudentList", allStudentList);
+        rollCallWin && rollCallWin.webContents.openDevTools();
     });
 
     rollCallWin.on("closed", () => {
