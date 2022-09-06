@@ -126,7 +126,7 @@ import { defineComponent, onMounted, onUnmounted, reactive, ref } from "vue";
 import useLogin from "@/hooks/useLogin";
 import { useRouter, useRoute } from "vue-router";
 import { ILoginData } from "@/types/login";
-import { STORAGE_TYPES, get, set } from "@/utils/storage";
+import { STORAGE_TYPES, get, set, clear } from "@/utils/storage";
 import isElectron from "is-electron";
 import { sendMsg } from "./api";
 export default defineComponent({
@@ -152,6 +152,7 @@ export default defineComponent({
         const login = async () => {
             const { account, password, code } = form;
             if ((isPassWordLogin.value && (account.length === 0 || password.length === 0)) || (!isPassWordLogin.value && (account.length === 0 || code.length === 0))) return false;
+            clear();
             loading.value = true;
             const loginSuccess = await userLogin({ account, password, code, isPassWordLogin: isPassWordLogin.value });
             loading.value = false;

@@ -33,13 +33,15 @@
                     class="book-item"
                     v-for="(item, index) in bookList"
                     :key="index"
-                    @click.stop="selectBook(item)"
+                    @click.stop="
+                        selectBook(item), selectBookCreateBurying(item)
+                    "
                 >
                     <Book :book="item" @update="getCustomBookList" />
                 </div>
                 <div
                     class="book-add-btn"
-                    @click="
+                    @click.stop="
                         (setbookSelectOpen = true), clicKBuryPoint('添加书册')
                     "
                 >
@@ -305,6 +307,9 @@ export default defineComponent({
             set(STORAGE_TYPES.SELECT_BOOK_ID, data);
             store.commit(MutationTypes.SET_SUBJECT_PUBLISHER_BOOK_VALUE, data);
             emit("onChangeBook", data);
+        };
+        //点击切换书册时，创建埋点
+        const selectBookCreateBurying = (data: ICustomBookItem) => {
             //切换书册创建埋点
             createBuryingPointFn(
                 EVENT_TYPE.PageClick,
@@ -313,7 +318,6 @@ export default defineComponent({
                 data
             );
         };
-
         // 确认设置某本常用书册
         const setBook = async () => {
             setbookSelectOpen.value = false;
@@ -362,6 +366,7 @@ export default defineComponent({
             getCustomBookList,
             selectedBookName,
             clicKBuryPoint,
+            selectBookCreateBurying,
             isBookSelectOpen,
         };
     },

@@ -1,7 +1,7 @@
 <template>
     <div
         class="p-resource-item"
-        :class="{ 'resource-courseware': data.ResourceType === '8C47DA089BAA57ECEF2B0B6AAE5CAC84', hover: hover }"
+        :class="{ 'resource-courseware': data.ResourceType === '8C47DA089BAA57ECEF2B0B6AAE5CAC84' && data.IsSysFile === 1, hover: hover }"
         @click="handleCommand('detail')"
     >
         <div class="p-resource-mark" v-if="data.IsMine === 1 && data.IsSchool !== 1">我的</div>
@@ -11,7 +11,10 @@
                 <img :src="data.IsSysFile === 1 ? iconResources.selfStudy[data.ResourceType] : iconResources.other[data.ResourceType]" alt="" />
             </div>
             <div class="resource-content">
-                <div class="resource-title">{{data.Name}}</div>
+                <div class="resource-title">
+                    {{data.Name}}
+                    <img class="resource-format" v-if="data.File" :src="formatImg" />
+                </div>
                 <div class="resource-message">
                     <img
                         src="@/assets/images/preparation/icon_gengxin.png"
@@ -169,6 +172,26 @@ export default defineComponent({
 
         const canDownload = computed(() => [1, 2, 3, 4, 5].indexOf(props.data.ResourceShowType) === -1);
 
+        const formatImgs: { [key: string]: any } = {
+            "xlsx": require("@/assets/projection/format/icon_execl@2x.png"),
+            "xls": require("@/assets/projection/format/icon_execl@2x.png"),
+            "ppt": require("@/assets/projection/format/icon_ppt@2x.png"),
+            "pptx": require("@/assets/projection/format/icon_ppt@2x.png"),
+            "doc": require("@/assets/projection/format/icon_word@2x.png"),
+            "docx": require("@/assets/projection/format/icon_word@2x.png"),
+            "pdf": require("@/assets/projection/format/icon_pdf@2x.png"),
+            "gif": require("@/assets/projection/format/icon_pic@2x.png"),
+            "png": require("@/assets/projection/format/icon_pic@2x.png"),
+            "jpg": require("@/assets/projection/format/icon_pic@2x.png"),
+            "jpeg": require("@/assets/projection/format/icon_pic@2x.png"),
+            "mp3": require("@/assets/projection/format/icon_music@2x.png"),
+            "wav": require("@/assets/projection/format/icon_music@2x.png"),
+            "mp4": require("@/assets/projection/format/icon_shipin@2x.png"),
+            "other": require("@/assets/projection/format/icon_other@2x.png")
+        };
+
+        const formatImg = computed(() => formatImgs[props.data.File?.FileExtention || "other"]);
+
         const directoryName = computed(() =>  {
             if (!props.data.TextBooks) return "--";
             const book = props.data.TextBooks.find(item =>  {
@@ -186,7 +209,8 @@ export default defineComponent({
             typeResources,
             isMySelf,
             canEdit,
-            canDownload
+            canDownload,
+            formatImg
         };
     }
 });
@@ -269,6 +293,13 @@ export default defineComponent({
     .resource-title {
         font-size: 16px;
         font-weight: 600;
+        display: flex;
+        align-items: center;
+        .resource-format {
+            display: block;
+            margin-left: 10px;
+            width: 16px;
+        }
     }
     .resource-classify {
         font-size: 12px;

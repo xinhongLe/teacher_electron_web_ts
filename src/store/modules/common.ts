@@ -29,10 +29,16 @@ const mutations:MutationTree<CommonState> = {
         state.isDragging = flag;
     },
     [MutationTypes.SET_IS_SHOW_QUESTION](state, { flag, info }) {
+        state.showScreenViewFile = false;
+        state.isShowVideo = false;
+        state.isShowWincard = false;
         state.isShowQuestion = flag;
         state.viewQuestionInfo = info;
     },
     [MutationTypes.SET_IS_SHOW_VIDEO](state, { flag, info }) {
+        state.isShowQuestion = false;
+        state.showScreenViewFile = false;
+        state.isShowWincard = false;
         state.isShowVideo = flag;
         state.viewVideoInfo = info;
     },
@@ -43,6 +49,9 @@ const mutations:MutationTree<CommonState> = {
         state.isIframe = flag;
     },
     [MutationTypes.SET_IS_WINCARD](state, { flag, id, isSystem }) {
+        state.isShowQuestion = false;
+        state.isShowVideo = false;
+        state.showScreenViewFile = false;
         state.isShowWincard = flag;
         state.wincard = {
             id,
@@ -50,6 +59,9 @@ const mutations:MutationTree<CommonState> = {
         };
     },
     [MutationTypes.SET_SHOW_VIEW_FILE](state, { flag, id, data }) {
+        state.isShowQuestion = false;
+        state.isShowVideo = false;
+        state.isShowWincard = false;
         state.showScreenViewFile = flag;
         state.resource = data;
     }
