@@ -1,15 +1,27 @@
 <template>
     <div class="lessonlist">
-        <h3>求倍数的实际应用</h3>
+        <h3>{{ state.currentIndexName }}</h3>
         <div class="wrongbook-list">
-            <div class="list-item" v-for="(item, index) in 10">
+            <div
+                class="list-item"
+                v-for="(item, index) in (state.errorQuestionList as any)"
+                :key="item.QuestionId"
+            >
                 <div class="item-content">
                     <div class="item-index">{{ index + 1 }}</div>
                     <div class="item-title">
-                        <div class="wrongtype">单选题</div>
+                        <div class="wrongtype">
+                            {{ formatQuestionType(item.QuestionType) }}
+                        </div>
                         <div class="content">
-                            <p class="title">先数一数，再照样子涂一涂</p>
-                            <p class="desc">知识点：倍的认识</p>
+                            <p class="title">{{ item.QuestionText }}</p>
+                            <p class="desc">
+                                知识点：{{
+                                    item.QuestionKnowledges?.length
+                                        ? item.QuestionKnowledges?.join(",")
+                                        : "暂无"
+                                }}
+                            </p>
                         </div>
                     </div>
                     <div class="item-middle">
@@ -85,12 +97,30 @@
                             <el-progress
                                 :show-text="false"
                                 type="circle"
-                                :percentage="25"
+                                :percentage="
+                                    Math.floor(
+                                        ((item.TotalNoSure +
+                                            item.TotalRight +
+                                            item.TotalWrong) /
+                                            item.Total) *
+                                            100
+                                    )
+                                "
                                 :width="40"
                             />
                             <div class="content">
                                 <p class="title">完成率</p>
-                                <p class="rate">90%</p>
+                                <p class="rate">
+                                    {{
+                                        Math.floor(
+                                            ((item.TotalNoSure +
+                                                item.TotalRight +
+                                                item.TotalWrong) /
+                                                item.Total) *
+                                                100
+                                        )
+                                    }}%
+                                </p>
                             </div>
                         </div>
                         <div
@@ -103,12 +133,30 @@
                             <el-progress
                                 :show-text="false"
                                 type="circle"
-                                :percentage="25"
+                                :percentage="
+                                    Math.floor(
+                                        (item.TotalWrong /
+                                            (item.TotalNoSure +
+                                                item.TotalRight +
+                                                item.TotalWrong)) *
+                                            100
+                                    )
+                                "
                                 :width="40"
                             />
                             <div class="content">
                                 <p class="title">平均错误率</p>
-                                <p class="rate">90%</p>
+                                <p class="rate">
+                                    {{
+                                        Math.floor(
+                                            (item.TotalWrong /
+                                                (item.TotalNoSure +
+                                                    item.TotalRight +
+                                                    item.TotalWrong)) *
+                                                100
+                                        )
+                                    }}%
+                                </p>
                             </div>
                         </div>
                         <div
@@ -119,8 +167,18 @@
                             "
                         >
                             <p class="title">分层错误率</p>
-                            <!-- <span>暂未分层</span> -->
-                            <p class="text">A3%，B暂无学生，C暂无学生</p>
+                            <p
+                                class="text"
+                                v-if="
+                                    item.TagWrongRatio &&
+                                    item.TagWrongRatio?.length
+                                "
+                            >
+                                A {{ formatWrongRatio("A", item) }}， B
+                                {{ formatWrongRatio("B", item) }}， C
+                                {{ formatWrongRatio("C", item) }}
+                            </p>
+                            <span v-else>暂未分层</span>
                         </div>
                     </div>
                 </div>
@@ -154,7 +212,7 @@
             </div>
         </div>
     </div>
-    <div class="paginations">
+    <!-- <div class="paginations">
         <el-pagination
             v-model:currentPage="pagers.currentPage"
             v-model:page-size="pagers.pageSize"
@@ -165,11 +223,32 @@
             @size-change="handleSizeChange"
             @current-change="handleCurrentChange"
         />
-    </div>
+    </div> -->
 </template>
 <script lang="ts" setup>
-import { state } from "@/store/modules/state";
-import { ref, defineEmits, defineProps } from "vue";
+import {
+    ref,
+    defineEmits,
+    defineProps,
+    watch,
+    reactive,
+    onMounted,
+    nextTick,
+    onBeforeUnmount,
+} from "vue";
+import emitter from "@/utils/mitt"; //全局事件总线
+import {
+    getErrorQuestionListByHomework,
+    QuestionListByHomeworkParams,
+} from "@/api/errorbook";
+import useWrongBook from "../hooks/useWrongBook";
+const { questionTypeList } = useWrongBook();
+//过滤问题类型成文本
+const formatQuestionType = (type: number) => {
+    // console.log("type", type, questionTypeList.value);
+    return questionTypeList.value.find((item: any) => item.ID.includes(type))
+        ?.Name;
+};
 const props = defineProps({
     currentWrongType: {
         type: Number,
@@ -177,7 +256,47 @@ const props = defineProps({
         required: true,
     },
 });
+//按作业维度的查询参数
+const homeworkParams = reactive<QuestionListByHomeworkParams>({
+    ClassHomeworkPaperId: "",
+    SortContent: 1,
+    SortTagLevel: 0,
+    SortType: 1,
+});
+const state = reactive({
+    //错题列表
+    errorQuestionList: [],
+    //当前作左侧树选中的名称
+    currentIndexName: "",
+});
+
 const emit = defineEmits(["openWrongDetails"]);
+//过滤分层错误率
+const formatWrongRatio = (type: string, data: any) => {
+    const level = type == "A" ? 300 : type == "B" ? 200 : type == "C" ? 100 : 0;
+    if (data.TagWrongRatio && data.TagWrongRatio.length) {
+        const ratioData = data.TagWrongRatio.find(
+            (item: any) => item.TagLevel == level
+        );
+        if (ratioData) {
+            return `${Math.floor(ratioData.WrongRatio) * 100}%`;
+        } else {
+            return "暂无学生";
+        }
+    }
+};
+//按作业维度查询题目列表
+const queryErrorQuestionListByHomework = async (
+    params: QuestionListByHomeworkParams
+) => {
+    console.log("queryErrorQuestionListByHomework-params", params);
+    // params.ClassHomeworkPaperId = undefined; //临时赋值，后面删
+    const res: any = await getErrorQuestionListByHomework(params);
+    console.log("queryErrorQuestionListByHomework-list", res);
+    if (res.success && res.resultCode == 200) {
+        state.errorQuestionList = res.result;
+    }
+};
 //分页参数
 const pagers = ref({
     currentPage: 1,
@@ -196,6 +315,43 @@ const openWrongDetails = (data?: any) => {
     console.log(123);
     emit("openWrongDetails", data);
 };
+// watch(
+//     () => props.currentWrongType,
+//     (type: number) => {
+//         if (type === 1) {
+//             queryErrorQuestionListByHomework(homeworkParams);
+//         }
+//     },
+//     { deep: true }
+// );
+onMounted(() => {
+    const wrongType = props.currentWrongType;
+    nextTick(() => {
+        emitter.on("errorBookEmit", (data) => {
+            homeworkParams.ClassHomeworkPaperId = data.id;
+            state.currentIndexName = data.name || "";
+            console.log(
+                "ClassHomeworkPaperId",
+                homeworkParams.ClassHomeworkPaperId
+            );
+            //初始化时去查对应的维度的题目列表
+            queryFuntion(wrongType, homeworkParams.ClassHomeworkPaperId);
+        });
+    });
+});
+//按照不同维度去查询不同的题目列表
+const queryFuntion = (type: number, params: any) => {
+    console.log("type,params", type, params);
+    switch (type) {
+        case 1: {
+            homeworkParams.ClassHomeworkPaperId = params;
+            queryErrorQuestionListByHomework(homeworkParams);
+        }
+    }
+};
+onBeforeUnmount(() => {
+    emitter.off("errorBookEmit");
+});
 </script>
 <style lang="scss" scoped>
 .lessonlist {
@@ -330,6 +486,13 @@ const openWrongDetails = (data?: any) => {
                         .text {
                             color: #19203d;
                             padding-top: 6px;
+                        }
+                        span {
+                            font-size: 14px;
+                            font-family: HarmonyOS_Sans_SC_Medium;
+                            color: #a7aab4;
+                            padding-top: 6px;
+                            display: block;
                         }
                     }
                 }

@@ -1,9 +1,9 @@
 <template>
-    <div class="wrongbook-wrapper" v-show="!state.isShowDetails">
+    <div class="wrongbook-wrapper" v-if="!state.isShowDetails">
         <header class="wrongbook-header">
             <div class="header-left">
                 <div
-                    @click="switchClass(item.ID)"
+                    @click="switchClass(item)"
                     class="class-item"
                     :class="item.ID == state.currentClassId ? 'isActive' : ''"
                     v-for="item in classList"
@@ -18,32 +18,33 @@
                     v-model="state.QuestionType"
                 >
                     <el-option
-                        v-for="item in state.questionTypeList"
+                        v-for="item in questionTypeList"
                         :label="item.Name"
                         :value="item.ID"
                         :key="item.ID"
                     >
                     </el-option>
                 </el-select>
-                <!-- <el-radio-group
-                    style="margin-right: 16px"
-                    v-model="searchForm.dateType"
-                    label="size control"
-                >
-                    <el-radio-button label="large">昨日</el-radio-button>
-                    <el-radio-button label="default">今日</el-radio-button>
-                    <el-radio-button label="small">本周</el-radio-button>
-                </el-radio-group> -->
                 <el-button-group style="margin-right: 16px">
-                    <el-button size="small" @click="toFormatDate(2)"
-                        >昨日</el-button
+                    <el-button
+                        size="small"
+                        @click="
+                            toFormatDate(item.id);
+                            state.currentDateIndex = item.id;
+                        "
+                        v-for="item in state.dateButtonList"
+                        :key="item.id"
+                        :class="{
+                            dateActive: item.id == state.currentDateIndex,
+                        }"
+                        >{{ item.name }}</el-button
                     >
-                    <el-button size="small" @click="toFormatDate(1)"
+                    <!-- <el-button size="small" @click="toFormatDate(1)"
                         >今日</el-button
                     >
                     <el-button size="small" @click="toFormatDate(3)"
                         >本周</el-button
-                    >
+                    > -->
                 </el-button-group>
                 <el-date-picker
                     size="small"
@@ -60,21 +61,22 @@
         <main class="wrongbook-main">
             <header class="top-search">
                 <div class="left-btn">
-                    <el-button size="small" @click="state.currentWrongType = 1"
-                        >按作业</el-button
-                    >
-                    <el-button size="small" @click="state.currentWrongType = 2"
-                        >按试卷</el-button
-                    >
-                    <el-button size="small" @click="state.currentWrongType = 3"
-                        >按章节</el-button
-                    >
-                    <el-button size="small" @click="state.currentWrongType = 4"
-                        >按知识点</el-button
+                    <el-button
+                        size="small"
+                        v-for="item in state.wrongTypeButtonList"
+                        :key="item.id"
+                        @click="
+                            state.currentWrongType = item.id;
+                            state.currentWrongTypeIndex = item.id;
+                        "
+                        :class="{
+                            isActive: item.id == state.currentWrongTypeIndex,
+                        }"
+                        >{{ item.name }}</el-button
                     >
                 </div>
                 <div class="right-sel">
-                    <el-dropdown trigger="click">
+                    <!-- <el-dropdown trigger="click">
                         <span style="color: #19203d">
                             平均错误率由高到低<el-icon class="el-icon--right"
                                 ><arrow-down
@@ -89,7 +91,89 @@
                                 <el-dropdown-item>Action 5</el-dropdown-item>
                             </el-dropdown-menu>
                         </template>
-                    </el-dropdown>
+                    </el-dropdown> -->
+                    <el-popover
+                        trigger="hover"
+                        v-model:visible="state.visible"
+                        placement="bottom-start"
+                        :width="250"
+                    >
+                        <div class="sortcontent">
+                            <div class="sortcontent-list">
+                                <p
+                                    @click="state.currentSortCon = item.value"
+                                    v-for="item in state.SortContentList"
+                                    :key="item.value"
+                                    :class="{
+                                        isActive:
+                                            item.value == state.currentSortCon,
+                                    }"
+                                >
+                                    {{ item.name }}
+                                </p>
+                            </div>
+                            <div class="sortcontent-list">
+                                <p
+                                    @click="state.currentLevel = item.value"
+                                    v-for="item in (state.SortTagLevelList as any)"
+                                    :key="item.value"
+                                    :class="{
+                                        isActive:
+                                            item.value == state.currentLevel,
+                                    }"
+                                >
+                                    <span>
+                                        {{ item.name }}
+                                    </span>
+                                    <el-icon
+                                        @click.stop="state.currentLevel = 0"
+                                        v-if="item.value == state.currentLevel"
+                                        ><CircleClose
+                                    /></el-icon>
+                                </p>
+                            </div>
+                            <div class="sortcontent-list">
+                                <p
+                                    @click="state.currentSortType = item.value"
+                                    v-for="item in (state.SortTypeList as any)"
+                                    :key="item.value"
+                                    :class="{
+                                        isActive:
+                                            item.value == state.currentSortType,
+                                    }"
+                                >
+                                    <span>
+                                        {{ item.name }}
+                                    </span>
+                                    <!-- <el-icon
+                                        @click.stop="state.currentSortType = 0"
+                                        v-if="
+                                            item.value == state.currentSortType
+                                        "
+                                        ><CircleClose
+                                    /></el-icon> -->
+                                </p>
+                            </div>
+                        </div>
+
+                        <template #reference>
+                            <div
+                                style="
+                                    display: flex;
+                                    align-items: center;
+                                    cursor: pointer;
+                                "
+                            >
+                                <span style="color: #19203d; padding-right: 5px"
+                                    >平均错误率由高到低</span
+                                >
+                                <img
+                                    src="~@/assets/images/wrongbook/arrow_next.png"
+                                    alt=""
+                                />
+                            </div>
+                        </template>
+                    </el-popover>
                 </div>
             </header>
             <div class="top-line"></div>
@@ -110,9 +194,10 @@
                         "
                         :currentWrongType="state.currentWrongType"
                         :parentSearch="searchForm"
+                        :gradeId="gradeId"
                     ></LeftThree>
                 </div>
-                <div class="con-right">
+                <div class="con-right" v-if="!state.isShowDetails">
                     <LessonList
                         v-if="state.isEmpty"
                         @openWrongDetails="openWrongDetails"
@@ -174,7 +259,7 @@ import {
     onActivated,
     nextTick,
 } from "vue";
-import { ArrowDown, Search } from "@element-plus/icons-vue";
+import { ArrowDown, Search, CircleClose } from "@element-plus/icons-vue";
 import LeftOne from "./components/LeftOne.vue";
 import LeftTwo from "./components/LeftTwo.vue";
 import LeftThree from "./components/LeftThree.vue";
@@ -182,10 +267,10 @@ import LessonList from "./components/LessonList.vue";
 import WrongDetails from "./components/WrongDetails.vue";
 import { get, STORAGE_TYPES } from "@/utils/storage";
 import { getFormatDate } from "@/utils";
-
+import useWrongBook from "./hooks/useWrongBook";
+const { questionTypeList } = useWrongBook();
 const classList = get(STORAGE_TYPES.USER_INFO).Classes;
-console.log(get(STORAGE_TYPES.USER_INFO).Classes);
-
+const gradeId = ref(classList.length ? classList[0]?.GradeID : "");
 const state = reactive({
     //顶部时间选择区间
     dateRange: [],
@@ -194,32 +279,32 @@ const state = reactive({
     //当前选中的班级
     currentClassId: classList.length ? classList[0]?.ID : "",
     //题型数据源
-    questionTypeList: [
-        {
-            ID: [1, 2],
-            Name: "选择题",
-        },
-        {
-            ID: [3, 4],
-            Name: "判断题",
-        },
-        {
-            ID: [5],
-            Name: "填空题",
-        },
-        {
-            ID: [6],
-            Name: "应用题",
-        },
-        {
-            ID: [7],
-            Name: "语音题",
-        },
-        {
-            ID: [8],
-            Name: "解答题",
-        },
-    ],
+    // questionTypeList: [
+    //     {
+    //         ID: [1, 2],
+    //         Name: "选择题",
+    //     },
+    //     {
+    //         ID: [3, 4],
+    //         Name: "判断题",
+    //     },
+    //     {
+    //         ID: [5],
+    //         Name: "填空题",
+    //     },
+    //     {
+    //         ID: [6],
+    //         Name: "应用题",
+    //     },
+    //     {
+    //         ID: [7],
+    //         Name: "语音题",
+    //     },
+    //     {
+    //         ID: [8],
+    //         Name: "解答题",
+    //     },
+    // ],
     //是否显示详情页面
     isShowDetails: false,
     //当前选择的那个类型展示错题本
@@ -228,6 +313,91 @@ const state = reactive({
     isEmpty: true,
     //问题类型
     QuestionType: "",
+    currentWrongTypeIndex: 1, //当前选中的按钮类型index
+    //错题类型按钮list
+    wrongTypeButtonList: [
+        {
+            id: 1,
+            name: "按作业",
+        },
+        {
+            id: 2,
+            name: "按试卷",
+        },
+        {
+            id: 3,
+            name: "按章节",
+        },
+        {
+            id: 4,
+            name: "按知识点",
+        },
+    ],
+    //当前日期选中的类型
+    currentDateIndex: 0,
+    //时间类型按钮list
+    dateButtonList: [
+        {
+            id: 1,
+            name: "今日",
+        },
+        {
+            id: 2,
+            name: "昨日",
+        },
+        {
+            id: 3,
+            name: "本周日",
+        },
+    ],
+    //弹出层
+    visible: false,
+    //排序字段 1 平均错误率 2分层错误率 3完成率
+    SortContentList: [
+        {
+            name: "平均错误率",
+            value: 1,
+        },
+        {
+            name: "分层错误率",
+            value: 2,
+        },
+        {
+            name: "完成率",
+            value: 3,
+        },
+    ],
+    //当前选择的排序字段
+    currentSortCon: 1,
+    //排序分层等级 100 C层，200 B层，300 A层
+    SortTagLevelList: [
+        {
+            name: "A层",
+            value: 300,
+        },
+        {
+            name: "B层",
+            value: 200,
+        },
+        {
+            name: "C层",
+            value: 100,
+        },
+    ],
+    //当前选择的分层登记
+    currentLevel: 0,
+    //排序类型 1 asc正序 2 desc倒叙
+    SortTypeList: [
+        {
+            name: "正序",
+            value: 1,
+        },
+        {
+            name: "倒序",
+            value: 2,
+        },
+    ],
+    currentSortType: 1,
 });
 
 watch(
@@ -239,8 +409,8 @@ watch(
         } else {
             searchForm.value.StartTime = "";
             searchForm.value.EndTime = "";
+            state.currentDateIndex = 0;
         }
-        console.log(value);
     }
 );
 watch(
@@ -249,12 +419,12 @@ watch(
         console.log(val);
     }
 );
-onMounted(() => {
-    nextTick(() => {
-        state.currentClassId = classList.length ? classList[0]?.ID : "";
-        searchForm.value.ClassId = classList.length ? classList[0]?.ID : "";
-    });
-});
+// onMounted(() => {
+//     nextTick(() => {
+//         state.currentClassId = classList.length ? classList[0]?.ID : "";
+//         searchForm.value.ClassId = classList.length ? classList[0]?.ID : "";
+//     });
+// });
 //顶部的昨日，今日，本周时间过滤
 const toFormatDate = (type: number) => {
     const data: any = getFormatDate(type);
@@ -270,9 +440,12 @@ const searchForm = ref({
     StartTime: "", //日期范围
 });
 //切换顶部选中的班级
-const switchClass = (value: string) => {
-    state.currentClassId = value;
-    searchForm.value.ClassId = value;
+const switchClass = (value: any) => {
+    state.currentClassId = value.ID;
+    searchForm.value.ClassId = value.ID;
+    //传年级id
+    gradeId.value = value.GradeID;
+    console.log("gradeId.value", gradeId.value);
 };
 //打开错题本详情页面
 const openWrongDetails = (data: any) => {
@@ -306,7 +479,7 @@ defineExpose(openWrongDetails);
             font-size: 14px;
             color: #a7aab4;
             font-family: HarmonyOS_Sans_SC;
-            overflow-x: scroll;
+            overflow: auto;
             padding: 5px 0;
             .class-item {
                 margin-right: 32px;
@@ -323,7 +496,7 @@ defineExpose(openWrongDetails);
                 content: "";
                 display: block;
                 position: relative;
-                width: 74px;
+                width: 100%;
                 height: 3px;
                 background: #4b71ee;
                 bottom: -16px;
@@ -336,6 +509,14 @@ defineExpose(openWrongDetails);
             width: 50%;
             display: flex;
             justify-content: flex-end;
+            :deep(.el-button:focus, .el-button:hover),
+            :deep(.el-button-group) {
+                .el-button--small.dateActive {
+                    background-color: #f3f7ff;
+                    border: 1px solid rgba(75, 113, 238, 0.5);
+                    color: #4b71ee;
+                }
+            }
         }
     }
     .wrongbook-main {
@@ -359,7 +540,11 @@ defineExpose(openWrongDetails);
                     color: #19203d;
                     font-size: 13px;
                 }
-                :deep(.el-button:focus, .el-button:hover) {
+                :deep(.el-button--small.isActive) {
+                    color: #4b71ee;
+                    border: 1px solid rgba(75, 113, 238, 0.5);
+                }
+                :deep(.el-button:focus, .el-button:hover, .isActive) {
                     color: #4b71ee;
                     border: 1px solid rgba(75, 113, 238, 0.5);
                 }
@@ -424,6 +609,32 @@ defineExpose(openWrongDetails);
                         }
                     }
                 }
+            }
+        }
+    }
+}
+</style>
+<style lang="scss">
+.el-popover {
+    .sortcontent {
+        display: flex;
+        // width: 250px;
+        justify-content: space-around;
+        .sortcontent-list {
+            width: 33%;
+            // display: flex;
+            font-size: 13px;
+            p {
+                cursor: pointer;
+                background-color: #fff;
+                padding: 2px;
+                display: flex;
+                align-items: center;
+                justify-content: space-around;
+            }
+            .isActive {
+                background-color: #4b71ee;
+                color: #fff;
             }
         }
     }

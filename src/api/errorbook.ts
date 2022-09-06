@@ -29,6 +29,22 @@ export interface KnowledgeLabList {
     Name: string;
 }
 
+//查询列表的
+//按作业维度-入参
+export interface QuestionListByHomeworkParams {
+    ClassHomeworkPaperId?: string;
+    SortContent: number;
+    SortTagLevel?: number;
+    SortType?: number;
+}
+//按知识点维度-入参
+export interface QuestionListByKnowledgeLibParams {
+    ClassId: string;
+    KnowledgeLibId: string;
+    StartDate: string;
+    EndDate: string;
+}
+
 type GetLeftMenuByHomeWork = IResponse<LeftMenuByHomeWork[]>;
 type GetKnowledgeLabList = IResponse<KnowledgeLabList[]>;
 
@@ -95,3 +111,51 @@ export function searchLeftMeunByKnowledge(
         data: data,
     });
 }
+
+//按作业维度获取错题的题目列表
+export function getErrorQuestionListByHomework(
+    data: QuestionListByHomeworkParams
+) {
+    return request({
+        baseURL: AI_XUE_SHI_API_WRONG_BOOK,
+        url: "/Api/Web/ClassErrorQuestionBook/GetErrorQuestionListByHomework",
+        headers: {
+            "Content-Type": "application/json-patch+json",
+            // noLoading: "true",
+        },
+        method: "post",
+        data: data,
+    });
+}
+
+//按知识点维度获取错题列表
+export function getErrorQuestionListByKnowledgeLib(
+    data: QuestionListByKnowledgeLibParams
+) {
+    return request({
+        baseURL: AI_XUE_SHI_API_WRONG_BOOK,
+        url: "/Api/Web/ClassErrorQuestionBook/GetErrorQuestionListByKnowledgeLib",
+        headers: {
+            "Content-Type": "application/json-patch+json",
+            // noLoading: "true",
+        },
+        method: "post",
+        data: data,
+    });
+}
+//按章节课时维度获取错题的列表
+export function getErrorQuestionListByChapterLesson(
+    data: QuestionListByKnowledgeLibParams
+) {
+    return request({
+        baseURL: AI_XUE_SHI_API_WRONG_BOOK,
+        url: "/Api/Web/ClassErrorQuestionBook/GetErrorQuestionListByChapterLesson",
+        headers: {
+            "Content-Type": "application/json-patch+json",
+            // noLoading: "true",
+        },
+        method: "post",
+        data: data,
+    });
+}
+//

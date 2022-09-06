@@ -4,7 +4,7 @@
             <el-cascader
                 size="small"
                 style="width: 100%"
-                v-model="form.BookId"
+                v-model="state.currentBookId"
                 :props="cascaderProps"
                 :options="state.subjectPublisherBookList"
                 @change="changeBook"
@@ -68,13 +68,13 @@
     </div>
 </template>
 <script lang="ts" setup>
-import { reactive, ref, defineProps, watch, onMounted } from "vue";
+import { reactive, ref, defineProps, watch, onMounted, nextTick } from "vue";
 import { Search } from "@element-plus/icons-vue";
 import { searchLeftMenuByHomeWork, LeftMenuParams } from "@/api/errorbook";
 import { fetchSubjectPublisherBookList } from "@/views/preparation/api";
+import emitter from "@/utils/mitt"; //全局事件总线
 import useBookList from "@/views/assignHomework/hooks/useBookList";
 const { cascaderProps } = useBookList();
-console.log("subjectPublisherBookList");
 
 const props = defineProps({
     parentSearch: {
@@ -82,40 +82,62 @@ const props = defineProps({
         default: () => {},
     },
 });
+//数据源
+const state = reactive({
+    currentLessonIndex: "",
+    lessonList: [],
+    loading: false,
+    subjectPublisherBookList: [],
+    currentBookId: [] as string[],
+});
 //搜索区域表单
 const form = ref({
     BookId: "",
     Name: "",
 });
-
-//数据源
-const state = reactive({
-    currentLessonIndex: 1,
-    lessonList: [],
-    loading: false,
-    subjectPublisherBookList: [],
-});
 const getSubjectPublisherBookList = async () => {
     const res: any = await fetchSubjectPublisherBookList();
     if (res.resultCode === 200) {
         state.subjectPublisherBookList = res.result;
+        if (state.subjectPublisherBookList.length) {
+            form.value.BookId =
+                state.subjectPublisherBookList[0].Children![0].Children![0].Value;
+            console.log("form.value.BookId", form.value.BookId);
+        }
     }
 };
 //下面是请求方法
 //切换左侧课程卡片
 const switchLessonCard = (item: any) => {
     console.log(item);
-    state.currentLessonIndex = item.id;
+    state.currentLessonIndex = item.PaperId;
+    if (state.currentLessonIndex) {
+        emitter.emit("errorBookEmit", {
+            id: state.currentLessonIndex,
+            name: item.PaperName,
+        });
+    }
 };
 //查询左侧树的方法
 const queryLeftMenuByHomeWork = async (params: LeftMenuParams) => {
     state.loading = true;
     console.log("params", params);
+    // params.ClassId = "39FC0056AFEFD89BD1CC692D003B59C3";//临时赋值，后面删
     const res: any = await searchLeftMenuByHomeWork(params);
     console.log(res);
     if (res.resultCode === 200) {
         state.loading = false;
         state.lessonList = res.result;
+        state.currentLessonIndex = state.lessonList.length
+            ? state.lessonList[0]?.PaperId
+            : "";
+        const currentLessonName = state.lessonList.length
+            ? state.lessonList[0]?.PaperName
+            : "";
+        emitter.emit("errorBookEmit", {
+            id: state.currentLessonIndex,
+            name: currentLessonName,
+        });
     } else {
         state.lessonList = [];
         state.loading = false;
@@ -143,12 +165,29 @@ watch(
         // immediate: true,
     }
 );
+watch(
+    () => state.subjectPublisherBookList,
+    (v) => {
+        state.currentBookId = [
+            v[0].Value,
+            v[0].Children![0].Value,
+            v[0].Children![0].Children![0].Value,
+        ];
+    },
+    { deep: true }
+);
+watch(
+    () => state.currentBookId,
+    (v) => {
+        console.log("vvvv", v);
+        form.value.BookId = v ? v[2] : "";
+        const params = Object.assign(form.value, props.parentSearch);
+        queryLeftMenuByHomeWork(params);
+    }
+);
+
 onMounted(() => {
     getSubjectPublisherBookList();
-    if (props.parentSearch.ClassId) {
-        form.value = Object.assign(form.value, props.parentSearch);
-        queryLeftMenuByHomeWork(form.value);
-    }
 });
 </script>
 <style lang="scss" scoped>

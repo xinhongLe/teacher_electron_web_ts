@@ -5,7 +5,7 @@
             size="small"
             style="width: 100%; margin-right: 16px"
             v-model="form.BookId"
-            @change="changeBook"
+            @change="changeKnowledgeLab"
             clearable
         >
             <el-option
@@ -42,23 +42,19 @@
         </div>
         <div class="leftthree-list" v-loading="state.loading">
             <Tree
+                v-if="state.treeData.length"
                 @onTreeItemChange="selectedChapter"
                 v-model:value="selectedID"
                 :treeData="state.treeData"
             />
-            <p
-                v-if="!state.treeData.length"
-                style="text-align: center; margin-top: 20%"
-            >
-                暂无数据
-            </p>
+            <p v-else style="text-align: center; margin-top: 20%">暂无数据</p>
             <!-- :tipTarget="tipTarget"
                     :showClassArrangement="showClassArrangement" -->
         </div>
     </div>
 </template>
 <script lang="ts" setup>
-import { reactive, ref, defineProps, onMounted, watch } from "vue";
+import { reactive, ref, defineProps, onMounted, watch, inject } from "vue";
 import Tree from "./tree/index.vue";
 import { Search } from "@element-plus/icons-vue";
 import {
@@ -83,12 +79,17 @@ const props = defineProps({
         type: Object,
         default: () => {},
     },
+    gradeId: {
+        type: String,
+        default: () => "",
+    },
 });
+
 //搜索区域
 const form = ref({
     BookId: "",
     Name: "",
-    Id: "39FF0919F686AFB327D0FA899783E81C",
+    Id: "",
 });
 //项目id
 const selectedID = ref("");
@@ -175,6 +176,16 @@ watch(
         deep: true,
     }
 );
+//监听年级变化
+watch(
+    () => props.gradeId,
+    (gradeId: string) => {
+        console.log("gradeId", gradeId);
+        queryKnowledgeLabList({
+            gradeId: gradeId || "39F766472E38409F4E61E0D93DB1238F",
+        });
+    }
+);
 const getSubjectPublisherBookList = async () => {
     const res: any = await fetchSubjectPublisherBookList();
     if (res.resultCode === 200) {
@@ -195,7 +206,11 @@ const switchLessonCard = (item: any) => {
 //改变左侧书册下拉
 const changeBook = (value: string) => {
     console.log(value);
-    form.value.BookId = value;
+    if (value && value.length) {
+        form.value.BookId = value[value.length - 1];
+    } else {
+        form.value.BookId = "";
+    }
     queryLeftMeunByChapter(form.value);
 };
 
@@ -226,16 +241,18 @@ const queryLeftMeunByKnowledge = async (params: LeftMenuParams) => {
         state.loading = false;
     }
 };
+//选择知识点 筛选 按知识点树
+const changeKnowledgeLab = (data: string) => {
+    console.log(data);
+    form.value.Id = data;
+    queryLeftMeunByKnowledge(form.value);
+};
 onMounted(() => {
     queryKnowledgeLabList({
-        gradeId: "39F766472E38409F4E61E0D93DB1238F",
+        gradeId: props.gradeId || "39F766472E38409F4E61E0D93DB1238F",
     });
-    const params = Object.assign(props.parentSearch, form.value);
     if (props.currentWrongType == 3) {
         getSubjectPublisherBookList();
-        queryLeftMeunByChapter(params);
-    } else {
-        queryLeftMeunByKnowledge(params);
     }
 });
 </script>
