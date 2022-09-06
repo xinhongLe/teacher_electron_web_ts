@@ -1,13 +1,20 @@
 <template>
     <div class="container">
-        <div class="content-warp">
+        <div
+            class="content-warp"
+            @touchstart="$event => touchStartListener($event)"
+            @touchend="$event => touchEndListener($event)"
+            @touchmove="$event => touchMoveListener($event)"
+        >
             <div
                 class="img-warp"
-                :style="{
-                    transform: `translate(${translateX}px, ${translateY}px) scale(${scale}) rotate(${rotate}deg)`,
-                }"
             >
                 <img
+                    ref="contentRef"
+                    @mousewheel="$event => handleMousewheelScreen($event)"
+                    :style="{
+                        transform: `translate(${translateX}px, ${translateY}px) scale(${scale}) rotate(${rotate}deg)`,
+                    }"
                     :src="imgList[currentIndex]"
                     @mousedown="onMove"
                     class="img"
@@ -228,6 +235,7 @@ export default defineComponent({
         const brushRef = ref<InstanceType<typeof Brush>>();
         const colorName = ref("black");
         const penSize = ref(2);
+        const contentRef = ref();
 
         watch(() => props.index, () => {
             currentIndex.value = props.index;
@@ -240,8 +248,12 @@ export default defineComponent({
             onZoomIn,
             onZoomOut,
             isShowResetBtn,
-            resetTransform
-        } = useTransform();
+            resetTransform,
+            handleMousewheelScreen,
+            touchStartListener,
+            touchEndListener,
+            touchMoveListener
+        } = useTransform(contentRef);
         const lastPage = () => {
             if (currentIndex.value === 0) {
                 return;
@@ -302,6 +314,11 @@ export default defineComponent({
             colorName,
             changeStrokeStyle,
             changeLineWidth,
+            contentRef,
+            handleMousewheelScreen,
+            touchStartListener,
+            touchEndListener,
+            touchMoveListener,
             ...toRefs(transform)
         };
     },
@@ -328,6 +345,7 @@ export default defineComponent({
             position: relative;
             overflow: hidden;
             .img {
+                transform-origin: top left;
                 height: 100%;
                 position: absolute;
             }
