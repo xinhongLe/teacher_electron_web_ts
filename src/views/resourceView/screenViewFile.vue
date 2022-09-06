@@ -63,7 +63,8 @@ export default defineComponent({
             }
         };
 
-        watchEffect(initIframeSrc);
+        initIframeSrc();
+        // watchEffect(initIframeSrc);
 
         const close = () => {
             store.commit(MutationTypes.REMOVE_FULLSCREEN_RESOURCE, resource.value?.id);
