@@ -557,7 +557,7 @@ export default defineComponent({
 
         const uploadResourceOpen = ref(false);
 
-        const type = ref<string>("");
+        const type = ref<string>(RESOURCE_TYPE.COURSEWARD);
         const typeList = ref<{ Id: string; Name: string }[]>([]);
         const onTypeChange = () => {
             emit("update:type", type.value);
@@ -577,7 +577,6 @@ export default defineComponent({
                     Name: "全部",
                 });
                 typeList.value = res.result.reverse();
-                type.value = RESOURCE_TYPE.COURSEWARD;
             }
         };
 

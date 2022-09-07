@@ -54,7 +54,7 @@ export default (contentRef: Ref<HTMLElement>) => {
 
     const onZoomOut = () => {
         isShowResetBtn.value = true;
-        if (transform.scale > 0.2) {
+        if (transform.scale > 0.5) {
             transform.scale = parseFloat((transform.scale - zoomRate).toFixed(3));
         }
     };
@@ -147,7 +147,7 @@ export default (contentRef: Ref<HTMLElement>) => {
             touchInfo.value = e.touches;
             const offset = getPointOffset(center);
             if (zoom - 1 < 0) {
-                if (transform.scale === 1) return;
+                if (transform.scale <= 0.5) return;
                 // 缩小
                 transform.scale -= unit;
                 transform.translateX = offset.offsetX * unit + transform.translateX;
