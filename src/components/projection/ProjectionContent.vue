@@ -9,22 +9,29 @@
             <div
                 class="img-warp"
             >
-                <img
+                <div
                     ref="contentRef"
-                    @mousewheel="$event => handleMousewheelScreen($event)"
-                    :style="{
-                        transform: `translate(${translateX}px, ${translateY}px) scale(${scale}) rotate(${rotate}deg)`,
+                    class="view-box"
+                     :style="{
+                        transform: `translate(${translateX + viewWidth / 2 * (scale - 1)}px, ${translateY + viewHeight / 2 * (scale - 1)}px) scale(${scale}) rotate(${rotate}deg)`,
                     }"
-                    :src="imgList[currentIndex]"
-                    @mousedown="onMove"
-                    class="img"
-                />
-                <Brush
-                    :isBrush="isBrush"
-                    ref="brushRef"
-                    :colorName="colorName"
-                    :penSize="penSize"
-                />
+                >
+                    <img
+                        
+                        @mousewheel="$event => handleMousewheelScreen($event)"
+                        :src="imgList[currentIndex]"
+                        @mousedown="onMove"
+                        class="img"
+                        @load="imgOnLoad"
+                    />
+                    <Brush
+                        v-if="showBrush"
+                        :isBrush="isBrush"
+                        ref="brushRef"
+                        :colorName="colorName"
+                        :penSize="penSize"
+                    />
+                </div>
             </div>
             <div
                 class="reset-btn"
@@ -236,6 +243,9 @@ export default defineComponent({
         const colorName = ref("black");
         const penSize = ref(2);
         const contentRef = ref();
+        const showBrush = ref(false);
+        const viewWidth = ref(0);
+        const viewHeight = ref(0);
 
         watch(() => props.index, () => {
             currentIndex.value = props.index;
@@ -290,6 +300,13 @@ export default defineComponent({
             penSize.value = width;
         };
 
+        const imgOnLoad = () => {
+            showBrush.value = true;
+            viewWidth.value = contentRef.value.clientWidth;
+            viewHeight.value = contentRef.value.clientHeight;
+            console.log(viewWidth.value)
+        };
+
         return {
             imgList,
             lastPage,
@@ -319,6 +336,10 @@ export default defineComponent({
             touchStartListener,
             touchEndListener,
             touchMoveListener,
+            showBrush,
+            viewHeight,
+            viewWidth,
+            imgOnLoad,
             ...toRefs(transform)
         };
     },
@@ -344,10 +365,13 @@ export default defineComponent({
             align-items: center;
             position: relative;
             overflow: hidden;
-            .img {
-                transform-origin: top left;
+            .view-box {
+                position: relative;
+                transform-origin: center center;
                 height: 100%;
-                position: absolute;
+            }
+            .img {
+                height: 100%;
             }
         }
         .reset-btn {

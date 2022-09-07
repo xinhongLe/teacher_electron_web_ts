@@ -1,5 +1,6 @@
 import { throttle } from "lodash";
-import { reactive, onMounted, onUnmounted, ref, Ref } from "vue";
+import { nextTick } from "process";
+import { reactive, ref, Ref } from "vue";
 
 export default (contentRef: Ref<HTMLElement>) => {
     const transform = reactive({
@@ -73,6 +74,7 @@ export default (contentRef: Ref<HTMLElement>) => {
     const getDomOffset = () => {
         const offsetX = contentRef.value.offsetLeft + transform.translateX;
         const offsetY = contentRef.value.offsetTop + transform.translateY + 60;
+        console.log(contentRef.value.offsetLeft)
         return { offsetX, offsetY };
     };
 
