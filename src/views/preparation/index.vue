@@ -38,6 +38,7 @@ import Head from "./layout/head.vue";
 import Resources from "./layout/resources.vue";
 import ClassArrangement from "./classArrangement/index.vue";
 import usePageEvent from "@/hooks/usePageEvent";
+import { RESOURCE_TYPE } from "@/config/resource";
 export default defineComponent({
     name: "Preparation",
     setup() {
@@ -50,7 +51,7 @@ export default defineComponent({
             lessonName: "",
         });
         const source = ref("");
-        const type = ref("");
+        const type = ref(RESOURCE_TYPE.COURSEWARD);
         const bookId = ref("");
 
         return {
