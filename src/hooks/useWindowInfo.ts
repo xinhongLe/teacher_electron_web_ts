@@ -6,6 +6,7 @@ import useHome from "@/hooks/useHome";
 import emitter from "@/utils/mitt";
 import isElectron from "is-electron";
 import { getWindowCards } from "@/views/preparation/intelligenceClassroom/api";
+import { Slide } from "wincard/src/types/slides";
 const dealCardData = (card:SchoolWindowCardInfo) => {
     const pages = card.PageList.map(page => {
         return {
@@ -35,7 +36,7 @@ const useWindowInfo = () => {
     const currentCard = ref<SchoolWindowCardInfo>();
     const currentPageIndex = ref(0);
     const currentCardIndex = ref(0);
-    const currentSlide = ref({});
+    const currentSlide = ref<Slide | {id?: string}>({});
     const cardList = ref<SchoolWindowCardInfo[]>([]);
     const allPageList = computed(() => {
         return cardList.value.flatMap((item) => [...item.PageList]);

@@ -1,6 +1,6 @@
 <template>
     <div class="view-box">
-        <ScreenView ref="screenRef"  @openMenu="openMenu" @offScreen="offScreen" :keyDisabled="keyDisabled" :isInit="isInit" :slide="slideView"  @openCard="openCard"  @pagePrev="pagePrev()" @pageNext="pageNext()"/>
+        <ScreenView ref="screenRef" @openMenu="openMenu" @offScreen="offScreen" :keyDisabled="keyDisabled" :isInit="isInit" :slide="slideView"  @openCard="openCard"  @pagePrev="pagePrev()" @pageNext="pageNext()"/>
 
         <div class="right-fixed" v-if="showCollapse">
             <div class="right-content" >
