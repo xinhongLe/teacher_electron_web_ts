@@ -188,6 +188,10 @@ export default defineComponent({
         dialog: {
             type: Boolean,
             default: false
+        },
+        id: {
+            type: String,
+            default: ""
         }
     },
     setup(props, { emit }) {
@@ -323,7 +327,7 @@ export default defineComponent({
         getLocalNextType();
 
         const closeWincard = () => {
-            store.commit(MutationTypes.SET_IS_WINCARD, { flag: false,  id: "", isSystem: false });
+            store.commit(MutationTypes.REMOVE_FULLSCREEN_RESOURCE, props.id);
         }
 
         return {

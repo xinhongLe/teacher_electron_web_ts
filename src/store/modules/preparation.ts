@@ -23,7 +23,6 @@ const initState = (): PreparationState => ({
         id: "",
         code: ""
     }
-
 });
 
 const mutations:MutationTree<PreparationState> = {

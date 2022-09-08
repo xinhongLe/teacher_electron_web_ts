@@ -102,15 +102,15 @@ export const set = (name: STORAGE_TYPES | string, value: unknown, isEncrypt = fa
 export const get = (name: STORAGE_TYPES | string, isDecrypt = false) => {
     let item;
     if (isElectron()) {
-        item = (window as any).electron.store.get(`${PREFIX}_${name}`);
+        item = window.electron.store.get(`${PREFIX}_${name}`);
     } else {
         item = localStorage.getItem(`${PREFIX}_${name}`);
     }
     let result;
     try {
-        item = isDecrypt ? decrypt(item || "") : item;
-        result = item === null ? null : JSON.parse(item);
-    } catch {
+        item = isDecrypt ? decrypt(item as string || "") : item;
+        result = !item ? null : JSON.parse(item as string);
+    } catch(err) {
         result = item;
     }
     return result;
@@ -122,7 +122,7 @@ export const storeChange = (name: STORAGE_TYPES | string, callback: (newValue: u
 
 export const remove = (name: string) => {
     if (isElectron()) {
-        (window as any).electron.store.delete(`${PREFIX}_${name}`);
+        window.electron.store.delete(`${PREFIX}_${name}`);
     } else {
         localStorage.removeItem(`${PREFIX}_${name}`);
     }
@@ -132,16 +132,18 @@ export const clear = () => {
     if (isElectron()) {
         const record = get(STORAGE_TYPES.RECORD_LOGIN_LIST);
         const paths = get(STORAGE_TYPES.OSS_PATHS);
-        (window as any).electron.store.clear();
+        const selectBookData = get(STORAGE_TYPES.SELECT_BOOK_ID);
+        window.electron.store.clear();
         record && set(STORAGE_TYPES.RECORD_LOGIN_LIST, record);
         paths && set(STORAGE_TYPES.OSS_PATHS, paths);
+        selectBookData && set(STORAGE_TYPES.SELECT_BOOK_ID, selectBookData);
     } else {
         Object.keys(localStorage).forEach((name) => {
             const REGEXP = /^VUE_(.+)/;
 
             // 记录账号历史记录的不删除
             // OSS_PATHS不能删 （被人顶掉以后不执行App组件的getoss，导致上传报错）
-            if (!REGEXP.test(name) || name.includes("RECORD_LOGIN_LIST") || name.includes("OSS_PATHS")) {
+            if (!REGEXP.test(name) || name.includes(STORAGE_TYPES.RECORD_LOGIN_LIST) || name.includes(STORAGE_TYPES.OSS_PATHS) || name.includes(STORAGE_TYPES.SELECT_BOOK_ID)) {
                 return;
             }
             remove(name.substring(4));

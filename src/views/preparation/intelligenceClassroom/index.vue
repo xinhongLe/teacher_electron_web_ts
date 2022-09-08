@@ -32,6 +32,7 @@
             </div>
         </div>
         <Tools
+            :id="resourceId"
             :dialog="dialog"
             :showRemark="previewSection?.showRemark"
             @toggleRemark="toggleRemark"

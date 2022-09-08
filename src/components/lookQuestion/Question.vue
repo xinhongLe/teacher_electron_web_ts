@@ -101,7 +101,6 @@ import { computed, defineComponent, inject, onMounted, onUnmounted, Ref, ref, wa
 import isElectronFun from "is-electron";
 import useDetail from "./hooks/useDetail";
 import Brush from "@/components/brush/index.vue";
-import { store } from "@/store";
 import { set, STORAGE_TYPES } from "@/utils/storage";
 import emitter from "@/utils/mitt";
 export default defineComponent({
@@ -110,17 +109,24 @@ export default defineComponent({
             type: Function,
             required: true
         },
+
         isPureQuestion: {
             type: Boolean,
             default: false
         },
+
         dialog: {
             type: Boolean,
             default: false
+        },
+
+        resource: {
+            type: Object,
+            required: true
         }
     },
     setup(props, { emit }) {
-        const type = computed(() => store.state.common.viewQuestionInfo.type);
+        const type = computed(() => props.resource.type);
         const btnType = ref(1);
         const childRef = ref<InstanceType<typeof Brush>>();
         const isElectron = isElectronFun();
@@ -146,7 +152,7 @@ export default defineComponent({
             voiceUrlMap,
             nextPage,
             questionSn
-        } = useDetail(props.isPureQuestion, questionID.value, emit, childRef);
+        } = useDetail(props.isPureQuestion, questionID.value, emit, childRef, props.resource);
 
         const brushHandle = () => {
             btnType.value = 1;

@@ -141,6 +141,7 @@ export default defineComponent({
     top: 0;
     bottom: 0;
     z-index: 2;
+    width: 100%;
 }
 // .xiangpica {
 //     cursor: url("./../../assets/look/icon-rubber.png"), pointer;

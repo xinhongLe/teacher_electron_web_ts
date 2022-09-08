@@ -1,4 +1,3 @@
-import { store } from "@/store";
 import { FileInfo, Question } from "@/types/lookQuestion";
 import emitter from "@/utils/mitt";
 import { getOssUrl } from "@/utils/oss";
@@ -8,7 +7,7 @@ import { computed, ref, watchEffect, Ref } from "vue";
 import { fetchPureQuestionByQuestionID, getCourseBagQuestionsByIds, getQuestionsByIds } from "../api";
 import { pullAllBy } from "lodash";
 
-export default (isPureQuestion: boolean, questionId = "", emit: (event: string, ...args: any[]) => void, childRef: Ref<any>) => {
+export default (isPureQuestion: boolean, questionId = "", emit: (event: string, ...args: any[]) => void, childRef: Ref<any>, resource: any) => {
     const imageUrl = ref<string[]>([]);
     const voiceUrl = ref<string[]>([]);
     const voiceUrlMap = ref({
@@ -72,7 +71,7 @@ export default (isPureQuestion: boolean, questionId = "", emit: (event: string, 
     }
 
     const getDetail = async () => {
-        const { type, id, deleteQuestionIds = [] } = store.state.common.viewQuestionInfo;
+        const { type, id, deleteQuestionIds = [] } = resource;
         if (!id) return;
         emit("update:isMinimized", false);
         if (id === lastId.value) return;
@@ -111,7 +110,7 @@ export default (isPureQuestion: boolean, questionId = "", emit: (event: string, 
 
         if (res.resultCode === 200) {
             const { result } = res;
-            !isPureQuestion && pullAllBy(result, deleteQuestionIds.map(id => ({ QuestionID: id })), "QuestionID");
+            !isPureQuestion && pullAllBy(result, deleteQuestionIds.map((id: string) => ({ QuestionID: id })), "QuestionID");
             sum.value = result.length;
             questionList.value = result;
             getFileList(questionList.value[0].QuestionFiles, 1);
@@ -213,7 +212,7 @@ export default (isPureQuestion: boolean, questionId = "", emit: (event: string, 
         })
             .then(() => {
                 // 接口不对，后期会改，先本地假删除
-                const { courseBagId, id, type } = store.state.common.viewQuestionInfo;
+                const { courseBagId, id, type } = resource;
                 const questionID = type === 3 ? questionList.value[number.value - 1].CoursebagQuestionID || "" : nowQuestionID.value;
                 emitter.emit("deleteQuestion", {
                     courseBagId,

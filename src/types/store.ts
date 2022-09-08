@@ -78,57 +78,35 @@ export interface PreparationState {
     }
 }
 
+export interface IViewResourceData extends Partial<IResourceItem> {
+    id: string;
+    courseBagId?: string;
+    deleteQuestionIds?: string[];
+    type?: number;
+}
+
+export interface IshowResourceFullScreen {
+    component: string;
+    resource: IViewResourceData;
+}
+
 export interface CommonState {
     /**
      * 是否在拖拽
      */
     isDragging: boolean,
     /**
-     * 是否显示查看题目弹框
-     */
-    isShowQuestion: boolean,
-    /**
-     * 是否显示查看视频弹框
-     */
-    isShowVideo: boolean,
-    /**
-     * 是否显示窗卡
-     */
-    isShowWincard: boolean,
-    /**
-     * 窗ID
-     */
-    wincard: {
-        id: string;
-        isSystem: boolean;
-    };
-    /**
-     * 查看题目的信息
-     */
-    viewQuestionInfo: {
-        type: number,
-        id: string,
-        deleteQuestionIds?: string[],
-        courseBagId: string
-    }
-    /**
-     * 查看视频的信息
-     */
-    viewVideoInfo: {
-        id: string
-    },
-    /**
      * 备教端是否被嵌套在某个iframe里
      */
     isIframe: boolean,
     /**
-     * 预览文件弹窗
-     */
-    showScreenViewFile: boolean,
-    /**
      * 展示资源暂存
      */
-    resource: IResourceItem | null
+    resource: IResourceItem | null,
+    /**
+     * 需要全屏展示的资源列表
+     */
+    showResourceFullScreen: IshowResourceFullScreen[]
 }
 export interface RootState {
     userInfo: UserInfoState,
