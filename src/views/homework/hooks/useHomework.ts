@@ -73,6 +73,7 @@ export default () => {
 
     const initData = () => {
         const userInfo = get(STORAGE_TYPES.USER_INFO);
+        console.log(userInfo, "userInfo");
         subjectList.value = (userInfo.Subjects as LessonSubject[]).filter(
             ({ Name }) => Name !== "拼音"
         );

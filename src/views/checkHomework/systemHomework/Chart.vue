@@ -1,20 +1,16 @@
 <template>
     <div>
         <div class="chart-once" :class="activeIndex == index ? 'active' : ''">
+            <div>
+                <p>第{{ index + 1 }}题</p>
+                <p> 正确率 <span>{{ probability }}%</span></p>
+            </div>
             <div class="chart">
-                <div
-                    :id="'main' + index"
-                    style="width: 50px; height: 50px"
-                    ref="chartRef"
-                ></div>
+                <div :id="'main' + index" style="width: 50px; height: 50px" ref="chartRef"></div>
             </div>
             <!-- <div class="no-chart">
                 <img src="" alt="" />
             </div> -->
-            <p>
-                正确率 <span>{{ probability }}%</span>
-            </p>
-            <p>第{{ index + 1 }}题</p>
         </div>
     </div>
 </template>
@@ -42,17 +38,9 @@ export default defineComponent({
         const chartRef = ref<HTMLDivElement>();
 
         const initChart = () => {
-            probability.value =
-                props.item.TotalRight === 0
-                    ? 0
-                    : Number(
-                        (
-                            (props.item.TotalRight /
-                                  (props.item.TotalWrong +
-                                      props.item.TotalRight)) *
-                              100
-                        ).toFixed(2)
-                    );
+            probability.value = props.item.TotalRight === 0 ? 0 : Number(
+                ((props.item.TotalRight / (props.item.TotalWrong + props.item.TotalRight)) * 100).toFixed(2)
+            );
             if (props.item.TotalRight === 0 && props.item.TotalWrong === 0 && props.item.TotalNoSure === 0) return;
             var myChart = echarts.init(chartRef.value!);
             const option = {
@@ -119,25 +107,29 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .chart-once {
-  width: 132px;
+  display: flex;
+  justify-content:space-between;
+  align-items: center;
+  width: 100%;
+  height: 62px;
+  padding: 0px 20px;
   cursor: pointer;
-  height: 140px;
   box-sizing: border-box;
   border: 1px solid #fff;
   border-radius: 4px;
-  margin: 0 0 22px 0;
+  margin-bottom:20px;
   text-align: center;
   background: #fff;
   .chart {
-    width: 100%;
-    height: 80px;
+    width: 32px;
+    height: 32px;
     display: flex;
     justify-content: space-around;
     align-items: center;
   }
   .no-chart {
-    width: 100%;
-    height: 80px;
+    width: 42px;
+    height: 42px;
     display: flex;
     justify-content: space-around;
     align-items: center;
@@ -149,16 +141,13 @@ export default defineComponent({
   }
   p:nth-of-type(1) {
     font-size: 14px;
-    font-weight: 500;
-    color: #5f626f;
+    font-weight: 600;
+    color: #19203D;
     margin-bottom: 6px;
-    line-height: 20px;
   }
   p:nth-of-type(2) {
-    font-size: 16px;
-    font-weight: 500;
-    color: #19203d;
-    line-height: 22px;
+    font-size: 12px;
+      color: #5F626F;
   }
 }
 .active {

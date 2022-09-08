@@ -9,7 +9,8 @@ export const iconResources = {
         "8C47DA0818CB7747E6A5ACBD6AC2EC42": require("@/assets/images/preparation/resources/pic_shizhong_small_star.png"),
         "8C47DA0823D0950663B3A370010320CA": require("@/assets/images/preparation/resources/icon_heiban_star.png"),
         "8C47DA08B6D468D1D53B828ECDB48BE7": require("@/assets/images/preparation/resources/icon_sucai_star.png"),
-        "8C47DA0859DBCAFF8E976A835735C617": require("@/assets/images/preparation/resources/icon_other_star.png")
+        "8C47DA0859DBCAFF8E976A835735C617": require("@/assets/images/preparation/resources/icon_other_star.png"),
+        "ABCD1234": require("@/assets/images/preparation/resources/pic_datiqi.png")
     },
 
     other: {
@@ -22,7 +23,8 @@ export const iconResources = {
         "8C47DA0818CB7747E6A5ACBD6AC2EC42": require("@/assets/images/preparation/resources/pic_shizhong_small.png"),
         "8C47DA0823D0950663B3A370010320CA": require("@/assets/images/preparation/resources/icon_heiban.png"),
         "8C47DA08B6D468D1D53B828ECDB48BE7": require("@/assets/images/preparation/resources/icon_sucai.png"),
-        "8C47DA0859DBCAFF8E976A835735C617": require("@/assets/images/preparation/resources/icon_other.png")
+        "8C47DA0859DBCAFF8E976A835735C617": require("@/assets/images/preparation/resources/icon_other.png"),
+        "ABCD1234": require("@/assets/images/preparation/resources/pic_datiqi.png")
     }
 };
 
@@ -36,8 +38,8 @@ export const textResources = {
     "8C47DA0818CB7747E6A5ACBD6AC2EC42": "教具",
     "8C47DA0823D0950663B3A370010320CA": "工具",
     "8C47DA08B6D468D1D53B828ECDB48BE7": "素材",
-    "8C47DA0859DBCAFF8E976A835735C617": "其他"
-}
+    "8C47DA0859DBCAFF8E976A835735C617": "其他",
+};
 
 export const typeResources = {
     "8C47DA084A9D3107B43A0ACD8679384C": 0,
@@ -49,5 +51,6 @@ export const typeResources = {
     "8C47DA0818CB7747E6A5ACBD6AC2EC42": 6,
     "8C47DA0823D0950663B3A370010320CA": 7,
     "8C47DA08B6D468D1D53B828ECDB48BE7": 8,
-    "8C47DA0859DBCAFF8E976A835735C617": 9
-}
+    "8C47DA0859DBCAFF8E976A835735C617": 9,
+    "ABCD1234": 10
+};

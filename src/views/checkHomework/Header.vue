@@ -53,38 +53,22 @@
             </template>
         </div>
         <div class="right">
-            <template v-if="type === 99">
-                <div
-                    v-for="(item, index) in homeworkPaperFiles"
-                    :key="index"
-                    class="file"
-                    @click="viewInfo(item.File)"
-                >
-                    <img
-                        :src="
-                            require('@/assets/images/homeworkNew/' +
-                                showFileIcon(item.File.Extention) +
-                                '.png')
-                        "
-                    />
+            <div v-if="type === 99">
+                <div v-for="(item, index) in homeworkPaperFiles" :key="index" class="file" @click="viewInfo(item.File)">
+                    <img :src=" require('@/assets/images/homeworkNew/' +showFileIcon(item.File.Extention) +'.png')"/>
                 </div>
-                <Enlarge
-                    v-model:visible="visible"
-                    v-if="visible"
-                    :src="src"
-                    :extention="extention"
-                />
-            </template>
-            <template v-else-if="type === 1">
+                <Enlarge v-model:visible="visible" v-if="visible" :src="src" :extention="extention"/>
+            </div>
+            <div v-else-if="type === 1">
                 <div class="view-video-button">
-                    <img
-                        src="@/assets/images/homeworkNew/icon_timuxiangqing.png"
-                        alt=""
-                    />
+                    <img src="@/assets/images/homeworkNew/icon_timuxiangqing.png" alt=""/>
                     <span @click="lookVideo(videoID)">视频详情</span>
                 </div>
-            </template>
+            </div>
+            <el-button v-else-if="type === 2" size="small"  plain type="warning" @click="handleMistakesCollect(info)">收集错题</el-button>
         </div>
+
+        <mistakes-collect :info="homeworkDetail" :mistakesCollectState="mistakesCollectState"  v-model:dialogVisible="mistakesCollectDialog"></mistakes-collect>
     </div>
 </template>
 
@@ -95,6 +79,9 @@ import { FileInfo } from "@/types/lookQuestion";
 import { defineComponent, PropType, ref, toRefs } from "vue";
 import { formatDuration, showFileIcon, lookVideo } from "@/utils";
 import Enlarge from "@/components/enlarge/index.vue";
+import MistakesCollect from "@/views/homework/components/mistakesCollect.vue";
+import { Homework } from "@/types/homework";
+import { topicConnectionState } from "@/views/homework/api";
 export default defineComponent({
     props: {
         homeworkDetail: {
@@ -109,6 +96,17 @@ export default defineComponent({
             extention.value = file.Extention;
             viewInfo(file);
         };
+
+        const mistakesCollectDialog = ref(false);
+        const mistakesCollectState = ref(0); // 0未收集过，1已收集过
+        const handleMistakesCollect = () => {
+            topicConnectionState({ Id: props.homeworkDetail.classHomeworkPaperID }).then(res => {
+                if (res.resultCode === 200) {
+                    mistakesCollectState.value = res.result.HasCollection;
+                    mistakesCollectDialog.value = true;
+                }
+            });
+        };
         return {
             extention,
             visible,
@@ -117,10 +115,13 @@ export default defineComponent({
             lookVideo,
             showFileIcon,
             src,
-            ...toRefs(props.homeworkDetail)
+            ...toRefs(props.homeworkDetail),
+            handleMistakesCollect,
+            mistakesCollectDialog,
+            mistakesCollectState
         };
     },
-    components: { Enlarge }
+    components: { MistakesCollect, Enlarge }
 });
 </script>
 

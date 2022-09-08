@@ -1,33 +1,53 @@
 <template>
     <el-dialog v-if="visible" v-model="visible" title="提示" width="362px" center @close="close">
-        <div class="content">
-            <img  v-if="status === 0" class="img_class" src="@/assets/images/homeworkNew/pic_ctsj.png" alt="">
-            <div  v-if="status === 1" class="bg-img">
-                <img class="search_class" src="@/assets/images/homeworkNew/ctsj_zhuti.png" alt="">
-            </div>
-            <div class="content-text" v-if="status === 0">
-                <div class="text">请学生准备好一卡通</div>
-                <div class="text">进入【错题收集】应用开始点选错题</div>
-            </div>
-            <div class="content-text" v-if="status === 1">
-                <div class="text">
-                    <span>正在收集…</span>
-                    <span>0/3</span>
+            <div class="content" v-if="status === 0">
+                <img class="img_class" src="@/assets/images/homeworkNew/pic_ctsj.png" alt="">
+                <div class="content-text" v-if="status === 0">
+                    <div class="text">请学生准备好一卡通</div>
+                    <div class="text">进入【错题收集】应用开始点选错题</div>
                 </div>
-                <div class="text-gary">请学生进入一卡通的【错题收集】应用</div>
             </div>
-        </div>
+
+            <div class="content" v-if="status === 2">
+                <div class="bg-img">
+                    <img class="search_class" src="@/assets/images/homeworkNew/ctsj_zhuti.png" alt="">
+                </div>
+                <div class="content-text">
+                    <div class="text">
+                        <span>正在收集…</span>
+                        <span>{{finishCount}}/{{studentsList.length}}</span>
+                    </div>
+                    <div class="text-gary">请学生进入一卡通的【错题收集】应用</div>
+                </div>
+            </div>
+
+            <div class="content" v-if="status === 1">
+                <img class="img_class" src="@/assets/images/homeworkNew/pic_done.png" alt="">
+                <div class="content-text">
+                    <div class="text">已收集过，是否要再次发起？</div>
+                </div>
+            </div>
         <template #footer>
           <span class="dialog-footer">
             <el-button v-if="status === 0" type="primary" @click="handleComfirm">开始</el-button>
-            <el-button v-if="status === 1" type="danger"  plain @click="handleComfirm">结束收集</el-button>
+            <el-button v-if="status === 2" type="danger"  plain @click="_overWrongTopicCollection">结束收集</el-button>
+            <el-button v-if="status === 1" type="primary"  @click="handleComfirm">确定</el-button>
           </span>
         </template>
     </el-dialog>
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, reactive, toRefs, ref } from "vue";
+import { computed, defineComponent, reactive, toRefs, ref, PropType, watch } from "vue";
+import { Homework, StudentMission } from "@/types/homework";
+import { sendWrongTopicDetail, GetStudentMissionList, overWrongTopicCollection } from "../api";
+import mqtt from "mqtt";
+interface State{
+    status: number,
+    studentsList: StudentMission[],
+    collectionId: string,
+    finishCount: number,
+}
 
 export default defineComponent({
     name: "mistakesCollect",
@@ -35,19 +55,92 @@ export default defineComponent({
         dialogVisible: {
             type: Boolean,
             require: true
+        },
+        mistakesCollectState: {
+            type: Number,
+            default: () => 0
+        },
+        info: {
+            type: Object as PropType<Homework>,
+            default: () => ({})
         }
     },
     emits: ["update:dialogVisible", "handleAddCard"],
     setup(props, { emit }) {
-        const state = reactive({
-            status: 0
+        const state = reactive<State>({
+            status: 0,
+            studentsList: [],
+            collectionId: "",
+            finishCount: 0
         });
         const visible = computed(() => props.dialogVisible);
 
-        const handleComfirm = () => {
-            state.status = 1;
-            // emit("handleAddCard");
-            // close();
+        const client = ref();
+
+        const getPublish = (id: string) => {
+            return `yikatong/tcpmq/ling/onecard/${id}`;
+        };
+
+        watch(() => props.dialogVisible, (val) => {
+            if (val) {
+                state.status = props.mistakesCollectState;
+                // client.subscribe(getPublish());
+                // client.value = mqtt.connect("wss://47.100.222.180:1883", {
+                //     username: "u001",
+                //     password: "p001",
+                //     keepalive: 30
+                // });
+
+            }else {
+                // client.value && client.value.end();
+            }
+        });
+
+        client.value && client.value.on("message", function (topic:any, message:any) {
+            // message is Buffer
+            const infoString = message.toString();
+            console.log(topic, "topic");
+            console.log(message, "message");
+        });
+
+        const handleComfirm = async () => {
+            if (state.status === 0 || state.status === 1) {
+                await _GetStudentMissionList();
+                await _sendWrongTopicDetail();
+            }
+        };
+        const _GetStudentMissionList = () => {
+            return GetStudentMissionList({ ID: props.info.ClassHomeworkPaperID }).then(res => {
+                if (res.resultCode === 200) {
+                    state.studentsList = res.result || [];
+                }
+            });
+        };
+
+        const _sendWrongTopicDetail = () => {
+            const data = {
+                ClassHomeworkPaperID: props.info?.ClassHomeworkPaperID,
+                SubjectId: props.info?.SubjectID,
+                SubjectName: props.info?.SubjectName,
+                ClassId: props.info?.ClassID,
+                ClassName: props.info?.ClassName,
+                TotalCount: props.info?.AllStudentCount,
+                StudentIds: state.studentsList.map((item:StudentMission) => item.StudentID)
+            };
+            sendWrongTopicDetail(data).then(res => {
+                if (res.resultCode === 200) {
+                    state.status = 2;
+                    state.collectionId = res.result.WrongTopicCollectionId;
+                }
+            });
+        };
+
+        const _overWrongTopicCollection = () => {
+            overWrongTopicCollection({ Id: state.collectionId }).then(res => {
+                if (res.resultCode === 200) {
+                    close();
+                }
+            });
         };
         const close = () => {
             state.status = 0;
@@ -56,6 +149,7 @@ export default defineComponent({
         return {
             ...toRefs(state),
             visible,
+            _overWrongTopicCollection,
             handleComfirm,
             close
         };

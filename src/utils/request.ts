@@ -2,7 +2,7 @@ import axios, { AxiosRequestConfig, AxiosRequestHeaders, Method } from "axios";
 import { ElMessage, MessageHandle } from "element-plus";
 import { clear, get, STORAGE_TYPES } from "./storage";
 import router from "@/router/index";
-import { initAllState } from "@/store";
+import { initAllState, store } from "@/store";
 import loading from "@/components/loading";
 import isElectron from "is-electron";
 import moment from "moment";
@@ -20,7 +20,8 @@ http.interceptors.request.use(
                 ...config.headers,
                 Token: get(STORAGE_TYPES.SET_TOKEN),
                 startTime: moment().format("YYYY-MM-DD HH:mm:ss.SSS"),
-                Authorization: "Bearer" + " " + get(STORAGE_TYPES.SET_TOKEN)
+                Authorization: "Bearer" + " " + get(STORAGE_TYPES.SET_TOKEN),
+                OrgId: store.state.userInfo.schoolId
             };
         }
         if (!config.headers?.noLoading) {

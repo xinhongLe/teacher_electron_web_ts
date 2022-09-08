@@ -222,8 +222,8 @@ function createBlackboardWindow() {
 
 function createAnswerMachineWindow(allStudentList: []) {
     answerMachineWin = createWindow(answerMachineURL, {
-        width: 1200,
-        height: 860,
+        width: 620,
+        height: 422,
         // fullscreen: true,
         center: true,
         show: false,

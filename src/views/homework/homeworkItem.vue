@@ -102,24 +102,11 @@
                 >
             </div>
             <div class="homework-warp">
-                <div
-                    class="homework"
-                    style="display: flex"
-                    v-if="info.HomeworkPaperType === 2"
-                >
-                    <div
-                        class="answer"
-                        style="margin-left: 10px"
-                        v-if="info.AnswerShowTime"
-                    >
+                <div class="homework" style="display: flex"  v-if="info.HomeworkPaperType === 2">
+                    <div class="answer" style="margin-left: 10px" v-if="info.AnswerShowTime">
                         <span v-if="info.showPublish">
                             答案公布时间：{{ detailTime(info.AnswerShowTime) }}
-                            <i
-                                @click="changeTag"
-                                class="el-icon-edit-outline"
-                                style="margin: 0 10px; color: #4b71ee"
-                                color="#4B71EE"
-                            ></i>
+                            <i @click="changeTag" class="el-icon-edit-outline" style="margin: 0 10px; color: #4b71ee" color="#4B71EE"></i>
                             <el-date-picker
                                 popper-class="hand-publish"
                                 v-if="showdataPicker"
@@ -153,11 +140,7 @@
                     </div>
                     <div class="detail" style="margin-left: 10px" v-else>
                         <span>手动发布
-                            <i @click="changeTag"
-                                class="el-icon-edit-outline"
-                                style="margin: 0 10px; color: #4b71ee"
-                                color="#4B71EE"
-                            ></i>
+                            <i @click="changeTag" class="el-icon-edit-outline" style="margin: 0 10px; color: #4b71ee"  color="#4B71EE"></i>
                             <el-date-picker
                                 popper-class="hand-publish"
                                 v-if="showdataPicker"
@@ -176,8 +159,8 @@
 
             <div class="btn-list">
                 <!-- <el-button size="small" type="primary" plain @click="$router.push({path: '/lookStudents',})">查阅学生</el-button> -->
-                <el-button size="small" v-if="info.HomeworkPaperType == 2" style="background-color:#00C0FF;" type="primary" @click="quickUpload(info)">快速上传</el-button>
-                <el-button size="small" plain type="warning" @click="handleMistakesCollect">收集错题</el-button>
+                <el-button size="small" v-if="info.HomeworkPaperType == 2" style="background-color:#00C0FF;border-color:#00C0FF " type="primary" @click="quickUpload(info)">快速上传</el-button>
+                <el-button size="small" v-if="info.HomeworkPaperType == 2" plain type="warning" @click="handleMistakesCollect(info)">收集错题</el-button>
                 <el-button size="small" type="primary" @click="review">查阅作业</el-button>
                 <el-button size="small" type="danger" plain  @click="deleteHomework" >删除</el-button>
             </div>
@@ -187,7 +170,7 @@
         </div>
         <HignPhoto v-if="info.HomeworkPaperType == 2" :homeworkValue="info" ref="hignPhotoRef" ></HignPhoto>
 
-        <mistakes-collect  v-model:dialogVisible="mistakesCollectDialog"></mistakes-collect>
+        <mistakes-collect :info="info" :mistakesCollectState="mistakesCollectState"  v-model:dialogVisible="mistakesCollectDialog"></mistakes-collect>
     </div>
 </template>
 
@@ -200,7 +183,7 @@ import { set, STORAGE_TYPES } from "@/utils/storage";
 import { ElMessage, ElMessageBox } from "element-plus";
 import moment from "moment";
 import { computed, defineComponent, nextTick, PropType, ref } from "vue";
-import { rebackHomeworkPaper, ShowAnswer, HideAnswer } from "./api";
+import { rebackHomeworkPaper, ShowAnswer, HideAnswer, topicConnectionState } from "./api";
 import HignPhoto from "./hignphoto.vue";
 import FileItem from "./FileItem.vue";
 import MistakesCollect from "@/views/homework/components/mistakesCollect.vue";
@@ -310,10 +293,16 @@ export default defineComponent({
                 HomeworkPaperType,
                 HomeworkPaperFiles,
                 AlbumName,
+                AlbumID,
                 WorkbookPaperPageNum,
                 ChapterName,
                 LessonName,
-                HomeworkName
+                HomeworkName,
+                SubjectID,
+                SubjectName,
+                ClassID,
+                ClassName,
+                AllStudentCount
             } = props.info;
             const classInfo = Object.values(props.homeworkListMap)
                 .flat()
@@ -338,8 +327,14 @@ export default defineComponent({
                 homeworkPaperFiles: HomeworkPaperFiles,
                 workbookPaperPageNum: WorkbookPaperPageNum || "",
                 albumName: AlbumName,
+                albumID: AlbumID,
                 lessonName: LessonName,
-                chapterName: ChapterName
+                chapterName: ChapterName,
+                subjectID: SubjectID,
+                subjectName: SubjectName,
+                classID: ClassID,
+                className: ClassName,
+                allStudentCount: AllStudentCount
             };
             set(STORAGE_TYPES.HOMEWORK_DETAIL, homeworkDetail);
             router.push({
@@ -429,8 +424,14 @@ export default defineComponent({
         };
 
         const mistakesCollectDialog = ref(false);
-        const handleMistakesCollect = () => {
-            mistakesCollectDialog.value = true;
+        const mistakesCollectState = ref(0); // 0未收集过，1已收集过
+        const handleMistakesCollect = (info:Homework) => {
+            topicConnectionState({ Id: info.ClassHomeworkPaperID }).then(res => {
+                if (res.resultCode === 200) {
+                    mistakesCollectState.value = res.result.HasCollection;
+                    mistakesCollectDialog.value = true;
+                }
+            });
         };
 
         return {
@@ -453,6 +454,7 @@ export default defineComponent({
             hideAnswer,
             quickUpload,
             mistakesCollectDialog,
+            mistakesCollectState,
             handleMistakesCollect
         };
     },

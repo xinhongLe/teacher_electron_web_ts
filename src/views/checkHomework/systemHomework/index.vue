@@ -145,33 +145,34 @@ export default defineComponent({
     .left {
         display: flex;
         flex-direction: column;
-        width: 314px;
+        width: 260px;
         background: #f5f6fa;
-        padding: 12px 16px;
-        padding-bottom: 0;
+        padding: 12px 16px 0 16px;
         .access-system-select {
             width: 282px;
             height: 40px;
+            margin-bottom: 20px;
             :deep(.el-input__inner) {
-                width: 282px;
+                width: 230px;
             }
         }
         .access-system-chart {
-            padding: 12px 0;
-            // flex: 1;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            overflow-y: overlay;
+             flex: 1;
+             overflow-y: auto;
+            //padding: 12px 0;
+            //display: flex;
+            //flex-wrap: wrap;
+            //justify-content: space-between;
+            //overflow-y: overlay;
         }
         .access-system-toast {
-            height: 70px;
+            height: 50px;
             bottom: 0;
             left: 0;
             display: flex;
             justify-content: space-around;
             align-items: center;
-            padding: 30px 44px 20px 44px;
+            //padding: 30px 44px 20px 44px;
             div {
                 display: flex;
                 align-items: center;

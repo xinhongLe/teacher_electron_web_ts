@@ -3,18 +3,18 @@
         <div class="answer-app">
             <StartAnswer
                 :allStudentList="allStudentList"
-                v-if="false"
+                v-if="!(isShowTimer || isShowAnswerResult)"
                 @start="start"
                 v-model:answerMode="answerMode"
             />
             <answer-timer
-                v-if="false"
+                v-if="isShowTimer"
                 :studentList="selectStudentList"
                 :questionType="selectQuestionType"
                 @endAnswer="endAnswer"
             />
             <answer-result
-                v-if="true"
+                v-if="isShowAnswerResult"
                 :time="answerTime"
                 :unAnswerStudentList="unAnswerStudentList"
                 :studentAnswerInfoList="studentAnswerInfoList"

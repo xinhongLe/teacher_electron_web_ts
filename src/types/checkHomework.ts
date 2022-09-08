@@ -17,7 +17,12 @@ export interface HomeworkDetail {
     workbookPaperPageNum: string;
     albumName: string;
     lessonName: string;
-    chapterName: string
+    chapterName: string;
+    subjectID?: string;
+    subjectName?: string;
+    classID?: string;
+    className?: string;
+    allStudentCount?: number;
 }
 
 export interface FetchMissionListData {
