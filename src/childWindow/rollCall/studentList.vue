@@ -134,8 +134,10 @@ export default defineComponent({
                 isPackUp.value = false;
                 const win = window.electron.remote.getCurrentWindow();
                 const size = window.electron.remote.screen.getPrimaryDisplay().workAreaSize;
-                win.setSize(1200, 800);
-                win.setPosition((size.width - 1200) / 2, (size.height - 800) / 2, true);
+                const width = size.width > 1200 ? 1200 : size.width;
+                const height = size.height > 800 ? 800 : size.height;
+                win.setSize(width, height);
+                win.setPosition((size.width - width) / 2, (size.height - height) / 2, true);
             }
         };
 

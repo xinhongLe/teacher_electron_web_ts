@@ -112,7 +112,10 @@ export default defineComponent({
                 }
             });
             checkStudentList.value = [...map.values()];
-            window.electron.setContentSize(1200, 800);
+            const size = window.electron.remote.screen.getPrimaryDisplay().workAreaSize;
+            const width = size.width > 1200 ? 1200 : size.width;
+            const height = size.height > 800 ? 800 : size.height;
+            window.electron.setContentSize(width, height);
             window.electron.setCenter();
             chooseFlag.value = false;
         };

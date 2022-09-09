@@ -151,6 +151,7 @@ function createRollcall(allStudentList: []) {
         frame: false, // 要创建无边框窗口
         resizable: true, // 禁止窗口大小缩放
         height: 600,
+        alwaysOnTop: true,
         useContentSize: true
     });
 
