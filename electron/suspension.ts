@@ -165,9 +165,12 @@ function createRollcall(allStudentList: []) {
     });
 }
 function createUnfoldSuspensionWindow() {
+    const size = screen.getPrimaryDisplay().workAreaSize; // 获取显示器的宽高
+    const width = size.width > 545 ? 545 : (size.width - 80);
+    const height = size.height > 680 ? 680 : (size.height - 80);
     unfoldSuspensionWin = createWindow(unfoldSuspensionURL, {
-        width: 545,
-        height: 680,
+        width: width,
+        height: height,
         type: "toolbar", // 创建的窗口类型为工具栏窗口
         frame: false, // 要创建无边框窗口
         resizable: false, // 禁止窗口大小缩放
@@ -178,7 +181,6 @@ function createUnfoldSuspensionWindow() {
         alwaysOnTop: true // 窗口是否总是显示在其他窗口之前
     });
     // 设置黑板窗口位置
-    const size = screen.getPrimaryDisplay().workAreaSize; // 获取显示器的宽高
     const winSize = unfoldSuspensionWin.getSize(); // 获取窗口宽高
     unfoldSuspensionWin.setPosition(
         size.width - winSize[0] - 20,
@@ -186,8 +188,7 @@ function createUnfoldSuspensionWindow() {
     );
     // unfoldSuspensionWin.webContents.openDevTools(); //这是打开智课助手悬浮球打开窗口的的调试器
     unfoldSuspensionWin.once("ready-to-show", () => {
-        unfoldSuspensionWin &&
-            unfoldSuspensionWin.setAlwaysOnTop(true, "pop-up-menu");
+        unfoldSuspensionWin && unfoldSuspensionWin.setAlwaysOnTop(true, "pop-up-menu");
     });
 
     unfoldSuspensionWin.on("closed", () => {
