@@ -207,7 +207,6 @@ const usePageEvent = (pageName: string, isPage?: boolean) => {
                 moment(pageintime.value),
                 "seconds"
             ); //停留时间（多少秒）
-            console.log(pagestay.value);
             createBuryingPointFn(EVENT_TYPE.PageOut); //创建page-out埋点
         });
     }

@@ -3,7 +3,7 @@ import { createWindow } from "./createWindow";
 import ElectronLog from "electron-log";
 import { checkWindowSupportNet } from "./util";
 import { spawn, exec } from "child_process";
-import { join } from "path";
+import path, { join } from "path";
 import { Action, CallBack, SocketHelper } from "./socketHelper";
 const PATH_BALL = join(__dirname, "../extraResources/ball/ball.exe");
 let suspensionWin: BrowserWindow | null;
@@ -148,9 +148,9 @@ function createTimerWindow() {
 function createRollcall(allStudentList: []) {
     rollCallWin = createWindow(callURL, {
         width: 800,
-        // frame: false, // 要创建无边框窗口
+        frame: false, // 要创建无边框窗口
         resizable: true, // 禁止窗口大小缩放
-        height: 500,
+        height: 600,
         useContentSize: true
     });
 
