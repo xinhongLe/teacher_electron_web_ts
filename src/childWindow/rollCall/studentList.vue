@@ -1,11 +1,20 @@
 <template>
     <div class="container">
-        <div class="select-student-list" :class="isPackUp && 'pack-up'" @click="expand">
-            <span class="title" @click.stop="">点名学生清单</span>
+        <div
+            class="select-student-list"
+            :class="isPackUp && 'pack-up'"
+            @click="expand"
+        >
+            <div class="title" @click.stop="">
+                <div class="drag-area">
+                    <Drag />
+                </div>
+                点名学生清单
+            </div>
             <div class="list">
-                <span v-for="student in selectStudent" :key="student.StudentID">
+                <div class="student-selected-item" v-for="student in selectStudent" :key="student.StudentID">
                     {{ student?.Name }}
-                </span>
+                </div>
             </div>
         </div>
 
@@ -24,7 +33,9 @@
                     :style="{
                         transform: `translateX(-102px) rotateY(${
                             (360 / unselectedStudent.length) * i
-                        }deg) translateZ(2000px) scale(${!isStart && currentIndex === i ? 2 : 1})`,
+                        }deg) translateZ(2000px) scale(${
+                            !isStart && currentIndex === i ? 2 : 1
+                        })`,
                     }"
                 >
                     <Avatar
@@ -37,11 +48,34 @@
                 </div>
             </div>
         </div>
-        <el-button v-show="!isPackUp" type="danger" class="close-btn" @click="close" :disabled="isStart">关闭</el-button>
+        <el-button
+            v-show="!isPackUp"
+            type="default"
+            round
+            plain
+            class="min-btn"
+            @click="packUp"
+            :disabled="isStart"
+            >最小化</el-button
+        >
+        <el-button
+            v-show="!isPackUp"
+            type="danger"
+            round
+            plain
+            class="close-btn"
+            @click="close"
+            :disabled="isStart"
+            >关闭</el-button
+        >
         <div class="cotrol-btn" v-show="!isPackUp">
-            <el-button type="primary" @click="reset" :disabled="isStart">重置</el-button>
-            <el-button class="custom-start-btn" type="primary" @click="start" :disabled="isStart">开始</el-button>
-            <el-button type="primary" @click="packUp" :disabled="isStart">收起</el-button>
+            <div class="custom-reset-btn" :class="isStart && 'disabled'">
+                <el-button type="primary" @click="reset" :disabled="isStart">重置</el-button>
+            </div>
+
+            <div class="custom-start-btn" :class="isStart && 'disabled'">
+                <el-button type="primary" @click="start" :disabled="isStart">开始</el-button>
+            </div>
         </div>
     </div>
 </template>
@@ -52,7 +86,12 @@ import { ElMessageBox } from "element-plus";
 import { clearInterval, setInterval } from "timers";
 import { computed, defineComponent, onMounted, PropType, ref } from "vue";
 import Avatar from "../../components/avatar/index.vue";
+import { Drag } from "@icon-park/vue-next";
 export default defineComponent({
+    components: {
+        Drag,
+        Avatar
+    },
     props: {
         studentList: {
             type: Array as PropType<Student[]>,
@@ -89,7 +128,10 @@ export default defineComponent({
             randomDeg.value = 0;
             setTimeout(() => {
                 animationTime.value = duration;
-                randomDeg.value = - (360 / unselectedStudent.value.length) * currentIndex.value + 360 * 5;
+                randomDeg.value =
+                    -(360 / unselectedStudent.value.length) *
+                        currentIndex.value +
+                    360 * 5;
                 setTimeout(() => {
                     selectStudent.value.push(
                         unselectedStudent.value[currentIndex.value]
@@ -123,9 +165,14 @@ export default defineComponent({
         const isPackUp = ref(false);
         const packUp = () => {
             const win = window.electron.remote.getCurrentWindow();
-            const size = window.electron.remote.screen.getPrimaryDisplay().workAreaSize;
+            const size =
+                window.electron.remote.screen.getPrimaryDisplay().workAreaSize;
             win.setSize(200, 250);
-            win.setPosition(size.width - 20 - 200, size.height - 200 - 250, true);
+            win.setPosition(
+                size.width - 20 - 200,
+                size.height - 200 - 250,
+                true
+            );
             isPackUp.value = true;
         };
 
@@ -133,11 +180,17 @@ export default defineComponent({
             if (isPackUp.value) {
                 isPackUp.value = false;
                 const win = window.electron.remote.getCurrentWindow();
-                const size = window.electron.remote.screen.getPrimaryDisplay().workAreaSize;
+                const size =
+                    window.electron.remote.screen.getPrimaryDisplay()
+                        .workAreaSize;
                 const width = size.width > 1200 ? 1200 : size.width;
                 const height = size.height > 800 ? 800 : size.height;
                 win.setSize(width, height);
-                win.setPosition((size.width - width) / 2, (size.height - height) / 2, true);
+                win.setPosition(
+                    (size.width - width) / 2,
+                    (size.height - height) / 2,
+                    true
+                );
             }
         };
 
@@ -148,16 +201,15 @@ export default defineComponent({
             reset,
             selectStudent,
             currentIndex,
-            randomDeg,  
+            randomDeg,
             animationTime,
             rotateX,
             close,
             packUp,
             isPackUp,
-            expand
+            expand,
         };
-    },
-    components: { Avatar },
+    }
 });
 </script>
 
@@ -180,23 +232,41 @@ export default defineComponent({
         background: #fff;
         display: flex;
         flex-direction: column;
-        // z-index: 1;
+        z-index: 1;
         top: 20px;
+        overflow: hidden;
         .title {
             font-size: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 15px 0;
+            padding: 10px 0;
+            font-weight: 600;
+            color: #848891;
+            background: linear-gradient(270deg, rgba(237,244,246,0) 0%, #EDF4F6 100%);
+            position: relative;
+            .drag-area {
+                position: absolute;
+                left: 10px;
+                font-size: 20px;
+                top: 10px;
+            }
         }
         .list {
-            display: flex;
-            flex-direction: column;
             overflow-y: auto;
             text-align: center;
-            span {
-                height: 30px;
-                line-height: 30px;
+            min-height: 0;
+            flex: 1;
+            padding: 0 5px;
+            .student-selected-item {
+                height: 46px;
+                line-height: 46px;
+                color: #242B3A;
+                font-size: 14px;
+                border-bottom: 1px solid #EDF4F6;
+                &:last-child {
+                    border-bottom: 0;
+                }
             }
         }
         &.pack-up {
@@ -215,6 +285,7 @@ export default defineComponent({
         left: 50%;
         z-index: 1;
         transform: translateX(-50%);
+        display: flex;
     }
 }
 
@@ -286,21 +357,46 @@ export default defineComponent({
 .custom-start-btn {
     width: 252px;
     height: 135px;
-    font-size: 20px;
-    background-color: transparent !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     background-image: url(~@/assets/images/other/btn_bg@2x.png) !important;
     background-size: 100% 100%;
-    border: none;
-    &:hover {
-        background-color: transparent !important;
-        background-image: url(~@/assets/images/other/btn_bg@2x.png) !important;
-        background-size: 100% 100%;
+    &.disabled {
         opacity: 0.7;
     }
-
-    &:disabled {
-        opacity: 0.5;
+    button {
+        width: 150px;
+        border: none;
+        font-size: 18px;
+        background-color: transparent !important;
+        box-shadow: none;
     }
+}
+
+.custom-reset-btn {
+    width: 172px;
+    height: 135px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-image: url(~@/assets/images/other/btn_bg_reset@2x.png) !important;
+    background-size: 100% 100%;
+    &.disabled {
+        opacity: 0.7;
+    }
+    button {
+        border: none;
+        font-size: 18px;
+        background-color: transparent !important;
+        box-shadow: none;
+    }
+}
+
+.min-btn {
+    position: absolute;
+    right: 120px;
+    bottom: 98px;
 }
 
 .close-btn {
