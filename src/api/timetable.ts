@@ -1,5 +1,5 @@
 import request from "@/utils/request";
-import { TIMETABLE_API, AI_XUE_SHI_API, SCHEDULE_API, systemId } from "@/config";
+import { TIMETABLE_API, AI_XUE_SHI_API, SCHEDULE_API, systemId, YUN_API } from "@/config";
 import { RequestFun } from "@/types/response";
 import { get, STORAGE_TYPES } from "@/utils/storage";
 import { IYunInfo } from "@/types/login";
@@ -132,16 +132,16 @@ export const updateSchedule: RequestFun<
 // 根据学校ID 获取该学校的学期学年Code
 export const fetchTermCodeBySchoolId: RequestFun<
     {
-        id: string
+        OrgIds: string[]
     },
     {
-        TermCode: string,
-        TermId: string
-    }
+        SemesterDataCode: string,
+        SemesterDataId: string
+    }[]
 > = (data) => {
     return request({
-        baseURL: AI_XUE_SHI_API,
-        url: "Api/W4/Teach/GetTermCodeBySchoolId",
+        baseURL: YUN_API,
+        url: "Api/Web/Calendar/GetOrgCurrentDataList",
         headers: {
             "Content-Type": "application/json-patch+json"
         },

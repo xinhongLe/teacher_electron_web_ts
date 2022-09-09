@@ -38,17 +38,21 @@ export default (days: Ref<string[]>) => {
         }
 
         const termCodeRes = await fetchTermCodeBySchoolId({
-            id: schoolID.value
+            OrgIds: [schoolID.value]
         });
 
-        store.commit(MutationTypes.SET_TERM, { id: termCodeRes.result.TermId, code: termCodeRes.result.TermCode });
+        if (termCodeRes.result.length === 0) return;
 
-        semesterDataID.value = termCodeRes.result.TermId;
-        termCode.value = termCodeRes.result.TermCode;
-        if (termCodeRes.resultCode === 200 && termCodeRes.result.TermId) {
+        semesterDataID.value = termCodeRes.result[0].SemesterDataId;
+        termCode.value = termCodeRes.result[0].SemesterDataCode;
+
+        store.commit(MutationTypes.SET_TERM, { id: semesterDataID.value, code: termCode.value });
+
+
+        if (termCodeRes.resultCode === 200 && semesterDataID.value) {
             const res = await fetchActiveTimetableID({
                 schoolID: schoolID.value,
-                semesterDataID: termCodeRes.result.TermId
+                semesterDataID: semesterDataID.value
             });
             if (res.resultCode === 200 && res.result) {
                 timetableID.value = res.result.ID;
