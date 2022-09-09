@@ -42,6 +42,8 @@ export default () => {
                 const { ClassID } = item;
                 homeworkListMap.value[ClassID] ? homeworkListMap.value[ClassID].push(item) : (homeworkListMap.value[ClassID] = [item]);
             });
+            console.log(detailList, "----");
+            console.log(homeworkListMap.value, "----");
         }
     };
 
@@ -85,10 +87,11 @@ export default () => {
     };
 
     onActivated(() => {
-        if (!router.currentRoute.value.meta.isBack) {
-            initData();
-        }
-        router.currentRoute.value.meta.isBack = false;
+        initData();
+        // if (!router.currentRoute.value.meta.isBack) {
+        //     initData();
+        // }
+        // router.currentRoute.value.meta.isBack = false;
     });
 
     return {

@@ -67,6 +67,7 @@ export interface Homework {
     VideoID: string;
     WrongCount: number;
     AnswerShowTime?: string;
+    showPublish?: boolean | undefined;
 }
 
 export interface MissionDetail {

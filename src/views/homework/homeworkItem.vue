@@ -119,24 +119,9 @@
                             >
                             </el-date-picker>
                         </span>
-                        <el-button
-                            v-if="info.showPublish"
-                            size="small"
-                            type="success"
-                            @click="publish(info)"
-                            >立即发布</el-button
-                        >
-                        <span
-                            v-if="!info.showPublish"
-                            style="margin-right: 10px"
-                            >答案已公布</span
-                        >
-                        <el-button
-                            v-if="!info.showPublish"
-                            size="small"
-                            @click="hideAnswer(info)"
-                            >撤回发布</el-button
-                        >
+                        <el-button v-if="info.showPublish" size="small" type="success" @click="publish(info)">立即发布</el-button>
+                        <span v-if="!info.showPublish" style="margin-right: 10px">答案已公布</span>
+                        <el-button v-if="!info.showPublish" size="small" @click="hideAnswer(info)">撤回发布</el-button>
                     </div>
                     <div class="detail" style="margin-left: 10px" v-else>
                         <span>手动发布
@@ -160,7 +145,7 @@
             <div class="btn-list">
                 <!-- <el-button size="small" type="primary" plain @click="$router.push({path: '/lookStudents',})">查阅学生</el-button> -->
                 <el-button size="small" v-if="info.HomeworkPaperType == 2" style="background-color:#00C0FF;border-color:#00C0FF " type="primary" @click="quickUpload(info)">快速上传</el-button>
-                <el-button size="small" v-if="info.HomeworkPaperType == 2" plain type="warning" @click="handleMistakesCollect(info)">收集错题</el-button>
+                <el-button size="small" v-if="info.HomeworkPaperType == 2 && (info.FinishStudentCount < info.AllStudentCount)" plain type="warning" @click="handleMistakesCollect(info)">收集错题</el-button>
                 <el-button size="small" type="primary" @click="review">查阅作业</el-button>
                 <el-button size="small" type="danger" plain  @click="deleteHomework" >删除</el-button>
             </div>
@@ -168,6 +153,8 @@
         <div v-if="info.HomeworkPaperFiles.length > 0" class="file">
             <FileItem v-for="(file, j) in info.HomeworkPaperFiles" :key="j" :file="file" />
         </div>
+
+        {{info}}
         <HignPhoto v-if="info.HomeworkPaperType == 2" :homeworkValue="info" ref="hignPhotoRef" ></HignPhoto>
 
         <mistakes-collect :info="info" :mistakesCollectState="mistakesCollectState"  v-model:dialogVisible="mistakesCollectDialog"></mistakes-collect>
@@ -195,6 +182,10 @@ export default defineComponent({
         },
         homeworkListMap: {
             type: Object as PropType<Record<string, Homework[]>>,
+            default: () => ({})
+        },
+        form: {
+            type: Object as PropType<{subject: string, date:string}>,
             default: () => ({})
         }
     },
@@ -293,7 +284,6 @@ export default defineComponent({
                 HomeworkPaperType,
                 HomeworkPaperFiles,
                 AlbumName,
-                AlbumID,
                 WorkbookPaperPageNum,
                 ChapterName,
                 LessonName,
@@ -302,7 +292,9 @@ export default defineComponent({
                 SubjectName,
                 ClassID,
                 ClassName,
-                AllStudentCount
+                AllStudentCount,
+                AnswerShowTime,
+                showPublish
             } = props.info;
             const classInfo = Object.values(props.homeworkListMap)
                 .flat()
@@ -327,16 +319,17 @@ export default defineComponent({
                 homeworkPaperFiles: HomeworkPaperFiles,
                 workbookPaperPageNum: WorkbookPaperPageNum || "",
                 albumName: AlbumName,
-                albumID: AlbumID,
                 lessonName: LessonName,
                 chapterName: ChapterName,
                 subjectID: SubjectID,
                 subjectName: SubjectName,
                 classID: ClassID,
                 className: ClassName,
-                allStudentCount: AllStudentCount
+                allStudentCount: AllStudentCount,
+                answerShowTime: AnswerShowTime,
+                showPublish: showPublish
             };
-            set(STORAGE_TYPES.HOMEWORK_DETAIL, homeworkDetail);
+            set(STORAGE_TYPES.HOMEWORK_DETAIL, Object.assign(homeworkDetail, { formSubjectID: props.form?.subject, formDate: props.form?.date }));
             router.push({
                 path: `/check-homework/${props.info.ClassHomeworkPaperID}`
             });

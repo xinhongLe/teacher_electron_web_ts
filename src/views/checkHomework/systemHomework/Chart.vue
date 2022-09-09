@@ -48,7 +48,7 @@ export default defineComponent({
                     {
                         name: "",
                         type: "pie",
-                        radius: "100%",
+                        radius: ["40%", "70%"],
                         data: [
                             {
                                 value: props.item.TotalWrong,
@@ -121,8 +121,8 @@ export default defineComponent({
   text-align: center;
   background: #fff;
   .chart {
-    width: 32px;
-    height: 32px;
+    width: 42px;
+    height: 42px;
     display: flex;
     justify-content: space-around;
     align-items: center;
@@ -134,8 +134,8 @@ export default defineComponent({
     justify-content: space-around;
     align-items: center;
     img {
-      width: 50px;
-      height: 50px;
+      width: 42px;
+      height: 42px;
       border-radius: 50px;
     }
   }

@@ -23,6 +23,10 @@ export interface HomeworkDetail {
     classID?: string;
     className?: string;
     allStudentCount?: number;
+    answerShowTime?: string;
+    showPublish?: boolean | undefined;
+    formSubjectID?:string,
+    formDate?:string,
 }
 
 export interface FetchMissionListData {

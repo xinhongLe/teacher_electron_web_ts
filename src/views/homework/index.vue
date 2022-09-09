@@ -55,6 +55,7 @@
                 <template v-if="Object.keys(homeworkListMap).length !== 0">
                     <template v-if="homeworkListMap[selectClassId]">
                         <HomeworkItem
+                            :form="form"
                             v-for="item in homeworkListMap[selectClassId]"
                             :key="item.HomeworkPaperID"
                             :info="item"

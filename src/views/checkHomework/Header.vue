@@ -65,7 +65,49 @@
                     <span @click="lookVideo(videoID)">视频详情</span>
                 </div>
             </div>
-            <el-button v-else-if="type === 2" size="small"  plain type="warning" @click="handleMistakesCollect(info)">收集错题</el-button>
+            <div v-else-if="type === 2" class="homework-warp">
+                {{answerShowTime + "answerShowTime"}}
+                {{showPublish + "showPublish"}}
+                <div class="homework" >
+                    <div class="answer" style="margin-left: 10px" v-if="answerShowTime">
+                        <span v-if="showPublish">
+                            答案公布时间：{{ detailTime(answerShowTime) }}
+                            <i @click="changeTag" class="el-icon-edit-outline" style="margin: 0 10px; color: #4b71ee" color="#4B71EE"></i>
+                            <el-date-picker
+                                popper-class="hand-publish"
+                                v-if="showdataPicker"
+                                ref="dataPicker"
+                                type="datetime"
+                                v-model="date"
+                                size="large"
+                                @blur="dataBlur"
+                                placeholder="选择日期时间"
+                            >
+                            </el-date-picker>
+                        </span>
+                        <el-button v-if="showPublish" size="small" type="success" @click="publish(homeworkDetail)">立即发布</el-button>
+                        <span v-if="!showPublish" style="margin-right: 10px">答案已公布</span>
+                        <el-button v-if="!showPublish" size="small" @click="hideAnswer(homeworkDetail)">撤回发布</el-button>
+                    </div>
+                    <div class="detail" style="margin-left: 10px" v-else>
+                        <span>手动发布
+                            <i @click="changeTag" class="el-icon-edit-outline" style="margin: 0 10px; color: #4b71ee"  color="#4B71EE"></i>
+                            <el-date-picker
+                                popper-class="hand-publish"
+                                v-if="showdataPicker"
+                                ref="dataPicker"
+                                type="datetime"
+                                v-model="date"
+                                @blur="dataBlur"
+                                placeholder="选择日期时间"
+                            >
+                            </el-date-picker>
+                        </span>
+                        <el-button size="small" type="success" @click="publish(homeworkDetail)">立即发布</el-button>
+                    </div>
+                </div>
+                <el-button  size="small"  plain type="warning" @click="handleMistakesCollect(homeworkDetail)">收集错题</el-button>
+            </div>
         </div>
 
         <mistakes-collect :info="homeworkDetail" :mistakesCollectState="mistakesCollectState"  v-model:dialogVisible="mistakesCollectDialog"></mistakes-collect>
@@ -76,12 +118,14 @@
 import useViewHomeworkFile from "@/hooks/useViewHomeworkFile";
 import { HomeworkDetail } from "@/types/checkHomework";
 import { FileInfo } from "@/types/lookQuestion";
-import { defineComponent, PropType, ref, toRefs } from "vue";
+import { defineComponent, nextTick, PropType, ref, toRefs } from "vue";
 import { formatDuration, showFileIcon, lookVideo } from "@/utils";
 import Enlarge from "@/components/enlarge/index.vue";
 import MistakesCollect from "@/views/homework/components/mistakesCollect.vue";
 import { Homework } from "@/types/homework";
-import { topicConnectionState } from "@/views/homework/api";
+import { HideAnswer, ShowAnswer, topicConnectionState, fetchClassHomeworkPaperList } from "@/views/homework/api";
+import moment from "moment";
+import { ElMessage, ElMessageBox } from "element-plus";
 export default defineComponent({
     props: {
         homeworkDetail: {
@@ -107,6 +151,122 @@ export default defineComponent({
                 }
             });
         };
+        const detailTime = (str: string) => {
+            return `${moment(str).format("YYYY-MM-DD HH:mm:ss")}`;
+        };
+        const showdataPicker = ref(false);
+        const dataPicker = ref();
+        const date = ref("");
+        const changeTag = () => {
+            showdataPicker.value = true;
+            date.value = props.homeworkDetail.answerShowTime || "";
+            nextTick(() => {
+                dataPicker.value.focus();
+                dataPicker.value.display = "none";
+                setTimeout(() => {
+                    // 添加日历footer里的的确定和此刻按钮的点击事件
+                    const cur = document.querySelectorAll(".el-picker-panel__link-btn");
+                    for (var m in cur) {
+                        if (cur[m]) {
+                            try {
+                                // cur[m].setAttribute("display", "none");
+                            } catch (error) {
+                                console.log(error);
+                            }
+                        }
+                    }
+                    const currentBtn = document.querySelectorAll(".hand-publish .el-picker-panel .el-picker-panel__footer .el-button");
+                    for (var i in currentBtn) {
+                        if (currentBtn[i]) {
+                            try {
+                                currentBtn[i].addEventListener("click", () => {
+                                    dateChange(date.value, props.homeworkDetail);
+                                });
+                            } catch (error) {
+                                console.log(error);
+                            }
+                        }
+                    }
+                }, 500);
+            });
+        };
+        const dataBlur = () => {
+            showdataPicker.value = false;
+        };
+        const dateChange = (val: any, info: any) => {
+            const obj = {
+                classHomeworkPaperID: info.classHomeworkPaperID,
+                answerShowTime: `${moment(val).format("YYYY-MM-DD HH:mm:ss")}`
+            };
+            ShowAnswer(obj).then((res) => {
+                if (res.resultCode === 200) {
+                    ElMessage({ type: "success", message: "修改成功" });
+                    _fetchClassHomeworkPaperList();
+                }
+            });
+        };
+        const publish = (item: any) => {
+            ElMessageBox.confirm(
+                "公布答案后家长和学生端会在作业系统里看到正确答案和详解，确定公布答案吗？?",
+                "提示",
+                {
+                    confirmButtonText: "确认公布",
+                    cancelButtonText: "取消",
+                    type: "warning"
+                }
+            )
+                .then(() => {
+                    const obj = {
+                        classHomeworkPaperID: item.classHomeworkPaperID
+                    };
+                    ShowAnswer(obj).then((res) => {
+                        if (res.resultCode === 200) {
+                            ElMessage({ type: "success", message: "发布成功" });
+                            _fetchClassHomeworkPaperList();
+                        }
+                    });
+                })
+                .catch((err) => {
+                    return err;
+                });
+        };
+        // 隐藏
+        const hideAnswer = (item: any) => {
+            const obj = {
+                id: item.classHomeworkPaperID
+            };
+            HideAnswer(obj).then((res) => {
+                if (res.resultCode === 200) {
+                    ElMessage({ type: "success", message: "撤回成功" });
+                    _fetchClassHomeworkPaperList();
+                }
+            });
+        };
+
+        const _fetchClassHomeworkPaperList = () => {
+            console.log(props.homeworkDetail, "-2333--");
+            const data = {
+                subjectID: props.homeworkDetail.formSubjectID || "",
+                date: props.homeworkDetail.formDate || ""
+            };
+            fetchClassHomeworkPaperList(data).then(res => {
+                if (res.resultCode === 200) {
+                    const detailList = res.result.map((item:any) => {
+                        return {
+                            ...item,
+                            showPublish: moment(item.AnswerShowTime) > moment(new Date())
+                        };
+                    });
+                    const currentInfo = detailList.find(item => item.ClassHomeworkPaperID === props.homeworkDetail.classHomeworkPaperID);
+                    if (currentInfo) {
+                        props.homeworkDetail.showPublish = currentInfo.showPublish;
+                        props.homeworkDetail.answerShowTime = currentInfo.AnswerShowTime;
+                    }
+                    console.log(detailList, "---");
+                    console.log(props.homeworkDetail, "---");
+                }
+            });
+        };
         return {
             extention,
             visible,
@@ -118,7 +278,15 @@ export default defineComponent({
             ...toRefs(props.homeworkDetail),
             handleMistakesCollect,
             mistakesCollectDialog,
-            mistakesCollectState
+            mistakesCollectState,
+            showdataPicker,
+            dataPicker,
+            date,
+            detailTime,
+            changeTag,
+            dataBlur,
+            publish,
+            hideAnswer
         };
     },
     components: { MistakesCollect, Enlarge }
@@ -199,6 +367,13 @@ export default defineComponent({
             }
             img {
                 width: 20px;
+            }
+        }
+        .homework-warp{
+            display: flex;
+            justify-content: space-between;
+            .homework{
+                margin-right: 20px;
             }
         }
     }
