@@ -16,6 +16,9 @@ export enum STORAGE_TYPES {
     // 用户信息存储
     USER_INFO = "USER_INFO",
 
+    // 当前用户信息存储
+    CURRENT_USER_INFO = "CURRENT_USER_INFO",
+
     /**
      * 是否有正在请求的页
      */

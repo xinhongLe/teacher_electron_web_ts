@@ -3,13 +3,13 @@
        <div class="quick-answer-app">
            <!-- 抢答页面-->
            <div class="quickAnswer" v-if="isAnswer">
-               <select-class v-if="false"></select-class>
-               <quick-answer-detail></quick-answer-detail>
+               <select-class v-if="showSelectClass" :userInfo="userInfo"></select-class>
+               <quick-answer-detail v-else></quick-answer-detail>
            </div>
 
            <!-- 锁屏管理页面-->
-           <div class="quickAnswer"  v-else>
-               <lock-screen></lock-screen>
+           <div class="quickAnswer"  v-if="!isAnswer">
+               <lock-screen :currentUserInfo="currentUserInfo"></lock-screen>
            </div>
        </div>
     </el-config-provider>
@@ -22,13 +22,21 @@ import SelectClass from "./selectClass.vue";
 import zhCn from "element-plus/es/locale/lang/zh-cn";
 import QuickAnswerDetail from "@/childWindow/quickAnswer/quickAnswerDetail.vue";
 import LockScreen from "@/childWindow/quickAnswer/lockScreen.vue";
+import { get, STORAGE_TYPES } from "@/utils/storage";
 export default defineComponent({
     components: { LockScreen, QuickAnswerDetail, SelectClass },
     setup() {
+        const currentUserInfo = get(STORAGE_TYPES.CURRENT_USER_INFO);
+        const userInfo = get(STORAGE_TYPES.USER_INFO);
         const allStudentList = ref<Student[]>([]);
 
+        console.log(currentUserInfo, "currentUserInfo");
+        console.log(userInfo, "userInfo");
+        console.log(allStudentList.value, "allStudentList");
+
         const state = reactive({
-            isAnswer: false
+            isAnswer: true,
+            showSelectClass: true
         });
 
         const close = () => {
@@ -38,11 +46,12 @@ export default defineComponent({
         window.electron.ipcRenderer.on("sendAllStudentList", (_, studentList, isAnswer) => {
             state.isAnswer = isAnswer;
             allStudentList.value = studentList;
-            console.log(allStudentList, "---");
         });
 
         return {
             locale: zhCn,
+            currentUserInfo,
+            userInfo,
             ...toRefs(state),
             close
         };

@@ -3,12 +3,16 @@
         <Title title="选择班级" :close="close"></Title>
         <div class="content">
             <div class="left">
-                <div :class="['leftRow', activeIndex === i ? 'active' : '']" v-for="(item, i) in leftList" :key="i">
-                    <el-checkbox v-model="item.check" :label="item.name" size="large" />
+                <div @click.capture="handleRow(i)" :class="['leftRow', activeIndex === i ? 'active' : '']" v-for="(item, i) in gradeList" :key="i">
+                    <el-checkbox :indeterminate="item.classList.filter(item => item.check).length > 0 && (item.classList.filter(item => item.check).length < item.classList.length)"
+                                 v-model="item.check"
+                                 :label="item.GradeName"
+                                 @change="handleChangeGrade(item)"
+                                 size="large" />
                 </div>
             </div>
             <div class="right">
-                <el-checkbox v-for="(item, i) in rightList" :key="i" v-model="item.check" :label="item.name" size="large" />
+                <el-checkbox  @change="handleChangeClass(item)" v-for="(item, i) in classList" :key="i" v-model="item.check" :label="item.Name" size="large" />
             </div>
         </div>
         <div class="footer">
@@ -19,32 +23,88 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, ref, toRefs } from "vue";
+import { defineComponent, onMounted, PropType, reactive, ref, toRefs } from "vue";
 import Title from "@/childWindow/answerMachine/title.vue";
+import { ILessonManagerResult, LessonClasses } from "@/types/login";
+interface ClassItem extends LessonClasses{
+    check?: boolean
+}
+interface GradeItem {
+    GradeID: string,
+    GradeName: string,
+    check: boolean,
+    classList: ClassItem[]
+}
+interface State {
+    activeIndex:number,
+    gradeList: GradeItem[],
+    classList: ClassItem[]
+}
 export default defineComponent({
     name: "selectClass",
     components: { Title },
-    setup() {
-        const state = reactive({
+    props: {
+        userInfo: {
+            type: Object as PropType<ILessonManagerResult>,
+            require: true
+        }
+    },
+    setup(props) {
+        const state = reactive<State>({
             activeIndex: 0,
-            leftList: [
-                { name: "一年级", check: false },
-                { name: "二年级", check: false },
-                { name: "三年级", check: false }
-            ],
-            rightList: [
-                { name: "一年级", check: false },
-                { name: "二年级", check: false },
-                { name: "三年级", check: false }
-            ]
+            gradeList: [],
+            classList: []
         });
+
+        const handleRow = (i:number) => {
+            state.activeIndex = i;
+            state.classList = state.gradeList[i].classList;
+        };
+
+        const handleChangeGrade = (item:GradeItem) => {
+            item.classList.forEach((i:ClassItem) => {
+                i.check = !i.check;
+            });
+        };
+
+        const handleChangeClass = (item: ClassItem) => {
+            state.gradeList.forEach((i:GradeItem) => {
+                if (i.GradeID === item.GradeID) {
+                    i.check = i.classList.length === i.classList.filter((j:ClassItem) => j.check).length;
+                }
+            });
+        };
+
+        const allGradeList = () => {
+            const allClassList = props.userInfo?.Classes || [];
+            const value:any = {};
+            allClassList.forEach((item:ClassItem) => {
+                if (value[item.GradeID]) {
+                    value[item.GradeID].classList.push(item);
+                } else {
+                    value[item.GradeID] = {};
+                    value[item.GradeID].GradeID = item.GradeID;
+                    value[item.GradeID].GradeName = item.GradeName;
+                    value[item.GradeID].classList = [item];
+                }
+            });
+            return Object.values(value);
+        };
 
         const close = () => {
             window.electron.destroyWindow();
         };
 
+        onMounted(() => {
+            state.gradeList = allGradeList() as GradeItem[];
+            state.classList = state.gradeList.length > 0 ? state.gradeList[0].classList : [];
+        });
+
         return {
             ...toRefs(state),
+            handleChangeGrade,
+            handleChangeClass,
+            handleRow,
             close
         };
     }
