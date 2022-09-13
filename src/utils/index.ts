@@ -185,29 +185,54 @@ export const getFormatDate = (type: number) => {
         // 获取今天0时0分0秒
         case 1: {
             return [
-                moment().startOf("day").format("YYYY-MM-DD HH:mm:ss"),
-                moment().endOf("day").format("YYYY-MM-DD HH:mm:ss"),
+                moment().startOf("day").format("YYYY-MM-DD"),
+                moment().endOf("day").format("YYYY-MM-DD"),
             ];
         }
         //获取昨天的
         case 2: {
             return [
-                moment()
-                    .subtract(1, "day")
-                    .startOf("day")
-                    .format("YYYY-MM-DD HH:mm:ss"),
-                moment()
-                    .subtract(1, "day")
-                    .endOf("day")
-                    .format("YYYY-MM-DD HH:mm:ss"),
+                moment().subtract(1, "day").startOf("day").format("YYYY-MM-DD"),
+                moment().subtract(1, "day").endOf("day").format("YYYY-MM-DD"),
             ];
         }
         //获取本周的
         case 3: {
             return [
-                moment().startOf("week").format("YYYY-MM-DD HH:mm:ss"),
-                moment().endOf("week").format("YYYY-MM-DD HH:mm:ss"),
+                moment().startOf("week").format("YYYY-MM-DD"),
+                moment().endOf("week").format("YYYY-MM-DD"),
             ];
         }
     }
+};
+//格式化时间为标椎格式
+export const formateNormDate = (date: string) => {
+    const arr = date.split("T");
+    const d = arr[0];
+    const darr = d.split("-");
+
+    const t = arr[1];
+    const tarr = t.split(".000");
+    const marr = tarr[0].split(":");
+
+    const dd =
+        parseInt(darr[0]) +
+        "-" +
+        parseInt(darr[1]) +
+        "-" +
+        parseInt(darr[2]) +
+        " " +
+        parseInt(marr[0]) +
+        ":" +
+        parseInt(marr[1]) +
+        ":" +
+        parseInt(marr[2]);
+    // console.log(dd);
+    const dDate = dd.split(" ");
+    return dDate[0];
+};
+//判断当前的日期是周几
+export const formatWeekDay = function (time: string) {
+    const datelist = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"];
+    return datelist[new Date(time).getDay()];
 };

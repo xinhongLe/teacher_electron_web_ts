@@ -14,7 +14,7 @@ export interface LeftMenuByHomeWork {
 export interface LeftMenuParams {
     BookId?: string;
     ClassId?: string;
-    Name: string;
+    Name?: string;
     StartTime?: string;
     EndTime?: string;
     Id?: string;
@@ -44,9 +44,91 @@ export interface QuestionListByKnowledgeLibParams {
     StartDate: string;
     EndDate: string;
 }
+//按章节课时维度-入参
+export interface ChapterLessonParams {
+    ClassId?: string;
+    ChapterId?: string;
+    LessonId?: string;
+    QuestionType?: number[];
+    StartDate?: string;
+    EndDate?: string;
+}
+//查询题目详情入参
+export interface ErrorQuestionDetailParams {
+    ClassHomeworkPaperQuestionIds?: string[];
+    QuestionId: string;
+}
+interface QuestionKnowledges {
+    ID: string;
+    Name: string;
+}
+interface Homeworks {
+    AvgWrongRatio: number;
+    FinishRatio: number;
+    ClassHomeworkPaperID: string;
+    CreateTime: string;
+    Name: string;
+    TotalWrong: number;
+    TotalNoSure: number;
+    TotalRight: number;
+    Total: number;
+}
+interface Students {
+    StudentId: string;
+    HeadPortrait: {
+        ID: string;
+        Name: string;
+        SN: 0;
+        FileName: string;
+        Bucket: string;
+        FilePath: string;
+        Extention: string;
+        FileMD5: string;
+        Type: number;
+        StaffID: string;
+    };
+    Account: string;
+    Name: string;
+    ErrorCount: number;
+    TotalCount: number;
+}
+export interface RepeatWrongStudentTags {
+    TagId: string;
+    TagName: string;
+    TagLevel: number;
+    Students: Students[];
+}
+//题目详情返回参数
+export interface ErrorQuestionDetails {
+    QuestionInfo: {
+        QuestionId: string;
+        QuestionText: string;
+        QuestionType: number;
+        QuestionKnowledges: QuestionKnowledges[];
+        QuestionOriginFile: {
+            ID: string;
+            Name: string;
+            SN: number;
+            FileName: string;
+            Bucket: string;
+            FilePath: string;
+            Extention: string;
+            FileMD5: string;
+            Type: number;
+            StaffID: string;
+        };
+    };
+    TotalWrong: number;
+    TotalNoSure: number;
+    TotalRight: number;
+    Total: number;
+    Homeworks: Homeworks[];
+    RepeatWrongStudentTags: RepeatWrongStudentTags[];
+}
 
 type GetLeftMenuByHomeWork = IResponse<LeftMenuByHomeWork[]>;
 type GetKnowledgeLabList = IResponse<KnowledgeLabList[]>;
+export type GetErrorQuestionDetail = IResponse<ErrorQuestionDetails>;
 
 // 按照作业维度查询左侧树列表
 export function searchLeftMenuByHomeWork(
@@ -144,9 +226,7 @@ export function getErrorQuestionListByKnowledgeLib(
     });
 }
 //按章节课时维度获取错题的列表
-export function getErrorQuestionListByChapterLesson(
-    data: QuestionListByKnowledgeLibParams
-) {
+export function getErrorQuestionListByChapterLesson(data: ChapterLessonParams) {
     return request({
         baseURL: AI_XUE_SHI_API_WRONG_BOOK,
         url: "/Api/Web/ClassErrorQuestionBook/GetErrorQuestionListByChapterLesson",
@@ -158,4 +238,30 @@ export function getErrorQuestionListByChapterLesson(
         data: data,
     });
 }
-//
+//查询基础分层标签
+export function getBasicTag() {
+    return request({
+        baseURL: AI_XUE_SHI_API_WRONG_BOOK,
+        url: "Api/V2/Universal/BaseData",
+        headers: {
+            "Content-Type": "application/json-patch+json",
+            noLoading: "true",
+        },
+        method: "post",
+    });
+}
+//获取错题详情数据
+export function getErrorQuestionDetail(
+    data: ErrorQuestionDetailParams
+): Promise<GetErrorQuestionDetail> {
+    return request({
+        baseURL: AI_XUE_SHI_API_WRONG_BOOK,
+        url: "Api/Web/ClassErrorQuestionBook/GetErrorQuestionDetail",
+        headers: {
+            "Content-Type": "application/json-patch+json",
+            // noLoading: "true",
+        },
+        method: "post",
+        data: data,
+    });
+}

@@ -29,7 +29,7 @@ const routes: Array<RouteRecordRaw> = [
             },
             {
                 path: "wrongbook",
-                name: "错题本",
+                name: "班级错题本",
                 component: () => import("@/views/wrongbook/index.vue"),
                 meta: {
                     keepAlive: true,

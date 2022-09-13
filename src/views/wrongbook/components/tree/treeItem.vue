@@ -2,32 +2,14 @@
     <div
         class="tree-box"
         :class="{
-            'no-before': zIndex === 0,
-            'no-icon': !(
-                (itemData.Lessons && itemData.Lessons.length > 0) ||
-                zIndex === 0
-            ),
+            // 'no-before': zIndex === 0,
+            // 'no-icon': !(
+            //     (itemData.Lessons && itemData.Lessons.length > 0) ||
+            //     zIndex === 0
+            // ),
         }"
     >
         <div class="tree-item">
-            <img
-                class="tree-icon"
-                v-show="isOpen && value !== (itemData.Id || itemData.ChapterId)"
-                :class="{
-                    visible: true,
-                }"
-                src="@/assets/images/preparation/icon_shouqi.png"
-                @click="isOpen = false"
-            />
-            <img
-                class="tree-icon"
-                v-show="isOpen && value === (itemData.Id || itemData.ChapterId)"
-                :class="{
-                    visible: true,
-                }"
-                src="@/assets/images/preparation/shouqi_blue.png"
-                @click="isOpen = false"
-            />
             <img
                 class="tree-icon"
                 v-show="
@@ -36,7 +18,7 @@
                 :class="{
                     visible: true,
                 }"
-                src="@/assets/images/preparation/icon_zhankai.png"
+                src="@/assets/images/preparation/icon_shouqi.png"
                 @click="isOpen = true"
             />
             <img
@@ -47,16 +29,30 @@
                 :class="{
                     visible: true,
                 }"
-                src="@/assets/images/preparation/icon_zhankai_blue.png"
+                src="@/assets/images/preparation/shouqi_blue.png"
                 @click="isOpen = true"
+            />
+            <img
+                class="tree-icon"
+                v-show="isOpen && value !== (itemData.Id || itemData.ChapterId)"
+                :class="{
+                    visible: true,
+                }"
+                src="@/assets/images/preparation/icon_zhankai.png"
+                @click="(isOpen = false), queryChildren(itemData)"
+            />
+            <img
+                class="tree-icon"
+                v-show="isOpen && value === (itemData.Id || itemData.ChapterId)"
+                :class="{
+                    visible: true,
+                }"
+                src="@/assets/images/preparation/icon_zhankai_blue.png"
+                @click="(isOpen = false), queryChildren(itemData)"
             />
 
             <div
-                @click="
-                    zIndex === 0
-                        ? (isOpen = !isOpen)
-                        : selectedTreeItem(itemData, keys)
-                "
+                @click="selectedTreeItem(itemData, keys)"
                 ref="treeName"
                 class="tree-name"
                 :class="{
@@ -79,7 +75,11 @@
                 :style="{ width: `calc(100% + ${zIndex * 20}px)` }"
             ></div>
         </div>
-        <div class="tree-item-children" :class="{ close: !isOpen }">
+        <div
+            v-loading="isloading"
+            class="tree-item-children"
+            :class="{ close: isOpen }"
+        >
             <TreeItem
                 :zIndex="zIndex + 1"
                 v-for="item in itemData.Lessons"
@@ -96,6 +96,7 @@
 
 <script lang="ts">
 import { PropType, defineComponent, ref, watch, reactive } from "vue";
+import { searchLeftMeunByKnowledge } from "@/api/errorbook";
 export default defineComponent({
     props: {
         itemData: {
@@ -116,10 +117,29 @@ export default defineComponent({
             required: true,
         },
     },
+
     setup(props) {
         const isOpen = ref(true);
+        const isloading = ref(false);
+        //展开
+        const queryChildren = async (data: any) => {
+            if (data.Id) {
+                if (data.Lessons) return;
+                isloading.value = true;
+                const res = await searchLeftMeunByKnowledge({ Id: data.Id });
+                if (res.success && res.resultCode == 200) {
+                    isloading.value = false;
+                    data.Lessons = res.result;
+                } else {
+                    isloading.value = false;
+                    data.Lessons = [];
+                }
+            }
+        };
         return {
             isOpen,
+            isloading,
+            queryChildren,
         };
     },
 });
@@ -166,6 +186,7 @@ export default defineComponent({
                 padding: 0 15px;
                 display: flex;
                 justify-content: space-between;
+
                 .count {
                     font-size: 12px;
                     // color: #a7aab4;
@@ -195,6 +216,13 @@ export default defineComponent({
         display: flex;
         justify-content: space-between;
         padding-right: 15px;
+        .name {
+            display: inline-block;
+            width: 100%;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
         .count {
             font-size: 12px;
             color: #a7aab4;

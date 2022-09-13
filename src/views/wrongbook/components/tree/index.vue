@@ -13,7 +13,7 @@
 </template>
 
 <script lang="ts">
-import { PropType, defineComponent } from "vue";
+import { PropType, defineComponent, watch, onMounted, ref } from "vue";
 import TreeItem from "./treeItem.vue";
 export default defineComponent({
     components: { TreeItem },
@@ -24,12 +24,14 @@ export default defineComponent({
         },
         value: String,
     },
+
     emits: ["onTreeItemChange", "update:value"],
     setup(props, { emit }) {
         const selectedTreeItem = (treeItem: any, keys: string[]) => {
-            emit("update:value", treeItem.Id);
+            emit("update:value", treeItem.Id || treeItem.ChapterId);
             emit("onTreeItemChange", treeItem, keys);
         };
+
         return {
             selectedTreeItem,
         };

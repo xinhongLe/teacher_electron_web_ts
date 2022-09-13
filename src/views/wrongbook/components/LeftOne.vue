@@ -1,14 +1,13 @@
 <template>
-    <div class="leftone">
+    <div class="leftone" v-loading="state.loading">
         <div>
             <el-cascader
                 size="small"
                 style="width: 100%"
                 v-model="state.currentBookId"
                 :props="cascaderProps"
-                :options="state.subjectPublisherBookList"
+                :options="subjectPublisherBookList"
                 @change="changeBook"
-                clearable
             ></el-cascader>
         </div>
         <div class="leftone-input">
@@ -18,14 +17,17 @@
                 v-model="form.Name"
                 class="w-50 m-2"
                 placeholder="请输入关键词"
-                @input="queryLeftMenuByHomeWork(form)"
+                clearable
+                @input="codeInput"
             >
                 <template #prefix>
-                    <el-icon><search /></el-icon>
+                    <el-icon>
+                        <search />
+                    </el-icon>
                 </template>
             </el-input>
         </div>
-        <div class="leftone-list" v-loading="state.loading">
+        <div class="leftone-list">
             <div
                 class="list-item"
                 :class="
@@ -55,15 +57,12 @@
                     <div class="top-count">{{ item.ErrQuestionTotal }}题</div>
                 </div>
                 <div class="item-bto">
-                    <span>{{ item.PublishTime }}</span>
+                    <span>{{ formateNormDate(item.PublishTime) }}</span>
+                    <span style="padding-left: 5px">{{
+                        formatWeekDay(item.PublishTime)
+                    }}</span>
                 </div>
             </div>
-            <p
-                v-if="!state.lessonList.length"
-                style="text-align: center; margin-top: 20%"
-            >
-                暂无数据
-            </p>
         </div>
     </div>
 </template>
@@ -71,15 +70,21 @@
 import { reactive, ref, defineProps, watch, onMounted, nextTick } from "vue";
 import { Search } from "@element-plus/icons-vue";
 import { searchLeftMenuByHomeWork, LeftMenuParams } from "@/api/errorbook";
-import { fetchSubjectPublisherBookList } from "@/views/preparation/api";
 import emitter from "@/utils/mitt"; //全局事件总线
 import useBookList from "@/views/assignHomework/hooks/useBookList";
+import { subjectPublisherBookList } from "@/hooks/useSubjectPublisherBookList";
+import { formateNormDate, formatWeekDay } from "@/utils";
 const { cascaderProps } = useBookList();
 
 const props = defineProps({
     parentSearch: {
         type: Object,
         default: () => {},
+    },
+    currentWrongType: {
+        type: Number,
+        default: null,
+        required: true,
     },
 });
 //数据源
@@ -95,18 +100,21 @@ const form = ref({
     BookId: "",
     Name: "",
 });
-const getSubjectPublisherBookList = async () => {
-    const res: any = await fetchSubjectPublisherBookList();
-    if (res.resultCode === 200) {
-        state.subjectPublisherBookList = res.result;
-        if (state.subjectPublisherBookList.length) {
-            form.value.BookId =
-                state.subjectPublisherBookList[0].Children![0].Children![0].Value;
-            console.log("form.value.BookId", form.value.BookId);
-        }
-    }
-};
 //下面是请求方法
+//输入关键词搜索
+const codeInput = () => {
+    debounce(queryLeftMenuByHomeWork, 500, form.value);
+};
+//时间
+const timeOut = ref<any>("");
+//关键词搜索-防抖函数
+const debounce = (func: Function, wait: number, params: any) => {
+    if (timeOut.value) clearTimeout(timeOut.value);
+    timeOut.value = setTimeout(() => {
+        func(params);
+    }, wait);
+};
+
 //切换左侧课程卡片
 const switchLessonCard = (item: any) => {
     console.log(item);
@@ -115,13 +123,16 @@ const switchLessonCard = (item: any) => {
         emitter.emit("errorBookEmit", {
             id: state.currentLessonIndex,
             name: item.PaperName,
+            time: formateNormDate(item.PublishTime),
+            wrongType: props.currentWrongType,
         });
     }
 };
 //查询左侧树的方法
 const queryLeftMenuByHomeWork = async (params: LeftMenuParams) => {
     state.loading = true;
-    console.log("params", params);
+    console.log("params", params, props.currentWrongType);
+
     // params.ClassId = "39FC0056AFEFD89BD1CC692D003B59C3";//临时赋值，后面删
     const res: any = await searchLeftMenuByHomeWork(params);
     console.log(res);
@@ -134,9 +145,14 @@ const queryLeftMenuByHomeWork = async (params: LeftMenuParams) => {
         const currentLessonName = state.lessonList.length
             ? state.lessonList[0]?.PaperName
             : "";
+        const currentLessonTime = state.lessonList.length
+            ? formateNormDate(state.lessonList[0]?.PublishTime)
+            : "";
         emitter.emit("errorBookEmit", {
             id: state.currentLessonIndex,
             name: currentLessonName,
+            time: currentLessonTime,
+            wrongType: props.currentWrongType,
         });
     } else {
         state.lessonList = [];
@@ -166,15 +182,17 @@ watch(
     }
 );
 watch(
-    () => state.subjectPublisherBookList,
+    () => subjectPublisherBookList.value,
     (v) => {
+        console.log("subjectPublisherBookList.value", v);
+        if (!v.length) return;
         state.currentBookId = [
             v[0].Value,
             v[0].Children![0].Value,
             v[0].Children![0].Children![0].Value,
         ];
     },
-    { deep: true }
+    { deep: true, immediate: true }
 );
 watch(
     () => state.currentBookId,
@@ -183,12 +201,11 @@ watch(
         form.value.BookId = v ? v[2] : "";
         const params = Object.assign(form.value, props.parentSearch);
         queryLeftMenuByHomeWork(params);
-    }
+    },
+    { deep: true, immediate: true }
 );
 
-onMounted(() => {
-    getSubjectPublisherBookList();
-});
+// onMounted(() => {});
 </script>
 <style lang="scss" scoped>
 .leftone {
@@ -196,6 +213,7 @@ onMounted(() => {
     padding: 12px 16px;
     width: 100%;
     height: 100%;
+
     .leftone-input,
     .leftone-list {
         margin-top: 8px;
@@ -209,10 +227,12 @@ onMounted(() => {
             margin-bottom: 8px;
 
             padding: 10px 14px;
+
             .item-top {
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
+
                 .item-top-con {
                     display: flex;
                     align-items: center;
@@ -222,6 +242,7 @@ onMounted(() => {
                         display: flex;
                         align-items: center;
                     }
+
                     .top-title {
                         width: 100%;
                         margin-left: 8px;
@@ -232,6 +253,7 @@ onMounted(() => {
                         white-space: nowrap;
                         text-overflow: ellipsis;
                     }
+
                     .top-count {
                         font-size: 13px;
                         font-family: HarmonyOS_Sans_SC;
@@ -239,6 +261,7 @@ onMounted(() => {
                     }
                 }
             }
+
             .item-bto {
                 margin-top: 7px;
                 font-size: 13px;
@@ -251,9 +274,11 @@ onMounted(() => {
                 text-overflow: ellipsis;
             }
         }
+
         .isActive {
             transition: 0.3s;
             background-color: #4b71ee;
+
             .top-title,
             .item-bto,
             .top-count {
@@ -261,6 +286,7 @@ onMounted(() => {
             }
         }
     }
+
     .leftone-list {
         height: calc(100% - 80px);
         overflow: auto;
