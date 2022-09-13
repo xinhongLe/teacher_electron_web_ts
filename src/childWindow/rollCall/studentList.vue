@@ -99,7 +99,8 @@ export default defineComponent({
         },
     },
     setup(props) {
-        const unselectedStudent = ref([...props.studentList]);
+        const storeStudent = ref<Student[]>([...props.studentList]);
+        const unselectedStudent = ref<Student[]>([]);
         const currentIndex = ref(-1);
         const currentStudent = ref<Student>();
         const isStart = ref(false);
@@ -121,7 +122,12 @@ export default defineComponent({
             isStart.value = true;
             if (selectStudent.value.length > 0) {
                 unselectedStudent.value.splice(currentIndex.value, 1);
+                if (storeStudent.value.length > 0) {
+                    const student = randomStudent();
+                    unselectedStudent.value.push(student);
+                }
             }
+            
             const len = unselectedStudent.value.length;
             currentIndex.value = Math.floor(Math.random() * len);
             animationTime.value = 0;
@@ -133,7 +139,7 @@ export default defineComponent({
                         currentIndex.value +
                     360 * 5;
                 setTimeout(() => {
-                    selectStudent.value.push(
+                    selectStudent.value.unshift(
                         unselectedStudent.value[currentIndex.value]
                     );
                     isStart.value = false;
@@ -141,12 +147,32 @@ export default defineComponent({
             }, 100);
         };
 
+        const randomStudent = () => {
+            const len = storeStudent.value.length;
+            const index = Math.floor(Math.random() * len);
+            return storeStudent.value.splice(index, 1)[0];
+        };
+
+        const randomStudents = (len: number) => {
+            const randomArray: Student[] = [];
+            console.log(storeStudent.value.length);
+            if (storeStudent.value.length < len) {
+                return storeStudent.value;
+            }
+            for (let i = 0; i < len; i++) {
+                const student = randomStudent();
+                randomArray.push(student);
+            }
+            return randomArray;
+        };
+
         const reset = () => {
             animationTime.value = 0;
             randomDeg.value = 360;
             rotateX.value = -363;
             selectStudent.value = [];
-            unselectedStudent.value = [...props.studentList];
+            storeStudent.value = [...props.studentList];
+            unselectedStudent.value = randomStudents(25);
             currentIndex.value = -1;
             setTimeout(() => {
                 animationTime.value = 1500;

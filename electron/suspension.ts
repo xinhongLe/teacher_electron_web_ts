@@ -152,7 +152,8 @@ function createRollcall(allStudentList: []) {
         resizable: true, // 禁止窗口大小缩放
         height: 600,
         alwaysOnTop: true,
-        useContentSize: true
+        useContentSize: true,
+        maximizable: false
     });
 
     rollCallWin.on("ready-to-show", () => {
