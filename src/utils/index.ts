@@ -67,6 +67,15 @@ export function formatTime(v:string|number) {
 
 export const lookVideo = (id: string | undefined) => {
     // store.commit(MutationTypes.SET_IS_SHOW_VIDEO, { flag: true, info: { id } });
+    store.commit(
+        MutationTypes.SET_FULLSCREEN_RESOURCE,
+        {
+            component: "LookVideo",
+            resource: {
+                id
+            }
+        }
+    );
 };
 
 export const lookQuestions = ({ id = "", type = 1, courseBagId = "", deleteQuestionIds = [] }: {deleteQuestionIds?: string[], id: string, type: number, courseBagId?: string}) => {
@@ -77,6 +86,18 @@ export const lookQuestions = ({ id = "", type = 1, courseBagId = "", deleteQuest
     //     type
     // };
     // store.commit(MutationTypes.SET_IS_SHOW_QUESTION, { flag: true, info });
+    store.commit(
+        MutationTypes.SET_FULLSCREEN_RESOURCE,
+        {
+            component: "LookQuestion",
+            resource: {
+                id,
+                courseBagId,
+                deleteQuestionIds,
+                type
+            },
+        }
+    );
 };
 
 export const getCourseBagType = (type: number) => {
