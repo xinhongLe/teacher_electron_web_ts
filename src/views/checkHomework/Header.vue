@@ -66,8 +66,6 @@
                 </div>
             </div>
             <div v-else-if="type === 2" class="homework-warp">
-                {{answerShowTime + "answerShowTime"}}
-                {{showPublish + "showPublish"}}
                 <div class="homework" >
                     <div class="answer" style="margin-left: 10px" v-if="answerShowTime">
                         <span v-if="showPublish">
@@ -133,7 +131,8 @@ export default defineComponent({
             required: true
         }
     },
-    setup(props) {
+    emits: ["changeHomeworkDetail"],
+    setup(props, { emit }) {
         const extention = ref("");
         const { visible, viewInfo, src } = useViewHomeworkFile();
         const _viewInfo = (file: FileInfo) => {
@@ -259,11 +258,8 @@ export default defineComponent({
                     });
                     const currentInfo = detailList.find(item => item.ClassHomeworkPaperID === props.homeworkDetail.classHomeworkPaperID);
                     if (currentInfo) {
-                        props.homeworkDetail.showPublish = currentInfo.showPublish;
-                        props.homeworkDetail.answerShowTime = currentInfo.AnswerShowTime;
+                        emit("changeHomeworkDetail", { showPublish: currentInfo.showPublish, answerShowTime: currentInfo.AnswerShowTime });
                     }
-                    console.log(detailList, "---");
-                    console.log(props.homeworkDetail, "---");
                 }
             });
         };
