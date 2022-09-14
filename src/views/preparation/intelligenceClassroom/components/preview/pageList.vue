@@ -47,6 +47,7 @@ import { windowInfoKey } from "@/hooks/useWindowInfo";
 import { SchoolWindowPageInfo } from "@/types/preparation";
 import { find } from "lodash";
 import { IElement } from "mwhiteboard/src/components/whiteboard/types";
+import { useStore } from "@/store";
 export default defineComponent({
     props: {
         dialog: {
@@ -56,9 +57,10 @@ export default defineComponent({
     },
     components: { OpenCardViewDialog, PageItem },
     setup(props, { emit }) {
+        const store = useStore();
         const { getPageDetail, transformType } = useHome();
         const { currentCard, currentWindowInfo, cardList, currentPageIndex, currentSlide, pageList, currentPageInfo } = inject(windowInfoKey)!;
-
+        
         const dialogVisible = ref(false);
         const prevPageFlag = ref(false);
         const keyDisabled = ref(false);
@@ -99,7 +101,7 @@ export default defineComponent({
             currentPageIndex.value = index;
             const DataContext = {
                 Type: EnumTrackEventType.SelectPage,
-                LessonID: currentWindowInfo.LessonID
+                LessonID: store.state.preparation.selectLessonId
             };
             getDataBase(pageList.value[index].ID, pageList.value[index]);
             TrackService.setTrack(EnumTrackEventType.SelectPage, currentWindowInfo.WindowID, currentWindowInfo.WindowName, currentCard.value?.ID, currentCard.value?.Name, item.ID, item.Name, "选择页", JSON.stringify(DataContext), item.ID);
@@ -180,7 +182,7 @@ export default defineComponent({
                 isInitPage.value = true;
                 const DataContext = {
                     Type: EnumTrackEventType.SelectPage,
-                    LessonID: currentWindowInfo.LessonID
+                    LessonID: store.state.preparation.selectLessonId
                 };
                 TrackService.setTrack(EnumTrackEventType.SelectPage, currentWindowInfo.WindowID, currentWindowInfo.WindowName, currentCard.value?.ID, currentCard.value?.Name, pageList.value[currentPageIndex.value].ID, pageList.value[currentPageIndex.value].Name, "选择页", JSON.stringify(DataContext), pageList.value[currentPageIndex.value].ID);
                 getDataBase(pageList.value[currentPageIndex.value].ID, pageList.value[currentPageIndex.value]);
