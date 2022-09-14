@@ -35,23 +35,27 @@
                 :key="item.QuestionId"
             >
                 <div class="item-content">
-                    <div class="item-index">{{ index + 1 }}</div>
-                    <div class="item-title">
-                        <div class="wrongtype">
-                            {{ formatQuestionType(item.QuestionType) }}
-                        </div>
-                        <div class="content">
-                            <p class="title" v-if="item.QuestionText">
-                                {{ item.QuestionText }}
-                            </p>
-                            <p class="desc">
-                                知识点：{{
-                                    formatKnowledges(item.QuestionKnowledges) ||
-                                    ""
-                                }}
-                            </p>
+                    <div class="item-index-title">
+                        <div class="item-index">{{ index + 1 }}</div>
+                        <div class="item-title">
+                            <div class="wrongtype">
+                                {{ formatQuestionType(item.QuestionType) }}
+                            </div>
+                            <div class="content">
+                                <p class="title" v-if="item.QuestionText">
+                                    {{ item.QuestionText }}
+                                </p>
+                                <p class="desc">
+                                    知识点：{{
+                                        formatKnowledges(
+                                            item.QuestionKnowledges
+                                        ) || ""
+                                    }}
+                                </p>
+                            </div>
                         </div>
                     </div>
+
                     <div class="item-middle">
                         <div
                             class="frequency"
@@ -77,6 +81,7 @@
                                     Number(formatRecentRatio(item.Homeworks))
                                 "
                                 :width="40"
+                                :stroke-width="5"
                                 color="#91A8F6"
                             />
                             <div class="content">
@@ -101,7 +106,9 @@
                                         formatRecentWrongRatio(item.Homeworks)
                                     )
                                 "
+                                :color="formatRecentColor(item.Homeworks)"
                                 :width="40"
+                                :stroke-width="5"
                             />
                             <div class="content">
                                 <p class="title">最近错误率</p>
@@ -161,7 +168,9 @@
                                             100
                                     )
                                 "
+                                color="#91A8F6"
                                 :width="40"
+                                :stroke-width="5"
                             />
                             <div class="content">
                                 <p class="title">完成率</p>
@@ -197,7 +206,9 @@
                                             100
                                     )
                                 "
+                                :color="formatProColor(item)"
                                 :width="40"
+                                :stroke-width="5"
                             />
                             <div class="content">
                                 <p class="title">平均错误率</p>
@@ -246,12 +257,17 @@
                         />
                         <span>讲解题目</span>
                     </div>
-                    <div class="operate-btn">
+                    <div class="operate-btn" @click="openSimilarQuestion(item)">
                         <img
                             src="~@/assets/images/wrongbook/icon_tonglei.png"
                             alt=""
                         />
-                        <span>查看同类题</span>
+                        <span
+                            :style="{
+                                opacity: item.IsAnyPureQuestion ? 1 : 0.5,
+                            }"
+                            >查看同类题</span
+                        >
                     </div>
                     <div class="operate-btn" @click="openWrongDetails(item)">
                         <img
@@ -287,6 +303,10 @@
             @current-change="handleCurrentChange"
         />
     </div> -->
+    <PureQuestionDialog
+        v-if="state.pureQuestionVisible"
+        v-model:visible="state.pureQuestionVisible"
+    />
 </template>
 <script lang="ts" setup>
 import {
@@ -299,9 +319,10 @@ import {
     nextTick,
     onBeforeUnmount,
     computed,
+    provide,
 } from "vue";
 import { lookQuestions } from "@/utils";
-
+import PureQuestionDialog from "@/components/lookQuestion/PureQuestionDialog.vue";
 import emitter from "@/utils/mitt"; //全局事件总线
 import {
     getErrorQuestionListByHomework,
@@ -312,6 +333,8 @@ import {
     getErrorQuestionListByKnowledgeLib,
     getBasicTag,
 } from "@/api/errorbook";
+import { MutationTypes, store } from "@/store";
+
 import useWrongBook from "../hooks/useWrongBook";
 
 const {
@@ -320,6 +343,8 @@ const {
     formatErrorCom,
     formatRecentRatio,
     formatQuestionType,
+    formatProColor,
+    formatRecentColor,
 } = useWrongBook();
 
 const formatKnowledges = (data: any) => {
@@ -393,7 +418,10 @@ const state = reactive({
     AvgKnowledgeUnderstandRatio: 0, //班级平均知识点掌握率
     TagKnowledgeUnderstandRatios: [], //分层知识点掌握率
     lessonName: "", //当前选中的左侧课程筛选-知识点
+    pureQuestionVisible: false, //同类题弹框
+    currentQuestionId: "",
 });
+provide("nowQuestionID", state.currentQuestionId);
 //过滤分层知识点掌握-方法
 const formatTagFun = (type: number) => {
     if (state.TagKnowledgeUnderstandRatios.length) {
@@ -456,6 +484,22 @@ const explainQuestion = (data: any) => {
 };
 
 const emit = defineEmits(["update:isShowDetails"]);
+//查看同类题
+const openSimilarQuestion = (data: any) => {
+    state.pureQuestionVisible = true;
+    state.currentQuestionId = data.QuestionId;
+    if (data.IsAnyPureQuestion) {
+        nextTick(() => {
+            store.commit(MutationTypes.SET_IS_SHOW_QUESTION, {
+                flag: false,
+                info: {
+                    type: 0,
+                    id: data.QuestionId,
+                },
+            });
+        });
+    }
+};
 //过滤分层错误率
 const formatWrongRatio = (type: string, data: any) => {
     const level = type == "A" ? 300 : type == "B" ? 200 : type == "C" ? 100 : 0;
@@ -661,7 +705,8 @@ onBeforeUnmount(() => {
 </script>
 <style lang="scss" scoped>
 .lessonlist {
-    height: calc(100% - 48px);
+    // height: calc(100% - 48px);
+    height: calc(100%);
     background-color: #fff;
     padding: 16px;
     overflow: auto;
@@ -704,46 +749,51 @@ onBeforeUnmount(() => {
                 display: flex;
                 align-items: center;
                 width: 70%;
-                .item-index {
-                    font-size: 16px;
-                    color: #19203d;
-                    font-weight: bold;
-                }
-                .item-title {
+                .item-index-title {
                     display: flex;
                     align-items: center;
-                    margin-left: 18px;
-                    .wrongtype {
-                        width: 50px;
-                        // height: 20px;
-                        padding: 4px;
-                        border-radius: 2px;
-                        border: 1px solid rgba(75, 113, 238, 0.3);
-                        font-size: 13px;
-                        color: #4b71ee;
+                    width: 30%;
+                    .item-index {
+                        font-size: 16px;
+                        color: #19203d;
+                        font-weight: bold;
                     }
-                    .content {
+                    .item-title {
+                        display: flex;
+                        align-items: center;
                         margin-left: 18px;
-                        .title {
-                            padding-bottom: 6px;
-                            font-size: 16px;
-                            font-family: HarmonyOS_Sans_SC;
-                            color: #19203d;
-                            width: 170px;
-                            overflow: hidden;
-                            text-overflow: ellipsis;
-                            white-space: nowrap;
+                        .wrongtype {
+                            width: 50px;
+                            // height: 20px;
+                            padding: 4px;
+                            border-radius: 2px;
+                            border: 1px solid rgba(75, 113, 238, 0.3);
+                            font-size: 13px;
+                            color: #4b71ee;
                         }
+                        .content {
+                            margin-left: 18px;
+                            .title {
+                                padding-bottom: 6px;
+                                font-size: 16px;
+                                font-family: HarmonyOS_Sans_SC;
+                                color: #19203d;
+                                width: 170px;
+                                overflow: hidden;
+                                text-overflow: ellipsis;
+                                white-space: nowrap;
+                            }
 
-                        .desc {
-                            color: #19203d;
-                            font-size: 14px;
-                            font-family: HarmonyOS_Sans_SC;
-                            width: 170px;
-                            overflow: hidden;
-                            text-overflow: ellipsis;
-                            white-space: nowrap;
-                            // color: #a7aab4;
+                            .desc {
+                                color: #19203d;
+                                font-size: 14px;
+                                font-family: HarmonyOS_Sans_SC;
+                                width: 170px;
+                                overflow: hidden;
+                                text-overflow: ellipsis;
+                                white-space: nowrap;
+                                // color: #a7aab4;
+                            }
                         }
                     }
                 }

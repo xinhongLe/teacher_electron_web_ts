@@ -20,8 +20,8 @@ export default defineComponent({
     props: {
         visible: {
             type: Boolean,
-            default: false
-        }
+            default: false,
+        },
     },
     setup(props, { emit }) {
         const isShowDialog = ref(true);
@@ -33,10 +33,10 @@ export default defineComponent({
         };
         return {
             close,
-            isShowDialog
+            isShowDialog,
         };
     },
-    components: { Question }
+    components: { Question },
 });
 </script>
 

@@ -89,6 +89,39 @@ export default () => {
             item.ID.includes(type)
         )?.Name;
     };
+    //过滤左边列表的平均错误率的颜色
+    const formatProColor = (item: any, index?: string) => {
+        if (index && item.QuestionId == index) {
+            return "#fff";
+        } else {
+            const number = Number(
+                (item.TotalWrong /
+                    (item.TotalNoSure + item.TotalRight + item.TotalWrong)) *
+                    100
+            );
+            if (number > 80 && number <= 100) {
+                return "#FF6B6B";
+            } else if (number >= 60 && number <= 80) {
+                return "#FBC54D";
+            } else if (number < 60) {
+                return "#2EE18E";
+            }
+        }
+    };
+    const formatRecentColor = (item: any, index?: string) => {
+        if (index && item.QuestionId == index) {
+            return "#fff";
+        } else {
+            const number = Number(item[0]?.AvgWrongRatio * 100);
+            if (number > 80 && number <= 100) {
+                return "#FF6B6B";
+            } else if (number >= 60 && number <= 80) {
+                return "#FBC54D";
+            } else if (number < 60) {
+                return "#2EE18E";
+            }
+        }
+    };
 
     return {
         queryKnowledgeLabList,
@@ -96,6 +129,8 @@ export default () => {
         formatErrorCom,
         formatRecentRatio,
         formatQuestionType,
+        formatProColor,
+        formatRecentColor,
         ...toRefs(state),
     };
 };

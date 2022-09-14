@@ -91,6 +91,8 @@ export default (
             id,
             deleteQuestionIds = [],
         } = store.state.common.viewQuestionInfo;
+        console.log("type, id", type, id);
+
         if (!id) return;
         emit("update:isMinimized", false);
         if (id === lastId.value) return;
@@ -109,7 +111,7 @@ export default (
         let res;
         if (isPureQuestion) {
             res = await fetchPureQuestionByQuestionID({
-                questionID: questionId,
+                questionID: questionId || id,
             });
         } else {
             lastId.value = id;

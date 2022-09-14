@@ -57,10 +57,10 @@
                     <div class="top-count">{{ item.ErrQuestionTotal }}题</div>
                 </div>
                 <div class="item-bto">
-                    <span>{{ formateNormDate(item.PublishTime) }}</span>
-                    <span style="padding-left: 5px">{{
+                    <span>{{ item.PublishTime }}</span>
+                    <!-- <span style="padding-left: 5px">{{
                         formatWeekDay(item.PublishTime)
-                    }}</span>
+                    }}</span> -->
                 </div>
             </div>
         </div>
@@ -123,7 +123,7 @@ const switchLessonCard = (item: any) => {
         emitter.emit("errorBookEmit", {
             id: state.currentLessonIndex,
             name: item.PaperName,
-            time: formateNormDate(item.PublishTime),
+            time: item.PublishTime,
             wrongType: props.currentWrongType,
         });
     }
@@ -146,7 +146,7 @@ const queryLeftMenuByHomeWork = async (params: LeftMenuParams) => {
             ? state.lessonList[0]?.PaperName
             : "";
         const currentLessonTime = state.lessonList.length
-            ? formateNormDate(state.lessonList[0]?.PublishTime)
+            ? state.lessonList[0]?.PublishTime
             : "";
         emitter.emit("errorBookEmit", {
             id: state.currentLessonIndex,
@@ -167,7 +167,6 @@ const changeBook = (value: string) => {
     } else {
         form.value.BookId = "";
     }
-    queryLeftMenuByHomeWork(form.value);
 };
 watch(
     () => props.parentSearch,

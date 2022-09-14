@@ -35,6 +35,7 @@
                 >
             </div>
             <div class="header-right">
+                <!-- 题型 -->
                 <el-select
                     size="small"
                     style="width: 140px; margin-right: 16px"
@@ -46,6 +47,24 @@
                         :label="item.Name"
                         :value="item.ID"
                         :key="item.ID"
+                    >
+                    </el-option>
+                </el-select>
+                <!-- 频次 -->
+                <el-select
+                    v-if="
+                        props.currentWrongType == 3 ||
+                        props.currentWrongType == 4
+                    "
+                    size="small"
+                    style="width: 140px; margin-right: 16px"
+                    v-model="frequency"
+                >
+                    <el-option
+                        v-for="item in frequencyList"
+                        :label="item.name"
+                        :value="item.value"
+                        :key="item.value"
                     >
                     </el-option>
                 </el-select>
@@ -108,11 +127,10 @@
                                         ).toFixed(1)
                                     )
                                 "
+                                :stroke-width="4"
                                 :width="30"
                                 :color="
-                                    item.QuestionId == state.currentIndex
-                                        ? '#fff'
-                                        : '#FF6B6B'
+                                    formatProColor(item, state.currentIndex)
                                 "
                             />
                             <div class="content">
@@ -180,6 +198,12 @@
                             </p>
                             <div class="wrong-rate">
                                 最近错误率<span
+                                    :style="{
+                                        color: formatRecentColor(
+                                            item.Homeworks,
+                                            state.currentIndex
+                                        ),
+                                    }"
                                     >{{
                                         formatRecentWrongRatio(item.Homeworks)
                                     }}%</span
@@ -252,7 +276,13 @@
                                     type="primary"
                                     plain
                                     size="small"
-                                    @click="state.pureQuestionVisible = true"
+                                    :disabled="!isHasSimilarQuestion"
+                                    :style="{
+                                        background: isHasSimilarQuestion
+                                            ? '#fff'
+                                            : '#ecf5ff',
+                                    }"
+                                    @click="openSimilarQuestion()"
                                     >查看同类题</el-button
                                 >
                             </div>
@@ -506,6 +536,7 @@
                                     class="list-item"
                                     v-for="person in item.Students"
                                     :key="person.StudentId"
+                                    @click.stop="openErrorHistory(person)"
                                 >
                                     <div class="top-data">
                                         <div class="images">
@@ -567,6 +598,10 @@
         v-if="state.pureQuestionVisible"
         v-model:visible="state.pureQuestionVisible"
     />
+    <ErrorHstory
+        v-if="state.errorHstoryVisible"
+        v-model:visible="state.errorHstoryVisible"
+    ></ErrorHstory>
 </template>
 
 <script lang="ts" setup>
@@ -579,7 +614,10 @@ import {
     onMounted,
     onBeforeMount,
     computed,
+    nextTick,
+    provide,
 } from "vue";
+import ErrorHstory from "./ErrorHstory.vue";
 import PureQuestionDialog from "@/components/lookQuestion/PureQuestionDialog.vue";
 import { lookQuestions } from "@/utils";
 import emitter from "@/utils/mitt";
@@ -591,14 +629,18 @@ import {
     QuestionListByHomeworkParams,
     getErrorQuestionListByHomework,
 } from "@/api/errorbook";
+import { MutationTypes, store } from "@/store";
 import { getOssUrl } from "@/utils/oss";
 import useWrongBook from "../hooks/useWrongBook";
 const {
     questionTypeList,
+    frequencyList,
     formatRecentWrongRatio,
     formatErrorCom,
     formatRecentRatio,
+    formatRecentColor,
     formatQuestionType,
+    formatProColor,
 } = useWrongBook();
 const props = defineProps({
     currentWrongType: {
@@ -644,8 +686,12 @@ const formatStudentImg = async (data: any) => {
 };
 
 const emit = defineEmits(["update:isShowDetails"]);
+//是否有同类题
+const isHasSimilarQuestion = ref(false);
 //题型
 const questionType = ref("");
+//频次
+const frequency = ref(0);
 //分层筛选
 const questionTagType = ref(1);
 const state = reactive({
@@ -731,6 +777,8 @@ const state = reactive({
     visible: false,
     //查看同类问题
     pureQuestionVisible: false,
+    //错题历史visible
+    errorHstoryVisible: false,
     //作业维度的发布时间-作业发布时间
     publishTime: "",
     //作业维度-作业题目
@@ -738,6 +786,8 @@ const state = reactive({
     //知识点维度-课程名称
     lessonName: "",
 });
+provide("nowQuestionID", state.currentIndex);
+
 //按作业维度的左边列表查询参数
 const homeworkParams = reactive<QuestionListByHomeworkParams>({
     ClassHomeworkPaperId: "",
@@ -931,6 +981,39 @@ watch(
     },
     { deep: true }
 );
+//监听频次字段
+watch(
+    () => frequency.value,
+    (val) => {
+        console.log("频次字段", val);
+        filterErrorListByFrequency(val);
+    },
+    { deep: true }
+);
+//前端筛选-章节知识点维度-按照频次筛选列表
+const filterErrorListByFrequency = (type: number) => {
+    if (!state.initWrongQuestionList.length) return;
+    if (type == 1 || type == 2) {
+        state.wrongQuestionList = state.initWrongQuestionList.filter(
+            (item: any) => {
+                return type == item.Homeworks.length;
+            }
+        );
+    } else if (type == 3) {
+        state.wrongQuestionList = state.initWrongQuestionList.filter(
+            (item: any) => {
+                return item.Homeworks.length >= type;
+            }
+        );
+    } else {
+        state.wrongQuestionList = state.initWrongQuestionList;
+    }
+    if (state.wrongQuestionList.length) {
+        switchWrongItem(state.wrongQuestionList[0]);
+    } else {
+        errorQuestionDetails.value = {};
+    }
+};
 //关闭
 const close = () => {
     console.log(12);
@@ -957,11 +1040,29 @@ const expendStudent = (item: any) => {
 const explainQuestion = () => {
     lookQuestions({ id: state.currentIndex, type: 0 });
 };
+//查看同类题
+const openSimilarQuestion = () => {
+    if (isHasSimilarQuestion.value) {
+        state.pureQuestionVisible = true;
+        nextTick(() => {
+            store.commit(MutationTypes.SET_IS_SHOW_QUESTION, {
+                flag: false,
+                info: {
+                    type: 0,
+                    id: state.currentIndex,
+                },
+            });
+        });
+    }
+};
+
 //根据错题查询错题详情
 const queryDetails = async (data: any) => {
     console.log("errorData-------", data);
     state.isRepeat = false;
     state.currentIndex = data.QuestionId || "";
+    //查看是否有同类题
+
     const params: ErrorQuestionDetailParams = {
         ClassHomeworkPaperQuestionIds:
             data.ClassHomeworkPaperQuestionIds || ([] as string[]),
@@ -1002,12 +1103,18 @@ const queryListByHomework = async (params: QuestionListByHomeworkParams) => {
         state.initWrongQuestionList = [];
     }
 };
+//打开某个学生的错题历史
+const openErrorHistory = (data: any) => {
+    state.errorHstoryVisible = true;
+};
 onMounted(() => {
     emitter.on("openErrorBookDetails", (val) => {
         console.log(val);
         questionType.value = "";
+        frequency.value = 0;
         if (!val) return;
-
+        isHasSimilarQuestion.value =
+            val.questionData.IsAnyPureQuestion || false;
         state.lessonName = val.lessonName;
         state.homeworkName = val.homeworkName;
         state.publishTime = val.publishTime;
