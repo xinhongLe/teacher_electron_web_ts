@@ -17,7 +17,7 @@
         </div>
         <div class="footer">
             <el-button>取消</el-button>
-            <el-button type="primary">确定</el-button>
+            <el-button type="primary" @click="confirm">确定</el-button>
         </div>
     </div>
 </template>
@@ -26,6 +26,7 @@
 import { defineComponent, onMounted, PropType, reactive, ref, toRefs } from "vue";
 import Title from "@/childWindow/answerMachine/title.vue";
 import { ILessonManagerResult, LessonClasses } from "@/types/login";
+import {ElMessage} from "element-plus";
 interface ClassItem extends LessonClasses{
     check?: boolean
 }
@@ -49,12 +50,27 @@ export default defineComponent({
             require: true
         }
     },
-    setup(props) {
+    emits: ["openQuickAnswer"],
+    setup(props, { emit }) {
         const state = reactive<State>({
             activeIndex: 0,
             gradeList: [],
             classList: []
         });
+
+        const confirm = () => {
+            let selectClass:ClassItem[] = [];
+            state.gradeList.forEach((item:GradeItem) => {
+                const arr = item.classList.filter((j:ClassItem) => j.check);
+                selectClass = selectClass.concat(arr);
+            });
+
+            if (selectClass.length === 0) {
+                return ElMessage.warning("请至少选择一个班级");
+            }
+
+            emit("openQuickAnswer", selectClass);
+        };
 
         const handleRow = (i:number) => {
             state.activeIndex = i;
@@ -105,6 +121,7 @@ export default defineComponent({
             handleChangeGrade,
             handleChangeClass,
             handleRow,
+            confirm,
             close
         };
     }

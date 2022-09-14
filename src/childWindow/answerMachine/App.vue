@@ -2,6 +2,7 @@
     <el-config-provider :locale="locale">
         <div class="answer-app">
             <StartAnswer
+                :currentUserInfo="currentUserInfo"
                 :allStudentList="allStudentList"
                 v-if="!(isShowTimer || isShowAnswerResult)"
                 @start="start"
@@ -39,6 +40,7 @@ import {
 } from "./api";
 import AnswerResult from "./answerResult.vue";
 import { AnswerMode, MachineModeQuestionType, PADModeQuestionType } from "./enum";
+import { get, STORAGE_TYPES } from "@/utils/storage";
 export default defineComponent({
     components: {
         StartAnswer,
@@ -46,6 +48,7 @@ export default defineComponent({
         AnswerResult
     },
     setup() {
+        const currentUserInfo = get(STORAGE_TYPES.CURRENT_USER_INFO);
         const allStudentList = ref<Student[]>([]);
         const isShowTimer = ref(false);
         const isShowAnswerResult = ref(false);
@@ -64,10 +67,10 @@ export default defineComponent({
         const start = (studentList: Student[], data: MQTTInfoData) => {
             isShowTimer.value = true;
             selectStudentList.value = studentList;
-            if (data.TopicList?.length === 1) {
-                selectQuestionType.value = QuestionType.value[data.TopicList[0].QuestionType];
+            if (data.QuestionDetail?.length === 1) {
+                selectQuestionType.value = QuestionType.value[data.QuestionDetail[0].QuestionType];
             } else {
-                selectQuestionType.value = `${data.TopicList?.length}题`;
+                selectQuestionType.value = `${data.QuestionDetail?.length}题`;
             }
             mqttInfo.value = data;
             // questionOption.value = data.QuestionOption;
@@ -92,6 +95,7 @@ export default defineComponent({
         );
         return {
             locale: zhCn,
+            currentUserInfo,
             allStudentList,
             start,
             isShowAnswerResult,

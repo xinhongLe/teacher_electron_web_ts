@@ -6,10 +6,10 @@
                    <span>班级：</span>
                    <el-select v-model="currentClass"  placeholder="请选择">
                        <el-option
-                           v-for="item in leftList"
-                           :key="item.value"
-                           :label="item.label"
-                           :value="item.value"
+                           v-for="item in classList"
+                           :key="item.ID"
+                           :label="item.Name"
+                           :value="item.ID"
                        />
                    </el-select>
                </div>
@@ -22,14 +22,14 @@
                            <div class="name">木卿欣</div>
                        </div>
                        <div class="zan">
-                           <img v-if="status === 0" src="@/assets/images/suspension/icon_zan1.png" alt="">
+                           <img @click="handlePraiseStudent" v-if="status === 0" src="@/assets/images/suspension/icon_zan1.png" alt="">
                            <img v-else src="@/assets/images/suspension/icon_zan_selected1.png" alt="">
                        </div>
                    </div>
            </div>
        </div>
        <div class="footer">
-           <div :class="['custom-btn', message === 1 ? 'canCle-btn' : '']">{{message === 0 ? "开始抢答" : (message === 1 ? "取消抢答" : "再抢一次")}}</div>
+           <div :class="['custom-btn', message === 1 ? 'canCle-btn' : '']" @click="handleConfirm">{{message === 0 ? "开始抢答" : (message === 1 ? "取消抢答" : "再抢一次")}}</div>
        </div>
 
        </div>
@@ -43,26 +43,71 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, ref, toRefs } from "vue";
+import { defineComponent, PropType, reactive, watch, toRefs } from "vue";
+import { LessonClasses } from "@/types/login";
+import { sendRushToAnswer, praiseStudent } from "./api";
+import { UserInfoState } from "@/types/store";
 export default defineComponent({
     name: "quickAnswerDetail",
-    setup() {
+    props: {
+        classList: {
+            type: Array as PropType<LessonClasses[]>,
+            default: () => []
+        },
+        currentUserInfo: {
+            type: Object as PropType<UserInfoState>
+        }
+    },
+    setup(props) {
         const state = reactive({
-            currentClass: 1,
+            currentClass: "",
             status: 0,
-            message: 1, // 0未开始抢答 1抢答中 2抢答成功
-            leftList: [
-                { label: "一年级1班", value: 1 },
-                { label: "二年级1班", value: 2 },
-                { label: "三年级1班", value: 3 }
-            ]
+            message: 0 // 0未开始抢答 1抢答中 2抢答成功
         });
+        watch(() => props.classList, (val) => {
+            if (val?.length > 0) {
+                state.currentClass = val[0].ID;
+            }
+        }, { immediate: true });
+
+        const handlePraiseStudent = () => {
+            const data = {
+                StudentIdList: [],
+                AnswerMachineID: "",
+                TeacherID: props.currentUserInfo!.userCenterUserID
+            };
+            praiseStudent(data).then(res => {
+                if (res.resultCode === 200) {
+                    state.status = 1;
+                }
+            });
+        };
+
+        const handleConfirm = () => {
+            state.status = 0;
+            if (state.message === 0 || state.message === 2) {
+                const data = {
+                    TeacherID: props.currentUserInfo!.userCenterUserID,
+                    OrgID: props.currentUserInfo!.schoolId,
+                    ClassID: state.currentClass
+                };
+                sendRushToAnswer(data).then(res => {
+                    if (res.resultCode === 200) {
+                        state.message = 2;
+                    }
+                });
+            } else {
+                state.message = 0;
+            }
+        };
         const close = () => {
             window.electron.destroyWindow();
         };
 
         return {
             ...toRefs(state),
+            handleConfirm,
+            handlePraiseStudent,
             close
         };
     }

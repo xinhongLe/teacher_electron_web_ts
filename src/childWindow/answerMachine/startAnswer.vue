@@ -79,11 +79,11 @@
             <div>
                 <el-button @click="close">取消</el-button>
                 <el-tooltip content="您可以提前准备好题目并【保存为草稿】下次打开可直接使用" placement="top">
-                    <el-button type="primary" plain>保存为草稿</el-button>
+                    <el-button type="primary"  @click="start(0)" plain>保存为草稿</el-button>
                 </el-tooltip>
 
                 <el-tooltip content="您可以提前准备好题目并【加入当前备课包】上课时打开备课包可直接使用" placement="top">
-                    <el-button type="primary" @click="start">确定</el-button>
+                    <el-button type="primary" @click="start(1)">确定</el-button>
                 </el-tooltip>
             </div>
         </div>
@@ -101,11 +101,12 @@ import { get, STORAGE_TYPES } from "@/utils/storage";
 import { LessonClasses } from "@/types/login";
 import { Student } from "@/types/labelManage";
 import { groupBy, uniqBy, cloneDeep } from "lodash";
-import { sendMQTTInfo, MQTTInfoData } from "./api";
+import { sendMQTTInfo, MQTTInfoData, getAnswerMachineQuestionList, saveAnswerMachineQuestion } from "./api";
 import { AnswerMode, PADModeQuestionType } from "./enum";
 import useStudentMachine from "@/hooks/useStudentMachine";
 import StudentList from "./studentList.vue";
 import Title from "./title.vue";
+import { UserInfoState } from "@/types/store";
 function getChoiceQuestion() {
     const list = [];
     for (let i = 1; i <= 8; i++) {
@@ -153,13 +154,16 @@ export default defineComponent({
         answerMode: {
             type: Number as PropType<AnswerMode>,
             required: true
+        },
+        currentUserInfo: {
+            type: Object as PropType<UserInfoState>
         }
     },
     setup(props, { emit }) {
         const userInfo = get(STORAGE_TYPES.USER_INFO);
         const classList = userInfo?.Classes as LessonClasses[];
-        const selectClass = ref("");
-        const selectSetting = ref<string[]>([]);
+        // const selectClass = ref("");
+        // const selectSetting = ref<string[]>([]);
         // const isSelected = ref(true);
         const isShowStudentList = ref(false);
         const choiceQuestion = getChoiceQuestion();
@@ -183,7 +187,7 @@ export default defineComponent({
                 option: [{ required: true, message: "请选择类型", trigger: "change" }]
             },
             form: {
-                selectClass: "",
+                selectClass: classList.length > 0 ? classList[0].ID : "",
                 topicList: [{ questionType: 0, selectSetting: [], option: [] }]
             }
         });
@@ -204,9 +208,18 @@ export default defineComponent({
         });
 
         const selectStudentList = computed(() => {
-            getStudentMachineListMap(selectClass.value);
-            return allStudentListMap.value[selectClass.value]?.filter(
+            getStudentMachineListMap(state.form.selectClass);
+            return allStudentListMap.value[state.form.selectClass]?.filter(
                 (item) => studentMachineListMap.value && studentMachineListMap.value[item.Account]);
+        });
+
+        watch(isShowStudentList, (v) => {
+            if (v) {
+                window.electron.setContentSize(846, 750);
+            } else {
+                window.electron.setContentSize(620, 422);
+            }
+            window.electron.setCenter();
         });
 
         const close = () => {
@@ -214,58 +227,58 @@ export default defineComponent({
         };
 
         const formRef = ref();
-        const start = async () => {
+        const start = (type:number) => {
             console.log(topicList.value, "-----");
-            formRef.value.validate((valid:boolean) => {
+            formRef.value.validate(async (valid:boolean) => {
                 if (valid) {
                     const data: MQTTInfoData = {
-                        TeacherId: userInfo.ID,
-                        ClassId: selectClass.value,
+                        TeacherID: userInfo.ID,
+                        OrgID: props.currentUserInfo!.schoolId,
+                        ClassID: state.form.selectClass,
                         QuestionId: `question_${new Date().getTime()}`,
+                        Type: 0,
+                        SaveType: type,
                         // QuestionType: questionType.value,
                         // QuestionOption: selectSetting.value[1].replaceAll(" ", ";"),
                         // QuestionNum: Number(selectSetting.value[0]),
                         IsEnd: false,
                         TimeStamp: null,
-                        Topic: `answer_${selectClass.value}`,
-                        TopicList: state.form.topicList.map((item: any) => {
+                        Topic: `answer_${state.form.selectClass}`,
+                        QuestionDetail: state.form.topicList.map((item: any, index:number) => {
                             return {
+                                ID: item.ID,
+                                Sort: index,
                                 QuestionType: item.questionType,
-                                QuestionOption: item.selectSetting[1].replaceAll(" ", ";"),
-                                QuestionNum: Number(item.selectSetting[0])
+                                QuestionOption: item.selectSetting[1].replaceAll(" ", ";")
+                                // QuestionNum: Number(item.selectSetting[0])
                             };
                         })
                     };
                     console.log(data, "data-----");
                     if (props.answerMode === AnswerMode.PAD) {
                         // const res = await sendMQTTInfo(data);
-                        const res = { resultCode: 200 };
+                        const res = await saveAnswerMachineQuestion(data);
                         if (res.resultCode === 200) {
                             emit("start",
-                                allStudentListMap.value[selectClass.value] || [],
+                                allStudentListMap.value[state.form.selectClass] || [],
                                 // questionType.value,
                                 data
                             );
                         }
                     } else {
-                        emit(
-                            "start",
-                            allStudentListMap.value[selectClass.value] || [],
-                            // questionType.value,
-                            data
-                        );
+                        // emit(
+                        //     "start",
+                        //     allStudentListMap.value[selectClass.value] || [],
+                        //     // questionType.value,
+                        //     data
+                        // );
                     }
                 }
             });
         };
 
         const changeMode = () => {
-            emit(
-                "update:answerMode",
-                props.answerMode === AnswerMode.PAD
-                    ? AnswerMode.AnswerMachine
-                    : AnswerMode.PAD
-            );
+            emit("update:answerMode", props.answerMode === AnswerMode.PAD ? AnswerMode.AnswerMachine : AnswerMode.PAD);
         };
 
         const addRow = () => {
@@ -303,24 +316,29 @@ export default defineComponent({
                 ];
             }
         };
+        const _getAnswerMachineQuestionList = () => {
+            if (!state.form.selectClass) return;
+            const data = {
+                TeacherID: props.currentUserInfo!.userCenterUserID,
+                OrgID: props.currentUserInfo!.schoolId,
+                ClassID: state.form.selectClass
+            };
+            getAnswerMachineQuestionList(data).then(res => {
+                if (res.resultCode === 200) {
 
-        watch(isShowStudentList, (v) => {
-            if (v) {
-                window.electron.setContentSize(846, 750);
-            } else {
-                window.electron.setContentSize(620, 422);
-            }
-            window.electron.setCenter();
-        });
+                }
+            });
+        };
+        _getAnswerMachineQuestionList();
 
         return {
             close,
             ...toRefs(state),
             formRef,
-            selectClass,
+            // selectClass,
             allStudentListMap,
             option,
-            selectSetting,
+            // selectSetting,
             // isSelected,
             topicList,
             addRow,

@@ -3,8 +3,8 @@
        <div class="quick-answer-app">
            <!-- 抢答页面-->
            <div class="quickAnswer" v-if="isAnswer">
-               <select-class v-if="showSelectClass" :userInfo="userInfo"></select-class>
-               <quick-answer-detail v-else></quick-answer-detail>
+               <select-class v-if="showSelectClass" :userInfo="userInfo" @openQuickAnswer="openQuickAnswer"></select-class>
+               <quick-answer-detail v-else :classList="classList" :currentUserInfo="currentUserInfo"></quick-answer-detail>
            </div>
 
            <!-- 锁屏管理页面-->
@@ -23,6 +23,7 @@ import zhCn from "element-plus/es/locale/lang/zh-cn";
 import QuickAnswerDetail from "@/childWindow/quickAnswer/quickAnswerDetail.vue";
 import LockScreen from "@/childWindow/quickAnswer/lockScreen.vue";
 import { get, STORAGE_TYPES } from "@/utils/storage";
+import { LessonClasses } from "@/types/login";
 export default defineComponent({
     components: { LockScreen, QuickAnswerDetail, SelectClass },
     setup() {
@@ -36,8 +37,15 @@ export default defineComponent({
 
         const state = reactive({
             isAnswer: true,
-            showSelectClass: true
+            showSelectClass: true,
+            classList: [] as LessonClasses[]
         });
+
+        const openQuickAnswer = (classList:LessonClasses[]) => {
+            state.classList = classList;
+            state.showSelectClass = false;
+
+        };
 
         const close = () => {
             window.electron.destroyWindow();
@@ -53,6 +61,7 @@ export default defineComponent({
             currentUserInfo,
             userInfo,
             ...toRefs(state),
+            openQuickAnswer,
             close
         };
     }
