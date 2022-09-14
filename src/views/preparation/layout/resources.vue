@@ -26,7 +26,7 @@
         />
 
         <DeleteTip
-            :target="target"
+            :target="targetDelete"
             v-model:visible="deleteTipVisible"
             @onDeleteSuccess="onDeleteSuccess"
         />
@@ -140,6 +140,7 @@ export default defineComponent({
         const deleteVideoTipVisible = ref(false);
         const resourceVisible = ref(false);
         const target = ref("");
+        const targetDelete = ref("");
         const leftEnd = ref(0);
         const topEnd = ref(0);
         const resource = ref<IResourceItem>();
@@ -227,7 +228,7 @@ export default defineComponent({
         ) => {
             switch (event) {
                 case "delete":
-                    target.value = data.ResourceId;
+                    targetDelete.value = data.ResourceId;
                     deleteTipVisible.value = true;
                     break;
                 case "edit":
@@ -451,6 +452,7 @@ export default defineComponent({
             resourceList.value.splice(i, 1);
             // 更新一下备课包数量
             emitter.emit("updatePackageCount", null);
+            if (resourceVisible.value) resourceVisible.value = false;
         };
 
         expose({ update, openResource, eventEmit });
@@ -458,6 +460,7 @@ export default defineComponent({
         return {
             resourceList,
             target,
+            targetDelete,
             resource,
             deleteTipVisible,
             editTipVisible,
