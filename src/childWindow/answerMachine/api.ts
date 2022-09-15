@@ -25,6 +25,7 @@ export interface MQTTInfoData {
         Sort: number,
         QuestionType: number, // 类型（1-单选题；2-多选题；3-判断题；）
         QuestionOption: string // 题目选项
+        QuestionNum: number
     }[]
 }
 
@@ -36,6 +37,23 @@ export interface StudentAnswerInfo {
     StudentId: string;
     StudentName: string;
     TeacherId: string;
+}
+
+export interface StudentAnswerInfoList {
+    AnswerMachineID: string,
+    AllUserCount: number,
+    CommitUserCount: number,
+    StudentQuestionResults: {
+        QuestionID: string,
+        Sort: number,
+        Type: number,
+        UserTime: number,
+        StudentQuestionOptionsResult: {
+            OptionName: string,
+            SelectUserCount: number,
+            SelectStudent: {StudentID: string, StudentName: string}[]
+        }[]
+    }[]
 }
 
 /**

@@ -14,7 +14,7 @@
                     <div class="select-warp">
                         <span class="label p_b_20">请选择班级：</span>
                         <el-form-item label="" prop="selectClass">
-                            <el-select v-model="form.selectClass">
+                            <el-select v-model="form.selectClass" @change="_getAnswerMachineQuestionList">
                                 <el-option
                                     v-for="item in classList"
                                     :key="item.ID"
@@ -161,6 +161,7 @@ export default defineComponent({
     },
     setup(props, { emit }) {
         const userInfo = get(STORAGE_TYPES.USER_INFO);
+        console.log(userInfo, "=====userInfo");
         const classList = userInfo?.Classes as LessonClasses[];
         // const selectClass = ref("");
         // const selectSetting = ref<string[]>([]);
@@ -191,11 +192,11 @@ export default defineComponent({
                 topicList: [{ questionType: 0, selectSetting: [], option: [] }]
             }
         });
-        const topicList = ref(
-            [
-                { questionType: 0, selectSetting: [], option: [] }
-            ]
-        );
+        // const topicList = ref(
+        //     [
+        //         { questionType: 0, selectSetting: [], option: [] }
+        //     ]
+        // );
         const { studentMachineListByClassIdMap, getStudentMachineListMap, studentMachineListMap } = useStudentMachine();
 
         const allStudentListMap = computed(() => {
@@ -228,11 +229,11 @@ export default defineComponent({
 
         const formRef = ref();
         const start = (type:number) => {
-            console.log(topicList.value, "-----");
+            // console.log(topicList.value, "-----");
             formRef.value.validate(async (valid:boolean) => {
                 if (valid) {
                     const data: MQTTInfoData = {
-                        TeacherID: userInfo.ID,
+                        TeacherID: props.currentUserInfo!.userCenterUserID,
                         OrgID: props.currentUserInfo!.schoolId,
                         ClassID: state.form.selectClass,
                         QuestionId: `question_${new Date().getTime()}`,
@@ -249,8 +250,8 @@ export default defineComponent({
                                 ID: item.ID,
                                 Sort: index,
                                 QuestionType: item.questionType,
-                                QuestionOption: item.selectSetting[1].replaceAll(" ", ";")
-                                // QuestionNum: Number(item.selectSetting[0])
+                                QuestionOption: item.selectSetting[1].replaceAll(" ", ";"),
+                                QuestionNum: Number(item.selectSetting[0])
                             };
                         })
                     };
@@ -258,11 +259,12 @@ export default defineComponent({
                     if (props.answerMode === AnswerMode.PAD) {
                         // const res = await sendMQTTInfo(data);
                         const res = await saveAnswerMachineQuestion(data);
-                        if (res.resultCode === 200) {
+                        if (res.resultCode === 200 && type === 1) {
                             emit("start",
                                 allStudentListMap.value[state.form.selectClass] || [],
                                 // questionType.value,
-                                data
+                                data,
+                                res.result.AnswerMachineID
                             );
                         }
                     } else {
@@ -325,7 +327,14 @@ export default defineComponent({
             };
             getAnswerMachineQuestionList(data).then(res => {
                 if (res.resultCode === 200) {
-
+                    const topicList = (res.result && res.result.QuestionDetail) ? res.result.QuestionDetail.map((item:any) => {
+                        return {
+                            questionType: item.QuestionType,
+                            selectSetting: [item.QuestionNum.toString(), item.QuestionOption.replaceAll(";", " ")],
+                            option: item.QuestionType === QuestionType.value.判断题 ? questionnaireOption : choiceQuestion
+                        };
+                    }) : [{ questionType: 0, selectSetting: [], option: [] }];
+                    state.form.topicList = topicList;
                 }
             });
         };
@@ -340,7 +349,7 @@ export default defineComponent({
             option,
             // selectSetting,
             // isSelected,
-            topicList,
+            // topicList,
             addRow,
             delRow,
             choiceQuestionType,
@@ -352,7 +361,8 @@ export default defineComponent({
             changeMode,
             studentMachineListByClassIdMap,
             isShowStudentList,
-            start
+            start,
+            _getAnswerMachineQuestionList
         };
     }
 });

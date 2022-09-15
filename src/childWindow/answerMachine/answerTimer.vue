@@ -10,11 +10,11 @@
             <div class="toll">
                 <div class="number-warp">
                     <el-icon :size="16" color="#EE6058"><warning /></el-icon>
-                    <span class="number">未答人数：{{unAnswerStudentList.length}}</span>
+                    <span class="number">未答人数：{{ allAStudents - answerStudents }}</span>
                 </div>
                 <div class="number-warp">
                     <el-icon :size="16" color="#83CC53"><circle-check /></el-icon>
-                    <span class="number">已答人数：{{studentList.length - unAnswerStudentList.length}}</span>
+                    <span class="number">已答人数：{{answerStudents}}</span>
                 </div>
             </div>
         </div>
@@ -24,11 +24,14 @@
 
 <script lang="ts">
 import { screen } from "@electron/remote";
-import { defineComponent, inject, onMounted, onUnmounted, PropType, ref } from "vue";
+import { defineComponent, inject, onMounted, onUnmounted, PropType, ref, watch } from "vue";
 import useCountDown from "@/hooks/useCountDown";
 import { Student } from "@/types/labelManage";
 import { remove } from "lodash";
 import { PADModeQuestionType } from "./enum";
+import mqtt from "mqtt";
+import { finishAnswerMachineQuestion } from "@/childWindow/answerMachine/api";
+import {UserInfoState} from "@/types/store";
 export default defineComponent({
     props: {
         studentList: {
@@ -38,35 +41,76 @@ export default defineComponent({
         questionType: {
             type: String,
             default: ""
+        },
+        AnswerMachineID: {
+            type: String,
+            default: ""
+        },
+        currentUserInfo: {
+            type: Object as PropType<UserInfoState>
         }
     },
     setup(props, { emit }) {
         const size = screen.getPrimaryDisplay().workAreaSize;
         const unAnswerStudentList = ref([...props.studentList]);
-        const QuestionType = inject(
-            "QuestionType",
-            ref(PADModeQuestionType)
-        );
+        const allAStudents = ref(props.studentList?.length);
+        const answerStudents = ref(0);
+        const QuestionType = inject("QuestionType", ref(PADModeQuestionType));
         const { showTime, startCountDown, endCountDown } = useCountDown();
 
-        const answerJection = (_:unknown, data:any) => {
-            remove(unAnswerStudentList.value, (student) => {
-                return student.StudentID === data.studentId;
-            });
+        const client = mqtt.connect("mqtt://emq.aixueshi.top", {
+            port: 1883,
+            username: "u001",
+            password: "p001",
+            keepalive: 30
+        });
+
+        const getPublish = (id: string) => {
+            return `answer_studentcommitcount_${id}`;
         };
 
+        client && client.on("message", function (topic:any, message:any) {
+            // message is Buffer
+            const infoString = JSON.parse(message.toString());
+            answerStudents.value = Number(infoString.CommitUserCount) || 0;
+            console.log(topic, "topic");
+            console.log(message, "message");
+            console.log(infoString, "infoString"); // {"AnswerMachineID":"C696DA084848C9E8B2D0A2CB00853504","CommitUserCount":2,"AllUserCount":8}
+        });
+
+        watch(() => props.AnswerMachineID, (val) => {
+            console.log("dingyue", getPublish(val));
+            // client.subscribe(getPublish("C696DA084848C9E8B2D0A2CB00853504"));
+            client.subscribe(getPublish(val));
+        }, { immediate: true });
+
+        // const answerJection = (_:unknown, data:any) => {
+        //     remove(unAnswerStudentList.value, (student) => {
+        //         return student.StudentID === data.studentId;
+        //     });
+        // };
+
         const endAnswer = () => {
-            emit("endAnswer", showTime.value, unAnswerStudentList.value);
+            const data = {
+                TeacherID: props.currentUserInfo!.userCenterUserID,
+                AnswerMachineID: props.AnswerMachineID
+            };
+            finishAnswerMachineQuestion(data).then(res => {
+                if (res.resultCode === 200) {
+                    emit("endAnswer", showTime.value, unAnswerStudentList.value);
+                }
+            });
         };
 
         onMounted(() => {
             startCountDown();
-            window.electron.ipcRenderer.on("answer-jection", answerJection);
+            // window.electron.ipcRenderer.on("answer-jection", answerJection);
         });
 
         onUnmounted(() => {
             endCountDown();
-            window.electron.ipcRenderer.off("answer-jection", answerJection);
+            client.end();
+            // window.electron.ipcRenderer.off("answer-jection", answerJection);
         });
 
         window.electron.setContentSize(383, 253);
@@ -75,6 +119,8 @@ export default defineComponent({
             showTime,
             endAnswer,
             QuestionType,
+            answerStudents,
+            allAStudents,
             unAnswerStudentList
         };
     }

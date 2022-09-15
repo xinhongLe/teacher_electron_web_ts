@@ -10,15 +10,18 @@
             />
             <answer-timer
                 v-if="isShowTimer"
+                :currentUserInfo="currentUserInfo"
                 :studentList="selectStudentList"
                 :questionType="selectQuestionType"
                 @endAnswer="endAnswer"
+                :AnswerMachineID="AnswerMachineID"
             />
             <answer-result
                 v-if="isShowAnswerResult"
                 :time="answerTime"
                 :unAnswerStudentList="unAnswerStudentList"
                 :studentAnswerInfoList="studentAnswerInfoList"
+                :answerDetail="answerDetail"
                 :studentList="selectStudentList"
                 :questionType="selectQuestionType"
                 :questionOption="questionOption"
@@ -36,7 +39,9 @@ import AnswerTimer from "./answerTimer.vue";
 import {
     getStudentAnswerEndInfo,
     MQTTInfoData,
-    StudentAnswerInfo
+    StudentAnswerInfo,
+    getStudentQuestionResult,
+    StudentAnswerInfoList
 } from "./api";
 import AnswerResult from "./answerResult.vue";
 import { AnswerMode, MachineModeQuestionType, PADModeQuestionType } from "./enum";
@@ -49,6 +54,7 @@ export default defineComponent({
     },
     setup() {
         const currentUserInfo = get(STORAGE_TYPES.CURRENT_USER_INFO);
+        console.log(currentUserInfo, "=====currentUserInfo");
         const allStudentList = ref<Student[]>([]);
         const isShowTimer = ref(false);
         const isShowAnswerResult = ref(false);
@@ -58,21 +64,29 @@ export default defineComponent({
         const mqttInfo = ref<MQTTInfoData>();
         const unAnswerStudentList = ref();
         const studentAnswerInfoList = ref<StudentAnswerInfo[]>([]);
+        const answerDetail = ref<StudentAnswerInfoList>({
+            AnswerMachineID: "",
+            AllUserCount: 0,
+            CommitUserCount: 0,
+            StudentQuestionResults: []
+        });
         const questionOption = ref("");
         const answerMode = ref(AnswerMode.PAD);
         const QuestionType = computed(() => answerMode.value === AnswerMode.PAD ? PADModeQuestionType : MachineModeQuestionType);
+        const AnswerMachineID = ref("");
 
         provide("QuestionType", QuestionType);
 
-        const start = (studentList: Student[], data: MQTTInfoData) => {
-            isShowTimer.value = true;
-            selectStudentList.value = studentList;
+        const start = (studentList: Student[], data: MQTTInfoData, answerMachineID:string) => {
             if (data.QuestionDetail?.length === 1) {
                 selectQuestionType.value = QuestionType.value[data.QuestionDetail[0].QuestionType];
             } else {
                 selectQuestionType.value = `${data.QuestionDetail?.length}题`;
             }
             mqttInfo.value = data;
+            AnswerMachineID.value = answerMachineID;
+            selectStudentList.value = studentList;
+            isShowTimer.value = true;
             // questionOption.value = data.QuestionOption;
         };
 
@@ -80,11 +94,15 @@ export default defineComponent({
             answerTime.value = time;
             mqttInfo.value!.IsEnd = true;
             unAnswerStudentList.value = studentList;
-            const res = await getStudentAnswerEndInfo(mqttInfo.value);
+            // const res = await getStudentAnswerEndInfo(mqttInfo.value);
+            const res = await getStudentQuestionResult({ AnswerMachineID: AnswerMachineID.value });
+            // const res = await getStudentQuestionResult({ AnswerMachineID: "C696DA084848C9E8B2D0A2CB00853504" });
             if (res.resultCode === 200) {
                 isShowTimer.value = false;
                 isShowAnswerResult.value = true;
-                studentAnswerInfoList.value = res.result;
+                console.log(res.result, "=======");
+                // studentAnswerInfoList.value = res.result;
+                answerDetail.value = res.result;
             }
         };
 
@@ -105,9 +123,11 @@ export default defineComponent({
             answerMode,
             unAnswerStudentList,
             studentAnswerInfoList,
+            answerDetail,
             questionOption,
             answerTime,
-            isShowTimer
+            isShowTimer,
+            AnswerMachineID
         };
     }
 });
