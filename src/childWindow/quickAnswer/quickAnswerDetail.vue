@@ -7,9 +7,9 @@
                    <el-select v-model="currentClass"  placeholder="请选择">
                        <el-option
                            v-for="item in classList"
-                           :key="item.ID"
+                           :key="item.UserCentID"
                            :label="item.Name"
-                           :value="item.ID"
+                           :value="item.UserCentID"
                        />
                    </el-select>
                </div>
@@ -19,7 +19,7 @@
                    <div class="quick-success" v-if="message === 2">
                        <div style="text-align: center;">
                            <img class="photo" src="@/assets/images/suspension/pic_avatar.png" alt="">
-                           <div class="name">木卿欣</div>
+                           <div class="name">{{studentInfo.name}}</div>
                        </div>
                        <div class="zan">
                            <img @click="handlePraiseStudent" v-if="status === 0" src="@/assets/images/suspension/icon_zan1.png" alt="">
@@ -43,15 +43,16 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, reactive, watch, toRefs } from "vue";
-import { LessonClasses } from "@/types/login";
+import { defineComponent, PropType, reactive, watch, toRefs, onUnmounted } from "vue";
 import { sendRushToAnswer, praiseStudent } from "./api";
 import { UserInfoState } from "@/types/store";
+import mqtt from "mqtt";
+import { IClassItem } from "@/types/quickAnswer";
 export default defineComponent({
     name: "quickAnswerDetail",
     props: {
         classList: {
-            type: Array as PropType<LessonClasses[]>,
+            type: Array as PropType<IClassItem[]>,
             default: () => []
         },
         currentUserInfo: {
@@ -60,20 +61,54 @@ export default defineComponent({
     },
     setup(props) {
         const state = reactive({
+            answerMachineID: "",
             currentClass: "",
             status: 0,
-            message: 0 // 0未开始抢答 1抢答中 2抢答成功
+            message: 0, // 0未开始抢答 1抢答中 2抢答成功
+            studentInfo: {
+                name: "",
+                id: ""
+            }
         });
         watch(() => props.classList, (val) => {
             if (val?.length > 0) {
-                state.currentClass = val[0].ID;
+                state.currentClass = val[0].UserCentID;
             }
         }, { immediate: true });
 
+        const client = mqtt.connect("mqtt://emq.aixueshi.top", {
+            port: 1883,
+            username: "u001",
+            password: "p001",
+            keepalive: 30
+        });
+
+        const getPublish = (id: string) => {
+            return `answer_student_rush_${id}`;
+        };
+
+        client && client.on("connect", function (err) {
+            window.electron.log.info("client connect quickAnswer", err);
+        });
+
+        client && client.on("error", (err) => {
+            window.electron.log.info("client connect quickAnswer", err);
+        });
+
+        client && client.on("message", function (topic:any, message:any) {
+            console.log(message.toString(), "message.toString()");
+            // message is Buffer
+            const messageInfo = JSON.parse(message.toString()); // {"ReceiveTime":"2022-09-15 03:54:50","StudentId":"16625405853534467275379851772585","StudentName":"张国庆"}
+            state.studentInfo.name = messageInfo.StudentName;
+            state.studentInfo.id = messageInfo.StudentId;
+            state.message = 2;
+            client.unsubscribe(getPublish(state.answerMachineID));
+        });
+
         const handlePraiseStudent = () => {
             const data = {
-                StudentIdList: [],
-                AnswerMachineID: "",
+                StudentIdList: [state.studentInfo.id],
+                AnswerMachineID: state.answerMachineID,
                 TeacherID: props.currentUserInfo!.userCenterUserID
             };
             praiseStudent(data).then(res => {
@@ -85,6 +120,8 @@ export default defineComponent({
 
         const handleConfirm = () => {
             state.status = 0;
+            state.studentInfo.name = "";
+            state.studentInfo.id = "";
             if (state.message === 0 || state.message === 2) {
                 const data = {
                     TeacherID: props.currentUserInfo!.userCenterUserID,
@@ -93,16 +130,23 @@ export default defineComponent({
                 };
                 sendRushToAnswer(data).then(res => {
                     if (res.resultCode === 200) {
-                        state.message = 2;
+                        state.message = 1;
+                        state.answerMachineID = res.result.AnswerMachineID;
+                        client.subscribe(getPublish(state.answerMachineID));
                     }
                 });
             } else {
                 state.message = 0;
+                client.unsubscribe(getPublish(state.answerMachineID));
             }
         };
         const close = () => {
             window.electron.destroyWindow();
         };
+
+        onUnmounted(() => {
+            client.end();
+        });
 
         return {
             ...toRefs(state),

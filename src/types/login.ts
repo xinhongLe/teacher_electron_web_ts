@@ -46,6 +46,7 @@ export interface LessonClasses {
     GradeName: string,
     GradeSort: number,
     ID: string,
+    UserCentID: string,
     Name: string
 }
 

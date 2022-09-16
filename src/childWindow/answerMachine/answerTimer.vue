@@ -31,7 +31,7 @@ import { remove } from "lodash";
 import { PADModeQuestionType } from "./enum";
 import mqtt from "mqtt";
 import { finishAnswerMachineQuestion } from "@/childWindow/answerMachine/api";
-import {UserInfoState} from "@/types/store";
+import { UserInfoState } from "@/types/store";
 export default defineComponent({
     props: {
         studentList: {
@@ -69,17 +69,22 @@ export default defineComponent({
             return `answer_studentcommitcount_${id}`;
         };
 
+        client && client.on("connect", function (err) {
+            window.electron.log.info("client connect answer", err);
+        });
+
+        client && client.on("error", (err) => {
+            window.electron.log.info("client connect answer", err);
+        });
+
         client && client.on("message", function (topic:any, message:any) {
             // message is Buffer
             const infoString = JSON.parse(message.toString());
             answerStudents.value = Number(infoString.CommitUserCount) || 0;
-            console.log(topic, "topic");
-            console.log(message, "message");
             console.log(infoString, "infoString"); // {"AnswerMachineID":"C696DA084848C9E8B2D0A2CB00853504","CommitUserCount":2,"AllUserCount":8}
         });
 
         watch(() => props.AnswerMachineID, (val) => {
-            console.log("dingyue", getPublish(val));
             // client.subscribe(getPublish("C696DA084848C9E8B2D0A2CB00853504"));
             client.subscribe(getPublish(val));
         }, { immediate: true });

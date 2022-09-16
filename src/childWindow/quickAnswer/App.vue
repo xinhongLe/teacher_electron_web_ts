@@ -4,7 +4,7 @@
            <!-- 抢答页面-->
            <div class="quickAnswer" v-if="isAnswer">
                <select-class v-if="showSelectClass" :userInfo="userInfo" @openQuickAnswer="openQuickAnswer"></select-class>
-               <quick-answer-detail v-else :classList="classList" :currentUserInfo="currentUserInfo"></quick-answer-detail>
+               <quick-answer-detail v-if="showQuickAnswer" :classList="classList" :currentUserInfo="currentUserInfo"></quick-answer-detail>
            </div>
 
            <!-- 锁屏管理页面-->
@@ -23,29 +23,65 @@ import zhCn from "element-plus/es/locale/lang/zh-cn";
 import QuickAnswerDetail from "@/childWindow/quickAnswer/quickAnswerDetail.vue";
 import LockScreen from "@/childWindow/quickAnswer/lockScreen.vue";
 import { get, STORAGE_TYPES } from "@/utils/storage";
-import { LessonClasses } from "@/types/login";
+import { IYunInfo } from "@/types/login";
+import { fetchUserSchedules } from "@/api/timetable";
+import moment from "moment";
+import { UserInfoState } from "@/types/store";
+import { IClassItem } from "@/types/quickAnswer";
 export default defineComponent({
     components: { LockScreen, QuickAnswerDetail, SelectClass },
     setup() {
-        const currentUserInfo = get(STORAGE_TYPES.CURRENT_USER_INFO);
+        const currentUserInfo:UserInfoState = get(STORAGE_TYPES.CURRENT_USER_INFO);
         const userInfo = get(STORAGE_TYPES.USER_INFO);
+        const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
         const allStudentList = ref<Student[]>([]);
 
         console.log(currentUserInfo, "currentUserInfo");
         console.log(userInfo, "userInfo");
+        console.log(yunInfo, "yunInfo");
         console.log(allStudentList.value, "allStudentList");
 
         const state = reactive({
             isAnswer: true,
-            showSelectClass: true,
-            classList: [] as LessonClasses[]
+            showSelectClass: false,
+            showQuickAnswer: false,
+            classList: [] as IClassItem[]
         });
 
-        const openQuickAnswer = (classList:LessonClasses[]) => {
+        const openQuickAnswer = (classList:IClassItem[]) => {
             state.classList = classList;
             state.showSelectClass = false;
-
+            state.showQuickAnswer = true;
         };
+
+        const _fetchUserSchedules = () => {
+            const data = {
+                StartTime: moment().format("YYYY-MM-DD"),
+                EndTime: moment().format("YYYY-MM-DD"),
+                TermCode: yunInfo.TermCode,
+                SchoolID: currentUserInfo.schoolId,
+                TeacherID: currentUserInfo.userCenterUserID
+            };
+            fetchUserSchedules(data).then(res => {
+                if (res.resultCode === 200) {
+                    const teacherCourseList = res.result.TeacherCourseList;
+                    const time = moment().format("HH:mm:ss");
+                    if (teacherCourseList && teacherCourseList.length > 0) {
+                        const currentSchedule = teacherCourseList[0].ScheduleDetailData;
+                        const ifHaveClass = currentSchedule.find(item => (item.StartTime <= time && time <= item.EndTime)); // 是否正在上课
+                        if (ifHaveClass) {
+                            state.classList = [{ Name: ifHaveClass!.ClassName, UserCentID: ifHaveClass!.ClassID }];
+                            state.showQuickAnswer = true;
+                        } else {
+                            state.showSelectClass = true;
+                        }
+                    } else {
+                        state.showSelectClass = true;
+                    }
+                }
+            });
+        };
+        _fetchUserSchedules();
 
         const close = () => {
             window.electron.destroyWindow();

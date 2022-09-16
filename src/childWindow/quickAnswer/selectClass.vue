@@ -26,7 +26,7 @@
 import { defineComponent, onMounted, PropType, reactive, ref, toRefs } from "vue";
 import Title from "@/childWindow/answerMachine/title.vue";
 import { ILessonManagerResult, LessonClasses } from "@/types/login";
-import {ElMessage} from "element-plus";
+import { ElMessage } from "element-plus";
 interface ClassItem extends LessonClasses{
     check?: boolean
 }
@@ -140,6 +140,7 @@ export default defineComponent({
 .content{
     display: flex;
     flex: 1;
+    min-height: 0;
     .left{
         width: 160px;
         height: 100%;
@@ -164,6 +165,7 @@ export default defineComponent({
     }
     .right{
         flex: 1;
+        min-widths: 0;
         padding: 20px;
         overflow-y: auto;
     }

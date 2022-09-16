@@ -14,3 +14,8 @@ export interface IPraiseStudentRes {
     AnswerMachineID:string,
     TeacherID:string,
 }
+
+export interface IClassItem {
+    Name: string,
+    UserCentID:string,
+}

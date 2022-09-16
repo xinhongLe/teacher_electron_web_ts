@@ -21,7 +21,7 @@ http.interceptors.request.use(
                 Token: get(STORAGE_TYPES.SET_TOKEN),
                 startTime: moment().format("YYYY-MM-DD HH:mm:ss.SSS"),
                 Authorization: "Bearer" + " " + get(STORAGE_TYPES.SET_TOKEN),
-                OrgId: store.state.userInfo.schoolId
+                OrgId: store.state.userInfo.schoolId ? store.state.userInfo.schoolId : get(STORAGE_TYPES.CURRENT_USER_INFO)?.schoolId
             };
         }
         if (!config.headers?.noLoading) {

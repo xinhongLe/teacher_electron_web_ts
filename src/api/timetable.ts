@@ -14,7 +14,7 @@ interface FetchGetUserSchedulesData {
     TeacherID: string;
     StartTime: string;
     EndTime: string;
-    TermCode: string;
+    TermCode: string | number;
 }
 
 export interface IScheduleContent {
@@ -33,6 +33,7 @@ interface UpdateScheduleRes {
 }
 
 export interface IScheduleDetail {
+    ClassID: string;
     APMP: number;
     AdjustTypeID: number;
     ClassName: string;
@@ -93,6 +94,7 @@ export const fetchUserSchedules: RequestFun<
     }
 > = (data) => {
     const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
+    console.log("yunInfo", yunInfo);
     return request({
         baseURL: SCHEDULE_API,
         url: "Api/Web/WorkLoad/GetTeacherCourseData",
