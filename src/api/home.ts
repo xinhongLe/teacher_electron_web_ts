@@ -1,7 +1,7 @@
 import request from "@/utils/request";
 import { IResponse } from "@/types/response";
 import { ICardList, ITreeList } from "@/types/home";
-import { Slide } from "wincard/src/types/slides";
+import { Slide } from "wincard";
 import { WINDOW_CRAD_API, originType } from "@/config/index";
 import { getWinCardDBData } from "@/utils/database";
 type BookListResponse = IResponse<ITreeList[]>

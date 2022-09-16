@@ -146,7 +146,6 @@ export default defineComponent({
         const codeTime = ref(0);
         let timer: any;
         recordAccountList.value = get(STORAGE_TYPES.RECORD_LOGIN_LIST, true) || [];
-        console.log(recordAccountList.value);
 
         const { userLogin } = useLogin();
 

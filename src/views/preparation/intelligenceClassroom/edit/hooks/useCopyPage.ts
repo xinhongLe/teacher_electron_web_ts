@@ -5,7 +5,7 @@ import { Ref, ref } from "vue";
 import { v4 as uuidv4 } from "uuid";
 import { findIndex } from "lodash";
 import TrackService, { EnumTrackEventType } from "@/utils/common";
-import { Slide } from "wincard/src/types/slides";
+import { Slide } from "wincard";
 import { copyPage } from "@/api/home";
 
 export default (windowCards:Ref<ICardList[]>, allPageSlideListMap: Ref<Map<string, Slide>>) => {

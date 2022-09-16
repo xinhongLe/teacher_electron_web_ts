@@ -1,15 +1,24 @@
 <template>
     <div class="container">
-        <div class="select-student-list">
-            <span class="title">点名学生清单</span>
+        <div
+            class="select-student-list"
+            :class="isPackUp && 'pack-up'"
+            @click="expand"
+        >
+            <div class="title" @click.stop="">
+                <div class="drag-area">
+                    <Drag />
+                </div>
+                点名学生清单
+            </div>
             <div class="list">
-                <span v-for="student in selectStudent" :key="student.StudentID">
+                <div class="student-selected-item" v-for="student in selectStudent" :key="student.StudentID">
                     {{ student?.Name }}
-                </span>
+                </div>
             </div>
         </div>
 
-        <div class="student-list-content">
+        <div class="student-list-content" v-show="!isPackUp">
             <div
                 class="student-box"
                 :style="{
@@ -24,22 +33,49 @@
                     :style="{
                         transform: `translateX(-102px) rotateY(${
                             (360 / unselectedStudent.length) * i
-                        }deg) translateZ(2000px) scale(${!isStart && currentIndex === i ? 2 : 1})`,
+                        }deg) translateZ(2000px) scale(${
+                            !isStart && currentIndex === i ? 2 : 1
+                        })`,
                     }"
                 >
                     <Avatar
                         :file="student?.HeadPortrait"
                         :size="20"
                         :alt="student.Name"
+                        style="transform: scale(4.5)"
                     />
                     <div class="student-name">{{ student.Name }}</div>
                 </div>
             </div>
         </div>
+        <el-button
+            v-show="!isPackUp"
+            type="default"
+            round
+            plain
+            class="min-btn"
+            @click="packUp"
+            :disabled="isStart"
+            >最小化</el-button
+        >
+        <el-button
+            v-show="!isPackUp"
+            type="danger"
+            round
+            plain
+            class="close-btn"
+            @click="close"
+            :disabled="isStart"
+            >关闭</el-button
+        >
+        <div class="cotrol-btn" v-show="!isPackUp">
+            <div class="custom-reset-btn" :class="isStart && 'disabled'">
+                <el-button type="primary" @click="reset" :disabled="isStart">重置</el-button>
+            </div>
 
-        <div class="cotrol-btn">
-            <el-button type="primary" @click="reset" :disabled="isStart">重置</el-button>
-            <el-button type="primary" @click="start" :disabled="isStart">开始</el-button>
+            <div class="custom-start-btn" :class="isStart && 'disabled'">
+                <el-button type="primary" @click="start" :disabled="isStart">开始</el-button>
+            </div>
         </div>
     </div>
 </template>
@@ -50,7 +86,12 @@ import { ElMessageBox } from "element-plus";
 import { clearInterval, setInterval } from "timers";
 import { computed, defineComponent, onMounted, PropType, ref } from "vue";
 import Avatar from "../../components/avatar/index.vue";
+import { Drag } from "@icon-park/vue-next";
 export default defineComponent({
+    components: {
+        Drag,
+        Avatar
+    },
     props: {
         studentList: {
             type: Array as PropType<Student[]>,
@@ -58,14 +99,15 @@ export default defineComponent({
         },
     },
     setup(props) {
-        const unselectedStudent = ref([...props.studentList]);
+        const storeStudent = ref<Student[]>([...props.studentList]);
+        const unselectedStudent = ref<Student[]>([]);
         const currentIndex = ref(-1);
         const currentStudent = ref<Student>();
         const isStart = ref(false);
         const selectStudent = ref<Student[]>([]);
 
-        const duration = 6 * 1000;
-        const animationTime = ref(3000);
+        const duration = 3 * 1000;
+        const animationTime = ref(1500);
         const rotateX = ref(-90);
         const randomDeg = ref(180);
 
@@ -80,16 +122,24 @@ export default defineComponent({
             isStart.value = true;
             if (selectStudent.value.length > 0) {
                 unselectedStudent.value.splice(currentIndex.value, 1);
+                if (storeStudent.value.length > 0) {
+                    const student = randomStudent();
+                    unselectedStudent.value.push(student);
+                }
             }
+            
             const len = unselectedStudent.value.length;
             currentIndex.value = Math.floor(Math.random() * len);
             animationTime.value = 0;
             randomDeg.value = 0;
             setTimeout(() => {
                 animationTime.value = duration;
-                randomDeg.value = - (360 / unselectedStudent.value.length) * currentIndex.value + 360 * 5;
+                randomDeg.value =
+                    -(360 / unselectedStudent.value.length) *
+                        currentIndex.value +
+                    360 * 5;
                 setTimeout(() => {
-                    selectStudent.value.push(
+                    selectStudent.value.unshift(
                         unselectedStudent.value[currentIndex.value]
                     );
                     isStart.value = false;
@@ -97,21 +147,78 @@ export default defineComponent({
             }, 100);
         };
 
+        const randomStudent = () => {
+            const len = storeStudent.value.length;
+            const index = Math.floor(Math.random() * len);
+            return storeStudent.value.splice(index, 1)[0];
+        };
+
+        const randomStudents = (len: number) => {
+            const randomArray: Student[] = [];
+            console.log(storeStudent.value.length);
+            if (storeStudent.value.length < len) {
+                return storeStudent.value;
+            }
+            for (let i = 0; i < len; i++) {
+                const student = randomStudent();
+                randomArray.push(student);
+            }
+            return randomArray;
+        };
+
         const reset = () => {
             animationTime.value = 0;
             randomDeg.value = 360;
             rotateX.value = -363;
             selectStudent.value = [];
-            unselectedStudent.value = [...props.studentList];
+            storeStudent.value = [...props.studentList];
+            unselectedStudent.value = randomStudents(25);
             currentIndex.value = -1;
             setTimeout(() => {
-                animationTime.value = 3000;
+                animationTime.value = 1500;
                 rotateX.value = -3;
                 randomDeg.value = 0;
             }, 200);
         };
 
         reset();
+
+        const close = () => {
+            const win = window.electron.remote.getCurrentWindow();
+            win.close();
+        };
+
+        const isPackUp = ref(false);
+        const packUp = () => {
+            const win = window.electron.remote.getCurrentWindow();
+            const size =
+                window.electron.remote.screen.getPrimaryDisplay().workAreaSize;
+            win.setSize(200, 250);
+            win.setPosition(
+                size.width - 20 - 200,
+                size.height - 200 - 250,
+                true
+            );
+            isPackUp.value = true;
+        };
+
+        const expand = () => {
+            if (isPackUp.value) {
+                isPackUp.value = false;
+                const win = window.electron.remote.getCurrentWindow();
+                const size =
+                    window.electron.remote.screen.getPrimaryDisplay()
+                        .workAreaSize;
+                const width = size.width > 1200 ? 1200 : size.width;
+                const height = size.height > 800 ? 800 : size.height;
+                win.setSize(width, height);
+                win.setPosition(
+                    (size.width - width) / 2,
+                    (size.height - height) / 2,
+                    true
+                );
+            }
+        };
 
         return {
             start,
@@ -120,12 +227,15 @@ export default defineComponent({
             reset,
             selectStudent,
             currentIndex,
-            randomDeg,  
+            randomDeg,
             animationTime,
-            rotateX
+            rotateX,
+            close,
+            packUp,
+            isPackUp,
+            expand,
         };
-    },
-    components: { Avatar },
+    }
 });
 </script>
 
@@ -135,6 +245,9 @@ export default defineComponent({
     perspective: 1500px;
     perspective-origin: 50% 20%;
     height: 100%;
+    background: url(~@/assets/images/other/bg@2x.png) no-repeat;
+    background-size: cover;
+    background-position: center;
     .select-student-list {
         position: absolute;
         left: 40px;
@@ -145,22 +258,49 @@ export default defineComponent({
         background: #fff;
         display: flex;
         flex-direction: column;
+        z-index: 1;
+        top: 20px;
+        overflow: hidden;
         .title {
             font-size: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 15px 0;
+            padding: 10px 0;
+            font-weight: 600;
+            color: #848891;
+            background: linear-gradient(270deg, rgba(237,244,246,0) 0%, #EDF4F6 100%);
+            position: relative;
+            .drag-area {
+                position: absolute;
+                left: 10px;
+                font-size: 20px;
+                top: 10px;
+            }
         }
         .list {
-            display: flex;
-            flex-direction: column;
-            padding-left: 10px;
             overflow-y: auto;
             text-align: center;
-            span {
-                height: 30px;
-                line-height: 30px;
+            min-height: 0;
+            flex: 1;
+            padding: 0 5px;
+            .student-selected-item {
+                height: 46px;
+                line-height: 46px;
+                color: #242B3A;
+                font-size: 14px;
+                border-bottom: 1px solid #EDF4F6;
+                &:last-child {
+                    border-bottom: 0;
+                }
+            }
+        }
+        &.pack-up {
+            top: 0;
+            left: 0;
+            .title {
+                -webkit-app-region: drag;
+                cursor: move;
             }
         }
     }
@@ -171,12 +311,12 @@ export default defineComponent({
         left: 50%;
         z-index: 1;
         transform: translateX(-50%);
+        display: flex;
     }
 }
 
 .student-list-content {
     position: relative;
-    top: 0px;
     width: 500px;
     height: 500px;
     margin: 100px auto;
@@ -191,41 +331,42 @@ export default defineComponent({
     width: 100%;
     height: 200px;
     margin: auto;
-    margin-top: 5%;
     text-align: center;
     background: rgba(218, 120, 33, 0);
     position: relative;
     transform-style: preserve-3d;
     &.random-animation-start {
-        animation: random 3s linear infinite;
+        animation: random 1.5s linear infinite;
     }
 
     &.random-animation-end {
-        transition: all 3100ms ease-out;
+        transition: all 1600ms ease-out;
     }
 }
 
 .student-item {
     position: absolute;
     top: 25%;
-    left: 50%;
-    width: 205px;
-    height: 420px;
+    left: 30%;
+    width: 400px;
+    height: 480px;
     display: flex;
     align-items: center;
-    justify-content: center;
+    // justify-content: center;
+    padding-top: 156px;
     flex-direction: column;
-    // background: url(~@/assets/images/other/bg.png) no-repeat;
-    background: #000;
+    background: url(~@/assets/images/other/card_bg@2x.png) no-repeat;
+    background-position: center;
+    background-size: cover;
     border-radius: 5px;
     box-shadow: 0 0 5px #eee;
     transition: all 1s;
     :deep(.el-avatar) {
-        transform: scale(5.5);
+        transform: scale(3.5);
         margin-bottom: 80px;
     }
     .student-name {
-        transform: scale(3.5);
+        transform: scale(4.5);
         color: #fff;
     }
 }
@@ -237,5 +378,56 @@ export default defineComponent({
     100% {
         transform: rotateX(-3deg) rotateY(360deg);
     }
+}
+
+.custom-start-btn {
+    width: 252px;
+    height: 135px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-image: url(~@/assets/images/other/btn_bg@2x.png) !important;
+    background-size: 100% 100%;
+    &.disabled {
+        opacity: 0.7;
+    }
+    button {
+        width: 150px;
+        border: none;
+        font-size: 18px;
+        background-color: transparent !important;
+        box-shadow: none;
+    }
+}
+
+.custom-reset-btn {
+    width: 172px;
+    height: 135px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-image: url(~@/assets/images/other/btn_bg_reset@2x.png) !important;
+    background-size: 100% 100%;
+    &.disabled {
+        opacity: 0.7;
+    }
+    button {
+        border: none;
+        font-size: 18px;
+        background-color: transparent !important;
+        box-shadow: none;
+    }
+}
+
+.min-btn {
+    position: absolute;
+    right: 120px;
+    bottom: 98px;
+}
+
+.close-btn {
+    position: absolute;
+    right: 20px;
+    bottom: 98px;
 }
 </style>

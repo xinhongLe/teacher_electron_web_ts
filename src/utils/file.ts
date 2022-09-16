@@ -1,5 +1,5 @@
 import isElectron from "is-electron";
-import { Slide } from "wincard/src/types/slides";
+import { Slide } from "wincard";
 import { getOssUrl } from "./oss";
 
 export const cacheFile = async (key: string) => {

@@ -2,7 +2,7 @@ import { getPageDetailRes, updatePageRes, UpdatePageRemark, getVideoQuoteInfo, s
 import { dealOldData } from "@/utils/dataParse";
 import { dealOldDataVideo, dealOldDataWord, dealOldDataTeach } from "@/utils/dataParsePage";
 import { IPageValue } from "@/types/home";
-import { Slide } from "wincard/src/types/slides";
+import { Slide } from "wincard";
 import { ElMessage } from "element-plus";
 import { dealSaveDataWord, dealSaveDataVideo, dealSaveDataTeach, dealSaveDataElement } from "@/utils/savePageDataParse";
 import { getWinCardDBData, setWinCardDBData, updateWinCardDBData } from "@/utils/database";

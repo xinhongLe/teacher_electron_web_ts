@@ -863,7 +863,7 @@ export default defineComponent({
                     ? moment(dateRange.value[0]).format("YYYY-MM-DD 00:00:00")
                     : "",
                 endTime: dateRange.value[1]
-                    ? moment(dateRange.value[1]).format("YYYY-MM-DD 00:00:00")
+                    ? moment(dateRange.value[1]).format("YYYY-MM-DD 23:59:59")
                     : "",
                 paper: {
                     pageNumber: pageNumber.value,

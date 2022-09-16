@@ -1,6 +1,6 @@
 <template>
     <div class="roll-call" :style="{'background-color': chooseFlag ? '#fff' : '#efefef'}">
-        <div class="roll-call-header">
+        <div class="roll-call-header" v-if="chooseFlag">
 <!--            <div class="rch-left"></div>-->
             <div class="rch-center">
                 <span v-if="chooseFlag">选择班级</span>
@@ -112,7 +112,10 @@ export default defineComponent({
                 }
             });
             checkStudentList.value = [...map.values()];
-            window.electron.setContentSize(1400, 1000);
+            const size = window.electron.remote.screen.getPrimaryDisplay().workAreaSize;
+            const width = size.width > 1200 ? 1200 : size.width;
+            const height = size.height > 800 ? 800 : size.height;
+            window.electron.setContentSize(width, height);
             window.electron.setCenter();
             chooseFlag.value = false;
         };
@@ -187,12 +190,11 @@ body {
 .roll-call {
     width: 100%;
     height: 100vh;
-    padding-top: 20px;
     display: flex;
     flex-direction: column;
 }
 .roll-call-header {
-    padding: 0 20px;
+    padding: 20px 20px 0;
     display: flex;
     justify-content: center;
     align-items: center;

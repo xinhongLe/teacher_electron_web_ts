@@ -2,7 +2,7 @@ import { IPageValue } from "@/types/home";
 import { ElMessage, ElMessageBox } from "element-plus";
 import Node from "element-plus/es/components/tree/src/model/node";
 import { nextTick, onMounted, onUnmounted, Ref, ref } from "vue";
-import { Slide } from "wincard/src/types/slides";
+import { Slide } from "wincard";
 
 export default (pageValue: Ref<IPageValue>, allPageSlideListMap: Ref<Map<string, Slide>>) => {
     const allPageList = ref<IPageValue[]>([]);

@@ -576,8 +576,8 @@ export default defineComponent({
     position: fixed;
     right: 0;
     bottom: 0;
-    width: 545px;
-    height: 680px;
+    width: 100%;
+    height: 100%;
     border-radius: 1rem;
     display: flex;
     flex-direction: column;
