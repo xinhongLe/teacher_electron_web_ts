@@ -1,16 +1,54 @@
 <template>
     <div class="wrongbook-wrapper" v-show="!state.isShowDetails">
         <header class="wrongbook-header">
-            <div class="header-left">
+            <div class="header-left-con">
                 <div
-                    @click="switchClass(item)"
-                    class="class-item"
-                    :class="item.ID == state.currentClassId ? 'isActive' : ''"
-                    v-for="item in classList"
+                    style="padding-right: 10px"
+                    @click="fnPrev()"
+                    v-if="isShowIcon"
                 >
-                    <span>{{ item.Name }}</span>
+                    <img
+                        src="~@/assets/images/wrongbook/icon_left.png"
+                        alt=""
+                    />
+                </div>
+                <div class="fixedBox" ref="fixedBoxRef">
+                    <div
+                        class="header-left"
+                        :style="
+                            classList.length > 4
+                                ? `width${
+                                      signleWidth * fourClassList.length
+                                  }px;transform:translate(${scrollResultWidth}px,0);transition:1s;`
+                                : ''
+                        "
+                    >
+                        <div
+                            @click="switchClass(item)"
+                            class="class-item"
+                            :class="
+                                item.ID == state.currentClassId
+                                    ? 'isActive'
+                                    : ''
+                            "
+                            v-for="item in fourClassList"
+                        >
+                            <span>{{ item.Name }}</span>
+                        </div>
+                    </div>
+                </div>
+                <div
+                    style="padding-left: 10px"
+                    @click="fnNext()"
+                    v-if="isShowIcon && noScrollRight"
+                >
+                    <img
+                        src="~@/assets/images/wrongbook/icon_right_qiehuan.png"
+                        alt=""
+                    />
                 </div>
             </div>
+
             <div class="header-right">
                 <!-- 题型 -->
                 <el-select
@@ -264,7 +302,7 @@
 </template>
 
 <script lang="ts" setup>
-import { reactive, ref, defineExpose, watch } from "vue";
+import { reactive, ref, defineExpose, watch, onMounted, nextTick } from "vue";
 import { ArrowDown, Search, CircleClose } from "@element-plus/icons-vue";
 import LeftOne from "./components/LeftOne.vue";
 import LeftTwo from "./components/LeftTwo.vue";
@@ -377,12 +415,17 @@ const state = reactive({
     ],
     gradeName: classList.length ? classList[0]?.Name : "",
 });
+const activeName = ref(0);
+const scrollResultWidth = ref(0); //transform滚动的距离
+const signleWidth = ref(70); //单个流程的宽度
+const currentClickNumber = ref(0);
+const noScrollRight = ref(true);
 //作业维度排序字段
 const sortData = ref({
     //当前选择的分层登记
     currentLevel: 0,
     //题目类型
-    currentSortType: 1,
+    currentSortType: 2,
     //当前选择的排序字段
     currentSortCon: 1,
 });
@@ -415,12 +458,68 @@ watch(
         console.log(val);
     }
 );
-// onMounted(() => {
-//     nextTick(() => {
-//         state.currentClassId = classList.length ? classList[0]?.ID : "";
-//         searchForm.value.ClassId = classList.length ? classList[0]?.ID : "";
-//     });
-// });
+onMounted(() => {
+    nextTick(() => {
+        setTimeout(() => {
+            initgoRightArrow();
+        });
+    });
+});
+const fixedBoxRef = ref();
+const fourClassList = ref([]);
+const isShowIcon = ref(false);
+//初始化判断是否可以向右滚动
+const initgoRightArrow = () => {
+    fourClassList.value =
+        classList.length > 4 ? classList?.slice(0, 4) : classList;
+    isShowIcon.value = classList.length > 4 ? true : false;
+    // const currentScrollWidth = fixedBoxRef.value.clientWidth;
+    // const canNumber = Math.floor(currentScrollWidth / signleWidth.value); //可以放下的个数
+    // //如果最后一个流程图标已经展示出来，则停止滚动
+    // if (currentClickNumber.value + canNumber >= classList.length) {
+    //     noScrollRight.value = false;
+    //     return;
+    // }
+};
+//点击左滑
+const fnPrev = () => {
+    if (currentClickNumber.value > 0) {
+        currentClickNumber.value -= 1;
+        noScrollRight.value = true;
+        fnScrollWidth("reduce");
+    } else {
+        return false;
+    }
+};
+//点击右滑
+const fnNext = () => {
+    fourClassList.value = classList;
+    const currentScrollWidth = fixedBoxRef.value.clientWidth;
+    const canNumber = Math.floor(currentScrollWidth / signleWidth.value); //可以放下的个数
+    //如果最后一个流程图标已经展示出来，则停止滚动
+    if (currentClickNumber.value + canNumber >= classList.length) {
+        return;
+    }
+    //说明放不下有滚动条
+    if (classList.length > canNumber) {
+        currentClickNumber.value += 1;
+        if (currentClickNumber.value + canNumber >= classList.length) {
+            noScrollRight.value = false;
+        }
+        fnScrollWidth("add");
+    }
+};
+const fnScrollWidth = (type: string) => {
+    let result = 0;
+    if (type === "reduce") {
+        result = 100;
+    } else if (type === "add") {
+        result = -100;
+    } else {
+        result = 0;
+    }
+    scrollResultWidth.value += result;
+};
 //顶部的昨日，今日，本周时间过滤
 const toFormatDate = (type: number) => {
     const data: any = getFormatDate(type);
@@ -462,42 +561,51 @@ const switchClass = (value: any) => {
         display: flex;
         justify-content: space-between;
         align-items: center;
-
-        .header-left {
-            height: 100%;
+        .header-left-con {
+            max-width: 40%;
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            width: 40%;
-            font-size: 14px;
-            color: #a7aab4;
-            font-family: HarmonyOS_Sans_SC;
-            overflow: auto;
-            padding: 5px 0;
+            .fixedBox {
+                flex: 1;
+                overflow: hidden;
+                .header-left {
+                    display: flex;
+                    height: 100%;
+                    box-sizing: border-box;
+                    padding: 20px 0;
+                    white-space: nowrap;
+                    font-size: 14px;
+                    color: #a7aab4;
+                    font-family: HarmonyOS_Sans_SC;
+                    .class-item {
+                        transition: all 0.3s ease;
 
-            .class-item {
-                margin-right: 32px;
-                cursor: pointer;
-                white-space: nowrap;
-            }
+                        margin-right: 32px;
+                        cursor: pointer;
+                        white-space: nowrap;
+                    }
 
-            .isActive {
-                font-size: 16px;
-                color: #19203d;
-                font-weight: bold;
-                transition: 0.2s;
-            }
+                    .isActive {
+                        font-size: 16px;
+                        color: #19203d;
+                        font-weight: bold;
+                        transition: 0.2s;
+                    }
 
-            .isActive::after {
-                content: "";
-                display: block;
-                position: relative;
-                width: 100%;
-                height: 3px;
-                background: #4b71ee;
-                bottom: -16px;
-                /* left: -74px; */
-                right: 0;
-                transition: 0.2s;
+                    .isActive::after {
+                        content: "";
+                        display: block;
+                        position: relative;
+                        width: 100%;
+                        height: 3px;
+                        background: #4b71ee;
+                        bottom: -16px;
+                        /* left: -74px; */
+                        right: 0;
+                        transition: 0.2s;
+                    }
+                }
             }
         }
 

@@ -236,3 +236,7 @@ export const formatWeekDay = function (time: string) {
     const datelist = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"];
     return datelist[new Date(time).getDay()];
 };
+//格式化日期为 月-日
+export const formatMonthDay = function (time: string) {
+    return moment(time).format("MM-DD");
+};

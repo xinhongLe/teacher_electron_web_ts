@@ -42,7 +42,7 @@
     </div>
 </template>
 <script lang="ts" setup>
-import { reactive, ref, defineProps, onMounted, watch } from "vue";
+import { reactive, ref, defineProps, onMounted, watch, provide } from "vue";
 import Tree from "./tree/index.vue";
 import { Search } from "@element-plus/icons-vue";
 import { searchLeftMeunByKnowledge, LeftMenuParams } from "@/api/errorbook";
@@ -126,6 +126,7 @@ const state = reactive({
     loading: false,
     currentBookId: [] as string[],
     lessonName: "",
+    classId: "",
 });
 watch(
     () => props.parentSearch,
@@ -156,6 +157,7 @@ watch(
     (val) => {
         if (val.length) {
             form.value.Id = val[0].Id;
+            form.value = Object.assign(form.value, props.parentSearch);
             state.lessonName = val[0].Name;
             queryLeftMeunByKnowledge(form.value);
         }
@@ -235,6 +237,9 @@ watch(
         deep: true,
     }
 );
+onMounted(() => {
+    provide("classId", props.parentSearch.ClassId);
+});
 </script>
 <style lang="scss" scoped>
 .leftthree {

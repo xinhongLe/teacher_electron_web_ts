@@ -95,7 +95,7 @@
 </template>
 
 <script lang="ts">
-import { PropType, defineComponent, ref, watch, reactive } from "vue";
+import { PropType, defineComponent, ref, watch, reactive, inject } from "vue";
 import { searchLeftMeunByKnowledge } from "@/api/errorbook";
 export default defineComponent({
     props: {
@@ -119,6 +119,7 @@ export default defineComponent({
     },
 
     setup(props) {
+        const classId = inject("classId") as string;
         const isOpen = ref(true);
         const isloading = ref(false);
         //展开
@@ -126,7 +127,10 @@ export default defineComponent({
             if (data.Id) {
                 if (data.Lessons) return;
                 isloading.value = true;
-                const res = await searchLeftMeunByKnowledge({ Id: data.Id });
+                const res = await searchLeftMeunByKnowledge({
+                    Id: data.Id,
+                    ClassId: classId,
+                });
                 if (res.success && res.resultCode == 200) {
                     isloading.value = false;
                     data.Lessons = res.result;

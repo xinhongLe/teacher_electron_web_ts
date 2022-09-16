@@ -125,6 +125,15 @@ export interface ErrorQuestionDetails {
     Homeworks: Homeworks[];
     RepeatWrongStudentTags: RepeatWrongStudentTags[];
 }
+//学生做题历史入参
+export interface historyStudylParams {
+    MissionStudyID: string;
+}
+//做题入参
+export interface historyParams {
+    StudentID: string;
+    QuestionId: string;
+}
 
 type GetLeftMenuByHomeWork = IResponse<LeftMenuByHomeWork[]>;
 type GetKnowledgeLabList = IResponse<KnowledgeLabList[]>;
@@ -260,6 +269,33 @@ export function getErrorQuestionDetail(
         headers: {
             "Content-Type": "application/json-patch+json",
             // noLoading: "true",
+        },
+        method: "post",
+        data: data,
+    });
+}
+//获取做题id查做题记录详情
+export function getDetailByMissionStudyID(data: historyStudylParams) {
+    return request({
+        baseURL: AI_XUE_SHI_API_WRONG_BOOK,
+        url: "Api/V2/Teacher/Main/GetDetailByMissionStudyID",
+        headers: {
+            "Content-Type": "application/json-patch+json",
+            // noLoading: "true",
+        },
+        method: "post",
+        data: data,
+    });
+}
+
+//查学生某道题的做题记录
+export function getStudentQuestionMissionStudyIds(data: historyParams) {
+    return request({
+        baseURL: AI_XUE_SHI_API_WRONG_BOOK,
+        url: "Api/V2/Teacher/Main/GetStudentQuestionMissionStudyIds",
+        headers: {
+            "Content-Type": "application/json-patch+json",
+            noLoading: "true",
         },
         method: "post",
         data: data,

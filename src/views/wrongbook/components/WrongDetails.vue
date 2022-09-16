@@ -208,26 +208,44 @@
                                         formatRecentWrongRatio(item.Homeworks)
                                     }}%</span
                                 >
-                                <div
-                                    class="arrowtwo"
-                                    v-if="formatErrorCom(item.Homeworks) == 1"
-                                >
-                                    <img
-                                        src="~@/assets/images/wrongbook/arrow_next_rest.png"
-                                        alt=""
-                                    />
-                                    <div class="bg"></div>
-                                </div>
-                                <div
-                                    class="arrow"
-                                    v-if="formatErrorCom(item.Homeworks) == 2"
-                                >
-                                    <img
-                                        src="~@/assets/images/wrongbook/arrow_next_rest1.png"
-                                        alt=""
-                                    />
-                                    <div class="bg"></div>
-                                </div>
+
+                                <img
+                                    class="arrow-jt-icon"
+                                    v-if="
+                                        formatErrorCom(item.Homeworks) == 1 &&
+                                        item.QuestionId == state.currentIndex
+                                    "
+                                    src="~@/assets/images/wrongbook/arrow_up_white.png"
+                                    alt=""
+                                />
+                                <img
+                                    class="arrow-jt-icon"
+                                    v-if="
+                                        formatErrorCom(item.Homeworks) == 1 &&
+                                        item.QuestionId != state.currentIndex
+                                    "
+                                    src="~@/assets/images/wrongbook/arrow_up_red.png"
+                                    alt=""
+                                />
+                                <img
+                                    class="arrow-jt-icon"
+                                    v-if="
+                                        formatErrorCom(item.Homeworks) == 2 &&
+                                        item.QuestionId == state.currentIndex
+                                    "
+                                    src="~@/assets/images/wrongbook/arrow_down_white.png"
+                                    alt=""
+                                />
+
+                                <img
+                                    class="arrow-jt-icon"
+                                    v-if="
+                                        formatErrorCom(item.Homeworks) == 2 &&
+                                        item.QuestionId != state.currentIndex
+                                    "
+                                    src="~@/assets/images/wrongbook/arrow_down_green.png"
+                                    alt=""
+                                />
                                 <div v-else></div>
                             </div>
                         </div>
@@ -259,7 +277,7 @@
                                                 errorQuestionDetails
                                                     .QuestionInfo
                                                     .QuestionKnowledges
-                                            )
+                                            ) || "未标记"
                                         }}</span
                                     >
                                 </div>
@@ -287,12 +305,12 @@
                                 >
                             </div>
                         </div>
-                        <div class="contents">
+                        <!-- <div class="contents">
                             {{
                                 errorQuestionDetails.QuestionInfo
                                     .QuestionText || ""
                             }}
-                        </div>
+                        </div> -->
                         <div class="error-img">
                             <!-- <img ref="imgRef" :src="state.errorFiles" /> -->
                             <el-image
@@ -361,7 +379,7 @@
                                     :key="index"
                                     @click="
                                         (state.currentStatisticIndex = index),
-                                            switchStudentDetails(item)
+                                            switchStudentDetails(item, index)
                                     "
                                     :class="{
                                         isActive:
@@ -454,24 +472,28 @@
                             <div class="top-area" @click="expendStudent(item)">
                                 <div class="left">
                                     <p class="title">
-                                        {{
-                                            item.TagLevel == 300
-                                                ? "A层"
-                                                : item.TagLevel == 200
-                                                ? "B层"
-                                                : item.TagLevel == 100
-                                                ? "C层"
-                                                : "未标记"
-                                        }}(<span>{{
+                                        <span v-if="item.TagId">
+                                            {{
+                                                item.TagLevel == 300
+                                                    ? "A层"
+                                                    : item.TagLevel == 200
+                                                    ? "B层"
+                                                    : item.TagLevel == 100
+                                                    ? "C层"
+                                                    : ""
+                                            }}
+                                        </span>
+                                        <span v-else> 未标记 </span>
+                                        (<span>{{
                                             item.Students
                                                 ? item.Students.length
                                                 : 0
                                         }}</span
                                         >)
                                     </p>
-                                    <p class="desc" v-if="!state.isRepeat">
-                                        ( 答错
+                                    <div class="desc" v-if="!state.isRepeat">
                                         <span>
+                                            ( 答错
                                             {{
                                                 formatAnswerCount(
                                                     2,
@@ -500,24 +522,57 @@
                                                     : 0
                                             }}</span
                                         >
-                                        完成率<span>
+                                        完成率
+                                        <span>
                                             {{
                                                 Number(
                                                     item.FinishRatio * 100
                                                 ).toFixed(1)
-                                            }}%</span
+                                            }}%
+                                        </span>
+
+                                        / 错误率<span
+                                            :style="{
+                                                color:
+                                                    formatPreErrorIcon(item) ==
+                                                    1
+                                                        ? '#FF6B6B'
+                                                        : formatPreErrorIcon(
+                                                              item
+                                                          ) == 2
+                                                        ? '#33E190'
+                                                        : '',
+                                            }"
                                         >
-                                        / 错误率<span>
                                             {{
                                                 Number(
                                                     item.WrongRatio * 100
                                                 ).toFixed(1)
-                                            }}%</span
-                                        >
+                                            }}%
+                                        </span>
+
+                                        <img
+                                            class="arrow-jt-icon"
+                                            v-if="formatPreErrorIcon(item) == 1"
+                                            src="~@/assets/images/wrongbook/arrow_up_red.png"
+                                            alt=""
+                                        />
+
+                                        <img
+                                            class="arrow-jt-icon"
+                                            v-if="formatPreErrorIcon(item) == 2"
+                                            src="~@/assets/images/wrongbook/arrow_down_green.png"
+                                            alt=""
+                                        />
+                                        <span v-else></span>
                                         )
-                                    </p>
+                                    </div>
+                                    <!-- <p class="desc" v-else>(学生总数 0)</p> -->
                                 </div>
-                                <div @click.stop="expendStudent(item)">
+                                <div
+                                    @click.stop="expendStudent(item)"
+                                    v-if="item.Students?.length"
+                                >
                                     <img
                                         :src="
                                             item.isExpend
@@ -601,6 +656,8 @@
     <ErrorHstory
         v-if="state.errorHstoryVisible"
         v-model:visible="state.errorHstoryVisible"
+        v-model:historyData="state.historyData"
+        v-model:errorTitle="state.errorTitle"
     ></ErrorHstory>
 </template>
 
@@ -785,6 +842,13 @@ const state = reactive({
     homeworkName: "",
     //知识点维度-课程名称
     lessonName: "",
+    //错题信息
+    historyData: {
+        StudentID: "",
+        QuestionID: "",
+    },
+    errorTitle: "",
+    detailListIndex: 0,
 });
 provide("nowQuestionID", state.currentIndex);
 
@@ -860,11 +924,30 @@ const formatTagDetails = () => {
     });
 };
 //切换学生答题详情-知识点章节维度
-const switchStudentDetails = (data: any) => {
+const switchStudentDetails = (data: any, index: number) => {
     console.log("学生答题错题情况", data);
+    state.detailListIndex = index;
     if (data?.Tags.length) {
+        // formatPreErrorIcon(index);
         state.detailList = data.Tags;
+        // console.log("state.detailList ", state.detailList);
         formatTagDetails();
+    }
+};
+//和上个的错误率相比较
+const formatPreErrorIcon = (data: any) => {
+    if (state.detailListIndex == 0) return 0;
+    const preDetailList = state.statisticsList[state.detailListIndex - 1].Tags;
+    const preData: any = preDetailList.find((item: any) => {
+        return item.TagLevel == data.TagLevel;
+    });
+    console.log("data, preData", data, preData);
+    if (data.WrongRatio > preData.WrongRatio) {
+        return 1;
+    } else if (data.WrongRatio < preData.WrongRatio) {
+        return 2;
+    } else {
+        return 0;
     }
 };
 //计算答题情况-未答
@@ -1059,6 +1142,7 @@ const openSimilarQuestion = () => {
 //根据错题查询错题详情
 const queryDetails = async (data: any) => {
     console.log("errorData-------", data);
+    state.detailListIndex = 0;
     state.isRepeat = false;
     state.currentIndex = data.QuestionId || "";
     //查看是否有同类题
@@ -1105,7 +1189,11 @@ const queryListByHomework = async (params: QuestionListByHomeworkParams) => {
 };
 //打开某个学生的错题历史
 const openErrorHistory = (data: any) => {
+    state.historyData.StudentID = data.StudentId;
+    state.historyData.QuestionID = state.currentIndex;
+    state.errorTitle = state.lessonName || state.homeworkName || "";
     state.errorHstoryVisible = true;
+    console.log("data---", data, state.errorHstoryVisible);
 };
 onMounted(() => {
     emitter.on("openErrorBookDetails", (val) => {
@@ -1124,7 +1212,7 @@ onMounted(() => {
             homeworkParams.ClassHomeworkPaperId = val.classHomeworkPaperId;
             homeworkParams.SortContent = 1; //排序字段
             homeworkParams.SortTagLevel = 0; //等级
-            homeworkParams.SortType = 1; //排序类型
+            homeworkParams.SortType = 2; //排序类型
             queryListByHomework(homeworkParams);
         } else {
             state.wrongQuestionList = val.questionList;
@@ -1590,6 +1678,8 @@ onBeforeMount(() => {
                             .desc {
                                 font-size: 12px;
                                 font-family: HarmonyOS_Sans_SC;
+                                display: flex;
+                                align-items: center;
                             }
                         }
                     }
@@ -1660,38 +1750,6 @@ onBeforeMount(() => {
             }
         }
     }
-    .arrow {
-        position: relative;
-        img {
-            position: absolute;
-            bottom: -7px;
-            left: 3px;
-        }
-        .bg {
-            width: 1px;
-            height: 9px;
-            border: 1px solid #2ee18e;
-            position: absolute;
-            top: -5px;
-            left: 5px;
-        }
-    }
-    .arrowtwo {
-        position: relative;
-        img {
-            position: absolute;
-            top: -7px;
-            left: 4px;
-        }
-        .bg {
-            width: 1px;
-            height: 9px;
-            border: 1px solid #ff6b6b;
-            position: absolute;
-            bottom: -5px;
-            left: 5px;
-        }
-    }
 }
 .question-dialog {
     :deep(.el-dialog) {
@@ -1712,5 +1770,10 @@ onBeforeMount(() => {
         justify-content: center;
         padding: 0;
     }
+}
+</style>
+<style>
+.arrow-jt-icon {
+    padding: 0 2px;
 }
 </style>

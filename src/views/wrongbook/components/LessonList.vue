@@ -42,14 +42,14 @@
                                 {{ formatQuestionType(item.QuestionType) }}
                             </div>
                             <div class="content">
-                                <p class="title" v-if="item.QuestionText">
+                                <!-- <p class="title" v-if="item.QuestionText">
                                     {{ item.QuestionText }}
-                                </p>
+                                </p> -->
                                 <p class="desc">
                                     知识点：{{
                                         formatKnowledges(
                                             item.QuestionKnowledges
-                                        ) || ""
+                                        ) || "未标记"
                                     }}
                                 </p>
                             </div>
@@ -121,30 +121,23 @@
                                         }}%
                                     </span>
 
-                                    <div
-                                        class="arrowtwo"
+                                    <img
+                                        class="arrow-jt-icon"
                                         v-if="
                                             formatErrorCom(item.Homeworks) == 1
                                         "
-                                    >
-                                        <img
-                                            src="~@/assets/images/wrongbook/arrow_next_rest.png"
-                                            alt=""
-                                        />
-                                        <div class="bg"></div>
-                                    </div>
-                                    <div
-                                        class="arrow"
+                                        src="~@/assets/images/wrongbook/arrow_up_red.png"
+                                        alt=""
+                                    />
+
+                                    <img
+                                        class="arrow-jt-icon"
                                         v-if="
                                             formatErrorCom(item.Homeworks) == 2
                                         "
-                                    >
-                                        <img
-                                            src="~@/assets/images/wrongbook/arrow_next_rest1.png"
-                                            alt=""
-                                        />
-                                        <div class="bg"></div>
-                                    </div>
+                                        src="~@/assets/images/wrongbook/arrow_down_green.png"
+                                        alt=""
+                                    />
                                     <div v-else></div>
                                 </div>
                             </div>
@@ -824,38 +817,7 @@ onBeforeUnmount(() => {
                             color: #19203d;
                             padding-top: 6px;
                             display: flex;
-                            .arrow {
-                                position: relative;
-                                img {
-                                    position: absolute;
-                                    bottom: 0px;
-                                    left: 3px;
-                                }
-                                .bg {
-                                    width: 1px;
-                                    height: 9px;
-                                    border: 1px solid #2ee18e;
-                                    position: absolute;
-                                    top: 1px;
-                                    left: 5px;
-                                }
-                            }
-                            .arrowtwo {
-                                position: relative;
-                                img {
-                                    position: absolute;
-                                    top: 0px;
-                                    left: 4px;
-                                }
-                                .bg {
-                                    width: 1px;
-                                    height: 9px;
-                                    border: 1px solid #ff6b6b;
-                                    position: absolute;
-                                    bottom: 2px;
-                                    left: 5px;
-                                }
-                            }
+                            align-items: center;
                         }
                     }
                     .wrong-ratedata {
