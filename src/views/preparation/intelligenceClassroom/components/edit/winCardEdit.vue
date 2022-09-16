@@ -32,7 +32,7 @@
 </template>
 <script lang="ts">
 import { defineComponent, reactive, toRefs, ref, watch, computed, PropType } from "vue";
-import { Slide, IWin, PPTVideoElement, SaveType } from "wincard/src/types/slides";
+import { Slide, IWin, PPTVideoElement, SaveType } from "wincard";
 import CardSelectDialog from "./cardSelectDialog.vue";
 import { IPageValue, ICards } from "@/types/home";
 import SelectVideoDialog from "./selectVideoDialog.vue";

@@ -6,7 +6,7 @@ import useHome from "@/hooks/useHome";
 import emitter from "@/utils/mitt";
 import isElectron from "is-electron";
 import { getWindowCards } from "@/views/preparation/intelligenceClassroom/api";
-import { Slide } from "wincard/src/types/slides";
+import { Slide } from "wincard";
 const dealCardData = (card:SchoolWindowCardInfo) => {
     const pages = card.PageList.map(page => {
         return {

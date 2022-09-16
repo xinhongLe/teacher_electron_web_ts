@@ -1,7 +1,7 @@
 import { IPageValue } from "@/types/home";
 import { onUnmounted, Ref, ref, watch } from "vue";
 import useHome from "@/hooks/useHome";
-import { Slide } from "wincard/src/types/slides";
+import { Slide } from "wincard";
 import { store } from "@/store";
 
 export default (pageValue: Ref<IPageValue>) => {

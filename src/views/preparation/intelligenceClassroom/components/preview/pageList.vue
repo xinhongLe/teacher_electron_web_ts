@@ -46,7 +46,7 @@ import PageItem from "../pageItem.vue";
 import { windowInfoKey } from "@/hooks/useWindowInfo";
 import { SchoolWindowPageInfo } from "@/types/preparation";
 import { find } from "lodash";
-import { IElement } from "mwhiteboard/src/components/whiteboard/types";
+import { IElement } from "mwhiteboard";
 import { useStore } from "@/store";
 export default defineComponent({
     props: {

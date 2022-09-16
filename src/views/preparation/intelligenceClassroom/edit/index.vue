@@ -301,7 +301,7 @@ import useAddPage from "./hooks/useAddPage";
 import useUpdateName from "./hooks/useUpdateName";
 import useGetPageSlide from "./hooks/useGetPageSlide";
 import isElectron from "is-electron";
-import { SaveType, Slide } from "wincard/src/types/slides";
+import { SaveType, Slide } from "wincard";
 import { saveWindows, saveAsWindows } from "../api";
 import { find, isEqual, pullAllBy, cloneDeep } from "lodash";
 import emitter from "@/utils/mitt";
