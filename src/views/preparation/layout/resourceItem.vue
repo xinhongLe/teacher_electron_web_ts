@@ -45,7 +45,7 @@
             </div>
             <div class="resource-control">
                 <div class="resource-control-up">
-                    <div class="resource-degree" :class="['', 'difficult', 'middle', ''][data.Degree]">{{["", "高", "中", "易"][data.Degree]}}</div>
+                    <div class="resource-degree" v-if="RESOURCE_TYPE.TOOL !== data.ResourceType" :class="['', 'difficult', 'middle', ''][data.Degree]">{{["", "高", "中", "易"][data.Degree]}}</div>
                     <div class="resource-type" :class="typeResources[data.ResourceType] < 9 && 'p-r-' + typeResources[data.ResourceType]">{{textResources[data.ResourceType]}}</div>
                     <el-dropdown
                         v-if="btns && name !== 'attendClass' && name !== 'preview' && (data.ResourceShowType === 0 || (data.ResourceShowType === 1 && isMySelf))"
@@ -60,19 +60,13 @@
                             <el-dropdown-menu>
                                 <el-dropdown-item command="version" v-if="data.ResourceShowType === 0">
                                     <div class="dropdown-item">
-                                        <img
-                                            src="@/assets/images/preparation/icon_bbjl_blue.png"
-                                            alt=""
-                                        />
+                                        <img src="@/assets/images/preparation/icon_bbjl_blue.png" alt=""/>
                                         &nbsp;&nbsp;版本记录
                                     </div>
                                 </el-dropdown-item>
                                 <el-dropdown-item command="delete" v-if="isMySelf">
                                     <div class="dropdown-item delete">
-                                        <img
-                                            src="@/assets/images/preparation/icon_delete.png"
-                                            alt=""
-                                        />
+                                        <img src="@/assets/images/preparation/icon_delete.png" alt=""/>
                                         &nbsp;&nbsp;删除
                                     </div>
                                 </el-dropdown-item>
@@ -81,11 +75,15 @@
                     </el-dropdown>
                 </div>
                 <div class="p-resource-bottom no-border" v-if="!hover && btns && name !== 'attendClass' && name !== 'preview'">
-                    <el-button class="p-control-btn" size="small" @click.stop="handleCommand('download')" v-if="canDownload">
+                    <el-button
+                               class="p-control-btn" size="small" @click.stop="handleCommand('download')"
+                               v-if="canDownload && RESOURCE_TYPE.TOOL !== data.ResourceType">
                         <img src="@/assets/images/preparation/icon_download_white.png" alt="">
                         下载
                     </el-button>
-                    <el-button class="p-control-btn" size="small" @click.stop="handleCommand('edit')" v-if="canEdit">
+                    <el-button
+                               class="p-control-btn" size="small" @click.stop="handleCommand('edit')"
+                               v-if="canEdit && RESOURCE_TYPE.TOOL !== data.ResourceType">
                         <img src="@/assets/images/preparation/icon_bianji.png" alt="">
                         编辑
                     </el-button>
@@ -101,11 +99,15 @@
             </div>
         </div>
         <div class="p-resource-bottom" v-if="hover && btns && name !== 'attendClass' && name !== 'preview'">
-            <el-button class="p-control-btn" size="small" @click.stop="handleCommand('download')" v-if="canDownload">
+            <el-button
+                       class="p-control-btn" size="small" @click.stop="handleCommand('download')"
+                       v-if="canDownload && RESOURCE_TYPE.TOOL !== data.ResourceType">
                 <img src="@/assets/images/preparation/icon_download_white.png" alt="">
                 下载
             </el-button>
-            <el-button class="p-control-btn" size="small" @click.stop="handleCommand('edit')" v-if="canEdit">
+            <el-button
+                       class="p-control-btn" size="small" @click.stop="handleCommand('edit')"
+                       v-if="canEdit && RESOURCE_TYPE.TOOL !== data.ResourceType">
                 <img src="@/assets/images/preparation/icon_bianji.png" alt="">
                 编辑
             </el-button>
@@ -124,11 +126,10 @@
 <script lang="ts">
 import { computed, defineComponent, PropType } from "vue";
 import { Refresh, MoreFilled } from "@element-plus/icons-vue";
-import { iconResources, textResources, typeResources } from "@/config/resource";
+import { iconResources, textResources, typeResources, RESOURCE_TYPE } from "@/config/resource";
 import { IResourceItem } from "@/api/resource";
 import moment from "moment";
 import { useStore } from "@/store";
-import { RESOURCE_TYPE } from "@/config/resource";
 export default defineComponent({
     components: { Refresh, MoreFilled },
     props: {
@@ -149,9 +150,9 @@ export default defineComponent({
             required: true
         },
         name: {
-			type: String,
-			default: ""
-		}
+            type: String,
+            default: ""
+        }
     },
     emits: ["eventEmit"],
     setup(props, { emit }) {
@@ -174,28 +175,28 @@ export default defineComponent({
         const canDownload = computed(() => [1, 2, 3, 4, 5].indexOf(props.data.ResourceShowType) === -1);
 
         const formatImgs: { [key: string]: any } = {
-            "xlsx": require("@/assets/projection/format/icon_execl@2x.png"),
-            "xls": require("@/assets/projection/format/icon_execl@2x.png"),
-            "ppt": require("@/assets/projection/format/icon_ppt@2x.png"),
-            "pptx": require("@/assets/projection/format/icon_ppt@2x.png"),
-            "doc": require("@/assets/projection/format/icon_word@2x.png"),
-            "docx": require("@/assets/projection/format/icon_word@2x.png"),
-            "pdf": require("@/assets/projection/format/icon_pdf@2x.png"),
-            "gif": require("@/assets/projection/format/icon_pic@2x.png"),
-            "png": require("@/assets/projection/format/icon_pic@2x.png"),
-            "jpg": require("@/assets/projection/format/icon_pic@2x.png"),
-            "jpeg": require("@/assets/projection/format/icon_pic@2x.png"),
-            "mp3": require("@/assets/projection/format/icon_music@2x.png"),
-            "wav": require("@/assets/projection/format/icon_music@2x.png"),
-            "mp4": require("@/assets/projection/format/icon_shipin@2x.png"),
-            "other": require("@/assets/projection/format/icon_other@2x.png")
+            xlsx: require("@/assets/projection/format/icon_execl@2x.png"),
+            xls: require("@/assets/projection/format/icon_execl@2x.png"),
+            ppt: require("@/assets/projection/format/icon_ppt@2x.png"),
+            pptx: require("@/assets/projection/format/icon_ppt@2x.png"),
+            doc: require("@/assets/projection/format/icon_word@2x.png"),
+            docx: require("@/assets/projection/format/icon_word@2x.png"),
+            pdf: require("@/assets/projection/format/icon_pdf@2x.png"),
+            gif: require("@/assets/projection/format/icon_pic@2x.png"),
+            png: require("@/assets/projection/format/icon_pic@2x.png"),
+            jpg: require("@/assets/projection/format/icon_pic@2x.png"),
+            jpeg: require("@/assets/projection/format/icon_pic@2x.png"),
+            mp3: require("@/assets/projection/format/icon_music@2x.png"),
+            wav: require("@/assets/projection/format/icon_music@2x.png"),
+            mp4: require("@/assets/projection/format/icon_shipin@2x.png"),
+            other: require("@/assets/projection/format/icon_other@2x.png")
         };
 
         const formatImg = computed(() => formatImgs[props.data.File?.FileExtention || "other"]);
 
-        const directoryName = computed(() =>  {
+        const directoryName = computed(() => {
             if (!props.data.TextBooks) return "--";
-            const book = props.data.TextBooks.find(item =>  {
+            const book = props.data.TextBooks.find(item => {
                 return props.lessonId === item.LessonID || !item.LessonID;
             });
             return book ? book.SubjectName + " / " + book.PublisherName + " / " + book.AlbumName + (book.ChapterName ? " / " + book.ChapterName : "") + (book.LessonName ? " / " + book.LessonName : "") : "--";

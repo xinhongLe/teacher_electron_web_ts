@@ -1,5 +1,5 @@
 <template>
-    <div class="answer-result-warp">
+    <div  :class="['answer-result-warp', lessonId ? '' : 'answer-result-warp_bg']">
         <div class="title-warp">
             <div class="progress-warp">
                 <el-icon :size="22" color="#8B8B8F"><clock /></el-icon>
@@ -36,7 +36,7 @@
 <!--               </div>-->
            </div>
        </div>
-        <div class="footer">
+        <div class="footer" v-if="!lessonId">
             <el-button type="primary" @click="close" >关闭</el-button>
         </div>
     </div>
@@ -79,6 +79,10 @@ export default defineComponent({
         },
         answerDetail: {
             type: Object as PropType<StudentAnswerInfoList>
+        },
+        lessonId: {
+            type: String,
+            default: () => ""
         }
     },
     setup(props) {
@@ -230,13 +234,16 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-.answer-result-warp {
-    width: 1240px;
+.answer-result-warp_bg{
     height: 929px;
     border-radius: 8px;
     background: #F5F6FA;
     box-shadow: 0px 6px 16px -8px rgba(0, 0, 0, 0.12), 0px 9px 28px 0px rgba(0, 0, 0, 0.08), 0px 12px 48px 16px rgba(0, 0, 0, 0.05);
     border: 1px solid #ccc;
+}
+.answer-result-warp {
+    width: 1240px;
+    height: 100%;
     display: flex;
     flex-direction: column;
     .title {

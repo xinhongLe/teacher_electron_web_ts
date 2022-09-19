@@ -16,7 +16,7 @@
             </div>
         </div>
         <div class="footer">
-            <el-button>取消</el-button>
+            <el-button @click="close">取消</el-button>
             <el-button type="primary" @click="confirm">确定</el-button>
         </div>
     </div>

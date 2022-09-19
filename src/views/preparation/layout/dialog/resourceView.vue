@@ -34,6 +34,7 @@
                     :resource="resource"
 					:data="data"
                     :target="target"
+                    :lessonId="lessonId"
                     v-if="visible"
                     :close="close"
                 />

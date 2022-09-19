@@ -1,5 +1,5 @@
 <template>
-    <div class="main" v-show="!isShowStudentList">
+    <div :class="['main', lessonId ? '' : 'main_bg']" v-show="!isShowStudentList">
         <Title title="答题器" :close="close"/>
         <div class="content">
             <!-- <div class="change-mode" @click="changeMode">
@@ -17,12 +17,12 @@
                             <el-select v-model="form.selectClass" @change="_getAnswerMachineQuestionList">
                                 <el-option
                                     v-for="item in classList"
-                                    :key="item.ID"
+                                    :key="item.UserCentID"
                                     :label="answerMode === AnswerMode.AnswerMachine
-                                    ? `${item.Name}(${studentMachineListByClassIdMap[item.ID] ?.length > 0
-                                              ? allStudentListMap[item.ID] ?.length || 0 : 0})`
+                                    ? `${item.Name}(${studentMachineListByClassIdMap[item.UserCentID] ?.length > 0
+                                              ? allStudentListMap[item.UserCentID] ?.length || 0 : 0})`
                                     : `${item.Name}`"
-                                    :value="item.ID"
+                                    :value="item.UserCentID"
                                 />
                             </el-select>
                         </el-form-item>
@@ -64,7 +64,7 @@
                                     />
                                 </el-form-item>
                             </div>
-                            <div v-if="form.topicList.length > 0" class="del-btn" @click="delRow(i)">
+                            <div v-if="form.topicList.length > 1" class="del-btn" @click="delRow(i)">
                                 <img src="@/assets/images/suspension/icon_delete.png" alt="">
                             </div>
                         </div>
@@ -157,6 +157,10 @@ export default defineComponent({
         },
         currentUserInfo: {
             type: Object as PropType<UserInfoState>
+        },
+        lessonId: {
+            type: String,
+            default: () => ""
         }
     },
     setup(props, { emit }) {
@@ -188,7 +192,7 @@ export default defineComponent({
                 option: [{ required: true, message: "请选择类型", trigger: "change" }]
             },
             form: {
-                selectClass: classList.length > 0 ? classList[0].ID : "",
+                selectClass: classList.length > 0 ? classList[0].UserCentID : "",
                 topicList: [{ questionType: 0, selectSetting: [], option: [] }]
             }
         });
@@ -370,8 +374,7 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 $blue: #4b71ee;
-.main {
-    width: 620px;
+.main_bg{
     height: 550px;
     border-radius: 8px;
     background: #fff;
@@ -379,6 +382,10 @@ $blue: #4b71ee;
     0px 9px 28px 0px rgba(0, 0, 0, 0.08),
     0px 12px 48px 16px rgba(0, 0, 0, 0.05);
     border: 1px solid #ccc;
+}
+.main {
+    width: 620px;
+    height: 100%;
     display: flex;
     flex-direction: column;
     padding-bottom: 24px;

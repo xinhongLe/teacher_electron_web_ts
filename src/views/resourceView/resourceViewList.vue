@@ -46,6 +46,8 @@
                 暂不支持预览，请下载查看
             </div>
         </div>
+
+        <answer-machine v-if="type === 5" :lessonId="lessonId"></answer-machine>
     </div>
 </template>
 
@@ -56,7 +58,7 @@ import {
     PropType,
     provide,
     ref,
-    watchEffect,
+    watchEffect
 } from "vue";
 import IntelligenceClassroom from "../preparation/intelligenceClassroom/index.vue";
 import LookVideo from "@/components/lookVideo/index.vue";
@@ -65,35 +67,43 @@ import { IResourceItem } from "@/api/resource";
 import { getOssUrl } from "@/utils/oss";
 import { useStore } from "@/store";
 import { IViewResourceData } from "@/types/store";
+import AnswerMachine from "@/components/answerMachine/index.vue";
 
 export default defineComponent({
-    components: { IntelligenceClassroom, LookVideo, LookQuestion },
+    components: { AnswerMachine, IntelligenceClassroom, LookVideo, LookQuestion },
     props: {
         target: {
             type: String,
-            default: "",
+            default: ""
         },
         resource: {
             type: Object as PropType<IResourceItem | undefined>,
-            required: true,
+            required: true
         },
         type: {
-            type: Number,
+            type: Number
         },
         visible: {
             type: Boolean,
-            default: false,
+            default: false
         },
         close: {
             type: Function,
-            default: () => {},
+            default: () => {}
         },
         data: {
             type: Object as PropType<IViewResourceData>,
-            required: true,
+            required: true
         },
+        lessonId: {
+            type: String,
+            required: true
+        }
     },
     setup(props, { emit }) {
+        console.log(props.resource, "resource====");
+        console.log(props.data, "data====");
+
         const store = useStore();
         const url = ref("");
         const initIframeSrc = async () => {
@@ -142,9 +152,9 @@ export default defineComponent({
             isOffice,
             isImage,
             isAudio,
-            isVideo,
+            isVideo
         };
-    },
+    }
 });
 </script>
 
