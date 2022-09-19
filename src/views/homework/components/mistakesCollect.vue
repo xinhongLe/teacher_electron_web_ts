@@ -75,32 +75,38 @@ export default defineComponent({
         });
         const visible = computed(() => props.dialogVisible);
 
-        const client = ref();
+        const client = mqtt.connect("mqtt://emq.aixueshi.top", {
+            port: 1883,
+            username: "u001",
+            password: "p001",
+            keepalive: 30
+        });
 
         const getPublish = (id: string) => {
-            return `yikatong/tcpmq/ling/onecard/${id}`;
+            return `ErrorBack_${id}`;
         };
 
         watch(() => props.dialogVisible, (val) => {
             if (val) {
                 state.status = props.mistakesCollectState;
-                // client.subscribe(getPublish());
-                // client.value = mqtt.connect("wss://47.100.222.180:1883", {
-                //     username: "u001",
-                //     password: "p001",
-                //     keepalive: 30
-                // });
-
-            }else {
-                // client.value && client.value.end();
+            } else {
+                client && client.end();
             }
         });
 
-        client.value && client.value.on("message", function (topic:any, message:any) {
+        client && client.on("connect", function (err) {
+            window.electron.log.info("client connect mistakes", err);
+        });
+
+        client && client.on("error", (err) => {
+            window.electron.log.info("client error mistakes", err);
+        });
+
+        client && client.on("message", function (topic:any, message:any) {
             // message is Buffer
-            const infoString = message.toString();
-            console.log(topic, "topic");
-            console.log(message, "message");
+            const messageInfo = JSON.parse(message.toString());
+            state.finishCount = messageInfo.ReplyCout || 0;
+            console.log(messageInfo, "messageInfo");
         });
 
         const handleComfirm = async () => {
@@ -131,6 +137,8 @@ export default defineComponent({
                 if (res.resultCode === 200) {
                     state.status = 2;
                     state.collectionId = res.result.WrongTopicCollectionId;
+                    console.log(getPublish(state.collectionId), "getPublish");
+                    client.subscribe(getPublish(state.collectionId));
                 }
             });
         };
