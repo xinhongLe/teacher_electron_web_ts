@@ -38,7 +38,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, reactive, toRefs, ref, PropType, watch } from "vue";
+import { computed, defineComponent, reactive, toRefs, PropType, watch, onUnmounted } from "vue";
 import { Homework, StudentMission } from "@/types/homework";
 import { sendWrongTopicDetail, GetStudentMissionList, overWrongTopicCollection } from "../api";
 import mqtt from "mqtt";
@@ -90,7 +90,7 @@ export default defineComponent({
             if (val) {
                 state.status = props.mistakesCollectState;
             } else {
-                client && client.end();
+                client.unsubscribe(getPublish(state.collectionId));
             }
         });
 
@@ -152,8 +152,16 @@ export default defineComponent({
         };
         const close = () => {
             state.status = 0;
+            state.finishCount = 0;
+            state.collectionId = "";
+            state.studentsList = [];
             emit("update:dialogVisible", false);
         };
+
+        onUnmounted(() => {
+            client && client.end();
+        });
+
         return {
             ...toRefs(state),
             visible,
