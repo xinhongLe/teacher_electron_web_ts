@@ -74,7 +74,7 @@ export default defineComponent({
         });
 
         client && client.on("error", (err) => {
-            window.electron.log.info("client connect answer", err);
+            window.electron.log.info("client error answer", err);
         });
 
         client && client.on("message", function (topic:any, message:any) {

@@ -92,7 +92,7 @@ export default defineComponent({
         });
 
         client && client.on("error", (err) => {
-            window.electron.log.info("client connect quickAnswer", err);
+            window.electron.log.info("client error quickAnswer", err);
         });
 
         client && client.on("message", function (topic:any, message:any) {
