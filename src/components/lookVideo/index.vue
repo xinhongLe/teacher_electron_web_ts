@@ -54,7 +54,7 @@
                 <div @click="closeVideo">
                     <p>关闭</p>
                 </div>
-                <div @click="smallVideo" v-show="isElectron && !dialog">
+                <div @click="smallVideo" v-show="isElectron && !dialog && !noMinix">
                     <p>最小化</p>
                 </div>
                 <template v-if="isVideoEnded">
@@ -91,7 +91,8 @@ import {
     onMounted,
     nextTick,
     onUnmounted,
-	PropType
+	PropType,
+	computed
 } from "vue";
 import isElectronFun from "is-electron";
 import { getFileAndPauseByFile } from "./api";
@@ -127,6 +128,7 @@ export default defineComponent({
         const isMinimized = ref(false);
         const lastId = ref("");
         const videoLoading = ref(false);
+        const noMinix = computed(() => !!props.resource.noMinix);
         const {
             changeData,
             marks,
@@ -251,6 +253,7 @@ export default defineComponent({
         });
 
         return {
+            noMinix,
             marks,
             videoUrl,
             clearBoard,

@@ -72,7 +72,7 @@
                         <p>关闭</p>
                     </div>
                     <div
-                        v-show="isElectron && type != 2 && !isPureQuestion && !dialog"
+                        v-show="isElectron && type != 2 && !isPureQuestion && !dialog && !noMinix"
                         @click.stop="smallQuestion"
                         class="button"
                     >
@@ -97,12 +97,13 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, inject, onMounted, onUnmounted, Ref, ref, watch } from "vue";
+import { computed, defineComponent, inject, onMounted, onUnmounted, PropType, Ref, ref, watch } from "vue";
 import isElectronFun from "is-electron";
 import useDetail from "./hooks/useDetail";
 import Brush from "@/components/brush/index.vue";
 import { set, STORAGE_TYPES } from "@/utils/storage";
 import emitter from "@/utils/mitt";
+import { IViewResourceData } from "@/types/store";
 export default defineComponent({
     props: {
         close: {
@@ -121,7 +122,7 @@ export default defineComponent({
         },
 
         resource: {
-            type: Object,
+            type: Object as PropType<IViewResourceData>,
             required: true
         }
     },
@@ -130,6 +131,7 @@ export default defineComponent({
         const btnType = ref(1);
         const childRef = ref<InstanceType<typeof Brush>>();
         const isElectron = isElectronFun();
+        const noMinix = computed(() => !!props.resource.noMinix);
 
         const questionID = inject("nowQuestionID") as Ref<string>;
         const {
@@ -214,6 +216,7 @@ export default defineComponent({
         });
 
         return {
+            noMinix,
             resolutionSwitchValue,
             questionSwitchValue,
             imageUrl,

@@ -83,6 +83,7 @@ export interface IViewResourceData extends Partial<IResourceItem> {
     courseBagId?: string;
     deleteQuestionIds?: string[];
     type?: number;
+    noMinix?: boolean;
 }
 
 export interface IshowResourceFullScreen {

@@ -265,7 +265,7 @@ export default defineComponent({
                                 MutationTypes.SET_FULLSCREEN_RESOURCE,
                                 {
                                     component: "LookVideo",
-                                    resource: { id: data.OldResourceId },
+                                    resource: { id: data.OldResourceId, noMinix: true },
                                 }
                             );
                         } else if (data.ResourceShowType === 3) {
@@ -279,6 +279,7 @@ export default defineComponent({
                                         courseBagId: "",
                                         deleteQuestionIds: [],
                                         type: 1,
+                                        noMinix: true
                                     },
                                 }
                             );
