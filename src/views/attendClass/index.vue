@@ -143,7 +143,7 @@ export default defineComponent({
                         // 断点视频
                         store.commit(MutationTypes.SET_FULLSCREEN_RESOURCE, {
                             component: "LookVideo",
-                            resource: { id: resource.OldResourceId },
+                            resource: { id: resource.OldResourceId, noMinix: true },
                         });
                     } else if (resource.ResourceShowType === 3) {
                         // 练习卷
@@ -154,6 +154,7 @@ export default defineComponent({
                                 courseBagId: "",
                                 deleteQuestionIds: [],
                                 type: 1,
+                                noMinix: true
                             },
                         });
                     } else if (resource.ResourceShowType === 1) {
