@@ -143,7 +143,7 @@ export default defineComponent({
                         // 断点视频
                         store.commit(MutationTypes.SET_FULLSCREEN_RESOURCE, {
                             component: "LookVideo",
-                            resource: { id: resource.OldResourceId },
+                            resource: { id: resource.OldResourceId, openMore: true },
                         });
                     } else if (resource.ResourceShowType === 3) {
                         // 练习卷
@@ -154,6 +154,7 @@ export default defineComponent({
                                 courseBagId: "",
                                 deleteQuestionIds: [],
                                 type: 1,
+                                openMore: true
                             },
                         });
                     } else if (resource.ResourceShowType === 1) {
@@ -162,6 +163,7 @@ export default defineComponent({
                             resource: {
                                 id: resource.OldResourceId,
                                 isSystem: resource.IsSysFile === 1,
+                                openMore: true
                             },
                         });
                     } else if (
@@ -170,7 +172,7 @@ export default defineComponent({
                     ) {
                         store.commit(MutationTypes.SET_FULLSCREEN_RESOURCE, {
                             component: "ScreenViewFile",
-                            resource: { ...resource, id: resource.OldResourceId },
+                            resource: { ...resource, id: resource.OldResourceId, openMore: true },
                         });
                     }
                     logView({ id: resource.ResourceId });

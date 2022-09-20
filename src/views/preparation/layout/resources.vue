@@ -265,7 +265,7 @@ export default defineComponent({
                                 MutationTypes.SET_FULLSCREEN_RESOURCE,
                                 {
                                     component: "LookVideo",
-                                    resource: { id: data.OldResourceId, noMinix: true },
+                                    resource: { id: data.OldResourceId, openMore: true },
                                 }
                             );
                         } else if (data.ResourceShowType === 3) {
@@ -279,7 +279,7 @@ export default defineComponent({
                                         courseBagId: "",
                                         deleteQuestionIds: [],
                                         type: 1,
-                                        noMinix: true
+                                        openMore: true
                                     },
                                 }
                             );
@@ -291,6 +291,7 @@ export default defineComponent({
                                     resource: {
                                         id: data.OldResourceId,
                                         isSystem: data.IsSysFile === 1,
+                                        openMore: true
                                     },
                                 }
                             );
@@ -305,6 +306,7 @@ export default defineComponent({
                                     resource: {
                                         ...data,
                                         id: data.OldResourceId,
+                                        openMore: true
                                     },
                                 }
                             );

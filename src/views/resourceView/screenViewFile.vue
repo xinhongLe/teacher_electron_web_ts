@@ -67,7 +67,7 @@ export default defineComponent({
         // watchEffect(initIframeSrc);
 
         const close = () => {
-            store.commit(MutationTypes.REMOVE_FULLSCREEN_RESOURCE, resource.value?.id);
+            store.commit(MutationTypes.REMOVE_FULLSCREEN_RESOURCE, { id: resource.value?.id, openMore: resource.value?.openMore });
         };
         return {
             close,

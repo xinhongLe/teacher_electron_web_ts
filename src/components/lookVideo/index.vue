@@ -128,7 +128,7 @@ export default defineComponent({
         const isMinimized = ref(false);
         const lastId = ref("");
         const videoLoading = ref(false);
-        const noMinix = computed(() => !!props.resource.noMinix);
+        const noMinix = computed(() => !!props.resource.openMore);
         const {
             changeData,
             marks,
@@ -163,7 +163,7 @@ export default defineComponent({
 
         const closeVideo = () => {
             if (props.dialog) props.close();
-            store.commit(MutationTypes.REMOVE_FULLSCREEN_RESOURCE, props.resource.id);
+            store.commit(MutationTypes.REMOVE_FULLSCREEN_RESOURCE, { id: props.resource.id, openMore: props.resource.openMore, type: "LookVideo" });
         };
 
         const smallVideo = () => {

@@ -131,7 +131,7 @@ export default defineComponent({
         const btnType = ref(1);
         const childRef = ref<InstanceType<typeof Brush>>();
         const isElectron = isElectronFun();
-        const noMinix = computed(() => !!props.resource.noMinix);
+        const noMinix = computed(() => !!props.resource.openMore);
 
         const questionID = inject("nowQuestionID") as Ref<string>;
         const {

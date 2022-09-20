@@ -5,7 +5,7 @@
         </div>
         <div v-else style="height: 20px"></div>
         <Question
-            dialog
+            :dialog="dialog"
             :close="dialog ? close : closeDialog"
             :resource="resource"
             ref="questionRef"
@@ -88,7 +88,7 @@ export default defineComponent({
 
         const closeDialog = () => {
             nextTick(() => {
-                store.commit(MutationTypes.REMOVE_FULLSCREEN_RESOURCE, props.resource.id);
+                store.commit(MutationTypes.REMOVE_FULLSCREEN_RESOURCE, { id: props.resource.id, openMore: props.resource.openMore, type: "LookQuestion" });
             });
         };
 
