@@ -296,6 +296,11 @@
             @current-change="handleCurrentChange"
         />
     </div> -->
+    <ExplainQuestion
+        v-if="state.explainVisible"
+        v-model:visible="state.explainVisible"
+    >
+    </ExplainQuestion>
     <PureQuestionDialog
         v-if="state.pureQuestionVisible"
         v-model:visible="state.pureQuestionVisible"
@@ -314,9 +319,10 @@ import {
     computed,
     provide,
 } from "vue";
-import { lookQuestions } from "@/utils";
 import PureQuestionDialog from "@/components/lookQuestion/PureQuestionDialog.vue";
 import emitter from "@/utils/mitt"; //全局事件总线
+import ExplainQuestion from "./ExplainQuestion.vue";
+
 import {
     getErrorQuestionListByHomework,
     QuestionListByHomeworkParams,
@@ -329,7 +335,6 @@ import {
 import { MutationTypes, store } from "@/store";
 
 import useWrongBook from "../hooks/useWrongBook";
-
 const {
     questionTypeList,
     formatRecentWrongRatio,
@@ -379,7 +384,7 @@ const homeworkParams = reactive<QuestionListByHomeworkParams>({
     ClassHomeworkPaperId: "",
     SortContent: 1,
     SortTagLevel: 0,
-    SortType: 1,
+    SortType: 2,
 });
 //按章节维度查询参数
 const chapterLessonParams = reactive<ChapterLessonParams>({
@@ -413,6 +418,7 @@ const state = reactive({
     lessonName: "", //当前选中的左侧课程筛选-知识点
     pureQuestionVisible: false, //同类题弹框
     currentQuestionId: "",
+    explainVisible: false,
 });
 provide("nowQuestionID", state.currentQuestionId);
 //过滤分层知识点掌握-方法
@@ -437,25 +443,33 @@ const avgWrongRatioB = computed(() => {
 const avgWrongRatioC = computed(() => {
     return formatTagFun(100);
 });
-//监听问题类型
+//综合监听 问题类型和频次字段
 watch(
-    () => props.questionType,
-    (val) => {
-        console.log(val);
+    () => [props.questionType, props.frequency],
+    ([val1, val2]) => {
+        console.log("val1,val2", val1, val2);
+        filterErrorListByTypeAndFrequency(val1, val2 as string | number);
+    }
+);
+// //监听问题类型
+// watch(
+//     () => props.questionType,
+//     (val) => {
+//         console.log(val);
 
-        filterErrorListByType(val);
-    },
-    { deep: true }
-);
-//监听频次字段
-watch(
-    () => props.frequency,
-    (val) => {
-        console.log("频次字段", val);
-        filterErrorListByFrequency(val);
-    },
-    { deep: true }
-);
+//         filterErrorListByType(val);
+//     },
+//     { deep: true }
+// );
+// //监听频次字段
+// watch(
+//     () => props.frequency,
+//     (val) => {
+//         console.log("频次字段", val);
+//         filterErrorListByFrequency(val);
+//     },
+//     { deep: true }
+// );
 //监听排序字段
 watch(
     () => props.sortData,
@@ -472,10 +486,17 @@ watch(
 );
 //讲解题目
 const explainQuestion = (data: any) => {
-    console.log("讲解题目", data);
-    lookQuestions({ id: data.QuestionId, type: 0 });
+    state.explainVisible = true;
+    // nextTick(() => {
+    store.commit(MutationTypes.SET_IS_SHOW_QUESTION, {
+        flag: false,
+        info: {
+            type: 0,
+            id: data.QuestionId,
+        },
+    });
+    // });
 };
-
 const emit = defineEmits(["update:isShowDetails"]);
 //查看同类题
 const openSimilarQuestion = (data: any) => {
@@ -521,6 +542,28 @@ const formatAvgWrongRatio = (type: string, data: any) => {
         }
     }
 };
+
+//根据问题类型和频次综合筛选列表-前端筛选
+const filterErrorListByTypeAndFrequency = (
+    type: any,
+    frequency: string | number
+) => {
+    if (!state.initErrorQuestionList.length) return;
+    if (!type && !frequency) {
+        state.errorQuestionList = state.initErrorQuestionList;
+    } else if (!type && frequency) {
+        filterErrorListByFrequency(frequency);
+    } else if (type && !frequency) {
+        filterErrorListByType(type);
+    } else if (type && frequency) {
+        filterErrorListByFrequency(frequency);
+        state.errorQuestionList = state.errorQuestionList.filter(
+            (item: any) => {
+                return type.includes(item.QuestionType);
+            }
+        );
+    }
+};
 //根据问题类型筛选列表
 const filterErrorListByType = (type: any) => {
     if (!state.initErrorQuestionList.length) return;
@@ -535,7 +578,7 @@ const filterErrorListByType = (type: any) => {
     }
 };
 //前端筛选-章节知识点维度-按照频次筛选列表
-const filterErrorListByFrequency = (type: number) => {
+const filterErrorListByFrequency = (type: string | number) => {
     if (!state.initErrorQuestionList.length) return;
     if (type == 1 || type == 2) {
         state.errorQuestionList = state.initErrorQuestionList.filter(

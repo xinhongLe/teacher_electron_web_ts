@@ -15,12 +15,12 @@
                     >
                         <span>作业</span>
                     </div>
-                    <div
+                    <!-- <div
                         class="left-three"
                         @click="go('wrongbook'), clicKBuryPoint('班级错题本')"
                     >
                         <span>班级错题本</span>
-                    </div>
+                    </div> -->
                 </div>
                 <div class="right">
                     <Calendar
@@ -102,6 +102,42 @@
                 </div>
                 <div
                     class="item"
+                    @click="go('wrongbook'), clicKBuryPoint('班级错题本')"
+                >
+                    <div class="item_div">
+                        <img
+                            src="../../assets/indexImages/card_cuotiben.png"
+                            alt=""
+                        />
+                        <span>班级错题本</span>
+                    </div>
+                </div>
+                <div
+                    class="item"
+                    @click="go('class-manage'), clicKBuryPoint('班级管理')"
+                >
+                    <div class="item_div">
+                        <img
+                            src="../../assets/indexImages/icon_xuesheng.png"
+                            alt=""
+                        />
+                        <span>班级管理</span>
+                    </div>
+                </div>
+                <div
+                    class="item"
+                    @click="go('more-content'), clicKBuryPoint('更多')"
+                >
+                    <div class="item_div">
+                        <img
+                            src="../../assets/indexImages/icon_more.png"
+                            alt=""
+                        />
+                        <span>更多</span>
+                    </div>
+                </div>
+                <!-- <div
+                    class="item"
                     @click="go('course-time'), clicKBuryPoint('课后延时')"
                 >
                     <div class="item_div">
@@ -111,7 +147,7 @@
                         />
                         <span>课后延时</span>
                     </div>
-                </div>
+                </div> -->
                 <!-- <div class="item" @click="go('preparation-group')">
                     <div class="item_div">
                         <img
@@ -121,7 +157,7 @@
                         <span>集体备课</span>
                     </div>
                 </div> -->
-                <div class="item" @click="go(''), clicKBuryPoint('直播课堂')">
+                <!-- <div class="item" @click="go(''), clicKBuryPoint('直播课堂')">
                     <div class="item_div">
                         <img
                             src="../../assets/indexImages/icon_zhibo_new.png"
@@ -129,22 +165,41 @@
                         />
                         <span>直播课堂</span>
                     </div>
-                </div>
-                <div
-                    class="item"
-                    @click="go('class-manage'), clicKBuryPoint('班级管理')"
-                >
-                    <div class="item_div">
-                        <img
-                            src="../../assets/indexImages/icon_banji_new.png"
-                            alt=""
-                        />
-                        <span>班级管理</span>
-                    </div>
-                </div>
+                </div>-->
             </div>
         </div>
     </div>
+    <el-dialog
+        v-model="moreVisible"
+        width="30%"
+        center
+        :show-close="false"
+        :close-on-click-modal="false"
+        custom-class="home-cus-dialog"
+        top="37vh"
+    >
+        <div class="middle-con">
+            <!-- <div class="con-card">
+                <img src="../../assets/indexImages/pci_jtbk.png" alt="" />
+                <p>集体备课</p>
+            </div> -->
+            <div class="con-card" @click="go(''), clicKBuryPoint('直播课堂')">
+                <img src="../../assets/indexImages/pic_zbkt.png" alt="" />
+                <p>直播课堂</p>
+            </div>
+        </div>
+        <template #footer>
+            <span class="dialog-footer">
+                <div class="close-btn" @click="moreVisible = false">
+                    <img
+                        src="../../assets/indexImages/icon_close_white.png"
+                        alt=""
+                    />
+                    <span>关闭</span>
+                </div>
+            </span>
+        </template>
+    </el-dialog>
 </template>
 
 <script lang="ts">
@@ -168,13 +223,17 @@ export default defineComponent({
         const route = useRoute();
         const { weekNext, weekPre, initDays, days } = useTime();
         initDays();
-
+        const moreVisible = ref(false); //点击更多的弹框
         const go = (val: string) => {
             if (val === "") {
                 ElMessage.warning({
                     message: "功能建设中 敬请期待",
                 });
             } else {
+                if (val == "more-content") {
+                    moreVisible.value = true;
+                    return;
+                }
                 router.push(`/${val}`);
             }
         };
@@ -234,6 +293,7 @@ export default defineComponent({
             days,
             calendar,
             clicKBuryPoint,
+            moreVisible,
         };
     },
 });
@@ -262,7 +322,7 @@ export default defineComponent({
 
         .header {
             width: 100%;
-            height: 56px;
+            height: 64px;
             display: flex;
             padding: 0 20px;
             justify-content: space-between;
@@ -286,7 +346,7 @@ export default defineComponent({
             }
 
             .title {
-                font-size: 28px;
+                font-size: 32px;
                 color: #ffffff;
                 font-weight: 600;
             }
@@ -349,7 +409,7 @@ export default defineComponent({
 
                 .left-two {
                     box-sizing: border-box;
-                    margin-bottom: 28px;
+                    // margin-bottom: 28px;
                     position: relative;
                     cursor: pointer;
                     flex: 1;
@@ -416,6 +476,7 @@ export default defineComponent({
             display: flex;
 
             .item {
+                padding: 16px;
                 flex: 1;
 
                 .item_div {
@@ -433,7 +494,7 @@ export default defineComponent({
                     span {
                         position: absolute;
                         top: 18%;
-                        left: 20%;
+                        left: 10%;
                         z-index: 10;
                         font-size: 1.4vw;
                         font-family: PingFang-SC-Heavy, PingFang-SC;
@@ -452,6 +513,67 @@ export default defineComponent({
             .item:hover {
                 img {
                     filter: drop-shadow(0 0 15px #928c8c);
+                }
+            }
+        }
+    }
+}
+</style>
+<style lang="scss">
+.home-cus-dialog {
+    position: relative;
+    border-radius: 16px;
+    .el-dialog__header {
+        display: none;
+    }
+    .el-dialog__body {
+        padding: 70px 0;
+        .middle-con {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            .con-card {
+                cursor: pointer;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                p {
+                    margin-top: 13px;
+                    font-size: 20px;
+                    text-align: center;
+                    font-family: HarmonyOS_Sans_SC_Medium;
+                    color: #0c234f;
+                }
+            }
+        }
+    }
+
+    .el-dialog__footer {
+        position: relative;
+        padding: 0;
+
+        .dialog-footer {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            top: 3.5rem;
+            .close-btn {
+                cursor: pointer;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                width: 150px;
+                height: 45px;
+                background: rgba(255, 255, 255, 0.2);
+                border-radius: 25px;
+                border: 2px solid #ffffff;
+                margin: auto;
+                span {
+                    font-size: 17px;
+                    font-family: HarmonyOS_Sans_SC_Bold;
+                    color: #ffffff;
+                    line-height: 29px;
+                    padding-left: 5px;
                 }
             }
         }

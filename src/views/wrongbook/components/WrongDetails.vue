@@ -653,6 +653,12 @@
         v-if="state.pureQuestionVisible"
         v-model:visible="state.pureQuestionVisible"
     />
+    <ExplainQuestion
+        v-if="state.explainVisible"
+        v-model:visible="state.explainVisible"
+    >
+    </ExplainQuestion>
+
     <ErrorHstory
         v-if="state.errorHstoryVisible"
         v-model:visible="state.errorHstoryVisible"
@@ -675,7 +681,9 @@ import {
     provide,
 } from "vue";
 import ErrorHstory from "./ErrorHstory.vue";
+import ExplainQuestion from "./ExplainQuestion.vue";
 import PureQuestionDialog from "@/components/lookQuestion/PureQuestionDialog.vue";
+
 import { lookQuestions } from "@/utils";
 import emitter from "@/utils/mitt";
 import {
@@ -834,6 +842,8 @@ const state = reactive({
     visible: false,
     //查看同类问题
     pureQuestionVisible: false,
+    //讲解问题
+    explainVisible: false,
     //错题历史visible
     errorHstoryVisible: false,
     //作业维度的发布时间-作业发布时间
@@ -1041,40 +1051,95 @@ watch(
         }
     }
 );
-//监听问题类型改变
+
+// //监听问题类型改变
+// watch(
+//     () => questionType.value,
+//     (val) => {
+//         if (!state.initWrongQuestionList.length) return;
+//         if (val) {
+//             state.wrongQuestionList = state.initWrongQuestionList.filter(
+//                 (item: any) => {
+//                     return val.includes(item.QuestionType);
+//                 }
+//             );
+//         } else {
+//             state.wrongQuestionList = state.initWrongQuestionList;
+//         }
+//         if (state.wrongQuestionList.length) {
+//             switchWrongItem(state.wrongQuestionList[0]);
+//         } else {
+//             errorQuestionDetails.value = {};
+//         }
+//         // queryDetails(val.questionData);
+//     },
+//     { deep: true }
+// );
+// //监听频次字段
+// watch(
+//     () => frequency.value,
+//     (val) => {
+//         console.log("频次字段", val);
+//         filterErrorListByFrequency(val);
+//     },
+//     { deep: true }
+// );
+//综合监听 问题类型和频次字段
 watch(
-    () => questionType.value,
-    (val) => {
-        if (!state.initWrongQuestionList.length) return;
-        if (val) {
-            state.wrongQuestionList = state.initWrongQuestionList.filter(
-                (item: any) => {
-                    return val.includes(item.QuestionType);
-                }
-            );
-            if (state.wrongQuestionList.length) {
-                switchWrongItem(state.wrongQuestionList[0]);
-            } else {
-                errorQuestionDetails.value = {};
+    () => [questionType.value, frequency.value],
+    ([val1, val2]) => {
+        console.log("val1,val2", val1, val2);
+        filterErrorListByTypeAndFrequency(val1, val2);
+    }
+);
+//根据问题类型和频次综合筛选列表-前端筛选
+const filterErrorListByTypeAndFrequency = (
+    type: any,
+    frequency: string | number
+) => {
+    if (!state.initWrongQuestionList.length) return;
+    if (!type && !frequency) {
+        state.wrongQuestionList = state.initWrongQuestionList;
+    } else if (!type && frequency) {
+        filterErrorListByFrequency(frequency);
+    } else if (type && !frequency) {
+        filterErrorListByType(type);
+    } else if (type && frequency) {
+        filterErrorListByFrequency(frequency);
+        state.wrongQuestionList = state.wrongQuestionList.filter(
+            (item: any) => {
+                return type.includes(item.QuestionType);
             }
-        } else {
-            state.wrongQuestionList = state.initWrongQuestionList;
-        }
-        // queryDetails(val.questionData);
-    },
-    { deep: true }
-);
-//监听频次字段
-watch(
-    () => frequency.value,
-    (val) => {
-        console.log("频次字段", val);
-        filterErrorListByFrequency(val);
-    },
-    { deep: true }
-);
+        );
+        console.log(state.wrongQuestionList);
+    }
+    queryFirstDetailss();
+};
+//查询第一项详情
+const queryFirstDetailss = () => {
+    if (state.wrongQuestionList.length) {
+        switchWrongItem(state.wrongQuestionList[0]);
+    } else {
+        errorQuestionDetails.value = {};
+    }
+};
+//根据问题类型查询
+
+const filterErrorListByType = (val: any) => {
+    if (!state.initWrongQuestionList.length) return;
+    if (val) {
+        state.wrongQuestionList = state.initWrongQuestionList.filter(
+            (item: any) => {
+                return val.includes(item.QuestionType);
+            }
+        );
+    } else {
+        state.wrongQuestionList = state.initWrongQuestionList;
+    }
+    queryFirstDetailss();
+};
 //前端筛选-章节知识点维度-按照频次筛选列表
-const filterErrorListByFrequency = (type: number) => {
+const filterErrorListByFrequency = (type: number | string) => {
     if (!state.initWrongQuestionList.length) return;
     if (type == 1 || type == 2) {
         state.wrongQuestionList = state.initWrongQuestionList.filter(
@@ -1090,11 +1155,6 @@ const filterErrorListByFrequency = (type: number) => {
         );
     } else {
         state.wrongQuestionList = state.initWrongQuestionList;
-    }
-    if (state.wrongQuestionList.length) {
-        switchWrongItem(state.wrongQuestionList[0]);
-    } else {
-        errorQuestionDetails.value = {};
     }
 };
 //关闭
@@ -1121,7 +1181,17 @@ const expendStudent = (item: any) => {
 
 //讲解题目
 const explainQuestion = () => {
-    lookQuestions({ id: state.currentIndex, type: 0 });
+    // lookQuestions({ id: state.currentIndex, type: 0 });
+    state.explainVisible = true;
+    // nextTick(() => {
+    store.commit(MutationTypes.SET_IS_SHOW_QUESTION, {
+        flag: false,
+        info: {
+            type: 0,
+            id: state.currentIndex,
+        },
+    });
+    // });
 };
 //查看同类题
 const openSimilarQuestion = () => {
@@ -1160,7 +1230,8 @@ const queryDetails = async (data: any) => {
         // if (props.currentWrongType == 1) {
         if (res.result.Homeworks && res.result.Homeworks.length) {
             if (props.currentWrongType == 1) {
-                state.detailList = res.result.Homeworks[0]?.Tags;
+                const homeworks = res.result.Homeworks[0] as any;
+                state.detailList = homeworks?.Tags;
             } else {
                 state.statisticsList = res.result.Homeworks;
                 state.currentStatisticIndex = 0;
@@ -1293,6 +1364,7 @@ onBeforeMount(() => {
 
                     .title {
                         padding: 14px 0 0 14px;
+                        font-weight: 600;
                         .top {
                             display: flex;
                             align-items: center;
@@ -1372,6 +1444,7 @@ onBeforeMount(() => {
                     align-items: center;
                     .title2 {
                         padding: 14px 0 0 14px;
+                        font-weight: 600;
                         .top {
                             display: flex;
                             align-items: center;

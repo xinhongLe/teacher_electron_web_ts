@@ -23,7 +23,7 @@
     </div>
 </template>
 <script lang="ts" setup>
-import { reactive, ref, defineProps, onMounted, watch } from "vue";
+import { reactive, ref, defineProps, onMounted, watch, provide } from "vue";
 import Tree from "./tree/index.vue";
 import {
     searchLeftMeunByChapter,
@@ -34,6 +34,7 @@ import useBookList from "@/views/assignHomework/hooks/useBookList";
 import useWrongBook from "../hooks/useWrongBook";
 import emitter from "@/utils/mitt"; //全局事件总线
 import { subjectPublisherBookList } from "@/hooks/useSubjectPublisherBookList";
+provide("isShow", false);
 const { cascaderProps } = useBookList();
 const props = defineProps({
     currentWrongType: {
@@ -145,7 +146,7 @@ const changeBook = (value: string) => {
     } else {
         form.value.BookId = "";
     }
-    queryLeftMeunByChapter(form.value);
+    // queryLeftMeunByChapter(form.value);
 };
 
 //按章节查询左侧树
@@ -153,6 +154,7 @@ const queryLeftMeunByChapter = async (params: LeftMenuParams) => {
     state.loading = true;
     // console.log("params", params);
     const res: any = await searchLeftMeunByChapter(params);
+    1;
     if (res.resultCode === 200) {
         state.loading = false;
         state.treeData = res.result;

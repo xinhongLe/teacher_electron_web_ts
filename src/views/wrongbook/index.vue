@@ -3,7 +3,7 @@
         <header class="wrongbook-header">
             <div class="header-left-con">
                 <div
-                    style="padding-right: 10px"
+                    style="padding-right: 10px; cursor: pointer"
                     @click="fnPrev()"
                     v-if="isShowIcon"
                 >
@@ -31,14 +31,14 @@
                                     ? 'isActive'
                                     : ''
                             "
-                            v-for="item in fourClassList"
+                            v-for="item in (fourClassList as any)"
                         >
                             <span>{{ item.Name }}</span>
                         </div>
                     </div>
                 </div>
                 <div
-                    style="padding-left: 10px"
+                    style="padding-left: 10px; cursor: pointer"
                     @click="fnNext()"
                     v-if="isShowIcon && noScrollRight"
                 >
@@ -441,16 +441,21 @@ const sortDataName = ref({
 //监听日期区间
 watch(
     () => state.dateRange,
-    (value) => {
+    (value: any) => {
         if (value) {
+            let index = 0;
+            state.dateButtonList.forEach((item: any) => {
+                const data = getFormatDate(item.id) as any;
+                if (value[0] == data[0] && value[1] == data[1]) {
+                    index = item.id;
+                }
+            });
+            state.currentDateIndex = index;
             searchForm.value.StartTime = value[0];
             searchForm.value.EndTime = value[1];
-        } else {
-            searchForm.value.StartTime = "";
-            searchForm.value.EndTime = "";
-            state.currentDateIndex = 0;
         }
-    }
+    },
+    { deep: true }
 );
 watch(
     () => state.currentWrongType,

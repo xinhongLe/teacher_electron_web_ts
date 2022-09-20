@@ -2,11 +2,12 @@
     <div
         class="tree-box"
         :class="{
-            // 'no-before': zIndex === 0,
-            // 'no-icon': !(
-            //     (itemData.Lessons && itemData.Lessons.length > 0) ||
-            //     zIndex === 0
-            // ),
+            'no-before': zIndex === 0,
+            'no-icon': !(
+                (itemData.Lessons && itemData.Lessons.length > 0) ||
+                zIndex === 0 ||
+                isShow
+            ),
         }"
     >
         <div class="tree-item">
@@ -120,6 +121,7 @@ export default defineComponent({
 
     setup(props) {
         const classId = inject("classId") as string;
+        const isShow = inject("isShow") as boolean;
         const isOpen = ref(true);
         const isloading = ref(false);
         //展开
@@ -143,6 +145,7 @@ export default defineComponent({
         return {
             isOpen,
             isloading,
+            isShow,
             queryChildren,
         };
     },

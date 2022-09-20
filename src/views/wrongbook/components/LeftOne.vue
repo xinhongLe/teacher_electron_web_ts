@@ -139,14 +139,15 @@ const queryLeftMenuByHomeWork = async (params: LeftMenuParams) => {
     if (res.resultCode === 200) {
         state.loading = false;
         state.lessonList = res.result;
+        const lessonData: any = state.lessonList[0];
         state.currentLessonIndex = state.lessonList.length
-            ? state.lessonList[0]?.PaperId
+            ? lessonData?.PaperId
             : "";
         const currentLessonName = state.lessonList.length
-            ? state.lessonList[0]?.PaperName
+            ? lessonData?.PaperName
             : "";
         const currentLessonTime = state.lessonList.length
-            ? state.lessonList[0]?.PublishTime
+            ? lessonData?.PublishTime
             : "";
         emitter.emit("errorBookEmit", {
             id: state.currentLessonIndex,
@@ -252,12 +253,11 @@ watch(
                         white-space: nowrap;
                         text-overflow: ellipsis;
                     }
-
-                    .top-count {
-                        font-size: 13px;
-                        font-family: HarmonyOS_Sans_SC;
-                        color: #a7aab4;
-                    }
+                }
+                .top-count {
+                    font-size: 13px;
+                    font-family: HarmonyOS_Sans_SC;
+                    color: #a7aab4;
                 }
             }
 

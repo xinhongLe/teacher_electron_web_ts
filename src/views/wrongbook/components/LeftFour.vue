@@ -49,6 +49,8 @@ import { searchLeftMeunByKnowledge, LeftMenuParams } from "@/api/errorbook";
 import useWrongBook from "../hooks/useWrongBook";
 import emitter from "@/utils/mitt"; //全局事件总线
 const { queryKnowledgeLabList, knowledgeLabList } = useWrongBook();
+provide("isShow", true);
+
 const props = defineProps({
     currentWrongType: {
         type: Number,
