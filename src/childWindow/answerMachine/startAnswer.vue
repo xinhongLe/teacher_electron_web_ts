@@ -135,7 +135,6 @@ export default defineComponent({
         }
     },
     setup(props, { emit }) {
-        const userInfo = get(STORAGE_TYPES.USER_INFO);
         const isShowStudentList = ref(false);
         const choiceQuestion = getChoiceQuestion();
         const QuestionType = inject("QuestionType", ref(PADModeQuestionType));
@@ -303,9 +302,9 @@ export default defineComponent({
         };
         const _getTeacherClassList = () => {
             const data = {
-                Base_OrgId: props.yunInfo!.OrgId,
                 TermCode: props.yunInfo!.TermCode,
-                TeacherId: props.yunInfo!.UserId
+                Base_OrgId: props.currentUserInfo!.schoolId,
+                TeacherId: props.currentUserInfo!.userCenterUserID
             };
             getTeacherClassList(data).then(res => {
                 if (res.resultCode === 200) {

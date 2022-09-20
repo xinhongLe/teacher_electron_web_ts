@@ -25,11 +25,11 @@
 <script lang="ts">
 import { defineComponent, onMounted, PropType, reactive, ref, toRefs } from "vue";
 import Title from "@/childWindow/answerMachine/title.vue";
-import { ILessonManagerResult, IYunInfo, LessonClasses } from "@/types/login";
+import { IYunInfo } from "@/types/login";
 import { ElMessage } from "element-plus";
 import { getTeacherClassList } from "@/views/login/api";
-import { get, STORAGE_TYPES } from "@/utils/storage";
 import { IClassItem, IGradeItem } from "@/types/quickAnswer";
+import {UserInfoState} from "@/types/store";
 
 interface State {
     activeIndex:number,
@@ -42,6 +42,10 @@ export default defineComponent({
     props: {
         yunInfo: {
             type: Object as PropType<IYunInfo>,
+            require: true
+        },
+        currentUserInfo: {
+            type: Object as PropType<UserInfoState>,
             require: true
         }
     },
@@ -90,9 +94,9 @@ export default defineComponent({
 
         const _getTeacherClassList = () => {
             const data = {
-                Base_OrgId: props.yunInfo!.OrgId,
                 TermCode: props.yunInfo!.TermCode,
-                TeacherId: props.yunInfo!.UserId
+                Base_OrgId: props.currentUserInfo!.schoolId,
+                TeacherId: props.currentUserInfo!.userCenterUserID
             };
             getTeacherClassList(data).then(res => {
                 if (res.resultCode === 200) {

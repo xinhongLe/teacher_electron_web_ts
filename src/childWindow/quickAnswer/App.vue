@@ -3,7 +3,7 @@
        <div class="quick-answer-app">
            <!-- 抢答页面-->
            <div class="quickAnswer" v-if="isAnswer">
-               <select-class v-if="showSelectClass" :yunInfo="yunInfo" @openQuickAnswer="openQuickAnswer"></select-class>
+               <select-class v-if="showSelectClass" :yunInfo="yunInfo" :currentUserInfo="currentUserInfo" @openQuickAnswer="openQuickAnswer"></select-class>
                <quick-answer-detail v-if="showQuickAnswer" :classList="classList" :currentUserInfo="currentUserInfo"></quick-answer-detail>
            </div>
 
@@ -35,6 +35,9 @@ export default defineComponent({
         const userInfo = get(STORAGE_TYPES.USER_INFO);
         const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
         const allStudentList = ref<Student[]>([]);
+        console.log(userInfo, "userInfo");
+        console.log(yunInfo, "yunInfo");
+        console.log(currentUserInfo, "currentUserInfo");
 
         const state = reactive({
             isAnswer: true,

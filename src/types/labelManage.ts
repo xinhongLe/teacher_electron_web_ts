@@ -50,3 +50,9 @@ export interface StudentTag {
     tagName: string,
     list: TagStudent[]
 }
+
+export interface IFetchAllStudents {
+    TermCode: number | string,
+    TeacherId: string,
+    OrgId: string,
+}

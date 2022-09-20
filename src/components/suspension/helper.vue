@@ -443,7 +443,7 @@ export default defineComponent({
             allStudentList.value = [];
             const data = {
                 TermCode: yunInfo.TermCode,
-                TeacherId: yunInfo.UserId,
+                TeacherId: currentUserInfo.userCenterUserID,
                 OrgId: currentUserInfo.schoolId
             };
             const res = await fetchAllStudents(data);
