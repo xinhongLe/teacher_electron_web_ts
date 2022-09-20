@@ -69,8 +69,7 @@ export interface IAnswerMachineQuestionRes{
 /**
  ID 本次任务ID 无草稿无需填写
  SaveType 是否保存为草稿 0 保存为草稿 1 发放题目
- SubjectId 科目Id- 放入课包的填写 无课包无需填写
- SubjectName 科目名称- 放入课包的填写 无课包无需填写
+ LessonId 课时Id- 放入课包的填写 无课包无需填写
  Type 0 答题器
  */
 export interface ISaveAnswerMachineQuestionRes {
@@ -80,8 +79,7 @@ export interface ISaveAnswerMachineQuestionRes {
     ClassID: string,
     Type: number,
     SaveType: number,
-    SubjectId?: string,
-    SubjectName?: string,
+    LessonId?: string,
     QuestionDetail: {
         ID?: string,
         Sort: number,
@@ -154,9 +152,7 @@ export const sendMQTTInfo: RequestFun<MQTTInfoData, null> = (data) => {
     });
 };
 
-export const getStudentAnswerEndInfo: RequestFun<MQTTInfoData, StudentAnswerInfo[]> = (
-    data
-) => {
+export const getStudentAnswerEndInfo: RequestFun<MQTTInfoData, StudentAnswerInfo[]> = (data) => {
     return request({
         baseURL: AI_XUE_SHI_API,
         url: "/Api/W4/Teach/GetStudentAnswerEndInfo",

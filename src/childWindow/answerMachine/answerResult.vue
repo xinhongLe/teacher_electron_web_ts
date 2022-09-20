@@ -57,10 +57,6 @@ export default defineComponent({
         time: {
             type: String
         },
-        unAnswerStudentList: {
-            type: Array as PropType<Student[]>,
-            default: () => []
-        },
         studentAnswerInfoList: {
             type: Array as PropType<StudentAnswerInfo[]>,
             default: () => []
@@ -72,10 +68,6 @@ export default defineComponent({
         questionOption: {
             type: String,
             default: ""
-        },
-        studentList: {
-            type: Array as PropType<Student[]>,
-            default: () => []
         },
         answerDetail: {
             type: Object as PropType<StudentAnswerInfoList>
@@ -89,23 +81,6 @@ export default defineComponent({
         const echartRef = ref<HTMLDivElement>();
         const QuestionType = inject("QuestionType", ref(PADModeQuestionType));
         console.log(QuestionType, "QuestionType-----");
-        const questionOptionList = computed(() => props.questionOption.split(";"));
-        const studentAnswerInfoListMap = computed(() => {
-            const map = new Map<string, Student[]>();
-            props.studentAnswerInfoList.forEach((item) => {
-                const questionDetailList = item.QuestionDetail.includes(";") ? item.QuestionDetail.split(";").filter(value => value) : item.QuestionDetail.split(",").filter(value => value);
-                questionDetailList.forEach(value => {
-                    const student = props.studentList.find(({ StudentID }) => StudentID === item.StudentId);
-                    if (map.has(value)) {
-                        const mapData = map.get(value);
-                        mapData!.push(student!);
-                    } else {
-                        map.set(value, [student!]);
-                    }
-                });
-            });
-            return map;
-        });
         const close = () => {
             window.electron.destroyWindow();
         };
@@ -120,7 +95,7 @@ export default defineComponent({
         const initEchart = () => {
             const chartsDom = document.getElementsByClassName("echart-warp");
             console.log(chartsDom, "chartsDom====");
-            for (let i = 0; i < props.answerDetail!.StudentQuestionResults.length; i++){
+            for (let i = 0; i < props.answerDetail!.StudentQuestionResults.length; i++) {
                 const myChart = echarts.init(chartsDom[i] as HTMLElement);
                 const xAxisData = props.answerDetail!.StudentQuestionResults[i]?.StudentQuestionOptionsResult.map(item => item.OptionName);
                 const seriesData = props.answerDetail!.StudentQuestionResults[i]?.StudentQuestionOptionsResult.map(item => item.SelectUserCount);
@@ -164,54 +139,6 @@ export default defineComponent({
                 };
                 myChart.setOption(option);
             }
-
-            // const myChart = echarts.init(echartRef.value!);
-            // const xAxisData = [...questionOptionList.value, "未完成"];
-            // const seriesData = xAxisData.map((option) => {
-            //     if (option === "未完成") {
-            //         return props.unAnswerStudentList.length;
-            //     }
-            //     return studentAnswerInfoListMap.value.get(option)?.length || 0;
-            // });
-            // const option: echarts.EChartsOption = {
-            //     xAxis: {
-            //         type: "category",
-            //         axisLabel: {
-            //             color: "#5F626F",
-            //             fontSize: 16
-            //         },
-            //         data: xAxisData
-            //     },
-            //     tooltip: {
-            //         trigger: "axis"
-            //     },
-            //     yAxis: {
-            //         type: "value",
-            //         axisLabel: {
-            //             color: "#5F626F",
-            //             fontSize: 16
-            //         },
-            //         minInterval: 1
-            //     },
-            //     series: [
-            //         {
-            //             data: seriesData,
-            //             itemStyle: {
-            //                 color: "#6686EE"
-            //             },
-            //             label: {
-            //                 formatter: "{c}",
-            //                 show: true,
-            //                 fontSize: 16,
-            //                 position: "top",
-            //                 color: "#5F626F"
-            //             },
-            //             barWidth: 80,
-            //             type: "bar"
-            //         }
-            //     ]
-            // };
-            // myChart.setOption(option);
         };
 
         onMounted(() => {
@@ -223,10 +150,8 @@ export default defineComponent({
         return	{
             close,
             QuestionType,
-            percentage: computed(() => Math.round((props.answerDetail!.CommitUserCount / props.answerDetail!.AllUserCount) * 100)),
+            percentage: computed(() => props.answerDetail!.AllUserCount ? Math.round((props.answerDetail!.CommitUserCount / props.answerDetail!.AllUserCount) * 100) : 0),
             echartRef,
-            studentAnswerInfoListMap,
-            questionOptionList,
             customColorMethod
         };
     }

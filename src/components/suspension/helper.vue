@@ -287,6 +287,8 @@ import { IpcRendererEvent } from "electron";
 import { iconResources, textResources, typeResources } from "@/config/resource";
 import usePageEvent from "@/hooks/usePageEvent";
 import { EVENT_TYPE } from "@/config/event";
+import { IYunInfo } from "@/types/login";
+import { UserInfoState } from "@/types/store";
 export default defineComponent({
     setup(props, { emit }) {
         const { createBuryingPointFn } = usePageEvent("智课助手");
@@ -310,6 +312,8 @@ export default defineComponent({
         const isLoading = ref(false);
         const allStudentList = ref<unknown[]>([]);
         let userInfo = get(STORAGE_TYPES.USER_INFO);
+        const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
+        const currentUserInfo:UserInfoState = get(STORAGE_TYPES.CURRENT_USER_INFO);
         const userId = ref(userInfo.userCenterUserID);
         const openBlackboard = () => {
             if (isElectron()) {
@@ -437,8 +441,12 @@ export default defineComponent({
         };
         const getStudentList = async () => {
             allStudentList.value = [];
-            const res = await fetchAllStudents(userInfo?.ID);
-            console.log(res, "--------------");
+            const data = {
+                TermCode: yunInfo.TermCode,
+                TeacherId: yunInfo.UserId,
+                OrgId: currentUserInfo.schoolId
+            };
+            const res = await fetchAllStudents(data);
             if (res.resultCode === 200) {
                 allStudentList.value = res.result;
             }

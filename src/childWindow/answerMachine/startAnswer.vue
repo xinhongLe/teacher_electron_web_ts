@@ -17,12 +17,9 @@
                             <el-select v-model="form.selectClass" @change="_getAnswerMachineQuestionList">
                                 <el-option
                                     v-for="item in classList"
-                                    :key="item.UserCentID"
-                                    :label="answerMode === AnswerMode.AnswerMachine
-                                    ? `${item.Name}(${studentMachineListByClassIdMap[item.UserCentID] ?.length > 0
-                                              ? allStudentListMap[item.UserCentID] ?.length || 0 : 0})`
-                                    : `${item.Name}`"
-                                    :value="item.UserCentID"
+                                    :key="item.ClassId"
+                                    :label="item.ClassName"
+                                    :value="item.ClassId"
                                 />
                             </el-select>
                         </el-form-item>
@@ -98,48 +95,17 @@
 <script lang="ts">
 import { computed, defineComponent, inject, PropType, reactive, ref, toRefs, watch } from "vue";
 import { get, STORAGE_TYPES } from "@/utils/storage";
-import { LessonClasses } from "@/types/login";
+import { IYunInfo, LessonClasses } from "@/types/login";
 import { Student } from "@/types/labelManage";
 import { groupBy, uniqBy, cloneDeep } from "lodash";
 import { sendMQTTInfo, MQTTInfoData, getAnswerMachineQuestionList, saveAnswerMachineQuestion } from "./api";
-import { AnswerMode, PADModeQuestionType } from "./enum";
+import { AnswerMode, PADModeQuestionType, getChoiceQuestion } from "./enum";
 import useStudentMachine from "@/hooks/useStudentMachine";
 import StudentList from "./studentList.vue";
 import Title from "./title.vue";
 import { UserInfoState } from "@/types/store";
-function getChoiceQuestion() {
-    const list = [];
-    for (let i = 1; i <= 8; i++) {
-        const item = {
-            value: String(i),
-            label: String(i),
-            children: [
-                {
-                    value: "",
-                    label: ""
-                }
-            ]
-        };
-        let numberChoice = "1";
-        let englishChoice = "A";
-        for (let j = 1; j < i; j++) {
-            numberChoice += ` ${j + 1}`;
-            englishChoice += ` ${String.fromCharCode(j + 65)}`;
-        }
-        item.children = [
-            {
-                value: englishChoice,
-                label: englishChoice
-            },
-            {
-                value: numberChoice,
-                label: numberChoice
-            }
-        ];
-        list.push(item);
-    }
-    return list;
-}
+import { getTeacherClassList } from "@/views/login/api";
+import { IClassItem, IGradeItem } from "@/types/quickAnswer";
 
 export default defineComponent({
     components: {
@@ -156,7 +122,12 @@ export default defineComponent({
             required: true
         },
         currentUserInfo: {
-            type: Object as PropType<UserInfoState>
+            type: Object as PropType<UserInfoState>,
+            required: true
+        },
+        yunInfo: {
+            type: Object as PropType<IYunInfo>,
+            required: true
         },
         lessonId: {
             type: String,
@@ -165,11 +136,6 @@ export default defineComponent({
     },
     setup(props, { emit }) {
         const userInfo = get(STORAGE_TYPES.USER_INFO);
-        console.log(userInfo, "=====userInfo");
-        const classList = userInfo?.Classes as LessonClasses[];
-        // const selectClass = ref("");
-        // const selectSetting = ref<string[]>([]);
-        // const isSelected = ref(true);
         const isShowStudentList = ref(false);
         const choiceQuestion = getChoiceQuestion();
         const QuestionType = inject("QuestionType", ref(PADModeQuestionType));
@@ -184,27 +150,22 @@ export default defineComponent({
                 ]
             }
         ];
-        const option = ref();
-        const questionType = ref();
         const state = reactive({
             rules: {
                 selectClass: [{ required: true, message: "请选择班级", trigger: "change" }],
                 option: [{ required: true, message: "请选择类型", trigger: "change" }]
             },
             form: {
-                selectClass: classList.length > 0 ? classList[0].UserCentID : "",
+                selectClass: "",
                 topicList: [{ questionType: 0, selectSetting: [], option: [] }]
-            }
+            },
+            classList: [] as IClassItem[]
         });
-        // const topicList = ref(
-        //     [
-        //         { questionType: 0, selectSetting: [], option: [] }
-        //     ]
-        // );
         const { studentMachineListByClassIdMap, getStudentMachineListMap, studentMachineListMap } = useStudentMachine();
 
         const allStudentListMap = computed(() => {
             const allListMap = groupBy(props.allStudentList, "ClassID");
+            console.log(allListMap, "-----allListMap");
             const listMap: Record<string, Student[]> = {};
             Object.keys(allListMap).forEach((key) => {
                 listMap[key] = uniqBy(allListMap[key], "StudentID");
@@ -233,7 +194,6 @@ export default defineComponent({
 
         const formRef = ref();
         const start = (type:number) => {
-            // console.log(topicList.value, "-----");
             formRef.value.validate(async (valid:boolean) => {
                 if (valid) {
                     const data: MQTTInfoData = {
@@ -243,9 +203,6 @@ export default defineComponent({
                         QuestionId: `question_${new Date().getTime()}`,
                         Type: 0,
                         SaveType: type,
-                        // QuestionType: questionType.value,
-                        // QuestionOption: selectSetting.value[1].replaceAll(" ", ";"),
-                        // QuestionNum: Number(selectSetting.value[0]),
                         IsEnd: false,
                         TimeStamp: null,
                         Topic: `answer_${state.form.selectClass}`,
@@ -262,8 +219,10 @@ export default defineComponent({
                     console.log(data, "data-----");
                     if (props.answerMode === AnswerMode.PAD) {
                         // const res = await sendMQTTInfo(data);
-                        const res = await saveAnswerMachineQuestion(data);
+                        const res = await saveAnswerMachineQuestion(props.lessonId ? { ...data, LessonId: props.lessonId } : data);
                         if (res.resultCode === 200 && type === 1) {
+                            console.log(allStudentListMap.value, "allStudentListMap.value");
+                            console.log(allStudentListMap.value[state.form.selectClass], "allStudentListMap.value11");
                             emit("start",
                                 allStudentListMap.value[state.form.selectClass] || [],
                                 // questionType.value,
@@ -342,26 +301,40 @@ export default defineComponent({
                 }
             });
         };
-        _getAnswerMachineQuestionList();
+        const _getTeacherClassList = () => {
+            const data = {
+                Base_OrgId: props.yunInfo!.OrgId,
+                TermCode: props.yunInfo!.TermCode,
+                TeacherId: props.yunInfo!.UserId
+            };
+            getTeacherClassList(data).then(res => {
+                if (res.resultCode === 200) {
+                    const gradeList = res.result || [];
+                    let classList:IClassItem[] = [];
+                    gradeList.forEach((item:IGradeItem) => {
+                        classList = classList.concat(item.ClassList);
+                    });
+                    state.classList = classList;
+                    state.form.selectClass = state.classList.length > 0 ? state.classList[0].ClassId : "";
+                    state.form.selectClass && _getAnswerMachineQuestionList();
+                    console.log(res.result, "----");
+                }
+            });
+        };
+
+        _getTeacherClassList();
 
         return {
             close,
             ...toRefs(state),
             formRef,
-            // selectClass,
             allStudentListMap,
-            option,
-            // selectSetting,
-            // isSelected,
-            // topicList,
             addRow,
             delRow,
             choiceQuestionType,
             selectStudentList,
-            questionType,
             QuestionType,
             AnswerMode,
-            classList,
             changeMode,
             studentMachineListByClassIdMap,
             isShowStudentList,

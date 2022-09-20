@@ -52,7 +52,6 @@ export default defineComponent({
     },
     setup(props, { emit }) {
         const size = screen.getPrimaryDisplay().workAreaSize;
-        const unAnswerStudentList = ref([...props.studentList]);
         const allAStudents = ref(props.studentList?.length);
         const answerStudents = ref(0);
         const QuestionType = inject("QuestionType", ref(PADModeQuestionType));
@@ -102,7 +101,7 @@ export default defineComponent({
             };
             finishAnswerMachineQuestion(data).then(res => {
                 if (res.resultCode === 200) {
-                    emit("endAnswer", showTime.value, unAnswerStudentList.value);
+                    emit("endAnswer", showTime.value);
                 }
             });
         };
@@ -126,7 +125,6 @@ export default defineComponent({
             QuestionType,
             answerStudents,
             allAStudents,
-            unAnswerStudentList
         };
     }
 });
