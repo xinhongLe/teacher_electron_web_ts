@@ -3,7 +3,7 @@
        <div class="quick-answer-app">
            <!-- 抢答页面-->
            <div class="quickAnswer" v-if="isAnswer">
-               <select-class v-if="showSelectClass" :userInfo="userInfo" @openQuickAnswer="openQuickAnswer"></select-class>
+               <select-class v-if="showSelectClass" :yunInfo="yunInfo" @openQuickAnswer="openQuickAnswer"></select-class>
                <quick-answer-detail v-if="showQuickAnswer" :classList="classList" :currentUserInfo="currentUserInfo"></quick-answer-detail>
            </div>
 
@@ -36,11 +36,6 @@ export default defineComponent({
         const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
         const allStudentList = ref<Student[]>([]);
 
-        console.log(currentUserInfo, "currentUserInfo");
-        console.log(userInfo, "userInfo");
-        console.log(yunInfo, "yunInfo");
-        console.log(allStudentList.value, "allStudentList");
-
         const state = reactive({
             isAnswer: true,
             showSelectClass: false,
@@ -70,7 +65,7 @@ export default defineComponent({
                         const currentSchedule = teacherCourseList[0].ScheduleDetailData;
                         const ifHaveClass = currentSchedule.find(item => (item.StartTime <= time && time <= item.EndTime)); // 是否正在上课
                         if (ifHaveClass) {
-                            state.classList = [{ Name: ifHaveClass!.ClassName, UserCentID: ifHaveClass!.ClassID }];
+                            state.classList = [{ ClassName: ifHaveClass!.ClassName, ClassId: ifHaveClass!.ClassID }];
                             state.showQuickAnswer = true;
                         } else {
                             state.showSelectClass = true;
@@ -90,12 +85,14 @@ export default defineComponent({
         window.electron.ipcRenderer.on("sendAllStudentList", (_, studentList, isAnswer) => {
             state.isAnswer = isAnswer;
             allStudentList.value = studentList;
+            console.log(studentList, "studentList-----");
         });
 
         return {
             locale: zhCn,
             currentUserInfo,
             userInfo,
+            yunInfo,
             ...toRefs(state),
             openQuickAnswer,
             close

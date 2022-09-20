@@ -73,6 +73,12 @@ export interface ISendMsgData {
     phone: string
 }
 
+export interface IGetTeacherClassListRes {
+    "Base_OrgId": string,
+    TermCode: number | string,
+    TeacherId: string,
+}
+
 export type ILoginResponse = IResponse<ILoginResult>;
 
 export type IGradeClassTreeResponse = IResponse<[]>;

@@ -7,9 +7,9 @@
                    <el-select v-model="currentClass"  placeholder="请选择">
                        <el-option
                            v-for="item in classList"
-                           :key="item.UserCentID"
-                           :label="item.Name"
-                           :value="item.UserCentID"
+                           :key="item.ClassId"
+                           :label="item.ClassName"
+                           :value="item.ClassId"
                        />
                    </el-select>
                </div>
@@ -72,7 +72,7 @@ export default defineComponent({
         });
         watch(() => props.classList, (val) => {
             if (val?.length > 0) {
-                state.currentClass = val[0].UserCentID;
+                state.currentClass = val[0].ClassId;
             }
         }, { immediate: true });
 

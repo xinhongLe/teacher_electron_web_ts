@@ -4,7 +4,7 @@
         <div class="content">
             <div class="left">
                 <div @click.capture="handleRow(i)" :class="['leftRow', activeIndex === i ? 'active' : '']" v-for="(item, i) in gradeList" :key="i">
-                    <el-checkbox :indeterminate="item.classList.filter(item => item.check).length > 0 && (item.classList.filter(item => item.check).length < item.classList.length)"
+                    <el-checkbox :indeterminate="item.ClassList.filter(item => item.check).length > 0 && (item.ClassList.filter(item => item.check).length < item.ClassList.length)"
                                  v-model="item.check"
                                  :label="item.GradeName"
                                  @change="handleChangeGrade(item)"
@@ -12,7 +12,7 @@
                 </div>
             </div>
             <div class="right">
-                <el-checkbox  @change="handleChangeClass(item)" v-for="(item, i) in classList" :key="i" v-model="item.check" :label="item.Name" size="large" />
+                <el-checkbox  @change="handleChangeClass(item)" v-for="(item, i) in classList" :key="i" v-model="item.check" :label="item.ClassName" size="large" />
             </div>
         </div>
         <div class="footer">
@@ -25,28 +25,23 @@
 <script lang="ts">
 import { defineComponent, onMounted, PropType, reactive, ref, toRefs } from "vue";
 import Title from "@/childWindow/answerMachine/title.vue";
-import { ILessonManagerResult, LessonClasses } from "@/types/login";
+import { ILessonManagerResult, IYunInfo, LessonClasses } from "@/types/login";
 import { ElMessage } from "element-plus";
-interface ClassItem extends LessonClasses{
-    check?: boolean
-}
-interface GradeItem {
-    GradeID: string,
-    GradeName: string,
-    check: boolean,
-    classList: ClassItem[]
-}
+import { getTeacherClassList } from "@/views/login/api";
+import { get, STORAGE_TYPES } from "@/utils/storage";
+import { IClassItem, IGradeItem } from "@/types/quickAnswer";
+
 interface State {
     activeIndex:number,
-    gradeList: GradeItem[],
-    classList: ClassItem[]
+    gradeList: IGradeItem[],
+    classList: IClassItem[]
 }
 export default defineComponent({
     name: "selectClass",
     components: { Title },
     props: {
-        userInfo: {
-            type: Object as PropType<ILessonManagerResult>,
+        yunInfo: {
+            type: Object as PropType<IYunInfo>,
             require: true
         }
     },
@@ -59,9 +54,9 @@ export default defineComponent({
         });
 
         const confirm = () => {
-            let selectClass:ClassItem[] = [];
-            state.gradeList.forEach((item:GradeItem) => {
-                const arr = item.classList.filter((j:ClassItem) => j.check);
+            let selectClass:IClassItem[] = [];
+            state.gradeList.forEach((item:IGradeItem) => {
+                const arr = item.ClassList.filter((j:IClassItem) => j.check);
                 selectClass = selectClass.concat(arr);
             });
 
@@ -74,37 +69,37 @@ export default defineComponent({
 
         const handleRow = (i:number) => {
             state.activeIndex = i;
-            state.classList = state.gradeList[i].classList;
+            state.classList = state.gradeList[i].ClassList;
         };
 
-        const handleChangeGrade = (item:GradeItem) => {
-            item.classList.forEach((i:ClassItem) => {
+        const handleChangeGrade = (item:IGradeItem) => {
+            item.ClassList.forEach((i:IClassItem) => {
                 i.check = !i.check;
             });
         };
 
-        const handleChangeClass = (item: ClassItem) => {
-            state.gradeList.forEach((i:GradeItem) => {
-                if (i.GradeID === item.GradeID) {
-                    i.check = i.classList.length === i.classList.filter((j:ClassItem) => j.check).length;
+        const handleChangeClass = (item: IClassItem) => {
+            state.gradeList.some((i:IGradeItem) => {
+                const currentGrade = i.ClassList.find((j:IClassItem) => j.ClassId === item.ClassId);
+                if (currentGrade) {
+                    i.check = i.ClassList.length === i.ClassList.filter((j:IClassItem) => j.check).length;
                 }
+                return currentGrade;
             });
         };
 
-        const allGradeList = () => {
-            const allClassList = props.userInfo?.Classes || [];
-            const value:any = {};
-            allClassList.forEach((item:ClassItem) => {
-                if (value[item.GradeID]) {
-                    value[item.GradeID].classList.push(item);
-                } else {
-                    value[item.GradeID] = {};
-                    value[item.GradeID].GradeID = item.GradeID;
-                    value[item.GradeID].GradeName = item.GradeName;
-                    value[item.GradeID].classList = [item];
+        const _getTeacherClassList = () => {
+            const data = {
+                Base_OrgId: props.yunInfo!.OrgId,
+                TermCode: props.yunInfo!.TermCode,
+                TeacherId: props.yunInfo!.UserId
+            };
+            getTeacherClassList(data).then(res => {
+                if (res.resultCode === 200) {
+                    state.gradeList = res.result;
+                    state.classList = state.gradeList.length > 0 ? state.gradeList[0].ClassList : [];
                 }
             });
-            return Object.values(value);
         };
 
         const close = () => {
@@ -112,8 +107,7 @@ export default defineComponent({
         };
 
         onMounted(() => {
-            state.gradeList = allGradeList() as GradeItem[];
-            state.classList = state.gradeList.length > 0 ? state.gradeList[0].classList : [];
+            _getTeacherClassList();
         });
 
         return {
