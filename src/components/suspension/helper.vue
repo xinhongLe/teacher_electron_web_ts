@@ -222,7 +222,7 @@
                                         <template #append>
                                             <el-button
                                                 icon="el-icon-search"
-                                                @click="getGradeList"
+                                                @click.stop="getGradeList"
                                             ></el-button>
                                         </template>
                                     </el-input>
@@ -380,7 +380,7 @@ export default defineComponent({
             openUrl("https://knowledge.aixueshi.top/", "知识图谱");
         };
         const openRollCall = () => {
-            if (isGetStudentList.value) {
+            if (!isGetStudentList.value) {
                 return ElMessage.error("请等待学员加载后点名！");
             }
             if (allStudentList.value.length === 0) {
@@ -394,7 +394,7 @@ export default defineComponent({
             }
         };
         const openAnswerMachineWindow = () => {
-            if (isGetStudentList.value) {
+            if (!isGetStudentList.value) {
                 return ElMessage.error("请等待学员加载后答题！");
             }
             if (allStudentList.value.length === 0) {
@@ -409,7 +409,7 @@ export default defineComponent({
         };
 
         const openQuickAnswer = () => {
-            if (isGetStudentList) {
+            if (!isGetStudentList.value) {
                 return ElMessage.error("请等待学员加载后答题！");
             }
             if (allStudentList.value.length === 0) {

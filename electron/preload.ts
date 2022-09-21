@@ -100,7 +100,7 @@ window.electron = {
     unRegisterEscKeyUp: () => {
         remote.globalShortcut.unregister("esc");
     },
-    isExistFile: (fileName: string) => {
+    isExistFile: async (fileName: string) => {
         const filePath =
             process.platform === "darwin"
                 ? app.getPath("downloads") + fileName

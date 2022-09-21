@@ -199,7 +199,7 @@
                 ref="editRef"
                 :slide="currentSlide"
                 :allPageSlideListMap="allPageSlideListMap"
-                @onSave="saveClick"
+                @onSave="onSave"
                 @updatePageSlide="updatePageSlide"
                 @updateAllPageSlideListMap="updateAllPageSlideListMap"
                 :winId="windowInfo?.id"
@@ -253,20 +253,6 @@
         :currentValue="currentValue"
         @updateName="updateName"
     ></update-name-card-or-page>
-    <SaveDialog
-        v-if="isShowSaveDialog"
-        v-model:isShow="isShowSaveDialog"
-        :name="windowInfo.name"
-        @onSave="saveCallback"
-        :allNames="windowInfo.allWindowNames"
-    />
-    <SaveAsDialog
-        v-if="isShowSaveAsDialog"
-        v-model:isShow="isShowSaveAsDialog"
-        :name="windowInfo.name"
-        @onSave="saveCallback"
-        :allNames="windowInfo.allWindowNames"
-    />
 </template>
 
 <script lang="ts">
@@ -301,7 +287,7 @@ import useAddPage from "./hooks/useAddPage";
 import useUpdateName from "./hooks/useUpdateName";
 import useGetPageSlide from "./hooks/useGetPageSlide";
 import isElectron from "is-electron";
-import { SaveType, Slide } from "wincard";
+import { Slide } from "wincard";
 import { saveWindows, saveAsWindows } from "../api";
 import { find, isEqual, pullAllBy, cloneDeep } from "lodash";
 import emitter from "@/utils/mitt";
@@ -320,9 +306,7 @@ export default defineComponent({
         UpdateNameCardOrPage,
         AddPageDialog,
         WinCardEdit,
-        MoreFilled,
-        SaveDialog,
-        SaveAsDialog
+        MoreFilled
     },
     name: "Edit",
     setup() {
@@ -388,7 +372,6 @@ export default defineComponent({
         const windowInfo = computed(
             () => store.state.preparation.editWindowInfo
         );
-        let oldWindowName = windowInfo.value.name;
 
         const { handleAddCard, dialogVisibleCard } = useAddCard(windowCards, windowInfo);
 
@@ -435,7 +418,10 @@ export default defineComponent({
                         "",
                         "",
                         "",
-                        "删除卡或页"
+                        "删除卡或页",
+                        "",
+                        "",
+                        store.state.userInfo.schoolId
                     );
                 })
                 .catch((err) => {
@@ -447,34 +433,7 @@ export default defineComponent({
             data.State = !data.State;
         };
 
-        const isShowSaveDialog = ref(false);
-        const isShowSaveAsDialog = ref(false);
-
-        const saveClick = (type: SaveType, windowName: string) => {
-            if (windowInfo.value.originType === 0) {
-                isShowSaveAsDialog.value = true;
-            } else {
-                if (type === SaveType.Save) {
-                    if (!windowName) {
-                        return ElMessage.warning("名称不能为空");
-                    }
-                    onSave(type, windowName);
-                } else {
-                    isShowSaveDialog.value = true;
-                }
-            }
-        };
-
-        const saveCallback = (name: string) => {
-            onSave(SaveType.SaveAs, name);
-        };
-
-        const onSave = async (type: SaveType, windowName: string) => {
-            window.electron.log.info(
-                "user click save type:",
-                SaveType[type],
-                isLoadEnd.value
-            );
+        const onSave = async () => {
             if (!isLoadEnd.value) {
                 return ElMessage.warning("资源正在加载，请稍后再试...");
             }
@@ -537,54 +496,26 @@ export default defineComponent({
                 teacherID: store.state.userInfo.id,
                 cardData,
                 originType: 1,
-                windowName,
-                windowID: type === SaveType.Save ? windowInfo.value.id : ""
+                windowName: windowInfo.value.name,
+                windowID: windowInfo.value.id
             };
 
             const lessonId = (windowInfo.value.lessonId as string) || "";
             const message = "保存成功";
 
-            if (type === SaveType.Save) {
-                const res = await saveWindows(data);
-                if (res.resultCode === 200) {
-                    ElMessage.success({
-                        message,
-                        duration: 2000
-                    });
-                    store.commit(MutationTypes.SET_EDIT_WINDOW_INFO, {
-                        ...windowInfo.value,
-                        name: windowName
-                    });
-                    oldWindowName = editRef.value?.windowName;
-                    allPageSlideListMap.value.forEach((item, key) => {
-                        oldAllPageSlideListMap.value.set(key, cloneDeep(item));
-                    });
-                    oldWindowCards.value = cloneDeep(windowCards.value);
-                }
-            } else {
-                saveAsWindows({ ...data, lessonID: lessonId }).then((res) => {
-                    if (res.resultCode === 200) {
-                        allPageSlideListMap.value.forEach((item, key) => {
-                            oldAllPageSlideListMap.value.set(
-                                key,
-                                cloneDeep(item)
-                            );
-                        });
-                        oldWindowCards.value = cloneDeep(windowCards.value);
-                        oldWindowName = editRef.value?.windowName;
-                        // 回到备课页，打开最新的窗
-                        emitter.emit("windowSaveAsSuc", null);
-                        ElMessage.success({
-                            message,
-                            duration: 2000
-                        });
-                        router.push({ path: "/preparation" });
-                        emitter.emit("closeTab", {
-                            name: route.name as string,
-                            path: route.path
-                        });
-                    }
+            const res = await saveWindows(data);
+            if (res.resultCode === 200) {
+                ElMessage.success({
+                    message,
+                    duration: 2000
                 });
+                store.commit(MutationTypes.SET_EDIT_WINDOW_INFO, {
+                    ...windowInfo.value
+                });
+                allPageSlideListMap.value.forEach((item, key) => {
+                    oldAllPageSlideListMap.value.set(key, cloneDeep(item));
+                });
+                oldWindowCards.value = cloneDeep(windowCards.value);
             }
         };
 
@@ -732,19 +663,17 @@ export default defineComponent({
                     allPageSlideListMap.value,
                     oldAllPageSlideListMap.value
                 ) &&
-                isEqual(windowCards.value, oldWindowCards.value) &&
-                oldWindowName === editRef.value?.windowName
-            ) { return true; }
+                isEqual(windowCards.value, oldWindowCards.value)
+            ) return true;
             const res = await exitDialog();
             if (res === ExitType.Cancel) {
                 return false;
             }
             if (res === ExitType.Save) {
                 if (windowInfo.value.originType === 0) {
-                    isShowSaveDialog.value = true;
                     return false;
                 } else {
-                    await onSave(SaveType.Save, editRef.value?.windowName);
+                    await onSave();
                 }
             }
         });
@@ -796,10 +725,6 @@ export default defineComponent({
                 () => allPageSlideListMap.value.get(pageValue.value.ID) || {}
             ),
             windowInfo,
-            saveClick,
-            isShowSaveDialog,
-            saveCallback,
-            isShowSaveAsDialog,
             importPPT
         };
     }

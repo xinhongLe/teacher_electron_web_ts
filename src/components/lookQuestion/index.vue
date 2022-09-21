@@ -1,5 +1,5 @@
 <template>
-    <div class="look-question" :class="dialog && 'dialog-type'" v-show="!isMinimized">
+    <div class="look-question" :class="{ 'dialog-type': dialog, 'active-window': activeWindow }" v-show="!isMinimized">
         <div class="question-header" v-if="!dialog">
             <p>查看视频</p>
         </div>
@@ -64,6 +64,11 @@ export default defineComponent({
         resource: {
             type: Object as PropType<IViewResourceData>,
             required: true
+        },
+        
+        activeWindow: {
+            type: Boolean,
+            default: false
         }
     },
     setup(props) {
@@ -96,6 +101,7 @@ export default defineComponent({
 
         const openQuestion = () => {
             isMinimized.value = false;
+            store.commit(MutationTypes.SET_FULLSCREEN_RESOURCE_ACTIVE, "LookQuestion");
         };
 
         const closeQuestion = () => {
@@ -210,5 +216,9 @@ export default defineComponent({
             background-size: 100% 100%;
         }
     }
+}
+
+.active-window {
+    z-index: 10001 !important;
 }
 </style>

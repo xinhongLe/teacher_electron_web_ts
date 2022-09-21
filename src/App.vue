@@ -40,7 +40,7 @@
 import isElectron from "is-electron";
 import { defineComponent, ref } from "vue";
 import { getOssPaths } from "./api";
-import { set, STORAGE_TYPES } from "./utils/storage";
+import { get, set, STORAGE_TYPES } from "./utils/storage";
 import useUpdate from "./hooks/useUpdate";
 import { ENV } from "@/config";
 export default defineComponent({

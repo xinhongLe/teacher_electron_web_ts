@@ -116,7 +116,11 @@ export interface CommonState {
     /**
      * 单开资源
      */
-    singleResourceFullScreen: ISingleResourceFullScreen
+    singleResourceFullScreen: ISingleResourceFullScreen,
+    /**
+     * 单开资源活跃窗口
+     */
+    activeWindow: string;
 }
 export interface RootState {
     userInfo: UserInfoState,

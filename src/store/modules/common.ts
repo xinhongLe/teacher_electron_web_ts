@@ -7,7 +7,8 @@ const initState = (): CommonState => ({
     isIframe: false,
     resource: null,
     showResourceFullScreen: [],
-    singleResourceFullScreen: {}
+    singleResourceFullScreen: {},
+    activeWindow: "LookVideo"
 });
 
 const mutations:MutationTree<CommonState> = {
@@ -30,6 +31,7 @@ const mutations:MutationTree<CommonState> = {
                 state.showResourceFullScreen.push(resource[0]);
             }
         } else {
+            state.activeWindow = data.component;
             if (data.component === "LookVideo") {
                 state.singleResourceFullScreen.video = data;
             } else if (data.component === "LookQuestion") {
@@ -42,12 +44,16 @@ const mutations:MutationTree<CommonState> = {
             const index = state.showResourceFullScreen.findIndex(item => item.resource.id === id);
             if (index > -1) state.showResourceFullScreen.splice(index, 1);
         } else {
+            if (type === state.activeWindow) state.activeWindow = "";
             if (type === "LookVideo") {
                 state.singleResourceFullScreen.video = undefined;
             } else if (type === "LookQuestion") {
                 state.singleResourceFullScreen.question = undefined;
             }
         }
+    },
+    [MutationTypes.SET_FULLSCREEN_RESOURCE_ACTIVE](state, type) {
+        state.activeWindow = type;
     }
 };
 
