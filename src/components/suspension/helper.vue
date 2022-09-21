@@ -218,6 +218,8 @@
                                         placeholder="搜索教具名称"
                                         v-model="searchName"
                                         @click.stop="() => null"
+                                        @keyup.space.enter.stop="() => null"
+                                        @keydown.enter="getGradeList"
                                     >
                                         <template #append>
                                             <el-button
@@ -325,6 +327,9 @@ export default defineComponent({
         };
         const getGradeList = async () => {
             isLoading.value = true;
+            if (activeModes.value.indexOf("2") === -1) {
+                activeModes.value = activeModes.value.concat("2");
+            }
             const data = {
                 name: searchName.value,
                 bookID: "",
@@ -574,7 +579,7 @@ export default defineComponent({
             clicKBuryPoint,
             classClicKBuryPoint,
             handleChange,
-            currentClickCol,
+            currentClickCol
         };
     },
 });
