@@ -297,10 +297,7 @@ export default defineComponent({
                                 }
                             }
                         );
-                    } else if (
-                        data.ResourceShowType === 0 ||
-                            data.ResourceShowType === 4
-                    ) {
+                    } else if (data.ResourceShowType === 0 || data.ResourceShowType === 4) {
                         store.commit(
                             MutationTypes.SET_FULLSCREEN_RESOURCE,
                             {
@@ -308,6 +305,18 @@ export default defineComponent({
                                 resource: {
                                     ...data,
                                     id: data.OldResourceId
+                                }
+                            }
+                        );
+                    } else if (data.ResourceShowType === 5) {
+                        store.commit(
+                            MutationTypes.SET_FULLSCREEN_RESOURCE,
+                            {
+                                component: "AnswerMachine",
+                                resource: {
+                                    ...data,
+                                    lessonId: course.value.lessonId,
+                                    id: new Date().getTime()
                                 }
                             }
                         );

@@ -1,7 +1,8 @@
 <template>
-    <div class="answer-box">
+    <div :class="['answer-box', fixed ? 'fixed-box' : '']">
         <start-answer
             :currentUserInfo="currentUserInfo"
+            :yunInfo="yunInfo"
             :allStudentList="allStudentList"
             v-if="!(isShowTimer || isShowAnswerResult)"
             @start="start"
@@ -22,13 +23,14 @@
             v-if="isShowAnswerResult"
             :time="answerTime"
             :lessonId="lessonId"
-            :unAnswerStudentList="unAnswerStudentList"
-            :studentAnswerInfoList="studentAnswerInfoList"
             :answerDetail="answerDetail"
-            :studentList="selectStudentList"
             :questionType="selectQuestionType"
-            :questionOption="questionOption"
         />
+        <div class="iframe-footer" v-if="fixed">
+            <div class="iframe-footer-btn" @click="close">
+                <p>关闭</p>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -38,6 +40,7 @@ import { computed, defineComponent, provide, reactive, ref, toRefs } from "vue";
 import { get, STORAGE_TYPES } from "@/utils/storage";
 import { AnswerMode, MachineModeQuestionType, PADModeQuestionType } from "@/childWindow/answerMachine/enum";
 import { Student } from "@/types/labelManage";
+import { MutationTypes, useStore } from "@/store";
 import {
     getStudentQuestionResult,
     MQTTInfoData,
@@ -46,6 +49,7 @@ import {
 } from "@/childWindow/answerMachine/api";
 import AnswerTimer from "@/childWindow/answerMachine/answerTimer.vue";
 import AnswerResult from "@/childWindow/answerMachine/answerResult.vue";
+import { IYunInfo } from "@/types/login";
 
 interface State {
     isShowTimer: boolean,
@@ -56,9 +60,6 @@ interface State {
     AnswerMachineID: string,
     selectStudentList: Student[],
     answerTime: string,
-    questionOption: string,
-    unAnswerStudentList: Student[],
-    studentAnswerInfoList: StudentAnswerInfo[],
 }
 
 export default defineComponent({
@@ -68,10 +69,19 @@ export default defineComponent({
         lessonId: {
             type: String,
             required: true
+        },
+        fixed: {
+            type: Boolean,
+            default: false
+        },
+        index: {
+            type: Number,
+            default: 0
         }
     },
-    setup() {
+    setup(props) {
         const currentUserInfo = get(STORAGE_TYPES.CURRENT_USER_INFO);
+        const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
         const mqttInfo = ref<MQTTInfoData>();
         const state = reactive<State>({
             isShowTimer: false,
@@ -81,10 +91,7 @@ export default defineComponent({
             selectQuestionType: "",
             AnswerMachineID: "",
             selectStudentList: [],
-            answerTime: "",
-            unAnswerStudentList: [],
-            studentAnswerInfoList: [],
-            questionOption: ""
+            answerTime: ""
         });
         const answerDetail = ref<StudentAnswerInfoList>({
             AnswerMachineID: "",
@@ -104,30 +111,34 @@ export default defineComponent({
             state.AnswerMachineID = answerMachineID;
             state.selectStudentList = studentList;
             state.isShowTimer = true;
-            // questionOption.value = data.QuestionOption;
         };
 
         const endAnswer = async (time: string, studentList: Student[]) => {
             state.answerTime = time;
             mqttInfo.value!.IsEnd = true;
-            state.unAnswerStudentList = studentList;
             // const res = await getStudentAnswerEndInfo(mqttInfo.value);
             const res = await getStudentQuestionResult({ AnswerMachineID: state.AnswerMachineID });
             // const res = await getStudentQuestionResult({ AnswerMachineID: "C696DA084848C9E8B2D0A2CB00853504" });
             if (res.resultCode === 200) {
                 state.isShowTimer = false;
                 state.isShowAnswerResult = true;
-                console.log(res.result, "=======");
-                // studentAnswerInfoList.value = res.result;
                 answerDetail.value = res.result;
             }
+        };
+
+        const store = useStore();
+        const resource = computed(() => store.state.common.showResourceFullScreen.length > 0 ? store.state.common.showResourceFullScreen[props.index].resource : null);
+        const close = () => {
+            store.commit(MutationTypes.REMOVE_FULLSCREEN_RESOURCE, resource.value?.id);
         };
         return {
             ...toRefs(state),
             currentUserInfo,
+            yunInfo,
             answerDetail,
             start,
-            endAnswer
+            endAnswer,
+            close
         };
     }
 });
@@ -138,7 +149,42 @@ export default defineComponent({
     display: flex;
     justify-content: center;
     align-items: center;
+    flex-direction: column;
     flex: 1;
     min-height: 0;
+}
+.fixed-box{
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 10000;
+    background-color: #fff;
+}
+.iframe-footer {
+    width: 100%;
+    height: 80px;
+    padding: 12px;
+    background: rgb(125, 164, 236);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    .iframe-footer-btn {
+        width: 64px;
+        height: 64px;
+        cursor: pointer;
+        margin-right: 20px;
+        background: url("~@/assets/look/btn_guanbi@2x.png");
+        background-size: 100% 100%;
+        p {
+            color: #fff;
+            text-align: center;
+            font-size: 12px;
+            line-height: 24px;
+            margin-top: 40px;
+            font-weight: 550;
+        }
+    }
 }
 </style>

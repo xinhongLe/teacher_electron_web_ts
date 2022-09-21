@@ -1,6 +1,6 @@
 <template>
     <div :class="['main', lessonId ? '' : 'main_bg']" v-show="!isShowStudentList">
-        <Title title="答题器" :close="close"/>
+        <Title title="答题器" :close="close" :lessonId="lessonId"/>
         <div class="content">
             <!-- <div class="change-mode" @click="changeMode">
                 <el-icon color="#4b71ee" class="change-icon"><sort /></el-icon
@@ -74,7 +74,7 @@
         </div>
         <div class="footer">
             <div>
-                <el-button @click="close">取消</el-button>
+                <el-button v-if="!lessonId" @click="close">取消</el-button>
                 <el-tooltip content="您可以提前准备好题目并【保存为草稿】下次打开可直接使用" placement="top">
                     <el-button type="primary"  @click="start(0)" plain>保存为草稿</el-button>
                 </el-tooltip>

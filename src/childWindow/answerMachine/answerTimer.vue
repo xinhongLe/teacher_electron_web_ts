@@ -1,24 +1,26 @@
 <template>
-    <div class="answer-timer-warp">
-        <div class="title-warp">
-            <el-icon :size="20"><alarm-clock /></el-icon>
-            <span class="title">计时</span>
-            <span class="question-type">{{questionType}}</span>
-        </div>
-        <div class="content-warp">
-            <span class="time">{{showTime}}</span>
-            <div class="toll">
-                <div class="number-warp">
-                    <el-icon :size="16" color="#EE6058"><warning /></el-icon>
-                    <span class="number">未答人数：{{ allAStudents - answerStudents }}</span>
-                </div>
-                <div class="number-warp">
-                    <el-icon :size="16" color="#83CC53"><circle-check /></el-icon>
-                    <span class="number">已答人数：{{answerStudents}}</span>
+    <div class="answer-timer-box">
+        <div class="answer-timer-warp">
+            <div class="title-warp">
+                <el-icon :size="20"><alarm-clock /></el-icon>
+                <span class="title">计时</span>
+                <span class="question-type">{{questionType}}</span>
+            </div>
+            <div class="content-warp">
+                <span class="time">{{showTime}}</span>
+                <div class="toll">
+                    <div class="number-warp">
+                        <el-icon :size="16" color="#EE6058"><warning /></el-icon>
+                        <span class="number">未答人数：{{ allAStudents - answerStudents }}</span>
+                    </div>
+                    <div class="number-warp">
+                        <el-icon :size="16" color="#83CC53"><circle-check /></el-icon>
+                        <span class="number">已答人数：{{answerStudents}}</span>
+                    </div>
                 </div>
             </div>
+            <div class="footer" @click="endAnswer">收题</div>
         </div>
-        <div class="footer" @click="endAnswer">收题</div>
     </div>
 </template>
 
@@ -131,6 +133,12 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
+.answer-timer-box{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+}
 .answer-timer-warp {
     width: 383px;
     height: 253px;

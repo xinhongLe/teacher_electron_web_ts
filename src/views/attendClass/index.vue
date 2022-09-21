@@ -60,7 +60,7 @@ import {
     onMounted,
     ref,
     onUnmounted,
-    provide,
+    provide
 } from "vue";
 import { useRoute } from "vue-router";
 import Resources from "../preparation/layout/resources.vue";
@@ -74,7 +74,7 @@ export default defineComponent({
 
         const course = ref({
             chapterId: "",
-            lessonId: "",
+            lessonId: ""
         });
 
         const source = ref("me");
@@ -89,7 +89,7 @@ export default defineComponent({
             if (res.success) {
                 res.result.push({
                     Id: "",
-                    Name: "全部",
+                    Name: "全部"
                 });
                 typeList.value = res.result.reverse();
             }
@@ -121,7 +121,7 @@ export default defineComponent({
 
             course.value = {
                 lessonId: route.params.lessonId as string,
-                chapterId: route.params.chapterId as string,
+                chapterId: route.params.chapterId as string
             };
             bookId.value = route.params.bookId as string;
             // sendResourceData();
@@ -129,55 +129,64 @@ export default defineComponent({
 
         const onWatchAttendClass = (e: IpcRendererEvent, event: any) => {
             switch (event.type) {
-                case "sysData":
-                    window.electron.ipcRenderer.send(
-                        "attendClass",
-                        "unfoldSuspension",
-                        { type: "switchClass", switch: isSwitch.value }
+            case "sysData":
+                window.electron.ipcRenderer.send(
+                    "attendClass",
+                    "unfoldSuspension",
+                    { type: "switchClass", switch: isSwitch.value }
+                );
+                sendResourceData();
+                break;
+            case "openResource":
+                const resource: IResourceItem = JSON.parse(event.resource);
+                if (resource.ResourceShowType === 2) {
+                    // 断点视频
+                    store.commit(MutationTypes.SET_FULLSCREEN_RESOURCE, {
+                        component: "LookVideo",
+                        resource: { id: resource.OldResourceId }
+                    });
+                } else if (resource.ResourceShowType === 3) {
+                    // 练习卷
+                    store.commit(MutationTypes.SET_FULLSCREEN_RESOURCE, {
+                        component: "LookQuestion",
+                        resource: {
+                            id: resource.OldResourceId,
+                            courseBagId: "",
+                            deleteQuestionIds: [],
+                            type: 1
+                        }
+                    });
+                } else if (resource.ResourceShowType === 1) {
+                    store.commit(MutationTypes.SET_FULLSCREEN_RESOURCE, {
+                        component: "Wincard",
+                        resource: {
+                            id: resource.OldResourceId,
+                            isSystem: resource.IsSysFile === 1
+                        }
+                    });
+                } else if (resource.ResourceShowType === 0 || resource.ResourceShowType === 4) {
+                    store.commit(MutationTypes.SET_FULLSCREEN_RESOURCE, {
+                        component: "ScreenViewFile",
+                        resource: { ...resource, id: resource.OldResourceId }
+                    });
+                } else if (resource.ResourceShowType === 5) {
+                    store.commit(
+                        MutationTypes.SET_FULLSCREEN_RESOURCE,
+                        {
+                            component: "AnswerMachine",
+                            resource: {
+                                ...resource,
+                                lessonId: course.value.lessonId,
+                                id: new Date().getTime()
+                            }
+                        }
                     );
-                    sendResourceData();
-                    break;
-                case "openResource":
-                    const resource: IResourceItem = JSON.parse(event.resource);
-                    if (resource.ResourceShowType === 2) {
-                        // 断点视频
-                        store.commit(MutationTypes.SET_FULLSCREEN_RESOURCE, {
-                            component: "LookVideo",
-                            resource: { id: resource.OldResourceId },
-                        });
-                    } else if (resource.ResourceShowType === 3) {
-                        // 练习卷
-                        store.commit(MutationTypes.SET_FULLSCREEN_RESOURCE, {
-                            component: "LookQuestion",
-                            resource: {
-                                id: resource.OldResourceId,
-                                courseBagId: "",
-                                deleteQuestionIds: [],
-                                type: 1,
-                            },
-                        });
-                    } else if (resource.ResourceShowType === 1) {
-                        store.commit(MutationTypes.SET_FULLSCREEN_RESOURCE, {
-                            component: "Wincard",
-                            resource: {
-                                id: resource.OldResourceId,
-                                isSystem: resource.IsSysFile === 1,
-                            },
-                        });
-                    } else if (
-                        resource.ResourceShowType === 0 ||
-                        resource.ResourceShowType === 4
-                    ) {
-                        store.commit(MutationTypes.SET_FULLSCREEN_RESOURCE, {
-                            component: "ScreenViewFile",
-                            resource: { ...resource, id: resource.OldResourceId },
-                        });
-                    }
-                    logView({ id: resource.ResourceId });
-                    break;
-                case "switchClass":
-                    switchClass();
-                    break;
+                }
+                logView({ id: resource.ResourceId });
+                break;
+            case "switchClass":
+                switchClass();
+                break;
             }
         };
 
@@ -232,9 +241,9 @@ export default defineComponent({
             source,
             bookId,
             updateResourceList,
-            resourceRef,
+            resourceRef
         };
-    },
+    }
 });
 </script>
 
