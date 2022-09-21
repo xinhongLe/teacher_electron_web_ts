@@ -9,20 +9,30 @@
             :show-close="false"
         >
             <!-- <Question :close="close" :isPureQuestion="false" /> -->
-            <LookQuestion v-if="visible" :dialog="true" :close="close" />
+            <LookQuestion
+                v-if="visible"
+                :dialog="true"
+                :close="close"
+                :resource="resource"
+            />
         </el-dialog>
     </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, nextTick, ref } from "vue";
+import { defineComponent, nextTick, ref, PropType } from "vue";
 import LookQuestion from "@/components/lookQuestion/index.vue";
 import Question from "@/components/lookQuestion/Question.vue";
+import { IViewResourceData } from "@/types/store";
 export default defineComponent({
     props: {
         visible: {
             type: Boolean,
             default: false,
+        },
+        resource: {
+            type: Object as PropType<IViewResourceData>,
+            required: true,
         },
     },
     setup(props, { emit }) {

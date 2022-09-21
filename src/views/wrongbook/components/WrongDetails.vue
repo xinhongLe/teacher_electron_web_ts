@@ -652,10 +652,12 @@
     <PureQuestionDialog
         v-if="state.pureQuestionVisible"
         v-model:visible="state.pureQuestionVisible"
+        :resource="state.resourceData"
     />
     <ExplainQuestion
         v-if="state.explainVisible"
         v-model:visible="state.explainVisible"
+        :resource="state.resourceData"
     >
     </ExplainQuestion>
 
@@ -683,8 +685,6 @@ import {
 import ErrorHstory from "./ErrorHstory.vue";
 import ExplainQuestion from "./ExplainQuestion.vue";
 import PureQuestionDialog from "@/components/lookQuestion/PureQuestionDialog.vue";
-
-import { lookQuestions } from "@/utils";
 import emitter from "@/utils/mitt";
 import {
     getErrorQuestionDetail,
@@ -694,9 +694,10 @@ import {
     QuestionListByHomeworkParams,
     getErrorQuestionListByHomework,
 } from "@/api/errorbook";
-import { MutationTypes, store } from "@/store";
 import { getOssUrl } from "@/utils/oss";
 import useWrongBook from "../hooks/useWrongBook";
+import { IViewResourceData } from "@/types/store";
+
 const {
     questionTypeList,
     frequencyList,
@@ -844,6 +845,7 @@ const state = reactive({
     pureQuestionVisible: false,
     //讲解问题
     explainVisible: false,
+    resourceData: {} as IViewResourceData,
     //错题历史visible
     errorHstoryVisible: false,
     //作业维度的发布时间-作业发布时间
@@ -1181,30 +1183,21 @@ const expendStudent = (item: any) => {
 
 //讲解题目
 const explainQuestion = () => {
-    // lookQuestions({ id: state.currentIndex, type: 0 });
     state.explainVisible = true;
-    // nextTick(() => {
-    store.commit(MutationTypes.SET_IS_SHOW_QUESTION, {
-        flag: false,
-        info: {
-            type: 0,
-            id: state.currentIndex,
-        },
-    });
-    // });
+    state.resourceData = {
+        type: 0,
+        id: state.currentIndex,
+    };
 };
 //查看同类题
 const openSimilarQuestion = () => {
     if (isHasSimilarQuestion.value) {
         state.pureQuestionVisible = true;
         nextTick(() => {
-            store.commit(MutationTypes.SET_IS_SHOW_QUESTION, {
-                flag: false,
-                info: {
-                    type: 0,
-                    id: state.currentIndex,
-                },
-            });
+            state.resourceData = {
+                type: 0,
+                id: state.currentIndex,
+            };
         });
     }
 };

@@ -306,11 +306,13 @@
     <ExplainQuestion
         v-if="state.explainVisible"
         v-model:visible="state.explainVisible"
+        :resource="state.resourceData"
     >
     </ExplainQuestion>
     <PureQuestionDialog
         v-if="state.pureQuestionVisible"
         v-model:visible="state.pureQuestionVisible"
+        :resource="state.resourceData"
     />
 </template>
 <script lang="ts" setup>
@@ -325,10 +327,12 @@ import {
     onBeforeUnmount,
     computed,
     provide,
+    PropType,
 } from "vue";
 import PureQuestionDialog from "@/components/lookQuestion/PureQuestionDialog.vue";
 import emitter from "@/utils/mitt"; //全局事件总线
 import ExplainQuestion from "./ExplainQuestion.vue";
+import { IViewResourceData } from "@/types/store";
 
 import {
     getErrorQuestionListByHomework,
@@ -424,6 +428,7 @@ const state = reactive({
     TagKnowledgeUnderstandRatios: [], //分层知识点掌握率
     lessonName: "", //当前选中的左侧课程筛选-知识点
     pureQuestionVisible: false, //同类题弹框
+    resourceData: {} as IViewResourceData,
     currentQuestionId: "",
     explainVisible: false,
 });
@@ -494,15 +499,10 @@ watch(
 //讲解题目
 const explainQuestion = (data: any) => {
     state.explainVisible = true;
-    // nextTick(() => {
-    store.commit(MutationTypes.SET_IS_SHOW_QUESTION, {
-        flag: false,
-        info: {
-            type: 0,
-            id: data.QuestionId,
-        },
-    });
-    // });
+    state.resourceData = {
+        type: 0,
+        id: data.QuestionId,
+    };
 };
 const emit = defineEmits(["update:isShowDetails"]);
 //查看同类题
@@ -511,13 +511,10 @@ const openSimilarQuestion = (data: any) => {
     state.currentQuestionId = data.QuestionId;
     if (data.IsAnyPureQuestion) {
         nextTick(() => {
-            store.commit(MutationTypes.SET_IS_SHOW_QUESTION, {
-                flag: false,
-                info: {
-                    type: 0,
-                    id: data.QuestionId,
-                },
-            });
+            state.resourceData = {
+                type: 0,
+                id: data.QuestionId,
+            };
         });
     }
 };

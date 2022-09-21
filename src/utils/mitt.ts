@@ -15,6 +15,8 @@ type Events = {
     updatePackageCount: null;
     updateResourceList: string;
     openEditResource: IResourceItem;
+    errorBookEmit: any;
+    openErrorBookDetails: any;
 };
 
 const emitter = mitt<Events>();
