@@ -412,7 +412,7 @@ export default defineComponent({
             }
         };
 
-        const openQuickAnswer = () => {
+        const openQuickAnswer = (isAnswer:boolean) => {
             if (isGetStudentList.value) {
                 return ElMessage.error("请等待学员加载后答题！");
             }

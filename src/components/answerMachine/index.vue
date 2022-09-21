@@ -129,7 +129,7 @@ export default defineComponent({
         const store = useStore();
         const resource = computed(() => store.state.common.showResourceFullScreen.length > 0 ? store.state.common.showResourceFullScreen[props.index].resource : null);
         const close = () => {
-            store.commit(MutationTypes.REMOVE_FULLSCREEN_RESOURCE, resource.value?.id);
+            store.commit(MutationTypes.REMOVE_FULLSCREEN_RESOURCE, { id: resource.value?.id, openMore: resource.value?.openMore });
         };
         return {
             ...toRefs(state),
