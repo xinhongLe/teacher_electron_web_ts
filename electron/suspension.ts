@@ -225,18 +225,18 @@ function createBlackboardWindow() {
 
 function createAnswerMachineWindow(allStudentList: []) {
     answerMachineWin = createWindow(answerMachineURL, {
-        width: 620,
-        height: 422,
-        // fullscreen: true,
+        // width: 620,
+        // height: 422,
+        fullscreen: true,
         center: true,
         show: false,
         useContentSize: true,
-        // transparent: true,
+        transparent: true,
         backgroundColor: "#00000000",
         type: "toolbar", // 创建的窗口类型为工具栏窗口
-        // frame: false, // 要创建无边框窗口
-        alwaysOnTop: true
-        // resizable: false
+        frame: false, // 要创建无边框窗口
+        alwaysOnTop: true,
+        resizable: false
     });
 
     answerMachineWin.on("ready-to-show", () => {

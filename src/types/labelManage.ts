@@ -52,7 +52,6 @@ export interface StudentTag {
 }
 
 export interface IFetchAllStudents {
-    TermCode: number | string,
     TeacherId: string,
     OrgId: string,
 }

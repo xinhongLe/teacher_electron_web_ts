@@ -43,7 +43,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, inject, onMounted, PropType, ref } from "vue";
+import {computed, defineComponent, inject, nextTick, onMounted, onUnmounted, PropType, ref} from "vue";
 import { Student } from "@/types/labelManage";
 import { StudentAnswerInfo, StudentAnswerInfoList } from "./api";
 import { PADModeQuestionType } from "./enum";
@@ -141,8 +141,15 @@ export default defineComponent({
             }
         };
 
+        let timer:any;
         onMounted(() => {
-            initEchart();
+            timer = setTimeout(() => {
+                initEchart();
+            }, 1000);
+        });
+
+        onUnmounted(() => {
+            timer && clearTimeout(timer);
         });
 
         window.electron.setContentSize(1240, 929);
@@ -253,6 +260,8 @@ export default defineComponent({
                     margin-bottom: 16px;
                 }
                 .echart-warp {
+                    width: 100%;
+                    height: 100%;
                     flex: 1;
                 }
             }

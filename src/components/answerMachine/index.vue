@@ -50,6 +50,7 @@ import {
 import AnswerTimer from "@/childWindow/answerMachine/answerTimer.vue";
 import AnswerResult from "@/childWindow/answerMachine/answerResult.vue";
 import { IYunInfo } from "@/types/login";
+import { fetchAllStudents } from "@/views/labelManage/api";
 
 interface State {
     isShowTimer: boolean,
@@ -110,6 +111,7 @@ export default defineComponent({
             mqttInfo.value = data;
             state.AnswerMachineID = answerMachineID;
             state.selectStudentList = studentList;
+            console.log(state.selectStudentList, "state.selectStudentList====");
             state.isShowTimer = true;
         };
 
@@ -131,6 +133,19 @@ export default defineComponent({
         const close = () => {
             store.commit(MutationTypes.REMOVE_FULLSCREEN_RESOURCE, { id: resource.value?.id, openMore: resource.value?.openMore });
         };
+
+        const getStudentList = async () => {
+            state.allStudentList = [];
+            const data = {
+                TeacherId: currentUserInfo.userCenterUserID,
+                OrgId: currentUserInfo.schoolId
+            };
+            const res = await fetchAllStudents(data);
+            if (res.resultCode === 200) {
+                state.allStudentList = res.result;
+            }
+        };
+        getStudentList();
         return {
             ...toRefs(state),
             currentUserInfo,

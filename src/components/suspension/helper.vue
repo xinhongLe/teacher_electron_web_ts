@@ -297,8 +297,8 @@ export default defineComponent({
         const initBookList = [
             {
                 Lable: "全部教具",
-                Value: "全部教具",
-            },
+                Value: "全部教具"
+            }
         ];
         const subjectPublisherBookList = ref<BookList[]>(initBookList);
         const cascaderProps = {
@@ -384,7 +384,7 @@ export default defineComponent({
             openUrl("https://knowledge.aixueshi.top/", "知识图谱");
         };
         const openRollCall = () => {
-            if (isGetStudentList.value) {
+            if (!isGetStudentList.value) {
                 return ElMessage.error("请等待学员加载后点名！");
             }
             if (allStudentList.value.length === 0) {
@@ -398,7 +398,7 @@ export default defineComponent({
             }
         };
         const openAnswerMachineWindow = () => {
-            if (isGetStudentList.value) {
+            if (!isGetStudentList.value) {
                 return ElMessage.error("请等待学员加载后答题！");
             }
             if (allStudentList.value.length === 0) {
@@ -413,7 +413,7 @@ export default defineComponent({
         };
 
         const openQuickAnswer = (isAnswer:boolean) => {
-            if (isGetStudentList.value) {
+            if (!isGetStudentList.value) {
                 return ElMessage.error("请等待学员加载后答题！");
             }
             if (allStudentList.value.length === 0) {
@@ -452,7 +452,6 @@ export default defineComponent({
         const getStudentList = async () => {
             allStudentList.value = [];
             const data = {
-                TermCode: yunInfo.TermCode,
                 TeacherId: currentUserInfo.userCenterUserID,
                 OrgId: currentUserInfo.schoolId
             };
