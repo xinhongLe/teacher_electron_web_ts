@@ -384,8 +384,11 @@ export default defineComponent({
             openUrl("https://knowledge.aixueshi.top/", "知识图谱");
         };
         const openRollCall = () => {
-            if (allStudentList.value.length === 0) {
+            if (isGetStudentList.value) {
                 return ElMessage.error("请等待学员加载后点名！");
+            }
+            if (allStudentList.value.length === 0) {
+                return ElMessage.error("学生数量为0！");
             }
             if (isElectron()) {
                 return window.electron.ipcRenderer.invoke(
@@ -395,9 +398,12 @@ export default defineComponent({
             }
         };
         const openAnswerMachineWindow = () => {
-            // if (allStudentList.value.length === 0) {
-            //     return ElMessage.error("请等待学员加载后答题！");
-            // }
+            if (isGetStudentList.value) {
+                return ElMessage.error("请等待学员加载后答题！");
+            }
+            if (allStudentList.value.length === 0) {
+                return ElMessage.error("学生数量为0！");
+            }
             if (isElectron()) {
                 return window.electron.ipcRenderer.invoke(
                     "openAnswerMachineWindow",
@@ -406,10 +412,13 @@ export default defineComponent({
             }
         };
 
-        const openQuickAnswer = (isAnswer: boolean) => {
-            // if (allStudentList.value.length === 0) {
-            //     return ElMessage.error("请等待学员加载后答题！");
-            // }
+        const openQuickAnswer = () => {
+            if (isGetStudentList.value) {
+                return ElMessage.error("请等待学员加载后答题！");
+            }
+            if (allStudentList.value.length === 0) {
+                return ElMessage.error("学生数量为0！");
+            }
             if (isElectron()) {
                 return window.electron.ipcRenderer.invoke("openQuickAnswerWindow", JSON.parse(JSON.stringify(allStudentList.value)), isAnswer);
             }
@@ -439,6 +448,7 @@ export default defineComponent({
             subjectPublisherBookList.value = [...initBookList, ...data];
             getGradeList();
         };
+        const isGetStudentList = ref(false);
         const getStudentList = async () => {
             allStudentList.value = [];
             const data = {
@@ -448,6 +458,7 @@ export default defineComponent({
             };
             const res = await fetchAllStudents(data);
             if (res.resultCode === 200) {
+                isGetStudentList.value = true;
                 allStudentList.value = res.result;
             }
         };
@@ -499,7 +510,6 @@ export default defineComponent({
         onMounted(async () => {
             getBookList();
             if (userInfo) {
-                console.log("userInfo", userInfo);
                 getStudentList();
             }
             if (isElectron()) {

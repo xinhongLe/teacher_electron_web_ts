@@ -91,8 +91,6 @@ export default defineComponent({
                 currentPageIndex.value = -1;
                 pageNext();
             }
-
-            canvasDataMap.clear();
         }, {
             deep: true
         });

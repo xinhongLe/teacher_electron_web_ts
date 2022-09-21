@@ -53,7 +53,7 @@ const useLogout = () => {
                 <template #title>
                     <div class="avatar-wrapper">
                         <img src="./img/avator_small.svg" />
-                        <span class="name">{{ name }}</span>
+                        <span class="name">{{ name || "匿名" }}</span>
                         <i class="el-icon-caret-bottom icon" />
                     </div>
                 </template>
@@ -81,7 +81,7 @@ const useLogout = () => {
                                     text-align: left;
                                 "
                             >
-                                {{ name }}
+                                {{ name || "匿名" }}
                             </p>
                             <p style="height: 20px; line-height: 20px">
                                 {{ account }}

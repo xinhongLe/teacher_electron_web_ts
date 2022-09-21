@@ -65,20 +65,21 @@ export function formatTime(v:string|number) {
     return moment(v).format("hh:mm");
 }
 
-export const lookVideo = (id: string | undefined) => {
+export const lookVideo = (id: string | undefined, openMore?: boolean) => {
     // store.commit(MutationTypes.SET_IS_SHOW_VIDEO, { flag: true, info: { id } });
     store.commit(
         MutationTypes.SET_FULLSCREEN_RESOURCE,
         {
             component: "LookVideo",
             resource: {
-                id
+                id,
+                openMore: !!openMore
             }
         }
     );
 };
 
-export const lookQuestions = ({ id = "", type = 1, courseBagId = "", deleteQuestionIds = [] }: {deleteQuestionIds?: string[], id: string, type: number, courseBagId?: string}) => {
+export const lookQuestions = ({ id = "", type = 1, courseBagId = "", deleteQuestionIds = [] }: {deleteQuestionIds?: string[], id: string, type: number, courseBagId?: string}, openMore?: boolean) => {
     // const info = {
     //     id,
     //     courseBagId,
@@ -94,8 +95,9 @@ export const lookQuestions = ({ id = "", type = 1, courseBagId = "", deleteQuest
                 id,
                 courseBagId,
                 deleteQuestionIds,
-                type
-            },
+                type,
+                openMore: !!openMore
+            }
         }
     );
 };

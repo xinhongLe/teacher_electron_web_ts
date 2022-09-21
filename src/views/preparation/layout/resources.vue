@@ -240,94 +240,97 @@ export default defineComponent({
                     (data.ResourceShowType === 1 ||
                             data.ResourceShowType === 0) &&
                         data.UserId !== userId.value
-                ) {
-                    resource.value = data;
-                    editTipVisible.value = true;
-                } else {
-                    emitter.emit("openEditResource", data);
-                }
-                break;
-            case "version":
-                target.value = data.ResourceId;
-                resourceVersionVisible.value = true;
-                break;
-            case "download":
-                downloadFile(data);
-                break;
-            case "add":
-                if (e) dealFly(e);
-                addPackage(data);
-                break;
-            case "move":
-                removePackage(data);
-                break;
-            case "detail":
-                if (props.name === "attendClass") {
-                    if (data.ResourceShowType === 2) {
-                        // 断点视频
-                        store.commit(
-                            MutationTypes.SET_FULLSCREEN_RESOURCE,
-                            {
-                                component: "LookVideo",
-                                resource: { id: data.OldResourceId }
-                            }
-                        );
-                    } else if (data.ResourceShowType === 3) {
-                        // 练习卷
-                        store.commit(
-                            MutationTypes.SET_FULLSCREEN_RESOURCE,
-                            {
-                                component: "LookQuestion",
-                                resource: {
-                                    id: data.OldResourceId,
-                                    courseBagId: "",
-                                    deleteQuestionIds: [],
-                                    type: 1
-                                }
-                            }
-                        );
-                    } else if (data.ResourceShowType === 1) {
-                        store.commit(
-                            MutationTypes.SET_FULLSCREEN_RESOURCE,
-                            {
-                                component: "Wincard",
-                                resource: {
-                                    id: data.OldResourceId,
-                                    isSystem: data.IsSysFile === 1
-                                }
-                            }
-                        );
-                    } else if (data.ResourceShowType === 0 || data.ResourceShowType === 4) {
-                        store.commit(
-                            MutationTypes.SET_FULLSCREEN_RESOURCE,
-                            {
-                                component: "ScreenViewFile",
-                                resource: {
-                                    ...data,
-                                    id: data.OldResourceId
-                                }
-                            }
-                        );
-                    } else if (data.ResourceShowType === 5) {
-                        store.commit(
-                            MutationTypes.SET_FULLSCREEN_RESOURCE,
-                            {
-                                component: "AnswerMachine",
-                                resource: {
-                                    ...data,
-                                    lessonId: course.value.lessonId,
-                                    id: new Date().getTime()
-                                }
-                            }
-                        );
+                    ) {
+                        resource.value = data;
+                        editTipVisible.value = true;
+                    } else {
+                        emitter.emit("openEditResource", data);
                     }
-                } else {
-                    openResource(data);
-                }
+                    break;
+                case "version":
+                    target.value = data.ResourceId;
+                    resourceVersionVisible.value = true;
+                    break;
+                case "download":
+                    downloadFile(data);
+                    break;
+                case "add":
+                    if (e) dealFly(e);
+                    addPackage(data);
+                    break;
+                case "move":
+                    removePackage(data);
+                    break;
+                case "detail":
+                    if (props.name === "attendClass") {
+                        if (data.ResourceShowType === 2) {
+                            // 断点视频
+                            store.commit(
+                                MutationTypes.SET_FULLSCREEN_RESOURCE,
+                                {
+                                    component: "LookVideo",
+                                    resource: { id: data.OldResourceId, openMore: true },
+                                }
+                            );
+                        } else if (data.ResourceShowType === 3) {
+                            // 练习卷
+                            store.commit(
+                                MutationTypes.SET_FULLSCREEN_RESOURCE,
+                                {
+                                    component: "LookQuestion",
+                                    resource: {
+                                        id: data.OldResourceId,
+                                        courseBagId: "",
+                                        deleteQuestionIds: [],
+                                        type: 1,
+                                        openMore: true
+                                    },
+                                }
+                            );
+                        } else if (data.ResourceShowType === 1) {
+                            store.commit(
+                                MutationTypes.SET_FULLSCREEN_RESOURCE,
+                                {
+                                    component: "Wincard",
+                                    resource: {
+                                        id: data.OldResourceId,
+                                        isSystem: data.IsSysFile === 1,
+                                        openMore: true
+                                    },
+                                }
+                            );
+                        } else if (data.ResourceShowType === 0 || data.ResourceShowType === 4) {
+                            store.commit(
+                                MutationTypes.SET_FULLSCREEN_RESOURCE,
+                                {
+                                    component: "ScreenViewFile",
+                                    resource: {
+                                        ...data,
+                                        id: data.OldResourceId,
+                                        openMore: true
+                                    },
+                                }
+                            );
+                        }else if (data.ResourceShowType === 5) {
+                            store.commit(
+                                MutationTypes.SET_FULLSCREEN_RESOURCE,
+                                {
+                                    component: "AnswerMachine",
+                                    resource: {
+                                        ...data,
+                                        lessonId: course.value.lessonId,
+                                        id: new Date().getTime()
+                                    }
+                                }
+                            );
+                        }
+                    } else {
+                        openResource(data);
+                    }
 
-                logView({ id: data.ResourceId });
-                data.BrowseNum++;
-                break;
+                    logView({ id: data.ResourceId });
+                    data.BrowseNum++;
+                    break;
             }
         };
 

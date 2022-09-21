@@ -9,6 +9,18 @@
             :fixed="true"
             :resource="item.resource"
         />
+
+        <component
+            v-if="questionResource"
+            :is="viewComponents[questionResource.component]"
+            :resource="questionResource.resource"
+        />
+
+        <component
+            v-if="videoResource"
+            :is="viewComponents[videoResource.component]"
+            :resource="videoResource.resource"
+        />
     </div>
 </template>
 
@@ -31,7 +43,6 @@ const viewComponents = {
 
 const store = useStore();
 const resourceList = computed(() => store.state.common.showResourceFullScreen);
-watch(resourceList, () => {
-    console.log(resourceList, "0000000---------------");
-});
+const questionResource = computed(() => store.state.common.singleResourceFullScreen.question);
+const videoResource = computed(() => store.state.common.singleResourceFullScreen.video);
 </script>

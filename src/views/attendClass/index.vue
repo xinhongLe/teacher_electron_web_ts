@@ -143,7 +143,7 @@ export default defineComponent({
                     // 断点视频
                     store.commit(MutationTypes.SET_FULLSCREEN_RESOURCE, {
                         component: "LookVideo",
-                        resource: { id: resource.OldResourceId }
+                        resource: { id: resource.OldResourceId, openMore: true }
                     });
                 } else if (resource.ResourceShowType === 3) {
                     // 练习卷
@@ -153,7 +153,8 @@ export default defineComponent({
                             id: resource.OldResourceId,
                             courseBagId: "",
                             deleteQuestionIds: [],
-                            type: 1
+                            type: 1,
+                            openMore: true
                         }
                     });
                 } else if (resource.ResourceShowType === 1) {
@@ -161,13 +162,14 @@ export default defineComponent({
                         component: "Wincard",
                         resource: {
                             id: resource.OldResourceId,
-                            isSystem: resource.IsSysFile === 1
+                            isSystem: resource.IsSysFile === 1,
+                            openMore: true
                         }
                     });
                 } else if (resource.ResourceShowType === 0 || resource.ResourceShowType === 4) {
                     store.commit(MutationTypes.SET_FULLSCREEN_RESOURCE, {
                         component: "ScreenViewFile",
-                        resource: { ...resource, id: resource.OldResourceId }
+                        resource: { ...resource, id: resource.OldResourceId, openMore: true }
                     });
                 } else if (resource.ResourceShowType === 5) {
                     store.commit(
@@ -177,7 +179,8 @@ export default defineComponent({
                             resource: {
                                 ...resource,
                                 lessonId: course.value.lessonId,
-                                id: new Date().getTime()
+                                id: new Date().getTime(),
+                                openMore: true
                             }
                         }
                     );

@@ -83,11 +83,17 @@ export interface IViewResourceData extends Partial<IResourceItem> {
     courseBagId?: string;
     deleteQuestionIds?: string[];
     type?: number;
+    openMore?: boolean;
 }
 
-export interface IshowResourceFullScreen {
+export interface IShowResourceFullScreen {
     component: string;
     resource: IViewResourceData;
+}
+
+export interface ISingleResourceFullScreen {
+    question?: IShowResourceFullScreen;
+    video?: IShowResourceFullScreen;
 }
 
 export interface CommonState {
@@ -106,7 +112,11 @@ export interface CommonState {
     /**
      * 需要全屏展示的资源列表
      */
-    showResourceFullScreen: IshowResourceFullScreen[]
+    showResourceFullScreen: IShowResourceFullScreen[],
+    /**
+     * 单开资源
+     */
+    singleResourceFullScreen: ISingleResourceFullScreen
 }
 export interface RootState {
     userInfo: UserInfoState,

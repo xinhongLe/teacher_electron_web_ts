@@ -327,7 +327,7 @@ export default defineComponent({
         getLocalNextType();
 
         const closeWincard = () => {
-            store.commit(MutationTypes.REMOVE_FULLSCREEN_RESOURCE, props.id);
+            store.commit(MutationTypes.REMOVE_FULLSCREEN_RESOURCE, { id: props.id, openMore: true });
         }
 
         return {
