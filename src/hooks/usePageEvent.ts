@@ -187,9 +187,31 @@ const usePageEvent = (pageName: string, isPage?: boolean) => {
         };
         //调用埋点接口
         // return;
-        const res = await createBuryingPoint(pointData);
+        createBuryingPoint(pointData);
         // console.log(res);
     };
+    if (isPage) {
+        //如果是页面的进入/出去事件
+        //页面激活
+        onActivated(() => {
+            if (pagestay.value) {
+                //进入页面先重置停留时间
+                pagestay.value = 0;
+            }
+            pageintime.value = moment().format("YYYY-MM-DD HH:mm:ss"); //获取进入的当前时间
+            createBuryingPointFn(EVENT_TYPE.PageIn); //创建page-in埋点
+        });
+        //页面失活
+        onDeactivated(() => {
+            pageouttime.value = moment().format("YYYY-MM-DD HH:mm:ss"); //获取离开页面的当前时间
+            pagestay.value = moment(pageouttime.value).diff(
+                moment(pageintime.value),
+                "seconds"
+            ); //停留时间（多少秒）
+            createBuryingPointFn(EVENT_TYPE.PageOut); //创建page-out埋点
+        });
+    }
+
     return {
         createBuryingPointFn,
     };

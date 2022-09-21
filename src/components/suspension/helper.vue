@@ -218,11 +218,13 @@
                                         placeholder="搜索教具名称"
                                         v-model="searchName"
                                         @click.stop="() => null"
+                                        @keyup.space.enter.stop="() => null"
+                                        @keydown.enter="getGradeList"
                                     >
                                         <template #append>
                                             <el-button
                                                 icon="el-icon-search"
-                                                @click="getGradeList"
+                                                @click.stop="getGradeList"
                                             ></el-button>
                                         </template>
                                     </el-input>
@@ -325,6 +327,9 @@ export default defineComponent({
         };
         const getGradeList = async () => {
             isLoading.value = true;
+            if (activeModes.value.indexOf("2") === -1) {
+                activeModes.value = activeModes.value.concat("2");
+            }
             const data = {
                 name: searchName.value,
                 bookID: "",
@@ -380,8 +385,11 @@ export default defineComponent({
             openUrl("https://knowledge.aixueshi.top/", "知识图谱");
         };
         const openRollCall = () => {
-            if (allStudentList.value.length === 0) {
+            if (!isGetStudentList.value) {
                 return ElMessage.error("请等待学员加载后点名！");
+            }
+            if (allStudentList.value.length === 0) {
+                return ElMessage.error("学生数量为0！");
             }
             if (isElectron()) {
                 return window.electron.ipcRenderer.invoke(
@@ -391,8 +399,11 @@ export default defineComponent({
             }
         };
         const openAnswerMachineWindow = () => {
-            if (allStudentList.value.length === 0) {
+            if (!isGetStudentList.value) {
                 return ElMessage.error("请等待学员加载后答题！");
+            }
+            if (allStudentList.value.length === 0) {
+                return ElMessage.error("学生数量为0！");
             }
             if (isElectron()) {
                 return window.electron.ipcRenderer.invoke(
@@ -403,8 +414,11 @@ export default defineComponent({
         };
 
         const openQuickAnswer = () => {
-            if (allStudentList.value.length === 0) {
+            if (!isGetStudentList.value) {
                 return ElMessage.error("请等待学员加载后答题！");
+            }
+            if (allStudentList.value.length === 0) {
+                return ElMessage.error("学生数量为0！");
             }
             if (isElectron()) {
                 return window.electron.ipcRenderer.invoke("openQuickAnswerWindow", JSON.parse(JSON.stringify(allStudentList.value)));
@@ -435,10 +449,12 @@ export default defineComponent({
             subjectPublisherBookList.value = [...initBookList, ...data];
             getGradeList();
         };
+        const isGetStudentList = ref(false);
         const getStudentList = async () => {
             allStudentList.value = [];
             const res = await fetchAllStudents(userInfo?.ID);
             if (res.resultCode === 200) {
+                isGetStudentList.value = true;
                 allStudentList.value = res.result;
             }
         };
@@ -563,7 +579,7 @@ export default defineComponent({
             clicKBuryPoint,
             classClicKBuryPoint,
             handleChange,
-            currentClickCol,
+            currentClickCol
         };
     },
 });
@@ -574,8 +590,8 @@ export default defineComponent({
     position: fixed;
     right: 0;
     bottom: 0;
-    width: 545px;
-    height: 680px;
+    width: 100%;
+    height: 100%;
     border-radius: 1rem;
     display: flex;
     flex-direction: column;

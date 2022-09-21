@@ -173,13 +173,13 @@ async function createWindow() {
         mainWindow && mainWindow.webContents.send("openWindow", data);
     });
 
-    ipcMain.handle("lookVideo", (_, data) => {
-        mainWindow && mainWindow.webContents.send("lookVideo", data);
-    });
+    // ipcMain.handle("lookVideo", (_, data) => {
+    //     mainWindow && mainWindow.webContents.send("lookVideo", data);
+    // });
 
-    ipcMain.handle("lookQuestions", (_, data) => {
-        mainWindow && mainWindow.webContents.send("lookQuestions", data);
-    });
+    // ipcMain.handle("lookQuestions", (_, data) => {
+    //     mainWindow && mainWindow.webContents.send("lookQuestions", data);
+    // });
 
     // 上课消息通知
     ipcMain.on("attendClass", (e, to, data) => {
@@ -191,12 +191,14 @@ async function createWindow() {
     //悬浮球点击消息通知事件
     ipcMain.on("suspensionClick", () => {
         mainWindow!.show();
+        mainWindow!.maximize();
         mainWindow!.webContents.send("suspensionClick");
     });
 
     //悬浮球点击事件
     ipcMain.handle("suspensionClick", () => {
         mainWindow!.show();
+        mainWindow!.maximize();
         mainWindow!.webContents.send("suspensionClick");
     });
 }

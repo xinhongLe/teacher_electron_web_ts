@@ -1,4 +1,3 @@
-import { store } from "@/store";
 import { FileInfo, Question } from "@/types/lookQuestion";
 import emitter from "@/utils/mitt";
 import { getOssUrl } from "@/utils/oss";
@@ -16,7 +15,8 @@ export default (
     isPureQuestion: boolean,
     questionId = "",
     emit: (event: string, ...args: any[]) => void,
-    childRef: Ref<any>
+    childRef: Ref<any>,
+    resource: any
 ) => {
     const imageUrl = ref<string[]>([]);
     const voiceUrl = ref<string[]>([]);
@@ -86,13 +86,7 @@ export default (
     }
 
     const getDetail = async () => {
-        const {
-            type,
-            id,
-            deleteQuestionIds = [],
-        } = store.state.common.viewQuestionInfo;
-        console.log("type, id", type, id);
-
+        const { type, id, deleteQuestionIds = [] } = resource;
         if (!id) return;
         emit("update:isMinimized", false);
         if (id === lastId.value) return;
@@ -134,7 +128,7 @@ export default (
             !isPureQuestion &&
                 pullAllBy(
                     result,
-                    deleteQuestionIds.map((id) => ({ QuestionID: id })),
+                    deleteQuestionIds.map((id: string) => ({ QuestionID: id })),
                     "QuestionID"
                 );
             sum.value = result.length;
@@ -238,8 +232,7 @@ export default (
         })
             .then(() => {
                 // 接口不对，后期会改，先本地假删除
-                const { courseBagId, id, type } =
-                    store.state.common.viewQuestionInfo;
+                const { courseBagId, id, type } = resource;
                 const questionID =
                     type === 3
                         ? questionList.value[number.value - 1]

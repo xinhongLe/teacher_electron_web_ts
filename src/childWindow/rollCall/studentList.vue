@@ -1,40 +1,81 @@
 <template>
     <div class="container">
-        <div class="select-student-list">
-            <span class="title">点名学生清单</span>
-            <div class="list">
-                <span v-for="student in selectStudent" :key="student.StudentID">
-                    {{student?.Name}}
-                </span>
+        <div
+            class="select-student-list"
+            :class="isPackUp && 'pack-up'"
+            @click="expand"
+        >
+            <div class="title" @click.stop="">
+                <div class="drag-area">
+                    <Drag />
+                </div>
+                点名学生清单
             </div>
-        </div>
-        <div class="current-student-box">
-            <template v-if="currentIndex >= 0">
-                <span class="name">{{currentStudent?.Name}}</span>
-                <Avatar :size="240" :file="currentStudent?.HeadPortrait" :key="currentStudent?.StudentID"/>
-            </template>
-        </div>
-        <div class="student-list" ref="studentListRef">
-            <div
-                class="student"
-                v-for="(student, index) in unselectedStudent"
-                :key="student.StudentID"
-                :style="{
-                    transform: `rotateY(${
-                        index * deg
-                    }deg) translateZ(400px)`,
-                }"
-                @mousedown="mousedown(index)"
-            >
-                <Avatar :file="student?.HeadPortrait" :size="20"/>
-                <span class="name">{{ student.Name }}</span>
+            <div class="list">
+                <div class="student-selected-item" v-for="student in selectStudent" :key="student.StudentID">
+                    {{ student?.Name }}
+                </div>
             </div>
         </div>
 
-        <div class="cotrol-btn">
-            <el-button type="primary" @click="reset">重置</el-button>
-            <el-button type="primary" @click="start" v-if="!isStart">开始</el-button>
-            <el-button type="primary" @click="stop" v-else>停止</el-button>
+        <div class="student-list-content" v-show="!isPackUp">
+            <div
+                class="student-box"
+                :style="{
+                    transform: `rotateX(${rotateX}deg) rotateY(${randomDeg}deg)`,
+                    transition: `all ${animationTime}ms ease-in-out`,
+                }"
+            >
+                <div
+                    class="student-item"
+                    v-for="(student, i) in unselectedStudent"
+                    :key="student.StudentID"
+                    :style="{
+                        transform: `translateX(-102px) rotateY(${
+                            (360 / unselectedStudent.length) * i
+                        }deg) translateZ(2000px) scale(${
+                            !isStart && currentIndex === i ? 2 : 1
+                        })`,
+                    }"
+                >
+                    <Avatar
+                        :file="student?.HeadPortrait"
+                        :size="20"
+                        :alt="student.Name"
+                        style="transform: scale(4.5)"
+                    />
+                    <div class="student-name">{{ student.Name }}</div>
+                </div>
+            </div>
+        </div>
+        <el-button
+            v-show="!isPackUp"
+            type="default"
+            round
+            plain
+            class="min-btn"
+            @click="packUp"
+            :disabled="isStart"
+            >最小化</el-button
+        >
+        <el-button
+            v-show="!isPackUp"
+            type="danger"
+            round
+            plain
+            class="close-btn"
+            @click="close"
+            :disabled="isStart"
+            >关闭</el-button
+        >
+        <div class="cotrol-btn" v-show="!isPackUp">
+            <div class="custom-reset-btn" :class="isStart && 'disabled'">
+                <el-button type="primary" @click="reset" :disabled="isStart">重置</el-button>
+            </div>
+
+            <div class="custom-start-btn" :class="isStart && 'disabled'">
+                <el-button type="primary" @click="start" :disabled="isStart">开始</el-button>
+            </div>
         </div>
     </div>
 </template>
@@ -45,113 +86,168 @@ import { ElMessageBox } from "element-plus";
 import { clearInterval, setInterval } from "timers";
 import { computed, defineComponent, onMounted, PropType, ref } from "vue";
 import Avatar from "../../components/avatar/index.vue";
+import { Drag } from "@icon-park/vue-next";
 export default defineComponent({
+    components: {
+        Drag,
+        Avatar
+    },
     props: {
         studentList: {
             type: Array as PropType<Student[]>,
-            default: () => []
-        }
+            default: () => [],
+        },
     },
     setup(props) {
-        const unselectedStudent = ref([...props.studentList]);
-        const deg = computed(() => 360 / unselectedStudent.value.length);
+        const storeStudent = ref<Student[]>([...props.studentList]);
+        const unselectedStudent = ref<Student[]>([]);
         const currentIndex = ref(-1);
         const currentStudent = ref<Student>();
         const isStart = ref(false);
-        let timer: any;
         const selectStudent = ref<Student[]>([]);
-        const studentListRef = ref<HTMLDivElement>();
-        let animation: Animation;
-        const duration = 10 * 1000;
+
+        const duration = 3 * 1000;
+        const animationTime = ref(1500);
+        const rotateX = ref(-90);
+        const randomDeg = ref(180);
 
         const start = () => {
+            if (unselectedStudent.value.length === 0) return;
             if (unselectedStudent.value.length === 1) {
-                return ElMessageBox.alert(unselectedStudent.value[0]?.Name, "最后一位学生");
+                return ElMessageBox.alert(
+                    unselectedStudent.value[0]?.Name,
+                    "最后一位学生"
+                );
             }
             isStart.value = true;
-            currentIndex.value = 0;
-            animation.effect!.updateTiming({
-                duration: 500
-            });
-            timer = setInterval(() => {
-                currentIndex.value = currentIndex.value < unselectedStudent.value.length - 1 ? currentIndex.value + 1 : 0;
-                currentStudent.value = unselectedStudent.value[currentIndex.value];
-            }, 10);
+            if (selectStudent.value.length > 0) {
+                unselectedStudent.value.splice(currentIndex.value, 1);
+                if (storeStudent.value.length > 0) {
+                    const student = randomStudent();
+                    unselectedStudent.value.push(student);
+                }
+            }
+            
+            const len = unselectedStudent.value.length;
+            currentIndex.value = Math.floor(Math.random() * len);
+            animationTime.value = 0;
+            randomDeg.value = 0;
+            setTimeout(() => {
+                animationTime.value = duration;
+                randomDeg.value =
+                    -(360 / unselectedStudent.value.length) *
+                        currentIndex.value +
+                    360 * 5;
+                setTimeout(() => {
+                    selectStudent.value.unshift(
+                        unselectedStudent.value[currentIndex.value]
+                    );
+                    isStart.value = false;
+                }, duration);
+            }, 100);
         };
 
-        const stop = () => {
-            animation.effect!.updateTiming({
-                duration
-            });
-            isStart.value = false;
-            clearInterval(timer);
-            currentStudent.value = unselectedStudent.value[currentIndex.value];
-            selectStudent.value.push(currentStudent.value);
-            unselectedStudent.value.splice(currentIndex.value, 1);
+        const randomStudent = () => {
+            const len = storeStudent.value.length;
+            const index = Math.floor(Math.random() * len);
+            return storeStudent.value.splice(index, 1)[0];
+        };
+
+        const randomStudents = (len: number) => {
+            const randomArray: Student[] = [];
+            console.log(storeStudent.value.length);
+            if (storeStudent.value.length < len) {
+                return storeStudent.value;
+            }
+            for (let i = 0; i < len; i++) {
+                const student = randomStudent();
+                randomArray.push(student);
+            }
+            return randomArray;
         };
 
         const reset = () => {
+            animationTime.value = 0;
+            randomDeg.value = 360;
+            rotateX.value = -363;
             selectStudent.value = [];
-            unselectedStudent.value = [...props.studentList];
-            currentStudent.value = undefined;
+            storeStudent.value = [...props.studentList];
+            unselectedStudent.value = randomStudents(25);
             currentIndex.value = -1;
+            setTimeout(() => {
+                animationTime.value = 1500;
+                rotateX.value = -3;
+                randomDeg.value = 0;
+            }, 200);
         };
 
-        const mousedown = (index: number) => {
-            animation.pause();
-            currentIndex.value = index;
-            currentStudent.value = unselectedStudent.value[currentIndex.value];
-            document.onmouseup = () => {
-                currentStudent.value = undefined;
-                currentIndex.value = -1;
-                animation.play();
-                document.onmouseup = null;
-            };
+        reset();
+
+        const close = () => {
+            const win = window.electron.remote.getCurrentWindow();
+            win.close();
         };
 
-        onMounted(() => {
-            const effect = new KeyframeEffect(studentListRef.value!,
-                [
-                    {
-                        transform: "perspective(800px) rotateX(-15deg) rotateY(0deg)"
-                    },
-                    {
-                        transform: "perspective(800px) rotateX(-15deg) rotateY(360deg)"
-                    }
-                ], {
-                    duration,
-                    fill: "forwards",
-                    iterations: Infinity,
-                    iterationComposite: "accumulate"
-                });
-            animation = new Animation(effect, document.timeline);
-            animation.play();
-        });
+        const isPackUp = ref(false);
+        const packUp = () => {
+            const win = window.electron.remote.getCurrentWindow();
+            const size =
+                window.electron.remote.screen.getPrimaryDisplay().workAreaSize;
+            win.setSize(200, 250);
+            win.setPosition(
+                size.width - 20 - 200,
+                size.height - 200 - 250,
+                true
+            );
+            isPackUp.value = true;
+        };
+
+        const expand = () => {
+            if (isPackUp.value) {
+                isPackUp.value = false;
+                const win = window.electron.remote.getCurrentWindow();
+                const size =
+                    window.electron.remote.screen.getPrimaryDisplay()
+                        .workAreaSize;
+                const width = size.width > 1200 ? 1200 : size.width;
+                const height = size.height > 800 ? 800 : size.height;
+                win.setSize(width, height);
+                win.setPosition(
+                    (size.width - width) / 2,
+                    (size.height - height) / 2,
+                    true
+                );
+            }
+        };
+
         return {
-            deg,
             start,
-            stop,
             isStart,
-            currentStudent,
             unselectedStudent,
             reset,
-            mousedown,
             selectStudent,
-            studentListRef,
-            currentIndex
+            currentIndex,
+            randomDeg,
+            animationTime,
+            rotateX,
+            close,
+            packUp,
+            isPackUp,
+            expand,
         };
-    },
-    components: { Avatar }
+    }
 });
 </script>
 
 <style lang="scss" scoped>
 .container {
-    display: flex;
-    align-items: center;
-    flex: 1;
-    flex-direction: column;
     position: relative;
+    perspective: 1500px;
+    perspective-origin: 50% 20%;
+    height: 100%;
+    background: url(~@/assets/images/other/bg@2x.png) no-repeat;
+    background-size: cover;
+    background-position: center;
     .select-student-list {
         position: absolute;
         left: 40px;
@@ -162,58 +258,49 @@ export default defineComponent({
         background: #fff;
         display: flex;
         flex-direction: column;
+        z-index: 1;
+        top: 20px;
+        overflow: hidden;
         .title {
             font-size: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 15px 0;
-        }
-        .list {
-            display: flex;
-            flex-direction: column;
-            padding-left: 10px;
-            overflow-y: auto;
-            span {
-                height: 30px;
-                line-height: 30px;
+            padding: 10px 0;
+            font-weight: 600;
+            color: #848891;
+            background: linear-gradient(270deg, rgba(237,244,246,0) 0%, #EDF4F6 100%);
+            position: relative;
+            .drag-area {
+                position: absolute;
+                left: 10px;
+                font-size: 20px;
+                top: 10px;
             }
         }
-    }
-    .current-student-box {
-        background: #fff;
-        width: 480px;
-        height: 330px;
-        font-size: 40px;
-        font-weight: 800;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding: 20px 40px;
-        position: absolute;
-        z-index: 1;
-        top: 35%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        .name {
-            height: 50px;
+        .list {
+            overflow-y: auto;
+            text-align: center;
+            min-height: 0;
+            flex: 1;
+            padding: 0 5px;
+            .student-selected-item {
+                height: 46px;
+                line-height: 46px;
+                color: #242B3A;
+                font-size: 14px;
+                border-bottom: 1px solid #EDF4F6;
+                &:last-child {
+                    border-bottom: 0;
+                }
+            }
         }
-    }
-    .student-list {
-        width: 100px;
-        font-size: 14px;
-        position: relative;
-        transform-style: preserve-3d;
-        transform: perspective(800px) rotateX(-15deg) rotateY(0deg);
-        margin-top: 35vh;
-        .student {
-            position: absolute;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 100px;
-            .name {
-                height: 20px;
+        &.pack-up {
+            top: 0;
+            left: 0;
+            .title {
+                -webkit-app-region: drag;
+                cursor: move;
             }
         }
     }
@@ -224,6 +311,123 @@ export default defineComponent({
         left: 50%;
         z-index: 1;
         transform: translateX(-50%);
+        display: flex;
     }
+}
+
+.student-list-content {
+    position: relative;
+    width: 500px;
+    height: 500px;
+    margin: 100px auto;
+    box-sizing: border-box;
+    transform-style: preserve-3d;
+    transition: all 1s ease-out;
+    transform: translateZ(-2000px) scale(0.5);
+    backface-visibility: hidden;
+}
+
+.student-box {
+    width: 100%;
+    height: 200px;
+    margin: auto;
+    text-align: center;
+    background: rgba(218, 120, 33, 0);
+    position: relative;
+    transform-style: preserve-3d;
+    &.random-animation-start {
+        animation: random 1.5s linear infinite;
+    }
+
+    &.random-animation-end {
+        transition: all 1600ms ease-out;
+    }
+}
+
+.student-item {
+    position: absolute;
+    top: 25%;
+    left: 30%;
+    width: 400px;
+    height: 480px;
+    display: flex;
+    align-items: center;
+    // justify-content: center;
+    padding-top: 156px;
+    flex-direction: column;
+    background: url(~@/assets/images/other/card_bg@2x.png) no-repeat;
+    background-position: center;
+    background-size: cover;
+    border-radius: 5px;
+    box-shadow: 0 0 5px #eee;
+    transition: all 1s;
+    :deep(.el-avatar) {
+        transform: scale(3.5);
+        margin-bottom: 80px;
+    }
+    .student-name {
+        transform: scale(4.5);
+        color: #fff;
+    }
+}
+
+@keyframes random {
+    0% {
+        transform: rotateX(-3deg) rotateY(0);
+    }
+    100% {
+        transform: rotateX(-3deg) rotateY(360deg);
+    }
+}
+
+.custom-start-btn {
+    width: 252px;
+    height: 135px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-image: url(~@/assets/images/other/btn_bg@2x.png) !important;
+    background-size: 100% 100%;
+    &.disabled {
+        opacity: 0.7;
+    }
+    button {
+        width: 150px;
+        border: none;
+        font-size: 18px;
+        background-color: transparent !important;
+        box-shadow: none;
+    }
+}
+
+.custom-reset-btn {
+    width: 172px;
+    height: 135px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-image: url(~@/assets/images/other/btn_bg_reset@2x.png) !important;
+    background-size: 100% 100%;
+    &.disabled {
+        opacity: 0.7;
+    }
+    button {
+        border: none;
+        font-size: 18px;
+        background-color: transparent !important;
+        box-shadow: none;
+    }
+}
+
+.min-btn {
+    position: absolute;
+    right: 120px;
+    bottom: 98px;
+}
+
+.close-btn {
+    position: absolute;
+    right: 20px;
+    bottom: 98px;
 }
 </style>

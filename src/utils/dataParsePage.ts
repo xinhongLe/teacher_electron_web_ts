@@ -1,5 +1,5 @@
 import { pageType } from "@/config";
-import { Slide, SlideBackground } from "wincard/src/types/slides";
+import { Slide, SlideBackground } from "wincard";
 // import { createRandomCode } from "@/utils/common";
 
 interface IFile {

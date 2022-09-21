@@ -1,5 +1,5 @@
 import { cooOss } from "@/utils/oss";
-import { Slide } from "wincard/src/types/slides";
+import { Slide } from "wincard";
 import { computed, ref, watch } from "vue";
 import { ElMessage } from "element-plus";
 import isElectron from "is-electron";

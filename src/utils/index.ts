@@ -65,28 +65,48 @@ export function formatTime(v: string | number) {
     return moment(v).format("hh:mm");
 }
 
-export const lookVideo = (id: string | undefined) => {
-    store.commit(MutationTypes.SET_IS_SHOW_VIDEO, { flag: true, info: { id } });
+export const lookVideo = (id: string | undefined, openMore?: boolean) => {
+    // store.commit(MutationTypes.SET_IS_SHOW_VIDEO, { flag: true, info: { id } });
+    store.commit(MutationTypes.SET_FULLSCREEN_RESOURCE, {
+        component: "LookVideo",
+        resource: {
+            id,
+            openMore: !!openMore,
+        },
+    });
 };
 
-export const lookQuestions = ({
-    id = "",
-    type = 1,
-    courseBagId = "",
-    deleteQuestionIds = [],
-}: {
-    deleteQuestionIds?: string[];
-    id: string;
-    type: number;
-    courseBagId?: string;
-}) => {
-    const info = {
-        id,
-        courseBagId,
-        deleteQuestionIds,
-        type,
-    };
-    store.commit(MutationTypes.SET_IS_SHOW_QUESTION, { flag: true, info });
+export const lookQuestions = (
+    {
+        id = "",
+        type = 1,
+        courseBagId = "",
+        deleteQuestionIds = [],
+    }: {
+        deleteQuestionIds?: string[];
+        id: string;
+        type: number;
+        courseBagId?: string;
+    },
+    openMore?: boolean
+) => {
+    // const info = {
+    //     id,
+    //     courseBagId,
+    //     deleteQuestionIds,
+    //     type
+    // };
+    // store.commit(MutationTypes.SET_IS_SHOW_QUESTION, { flag: true, info });
+    store.commit(MutationTypes.SET_FULLSCREEN_RESOURCE, {
+        component: "LookQuestion",
+        resource: {
+            id,
+            courseBagId,
+            deleteQuestionIds,
+            type,
+            openMore: !!openMore,
+        },
+    });
 };
 
 export const getCourseBagType = (type: number) => {

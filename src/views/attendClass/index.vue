@@ -141,32 +141,39 @@ export default defineComponent({
                     const resource: IResourceItem = JSON.parse(event.resource);
                     if (resource.ResourceShowType === 2) {
                         // 断点视频
-                        store.commit(MutationTypes.SET_IS_SHOW_VIDEO, {
-                            flag: true,
-                            info: { id: resource.OldResourceId },
+                        store.commit(MutationTypes.SET_FULLSCREEN_RESOURCE, {
+                            component: "LookVideo",
+                            resource: { id: resource.OldResourceId, openMore: true },
                         });
                     } else if (resource.ResourceShowType === 3) {
                         // 练习卷
-                        store.commit(MutationTypes.SET_IS_SHOW_QUESTION, {
-                            flag: true,
-                            info: {
+                        store.commit(MutationTypes.SET_FULLSCREEN_RESOURCE, {
+                            component: "LookQuestion",
+                            resource: {
                                 id: resource.OldResourceId,
                                 courseBagId: "",
                                 deleteQuestionIds: [],
                                 type: 1,
+                                openMore: true
                             },
                         });
                     } else if (resource.ResourceShowType === 1) {
-                        store.commit(MutationTypes.SET_IS_WINCARD, {
-                            flag: true,
-                            id: resource.OldResourceId,
-                            isSystem: resource.IsSysFile === 1,
+                        store.commit(MutationTypes.SET_FULLSCREEN_RESOURCE, {
+                            component: "Wincard",
+                            resource: {
+                                id: resource.OldResourceId,
+                                isSystem: resource.IsSysFile === 1,
+                                openMore: true
+                            },
                         });
                     } else if (
                         resource.ResourceShowType === 0 ||
                         resource.ResourceShowType === 4
                     ) {
-                        resourceRef.value.eventEmit("detail", resource);
+                        store.commit(MutationTypes.SET_FULLSCREEN_RESOURCE, {
+                            component: "ScreenViewFile",
+                            resource: { ...resource, id: resource.OldResourceId, openMore: true },
+                        });
                     }
                     logView({ id: resource.ResourceId });
                     break;

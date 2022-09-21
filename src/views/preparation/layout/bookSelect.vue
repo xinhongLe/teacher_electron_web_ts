@@ -18,7 +18,9 @@
             </div>
             <div
                 class="book-select-box"
-                v-if="bookSelectOpen"
+                :class="{
+                    visible: bookSelectOpen
+                }"
                 :style="{
                     width: `${
                         bookList.length < 10
@@ -33,11 +35,9 @@
                     class="book-item"
                     v-for="(item, index) in bookList"
                     :key="index"
-                    @click.stop="
-                        selectBook(item), selectBookCreateBurying(item)
-                    "
+                    @click.stop="selectBook(item), selectBookCreateBurying(item)"
                 >
-                    <Book :book="item" @update="getCustomBookList" />
+                    <Book :book="item" @updateBook="getCustomBookList" />
                 </div>
                 <div
                     class="book-add-btn"
@@ -134,7 +134,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, ref, watch } from "vue";
+import { computed, defineComponent, onUnmounted, ref, watch } from "vue";
 import { BookList } from "@/types/preparation";
 import { MutationTypes, useStore } from "@/store";
 import Book from "./book.vue";
@@ -436,9 +436,12 @@ export default defineComponent({
     background: #fff;
     box-shadow: 0px 8px 24px 0px rgba(0, 0, 0, 0.16);
     border-radius: 4px;
-    display: flex;
     flex-wrap: wrap;
     min-width: 0;
+    display: none;
+    &.visible {
+        display: flex;
+    }
 }
 
 .book-item {

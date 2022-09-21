@@ -771,7 +771,6 @@ export default defineComponent({
                                             });
                                             var CheckUpdateIns: CheckUpdateIn[] = [];
                                             var batchCheckUpDto: BatchCheckUpdateIn;
-                                            console.log(base64String);
                                             var outBase64 = base64String.substr(base64String.indexOf(",") + 1);
                                             GetCheckResult(outBase64).then((res: any) => {
                                                 if (res) {

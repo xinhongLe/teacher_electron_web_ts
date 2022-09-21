@@ -7,11 +7,26 @@
             :dialog="true"
             :isSystem="isSystem"
         />
-        <LookVideo v-if="type === 2" :dialog="true" :close="close" />
-        <LookQuestion v-if="type === 3" :dialog="true" :close="close" />
+        <LookVideo
+            :resource="data"
+            v-if="type === 2"
+            :dialog="true"
+            :close="close"
+        />
+        <LookQuestion
+            :resource="data"
+            v-if="type === 3"
+            :dialog="true"
+            :close="close"
+        />
         <div class="iframe-teach-box" v-if="type === 4 || type === 0">
             <iframe v-if="type === 4" :src="url"></iframe>
-            <iframe class="office-iframe" sandbox="allow-same-origin allow-scripts" v-if="isOffice" :src="url"></iframe>
+            <iframe
+                class="office-iframe"
+                sandbox="allow-same-origin allow-scripts"
+                v-if="isOffice"
+                :src="url"
+            ></iframe>
             <div class="iframe-image" v-if="isImage">
                 <img :src="url" />
             </div>
@@ -22,7 +37,12 @@
                 <video :src="url" controls />
             </div>
 
-            <div class="not-preview" v-if="!isVideo && !isAudio && !isImage && !isOffice && type !== 4">
+            <div
+                class="not-preview"
+                v-if="
+                    !isVideo && !isAudio && !isImage && !isOffice && type !== 4
+                "
+            >
                 暂不支持预览，请下载查看
             </div>
         </div>
@@ -30,36 +50,48 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, PropType, provide, ref, watchEffect } from "vue";
+import {
+    computed,
+    defineComponent,
+    PropType,
+    provide,
+    ref,
+    watchEffect,
+} from "vue";
 import IntelligenceClassroom from "../preparation/intelligenceClassroom/index.vue";
 import LookVideo from "@/components/lookVideo/index.vue";
 import LookQuestion from "@/components/lookQuestion/index.vue";
 import { IResourceItem } from "@/api/resource";
 import { getOssUrl } from "@/utils/oss";
 import { useStore } from "@/store";
+import { IViewResourceData } from "@/types/store";
 
 export default defineComponent({
     components: { IntelligenceClassroom, LookVideo, LookQuestion },
     props: {
         target: {
             type: String,
-            default: ""
+            default: "",
         },
         resource: {
-			type: Object as PropType<IResourceItem | undefined>,
-			required: true
-		},
+            type: Object as PropType<IResourceItem | undefined>,
+            required: true,
+        },
         type: {
-            type: Number
+            type: Number,
         },
         visible: {
             type: Boolean,
-            default: false
+            default: false,
         },
         close: {
             type: Function,
-            default: () => {}
-        }
+            default: () => {},
+        },
+        data: {
+            type: Object as PropType<IViewResourceData>,
+            required: true,
+        },
     },
     setup(props, { emit }) {
         const store = useStore();
@@ -67,10 +99,14 @@ export default defineComponent({
         const initIframeSrc = async () => {
             if (!props.resource) return;
             if (props.type === 0 && props.resource.File) {
-                const { FilePath, FileMD5, FileExtention, FileBucket } = props.resource.File;
+                const { FilePath, FileMD5, FileExtention, FileBucket } =
+                    props.resource.File;
                 const key = `${FilePath}/${FileMD5}.${FileExtention}`;
                 const fileUrl = await getOssUrl(key, FileBucket);
-                url.value = isOffice.value ? "https://owa.lyx-edu.com/op/view.aspx?src=" + encodeURIComponent(fileUrl) : fileUrl;
+                url.value = isOffice.value
+                    ? "https://owa.lyx-edu.com/op/view.aspx?src=" +
+                      encodeURIComponent(fileUrl)
+                    : fileUrl;
             }
 
             if (props.type === 4) {
@@ -78,11 +114,26 @@ export default defineComponent({
             }
         };
 
-        const isSystem = computed(() => props.resource!.IsSysFile === 1)
-        const isOffice = computed(() => ["ppt", "pptx", "doc", "docx", "xls", "xlsx", "pdf"].indexOf(props.resource!.File?.FileExtention) > -1);
-        const isImage = computed(() => ["gif", "png", "jpg", "jpeg"].indexOf(props.resource!.File?.FileExtention) > -1);
-        const isAudio = computed(() => ["mp3", "wav"].indexOf(props.resource!.File?.FileExtention) > -1);
-        const isVideo = computed(() => ["mp4"].indexOf(props.resource!.File?.FileExtention) > -1);
+        const isSystem = computed(() => props.resource!.IsSysFile === 1);
+        const isOffice = computed(
+            () =>
+                ["ppt", "pptx", "doc", "docx", "xls", "xlsx", "pdf"].indexOf(
+                    props.resource!.File?.FileExtention
+                ) > -1
+        );
+        const isImage = computed(
+            () =>
+                ["gif", "png", "jpg", "jpeg"].indexOf(
+                    props.resource!.File?.FileExtention
+                ) > -1
+        );
+        const isAudio = computed(
+            () =>
+                ["mp3", "wav"].indexOf(props.resource!.File?.FileExtention) > -1
+        );
+        const isVideo = computed(
+            () => ["mp4"].indexOf(props.resource!.File?.FileExtention) > -1
+        );
 
         watchEffect(initIframeSrc);
         return {
@@ -91,9 +142,9 @@ export default defineComponent({
             isOffice,
             isImage,
             isAudio,
-            isVideo
+            isVideo,
         };
-    }
+    },
 });
 </script>
 
@@ -127,7 +178,9 @@ export default defineComponent({
             height: calc(100% + 55px);
             margin-top: -55px;
         }
-        .iframe-image, .iframe-video, .iframe-audio {
+        .iframe-image,
+        .iframe-video,
+        .iframe-audio {
             display: flex;
             align-items: center;
             justify-content: center;

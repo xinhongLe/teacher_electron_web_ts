@@ -1,10 +1,9 @@
 import { getSchoolLessonWindow, getWindowCards } from "../api/index";
 import { IPageValue } from "@/types/home";
 import { reactive, ref, watch } from "vue";
-import { set, STORAGE_TYPES } from "@/utils/storage";
 import useHome from "@/hooks/useHome";
-import { originType } from "@/config";
 import TrackService, { EnumTrackEventType } from "@/utils/common";
+import { useStore } from "vuex";
 interface IGetLessonWindows {
     chapterID: string
 }
@@ -94,6 +93,7 @@ export default () => {
         LessonID: "",
         WindowName: ""
     });
+    const store = useStore();
     const cardListComponents = ref();
     const _getSchoolLessonWindow = (data: IGetLessonWindows) => {
         return getSchoolLessonWindow(data).then((res) => {
@@ -134,7 +134,7 @@ export default () => {
         activeIndex.winActiveValue = j;
         activeIndex.originType = j.OriginType;
         activeIndex.LessonID = j.LessonID;
-        TrackService.setTrack(EnumTrackEventType.SelectWindow, j.WindowID, j.WindowName, "", "", "", "", "选择窗");
+        TrackService.setTrack(EnumTrackEventType.SelectWindow, j.WindowID, j.WindowName, "", "", "", "", "选择窗", "", "", store.state.userInfo.schoolId);
     };
     const isSetCache = ref(false); // 是否需要更新窗下的数据
     const allPageList:any = ref([]);

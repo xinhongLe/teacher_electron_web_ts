@@ -5,6 +5,7 @@ export const createWindow = (url: string, option: BrowserWindowConstructorOption
     const win = new BrowserWindow({
         ...option,
         webPreferences: {
+            enableRemoteModule: true,
             nodeIntegration: true,
             preload: path.join(__dirname, "preload.js"),
             nodeIntegrationInWorker: true,

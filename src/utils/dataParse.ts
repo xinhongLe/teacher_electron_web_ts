@@ -6,7 +6,7 @@ import {
     Slide,
     SlideBackground,
     PPTCard, PPTRelation
-} from "wincard/src/types/slides";
+} from "wincard";
 import { createRandomCode } from "@/utils/common";
 import { getVideoQuoteInfo } from "@/api/home";
 

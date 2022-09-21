@@ -5,8 +5,9 @@ import { Ref, ref } from "vue";
 import { v4 as uuidv4 } from "uuid";
 import { findIndex } from "lodash";
 import TrackService, { EnumTrackEventType } from "@/utils/common";
-import { Slide } from "wincard/src/types/slides";
+import { Slide } from "wincard";
 import { copyPage } from "@/api/home";
+import { useStore } from "@/store";
 
 export default (windowCards:Ref<ICardList[]>, allPageSlideListMap: Ref<Map<string, Slide>>) => {
     let copyValue: IPageValue;
@@ -19,6 +20,7 @@ export default (windowCards:Ref<ICardList[]>, allPageSlideListMap: Ref<Map<strin
             ElMessage({ type: "success", message: "复制页成功" });
         }
     };
+    const store = useStore();
 
     const handlePaste = (data: ICardList) => {
         if (copyValue) {
@@ -55,7 +57,7 @@ export default (windowCards:Ref<ICardList[]>, allPageSlideListMap: Ref<Map<strin
                     slide && allPageSlideListMap.value.set(pastePage.value.ID, { ...slide, id: pastePage.value.ID });
                     windowCards.value[cardIndex].PageList.push(pastePage.value);
                     windowCards.value = [...windowCards.value];
-                    TrackService.setTrack(EnumTrackEventType.PastePage, "", "", "", "", "", "", "粘贴卡");
+                    TrackService.setTrack(EnumTrackEventType.PastePage, "", "", "", "", "", "", "粘贴卡", "", "", store.state.userInfo.schoolId);
                 }
             });
         } else {

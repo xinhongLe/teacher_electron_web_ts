@@ -78,7 +78,8 @@
                             isElectron &&
                             type != 2 &&
                             !isPureQuestion &&
-                            !dialog
+                            !dialog &&
+                            !noMinix
                         "
                         @click.stop="smallQuestion"
                         class="button"
@@ -110,6 +111,7 @@ import {
     inject,
     onMounted,
     onUnmounted,
+    PropType,
     Ref,
     ref,
     watch,
@@ -117,29 +119,37 @@ import {
 import isElectronFun from "is-electron";
 import useDetail from "./hooks/useDetail";
 import Brush from "@/components/brush/index.vue";
-import { store } from "@/store";
 import { set, STORAGE_TYPES } from "@/utils/storage";
 import emitter from "@/utils/mitt";
+import { IViewResourceData } from "@/types/store";
 export default defineComponent({
     props: {
         close: {
             type: Function,
             required: true,
         },
+
         isPureQuestion: {
             type: Boolean,
             default: false,
         },
+
         dialog: {
             type: Boolean,
             default: false,
         },
+
+        resource: {
+            type: Object as PropType<IViewResourceData>,
+            required: true,
+        },
     },
     setup(props, { emit }) {
-        const type = computed(() => store.state.common.viewQuestionInfo.type);
+        const type = computed(() => props.resource.type);
         const btnType = ref(1);
         const childRef = ref<InstanceType<typeof Brush>>();
         const isElectron = isElectronFun();
+        const noMinix = computed(() => !!props.resource.openMore);
 
         const questionID = inject("nowQuestionID") as Ref<string>;
         const {
@@ -162,7 +172,13 @@ export default defineComponent({
             voiceUrlMap,
             nextPage,
             questionSn,
-        } = useDetail(props.isPureQuestion, questionID.value, emit, childRef);
+        } = useDetail(
+            props.isPureQuestion,
+            questionID.value,
+            emit,
+            childRef,
+            props.resource
+        );
 
         const brushHandle = () => {
             btnType.value = 1;
@@ -227,6 +243,7 @@ export default defineComponent({
         });
 
         return {
+            noMinix,
             resolutionSwitchValue,
             questionSwitchValue,
             imageUrl,

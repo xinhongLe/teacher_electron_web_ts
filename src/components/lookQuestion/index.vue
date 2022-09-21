@@ -1,7 +1,7 @@
 <template>
     <div
         class="look-question"
-        :class="dialog && 'dialog-type'"
+        :class="{ 'dialog-type': dialog, 'active-window': activeWindow }"
         v-show="!isMinimized"
     >
         <div class="question-header" v-if="!dialog">
@@ -9,8 +9,9 @@
         </div>
         <div v-else style="height: 20px"></div>
         <Question
-            dialog
+            :dialog="dialog"
             :close="dialog ? close : closeDialog"
+            :resource="resource"
             ref="questionRef"
             v-model:nowQuestionID="nowQuestionID"
             v-model:isMinimized="isMinimized"
@@ -37,6 +38,7 @@
         </Question>
         <PureQuestionDialog
             v-if="dialogVisible"
+            :resource="resource"
             v-model:visible="dialogVisible"
         />
     </div>
@@ -49,6 +51,7 @@ import {
     nextTick,
     onMounted,
     onUnmounted,
+    PropType,
     provide,
     ref,
     watch,
@@ -58,6 +61,7 @@ import PureQuestionDialog from "./PureQuestionDialog.vue";
 import { checkPureQuestionByQuestionID } from "./api";
 import { MutationTypes, store } from "@/store";
 import isElectron from "is-electron";
+import { IViewResourceData } from "@/types/store";
 export default defineComponent({
     name: "LookQuestion",
     props: {
@@ -70,10 +74,19 @@ export default defineComponent({
             type: Function,
             default: () => {},
         },
+
+        resource: {
+            type: Object as PropType<IViewResourceData>,
+            required: true,
+        },
+
+        activeWindow: {
+            type: Boolean,
+            default: false,
+        },
     },
-    setup() {
-        const type = computed(() => store.state.common.viewQuestionInfo.type);
-        const isShowDialog = ref(true);
+    setup(props) {
+        const type = computed(() => props.resource.type);
         const dialogVisible = ref(false);
         const nowQuestionID = ref("");
         const isMinimized = ref(false);
@@ -93,11 +106,11 @@ export default defineComponent({
         };
 
         const closeDialog = () => {
-            isShowDialog.value = false;
             nextTick(() => {
-                store.commit(MutationTypes.SET_IS_SHOW_QUESTION, {
-                    flag: false,
-                    info: {},
+                store.commit(MutationTypes.REMOVE_FULLSCREEN_RESOURCE, {
+                    id: props.resource.id,
+                    openMore: props.resource.openMore,
+                    type: "LookQuestion",
                 });
             });
         };
@@ -106,6 +119,10 @@ export default defineComponent({
 
         const openQuestion = () => {
             isMinimized.value = false;
+            store.commit(
+                MutationTypes.SET_FULLSCREEN_RESOURCE_ACTIVE,
+                "LookQuestion"
+            );
         };
 
         const closeQuestion = () => {
@@ -153,7 +170,6 @@ export default defineComponent({
             isHasSimilarQuestion,
             openSimilarQuestion,
             closeDialog,
-            isShowDialog,
             isMinimized,
             nowQuestionID,
             dialogVisible,
@@ -170,12 +186,13 @@ export default defineComponent({
     width: 100vw;
     height: 100vh;
     position: fixed;
-    z-index: 3000;
+    z-index: 10000;
     overflow: hidden;
     background: #fff;
     -webkit-app-region: no-drag;
     display: flex;
     flex-direction: column;
+    top: 0;
     .question-header {
         p {
             font-size: 20px;
@@ -226,5 +243,9 @@ export default defineComponent({
             background-size: 100% 100%;
         }
     }
+}
+
+.active-window {
+    z-index: 10001 !important;
 }
 </style>

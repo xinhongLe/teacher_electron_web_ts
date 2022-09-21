@@ -5,7 +5,6 @@
             :slide="slide"
             v-model:windowName="windowName"
             @onSave="onSave"
-            @onDeleteWin="onDeleteWin"
             @addCard="addCard"
             @selectVideo="selectVideo"
             @setQuoteVideo="setQuoteVideo"
@@ -32,7 +31,7 @@
 </template>
 <script lang="ts">
 import { defineComponent, reactive, toRefs, ref, watch, computed, PropType } from "vue";
-import { Slide, IWin, PPTVideoElement, SaveType } from "wincard/src/types/slides";
+import { Slide, IWin, PPTVideoElement, SaveType } from "wincard";
 import CardSelectDialog from "./cardSelectDialog.vue";
 import { IPageValue, ICards } from "@/types/home";
 import SelectVideoDialog from "./selectVideoDialog.vue";
@@ -40,7 +39,6 @@ import LessonDesign from "./lessonDesign.vue";
 import { isEqual } from "lodash";
 import { store } from "@/store";
 import { ElMessage, ElMessageBox } from "element-plus";
-import { deleteWindow } from "../../api";
 import { useRoute } from "vue-router";
 import emitter from "@/utils/mitt";
 import { getWindowCards } from "@/api/home";
@@ -76,9 +74,9 @@ export default defineComponent({
 
         const PPTEditRef = ref();
 
-        const updateLesson = (lessonProcessList:any) => {
-            let allPageList:any[] = [];
-            lessonProcessList.LessonPlanDetailPages.forEach((item:any) => {
+        const updateLesson = (lessonProcessList: any) => {
+            let allPageList: any[] = [];
+            lessonProcessList.LessonPlanDetailPages.forEach((item: any) => {
                 allPageList = allPageList.concat(item.Childrens);
             });
             emit("updateAllPageSlideListMap", allPageList);
@@ -93,28 +91,10 @@ export default defineComponent({
         const isShowSaveDialog = ref(false);
         const isShowSaveAsDialog = ref(false);
 
-        const onSave = async (slide: Slide, type: SaveType) => {
+        const onSave = async (slide: Slide) => {
             // 保存时更新slide
             emit("updatePageSlide", slide);
-            emit("onSave", type, windowName.value);
-        };
-
-        const onDeleteWin = () => {
-            ElMessageBox.confirm("确定要删除当前课件吗？", "提示", {
-                confirmButtonText: "确定删除",
-                cancelButtonText: "取消"
-            }).then(async () => {
-                const res = await deleteWindow({
-                    windowID: windowInfo.value.id
-                });
-                if (res.resultCode === 200) {
-                    ElMessage.success("删除成功");
-                    emitter.emit("closeTab", {
-                        name: route.name as string,
-                        path: route.path
-                    });
-                }
-            });
+            emit("onSave");
         };
 
         let fun: (win: IWin[]) => void;
@@ -214,7 +194,6 @@ export default defineComponent({
             updateSlide,
             isShowSaveAsDialog,
             windowName,
-            onDeleteWin,
             updateQuoteVideo,
             lessonDesignVisible,
             openLessonDesign,

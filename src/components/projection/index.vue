@@ -73,6 +73,9 @@ export default defineComponent({
             overflow: hidden;
         }
     }
+    :deep(.el-overlay) {
+        z-index: 20001 !important;
+    }
 }
 
 </style>

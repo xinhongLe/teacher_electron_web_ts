@@ -1,22 +1,24 @@
 <template>
     <div class="intelligence" :class="{'full-screen': isFullScreen}">
         <div class="top">
-            <div
-                class="card-box-left"
-                :class="{
-                    hidden: isFullScreen && !isShowCardList,
-                }"
-            >
-                <div class="card-box-lefts">
-                    <CardList
-                        ref="cardListComponents"
-                        @updateFlag="updateFlag"
-                    />
+            <transition name="fade">
+                <div
+                    class="card-box-left"
+                    :class="{
+                        hidden: isFullScreen && !isShowCardList,
+                    }"
+                >
+                    <div class="card-box-lefts">
+                        <CardList
+                            ref="cardListComponents"
+                            @updateFlag="updateFlag"
+                        />
+                    </div>
+                    <div class="fold-btn" v-show="isFullScreen" @click="isShowCardList = !isShowCardList">
+                        <i :class="isShowCardList ? 'el-icon-arrow-left': 'el-icon-arrow-right'"></i>
+                    </div>
                 </div>
-                <div class="fold-btn" v-show="isFullScreen" @click="isShowCardList = !isShowCardList">
-                    <i :class="isShowCardList ? 'el-icon-arrow-left': 'el-icon-arrow-right'"></i>
-                </div>
-            </div>
+            </transition>
             <div class="card-detail">
                 <div class="card-detail-content">
                     <PreviewSection
@@ -32,6 +34,7 @@
             </div>
         </div>
         <Tools
+            :id="resourceId"
             :dialog="dialog"
             :showRemark="previewSection?.showRemark"
             @toggleRemark="toggleRemark"
@@ -116,10 +119,12 @@ const updateFlag = () => {
 };
 const fullScreen = () => {
     isFullScreen.value = true;
+    isShowCardList.value = false;
     previewSection.value && previewSection.value.fullScreen();
 };
 const clockFullScreen = () => {
     isFullScreen.value = false;
+    isShowCardList.value = true;
     previewSection.value && previewSection.value.clockFullScreen();
 };
 

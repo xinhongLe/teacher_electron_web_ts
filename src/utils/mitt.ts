@@ -10,15 +10,11 @@ type Events = {
     };
     preparationReLoad: null;
     logout: null;
-    windowSaveAsSuc: null;
     smallVideo: null;
     smallQuestion: null;
-    closeTab: Bread;
     updatePackageCount: null;
     updateResourceList: string;
     openEditResource: IResourceItem;
-    errorBookEmit: any;
-    openErrorBookDetails: any;
 };
 
 const emitter = mitt<Events>();

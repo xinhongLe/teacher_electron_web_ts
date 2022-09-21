@@ -9,7 +9,7 @@ const crypto = require("crypto");
 type func = (value: unknown) => void;
 
 export const store = new Store({
-    watch: true
+    watch: true,
 });
 const downloadingFileList: string[] = []; // 下载中的文件列表
 const downloadSuccessCallbackMap = new Map<string, func[]>();
@@ -18,7 +18,8 @@ export const isExistFile = (filePath: string): Promise<boolean> => {
         access(filePath)
             .then(() => {
                 // resolve(true);
-                const fileName = filePath.substring(filePath.lastIndexOf("\\") + 1, filePath.lastIndexOf("."));
+                // const fileName = filePath.substring(filePath.lastIndexOf("\\") + 1, filePath.lastIndexOf("."));
+                const fileName = filePath.replace(/(.*\/)*([^.]+).*/gi, "$2");
                 const hash = crypto.createHash("md5");
                 createReadStream(filePath)
                     .on("data", (chunk: any) => {
@@ -26,7 +27,10 @@ export const isExistFile = (filePath: string): Promise<boolean> => {
                     })
                     .on("end", () => {
                         const md5 = hash.digest("hex");
-                        return resolve(md5.toLocaleLowerCase() === fileName.toLocaleLowerCase());
+                        return resolve(
+                            md5.toLocaleLowerCase() ===
+                                fileName.toLocaleLowerCase()
+                        );
                     })
                     .on("error", () => {
                         return resolve(false);
@@ -41,14 +45,22 @@ export const isExistFile = (filePath: string): Promise<boolean> => {
 const dealCallback = (fileName: string, filePath: string) => {
     if (downloadSuccessCallbackMap.has(fileName)) {
         const callbackList = downloadSuccessCallbackMap.get(fileName) || [];
-        callbackList.forEach((callback) => callback(filePath.replaceAll("\\", "/")));
+        callbackList.forEach((callback) =>
+            callback(filePath.replaceAll("\\", "/"))
+        );
         downloadSuccessCallbackMap.delete(fileName);
     }
 };
 
 export const mkdirs = (dirname: string) => {
     return new Promise((resolve) => {
-        access(dirname).then(() => resolve(dirname)).catch(() => mkdir(dirname, { recursive: true }).then(() => resolve(dirname)).catch(() => resolve("")));
+        access(dirname)
+            .then(() => resolve(dirname))
+            .catch(() =>
+                mkdir(dirname, { recursive: true })
+                    .then(() => resolve(dirname))
+                    .catch(() => resolve(""))
+            );
     });
 };
 
@@ -67,9 +79,14 @@ export const downloadFileAxios = async (url: string, fileName: string) => {
     const response = await Axios({
         url,
         method: "GET",
-        responseType: "stream"
+        responseType: "stream",
     });
-    ElectronLog.info("downloadFileAxios status: ", response.status, "fileName:", fileName);
+    ElectronLog.info(
+        "downloadFileAxios status: ",
+        response.status,
+        "fileName:",
+        fileName
+    );
     if (response.status === 200) {
         response.data.pipe(writer);
     } else {
@@ -95,12 +112,16 @@ export const downloadFileAxios = async (url: string, fileName: string) => {
     dealCallback(fileName, state ? filePath : "");
 };
 
-export const downloadFileToPath = async (url: string, fileName: string, path: string): Promise<boolean> => {
+export const downloadFileToPath = async (
+    url: string,
+    fileName: string,
+    path: string
+): Promise<boolean> => {
     const writer = createWriteStream(path);
     const response = await Axios({
         url,
         method: "GET",
-        responseType: "stream"
+        responseType: "stream",
     });
     if (response.status === 200) {
         response.data.pipe(writer);
@@ -122,7 +143,7 @@ export const downloadFileToPath = async (url: string, fileName: string, path: st
             resolve(false);
         });
     });
-}
+};
 
 export default () => {
     const downloadFile = async (url: string, fileName: string) => {
@@ -151,7 +172,7 @@ export default () => {
                     downloadSuccessCallbackMap.get(fileName) || [];
                 downloadSuccessCallbackMap.set(fileName, [
                     ...callbackList,
-                    resolve
+                    resolve,
                 ]);
             } else {
                 downloadSuccessCallbackMap.set(fileName, [resolve]);
@@ -160,7 +181,10 @@ export default () => {
         });
     });
 
-    ipcMain.handle("downloadFileToPath", (_, url: string, fileName: string, path: string) => {
-        return downloadFileToPath(url, fileName, path);
-    });
+    ipcMain.handle(
+        "downloadFileToPath",
+        (_, url: string, fileName: string, path: string) => {
+            return downloadFileToPath(url, fileName, path);
+        }
+    );
 };

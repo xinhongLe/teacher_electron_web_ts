@@ -23,10 +23,10 @@
 </template>
 
 <script lang="ts">
-import { fetchDeleteCustomBookList, ICustomBookItem } from "@/api/resource";
+import { fetchAddCustomBookList, fetchDeleteCustomBookList, ICustomBookItem } from "@/api/resource";
 import { useStore } from "@/store";
 import { ElMessageBox } from "element-plus";
-import { computed, defineComponent, PropType } from "vue";
+import { computed, defineComponent, onMounted, onUnmounted, PropType } from "vue";
 import usePageEvent from "@/hooks/usePageEvent"; //埋点事件hooks
 import { EVENT_TYPE } from "@/config/event";
 export default defineComponent({
@@ -36,7 +36,7 @@ export default defineComponent({
             required: true,
         },
     },
-    emits: ["update"],
+    emits: ["updateBook"],
     setup(props, { emit }) {
         const { createBuryingPointFn } = usePageEvent("备课");
         const store = useStore();
@@ -63,7 +63,8 @@ export default defineComponent({
             () => store.state.preparation.subjectPublisherBookValue?.Id
         );
 
-        const deleteCustomBook = async (id: string) => {
+        const deleteCustomBook = (id: string) => {
+            // 使用emit 在删除接口后面不起作用 在接口之前才起作用！！！！！刚开始开发时可以，不知道什么影响了
             ElMessageBox.confirm("确认删除该书册吗？", "提示", {
                 confirmButtonText: "确定",
                 cancelButtonText: "取消",
@@ -72,15 +73,16 @@ export default defineComponent({
                 .then(async () => {
                     const res = await fetchDeleteCustomBookList({ id });
                     if (res.success) {
-                        emit("update", bookId.value === id);
-                        //确认删除书册后创建埋点
+                        // 确认删除书册后创建埋点
                         createBuryingPointFn(
                             EVENT_TYPE.PageClick,
                             "删除书册",
                             "删除",
                             props.book
                         );
-                    }
+
+                        emit("updateBook", bookId.value === id);
+                    };
                 })
                 .catch(() => {});
         };

@@ -1,3 +1,5 @@
+export const ENV = process.env.VUE_APP_ENV;
+
 export const AI_XUE_SHI_API = process.env.VUE_APP_AI_XUE_SHI_API;
 export const AI_XUE_SHI_API_WRONG_BOOK =
     process.env.VUE_APP_AI_XUE_SHI_API_WRONG_BOOK;

@@ -3,24 +3,21 @@
         <div class="title">班级管理</div>
         <div class="right">
             <div class="form-warp">
-                <el-form :model="form" :inline="true">
-                    <el-form-item>
-                        <el-input
-                            v-model="form.studentName"
-                            prefix-icon="el-icon-search"
-                            placeholder="请输入要搜索的学生"
+               <el-input
+                    v-model="form.studentName"
+                    prefix-icon="el-icon-search"
+                    placeholder="请输入要搜索的学生"
+                    @keyup.enter="searchStudent(), clicKBuryPoint('搜索')"
+                >
+                    <template #append>
+                        <el-button
+                            @click="
+                                searchStudent(), clicKBuryPoint('搜索')
+                            "
+                            >搜索</el-button
                         >
-                            <template #append>
-                                <el-button
-                                    @click="
-                                        searchStudent(), clicKBuryPoint('搜索')
-                                    "
-                                    >搜索</el-button
-                                >
-                            </template>
-                        </el-input>
-                    </el-form-item>
-                </el-form>
+                    </template>
+                </el-input>
             </div>
             <span class="btn" @click="goLabel(), clicKBuryPoint('管理标签')"
                 >管理标签</span
@@ -133,7 +130,6 @@ export default defineComponent({
         display: flex;
         align-items: center;
         .form-warp {
-            margin-top: 22px;
             margin-right: 14px;
         }
         :deep(.el-input-group__append) {

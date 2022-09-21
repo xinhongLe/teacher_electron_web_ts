@@ -1,5 +1,5 @@
 <template>
-    <div class="look-video" :class="dialog && 'dialog-type'" v-show="!isMinimized" v-loading="videoLoading">
+    <div class="look-video" :class="{ 'dialog-type': dialog, 'active-window': activeWindow }" v-show="!isMinimized" v-loading="videoLoading">
         <div class="warp">
             <div class="frames-box">
                 <span class="file-sn" v-if="!dialog">{{ fileSn }}</span>
@@ -54,7 +54,7 @@
                 <div @click="closeVideo">
                     <p>关闭</p>
                 </div>
-                <div @click="smallVideo" v-show="isElectron && !dialog">
+                <div @click="smallVideo" v-show="isElectron && !dialog && !noMinix">
                     <p>最小化</p>
                 </div>
                 <template v-if="isVideoEnded">
@@ -90,7 +90,9 @@ import {
     watch,
     onMounted,
     nextTick,
-    onUnmounted
+    onUnmounted,
+	PropType,
+	computed
 } from "vue";
 import isElectronFun from "is-electron";
 import { getFileAndPauseByFile } from "./api";
@@ -99,15 +101,27 @@ import { getOssUrl } from "@/utils/oss";
 import Brush from "@/components/brush/index.vue";
 import { MutationTypes, store } from "@/store";
 import emitter from "@/utils/mitt";
+import { IViewResourceData } from "@/types/store";
 export default defineComponent({
     props: {
         dialog: {
             type: Boolean,
             default: false
         },
+
         close: {
             type: Function,
             default: () => {}
+        },
+
+        resource: {
+            type: Object as PropType<IViewResourceData>,
+            required: true
+        },
+        
+        activeWindow: {
+            type: Boolean,
+            default: false
         }
     },
     setup(props) {
@@ -119,6 +133,7 @@ export default defineComponent({
         const isMinimized = ref(false);
         const lastId = ref("");
         const videoLoading = ref(false);
+        const noMinix = computed(() => !!props.resource.openMore);
         const {
             changeData,
             marks,
@@ -153,10 +168,7 @@ export default defineComponent({
 
         const closeVideo = () => {
             if (props.dialog) props.close();
-            store.commit(MutationTypes.SET_IS_SHOW_VIDEO, {
-                flag: false,
-                info: {}
-            });
+            store.commit(MutationTypes.REMOVE_FULLSCREEN_RESOURCE, { id: props.resource.id, openMore: props.resource.openMore, type: "LookVideo" });
         };
 
         const smallVideo = () => {
@@ -173,7 +185,7 @@ export default defineComponent({
         });
 
         watchEffect(() => {
-            const { id } = store.state.common.viewVideoInfo;
+            const { id } = props.resource;
             if (!id) return;
             isMinimized.value = false;
             if (id === lastId.value) {
@@ -185,7 +197,7 @@ export default defineComponent({
             lastId.value = id;
             childRef.value && childRef.value!.clearBrush();
             getFileAndPauseByFile({
-                fileID: store.state.common.viewVideoInfo.id
+                fileID: id
             }).then(async (res) => {
                 if (res.resultCode === 200) {
                     const { FilePauses, VideoFile } = res.result;
@@ -207,6 +219,7 @@ export default defineComponent({
 
         const openVideoWin = () => {
             isMinimized.value = false;
+            store.commit(MutationTypes.SET_FULLSCREEN_RESOURCE_ACTIVE, "LookVideo");
             nextTick(() => {
                 if (btnName.value === "暂停") {
                     videoRef.value && videoRef.value.play();
@@ -246,6 +259,7 @@ export default defineComponent({
         });
 
         return {
+            noMinix,
             marks,
             videoUrl,
             clearBoard,
@@ -293,10 +307,11 @@ export default defineComponent({
     width: 100vw;
     height: 100vh;
     position: fixed;
-    z-index: 3000;
+    z-index: 10000;
     overflow: hidden;
     background: #fff;
     -webkit-app-region: no-drag;
+    top: 0;
     &.dialog-type {
         width: 100%;
         height: 100%;
@@ -426,5 +441,9 @@ export default defineComponent({
     .next {
         background-image: url("./../../assets/look/btn_xiayibu@2x.png");
     }
+}
+
+.active-window {
+    z-index: 10001 !important;
 }
 </style>

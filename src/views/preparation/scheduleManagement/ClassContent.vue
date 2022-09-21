@@ -208,31 +208,31 @@ export default defineComponent({
 
         const _lookQuestions = (id: string) => {
             lookQuestions({ id, type: 3 });
-            emitter.off("deleteQuestion");
-            emitter.on("deleteQuestion", ({ paperId, questionID }) => {
-                const data = {
-                    deletedQuestionIDs: [questionID]
-                };
-                updateCourseWareListOfTeacher(data);
-                for (const data of classContentList.value) {
-                    const content = data?.content || [];
-                    const info = find(content, { ID: paperId });
-                    if (info) {
-                        info.QuestionCount = info.QuestionCount - 1;
-                        return;
-                    }
-                }
-            });
+            // emitter.off("deleteQuestion");
+            // emitter.on("deleteQuestion", ({ paperId, questionID }) => {
+            //     const data = {
+            //         deletedQuestionIDs: [questionID]
+            //     };
+            //     updateCourseWareListOfTeacher(data);
+            //     for (const data of classContentList.value) {
+            //         const content = data?.content || [];
+            //         const info = find(content, { ID: paperId });
+            //         if (info) {
+            //             info.QuestionCount = info.QuestionCount - 1;
+            //             return;
+            //         }
+            //     }
+            // });
         };
 
-        watch(
-            () => store.state.common.isShowQuestion,
-            (v) => {
-                if (!v) {
-                    emitter.off("deleteQuestion");
-                }
-            }
-        );
+        // watch(
+        //     () => store.state.common.isShowQuestion,
+        //     (v) => {
+        //         if (!v) {
+        //             emitter.off("deleteQuestion");
+        //         }
+        //     }
+        // );
 
         return {
             classContentList,

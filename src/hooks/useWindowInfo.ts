@@ -6,6 +6,8 @@ import useHome from "@/hooks/useHome";
 import emitter from "@/utils/mitt";
 import isElectron from "is-electron";
 import { getWindowCards } from "@/views/preparation/intelligenceClassroom/api";
+import { Slide } from "wincard";
+import { useStore } from "@/store";
 const dealCardData = (card:SchoolWindowCardInfo) => {
     const pages = card.PageList.map(page => {
         return {
@@ -21,7 +23,6 @@ const dealCardData = (card:SchoolWindowCardInfo) => {
 
 const useWindowInfo = () => {
     const { getPageDetail, transformType } = useHome();
-    let isToFirst = false;
     const currentWindowInfo = reactive<SchoolWindowInfo>({
         LessonID: "",
         WindowID: "",
@@ -35,13 +36,15 @@ const useWindowInfo = () => {
     const currentCard = ref<SchoolWindowCardInfo>();
     const currentPageIndex = ref(0);
     const currentCardIndex = ref(0);
-    const currentSlide = ref({});
+    const currentSlide = ref<Slide | {id?: string}>({});
     const cardList = ref<SchoolWindowCardInfo[]>([]);
     const allPageList = computed(() => {
         return cardList.value.flatMap((item) => [...item.PageList]);
     });
     const pageList = computed(() => currentCard.value?.PageList || []);
     const currentPageInfo = computed(() => pageList.value[currentPageIndex.value]);
+
+    const store = useStore();
 
     const getCardList = (WindowID: string, OriginType: number) => {
         getWindowCards({
@@ -81,7 +84,7 @@ const useWindowInfo = () => {
         const newCard = dealCardData(card);
         currentCardIndex.value = index;
         currentCard.value = newCard;
-        TrackService.setTrack(EnumTrackEventType.SelectCard, currentWindowInfo.WindowID, currentWindowInfo.WindowName, card.ID, card.Name, card.PageList.length > 0 ? card.PageList[0].ID : "", card.PageList.length > 0 ? card.PageList[0].Name : "", "选择卡", "", "");
+        TrackService.setTrack(EnumTrackEventType.SelectCard, currentWindowInfo.WindowID, currentWindowInfo.WindowName, card.ID, card.Name, card.PageList.length > 0 ? card.PageList[0].ID : "", card.PageList.length > 0 ? card.PageList[0].Name : "", "选择卡", "", "", store.state.userInfo.schoolId);
     };
 
     let isExecuting = false;
@@ -117,16 +120,6 @@ const useWindowInfo = () => {
         isElectron() && window.electron.ipcRenderer.invoke("getWindowList", JSON.parse(JSON.stringify(v)));
     }, {
         deep: true
-    });
-
-    onMounted(() => {
-        emitter.on("windowSaveAsSuc", () => {
-            isToFirst = true;
-        });
-    });
-
-    onUnmounted(() => {
-        emitter.off("windowSaveAsSuc");
     });
 
     onDeactivated(() => {

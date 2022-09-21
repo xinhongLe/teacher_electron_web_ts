@@ -1,6 +1,6 @@
 <template>
     <div class="roll-call" :style="{'background-color': chooseFlag ? '#fff' : '#efefef'}">
-        <div class="roll-call-header">
+        <div class="roll-call-header" v-if="chooseFlag">
 <!--            <div class="rch-left"></div>-->
             <div class="rch-center">
                 <span v-if="chooseFlag">选择班级</span>
@@ -9,7 +9,7 @@
                 <img src="@/assets/images/suspension/guanbi.png" alt="" />
             </div> -->
         </div>
-        <div class="" v-if="chooseFlag">
+        <div class="roll-call-content" v-if="chooseFlag">
             <div class="class-tree" >
                 <el-tree
                     ref="treeRef"
@@ -112,7 +112,10 @@ export default defineComponent({
                 }
             });
             checkStudentList.value = [...map.values()];
-            window.electron.setContentSize(1400, 1000);
+            const size = window.electron.remote.screen.getPrimaryDisplay().workAreaSize;
+            const width = size.width > 1200 ? 1200 : size.width;
+            const height = size.height > 800 ? 800 : size.height;
+            window.electron.setContentSize(width, height);
             window.electron.setCenter();
             chooseFlag.value = false;
         };
@@ -187,12 +190,11 @@ body {
 .roll-call {
     width: 100%;
     height: 100vh;
-    padding-top: 20px;
     display: flex;
     flex-direction: column;
 }
 .roll-call-header {
-    padding: 0 20px;
+    padding: 20px 20px 0;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -208,13 +210,22 @@ body {
         }
     }
 }
+.roll-call-content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    padding: 10px;
+}
 .class-tree {
-    height: 400px;
+    flex: 1;
+    min-height: 0;
     overflow-y: auto;
 }
 .roll-call-footer {
     display: flex;
     justify-content: center;
+    padding-top: 10px;
     .el-button {
         width: 100px;
     }
