@@ -38,7 +38,14 @@ const showFeedBack = () => {
 
 const useLogout = () => {
     useOutLogin();
-    isElectron() && window.electron.ipcRenderer.send("stopSingalR");
+    if (isElectron()) {
+        window.electron.ipcRenderer.send("stopSingalR");
+        // 退出登录清空智课助手里的资源
+        window.electron.ipcRenderer.send("attendClass", "unfoldSuspension", {
+            type: "sysData",
+            resources: "[]"
+        });
+    }
 };
 </script>
 

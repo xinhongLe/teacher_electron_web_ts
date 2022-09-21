@@ -19,6 +19,10 @@ let isShowVideo = false; // 悬浮球是否显示视频图标
 let isShowBlackboard = false; // 悬浮球是否显示黑板图标
 let isShowQuestion = false; // 悬浮球是否显示题目图标
 let socketHelper: SocketHelper;
+let socketHelperHeartbeatInterval: any = -1;
+let socketHelperHeartbeatCheckInterval: any = -1;
+let socketHelperHeartbeatTime = new Date().getTime();
+
 const timerURL =
     process.env.NODE_ENV === "development"
         ? `${process.env.WEBPACK_DEV_SERVER_URL}timer.html`
@@ -349,7 +353,11 @@ class CustomCallBack implements CallBack {
                 newTop = size.height - winSize[1];
             }
 
-                unfoldSuspensionWin!.setPosition(newLeft, newTop);
+            if (newTop < 100) {
+                newTop = 100;
+            }
+
+            unfoldSuspensionWin!.setPosition(newLeft, newTop);
 
             // 主进程悬浮球点击事件分发
             ipcMain.emit("suspensionClick");
@@ -397,6 +405,9 @@ class CustomCallBack implements CallBack {
         case "QUICKTIMEHIDE":
             isShowTimer = false;
             timerWin && timerWin.destroy();
+            break;
+        case "PONG":
+            socketHelperHeartbeatTime = new Date().getTime();
             break;
         }
     }
@@ -460,6 +471,19 @@ export function createSuspensionWindow() {
         killProcess().then(() => {
             spawn(PATH_BALL);
             socketHelper = new SocketHelper(new CustomCallBack());
+            socketHelperHeartbeatInterval = setInterval(() => {
+                socketHelper && socketHelper.sendMessage(new Action("PING", ""));
+            }, 3000);
+
+            socketHelperHeartbeatCheckInterval = setInterval(() => {
+                if ((new Date().getTime() - socketHelperHeartbeatTime) / 1000 > 5) {
+                    clearInterval(socketHelperHeartbeatInterval);
+                    clearInterval(socketHelperHeartbeatCheckInterval);
+                    socketHelper && socketHelper.close();
+                    createSuspensionWindow();
+                    showSuspension();
+                }
+            }, 10000);
             // createUnfoldSuspensionWindow();
         });
     }
