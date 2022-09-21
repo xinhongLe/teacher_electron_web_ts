@@ -43,6 +43,7 @@
         "moment": "^2.29.1",
         "mqtt": "^4.3.2",
         "mwhiteboard": "^0.1.9",
+        "node-machine-id": "^1.1.12",
         "pizzip": "^3.1.1",
         "postcss-px2rem-exclude": "0.0.6",
         "ppt-parse": "^0.1.5",
