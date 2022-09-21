@@ -250,7 +250,14 @@
                         />
                         <span>讲解题目</span>
                     </div>
-                    <div class="operate-btn" @click="openSimilarQuestion(item)">
+                    <div
+                        class="operate-btn"
+                        @click="
+                            item.IsAnyPureQuestion
+                                ? openSimilarQuestion(item)
+                                : ''
+                        "
+                    >
                         <img
                             src="~@/assets/images/wrongbook/icon_tonglei.png"
                             alt=""

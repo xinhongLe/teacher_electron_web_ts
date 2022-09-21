@@ -35,6 +35,7 @@ import useWrongBook from "../hooks/useWrongBook";
 import emitter from "@/utils/mitt"; //全局事件总线
 import { subjectPublisherBookList } from "@/hooks/useSubjectPublisherBookList";
 provide("isShow", false);
+provide("classId", "");
 const { cascaderProps } = useBookList();
 const props = defineProps({
     currentWrongType: {
