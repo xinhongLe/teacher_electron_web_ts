@@ -110,7 +110,7 @@ const usePageEvent = (pageName: string, isPage?: boolean) => {
             UserType: 2, //用户类型 1员工 2老师 3学生 4家长
             UserName: userInfo.Name, //用户名称
             UserGender: "", //用户性别
-            UserRole: yunInfo.RolesList || [], //用户角色
+            UserRole: yunInfo?.RolesList ? yunInfo?.RolesList : [], //用户角色
             SubjectId: "", //科目ID
             SubjectName: "", //科目名称
             UserSubject: subjectInfo, //科目

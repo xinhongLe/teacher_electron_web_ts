@@ -318,7 +318,7 @@ const classList = get(STORAGE_TYPES.USER_INFO).Classes;
 const gradeId = ref(classList.length ? classList[0]?.GradeID : "");
 const state = reactive({
     //顶部时间选择区间
-    dateRange: getFormatDate(1) || [],
+    dateRange: getFormatDate(3) || [],
     //顶部年级列表
     classList: "",
     //当前选中的班级
@@ -354,7 +354,7 @@ const state = reactive({
         },
     ],
     //当前日期选中的类型
-    currentDateIndex: 1,
+    currentDateIndex: 3,
     //时间类型按钮list
     dateButtonList: [
         {
