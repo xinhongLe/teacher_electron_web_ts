@@ -80,9 +80,9 @@ export default defineComponent({
         }
 
         if (isElectron()) {
-            (window as any).electron.registerEscKeyUp(() => {
-                if (!(window as any).electron.isFullScreen()) return;
-                (window as any).electron.minimizeWindow();
+            window.electron.registerEscKeyUp(() => {
+                if (!window.electron.isFullScreen()) return;
+                window.electron.minimizeWindow();
             });
         }
 
