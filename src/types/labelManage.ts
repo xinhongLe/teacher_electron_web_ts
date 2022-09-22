@@ -1,5 +1,19 @@
 import { HeadPortrait } from "./myStudent";
 
+export interface TagStudent {
+    Account: string,
+    HeadPortrait: HeadPortrait
+    Name: string
+    Phone: string
+    ID: string
+    SubjectsInfo?:{
+        SubjectID: string,
+        TagName: string
+    }[],
+    StudentSubjects?: string
+    TagName: string
+}
+
 export interface Student {
     Account: string,
     ClassGradeID: string,
@@ -10,6 +24,11 @@ export interface Student {
     Phone: string
     StudentID: string
     SubjectID: string
+    SubjectsInfo?:{
+        SubjectID: string,
+        TagName: string
+    }[],
+    StudentSubjects?: string
     TagName: string
 }
 
@@ -29,5 +48,5 @@ export interface Tag {
 
 export interface StudentTag {
     tagName: string,
-    list: Student[]
+    list: TagStudent[]
 }

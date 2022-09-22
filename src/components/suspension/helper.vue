@@ -1,7 +1,10 @@
 <template>
     <div class="helper-container">
         <div class="header">
-            <span class="exit" v-if="isElectron" @click="exitApp"
+            <span
+                class="exit"
+                v-if="isElectron"
+                @click="clicKBuryPoint('退出程序'), exitApp()"
                 >退出程序</span
             >
             <img
@@ -9,8 +12,14 @@
                 alt=""
             />
             <div class="right-btns">
-                <i class="el-icon-refresh-right refresh" @click="getGradeList"></i>
-                <div class="right-btn" @click="close">
+                <i
+                    class="el-icon-refresh-right refresh"
+                    @click="clicKBuryPoint('刷新'), getGradeList()"
+                ></i>
+                <div
+                    class="right-btn"
+                    @click="clicKBuryPoint('最小化'), close()"
+                >
                     <svg
                         t="1623303211083"
                         class="icon"
@@ -31,102 +40,243 @@
             </div>
         </div>
         <div class="container">
-            <div class="tool-list">
-                <div class="blackboard-box" @click="openBlackboard()">
-                    <img
-                        src="@/assets/images/suspension/pic_blackboard@2x.png"
-                        alt=""
-                    />
-                    <div class="blackboard-text">黑板</div>
-                    <!-- <div class="blackboard-btn" @click="openBlackboard()">打开</div> -->
-                </div>
-                <div class="blackboard-box" @click="openAnswerMachineWindow">
-                    <img
-                        src="@/assets/images/suspension/img_datiqi.png"
-                        alt=""
-                    />
-                    <div class="blackboard-text">答题器</div>
-                </div>
-                <div class="blackboard-box" @click="clickProjection">
-                    <img
-                        src="@/assets/images/suspension/pic_touying@2x.png"
-                        alt=""
-                    />
-                    <div class="blackboard-text">投影</div>
-                </div>
-                <div class="blackboard-box" @click="clickKnowledge">
-                    <img
-                        src="@/assets/images/suspension/pic_zhishitupu@2x.png"
-                        alt=""
-                    />
-                    <div class="blackboard-text">知识图谱</div>
-                </div>
-                <div class="blackboard-box" @click="openTimer">
-                    <img
-                        src="@/assets/images/suspension/pic_timer@2x.png"
-                        alt=""
-                    />
-                    <div class="blackboard-text">计时器</div>
-                </div>
-                <!-- openRollCall -->
-                <div class="blackboard-box" @click="openRollCall">
-                    <img
-                        src="@/assets/images/suspension/pic_namer@2x.png"
-                        alt=""
-                    />
-                    <div class="blackboard-text">点名</div>
-                </div>
-            </div>
-
-            <div class="teach-list">
-                <div class="teach-list-title">
-                    <span class="title">教学助手</span>
-                    <el-cascader
-                        v-model="selectBookList"
-                        :props="cascaderProps"
-                        :options="subjectPublisherBookList"
-                    />
-                    <div class="search-input">
-                        <el-input
-                            placeholder="搜索教具名称"
-                            v-model="searchName"
-                        >
-                            <template #append>
-                                <el-button
-                                    icon="el-icon-search"
-                                    @click="getGradeList"
-                                ></el-button>
-                            </template>
-                        </el-input>
-                    </div>
-                </div>
-                <div class="teach-class" v-show="!isLoading">
-                    <div class="list-empty" v-if="gameList.length === 0">
-                        <img src="@/assets/images/suspension/empty_tool.png" />
-                        <span
-                            >本书册下暂无教具，可切换为“全部”查看更多教具内容</span
-                        >
-                    </div>
-                    <div v-else class="teach-content-warp">
-                        <div
-                            class="teach-content"
-                            v-for="(item, index) in gameList"
-                            :key="index"
-                            @click="openUrl(item.url, item.name)"
-                        >
-                            <div class="img-warp">
-                                <img :src="item.imgUrl" />
+            <el-collapse
+                class="collapse-custom"
+                v-model="activeModes"
+                @change="handleChange"
+            >
+                <el-collapse-item
+                    name="0"
+                    v-if="resourceList.length > 0"
+                    @click="currentClickCol('0', '上课')"
+                >
+                    <template #title>
+                        <div class="collapse-header">
+                            <div class="collapse-title">
+                                <img
+                                    src="@/assets/images/suspension/icon_sk.png"
+                                    alt=""
+                                />
+                                上课
                             </div>
-                            <p>{{ item.name }}</p>
+                            <div
+                                class="attend-class-view"
+                                @click.stop="
+                                    switchClass(),
+                                        clicKBuryPoint(
+                                            isSwitch
+                                                ? '全部显示'
+                                                : '仅显示备课篮'
+                                        )
+                                "
+                            >
+                                <img
+                                    src="@/assets/images/preparation/icon_qiehuan_1.png"
+                                    alt=""
+                                />
+                                {{ isSwitch ? "全部显示" : "仅显示备课包" }}
+                            </div>
+                        </div>
+                    </template>
+                    <div class="resource-list">
+                        <div
+                            class="resource-item"
+                            :class="{ courseware: resource.UserId === userId }"
+                            v-for="(resource, index) in resourceList"
+                            :key="index"
+                            @click.stop="
+                                classClicKBuryPoint(resource),
+                                    openResource(resource)
+                            "
+                        >
+                            <div class="resource-left-title">
+                                <img
+                                    :src="
+                                        iconResources.selfStudy[
+                                            resource.ResourceType
+                                        ]
+                                    "
+                                    alt=""
+                                />
+                                {{ resource.Name }}
+                            </div>
+                            <div
+                                class="resource-type"
+                                :class="
+                                    typeResources[resource.ResourceType] < 9 &&
+                                    'p-r-' +
+                                        typeResources[resource.ResourceType]
+                                "
+                            >
+                                {{ textResources[resource.ResourceType] }}
+                            </div>
                         </div>
                     </div>
-                </div>
-            </div>
+                </el-collapse-item>
+                <el-collapse-item
+                    name="1"
+                    @click="currentClickCol('1', '工具')"
+                >
+                    <template #title>
+                        <div class="collapse-header">
+                            <div class="collapse-title">
+                                <img
+                                    src="@/assets/images/suspension/icon_gj.png"
+                                    alt=""
+                                />
+                                工具
+                            </div>
+                        </div>
+                    </template>
+                    <div class="tool-list">
+                        <div
+                            class="blackboard-box"
+                            @click.stop="
+                                clicKBuryPoint('黑板'), openBlackboard()
+                            "
+                        >
+                            <img src="@/assets/images/suspension/pic_blackboard@2x.png" alt=""/>
+                            <div class="blackboard-text">黑板</div>
+                            <!-- <div class="blackboard-btn" @click="openBlackboard()">打开</div> -->
+                        </div>
+                        <div
+                            class="blackboard-box"
+                            @click.stop="
+                                clicKBuryPoint('答题器'),
+                                    openAnswerMachineWindow()
+                            "
+                        >
+                            <img src="@/assets/images/suspension/img_datiqi.png" alt=""/>
+                            <div class="blackboard-text">答题器</div>
+                        </div>
+                        <div
+                            class="blackboard-box"
+                            @click.stop="
+                                clicKBuryPoint('投影'), clickProjection()
+                            "
+                        >
+                            <img src="@/assets/images/suspension/pic_touying@2x.png" alt=""/>
+                            <div class="blackboard-text">投影</div>
+                        </div>
+                        <div
+                            class="blackboard-box"
+                            @click.stop="
+                                clicKBuryPoint('知识图谱'), clickKnowledge()
+                            "
+                        >
+                            <img src="@/assets/images/suspension/pic_zhishitupu@2x.png" alt=""/>
+                            <div class="blackboard-text">知识图谱</div>
+                        </div>
+                        <div
+                            class="blackboard-box"
+                            @click.stop="clicKBuryPoint('计时器'), openTimer()"
+                        >
+                            <img src="@/assets/images/suspension/pic_timer@2x.png" alt=""/>
+                            <div class="blackboard-text">计时器</div>
+                        </div>
+                        <!-- openRollCall -->
+                        <div
+                            class="blackboard-box"
+                            @click.stop="clicKBuryPoint('点名'), openRollCall()"
+                        >
+                            <img src="@/assets/images/suspension/pic_namer@2x.png" alt=""/>
+                            <div class="blackboard-text">随机点名</div>
+                        </div>
+<!--                        <div class="blackboard-box" @click="openQuickAnswer">-->
+<!--                            <img src="@/assets/images/suspension/pic_qd.png" alt=""/>-->
+<!--                            <div class="blackboard-text">抢答</div>-->
+<!--                        </div>-->
+<!--                        <div class="blackboard-box" @click="openRollCall">-->
+<!--                            <img src="@/assets/images/suspension/pic_sp.png" alt=""/>-->
+<!--                            <div class="blackboard-text">锁屏管理</div>-->
+<!--                        </div>-->
+                    </div>
+                </el-collapse-item>
+                <el-collapse-item
+                    name="2"
+                    @click="currentClickCol('2', '教学助手')"
+                >
+                    <template #title>
+                        <div class="collapse-header">
+                            <div class="collapse-title">
+                                <img
+                                    src="@/assets/images/suspension/icon_jj.png"
+                                    alt=""
+                                />
+                                教学助手
+                            </div>
+                            <div class="teach-list-title">
+                                <div @click.stop="() => null">
+                                    <el-cascader
+                                        v-model="selectBookList"
+                                        :props="cascaderProps"
+                                        :options="subjectPublisherBookList"
+                                    />
+                                </div>
+                                <div class="search-input">
+                                    <el-input
+                                        placeholder="搜索教具名称"
+                                        v-model="searchName"
+                                        @click.stop="() => null"
+                                        @keyup.space.enter.stop="() => null"
+                                        @keydown.enter="getGradeList"
+                                    >
+                                        <template #append>
+                                            <el-button
+                                                icon="el-icon-search"
+                                                @click.stop="getGradeList"
+                                            ></el-button>
+                                        </template>
+                                    </el-input>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                    <div class="teach-list">
+                        <div class="teach-class" v-show="!isLoading">
+                            <div
+                                class="list-empty"
+                                v-if="gameList.length === 0"
+                            >
+                                <img
+                                    src="@/assets/images/suspension/empty_tool.png"
+                                />
+                                <span
+                                    >本书册下暂无教具，可切换为“全部”查看更多教具内容</span
+                                >
+                            </div>
+                            <div v-else class="teach-content-warp">
+                                <div
+                                    class="teach-content"
+                                    v-for="(item, index) in gameList"
+                                    :key="index"
+                                    @click.stop="
+                                        clicKBuryPoint(item),
+                                            openUrl(item.url, item.name)
+                                    "
+                                >
+                                    <div class="img-warp">
+                                        <img :src="item.imgUrl" />
+                                    </div>
+                                    <p>{{ item.name }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </el-collapse-item>
+            </el-collapse>
         </div>
     </div>
 </template>
 <script lang="ts">
-import { defineComponent, onMounted, ref, watch } from "vue";
+import {
+    defineComponent,
+    onMounted,
+    onUnmounted,
+    PropType,
+    ref,
+    watch,
+} from "vue";
 import { Game } from "./interface";
 import { getToolList } from "@/api/index";
 import { getOssUrl } from "@/utils/oss";
@@ -135,28 +285,34 @@ import { ElMessage } from "element-plus";
 import { BookList } from "@/types/preparation";
 import { get, STORAGE_TYPES, storeChange } from "@/utils/storage";
 import { fetchAllStudents } from "@/views/labelManage/api";
+import { IpcRendererEvent } from "electron";
+import { iconResources, textResources, typeResources } from "@/config/resource";
+import usePageEvent from "@/hooks/usePageEvent";
+import { EVENT_TYPE } from "@/config/event";
 export default defineComponent({
     setup(props, { emit }) {
+        const { createBuryingPointFn } = usePageEvent("智课助手");
+
         const gameList = ref<Game[]>([]);
         const initBookList = [
             {
                 Lable: "全部教具",
-                Value: "全部教具"
-            }
+                Value: "全部教具",
+            },
         ];
         const subjectPublisherBookList = ref<BookList[]>(initBookList);
         const cascaderProps = {
             value: "Value",
             children: "Children",
             label: "Lable",
-            checkStrictly: true
+            checkStrictly: true,
         };
         const searchName = ref("");
         const selectBookList = ref(["全部教具"]);
         const isLoading = ref(false);
         const allStudentList = ref<unknown[]>([]);
         let userInfo = get(STORAGE_TYPES.USER_INFO);
-
+        const userId = ref(userInfo.userCenterUserID);
         const openBlackboard = () => {
             if (isElectron()) {
                 return window.electron.ipcRenderer.invoke("openBlackboard");
@@ -171,10 +327,13 @@ export default defineComponent({
         };
         const getGradeList = async () => {
             isLoading.value = true;
+            if (activeModes.value.indexOf("2") === -1) {
+                activeModes.value = activeModes.value.concat("2");
+            }
             const data = {
                 name: searchName.value,
                 bookID: "",
-                bookIDs: [] as string[]
+                bookIDs: [] as string[],
             };
             if (selectBookList.value.length === 1) {
                 data.bookIDs =
@@ -206,7 +365,7 @@ export default defineComponent({
                 gameList.value = list.map((item, index) => ({
                     url: item.Url,
                     imgUrl: imgList[index],
-                    name: item.Name
+                    name: item.Name,
                 }));
             }
             isLoading.value = false;
@@ -222,29 +381,49 @@ export default defineComponent({
             }
             window.open(url);
         };
-
         const clickKnowledge = () => {
             openUrl("https://knowledge.aixueshi.top/", "知识图谱");
         };
-
         const openRollCall = () => {
-            if (allStudentList.value.length === 0) {
+            if (!isGetStudentList.value) {
                 return ElMessage.error("请等待学员加载后点名！");
             }
+            if (allStudentList.value.length === 0) {
+                return ElMessage.error("学生数量为0！");
+            }
             if (isElectron()) {
-                return window.electron.ipcRenderer.invoke("openRollCall", JSON.parse(JSON.stringify(allStudentList.value)));
+                return window.electron.ipcRenderer.invoke(
+                    "openRollCall",
+                    JSON.parse(JSON.stringify(allStudentList.value))
+                );
             }
         };
-
         const openAnswerMachineWindow = () => {
-            if (allStudentList.value.length === 0) {
+            if (!isGetStudentList.value) {
                 return ElMessage.error("请等待学员加载后答题！");
             }
+            if (allStudentList.value.length === 0) {
+                return ElMessage.error("学生数量为0！");
+            }
             if (isElectron()) {
-                return window.electron.ipcRenderer.invoke("openAnswerMachineWindow", JSON.parse(JSON.stringify(allStudentList.value)));
+                return window.electron.ipcRenderer.invoke(
+                    "openAnswerMachineWindow",
+                    JSON.parse(JSON.stringify(allStudentList.value))
+                );
             }
         };
 
+        const openQuickAnswer = () => {
+            if (!isGetStudentList.value) {
+                return ElMessage.error("请等待学员加载后答题！");
+            }
+            if (allStudentList.value.length === 0) {
+                return ElMessage.error("学生数量为0！");
+            }
+            if (isElectron()) {
+                return window.electron.ipcRenderer.invoke("openQuickAnswerWindow", JSON.parse(JSON.stringify(allStudentList.value)));
+            }
+        };
         const close = () => {
             if (isElectron()) {
                 window.electron.ipcRenderer.invoke("hideUnfoldSuspensionWin");
@@ -252,58 +431,122 @@ export default defineComponent({
                 emit("close-helper");
             }
         };
-
         const clickProjection = () => {
             if (isElectron()) {
                 window.electron.ipcRenderer.invoke("openProjectionWindow");
             }
         };
-
         const uncultivated = () => {
             ElMessage({ type: "warning", message: "功能暂未开发" });
         };
-
         const exitApp = () => {
             window.electron.ipcRenderer.invoke("exitApp");
         };
-
         const getBookList = async () => {
-            const res = await window.electron.ipcRenderer.invoke("fetchSubjectPublisherBookList");
-            if (res.resultCode === 200) {
-                subjectPublisherBookList.value = [
-                    ...initBookList,
-                    ...res.result
-                ];
-            }
+            const data = await window.electron.ipcRenderer.invoke(
+                "fetchSubjectPublisherBookList"
+            );
+            subjectPublisherBookList.value = [...initBookList, ...data];
             getGradeList();
         };
-
+        const isGetStudentList = ref(false);
         const getStudentList = async () => {
             allStudentList.value = [];
             const res = await fetchAllStudents(userInfo?.ID);
             if (res.resultCode === 200) {
+                isGetStudentList.value = true;
                 allStudentList.value = res.result;
             }
         };
 
+        const resourceList = ref([]);
+        const onResources = (event: IpcRendererEvent, data: any) => {
+            if (data.type === "sysData")
+                resourceList.value = JSON.parse(data.resources || "[]");
+            if (data.type === "switchClass") isSwitch.value = data.switch;
+        };
+        //collapse 改变事件
+        const handleChange = (data: []) => {
+            // console.log(data);
+        };
+        //智课助手界面里面-工具、按钮、最小化、退出、教具等的 点击埋点事件
+        const clicKBuryPoint = (item: any) => {
+            createBuryingPointFn(
+                EVENT_TYPE.PageClick,
+                item.name || item,
+                item.name || item
+            );
+        };
+        //智课助手界面上课模块资源点击 埋点事件
+        const classClicKBuryPoint = (resource: any) => {
+            // console.log(resource);
+            const data = Object.assign({}, resource);
+            //先赋值给第1项---
+            data.TextBooks = data.TextBooks[0];
+            // console.log(data);
+            createBuryingPointFn(
+                EVENT_TYPE.PageClick,
+                `上课-${resource.Name}`,
+                resource.Name,
+                data
+            );
+        };
+        //当前点击是哪个展开/收起项
+        const currentClickCol = (item: string, name: string) => {
+            const awayOrExpend = activeModes.value.includes(item)
+                ? "展开"
+                : "收起"; //点击的项是否在已展开的数组里
+            createBuryingPointFn(
+                EVENT_TYPE.PageClick,
+                `${awayOrExpend}${name}`,
+                name
+            );
+        };
+
         onMounted(async () => {
+            getBookList();
             if (userInfo) {
-                getBookList();
                 getStudentList();
             }
             if (isElectron()) {
                 storeChange(STORAGE_TYPES.USER_INFO, (value) => {
                     if (value) {
                         userInfo = get(STORAGE_TYPES.USER_INFO);
+                        userId.value = userInfo.userCenterUserID;
                         getBookList();
                         getStudentList();
                     }
                 });
+
+                window.electron.ipcRenderer.send("attendClass", "main", {
+                    type: "sysData",
+                });
+
+                window.electron.ipcRenderer.on("attendClass", onResources);
             }
         });
 
-        watch(selectBookList, getGradeList);
+        onUnmounted(() => {
+            window.electron.ipcRenderer.off("attendClass", onResources);
+        });
 
+        const activeModes = ref(["0", "1", "2"]);
+        const isSwitch = ref(false);
+
+        const openResource = (resource: any) => {
+            window.electron.ipcRenderer.send("attendClass", "main", {
+                type: "openResource",
+                resource: JSON.stringify(resource),
+            });
+        };
+
+        const switchClass = () => {
+            window.electron.ipcRenderer.send("attendClass", "main", {
+                type: "switchClass",
+            });
+        };
+
+        watch(selectBookList, getGradeList);
         return {
             openBlackboard,
             openTimer,
@@ -318,13 +561,27 @@ export default defineComponent({
             exitApp,
             clickKnowledge,
             openAnswerMachineWindow,
+            openQuickAnswer,
             clickProjection,
             searchName,
             uncultivated,
             isLoading,
-            openRollCall
+            openRollCall,
+            resourceList,
+            activeModes,
+            iconResources,
+            textResources,
+            openResource,
+            isSwitch,
+            switchClass,
+            typeResources,
+            userId,
+            clicKBuryPoint,
+            classClicKBuryPoint,
+            handleChange,
+            currentClickCol
         };
-    }
+    },
 });
 </script>
 
@@ -333,12 +590,13 @@ export default defineComponent({
     position: fixed;
     right: 0;
     bottom: 0;
-    width: 545px;
-    height: 680px;
+    width: 100%;
+    height: 100%;
     border-radius: 1rem;
     display: flex;
     flex-direction: column;
-    background: #1a1d3e;
+    background: var(--app-color-dark);
+
     .header {
         height: 55px;
         display: flex;
@@ -348,28 +606,34 @@ export default defineComponent({
         box-sizing: border-box;
         padding: 0 15px;
         -webkit-app-region: drag;
+
         .exit {
             color: #fff;
             font-size: 16px;
             -webkit-app-region: no-drag;
         }
+
         img {
             width: 150px;
             display: block;
         }
+
         .right-btns {
             display: flex;
             align-items: center;
             -webkit-app-region: no-drag;
+
             .refresh {
                 font-size: 25px;
                 color: #ffffff;
                 margin-right: 20px;
                 cursor: pointer;
             }
+
             .right-btn {
                 width: 25px;
                 height: 25px;
+
                 svg {
                     width: 25px;
                     height: 25px;
@@ -378,12 +642,14 @@ export default defineComponent({
             }
         }
     }
+
     .container {
         flex: 1;
         display: flex;
         padding: 0 15px 15px;
         overflow-y: overlay;
         flex-direction: column;
+
         .tool-list {
             display: flex;
             justify-content: flex-start;
@@ -391,9 +657,10 @@ export default defineComponent({
             color: #fff;
             margin: 10px 0 10px 0;
         }
+
         .blackboard-box {
             padding: 10px;
-            background-color: #2b314b;
+            background-color: rgba(255, 255, 255, 0.12);
             border-radius: 8px;
             margin-right: 8px;
             margin-bottom: 10px;
@@ -425,37 +692,12 @@ export default defineComponent({
             border-color: #aaaaaa;
             color: #aaaaaa;
         }
+
         .teach-list {
             flex: 1;
             display: flex;
             flex-direction: column;
-            .teach-list-title {
-                margin: 20px 0;
-                color: #ffffff;
-                font-weight: 600;
-                font-size: 18px;
-                display: flex;
-                align-items: center;
-                .title {
-                    margin-right: 5px;
-                    flex-shrink: 0;
-                }
-                .search-input {
-                    margin-left: 5px;
-                    :deep(.el-input-group__append) {
-                        background: #0c1222;
-                        border: none;
-                    }
-                }
-                :deep(.el-input__inner) {
-                    background: #0c1222;
-                    border: none;
-                    color: #fdfdfd;
-                    &::placeholder {
-                        color: #8b8e95;
-                    }
-                }
-            }
+
             .teach-class {
                 flex: 1;
                 display: flex;
@@ -464,6 +706,7 @@ export default defineComponent({
                 color: #fff;
                 overflow-y: auto;
                 margin: 10px 0;
+
                 .teach-content-warp {
                     padding: 0 5px;
                     display: flex;
@@ -471,6 +714,7 @@ export default defineComponent({
                     flex-wrap: wrap;
                     width: 100%;
                 }
+
                 .list-empty {
                     display: flex;
                     justify-content: center;
@@ -480,22 +724,27 @@ export default defineComponent({
                     font-size: 16px;
                     background: #0c1222;
                     flex-direction: column;
+                    padding: 30px 0;
                 }
+
                 &::-webkit-scrollbar {
                     display: none;
                 }
+
                 .teach-content {
                     margin-bottom: 10px;
                     text-align: center;
                     cursor: pointer;
                     width: 21%;
                     margin-right: 20px;
+
                     .img-warp {
                         height: 108px;
                         background: #d1eaff;
                         display: flex;
                         justify-content: center;
                         border-radius: 4px;
+
                         img {
                             object-fit: contain;
                             width: 100%;
@@ -507,6 +756,168 @@ export default defineComponent({
                     }
                 }
             }
+        }
+    }
+}
+
+.collapse-custom {
+    --el-collapse-header-background-color: transparent;
+    --el-collapse-border-color: transparent;
+    --el-collapse-content-background-color: transparent;
+    --el-collapse-header-font-color: #ffffff;
+
+    .collapse-header {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        .collapse-title {
+            display: flex;
+            align-items: center;
+            font-size: 18px;
+            color: #fff;
+            font-weight: 600;
+
+            img {
+                display: block;
+                margin-right: 3px;
+            }
+        }
+    }
+
+    .attend-class-view {
+        display: flex;
+        align-items: center;
+        color: #bec3d6;
+        cursor: pointer;
+        margin-right: 15px;
+
+        img {
+            display: block;
+            margin-right: 3px;
+        }
+    }
+
+    .resource-list {
+        .resource-item {
+            &.courseware {
+                background: #243260;
+                border-left: 2px solid #4b71ee;
+            }
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-radius: 4px;
+            background-color: rgba(255, 255, 255, 0.14);
+            padding: 8px 5px 8px 10px;
+            margin-bottom: 8px;
+            cursor: pointer;
+
+            .resource-left-title {
+                display: flex;
+                align-items: center;
+                font-size: 16px;
+                color: #fff;
+
+                img {
+                    width: 30px;
+                    display: block;
+                    margin-right: 5px;
+                }
+            }
+
+            .resource-type {
+                display: flex;
+                align-items: center;
+                border-radius: 4px;
+                padding: 1px 10px;
+                color: var(--app-resource-type-qita);
+                border: 1px solid var(--app-resource-type-qita);
+                font-size: 12px;
+                margin: 0 10px 0 10px;
+                white-space: nowrap;
+                &.p-r-0 {
+                    color: var(--app-resource-type-jiaoan);
+                    border: 1px solid var(--app-resource-type-jiaoan);
+                }
+
+                &.p-r-1 {
+                    color: var(--app-resource-type-daoxuean);
+                    border: 1px solid var(--app-resource-type-daoxuean);
+                }
+
+                &.p-r-2 {
+                    color: var(--app-resource-type-kejian);
+                    border: 1px solid var(--app-resource-type-kejian);
+                }
+
+                &.p-r-3 {
+                    color: var(--app-resource-type-weikeshipin);
+                    border: 1px solid var(--app-resource-type-weikeshipin);
+                }
+
+                &.p-r-4 {
+                    color: var(--app-resource-type-zuoye);
+                    border: 1px solid var(--app-resource-type-zuoye);
+                }
+
+                &.p-r-5 {
+                    color: var(--app-resource-type-dianzikeben);
+                    border: 1px solid var(--app-resource-type-dianzikeben);
+                }
+
+                &.p-r-6 {
+                    color: var(--app-resource-type-jiaoju);
+                    border: 1px solid var(--app-resource-type-jiaoju);
+                }
+
+                &.p-r-7 {
+                    color: var(--app-resource-type-gongju);
+                    border: 1px solid var(--app-resource-type-gongju);
+                }
+
+                &.p-r-8 {
+                    color: var(--app-resource-type-sucai);
+                    border: 1px solid var(--app-resource-type-sucai);
+                }
+            }
+        }
+    }
+}
+
+.teach-list-title {
+    flex: 1;
+    min-width: 0;
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+
+    .title {
+        margin-right: 5px;
+        flex-shrink: 0;
+    }
+
+    .search-input {
+        margin-left: 5px;
+
+        :deep(.el-input-group__append) {
+            background: #0c1222;
+            border: none;
+        }
+    }
+
+    :deep(.el-input__inner) {
+        background: #0c1222;
+        border: none;
+        color: #fdfdfd;
+
+        &::placeholder {
+            color: #8b8e95;
         }
     }
 }

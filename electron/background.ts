@@ -1,10 +1,10 @@
 "use strict";
 
 import { app, protocol, BrowserWindow, ipcMain, Menu } from "electron";
-import installExtension, { VUEJS3_DEVTOOLS } from "electron-devtools-installer";
+// import installExtension, { VUEJS3_DEVTOOLS } from "electron-devtools-installer";
 import { createProtocol } from "vue-cli-plugin-electron-builder/lib";
 import { initialize } from "@electron/remote/main";
-import { createSuspensionWindow, registerEvent } from "./suspension";
+import { createSuspensionWindow, registerEvent, unfoldSuspensionWinSendMessage } from "./suspension";
 import downloadFile from "./downloadFile";
 import autoUpdater from "./autoUpdater";
 import SingalRHelper from "./singalr";
@@ -164,6 +164,38 @@ async function createWindow() {
             mainWindow!.webContents.send("fetchSubjectPublisherBookList");
         });
     });
+
+    ipcMain.handle("openWindow", (_, data) => {
+        mainWindow && mainWindow.webContents.send("openWindow", data);
+    });
+
+    // ipcMain.handle("lookVideo", (_, data) => {
+    //     mainWindow && mainWindow.webContents.send("lookVideo", data);
+    // });
+
+    // ipcMain.handle("lookQuestions", (_, data) => {
+    //     mainWindow && mainWindow.webContents.send("lookQuestions", data);
+    // });
+
+    // 上课消息通知
+    ipcMain.on("attendClass", (e, to, data) => {
+        if (to === "unfoldSuspension") unfoldSuspensionWinSendMessage("attendClass", data);
+        if (to === "main") mainWindow!.webContents.send("attendClass", data)
+    });
+
+    //悬浮球点击消息通知事件
+    ipcMain.on("suspensionClick", () => {
+        mainWindow!.show();
+        mainWindow!.maximize();
+        mainWindow!.webContents.send("suspensionClick");
+    });
+
+    //悬浮球点击事件
+    ipcMain.handle("suspensionClick", () => {
+        mainWindow!.show();
+        mainWindow!.maximize();
+        mainWindow!.webContents.send("suspensionClick");
+    });
 }
 
 app.on("window-all-closed", () => {
@@ -182,13 +214,13 @@ app.on("activate", () => {
 
 app.on("ready", async () => {
     ElectronLog.info("app ready");
-    if (isDevelopment && !process.env.IS_TEST) {
-        try {
-            await installExtension(VUEJS3_DEVTOOLS);
-        } catch (e) {
-            console.error("Vue Devtools failed to install:", e);
-        }
-    }
+    // if (isDevelopment && !process.env.IS_TEST) {
+    //     try {
+    //         await installExtension(VUEJS3_DEVTOOLS);
+    //     } catch (e) {
+    //         console.error("Vue Devtools failed to install:", e);
+    //     }
+    // }
     createWindow();
 });
 

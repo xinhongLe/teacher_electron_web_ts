@@ -6,33 +6,21 @@ const moment = require("moment");
 
 const extraResources = process.platform === "darwin" ? [
     {
+        from: "./extraResources/ball/",
+        to: "extraResources/ball/"
+    },
+    {
         from: "./extraResources/mac/ColorPicker",
         to: "ColorPicker"
     }
 ] : [
     {
-        from: "./extraResources/win/ball/ball.exe",
-        to: "extraResources/win/ball/ball.exe"
+        from: "./extraResources/ball/",
+        to: "extraResources/ball/"
     },
     {
-        from: "./extraResources/win/ball/ball.exe.config",
-        to: "extraResources/win/ball/ball.exe.config"
-    },
-    {
-        from: "./extraResources/win/ball/log4net.dll",
-        to: "extraResources/win/ball/log4net.dll"
-    },
-    {
-        from: "./extraResources/win/ball/Newtonsoft.Json.dll",
-        to: "extraResources/win/ball/Newtonsoft.Json.dll"
-    },
-    {
-        from: "./extraResources/win/ball/Config/Log4Net.config",
-        to: "extraResources/win/ball/Config/Log4Net.config"
-    },
-    {
-        from: "./extraResources/win/ball/Config/Interop.NetFwTypeLib.dll",
-        to: "extraResources/win/ball/Config/Interop.NetFwTypeLib.dll"
+        from: "./extraResources/exportWord/",
+        to: "extraResources/exportWord/"
     },
     {
         from: "./extraResources/win/mockingbot-color-picker-ia32.exe",
@@ -76,10 +64,17 @@ module.exports = {
         },
         rollCall: {
             entry: "src/childWindow/rollCall/main.ts",
-            template: "public/index.html",
+            template: "public/rollCall.html",
             filename: "rollCall.html",
-            title: "",
+            title: "点名",
             chunks: ["rollCall"]
+        },
+        quickAnswer: {
+            entry: "src/childWindow/quickAnswer/main.ts",
+            template: "public/quickAnswer.html",
+            filename: "quickAnswer.html",
+            title: "抢答",
+            chunks: ["quickAnswer"]
         },
         answerMachine: {
             entry: "src/childWindow/answerMachine/main.ts",
@@ -115,6 +110,11 @@ module.exports = {
                     options: {
                         rewritePath: process.env.NODE_ENV === "production" ? process.platform === "win32" ? "./resources" : "../Resources" : "./node_modules/trtc-electron-sdk/build/Release" // 打包腾讯实时音视频sdk
                     }
+                },
+                {
+                    test: /\.mjs$/,
+                    include: /node_modules/,
+                    type: "javascript/auto"
                 }
             ]
         },
@@ -193,10 +193,10 @@ module.exports = {
             mainProcessWatch: ["electron/**/*"],
             files: ["dist_electron/**/*"],
             builderOptions: {
-                appId: "com.leyixue.teacher",
-                productName: "爱学仕校园教师端", // 项目名
+                appId: process.env.VUE_APP_ID,
+                productName: process.env.VUE_APP_PRODUCT_NAME, // 项目名
                 copyright: "Copyright © 2021", // 版权信息
-                artifactName: "${productName}-${version}-" + moment().format("YYYYMMDDHHmm") + ".${ext}",
+                artifactName: "${productName}-${version}" + ".${ext}",
                 directories: {
                     output: "./dist_electron" // 输出文件路径
                 },
@@ -235,7 +235,7 @@ module.exports = {
                     installerHeaderIcon: "./public/icon.ico", // 安装时头部图标
                     createDesktopShortcut: true, // 创建桌面图标
                     createStartMenuShortcut: true, // 创建开始菜单图标
-                    shortcutName: "爱学仕校园教师端" // 图标名称
+                    shortcutName: process.env.VUE_APP_PRODUCT_NAME // 图标名称
                 },
                 win: {
                     // win相关配置

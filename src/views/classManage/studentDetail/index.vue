@@ -16,14 +16,15 @@
                             <span
                                 v-for="(item, index) in formData.classList"
                                 :key="index"
-                                >{{ item.Name
-                                }}<i
+                                >
+                                {{ item.Name }}
+                                <!-- <i
                                     class="el-icon-remove"
                                     @click="delClass(index)"
-                                ></i
-                            ></span>
+                                ></i> -->
+                            </span>
                         </div>
-                        <p
+                        <!-- <p
                             class="add-class"
                             v-if="!showAddClass"
                             @click="showAddClass = true"
@@ -31,7 +32,7 @@
                             <img
                                 src="@/assets/my-student/icon_add_class@2x.png"
                             /><span>加入新班级</span>
-                        </p>
+                        </p> -->
                         <div class="add-class-box" v-if="showAddClass">
                             <el-select
                                 v-model="formData.selectClassId"
@@ -50,10 +51,10 @@
                         </div>
                     </el-form-item>
                 </StudentForm>
-                <div class="btns">
+                <!-- <div class="btns">
                     <span @click="handleClose">取消</span>
                     <span @click="save">保存</span>
-                </div>
+                </div> -->
             </div>
             <RestPass
                 v-if="showRestPass"

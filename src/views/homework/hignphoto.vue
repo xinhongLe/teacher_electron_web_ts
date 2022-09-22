@@ -1,6 +1,9 @@
 <template>
-  <!-- <div class="hign-photo-dialog"> -->
-  <el-dialog v-model="dialogVisible" width="100%">
+<!-- <div class="hign-photo-dialog"> -->
+  <el-dialog
+    v-model="dialogVisible"
+    width="100%"
+  >
     <div class="container">
       <div class="top">
         <div class="workbook-info">
@@ -293,7 +296,6 @@ export default defineComponent({
                     return item.State === 5 && item.Remark === "高拍仪完成";
                 });
                 studentMissions.value = res.result;
-                console.log(studentMissions.value, "studentMissions");
             }
         });
 
@@ -758,7 +760,7 @@ export default defineComponent({
                                     if (resMat) {
                                         cv.imshow(canvasCheckRef.value, resMat);
                                         if (canvasCheckRef.value) {
-                                            var base64String = canvasCheckRef.value.toDataURL("image/jpeg", 0.3);
+                                            var base64String = canvasCheckRef.value.toDataURL("image/jepg", 0.5);
                                             SaveYuanshiImg({
                                                 MissionID: missionID as string + pageNumTemp.value as string,
                                                 Base64Img: base64String
@@ -769,7 +771,6 @@ export default defineComponent({
                                             });
                                             var CheckUpdateIns: CheckUpdateIn[] = [];
                                             var batchCheckUpDto: BatchCheckUpdateIn;
-                                            console.log(base64String);
                                             var outBase64 = base64String.substr(base64String.indexOf(",") + 1);
                                             GetCheckResult(outBase64).then((res: any) => {
                                                 if (res) {
@@ -1203,187 +1204,185 @@ export default defineComponent({
 </script>
 <style lang="scss" scoped>
 html {
-  font-size: 10px;
+    font-size: 10px;
 }
 body {
-  margin: 0;
-  user-select: none;
-  overflow: hidden;
+    margin: 0;
+    user-select: none;
+    overflow: hidden;
 }
 .hign-photo-dialog {
-  :deep(.el-dialog) {
-    margin: 0;
-    padding: 30px;
-    box-sizing: border-box;
-    background: rgba(0, 0, 0, 0.2);
-  }
-  :deep(.el-overlay-dialog) {
-    height: calc(100vh + 36px);
-  }
+    :deep(.el-dialog) {
+        margin: 0;
+        padding: 30px;
+        box-sizing: border-box;
+        background: rgba(0, 0, 0, 0.2);
+    }
+    :deep(.el-overlay-dialog) {
+        height: calc(100vh + 36px);
+    }
 }
 .container {
-  display: flex;
-  flex-direction: column;
-  height: 95vh;
-  width: 100%;
-  background: #cfe1ff;
-  :deep(.el-dialog) {
-    margin: 0;
-    padding: 30px;
-    box-sizing: border-box;
-    background: rgba(0, 0, 0, 0.2);
-  }
-  :deep(.el-overlay-dialog) {
-    height: calc(100vh + 36px);
-  }
-  .video-warp {
-    position: relative;
-    padding: 5px;
-    flex: 1;
-    overflow-y: auto;
-    .students {
-      position: absolute;
-      top: 0;
-      left: 0;
-      padding: 40px 30px;
-      display: flex;
-      flex-direction: column;
-      flex: 1;
-      min-width: 0;
-      min-height: 0;
-      z-index: 10;
-      height: calc(100vh - 15rem);
-      overflow-y: auto;
-      .student-list-item {
-        padding: 1.2rem 1rem;
-        background-color: #000000;
-        border-radius: 0.4rem;
-        opacity: 0.5;
-        color: white;
-        margin-top: 0.5rem;
-        width: 15.2rem;
-        height: 4.2rem;
-        cursor: pointer;
-      }
-      .discern-now {
-        widows: 33rem;
-        height: 12rem;
-        border: solid 1px cornflowerblue;
-        border-radius: 5px;
-      }
-    }
-    .buttonDiscern {
-      position: absolute;
-      bottom: 5px;
-      right: 30px;
-      widows: 440px;
-      height: 600px;
-    }
-    .video {
-      position: relative;
-      overflow: hidden;
-      height: 100%;
-      background: #eef4ff;
-      border: 1px solid #a4c4f9;
-      overflow-y: hidden;
-      .line {
-        position: absolute;
-        left: 22%;
-        z-index: 2;
-        widows: 100%;
-        width: 1211px;
-        //   width: 100%;
-        height: 58px;
-        background: url("../../assets/homeworkImg/pic_saomiao.png");
-        animation: myScan 2s infinite alternate;
-        -webkit-animation: myScan 2s infinite alternate;
-      }
-      @keyframes myScan {
-        0% {
-          transform: translate(0, 0);
-        }
-        100% {
-          transform: translate(0, 1550px);
-        }
-      }
-      @-webkit-keyframes myScan {
-        0% {
-          transform: translate(0, 0);
-        }
-        100% {
-          transform: translate(0, 1550px);
-        }
-      }
-      video {
-        height: 100%;
-        position: absolute;
-      }
-      .overlay-wrapper {
-        position: absolute;
-        height: auto;
-        text-align: center;
-        top: 20px;
-        padding-top: 2rem;
-        padding: 20px;
-        background-color: black;
-        border-radius: 32px;
-        opacity: 0.3;
-        left: 42%;
-        span {
-          color: white;
-          font-size: 25px;
-        }
-      }
-    }
-  }
-  .top {
-    height: 70px;
-    flex-shrink: 0;
-    position: relative;
     display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    padding-right: 20px;
-    .workbook-info {
-      position: absolute;
-      left: 5%;
-      transform: translateX(-50%);
-      display: flex;
-      align-items: center;
-      span {
-        color: #0d0e11;
-        font-size: 20px;
-        margin-left: 15px;
-        margin-right: 5px;
-        font-weight: bold;
-      }
-      img {
-        width: 36px;
-      }
+    flex-direction: column;
+    height: 95vh;
+    width: 100%;
+    background: #cfe1ff;
+    :deep(.el-dialog) {
+        margin: 0;
+        padding: 30px;
+        box-sizing: border-box;
+        background: rgba(0, 0, 0, 0.2);
     }
-    .workbook-number {
-      position: absolute;
-      left: 45%;
-      transform: translateX(-50%);
-      display: flex;
-      align-items: center;
+    :deep(.el-overlay-dialog) {
+        height: calc(100vh + 36px);
     }
-    .camera-select {
-      position: absolute;
-      left: 85%;
-      transform: translateX(-50%);
-      display: flex;
-      align-items: center;
-      .text {
-        color: #0d0e11;
-        font-size: 14px;
-        margin-left: 5px;
-        margin-right: 5px;
-      }
-      img {
-        width: 36px;
-      }
+    .video-warp {
+        position: relative;
+        padding: 5px;
+        flex: 1;
+        .students{
+            position: absolute;
+            top: 0;
+            left: 0;
+            padding: 40px 30px;
+            display: flex;
+            flex-direction: column;
+            flex:1;
+            min-width: 0;
+            min-height: 0;
+            z-index: 10;
+            height: calc(100vh - 7rem);
+            overflow-y:auto ;
+            .student-list-item {
+                padding: 1.2rem 1rem;
+                background-color: #000000;
+                border-radius: 0.4rem;
+                opacity: 0.5;
+                color: white;
+                margin-top: 0.5rem;
+                width: 15.2rem;
+                height: 4.2rem;
+                cursor : pointer;
+            }
+            .discern-now {
+                widows: 33rem;
+                height: 12rem;
+                border:solid 1px cornflowerblue;
+                border-radius: 5px;
+            }
+        }
+        .buttonDiscern {
+            position: absolute;
+            bottom: 5px;
+            right: 30px;
+            widows: 440px;
+            height: 600px;
+        }
+        .video {
+            position: relative;
+            overflow: hidden;
+            height: 100%;
+            background: #eef4ff;
+            border: 1px solid #a4c4f9;
+            .line  {
+                position: absolute;
+                left:18%;
+                z-index: 2;
+                widows: 100%;
+                width: 1211px;
+                //   width: 100%;
+                height: 58px;
+                background: url("../../assets/homeworkImg/pic_saomiao.png");
+                animation: myScan 2s infinite alternate;
+                -webkit-animation: myScan 2s infinite alternate;
+            }
+            @keyframes myScan {
+                0% {
+                    transform: translate(0, 0);
+                }
+                100% {
+                    transform: translate(0, 1550px);
+                }
+            }
+            @-webkit-keyframes myScan {
+                0% {
+                    transform: translate(0, 0);
+                }
+                100% {
+                    transform: translate(0, 1550px);
+                }
+            }
+            video {
+                height: 100%;
+                position: absolute;
+            }
+            .overlay-wrapper {
+                position: absolute;
+                height: auto;
+                text-align: center;
+                top: 20px;
+                padding-top: 2rem;
+                padding: 20px;
+                background-color: black;
+                border-radius: 32px;
+                opacity: 0.3;
+                left: 42%;
+                span {
+                    color: white;
+                    font-size: 25px;
+                }
+            }
+        }
     }
-  }
+    .top {
+        height: 70px;
+        flex-shrink: 0;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        padding-right: 20px;
+        .workbook-info {
+            position: absolute;
+            left: 5%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            span {
+                color: #0d0e11;
+                font-size: 20px;
+                margin-left: 15px;
+                margin-right: 5px;
+                font-weight: bold;
+            }
+            img {
+                width: 36px;
+            }
+        }
+        .workbook-number {
+            position: absolute;
+            left: 45%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+        }
+        .camera-select {
+            position: absolute;
+            left: 85%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            .text {
+                color: #0d0e11;
+                font-size: 14px;
+                margin-left: 5px;
+                margin-right: 5px;
+            }
+            img {
+                width: 36px;
+            }
+        }
+    }
 }
 </style>

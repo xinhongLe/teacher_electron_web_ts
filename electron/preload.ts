@@ -1,13 +1,25 @@
 import { getCurrentWindow, app, dialog } from "@electron/remote";
-import electron, { OpenDialogOptions, remote, SaveDialogOptions } from "electron";
+import electron, {
+    OpenDialogOptions,
+    remote,
+    SaveDialogOptions,
+} from "electron";
 import { isExistFile, mkdirs, store } from "./downloadFile";
-import { resolve, join } from "path";
+import { join, resolve } from "path";
 import ElectronLog from "electron-log";
 import fs from "fs";
+import { parsePPT, pptParsePath } from "./parsePPT";
 import { execFile as execFileFromAsar } from "child_process";
-import { darwinGetScreenPermissionGranted, darwinRequestScreenPermissionPopup } from "./darwin";
+import {
+    darwinGetScreenPermissionGranted,
+    darwinRequestScreenPermissionPopup,
+} from "./darwin";
 import { checkWindowSupportNet } from "./util";
-const PATH_BINARY = process.platform === "darwin" ? join(__dirname, "../ColorPicker") : join(__dirname, "../mockingbot-color-picker-ia32.exe");
+import { exportWord, IFileData } from "./exportWord";
+const PATH_BINARY =
+    process.platform === "darwin"
+        ? join(__dirname, "../ColorPicker")
+        : join(__dirname, "../mockingbot-color-picker-ia32.exe");
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 window.electron = {
     maximizeWindow: () => {
@@ -49,9 +61,12 @@ window.electron = {
         const currentWindow = getCurrentWindow();
         currentWindow.hide();
     },
-    showWindow: () => {
+    showWindow: (isMaximize = false) => {
         const currentWindow = getCurrentWindow();
         currentWindow.show();
+        if (isMaximize) {
+            currentWindow.maximize();
+        }
     },
     destroyWindow: () => {
         const currentWindow = getCurrentWindow();
@@ -85,7 +100,7 @@ window.electron = {
     unRegisterEscKeyUp: () => {
         remote.globalShortcut.unregister("esc");
     },
-    isExistFile: (fileName: string) => {
+    isExistFile: async (fileName: string) => {
         const filePath =
             process.platform === "darwin"
                 ? app.getPath("downloads") + fileName
@@ -93,18 +108,26 @@ window.electron = {
         return isExistFile(filePath);
     },
     getFilePath: (fileName: string) => {
-        const filePath = process.platform === "darwin" ? app.getPath("downloads") + fileName : resolve(app.getPath("downloads"), fileName);
+        const filePath =
+            process.platform === "darwin"
+                ? app.getPath("downloads") + fileName
+                : resolve(app.getPath("downloads"), fileName);
         return "file:///" + filePath.replaceAll("\\", "/");
     },
     log: ElectronLog,
     getCacheFile: async (fileName: string) => {
         if (!fileName) return "";
-        const filePath = process.platform === "darwin" ? app.getPath("downloads") + fileName : resolve(app.getPath("downloads"), fileName);
+        const filePath =
+            process.platform === "darwin"
+                ? app.getPath("downloads") + fileName
+                : resolve(app.getPath("downloads"), fileName);
         const isExist = await isExistFile(filePath);
         return isExist ? "file://" + filePath.split("\\").join("/") : "";
     },
     getCachePath: (path: string) => {
-        return process.platform === "darwin" ? app.getPath("downloads") + path : resolve(app.getPath("downloads"), path);
+        return process.platform === "darwin"
+            ? app.getPath("downloads") + path
+            : resolve(app.getPath("downloads"), path);
     },
     readFile: (path: string, callback: (buffer: ArrayBuffer) => void) => {
         fs.readFile(path, (err, buffer) => {
@@ -116,11 +139,14 @@ window.electron = {
         });
     },
     savePutFile: (path: string, buffer: NodeJS.ArrayBufferView) => {
-        fs.writeFile(path, buffer, err => {
+        fs.writeFile(path, buffer, (err) => {
             if (err) {
                 ElectronLog.error("写入资源文件失败：", err);
             }
         });
+    },
+    deleteFile: (path: string) => {
+        fs.unlinkSync(path);
     },
     showSaveDialog: (option: SaveDialogOptions) => {
         const currentWindow = getCurrentWindow();
@@ -137,17 +163,29 @@ window.electron = {
     getPath: (name) => {
         return app.getPath(name);
     },
+    getPPTPath: (path) => {
+        return join(pptParsePath, path);
+    },
     getColorHexRGB: async () => {
-        if (process.platform === "darwin" && await darwinGetScreenPermissionGranted() === false) {
+        if (
+            process.platform === "darwin" &&
+            (await darwinGetScreenPermissionGranted()) === false
+        ) {
             await darwinRequestScreenPermissionPopup();
             return false;
         }
-        return new Promise((resolve, reject) => execFileFromAsar(PATH_BINARY, (error, stdout, stderr) => {
-            if (error) return reject(error);
-            resolve(stdout);
-        }));
+        return new Promise((resolve, reject) =>
+            execFileFromAsar(PATH_BINARY, (error, stdout, stderr) => {
+                if (error) return reject(error);
+                resolve(stdout);
+            })
+        );
+    },
+    exportWord: (filePath: string, fileData: IFileData, styleType: number) => {
+        exportWord(filePath, fileData, styleType);
     },
     checkWindowSupportNet,
     store: store,
-    ...electron
+    parsePPT,
+    ...electron,
 };

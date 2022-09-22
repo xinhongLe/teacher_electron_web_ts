@@ -3,30 +3,51 @@
         <div class="main">
             <div class="top">
                 <div class="left">
-                    <div class="left-one" @click="go('preparation')">
+                    <div
+                        class="left-one"
+                        @click="go('preparation'), clicKBuryPoint('备课')"
+                    >
                         <span>备课</span>
                     </div>
-                    <div class="left-two" @click="go('homework')">
+                    <div
+                        class="left-two"
+                        @click="go('homework'), clicKBuryPoint('作业')"
+                    >
                         <span>作业</span>
                     </div>
                 </div>
                 <div class="right">
-                    <Calendar :days="days" :isShowDetailBtn="true">
+                    <Calendar
+                        ref="calendar"
+                        :days="days"
+                        :isShowDetailBtn="true"
+                    >
                         <template v-slot:default="slotProps">
                             <header class="header">
-                                <div @click="weekPre" class="week">
+                                <div
+                                    @click="weekPre(), clicKBuryPoint('上周')"
+                                    class="week"
+                                >
                                     <i class="el-icon-arrow-left"></i>上周
                                 </div>
-                                <div>上课</div>
+                                <div class="title">上课</div>
                                 <div class="header-right">
-                                    <div class="refresh" @click="slotProps.initSchedules">
+                                    <div
+                                        class="refresh"
+                                        @click="slotProps.initSchedules"
+                                    >
                                         <i
                                             class="el-icon-refresh-right"
-                                            :style="{marginRight: '4px'}"
+                                            :style="{ marginRight: '4px' }"
                                         ></i
                                         >刷新课表
                                     </div>
-                                    <div @click="weekNext" class="week">
+                                    <div
+                                        @click="
+                                            weekNext(), clicKBuryPoint('下周')
+                                        "
+                                        class="week"
+                                    >
                                         下周<i class="el-icon-arrow-right"></i>
                                     </div>
                                 </div>
@@ -36,28 +57,50 @@
                 </div>
             </div>
             <div class="bottom">
-                <div class="item" @click="go('report-center')">
+                <div
+                    class="item"
+                    @click="go('report-center'), clicKBuryPoint('报表中心')"
+                >
                     <div class="item_div">
                         <img
-                            src="../../assets/indexImages/pic_baobiao.png"
+                            src="../../assets/indexImages/pic_baobiao_new.png"
                             alt=""
                         />
                         <span>报表中心</span>
                     </div>
                 </div>
-                <div class="item" @click="go('assessment-center')">
+                <!-- 2022-7-25 annan -->
+                <div
+                    class="item"
+                    @click="go('resource-center'), clicKBuryPoint('资源中心')"
+                >
                     <div class="item_div">
                         <img
-                            src="../../assets/indexImages/pic_kaoshi.png"
+                            src="../../assets/indexImages/pic_zyzx.png"
+                            alt=""
+                        />
+                        <span>资源中心</span>
+                    </div>
+                </div>
+                <div
+                    class="item"
+                    @click="go('assessment-center'), clicKBuryPoint('评测中心')"
+                >
+                    <div class="item_div">
+                        <img
+                            src="../../assets/indexImages/pic_kaoshi_new.png"
                             alt=""
                         />
                         <span>测评中心</span>
                     </div>
                 </div>
-                <div class="item" @click="go('course-time')">
+                <div
+                    class="item"
+                    @click="go('course-time'), clicKBuryPoint('课后延时')"
+                >
                     <div class="item_div">
                         <img
-                            src="../../assets/indexImages/pic_kehou.png"
+                            src="../../assets/indexImages/icon_kehou_new.png"
                             alt=""
                         />
                         <span>课后延时</span>
@@ -72,19 +115,22 @@
                         <span>集体备课</span>
                     </div>
                 </div> -->
-                <div class="item" @click="go('')">
+                <div class="item" @click="go(''), clicKBuryPoint('直播课堂')">
                     <div class="item_div">
                         <img
-                            src="../../assets/indexImages/pic_zhibo.png"
+                            src="../../assets/indexImages/icon_zhibo_new.png"
                             alt=""
                         />
                         <span>直播课堂</span>
                     </div>
                 </div>
-                <div class="item" @click="go('class-manage')">
+                <div
+                    class="item"
+                    @click="go('class-manage'), clicKBuryPoint('班级管理')"
+                >
                     <div class="item_div">
                         <img
-                            src="../../assets/indexImages/pic_xuesheng.png"
+                            src="../../assets/indexImages/icon_banji_new.png"
                             alt=""
                         />
                         <span>班级管理</span>
@@ -98,16 +144,20 @@
 <script lang="ts">
 import useTime from "@/hooks/useTime";
 import { ElMessage } from "element-plus";
-import { defineComponent } from "vue";
+import { defineComponent, onActivated, ref, onMounted, onUnmounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import Calendar from "../../components/calendar/index.vue";
+import usePageEvent from "@/hooks/usePageEvent";
+import isElectron from "is-electron";
+import { EVENT_TYPE } from "@/config/event";
 
 export default defineComponent({
     name: "Home",
     components: {
-        Calendar
+        Calendar,
     },
     setup() {
+        const { createBuryingPointFn } = usePageEvent("首页");
         const router = useRouter();
         const route = useRoute();
         const { weekNext, weekPre, initDays, days } = useTime();
@@ -116,27 +166,70 @@ export default defineComponent({
         const go = (val: string) => {
             if (val === "") {
                 ElMessage.warning({
-                    message: "功能建设中 敬请期待"
+                    message: "功能建设中 敬请期待",
                 });
             } else {
                 router.push(`/${val}`);
             }
         };
+        //首页点击埋点事件
+        const clicKBuryPoint = (name: string) => {
+            createBuryingPointFn(EVENT_TYPE.PageClick, name, name);
+        };
         const turnToPage = () => {
             // 岳阳云平台内嵌备教端，页面跳转
-            if (route.redirectedFrom && window?.top && (window?.top[0]?.location.origin.indexOf("yueyangyun") > -1 || (window?.top[0]?.location?.ancestorOrigins[0].indexOf("yueyangyun") > -1) || window?.top[0]?.location?.origin.indexOf("localhost") > -1)) {
+            if (
+                route.redirectedFrom &&
+                window?.top &&
+                (window?.top[0]?.location.origin.indexOf("yueyangyun") > -1 ||
+                    window?.top[0]?.location?.ancestorOrigins[0].indexOf(
+                        "yueyangyun"
+                    ) > -1 ||
+                    window?.top[0]?.location?.origin.indexOf("localhost") > -1)
+            ) {
                 const path = route.redirectedFrom.path.split("#/")[1] || "";
                 router.replace(`${path}`);
             }
         };
         turnToPage();
+
+        //定义悬浮球的点击事件，悬浮球埋点需求
+        const suspensionClick = () => {
+            createBuryingPointFn(EVENT_TYPE.PageClick, "智课助手", "智课助手");
+        };
+
+        const calendar = ref();
+        onActivated(() => {
+            calendar.value.initSchedules();
+        });
+
+        onMounted(() => {
+            if (isElectron()) {
+                //注册悬浮球点击事件
+                window.electron.ipcRenderer.on(
+                    "suspensionClick",
+                    suspensionClick
+                );
+            }
+        });
+        onUnmounted(() => {
+            if (isElectron()) {
+                //销毁悬浮球点击事件
+                window.electron.ipcRenderer.removeListener(
+                    "suspensionClick",
+                    suspensionClick
+                );
+            }
+        });
         return {
             go,
             weekNext,
             weekPre,
-            days
+            days,
+            calendar,
+            clicKBuryPoint,
         };
-    }
+    },
 });
 </script>
 
@@ -144,11 +237,14 @@ export default defineComponent({
 * {
     user-select: none;
 }
+
 .home {
     display: flex;
     flex-direction: column;
     min-height: 0px;
     flex: 1;
+    background-color: #e9efff;
+
     .main {
         padding: 20px 20px 20px 20px;
         width: 100%;
@@ -157,39 +253,46 @@ export default defineComponent({
         flex-direction: column;
         flex: 1;
         min-height: 0px;
+
         .header {
             width: 100%;
-            height: 50px;
+            height: 56px;
             display: flex;
             padding: 0 20px;
             justify-content: space-between;
             align-items: center;
             font-size: 20px;
-            background: #a0b7ff;
-            border-top-left-radius: 20px;
-            border-top-right-radius: 20px;
+            background: linear-gradient(270deg, #709dff 0%, #5a80f7 100%);
+            border-top-left-radius: 16px;
+            border-top-right-radius: 16px;
             color: #ffffff;
+            margin-bottom: 16px;
+
             .header-right {
                 display: flex;
                 align-items: center;
+
                 .refresh {
-                    font-size: 16px;
+                    font-size: 14px;
                     margin-right: 8px;
                     cursor: pointer;
                 }
             }
+
+            .title {
+                font-size: 28px;
+                color: #ffffff;
+                font-weight: 600;
+            }
+
             .week {
-                font-size: 18px !important;
-                font-weight: 400 !important;
+                font-size: 14px;
+                font-weight: 400;
                 color: #ffffff;
                 cursor: pointer;
             }
-            div:nth-of-type(2) {
-                font-size: 22px;
-                font-weight: 800;
-                color: #ffffff;
-            }
         }
+
         .top {
             width: 100%;
             display: flex;
@@ -197,6 +300,7 @@ export default defineComponent({
             min-height: 0px;
             justify-content: space-between;
             padding: 18px 18px 18px 18px;
+
             .left {
                 height: 100%;
                 flex: 1;
@@ -204,11 +308,16 @@ export default defineComponent({
                 display: flex;
                 flex-direction: column;
                 justify-content: space-between;
+
                 div:hover {
-                    margin-top: 0px; /*和hover的margin-top有对比，原无30,现在0，相当于上移了,30px*/
-                    box-shadow: 0 0 25px 4px #918f8f; /*盒子阴影*/
-                    transition: all 0.5s; /*持续时间*/
+                    margin-top: 0px;
+                    /*和hover的margin-top有对比，原无30,现在0，相当于上移了,30px*/
+                    box-shadow: 0 0 25px 4px #918f8f;
+                    /*盒子阴影*/
+                    transition: all 0.5s;
+                    /*持续时间*/
                 }
+
                 .left-one {
                     position: relative;
                     flex: 1;
@@ -220,6 +329,7 @@ export default defineComponent({
                     background-position: center center;
                     background-size: cover;
                     border-radius: 15px;
+
                     span {
                         position: absolute;
                         top: 10%;
@@ -230,6 +340,7 @@ export default defineComponent({
                         color: #ffffff;
                     }
                 }
+
                 .left-two {
                     box-sizing: border-box;
                     position: relative;
@@ -240,11 +351,13 @@ export default defineComponent({
                     background-position: center center;
                     background-size: cover;
                     border-radius: 15px;
+
                     img {
                         // width: 100%;
                         height: 100%;
                         border-radius: 15px;
                     }
+
                     span {
                         position: absolute;
                         top: 10%;
@@ -256,17 +369,21 @@ export default defineComponent({
                     }
                 }
             }
+
             .right {
                 flex: 2;
                 min-width: 300px;
                 overflow-y: auto;
             }
         }
+
         .bottom {
             width: 100%;
             display: flex;
+
             .item {
                 flex: 1;
+
                 .item_div {
                     cursor: pointer;
                     position: relative;
@@ -274,9 +391,11 @@ export default defineComponent({
                     display: flex;
                     justify-content: space-around;
                     align-items: center;
+
                     img {
                         width: 100%;
                     }
+
                     span {
                         position: absolute;
                         top: 18%;
@@ -288,12 +407,14 @@ export default defineComponent({
                         color: #ffffff;
                     }
                 }
+
                 &:first-child {
                     .item_div span {
                         left: 15%;
                     }
                 }
             }
+
             .item:hover {
                 img {
                     filter: drop-shadow(0 0 15px #928c8c);

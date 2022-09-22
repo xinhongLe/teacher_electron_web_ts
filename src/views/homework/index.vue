@@ -97,6 +97,7 @@ import { computed, defineComponent } from "vue";
 import { useRouter } from "vue-router";
 import useHomework from "./hooks/useHomework";
 import HomeworkItem from "./homeworkItem.vue";
+import { ElMessage } from "element-plus";
 export default defineComponent({
     name: "Homework",
     setup() {
@@ -118,9 +119,9 @@ export default defineComponent({
                     ?.Name
         );
         const handleClick = () => {
+            if (!form.subject || !subjectName.value) return ElMessage.warning("你还没有没有科目");
             router.push({
-                path:
-                    "/assignHomework/" + form.subject + "/" + subjectName.value
+                path: "/assignHomework/" + form.subject + "/" + subjectName.value
             });
         };
         return {

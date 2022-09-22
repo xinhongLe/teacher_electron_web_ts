@@ -37,7 +37,7 @@
 
 <script>
 import useHome from "@/hooks/useHome";
-import { defineComponent, ref, watch } from "vue-demi";
+import { defineComponent, ref, watch } from "vue";
 import { getPPtPageDetail, GetAnnotation, GetAnnotationCreateTeachers } from "../api";
 import { dealOldData } from "@/utils/dataParse";
 import Tagging from "./tagging.vue";

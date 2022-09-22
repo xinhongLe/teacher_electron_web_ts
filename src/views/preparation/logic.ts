@@ -1,4 +1,4 @@
-import { BookList, Course, CourseBag } from "@/types/preparation";
+import { Course, CourseBag } from "@/types/preparation";
 
 // 过滤课包
 export function teacherLessonAndBagFilter(arr: Course[]) {

@@ -38,7 +38,9 @@ export class SocketHelper {
 
         this.client.on('close', data => {
             if (!this.closeSocket) {
-                this.init(port, hostname);
+                this.sleep(2000).then(() => {
+                    this.init(port, hostname);
+                })
             }
         })
 

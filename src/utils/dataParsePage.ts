@@ -1,4 +1,5 @@
-import { Slide, SlideBackground } from "wincard/src/types/slides";
+import { pageType } from "@/config";
+import { Slide, SlideBackground } from "wincard";
 // import { createRandomCode } from "@/utils/common";
 
 interface IFile {
@@ -34,6 +35,23 @@ interface IOldTeach {
     ID: string,
     ToolFileModel: IToolFile
 }
+
+export const initSlideData = (pageID: string, type: number) => {
+    const typeName = pageType[type] as "element" | "listen" | "follow" | "teach";
+    const slide: Slide = {
+        id: pageID,
+        type: typeName,
+        viewportRatio: 0.5625,
+        elements: []
+    };
+    slide.background = getSlideBackground();
+    if (type === pageType.listen) {
+        slide.listenWords = [];
+    } else if (type === pageType.element) {
+        slide.steps = [];
+    }
+    return slide;
+};
 
 /**
  听写页处理

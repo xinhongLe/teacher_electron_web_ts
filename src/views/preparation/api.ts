@@ -7,8 +7,9 @@ import {
     DeleteMaterialData,
     EditMaterialData,
     FetchBagChapterData,
+    FetchSchoolLessonListData,
     FetchLessonsData,
-    FetchTeacherBookChaptersData, FetchTeacherLessonAndBagByChapterData, GetLastSelectBookData, GetLastSelectBookRes, Lesson, Material, QueryMaterialListData, SaveTeacherClassScheduleData, SetLastSelectBookData, UpdateCourseBagTeacherData, UpdateCourseWareListOfTeacherData, UpdateCourseWareTeacherSortData, UpdateCustomBookLessonData
+    FetchTeacherBookChaptersData, FetchTeacherLessonAndBagByChapterData, GetLastSelectBookData, GetLastSelectBookRes, Lesson, Material, QueryMaterialListData, SaveTeacherClassScheduleData, SetLastSelectBookData, UpdateCourseBagTeacherData, UpdateCourseWareListOfTeacherData, UpdateCourseWareTeacherSortData, UpdateCustomBookLessonData, SchoolLesson, FetchSchoolWindowListData, SchoolWindowInfo, FetchBagBySchoolLessonData, SchoolBagInfo
 } from "@/types/preparation";
 
 // 获取科目出版社集合
@@ -132,7 +133,7 @@ export function saveTeacherClassSchedule(data: SaveTeacherClassScheduleData): Pr
 export function cloneCourseBagToTeacher(data: CloneCourseBagToTeacherData): Promise<IResponse<CloneCourseBagToTeacherRes>> {
     return request({
         baseURL: AI_XUE_SHI_API,
-        url: "API/W4/Teach/CloneCourseBagToTeacher",
+        url: "API/W4/Teach/CloneLessonCourseBagToTeacher",
         headers: {
             "Content-Type": "application/json-patch+json"
         },
@@ -290,6 +291,43 @@ export const setLastSelectBook: RequestFun<SetLastSelectBookData, null> = (data)
         headers: {
             "Content-Type": "application/json-patch+json",
             noLoading: "true"
+        },
+        method: "post",
+        data
+    });
+};
+
+export const fetchSchoolLessonList: RequestFun<FetchSchoolLessonListData, SchoolLesson[]> = (data) => {
+    return request({
+        baseURL: AI_XUE_SHI_API,
+        url: "Api/W4/Card/GetSchoolLesson",
+        headers: {
+            "Content-Type": "application/json-patch+json",
+            noLoading: "true"
+        },
+        method: "post",
+        data
+    });
+};
+
+export const fetchSchoolWindowList: RequestFun<FetchSchoolWindowListData, SchoolWindowInfo[]> = (data) => {
+    return request({
+        baseURL: AI_XUE_SHI_API,
+        url: "Api/W4/Card/GetWindowBySchoolLesson",
+        headers: {
+            "Content-Type": "application/json-patch+json"
+        },
+        method: "post",
+        data
+    });
+};
+
+export const fetchBagBySchoolLesson:RequestFun<FetchBagBySchoolLessonData, SchoolBagInfo[]> = (data) => {
+    return request({
+        baseURL: AI_XUE_SHI_API,
+        url: "Api/W4/Teach/GetBagBySchoolLesson",
+        headers: {
+            "Content-Type": "application/json-patch+json"
         },
         method: "post",
         data

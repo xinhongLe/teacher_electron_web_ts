@@ -2,11 +2,15 @@ import router from "./router";
 import { get, set, STORAGE_TYPES } from "@/utils/storage";
 import useLogin from "@/hooks/useLogin";
 import isElectron from "is-electron";
+import { store } from "@/store";
+import useUserInfo from "@/hooks/useUserInfo";
+
+const { queryUserInfo } = useUserInfo();
 
 // 免校验token白名单
 const whiteList = ["Login", "wpf班级管理", "wpf管理标签", "wpf学习记录"];
 
-router.beforeEach((to, from, next) => {
+router.beforeEach(async(to, from, next) => {
     window.electron.log.info(`router to fullPath: ${to.fullPath}, router from fullPath: ${from.fullPath}`);
     // 判断有没有登录,登录的话跳到系统，未登录的话不让跳到系统
     if (to.query.account && to.query.password) {
@@ -32,6 +36,14 @@ router.beforeEach((to, from, next) => {
             if (to.path === "/") {
                 next({ path: "/login" });
             } else {
+                if ((!get(STORAGE_TYPES.USER_INFO) || !store.state.userInfo.id) && to.path !== "/login") {
+                    await queryUserInfo().then(success => {
+                        // 获取到用户信息, 开始配置全局监听器
+                        if (success) {
+                            isElectron() && window.electron.ipcRenderer.send("startSingalR", store.state.userInfo.id);
+                        }
+                    });
+                }
                 next();
             }
         } else {

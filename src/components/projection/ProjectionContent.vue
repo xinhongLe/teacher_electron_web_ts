@@ -1,23 +1,37 @@
 <template>
     <div class="container">
-        <div class="content-warp">
+        <div
+            class="content-warp"
+            @touchstart="$event => touchStartListener($event)"
+            @touchend="$event => touchEndListener($event)"
+            @touchmove="$event => touchMoveListener($event)"
+        >
             <div
                 class="img-warp"
-                :style="{
-                    transform: `translate(${translateX}px, ${translateY}px) scale(${scale}) rotate(${rotate}deg)`,
-                }"
             >
-                <img
-                    :src="imgList[currentIndex]"
-                    @mousedown="onMove"
-                    class="img"
-                />
-                <Brush
-                    :isBrush="isBrush"
-                    ref="brushRef"
-                    :colorName="colorName"
-                    :penSize="penSize"
-                />
+                <div
+                    ref="contentRef"
+                    class="view-box"
+                     :style="{
+                        transform: `translate(${translateX + viewWidth / 2 * (scale - 1)}px, ${translateY + viewHeight / 2 * (scale - 1)}px) scale(${scale}) rotate(${rotate}deg)`,
+                    }"
+                >
+                    <img
+                        
+                        @mousewheel="$event => handleMousewheelScreen($event)"
+                        :src="imgList[currentIndex]"
+                        @mousedown="onMove"
+                        class="img"
+                        @load="imgOnLoad"
+                    />
+                    <Brush
+                        v-if="showBrush"
+                        :isBrush="isBrush"
+                        ref="brushRef"
+                        :colorName="colorName"
+                        :penSize="penSize"
+                    />
+                </div>
             </div>
             <div
                 class="reset-btn"
@@ -228,6 +242,10 @@ export default defineComponent({
         const brushRef = ref<InstanceType<typeof Brush>>();
         const colorName = ref("black");
         const penSize = ref(2);
+        const contentRef = ref();
+        const showBrush = ref(false);
+        const viewWidth = ref(0);
+        const viewHeight = ref(0);
 
         watch(() => props.index, () => {
             currentIndex.value = props.index;
@@ -240,8 +258,12 @@ export default defineComponent({
             onZoomIn,
             onZoomOut,
             isShowResetBtn,
-            resetTransform
-        } = useTransform();
+            resetTransform,
+            handleMousewheelScreen,
+            touchStartListener,
+            touchEndListener,
+            touchMoveListener
+        } = useTransform(contentRef);
         const lastPage = () => {
             if (currentIndex.value === 0) {
                 return;
@@ -278,6 +300,13 @@ export default defineComponent({
             penSize.value = width;
         };
 
+        const imgOnLoad = () => {
+            showBrush.value = true;
+            viewWidth.value = contentRef.value.clientWidth;
+            viewHeight.value = contentRef.value.clientHeight;
+            console.log(viewWidth.value)
+        };
+
         return {
             imgList,
             lastPage,
@@ -302,6 +331,15 @@ export default defineComponent({
             colorName,
             changeStrokeStyle,
             changeLineWidth,
+            contentRef,
+            handleMousewheelScreen,
+            touchStartListener,
+            touchEndListener,
+            touchMoveListener,
+            showBrush,
+            viewHeight,
+            viewWidth,
+            imgOnLoad,
             ...toRefs(transform)
         };
     },
@@ -327,9 +365,13 @@ export default defineComponent({
             align-items: center;
             position: relative;
             overflow: hidden;
+            .view-box {
+                position: relative;
+                transform-origin: center center;
+                height: 100%;
+            }
             .img {
                 height: 100%;
-                position: absolute;
             }
         }
         .reset-btn {

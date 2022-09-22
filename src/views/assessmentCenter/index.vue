@@ -1,10 +1,6 @@
 <template>
     <div class="container">
-        <webview
-            v-if="isElectron"
-            class="iframe"
-            :src="url"
-        ></webview>
+        <webview v-if="isElectron" class="iframe" :src="url"></webview>
         <iframe
             :src="url"
             sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-top-navigation-by-user-activation"
@@ -15,12 +11,16 @@
 </template>
 
 <script lang="ts">
+import { get, STORAGE_TYPES } from "@/utils/storage";
 import isElectron from "is-electron";
 import { defineComponent } from "vue";
+import usePageEvent from "@/hooks/usePageEvent";
 // ts
 export default defineComponent({
     name: "assessmentCenter",
     setup() {
+        const { createBuryingPointFn } = usePageEvent("评测中心", true);
+        //埋点需求
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         window.onmessage = (e: any, d: any) => {
@@ -29,12 +29,13 @@ export default defineComponent({
                 location.href = e.data.url;
             }
         };
-        const url = `http://tiku.leyixue.net/?time=${new Date().getTime()}`;
+        const token = get(STORAGE_TYPES.SET_TOKEN);
+        const url = `http://tiku.leyixue.net/?time=${new Date().getTime()}&s=Homepc&m=SyncUser&a=index&token=${token}`;
         return {
             url,
-            isElectron: isElectron()
+            isElectron: isElectron(),
         };
-    }
+    },
 });
 </script>
 
@@ -42,6 +43,7 @@ export default defineComponent({
 .container {
     flex: 1;
     height: 100%;
+
     .iframe {
         width: 100%;
         height: 100%;

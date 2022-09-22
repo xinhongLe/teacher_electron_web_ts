@@ -52,6 +52,7 @@
                         <el-col :span="8">
                             <el-form-item label="班级名称" prop="name">
                                 <el-input
+                                    disabled
                                     v-model="formData.name"
                                     placeholder="请输入班级名称"
                                 ></el-input>
@@ -69,9 +70,9 @@
                             <p>还没有班级老师</p>
                             <p>您可以点击【添加老师】进行设置</p>
                         </div>
-                        <div class="btn" @click="showTeacher = true">
+                        <!-- <div class="btn" @click="showTeacher = true">
                             <i class="el-icon-plus"></i>添加老师
-                        </div>
+                        </div> -->
                         <div class="subject-list">
                             <div
                                 v-for="(item, index) in Object.keys(
@@ -88,13 +89,13 @@
                                     >
                                         <i class="el-icon-s-custom"></i>
                                         {{ item1?.Name}}
-                                        <i
+                                        <!-- <i
                                             class="el-icon-remove"
                                             v-if="
                                                 isEdit || ownerId !== item1?.ID
                                             "
                                             @click="delTeacher(item1?.ID)"
-                                        ></i>
+                                        ></i> -->
                                     </span>
                                 </div>
                             </div>

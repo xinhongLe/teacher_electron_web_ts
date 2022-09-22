@@ -33,6 +33,9 @@
                 <img src="../../images/btn_next.png" />
             </div>
         </div>
+        <!-- <div class="me-tool-btn invoking-btn-warp" @click="showResourceDialog = true">
+            <img src="../../images/btn_diaoyong@2x.png"/>
+        </div> -->
         <div class="me-tools-screen"></div>
         <div class="me-tools-canvas">
             <div
@@ -78,7 +81,7 @@
             </div>
         </div>
         <div class="me-tools-system">
-            <template v-if="isShowFullscreen">
+            <template v-if="isShowFullscreen && !dialog">
                 <div class="me-tool-btn" @click="fullScreen" v-if="!activeFlag">
                     <img src="../../images/quanping_rest.png" alt="" />
                 </div>
@@ -86,6 +89,10 @@
                     <img src="../../images/tuichuquanping_rest.png" alt="" />
                 </div>
             </template>
+
+            <div @click.stop="closeWincard" v-if="!dialog" class="me-tool-btn close-button">
+                <p>关闭</p>
+            </div>
 
             <div
                 class="me-tool-btn"
@@ -139,9 +146,11 @@
             </div>
         </div>
         <div class="me-tool-btn" v-if="isShowClose" @click="$emit('close')">
-                <img src="../../images/guanbi_rest.png" />
-            </div>
+            <img src="../../images/guanbi_rest.png" />
+        </div>
+        <ResourceDialog v-if="showResourceDialog" v-model="showResourceDialog"/>
     </div>
+
 </template>
 
 <script lang="ts">
@@ -157,6 +166,7 @@ import { sleep } from "@/utils/common";
 import { STORAGE_TYPES, set, get } from "@/utils/storage";
 import { MutationTypes, store } from "@/store";
 import { NextSettingType } from "@/types/preparation";
+import ResourceDialog from "./resourceDialog.vue";
 export default defineComponent({
     props: {
         showRemark: {
@@ -174,6 +184,14 @@ export default defineComponent({
         isShowClose: {
             type: Boolean,
             default: false
+        },
+        dialog: {
+            type: Boolean,
+            default: false
+        },
+        id: {
+            type: String,
+            default: ""
         }
     },
     setup(props, { emit }) {
@@ -191,6 +209,7 @@ export default defineComponent({
         const activeFlag = ref(false);
         const isShowMenu = ref(false);
         const isShowSubMenu = ref(false);
+        const showResourceDialog = ref(false);
         const nextSettingTypeList = [
             {
                 text: "仅右侧",
@@ -205,35 +224,28 @@ export default defineComponent({
                 type: NextSettingType.All
             }
         ];
-        watch(
-            () => props.showRemark,
-            () => {
-                showremark.value = props.showRemark;
-            }
-        );
-
+        watch(() => props.showRemark, () => {
+            showremark.value = props.showRemark;
+        });
         const changeNextType = (type: NextSettingType) => {
             store.commit(MutationTypes.SET_SELECT_NEXT_TYPE, type);
             set(STORAGE_TYPES.NEXT_SETTING + store.state.userInfo.id, type);
+            hideMenu();
         };
-
         const hideMenu = () => {
             isShowMenu.value = false;
             isShowSubMenu.value = false;
         };
-
         const addEvent = () => {
             window.addEventListener("keydown", keyDown);
             window.addEventListener("resize", onResize);
             document.addEventListener("click", hideMenu);
         };
-
         const removeEvent = () => {
             window.removeEventListener("resize", onResize);
             window.removeEventListener("keydown", keyDown);
             document.removeEventListener("click", hideMenu);
         };
-
         onMounted(() => {
             addEvent();
         });
@@ -251,7 +263,7 @@ export default defineComponent({
                 switchFlag.value = false;
             } else if (!switchFlag.value && isFullscreen()) {
             } else {
-                if (isElectron()) return false;
+                if (isElectron()) { return false; }
                 activeFlag.value = false;
                 await sleep(300);
                 emit("clockFullScreen");
@@ -270,22 +282,20 @@ export default defineComponent({
             emit("nextStep");
         };
         const keyDown = async (e: any) => {
-            if (!isElectron()) return false;
+            if (!isElectron()) { return false; }
             if (e.keyCode === 27) {
-                if (!activeFlag.value) return false;
+                if (!activeFlag.value) { return false; }
                 activeFlag.value = false;
-                if (!isFullscreen()) return false;
+                if (!isFullscreen()) { return false; }
                 exitFullscreen();
                 emit("clockFullScreen");
             }
         };
         // 点击全屏
         const fullScreen = async () => {
-            if (
-                (window as any).electron &&
+            if ((window as any).electron &&
                 !(window as any).electron.isFullScreen() &&
-                !(window as any).electron.isMac()
-            ) {
+                !(window as any).electron.isMac()) {
                 (window as any).electron.setFullScreen();
                 await sleep(300);
             }
@@ -304,23 +314,21 @@ export default defineComponent({
         const showWriteBoard = () => {
             emit("showWriteBoard");
         };
-
         const openShape = (event: MouseEvent) => {
             emit("openShape", event);
         };
-
         const hideWriteBoard = () => {
             emit("hideWriteBoard");
         };
-
         function getLocalNextType() {
-            const type = get(
-                STORAGE_TYPES.NEXT_SETTING + store.state.userInfo.id
-            );
+            const type = get(STORAGE_TYPES.NEXT_SETTING + store.state.userInfo.id);
             changeNextType(type || NextSettingType.All);
         }
-
         getLocalNextType();
+
+        const closeWincard = () => {
+            store.commit(MutationTypes.REMOVE_FULLSCREEN_RESOURCE, { id: props.id, openMore: true });
+        }
 
         return {
             scale,
@@ -331,6 +339,7 @@ export default defineComponent({
             showremark,
             goback,
             toggleRemark,
+            showResourceDialog,
             prevStep,
             nextStep,
             fullScreen,
@@ -343,16 +352,18 @@ export default defineComponent({
             isShowMenu,
             selectNextType,
             openShape,
-            hideWriteBoard
+            hideWriteBoard,
+            closeWincard
         };
-    }
+    },
+    components: { ResourceDialog }
 });
 </script>
 
 <style lang="scss" scoped>
 .me-tools {
-    background-color: #bccfff;
-    padding: 10px;
+    background-color: #BED2FF;
+    padding: 14px;
     display: flex;
     position: relative;
     &.tools-fullSrceen {
@@ -368,8 +379,6 @@ export default defineComponent({
         }
     }
     .me-tools-set {
-        position: fixed;
-        transform: translate(-168px);
         width: fit-content;
         .setting {
             position: absolute;
@@ -456,8 +465,8 @@ export default defineComponent({
 .me-tool-btn.next-step {
     border: 2px solid #2f4fd8;
     box-shadow: 0 3px 0 #2f4fd8;
-    height: 60px;
-    width: 120px;
+    height: 55px;
+    width: 110px;
 }
 
 .me-tool-btn.next-step img {
@@ -485,8 +494,8 @@ export default defineComponent({
 
 .me-tool-btn img {
     display: block;
-    width: 60px;
-    height: 60px;
+    width: 55px;
+    height: 55px;
 }
 
 .me-draw-board {
@@ -515,5 +524,35 @@ export default defineComponent({
 
 .me-draw-board.cursor-eraser {
     cursor: url("../../images/mouse_xiangpi.png"), auto;
+}
+
+.invoking-btn-warp {
+    display: flex;
+    width: 180px;
+    height: 64px;
+    border-color: #2085ef;
+    box-shadow: 0 3px 0 #2085ef;
+    margin-left: 20px;
+    img {
+        width: 180px;
+        height: 64px;
+    }
+}
+
+.close-button {
+    background: url("~@/assets/look/btn_guanbi@2x.png");
+    background-size: 100% 100%;
+    box-sizing: content-box;
+    width: 55px;
+    height: 55px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    p {
+        color: #fff;
+        font-size: 12px;
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
 }
 </style>

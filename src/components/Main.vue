@@ -2,9 +2,8 @@
     <div class="main-container">
         <NavBar v-if="isShowNarBar && !isIframe"/>
         <Suspension v-if="!isElectron && !isIframe"/>
-        <LookQuestion v-if="isShowQuestion"/>
-        <LookVideo v-if="isShowVideo"/>
-        <Projection/>
+        <ResourceFullScreen />
+        <Projection />
         <Suspense v-if="isElectron">
             <VideoProjection/>
         </Suspense>
@@ -26,20 +25,18 @@ import { useRoute } from "vue-router";
 import { GetGradeClassTree } from "@/views/login/api";
 import { IGradeClassTreeResponse } from "@/types/login";
 import { set, STORAGE_TYPES } from "@/utils/storage";
-import useUserInfo from "@/hooks/useUserInfo";
+// import useUserInfo from "@/hooks/useUserInfo";
 import useTagList from "@/hooks/useTagList";
-import LookQuestion from "./lookQuestion/index.vue";
 import { MutationTypes, store } from "@/store";
-import LookVideo from "./lookVideo/index.vue";
 import Projection from "./projection/index.vue";
 import { ElMessage } from "element-plus";
+import ResourceFullScreen from "@/views/resourceView/resourceFullScreen.vue";
 
 export default defineComponent({
     components: {
         NavBar,
+        ResourceFullScreen,
         Suspension: defineAsyncComponent(() => import("./suspension/index.vue")),
-        LookQuestion,
-        LookVideo,
         Projection,
         VideoProjection: defineAsyncComponent(() => import("./videoProjection/index.vue"))
     },
@@ -47,9 +44,9 @@ export default defineComponent({
         const route = useRoute();
         const isShowNarBar = ref(true);
         const wpfNames = ["wpf班级管理", "wpf管理标签", "wpf学习记录"];
-        const { queryUserInfo } = useUserInfo();
+        // const { queryUserInfo } = useUserInfo();
         const { getTagList } = useTagList();
-        const keepExcludeArr = ["Home", "LabelManage", "Record", "Edit", "AssignHomework", "CheckHomework", "preparationGroup", "preparationEdit"];
+        const keepExcludeArr = ["LabelManage", "Record", "Edit", "AssignHomework", "CheckHomework", "preparationGroup", "preparationEdit", "AttendClass"];
 
         watch(() => ({ query: route.query, name: route.name }), ({ query, name }) => {
             isShowNarBar.value = !query.head && !wpfNames.includes(name as string);
@@ -74,12 +71,12 @@ export default defineComponent({
 
         getTagList();
 
-        queryUserInfo().then(success => {
-            // 获取到用户信息, 开始配置全局监听器
-            if (success) {
-                isElectron() && window.electron.ipcRenderer.send("startSingalR", store.state.userInfo.id);
-            }
-        });
+        // queryUserInfo().then(success => {
+        //     // 获取到用户信息, 开始配置全局监听器
+        //     if (success) {
+        //         isElectron() && window.electron.ipcRenderer.send("startSingalR", store.state.userInfo.id);
+        //     }
+        // });
 
         const answerjection = (e: any, data: any) => {
             window.electron.ipcRenderer.invoke("answer-jection", data);
@@ -115,9 +112,7 @@ export default defineComponent({
 
         return {
             isElectron: isElectron(),
-            isShowQuestion: computed(() => store.state.common.isShowQuestion),
-            isIframe: computed(() => localStorage.getItem(MutationTypes.LOCAL_IS_IFRAME) === "1" || store.state.common.isIframe),
-            isShowVideo: computed(() => store.state.common.isShowVideo),
+            isIframe: computed(() => localStorage.getItem(MutationTypes.LOCAL_IS_IFRAME) === "1"),
             isShowNarBar,
             keepExcludeArr
         };
@@ -138,5 +133,6 @@ export default defineComponent({
     display: flex;
     flex: 1;
     overflow-y: auto;
+    -webkit-app-region: no-drag;
 }
 </style>

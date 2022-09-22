@@ -8,7 +8,7 @@
             :before-close="close"
             :show-close="false"
         >
-            <Question :close="close" :isPureQuestion="true" />
+            <Question :resource="resource" :close="close" :isPureQuestion="true" />
         </el-dialog>
     </div>
 </template>
@@ -21,6 +21,11 @@ export default defineComponent({
         visible: {
             type: Boolean,
             default: false
+        },
+
+        resource: {
+            type: Object,
+            required: true
         }
     },
     setup(props, { emit }) {

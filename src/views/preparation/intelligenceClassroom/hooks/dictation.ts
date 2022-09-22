@@ -1,4 +1,4 @@
-import { ref } from "vue-demi";
+import { ref } from "vue";
 
 export default () => {
     const playStatus = ref(1); /* *1未播放 2播放中 3暂停 4播放结束 **/

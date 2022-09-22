@@ -9,6 +9,9 @@ html {
         -moz-osx-font-smoothing: grayscale;
         -webkit-font-smoothing: antialiased;
         text-rendering: optimizeLegibility;
+        .el-overlay.is-message-box{
+            z-index: 999999 !important;
+        }
         .el-dialog {
             -webkit-app-region: no-drag;
         }
@@ -164,7 +167,7 @@ html {
                     line-height: 16px;
                     cursor: pointer;
                 }
-        
+
                 .file-name {
                     margin-left: 16px;
                     font-size: 14px;
@@ -201,7 +204,7 @@ html {
                 }
             }
         }
-        
+
     }
 }
 
@@ -214,9 +217,14 @@ html {
     }
 }
 
+.preparation-popper-class-adjust {
+    width: 220px !important;
+}
+
 // 备课气泡样式
 .preparation-popper-class {
     background-color: rgba(0, 0, 0, 0.6) !important;
+    border: none !important;
     color: #fff !important;
     width: 220px !important;
     > div {
@@ -227,9 +235,13 @@ html {
             }
         }
     }
-    .popper__arrow {
-        &::after {
-            border-top-color: rgba(0, 0, 0, 0.6) !important;
+    .el-popper__arrow {
+        &:before {
+            width: 0;
+            height: 0;
+            background: transparent !important;
+            border: 5px solid !important;
+            border-color: transparent rgba(0, 0, 0, 0.6) rgba(0, 0, 0, 0.6) transparent !important;
         }
     }
 }
@@ -330,19 +342,24 @@ html {
             height: 8px;
             border-radius: 4px
         }
-        
+
         .medium {
             width: 10px;
             height: 10px;
             border-radius: 5px;
         }
-        
+
         .max {
             width: 12px;
             height: 12px;
             border-radius: 6px;
         }
     }
+}
+
+// 教案预览下拉框样式
+.lesson-preview-select{
+    z-index: 99999 !important;
 }
 
 ::-webkit-scrollbar {

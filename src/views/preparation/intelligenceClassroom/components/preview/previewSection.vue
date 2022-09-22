@@ -1,87 +1,70 @@
 <template>
     <div class="me-preview">
-        <div class="mep-container" :style="{ margin: hideTools ? '0' : '0' }">
+        <div class="mep-container">
             <PageList
                 class="preview-pagelist"
-                style="margin-right: 15px"
-                :pageListOption="pageList"
-                :WinActiveId="WinActiveIdProp"
-                :WindowName="WindowNameProp"
-                :LessonID="LessonIDProp"
-                :CardName="CardName"
-                :CardId="CardId"
-                v-model:hideTool="hideTool"
-                ref="PageList"
-                @changeRemark="changeRemark"
+                ref="pageListRef"
                 @lastPage="lastPage"
                 @firstPage="firstPage"
-                :showRemark="showRemark"
-                :winList="winList"
-                @changeWinSize="changeWinSize"
+                :dialog="dialog"
             />
             <transition name="fade">
-                <Remark :class="fullScreenStyle ? 'remark-fullSrceen' : ''" :value="remark" v-if="showRemark" />
+                <Remark :teachProcess="teachProcess" :isSystem="isSystem" :resourceId="resourceId" :design="design" v-if="showRemark" />
             </transition>
         </div>
-        <Tools
-            :class="fullScreenStyle ? 'tools-fullSrceen' : ''"
-            class="tools"
-            v-show="!hideTool"
-            :showRemark="showRemark"
-            @toggleRemark="toggleRemark"
-            @prevStep="prevStep"
-            @nextStep="nextStep"
-            @fullScreen="fullScreen"
-            @clockFullScreen="clockFullScreen"
-            @showWriteBoard="showWriteBoard"
-            @openShape="openShape"
-            @hideWriteBoard="hideWriteBoard"
-        />
     </div>
 </template>
 
-<script>
-import { computed, defineComponent, ref, toRefs, watch } from "vue-demi";
+<script lang="ts">
+import { computed, defineComponent, inject, ref, toRefs } from "vue";
 import preventRemark from "../../hooks/previewRemark";
 import Remark from "./remark.vue";
-import Tools from "./tools.vue";
 import PageList from "./pageList.vue";
+import { windowInfoKey } from "@/hooks/useWindowInfo";
+import { isEmpty } from "lodash";
 export default defineComponent({
+    props: {
+        resourceId: {
+            type: String,
+            default: ""
+        },
+        isSystem: {
+            type: Boolean,
+            default: false
+        },
+        dialog: {
+            type: Boolean,
+            default: false
+        }
+    },
     components: {
         Remark,
-        Tools,
         PageList
     },
-    props: ["options", "hideTools", "winActiveId", "WindowName", "LessonID", "winList"],
     setup(props, { emit }) {
-        const { data, showRemark, toggleRemark } = preventRemark();
-        const pageList = ref({});
-        const hideTool = ref(false);
-        const WinActiveIdProp = computed(() => props.winActiveId);
-        const WindowNameProp = computed(() => props.WindowName);
-        const LessonIDProp = computed(() => props.LessonID);
-        const remark = ref("");
-        const PageList = ref();
-        const CardId = ref("");
-        const CardName = ref("");
+        const { data, showRemark, toggleRemark } = preventRemark(props.dialog);
+        const { currentPageIndex, currentCard } = inject(windowInfoKey)!;
+        const teachProcess = computed(() => !isEmpty(currentCard.value?.PageList) && currentCard.value?.PageList[currentPageIndex.value]?.AcademicPresupposition);
+        const design = computed(() => !isEmpty(currentCard.value?.PageList) && currentCard.value?.PageList[currentPageIndex.value]?.DesignIntent);
+        const pageListRef = ref();
+        const changeWinSize = () => {
+            emit("changeWinSize"); // 切换窗口大小，清除缓存的笔记列表
+        };
         const prevStep = () => {
-            PageList.value.prevCard();
+            pageListRef.value.prevCard();
         };
         const nextStep = () => {
-            PageList.value.nextCard();
+            pageListRef.value.nextCard();
         };
         const showWriteBoard = () => {
-            PageList.value.showWriteBoard();
+            pageListRef.value.showWriteBoard();
         };
         const hideWriteBoard = () => {
-            PageList.value.hideWriteBoard();
+            pageListRef.value.hideWriteBoard();
         };
-        const openShape = (event) => {
-            PageList.value.hideWriteBoard();
-            PageList.value.openShape(event);
-        };
-        const changeRemark = (value) => {
-            remark.value = value;
+        const openShape = (event: MouseEvent) => {
+            pageListRef.value.hideWriteBoard();
+            pageListRef.value.openShape(event);
         };
         const lastPage = () => {
             emit("lastPage");
@@ -89,65 +72,27 @@ export default defineComponent({
         const firstPage = () => {
             emit("firstPage");
         };
-        const fullScreenStyle = ref(false);
         const fullScreen = () => {
             showRemark.value = false;
-            fullScreenStyle.value = true;
-            PageList.value.fullScreen();
-            emit("fullScreen");
+            changeWinSize();
         };
         const clockFullScreen = () => {
             showRemark.value = true;
-            fullScreenStyle.value = false;
-            PageList.value.clockFullScreen();
-            emit("clockFullScreen");
+            changeWinSize();
         };
         const updateFlag = () => {
-            PageList.value.updateFlags();
+            pageListRef.value.updateFlags();
         };
 
-        const changeWinSize = () => {
-            emit("changeWinSize"); // 切换窗口大小，清除缓存的笔记列表
-        };
-
-        watch(
-            () => props.options,
-            () => {
-                if (!props.options.pages) {
-                    remark.value = "";
-                    pageList.value = [];
-                    CardId.value = "";
-                    CardName.value = "";
-                } else if (props.options.pages.length > 0) {
-                    remark.value = props.options.pages ? props.options.pages[0].Remark : "";
-                    pageList.value = props.options.pages ? props.options.pages : [];
-                    CardId.value = props.options.id;
-                    CardName.value = props.options.name;
-                } else {
-                    remark.value = "";
-                    pageList.value = [];
-                    CardId.value = "";
-                    CardName.value = "";
-                }
-            }
-        );
         return {
-            CardName,
-            CardId,
-            WinActiveIdProp,
-            WindowNameProp,
-            LessonIDProp,
-            remark,
-            PageList,
-            fullScreenStyle,
+            teachProcess,
+            design,
+            pageListRef,
             ...toRefs(data),
             showRemark,
-            pageList,
-            hideTool,
             toggleRemark,
             prevStep,
             nextStep,
-            changeRemark,
             fullScreen,
             lastPage,
             firstPage,

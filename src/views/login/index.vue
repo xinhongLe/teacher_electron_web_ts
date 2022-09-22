@@ -31,10 +31,10 @@
                         <el-option
                             v-for="(item, index) in recordAccountList"
                             :key="index"
-                            :label="(item as any).account"
-                            :value="(item as any).account"
+                            :label="item.account"
+                            :value="item.account"
                         >
-                            <span style="float: left">{{ (item as any).account }}</span>
+                            <span style="float: left">{{ item.account }}</span>
                             <span
                                 style="
                                     float: right;
@@ -126,7 +126,7 @@ import { defineComponent, onMounted, onUnmounted, reactive, ref } from "vue";
 import useLogin from "@/hooks/useLogin";
 import { useRouter, useRoute } from "vue-router";
 import { ILoginData } from "@/types/login";
-import { STORAGE_TYPES, get, set } from "@/utils/storage";
+import { STORAGE_TYPES, get, set, clear } from "@/utils/storage";
 import isElectron from "is-electron";
 import { sendMsg } from "./api";
 export default defineComponent({
@@ -144,7 +144,7 @@ export default defineComponent({
         const recordAccountList = ref([]);
         const isPassWordLogin = ref(true);
         const codeTime = ref(0);
-        let timer:any;
+        let timer: any;
         recordAccountList.value = get(STORAGE_TYPES.RECORD_LOGIN_LIST, true) || [];
 
         const { userLogin } = useLogin();
@@ -152,6 +152,7 @@ export default defineComponent({
         const login = async () => {
             const { account, password, code } = form;
             if ((isPassWordLogin.value && (account.length === 0 || password.length === 0)) || (!isPassWordLogin.value && (account.length === 0 || code.length === 0))) return false;
+            clear();
             loading.value = true;
             const loginSuccess = await userLogin({ account, password, code, isPassWordLogin: isPassWordLogin.value });
             loading.value = false;
@@ -164,6 +165,7 @@ export default defineComponent({
                     query: Object.keys(params).length > 0 ? params : ""
                 });
             } else {
+                set(STORAGE_TYPES.SET_ISCACHE, true);
                 router.push("/home");
             }
         };
@@ -294,7 +296,7 @@ $btn_color: #4b71ee;
         padding: 0 40px;
         .login-logo {
             text-align: center;
-            margin-bottom: 35px;
+            margin-bottom: 15px;
             img {
                 width: 95px;
                 height: 95px;
@@ -330,7 +332,7 @@ $btn_color: #4b71ee;
             width: 100%;
             .el-form-item {
                 position: relative;
-                margin-bottom: 32px;
+                margin-bottom: 20px;
                 -webkit-app-region: no-drag;
                 .key-board-img {
                     width: 21px;
@@ -354,7 +356,7 @@ $btn_color: #4b71ee;
                     background: #f5f6fa !important;
                     border: none;
                     padding-left: 50px;
-                    padding-right: 95px;
+                    // padding-right: 95px;
                 }
                 .el-input__prefix, .el-input__suffix-inner {
                     display: flex;
@@ -370,9 +372,9 @@ $btn_color: #4b71ee;
                     right: 12px;
                 }
                 .zh-class {
-                    width: 90%;
+                    width: calc(100% - 40px);
                     z-index: 1;
-                    padding-right: 40px;
+                    // padding-right: 40px;
                 }
                 .el-select {
                     position: absolute;
@@ -393,12 +395,12 @@ $btn_color: #4b71ee;
         }
         .prompt-text {
             position: absolute;
-            bottom: 10px;
+            bottom: 5px;
             text-align: center;
             color: #ccc;
-            font-size: 16px;
+            font-size: 12px;
             p {
-                margin-bottom: 10px;
+                margin-bottom: 5px;
             }
         }
     }
