@@ -311,7 +311,7 @@ body {
 //}
 .roll-call {
     width: 100%;
-    height: calc(100vh - 16px);
+    height: 100vh;
     display: flex;
     flex-direction: column;
 }

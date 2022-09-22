@@ -247,6 +247,7 @@ export default defineComponent({
     background: url(~@/assets/images/other/bg@2x.png) no-repeat;
     background-size: cover;
     background-position: center;
+    overflow: hidden;
     .select-student-list {
         position: absolute;
         left: 40px;
