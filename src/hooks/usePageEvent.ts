@@ -24,10 +24,7 @@ const getPcMsg: Function = () => {
     let pcObj = reactive([]);
     let pcMessage = reactive([]);
     for (let key in interfaces) {
-        if (
-            key.indexOf("WLAN") !== -1 ||
-            key.indexOf("无线网络连接") !== -1
-        ) {
+        if (key.indexOf("WLAN") !== -1 || key.indexOf("无线网络连接") !== -1) {
             pcObj = interfaces[key];
             break;
         } else if (
@@ -113,7 +110,7 @@ const usePageEvent = (pageName: string, isPage?: boolean) => {
             UserType: 2, //用户类型 1员工 2老师 3学生 4家长
             UserName: userInfo.Name, //用户名称
             UserGender: "", //用户性别
-            UserRole: yunInfo.RolesList as [], //用户角色
+            UserRole: yunInfo.RolesList || [], //用户角色
             SubjectId: "", //科目ID
             SubjectName: "", //科目名称
             UserSubject: subjectInfo, //科目

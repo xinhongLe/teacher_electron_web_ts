@@ -1,11 +1,20 @@
 <template>
-    <div class="tree-box" :class="{'no-before': zIndex === 0, 'no-icon': !(itemData.Children && itemData.Children.length > 0 || zIndex === 0) }">
+    <div
+        class="tree-box"
+        :class="{
+            'no-before': zIndex === 0,
+            'no-icon': !(
+                (itemData.Children && itemData.Children.length > 0) ||
+                zIndex === 0
+            ),
+        }"
+    >
         <div class="tree-item">
             <img
                 class="tree-icon"
                 v-show="isOpen && value !== itemData.Id"
                 :class="{
-                    visible: true
+                    visible: true,
                 }"
                 src="@/assets/images/preparation/icon_shouqi.png"
                 alt
@@ -15,7 +24,7 @@
                 class="tree-icon"
                 v-show="isOpen && value === itemData.Id"
                 :class="{
-                    visible: true
+                    visible: true,
                 }"
                 src="@/assets/images/preparation/shouqi_blue.png"
                 alt
@@ -25,7 +34,7 @@
                 class="tree-icon"
                 v-show="!isOpen && value !== itemData.Id"
                 :class="{
-                    visible: true
+                    visible: true,
                 }"
                 src="@/assets/images/preparation/icon_zhankai.png"
                 alt
@@ -35,7 +44,7 @@
                 class="tree-icon"
                 v-show="!isOpen && value === itemData.Id"
                 :class="{
-                    visible: true
+                    visible: true,
                 }"
                 src="@/assets/images/preparation/icon_zhankai_blue.png"
                 alt
@@ -43,23 +52,40 @@
             />
             <div
                 class="tip-popover"
-                v-if="tipTarget === itemData.Id && popoverVisible && showClassArrangement"
+                v-if="
+                    tipTarget === itemData.Id &&
+                    popoverVisible &&
+                    showClassArrangement
+                "
                 :style="{ top: tipOffset.y - 20 + 'px', left: '300px' }"
             >
                 <div class="tip-title">拖动【课时】进右侧课表</div>
-                <el-button type="primary" size="small" @click="know()">知道了</el-button>
+                <el-button type="primary" size="small" @click="know()"
+                    >知道了</el-button
+                >
             </div>
             <div
                 ref="treeName"
                 class="tree-name"
-                @click="zIndex === 0 ? (isOpen = !isOpen) : selectedTreeItem(itemData, keys)"
+                @click="
+                    zIndex === 0
+                        ? (isOpen = !isOpen)
+                        : selectedTreeItem(itemData, keys)
+                "
                 :class="{ active: value === itemData.Id }"
                 :title="itemData.Name"
                 :draggable="!!candrag && showClassArrangement"
-                @dragstart="onDragStart($event, { ID: itemData.Id, Name: itemData.Name })"
+                @dragstart="
+                    onDragStart($event, {
+                        ID: itemData.Id,
+                        Name: itemData.Name,
+                    })
+                "
                 @dragend="onDragEnd($event)"
                 @drag="onDrag($event)"
-            >{{ itemData.Name }}</div>
+            >
+                {{ itemData.Name }}
+            </div>
             <div
                 class="selected-bg"
                 :class="{ active: value === itemData.Id }"
@@ -93,32 +119,34 @@ export default defineComponent({
     props: {
         itemData: {
             type: Object as PropType<ITreeItem>,
-            required: true
+            required: true,
         },
         zIndex: {
             type: Number,
-            required: true
+            required: true,
         },
         keys: {
             type: Array as PropType<string[]>,
-            required: true
+            required: true,
         },
         value: String,
         selectedTreeItem: {
-            type: Function as PropType<(treeItem: ITreeItem, keys: string[]) => void>,
-            required: true
+            type: Function as PropType<
+                (treeItem: ITreeItem, keys: string[]) => void
+            >,
+            required: true,
         },
         showClassArrangement: {
             type: Boolean,
-            default: false
+            default: false,
         },
         tipTarget: {
-            type: String
+            type: String,
         },
         candrag: {
             type: Boolean,
-            default: false
-        }
+            default: false,
+        },
     },
     setup(props) {
         const isOpen = ref(true);
@@ -136,17 +164,23 @@ export default defineComponent({
         const treeName = ref();
         const tipOffset = reactive({
             x: 0,
-            y: 0
+            y: 0,
         });
 
-        watch(() => props.showClassArrangement, () => {
-            if (props.showClassArrangement && !get(STORAGE_TYPES.DRAGE_COURSE_TO_SCHEDULE)) {
-                const { left, top } = getDomOffset(treeName.value);
-                tipOffset.x = left;
-                tipOffset.y = top;
-                popoverVisible.value = true;
+        watch(
+            () => props.showClassArrangement,
+            () => {
+                if (
+                    props.showClassArrangement &&
+                    !get(STORAGE_TYPES.DRAGE_COURSE_TO_SCHEDULE)
+                ) {
+                    const { left, top } = getDomOffset(treeName.value);
+                    tipOffset.x = left;
+                    tipOffset.y = top;
+                    popoverVisible.value = true;
+                }
             }
-        });
+        );
 
         const know = () => {
             set(STORAGE_TYPES.DRAGE_COURSE_TO_SCHEDULE, "ok");
@@ -162,12 +196,10 @@ export default defineComponent({
             onDragStart,
             onDrag,
             onDragEnd,
-            know
-        }
-    }
+            know,
+        };
+    },
 });
-
-
 </script>
 
 <style lang="scss" scoped>
@@ -194,7 +226,8 @@ export default defineComponent({
         height: 10px;
     }
     &.no-before {
-        &:before, &:after {
+        &:before,
+        &:after {
             display: none;
         }
     }
@@ -202,11 +235,11 @@ export default defineComponent({
         &:before {
             width: 20px;
         }
-        >.tree-item {
+        > .tree-item {
             .tree-icon {
                 display: none;
             }
-            >.tree-name {
+            > .tree-name {
                 padding-left: 15px;
             }
         }
