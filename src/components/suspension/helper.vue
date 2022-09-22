@@ -182,11 +182,11 @@
                             <img src="@/assets/images/suspension/pic_namer@2x.png" alt=""/>
                             <div class="blackboard-text">点名</div>
                         </div>
-                        <div class="blackboard-box" @click.stop="openQuickAnswer(true)">
+                        <div class="blackboard-box" @click.stop="clicKBuryPoint('抢答'), openQuickAnswer(true)">
                             <img src="@/assets/images/suspension/pic_qd.png" alt=""/>
                             <div class="blackboard-text">抢答</div>
                         </div>
-                        <div class="blackboard-box" @click.stop="openQuickAnswer(false)">
+                        <div class="blackboard-box" @click.stop="clicKBuryPoint('锁屏管理'), openQuickAnswer(false)">
                             <img src="@/assets/images/suspension/pic_sp.png" alt=""/>
                             <div class="blackboard-text">锁屏管理</div>
                         </div>

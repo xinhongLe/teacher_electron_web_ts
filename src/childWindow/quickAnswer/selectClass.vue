@@ -6,9 +6,9 @@
                 <div @click.capture="handleRow(i)" :class="['leftRow', activeIndex === i ? 'active' : '']" v-for="(item, i) in gradeList" :key="i">
                     <el-checkbox :indeterminate="item.ClassList.filter(item => item.check).length > 0 && (item.ClassList.filter(item => item.check).length < item.ClassList.length)"
                                  v-model="item.check"
-                                 :label="item.GradeName"
                                  @change="handleChangeGrade(item)"
                                  size="large" />
+                    <span class="text">{{item.GradeName}}</span>
                 </div>
             </div>
             <div class="right">
@@ -146,10 +146,16 @@ export default defineComponent({
         padding: 20px 0;
         border-right: 1px solid #E9ECF0;;
         .leftRow{
+            display: flex;
+            align-items: center;
             cursor: pointer;
-            height: 36px;
+            height: 42px;
             padding: 0px 20px;
-            line-height: 36px;
+            .text{
+                margin-left: 6px;
+                font-size: 14px;
+                color: #19203D;
+            }
             &:hover{
                 background-color: #ecf5ff;
             }

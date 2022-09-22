@@ -127,7 +127,7 @@ export default defineComponent({
                     unselectedStudent.value.push(student);
                 }
             }
-            
+
             const len = unselectedStudent.value.length;
             currentIndex.value = Math.floor(Math.random() * len);
             animationTime.value = 0;
@@ -184,8 +184,7 @@ export default defineComponent({
         reset();
 
         const close = () => {
-            const win = window.electron.remote.getCurrentWindow();
-            win.close();
+            window.electron.destroyWindow();
         };
 
         const isPackUp = ref(false);

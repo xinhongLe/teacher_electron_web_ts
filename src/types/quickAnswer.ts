@@ -16,13 +16,14 @@ export interface IPraiseStudentRes {
 }
 
 export interface IClassItem {
+    GradeId?: string,
     ClassName: string,
     ClassId: string,
     check?: boolean
 }
 
 export interface IGradeItem {
-    GradeID: string,
+    GradeId: string,
     GradeName: string,
     check: boolean,
     ClassList: IClassItem[]
