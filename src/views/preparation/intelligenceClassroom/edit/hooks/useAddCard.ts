@@ -3,9 +3,12 @@ import TrackService, { EnumTrackEventType } from "@/utils/common";
 import { v4 as uuidv4 } from "uuid";
 import { Ref, ref } from "vue";
 import { addCard } from "@/api/home";
+import { useStore } from "@/store";
 
 export default (windowCards:Ref<ICardList[]>, windowInfo:any) => {
     const dialogVisibleCard = ref(false);
+
+    const store = useStore();
 
     const handleAddCard = (name:string) => {
         const sort = windowCards.value ? windowCards.value.length : 0;
@@ -24,7 +27,7 @@ export default (windowCards:Ref<ICardList[]>, windowInfo:any) => {
                     PageList: []
                 };
                 windowCards.value.push(card);
-                TrackService.setTrack(EnumTrackEventType.AddCard, "", "", "", "", "", "", "新增卡");
+                TrackService.setTrack(EnumTrackEventType.AddCard, "", "", "", "", "", "", "新增卡", "", "", store.state.userInfo.schoolId);
                 dialogVisibleCard.value = false;
             }
         });

@@ -121,7 +121,11 @@ export const enum MutationTypes {
     /**
      * 移除全屏预览资源
      */
-    REMOVE_FULLSCREEN_RESOURCE = "REMOVE_FULLSCREEN_RESOURCE"
+    REMOVE_FULLSCREEN_RESOURCE = "REMOVE_FULLSCREEN_RESOURCE",
+    /**
+     * 设置单开资源活跃窗口
+     */
+    SET_FULLSCREEN_RESOURCE_ACTIVE = "SET_FULLSCREEN_RESOURCE_ACTIVE"
 }
 
 export const enum ActionTypes {

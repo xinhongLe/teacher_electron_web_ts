@@ -1,5 +1,5 @@
 <template>
-    <div class="look-video" :class="dialog && 'dialog-type'" v-show="!isMinimized" v-loading="videoLoading">
+    <div class="look-video" :class="{ 'dialog-type': dialog, 'active-window': activeWindow }" v-show="!isMinimized" v-loading="videoLoading">
         <div class="warp">
             <div class="frames-box">
                 <span class="file-sn" v-if="!dialog">{{ fileSn }}</span>
@@ -117,6 +117,11 @@ export default defineComponent({
         resource: {
             type: Object as PropType<IViewResourceData>,
             required: true
+        },
+        
+        activeWindow: {
+            type: Boolean,
+            default: false
         }
     },
     setup(props) {
@@ -214,6 +219,7 @@ export default defineComponent({
 
         const openVideoWin = () => {
             isMinimized.value = false;
+            store.commit(MutationTypes.SET_FULLSCREEN_RESOURCE_ACTIVE, "LookVideo");
             nextTick(() => {
                 if (btnName.value === "暂停") {
                     videoRef.value && videoRef.value.play();
@@ -435,5 +441,9 @@ export default defineComponent({
     .next {
         background-image: url("./../../assets/look/btn_xiayibu@2x.png");
     }
+}
+
+.active-window {
+    z-index: 10001 !important;
 }
 </style>

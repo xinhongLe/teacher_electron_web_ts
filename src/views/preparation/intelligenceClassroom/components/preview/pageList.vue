@@ -102,7 +102,7 @@ export default defineComponent({
                 LessonID: store.state.preparation.selectLessonId
             };
             getDataBase(pageList.value[index].ID, pageList.value[index]);
-            TrackService.setTrack(EnumTrackEventType.SelectPage, currentWindowInfo.WindowID, currentWindowInfo.WindowName, currentCard.value?.ID, currentCard.value?.Name, item.ID, item.Name, "选择页", JSON.stringify(DataContext), item.ID);
+            TrackService.setTrack(EnumTrackEventType.SelectPage, currentWindowInfo.WindowID, currentWindowInfo.WindowName, currentCard.value?.ID, currentCard.value?.Name, item.ID, item.Name, "选择页", JSON.stringify(DataContext), item.ID, store.state.userInfo.schoolId);
         };
         const getDataBase = async (str: string, obj:SchoolWindowPageInfo) => {
             const elements = screenRef.value.whiteboard.getElements();
@@ -182,7 +182,7 @@ export default defineComponent({
                     Type: EnumTrackEventType.SelectPage,
                     LessonID: store.state.preparation.selectLessonId
                 };
-                TrackService.setTrack(EnumTrackEventType.SelectPage, currentWindowInfo.WindowID, currentWindowInfo.WindowName, currentCard.value?.ID, currentCard.value?.Name, pageList.value[currentPageIndex.value].ID, pageList.value[currentPageIndex.value].Name, "选择页", JSON.stringify(DataContext), pageList.value[currentPageIndex.value].ID);
+                TrackService.setTrack(EnumTrackEventType.SelectPage, currentWindowInfo.WindowID, currentWindowInfo.WindowName, currentCard.value?.ID, currentCard.value?.Name, pageList.value[currentPageIndex.value].ID, pageList.value[currentPageIndex.value].Name, "选择页", JSON.stringify(DataContext), pageList.value[currentPageIndex.value].ID, store.state.userInfo.schoolId);
                 getDataBase(pageList.value[currentPageIndex.value].ID, pageList.value[currentPageIndex.value]);
             }
         };

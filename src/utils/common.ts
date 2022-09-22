@@ -3,6 +3,7 @@ import request from "./request";
 import isElectron from "is-electron";
 import { get, STORAGE_TYPES } from "./storage";
 import { TRACK_API } from "@/config";
+import { useStore } from "@/store";
 
 export enum EnumTrackEventType {
     /// <summary>
@@ -304,7 +305,7 @@ export default class TrackService {
         }
     }
 
-    static setTrack(trackEventType: number, windowId = "", windowName = "", cardId = "", cardName = "", pageId = "", pageName = "", content = "", dataContext = "", currentId = "") {
+    static setTrack(trackEventType: number, windowId = "", windowName = "", cardId = "", cardName = "", pageId = "", pageName = "", content = "", dataContext = "", currentId = "", schoolId: string) {
         const trackModel = new TrackModel();
         const userInfo = get(STORAGE_TYPES.USER_INFO);
         trackModel.TrackEventType = trackEventType;
@@ -316,7 +317,7 @@ export default class TrackService {
         const trackDataModel = new TrackDataModel();
         trackDataModel.OperatorName = userInfo.Name;
         trackDataModel.OperatorID = userInfo.ID;
-        trackDataModel.FranchiseeID = userInfo.FranchiseeID;
+        trackDataModel.FranchiseeID = schoolId;
         trackDataModel.WindowID = windowId;
         trackDataModel.WindowName = windowName;
         trackDataModel.CardID = cardId;

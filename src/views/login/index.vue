@@ -165,6 +165,7 @@ export default defineComponent({
                     query: Object.keys(params).length > 0 ? params : ""
                 });
             } else {
+                set(STORAGE_TYPES.SET_ISCACHE, true);
                 router.push("/home");
             }
         };

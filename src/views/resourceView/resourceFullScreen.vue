@@ -12,12 +12,14 @@
 
         <component
             v-if="questionResource"
+            :activeWindow="questionResource && activeWindow === questionResource.component"
             :is="viewComponents[questionResource.component]"
             :resource="questionResource.resource"
         />
 
         <component
             v-if="videoResource"
+            :activeWindow="videoResource && activeWindow === videoResource.component"
             :is="viewComponents[videoResource.component]"
             :resource="videoResource.resource"
         />
@@ -45,4 +47,5 @@ const store = useStore();
 const resourceList = computed(() => store.state.common.showResourceFullScreen);
 const questionResource = computed(() => store.state.common.singleResourceFullScreen.question);
 const videoResource = computed(() => store.state.common.singleResourceFullScreen.video);
+const activeWindow = computed(() => store.state.common.activeWindow);
 </script>

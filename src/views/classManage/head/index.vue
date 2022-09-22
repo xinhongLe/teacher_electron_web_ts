@@ -7,6 +7,7 @@
                     v-model="form.studentName"
                     prefix-icon="el-icon-search"
                     placeholder="请输入要搜索的学生"
+                    @keyup.enter="searchStudent(), clicKBuryPoint('搜索')"
                 >
                     <template #append>
                         <el-button

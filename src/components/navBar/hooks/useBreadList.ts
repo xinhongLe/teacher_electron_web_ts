@@ -68,16 +68,6 @@ export default () => {
         } 
     };
 
-    onMounted(() => {
-        emitter.on("closeTab", (data) => {
-            closeTab(data);
-        });
-    });
-
-    onUnmounted(() => {
-        emitter.off("closeTab");
-    });
-
     watch(breadList, () => {
         sessionStorage.setItem("breadList", JSON.stringify(breadList.value));
     }, { deep: true });

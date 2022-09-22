@@ -1,14 +1,16 @@
 <template>
     <div class="warp">
         <div class="frames-box">
-            <span class="file-sn" v-if="!dialog">{{questionSn}}</span>
+            <span class="file-sn" v-if="!dialog">{{ questionSn }}</span>
             <slot name="title" />
             <div class="count">{{ number }} / {{ sum }}</div>
             <div class="material-box">
                 <Brush ref="childRef" v-if="isBlackboard"></Brush>
                 <audio
                     ref="audioRef"
-                    :src="voiceUrlMap[nextIndex - 1 === 0 ? 'question' : 'answer']"
+                    :src="
+                        voiceUrlMap[nextIndex - 1 === 0 ? 'question' : 'answer']
+                    "
                     :controls="true"
                     @canplay="playAudio"
                     style="display: none"
@@ -72,7 +74,13 @@
                         <p>关闭</p>
                     </div>
                     <div
-                        v-show="isElectron && type != 2 && !isPureQuestion && !dialog && !noMinix"
+                        v-show="
+                            isElectron &&
+                            type != 2 &&
+                            !isPureQuestion &&
+                            !dialog &&
+                            !noMinix
+                        "
                         @click.stop="smallQuestion"
                         class="button"
                     >
@@ -97,7 +105,17 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, inject, onMounted, onUnmounted, PropType, Ref, ref, watch } from "vue";
+import {
+    computed,
+    defineComponent,
+    inject,
+    onMounted,
+    onUnmounted,
+    PropType,
+    Ref,
+    ref,
+    watch,
+} from "vue";
 import isElectronFun from "is-electron";
 import useDetail from "./hooks/useDetail";
 import Brush from "@/components/brush/index.vue";
@@ -108,23 +126,23 @@ export default defineComponent({
     props: {
         close: {
             type: Function,
-            required: true
+            required: true,
         },
 
         isPureQuestion: {
             type: Boolean,
-            default: false
+            default: false,
         },
 
         dialog: {
             type: Boolean,
-            default: false
+            default: false,
         },
 
         resource: {
             type: Object as PropType<IViewResourceData>,
-            required: true
-        }
+            required: true,
+        },
     },
     setup(props, { emit }) {
         const type = computed(() => props.resource.type);
@@ -153,8 +171,14 @@ export default defineComponent({
             questionSwitchValue,
             voiceUrlMap,
             nextPage,
-            questionSn
-        } = useDetail(props.isPureQuestion, questionID.value, emit, childRef, props.resource);
+            questionSn,
+        } = useDetail(
+            props.isPureQuestion,
+            questionID.value,
+            emit,
+            childRef,
+            props.resource
+        );
 
         const brushHandle = () => {
             btnType.value = 1;
@@ -186,7 +210,10 @@ export default defineComponent({
         };
 
         const playAudio = () => {
-            const isPlay = nextIndex.value === 1 ? questionSwitchValue.value : resolutionSwitchValue.value;
+            const isPlay =
+                nextIndex.value === 1
+                    ? questionSwitchValue.value
+                    : resolutionSwitchValue.value;
             if (isPlay && audioRef.value) {
                 audioRef.value.play();
             }
@@ -245,10 +272,10 @@ export default defineComponent({
             voiceUrlMap,
             questionSn,
             audioRef,
-            isElectron
+            isElectron,
         };
     },
-    components: { Brush }
+    components: { Brush },
 });
 </script>
 

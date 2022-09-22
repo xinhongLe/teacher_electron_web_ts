@@ -1,5 +1,9 @@
 <template>
-    <div class="look-question" :class="dialog && 'dialog-type'" v-show="!isMinimized">
+    <div
+        class="look-question"
+        :class="{ 'dialog-type': dialog, 'active-window': activeWindow }"
+        v-show="!isMinimized"
+    >
         <div class="question-header" v-if="!dialog">
             <p>查看视频</p>
         </div>
@@ -15,7 +19,7 @@
             <template v-slot:footerBtn="slotProps">
                 <div class="btn-list">
                     <div
-                        v-show="type !== 2 && slotProps.sum > 1"
+                        v-show="type !== 2 && slotProps.sum >= 1"
                         class="btn"
                         :class="!isHasSimilarQuestion && 'disabled'"
                         @click.stop="openSimilarQuestion"
@@ -41,7 +45,17 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, nextTick, onMounted, onUnmounted, PropType, provide, ref, watch } from "vue";
+import {
+    computed,
+    defineComponent,
+    nextTick,
+    onMounted,
+    onUnmounted,
+    PropType,
+    provide,
+    ref,
+    watch,
+} from "vue";
 import Question from "./Question.vue";
 import PureQuestionDialog from "./PureQuestionDialog.vue";
 import { checkPureQuestionByQuestionID } from "./api";
@@ -53,18 +67,23 @@ export default defineComponent({
     props: {
         dialog: {
             type: Boolean,
-            default: false
+            default: false,
         },
 
         close: {
             type: Function,
-            default: () => {}
+            default: () => {},
         },
 
         resource: {
             type: Object as PropType<IViewResourceData>,
-            required: true
-        }
+            required: true,
+        },
+
+        activeWindow: {
+            type: Boolean,
+            default: false,
+        },
     },
     setup(props) {
         const type = computed(() => props.resource.type);
@@ -75,7 +94,7 @@ export default defineComponent({
 
         const viewPureQuestion = async () => {
             const check = await checkPureQuestionByQuestionID({
-                questionID: nowQuestionID.value
+                questionID: nowQuestionID.value,
             });
             if (check.resultCode === 200) {
                 isHasSimilarQuestion.value = !!check.result;
@@ -88,7 +107,11 @@ export default defineComponent({
 
         const closeDialog = () => {
             nextTick(() => {
-                store.commit(MutationTypes.REMOVE_FULLSCREEN_RESOURCE, { id: props.resource.id, openMore: props.resource.openMore, type: "LookQuestion" });
+                store.commit(MutationTypes.REMOVE_FULLSCREEN_RESOURCE, {
+                    id: props.resource.id,
+                    openMore: props.resource.openMore,
+                    type: "LookQuestion",
+                });
             });
         };
 
@@ -96,6 +119,10 @@ export default defineComponent({
 
         const openQuestion = () => {
             isMinimized.value = false;
+            store.commit(
+                MutationTypes.SET_FULLSCREEN_RESOURCE_ACTIVE,
+                "LookQuestion"
+            );
         };
 
         const closeQuestion = () => {
@@ -126,8 +153,14 @@ export default defineComponent({
 
         onUnmounted(() => {
             if (isElectron()) {
-                window.electron.ipcRenderer.removeListener("openQuestion", openQuestion);
-                window.electron.ipcRenderer.removeListener("closeQuestion", closeQuestion);
+                window.electron.ipcRenderer.removeListener(
+                    "openQuestion",
+                    openQuestion
+                );
+                window.electron.ipcRenderer.removeListener(
+                    "closeQuestion",
+                    closeQuestion
+                );
             }
         });
 
@@ -139,11 +172,11 @@ export default defineComponent({
             closeDialog,
             isMinimized,
             nowQuestionID,
-            dialogVisible
+            dialogVisible,
         };
     },
 
-    components: { Question, PureQuestionDialog }
+    components: { Question, PureQuestionDialog },
 });
 </script>
 
@@ -186,7 +219,7 @@ export default defineComponent({
         margin-right: 20px;
         &.disabled {
             p {
-                color: #BDC0C5;
+                color: #bdc0c5;
             }
         }
         p {
@@ -210,5 +243,9 @@ export default defineComponent({
             background-size: 100% 100%;
         }
     }
+}
+
+.active-window {
+    z-index: 10001 !important;
 }
 </style>

@@ -4,20 +4,20 @@ import mitt from "mitt";
 
 type Events = {
     deleteQuestion: {
-        courseBagId: string,
-        paperId: string,
-        questionID: string
+        courseBagId: string;
+        paperId: string;
+        questionID: string;
     };
-    preparationReLoad: null,
-    logout: null,
-    windowSaveAsSuc: null,
-    smallVideo: null,
-    smallQuestion: null,
-    closeTab: Bread,
-    updatePackageCount: null,
-    updateResourceList: string,
-    openEditResource: IResourceItem
-}
+    preparationReLoad: null;
+    logout: null;
+    smallVideo: null;
+    smallQuestion: null;
+    updatePackageCount: null;
+    updateResourceList: string;
+    openEditResource: IResourceItem;
+    errorBookEmit: any;
+    openErrorBookDetails: any;
+};
 
 const emitter = mitt<Events>();
 
