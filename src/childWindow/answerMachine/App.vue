@@ -3,7 +3,6 @@
         <div class="answer-app">
             <StartAnswer
                 :currentUserInfo="currentUserInfo"
-                :yunInfo="yunInfo"
                 :allStudentList="allStudentList"
                 v-if="!(isShowTimer || isShowAnswerResult)"
                 @start="start"
@@ -46,7 +45,6 @@ export default defineComponent({
     },
     setup() {
         const currentUserInfo = get(STORAGE_TYPES.CURRENT_USER_INFO);
-        const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
         const allStudentList = ref<Student[]>([]);
         const isShowTimer = ref(false);
         const isShowAnswerResult = ref(false);
@@ -99,7 +97,6 @@ export default defineComponent({
         return {
             locale: zhCn,
             currentUserInfo,
-            yunInfo,
             allStudentList,
             start,
             isShowAnswerResult,

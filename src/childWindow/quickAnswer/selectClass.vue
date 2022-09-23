@@ -29,7 +29,7 @@ import { IYunInfo } from "@/types/login";
 import { ElMessage } from "element-plus";
 import { getTeacherClassList } from "@/views/login/api";
 import { IClassItem, IGradeItem } from "@/types/quickAnswer";
-import {UserInfoState} from "@/types/store";
+import { UserInfoState } from "@/types/store";
 
 interface State {
     activeIndex:number,
@@ -40,10 +40,6 @@ export default defineComponent({
     name: "selectClass",
     components: { Title },
     props: {
-        yunInfo: {
-            type: Object as PropType<IYunInfo>,
-            require: true
-        },
         currentUserInfo: {
             type: Object as PropType<UserInfoState>,
             require: true
@@ -94,7 +90,6 @@ export default defineComponent({
 
         const _getTeacherClassList = () => {
             const data = {
-                TermCode: props.yunInfo!.TermCode,
                 Base_OrgId: props.currentUserInfo!.schoolId,
                 TeacherId: props.currentUserInfo!.userCenterUserID
             };

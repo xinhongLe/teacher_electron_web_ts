@@ -79,7 +79,6 @@ export default defineComponent({
         // const userInfo = get(STORAGE_TYPES.USER_INFO);
         const chooseFlag = ref(true);
         const currentUserInfo:UserInfoState = get(STORAGE_TYPES.CURRENT_USER_INFO);
-        const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
 
         // const map = new Map();
         // const classList = userInfo?.Classes as LessonClasses[];
@@ -215,7 +214,6 @@ export default defineComponent({
 
         const _getTeacherClassList = () => {
             const data = {
-                TermCode: yunInfo!.TermCode,
                 Base_OrgId: currentUserInfo!.schoolId,
                 TeacherId: currentUserInfo!.userCenterUserID
             };
@@ -255,7 +253,6 @@ export default defineComponent({
             handleChangeGrade,
             handleChangeClass,
             _getTeacherClassList,
-            yunInfo,
             currentUserInfo
         };
     },

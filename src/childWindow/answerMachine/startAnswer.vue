@@ -94,11 +94,9 @@
 
 <script lang="ts">
 import { computed, defineComponent, inject, PropType, reactive, ref, toRefs, watch } from "vue";
-import { get, STORAGE_TYPES } from "@/utils/storage";
-import { IYunInfo, LessonClasses } from "@/types/login";
 import { Student } from "@/types/labelManage";
 import { groupBy, uniqBy, cloneDeep } from "lodash";
-import { sendMQTTInfo, MQTTInfoData, getAnswerMachineQuestionList, saveAnswerMachineQuestion } from "./api";
+import { MQTTInfoData, getAnswerMachineQuestionList, saveAnswerMachineQuestion } from "./api";
 import { AnswerMode, PADModeQuestionType, getChoiceQuestion } from "./enum";
 import useStudentMachine from "@/hooks/useStudentMachine";
 import StudentList from "./studentList.vue";
@@ -123,10 +121,6 @@ export default defineComponent({
         },
         currentUserInfo: {
             type: Object as PropType<UserInfoState>,
-            required: true
-        },
-        yunInfo: {
-            type: Object as PropType<IYunInfo>,
             required: true
         },
         lessonId: {
@@ -302,7 +296,6 @@ export default defineComponent({
         };
         const _getTeacherClassList = () => {
             const data = {
-                TermCode: props.yunInfo!.TermCode,
                 Base_OrgId: props.currentUserInfo!.schoolId,
                 TeacherId: props.currentUserInfo!.userCenterUserID
             };

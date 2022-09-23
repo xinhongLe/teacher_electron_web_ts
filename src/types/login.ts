@@ -75,7 +75,7 @@ export interface ISendMsgData {
 
 export interface IGetTeacherClassListRes {
     "Base_OrgId": string,
-    TermCode: number | string,
+    // TermCode: number | string,
     TeacherId: string,
 }
 
