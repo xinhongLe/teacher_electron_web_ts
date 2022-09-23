@@ -1,5 +1,5 @@
 import { app, ipcMain } from "electron";
-import { resolve } from "path";
+import path, { resolve } from "path";
 import { access, mkdir } from "fs/promises";
 import Axios from "Axios";
 import { createWriteStream, createReadStream } from "fs";
@@ -19,7 +19,7 @@ export const isExistFile = (filePath: string): Promise<boolean> => {
             .then(() => {
                 // resolve(true);
                 // const fileName = filePath.substring(filePath.lastIndexOf("\\") + 1, filePath.lastIndexOf("."));
-                const fileName = filePath.replace(/(.*\/)*([^.]+).*/gi, "$2");
+                const fileName = filePath.replace(/(.*[\/\\])*([^.]+).*/gi, "$2");
                 const hash = crypto.createHash("md5");
                 createReadStream(filePath)
                     .on("data", (chunk: any) => {
