@@ -269,13 +269,48 @@
                             >查看同类题</span
                         >
                     </div>
-                    <div class="operate-btn" @click="openWrongDetails(item)">
+                    <div class="operate-btn" @click="addQuestionBasket(item)">
+                        <template v-if="formatInBasket(item)">
+                            <img
+                                src="~@/assets/images/wrongbook/icon_add.png"
+                                alt=""
+                            />
+                            <span :style="{ color: '#4B71EE' }"
+                                >添加试题篮</span
+                            >
+                        </template>
+                        <template v-else>
+                            <img
+                                src="~@/assets/images/wrongbook/icon_yichu.png"
+                                alt=""
+                            />
+                            <span :style="{ color: '#FF6B6B' }"
+                                >移出试题篮</span
+                            >
+                        </template>
+                    </div>
+                    <div
+                        class="operate-btn"
+                        style="padding-left: 5px"
+                        @click="openWrongDetails(item)"
+                    >
+                        <!-- <img
+                            src="~@/assets/images/wrongbook/icon_yichu.png"
+                            alt=""
+                        /> -->
+                        <img
+                            src="~@/assets/images/wrongbook/arrow_left.png"
+                            alt=""
+                        />
+                    </div>
+
+                    <!-- <div class="operate-btn" @click="openWrongDetails(item)">
                         <img
                             src="~@/assets/images/wrongbook/icon_tmxq.png"
                             alt=""
                         />
                         <span>题目详情</span>
-                    </div>
+                    </div> -->
                 </div>
             </div>
         </div>
@@ -386,6 +421,10 @@ const props = defineProps({
     },
     //当前章节、知识点维度的频次
     frequency: {
+        type: Number,
+        default: 0,
+    },
+    isShowContent: {
         type: Number,
         default: 0,
     },
@@ -504,7 +543,7 @@ const explainQuestion = (data: any) => {
         id: data.QuestionId,
     };
 };
-const emit = defineEmits(["update:isShowDetails"]);
+const emit = defineEmits(["update:isShowContent"]);
 //查看同类题
 const openSimilarQuestion = (data: any) => {
     state.pureQuestionVisible = true;
@@ -678,7 +717,23 @@ const openWrongDetails = (data?: any) => {
     console.log(params);
 
     emitter.emit("openErrorBookDetails", params);
-    emit("update:isShowDetails", true);
+    emit("update:isShowContent", 2);
+};
+//添加错题至试题篮
+const addQuestionBasket = (data: any) => {
+    console.log("当前错题行数据", data);
+};
+//过滤当前的题目是否在错题栏
+const formatInBasket = (data: any) => {
+    return false;
+    // const basketList = store.state.wrongbook.questionBasket.map((item: any) => {
+    //     return item.QuestionId;
+    // });
+    // if (basketList.includes(data.QuestionId)) {
+    //     return false;
+    // } else {
+    //     return true;
+    // }
 };
 //获取基础分层标签
 const queryBasicTag = async () => {
@@ -746,10 +801,12 @@ onBeforeUnmount(() => {
 <style lang="scss" scoped>
 .lessonlist {
     // height: calc(100% - 48px);
+    // position: relative;
     height: calc(100%);
     background-color: #fff;
     padding: 16px;
     overflow: auto;
+
     h3 {
         font-size: 18px;
         font-family: HarmonyOS_Sans_SC_Bold;
@@ -788,7 +845,7 @@ onBeforeUnmount(() => {
             .item-content {
                 display: flex;
                 align-items: center;
-                width: 70%;
+                width: 66%;
                 .item-index-title {
                     display: flex;
                     align-items: center;

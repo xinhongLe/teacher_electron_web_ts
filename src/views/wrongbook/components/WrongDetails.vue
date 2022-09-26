@@ -595,7 +595,13 @@
                                 >
                                     <div class="top-data">
                                         <div class="images">
-                                            <img :src="person.url" alt="" />
+                                            <img
+                                                :src="
+                                                    person.url ||
+                                                    require('../../..//assets/images/wrongbook/touxiang_student.png')
+                                                "
+                                                alt=""
+                                            />
                                         </div>
                                         <div class="name-number">
                                             <p class="name">
@@ -723,6 +729,10 @@ const props = defineProps({
         type: Array,
         default: () => [],
     },
+    isShowContent: {
+        type: Number,
+        default: 0,
+    },
 });
 //过滤知识点
 const formatKnowledges = (data: any) => {
@@ -737,7 +747,9 @@ const formatKnowledges = (data: any) => {
 const formatFiles = async (data: any) => {
     if (!data) return;
     const { FileName, FilePath, Bucket, Extention } = data;
-    const key = `${FilePath}/${FileName}.${Extention}`;
+    const key = Extention
+        ? `${FilePath}/${FileName}.${Extention}`
+        : `${FilePath}/${FileName}`;
     const url = await getOssUrl(key, Bucket);
     state.errorFiles = url;
     console.log("文件----", url);
@@ -746,12 +758,14 @@ const formatFiles = async (data: any) => {
 const formatStudentImg = async (data: any) => {
     if (!data) return;
     const { FileName, FilePath, Bucket, Extention } = data;
-    const key = `${FilePath}/${FileName}.${Extention}`;
+    const key = Extention
+        ? `${FilePath}/${FileName}.${Extention}`
+        : `${FilePath}/${FileName}`;
     const url = await getOssUrl(key, Bucket);
     return url;
 };
 
-const emit = defineEmits(["update:isShowDetails"]);
+const emit = defineEmits(["update:isShowContent"]);
 //是否有同类题
 const isHasSimilarQuestion = ref(false);
 //题型
@@ -1173,7 +1187,7 @@ const switchWrongItem = (item: any) => {
 };
 //返回列表页
 const backList = () => {
-    emit("update:isShowDetails", false);
+    emit("update:isShowContent", 1);
 };
 //展开收起学生列表
 const expendStudent = (item: any) => {

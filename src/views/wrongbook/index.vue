@@ -1,5 +1,5 @@
 <template>
-    <div class="wrongbook-wrapper" v-show="!state.isShowDetails">
+    <div class="wrongbook-wrapper" v-show="state.isShowContent == 1">
         <header class="wrongbook-header">
             <div class="header-left-con">
                 <div
@@ -280,7 +280,7 @@
                 </div>
                 <div class="con-right">
                     <LessonList
-                        v-model:isShowDetails="state.isShowDetails"
+                        v-model:isShowContent="state.isShowContent"
                         :currentWrongType="state.currentWrongType"
                         :parentSearch="searchForm"
                         :questionType="(state.QuestionType as any)"
@@ -291,14 +291,27 @@
             </div>
         </main>
     </div>
-    <div style="width: 100%" v-show="state.isShowDetails">
+    <div style="width: 100%" v-show="state.isShowContent == 2">
         <WrongDetails
-            v-model:isShowDetails="state.isShowDetails"
+            v-model:isShowContent="state.isShowContent"
             :currentWrongType="state.currentWrongType"
             :gradeName="state.gradeName"
             :dateRange="state.dateRange"
-        ></WrongDetails>
+        />
     </div>
+    <div style="width: 100%" v-show="state.isShowContent == 3">
+        <GenerateExercise
+            v-model:isShowContent="state.isShowContent"
+            :gradeName="state.gradeName"
+            :preContent="state.preContent"
+            :exerciseData="state.exerciseData"
+        />
+    </div>
+    <QuestionBasket
+        @basketGenerateExercise="basketGenerateExercise"
+        v-model:isShowContent="state.isShowContent"
+        v-show="state.isShowContent != 3"
+    />
 </template>
 
 <script lang="ts" setup>
@@ -310,6 +323,8 @@ import LeftThree from "./components/LeftThree.vue";
 import LeftFour from "./components/LeftFour.vue";
 import LessonList from "./components/LessonList.vue";
 import WrongDetails from "./components/WrongDetails.vue";
+import QuestionBasket from "./components/QuestionBasket.vue";
+import GenerateExercise from "./components/GenerateExercise.vue";
 import { get, STORAGE_TYPES } from "@/utils/storage";
 import { getFormatDate } from "@/utils";
 import useWrongBook from "./hooks/useWrongBook";
@@ -323,8 +338,9 @@ const state = reactive({
     classList: "",
     //当前选中的班级
     currentClassId: classList.length ? classList[0]?.ID : "",
-    //是否显示详情页面
-    isShowDetails: false,
+    //显示内容：1列表 2详情 3练习
+    isShowContent: 1,
+    preContent: 0,
     //当前选择的那个类型展示错题本
     currentWrongType: 1,
     //是否是空态
@@ -414,6 +430,7 @@ const state = reactive({
         },
     ],
     gradeName: classList.length ? classList[0]?.Name : "",
+    exerciseData: [],
 });
 const activeName = ref(0);
 const scrollResultWidth = ref(0); //transform滚动的距离
@@ -463,6 +480,12 @@ watch(
         console.log(val);
     }
 );
+//生成练习
+const basketGenerateExercise = (data: any, type: number) => {
+    console.log("生成练习", data, type);
+    state.preContent = type;
+    state.exerciseData = data;
+};
 onMounted(() => {
     nextTick(() => {
         setTimeout(() => {
@@ -633,6 +656,7 @@ const switchClass = (value: any) => {
         margin-top: 8px;
         background-color: #ffffff;
         height: calc(100% - 66px);
+        position: relative;
 
         .top-search {
             height: 56px;
