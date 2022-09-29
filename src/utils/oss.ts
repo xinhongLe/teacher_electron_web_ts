@@ -140,8 +140,6 @@ export const getOssUrl = async (key: string, bucket: string) => {
         stsToken: securityToken,
         bucket: bucket,
     });
-    console.log("client", client);
-
     const url = client.signatureUrl(key);
     return url;
 };

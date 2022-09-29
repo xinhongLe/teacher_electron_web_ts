@@ -1,6 +1,16 @@
 <template>
-    <div class="basket-dialog">
-        <el-badge v-if="isSmallBasket" :value="0" class="question-basket">
+    <div
+        class="basket-dialog"
+        draggable="true"
+        @dragstart="dragstart($event)"
+        @dragend="dragend($event)"
+    >
+        <el-badge
+            v-if="isSmallBasket"
+            :style="`right:${elRight}px;bottom:${elBottom}px`"
+            :value="0"
+            class="question-basket"
+        >
             <div @click="isSmallBasket = false">
                 <div class="basket">
                     <div class="images">
@@ -13,7 +23,11 @@
                 </div>
             </div>
         </el-badge>
-        <div v-else class="question-large-basket">
+        <div
+            v-else
+            class="question-large-basket"
+            :style="`right:${elRight}px;bottom:${elBottom}px`"
+        >
             <div class="basket-title">
                 <div></div>
                 <div class="titles">
@@ -72,7 +86,13 @@
                 <div class="footer-btn" @click="generateExercise">生成练习</div>
             </div>
         </div>
-        <el-dialog v-model="dialogVisible" :show-close="false" width="360px">
+        <el-dialog
+            v-model="dialogVisible"
+            :show-close="false"
+            width="360px"
+            :append-to-body="true"
+            custom-class="cus-basket-dialog"
+        >
             <template #title>
                 <span></span>
                 <span class="my-header">提示</span>
@@ -119,14 +139,31 @@ const generateExercise = () => {
     emit("update:isShowContent", 3);
     emit("basketGenerateExercise", [], props.isShowContent);
 };
+const startclientX = ref(0);
+const startclientY = ref(0);
+const elRight = ref(50);
+const elBottom = ref(70);
+// 拖拽开始事件
+const dragstart = (e: any) => {
+    startclientX.value = e.clientX; // 记录拖拽元素初始位置
+    startclientY.value = e.clientY;
+};
+// 拖拽完成事件
+const dragend = (e: any) => {
+    console.log("eeeeee", e);
+    let x = startclientX.value - e.clientX; // 计算偏移量
+    let y = startclientY.value - e.clientY;
+    elRight.value += x; // 实现拖拽元素随偏移量移动
+    elBottom.value += y;
+};
 </script>
 <style lang="scss" scoped>
 .basket-dialog {
     .question-basket {
         cursor: pointer;
         position: absolute;
-        bottom: 7%;
-        right: 3%;
+        bottom: 70px;
+        right: 50px;
         width: 158px;
         height: 46px;
         background: #242b3a;
@@ -158,8 +195,8 @@ const generateExercise = () => {
     }
     .question-large-basket {
         position: absolute;
-        bottom: 7%;
-        right: 1%;
+        bottom: 70px;
+        right: 50px;
         width: 276px;
         height: 393px;
         background: #242b3a;
@@ -168,6 +205,7 @@ const generateExercise = () => {
             0px 12px 48px 16px rgba(0, 0, 0, 0.03);
         border-radius: 8px;
         .basket-title {
+            cursor: pointer;
             width: 100%;
             height: 48px;
             background: #2f3544;
@@ -256,18 +294,19 @@ const generateExercise = () => {
             }
         }
     }
-
-    :deep(.el-dialog) {
-        border-radius: 8px;
-        position: absolute;
-        left: 0;
-        top: 0;
-        bottom: 0;
-        right: 0;
-        margin: auto;
-        height: 245px;
-    }
-    :deep(.el-dialog__header) {
+}
+</style>
+<style lang="scss">
+.cus-basket-dialog {
+    border-radius: 8px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    margin: auto;
+    height: 245px;
+    .el-dialog__header {
         padding: 15px;
         display: flex;
         justify-content: space-between;
@@ -284,7 +323,7 @@ const generateExercise = () => {
             font-weight: 600;
         }
     }
-    :deep(.el-dialog__body) {
+    .el-dialog__body {
         .dialog-content {
             display: flex;
             align-items: center;

@@ -52,6 +52,7 @@ export default () => {
                 value: 3,
             },
         ],
+        currentHomeworkBookId: [],
     });
     //获取下拉数据
     const queryKnowledgeLabList = async (params: KnowledgeLabParams) => {

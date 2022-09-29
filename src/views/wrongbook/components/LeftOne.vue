@@ -29,19 +29,25 @@
         </div>
         <div class="leftone-list">
             <div
+                v-if="state.lessonList.length"
                 class="list-item"
                 :class="
-                    item.PaperId == state.currentLessonIndex ? 'isActive' : ''
+                    item.ClassPaperId == state.currentLessonIndex
+                        ? 'isActive'
+                        : ''
                 "
                 v-for="item in (state.lessonList as any)"
-                :key="item.PaperId"
+                :key="item.ClassPaperId"
                 @click="switchLessonCard(item)"
             >
                 <div class="item-top">
                     <div class="item-top-con">
                         <div class="top-icon">
                             <img
-                                v-if="item.PaperId == state.currentLessonIndex"
+                                v-if="
+                                    item.ClassPaperId ==
+                                    state.currentLessonIndex
+                                "
                                 src="~@/assets/images/wrongbook/icon_timu_active.png"
                                 alt=""
                             />
@@ -63,6 +69,7 @@
                     }}</span> -->
                 </div>
             </div>
+            <p v-else style="text-align: center; margin-top: 20%">暂无数据</p>
         </div>
     </div>
 </template>
@@ -86,7 +93,12 @@ const props = defineProps({
         default: null,
         required: true,
     },
+    currentHomeworkBookId: {
+        type: Array,
+        default: () => [],
+    },
 });
+const emit = defineEmits(["update:currentHomeworkBookId"]);
 //数据源
 const state = reactive({
     currentLessonIndex: "",
@@ -118,7 +130,7 @@ const debounce = (func: Function, wait: number, params: any) => {
 //切换左侧课程卡片
 const switchLessonCard = (item: any) => {
     console.log(item);
-    state.currentLessonIndex = item.PaperId;
+    state.currentLessonIndex = item.ClassPaperId;
     if (state.currentLessonIndex) {
         emitter.emit("errorBookEmit", {
             id: state.currentLessonIndex,
@@ -141,7 +153,7 @@ const queryLeftMenuByHomeWork = async (params: LeftMenuParams) => {
         state.lessonList = res.result;
         const lessonData: any = state.lessonList[0];
         state.currentLessonIndex = state.lessonList.length
-            ? lessonData?.PaperId
+            ? lessonData?.ClassPaperId
             : "";
         const currentLessonName = state.lessonList.length
             ? lessonData?.PaperName
@@ -163,11 +175,17 @@ const queryLeftMenuByHomeWork = async (params: LeftMenuParams) => {
 //改变左侧书册下拉
 const changeBook = (value: string) => {
     console.log(value);
+    emit("update:currentHomeworkBookId", value);
     if (value && value.length) {
         form.value.BookId = value[value.length - 1];
     } else {
         form.value.BookId = "";
     }
+};
+const initData = (v: any) => {
+    form.value.BookId = v ? v[2] : "";
+    const params = Object.assign(form.value, props.parentSearch);
+    queryLeftMenuByHomeWork(params);
 };
 watch(
     () => props.parentSearch,
@@ -185,22 +203,31 @@ watch(
     () => subjectPublisherBookList.value,
     (v) => {
         console.log("subjectPublisherBookList.value", v);
+        console.log(
+            "----------currentHomeworkBookId",
+            props.currentHomeworkBookId
+        );
         if (!v.length) return;
-        state.currentBookId = [
-            v[0].Value,
-            v[0].Children![0].Value,
-            v[0].Children![0].Children![0].Value,
-        ];
+        if (props.currentHomeworkBookId?.length) {
+            state.currentBookId = props.currentHomeworkBookId as any;
+            initData(state.currentBookId);
+        } else {
+            state.currentBookId = [
+                v[0].Value,
+                v[0].Children![0].Value,
+                v[0].Children![0].Children![0].Value,
+            ];
+        }
     },
     { deep: true, immediate: true }
 );
+
 watch(
     () => state.currentBookId,
     (v) => {
         console.log("vvvv", v);
-        form.value.BookId = v ? v[2] : "";
-        const params = Object.assign(form.value, props.parentSearch);
-        queryLeftMenuByHomeWork(params);
+        if (!v.length) return;
+        initData(v);
     },
     { deep: true, immediate: true }
 );

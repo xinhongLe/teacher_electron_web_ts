@@ -175,7 +175,7 @@
                                                 item.TotalWrong) /
                                                 item.Total) *
                                                 100
-                                        )
+                                        ).toFixed(1)
                                     }}%
                                 </p>
                             </div>
@@ -213,7 +213,7 @@
                                                     item.TotalRight +
                                                     item.TotalWrong)) *
                                                 100
-                                        )
+                                        ).toFixed(1)
                                     }}%
                                 </p>
                             </div>
@@ -549,12 +549,12 @@ const openSimilarQuestion = (data: any) => {
     state.pureQuestionVisible = true;
     state.currentQuestionId = data.QuestionId;
     if (data.IsAnyPureQuestion) {
-        nextTick(() => {
-            state.resourceData = {
-                type: 0,
-                id: data.QuestionId,
-            };
-        });
+        // nextTick(() => {
+        state.resourceData = {
+            type: 0,
+            id: data.QuestionId,
+        };
+        // });
     }
 };
 //过滤分层错误率
@@ -725,11 +725,12 @@ const addQuestionBasket = (data: any) => {
 };
 //过滤当前的题目是否在错题栏
 const formatInBasket = (data: any) => {
-    return false;
+    return true;
     // const basketList = store.state.wrongbook.questionBasket.map((item: any) => {
     //     return item.QuestionId;
     // });
     // if (basketList.includes(data.QuestionId)) {
+
     //     return false;
     // } else {
     //     return true;

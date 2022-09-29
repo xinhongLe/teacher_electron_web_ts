@@ -1,7 +1,7 @@
 <template>
     <div class="wrongbook-wrapper" v-show="state.isShowContent == 1">
         <header class="wrongbook-header">
-            <div class="header-left-con">
+            <div class="header-left-con" style="max-width: 30%">
                 <div
                     style="padding-right: 10px; cursor: pointer"
                     @click="fnPrev()"
@@ -26,6 +26,7 @@
                         <div
                             @click="switchClass(item)"
                             class="class-item"
+                            :key="item.ID"
                             :class="
                                 item.ID == state.currentClassId
                                     ? 'isActive'
@@ -40,8 +41,9 @@
                 <div
                     style="padding-left: 10px; cursor: pointer"
                     @click="fnNext()"
-                    v-if="isShowIcon && noScrollRight"
+                    v-if="isShowIcon"
                 >
+                    <!-- v-if="isShowIcon && noScrollRight"  -->
                     <img
                         src="~@/assets/images/wrongbook/icon_right_qiehuan.png"
                         alt=""
@@ -259,6 +261,9 @@
                         v-if="state.currentWrongType == 1"
                         :parentSearch="searchForm"
                         :currentWrongType="state.currentWrongType"
+                        v-model:currentHomeworkBookId="
+                            state.currentHomeworkBookId
+                        "
                     ></LeftOne>
                     <LeftTwo
                         v-if="state.currentWrongType == 2"
@@ -268,6 +273,9 @@
                         v-if="state.currentWrongType == 3"
                         :currentWrongType="state.currentWrongType"
                         :parentSearch="searchForm"
+                        v-model:currentChapterBookId="
+                            state.currentChapterBookId
+                        "
                     >
                     </LeftThree>
                     <LeftFour
@@ -275,6 +283,7 @@
                         :currentWrongType="state.currentWrongType"
                         :parentSearch="searchForm"
                         :gradeId="gradeId"
+                        v-model:currentLessonId="state.currentLessonId"
                     >
                     </LeftFour>
                 </div>
@@ -305,6 +314,7 @@
             :gradeName="state.gradeName"
             :preContent="state.preContent"
             :exerciseData="state.exerciseData"
+            @onBackWrongBook="onBackWrongBook"
         />
     </div>
     <QuestionBasket
@@ -343,6 +353,12 @@ const state = reactive({
     preContent: 0,
     //当前选择的那个类型展示错题本
     currentWrongType: 1,
+    //存下当前选择bookid-作业
+    currentHomeworkBookId: [],
+    //存下当前选择bookid-章节
+    currentChapterBookId: [],
+    //存下当前选择的知识课程id
+    currentLessonId: "",
     //是否是空态
     isEmpty: true,
     //问题类型
@@ -374,12 +390,12 @@ const state = reactive({
     //时间类型按钮list
     dateButtonList: [
         {
-            id: 1,
-            name: "今日",
-        },
-        {
             id: 2,
             name: "昨日",
+        },
+        {
+            id: 1,
+            name: "今日",
         },
         {
             id: 3,
@@ -434,7 +450,7 @@ const state = reactive({
 });
 const activeName = ref(0);
 const scrollResultWidth = ref(0); //transform滚动的距离
-const signleWidth = ref(70); //单个流程的宽度
+const signleWidth = ref(90); //单个流程的宽度
 const currentClickNumber = ref(0);
 const noScrollRight = ref(true);
 //作业维度排序字段
@@ -454,6 +470,14 @@ const sortDataName = ref({
     //当前选择的排序字段
     currentSortConName: "平均错误率",
 });
+console.log("错题本页面.......");
+watch(
+    () => state.currentHomeworkBookId,
+    (val) => {
+        console.log("currentHomeworkBookId", val);
+    },
+    { deep: true }
+);
 
 //监听日期区间
 watch(
@@ -571,6 +595,10 @@ const switchClass = (value: any) => {
     state.gradeName = value.Name;
     console.log("gradeId.value", gradeId.value);
 };
+//返回到班级错题本页面
+const onBackWrongBook = () => {
+    state.isShowContent = 1;
+};
 </script>
 
 <style lang="scss" scoped>
@@ -590,7 +618,7 @@ const switchClass = (value: any) => {
         justify-content: space-between;
         align-items: center;
         .header-left-con {
-            max-width: 40%;
+            // max-width: 40%;
             display: flex;
             justify-content: space-between;
             align-items: center;

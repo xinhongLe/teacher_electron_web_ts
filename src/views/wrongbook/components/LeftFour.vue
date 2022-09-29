@@ -42,7 +42,15 @@
     </div>
 </template>
 <script lang="ts" setup>
-import { reactive, ref, defineProps, onMounted, watch, provide } from "vue";
+import {
+    reactive,
+    ref,
+    defineProps,
+    onMounted,
+    watch,
+    provide,
+    defineEmits,
+} from "vue";
 import Tree from "./tree/index.vue";
 import { Search } from "@element-plus/icons-vue";
 import { searchLeftMeunByKnowledge, LeftMenuParams } from "@/api/errorbook";
@@ -64,7 +72,12 @@ const props = defineProps({
         type: String,
         default: () => "",
     },
+    currentLessonId: {
+        type: String,
+        default: () => "",
+    },
 });
+const emit = defineEmits(["update:currentLessonId"]);
 
 //搜索区域
 const form = ref({
@@ -158,7 +171,11 @@ watch(
     () => knowledgeLabList.value,
     (val) => {
         if (val.length) {
-            form.value.Id = val[0].Id;
+            if (props.currentLessonId) {
+                form.value.Id = props.currentLessonId;
+            } else {
+                form.value.Id = val[0].Id;
+            }
             form.value = Object.assign(form.value, props.parentSearch);
             state.lessonName = val[0].Name;
             queryLeftMeunByKnowledge(form.value);
@@ -211,6 +228,7 @@ const changeKnowledgeLab = (data: string) => {
     state.lessonName = knowledgeLabList.value.find(
         (item: any) => item.Id == data
     )?.Name;
+    emit("update:currentLessonId", data);
     form.value.Id = data;
     queryLeftMeunByKnowledge(form.value);
 };

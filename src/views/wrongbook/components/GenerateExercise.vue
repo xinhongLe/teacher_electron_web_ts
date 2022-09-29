@@ -10,7 +10,9 @@
                 <div class="title" v-if="currentSetp == 1">
                     {{ props.gradeName }}错题复习
                 </div>
-                <div class="title" v-if="currentSetp == 2">布置作业</div>
+                <div class="title" v-if="currentSetp == 2 || currentSetp == 3">
+                    布置作业
+                </div>
             </div>
         </header>
         <template v-if="currentSetp == 1">
@@ -89,10 +91,29 @@
             </main>
             <div class="exercise-footer" style="width: 100%">
                 <div class="btn download-btn">下载为word</div>
-                <div class="btn next-btn" @click="">确认布置</div>
+                <div class="btn next-btn" @click="assignHomework">确认布置</div>
             </div>
         </template>
-
+        <!-- 作业布置完成 -->
+        <template v-if="currentSetp == 3">
+            <div class="homework-main-complete">
+                <div class="homework-complete">
+                    <img
+                        src="~@/assets/images/wrongbook/pic_finish_buzhi.png"
+                        alt=""
+                    />
+                    <div class="text">作业布置完成</div>
+                    <div class="btns">
+                        <div class="btn leftbtn" @click="checkHomeworkList">
+                            查阅作业列表
+                        </div>
+                        <div class="btn rightbtn" @click="backWrongBookPage">
+                            返回错题本
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </template>
         <!-- 删除提示 -->
         <el-dialog v-model="dialogVisible" :show-close="false" width="360px">
             <template #title>
@@ -105,7 +126,7 @@
                     />
                 </span>
             </template>
-            <div class="dialog-content">
+            <div class="dialog-content" style="background-color: #fff">
                 <img
                     src="~@/assets/images/wrongbook/icon_tips_popup.png"
                     alt=""
@@ -148,11 +169,11 @@
             custom-class="studentDialog"
             :show-close="false"
             v-model="studentVisible"
-            width="80%"
+            width="70%"
         >
             <template #title>
                 <span></span>
-                <span class="my-header">修改作业名称</span>
+                <span class="my-header">选择学生-{{ props.gradeName }}</span>
                 <span @click="studentVisible = false">
                     <img
                         src="~@/assets/images/wrongbook/icon_close_popup_gray.png"
@@ -160,7 +181,61 @@
                     />
                 </span>
             </template>
-            <div class="dialog-content"></div>
+            <div class="dialog-content">
+                <div class="content-left">
+                    <div class="student-tag">
+                        <el-checkbox-group
+                            v-model="checkedTags"
+                            @change="handleCheckedTagChange"
+                        >
+                            <div
+                                class="tag-check"
+                                @click.stop="currentTags = tag.value"
+                                :class="{ isActive: currentTags == tag.value }"
+                                v-for="tag in state.studentTags"
+                                :key="tag.value"
+                            >
+                                <div class="left">
+                                    <el-checkbox
+                                        :label="tag.label"
+                                        >{{
+                                    }}</el-checkbox>
+                                    <span class="text">{{ tag.label }}</span>
+                                    <span class="count">({{ tag.count }})</span>
+                                </div>
+                                <div class="right">
+                                    {{ tag.selectedCount }}
+                                </div>
+                            </div>
+                        </el-checkbox-group>
+                    </div>
+                </div>
+                <div class="student-right">
+                    <el-checkbox-group
+                        v-model="checkedStudent"
+                        @change="handleCheckedStuChange"
+                    >
+                        <div
+                            class="student-item"
+                            v-for="item in state.studentList"
+                            :key="item.id"
+                        >
+                            <div class="left">
+                                <el-checkbox :label="item.id">{{}}</el-checkbox>
+                            </div>
+                            <div class="right">
+                                <img src="" alt="" />
+                                <div class="name-num">
+                                    <span class="name">{{ item.name }}</span>
+                                    <span class="num">
+                                        {{ item.number }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </el-checkbox-group>
+                </div>
+            </div>
             <div class="custom-footers">
                 <div class="footer-left">
                     <el-checkbox
@@ -170,7 +245,7 @@
                     />
                     <span class="selected"> 当前已选{{ 16 }}人 </span>
                 </div>
-                <div class="cobtn primBtn">确定</div>
+                <div class="primBtn">确定</div>
             </div>
         </el-dialog>
     </div>
@@ -179,7 +254,8 @@
 import { defineEmits, defineProps, watch, ref, reactive } from "vue";
 import { FileInfo } from "@/types/lookQuestion";
 import { getOssUrl } from "@/utils/oss";
-const emit = defineEmits(["update:isShowContent"]);
+import { useRouter } from "vue-router";
+const emit = defineEmits(["update:isShowContent", "onBackWrongBook"]);
 const props = defineProps({
     isShowContent: {
         type: Number,
@@ -216,6 +292,12 @@ const currentSetp = ref(1);
 const studentVisible = ref(false);
 //是否全选
 const checkedAll = ref(false);
+//选中的学生层级
+const checkedTags = ref([]);
+//选中的学生
+const checkedStudent = ref([]);
+//当前点击的学生层级
+const currentTags = ref(0);
 const state = reactive({
     options: [
         {
@@ -235,6 +317,53 @@ const state = reactive({
             label: "未标记学生 ( 4 / 4 )",
         },
     ],
+    studentTags: [
+        {
+            label: "A层学生",
+            value: 1,
+            count: 4,
+            selectedCount: 0,
+        },
+        {
+            label: "B层学生",
+            value: 2,
+            count: 8,
+            selectedCount: 0,
+        },
+        {
+            label: "C层学生",
+            value: 3,
+            count: 9,
+            selectedCount: 0,
+        },
+        {
+            label: "未标记学生",
+            value: 4,
+            count: 13,
+            selectedCount: 0,
+        },
+    ],
+    studentList: [
+        { id: 1, avater: "", name: "查蓓", number: "DSD334" },
+        {
+            id: 2,
+            avater: "",
+            name: "查蓓",
+            number: "DSD334",
+        },
+        {
+            id: 3,
+            avater: "",
+            name: "查蓓",
+            number: "DSD334",
+        },
+        {
+            id: 4,
+            avater: "",
+            name: "查蓓",
+            number: "DSD334",
+        },
+    ],
 });
 watch(
     () => props.exerciseData,
@@ -246,7 +375,14 @@ watch(
     },
     { deep: true, immediate: true }
 );
-
+//学生层级选中改变
+const handleCheckedTagChange = (val: any) => {
+    console.log(val);
+};
+//学生选中改变
+const handleCheckedStuChange = (val: any) => {
+    console.log(val);
+};
 // const getFileList = (fileData: any) => {
 //     console.log("fileData", fileData);
 //     const exerciseData = fileData.map((item: any) => {
@@ -279,6 +415,19 @@ const editHomeowrkName = (name: string) => {
 const selectStudent = (data: any) => {
     console.log("选择学生", data);
     studentVisible.value = true;
+};
+//确定布置作业
+const assignHomework = () => {
+    currentSetp.value = 3;
+};
+//返回班级错题本页面
+const backWrongBookPage = () => {
+    emit("onBackWrongBook", props.preContent);
+};
+const router = useRouter();
+//查询作业列表
+const checkHomeworkList = () => {
+    router.push("/homework");
 };
 //返回列表页
 const backList = () => {
@@ -395,6 +544,7 @@ const backList = () => {
         background: #ffffff;
         margin-top: 10px;
         padding: 16px;
+        position: relative;
         .homework-top {
             padding: 16px 0;
             .types {
@@ -480,6 +630,54 @@ const backList = () => {
             }
         }
     }
+    .homework-main-complete {
+        width: 100%;
+        height: calc(100% - 72px);
+        background: #ffffff;
+        margin-top: 10px;
+        padding: 16px;
+        position: relative;
+        .homework-complete {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            top: 0;
+            margin: auto;
+            width: 15%;
+            height: 40%;
+            text-align: center;
+            .text {
+                font-size: 14px;
+                font-family: HarmonyOS_Sans_SC;
+                color: #19203d;
+            }
+            .btns {
+                margin-top: 32px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                .btn {
+                    width: 104px;
+                    height: 32px;
+                    background: #ffffff;
+                    border-radius: 4px;
+                    border: 1px solid #e0e2e7;
+                    font-size: 12px;
+                    text-align: center;
+                    line-height: 32px;
+                    cursor: pointer;
+                }
+                .leftbtn {
+                    color: #19203d;
+                }
+                .rightbtn {
+                    background: #4b71ee;
+                    color: #ffffff;
+                }
+            }
+        }
+    }
 
     :deep(.el-dialog) {
         border-radius: 8px;
@@ -509,6 +707,7 @@ const backList = () => {
         }
         .el-dialog__body {
             .dialog-content {
+                background-color: #f5f6fa;
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -558,12 +757,136 @@ const backList = () => {
         }
         .dialog-content {
             height: calc(100% - 64px);
+            display: flex;
+            justify-content: space-between;
+            .content-left {
+                width: 23%;
+                height: 100%;
+                background-color: #ffffff;
+                .student-tag {
+                    .el-checkbox-group {
+                        font-size: 14px;
+                        .tag-check {
+                            cursor: pointer;
+                            padding: 6px 16px;
+                            background-color: #ffffff;
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: center;
+                            .left {
+                                display: flex;
+                                align-items: center;
+                                color: #19203d;
+                                .text {
+                                    padding-left: 5px;
+                                }
+                                .count {
+                                    padding-left: 5px;
+                                }
+                            }
+                            .right {
+                                width: 18px;
+                                height: 18px;
+                                background: #4b71ee;
+                                color: #ffffff;
+                                border-radius: 50%;
+                                text-align: center;
+                                line-height: 18px;
+                                font-size: 12px;
+                            }
+                        }
+                        .isActive {
+                            position: relative;
+                            background: #e6ecff;
+                            .left {
+                                color: #4b71ee;
+                            }
+                        }
+                        .isActive::after {
+                            content: "";
+                            display: block;
+                            position: absolute;
+                            width: 3px;
+                            height: 100%;
+                            background: #4b71ee;
+                            right: 0;
+                        }
+                    }
+                }
+            }
+            .student-right {
+                flex: 1;
+                height: 100%;
+                .el-checkbox-group {
+                    font-size: 14px;
+                    display: flex;
+                    flex-wrap: wrap;
+                    padding-top: 20px;
+                    padding-left: 20px;
+                    .student-item {
+                        padding: 20px;
+                        width: 30%;
+                        display: flex;
+                        // justify-content: space-between;
+                        background-color: #ffffff;
+                        margin-right: 20px;
+                        margin-bottom: 20px;
+                        .right {
+                            margin-left: 15px;
+                            display: flex;
+                            align-items: center;
+                            img {
+                                width: 38px;
+                                height: 38px;
+                                border-radius: 50%;
+                            }
+                            .name-num {
+                                flex-direction: column;
+                                display: flex;
+                                justify-content: space-between;
+                                margin-left: 18px;
+                                height: 100%;
+                                .name {
+                                    font-size: 14px;
+                                    color: #19203d;
+                                }
+                                .num {
+                                    font-size: 12px;
+                                    color: #5f626f;
+                                    font-weight: normal;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
         .custom-footers {
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 12px 16px;
+            border-top: 1px solid #f5f6fa;
+            .footer-left {
+                display: flex;
+                align-items: center;
+                font-size: 14px;
+                font-family: HarmonyOS_Sans_SC;
+                color: #5f626f;
+                .selected {
+                    padding-left: 24px;
+                }
+            }
+            .primBtn {
+                cursor: pointer;
+                color: #ffffff;
+                background: #4b71ee;
+                border-radius: 4px;
+                width: 100px;
+                height: 32px;
+                line-height: 32px;
+                text-align: center;
+            }
         }
     }
 }

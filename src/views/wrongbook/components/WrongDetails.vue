@@ -571,8 +571,9 @@
                                 </div>
                                 <div
                                     @click.stop="expendStudent(item)"
-                                    v-if="item.Students?.length"
+                                    v-if="item.Students.filter((stu:any)=>stu.Result == 2)?.length"
                                 >
+                                    <!-- .filter((stu:any)=>stu.Result == 2) -->
                                     <img
                                         :src="
                                             item.isExpend
@@ -585,11 +586,12 @@
                             </div>
                             <div
                                 class="person-list"
-                                v-if="item.Students?.length && item.isExpend"
+                                v-if="item.Students.filter((stu:any)=>stu.Result == 2)?.length && item.isExpend"
                             >
+                                <!-- .filter((stu:any)=>stu.Result == 2) -->
                                 <div
                                     class="list-item"
-                                    v-for="person in item.Students"
+                                    v-for="person in item.Students.filter((stu:any)=>stu.Result == 2)"
                                     :key="person.StudentId"
                                     @click.stop="openErrorHistory(person)"
                                 >
@@ -618,12 +620,16 @@
                                         v-if="state.isRepeat"
                                     >
                                         <div class="wrong-count">
-                                            答错<span>{{ 2 }}</span
+                                            答错<span>{{
+                                                person.ErrorCount
+                                            }}</span
                                             >次
                                         </div>
                                         <div class="line"></div>
                                         <div class="practise-count">
-                                            练习<span>{{ 2 }}</span
+                                            练习<span>{{
+                                                person.TotalCount
+                                            }}</span
                                             >次
                                         </div>
                                     </div>
@@ -944,6 +950,9 @@ const formatTagDetails = () => {
                 //处理学生头像的
                 const url = await formatStudentImg(stu.HeadPortrait);
                 stu.url = url;
+                // if (state.isRepeat) {
+                //     stu.Result = 2;
+                // }
                 console.log("学生头像", url);
             });
         }
@@ -967,7 +976,7 @@ const formatPreErrorIcon = (data: any) => {
     const preData: any = preDetailList.find((item: any) => {
         return item.TagLevel == data.TagLevel;
     });
-    console.log("data, preData", data, preData);
+    // console.log("data, preData", data, preData);
     if (data.WrongRatio > preData.WrongRatio) {
         return 1;
     } else if (data.WrongRatio < preData.WrongRatio) {
