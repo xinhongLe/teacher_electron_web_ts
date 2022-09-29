@@ -571,7 +571,7 @@
                                 </div>
                                 <div
                                     @click.stop="expendStudent(item)"
-                                    v-if="item.Students.filter((stu:any)=>stu.Result == 2)?.length"
+                                    v-if="item.Students?.length"
                                 >
                                     <!-- .filter((stu:any)=>stu.Result == 2) -->
                                     <img
@@ -586,12 +586,12 @@
                             </div>
                             <div
                                 class="person-list"
-                                v-if="item.Students.filter((stu:any)=>stu.Result == 2)?.length && item.isExpend"
+                                v-if="item.Students?.length && item.isExpend"
                             >
                                 <!-- .filter((stu:any)=>stu.Result == 2) -->
                                 <div
                                     class="list-item"
-                                    v-for="person in item.Students.filter((stu:any)=>stu.Result == 2)"
+                                    v-for="person in item.Students"
                                     :key="person.StudentId"
                                     @click.stop="openErrorHistory(person)"
                                 >
@@ -878,6 +878,7 @@ const state = reactive({
     historyData: {
         StudentID: "",
         QuestionID: "",
+        Result: 2,
     },
     errorTitle: "",
     detailListIndex: 0,

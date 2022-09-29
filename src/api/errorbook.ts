@@ -133,6 +133,9 @@ export interface historyStudylParams {
 export interface historyParams {
     StudentID: string;
     QuestionId: string;
+    // StartDate: string;
+    // EndDate: string;
+    Result: number;
 }
 
 type GetLeftMenuByHomeWork = IResponse<LeftMenuByHomeWork[]>;
