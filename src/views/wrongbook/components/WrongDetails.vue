@@ -878,6 +878,7 @@ const state = reactive({
     historyData: {
         StudentID: "",
         QuestionID: "",
+        Result: 2,
     },
     errorTitle: "",
     detailListIndex: 0,
