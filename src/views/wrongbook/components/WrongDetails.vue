@@ -571,8 +571,9 @@
                                 </div>
                                 <div
                                     @click.stop="expendStudent(item)"
-                                    v-if="item.Students?.length"
+                                    v-if="item.Students.filter((stu:any)=>stu.Result == 2)?.length"
                                 >
+                                    <!-- .filter((stu:any)=>stu.Result == 2) -->
                                     <img
                                         :src="
                                             item.isExpend
@@ -585,17 +586,24 @@
                             </div>
                             <div
                                 class="person-list"
-                                v-if="item.Students?.length && item.isExpend"
+                                v-if="item.Students.filter((stu:any)=>stu.Result == 2)?.length && item.isExpend"
                             >
+                                <!-- .filter((stu:any)=>stu.Result == 2) -->
                                 <div
                                     class="list-item"
-                                    v-for="person in item.Students"
+                                    v-for="person in item.Students.filter((stu:any)=>stu.Result == 2)"
                                     :key="person.StudentId"
                                     @click.stop="openErrorHistory(person)"
                                 >
                                     <div class="top-data">
                                         <div class="images">
-                                            <img :src="person.url" alt="" />
+                                            <img
+                                                :src="
+                                                    person.url ||
+                                                    require('../../..//assets/images/wrongbook/touxiang_student.png')
+                                                "
+                                                alt=""
+                                            />
                                         </div>
                                         <div class="name-number">
                                             <p class="name">
@@ -612,12 +620,16 @@
                                         v-if="state.isRepeat"
                                     >
                                         <div class="wrong-count">
-                                            答错<span>{{ 2 }}</span
+                                            答错<span>{{
+                                                person.ErrorCount
+                                            }}</span
                                             >次
                                         </div>
                                         <div class="line"></div>
                                         <div class="practise-count">
-                                            练习<span>{{ 2 }}</span
+                                            练习<span>{{
+                                                person.TotalCount
+                                            }}</span
                                             >次
                                         </div>
                                     </div>
@@ -723,6 +735,10 @@ const props = defineProps({
         type: Array,
         default: () => [],
     },
+    isShowContent: {
+        type: Number,
+        default: 0,
+    },
 });
 //过滤知识点
 const formatKnowledges = (data: any) => {
@@ -737,7 +753,9 @@ const formatKnowledges = (data: any) => {
 const formatFiles = async (data: any) => {
     if (!data) return;
     const { FileName, FilePath, Bucket, Extention } = data;
-    const key = `${FilePath}/${FileName}.${Extention}`;
+    const key = Extention
+        ? `${FilePath}/${FileName}.${Extention}`
+        : `${FilePath}/${FileName}`;
     const url = await getOssUrl(key, Bucket);
     state.errorFiles = url;
     console.log("文件----", url);
@@ -746,12 +764,14 @@ const formatFiles = async (data: any) => {
 const formatStudentImg = async (data: any) => {
     if (!data) return;
     const { FileName, FilePath, Bucket, Extention } = data;
-    const key = `${FilePath}/${FileName}.${Extention}`;
+    const key = Extention
+        ? `${FilePath}/${FileName}.${Extention}`
+        : `${FilePath}/${FileName}`;
     const url = await getOssUrl(key, Bucket);
     return url;
 };
 
-const emit = defineEmits(["update:isShowDetails"]);
+const emit = defineEmits(["update:isShowContent"]);
 //是否有同类题
 const isHasSimilarQuestion = ref(false);
 //题型
@@ -930,6 +950,9 @@ const formatTagDetails = () => {
                 //处理学生头像的
                 const url = await formatStudentImg(stu.HeadPortrait);
                 stu.url = url;
+                // if (state.isRepeat) {
+                //     stu.Result = 2;
+                // }
                 console.log("学生头像", url);
             });
         }
@@ -953,7 +976,7 @@ const formatPreErrorIcon = (data: any) => {
     const preData: any = preDetailList.find((item: any) => {
         return item.TagLevel == data.TagLevel;
     });
-    console.log("data, preData", data, preData);
+    // console.log("data, preData", data, preData);
     if (data.WrongRatio > preData.WrongRatio) {
         return 1;
     } else if (data.WrongRatio < preData.WrongRatio) {
@@ -1173,7 +1196,7 @@ const switchWrongItem = (item: any) => {
 };
 //返回列表页
 const backList = () => {
-    emit("update:isShowDetails", false);
+    emit("update:isShowContent", 1);
 };
 //展开收起学生列表
 const expendStudent = (item: any) => {

@@ -16,23 +16,26 @@ const initState = (): PreparationState => ({
         name: "",
         lessonId: "",
         originType: 0,
-        allWindowNames: []
+        allWindowNames: [],
     },
     selectLessonId: "",
     term: {
         id: "",
-        code: ""
-    }
+        code: "",
+    },
 });
 
-const mutations:MutationTree<PreparationState> = {
+const mutations: MutationTree<PreparationState> = {
     [MutationTypes.SET_SELECT_CHAPTER_ID](state, id: string) {
         state.selectChapterID = id;
     },
     [MutationTypes.SET_VIEW_COURSE_DETAIL_ING](state, flag: boolean) {
         state.isViewCourseDetailIng = flag;
     },
-    [MutationTypes.SET_SUBJECT_PUBLISHER_BOOK_VALUE](state, value: ICustomBookItem) {
+    [MutationTypes.SET_SUBJECT_PUBLISHER_BOOK_VALUE](
+        state,
+        value: ICustomBookItem
+    ) {
         state.subjectPublisherBookValue = value;
     },
     [MutationTypes.SET_IS_DRAGGING_ELEMENT](state, flag) {
@@ -47,23 +50,29 @@ const mutations:MutationTree<PreparationState> = {
     [MutationTypes.SET_SELECT_LESSON_ID](state, flag) {
         state.selectLessonId = flag;
     },
-    [MutationTypes.SET_EDIT_WINDOW_INFO](state, flag: PreparationState["editWindowInfo"]) {
+    [MutationTypes.SET_EDIT_WINDOW_INFO](
+        state,
+        flag: PreparationState["editWindowInfo"]
+    ) {
         state.editWindowInfo = flag;
     },
     [MutationTypes.PREPARATION_STUDENT_RESET_STATE](state) {
         Object.assign(state, initState());
     },
-    [MutationTypes.SET_SUBJECT_PUBLISHER_BOOK_LIST](state, bookList: IBookItem[]) {
+    [MutationTypes.SET_SUBJECT_PUBLISHER_BOOK_LIST](
+        state,
+        bookList: IBookItem[]
+    ) {
         state.subjectPublisherBookList = bookList;
     },
-    [MutationTypes.SET_TERM](state, term: { id: string; code: string; }) {
+    [MutationTypes.SET_TERM](state, term: { id: string; code: string }) {
         state.term = term;
-    }
+    },
 };
 
 const preparation: Module<PreparationState, RootState> = {
     state: initState,
-    mutations
+    mutations,
 };
 
 export default preparation;

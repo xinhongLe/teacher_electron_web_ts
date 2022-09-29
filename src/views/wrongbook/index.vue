@@ -1,7 +1,7 @@
 <template>
-    <div class="wrongbook-wrapper" v-show="!state.isShowDetails">
+    <div class="wrongbook-wrapper" v-show="state.isShowContent == 1">
         <header class="wrongbook-header">
-            <div class="header-left-con">
+            <div class="header-left-con" style="max-width: 30%">
                 <div
                     style="padding-right: 10px; cursor: pointer"
                     @click="fnPrev()"
@@ -26,6 +26,7 @@
                         <div
                             @click="switchClass(item)"
                             class="class-item"
+                            :key="item.ID"
                             :class="
                                 item.ID == state.currentClassId
                                     ? 'isActive'
@@ -40,8 +41,9 @@
                 <div
                     style="padding-left: 10px; cursor: pointer"
                     @click="fnNext()"
-                    v-if="isShowIcon && noScrollRight"
+                    v-if="isShowIcon"
                 >
+                    <!-- v-if="isShowIcon && noScrollRight"  -->
                     <img
                         src="~@/assets/images/wrongbook/icon_right_qiehuan.png"
                         alt=""
@@ -259,6 +261,9 @@
                         v-if="state.currentWrongType == 1"
                         :parentSearch="searchForm"
                         :currentWrongType="state.currentWrongType"
+                        v-model:currentHomeworkBookId="
+                            state.currentHomeworkBookId
+                        "
                     ></LeftOne>
                     <LeftTwo
                         v-if="state.currentWrongType == 2"
@@ -268,6 +273,9 @@
                         v-if="state.currentWrongType == 3"
                         :currentWrongType="state.currentWrongType"
                         :parentSearch="searchForm"
+                        v-model:currentChapterBookId="
+                            state.currentChapterBookId
+                        "
                     >
                     </LeftThree>
                     <LeftFour
@@ -275,12 +283,13 @@
                         :currentWrongType="state.currentWrongType"
                         :parentSearch="searchForm"
                         :gradeId="gradeId"
+                        v-model:currentLessonId="state.currentLessonId"
                     >
                     </LeftFour>
                 </div>
                 <div class="con-right">
                     <LessonList
-                        v-model:isShowDetails="state.isShowDetails"
+                        v-model:isShowContent="state.isShowContent"
                         :currentWrongType="state.currentWrongType"
                         :parentSearch="searchForm"
                         :questionType="(state.QuestionType as any)"
@@ -291,14 +300,28 @@
             </div>
         </main>
     </div>
-    <div style="width: 100%" v-show="state.isShowDetails">
+    <div style="width: 100%" v-show="state.isShowContent == 2">
         <WrongDetails
-            v-model:isShowDetails="state.isShowDetails"
+            v-model:isShowContent="state.isShowContent"
             :currentWrongType="state.currentWrongType"
             :gradeName="state.gradeName"
             :dateRange="state.dateRange"
-        ></WrongDetails>
+        />
     </div>
+    <div style="width: 100%" v-show="state.isShowContent == 3">
+        <GenerateExercise
+            v-model:isShowContent="state.isShowContent"
+            :gradeName="state.gradeName"
+            :preContent="state.preContent"
+            :exerciseData="state.exerciseData"
+            @onBackWrongBook="onBackWrongBook"
+        />
+    </div>
+    <QuestionBasket
+        @basketGenerateExercise="basketGenerateExercise"
+        v-model:isShowContent="state.isShowContent"
+        v-show="state.isShowContent != 3"
+    />
 </template>
 
 <script lang="ts" setup>
@@ -310,6 +333,8 @@ import LeftThree from "./components/LeftThree.vue";
 import LeftFour from "./components/LeftFour.vue";
 import LessonList from "./components/LessonList.vue";
 import WrongDetails from "./components/WrongDetails.vue";
+import QuestionBasket from "./components/QuestionBasket.vue";
+import GenerateExercise from "./components/GenerateExercise.vue";
 import { get, STORAGE_TYPES } from "@/utils/storage";
 import { getFormatDate } from "@/utils";
 import useWrongBook from "./hooks/useWrongBook";
@@ -323,10 +348,17 @@ const state = reactive({
     classList: "",
     //当前选中的班级
     currentClassId: classList.length ? classList[0]?.ID : "",
-    //是否显示详情页面
-    isShowDetails: false,
+    //显示内容：1列表 2详情 3练习
+    isShowContent: 1,
+    preContent: 0,
     //当前选择的那个类型展示错题本
     currentWrongType: 1,
+    //存下当前选择bookid-作业
+    currentHomeworkBookId: [],
+    //存下当前选择bookid-章节
+    currentChapterBookId: [],
+    //存下当前选择的知识课程id
+    currentLessonId: "",
     //是否是空态
     isEmpty: true,
     //问题类型
@@ -358,12 +390,12 @@ const state = reactive({
     //时间类型按钮list
     dateButtonList: [
         {
-            id: 1,
-            name: "今日",
-        },
-        {
             id: 2,
             name: "昨日",
+        },
+        {
+            id: 1,
+            name: "今日",
         },
         {
             id: 3,
@@ -414,10 +446,11 @@ const state = reactive({
         },
     ],
     gradeName: classList.length ? classList[0]?.Name : "",
+    exerciseData: [],
 });
 const activeName = ref(0);
 const scrollResultWidth = ref(0); //transform滚动的距离
-const signleWidth = ref(70); //单个流程的宽度
+const signleWidth = ref(90); //单个流程的宽度
 const currentClickNumber = ref(0);
 const noScrollRight = ref(true);
 //作业维度排序字段
@@ -437,6 +470,14 @@ const sortDataName = ref({
     //当前选择的排序字段
     currentSortConName: "平均错误率",
 });
+console.log("错题本页面.......");
+watch(
+    () => state.currentHomeworkBookId,
+    (val) => {
+        console.log("currentHomeworkBookId", val);
+    },
+    { deep: true }
+);
 
 //监听日期区间
 watch(
@@ -463,6 +504,12 @@ watch(
         console.log(val);
     }
 );
+//生成练习
+const basketGenerateExercise = (data: any, type: number) => {
+    console.log("生成练习", data, type);
+    state.preContent = type;
+    state.exerciseData = data;
+};
 onMounted(() => {
     nextTick(() => {
         setTimeout(() => {
@@ -548,6 +595,10 @@ const switchClass = (value: any) => {
     state.gradeName = value.Name;
     console.log("gradeId.value", gradeId.value);
 };
+//返回到班级错题本页面
+const onBackWrongBook = () => {
+    state.isShowContent = 1;
+};
 </script>
 
 <style lang="scss" scoped>
@@ -567,7 +618,7 @@ const switchClass = (value: any) => {
         justify-content: space-between;
         align-items: center;
         .header-left-con {
-            max-width: 40%;
+            // max-width: 40%;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -633,6 +684,7 @@ const switchClass = (value: any) => {
         margin-top: 8px;
         background-color: #ffffff;
         height: calc(100% - 66px);
+        position: relative;
 
         .top-search {
             height: 56px;

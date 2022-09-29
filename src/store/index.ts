@@ -13,8 +13,8 @@ export const store = createStore<RootState>({
         myStudent,
         userInfo,
         common,
-        preparation
-    }
+        preparation,
+    },
 });
 
 export const initAllState = () => {
