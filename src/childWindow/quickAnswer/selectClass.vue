@@ -157,6 +157,7 @@ export default defineComponent({
         }
         .active{
             background: #E6ECFF;
+            box-shadow: inset -4px 0px 0px #4b71ee;
             :deep(.el-checkbox__label){
                 color: #4B71EE;
             }
