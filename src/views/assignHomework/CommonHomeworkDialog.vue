@@ -34,7 +34,7 @@
                         size="medium"
                         type="primary"
                         plain
-                        icon="el-icon-plus"
+                        :icon="Plus"
                         @click="addRow"
                         >添加作业</el-button
                     >
@@ -84,7 +84,7 @@
                                         size="medium"
                                         type="primary"
                                         plain
-                                        icon="el-icon-paperclip"
+                                        :icon="Paperclip"
                                         >添加附件</el-button
                                     >
                                 </el-upload>
@@ -92,7 +92,7 @@
                                     @click="delRow(index)"
                                     size="medium"
                                     type="danger"
-                                    icon="el-icon-delete"
+                                    :icon="Delete"
                                 ></el-button>
                             </div>
                         </div>
@@ -131,6 +131,7 @@ import { defineComponent, reactive, ref, watch } from "vue";
 import { getBookImg } from "./api";
 import useBookList from "./hooks/useBookList";
 import { showImg } from "./logic";
+import { Plus, Paperclip, Delete } from "@element-plus/icons-vue";
 import FileType from "../../components/fileType/index.vue";
 const defaultBookImg = require("@/assets/indexImages/card_beike.png");
 export default defineComponent({
@@ -240,6 +241,9 @@ export default defineComponent({
             });
         });
         return {
+            Plus,
+            Paperclip,
+            Delete,
             handleClose,
             subjectPublisherBookList,
             cascaderProps,

@@ -12,21 +12,21 @@
                     <div>
                         <el-button
                             plain
-                            icon="el-icon-plus"
+                            :icon="Plus"
                             @click="commonHomeworkDialog = true"
                             >自定义作业</el-button
                         >
                         <el-button
                             plain
                             type="primary"
-                            icon="el-icon-plus"
+                            :icon="Plus"
                             @click="systemHomeworkDialog = true"
                             >在线作业</el-button
                         >
                         <el-button
                             plain
                             type="warning"
-                            icon="el-icon-plus"
+                            :icon="Plus"
                             @click="teachHomeworkDialog = true"
                             >教辅作业</el-button
                         >
@@ -95,6 +95,7 @@ import SystemHomeworkDialog from "./systemHomeworkDialog/index.vue";
 import SystemHomeworkItem from "./SystemHomeworkItem.vue";
 import TeachHomeworkDialog from "./TeachHomeworkDialog.vue";
 import TeachHomeworkItem from "./TeachHomeworkItem.vue";
+import { Plus } from "@element-plus/icons-vue";
 export default defineComponent({
     name: "AssignHomework",
     setup() {
@@ -193,6 +194,7 @@ export default defineComponent({
         };
 
         return {
+            Plus,
             classList,
             updateClassList,
             studentList,
@@ -221,7 +223,7 @@ export default defineComponent({
         SystemHomeworkDialog,
         SystemHomeworkItem,
         TeachHomeworkDialog,
-        TeachHomeworkItem
+        TeachHomeworkItem,
     }
 });
 </script>

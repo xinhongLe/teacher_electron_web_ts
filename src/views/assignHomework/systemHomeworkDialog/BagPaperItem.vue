@@ -29,7 +29,7 @@
                 size="medium"
                 type="primary"
                 plain
-                icon="el-icon-video-play"
+                :icon="VideoPlay"
                 @click="lookVideo(info.FileID)"
                 >查看视频</el-button
             >
@@ -38,7 +38,7 @@
                 size="medium"
                 type="primary"
                 plain
-                icon="el-icon-search"
+                :icon="Search"
                 @click="lookQuestions({ id: info.PaperID, type: 1, courseBagId, deleteQuestionIds })"
                 >查看题目</el-button
             >
@@ -50,11 +50,8 @@
 import { defineComponent, PropType } from "vue";
 import { getCourseBagType, lookQuestions, lookVideo, formatDuration } from "@/utils";
 import { BagPapers } from "@/types/preparation";
-import { Clock } from "@element-plus/icons-vue";
+import { VideoPlay, Search } from "@element-plus/icons-vue";
 export default defineComponent({
-    components: {
-        Clock
-    },
     props: {
         info: {
             type: Object as PropType<BagPapers>,
@@ -91,6 +88,8 @@ export default defineComponent({
         };
 
         return {
+            VideoPlay,
+            Search,
             lookVideo,
             getCourseBagType,
             _choicePaper,

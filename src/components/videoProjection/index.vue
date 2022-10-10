@@ -9,12 +9,12 @@
 <script lang="ts">
 import { computed, defineComponent, ref, watchEffect, watch, h, onUnmounted } from "vue";
 import * as mqtt from "mqtt";
-import { ElMessage, ElMessageBox, MessageHandle } from "element-plus";
+import { ElMessage, ElMessageBox, MessageHandler } from "element-plus";
 import { store } from "@/store";
 import Content from "./Content.vue";
 import { clearInterval, setInterval } from "timers";
 const imgError = require("@/assets/projection/img_error@2x.png");
-let messageHandle:MessageHandle;
+let messageHandle:MessageHandler;
 export default defineComponent({
     setup() {
         const isShow = ref(false);

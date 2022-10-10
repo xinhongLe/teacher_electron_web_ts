@@ -29,7 +29,7 @@
 
                 <div class="btn_list">
                     <el-button
-                        icon="el-icon-video-play"
+                        :icon="VideoPlay"
                         type="primary"
                         size="mini"
                         v-if="cont.HasVideo"
@@ -38,7 +38,7 @@
                         >查看视频</el-button
                     >
                     <el-button
-                        icon="el-icon-search"
+                        :icon="Search"
                         type="primary"
                         size="mini"
                         plain
@@ -62,6 +62,7 @@ import { defineComponent, inject, onMounted, onUnmounted, PropType, ref, watch, 
 import { lookVideo, lookQuestions, getCourseBagType } from "@/utils";
 import emitter from "@/utils/mitt";
 import { find, pullAllBy } from "lodash";
+import { VideoPlay, Search } from "@element-plus/icons-vue";
 export default defineComponent({
     props: {
         subjectPublisherBookValue: {
@@ -165,6 +166,8 @@ export default defineComponent({
         });
 
         return {
+            VideoPlay,
+            Search,
             bagLessonsList,
             lookVideo,
             onDrag,

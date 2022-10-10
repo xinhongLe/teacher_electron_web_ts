@@ -40,12 +40,12 @@
                     <template #dropdown>
                         <el-dropdown-menu trigger="click">
                             <el-dropdown-item
-                                icon="el-icon-edit-outline"
+                                :icon="Edit"
                                 @click="editMaterial(item)"
                                 >编辑</el-dropdown-item
                             >
                             <el-dropdown-item
-                                icon="el-icon-delete"
+                                :icon="Delete"
                                 @click="_deleteMaterial(item.ID)"
                                 >删除</el-dropdown-item
                             >
@@ -81,6 +81,7 @@ import { MutationTypes, store } from "@/store";
 import { openFile } from "@/utils";
 import FileType from "@/components/fileType/index.vue";
 import emitter from "@/utils/mitt";
+import { Edit, Delete } from "@element-plus/icons-vue";
 export default defineComponent({
     props: {
         lessonID: {
@@ -159,6 +160,8 @@ export default defineComponent({
         });
 
         return {
+            Edit,
+            Delete,
             materialList,
             openFile: _openFile,
             _deleteMaterial,

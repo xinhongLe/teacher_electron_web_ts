@@ -56,7 +56,7 @@
             <el-button
                 size="small"
                 type="danger"
-                icon="el-icon-delete"
+                :icon="Delete"
                 @click="del"
             ></el-button>
         </div>
@@ -67,6 +67,7 @@
 import { TeachHomework } from "@/types/assignHomework";
 import { computed, defineComponent, PropType } from "vue";
 import SelectLabel from "./SelectLabel.vue";
+import { Delete } from "@element-plus/icons-vue";
 export default defineComponent({
     props: {
         item: {
@@ -102,6 +103,7 @@ export default defineComponent({
             emit("update", props.realIndex, HomeWorkListItem.value);
         };
         return {
+            Delete,
             HomeWorkListItem,
             selectChange,
             pickerChange,

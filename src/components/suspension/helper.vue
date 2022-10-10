@@ -11,11 +11,12 @@
                 src="@/assets/images/suspension/pic_tittle_zhike@2x.png"
                 alt=""
             />
-            <div class="right-btns">
-                <i
-                    class="el-icon-refresh-right refresh"
-                    @click="clicKBuryPoint('刷新'), getGradeList()"
-                ></i>
+            <div class="right-btns ">
+<!--                <i-->
+<!--                    class="el-icon-refresh-right refresh"-->
+<!--                    @click="clicKBuryPoint('刷新'), getGradeList()"-->
+<!--                ></i>-->
+                <el-icon :size="18" class="refresh" @click="clicKBuryPoint('刷新'), getGradeList()"><RefreshRight /></el-icon>
                 <div
                     class="right-btn"
                     @click="clicKBuryPoint('最小化'), close()"
@@ -222,10 +223,7 @@
                                         @keydown.enter="getGradeList"
                                     >
                                         <template #append>
-                                            <el-button
-                                                icon="el-icon-search"
-                                                @click.stop="getGradeList"
-                                            ></el-button>
+                                            <el-button :icon="Search" @click.stop="getGradeList"></el-button>
                                         </template>
                                     </el-input>
                                 </div>
@@ -269,14 +267,7 @@
     </div>
 </template>
 <script lang="ts">
-import {
-    defineComponent,
-    onMounted,
-    onUnmounted,
-    PropType,
-    ref,
-    watch,
-} from "vue";
+import { defineComponent, onMounted, onUnmounted, PropType, ref, watch } from "vue";
 import { Game } from "./interface";
 import { getToolList } from "@/api/index";
 import { getOssUrl } from "@/utils/oss";
@@ -291,10 +282,11 @@ import usePageEvent from "@/hooks/usePageEvent";
 import { EVENT_TYPE } from "@/config/event";
 import { IYunInfo } from "@/types/login";
 import { UserInfoState } from "@/types/store";
+import { Search, RefreshRight } from "@element-plus/icons-vue";
 export default defineComponent({
+    components: { RefreshRight },
     setup(props, { emit }) {
         const { createBuryingPointFn } = usePageEvent("智课助手");
-
         const gameList = ref<Game[]>([]);
         const initBookList = [
             {
@@ -307,7 +299,7 @@ export default defineComponent({
             value: "Value",
             children: "Children",
             label: "Lable",
-            checkStrictly: true,
+            checkStrictly: true
         };
         const searchName = ref("");
         const selectBookList = ref(["全部教具"]);
@@ -316,6 +308,7 @@ export default defineComponent({
         let userInfo = get(STORAGE_TYPES.USER_INFO);
         const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
         const currentUserInfo:UserInfoState = get(STORAGE_TYPES.CURRENT_USER_INFO);
+        console.log(currentUserInfo, "currentUserInfo-----");
         const userId = ref(userInfo.userCenterUserID);
         const openBlackboard = () => {
             if (isElectron()) {
@@ -337,7 +330,7 @@ export default defineComponent({
             const data = {
                 name: searchName.value,
                 bookID: "",
-                bookIDs: [] as string[],
+                bookIDs: [] as string[]
             };
             if (selectBookList.value.length === 1) {
                 data.bookIDs =
@@ -369,7 +362,7 @@ export default defineComponent({
                 gameList.value = list.map((item, index) => ({
                     url: item.Url,
                     imgUrl: imgList[index],
-                    name: item.Name,
+                    name: item.Name
                 }));
             }
             isLoading.value = false;
@@ -469,15 +462,14 @@ export default defineComponent({
 
         const resourceList = ref([]);
         const onResources = (event: IpcRendererEvent, data: any) => {
-            if (data.type === "sysData")
-                resourceList.value = JSON.parse(data.resources || "[]");
+            if (data.type === "sysData") { resourceList.value = JSON.parse(data.resources || "[]"); }
             if (data.type === "switchClass") isSwitch.value = data.switch;
         };
-        //collapse 改变事件
+        // collapse 改变事件
         const handleChange = (data: []) => {
             // console.log(data);
         };
-        //智课助手界面里面-工具、按钮、最小化、退出、教具等的 点击埋点事件
+        // 智课助手界面里面-工具、按钮、最小化、退出、教具等的 点击埋点事件
         const clicKBuryPoint = (item: any) => {
             createBuryingPointFn(
                 EVENT_TYPE.PageClick,
@@ -485,11 +477,11 @@ export default defineComponent({
                 item.name || item
             );
         };
-        //智课助手界面上课模块资源点击 埋点事件
+        // 智课助手界面上课模块资源点击 埋点事件
         const classClicKBuryPoint = (resource: any) => {
             // console.log(resource);
             const data = Object.assign({}, resource);
-            //先赋值给第1项---
+            // 先赋值给第1项---
             data.TextBooks = data.TextBooks[0];
             // console.log(data);
             createBuryingPointFn(
@@ -499,11 +491,11 @@ export default defineComponent({
                 data
             );
         };
-        //当前点击是哪个展开/收起项
+        // 当前点击是哪个展开/收起项
         const currentClickCol = (item: string, name: string) => {
             const awayOrExpend = activeModes.value.includes(item)
                 ? "展开"
-                : "收起"; //点击的项是否在已展开的数组里
+                : "收起"; // 点击的项是否在已展开的数组里
             createBuryingPointFn(
                 EVENT_TYPE.PageClick,
                 `${awayOrExpend}${name}`,
@@ -527,7 +519,7 @@ export default defineComponent({
                 });
 
                 window.electron.ipcRenderer.send("attendClass", "main", {
-                    type: "sysData",
+                    type: "sysData"
                 });
 
                 window.electron.ipcRenderer.on("attendClass", onResources);
@@ -544,18 +536,19 @@ export default defineComponent({
         const openResource = (resource: any) => {
             window.electron.ipcRenderer.send("attendClass", "main", {
                 type: "openResource",
-                resource: JSON.stringify(resource),
+                resource: JSON.stringify(resource)
             });
         };
 
         const switchClass = () => {
             window.electron.ipcRenderer.send("attendClass", "main", {
-                type: "switchClass",
+                type: "switchClass"
             });
         };
 
         watch(selectBookList, getGradeList);
         return {
+            Search,
             openBlackboard,
             openTimer,
             getGradeList,
@@ -589,7 +582,7 @@ export default defineComponent({
             handleChange,
             currentClickCol
         };
-    },
+    }
 });
 </script>
 
@@ -632,10 +625,13 @@ export default defineComponent({
             -webkit-app-region: no-drag;
 
             .refresh {
-                font-size: 25px;
                 color: #ffffff;
                 margin-right: 20px;
                 cursor: pointer;
+                svg{
+                    width: 24px;
+                    height: 24px;
+                }
             }
 
             .right-btn {
@@ -773,6 +769,13 @@ export default defineComponent({
     --el-collapse-border-color: transparent;
     --el-collapse-content-background-color: transparent;
     --el-collapse-header-font-color: #ffffff;
+
+    :deep(.el-collapse-item__header){
+        background: var(--app-color-dark)
+    }
+    :deep(.el-collapse-item__wrap){
+        background: var(--app-color-dark)
+    }
 
     .collapse-header {
         flex: 1;
@@ -914,14 +917,23 @@ export default defineComponent({
         margin-left: 5px;
 
         :deep(.el-input-group__append) {
-            background: #0c1222;
+            background: var(--app-color-dark);
             border: none;
         }
     }
 
+    :deep(.el-input__wrapper){
+        background: var(--app-color-dark);
+    }
+    :deep(.el-input.is-focus .el-input__wrapper){
+        box-shadow: 0 0 0 1px var(--el-input-border-color,var(--el-border-color)) inset;
+    }
+    :deep(.el-input__wrapper.is-focus){
+        box-shadow: 0 0 0 1px var(--el-input-border-color,var(--el-border-color)) inset;
+    }
+
     :deep(.el-input__inner) {
-        background: #0c1222;
-        border: none;
+        background: var(--app-color-dark);
         color: #fdfdfd;
 
         &::placeholder {

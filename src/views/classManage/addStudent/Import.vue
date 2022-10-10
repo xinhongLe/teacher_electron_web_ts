@@ -64,11 +64,7 @@
 import { AI_XUE_SHI_API } from "@/config";
 import { store } from "@/store";
 import { ElUploadType } from "@/types/elementType";
-import { ElMessage } from "element-plus";
-import {
-    ElFile,
-    UploadFile
-} from "element-plus/lib/components/upload/src/upload.type";
+import { ElMessage, UploadFile } from "element-plus";
 import isElectron from "is-electron";
 import { defineComponent, ref } from "vue";
 import { batchAddStudent } from "../api";
@@ -114,7 +110,7 @@ export default defineComponent({
             fileInfo.value = file;
         };
 
-        const uploadSectionFile = async ({ file }: { file: ElFile }) => {
+        const uploadSectionFile = async ({ file }: { file: any }) => {
             const formdata = new FormData(); // 创建form对象
             const {
                 userInfo: { id },

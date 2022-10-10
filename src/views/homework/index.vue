@@ -29,11 +29,11 @@
                 <el-button
                     type="primary"
                     plain
-                    icon="el-icon-tickets"
+                    :icon="Tickets"
                     @click="handleClick"
                     >布置作业</el-button
                 >
-                <el-button plain icon="el-icon-refresh" @click="initData"
+                <el-button plain :icon="Refresh" @click="initData"
                     >刷新</el-button
                 >
             </div>
@@ -99,6 +99,7 @@ import { useRouter } from "vue-router";
 import useHomework from "./hooks/useHomework";
 import HomeworkItem from "./homeworkItem.vue";
 import { ElMessage } from "element-plus";
+import { Tickets, Refresh } from "@element-plus/icons-vue";
 export default defineComponent({
     name: "Homework",
     setup() {
@@ -126,6 +127,8 @@ export default defineComponent({
             });
         };
         return {
+            Tickets,
+            Refresh,
             subjectList,
             form,
             classList,

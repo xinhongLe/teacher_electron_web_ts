@@ -23,38 +23,26 @@
                     </div> -->
                 </div>
                 <div class="right">
-                    <Calendar
-                        ref="calendar"
-                        :days="days"
-                        :isShowDetailBtn="true"
-                    >
+                    <Calendar ref="calendar" :days="days" :isShowDetailBtn="true">
                         <template v-slot:default="slotProps">
                             <header class="header">
-                                <div
-                                    @click="weekPre(), clicKBuryPoint('上周')"
-                                    class="week"
-                                >
-                                    <i class="el-icon-arrow-left"></i>上周
+                                <div @click="weekPre(), clicKBuryPoint('上周')" class="week flex-align-items">
+<!--                                    <i class="el-icon-arrow-left"></i>-->
+                                    <el-icon :size="16"><ArrowLeft /></el-icon>
+                                    上周
                                 </div>
                                 <div class="title">上课</div>
                                 <div class="header-right">
                                     <div
-                                        class="refresh"
+                                        class="refresh flex-align-items"
                                         @click="slotProps.initSchedules"
                                     >
-                                        <i
-                                            class="el-icon-refresh-right"
-                                            :style="{ marginRight: '4px' }"
-                                        ></i
-                                        >刷新课表
+                                        <el-icon :size="16"  :style="{ marginRight: '4px' }"><RefreshRight /></el-icon>
+                                        刷新课表
                                     </div>
-                                    <div
-                                        @click="
-                                            weekNext(), clicKBuryPoint('下周')
-                                        "
-                                        class="week"
-                                    >
-                                        下周<i class="el-icon-arrow-right"></i>
+                                    <div @click=" weekNext(), clicKBuryPoint('下周')" class="week flex-align-items">
+                                        下周
+                                        <el-icon :size="16"><ArrowRight /></el-icon>
                                     </div>
                                 </div>
                             </header>

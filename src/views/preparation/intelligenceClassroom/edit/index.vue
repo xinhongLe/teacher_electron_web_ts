@@ -271,7 +271,7 @@ import { IPageValue, ICardList } from "@/types/home";
 import Node from "element-plus/es/components/tree/src/model/node";
 import useSelectBookInfo from "@/hooks/useSelectBookInfo";
 import { isFullscreen } from "@/utils/fullscreen";
-import { MoreFilled } from "@element-plus/icons";
+import { MoreFilled } from "@element-plus/icons-vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import AddPageDialog from "../components/edit/addPageDialog.vue";
 import UpdateNameCardOrPage from "../components/edit/updateNameCardOrPage.vue";

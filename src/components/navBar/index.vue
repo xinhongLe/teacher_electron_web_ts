@@ -9,11 +9,12 @@
                 @click="go(item)"
             >
                 <div style="margin-right: 10px">{{ item.name }}</div>
-                <i
-                    class="el-icon-close"
-                    v-if="item.name !== '首页' && item.name !== '备课'"
-                    @click.stop="closeTab(item)"
-                ></i>
+                <el-icon  v-if="item.name !== '首页' && item.name !== '备课'" @click.stop="closeTab(item)"><Close /></el-icon>
+<!--                <i-->
+<!--                    class="el-icon-close"-->
+<!--                    v-if="item.name !== '首页' && item.name !== '备课'"-->
+<!--                    @click.stop="closeTab(item)"-->
+<!--                ></i>-->
             </div>
         </div>
         <div class="header-right">
@@ -27,7 +28,7 @@
                 <div class="hwc-minimize" @click="useMinimizeWindow()"></div>
                 <div class="hwc-maximize" @click="useMaximizeWindow()"></div>
                 <div class="hwc-close" v-if="isElectron()" @click="close">
-                    <i class="el-icon-close"></i>
+                    <el-icon><CloseBold /></el-icon>
                 </div>
             </div>
         </div>
@@ -37,6 +38,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, onMounted } from "vue";
+import { CloseBold, Close } from "@element-plus/icons-vue";
 import useMaximizeWindow from "../../hooks/useMaximizeWindow";
 import useMinimizeWindow from "../../hooks/useMinimizeWindow";
 import isElectron from "is-electron";
@@ -50,7 +52,9 @@ export default defineComponent({
     name: "NavBar",
     components: {
         ExitDialog,
-        UserInfo
+        UserInfo,
+        CloseBold,
+        Close
     },
     setup() {
         const route = useRoute();

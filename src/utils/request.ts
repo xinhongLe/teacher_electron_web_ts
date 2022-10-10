@@ -1,5 +1,5 @@
 import axios, { AxiosRequestConfig, AxiosRequestHeaders, Method } from "axios";
-import { ElMessage, MessageHandle } from "element-plus";
+import { ElMessage, MessageHandler } from "element-plus";
 import { clear, get, STORAGE_TYPES } from "./storage";
 import router from "@/router/index";
 import { initAllState, store } from "@/store";
@@ -35,7 +35,7 @@ http.interceptors.request.use(
     }
 );
 
-let messageInterface: MessageHandle | null = null;
+let messageInterface: MessageHandler | null = null;
 
 http.interceptors.response.use(
     (response) => {

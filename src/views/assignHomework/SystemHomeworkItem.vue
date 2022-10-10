@@ -53,7 +53,7 @@
             <el-button
                 size="small"
                 type="danger"
-                icon="el-icon-delete"
+                :icon="Delete"
                 @click="del"
             ></el-button>
         </div>
@@ -65,6 +65,7 @@ import { SystemHomework } from "@/types/assignHomework";
 import { getCourseBagType, formatDuration } from "@/utils";
 import { defineComponent, PropType } from "vue";
 import SelectLabel from "./SelectLabel.vue";
+import { Delete } from "@element-plus/icons-vue";
 export default defineComponent({
     props: {
         item: {
@@ -85,6 +86,7 @@ export default defineComponent({
             emit("delete", props.realIndex);
         };
         return {
+            Delete,
             getCourseBagType,
             del,
             formatDuration

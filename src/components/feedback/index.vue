@@ -14,7 +14,7 @@
             accept="image/png, image/jpeg, image/jpg"
         >
             <img v-if="imgUrl" :src="imgUrl" class="feedback-img">
-            <i v-else class="el-icon-plus feedback-uploader-icon"></i>
+            <el-icon v-else class="feedback-uploader-icon"><Plus /></el-icon>
         </el-upload>
         <el-form
             ref="formRef"

@@ -36,7 +36,7 @@
                     <el-input
                         v-model="formData.studentName"
                         placeholder="姓名/账号/手机号"
-                        prefix-icon="el-icon-search"
+                        :prefix-icon="Search"
                     >
                         <template #append>
                             <el-button
@@ -86,7 +86,7 @@ import { get, STORAGE_TYPES } from "@/utils/storage";
 import { defineComponent, reactive, ref, watch } from "vue";
 import usePageEvent from "@/hooks/usePageEvent"; //埋点事件hooks
 import { EVENT_TYPE } from "@/config/event";
-
+import { Search } from "@element-plus/icons-vue";
 export default defineComponent({
     name: "Head",
     props: {
@@ -126,6 +126,7 @@ export default defineComponent({
             createBuryingPointFn(EVENT_TYPE.PageClick, name, name);
         };
         return {
+            Search,
             formData,
             subjectList,
             clicKBuryPoint,

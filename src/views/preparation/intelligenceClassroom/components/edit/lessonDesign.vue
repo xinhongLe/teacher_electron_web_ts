@@ -133,7 +133,7 @@ import { getLessonPlan, getLessonPlanTemplate, changeLessonPlanTemplate, ISaveLe
 import { ElMessage } from "element-plus";
 import { defineComponent, reactive, ref, watch } from "vue";
 import draggable from "vuedraggable";
-import { Setting } from "@element-plus/icons";
+import { Setting } from "@element-plus/icons-vue";
 import { toChinesNum } from "@/utils/common";
 import LessonTemplateSet from "@/views/preparation/intelligenceClassroom/components/edit/lessonTemplateSet.vue";
 import { ITemplateList, IFrom, ItemForm } from "@/types/lessonDesign.ts";
