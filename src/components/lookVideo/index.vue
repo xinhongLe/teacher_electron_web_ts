@@ -5,7 +5,6 @@
                 <span class="file-sn" v-if="!dialog">{{ fileSn }}</span>
                 <p v-if="!dialog">查看视频</p>
                 <div class="content">
-                    <Brush ref="childRef"></Brush>
                     <div class="material-box">
                         <video
                             ref="videoRef"
@@ -33,28 +32,27 @@
                         :max="initVideo.videoLength"
                         @change="changeVideoTime"
                         :marks="marks"
-                    >
-                    </el-slider>
+                    />
                 </div>
             </div>
 
             <div class="dialog-footer">
-                <div :class="btnType == 1 ? 'active' : ''" @click="brushHandle">
+                <div class="pen" :class="btnType === 1 ? 'active' : ''" @click="drawingShow = true">
                     <p>画笔</p>
                 </div>
-                <div
-                    :class="btnType == 2 ? 'active' : ''"
-                    @click="eraserHandle"
-                >
-                    <p>橡皮</p>
-                </div>
-                <div :class="btnType == 3 ? 'active' : ''" @click="clearBoard">
-                    <p>清空</p>
-                </div>
-                <div @click="closeVideo">
+<!--                <div-->
+<!--                    :class="btnType == 2 ? 'active' : ''"-->
+<!--                    @click="eraserHandle"-->
+<!--                >-->
+<!--                    <p>橡皮</p>-->
+<!--                </div>-->
+<!--                <div :class="btnType == 3 ? 'active' : ''" @click="clearBoard">-->
+<!--                    <p>清空</p>-->
+<!--                </div>-->
+                <div class="close" @click="closeVideo">
                     <p>关闭</p>
                 </div>
-                <div @click="smallVideo" v-show="isElectron && !dialog && !noMinix">
+                <div class="mini" @click="smallVideo" v-show="isElectron && !dialog && !noMinix">
                     <p>最小化</p>
                 </div>
                 <template v-if="isVideoEnded">
@@ -67,7 +65,7 @@
                 </template>
                 <template v-else>
                     <div
-                        v-if="btnName == '暂停'"
+                        v-if="btnName === '暂停'"
                         class="play"
                         @click="playPause"
                     >
@@ -80,6 +78,8 @@
             </div>
         </div>
     </div>
+
+    <drawing-board v-if="drawingShow" @closeWriteBoard="drawingShow = false"/>
 </template>
 
 <script lang="ts">
@@ -91,17 +91,17 @@ import {
     onMounted,
     nextTick,
     onUnmounted,
-	PropType,
-	computed
+    PropType,
+    computed
 } from "vue";
 import isElectronFun from "is-electron";
 import { getFileAndPauseByFile } from "./api";
 import useVideo, { formateSeconds } from "./hooks/useVideo";
 import { getOssUrl } from "@/utils/oss";
-import Brush from "@/components/brush/index.vue";
 import { MutationTypes, store } from "@/store";
 import emitter from "@/utils/mitt";
 import { IViewResourceData } from "@/types/store";
+import DrawingBoard from "@/components/drawingBoard/index.vue";
 export default defineComponent({
     props: {
         dialog: {
@@ -118,7 +118,6 @@ export default defineComponent({
             type: Object as PropType<IViewResourceData>,
             required: true
         },
-        
         activeWindow: {
             type: Boolean,
             default: false
@@ -236,6 +235,7 @@ export default defineComponent({
             videoLoading.value = false;
         };
 
+        const drawingShow = ref(false);
         onMounted(() => {
             emitter.on("smallVideo", smallVideo);
             if (isElectron) {
@@ -284,10 +284,11 @@ export default defineComponent({
             fileSn,
             childRef,
             videoLoading,
-            formateSeconds
+            formateSeconds,
+            drawingShow
         };
     },
-    components: { Brush }
+    components: { DrawingBoard }
 });
 </script>
 
@@ -398,19 +399,11 @@ export default defineComponent({
             font-weight: 550;
         }
     }
-    > div:nth-of-type(1) {
+    > div.pen {
         background: url("./../../assets/look/btn_huabi@2x.png");
         background-size: 100% 100%;
     }
-    > div:nth-of-type(2) {
-        background: url("./../../assets/look/btn_xiangpi@2x.png");
-        background-size: 100% 100%;
-    }
-    > div:nth-of-type(3) {
-        background: url("./../../assets/look/btn_qingkong@2x.png");
-        background-size: 100% 100%;
-    }
-    > div:nth-of-type(4) {
+    > div.close {
         background: url("./../../assets/look/btn_guanbi@2x.png");
         background-size: 100% 100%;
         p {
