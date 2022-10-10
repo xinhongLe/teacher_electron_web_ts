@@ -80,6 +80,7 @@ export interface PreparationState {
 
 export interface IViewResourceData extends Partial<IResourceItem> {
     id: string;
+    wincardName?: string;
     courseBagId?: string;
     deleteQuestionIds?: string[];
     type?: number;

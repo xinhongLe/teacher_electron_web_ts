@@ -8,6 +8,8 @@ import isElectron from "is-electron";
 import { getWindowCards } from "@/views/preparation/intelligenceClassroom/api";
 import { Slide } from "wincard";
 import { useStore } from "@/store";
+import { IResourceItem } from "@/api/resource";
+import { IViewResourceData } from "@/types/store";
 const dealCardData = (card:SchoolWindowCardInfo) => {
     const pages = card.PageList.map(page => {
         return {
@@ -21,12 +23,12 @@ const dealCardData = (card:SchoolWindowCardInfo) => {
     };
 };
 
-const useWindowInfo = () => {
+const useWindowInfo = (resource?: IResourceItem & IViewResourceData) => {
     const { getPageDetail, transformType } = useHome();
     const currentWindowInfo = reactive<SchoolWindowInfo>({
-        LessonID: "",
-        WindowID: "",
-        WindowName: "",
+        LessonID: (resource?.TextBooks && resource?.TextBooks.length > 0) ? (resource?.TextBooks[0].LessonID || "") : "",
+        WindowID: resource?.OldResourceId || resource?.id || "",
+        WindowName: resource?.Name || resource?.wincardName || "",
         WindowNickName: "",
         LessonWindowID: "",
         Sort: 0,
