@@ -49,51 +49,53 @@
                     </div>
                     <div
                         :class="btnType == 1 ? 'active' : ''"
-                        @click.stop="brushHandle"
-                        class="button"
+                        @click.stop="drawingShow = true"
+                        class="button pen"
                     >
                         <p>画笔</p>
                     </div>
-                    <div
-                        :class="btnType == 2 ? 'active' : ''"
-                        @click.stop="eraserHandle"
-                        class="button"
-                    >
-                        <p>橡皮</p>
-                    </div>
-                    <div
-                        :class="btnType == 3 ? 'active' : ''"
-                        @click.stop="clearBoard"
-                        class="button"
-                    >
-                        <p>清空</p>
-                    </div>
-                    <div @click.stop="closeQuestion" class="button">
+<!--                    <div-->
+<!--                        :class="btnType == 2 ? 'active' : ''"-->
+<!--                        @click.stop="eraserHandle"-->
+<!--                        class="button"-->
+<!--                    >-->
+<!--                        <p>橡皮</p>-->
+<!--                    </div>-->
+<!--                    <div-->
+<!--                        :class="btnType == 3 ? 'active' : ''"-->
+<!--                        @click.stop="clearBoard"-->
+<!--                        class="button"-->
+<!--                    >-->
+<!--                        <p>清空</p>-->
+<!--                    </div>-->
+                    <div @click.stop="closeQuestion" class="button close">
                         <p>关闭</p>
                     </div>
                     <div
                         v-show="isElectron && type != 2 && !isPureQuestion && !dialog && !noMinix"
                         @click.stop="smallQuestion"
-                        class="button"
+                        class="button mini"
                     >
                         <p>最小化</p>
                     </div>
-                    <div v-if="isLastBtn" class="disabled button">
+                    <div v-if="isLastBtn" class="disabled button prev">
                         <p>上一页</p>
                     </div>
-                    <div v-else @click.stop="lastPage" class="button">
+                    <div v-else @click.stop="lastPage" class="button next">
                         <p>上一页</p>
                     </div>
-                    <div v-if="isNextBtn" class="disabled button">
+                    <div v-if="isNextBtn" class="disabled button next">
                         <p>下一页</p>
                     </div>
-                    <div v-else @click.stop="nextPage" class="button">
+                    <div v-else @click.stop="nextPage" class="button next">
                         <p>下一页</p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <drawing-board v-if="drawingShow" @closeWriteBoard="drawingShow = false"/>
 </template>
 
 <script lang="ts">
@@ -104,6 +106,7 @@ import Brush from "@/components/brush/index.vue";
 import { set, STORAGE_TYPES } from "@/utils/storage";
 import emitter from "@/utils/mitt";
 import { IViewResourceData } from "@/types/store";
+import DrawingBoard from "@/components/drawingBoard/index.vue";
 export default defineComponent({
     props: {
         close: {
@@ -215,6 +218,8 @@ export default defineComponent({
             emitter.off("smallQuestion");
         });
 
+        const drawingShow = ref(false)
+
         return {
             noMinix,
             resolutionSwitchValue,
@@ -245,10 +250,11 @@ export default defineComponent({
             voiceUrlMap,
             questionSn,
             audioRef,
-            isElectron
+            isElectron,
+            drawingShow
         };
     },
-    components: { Brush }
+    components: { Brush, DrawingBoard }
 });
 </script>
 
@@ -350,19 +356,11 @@ export default defineComponent({
                 background: url("./../../assets/look/btn_jiexi@2x.png");
                 background-size: 100% 100%;
             }
-            &:nth-child(3) {
+            &.pen {
                 background: url("./../../assets/look/btn_huabi@2x.png");
                 background-size: 100% 100%;
             }
-            &:nth-child(4) {
-                background: url("./../../assets/look/btn_xiangpi@2x.png");
-                background-size: 100% 100%;
-            }
-            &:nth-child(5) {
-                background: url("./../../assets/look/btn_qingkong@2x.png");
-                background-size: 100% 100%;
-            }
-            &:nth-child(6) {
+            &.close {
                 background: url("./../../assets/look/btn_guanbi@2x.png");
                 background-size: 100% 100%;
                 p {
@@ -373,18 +371,18 @@ export default defineComponent({
                 background: url("./../../assets/look/btn_zuixiaohua@2x.png");
                 background-size: 100% 100%;
             }
-            &:nth-child(8) {
+            &.prev {
                 background: url("./../../assets/look/btn_shangyiye@2x.png");
                 background-size: 100% 100%;
             }
-            &:nth-child(8).disabled {
+            &.prev.disabled {
                 background: url("./../../assets/look/btn_shangyiye_disabled@2x.png");
                 background-size: 100% 100%;
                 p {
                     color: #4b71ee;
                 }
             }
-            &:nth-child(9) {
+            &.next {
                 background: url("./../../assets/look/btn_xiayiye@2x.png");
                 background-size: 100% 100%;
                 width: 120px;
@@ -392,7 +390,7 @@ export default defineComponent({
                     color: #fff;
                 }
             }
-            &:nth-child(9).disabled {
+            &.next.disabled {
                 background: url("./../../assets/look/btn_xiayiye_disabled@2x.png");
                 background-size: 100% 100%;
                 p {

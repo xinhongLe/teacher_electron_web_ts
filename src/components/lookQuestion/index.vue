@@ -65,7 +65,7 @@ export default defineComponent({
             type: Object as PropType<IViewResourceData>,
             required: true
         },
-        
+
         activeWindow: {
             type: Boolean,
             default: false
