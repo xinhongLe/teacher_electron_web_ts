@@ -34,6 +34,7 @@ import { PADModeQuestionType } from "./enum";
 import mqtt from "mqtt";
 import { finishAnswerMachineQuestion } from "@/childWindow/answerMachine/api";
 import { UserInfoState } from "@/types/store";
+import { YUN_API_ONECARD_MQTT } from "@/config";
 export default defineComponent({
     props: {
         studentList: {
@@ -59,7 +60,7 @@ export default defineComponent({
         const QuestionType = inject("QuestionType", ref(PADModeQuestionType));
         const { showTime, startCountDown, endCountDown } = useCountDown();
 
-        const client = mqtt.connect("mqtt://emq.aixueshi.top", {
+        const client = mqtt.connect(YUN_API_ONECARD_MQTT || "", {
             port: 1883,
             username: "u001",
             password: "p001",

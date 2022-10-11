@@ -48,6 +48,7 @@ import { sendRushToAnswer, praiseStudent } from "./api";
 import { UserInfoState } from "@/types/store";
 import mqtt from "mqtt";
 import { IClassItem } from "@/types/quickAnswer";
+import { YUN_API_ONECARD_MQTT } from "@/config";
 export default defineComponent({
     name: "quickAnswerDetail",
     props: {
@@ -76,7 +77,7 @@ export default defineComponent({
             }
         }, { immediate: true });
 
-        const client = mqtt.connect("mqtt://emq.aixueshi.top", {
+        const client = mqtt.connect(YUN_API_ONECARD_MQTT || "", {
             port: 1883,
             username: "u001",
             password: "p001",

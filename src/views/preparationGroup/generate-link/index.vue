@@ -20,7 +20,7 @@
         <template #footer>
             <span class="dialog-footer">
                 <el-button style="background-color:#48DBBF;color:#fff;border: none;" v-if="isCopy" @click="dialogVisible = false">复制成功</el-button>
-                <el-button style="background-color:#4B71EE;color:#fff;border: none;" icon="el-icon-copy-document" @click="copyText" v-else>复制邀请链接</el-button>
+                <el-button style="background-color:#4B71EE;color:#fff;border: none;" :icon="CopyDocument" @click="copyText" v-else>复制邀请链接</el-button>
             </span>
         </template>
     </el-dialog>
@@ -28,6 +28,7 @@
 <script>
 import { defineComponent, ref, watch } from "vue";
 import { makeInviteeLink } from "../api";
+import { CopyDocument } from "@element-plus/icons-vue";
 import moment from "moment";
 export default defineComponent({
     props: {
@@ -85,6 +86,7 @@ export default defineComponent({
             deep: true
         });
         return {
+            CopyDocument,
             dialogVisible,
             isCopy,
             origin,

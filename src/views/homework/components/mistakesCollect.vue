@@ -42,6 +42,7 @@ import { computed, defineComponent, reactive, toRefs, PropType, watch, onUnmount
 import { Homework, StudentMission } from "@/types/homework";
 import { sendWrongTopicDetail, GetStudentMissionList, overWrongTopicCollection } from "../api";
 import mqtt from "mqtt";
+import { YUN_API_ONECARD_MQTT } from "@/config";
 interface State{
     status: number,
     studentsList: StudentMission[],
@@ -75,7 +76,7 @@ export default defineComponent({
         });
         const visible = computed(() => props.dialogVisible);
 
-        const client = mqtt.connect("mqtt://emq.aixueshi.top", {
+        const client = mqtt.connect(YUN_API_ONECARD_MQTT || "", {
             port: 1883,
             username: "u001",
             password: "p001",
