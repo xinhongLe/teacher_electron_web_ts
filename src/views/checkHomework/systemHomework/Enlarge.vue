@@ -41,11 +41,11 @@
                     </div>
                     <div class="page">
                         <span class="btn" :class="{display: isDisplayPrev}" @click="prevPage">
-                            <i class="el-icon-arrow-left"></i>
+                            <el-icon><ArrowLeft /></el-icon>
                         </span>
                         {{currentIndex+1}}/{{detailList.length}}
                         <span class="btn" :class="{display: isDisplayNext}" @click="nextPage">
-                            <i class="el-icon-arrow-right"></i>
+                            <el-icon><ArrowRight /></el-icon>
                         </span>
                     </div>
                 </div>

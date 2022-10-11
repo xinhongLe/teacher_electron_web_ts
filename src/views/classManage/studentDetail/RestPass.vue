@@ -8,10 +8,8 @@
     >
         <div class="rest-pass">
             <div class="info">
-                <span><i class="el-icon-user"></i>姓名：{{ info.name }}</span>
-                <span
-                    ><i class="el-icon-mobile-phone"></i>账号：{{ info.account }}</span
-                >
+                <span class="flex-align-items"><el-icon><User /></el-icon>姓名：{{ info.name }}</span>
+                <span class="flex-align-items"><el-icon><Iphone /></el-icon>账号：{{ info.account }}</span>
             </div>
             <el-form
                 :rules="rules"

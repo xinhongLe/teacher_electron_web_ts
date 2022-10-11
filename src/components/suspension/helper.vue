@@ -12,10 +12,6 @@
                 alt=""
             />
             <div class="right-btns ">
-<!--                <i-->
-<!--                    class="el-icon-refresh-right refresh"-->
-<!--                    @click="clicKBuryPoint('刷新'), getGradeList()"-->
-<!--                ></i>-->
                 <el-icon :size="18" class="refresh" @click="clicKBuryPoint('刷新'), getGradeList()"><RefreshRight /></el-icon>
                 <div
                     class="right-btn"

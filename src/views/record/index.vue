@@ -1,7 +1,7 @@
 <template>
     <div class="record">
         <div class="student-info">
-            <i v-if="$route.name == 'wpf学习记录'" style="font-size: 24px; margin: 20px 20px 20px 0; cursor: pointer" class="el-icon-arrow-left" @click="$router.go(-1)"></i>
+            <el-icon v-if="$route.name == 'wpf学习记录'" @click="$router.go(-1)"  style="font-size: 24px; margin: 20px 20px 20px 0; cursor: pointer"><ArrowLeft /></el-icon>
             <img
                 class="goback"
                 @click="$router.push('/class-manage')"

@@ -27,7 +27,6 @@
                         <template v-slot:default="slotProps">
                             <header class="header">
                                 <div @click="weekPre(), clicKBuryPoint('上周')" class="week flex-align-items">
-<!--                                    <i class="el-icon-arrow-left"></i>-->
                                     <el-icon :size="16"><ArrowLeft /></el-icon>
                                     上周
                                 </div>

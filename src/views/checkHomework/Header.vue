@@ -70,7 +70,7 @@
                     <div class="answer" style="margin-left: 10px" v-if="answerShowTime">
                         <span v-if="showPublish">
                             答案公布时间：{{ detailTime(answerShowTime) }}
-                            <i @click="changeTag" class="el-icon-edit-outline" style="margin: 0 10px; color: #4b71ee" color="#4B71EE"></i>
+                            <el-icon @click="changeTag" style="margin: 0 10px; color: #4b71ee"><Edit /></el-icon>
                             <el-date-picker
                                 popper-class="hand-publish"
                                 v-if="showdataPicker"
@@ -89,7 +89,7 @@
                     </div>
                     <div class="detail" style="margin-left: 10px" v-else>
                         <span>手动发布
-                            <i @click="changeTag" class="el-icon-edit-outline" style="margin: 0 10px; color: #4b71ee"  color="#4B71EE"></i>
+                            <el-icon  @click="changeTag" style="margin: 0 10px; color: #4b71ee"><Edit /></el-icon>
                             <el-date-picker
                                 popper-class="hand-publish"
                                 v-if="showdataPicker"

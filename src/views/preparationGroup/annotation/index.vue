@@ -55,10 +55,10 @@
             </div>
         </div>
         <div class='expandFixed'>
-            <i v-if="expandFlag"  @click="expand" class="el-icon-d-arrow-right"></i>
+            <el-icon v-if="expandFlag"  @click="expand"><DArrowRight /></el-icon>
         </div>
         <div class="expand-collapse">
-            <i v-if="!expandFlag" @click="expand" class="el-icon-d-arrow-left"></i>
+            <el-icon v-if="!expandFlag" @click="expand" ><DArrowLeft /></el-icon>
         </div>
     </div>
 </template>

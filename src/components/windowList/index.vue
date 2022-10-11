@@ -17,7 +17,7 @@ watch(winList, () => {
 <template>
     <div class="window-list-warp">
             <div class="slide-btn prev" :class="{ hidden: !isShowSlideBtn, 'disable': isDisablePrev }" @click="slidePrev">
-                <i class="el-icon-arrow-left"></i>
+                <el-icon><ArrowLeft /></el-icon>
             </div>
             <div class="window-list" ref="listWarpRef">
                 <div class="window-list-swiper" ref="swiperRef" :style="{'transform': `translateX(-${translateX}px)`}">
@@ -35,7 +35,7 @@ watch(winList, () => {
                 </div>
             </div>
             <div class="slide-btn next" :class="{ hidden: !isShowSlideBtn, 'disable': isDisableNext }" @click="slideNext">
-                <i class="el-icon-arrow-right"></i>
+                <el-icon><ArrowRight /></el-icon>
             </div>
         </div>
 </template>
