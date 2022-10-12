@@ -35,7 +35,7 @@ export enum AnswerMode {
 
 export function getChoiceQuestion() {
     const list = [];
-    for (let i = 1; i <= 8; i++) {
+    for (let i = 1; i <= 6; i++) {
         const item = {
             value: String(i),
             label: String(i),

@@ -184,9 +184,11 @@ export default defineComponent({
         color: #fff;
         :deep(.el-select){
             width: 120px;
-            .el-input__inner{
+            .el-input__wrapper{
                 background: transparent;
-                border: none;
+                box-shadow: none !important;
+            }
+            .el-input__inner{
                 color: #fff;
             }
         }
