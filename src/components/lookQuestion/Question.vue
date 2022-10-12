@@ -5,7 +5,6 @@
             <slot name="title" />
             <div class="count">{{ number }} / {{ sum }}</div>
             <div class="material-box">
-                <Brush ref="childRef" v-if="isBlackboard"></Brush>
                 <audio
                     ref="audioRef"
                     :src="voiceUrlMap[nextIndex - 1 === 0 ? 'question' : 'answer']"
@@ -48,7 +47,6 @@
                         <p>听解析</p>
                     </div>
                     <div
-                        :class="btnType == 1 ? 'active' : ''"
                         @click.stop="drawingShow = true"
                         class="button pen"
                     >
@@ -95,14 +93,13 @@
         </div>
     </div>
 
-    <drawing-board v-if="drawingShow" @closeWriteBoard="drawingShow = false"/>
+    <drawing-board :show="drawingShow" @closeWriteBoard="drawingShow = false"/>
 </template>
 
 <script lang="ts">
 import { computed, defineComponent, inject, onMounted, onUnmounted, PropType, Ref, ref, watch } from "vue";
 import isElectronFun from "is-electron";
 import useDetail from "./hooks/useDetail";
-import Brush from "@/components/brush/index.vue";
 import { set, STORAGE_TYPES } from "@/utils/storage";
 import emitter from "@/utils/mitt";
 import { IViewResourceData } from "@/types/store";
@@ -131,8 +128,8 @@ export default defineComponent({
     },
     setup(props, { emit }) {
         const type = computed(() => props.resource.type);
-        const btnType = ref(1);
-        const childRef = ref<InstanceType<typeof Brush>>();
+        const btnType = ref(-1);
+        const childRef = ref();
         const isElectron = isElectronFun();
         const noMinix = computed(() => !!props.resource.openMore);
 
@@ -254,7 +251,7 @@ export default defineComponent({
             drawingShow
         };
     },
-    components: { Brush, DrawingBoard }
+    components: { DrawingBoard }
 });
 </script>
 
@@ -367,7 +364,7 @@ export default defineComponent({
                     color: #fff;
                 }
             }
-            &:nth-child(7) {
+            &.mini {
                 background: url("./../../assets/look/btn_zuixiaohua@2x.png");
                 background-size: 100% 100%;
             }

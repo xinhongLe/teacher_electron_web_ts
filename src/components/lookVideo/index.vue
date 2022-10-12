@@ -37,7 +37,7 @@
             </div>
 
             <div class="dialog-footer">
-                <div class="pen" :class="btnType === 1 ? 'active' : ''" @click="drawingShow = true">
+                <div class="pen" @click="drawingShow = true">
                     <p>画笔</p>
                 </div>
 <!--                <div-->
@@ -79,7 +79,7 @@
         </div>
     </div>
 
-    <drawing-board v-if="drawingShow" @closeWriteBoard="drawingShow = false"/>
+    <drawing-board :show="drawingShow" @closeWriteBoard="drawingShow = false"/>
 </template>
 
 <script lang="ts">
@@ -126,7 +126,7 @@ export default defineComponent({
     setup(props) {
         const isElectron = isElectronFun();
         const videoUrl = ref("");
-        const btnType = ref(1);
+        const btnType = ref(-1);
 
         const fileSn = ref();
         const isMinimized = ref(false);
@@ -410,7 +410,7 @@ export default defineComponent({
             color: #fff;
         }
     }
-    > div:nth-of-type(5) {
+    > div.mini {
         background: url("./../../assets/look/btn_zuixiaohua@2x.png");
         background-size: 100% 100%;
     }

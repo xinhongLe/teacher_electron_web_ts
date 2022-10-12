@@ -60,7 +60,7 @@ export default defineComponent({
         const store = useStore();
         const { getPageDetail, transformType } = useHome();
         const { currentCard, currentWindowInfo, cardList, currentPageIndex, currentSlide, pageList, currentPageInfo } = inject(windowInfoKey)!;
-        
+
         const dialogVisible = ref(false);
         const prevPageFlag = ref(false);
         const keyDisabled = ref(false);

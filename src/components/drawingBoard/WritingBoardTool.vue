@@ -378,9 +378,16 @@ $themeColor: #1890ff;
         }
     }
 }
+
+::v-deep(.ant-popover){
+    z-index: 10001!important;
+}
 </style>
 
 <style lang="scss">
+    .ant-popover{
+        z-index: 999999!important;
+    }
 .tipZIndex {
     z-index: 10001;
 }

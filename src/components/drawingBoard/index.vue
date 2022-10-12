@@ -1,9 +1,10 @@
 <template>
-    <div class="whiteboard-box" ref="whiteboardBox">
-        <WhiteBoard :options="options" ref="whiteboard" id="whiteboard"/>
+    <div class="whiteboard-box" :class="{active : show}" ref="whiteboardBox">
+        <WhiteBoard :options="options" ref="whiteboard" />
     </div>
 
     <WritingBoardTool
+        v-show="show"
         @close="closeWriteBoard()"
         @clear="whiteboardOption('clear')"
         @setPenSize="value => whiteboardOption('setPenSize', value)"
@@ -19,9 +20,16 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, defineEmits, onMounted } from "vue";
+import { computed, ref, defineEmits, onMounted, defineProps, watch } from "vue";
 import WritingBoardTool from "./WritingBoardTool.vue";
 import WhiteBoard, { OPTION_TYPE } from "mwhiteboard";
+
+const props = defineProps({
+    show: {
+        type: Boolean,
+        default: false
+    }
+});
 
 const emits = defineEmits(["closeWriteBoard"]);
 
@@ -80,10 +88,15 @@ const resize = () => {
     };
 };
 
+watch(() => props.show, val => {
+    if (!val) return;
+
+    whiteboard.value.setOptionType(OPTION_TYPE.PEN);
+});
+
 onMounted(() => {
     resize();
     window.addEventListener("resize", resize);
-    whiteboard.value.setOptionType(OPTION_TYPE.PEN);
 });
 </script>
 
@@ -95,5 +108,10 @@ onMounted(() => {
         left: 0;
         right: 0;
         z-index: 99998;
+        pointer-events: none;
+
+        &.active{
+            pointer-events: all;
+        }
     }
 </style>
