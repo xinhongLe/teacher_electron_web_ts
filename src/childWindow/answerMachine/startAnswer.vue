@@ -288,7 +288,9 @@ export default defineComponent({
                     const topicList = (res.result && res.result.QuestionDetail) ? res.result.QuestionDetail.map((item:any) => {
                         return {
                             questionType: item.QuestionType,
-                            selectSetting: item.QuestionType ? [item.QuestionNum.toString(), item.QuestionOption.replaceAll(";", " ")] : []
+                            selectSetting: item.QuestionType ? [item.QuestionNum.toString(), item.QuestionOption.replaceAll(";", " ")] : [],
+                            option: item.QuestionType === QuestionType.value.判断题 ? questionnaireOption : choiceQuestion
+
                         };
                     }) : [{ questionType: 0, selectSetting: [], option: [] }];
                     state.form.topicList = topicList;
