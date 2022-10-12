@@ -149,12 +149,9 @@ export default defineComponent({
         background: #f5f6fa;
         padding: 12px 16px 0 16px;
         .access-system-select {
-            width: 282px;
+            width: 100%;
             height: 40px;
             margin-bottom: 20px;
-            :deep(.el-input__inner) {
-                width: 230px;
-            }
         }
         .access-system-chart {
              flex: 1;

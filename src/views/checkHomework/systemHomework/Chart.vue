@@ -16,7 +16,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, ref } from "vue";
+import { defineComponent, watch, ref } from "vue";
 import * as echarts from "echarts";
 export default defineComponent({
     props: {
@@ -41,8 +41,14 @@ export default defineComponent({
             probability.value = props.item.TotalRight === 0 ? 0 : Number(
                 ((props.item.TotalRight / (props.item.TotalWrong + props.item.TotalRight)) * 100).toFixed(2)
             );
-            if (props.item.TotalRight === 0 && props.item.TotalWrong === 0 && props.item.TotalNoSure === 0) return;
+
             var myChart = echarts.init(chartRef.value!);
+
+            if (props.item.TotalRight === 0 && props.item.TotalWrong === 0 && props.item.TotalNoSure === 0) {
+                myChart.dispose();
+                return;
+            }
+
             const option = {
                 series: [
                     {
@@ -94,7 +100,7 @@ export default defineComponent({
             myChart.setOption(option);
         };
 
-        onMounted(() => {
+        watch(() => props.item, () => {
             initChart();
         });
         return {
