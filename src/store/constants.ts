@@ -125,7 +125,7 @@ export const enum MutationTypes {
     /**
      * 设置单开资源活跃窗口
      */
-    SET_FULLSCREEN_RESOURCE_ACTIVE = "SET_FULLSCREEN_RESOURCE_ACTIVE"
+    SET_FULLSCREEN_RESOURCE_ACTIVE = "SET_FULLSCREEN_RESOURCE_ACTIVE",
 }
 
 export const enum ActionTypes {

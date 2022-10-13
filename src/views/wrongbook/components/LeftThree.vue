@@ -23,7 +23,15 @@
     </div>
 </template>
 <script lang="ts" setup>
-import { reactive, ref, defineProps, onMounted, watch, provide } from "vue";
+import {
+    reactive,
+    ref,
+    defineProps,
+    defineEmits,
+    onMounted,
+    watch,
+    provide,
+} from "vue";
 import Tree from "./tree/index.vue";
 import {
     searchLeftMeunByChapter,
@@ -50,7 +58,12 @@ const props = defineProps({
         type: String,
         default: () => "",
     },
+    currentChapterBookId: {
+        type: Array,
+        default: () => [],
+    },
 });
+const emit = defineEmits(["update:currentChapterBookId"]);
 
 //搜索区域
 const form = ref({
@@ -143,6 +156,7 @@ const selectedChapter = (val: any) => {
 //改变左侧书册下拉
 const changeBook = (value: string) => {
     if (value && value.length) {
+        emit("update:currentChapterBookId", value);
         form.value.BookId = value[value.length - 1];
     } else {
         form.value.BookId = "";
@@ -176,14 +190,24 @@ const queryLeftMeunByChapter = async (params: LeftMenuParams) => {
         state.loading = false;
     }
 };
+const initData = (v: any) => {
+    form.value.BookId = v ? v[2] : "";
+    const params = Object.assign(form.value, props.parentSearch);
+    queryLeftMeunByChapter(params);
+};
 watch(
     () => subjectPublisherBookList.value,
     (v) => {
-        state.currentBookId = [
-            v[0].Value,
-            v[0].Children![0].Value,
-            v[0].Children![0].Children![0].Value,
-        ];
+        if (props.currentChapterBookId?.length) {
+            state.currentBookId = props.currentChapterBookId as any;
+            initData(state.currentBookId);
+        } else {
+            state.currentBookId = [
+                v[0].Value,
+                v[0].Children![0].Value,
+                v[0].Children![0].Children![0].Value,
+            ];
+        }
     },
     { deep: true, immediate: true }
 );
@@ -191,9 +215,7 @@ watch(
     () => state.currentBookId,
     (v) => {
         // console.log("vvvv", v);
-        form.value.BookId = v ? v[2] : "";
-        const params = Object.assign(form.value, props.parentSearch);
-        queryLeftMeunByChapter(params);
+        initData(v);
     },
     { deep: true, immediate: true }
 );
