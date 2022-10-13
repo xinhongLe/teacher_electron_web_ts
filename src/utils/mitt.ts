@@ -17,6 +17,7 @@ type Events = {
     openEditResource: IResourceItem;
     errorBookEmit: any;
     openErrorBookDetails: any;
+    packButton: any;
 };
 
 const emitter = mitt<Events>();

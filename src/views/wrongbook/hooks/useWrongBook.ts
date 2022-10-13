@@ -1,5 +1,7 @@
 import { reactive, ref, toRefs } from "vue";
 import { searchByKnowledgeLabList, KnowledgeLabParams } from "@/api/errorbook";
+import { MutationTypes, store, ActionTypes } from "@/store";
+
 export default () => {
     const state = reactive({
         knowledgeLabList: [],
@@ -124,6 +126,40 @@ export default () => {
         }
     };
 
+    //过滤当前的题目是否在错题栏
+    const formatInBasket = (data: any) => {
+        // return true;
+        const questions: any = [];
+        const questionBasket = store.state.wrongbook.questionBasket as any;
+        // console.log("过滤当前的题目是否在错题栏", data, questionBasket);
+
+        questionBasket.forEach((item: any) => {
+            item.Questions.forEach((data: any) => {
+                questions.push(data);
+            });
+        });
+        const basketList =
+            questions.map((item: any) => {
+                return item.QuestionId;
+            }) || [];
+        if (basketList.includes(data.QuestionId)) {
+            return false;
+        } else {
+            return true;
+        }
+    };
+    //清空所有的试题篮中的数据
+    const delAllBasketData = async () => {
+        const params = {
+            isAllDel: 1,
+            classId: store.state.wrongbook.currentClassId,
+            bookId: store.state.wrongbook.currentBookId,
+            questionIds: [],
+            questionType: 0,
+        };
+        store.dispatch(ActionTypes.DEL_QUESTION_BASKET, params);
+    };
+
     return {
         queryKnowledgeLabList,
         formatRecentWrongRatio,
@@ -132,6 +168,8 @@ export default () => {
         formatQuestionType,
         formatProColor,
         formatRecentColor,
+        formatInBasket,
+        delAllBasketData,
         ...toRefs(state),
     };
 };

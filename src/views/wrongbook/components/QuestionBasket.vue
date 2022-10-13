@@ -8,7 +8,7 @@
         <el-badge
             v-if="isSmallBasket"
             :style="`right:${elRight}px;bottom:${elBottom}px`"
-            :value="0"
+            :value="store.state.wrongbook.baskTotal"
             class="question-basket"
         >
             <div @click="isSmallBasket = false">
@@ -38,54 +38,50 @@
                     />
                     <span>试题篮</span>
                 </div>
-                <img
+                <div
+                    style="height: 100%; display: flex; align-items: center"
                     @click="isSmallBasket = true"
-                    class="small-icon"
-                    src="~@/assets/images/wrongbook/icon_zuixiaohua.png"
-                    alt=""
-                />
+                >
+                    <img
+                        class="small-icon"
+                        src="~@/assets/images/wrongbook/icon_zuixiaohua.png"
+                        alt=""
+                    />
+                </div>
             </div>
             <div class="basket-con">
                 <div class="con-title">
-                    <div class="count">共计<span>5</span> 道题</div>
+                    <div class="count">
+                        共计<span>{{ store.state.wrongbook.baskTotal }}</span>
+                        道题
+                    </div>
                     <div class="clear" @click.stop="clearAll">清空</div>
                 </div>
                 <div class="title-line"></div>
-                <div class="con-list">
-                    <div class="list-item">
+                <div class="con-list" v-if="basketData?.length">
+                    <div
+                        class="list-item"
+                        v-for="(item, index) in basketData"
+                        :key="index"
+                    >
                         <div class="item-left">
-                            <div class="que-type">判断题</div>
-                            <div class="que-count">2道</div>
+                            <div class="que-type">
+                                {{ formatQuestionType(item.QuestionType) }}
+                            </div>
+                            <div class="que-count">{{ item.Count }}道</div>
                         </div>
                         <img
-                            src="~@/assets/images/wrongbook/icon_delete.png"
-                            class="del-btn"
-                        />
-                    </div>
-                    <div class="list-item">
-                        <div class="item-left">
-                            <div class="que-type">判断题</div>
-                            <div class="que-count">2道</div>
-                        </div>
-                        <img
-                            src="~@/assets/images/wrongbook/icon_delete.png"
-                            class="del-btn"
-                        />
-                    </div>
-                    <div class="list-item">
-                        <div class="item-left">
-                            <div class="que-type">判断题</div>
-                            <div class="que-count">2道</div>
-                        </div>
-                        <img
+                            @click="delBasketQuestion(item)"
                             src="~@/assets/images/wrongbook/icon_delete.png"
                             class="del-btn"
                         />
                     </div>
                 </div>
+                <div class="con-list" v-else>这里空空如也</div>
                 <div class="footer-btn" @click="generateExercise">生成练习</div>
             </div>
         </div>
+        <!-- 清空提示 -->
         <el-dialog
             v-model="dialogVisible"
             :show-close="false"
@@ -114,13 +110,58 @@
                 <div class="cobtn calcBtn" @click="dialogVisible = false">
                     取消
                 </div>
-                <div class="cobtn sureBtn">确定清空</div>
+                <div
+                    class="cobtn sureBtn"
+                    @click="
+                        delAllBasketData();
+                        dialogVisible = false;
+                    "
+                >
+                    确定清空
+                </div>
+            </div>
+        </el-dialog>
+        <!-- 删除提示 -->
+        <!-- 删除提示 -->
+        <el-dialog
+            v-model="delDialogVisible"
+            :show-close="false"
+            width="360px"
+            custom-class="homeworkDialog"
+        >
+            <template #title>
+                <span></span>
+                <span class="my-header">删除提示</span>
+                <span @click="delDialogVisible = false">
+                    <img
+                        src="~@/assets/images/wrongbook/icon_close_popup_gray.png"
+                        alt=""
+                    />
+                </span>
+            </template>
+            <div class="dialog-content" style="background-color: #fff">
+                <img
+                    src="~@/assets/images/wrongbook/icon_tips_popup.png"
+                    alt=""
+                />
+                <span>是否删除所有该题型下的题目</span>
+            </div>
+            <div class="dialog-footers">
+                <div class="cobtn calcBtn" @click="delDialogVisible = false">
+                    取消
+                </div>
+                <div class="cobtn sureBtn" @click="sureDelExerciseData">
+                    确定删除
+                </div>
             </div>
         </el-dialog>
     </div>
 </template>
 <script lang="ts" setup>
-import { ref, watch, defineEmits, defineProps } from "vue";
+import { ref, watch, defineEmits, defineProps, computed } from "vue";
+import { MutationTypes, store, ActionTypes } from "@/store";
+import useWrongBook from "../hooks/useWrongBook";
+const { formatQuestionType, delAllBasketData } = useWrongBook();
 const emit = defineEmits(["update:isShowContent", "basketGenerateExercise"]);
 const props = defineProps({
     isShowContent: {
@@ -128,16 +169,49 @@ const props = defineProps({
         default: 0,
     },
 });
+
 const isSmallBasket = ref(true); //是否是最小化的试题篮
 const dialogVisible = ref(false); //是否清空题目？
+const delDialogVisible = ref(false); //删除某道题的提示
+//将要删除的题信息
+const delExerciseData = ref<any>({});
 //清空试题栏所有的试题
 const clearAll = () => {
+    if (store.state.wrongbook.baskTotal == 0) return;
     dialogVisible.value = true;
 };
+const basketData = computed(() => {
+    return store.state.wrongbook.questionBasket;
+});
 //生成练习
 const generateExercise = () => {
+    if (store.state.wrongbook.baskTotal == 0) return;
     emit("update:isShowContent", 3);
-    emit("basketGenerateExercise", [], props.isShowContent);
+    // const exerciseParams = {
+    //     PaperName: store.state.wrongbook.currentPaperName,
+    //     BasketPaperQuestions: basketData.value,
+    // };
+    emit("basketGenerateExercise", props.isShowContent);
+};
+
+//删除一条试题栏中的数据
+const delBasketQuestion = async (data: any) => {
+    delExerciseData.value = data;
+    delDialogVisible.value = true;
+};
+//确认删除试题篮中的某一块
+const sureDelExerciseData = async () => {
+    const params = {
+        isAllDel: 0,
+        classId: store.state.wrongbook.currentClassId,
+        bookId: store.state.wrongbook.currentBookId,
+        questionIds: delExerciseData.value?.Questions.map(
+            (item: any) => item.QuestionId
+        ),
+        questionType: delExerciseData.value?.QuestionType,
+    };
+    await store.dispatch(ActionTypes.DEL_QUESTION_BASKET, params);
+    delDialogVisible.value = false;
 };
 const startclientX = ref(0);
 const startclientY = ref(0);
@@ -159,6 +233,7 @@ const dragend = (e: any) => {
 </script>
 <style lang="scss" scoped>
 .basket-dialog {
+    z-index: 999999;
     .question-basket {
         cursor: pointer;
         position: absolute;

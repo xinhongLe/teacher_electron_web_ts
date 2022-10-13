@@ -17,25 +17,58 @@
         </header>
         <template v-if="currentSetp == 1">
             <main class="exercise-main">
-                <p class="title">共4题，包含选择题2题、填空题2题</p>
+                <p class="title">{{ formateSum }}</p>
                 <div class="main-line"></div>
                 <div class="exercise-content">
-                    <div class="exercise-item">
+                    <div
+                        class="exercise-item"
+                        v-for="(item,index) in (exerciseData as any)"
+                        v-show="formateSum"
+                        :key="index"
+                    >
                         <div class="item-type">
-                            <div class="type">1、选择题</div>
-                            <img
-                                @click="delExercise(1)"
-                                src="~@/assets/images/wrongbook/icon_delete_black.png
-                        "
-                                alt=""
-                            />
+                            <div class="type">
+                                {{ index + 1 }}、{{
+                                    formatQuestionType(item.QuestionType)
+                                }}
+                                （共{{ item.Count }}题）
+                            </div>
                         </div>
+                        <template
+                            v-for="(exData, exIndex) in item.Questions"
+                            :key="exIndex"
+                        >
+                            <div
+                                style="
+                                    display: flex;
+                                    align-items: flex-start;
+                                    margin-top: 20px;
+                                "
+                            >
+                                <span style="padding-right: 5px"
+                                    >{{ exIndex + 1 }}.
+                                </span>
+                                <div
+                                    style="width: 98%"
+                                    v-html="exData.QuestionInfo"
+                                ></div>
+                                <img
+                                    style="cursor: pointer"
+                                    @click="delExercise(exData)"
+                                    src="~@/assets/images/wrongbook/icon_delete_black.png
+                        "
+                                    alt=""
+                                />
+                            </div>
+                        </template>
                     </div>
+                    <div v-show="!formateSum">这里空空如也</div>
                 </div>
             </main>
+
             <div class="exercise-footer">
                 <div class="btn download-btn">下载为word</div>
-                <div class="btn next-btn" @click="currentSetp = 2">下一步</div>
+                <div class="btn next-btn" @click="nexStep">下一步</div>
             </div>
         </template>
         <template v-if="currentSetp == 2">
@@ -43,7 +76,9 @@
                 <div class="homework-top">
                     <span class="types">布置对象</span>
                     <span class="class"
-                        >{{ props.gradeName }}(共{{ 30 }}人)</span
+                        >{{ props.gradeName }}(共{{
+                            props.currentClassStudents?.length
+                        }}人)</span
                     >
                 </div>
                 <div class="homework-line"></div>
@@ -54,22 +89,27 @@
                             <div class="item-left">
                                 <div class="index-title">
                                     <div class="index">1</div>
-                                    <div class="title">一年级一班错题复习</div>
+                                    <div class="title">
+                                        {{ homeworkPagerInfo.PaperName }}
+                                    </div>
                                     <img
-                                        @click="
-                                            editHomeowrkName(
-                                                '一年级一班错题复习'
-                                            )
-                                        "
+                                        @click="editHomeowrkName()"
                                         src="~@/assets/images/wrongbook/icon_bianji.png"
                                         alt=""
                                     />
                                 </div>
-                                <div class="count">共{{ 10 }}题</div>
-                                <div class="book-type">数学 苏教版 一上</div>
+                                <div class="count">
+                                    共{{ homeworkPagerInfo.QuestionsCount }}题
+                                </div>
+                                <div class="book-type">
+                                    {{
+                                        store.state.wrongbook
+                                            .currentSelectedBookName
+                                    }}
+                                </div>
                             </div>
                             <div class="item-right">
-                                <div class="text">选择学生：</div>
+                                <!-- <div class="text">选择学生：</div>
                                 <div class="stu-select">
                                     <el-cascader
                                         :options="state.options"
@@ -80,10 +120,14 @@
                                     />
                                 </div>
                                 <img
-                                    @click="selectStudent"
+                                    @click="selectStudent" 
                                     src="~@/assets/images/wrongbook/icon_edit_two.png"
                                     alt=""
-                                />
+                                /> -->
+
+                                <SelectLabel
+                                    :studentList="(computedCurrentClassStudents as any)"
+                                ></SelectLabel>
                             </div>
                         </div>
                     </div>
@@ -115,7 +159,12 @@
             </div>
         </template>
         <!-- 删除提示 -->
-        <el-dialog v-model="dialogVisible" :show-close="false" width="360px">
+        <el-dialog
+            v-model="dialogVisible"
+            :show-close="false"
+            width="360px"
+            custom-class="homeworkDialog"
+        >
             <template #title>
                 <span></span>
                 <span class="my-header">删除提示</span>
@@ -137,12 +186,19 @@
                 <div class="cobtn calcBtn" @click="dialogVisible = false">
                     取消
                 </div>
-                <div class="cobtn sureBtn">确定删除</div>
+                <div class="cobtn sureBtn" @click="sureDelExerciseData">
+                    确定删除
+                </div>
             </div>
         </el-dialog>
 
         <!-- 修改作业名称 -->
-        <el-dialog v-model="editVisible" :show-close="false" width="360px">
+        <el-dialog
+            custom-class="homeworkDialog"
+            v-model="editVisible"
+            :show-close="false"
+            width="360px"
+        >
             <template #title>
                 <span></span>
                 <span class="my-header">修改作业名称</span>
@@ -160,17 +216,14 @@
                 <div class="cobtn calcBtn" @click="editVisible = false">
                     取消
                 </div>
-                <div class="cobtn primBtn">确定</div>
+                <div class="cobtn primBtn" @click="sureUpdatePagerName">
+                    确定
+                </div>
             </div>
         </el-dialog>
 
         <!-- 选择学生 -->
-        <el-dialog
-            custom-class="studentDialog"
-            :show-close="false"
-            v-model="studentVisible"
-            width="70%"
-        >
+        <el-dialog :show-close="false" v-model="studentVisible" width="70%">
             <template #title>
                 <span></span>
                 <span class="my-header">选择学生-{{ props.gradeName }}</span>
@@ -251,10 +304,20 @@
     </div>
 </template>
 <script lang="ts" setup>
-import { defineEmits, defineProps, watch, ref, reactive } from "vue";
-import { FileInfo } from "@/types/lookQuestion";
+import { defineEmits, defineProps, watch, ref, reactive, computed } from "vue";
 import { getOssUrl } from "@/utils/oss";
 import { useRouter } from "vue-router";
+import SelectLabel from "@/views/assignHomework/SelectLabel.vue";
+import useWrongBook from "../hooks/useWrongBook";
+import {
+    AddPaperForPaperBasket,
+    getHomeworkPaperInfo,
+    updatePaperName,
+    sendErrorPaperWork,
+} from "@/api/errorbook";
+import { ElMessage } from "element-plus";
+import { store, ActionTypes } from "@/store";
+const { formatQuestionType, delAllBasketData } = useWrongBook();
 const emit = defineEmits(["update:isShowContent", "onBackWrongBook"]);
 const props = defineProps({
     isShowContent: {
@@ -269,16 +332,18 @@ const props = defineProps({
         type: String,
         default: "",
     },
-    //试题篮的练习题
-    exerciseData: {
+    // //试题篮的练习题
+    // exerciseData: {
+    //     type: Array,
+    //     default: () => [],
+    // },
+    currentClassStudents: {
         type: Array,
-        default: () => [
-            {
-                QuestionID: "39F76667529427E7066560E8D1786217",
-                QuestionType: 6,
-            },
-        ],
+        default: () => [],
     },
+});
+const exerciseData: any = computed(() => {
+    return store.state.wrongbook.questionBasket;
 });
 //删除提示弹框
 const dialogVisible = ref(false);
@@ -298,6 +363,16 @@ const checkedTags = ref([]);
 const checkedStudent = ref([]);
 //当前点击的学生层级
 const currentTags = ref(0);
+//当前班级的学生
+const computedCurrentClassStudents = computed(() => {
+    const data = props.currentClassStudents;
+    data.forEach((item: any) => {
+        item.checked = true;
+    });
+    return data;
+});
+//将要删除的题信息
+const delExerciseData = ref<any>({});
 const state = reactive({
     options: [
         {
@@ -365,8 +440,25 @@ const state = reactive({
         },
     ],
 });
+const homeworkPagerInfo = ref({
+    PaperId: "",
+    PaperName: "",
+    QuestionsCount: 0,
+});
+const formateSum = computed(() => {
+    const data = exerciseData.value
+        .map((item: any) => {
+            return `${formatQuestionType(item.QuestionType)}${item.Count}题`;
+        })
+        .join("、");
+    if (!store.state.wrongbook.baskTotal) {
+        return "";
+    } else {
+        return `共${store.state.wrongbook.baskTotal}题，包含${data}`;
+    }
+});
 watch(
-    () => props.exerciseData,
+    () => exerciseData.value,
     (val) => {
         console.log(val);
         if (val.length) {
@@ -375,6 +467,14 @@ watch(
     },
     { deep: true, immediate: true }
 );
+// watch(
+//     () => props.currentClassStudents,
+//     (val) => {
+//         console.log("props.currentClassStudents", props.currentClassStudents);
+//         currentClassStudents.value = val;
+//     },
+//     { deep: true }
+// );
 //学生层级选中改变
 const handleCheckedTagChange = (val: any) => {
     console.log(val);
@@ -403,26 +503,59 @@ const handleCheckedStuChange = (val: any) => {
 // };
 //删除生成的练习题
 const delExercise = (data: any) => {
+    // console.log(data);
+    delExerciseData.value = data;
     dialogVisible.value = true;
 };
+//确认删除当前点击的练习题
+const sureDelExerciseData = async () => {
+    const params = {
+        isAllDel: 0,
+        classId: store.state.wrongbook.currentClassId,
+        bookId: store.state.wrongbook.currentBookId,
+        questionIds: [delExerciseData.value?.QuestionId],
+        questionType: delExerciseData.value?.QuestionType,
+    };
+    await store.dispatch(ActionTypes.DEL_QUESTION_BASKET, params);
+    dialogVisible.value = false;
+};
 //编辑作业名称
-const editHomeowrkName = (name: string) => {
-    console.log("作业名称", name);
-    homeworkName.value = name || "";
+const editHomeowrkName = () => {
+    homeworkName.value = homeworkPagerInfo.value.PaperName;
     editVisible.value = true;
 };
 //选择学生
 const selectStudent = (data: any) => {
-    console.log("选择学生", data);
+    // console.log("选择学生", data);
     studentVisible.value = true;
 };
-//确定布置作业
-const assignHomework = () => {
-    currentSetp.value = 3;
+//确定布置作业---------------------
+const assignHomework = async () => {
+    const checkedStudents = computedCurrentClassStudents.value
+        .filter((item: any) => item.checked)
+        .map((item: any) => item.ID);
+    // console.log("checkedStudents", checkedStudents);
+    if (!checkedStudents.length) {
+        ElMessage.warning("还没有选择任何学生");
+        return;
+    }
+    const homeworkParams = {
+        SubjectId: store.state.wrongbook.currentSubjectId, //科目id
+        ClassId: store.state.wrongbook.currentClassId, //布置作业的班级id
+        PaperId: store.state.wrongbook.currentGeneratePaperId,
+        StudentIds: checkedStudents,
+    };
+    // console.log("homeworkParams", homeworkParams);
+    const res: any = await sendErrorPaperWork(homeworkParams);
+    if (res.resultCode == 200) {
+        delAllBasketData();
+        currentSetp.value = 3;
+    }
 };
 //返回班级错题本页面
 const backWrongBookPage = () => {
     emit("onBackWrongBook", props.preContent);
+    currentSetp.value = 1;
 };
 const router = useRouter();
 //查询作业列表
@@ -436,6 +569,47 @@ const backList = () => {
     } else {
         currentSetp.value = 1;
         return;
+    }
+};
+//下一步 + 生成练习
+const nexStep = async () => {
+    if (!formateSum.value) return;
+    //生成练习接口
+    const res: any = await AddPaperForPaperBasket({
+        PaperName: `${props.gradeName}错题复习`,
+        BasketPaperQuestions: store.state.wrongbook.questionBasket,
+    });
+    if (res.resultCode == 200) {
+        store.state.wrongbook.currentGeneratePaperId = res.result.PaperId;
+        if (store.state.wrongbook.currentGeneratePaperId) {
+            queryHomeworkInfoById();
+        }
+        currentSetp.value = 2;
+    }
+};
+//根据生成的练习作业id查询布置作业的信息
+const queryHomeworkInfoById = async () => {
+    const res: any = await getHomeworkPaperInfo({
+        ID: store.state.wrongbook.currentGeneratePaperId,
+    });
+    console.log("查询布置作业页面信息", res);
+    if (res.resultCode == 200) {
+        homeworkPagerInfo.value = res.result;
+        homeworkPagerInfo.value.PaperName =
+            homeworkPagerInfo.value.PaperName || `${props.gradeName}错题复习`;
+    }
+};
+//确认修改生成的作业名称
+const sureUpdatePagerName = async () => {
+    const params = {
+        PaperId: homeworkPagerInfo.value.PaperId,
+        Name: homeworkName.value,
+    };
+    const res: any = await updatePaperName(params);
+    console.log(res);
+    if (res.resultCode == 200) {
+        editVisible.value = false;
+        queryHomeworkInfoById();
     }
 };
 </script>
@@ -477,6 +651,7 @@ const backList = () => {
         background: #ffffff;
         margin-top: 10px;
         padding: 16px;
+        overflow: hidden;
         .title {
             font-size: 14px;
             font-family: HarmonyOS_Sans_SC;
@@ -498,6 +673,7 @@ const backList = () => {
                 padding: 16px;
                 background: #f9fafc;
                 border-radius: 4px;
+                margin-bottom: 15px;
                 .item-type {
                     display: flex;
                     justify-content: space-between;
@@ -607,6 +783,15 @@ const backList = () => {
                                 cursor: pointer;
                             }
                         }
+                        .count {
+                            font-size: 14px;
+                            color: #5f626f;
+                        }
+                        .book-type {
+                            font-size: 14px;
+                            color: #19203d;
+                            font-weight: 600;
+                        }
                     }
                     .item-right {
                         display: flex;
@@ -679,213 +864,215 @@ const backList = () => {
         }
     }
 
-    :deep(.el-dialog) {
-        border-radius: 8px;
-        position: absolute;
-        left: 0;
-        top: 0;
-        bottom: 0;
-        right: 0;
-        margin: auto;
-        height: 245px;
-        .el-dialog__header {
-            padding: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #f5f6fa;
-            img {
-                cursor: pointer;
-            }
-            .my-header {
-                text-align: center;
-                font-size: 16px;
-                font-family: HarmonyOS_Sans_SC_Bold;
-                color: #19203d;
-                font-weight: 600;
-            }
+    // :deep(.el-dialog.studentDialog) {
+    //     height: 88vh;
+    //     .el-dialog__body {
+    //         padding: 0;
+    //         height: calc(100% - 64px);
+    //     }
+    //     .dialog-content {
+    //         height: calc(100% - 64px);
+    //         display: flex;
+    //         justify-content: space-between;
+    //         .content-left {
+    //             width: 23%;
+    //             height: 100%;
+    //             background-color: #ffffff;
+    //             .student-tag {
+    //                 .el-checkbox-group {
+    //                     font-size: 14px;
+    //                     .tag-check {
+    //                         cursor: pointer;
+    //                         padding: 6px 16px;
+    //                         background-color: #ffffff;
+    //                         display: flex;
+    //                         justify-content: space-between;
+    //                         align-items: center;
+    //                         .left {
+    //                             display: flex;
+    //                             align-items: center;
+    //                             color: #19203d;
+    //                             .text {
+    //                                 padding-left: 5px;
+    //                             }
+    //                             .count {
+    //                                 padding-left: 5px;
+    //                             }
+    //                         }
+    //                         .right {
+    //                             width: 18px;
+    //                             height: 18px;
+    //                             background: #4b71ee;
+    //                             color: #ffffff;
+    //                             border-radius: 50%;
+    //                             text-align: center;
+    //                             line-height: 18px;
+    //                             font-size: 12px;
+    //                         }
+    //                     }
+    //                     .isActive {
+    //                         position: relative;
+    //                         background: #e6ecff;
+    //                         .left {
+    //                             color: #4b71ee;
+    //                         }
+    //                     }
+    //                     .isActive::after {
+    //                         content: "";
+    //                         display: block;
+    //                         position: absolute;
+    //                         width: 3px;
+    //                         height: 100%;
+    //                         background: #4b71ee;
+    //                         right: 0;
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //         .student-right {
+    //             flex: 1;
+    //             height: 100%;
+    //             .el-checkbox-group {
+    //                 font-size: 14px;
+    //                 display: flex;
+    //                 flex-wrap: wrap;
+    //                 padding-top: 20px;
+    //                 padding-left: 20px;
+    //                 .student-item {
+    //                     padding: 20px;
+    //                     width: 30%;
+    //                     display: flex;
+    //                     // justify-content: space-between;
+    //                     background-color: #ffffff;
+    //                     margin-right: 20px;
+    //                     margin-bottom: 20px;
+    //                     .right {
+    //                         margin-left: 15px;
+    //                         display: flex;
+    //                         align-items: center;
+    //                         img {
+    //                             width: 38px;
+    //                             height: 38px;
+    //                             border-radius: 50%;
+    //                         }
+    //                         .name-num {
+    //                             flex-direction: column;
+    //                             display: flex;
+    //                             justify-content: space-between;
+    //                             margin-left: 18px;
+    //                             height: 100%;
+    //                             .name {
+    //                                 font-size: 14px;
+    //                                 color: #19203d;
+    //                             }
+    //                             .num {
+    //                                 font-size: 12px;
+    //                                 color: #5f626f;
+    //                                 font-weight: normal;
+    //                             }
+    //                         }
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     .custom-footers {
+    //         display: flex;
+    //         justify-content: space-between;
+    //         align-items: center;
+    //         padding: 12px 16px;
+    //         border-top: 1px solid #f5f6fa;
+    //         .footer-left {
+    //             display: flex;
+    //             align-items: center;
+    //             font-size: 14px;
+    //             font-family: HarmonyOS_Sans_SC;
+    //             color: #5f626f;
+    //             .selected {
+    //                 padding-left: 24px;
+    //             }
+    //         }
+    //         .primBtn {
+    //             cursor: pointer;
+    //             color: #ffffff;
+    //             background: #4b71ee;
+    //             border-radius: 4px;
+    //             width: 100px;
+    //             height: 32px;
+    //             line-height: 32px;
+    //             text-align: center;
+    //         }
+    //     }
+    // }
+}
+</style>
+<style lang="scss">
+.el-dialog.homeworkDialog {
+    border-radius: 8px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    margin: auto;
+    height: 245px;
+    .el-dialog__header {
+        padding: 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #f5f6fa;
+        img {
+            cursor: pointer;
         }
-        .el-dialog__body {
-            .dialog-content {
-                background-color: #f5f6fa;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 16px;
-                font-family: HarmonyOS_Sans_SC_Medium;
-                color: #212743;
-                font-weight: 600;
-                img {
-                    padding-right: 24px;
-                }
-            }
-            .dialog-footers {
-                margin-top: 50px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                .cobtn {
-                    padding: 8px 20px;
-                    font-size: 12px;
-                    border-radius: 4px;
-                    border: 1px solid #e0e2e7;
-                    font-size: 12px;
-                    font-family: HarmonyOS_Sans_SC;
-                    cursor: pointer;
-                }
-                .calcBtn {
-                    background: #ffffff;
-                }
-                .primBtn {
-                    margin-left: 16px;
-                    background: #4b71ee;
-                    color: #ffffff;
-                }
-                .sureBtn {
-                    margin-left: 16px;
-                    background: #ff6b6b;
-                    color: #ffffff;
-                }
-            }
+        .my-header {
+            text-align: center;
+            font-size: 16px;
+            font-family: HarmonyOS_Sans_SC_Bold;
+            color: #19203d;
+            font-weight: 600;
         }
     }
-    :deep(.el-dialog.studentDialog) {
-        height: 88vh;
-        .el-dialog__body {
-            padding: 0;
-            height: calc(100% - 64px);
-        }
+    .el-dialog__body {
         .dialog-content {
-            height: calc(100% - 64px);
+            background-color: #f5f6fa;
             display: flex;
-            justify-content: space-between;
-            .content-left {
-                width: 23%;
-                height: 100%;
-                background-color: #ffffff;
-                .student-tag {
-                    .el-checkbox-group {
-                        font-size: 14px;
-                        .tag-check {
-                            cursor: pointer;
-                            padding: 6px 16px;
-                            background-color: #ffffff;
-                            display: flex;
-                            justify-content: space-between;
-                            align-items: center;
-                            .left {
-                                display: flex;
-                                align-items: center;
-                                color: #19203d;
-                                .text {
-                                    padding-left: 5px;
-                                }
-                                .count {
-                                    padding-left: 5px;
-                                }
-                            }
-                            .right {
-                                width: 18px;
-                                height: 18px;
-                                background: #4b71ee;
-                                color: #ffffff;
-                                border-radius: 50%;
-                                text-align: center;
-                                line-height: 18px;
-                                font-size: 12px;
-                            }
-                        }
-                        .isActive {
-                            position: relative;
-                            background: #e6ecff;
-                            .left {
-                                color: #4b71ee;
-                            }
-                        }
-                        .isActive::after {
-                            content: "";
-                            display: block;
-                            position: absolute;
-                            width: 3px;
-                            height: 100%;
-                            background: #4b71ee;
-                            right: 0;
-                        }
-                    }
-                }
-            }
-            .student-right {
-                flex: 1;
-                height: 100%;
-                .el-checkbox-group {
-                    font-size: 14px;
-                    display: flex;
-                    flex-wrap: wrap;
-                    padding-top: 20px;
-                    padding-left: 20px;
-                    .student-item {
-                        padding: 20px;
-                        width: 30%;
-                        display: flex;
-                        // justify-content: space-between;
-                        background-color: #ffffff;
-                        margin-right: 20px;
-                        margin-bottom: 20px;
-                        .right {
-                            margin-left: 15px;
-                            display: flex;
-                            align-items: center;
-                            img {
-                                width: 38px;
-                                height: 38px;
-                                border-radius: 50%;
-                            }
-                            .name-num {
-                                flex-direction: column;
-                                display: flex;
-                                justify-content: space-between;
-                                margin-left: 18px;
-                                height: 100%;
-                                .name {
-                                    font-size: 14px;
-                                    color: #19203d;
-                                }
-                                .num {
-                                    font-size: 12px;
-                                    color: #5f626f;
-                                    font-weight: normal;
-                                }
-                            }
-                        }
-                    }
-                }
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-family: HarmonyOS_Sans_SC_Medium;
+            color: #212743;
+            font-weight: 600;
+            img {
+                padding-right: 24px;
             }
         }
-        .custom-footers {
+        .dialog-footers {
+            margin-top: 50px;
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            padding: 12px 16px;
-            border-top: 1px solid #f5f6fa;
-            .footer-left {
-                display: flex;
-                align-items: center;
-                font-size: 14px;
+            justify-content: center;
+            .cobtn {
+                padding: 8px 20px;
+                font-size: 12px;
+                border-radius: 4px;
+                border: 1px solid #e0e2e7;
+                font-size: 12px;
                 font-family: HarmonyOS_Sans_SC;
-                color: #5f626f;
-                .selected {
-                    padding-left: 24px;
-                }
+                cursor: pointer;
+            }
+            .calcBtn {
+                background: #ffffff;
             }
             .primBtn {
-                cursor: pointer;
-                color: #ffffff;
+                margin-left: 16px;
                 background: #4b71ee;
-                border-radius: 4px;
-                width: 100px;
-                height: 32px;
-                line-height: 32px;
-                text-align: center;
+                color: #ffffff;
+            }
+            .sureBtn {
+                margin-left: 16px;
+                background: #ff6b6b;
+                color: #ffffff;
             }
         }
     }
