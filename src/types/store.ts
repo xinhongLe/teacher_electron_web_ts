@@ -122,9 +122,20 @@ export interface CommonState {
      */
     activeWindow: string;
 }
+export interface WrongBookState {
+    questionBasket?: any[];
+    baskTotal?: number;
+    currentClassId: string;
+    currentBookId: string;
+    currentPaperName: string;
+    currentGeneratePaperId: string;
+    currentSelectedBookName: string;
+    currentSubjectId: string;
+}
 export interface RootState {
     userInfo: UserInfoState;
     preparation: PreparationState;
     common: CommonState;
     myStudent: MyStudentState;
+    wrongbook: WrongBookState;
 }
