@@ -303,6 +303,27 @@
                                     @click="openSimilarQuestion()"
                                     >查看同类题</el-button
                                 >
+                                <el-button
+                                    v-if="
+                                        formatInBasket(
+                                            state.currentQuestionData
+                                        )
+                                    "
+                                    size="small"
+                                    @click="addQuestionBasket()"
+                                    >添加试题篮</el-button
+                                >
+                                <el-button
+                                    v-else
+                                    size="small"
+                                    @click="
+                                        delQuestionBasket(
+                                            state.currentQuestionData
+                                        )
+                                    "
+                                    style="color: #f76b6b"
+                                    >移出试题篮</el-button
+                                >
                             </div>
                         </div>
                         <!-- <div class="contents">
@@ -709,6 +730,7 @@ import {
 import { getOssUrl } from "@/utils/oss";
 import useWrongBook from "../hooks/useWrongBook";
 import { IViewResourceData } from "@/types/store";
+import { MutationTypes, store, ActionTypes } from "@/store";
 
 const {
     questionTypeList,
@@ -719,6 +741,7 @@ const {
     formatRecentColor,
     formatQuestionType,
     formatProColor,
+    formatInBasket,
 } = useWrongBook();
 const props = defineProps({
     currentWrongType: {
@@ -882,8 +905,37 @@ const state = reactive({
     },
     errorTitle: "",
     detailListIndex: 0,
+    //当前错题数据
+    currentQuestionData: {},
 });
 provide("nowQuestionID", state.currentIndex);
+
+//添加错题至试题篮
+const addQuestionBasket = () => {
+    console.log("当前错题数据", state.currentQuestionData);
+    store.dispatch(
+        ActionTypes.ADD_QUESTION_BASKET,
+        Object.assign(
+            {
+                classId: store.state.wrongbook.currentClassId,
+                bookId: store.state.wrongbook.currentBookId,
+            },
+            state.currentQuestionData
+        )
+    );
+};
+//移出一条试题篮
+const delQuestionBasket = (data: any) => {
+    console.log("当前错题行数据", data);
+    const params = {
+        isAllDel: 0,
+        classId: store.state.wrongbook.currentClassId,
+        bookId: store.state.wrongbook.currentBookId,
+        questionIds: [data.QuestionId],
+        questionType: data.QuestionType,
+    };
+    store.dispatch(ActionTypes.DEL_QUESTION_BASKET, params);
+};
 
 //按作业维度的左边列表查询参数
 const homeworkParams = reactive<QuestionListByHomeworkParams>({
@@ -1192,6 +1244,7 @@ const close = () => {
 //切换左侧错题项-差详情
 const switchWrongItem = (item: any) => {
     state.currentIndex = item.QuestionId;
+    state.currentQuestionData = item;
     console.log("差详情的参数", item);
     queryDetails(item);
 };
@@ -1286,6 +1339,7 @@ const openErrorHistory = (data: any) => {
 onMounted(() => {
     emitter.on("openErrorBookDetails", (val) => {
         console.log(val);
+        state.currentQuestionData = val.questionData;
         questionType.value = "";
         frequency.value = 0;
         if (!val) return;

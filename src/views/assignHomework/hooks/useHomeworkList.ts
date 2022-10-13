@@ -3,7 +3,7 @@ import {
     CommHomework,
     Student,
     SystemHomework,
-    TeachHomework
+    TeachHomework,
 } from "@/types/assignHomework";
 import { cloneDeep } from "lodash";
 import { ref } from "vue";
@@ -17,32 +17,34 @@ export default () => {
 
     const updateClassList = (list: ClassData[]) => {
         classList.value = list;
+        console.log("list", list);
+
         studentList.value = [];
         list.forEach(({ Students, ClassId }) => {
             studentList.value.push(
                 ...Students.map((item) => ({
                     ...item,
                     checked: true,
-                    classID: ClassId
+                    classID: ClassId,
                 }))
             );
         });
         commonHomeworkList.value = commonHomeworkList.value.map((item) => {
             return {
                 ...item,
-                students: cloneDeep(studentList.value)
+                students: cloneDeep(studentList.value),
             };
         });
         systemHomeworkList.value = systemHomeworkList.value.map((item) => {
             return {
                 ...item,
-                students: cloneDeep(studentList.value)
+                students: cloneDeep(studentList.value),
             };
         });
         teachHomeworkList.value = teachHomeworkList.value.map((item) => {
             return {
                 ...item,
-                students: cloneDeep(studentList.value)
+                students: cloneDeep(studentList.value),
             };
         });
     };
@@ -51,7 +53,7 @@ export default () => {
         commonHomeworkList.value.push(
             ...list.map((item) => ({
                 ...item,
-                students: cloneDeep(studentList.value)
+                students: cloneDeep(studentList.value),
             }))
         );
     };
@@ -74,7 +76,7 @@ export default () => {
         systemHomeworkList.value.push(
             ...newList.map((item) => ({
                 ...item,
-                students: cloneDeep(studentList.value)
+                students: cloneDeep(studentList.value),
             }))
         );
     };
@@ -97,7 +99,7 @@ export default () => {
                 ...item,
                 students: cloneDeep(studentList.value),
                 publishType: "zi",
-                publishTime: new Date(dateTime)
+                publishTime: new Date(dateTime),
             }))
         );
     };
@@ -122,6 +124,6 @@ export default () => {
         deleteTeachHomework,
         teachHomeworkList,
         updateTeachHomework,
-        deleteCommonHomework
+        deleteCommonHomework,
     };
 };

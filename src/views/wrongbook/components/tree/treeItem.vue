@@ -5,8 +5,8 @@
             'no-before': zIndex === 0,
             'no-icon': !(
                 (itemData.Lessons && itemData.Lessons.length > 0) ||
-                zIndex === 0 ||
-                isShow
+                // zIndex === 0 ||
+                (isShow && itemData.HadChildren)
             ),
         }"
     >
@@ -96,8 +96,19 @@
 </template>
 
 <script lang="ts">
-import { PropType, defineComponent, ref, watch, reactive, inject } from "vue";
+import {
+    PropType,
+    defineComponent,
+    ref,
+    watch,
+    reactive,
+    inject,
+    onMounted,
+    defineExpose,
+} from "vue";
 import { searchLeftMeunByKnowledge } from "@/api/errorbook";
+import emitter from "@/utils/mitt"; //全局事件总线
+
 export default defineComponent({
     props: {
         itemData: {
@@ -142,6 +153,11 @@ export default defineComponent({
                 }
             }
         };
+        onMounted(() => {
+            emitter.on("packButton", () => {
+                isOpen.value = true;
+            });
+        });
         return {
             isOpen,
             isloading,

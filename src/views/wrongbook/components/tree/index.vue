@@ -13,7 +13,15 @@
 </template>
 
 <script lang="ts">
-import { PropType, defineComponent, watch, onMounted, ref } from "vue";
+import {
+    PropType,
+    defineComponent,
+    watch,
+    onMounted,
+    ref,
+    defineExpose,
+    nextTick,
+} from "vue";
 import TreeItem from "./treeItem.vue";
 export default defineComponent({
     components: { TreeItem },
@@ -31,9 +39,9 @@ export default defineComponent({
             emit("update:value", treeItem.Id || treeItem.ChapterId);
             emit("onTreeItemChange", treeItem, keys);
         };
-
         return {
             selectedTreeItem,
+            // sonMethod,
         };
     },
 });
