@@ -27,7 +27,13 @@
                    </div>
                </div>
                <div class="content-container" v-for="value in item.StudentQuestionOptionsResult" :key="value">
-                   <span class="title">{{value.OptionName === "未选择" ? '未选择' : `选择${value.OptionName}项`}}</span>
+                   <div class="option">
+                        <span class="title">{{value.OptionName === "未选择" ? '未选择' : `选择${value.OptionName}项`}}</span>
+                        <div class="zan">
+                            <img @click="handlePraiseStudent(value)" v-if="!value.status" src="@/assets/images/suspension/icon_zan_default.png" alt="">
+                            <img v-else src="@/assets/images/suspension/icon_zan.png" alt="">
+                        </div>
+                   </div>
                    <StudentInfoList :studentList="value.SelectStudent || []"/>
                </div>
 <!--               <div class="content-container">-->
@@ -43,12 +49,15 @@
 </template>
 
 <script lang="ts">
-import {computed, defineComponent, inject, nextTick, onMounted, onUnmounted, PropType, ref} from "vue";
+import { computed, defineComponent, inject, nextTick, onMounted, onUnmounted, PropType, ref } from "vue";
 import { Student } from "@/types/labelManage";
 import { StudentAnswerInfo, StudentAnswerInfoList } from "./api";
 import { PADModeQuestionType } from "./enum";
 import * as echarts from "echarts";
 import StudentInfoList from "./studentInfoList.vue";
+import { screen } from "@electron/remote";
+import { praiseStudent } from "@/childWindow/quickAnswer/api";
+import { UserInfoState } from "@/types/store";
 export default defineComponent({
     components: {
         StudentInfoList
@@ -75,14 +84,37 @@ export default defineComponent({
         lessonId: {
             type: String,
             default: () => ""
+        },
+        currentUserInfo: {
+            type: Object as PropType<UserInfoState>
         }
     },
     setup(props) {
         const echartRef = ref<HTMLDivElement>();
         const QuestionType = inject("QuestionType", ref(PADModeQuestionType));
-        console.log(QuestionType, "QuestionType-----");
         const close = () => {
             window.electron.destroyWindow();
+        };
+
+        const handlePraiseStudent = (value:any) => {
+            const data = {
+                Type: 1,
+                SchoolID: props.currentUserInfo!.schoolId,
+                TeacherID: props.currentUserInfo!.userCenterUserID,
+                TeacherName: props.currentUserInfo!.name || "",
+                StudentList: value.SelectStudent,
+                LabelList: [{
+                    LabelID: "ab299e61-bbbd-11ec-8bcf-00163e167f3f",
+                    LabelName: "上课表现积极",
+                    Score: 1,
+                    ScoreType: 1
+                }]
+            };
+            praiseStudent(data).then(res => {
+                if (res.resultCode === 200) {
+                    value.status = true;
+                }
+            });
         };
 
         const customColorMethod = (percentage: number) => {
@@ -152,14 +184,17 @@ export default defineComponent({
             timer && clearTimeout(timer);
         });
 
-        window.electron.setContentSize(1240, 929);
+        const size = screen.getPrimaryDisplay().workAreaSize;
+        window.electron.setContentSize(size.width > 1240 ? 1240 : (size.width - 100), size.height > 929 ? 929 : (size.height - 100));
+        // window.electron.setContentSize(1240, 929);
         window.electron.setCenter();
         return	{
             close,
             QuestionType,
             percentage: computed(() => props.answerDetail!.AllUserCount ? Math.round((props.answerDetail!.CommitUserCount / props.answerDetail!.AllUserCount) * 100) : 0),
             echartRef,
-            customColorMethod
+            customColorMethod,
+            handlePraiseStudent
         };
     }
 });
@@ -237,6 +272,14 @@ export default defineComponent({
             display: flex;
             flex-direction: column;
             margin-bottom: 20px;
+            .option{
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                .zan{
+                    cursor: pointer;
+                }
+            }
             .title {
                 margin-bottom: 16px;
             }

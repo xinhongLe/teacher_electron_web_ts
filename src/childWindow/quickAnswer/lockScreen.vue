@@ -11,7 +11,7 @@
                          :inactive-value="1"
                          active-text="解锁"
                          inactive-text="锁定"
-                         size="default"
+                         size="large"
               />
           </div>
         </div>

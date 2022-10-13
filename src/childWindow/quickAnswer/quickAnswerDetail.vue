@@ -108,9 +108,22 @@ export default defineComponent({
 
         const handlePraiseStudent = () => {
             const data = {
-                StudentIdList: [state.studentInfo.id],
-                AnswerMachineID: state.answerMachineID,
-                TeacherID: props.currentUserInfo!.userCenterUserID
+                Type: 1,
+                SchoolID: props.currentUserInfo!.schoolId,
+                TeacherID: props.currentUserInfo!.userCenterUserID,
+                TeacherName: props.currentUserInfo!.name || "",
+                StudentList: [{
+                    StudentID: state.studentInfo.id,
+                    StudentName: state.studentInfo.name,
+                    ClassID: state.currentClass,
+                    ClassName: props.classList?.find(item => item.ClassId === state.currentClass)?.ClassId || ""
+                }],
+                LabelList: [{
+                    LabelID: "ab299e61-bbbd-11ec-8bcf-00163e167f3f",
+                    LabelName: "上课表现积极",
+                    Score: 1,
+                    ScoreType: 1
+                }]
             };
             praiseStudent(data).then(res => {
                 if (res.resultCode === 200) {
