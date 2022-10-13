@@ -264,6 +264,7 @@
                         v-model:currentHomeworkBookId="
                             state.currentHomeworkBookId
                         "
+                        @selectSubject="selectSubject"
                     ></LeftOne>
                     <LeftTwo
                         v-if="state.currentWrongType == 2"
@@ -315,6 +316,7 @@
             :preContent="state.preContent"
             :exerciseData="state.exerciseData"
             @onBackWrongBook="onBackWrongBook"
+            :currentClassStudents="state.currentClassStudents"
         />
     </div>
     <QuestionBasket
@@ -325,7 +327,16 @@
 </template>
 
 <script lang="ts" setup>
-import { reactive, ref, defineExpose, watch, onMounted, nextTick } from "vue";
+import {
+    reactive,
+    ref,
+    defineExpose,
+    watch,
+    onMounted,
+    nextTick,
+    onActivated,
+    onDeactivated,
+} from "vue";
 import { ArrowDown, Search, CircleClose } from "@element-plus/icons-vue";
 import LeftOne from "./components/LeftOne.vue";
 import LeftTwo from "./components/LeftTwo.vue";
@@ -337,10 +348,16 @@ import QuestionBasket from "./components/QuestionBasket.vue";
 import GenerateExercise from "./components/GenerateExercise.vue";
 import { get, STORAGE_TYPES } from "@/utils/storage";
 import { getFormatDate } from "@/utils";
+import { fetchGradeClassStudents } from "@/views/assignHomework/api";
+import { useRoute } from "vue-router";
 import useWrongBook from "./hooks/useWrongBook";
+import { store } from "@/store";
+
 const { questionTypeList, frequencyList } = useWrongBook();
+const route = useRoute();
 const classList = get(STORAGE_TYPES.USER_INFO).Classes;
 const gradeId = ref(classList.length ? classList[0]?.GradeID : "");
+const isActivited = ref(false);
 const state = reactive({
     //顶部时间选择区间
     dateRange: getFormatDate(1) || [],
@@ -348,6 +365,8 @@ const state = reactive({
     classList: "",
     //当前选中的班级
     currentClassId: classList.length ? classList[0]?.ID : "",
+    //当前班级的所有学生
+    currentClassStudents: [],
     //显示内容：1列表 2详情 3练习
     isShowContent: 1,
     preContent: 0,
@@ -453,6 +472,7 @@ const scrollResultWidth = ref(0); //transform滚动的距离
 const signleWidth = ref(90); //单个流程的宽度
 const currentClickNumber = ref(0);
 const noScrollRight = ref(true);
+const allClassStudents = ref<any>([]);
 //作业维度排序字段
 const sortData = ref({
     //当前选择的分层登记
@@ -504,18 +524,71 @@ watch(
         console.log(val);
     }
 );
+//选择科目查学生
+const selectSubject = (subject: any) => {
+    console.log("subjectid", subject);
+    if (subject) {
+        allClassStudents.value = [];
+        queryClassStudents(subject);
+    }
+};
+const queryClassStudents = async (subjectId: any) => {
+    const res = await fetchGradeClassStudents({
+        subjectID: subjectId,
+    });
+
+    if (res.resultCode === 200) {
+        console.log("fetchGradeClassStudents", res);
+
+        res.result.forEach((item: any) => {
+            item.ClassData.forEach((data: any) => {
+                allClassStudents.value.push(data);
+            });
+        });
+    }
+};
+watch(
+    () => allClassStudents.value,
+    (val) => {
+        if (!val.length) return;
+        // console.log("allClassStudents.value", allClassStudents.value);
+
+        filterClassStudent(val);
+    },
+    { deep: true }
+);
+//过滤班级学生
+const filterClassStudent = (val: any) => {
+    state.currentClassStudents = val
+        .find((item: any) => item.ClassId == state.currentClassId)
+        .Students.map((stu: any) => {
+            return {
+                ...stu,
+                TagName: stu.TagName ? stu.TagName : "未标记",
+            };
+        });
+    console.log("currentClassStudents", state.currentClassStudents);
+};
 //生成练习
-const basketGenerateExercise = (data: any, type: number) => {
-    console.log("生成练习", data, type);
+const basketGenerateExercise = async (type: number) => {
+    console.log("生成练习", type);
     state.preContent = type;
-    state.exerciseData = data;
+    // state.exerciseData = store.state.wrongbook.questionBasket as any;
 };
 onMounted(() => {
     nextTick(() => {
+        isActivited.value = true;
+
         setTimeout(() => {
             initgoRightArrow();
         });
     });
+});
+onActivated(() => {
+    isActivited.value = true;
+});
+onDeactivated(() => {
+    isActivited.value = false;
 });
 const fixedBoxRef = ref();
 const fourClassList = ref([]);
@@ -588,8 +661,12 @@ const searchForm = ref({
 });
 //切换顶部选中的班级
 const switchClass = (value: any) => {
+    console.log("选中的班级", value);
+
     state.currentClassId = value.ID;
     searchForm.value.ClassId = value.ID;
+    filterClassStudent(allClassStudents.value);
+
     //传年级id
     gradeId.value = value.GradeID;
     state.gradeName = value.Name;

@@ -5,7 +5,10 @@
         </header>
         <div class="row-line"></div>
         <div class="assign-homework-content">
-            <AssignObject @updateClassList="updateClassList" ref="assignObjectRef"/>
+            <AssignObject
+                @updateClassList="updateClassList"
+                ref="assignObjectRef"
+            />
             <div>
                 <p class="title-class">作业内容</p>
                 <div class="content-wrapper">
@@ -30,6 +33,12 @@
                             @click="teachHomeworkDialog = true"
                             >教辅作业</el-button
                         >
+                        <!-- <el-button
+                            plain
+                            icon="el-icon-plus"
+                            @click="wrongBookDialog = true"
+                            >班级错题本</el-button
+                        > -->
                     </div>
                     <CommonHomeworkItem
                         v-for="(item, index) in commonHomeworkList"
@@ -50,7 +59,12 @@
                     <TeachHomeworkItem
                         v-for="(item, index) in teachHomeworkList"
                         :key="item.WorkbookPaperID"
-                        :index="commonHomeworkList.length + systemHomeworkList.length + index + 1"
+                        :index="
+                            commonHomeworkList.length +
+                            systemHomeworkList.length +
+                            index +
+                            1
+                        "
                         :item="item"
                         :realIndex="index"
                         @delete="deleteTeachHomework"
@@ -77,6 +91,8 @@
             v-show="teachHomeworkDialog"
             @update="updateTeachHomeworkList"
         />
+        <!-- 班级错题本弹框 -->
+        <!-- <WrongBookDialog v-model:dialogVisible="wrongBookDialog" /> -->
     </div>
 </template>
 
@@ -95,12 +111,15 @@ import SystemHomeworkDialog from "./systemHomeworkDialog/index.vue";
 import SystemHomeworkItem from "./SystemHomeworkItem.vue";
 import TeachHomeworkDialog from "./TeachHomeworkDialog.vue";
 import TeachHomeworkItem from "./TeachHomeworkItem.vue";
+import WrongBookDialog from "./WrongBookDialog.vue";
+
 export default defineComponent({
     name: "AssignHomework",
     setup() {
         const commonHomeworkDialog = ref(false);
         const systemHomeworkDialog = ref(false);
         const teachHomeworkDialog = ref(false);
+        const wrongBookDialog = ref(false); //班级错题本
         const assignObjectRef = ref<InstanceType<typeof AssignObject>>();
         const route = useRoute();
         const router = useRouter();
@@ -119,7 +138,7 @@ export default defineComponent({
             teachHomeworkList,
             updateTeachHomeworkList,
             deleteSystemHomework,
-            updateTeachHomework
+            updateTeachHomework,
         } = useHomeworkList();
 
         const submit = async () => {
@@ -128,12 +147,12 @@ export default defineComponent({
                     .filter((val) => val.checked)
                     .map((val) => ({
                         studentID: val.ID,
-                        classID: val.classID!
+                        classID: val.classID!,
                     }));
                 const files = v.files.map((val) => ({
                     fileName: val.fileName,
                     extension: val.extension,
-                    name: val.name
+                    name: val.name,
                 }));
 
                 return {
@@ -141,7 +160,7 @@ export default defineComponent({
                     name: v.name,
                     BookID: v.BookID,
                     students,
-                    files
+                    files,
                 };
             });
             const systemPaper: Paper[] = systemHomeworkList.value.map((v) => {
@@ -149,35 +168,39 @@ export default defineComponent({
                     .filter((val) => val.checked)
                     .map((val) => ({
                         studentID: val.ID,
-                        classID: val.classID!
+                        classID: val.classID!,
                     }));
                 return {
                     type: v.type,
                     paperID: v.PaperID,
                     students,
                     lessonID: v.lessonID,
-                    questionIDs: v.Questions
+                    questionIDs: v.Questions,
                 };
             });
-            const teachPaper: Paper[] = teachHomeworkList.value.map(v => {
+            const teachPaper: Paper[] = teachHomeworkList.value.map((v) => {
                 const students = v.students
                     .filter((val) => val.checked)
                     .map((val) => ({
                         studentID: val.ID,
-                        classID: val.classID!
+                        classID: val.classID!,
                     }));
                 return {
                     type: 2,
                     students,
                     BookID: v.BookID,
                     paperID: v.WorkbookPaperID,
-                    answerShowTime: v.publishTime ? `${moment(v.publishTime).format("YYYY-MM-DD HH:mm:ss")}` : ""
+                    answerShowTime: v.publishTime
+                        ? `${moment(v.publishTime).format(
+                              "YYYY-MM-DD HH:mm:ss"
+                          )}`
+                        : "",
                 };
             });
             const data = {
                 subjectID: route.params.subjectId as string,
                 classes: classList.value.map((v) => ({ classID: v.ClassId })),
-                papers: [...commonPaper, ...systemPaper, ...teachPaper]
+                papers: [...commonPaper, ...systemPaper, ...teachPaper],
             };
             const res = await publishHomework(data);
             if (res.resultCode === 200) {
@@ -186,7 +209,8 @@ export default defineComponent({
                     commonHomeworkList.value = [];
                     teachHomeworkList.value = [];
                     systemHomeworkList.value = [];
-                    assignObjectRef.value && assignObjectRef.value.clearClassList();
+                    assignObjectRef.value &&
+                        assignObjectRef.value.clearClassList();
                     router.push("/homework");
                 }, 500); // 延时跳转，确保服务器数据已刷新
             }
@@ -211,7 +235,8 @@ export default defineComponent({
             updateTeachHomeworkList,
             assignObjectRef,
             systemHomeworkDialog,
-            commonHomeworkDialog
+            commonHomeworkDialog,
+            wrongBookDialog,
         };
     },
     components: {
@@ -221,8 +246,9 @@ export default defineComponent({
         SystemHomeworkDialog,
         SystemHomeworkItem,
         TeachHomeworkDialog,
-        TeachHomeworkItem
-    }
+        TeachHomeworkItem,
+        WrongBookDialog,
+    },
 });
 </script>
 
