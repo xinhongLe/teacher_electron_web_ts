@@ -160,6 +160,7 @@
                           :mistakesCollectState="mistakesCollectState"
                           :isFinishState="isFinishState"
                           :collectedCount="collectedCount"
+                          :collectionId="collectionId"
                           v-model:dialogVisible="mistakesCollectDialog">
 
         </mistakes-collect>
@@ -425,12 +426,14 @@ export default defineComponent({
         const mistakesCollectState = ref(0); // 0未收集过，1已收集过
         const isFinishState = ref(0); // 0未完成收集，1已完成收集
         const collectedCount = ref(0); // 0未完成收集，1已完成收集
+        const collectionId = ref("");
         const handleMistakesCollect = (info:Homework) => {
             topicConnectionState({ Id: info.ClassHomeworkPaperID }).then(res => {
                 if (res.resultCode === 200) {
                     mistakesCollectState.value = res.result.HasCollection || 0;
                     isFinishState.value = res.result.IsFinish || 0;
                     collectedCount.value = res.result.CollectedCount || 0;
+                    collectionId.value = res.result.CollectionId || "";
                     mistakesCollectDialog.value = true;
                 }
             });
@@ -459,6 +462,7 @@ export default defineComponent({
             mistakesCollectState,
             isFinishState,
             collectedCount,
+            collectionId,
             handleMistakesCollect
         };
     },

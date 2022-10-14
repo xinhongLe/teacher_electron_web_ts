@@ -76,6 +76,10 @@ export default defineComponent({
             type: Number,
             default: () => 0
         },
+        collectionId: {
+            type: String,
+            default: () => ""
+        },
         info: {
             type: Object as PropType<Homework>,
             default: () => ({})
@@ -108,6 +112,7 @@ export default defineComponent({
                 state.status = props.mistakesCollectState;
                 state.isFinish = props.isFinishState;
                 state.finishCount = props.collectedCount;
+                state.collectionId = props.collectionId;
             } else {
                 client.unsubscribe(getPublish(state.collectionId));
             }
