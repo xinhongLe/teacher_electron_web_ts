@@ -64,9 +64,7 @@ export default async () => {
     });
 
     watchEffect(() => {
-        const id = store.state.userInfo.id;
-        if (!id) return;
-        promises.readdir(getSaveFilePath(id)).then(async (files) => {
+        promises.readdir(getSaveFilePath()).then(async (files) => {
             fileInfoList.value = await Promise.all(
                 files.map(async (file) => ({
                     ...(await promises.stat(join(window.electron.getCachePath(""), file))),

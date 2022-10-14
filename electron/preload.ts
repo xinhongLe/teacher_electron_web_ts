@@ -30,6 +30,7 @@ const PATH_BINARY =
     process.platform === "darwin"
         ? join(__dirname, "../ColorPicker")
         : join(__dirname, "../mockingbot-color-picker-ia32.exe");
+const downloadsPath = join(app.getPath("userData"), "files", "/");
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 window.electron = {
     maximizeWindow: () => {
@@ -111,33 +112,22 @@ window.electron = {
         remote.globalShortcut.unregister("esc");
     },
     isExistFile: async (fileName: string) => {
-        const filePath =
-            process.platform === "darwin"
-                ? app.getPath("downloads") + fileName
-                : resolve(app.getPath("downloads"), fileName);
+        const filePath = resolve(downloadsPath, fileName);
         return isExistFile(filePath);
     },
     getFilePath: (fileName: string) => {
-        const filePath =
-            process.platform === "darwin"
-                ? app.getPath("downloads") + fileName
-                : resolve(app.getPath("downloads"), fileName);
+        const filePath = resolve(downloadsPath, fileName);
         return "file:///" + filePath.replaceAll("\\", "/");
     },
     log: ElectronLog,
     getCacheFile: async (fileName: string) => {
         if (!fileName) return "";
-        const filePath =
-            process.platform === "darwin"
-                ? app.getPath("downloads") + fileName
-                : resolve(app.getPath("downloads"), fileName);
+        const filePath = resolve(downloadsPath, fileName);
         const isExist = await isExistFile(filePath);
         return isExist ? "file://" + filePath.split("\\").join("/") : "";
     },
     getCachePath: (path: string) => {
-        return process.platform === "darwin"
-            ? app.getPath("downloads") + path
-            : resolve(app.getPath("downloads"), path);
+        return resolve(downloadsPath, path);
     },
     readFile: (path: string, callback: (buffer: ArrayBuffer) => void) => {
         fs.readFile(path, (err, buffer) => {
@@ -283,10 +273,7 @@ window.electron = {
             slides,
             cacheFiles,
         } = cacheData;
-        const filePath =
-            process.platform === "darwin"
-                ? app.getPath("userData") + "/files/" + windowName
-                : resolve(app.getPath("userData"), "files", windowName);
+        const filePath = resolve(app.getPath("userData"), "files", windowName);
         const guid = () => {
             return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
                 /[xy]/g,

@@ -3,8 +3,6 @@ import { ILessonManagerResult } from "@/types/login";
 import { set, STORAGE_TYPES } from "@/utils/storage";
 import { LessonManager } from "@/views/login/api";
 import { lessonManagerByTeacherId } from "@/views/classManage/api";
-import isElectron from "is-electron";
-import { getSaveFilePath } from "@/utils";
 
 const dealUserInfo = async (useInfo:ILessonManagerResult) => {
     set(STORAGE_TYPES.USER_INFO, useInfo);

@@ -12,6 +12,7 @@ import os from "os";
 import { exec, spawn } from "child_process";
 const isDevelopment = process.env.NODE_ENV !== "production";
 import path from "path";
+import downloadFile from "./downloadFile";
 initialize();
 
 protocol.registerSchemesAsPrivileged([
@@ -53,7 +54,7 @@ async function createWindow() {
             devTools: !!process.env.WEBPACK_DEV_SERVER_URL,
         },
     });
-    
+    downloadFile();
     autoUpdater(mainWindow!);
     createSuspensionWindow();
     registerEvent();

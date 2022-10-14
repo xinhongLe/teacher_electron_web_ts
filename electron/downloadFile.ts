@@ -144,11 +144,8 @@ export const downloadFileToPath = async (
 
 export default () => {
     const downloadFile = async (url: string, fileName: string) => {
-        const downloadsPath = app.getPath("downloads");
-        const filePath =
-            process.platform === "darwin"
-                ? downloadsPath + fileName
-                : resolve(downloadsPath, fileName);
+        const downloadsPath = resolve(app.getPath("userData"), "files");
+        const filePath = resolve(downloadsPath, fileName);
         await mkdirs(downloadsPath);
         if (downloadingFileList.includes(fileName)) return;
         const isExist = await isExistFile(filePath);
@@ -161,8 +158,6 @@ export default () => {
             }
         }
     };
-
-    console.log("========================== action");
 
     ipcMain.handle("downloadFile", (_, url, fileName) => {
         return new Promise((resolve) => {
