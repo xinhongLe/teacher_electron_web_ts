@@ -1,7 +1,7 @@
 <template>
     <router-view />
     <el-dialog
-        v-model="isShowUpdate"
+        v-model="updateVisible"
         title="更新下载"
         :show-close="false"
         :close-on-click-modal="false"
@@ -40,8 +40,9 @@
 import isElectron from "is-electron";
 import { defineComponent, ref } from "vue";
 import { getOssPaths } from "./api";
-import { set, STORAGE_TYPES } from "./utils/storage";
+import { get, set, STORAGE_TYPES } from "./utils/storage";
 import useUpdate from "./hooks/useUpdate";
+import { ENV } from "@/config";
 export default defineComponent({
     setup() {
         const isShowUpdate = ref(false);
@@ -50,7 +51,7 @@ export default defineComponent({
         const handleUpdate = () => {
             newVersionView.value = false;
             updateVisible.value = true;
-            window.electron.ipcRenderer.send("isUpdateNow");
+            window.electron.ipcRenderer.invoke("isUpdateNow");
         };
 
         getOssPaths().then((res) => {
@@ -62,22 +63,26 @@ export default defineComponent({
         // 默认开启缓存
         set(STORAGE_TYPES.SET_ISCACHE, true);
 
-        if (isElectron() && !window.electron.isMac()) {
+        if (isElectron() && !window.electron.isMac() && ENV !== "development") {
             getUpdateJson();
             window.electron.ipcRenderer.invoke("checkForUpdate");
             window.electron.ipcRenderer.on("updateMessage", (_, text) => {
-                // console.log(text);
             });
 
-            window.electron.ipcRenderer.on(
-                "downloadProgress",
-                (_, progressObj) => {
-                    downloadPercent.value = progressObj.percent || 0;
-                }
+            window.electron.ipcRenderer.on("downloadProgress", (_, progressObj) => {
+                downloadPercent.value = progressObj.percent || 0;
+            }
             );
 
             window.electron.ipcRenderer.on("isUpdateNow", () => {
                 newVersionView.value = true;
+            });
+        }
+
+        if (isElectron()) {
+            window.electron.registerEscKeyUp(() => {
+                if (!window.electron.isFullScreen()) return;
+                window.electron.minimizeWindow();
             });
         }
 

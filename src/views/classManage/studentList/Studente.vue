@@ -4,13 +4,21 @@
             <template #dropdown>
                 <el-dropdown-menu class="popover-content">
                     <el-dropdown-item>
-                        <div class="popover-item" @click="goRecord">
+                        <div
+                            class="popover-item"
+                            @click="goRecord(), clicKBuryPoint('学习记录')"
+                        >
                             <img src="@/assets/my-student/icon_jilu@2x.png" />
                             <span>学习记录</span>
                         </div>
                     </el-dropdown-item>
                     <el-dropdown-item>
-                        <div class="popover-item" @click="showDetail = true">
+                        <div
+                            class="popover-item"
+                            @click="
+                                (showDetail = true), clicKBuryPoint('个人信息')
+                            "
+                        >
                             <img src="@/assets/my-student/icon_xinxi@2x.png" />
                             <span>个人信息</span>
                         </div>
@@ -32,7 +40,9 @@
                         答题器编号：{{ machineID }}
                     </p>
                 </div>
-                <div class="btn" v-if="machineID" @click="deleteStudentMachine">解绑</div>
+                <div class="btn" v-if="machineID" @click="deleteStudentMachine">
+                    解绑
+                </div>
             </div>
         </el-dropdown>
         <StudentDetail
@@ -51,15 +61,19 @@ import StudentDetail from "../studentDetail/index.vue";
 import { useRoute, useRouter } from "vue-router";
 import { store } from "@/store";
 import useStudentMachine from "@/hooks/useStudentMachine";
+import usePageEvent from "@/hooks/usePageEvent"; //埋点事件hooks
+import { EVENT_TYPE } from "@/config/event";
+
 export default defineComponent({
     components: { Avatar, StudentDetail },
     props: {
         item: {
             type: Object as PropType<ClassStudent>,
-            required: true
-        }
+            required: true,
+        },
     },
     setup(props) {
+        const { createBuryingPointFn } = usePageEvent("班级管理");
         const showDetail = ref(false);
         const route = useRoute();
         const router = useRouter();
@@ -67,7 +81,7 @@ export default defineComponent({
             getStudentMachineListMap,
             studentMachineListMap,
             studentMachineListByClassIdMap,
-            deleteStudentMachine
+            deleteStudentMachine,
         } = useStudentMachine();
         const machineID = computed(() => {
             getStudentMachineListMap(store.state.myStudent.selectClassInfo.ID);
@@ -79,7 +93,10 @@ export default defineComponent({
         });
 
         const _deleteStudentMachine = () => {
-            deleteStudentMachine({ classID: store.state.myStudent.selectClassInfo.ID, studentId: props.item.Account });
+            deleteStudentMachine({
+                classID: store.state.myStudent.selectClassInfo.ID,
+                studentId: props.item.Account,
+            });
         };
 
         const goRecord = () => {
@@ -91,14 +108,19 @@ export default defineComponent({
                 router.push(`/record/${props.item.ID}/${className}`);
             }
         };
+        //班级管理页面点击埋点事件
+        const clicKBuryPoint = (name: string) => {
+            createBuryingPointFn(EVENT_TYPE.PageClick, name, name);
+        };
         return {
             showDetail,
             studentMachineListByClassIdMap,
             machineID,
             goRecord,
-            deleteStudentMachine: _deleteStudentMachine
+            deleteStudentMachine: _deleteStudentMachine,
+            clicKBuryPoint,
         };
-    }
+    },
 });
 </script>
 

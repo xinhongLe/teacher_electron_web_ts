@@ -1,5 +1,5 @@
 import request from "@/utils/request";
-import { AI_XUE_SHI_API } from "@/config";
+import { AI_XUE_SHI_API, systemId, YUN_API } from "@/config";
 import {
     IBasicTagResponse,
     IGradeClassTreeResponse,
@@ -7,9 +7,10 @@ import {
     ILoginData,
     ILoginTokenData,
     ILoginResponse,
-    ISendMsgData
+    ISendMsgData,
+    IYunInfo
 } from "@/types/login";
-import { RequestFun } from "@/types/response";
+import { IResponse, RequestFun } from "@/types/response";
 
 export function Login(data: ILoginData, isPassWordLogin = true): Promise<ILoginResponse> {
     return request({
@@ -17,6 +18,19 @@ export function Login(data: ILoginData, isPassWordLogin = true): Promise<ILoginR
         url: isPassWordLogin ? "/Api/W4/Teach/Login" : "/Api/W4/Teach/LoginWithVerify",
         method: "post",
         data
+    });
+}
+
+// for cloud data
+export function LoginForCloud(token: string): Promise<IResponse<IYunInfo>> {
+    return request({
+        baseURL: YUN_API,
+        url: "/Api/Web/login/UserLoginByToken",
+        method: "post",
+        data: {
+            SystemId: systemId,
+            tokenValue: token
+        }
     });
 }
 

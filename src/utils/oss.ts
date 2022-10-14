@@ -5,15 +5,16 @@ import { throttle } from "lodash";
 import { IOssPaths, IOssUploadRes } from "@/types/oss";
 
 // 上传
-export const cooOss = function(file: File & Blob, OssPaths: IOssPaths): Promise<IOssUploadRes | null> {
+export const cooOss = function (
+    file: File & Blob,
+    OssPaths: IOssPaths
+): Promise<IOssUploadRes | null> {
     return new Promise((resolve) => {
         fileMd5(file, async (md5) => {
-            const fileExtension = file.name.split(".")[
-                file.name.split(".").length - 1
-            ];
+            const fileExtension =
+                file.name.split(".")[file.name.split(".").length - 1];
             const name = md5;
-            const objectKey =
-                OssPaths.Path + "/" + name + "." + fileExtension;
+            const objectKey = OssPaths.Path + "/" + name + "." + fileExtension;
             const ossToken = await getToken();
             const region = "oss-cn-shanghai";
             const accessKeyId = ossToken && ossToken.AccessKeyId;
@@ -25,25 +26,28 @@ export const cooOss = function(file: File & Blob, OssPaths: IOssPaths): Promise<
                 accessKeyId: accessKeyId,
                 accessKeySecret: accessKeySecret,
                 stsToken: securityToken,
-                bucket: bucket
+                bucket: bucket,
             });
-            return client.multipartUpload(objectKey, file, {}).then(() => {
-                return resolve({
-                    code: 200,
-                    objectKey: objectKey,
-                    name: name,
-                    fileExtension: fileExtension,
-                    msg: "ok",
-                    md5
+            return client
+                .multipartUpload(objectKey, file, {})
+                .then(() => {
+                    return resolve({
+                        code: 200,
+                        objectKey: objectKey,
+                        name: name,
+                        fileExtension: fileExtension,
+                        msg: "ok",
+                        md5,
+                    });
+                })
+                .catch((err: Error) => {
+                    console.error("上传出错了", err);
                 });
-            }).catch((err: Error) => {
-                console.error("上传出错了", err);
-            });
         });
     });
 };
 
-const getToken = throttle(async function() {
+const getToken = throttle(async function () {
     const time = Number(localStorage.getItem("ossTokenExpireTime") || 0);
     const currentTime = new Date().getTime();
     if (currentTime > time) {
@@ -112,7 +116,8 @@ const fileMd5 = (file: File & Blob, callback: (md5: string) => void) => {
 
     const loadNext = () => {
         const start = currentChunk * chunkSize;
-        const end = start + chunkSize >= file.size ? file.size : start + chunkSize;
+        const end =
+            start + chunkSize >= file.size ? file.size : start + chunkSize;
 
         fileReader.readAsArrayBuffer(blobSlice.call(file, start, end));
     };
@@ -127,12 +132,13 @@ export const getOssUrl = async (key: string, bucket: string) => {
     const accessKeyId = ossToken && ossToken.AccessKeyId;
     const accessKeySecret = ossToken && ossToken.AccessKeySecret;
     const securityToken = ossToken && ossToken.SecurityToken;
+
     const client = new OSS({
         region: region,
         accessKeyId: accessKeyId,
         accessKeySecret: accessKeySecret,
         stsToken: securityToken,
-        bucket: bucket
+        bucket: bucket,
     });
     const url = client.signatureUrl(key);
     return url;

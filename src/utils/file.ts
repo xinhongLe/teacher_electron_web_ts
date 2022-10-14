@@ -1,5 +1,5 @@
 import isElectron from "is-electron";
-import { Slide } from "wincard/src/types/slides";
+import { Slide } from "wincard";
 import { getOssUrl } from "./oss";
 
 export const cacheFile = async (key: string) => {
@@ -13,6 +13,7 @@ export const cacheFile = async (key: string) => {
                     resolve(window.electron.getFilePath(fileName));
                 } else {
                     getOssUrl(key, "axsfile").then(filePath => {
+                        console.log("=========", key, filePath);
                         window.electron.ipcRenderer.invoke("downloadFile", filePath, fileName).then(path => resolve(path ? "file://" + path : ""));
                     });
                 }

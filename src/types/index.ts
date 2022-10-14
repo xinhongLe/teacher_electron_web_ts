@@ -1,13 +1,15 @@
 import electron, { SaveDialogReturnValue, SaveDialogOptions, OpenDialogOptions, OpenDialogReturnValue, BrowserWindow, Remote } from "electron";
 import { LogFunctions } from "electron-log";
 import Store from "electron-store";
+import { IFileData } from "../../electron/exportWord";
 
 type Electron = typeof electron & {
+    exportWord: (filePath: string, fileData:IFileData, styleType:number) => void,
     exit: () => void,
     maximizeWindow: () => void,
     unmaximizeWindow: () => void,
     minimizeWindow: () => void,
-    isFullScreen: () => void,
+    isFullScreen: () => boolean,
     setFullScreen: () => void,
     getVersion: () => string,
     isMac: () => boolean,
@@ -19,17 +21,20 @@ type Electron = typeof electron & {
     getFilePath: (fileName: string) => string,
     isExistFile: (fileName: string) => Promise<boolean>,
     destroyWindow: () => void,
-    showWindow: () => void,
+    showWindow: (isMaximize?: boolean) => void,
+    parsePPT: (pptPath: string) => Promise<any>,
     setCenter: () => void,
     getCachePath: (path: string) => string,
     setPath: (name: string, path: string) => Promise<void>,
     getPath: (name: "home" | "appData" | "userData" | "cache" | "temp" | "exe" | "module" | "desktop" | "documents" | "downloads" | "music" | "pictures" | "videos" | "recent" | "logs" | "crashDumps") => string,
     readFile: (path: string, callback: (buffer: ArrayBuffer) => void) => void,
     savePutFile: (path: string, buffer: NodeJS.ArrayBufferView) => void,
+    deleteFile: (path: string) => void,
     setPositionWin: (x: number, y: number) => void,
     getColorHexRGB: () => Promise<unknown>,
     showSaveDialog: (option: SaveDialogOptions) => Promise<SaveDialogReturnValue>,
     showOpenDialog: (option: OpenDialogOptions) => Promise<OpenDialogReturnValue>,
+    getPPTPath: (path: string) => string,
     checkWindowSupportNet: (version: string) => Promise<boolean>,
     unpackCacheFile: (zipFileName: string, newpath?: string) => Promise<any>,
     packCacheFiles: (cacheFiles: any) => Promise<string>,

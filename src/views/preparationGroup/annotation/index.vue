@@ -64,7 +64,7 @@
 </template>
 
 <script>
-import { defineComponent, onMounted, ref, reactive } from "vue-demi";
+import { defineComponent, onMounted, ref, reactive } from "vue";
 import annotation from "./annotation";
 import CardList from "./components/card-list.vue";
 import PageList from "./components/page-list.vue";

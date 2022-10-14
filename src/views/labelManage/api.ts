@@ -1,7 +1,7 @@
 import request from "@/utils/request";
 import { AI_XUE_SHI_API } from "@/config";
-import { Student, Tag, TagStudentsData } from "@/types/labelManage";
-import { IResponse } from "@/types/response";
+import { Student, Tag, TagStudent, TagStudentsData } from "@/types/labelManage";
+import { IResponse, RequestFun } from "@/types/response";
 
 // 学生列表
 export function fetchAllStudents(teacherId: string): Promise<IResponse<Student[]>> {
@@ -14,6 +14,17 @@ export function fetchAllStudents(teacherId: string): Promise<IResponse<Student[]
         method: "get"
     });
 }
+
+export const fetchStudentsTagList: RequestFun<{classId: string}, {
+    list: TagStudent[]
+}> = (data) => {
+    return request({
+        baseURL: AI_XUE_SHI_API,
+        url: "Api/Web/Class/GetClassStudents/V220324",
+        method: "post",
+        data
+    });
+};
 
 // 打标签
 export function tagStudents(data: TagStudentsData): Promise<IResponse<null>> {

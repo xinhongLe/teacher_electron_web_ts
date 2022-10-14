@@ -1,12 +1,11 @@
 import { ElMessageBox } from "element-plus";
-const { readdir, stat, unlink, rmdir } = require("fs").promises;
-import { Stats } from "fs";
+import { Stats, promises } from "fs";
+const { readdir, stat, unlink, rmdir } = promises;
 import moment from "moment";
 import { join } from "path";
 import { ref, watch, watchEffect } from "vue";
 import { store } from "@/store";
 import { getSaveFilePath } from "@/utils";
-
 interface FileInfo extends Stats{
     filePath: string
 }
@@ -67,10 +66,10 @@ export default async () => {
     watchEffect(() => {
         const id = store.state.userInfo.id;
         if (!id) return;
-        readdir(getSaveFilePath(id)).then(async (files: string[]) => {
+        promises.readdir(getSaveFilePath(id)).then(async (files) => {
             fileInfoList.value = await Promise.all(
                 files.map(async (file) => ({
-                    ...(await stat(join(window.electron.getCachePath(""), file))),
+                    ...(await promises.stat(join(window.electron.getCachePath(""), file))),
                     filePath: join(window.electron.getCachePath(""), file)
                 }))
             );

@@ -1,7 +1,7 @@
 import request from "@/utils/request";
 import { IResponse } from "@/types/response";
 import { ICardList, ITreeList } from "@/types/home";
-import { Slide } from "wincard/src/types/slides";
+import { Slide } from "wincard";
 import { WINDOW_CRAD_API, originType } from "@/config/index";
 import { getWinCardDBData, WinCardData } from "@/utils/database";
 type BookListResponse = IResponse<ITreeList[]>
@@ -87,6 +87,125 @@ export interface IMovePage extends ICardSort{
 export interface ICardOrPageState{
     ID:string,
     State:number
+}
+
+interface IGetLessonPlan {
+    TeachPageID: string;
+    TeacherID: string;
+    FranchiseeID: string;
+}
+
+interface ILessonPlanProcess {
+    ID: string;
+    IsSystem: number;
+    TeachPageID: string;
+    Name: string;
+    Value?: string;
+    IsShow: number; // 是否在教案中显示
+    Type: number; // 1 卡 2 页
+    Status: number; // 0 未启用 1 启用
+    Sort: number;
+    AcademicPresupposition: string;
+    DesignIntent: string;
+    Childrens: ILessonPlanProcess[]
+}
+
+interface ILessonPlanClassType {
+    ID: string;
+    Name: string;
+    Value: string;
+    Status: number;
+    IsSelect: number; // 0 未选中 1 选中
+    Sort: number;
+    IsSystem: number;
+}
+
+interface ILessonPlanDetail {
+    ID: string;
+    Name: string;
+    Value?: string;
+    Sort: number;
+    FieldType: number; // 0 自定义字段 1 标题 2 教材字段 3单元字段 4 课时字段 5 课型 6 教学分析 7教学目标 8教学难点 9教学重点 10教学准备 11教学过程 12教学反思 13 课后作业
+    SelectType: number; // 0 单行文本 1关联文本 2 多个单行文本 3多行文本 4 下拉框 5 多选框 6单选框 7 单日期 8包含时分日期
+    IsSystem: number;
+    isSelectId?: string;
+    LessonPlanMainID: string;
+    LessonPlanDetailPages: ILessonPlanProcess[]; // 教学过程
+    LessonPlanDetailOptions: ILessonPlanClassType[];
+}
+
+interface IGetLessonPlanResponse {
+    IsSystem: number;
+    ID: string;
+    Name: string;
+    TeachPageName: string;
+    Sort: number;
+    Status: number;
+    FranchiseeID: string;
+    TeachPageID: string;
+    LessonPlanTemplateMainID: string;
+    TeacherID: string;
+    LessonPlanDetails: ILessonPlanDetail[];
+}
+
+interface ISaveLessonPlanProcess {
+    ID?: string;
+    Name?: string;
+    Value?: string;
+    IsShow?: number; // 是否在教案中显示
+    Type?: number; // 1 卡 2 页
+    Status?: number; // 0 未启用 1 启用
+    Sort?: number;
+    AcademicPresupposition?: string;
+    DesignIntent?: string;
+    Childrens?: ISaveLessonPlanProcess[]
+}
+
+interface ISaveLessonPlanClassType {
+    ID?: string;
+    Name?: string;
+    Value?: string;
+    Status?: number;
+    IsSelect?: number; // 0 未选中 1 选中
+    Sort?: number;
+    IsSystem?: number;
+}
+
+interface ISaveLessonPlanDetail {
+    ID: string;
+    Name: string;
+    Value: string;
+    Sort: number;
+    FieldType: number;
+    LessonPlanDetailPages: ISaveLessonPlanProcess[];
+    LessonPlanDetailOptions: ISaveLessonPlanClassType[];
+}
+
+export interface ISaveLessonPlan {
+    ID: string;
+    Name: string;
+    TeachPageName: string;
+    Sort: number;
+    Status: number;
+    LessonPlanDetails: ISaveLessonPlanDetail[]
+}
+
+export interface IAddTemplateFieldRes {
+    LessonPlanTemplateMainID: string,
+    Name: string,
+    SelectType: number,
+    Options?: {ID: string, Name: string, Sort: number}[]
+}
+
+export interface ISaveProcessAndDesignData {
+    ID: string;
+    AcademicPresupposition: string;
+    DesignIntent: string;
+}
+
+export interface ILessonCommonData {
+    TeacherID:string,
+    FranchiseeID:string
 }
 
 // 获取书本信息
@@ -335,5 +454,136 @@ export function setCardOrPageState(data: ICardOrPageState) : Promise<GetPageResp
         method: "post",
         baseURL: WINDOW_CRAD_API,
         data: Object.assign(data, { OriginType: originType })
+    });
+}
+
+// 获取教案数据
+export function getLessonPlan(data: IGetLessonPlan) : Promise<GetPageResponse> {
+    return request({
+        url: "/Api/WCP/LessonPlan/GetLessonPlanMain",
+        headers: { DeviceID: "Franchisee" },
+        method: "post",
+        baseURL: WINDOW_CRAD_API,
+        data: Object.assign({ OriginType: originType }, data) // 不能调换Object.assign合并的顺序
+    });
+}
+
+// 保存教案数据
+export function saveLessonPlan(data: ISaveLessonPlan) : Promise<IResponse<unknown>> {
+    return request({
+        url: "/Api/WCP/LessonPlan/SaveLessonPlanMain",
+        headers: { DeviceID: "Franchisee" },
+        method: "post",
+        baseURL: WINDOW_CRAD_API,
+        data: Object.assign(data, { OriginType: originType })
+    });
+}
+
+// 获取模板列表
+export function getLessonPlanTemplate(data: {FranchiseeID:string}) : Promise<GetPageResponse> {
+    return request({
+        url: "/Api/WCP/LessonPlan/GetLessonPlanTemplate",
+        headers: { DeviceID: "Franchisee" },
+        method: "post",
+        baseURL: WINDOW_CRAD_API,
+        data: Object.assign(data, { OriginType: originType })
+    });
+}
+
+// 新增模板
+export function addLessonPlanTemplate(data: ILessonCommonData) : Promise<GetPageResponse> {
+    return request({
+        url: "/Api/WCP/LessonPlan/AddLessonPlanTemplate",
+        headers: { DeviceID: "Franchisee" },
+        method: "post",
+        baseURL: WINDOW_CRAD_API,
+        data: Object.assign(data, { OriginType: originType })
+    });
+}
+
+// 更新模板
+export function updateLessonPlanTemplate(data:any) : Promise<GetPageResponse> {
+    return request({
+        url: "/Api/WCP/LessonPlan/UpdateLessonPlanTemplate",
+        headers: { DeviceID: "Franchisee" },
+        method: "post",
+        baseURL: WINDOW_CRAD_API,
+        data: Object.assign(data, { OriginType: originType })
+    });
+}
+
+// 删除模板
+export function delLessonPlanTemplate(data:{ ID: string, TeacherID:string }) : Promise<GetPageResponse> {
+    return request({
+        url: "/Api/WCP/LessonPlan/DeleteLessonPlanTemplate",
+        headers: { DeviceID: "Franchisee" },
+        method: "post",
+        baseURL: WINDOW_CRAD_API,
+        data: Object.assign(data, { OriginType: originType })
+    });
+}
+
+// 切换模板
+export function changeLessonPlanTemplate(data:{ LessonPlanTemplateMainID: string, TeachPageID: string, TeacherID:string, FranchiseeID:string }) : Promise<GetPageResponse> {
+    return request({
+        url: "/Api/WCP/LessonPlan/ChangeTeachPageTemplate",
+        headers: { DeviceID: "Franchisee" },
+        method: "post",
+        baseURL: WINDOW_CRAD_API,
+        data: Object.assign(data, { OriginType: originType })
+    });
+}
+
+// 获取模板自定义字段列表
+export function getLessonPlanTemplateDetail(data:{ LessonPlanTemplateID: string }) : Promise<GetPageResponse> {
+    return request({
+        url: "/Api/WCP/LessonPlan/GetLessonPlanTemplateDetail",
+        headers: { DeviceID: "Franchisee" },
+        method: "post",
+        baseURL: WINDOW_CRAD_API,
+        data: Object.assign(data, { OriginType: originType })
+    });
+}
+
+// 新增字段
+export function addTemplateField(data:IAddTemplateFieldRes) : Promise<IResponse<GetPageResponse>> {
+    return request({
+        url: "/Api/WCP/LessonPlan/AddLessonPlanTemplateField",
+        headers: { DeviceID: "Franchisee" },
+        method: "post",
+        baseURL: WINDOW_CRAD_API,
+        data: Object.assign(data, { OriginType: originType })
+    });
+}
+
+// 编辑字段
+export function editTemplateField(data:any) : Promise<IResponse<unknown>> {
+    return request({
+        url: "/Api/WCP/LessonPlan/UpdateLessonPlanTemplateField",
+        headers: { DeviceID: "Franchisee" },
+        method: "post",
+        baseURL: WINDOW_CRAD_API,
+        data: Object.assign(data, { OriginType: originType })
+    });
+}
+
+// 删除字段
+export function delTemplateField(data:{ID: string}) : Promise<IResponse<unknown>> {
+    return request({
+        url: "/Api/WCP/LessonPlan/DeleteLessonPlanTemplateField",
+        headers: { DeviceID: "Franchisee" },
+        method: "post",
+        baseURL: WINDOW_CRAD_API,
+        data: Object.assign(data, { OriginType: originType })
+    });
+}
+
+// 保存教学过程设计意图
+export function saveLessonProcessAndDesign(data: ISaveProcessAndDesignData) : Promise<IResponse<unknown>> {
+    return request({
+        baseURL: WINDOW_CRAD_API,
+        url: "/Api/WCP/LessonPlan/SaveTeachPageDesignIntent",
+        method: "post",
+        data
     });
 }

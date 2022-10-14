@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icon_paike</title>
+    <g id="页面-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="数智课堂" transform="translate(-1774.000000, -70.000000)">
+            <g id="top" transform="translate(0.000000, 48.000000)">
+                <g id="编组-21" transform="translate(1752.000000, 12.000000)">
+                    <g id="编组-11" transform="translate(22.000000, 7.000000)">
+                        <g id="icon_paike" transform="translate(0.000000, 3.000000)">
+                            <rect id="矩形" fill-rule="nonzero" x="0" y="0" width="16" height="16"></rect>
+                            <path d="M7.89732738,14.3333333 L7.89732738,14.3333333 L2.66666667,14.3333333 C2.11438192,14.3333333 1.66666667,13.8856181 1.66666667,13.3333333 L1.66666667,6.33333333 L1.66666667,6.33333333 L14.3333333,6.33333333 L14.3333333,8.14070887" id="路径" stroke="#FFFFFF" stroke-width="1.33333333" stroke-linecap="round" stroke-linejoin="round"></path>
+                            <path d="M2.66666667,2.66666667 L13.3333333,2.66666667 C13.8856181,2.66666667 14.3333333,3.11438192 14.3333333,3.66666667 L14.3333333,6.33333333 L14.3333333,6.33333333 L1.66666667,6.33333333 L1.66666667,3.66666667 C1.66666667,3.11438192 2.11438192,2.66666667 2.66666667,2.66666667 Z" id="路径" stroke="#FFFFFF" stroke-width="1.33333333" stroke-linejoin="round"></path>
+                            <line x1="5.33333333" y1="1.66666667" x2="5.33333333" y2="4.33333333" id="路径" stroke="#FFFFFF" stroke-width="1.33333333" stroke-linecap="round"></line>
+                            <line x1="10.6666667" y1="1.66666667" x2="10.6666667" y2="4.33333333" id="路径" stroke="#FFFFFF" stroke-width="1.33333333" stroke-linecap="round"></line>
+                            <line x1="12.6666667" y1="10.6666667" x2="12.6666667" y2="14.6666667" id="路径备份" stroke="#FFFFFF" stroke-width="1.33333333" stroke-linecap="round"></line>
+                            <line x1="14.694735" y1="12.6666667" x2="10.694735" y2="12.6666667" id="路径备份-2" stroke="#FFFFFF" stroke-width="1.33333333" stroke-linecap="round"></line>
+                        </g>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

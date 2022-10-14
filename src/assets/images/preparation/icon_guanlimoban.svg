@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icon_guanlimoban</title>
+    <g id="页面-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="排课" transform="translate(-1728.000000, -148.000000)" stroke="#19203D" stroke-width="2">
+            <g id="bg" transform="translate(0.000000, 48.000000)">
+                <g id="编组-16" transform="translate(256.000000, 72.000000)">
+                    <g id="编组-11" transform="translate(1472.000000, 25.000000)">
+                        <path d="M6,13 L6,18 L1,18 L1,13 L6,13 Z M15,13 L15,18 L10,18 L10,13 L15,13 Z M6,4 L6,9 L1,9 L1,4 L6,4 Z M12.5,4 C13.1903559,4 13.8153559,4.27982203 14.267767,4.73223305 C14.720178,5.18464406 15,5.80964406 15,6.5 C15,7.19035594 14.720178,7.81535594 14.267767,8.26776695 C13.8153559,8.72017797 13.1903559,9 12.5,9 C11.8096441,9 11.1846441,8.72017797 10.732233,8.26776695 C10.279822,7.81535594 10,7.19035594 10,6.5 C10,5.80964406 10.279822,5.18464406 10.732233,4.73223305 C11.1846441,4.27982203 11.8096441,4 12.5,4 Z" id="icon_guanlimoban"></path>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

@@ -1,14 +1,16 @@
 <template>
     <div class="warp">
         <div class="frames-box">
-            <span class="file-sn">{{questionSn}}</span>
+            <span class="file-sn" v-if="!dialog">{{ questionSn }}</span>
             <slot name="title" />
             <div class="count">{{ number }} / {{ sum }}</div>
             <div class="material-box">
                 <Brush ref="childRef" v-if="isBlackboard"></Brush>
                 <audio
                     ref="audioRef"
-                    :src="voiceUrlMap[nextIndex - 1 === 0 ? 'question' : 'answer']"
+                    :src="
+                        voiceUrlMap[nextIndex - 1 === 0 ? 'question' : 'answer']
+                    "
                     :controls="true"
                     @canplay="playAudio"
                     style="display: none"
@@ -72,7 +74,13 @@
                         <p>关闭</p>
                     </div>
                     <div
-                        v-show="isElectron && type != 2 && !isPureQuestion"
+                        v-show="
+                            isElectron &&
+                            type != 2 &&
+                            !isPureQuestion &&
+                            !dialog &&
+                            !noMinix
+                        "
                         @click.stop="smallQuestion"
                         class="button"
                     >
@@ -97,28 +105,51 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, inject, Ref, ref, watch } from "vue";
+import {
+    computed,
+    defineComponent,
+    inject,
+    onMounted,
+    onUnmounted,
+    PropType,
+    Ref,
+    ref,
+    watch,
+} from "vue";
 import isElectronFun from "is-electron";
 import useDetail from "./hooks/useDetail";
 import Brush from "@/components/brush/index.vue";
-import { store } from "@/store";
 import { set, STORAGE_TYPES } from "@/utils/storage";
+import emitter from "@/utils/mitt";
+import { IViewResourceData } from "@/types/store";
 export default defineComponent({
     props: {
         close: {
             type: Function,
-            required: true
+            required: true,
         },
+
         isPureQuestion: {
             type: Boolean,
-            default: false
-        }
+            default: false,
+        },
+
+        dialog: {
+            type: Boolean,
+            default: false,
+        },
+
+        resource: {
+            type: Object as PropType<IViewResourceData>,
+            required: true,
+        },
     },
     setup(props, { emit }) {
-        const type = computed(() => store.state.common.viewQuestionInfo.type);
+        const type = computed(() => props.resource.type);
         const btnType = ref(1);
         const childRef = ref<InstanceType<typeof Brush>>();
         const isElectron = isElectronFun();
+        const noMinix = computed(() => !!props.resource.openMore);
 
         const questionID = inject("nowQuestionID") as Ref<string>;
         const {
@@ -140,22 +171,28 @@ export default defineComponent({
             questionSwitchValue,
             voiceUrlMap,
             nextPage,
-            questionSn
-        } = useDetail(props.isPureQuestion, questionID.value, emit, childRef);
+            questionSn,
+        } = useDetail(
+            props.isPureQuestion,
+            questionID.value,
+            emit,
+            childRef,
+            props.resource
+        );
 
         const brushHandle = () => {
             btnType.value = 1;
-            childRef.value!.brushOn();
+            childRef.value?.brushOn();
         };
 
         const clearBoard = () => {
             btnType.value = 3;
-            childRef.value!.clearBrush();
+            childRef.value?.clearBrush();
         };
 
         const eraserHandle = () => {
             btnType.value = 2;
-            childRef.value!.eraserOn();
+            childRef.value?.eraserOn();
         };
 
         const lookSimilarQuestions = () => {
@@ -173,14 +210,17 @@ export default defineComponent({
         };
 
         const playAudio = () => {
-            const isPlay = nextIndex.value === 1 ? questionSwitchValue.value : resolutionSwitchValue.value;
+            const isPlay =
+                nextIndex.value === 1
+                    ? questionSwitchValue.value
+                    : resolutionSwitchValue.value;
             if (isPlay && audioRef.value) {
                 audioRef.value.play();
             }
         };
 
         watch(nowQuestionID, (v) => {
-            childRef.value!.clearBrush();
+            childRef.value?.clearBrush();
             emit("update:nowQuestionID", v);
         });
 
@@ -192,7 +232,18 @@ export default defineComponent({
             set(STORAGE_TYPES.AUTO_PALY_RESOLUTION_SWITCH, String(v));
         });
 
+        onMounted(() => {
+            if (!props.isPureQuestion) {
+                emitter.on("smallQuestion", smallQuestion);
+            }
+        });
+
+        onUnmounted(() => {
+            emitter.off("smallQuestion");
+        });
+
         return {
+            noMinix,
             resolutionSwitchValue,
             questionSwitchValue,
             imageUrl,
@@ -221,10 +272,10 @@ export default defineComponent({
             voiceUrlMap,
             questionSn,
             audioRef,
-            isElectron
+            isElectron,
         };
     },
-    components: { Brush }
+    components: { Brush },
 });
 </script>
 

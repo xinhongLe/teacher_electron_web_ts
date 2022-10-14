@@ -1,8 +1,8 @@
-import { getPageDetailRes, updatePageRes, UpdatePageRemark, getVideoQuoteInfo } from "@/api/home";
+import { getPageDetailRes, updatePageRes, UpdatePageRemark, getVideoQuoteInfo, saveLessonProcessAndDesign, ISaveProcessAndDesignData } from "@/api/home";
 import { dealOldData } from "@/utils/dataParse";
 import { dealOldDataVideo, dealOldDataWord, dealOldDataTeach } from "@/utils/dataParsePage";
 import { IPageValue } from "@/types/home";
-import { Slide } from "wincard/src/types/slides";
+import { Slide } from "wincard";
 import { ElMessage } from "element-plus";
 import { dealSaveDataWord, dealSaveDataVideo, dealSaveDataTeach, dealSaveDataElement } from "@/utils/savePageDataParse";
 import { getWinCardDBData, setWinCardDBData, updateWinCardDBData } from "@/utils/database";
@@ -76,7 +76,7 @@ export default () => {
                 } else if (page.Type === pageType.teach) {
                     newSlide = dealOldDataTeach(page.ID, res.result);
                 }
-                const pageSlide = Object.assign(newSlide, { remark: page.Remark || "" });
+                const pageSlide = Object.assign(newSlide, { remark: page.AcademicPresupposition || "", design: page.DesignIntent || "" });
                 saveDBdata(pageSlide);
                 return pageSlide;
             } else {
@@ -106,21 +106,27 @@ export default () => {
         const type: number = transformType(slide.type);
         let newSlide:any = {};
         let updateRemark:any = {};
+        let updateProcessAndDesign: ISaveProcessAndDesignData = {
+            ID: "",
+            DesignIntent: "",
+            AcademicPresupposition: ""
+        };
         if (slide.type === "element") {
             newSlide = dealSaveDataElement(slide);
-            updateRemark = { pageID: newSlide.PageID, remark: JSON.parse(newSlide.Json).remark };
+            updateRemark = { pageID: newSlide.PageID, AcademicPresupposition: JSON.parse(newSlide.Json).remark || "", DesignIntent: JSON.parse(newSlide.Json).design || "" };
         } else if (slide.type === "listen") {
             newSlide = dealSaveDataWord(slide);
-            updateRemark = { pageID: newSlide.PageID, remark: slide.remark };
+            updateRemark = { pageID: newSlide.PageID, AcademicPresupposition: slide.remark || "", DesignIntent: slide.design || "" };
         } else if (slide.type === "follow") {
             newSlide = dealSaveDataVideo(slide);
-            updateRemark = { pageID: newSlide.PageID, remark: slide.remark };
+            updateRemark = { pageID: newSlide.PageID, AcademicPresupposition: slide.remark || "", DesignIntent: slide.design || "" };
         } else if (slide.type === "teach") {
             newSlide = dealSaveDataTeach(slide);
-            updateRemark = { pageID: newSlide.teacherPageID, remark: slide.remark };
+            updateRemark = { pageID: newSlide.teacherPageID, AcademicPresupposition: slide.remark || "", DesignIntent: slide.design || "" };
         }
         // 更新，修改建议
-        await UpdatePageRemark(updateRemark);
+        // await UpdatePageRemark(updateRemark);
+        await saveLessonProcessAndDesign(updateProcessAndDesign);
         const res = await updatePageRes(newSlide, type);
         if (res.resultCode === 200) {
             ElMessage({ type: "success", message: "保存成功" });

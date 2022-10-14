@@ -4,11 +4,11 @@ const routes: Array<RouteRecordRaw> = [
     {
         path: "/login",
         name: "Login",
-        component: () => import("@/views/login/index.vue")
+        component: () => import("@/views/login/index.vue"),
     },
     {
         path: "/:catchAll(.*)",
-        redirect: "/"
+        redirect: "/",
     },
     {
         path: "/",
@@ -17,59 +17,70 @@ const routes: Array<RouteRecordRaw> = [
             {
                 path: "home",
                 name: "首页",
-                component: () => import("@/views/home/index.vue")
+                component: () => import("@/views/home/index.vue"),
             },
             {
                 path: "preparation",
                 name: "备课",
                 component: () => import("@/views/preparation/index.vue"),
                 meta: {
-                    keepAlive: true
-                }
+                    keepAlive: true,
+                },
+            },
+            {
+                path: "wrongbook",
+                name: "班级错题本",
+                component: () => import("@/views/wrongbook/index.vue"),
+                meta: {
+                    keepAlive: true,
+                },
             },
             {
                 path: "class-manage",
                 name: "班级管理",
-                component: () => import("@/views/classManage/index.vue")
+                component: () => import("@/views/classManage/index.vue"),
             },
             {
                 path: "label/:classId",
                 name: "管理标签",
-                component: () => import("@/views/labelManage/index.vue")
+                component: () => import("@/views/labelManage/index.vue"),
             },
             {
                 path: "label-no-header/:classId",
                 name: "wpf管理标签",
-                component: () => import("@/views/labelManage/index.vue")
+                component: () => import("@/views/labelManage/index.vue"),
             },
             {
                 path: "record-no-header/:studentId/:className",
                 name: "wpf学习记录",
-                component: () => import("@/views/record/index.vue")
+                component: () => import("@/views/record/index.vue"),
             },
             {
                 path: "record/:studentId/:className",
                 name: "学习记录",
-                component: () => import("@/views/record/index.vue")
+                component: () => import("@/views/record/index.vue"),
             },
             {
-                path: "windowcard-edit/:winValue/:originType",
+                path: "windowcard-edit",
                 name: "编辑",
-                component: () => import("@/views/preparation/intelligenceClassroom/edit/index.vue"),
+                component: () =>
+                    import(
+                        "@/views/preparation/intelligenceClassroom/edit/index.vue"
+                    ),
                 meta: {
-                    keepAlive: true
-                }
+                    keepAlive: true,
+                },
             },
             {
-                path: "attend-class",
+                path: "attend-class/:chapterId/:lessonId/:bookId",
                 name: "上课",
-                component: () => import("@/views/attendClass/index.vue")
+                component: () => import("@/views/attendClass/index.vue"),
             },
             {
                 path: "homework",
                 name: "作业",
                 meta: {
-                    isBack: false
+                    isBack: false,
                 },
                 component: () => import("@/views/homework/index.vue"),
                 beforeEnter: (to, from, next) => {
@@ -77,58 +88,65 @@ const routes: Array<RouteRecordRaw> = [
                         to.meta.isBack = true;
                     }
                     next();
-                }
+                },
             },
             {
                 path: "assignHomework/:subjectId/:subjectName",
                 name: "布置作业",
                 component: () => import("@/views/assignHomework/index.vue"),
                 meta: {
-                    keepAlive: true
-                }
+                    keepAlive: true,
+                },
             },
             {
                 path: "check-homework/:classHomeworkPaperID",
                 name: "查阅作业",
-                component: () => import("@/views/checkHomework/index.vue")
+                component: () => import("@/views/checkHomework/index.vue"),
             },
             {
                 path: "report-center",
                 name: "报表中心",
-                component: () => import("@/views/reportCenter/index.vue")
+                component: () => import("@/views/reportCenter/index.vue"),
             },
             {
                 path: "course-time",
                 name: "课时延后",
-                component: () => import("@/views/courseTime/index.vue")
+                component: () => import("@/views/courseTime/index.vue"),
             },
             {
                 path: "preparation-group",
                 name: "集体备课",
-                component: () => import("@/views/preparationGroup/index.vue")
+                component: () => import("@/views/preparationGroup/index.vue"),
             },
             {
                 path: "preparation-edit/:preId",
                 name: "集体备课详情",
-                component: () => import("@/views/preparationGroup/editPanel/index.vue")
+                component: () =>
+                    import("@/views/preparationGroup/editPanel/index.vue"),
             },
             {
                 path: "assessment-center",
                 name: "测评中心",
-                component: () => import("@/views/assessmentCenter/index.vue")
+                component: () => import("@/views/assessmentCenter/index.vue"),
             },
             {
                 path: "annotation/:id/:preId/:teacherCount",
                 name: "批注",
-                component: () => import("@/views/preparationGroup/annotation/index.vue")
-            }
-        ]
-    }
+                component: () =>
+                    import("@/views/preparationGroup/annotation/index.vue"),
+            },
+            {
+                path: "resource-center",
+                name: "资源中心",
+                component: () => import("@/views/resourceCenter/index.vue"),
+            },
+        ],
+    },
 ];
 
 const router = createRouter({
     history: createWebHistory(),
-    routes
+    routes,
 });
 
 export default router;

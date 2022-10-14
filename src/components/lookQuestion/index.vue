@@ -1,61 +1,92 @@
 <template>
-    <div class="look-question" v-show="!isMinimized">
-        <el-dialog
-            :fullscreen="true"
-            :model-value="true"
-            :show-close="false"
-            custom-class="look-question-dialog"
-            v-if="isShowDialog"
+    <div
+        class="look-question"
+        :class="{ 'dialog-type': dialog, 'active-window': activeWindow }"
+        v-show="!isMinimized"
+    >
+        <div class="question-header" v-if="!dialog">
+            <p>查看视频</p>
+        </div>
+        <div v-else style="height: 20px"></div>
+        <Question
+            :dialog="dialog"
+            :close="dialog ? close : closeDialog"
+            :resource="resource"
+            ref="questionRef"
+            v-model:nowQuestionID="nowQuestionID"
+            v-model:isMinimized="isMinimized"
         >
-            <template #title>
-                <p class="title">查看题目</p>
-            </template>
-            <Question
-                :close="close"
-                ref="questionRef"
-                v-model:nowQuestionID="nowQuestionID"
-                v-model:isMinimized="isMinimized"
-            >
-                <template v-slot:footerBtn="slotProps">
-                    <div class="btn-list">
-                        <div
-                            v-show="type !== 2 && slotProps.sum > 1"
-                            class="btn"
-                            :class="!isHasSimilarQuestion && 'disabled'"
-                            @click.stop="openSimilarQuestion"
-                        >
-                            <p>同类题</p>
-                        </div>
-                        <div
-                            v-show="type !== 2"
-                            @click.stop="slotProps.removeQuestion"
-                            class="btn"
-                        >
-                            <p>移除题目</p>
-                        </div>
+            <template v-slot:footerBtn="slotProps">
+                <div class="btn-list">
+                    <div
+                        v-show="type !== 2 && slotProps.sum >= 1"
+                        class="btn"
+                        :class="!isHasSimilarQuestion && 'disabled'"
+                        @click.stop="openSimilarQuestion"
+                    >
+                        <p>同类题</p>
                     </div>
-                </template>
-            </Question>
-            <PureQuestionDialog
-                v-if="dialogVisible"
-                v-model:visible="dialogVisible"
-            />
-        </el-dialog>
+                    <div
+                        v-show="type !== 2"
+                        @click.stop="slotProps.removeQuestion"
+                        class="btn"
+                    >
+                        <p>移除题目</p>
+                    </div>
+                </div>
+            </template>
+        </Question>
+        <PureQuestionDialog
+            v-if="dialogVisible"
+            :resource="resource"
+            v-model:visible="dialogVisible"
+        />
     </div>
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, nextTick, onMounted, onUnmounted, provide, ref, watch } from "vue";
+import {
+    computed,
+    defineComponent,
+    nextTick,
+    onMounted,
+    onUnmounted,
+    PropType,
+    provide,
+    ref,
+    watch,
+} from "vue";
 import Question from "./Question.vue";
 import PureQuestionDialog from "./PureQuestionDialog.vue";
 import { checkPureQuestionByQuestionID } from "./api";
 import { MutationTypes, store } from "@/store";
 import isElectron from "is-electron";
+import { IViewResourceData } from "@/types/store";
 export default defineComponent({
     name: "LookQuestion",
-    setup() {
-        const type = computed(() => store.state.common.viewQuestionInfo.type);
-        const isShowDialog = ref(true);
+    props: {
+        dialog: {
+            type: Boolean,
+            default: false,
+        },
+
+        close: {
+            type: Function,
+            default: () => {},
+        },
+
+        resource: {
+            type: Object as PropType<IViewResourceData>,
+            required: true,
+        },
+
+        activeWindow: {
+            type: Boolean,
+            default: false,
+        },
+    },
+    setup(props) {
+        const type = computed(() => props.resource.type);
         const dialogVisible = ref(false);
         const nowQuestionID = ref("");
         const isMinimized = ref(false);
@@ -63,7 +94,7 @@ export default defineComponent({
 
         const viewPureQuestion = async () => {
             const check = await checkPureQuestionByQuestionID({
-                questionID: nowQuestionID.value
+                questionID: nowQuestionID.value,
             });
             if (check.resultCode === 200) {
                 isHasSimilarQuestion.value = !!check.result;
@@ -74,12 +105,12 @@ export default defineComponent({
             if (isHasSimilarQuestion.value) dialogVisible.value = true;
         };
 
-        const close = () => {
-            isShowDialog.value = false;
+        const closeDialog = () => {
             nextTick(() => {
-                store.commit(MutationTypes.SET_IS_SHOW_QUESTION, {
-                    flag: false,
-                    info: {}
+                store.commit(MutationTypes.REMOVE_FULLSCREEN_RESOURCE, {
+                    id: props.resource.id,
+                    openMore: props.resource.openMore,
+                    type: "LookQuestion",
                 });
             });
         };
@@ -88,11 +119,15 @@ export default defineComponent({
 
         const openQuestion = () => {
             isMinimized.value = false;
+            store.commit(
+                MutationTypes.SET_FULLSCREEN_RESOURCE_ACTIVE,
+                "LookQuestion"
+            );
         };
 
         const closeQuestion = () => {
             window.electron.ipcRenderer.invoke("hideSuspensionQuestion");
-            close();
+            closeDialog();
         };
 
         watch(isMinimized, (v) => {
@@ -118,8 +153,14 @@ export default defineComponent({
 
         onUnmounted(() => {
             if (isElectron()) {
-                window.electron.ipcRenderer.removeListener("openQuestion", openQuestion);
-                window.electron.ipcRenderer.removeListener("closeQuestion", closeQuestion);
+                window.electron.ipcRenderer.removeListener(
+                    "openQuestion",
+                    openQuestion
+                );
+                window.electron.ipcRenderer.removeListener(
+                    "closeQuestion",
+                    closeQuestion
+                );
             }
         });
 
@@ -128,33 +169,46 @@ export default defineComponent({
             viewPureQuestion,
             isHasSimilarQuestion,
             openSimilarQuestion,
-            close,
-            isShowDialog,
+            closeDialog,
             isMinimized,
             nowQuestionID,
-            dialogVisible
+            dialogVisible,
         };
     },
 
-    components: { Question, PureQuestionDialog }
+    components: { Question, PureQuestionDialog },
 });
 </script>
 
 <style lang="scss" scoped>
 .look-question {
     background: #fff;
-    :deep(.look-question-dialog) {
-        -webkit-app-region: no-drag;
-        &.el-dialog {
-            display: flex;
-            flex-direction: column;
-        }
-        .el-dialog__body {
-            padding: 0;
-            flex: 1;
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    z-index: 10000;
+    overflow: hidden;
+    background: #fff;
+    -webkit-app-region: no-drag;
+    display: flex;
+    flex-direction: column;
+    top: 0;
+    .question-header {
+        p {
+            font-size: 20px;
+            font-weight: 600;
+            color: #19203d;
+            line-height: 28px;
+            text-align: center;
+            margin-top: 16px;
+            margin-bottom: 16px;
         }
     }
-
+    &.dialog-type {
+        width: 100%;
+        height: 100%;
+        position: relative;
+    }
     .btn-list {
         display: flex;
     }
@@ -165,7 +219,7 @@ export default defineComponent({
         margin-right: 20px;
         &.disabled {
             p {
-                color: #BDC0C5;
+                color: #bdc0c5;
             }
         }
         p {
@@ -189,12 +243,9 @@ export default defineComponent({
             background-size: 100% 100%;
         }
     }
-    .title {
-        font-size: 20px;
-        font-weight: 600;
-        color: #19203d;
-        line-height: 28px;
-        text-align: center;
-    }
+}
+
+.active-window {
+    z-index: 10001 !important;
 }
 </style>

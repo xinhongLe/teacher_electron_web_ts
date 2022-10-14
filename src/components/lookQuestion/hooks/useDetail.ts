@@ -1,19 +1,28 @@
-import { store } from "@/store";
 import { FileInfo, Question } from "@/types/lookQuestion";
 import emitter from "@/utils/mitt";
 import { getOssUrl } from "@/utils/oss";
 import { get, STORAGE_TYPES } from "@/utils/storage";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { computed, ref, watchEffect, Ref } from "vue";
-import { fetchPureQuestionByQuestionID, getCourseBagQuestionsByIds, getQuestionsByIds } from "../api";
+import {
+    fetchPureQuestionByQuestionID,
+    getCourseBagQuestionsByIds,
+    getQuestionsByIds,
+} from "../api";
 import { pullAllBy } from "lodash";
 
-export default (isPureQuestion: boolean, questionId = "", emit: (event: string, ...args: any[]) => void, childRef: Ref<any>) => {
+export default (
+    isPureQuestion: boolean,
+    questionId = "",
+    emit: (event: string, ...args: any[]) => void,
+    childRef: Ref<any>,
+    resource: any
+) => {
     const imageUrl = ref<string[]>([]);
     const voiceUrl = ref<string[]>([]);
     const voiceUrlMap = ref({
         question: "",
-        answer: ""
+        answer: "",
     });
     const sum = ref(0);
     const isBlackboard = ref(false);
@@ -27,8 +36,12 @@ export default (isPureQuestion: boolean, questionId = "", emit: (event: string, 
     const number = ref(1);
     const resolutionSwitch = get(STORAGE_TYPES.AUTO_PALY_RESOLUTION_SWITCH);
     const questionSwitch = get(STORAGE_TYPES.AUTO_PALY_QUESTION_SWITCH);
-    const resolutionSwitchValue = ref(resolutionSwitch === null ? true : Boolean(resolutionSwitch));
-    const questionSwitchValue = ref(questionSwitch === null ? true : Boolean(questionSwitch));
+    const resolutionSwitchValue = ref(
+        resolutionSwitch === null ? true : Boolean(resolutionSwitch)
+    );
+    const questionSwitchValue = ref(
+        questionSwitch === null ? true : Boolean(questionSwitch)
+    );
     const lastId = ref("");
 
     function getUrl(file: FileInfo) {
@@ -66,13 +79,14 @@ export default (isPureQuestion: boolean, questionId = "", emit: (event: string, 
 
     function playSounds(index: number) {
         if (audioRef.value) {
-            audioRef.value.src = voiceUrlMap.value[index === 0 ? "question" : "answer"];
+            audioRef.value.src =
+                voiceUrlMap.value[index === 0 ? "question" : "answer"];
             audioRef.value.play();
         }
     }
 
     const getDetail = async () => {
-        const { type, id, deleteQuestionIds = [] } = store.state.common.viewQuestionInfo;
+        const { type, id, deleteQuestionIds = [] } = resource;
         if (!id) return;
         emit("update:isMinimized", false);
         if (id === lastId.value) return;
@@ -85,25 +99,25 @@ export default (isPureQuestion: boolean, questionId = "", emit: (event: string, 
         sum.value = 1;
         voiceUrlMap.value = {
             question: "",
-            answer: ""
+            answer: "",
         };
         questionList.value = [];
         let res;
         if (isPureQuestion) {
             res = await fetchPureQuestionByQuestionID({
-                questionID: questionId
+                questionID: questionId || id,
             });
         } else {
             lastId.value = id;
             childRef.value && childRef.value.clearBrush();
             if (type === 3) {
                 res = await getCourseBagQuestionsByIds({
-                    courseWareTeacherID: id
+                    courseWareTeacherID: id,
                 });
             } else {
                 const data = {
                     paperID: type === 0 ? null : id,
-                    questionIDs: [id]
+                    questionIDs: [id],
                 };
                 res = await getQuestionsByIds(data);
             }
@@ -111,7 +125,12 @@ export default (isPureQuestion: boolean, questionId = "", emit: (event: string, 
 
         if (res.resultCode === 200) {
             const { result } = res;
-            !isPureQuestion && pullAllBy(result, deleteQuestionIds.map(id => ({ QuestionID: id })), "QuestionID");
+            !isPureQuestion &&
+                pullAllBy(
+                    result,
+                    deleteQuestionIds.map((id: string) => ({ QuestionID: id })),
+                    "QuestionID"
+                );
             sum.value = result.length;
             questionList.value = result;
             getFileList(questionList.value[0].QuestionFiles, 1);
@@ -209,16 +228,20 @@ export default (isPureQuestion: boolean, questionId = "", emit: (event: string, 
         ElMessageBox.confirm("在此处作业中移除此题目吗?", "提示", {
             confirmButtonText: "确定",
             cancelButtonText: "取消",
-            type: "warning"
+            type: "warning",
         })
             .then(() => {
                 // 接口不对，后期会改，先本地假删除
-                const { courseBagId, id, type } = store.state.common.viewQuestionInfo;
-                const questionID = type === 3 ? questionList.value[number.value - 1].CoursebagQuestionID || "" : nowQuestionID.value;
+                const { courseBagId, id, type } = resource;
+                const questionID =
+                    type === 3
+                        ? questionList.value[number.value - 1]
+                              .CoursebagQuestionID || ""
+                        : nowQuestionID.value;
                 emitter.emit("deleteQuestion", {
                     courseBagId,
                     paperId: id,
-                    questionID
+                    questionID,
                 });
                 ElMessage.success("移除成功!");
                 audioRef.value!.pause();
@@ -261,6 +284,6 @@ export default (isPureQuestion: boolean, questionId = "", emit: (event: string, 
         resolutionSwitchValue,
         nextIndex,
         questionSwitchValue,
-        questionList
+        questionList,
     };
 };

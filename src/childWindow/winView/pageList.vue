@@ -1,45 +1,33 @@
 <template>
     <div class="pageListComponents">
-        <div class="me-work" :class=" fullscreenStyle ? 'fullscreen' : ''"  :style="{width: width, left: isShowCardList ? '180px' : '0'}">
-                <ScreenView
+        <div class="me-work">
+            <ScreenView
                 class="me-work-screen"
                 :inline="true"
                 :isInit="isInitPage"
                 ref="screenRef"
-                :slide="page"
+                :slide="currentSlide"
                 :writeBoardVisible="writeBoardVisible"
                 :keyDisabled="keyDisabled"
                 :useScale="false"
-                :winList="winList"
+                :winList="cardList"
+                :canvasData="canvasData"
                 @openCard="openCard"
                 @pagePrev="pagePrev"
                 @pageNext="pageNext"
                 @closeWriteBoard="closeWriteBoard"
             />
-            <open-card-view-dialog @closeOpenCard="closeOpenCard" v-if="dialogVisible" :cardList="cardList" v-model:dialogVisible="dialogVisible"></open-card-view-dialog>
+            <open-card-view-dialog
+                @closeOpenCard="closeOpenCard"
+                v-if="dialogVisible"
+                :dialog="dialog"
+                :cardList="dialogCardList"
+                v-model:dialogVisible="dialogVisible"
+            ></open-card-view-dialog>
             <div
                 class="me-page"
             >
-                <!-- :style="{ paddingBottom: hasCheck ? '40px' : '15px' }" -->
-                <div
-                    class="me-page-item"
-                    :class="selected === index && 'active'"
-                    v-for="(item, index) in pageList"
-                    :key="index"
-                    @click="selectPage(index,item)"
-                >
-                    {{ (item as any).Name }}
-                    <div
-                        class="page-checkbox"
-                        v-if="hasCheck"
-                        @click.stop="() => null"
-                    >
-                        <el-checkbox v-model="(item as any).isChecked"></el-checkbox>
-                    </div>
-                </div>
-            </div>
-            <div class="fold-btn" v-show="fullscreenStyle" @click="isShowCardList = !isShowCardList">
-                <i :class="isShowCardList ? 'el-icon-arrow-left': 'el-icon-arrow-right'"></i>
+                <PageItem :pageList="pageList" :selected="currentPageIndex" @selectPage="selectPage"/>
             </div>
         </div>
     </div>
@@ -47,76 +35,92 @@
 
 <script lang="ts">
 import { computed, defineComponent, inject, ref, watch } from "vue";
-import pageListServer from "../../views/preparation/intelligenceClassroom/hooks/pageList";
-import OpenCardViewDialog from "./openCardViewDialog.vue";
+import TrackService, { EnumTrackEventType } from "@/utils/common";
+import useHome from "@/hooks/useHome";
+import OpenCardViewDialog from "@/views/preparation/intelligenceClassroom/components/edit/openCardViewDialog.vue";
+import { getCardDetail } from "@/views/preparation/intelligenceClassroom/api";
+import { getWinCardDBData } from "@/utils/database";
+import { ElMessage } from "element-plus";
+import { useRoute } from "vue-router";
+import PageItem from "@/views/preparation/intelligenceClassroom/components/pageItem.vue";
+import { windowInfoKey } from "@/hooks/useWindowInfo";
+import { SchoolWindowPageInfo } from "@/types/preparation";
+import { find } from "lodash";
+import { IElement } from "mwhiteboard";
+import { useStore } from "@/store";
 export default defineComponent({
-    props: ["pageListOption", "showRemark", "WinActiveId", "WindowName", "LessonID", "CardName", "CardId", "winList"],
-    components: { OpenCardViewDialog },
+    props: {
+        dialog: {
+            type: Boolean,
+            default: false
+        }
+    },
+    components: { OpenCardViewDialog, PageItem },
     setup(props, { emit }) {
-        const pageList = ref([]);
-        const page = ref({});
-        const { hasCheck, selected } = pageListServer();
+        const store = useStore();
+        const { getPageDetail, transformType } = useHome();
+        const { currentCard, currentWindowInfo, cardList, currentPageIndex, currentSlide, pageList, currentPageInfo } = inject(windowInfoKey)!;
+        
         const dialogVisible = ref(false);
         const prevPageFlag = ref(false);
-        const showRemarks = ref(false);
         const keyDisabled = ref(false);
-        const WinActiveId = computed(() => props.WinActiveId);
-        const WindowName = computed(() => props.WindowName);
-        const LessonID = computed(() => props.LessonID);
-        const CardName = computed(() => props.CardName);
-        const CardId = computed(() => props.CardId);
-        const isShowCardList = inject("isShowCardList");
-        const appjson: any = inject("appjson");
-        const width = computed(() => {
-            let width = "100%";
-            if (showRemarks.value && (isShowCardList as any).value) {
-                width = "calc(100% - 22rem - 180px)";
-            } else if (showRemarks.value) {
-                width = "calc(100% - 22rem)";
-            } else if ((isShowCardList as any).value) {
-                width = "calc(100% - 180px)";
-            }
-            return width;
+        const canvasData = computed(() => {
+            return canvasDataMap.get(currentSlide.value ? currentSlide.value.id : "") || [];
         });
-        watch(
-            () => props.showRemark,
-            () => {
-                showRemarks.value = props.showRemark;
-            }
-        );
+        const canvasDataMap = new Map();
+
         watch(
             () => dialogVisible.value,
             () => {
                 if (!dialogVisible.value) {
                     keyDisabled.value = false;
                 }
-                emit("update:hideTool", dialogVisible.value);
             }
         );
-        watch(
-            () => props.pageListOption,
-            () => {
-                if (prevPageFlag.value === true) {
-                    prevPageFlag.value = false;
-                    pageList.value = props.pageListOption;
-                    selected.value = props.pageListOption.length - 1;
-                    pageNextEnd();
-                } else {
-                    pageList.value = props.pageListOption;
-                    selected.value = -1;
-                    pageNext();
-                }
+
+        watch([pageList, currentCard], (newValues, prevValues) => {
+            const findPage = find(newValues[0], { ID: currentPageInfo.value?.ID });
+            if (newValues[1]?.ID === prevValues[1]?.ID && findPage) {
+                return;
             }
-        );
+            if (prevPageFlag.value === true) {
+                prevPageFlag.value = false;
+                currentPageIndex.value = newValues[0].length - 1;
+                pageNextEnd();
+            } else {
+                currentPageIndex.value = -1;
+                pageNext();
+            }
+        }, {
+            deep: true
+        });
         const writeBoardVisible = ref(false);
-        const selectPage = (index: number, item: any) => {
-            selected.value = index;
-            getDataBase((pageList.value[index] as any).ID, pageList.value[index]);
-            emit("changeRemark", (pageList.value[index] as any).Remark || "");
+        const selectPage = (index: number, item: SchoolWindowPageInfo) => {
+            currentPageIndex.value = index;
+            const DataContext = {
+                Type: EnumTrackEventType.SelectPage,
+                LessonID: store.state.preparation.selectLessonId
+            };
+            getDataBase(pageList.value[index].ID, pageList.value[index]);
+            TrackService.setTrack(EnumTrackEventType.SelectPage, currentWindowInfo.WindowID, currentWindowInfo.WindowName, currentCard.value?.ID, currentCard.value?.Name, item.ID, item.Name, "选择页", JSON.stringify(DataContext), item.ID, store.state.userInfo.schoolId);
         };
-        const getDataBase = async (str: string, obj: any) => {
-            if (appjson.value.slides) {
-                page.value = appjson.value.slides.find((p: any) => p.id === str);
+        const getDataBase = async (str: string, obj:SchoolWindowPageInfo) => {
+            const elements = screenRef.value.whiteboard.getElements();
+            currentSlide.value.id && canvasDataMap.set(currentSlide.value.id, elements);
+            if (transformType(obj.Type) === -1) {
+                ElMessage({ type: "warning", message: "暂不支持该页面类型" });
+                currentSlide.value = {};
+                return false;
+            }
+            const dbResArr = await getWinCardDBData(str);
+            if (dbResArr.length > 0) {
+                currentSlide.value = JSON.parse(dbResArr[0].result);
+            } else {
+                await getPageDetail(obj, obj.OriginType, (res: any) => {
+                    if (res && res.id) {
+                        currentSlide.value = res;
+                    }
+                });
             }
         };
         const screenRef = ref();
@@ -134,18 +138,25 @@ export default defineComponent({
         const closeWriteBoard = () => {
             writeBoardVisible.value = false;
         };
-        const openShape = (event: any) => {
+        const openShape = (event: MouseEvent) => {
             screenRef.value.openShape(event);
         };
+        const route = useRoute();
+        watch(() => route.path, () => {
+            if (route.path !== "/preparation") {
+                keyDisabled.value = true;
+            } else {
+                keyDisabled.value = false;
+            }
+        });
         const pagePrev = async () => {
-            if (selected.value > 0) {
-                selected.value--;
+            if (currentPageIndex.value > 0) {
+                currentPageIndex.value--;
                 isInitPage.value = false;
-                emit("changeRemark", (pageList.value[selected.value] as any).Remark);
-                getDataBase((pageList.value[selected.value] as any).ID, pageList.value[selected.value]);
+                getDataBase(pageList.value[currentPageIndex.value].ID, pageList.value[currentPageIndex.value]);
                 return;
             }
-            if (selected.value === 0) {
+            if (currentPageIndex.value === 0 || currentPageIndex.value === -1) {
                 isInitPage.value = false;
                 prevPageFlag.value = true;
                 emit("firstPage");
@@ -159,16 +170,20 @@ export default defineComponent({
 
         const pageNext = async () => {
             if (pageList.value.length === 0) {
-                page.value = {};
+                currentSlide.value = {};
             }
-            if (selected.value === pageList.value.length - 1) {
+            if (currentPageIndex.value === pageList.value.length - 1) {
                 isInitPage.value = true;
                 emit("lastPage");
             } else {
-                selected.value++;
+                currentPageIndex.value++;
                 isInitPage.value = true;
-                emit("changeRemark", (pageList.value[selected.value] as any).Remark);
-                getDataBase((pageList.value[selected.value] as any).ID, pageList.value[selected.value]);
+                const DataContext = {
+                    Type: EnumTrackEventType.SelectPage,
+                    LessonID: store.state.preparation.selectLessonId
+                };
+                TrackService.setTrack(EnumTrackEventType.SelectPage, currentWindowInfo.WindowID, currentWindowInfo.WindowName, currentCard.value?.ID, currentCard.value?.Name, pageList.value[currentPageIndex.value].ID, pageList.value[currentPageIndex.value].Name, "选择页", JSON.stringify(DataContext), pageList.value[currentPageIndex.value].ID, store.state.userInfo.schoolId);
+                getDataBase(pageList.value[currentPageIndex.value].ID, pageList.value[currentPageIndex.value]);
             }
         };
         const updateFlags = () => {
@@ -176,28 +191,18 @@ export default defineComponent({
         };
         const pageNextEnd = async () => {
             if (pageList.value.length > 0) {
-                emit("changeRemark", (pageList.value[selected.value] as any).Remark);
-                getDataBase((pageList.value[selected.value] as any).ID, pageList.value[selected.value]);
+                getDataBase(pageList.value[currentPageIndex.value].ID, pageList.value[currentPageIndex.value]);
             } else {
-                emit("changeRemark", " ");
-                page.value = [];
+                currentSlide.value = {};
             }
         };
-        const fullscreenStyle = ref(false);
-        const fullScreen = () => {
-            emit("changeWinSize"); // 切换窗口大小，清除缓存的笔记列表
-            fullscreenStyle.value = true;
-        };
-        const clockFullScreen = () => {
-            emit("changeWinSize");
-            fullscreenStyle.value = false;
-        };
-        const cardList: any = ref([]);
+        const dialogCardList = ref<any[]>([]);
         const openCard = async (wins: any) => {
             if (wins[0] && wins[0].cards) {
                 keyDisabled.value = true;
                 const cards = wins[0].cards;
-                let pages: Array<any> = [];
+                let pages: any[] = [];
+                const newPages:any[] = [];
                 cards.map((card: any) => {
                     pages = pages.concat(card.slides.map((page: any) => {
                         return {
@@ -209,8 +214,27 @@ export default defineComponent({
                     }));
                 });
                 if (pages.length > 0) {
-                    cardList.value = pages;
-                    dialogVisible.value = true;
+                    const pageIDs = pages.map(page => page.ID);
+                    const obj = {
+                        pageIDs
+                        // OriginType: pages[0].OriginType
+                    };
+                    const res = await getCardDetail(obj);
+                    if (res.resultCode === 200 && res.result && res.result.length > 0) {
+                        // 页名称可能会修改
+                        pages.map(item => {
+                            const value = res.result.find((page: any) => page.ID === item.ID);
+                            if (value) {
+                                newPages.push({ Type: item.Type, ID: item.ID, Name: value.Name });
+                            } else {
+                                newPages.push({ Type: item.Type, ID: item.ID, Name: item.Name });
+                            }
+                        });
+                        dialogCardList.value = newPages;
+                        dialogVisible.value = true;
+                    } else {
+                        keyDisabled.value = false;
+                    }
                 }
             }
         };
@@ -218,16 +242,15 @@ export default defineComponent({
             dialogVisible.value = false;
             keyDisabled.value = false;
         };
+
         return {
             screenRef,
             isInitPage,
-            page,
-            hasCheck,
-            selected,
+            currentSlide,
+            currentPageIndex,
             pageList,
             dialogVisible,
-            cardList,
-            showRemarks,
+            dialogCardList,
             keyDisabled,
             writeBoardVisible,
             openCard,
@@ -235,18 +258,15 @@ export default defineComponent({
             pagePrev,
             selectPage,
             nextCard,
-            fullScreen,
-            fullscreenStyle,
+            cardList,
             pageNext,
-            clockFullScreen,
             updateFlags,
-            isShowCardList,
             closeOpenCard,
             showWriteBoard,
             hideWriteBoard,
-            width,
             openShape,
-            closeWriteBoard
+            closeWriteBoard,
+            canvasData
         };
     }
 });
@@ -281,6 +301,7 @@ export default defineComponent({
     display: flex;
     flex: 1;
     min-width: 0;
+    margin-right: 8px !important;
     ::v-deep .slide-list{
         background-color: #fff;
     }
@@ -329,33 +350,32 @@ export default defineComponent({
     background-color: #fff;
     display: flex;
     flex-wrap: nowrap;
-    padding: 15px;
+    padding: 16px 20px;
     background-color: #fff;
     overflow-y: hidden;
     overflow-x: auto;
+    border-top: 1px solid #E9ECF0;
 }
 
 .me-page-item {
-    background-color: #f0f3ff;
-    color: #5560f1;
-    padding: 0px 10px;
-    box-sizing: border-box;
-    text-align: center;
-    height: 32px;
+    background-color: #F0F4FF;
+    color: var(--app-color-primary);
+    padding: 0px 20px;
+    height: 36px;
     display: flex;
     align-items: center;
-    // min-width: 100px;
     font-size: 16px;
     white-space: nowrap;
-    margin-right: 10px;
-    border: 1px solid #f0f3ff;
-    border-radius: 5px;
+    margin-right: 12px;
+    border: 2px solid transparent;
+    border-radius: 4px;
     cursor: pointer;
     position: relative;
+    font-weight: 600;
 }
 
 .me-page-item.active {
-    border: 2px solid #6675f4;
+    border: 2px solid var(--app-color-primary);
 }
 
 .page-checkbox {

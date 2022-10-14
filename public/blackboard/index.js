@@ -92,7 +92,6 @@ openBroadList.onclick = function() {
     const canvasimg = fabCanvas.toDataURL();
     const data = { data: dataUrl, img: canvasimg };
     storageCanvasData[boardIndex - 1] = data;
-    console.log("storageCanvasData", storageCanvasData);
     const canvasbroads = document.querySelectorAll(".canvas_broad");
     for (let i = 0; i < canvasbroads.length; i++) {
         canvasbroads[i].classList.remove("active");

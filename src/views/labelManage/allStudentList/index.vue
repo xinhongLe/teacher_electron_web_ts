@@ -13,11 +13,11 @@
                 <el-table-column fixed>
                     <template v-slot="scope">
                         <div class="item" v-if="scope.row">
-                            <Avatar :file="scope.row[0].HeadPortrait" :size="54"></Avatar>
+                            <Avatar :file="scope.row.HeadPortrait" :size="54"></Avatar>
                             <div>
-                                <p>{{ scope.row[0].Name }}</p>
-                                <p>{{ scope.row[0].Phone }}</p>
-                                <p>{{ scope.row[0].Account }}</p>
+                                <p>{{ scope.row.Name }}</p>
+                                <p>{{ scope.row.Phone }}</p>
+                                <p>{{ scope.row.Account }}</p>
                             </div>
                         </div>
                     </template>
@@ -51,7 +51,8 @@
                     </template>
                     <template v-slot="scope">
                         <Label
-                            :info="scope.row.find(v => item.subjectId === v.SubjectID)"
+                            v-if="scope.row.SubjectsInfo"
+                            :info="scope.row.SubjectsInfo.find(v => item.subjectId === v.SubjectID)"
                             :subjectId="item.subjectId"
                         ></Label>
                     </template>
@@ -75,7 +76,7 @@
 
 <script lang="ts">
 import { ALL_SUBJECT_LIST } from "@/config";
-import { Student } from "@/types/labelManage";
+import { TagStudent } from "@/types/labelManage";
 import { defineComponent, PropType, reactive } from "vue";
 import Avatar from "@/components/avatar/index.vue";
 import Label from "./Label.vue";
@@ -83,7 +84,7 @@ export default defineComponent({
     name: "AllStudentList",
     props: {
         studentList: {
-            type: Array as PropType<Student[][]>,
+            type: Array as PropType<TagStudent[]>,
             default: () => []
         }
     },

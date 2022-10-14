@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="28px" height="28px" viewBox="0 0 28 28" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icon_viedo_big</title>
+    <g id="页面-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="上课-数智课堂+智课助手展开" transform="translate(-1700.000000, -804.000000)">
+            <g id="矩形" transform="translate(1412.000000, 414.000000)">
+                <g id="编组-6备份-2" transform="translate(276.000000, 376.000000)">
+                    <g id="icon_viedo_big" transform="translate(12.000000, 14.000000)">
+                        <rect id="矩形" fill="#FBC54D" x="0" y="0" width="28" height="28" rx="4"></rect>
+                        <path d="M17.2862394,10.1437323 L21.8369538,17.7282564 C22.2631761,18.4386268 22.0328285,19.3600171 21.3224581,19.7862394 C21.089335,19.9261132 20.8225804,20 20.5507144,20 L11.4492856,20 C10.6208584,20 9.94928557,19.3284271 9.94928557,18.5 C9.94928557,18.2281341 10.0231723,17.9613795 10.1630462,17.7282564 L14.7137606,10.1437323 C15.1399829,9.43336192 16.0613732,9.20301432 16.7717436,9.62923656 C16.982868,9.7559112 17.1595647,9.93260791 17.2862394,10.1437323 Z" id="三角形" fill="#FFFFFF" fill-rule="nonzero" transform="translate(16.000000, 14.000000) rotate(-270.000000) translate(-16.000000, -14.000000) "></path>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

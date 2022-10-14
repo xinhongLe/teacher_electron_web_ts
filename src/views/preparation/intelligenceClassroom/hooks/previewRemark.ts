@@ -1,6 +1,6 @@
-import { reactive, ref } from "vue-demi";
-export default () => {
-    const showRemark = ref(true);
+import { reactive, ref } from "vue";
+export default (isShowRemark = true) => {
+    const showRemark = ref(isShowRemark);
     const data = reactive({
         selectedCard: -1,
         hideTools: false

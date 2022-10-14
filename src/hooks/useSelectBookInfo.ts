@@ -25,9 +25,11 @@ interface State {
 export default () => {
     const route = useRoute();
     const defaultProps = ref({ children: "PageList", label: "Name", value: "ID" });
-    const pageValue = ref({
+    const pageValue = ref<IPageValue>({
         ID: "",
-        Type: 11
+        Type: 11,
+        TeachPageRelationID: "",
+        State: false
     });
     const cardsValue = ref({ ID: "" });
     const isSetCache = ref(false); // 是否需要更新窗下的数据
@@ -91,200 +93,13 @@ export default () => {
     };
 
     const _getWindowCards = (data: IGetWindowCards, isCache = false) => {
-        getWindowCards(data).then(res => {
+        return getWindowCards(data).then(res => {
             if (res.resultCode === 200) {
                 state.windowCards = res.result;
                 isSetCache.value = isCache;
                 state.oldWindowCards = JSON.parse(JSON.stringify(res.result));
             }
         });
-    };
-    let count = 0;
-    let copyPageValue: ICopyPage = {
-        CardID: "",
-        OldCardID: "",
-        PageID: "",
-        Name: ""
-    };
-    const _copyPage = (data: ICopyPage) => {
-        let str = "(新)";
-        if (data.PageID === copyPageValue.PageID) {
-            count += 1;
-            for (let i = 0; i < count; i++) {
-                str = str + "(新)";
-            }
-        } else {
-            copyPageValue = { ...data };
-            count = 0;
-        }
-        copyPage(data).then(res => {
-            if (res.resultCode === 200) {
-                state.pastePage = {
-                    ID: res.result.ID,
-                    Type: res.result.Type,
-                    TeachPageRelationID: res.result.TeachPageRelationID,
-                    State: res.result.State,
-                    Name: data.Name + str
-                };
-                renameCardOrPage({ ID: state.pastePage.ID, Name: state.pastePage.Name }).then(res => {
-                    if (res.resultCode === 200) {
-                        ElMessage({ type: "success", message: "粘贴卡成功" });
-                        TrackService.setTrack(EnumTrackEventType.PastePage, "", "", "", "", "", "", "粘贴卡");
-                        _getWindowCards({ WindowID: `${route.params.winValue}`, OriginType: 1 });
-                    }
-                });
-            }
-        });
-    };
-
-    const _deleteCardOrPage = (ID: string, data: IDelCardOrPage) => {
-        ElMessageBox.confirm(
-            "此操作将删除该数据, 是否继续?", "提示",
-            {
-                confirmButtonText: "确认",
-                cancelButtonText: "取消",
-                type: "warning"
-            }
-        ).then(() => {
-            deleteCardOrPage(data).then(res => {
-                if (res.resultCode === 200) {
-                    ElMessage({ type: "success", message: "删除成功" });
-                    _getWindowCards({ WindowID: `${route.params.winValue}`, OriginType: 1 });
-                }
-            });
-            TrackService.setTrack(EnumTrackEventType.DeleteCard, "", "", "", "", "", "", "删除卡或页");
-            // 删除卡或页是当前展示的页面则清空页面
-            if (pageValue.value.ID === ID || cardsValue.value.ID === ID) {
-                pageValue.value = { ID: "", Type: 11 };
-            }
-        }).catch((err) => {
-            return err;
-        });
-    };
-
-    const _addCard = (data: IAddCard) => {
-        addCard(data).then(res => {
-            if (res.resultCode === 200) {
-                ElMessage({ type: "success", message: "新增卡成功" });
-                TrackService.setTrack(EnumTrackEventType.AddCard, "", "", "", "", "", "", "新增卡");
-                _getWindowCards({ WindowID: `${route.params.winValue}`, OriginType: 1 });
-            }
-        });
-    };
-
-    const _addPage = (data: IAddPage) => {
-        addPage(data).then(res => {
-            if (res.resultCode === 200) {
-                state.pastePage = {
-                    ID: res.result.ID,
-                    Type: data.Type,
-                    TeachPageRelationID: res.result.TeachPageRelationID,
-                    State: true,
-                    Name: res.result.Name
-                };
-                ElMessage({ type: "success", message: "新增页成功" });
-                _getWindowCards({ WindowID: `${route.params.winValue}`, OriginType: 1 });
-            }
-        });
-    };
-
-    const _renameCardOrPage = (data: IRenameCardOrPage) => {
-        renameCardOrPage(data).then(res => {
-            if (res.resultCode === 200) {
-                ElMessage({ type: "success", message: "更新名称成功" });
-                TrackService.setTrack(EnumTrackEventType.ChangeCardName, "", "", "", "", "", "", "修改卡名");
-                _getWindowCards({ WindowID: `${route.params.winValue}`, OriginType: 1 });
-            }
-        });
-    };
-
-    const _setCardOrPageState = (data: ICardOrPageState) => {
-        setCardOrPageState(data).then(res => {
-            if (res.resultCode === 200) {
-                ElMessage({
-                    type: "success",
-                    message: data.State === 1 ? "上架成功" : "下架成功"
-                });
-                _getWindowCards({ WindowID: `${route.params.winValue}`, OriginType: 1 });
-            }
-        });
-    };
-
-    const _updateCardSort = (data: ICardSortRes) => {
-        updateCardSort(data).then(res => {
-            if (res.resultCode === 200) {
-                ElMessage({
-                    type: "success",
-                    message: "排序成功"
-                });
-                _getWindowCards({ WindowID: `${route.params.winValue}`, OriginType: 1 });
-            }
-        });
-    };
-    const _movePage = (data: IMovePage) => {
-        movePage(data).then(res => {
-            if (res.resultCode === 200) {
-                ElMessage({
-                    type: "success",
-                    message: "排序成功"
-                });
-                _getWindowCards({ WindowID: `${route.params.winValue}`, OriginType: 1 });
-            }
-        });
-    };
-    const dragDealData = (draggingNode: Node, dropNode: Node, ev: string) => {
-        // 拖拽的目标元素不是自己本身
-        if (draggingNode.data.ID !== dropNode.data.ID) {
-            // 卡的拖拽
-            if (draggingNode.data.PageList && dropNode.data.PageList) {
-                const data = state.windowCards.map((card, index) => {
-                    return {
-                        Sort: index + 1,
-                        TeachPageRelationID: card.TeachPageRelationID
-                    };
-                });
-                _updateCardSort({ Sort: data });
-            } else {
-                const draggingCard = state.oldWindowCards.find(card => {
-                    return card.PageList.find(page => page.ID === draggingNode.data.ID);
-                });
-
-                const dropCard = state.oldWindowCards.find(card => {
-                    return card.PageList.find(page => page.ID === dropNode.data.ID);
-                });
-                // 同一个卡的 页拖拽
-                if (draggingCard && dropCard && draggingCard.ID === dropCard.ID) {
-                    const card = state.windowCards.find(card => {
-                        return card.PageList.find(page => page.ID === dropNode.data.ID);
-                    });
-                    const data = card!.PageList.map((page, index) => {
-                        return {
-                            CardID: dropCard.ID,
-                            Sort: index + 1,
-                            TeachPageRelationID: page.TeachPageRelationID
-                        };
-                    });
-                    _updateCardSort({ Sort: data });
-                    // 不同卡的 页拖拽
-                } else if (draggingCard && dropCard && draggingCard.ID !== dropCard.ID) {
-                    const data = {
-                        CardID: "",
-                        Sort: 0,
-                        TeachPageRelationID: ""
-                    };
-                    state.windowCards.forEach(card => {
-                        card.PageList.forEach((page, index) => {
-                            if (page.ID === draggingNode.data.ID) {
-                                data.CardID = card.ID;
-                                data.Sort = index + 1;
-                                data.TeachPageRelationID = page.TeachPageRelationID;
-                            }
-                        });
-                    });
-                    _movePage(data);
-                }
-            }
-        }
     };
 
     return {
@@ -294,16 +109,9 @@ export default () => {
         cardsValue,
         state,
         findFirstId,
-        dragDealData,
         _getSubjectPublisherBookList,
         _getChapters,
         _getWindowCards,
-        _getWinList,
-        _deleteCardOrPage,
-        _addCard,
-        _copyPage,
-        _addPage,
-        _renameCardOrPage,
-        _setCardOrPageState
+        _getWinList
     };
 };

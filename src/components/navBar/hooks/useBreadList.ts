@@ -1,6 +1,9 @@
-import { watch, ref } from "vue";
+import { watch, ref, onMounted, onUnmounted } from "vue";
 import router from "@/router";
 import { Bread } from "../interface";
+import emitter from "@/utils/mitt";
+import { isNavigationFailure } from "vue-router";
+import isElectron from "is-electron";
 
 export default () => {
     const breadList = ref([
@@ -15,6 +18,7 @@ export default () => {
     ]);
 
     const value = sessionStorage.getItem("breadList");
+    let cancelAfterEach: () => void;
     if (value) {
         breadList.value = JSON.parse(value);
     }
@@ -44,10 +48,24 @@ export default () => {
         const index = breadList.value.findIndex((r) => {
             return r.name === item.name;
         });
-        breadList.value.splice(index, 1);
+
         if (router.currentRoute.value.name === item.name) {
-            router.push(breadList.value[breadList.value.length - 1].path);
+            router.push(breadList.value[breadList.value.length - 2].path);
+            cancelAfterEach = router.afterEach((to, from, failure) => {
+                if (isNavigationFailure(failure)) return;
+                breadList.value.splice(index, 1);
+                cancelAfterEach();
+            });
+        } else {
+            breadList.value.splice(index, 1);
         }
+
+        if (item.name === "上课" && isElectron()) {
+            window.electron.ipcRenderer.send("attendClass", "unfoldSuspension", {
+                type: "sysData",
+                resources: "[]"
+            });
+        } 
     };
 
     watch(breadList, () => {

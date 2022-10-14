@@ -37,8 +37,8 @@ export default defineComponent({
     props: {
         dialogVisible: {
             type: Boolean,
-            default: false
-        }
+            default: false,
+        },
     },
     setup(porps, { emit }) {
         const route = useRoute();
@@ -86,8 +86,10 @@ export default defineComponent({
         };
 
         fetchGradeClassStudents({
-            subjectID: route.params.subjectId as string
+            subjectID: route.params.subjectId as string,
         }).then((res) => {
+            console.log("分层标签", res);
+
             if (res.resultCode === 200) {
                 classTreeList.value = res.result.map((item) => {
                     const classData = item.ClassData.map((j) => {
@@ -96,20 +98,20 @@ export default defineComponent({
                                 ...items,
                                 TagName: items.TagName
                                     ? items.TagName
-                                    : "未标记"
+                                    : "未标记",
                             };
                         });
                         return {
                             ...j,
                             GradeId: item.GradeId,
-                            GradeName: item.GradeName
+                            GradeName: item.GradeName,
                         };
                     });
                     return {
                         classData,
                         ...item,
                         ClassName: item.GradeName,
-                        ClassId: item.GradeId
+                        ClassId: item.GradeId,
                     };
                 });
             }
@@ -121,9 +123,9 @@ export default defineComponent({
             checkTreeChange,
             treeRef,
             handleSave,
-            treeProps
+            treeProps,
         };
-    }
+    },
 });
 </script>
 
