@@ -53,7 +53,7 @@
             <el-button
                 size="small"
                 type="danger"
-                icon="el-icon-delete"
+                icon="el-icon-delete" 
                 @click="del"
             ></el-button>
         </div>

@@ -116,7 +116,7 @@ export default defineComponent({
         }
     },
     setup(props, { emit }) {
-        const { cascaderProps, subjectPublisherBookList } = useBookList();
+        const { cascaderProps, subjectPublisherBookList } = useBookList(); 
         const form = reactive({
             subjectPublisherBookValue: [] as string[]
         });

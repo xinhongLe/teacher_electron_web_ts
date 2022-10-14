@@ -125,7 +125,12 @@ export const enum MutationTypes {
     /**
      * 设置单开资源活跃窗口
      */
-    SET_FULLSCREEN_RESOURCE_ACTIVE = "SET_FULLSCREEN_RESOURCE_ACTIVE"
+    SET_FULLSCREEN_RESOURCE_ACTIVE = "SET_FULLSCREEN_RESOURCE_ACTIVE",
+    /**
+     * 错题本-试题篮数据
+     */
+    SET_QUESTION_BASKET = "SET_QUESTION_BASKET",
+    SET_QUESTION_BASKET_TOTAL = "SET_QUESTION_BASKET_TOTAL",
 }
 
 export const enum ActionTypes {
@@ -137,4 +142,16 @@ export const enum ActionTypes {
      * 请求学生列表
      */
     FETCH_STUDENT_LIST = "FETCH_STUDENT_LIST",
+    /**
+     * 请求试题篮列表
+     */
+    FETCH_BASKET_LIST = "FETCH_BASKET_LIST",
+    /**
+     * 添加试题篮-试题篮数据
+     */
+    ADD_QUESTION_BASKET = "ADD_QUESTION_BASKET",
+    /**
+     * 添加试题篮-试题篮数据
+     */
+    DEL_QUESTION_BASKET = "DEL_QUESTION_BASKET",
 }
