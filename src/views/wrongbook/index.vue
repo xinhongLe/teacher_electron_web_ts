@@ -315,6 +315,7 @@
             :gradeName="state.gradeName"
             :preContent="state.preContent"
             :exerciseData="state.exerciseData"
+            :currentWrongType="state.currentWrongType"
             @onBackWrongBook="onBackWrongBook"
             :currentClassStudents="state.currentClassStudents"
         />
@@ -805,7 +806,7 @@ const onBackWrongBook = () => {
             height: calc(100% - 57px);
 
             .con-left {
-                width: 20%;
+                width: 316px;
                 background: #ffffff;
                 border-right: 1px solid #f3f4f4;
             }
