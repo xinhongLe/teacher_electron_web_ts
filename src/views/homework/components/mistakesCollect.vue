@@ -138,7 +138,7 @@ export default defineComponent({
             await _sendWrongTopicDetail();
         };
         const _GetStudentMissionList = () => {
-            return GetStudentMissionList({ ID: props.info.ClassHomeworkPaperID }).then(res => {
+            return GetStudentMissionList({ ID: props.info.ClassHomeworkPaperID || props.info.classHomeworkPaperID }).then(res => {
                 if (res.resultCode === 200) {
                     state.studentsList = res.result || [];
                 }

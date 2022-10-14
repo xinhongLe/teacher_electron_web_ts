@@ -241,7 +241,7 @@ export default defineComponent({
         };
 
         const addRow = () => {
-            if (state.form.topicList.length === 10) return ElMessage.warning("最多一次性发送10道题");
+            if (state.form.topicList.length === 10) return ElMessage.warning("最多添加10道题");
             state.form.topicList.push(cloneDeep({ questionType: 0, selectSetting: [], option: [] }));
         };
 
@@ -310,9 +310,9 @@ export default defineComponent({
                         classList = classList.concat(item.ClassList);
                     });
                     state.classList = classList;
-                    state.form.selectClass = state.classList.length > 0 ? state.classList[0].ClassId : "";
-                    state.form.selectClass && _getAnswerMachineQuestionList();
-                    console.log(res.result, "----");
+                    // state.form.selectClass = state.classList.length > 0 ? state.classList[0].ClassId : "";
+                    // state.form.selectClass && _getAnswerMachineQuestionList();
+                    // console.log(res.result, "----");
                 }
             });
         };

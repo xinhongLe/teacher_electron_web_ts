@@ -109,6 +109,7 @@
         </div>
 
         <mistakes-collect
+            :info="homeworkDetail"
             :mistakesCollectState="mistakesCollectState"
             :isFinishState="isFinishState"
             :collectedCount="collectedCount"
