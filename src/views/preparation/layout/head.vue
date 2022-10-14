@@ -133,7 +133,7 @@
                         @click="editWincard()"
                     >
                         &nbsp;&nbsp;&nbsp;
-                        <el-icon :size="14"><edit /></el-icon>
+                        <el-icon :size="14"><Edit /></el-icon>
                         &nbsp;编&nbsp;辑&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     </el-button>
                 </el-form-item>

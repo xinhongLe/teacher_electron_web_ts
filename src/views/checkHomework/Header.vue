@@ -108,7 +108,11 @@
             </div>
         </div>
 
-        <mistakes-collect :info="homeworkDetail" :mistakesCollectState="mistakesCollectState"  v-model:dialogVisible="mistakesCollectDialog"></mistakes-collect>
+        <mistakes-collect
+            :info="homeworkDetail"
+            :mistakesCollectState="mistakesCollectState"
+            :isFinishState="isFinishState"
+            v-model:dialogVisible="mistakesCollectDialog"></mistakes-collect>
     </div>
 </template>
 
@@ -142,10 +146,14 @@ export default defineComponent({
 
         const mistakesCollectDialog = ref(false);
         const mistakesCollectState = ref(0); // 0未收集过，1已收集过
+        const isFinishState = ref(0); // 0未完成收集，1已完成收集
+        const collectedCount = ref(0); // 0未完成收集，1已完成收集
         const handleMistakesCollect = () => {
             topicConnectionState({ Id: props.homeworkDetail.classHomeworkPaperID }).then(res => {
                 if (res.resultCode === 200) {
-                    mistakesCollectState.value = res.result.HasCollection;
+                    mistakesCollectState.value = res.result.HasCollection || 0;
+                    isFinishState.value = res.result.IsFinish || 0;
+                    collectedCount.value = res.result.CollectedCount || 0;
                     mistakesCollectDialog.value = true;
                 }
             });
@@ -275,6 +283,8 @@ export default defineComponent({
             handleMistakesCollect,
             mistakesCollectDialog,
             mistakesCollectState,
+            isFinishState,
+            collectedCount,
             showdataPicker,
             dataPicker,
             date,

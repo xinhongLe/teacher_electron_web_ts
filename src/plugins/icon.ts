@@ -1,12 +1,14 @@
 import { App } from "vue";
 import {
     Close, ArrowLeft, ArrowRight, RefreshRight, CloseBold, Setting, Plus, Search, MoreFilled,
-    CircleCloseFilled, Rank, DocumentCopy, CircleClose, DArrowLeft, DArrowRight, Paperclip, Iphone, User, UserFilled, Warning, Download
+    CircleCloseFilled, Rank, DocumentCopy, CircleClose, DArrowLeft, DArrowRight, Paperclip,
+    Iphone, User, UserFilled, Warning, Download, Edit
 } from "@element-plus/icons-vue";
 
 export default {
     install(app: App) {
         app.component("Close", Close);
+        app.component("Edit", Edit);
         app.component("ArrowLeft", ArrowLeft);
         app.component("ArrowRight", ArrowRight);
         app.component("DArrowLeft", DArrowLeft);

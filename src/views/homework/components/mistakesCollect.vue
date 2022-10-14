@@ -8,30 +8,36 @@
                 </div>
             </div>
 
-            <div class="content" v-if="status === 2">
-                <div class="bg-img">
-                    <img class="search_class" src="@/assets/images/homeworkNew/ctsj_zhuti.png" alt="">
-                </div>
-                <div class="content-text">
-                    <div class="text">
-                        <span>正在收集…</span>
-                        <span>{{finishCount}}/{{studentsList.length}}</span>
-                    </div>
-                    <div class="text-gary">请学生进入一卡通的【错题收集】应用</div>
-                </div>
-            </div>
+          <div  v-if="status === 1">
+              <div class="content" v-if="isFinish === 0">
+                  <div class="bg-img">
+                      <img class="search_class" src="@/assets/images/homeworkNew/ctsj_zhuti.png" alt="">
+                  </div>
+                  <div class="content-text">
+                      <div class="text">
+                          <span>正在收集…</span>
+                          <span>{{finishCount}}/{{studentsList.length}}</span>
+                      </div>
+                      <div class="text-gary">请学生进入一卡通的【错题收集】应用</div>
+                  </div>
+              </div>
 
-            <div class="content" v-if="status === 1">
-                <img class="img_class" src="@/assets/images/homeworkNew/pic_done.png" alt="">
-                <div class="content-text">
-                    <div class="text">已收集过，是否要再次发起？</div>
-                </div>
-            </div>
+              <div class="content" v-if="isFinish === 1">
+                  <img class="img_class" src="@/assets/images/homeworkNew/pic_done.png" alt="">
+                  <div class="content-text">
+                      <div class="text">已收集过，是否要再次发起？</div>
+                  </div>
+              </div>
+
+          </div>
+
         <template #footer>
           <span class="dialog-footer">
             <el-button v-if="status === 0" type="primary" @click="handleComfirm">开始</el-button>
-            <el-button v-if="status === 2" type="danger"  plain @click="_overWrongTopicCollection">结束收集</el-button>
-            <el-button v-if="status === 1" type="primary"  @click="handleComfirm">确定</el-button>
+            <div v-if="status === 1">
+                 <el-button v-if="isFinish === 0" type="danger"  plain @click="stopWrongTopicCollection">结束收集</el-button>
+                 <el-button v-if="isFinish === 1" type="primary"  @click="handleComfirm">确定</el-button>
+            </div>
           </span>
         </template>
     </el-dialog>
@@ -45,6 +51,7 @@ import mqtt from "mqtt";
 import { YUN_API_ONECARD_MQTT } from "@/config";
 interface State{
     status: number,
+    isFinish: number,
     studentsList: StudentMission[],
     collectionId: string,
     finishCount: number,
@@ -61,6 +68,14 @@ export default defineComponent({
             type: Number,
             default: () => 0
         },
+        isFinishState: {
+            type: Number,
+            default: () => 0
+        },
+        collectedCount: {
+            type: Number,
+            default: () => 0
+        },
         info: {
             type: Object as PropType<Homework>,
             default: () => ({})
@@ -70,6 +85,7 @@ export default defineComponent({
     setup(props, { emit }) {
         const state = reactive<State>({
             status: 0,
+            isFinish: 0,
             studentsList: [],
             collectionId: "",
             finishCount: 0
@@ -90,6 +106,8 @@ export default defineComponent({
         watch(() => props.dialogVisible, (val) => {
             if (val) {
                 state.status = props.mistakesCollectState;
+                state.isFinish = props.isFinishState;
+                state.finishCount = props.collectedCount;
             } else {
                 client.unsubscribe(getPublish(state.collectionId));
             }
@@ -111,10 +129,8 @@ export default defineComponent({
         });
 
         const handleComfirm = async () => {
-            if (state.status === 0 || state.status === 1) {
-                await _GetStudentMissionList();
-                await _sendWrongTopicDetail();
-            }
+            await _GetStudentMissionList();
+            await _sendWrongTopicDetail();
         };
         const _GetStudentMissionList = () => {
             return GetStudentMissionList({ ID: props.info.ClassHomeworkPaperID }).then(res => {
@@ -136,15 +152,15 @@ export default defineComponent({
             };
             sendWrongTopicDetail(data).then(res => {
                 if (res.resultCode === 200) {
-                    state.status = 2;
+                    state.status = 1;
+                    state.isFinish = 0;
                     state.collectionId = res.result.WrongTopicCollectionId;
-                    console.log(getPublish(state.collectionId), "getPublish");
                     client.subscribe(getPublish(state.collectionId));
                 }
             });
         };
 
-        const _overWrongTopicCollection = () => {
+        const stopWrongTopicCollection = () => {
             overWrongTopicCollection({ Id: state.collectionId }).then(res => {
                 if (res.resultCode === 200) {
                     close();
@@ -153,6 +169,7 @@ export default defineComponent({
         };
         const close = () => {
             state.status = 0;
+            state.isFinish = 0;
             state.finishCount = 0;
             state.collectionId = "";
             state.studentsList = [];
@@ -166,7 +183,7 @@ export default defineComponent({
         return {
             ...toRefs(state),
             visible,
-            _overWrongTopicCollection,
+            stopWrongTopicCollection,
             handleComfirm,
             close
         };
