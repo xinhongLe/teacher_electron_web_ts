@@ -2,7 +2,7 @@ import { App } from "vue";
 import {
     Close, ArrowLeft, ArrowRight, RefreshRight, CloseBold, Setting, Plus, Search, MoreFilled,
     CircleCloseFilled, Rank, DocumentCopy, CircleClose, DArrowLeft, DArrowRight, Paperclip,
-    Iphone, User, UserFilled, Warning, Download, Edit
+    Iphone, User, UserFilled, Warning, Download, Edit, ArrowRightBold, ArrowUpBold, ArrowDownBold
 } from "@element-plus/icons-vue";
 
 export default {
@@ -12,6 +12,9 @@ export default {
         app.component("ArrowLeft", ArrowLeft);
         app.component("ArrowRight", ArrowRight);
         app.component("DArrowLeft", DArrowLeft);
+        app.component("ArrowRightBold", ArrowRightBold);
+        app.component("ArrowDownBold", ArrowDownBold);
+        app.component("ArrowUpBold", ArrowUpBold);
         app.component("DArrowRight", DArrowRight);
         app.component("RefreshRight", RefreshRight);
         app.component("CloseBold", CloseBold);

@@ -44,6 +44,7 @@
                 :questionContent="questionContent"
                 :answerContent="answerContent"
                 :type="questionType"
+                :homeworkDetail="homeworkDetail"
             ></ReviewHomework>
         </div>
     </div>
