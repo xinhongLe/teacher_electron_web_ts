@@ -17,9 +17,10 @@ export const isExistFile = (filePath: string): Promise<boolean> => {
     return new Promise((resolve) => {
         access(filePath)
             .then(() => {
+                ElectronLog.info("filePath", filePath);
                 // resolve(true);
                 // const fileName = filePath.substring(filePath.lastIndexOf("\\") + 1, filePath.lastIndexOf("."));
-                const fileName = filePath.replace(/(.*\/)*([^.]+).*/gi, "$2");
+                const fileName = filePath.replaceAll("\\", "/").replace(/(.*\/)*([^.]+).*/gi, "$2");
                 const hash = crypto.createHash("md5");
                 createReadStream(filePath)
                     .on("data", (chunk: any) => {
@@ -147,11 +148,11 @@ export default () => {
         const downloadsPath = resolve(app.getPath("userData"), "files");
         const filePath = resolve(downloadsPath, fileName);
         await mkdirs(downloadsPath);
-        if (downloadingFileList.includes(fileName)) return;
         const isExist = await isExistFile(filePath);
         if (isExist) {
             dealCallback(fileName, filePath);
         } else {
+            if (downloadingFileList.includes(fileName)) return;
             if (!downloadingFileList.includes(fileName)) {
                 downloadingFileList.push(fileName);
                 downloadFileAxios(url, fileName);

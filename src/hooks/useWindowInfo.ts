@@ -21,7 +21,7 @@ const dealCardData = (card:SchoolWindowCardInfo) => {
     };
 };
 
-const useWindowInfo = () => {
+const useWindowInfo = (isUseNetwork = true) => {
     const { getPageDetail, transformType } = useHome();
     const currentWindowInfo = reactive<SchoolWindowInfo>({
         LessonID: "",
@@ -84,13 +84,14 @@ const useWindowInfo = () => {
         const newCard = dealCardData(card);
         currentCardIndex.value = index;
         currentCard.value = newCard;
-        TrackService.setTrack(EnumTrackEventType.SelectCard, currentWindowInfo.WindowID, currentWindowInfo.WindowName, card.ID, card.Name, card.PageList.length > 0 ? card.PageList[0].ID : "", card.PageList.length > 0 ? card.PageList[0].Name : "", "选择卡", "", "", store.state.userInfo.schoolId);
+        if (isUseNetwork) TrackService.setTrack(EnumTrackEventType.SelectCard, currentWindowInfo.WindowID, currentWindowInfo.WindowName, card.ID, card.Name, card.PageList.length > 0 ? card.PageList[0].ID : "", card.PageList.length > 0 ? card.PageList[0].Name : "", "选择卡", "", "", store.state.userInfo.schoolId);
     };
 
     let isExecuting = false;
     let executePageList:SchoolWindowPageInfo[] = [];
 
     watch(allPageList, () => {
+        if (!isUseNetwork) return;
         executePageList = JSON.parse(JSON.stringify(allPageList.value));
         if (!isExecuting) {
             _getPageDetail();

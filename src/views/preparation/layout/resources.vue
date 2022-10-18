@@ -93,6 +93,8 @@ import { MutationTypes, useStore } from "@/store";
 import emitter from "@/utils/mitt";
 import { getOssUrl } from "@/utils/oss";
 import { IViewResourceData } from "@/types/store";
+import { ElMessage } from "element-plus";
+import LocalCache from "@/utils/localcache";
 interface ICourse {
     chapterId: string;
     lessonId: string;
@@ -203,6 +205,31 @@ export default defineComponent({
         const { download } = useDownloadFile();
 
         const downloadFile = async (data: IResourceItem) => {
+            if (data.ResourceShowType === 1) {
+                // 下载窗卡页
+                window.electron.showOpenDialog({
+                    title: "选择保存路径",
+                    buttonLabel: "确定",
+                    properties: ["openDirectory"]
+                }).then(async (file: any) => {
+                    if (!file.canceled) {
+                        const path = file.filePaths[0];
+                        new LocalCache({
+                            cachingStatus: (status) => {
+                                console.log(`status: ${status}`);
+                                if (status === 100) {
+                                }
+                            }
+                        }).doCache({
+                            WindowID: data.OldResourceId,
+                            OriginType: data.IsSysFile === 1 ? 0 : 1
+                        }, data.Name, path);
+                    }
+                }).catch((err: any) => {
+                    ElMessage({ type: "error", message: "下载失败" });
+                });
+                return;
+            }
             if (data.File) {
                 const url = await getOssUrl(
                     `${data.File.FilePath}/${data.File.FileMD5}.${data.File.FileExtention}`,

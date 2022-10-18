@@ -28,6 +28,7 @@
                 @showWriteBoard="showWriteBoard"
                 @hideWriteBoard="hideWriteBoard"
                 @close="close"
+                :dialog="true"
                 @openShape="openShape"
                 :isShowFullscreen="false"
                 :isShowRemarkBtn="false"

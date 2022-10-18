@@ -37,7 +37,7 @@ type Electron = typeof electron & {
     getPPTPath: (path: string) => string,
     checkWindowSupportNet: (version: string) => Promise<boolean>,
     unpackCacheFile: (zipFileName: string, newpath?: string) => Promise<any>,
-    packCacheFiles: (cacheFiles: any) => Promise<string>,
+    packCacheFiles: (cacheFiles: any, path: string) => Promise<string>,
     remote: Remote,
     store: Store,
     log: LogFunctions
