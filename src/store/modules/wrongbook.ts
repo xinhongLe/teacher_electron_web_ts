@@ -34,23 +34,17 @@ const operateBasket = (commit: any, data: any) => {
 
 const actions: ActionTree<WrongBookState, RootState> = {
     async [ActionTypes.FETCH_BASKET_LIST]({ commit }, data) {
-        console.log("wrongbook-action", commit);
-
+        // console.log("wrongbook-action", commit);
         const res: any = await PaperBasketInfo(data);
         if (res.resultCode === 200) {
             operateBasket(commit, res);
         }
     },
     async [ActionTypes.ADD_QUESTION_BASKET]({ commit }, question) {
-        console.log("ADD_QUESTION_BASKET", commit, question);
-        const params = {
-            questionId: question.QuestionId,
-            classId: question.classId,
-            bookId: question.bookId,
-            questionType: question.QuestionType,
-        };
-        const res: any = await AddIntoPaperBasket(params);
-        console.log("添加试题篮--", res);
+        // console.log("ADD_QUESTION_BASKET", commit, question);
+
+        const res: any = await AddIntoPaperBasket(question);
+        // console.log("添加试题篮--", res);
         if (res.resultCode === 200) {
             const res2: any = await PaperBasketInfo({
                 classId: question.classId,
@@ -64,7 +58,7 @@ const actions: ActionTree<WrongBookState, RootState> = {
     async [ActionTypes.DEL_QUESTION_BASKET]({ commit }, question) {
         const params: delBasketParams = question;
         const res: any = await DelQuestionForPaperBasket(params);
-        console.log(res);
+        // console.log(res);
         if (res.resultCode === 200) {
             // operateBasket(commit, res);
             const res2: any = await PaperBasketInfo({

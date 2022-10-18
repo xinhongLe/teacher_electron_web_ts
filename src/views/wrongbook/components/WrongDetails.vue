@@ -1029,10 +1029,9 @@ const formatPreErrorIcon = (data: any) => {
     const preData: any = preDetailList.find((item: any) => {
         return item.TagLevel == data.TagLevel;
     });
-    // console.log("data, preData", data, preData);
-    if (data.WrongRatio > preData.WrongRatio) {
+    if (data?.WrongRatio > preData?.WrongRatio) {
         return 1;
-    } else if (data.WrongRatio < preData.WrongRatio) {
+    } else if (data?.WrongRatio < preData?.WrongRatio) {
         return 2;
     } else {
         return 0;
@@ -1077,7 +1076,7 @@ const aveErrorRate = computed(() => {
 });
 //过滤分层-答错-未答
 const formatAnswerCount = (type: number, data: any) => {
-    if (!data || !data.length) return;
+    if (!data || !data.length) return 0;
     switch (type) {
         case 1: //未答
             return data.filter((item: any) => {

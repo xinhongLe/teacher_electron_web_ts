@@ -222,7 +222,7 @@ watch(
         selectSubject(v[0].Value);
         if (props.currentChapterBookId?.length) {
             state.currentBookId = props.currentChapterBookId as any;
-            initData(state.currentBookId);
+            // initData(state.currentBookId);
         } else {
             state.currentBookId = [
                 v[0].Value,
