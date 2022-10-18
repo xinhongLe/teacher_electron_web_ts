@@ -11,7 +11,8 @@ export class Action {
 }
 
 export interface CallBack {
-    OnDataReceive(data: Action): void
+    OnDataReceive(data: Action): void;
+    OnConnected(): void;
 }
 
 export class SocketHelper {
@@ -54,7 +55,7 @@ export class SocketHelper {
 
         this.client.connect(port, hostname, () => {
             console.log("connected the server");
-
+            this.callback.OnConnected();
             this.processData();
         })
     }
@@ -78,10 +79,10 @@ export class SocketHelper {
 
     sendMessage(action: Action) {
         return new Promise((resolve, reject) => {
-            this.client.write(JSON.stringify(action) + '\n', err => {
+            this.client.writable && this.client.write(JSON.stringify(action) + '\n', err => {
                 if (err) {
                     console.log(err);
-                    return reject(err);
+                    // return reject(err);
                 }
                 return resolve("ok");
             });
