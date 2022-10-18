@@ -74,7 +74,6 @@ export default (contentRef: Ref<HTMLElement>) => {
     const getDomOffset = () => {
         const offsetX = contentRef.value.offsetLeft + transform.translateX;
         const offsetY = contentRef.value.offsetTop + transform.translateY + 60;
-        console.log(contentRef.value.offsetLeft)
         return { offsetX, offsetY };
     };
 

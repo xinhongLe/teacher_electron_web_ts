@@ -9,7 +9,7 @@
                 :dialog="dialog"
             />
             <transition name="fade">
-                <Remark :teachProcess="teachProcess" :isSystem="isSystem" :resourceId="resourceId" :design="design" v-if="showRemark" />
+                <Remark :hideLookAll="true" :teachProcess="teachProcess" :isSystem="isSystem" :resourceId="resourceId" :design="design" v-if="showRemark" />
             </transition>
         </div>
     </div>

@@ -28,7 +28,7 @@
                 <div class="card-detail">
                     <div class="card-detail-content">
                         <PreviewSection
-                            ref="PreviewSection"
+                            ref="previewSectionRef"
                             :options="previewOptions"
                             :winActiveId="winActiveId"
                             :WindowName="WindowName"
@@ -41,6 +41,20 @@
                             @clockFullScreen="clockFullScreen"
                         />
                     </div>
+                    <Tools
+                        :id="winActiveId"
+                        :dialog="false"
+                        :showClose="false"
+                        :showRemark="previewSection?.showRemark"
+                        @toggleRemark="toggleRemark"
+                        @prevStep="prevStep"
+                        @nextStep="nextStep"
+                        @fullScreen="fullScreen"
+                        @clockFullScreen="clockFullScreen"
+                        @showWriteBoard="showWriteBoard"
+                        @openShape="openShape"
+                        @hideWriteBoard="hideWriteBoard"
+                    />
                 </div>
             </div>
         </div>
@@ -58,13 +72,15 @@ import {
 import CardList from "./CardList.vue";
 import PreviewSection from "./previewSection.vue";
 import NavBar from "./NavBar.vue";
+import Tools from "@/views/preparation/intelligenceClassroom/components/preview/tools.vue";
 import { set, STORAGE_TYPES } from "@/utils/storage";
 import useWindowInfo, { windowInfoKey } from "@/hooks/useWindowInfo";
 export default defineComponent({
     components: {
         CardList,
         PreviewSection,
-        NavBar
+        NavBar,
+        Tools
     },
     setup() {
         // 默认开启缓存
@@ -96,16 +112,46 @@ export default defineComponent({
         const firstPage = () => {
             cardListComponents.value.changeAddPage();
         };
-        const PreviewSection = ref();
+        const previewSectionRef = ref();
         const updateFlag = () => {
-            PreviewSection.value.updateFlag();
+            previewSectionRef.value.updateFlag();
         };
+
         const fullScreen = () => {
             isFullScreen.value = true;
+            isShowCardList.value = false;
+            previewSectionRef.value && previewSectionRef.value.fullScreen();
         };
         const clockFullScreen = () => {
             isFullScreen.value = false;
+            isShowCardList.value = true;
+            previewSectionRef.value && previewSectionRef.value.clockFullScreen();
         };
+
+        const toggleRemark = () => {
+            previewSectionRef.value && previewSectionRef.value.toggleRemark();
+        };
+
+        const prevStep = () => {
+            previewSectionRef.value && previewSectionRef.value.prevStep();
+        };
+
+        const nextStep = () => {
+            previewSectionRef.value && previewSectionRef.value.nextStep();
+        };
+
+        const showWriteBoard = () => {
+            previewSectionRef.value && previewSectionRef.value.showWriteBoard();
+        };
+
+        const openShape = (event: MouseEvent) => {
+            previewSectionRef.value && previewSectionRef.value.openShape(event);
+        };
+
+        const hideWriteBoard = () => {
+            previewSectionRef.value && previewSectionRef.value.hideWriteBoard();
+        };
+
         onMounted(async () => {
             const urlSearchParams = new URLSearchParams(window.location.search);
             const params = Object.fromEntries(urlSearchParams.entries());
@@ -116,6 +162,7 @@ export default defineComponent({
                 appjson.value.cards.forEach((c: any) => {
                     c.PageList = c.PageList.filter((p: any) => p.State === true);
                 });
+                console.log(appjson.value);
                 cardList.value = appjson.value.cards;
                 document.title = WindowName.value;
                 await nextTick(() => {
@@ -126,7 +173,7 @@ export default defineComponent({
         return {
             lastPage,
             firstPage,
-            PreviewSection,
+            previewSectionRef,
             updateFlag,
             updatePageList,
             changeWinSize,
@@ -134,6 +181,12 @@ export default defineComponent({
             fullScreen,
             isShowCardList,
             clockFullScreen,
+            toggleRemark,
+            prevStep,
+            nextStep,
+            showWriteBoard,
+            openShape,
+            hideWriteBoard,
             cardListComponents,
             cardList,
             previewOptions,
@@ -228,7 +281,7 @@ $border-color: #f5f6fa;
             }
             .card-box-outbottom {
                 width: 100%;
-                height: 84px;
+                height: 87px;
                 background: #bccfff;
             }
 
@@ -236,6 +289,7 @@ $border-color: #f5f6fa;
                 flex: 1;
                 min-width: 0;
                 display: flex;
+                flex-direction: column;
                 justify-content: space-between;
                 .card-detail-content {
                     height: 100%;
