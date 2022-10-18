@@ -23,12 +23,12 @@ const dealCardData = (card:SchoolWindowCardInfo) => {
     };
 };
 
-const useWindowInfo = (isUseNetwork = true, resource?: IResourceItem & IViewResourceData) => {
+const useWindowInfo = (isUseNetwork = true) => {
     const { getPageDetail, transformType } = useHome();
     const currentWindowInfo = reactive<SchoolWindowInfo>({
-        LessonID: (resource?.TextBooks && resource?.TextBooks.length > 0) ? (resource?.TextBooks[0].LessonID || "") : "",
-        WindowID: resource?.OldResourceId || resource?.id || "",
-        WindowName: resource?.Name || resource?.wincardName || "",
+        LessonID: "",
+        WindowID: "",
+        WindowName: "",
         WindowNickName: "",
         LessonWindowID: "",
         Sort: 0,
