@@ -52,38 +52,6 @@
             </div>
 
             <div class="header-right">
-                <!-- 题型 -->
-                <el-select
-                    size="small"
-                    style="width: 140px; margin-right: 16px"
-                    v-model="state.QuestionType"
-                >
-                    <el-option
-                        v-for="item in questionTypeList"
-                        :label="item.Name"
-                        :value="item.ID"
-                        :key="item.ID"
-                    >
-                    </el-option>
-                </el-select>
-                <!-- 频次 -->
-                <el-select
-                    v-if="
-                        state.currentWrongType == 3 ||
-                        state.currentWrongType == 4
-                    "
-                    size="small"
-                    style="width: 140px; margin-right: 16px"
-                    v-model="state.Frequency"
-                >
-                    <el-option
-                        v-for="item in frequencyList"
-                        :label="item.name"
-                        :value="item.value"
-                        :key="item.value"
-                    >
-                    </el-option>
-                </el-select>
                 <el-button-group style="margin-right: 16px">
                     <el-button
                         size="small"
@@ -135,8 +103,60 @@
                         >{{ item.name }}</el-button
                     >
                 </div>
-                <div class="right-sel" v-if="state.currentWrongType == 1">
-                    <el-popover
+                <div class="right-sel">
+                    <span
+                        class="tagtypelist"
+                        v-if="state.currentWrongType == 1"
+                    >
+                        <el-select
+                            size="small"
+                            style="width: 170px"
+                            v-model="questionTagType"
+                            @change="changeTagType"
+                        >
+                            <el-option
+                                v-for="item in state.tagTypeList"
+                                :label="item.Name"
+                                :value="item.ID"
+                                :key="item.ID"
+                            >
+                            </el-option>
+                        </el-select>
+                    </span>
+
+                    <!-- 题型 -->
+                    <el-select
+                        size="small"
+                        style="width: 140px; margin-right: 16px"
+                        v-model="state.QuestionType"
+                    >
+                        <el-option
+                            v-for="item in questionTypeList"
+                            :label="item.Name"
+                            :value="item.ID"
+                            :key="item.ID"
+                        >
+                        </el-option>
+                    </el-select>
+                    <!-- 频次 -->
+                    <el-select
+                        v-if="
+                            state.currentWrongType == 3 ||
+                            state.currentWrongType == 4
+                        "
+                        size="small"
+                        style="width: 140px"
+                        v-model="state.Frequency"
+                    >
+                        <el-option
+                            v-for="item in frequencyList"
+                            :label="item.name"
+                            :value="item.value"
+                            :key="item.value"
+                        >
+                        </el-option>
+                    </el-select>
+                    <!-- <el-popover
                         trigger="hover"
                         v-model:visible="state.visible"
                         placement="bottom-start"
@@ -213,13 +233,7 @@
                                     <span>
                                         {{ item.name }}
                                     </span>
-                                    <!-- <el-icon
-                                        @click.stop="state.currentSortType = 0"
-                                        v-if="
-                                            item.value == state.currentSortType
-                                        "
-                                        ><CircleClose
-                                    /></el-icon> -->
+                                  
                                 </p>
                             </div>
                         </div>
@@ -251,7 +265,7 @@
                                 />
                             </div>
                         </template>
-                    </el-popover>
+                    </el-popover> -->
                 </div>
             </header>
             <div class="top-line"></div>
@@ -360,6 +374,24 @@ const classList = get(STORAGE_TYPES.USER_INFO).Classes;
 const gradeId = ref(classList.length ? classList[0]?.GradeID : "");
 const isActivited = ref(false);
 const state = reactive({
+    tagTypeList: [
+        {
+            ID: 1,
+            Name: "平均错误率由高到低",
+        },
+        {
+            ID: 2,
+            Name: "A层错误率由高到低",
+        },
+        {
+            ID: 3,
+            Name: "B层错误率由高到低",
+        },
+        {
+            ID: 4,
+            Name: "C层错误率由高到低",
+        },
+    ],
     //顶部时间选择区间
     dateRange: getFormatDate(1) || [],
     //顶部年级列表
@@ -468,6 +500,8 @@ const state = reactive({
     gradeName: classList.length ? classList[0]?.Name : "",
     exerciseData: [],
 });
+//分层筛选
+const questionTagType = ref(1);
 const activeName = ref(0);
 const scrollResultWidth = ref(0); //transform滚动的距离
 const signleWidth = ref(90); //单个流程的宽度
@@ -482,14 +516,6 @@ const sortData = ref({
     currentSortType: 2,
     //当前选择的排序字段
     currentSortCon: 1,
-});
-const sortDataName = ref({
-    //当前选择的分层登记
-    currentLevelName: "",
-    //题目类型
-    currentSortTypeName: "正序",
-    //当前选择的排序字段
-    currentSortConName: "平均错误率",
 });
 console.log("错题本页面.......");
 watch(
@@ -525,6 +551,27 @@ watch(
         console.log(val);
     }
 );
+//选择详情-右侧-作业维度筛选分层下拉
+const changeTagType = (value: any) => {
+    console.log(value);
+    if (value == 1) {
+        //平均错误率由高到低
+        sortData.value.currentSortCon = 1;
+        sortData.value.currentLevel = 0; //等级
+    } else if (value == 2) {
+        //A层由高到低
+        sortData.value.currentSortCon = 2;
+        sortData.value.currentLevel = 300; //等级
+    } else if (value == 3) {
+        //B层由高到低
+        sortData.value.currentSortCon = 2;
+        sortData.value.currentLevel = 200; //等级
+    } else {
+        // 4 - C层错误率由高到低
+        sortData.value.currentSortCon = 2;
+        sortData.value.currentLevel = 100; //等级
+    }
+};
 //选择科目查学生
 const selectSubject = (subject: any) => {
     console.log("subjectid", subject);
@@ -790,6 +837,14 @@ const onBackWrongBook = () => {
                 :deep(.el-button:focus, .el-button:hover, .isActive) {
                     color: #4b71ee;
                     border: 1px solid rgba(75, 113, 238, 0.5);
+                }
+            }
+            .right-sel {
+                .tagtypelist {
+                    margin-left: 20px;
+                    :deep(.el-select .el-input__inner) {
+                        border: none;
+                    }
                 }
             }
         }

@@ -1,8 +1,21 @@
 <template>
     <div class="lessonlist">
-        <h3 v-if="state.errorQuestionList.length">
-            {{ state.currentIndexName }}
-        </h3>
+        <div class="titles" v-if="state.errorQuestionList.length">
+            <h3>
+                {{ state.currentIndexName }}
+            </h3>
+            <span v-if="formatIsAll" class="isall">
+                <el-button size="small" @click="addAllQuestion"
+                    >添加本页面所有题目</el-button
+                >
+            </span>
+            <span v-else class="noall">
+                <el-button size="small" @click="removeAllQuestion"
+                    >移出本页面所有题目</el-button
+                >
+            </span>
+        </div>
+
         <div v-if="props.currentWrongType == 4" class="knowpoint">
             <p class="count">
                 收录错题：<span style="color: #4b71ee">{{
@@ -23,9 +36,18 @@
                     <span style="color: #4b71ee">
                         {{ avgWrongRatioA || 0 }}%</span
                     >，B层知识点掌握度
-                    {{ avgWrongRatioB || 0 }}%，C层知识点掌握度
-                    {{ avgWrongRatioC || 0 }}%，未标记知识点掌握度
-                    {{ avgWrongRatioNo || 0 }}%）</span
+                    <span style="color: #4b71ee">
+                        {{ avgWrongRatioB || 0 }}%</span
+                    >
+                    ，C层知识点掌握度
+                    <span style="color: #4b71ee">
+                        {{ avgWrongRatioC || 0 }}%</span
+                    >
+                    ，未标记知识点掌握度
+                    <span style="color: #4b71ee">
+                        {{ avgWrongRatioNo || 0 }}%</span
+                    >
+                    ）</span
                 >
             </p>
         </div>
@@ -34,6 +56,7 @@
                 class="list-item"
                 v-for="(item, index) in (state.errorQuestionList as any)"
                 :key="item.QuestionId"
+                @click="openWrongDetails(item)"
             >
                 <div class="item-content">
                     <div class="item-index-title">
@@ -244,7 +267,10 @@
                 </div>
 
                 <div class="item-operate">
-                    <div class="operate-btn" @click="explainQuestion(item)">
+                    <div
+                        class="operate-btn"
+                        @click.stop="explainQuestion(item)"
+                    >
                         <img
                             src="~@/assets/images/wrongbook/icon_voice.png"
                             alt=""
@@ -253,7 +279,7 @@
                     </div>
                     <div
                         class="operate-btn"
-                        @click="
+                        @click.stop="
                             item.IsAnyPureQuestion
                                 ? openSimilarQuestion(item)
                                 : ''
@@ -277,7 +303,7 @@
                                 alt=""
                             />
                             <span
-                                @click="addQuestionBasket(item)"
+                                @click.stop="addQuestionBasket(item)"
                                 :style="{ color: '#4B71EE' }"
                                 >添加试题篮</span
                             >
@@ -288,7 +314,7 @@
                                 alt=""
                             />
                             <span
-                                @click="delQuestionBasket(item)"
+                                @click.stop="delQuestionBasket(item)"
                                 :style="{ color: '#FF6B6B' }"
                                 >移出试题篮</span
                             >
@@ -297,7 +323,7 @@
                     <div
                         class="operate-btn"
                         style="padding-left: 5px"
-                        @click="openWrongDetails(item)"
+                        @click.stop="openWrongDetails(item)"
                     >
                         <!-- <img
                             src="~@/assets/images/wrongbook/icon_yichu.png"
@@ -395,6 +421,7 @@ const {
     formatProColor,
     formatRecentColor,
     formatInBasket,
+    delAllBasketData,
 } = useWrongBook();
 
 const formatKnowledges = (data: any) => {
@@ -548,6 +575,45 @@ watch(
     },
     { deep: true }
 );
+//过滤所有的题目是否在错题栏中
+const formatIsAll = computed(() => {
+    const questionsIds: any = [];
+    const questionBasket = store.state.wrongbook.questionBasket as any;
+    questionBasket.forEach((item: any) => {
+        item.Questions.forEach((data: any) => {
+            questionsIds.push(data.QuestionId);
+        });
+    });
+    const flag = state.errorQuestionList.every((value: any) => {
+        return questionsIds.includes(value.QuestionId);
+    });
+    return !flag;
+});
+//添加试题
+const addQuestion = (questions: any) => {
+    const params = {
+        questions,
+        classId: state.currentClassId,
+        bookId: state.currentBookId,
+    };
+    store.dispatch(ActionTypes.ADD_QUESTION_BASKET, params);
+};
+
+//选择错题列表中所有的错题
+const addAllQuestion = () => {
+    const qsList = state.errorQuestionList.map((item: any) => {
+        return {
+            questionId: item.QuestionId,
+            questionType: item.QuestionType,
+        };
+    });
+    console.log("idList----", qsList);
+    addQuestion(qsList);
+};
+//移出错题列表中所有的错题
+const removeAllQuestion = () => {
+    delAllBasketData();
+};
 //讲解题目
 const explainQuestion = (data: any) => {
     state.explainVisible = true;
@@ -732,13 +798,12 @@ const openWrongDetails = (data?: any) => {
 //添加错题至试题篮
 const addQuestionBasket = (data: any) => {
     console.log("当前错题行数据", data);
-    store.dispatch(
-        ActionTypes.ADD_QUESTION_BASKET,
-        Object.assign(
-            { classId: state.currentClassId, bookId: state.currentBookId },
-            data
-        )
-    );
+    addQuestion([
+        {
+            questionId: data.QuestionId,
+            questionType: data.QuestionType,
+        },
+    ]);
 };
 //移出一条试题篮
 const delQuestionBasket = (data: any) => {
@@ -788,20 +853,17 @@ const queryFuntion = (params: any) => {
             queryErrorQuestionListByHomework(homeworkParams);
             break;
         case 3:
-            chapterLessonParams.ClassId =
-                params.ClassId || "39F86691B2191CD9ED8E80B291F83635";
+            chapterLessonParams.ClassId = params.ClassId || "";
             state.currentIndexName = params.name || "";
             chapterLessonParams.StartDate = params.StartTime;
             chapterLessonParams.EndDate = params.EndTime;
             chapterLessonParams.ChapterId = params.chapterId;
             // params.lessonId ||
-            chapterLessonParams.LessonId =
-                params.lessonId || "39F7666ABDA60F4E7F69C4EB2CFE70E9";
+            chapterLessonParams.LessonId = params.lessonId || "";
             queryErrorQuestionListByChapterLesson(chapterLessonParams);
             break;
         case 4:
-            knowledgeLibParams.ClassId =
-                params.ClassId || "39F86691B2191CD9ED8E80B291F83635";
+            knowledgeLibParams.ClassId = params.ClassId || "";
             state.currentIndexName = params.KnowledgeLibName || "";
             state.lessonName = params.lessonName || "";
             knowledgeLibParams.StartDate = params.StartTime;
@@ -833,12 +895,36 @@ onBeforeUnmount(() => {
     background-color: #fff;
     padding: 16px;
     overflow: auto;
-
-    h3 {
-        font-size: 18px;
-        font-family: HarmonyOS_Sans_SC_Bold;
-        font-weight: bold;
-        color: #19203d;
+    .titles {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        h3 {
+            font-size: 18px;
+            font-family: HarmonyOS_Sans_SC_Bold;
+            font-weight: bold;
+            color: #19203d;
+        }
+        .isall {
+            :deep(.el-button--small) {
+                background: #f3f7ff;
+                border-radius: 4px;
+                // border: none;
+                color: #4b71ee;
+                border: 1px solid rgba(75, 113, 238, 0.5);
+                font-size: 12px;
+            }
+        }
+        .noall {
+            :deep(.el-button--small) {
+                background: #fff;
+                border-radius: 4px;
+                // border: none;
+                color: #ff6b6b;
+                border: 1px solid #ff6b6b;
+                font-size: 12px;
+            }
+        }
     }
 
     .knowpoint {
