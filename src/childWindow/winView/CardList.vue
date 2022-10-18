@@ -51,7 +51,8 @@ const changeAddPage = () => {
 
 defineExpose({
     changeReducePage,
-    changeAddPage
+    changeAddPage,
+    handleClick
 });
 
 </script>

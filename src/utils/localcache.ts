@@ -3,7 +3,7 @@ import { pageType } from '@/config';
 import { store } from '@/store';
 import { IPageValue } from '@/types/home';
 import path from 'path';
-import { PPTElement, Slide } from 'wincard/src/types/slides';
+import { PPTElement, Slide } from 'wincard';
 import { dealOldData } from './dataParse';
 import { dealOldDataTeach, dealOldDataVideo, dealOldDataWord } from './dataParsePage';
 import { getOssUrl } from './oss';
@@ -211,7 +211,7 @@ export default class LocalCache {
         }
     }
 
-    async doCache(winInfo: IGetWindowCards, cacheFileName: string) {
+    async doCache(winInfo: IGetWindowCards, cacheFileName: string, path: string) {
         this.cacheCallback?.cachingStatus(0);
 
         let cards = (await getWindowCards(winInfo)).result;
@@ -245,7 +245,6 @@ export default class LocalCache {
         this.cacheCallback?.cachingStatus(99);
 
         // 将json文件写入到指定文件夹，将缓存资源文件复制到指定文件夹，并对文件夹压缩后加密，形成离线包
-
         const cacheData = {
             windowName: cacheFileName,
             windowId: winInfo.WindowID,
@@ -256,7 +255,8 @@ export default class LocalCache {
             cacheFiles
         }
 
-        let fileName = await window.electron.packCacheFiles(cacheData);
+        let fileName = await window.electron.packCacheFiles(cacheData, path);
+
         this.cacheCallback?.cachingStatus(100);
         // 清空数组
         cacheData.cacheFiles = [];

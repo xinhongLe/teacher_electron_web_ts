@@ -263,7 +263,7 @@ window.electron = {
             return null;
         }
     },
-    packCacheFiles: async (cacheData) => {
+    packCacheFiles: async (cacheData, savePath: string) => {
         const {
             windowId,
             windowName,
@@ -354,14 +354,16 @@ window.electron = {
                         fileArray.push(content);
                     }
                 }
-                await writeFile(filePath + ".lyxpkg", Buffer.concat(fileArray));
-                return filePath + ".lyxpkg";
+                const _fileName = path.join(savePath, windowName + ".lyxpkg");
+                await writeFile(_fileName, Buffer.concat(fileArray));
+                return _fileName;
             };
 
             let customZipFile = await customZipFolder([
                 ...cacheFiles,
                 jsonFileName,
             ]);
+            
             return customZipFile;
         } catch (e) {
             console.error(e);

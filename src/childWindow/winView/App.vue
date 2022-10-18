@@ -59,6 +59,7 @@ import CardList from "./CardList.vue";
 import PreviewSection from "./previewSection.vue";
 import NavBar from "./NavBar.vue";
 import { set, STORAGE_TYPES } from "@/utils/storage";
+import useWindowInfo, { windowInfoKey } from "@/hooks/useWindowInfo";
 export default defineComponent({
     components: {
         CardList,
@@ -76,7 +77,9 @@ export default defineComponent({
         const WindowName = ref("");
         const previewOptions = ref({});
         provide("isShowCardList", isShowCardList);
-        const cardList = ref([]);
+        const windowInfo = useWindowInfo(false);
+        provide(windowInfoKey, windowInfo);
+        const { cardList } = windowInfo;
         const appjson = ref<{ cards?: any, pages?: any, slides?: any, windowId?: string, windowName?: string }>({});
         provide("appjson", appjson);
         const updatePageList = (card: any) => {

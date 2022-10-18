@@ -235,13 +235,14 @@ function createLocalPreview(args: Array<string>) {
 app.on("ready", async () => {
     ElectronLog.info("app ready", process.argv);
     createProtocol("app");
-    let result = false;
-    if (app.isPackaged) {
-        result = createLocalPreview(process.argv);
-    }
-    if (!result) {
-        createWindow();
-    }
+    // let result = false;
+    // if (app.isPackaged) {
+    //     result = createLocalPreview(process.argv);
+    // }
+    // if (!result) {
+    //     createWindow();
+    // }
+    createLocalPreview(["C:\\Users\\admin\\AppData\\Roaming\\Aixueshi\\files\\《守株待兔》第一课时.lyxpkg"])
 });
 
 app.on("render-process-gone", (event, webContents, details) => {
