@@ -167,6 +167,8 @@ export default defineComponent({
     flex-direction: column;
     flex: 1;
     min-height: 0;
+    overflow: hidden;
+    background: #fff;
 }
 .fixed-box{
     position: fixed;

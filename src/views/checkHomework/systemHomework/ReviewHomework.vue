@@ -58,6 +58,7 @@
                             :HeadPortrait="value.StudentHeadPortrait"
                             :name="value.StudentName"
                             :className="value.StudentClassName"
+                            @click="collectWrongTopic(value)"
                         ></NulliparousStudents>
                         <div class="empty" v-if="item.length === 0 && homeworkDetail.type === 2">
                             <img src="@/assets/images/homeworkNew/pic_noresult.png" alt="">
@@ -71,7 +72,7 @@
 </template>
 
 <script lang="ts">
-import {HomeworkDetail, MissionDetail} from "@/types/checkHomework";
+import { HomeworkDetail, MissionDetail } from "@/types/checkHomework";
 import { lookQuestions } from "@/utils";
 import { computed, defineComponent, PropType, ref, watch, watchEffect } from "vue";
 import { QuestionResultTypeEnum } from "../enum";
@@ -157,6 +158,10 @@ export default defineComponent({
             }
         });
 
+        const collectWrongTopic = (value:any) => {
+            console.log(value);
+        };
+
         return {
             Search,
             lookQuestions,
@@ -168,7 +173,8 @@ export default defineComponent({
             activeNames,
             show,
             studentName,
-            filterNoDoneStudentList
+            filterNoDoneStudentList,
+            collectWrongTopic
         };
     },
     components: { NulliparousStudents, ReviewList }

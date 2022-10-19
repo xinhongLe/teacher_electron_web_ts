@@ -32,7 +32,7 @@
                 <ResourceViewList
                     :type="resource?.ResourceShowType"
                     :resource="resource"
-					:data="data"
+                    :data="data"
                     :target="target"
                     :lessonId="lessonId"
                     v-if="visible"
