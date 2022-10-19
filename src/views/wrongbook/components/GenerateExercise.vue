@@ -341,6 +341,11 @@ const props = defineProps({
         type: Array,
         default: () => [],
     },
+    currentWrongType: {
+        type: Number,
+        default: null,
+        required: true,
+    },
 });
 const exerciseData: any = computed(() => {
     return store.state.wrongbook.questionBasket;
@@ -544,6 +549,7 @@ const assignHomework = async () => {
         ClassId: store.state.wrongbook.currentClassId, //布置作业的班级id
         PaperId: store.state.wrongbook.currentGeneratePaperId,
         StudentIds: checkedStudents,
+        isknowledge: props.currentWrongType == 4 ? 1 : 0,
     };
     // console.log("homeworkParams", homeworkParams);
     const res: any = await sendErrorPaperWork(homeworkParams);
