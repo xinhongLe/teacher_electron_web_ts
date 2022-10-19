@@ -254,8 +254,8 @@ module.exports = {
                     icon: "./public/icon.ico", // 图标，当前图标在根目录下，注意这里有两个坑
                     fileAssociations: [
                         {
-                            ext: 'lyxpkg',
-                            icon: './public/lyxpkg.ico'
+                            ext: "lyxpkg",
+                            icon: "./public/lyxpkg.ico"
                         }
                     ],
                     target: [
@@ -283,6 +283,12 @@ module.exports = {
                             from: "node_modules/trtc-electron-sdk/build/Release/",
                             to: "./Resources",
                             filter: ["**/*"]
+                        }
+                    ],
+                    fileAssociations: [
+                        {
+                            ext: "lyxpkg",
+                            icon: "./public/lyxpkg.icns"
                         }
                     ]
                 },

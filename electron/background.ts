@@ -212,12 +212,6 @@ app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
 });
 
-// app.on("open-file", (event, path) => {
-//     ElectronLog.info(path);
-//     event.preventDefault();
-//     createLocalPreviewWindow(path);
-// })
-
 function createLocalPreview(args: Array<string>) {
     let fileName = "";
     args.forEach(arg => {
@@ -232,6 +226,25 @@ function createLocalPreview(args: Array<string>) {
     return false;
 }
 
+let isOpenFile = false;
+
+app.on("will-finish-launching", () => {
+    app.on("open-file", (event, path) => {
+        isOpenFile = true;
+        ElectronLog.info(path);
+        event.preventDefault();
+        if (app.isReady()) {
+            createLocalPreviewWindow(path);
+            isOpenFile = false;
+        } else {
+            app.on("ready", async () => {
+                createLocalPreviewWindow(path);
+                isOpenFile = false;
+            });
+        }
+    });
+});
+
 app.on("ready", async () => {
     ElectronLog.info("app ready", process.argv);
     createProtocol("app");
@@ -239,7 +252,7 @@ app.on("ready", async () => {
     if (app.isPackaged) {
         result = createLocalPreview(process.argv);
     }
-    if (!result) {
+    if (!result && !isOpenFile) {
         createWindow();
     }
     // createLocalPreview(["C:\\Users\\admin\\AppData\\Roaming\\Aixueshi\\files\\《守株待兔》第一课时.lyxpkg"])
