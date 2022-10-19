@@ -133,7 +133,7 @@ watch(
         if (val.length) {
             const valdata = val[0] as any;
             store.state.wrongbook.currentSelectedBookName = `${valdata.Name}`;
-            store.state.wrongbook.currentSubjectId = valdata.Id;
+            store.state.wrongbook.currentSubjectId = valdata.Name;
             selectSubject(valdata.Id);
             if (props.currentLessonId) {
                 form.value.Id = props.currentLessonId;
@@ -196,7 +196,7 @@ const changeKnowledgeLab = (data: string) => {
         (item: any) => item.Id == data
     )?.Name;
     store.state.wrongbook.currentSelectedBookName = state.lessonName;
-    store.state.wrongbook.currentSubjectId = data;
+    store.state.wrongbook.currentSubjectId = state.lessonName;
     selectSubject(data);
     emit("update:currentLessonId", data);
     form.value.Id = data;

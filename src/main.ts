@@ -8,7 +8,7 @@ import zhCn from "element-plus/es/locale/lang/zh-cn";
 import "element-plus/dist/index.css";
 import Icon from "./plugins/icon";
 
-import Directive from "./directive";
+import Directive from "./directive/index";
 
 // import "@/utils/flexible";
 import "./permission";

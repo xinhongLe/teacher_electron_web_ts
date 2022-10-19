@@ -4,12 +4,7 @@ import { app, protocol, BrowserWindow, ipcMain, Menu } from "electron";
 // import installExtension, { VUEJS3_DEVTOOLS } from "electron-devtools-installer";
 import { createProtocol } from "vue-cli-plugin-electron-builder/lib";
 import { initialize } from "@electron/remote/main";
-import {
-    createSuspensionWindow,
-    registerEvent,
-    unfoldSuspensionWinSendMessage,
-} from "./suspension";
-import downloadFile from "./downloadFile";
+import { createSuspensionWindow, createLocalPreviewWindow, registerEvent, unfoldSuspensionWinSendMessage } from "./suspension";
 import autoUpdater from "./autoUpdater";
 import SingalRHelper from "./singalr";
 import ElectronLog from "electron-log";
@@ -17,6 +12,7 @@ import os from "os";
 import { exec, spawn } from "child_process";
 const isDevelopment = process.env.NODE_ENV !== "production";
 import path from "path";
+import downloadFile from "./downloadFile";
 initialize();
 
 protocol.registerSchemesAsPrivileged([
@@ -68,7 +64,6 @@ async function createWindow() {
         mainWindow.loadURL(process.env.WEBPACK_DEV_SERVER_URL);
         if (!process.env.IS_TEST) mainWindow.webContents.openDevTools();
     } else {
-        createProtocol("app");
         require("@electron/remote/main").enable(mainWindow.webContents);
         mainWindow.loadURL("app://./index.html");
     }
@@ -217,16 +212,50 @@ app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
 });
 
+function createLocalPreview(args: Array<string>) {
+    let fileName = "";
+    args.forEach(arg => {
+        if (arg.endsWith(".lyxpkg")) {
+            fileName = arg;
+        }
+    });
+    if (fileName) {
+        createLocalPreviewWindow(fileName);
+        return true;
+    }
+    return false;
+}
+
+let isOpenFile = false;
+
+app.on("will-finish-launching", () => {
+    app.on("open-file", (event, path) => {
+        isOpenFile = true;
+        ElectronLog.info(path);
+        event.preventDefault();
+        if (app.isReady()) {
+            createLocalPreviewWindow(path);
+            isOpenFile = false;
+        } else {
+            app.on("ready", async () => {
+                createLocalPreviewWindow(path);
+                isOpenFile = false;
+            });
+        }
+    });
+});
+
 app.on("ready", async () => {
-    ElectronLog.info("app ready");
-    // if (isDevelopment && !process.env.IS_TEST) {
-    //     try {
-    //         await installExtension(VUEJS3_DEVTOOLS);
-    //     } catch (e) {
-    //         console.error("Vue Devtools failed to install:", e);
-    //     }
-    // }
-    createWindow();
+    ElectronLog.info("app ready", process.argv);
+    createProtocol("app");
+    let result = false;
+    if (app.isPackaged) {
+        result = createLocalPreview(process.argv);
+    }
+    if (!result && !isOpenFile) {
+        createWindow();
+    }
+    // createLocalPreview(["C:\\Users\\admin\\AppData\\Roaming\\Aixueshi\\files\\《守株待兔》第一课时.lyxpkg"])
 });
 
 app.on("render-process-gone", (event, webContents, details) => {
@@ -248,12 +277,21 @@ const gotTheLock = app.requestSingleInstanceLock();
 if (!gotTheLock) {
     app.quit();
 } else {
-    app.on("second-instance", (event, commandLine, workingDirectory) => {
+    app.on("second-instance", (event, argv, workingDirectory) => {
         // 当运行第二个实例时,将会聚焦到mainWindow这个窗口
-        if (mainWindow) {
-            if (mainWindow.isMinimized()) mainWindow.restore();
-            mainWindow.focus();
-            mainWindow.show();
+        ElectronLog.info("second-args", argv);
+        let result = false;
+        if (app.isPackaged) {
+            result = createLocalPreview(argv);
+        }
+        if (!result) {
+            if (mainWindow) {
+                if (mainWindow.isMinimized()) mainWindow.restore();
+                mainWindow.focus();
+                mainWindow.show();
+            } else {
+                createWindow();
+            }
         }
     });
 }
