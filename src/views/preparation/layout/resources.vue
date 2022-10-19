@@ -102,6 +102,7 @@ import DeleteVideoTip from "./dialog/deleteVideoTip.vue";
 import ResourceView from "./dialog/resourceView.vue";
 import { getDomOffset, sleep } from "@/utils/common";
 import useDownloadFile from "@/hooks/useDownloadFile";
+import { RESOURCE_TYPE } from "@/config/resource";
 import {
     addPreparationPackage,
     fetchResourceList,
