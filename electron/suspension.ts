@@ -5,7 +5,7 @@ import { checkWindowSupportNet } from "./util";
 import { spawn, exec } from "child_process";
 import path, { join } from "path";
 import { Action, CallBack, SocketHelper } from "./socketHelper";
-const PATH_BALL = join(__dirname, "../extraResources/ball/ball.exe");
+const PATH_BALL = join(__dirname, "../extraResources/ball/winball/winball.exe");
 let suspensionWin: BrowserWindow | null;
 let unfoldSuspensionWin: BrowserWindow | null;
 let blackboardWin: BrowserWindow | null;
@@ -22,6 +22,7 @@ let socketHelper: SocketHelper;
 let socketHelperHeartbeatInterval: any = -1;
 let socketHelperHeartbeatCheckInterval: any = -1;
 let socketHelperHeartbeatTime = new Date().getTime();
+let isShowSuspension = false;
 
 const timerURL =
     process.env.NODE_ENV === "development"
@@ -332,6 +333,12 @@ function checkIsUseBallEXE(callback: (T: boolean) => void) {
 }
 
 class CustomCallBack implements CallBack {
+    OnConnected(): void {
+        console.log("isShowSuspension", isShowSuspension);
+        if (isShowSuspension) {
+            showSuspension();
+        }
+    }
     OnDataReceive(data: Action): void {
         switch (data.METHOD) {
         case "MENUSHOW":
@@ -417,7 +424,7 @@ class CustomCallBack implements CallBack {
 
 function killProcess() {
     return new Promise((resolve, reject) => {
-        exec("taskkill /im ball.exe /t /f", (err, stdout, stderr) => {
+        exec("taskkill /im winball.exe /t /f", (err, stdout, stderr) => {
             if (err) {
                 return resolve(true);
             }
@@ -473,19 +480,7 @@ export function createSuspensionWindow() {
         killProcess().then(() => {
             spawn(PATH_BALL);
             socketHelper = new SocketHelper(new CustomCallBack());
-            socketHelperHeartbeatInterval = setInterval(() => {
-                socketHelper && socketHelper.sendMessage(new Action("PING", ""));
-            }, 3000);
-
-            socketHelperHeartbeatCheckInterval = setInterval(() => {
-                if ((new Date().getTime() - socketHelperHeartbeatTime) / 1000 > 5) {
-                    clearInterval(socketHelperHeartbeatInterval);
-                    clearInterval(socketHelperHeartbeatCheckInterval);
-                    socketHelper && socketHelper.close();
-                    createSuspensionWindow();
-                    showSuspension();
-                }
-            }, 10000);
+            startHeartbeat();
             // createUnfoldSuspensionWindow();
         });
     }
@@ -496,6 +491,27 @@ export function createSuspensionWindow() {
 
     //     }
     // });
+}
+
+function stopHeartbeat() {
+    clearInterval(socketHelperHeartbeatInterval);
+    clearInterval(socketHelperHeartbeatCheckInterval);
+}
+
+function startHeartbeat() {
+    socketHelperHeartbeatTime = new Date().getTime();
+    socketHelperHeartbeatInterval = setInterval(() => {
+        socketHelper && socketHelper.sendMessage(new Action("PING", ""));
+    }, 1000);
+    
+    socketHelperHeartbeatCheckInterval = setInterval(() => {
+        if ((new Date().getTime() - socketHelperHeartbeatTime) / 1000 > 5) {
+            console.log("需要退出重启");
+            killProcess().then(() => {
+                spawn(PATH_BALL);
+            });
+        }
+    }, 10000);
 }
 
 function showSuspension() {
@@ -545,6 +561,8 @@ export function registerEvent() {
     });
 
     ipcMain.handle("openSuspension", () => {
+        isShowSuspension = true;
+        console.log("open-isShowSuspension", isShowSuspension);
         if (socketHelper) {
             socketHelper.sendMessage(new Action("SMALLMENUSHOW", ""));
         } else {
@@ -553,6 +571,8 @@ export function registerEvent() {
     });
 
     ipcMain.handle("closeSuspension", () => {
+        isShowSuspension = false;
+        console.log("close-isShowSuspension", isShowSuspension);
         if (socketHelper) {
             socketHelper.sendMessage(new Action("SMALLMENUHIDE", ""));
         } else {
