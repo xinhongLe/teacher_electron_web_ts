@@ -2,7 +2,7 @@
     <div class="content-warp">
         <div class="left">
             <div class="access-system-select">
-                <el-select v-model="selectClassId" placeholder="请选择">
+                <el-select size="large" v-model="selectClassId" placeholder="请选择">
                     <el-option
                         v-for="item in homeworkDetail.classInfo"
                         :key="item.classHomeworkPaperID"

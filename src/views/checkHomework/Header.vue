@@ -83,9 +83,9 @@
                             >
                             </el-date-picker>
                         </span>
-                        <el-button v-if="showPublish" size="small" type="success" @click="publish(homeworkDetail)">立即发布</el-button>
+                        <el-button v-if="showPublish"  type="success" @click="publish(homeworkDetail)">立即发布</el-button>
                         <span v-if="!showPublish" style="margin-right: 10px">答案已公布</span>
-                        <el-button v-if="!showPublish" size="small" @click="hideAnswer(homeworkDetail)">撤回发布</el-button>
+                        <el-button v-if="!showPublish"  @click="hideAnswer(homeworkDetail)">撤回发布</el-button>
                     </div>
                     <div class="detail" style="margin-left: 10px" v-else>
                         <span>手动发布
@@ -101,10 +101,10 @@
                             >
                             </el-date-picker>
                         </span>
-                        <el-button size="small" type="success" @click="publish(homeworkDetail)">立即发布</el-button>
+                        <el-button type="success" @click="publish(homeworkDetail)">立即发布</el-button>
                     </div>
                 </div>
-                <el-button  size="small"  plain type="warning" @click="handleMistakesCollect(homeworkDetail)">收集错题</el-button>
+                <el-button  plain type="warning" @click="handleMistakesCollect(homeworkDetail)">收集错题</el-button>
             </div>
         </div>
 
