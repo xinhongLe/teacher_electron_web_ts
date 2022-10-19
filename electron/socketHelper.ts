@@ -32,7 +32,7 @@ export class SocketHelper {
         }
 
         this.client.on('data', data => {
-            console.log(data.toString());
+            // console.log(data.toString());
             this.quene.push(data);
         })
 

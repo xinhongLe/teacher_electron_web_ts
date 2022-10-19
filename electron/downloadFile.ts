@@ -17,9 +17,10 @@ export const isExistFile = (filePath: string): Promise<boolean> => {
     return new Promise((resolve) => {
         access(filePath)
             .then(() => {
+                ElectronLog.info("filePath", filePath);
                 // resolve(true);
                 // const fileName = filePath.substring(filePath.lastIndexOf("\\") + 1, filePath.lastIndexOf("."));
-                const fileName = filePath.replace(/(.*\/)*([^.]+).*/gi, "$2");
+                const fileName = filePath.replaceAll("\\", "/").replace(/(.*\/)*([^.]+).*/gi, "$2");
                 const hash = crypto.createHash("md5");
                 createReadStream(filePath)
                     .on("data", (chunk: any) => {
@@ -65,11 +66,8 @@ export const mkdirs = (dirname: string) => {
 };
 
 export const downloadFileAxios = async (url: string, fileName: string) => {
-    const downloadsPath = app.getPath("downloads");
-    const filePath =
-        process.platform === "darwin"
-            ? downloadsPath + fileName
-            : resolve(downloadsPath, fileName);
+    const downloadsPath = resolve(app.getPath("userData"), "files");
+    const filePath = resolve(downloadsPath, fileName);
     const dirname = await mkdirs(downloadsPath);
     if (!dirname) {
         return dealCallback(fileName, "");
@@ -147,17 +145,14 @@ export const downloadFileToPath = async (
 
 export default () => {
     const downloadFile = async (url: string, fileName: string) => {
-        const downloadsPath = app.getPath("downloads");
-        const filePath =
-            process.platform === "darwin"
-                ? downloadsPath + fileName
-                : resolve(downloadsPath, fileName);
+        const downloadsPath = resolve(app.getPath("userData"), "files");
+        const filePath = resolve(downloadsPath, fileName);
         await mkdirs(downloadsPath);
-        if (downloadingFileList.includes(fileName)) return;
         const isExist = await isExistFile(filePath);
         if (isExist) {
             dealCallback(fileName, filePath);
         } else {
+            if (downloadingFileList.includes(fileName)) return;
             if (!downloadingFileList.includes(fileName)) {
                 downloadingFileList.push(fileName);
                 downloadFileAxios(url, fileName);

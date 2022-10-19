@@ -3,14 +3,8 @@ import { ILessonManagerResult } from "@/types/login";
 import { set, STORAGE_TYPES } from "@/utils/storage";
 import { LessonManager } from "@/views/login/api";
 import { lessonManagerByTeacherId } from "@/views/classManage/api";
-import isElectron from "is-electron";
-import { getSaveFilePath } from "@/utils";
 
 const dealUserInfo = async (useInfo:ILessonManagerResult) => {
-    if (isElectron()) {
-        const path = getSaveFilePath(useInfo.ID);
-        await window.electron.setPath("downloads", path);
-    }
     set(STORAGE_TYPES.USER_INFO, useInfo);
     store.commit(MutationTypes.UPDATE_USERINFO,
         {

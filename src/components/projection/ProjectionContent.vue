@@ -304,7 +304,6 @@ export default defineComponent({
             showBrush.value = true;
             viewWidth.value = contentRef.value.clientWidth;
             viewHeight.value = contentRef.value.clientHeight;
-            console.log(viewWidth.value)
         };
 
         return {
