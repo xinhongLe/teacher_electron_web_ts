@@ -172,7 +172,10 @@ export default class LocalCache {
                 const res = await getCardDetail({ pageIDs: pageIDs }, true);
                 if (res.resultCode === 200 && res.result && res.result.length > 0) {
                     for (let card of res.result) {
-                        await this.getPageSlide({ ID: (card as any).ID, Type: pages.find(p => p.ID === (card as any).ID)!.Type }, originType, winpages, slides);
+                        // 此处判断页是否已经缓存，缓存的跳过，避免出现死循环
+                        if (!winpages.find(page => page.id === card.ID)) {
+                            await this.getPageSlide({ ID: (card as any).ID, Type: pages.find(p => p.ID === (card as any).ID)!.Type }, originType, winpages, slides);
+                        }
                     }
                 }
             }
@@ -230,6 +233,7 @@ export default class LocalCache {
         for (let card of cards) {
             for (let page of card.PageList) {
                 current++;
+                console.log(page.ID)
                 await this.getPageSlide(page, winInfo.OriginType!, pages, slides);
                 this.cacheCallback?.cachingStatus(parseInt(((30 / total) * (current)).toFixed(0)));
             }
