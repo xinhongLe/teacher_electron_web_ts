@@ -169,10 +169,9 @@ export default defineComponent({
         const dialogVisible = ref(false);
         const studentValue = ref();
         const collectWrongTopic = (value:MissionDetail) => {
-            dialogVisible.value = true;
-            studentValue.value = value;
-            if (props.type === 2) { // 错题收集弹窗 仅针对 教辅作业
-
+            if (props.homeworkDetail?.type === 2) { // 错题收集弹窗 仅针对 教辅作业
+                dialogVisible.value = true;
+                studentValue.value = value;
             }
         };
 

@@ -92,6 +92,7 @@ export default defineComponent({
             });
         };
         const close = () => {
+            state.selectIndex = [];
             emit("update:dialogVisible", false);
         };
         return {
