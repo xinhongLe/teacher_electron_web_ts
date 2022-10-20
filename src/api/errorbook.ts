@@ -137,12 +137,16 @@ export interface historyParams {
     // EndDate: string;
     Result: number;
 }
+interface Questions {
+    questionId: string;
+    questionType: number;
+}
 //添加试题篮入参
 export interface basketParams {
-    questionId: string;
+    questions: Questions[];
     classId: string;
     bookId: string;
-    questionType: number;
+    // questionType: number;
 }
 //试题篮集合详情
 export interface basketInfoParams {
