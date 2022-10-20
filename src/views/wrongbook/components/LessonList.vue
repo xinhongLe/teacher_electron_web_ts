@@ -5,12 +5,12 @@
                 {{ state.currentIndexName }}
             </h3>
             <span v-if="formatIsAll" class="isall">
-                <el-button size="small" @click="addAllQuestion"
+                <el-button @click="addAllQuestion"
                     >添加本页面所有题目</el-button
                 >
             </span>
             <span v-else class="noall">
-                <el-button size="small" @click="removeAllQuestion"
+                <el-button @click="removeAllQuestion"
                     >移出本页面所有题目</el-button
                 >
             </span>
@@ -906,7 +906,7 @@ onBeforeUnmount(() => {
             color: #19203d;
         }
         .isall {
-            :deep(.el-button--small) {
+            :deep(.el-button) {
                 background: #f3f7ff;
                 border-radius: 4px;
                 // border: none;
@@ -916,7 +916,7 @@ onBeforeUnmount(() => {
             }
         }
         .noall {
-            :deep(.el-button--small) {
+            :deep(.el-button) {
                 background: #fff;
                 border-radius: 4px;
                 // border: none;

@@ -115,7 +115,7 @@
                                         :options="state.options"
                                         :props="{ multiple: true }"
                                         collapse-tags
-                                        size="small"
+                                        
                                         clearable
                                     />
                                 </div>
