@@ -68,11 +68,13 @@
                 </el-collapse-item>
             </el-collapse>
         </div>
+
+        <collect-wrong-topic @updateQuestionInfo="updateQuestionInfo" :questionList="questionList" :value="studentValue" v-model:dialogVisible="dialogVisible"></collect-wrong-topic>
     </div>
 </template>
 
 <script lang="ts">
-import { HomeworkDetail, MissionDetail } from "@/types/checkHomework";
+import { ClassHomeworkPaperQuestion, HomeworkDetail, MissionDetail } from "@/types/checkHomework";
 import { lookQuestions } from "@/utils";
 import { computed, defineComponent, PropType, ref, watch, watchEffect } from "vue";
 import { QuestionResultTypeEnum } from "../enum";
@@ -80,6 +82,7 @@ import { getQuestionType } from "../logic";
 import NulliparousStudents from "../NulliparousStudents.vue";
 import ReviewList from "./ReviewList.vue";
 import { Search } from "@element-plus/icons-vue";
+import CollectWrongTopic from "@/views/checkHomework/systemHomework/collectWrongTopic.vue";
 
 export default defineComponent({
     props: {
@@ -110,9 +113,14 @@ export default defineComponent({
         homeworkDetail: {
             type: Object as PropType<HomeworkDetail>,
             default: () => ({})
+        },
+        questionList: {
+            type: Array as PropType<ClassHomeworkPaperQuestion[]>,
+            default: () => []
         }
     },
-    setup(props) {
+    emits: ["updateQuestinInfoByQuestionID"],
+    setup(props, { emit }) {
         const activeNames = ref(["0", "1", "2", "3"]);
         const questionContentRef = ref<HTMLDivElement>();
         const answerContentRef = ref<HTMLDivElement>();
@@ -158,8 +166,18 @@ export default defineComponent({
             }
         });
 
-        const collectWrongTopic = (value:any) => {
-            console.log(value);
+        const dialogVisible = ref(false);
+        const studentValue = ref();
+        const collectWrongTopic = (value:MissionDetail) => {
+            dialogVisible.value = true;
+            studentValue.value = value;
+            if (props.type === 2) { // 错题收集弹窗 仅针对 教辅作业
+
+            }
+        };
+
+        const updateQuestionInfo = () => {
+            emit("updateQuestinInfoByQuestionID");
         };
 
         return {
@@ -174,10 +192,13 @@ export default defineComponent({
             show,
             studentName,
             filterNoDoneStudentList,
-            collectWrongTopic
+            dialogVisible,
+            studentValue,
+            collectWrongTopic,
+            updateQuestionInfo
         };
     },
-    components: { NulliparousStudents, ReviewList }
+    components: { CollectWrongTopic, NulliparousStudents, ReviewList }
 });
 </script>
 

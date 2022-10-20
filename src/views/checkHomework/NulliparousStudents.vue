@@ -46,6 +46,7 @@ export default defineComponent({
     display: flex;
     padding: 17px 22px;
     justify-content: space-between;
+    cursor: pointer;
     .student-useravator {
         display: flex;
         align-items: center;

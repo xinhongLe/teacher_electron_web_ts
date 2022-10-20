@@ -79,6 +79,7 @@ export interface ClassHomeworkPaperQuestion {
     MissionDetails: MissionDetail[];
     QuestionChoiceCount: number;
     QuestionChoiceValue: string;
+    QuestionTrueNumber?: string;
     QuestionID: string;
     QuestionSort: number;
     QuestionType: number;
@@ -86,6 +87,7 @@ export interface ClassHomeworkPaperQuestion {
     TotalNoSure: number;
     TotalRight: number;
     TotalWrong: number;
+    PageNum?: number;
 }
 
 export interface FetchQuestinInfoByQuestionIDData {
@@ -181,4 +183,13 @@ export interface QuestionDetail {
         PageNum: number;
         WorkbookPageQuestionBlanks: WorkbookPageQuestionBlank[];
     };
+}
+
+export interface UpLoadWorkbookHomeworkData {
+    MissionDetails: {
+        MissionDetailID: string,
+        StartTime: string,
+        Result: number,
+        PageNum: number
+    }[]
 }

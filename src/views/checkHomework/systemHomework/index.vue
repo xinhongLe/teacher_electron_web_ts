@@ -45,6 +45,8 @@
                 :answerContent="answerContent"
                 :type="questionType"
                 :homeworkDetail="homeworkDetail"
+                :questionList="questionList"
+                @updateQuestinInfoByQuestionID="getClassHomeworkPaperQuestionList"
             ></ReviewHomework>
         </div>
     </div>
@@ -132,7 +134,8 @@ export default defineComponent({
             answerContent,
             missionDetails,
             questionContent,
-            questionList
+            questionList,
+            getClassHomeworkPaperQuestionList
         };
     },
     components: { Chart, ReviewHomework }
