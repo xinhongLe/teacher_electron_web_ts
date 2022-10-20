@@ -60,7 +60,7 @@
 
         <div class="download-progress-dialog">
             <el-dialog
-                custom-class="custom-dialog"
+                class="custom-dialog"
                 title="下载"
                 center
                 align-center
@@ -249,7 +249,7 @@ export default defineComponent({
                                 downloadProgress.value = status;
                                 if (status === 100) {
                                     showDownload.value = false;
-                                    ElMessage.success("打包下载完成！")
+                                    ElMessage.success("打包下载完成！");
                                 }
                             }
                         }).doCache({
@@ -549,7 +549,7 @@ export default defineComponent({
             showDownload,
             downloadProgress
         };
-    },
+    }
 });
 </script>
 

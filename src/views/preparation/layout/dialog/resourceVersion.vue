@@ -1,6 +1,6 @@
 <template>
     <el-dialog
-        custom-class="custom-dialog"
+        class="custom-dialog"
         center
         title="资源版本记录"
         width="600px"
@@ -54,7 +54,7 @@ interface IHistroy {
         FileMD5: string;
         OldFileID: string;
     }
-} 
+}
 
 export default defineComponent({
     props: {

@@ -107,7 +107,7 @@
                                         trigger="focus"
                                     >
                                         <template #reference>
-                                            <el-button size="mini" @click.stop>
+                                            <el-button @click.stop>
                                                 <el-icon :size="18"
                                                     ><more-filled
                                                 /></el-icon>

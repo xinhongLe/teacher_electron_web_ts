@@ -31,7 +31,7 @@
                     <el-button
                         :icon="VideoPlay"
                         type="primary"
-                        size="mini"
+                        size="small"
                         v-if="cont.HasVideo"
                         plain
                         @click="lookVideo(cont.FileID)"
@@ -40,7 +40,7 @@
                     <el-button
                         :icon="Search"
                         type="primary"
-                        size="mini"
+                        size="small"
                         plain
                         @click="
                             lookQuestions(ele.ID , cont.PaperID)
