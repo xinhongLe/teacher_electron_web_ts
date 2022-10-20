@@ -5,7 +5,7 @@
         v-show="!isMinimized"
     >
         <div class="question-header" v-if="!dialog">
-            <p>查看视频</p>
+            <p>查看题目</p>
         </div>
         <div v-else style="height: 20px"></div>
         <Question

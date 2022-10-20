@@ -522,11 +522,16 @@ export default defineComponent({
         height: 100%;
         > span {
             flex: 1;
+            min-width: 0;
             display: block;
+            white-space: nowrap;
         }
         > span:nth-of-type(2),
         .progress-content {
             flex: 1.5;
+            span {
+                white-space: nowrap;
+            }
         }
         p {
             overflow: hidden;
@@ -554,6 +559,8 @@ export default defineComponent({
                 display: flex;
                 justify-content: center;
                 align-items: center;
+                // white-space: nowrap;
+                line-height: 1.4;
             }
         }
     }
@@ -581,10 +588,12 @@ export default defineComponent({
         }
         .course-bag-type {
             flex: 1;
+            min-width: 0;
             font-size: 14px;
             color: #4b71ee;
             position: relative;
             margin-left: 10px;
+            white-space: nowrap;
             &::before {
                 position: absolute;
                 left: -8px;
@@ -621,7 +630,7 @@ export default defineComponent({
     flex-wrap: wrap;
     > .file-info {
         width: auto;
-        max-width: 20%;
+        // max-width: 20%;
     }
 }
 </style>

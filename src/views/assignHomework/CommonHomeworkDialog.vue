@@ -268,6 +268,10 @@ export default defineComponent({
 <style lang="scss" scoped>
 .add-common-homework {
     :deep(.el-dialog__body) {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-height: 0;
         padding: 0;
         .title-text {
             font-size: 18px;
@@ -296,7 +300,8 @@ export default defineComponent({
         .content {
             padding: 20px;
             background-color: #f5f6fa;
-            height: 400px;
+            flex: 1;
+            min-height: 0;
             overflow-y: auto;
             .content-row {
                 background-color: #fff;
@@ -374,6 +379,13 @@ export default defineComponent({
                 }
             }
         }
+    }
+
+    :deep(.el-dialog) {
+        height: 90vh;
+        display: flex;
+        flex-direction: column;
+        --el-dialog-margin-top: 5vh;
     }
 }
 </style>

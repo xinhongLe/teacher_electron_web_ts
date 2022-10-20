@@ -5,7 +5,7 @@ import { get, STORAGE_TYPES } from "@/utils/storage";
 import { IYunInfo } from "@/types/login";
 import moment from "moment";
 import { systemId } from "@/config";
-import { screen } from "@electron/remote";
+// import { screen } from "@electron/remote";
 // import { machineId, machineIdSync } from "node-machine-id";
 import { EVENT_TYPE } from "@/config/event";
 
@@ -13,38 +13,41 @@ import { EVENT_TYPE } from "@/config/event";
 // const deviceId = machineIdSync(true);
 
 //获取设备信息
-const deviceInfo = require("os");
+// const deviceInfo = require("os");
 //获取分辨率
-const displayScreen = screen.getPrimaryDisplay().workAreaSize;
-const display = displayScreen.width + "*" + displayScreen.height;
+// const displayScreen = screen.getPrimaryDisplay().workAreaSize;
+// const display = displayScreen.width + "*" + displayScreen.height;
 
 //获取 设备信息
-const getPcMsg: Function = () => {
-    let interfaces = deviceInfo.networkInterfaces();
-    let pcObj = reactive([]);
-    let pcMessage = reactive([]);
-    for (let key in interfaces) {
-        if (key.indexOf("WLAN") !== -1 || key.indexOf("无线网络连接") !== -1) {
-            pcObj = interfaces[key];
-            break;
-        } else if (
-            key.indexOf("以太网") !== -1 ||
-            key.indexOf("本地连接") !== -1
-        ) {
-            pcObj = interfaces[key];
-        } else if (Object.keys(pcObj).length < 1) {
-            pcObj = interfaces[key];
-        }
-    }
-    pcMessage = pcObj.filter((item: any) => {
-        if (item.family === "IPv4") {
-            return item;
-        }
-    });
-    return pcMessage[0];
-};
+// const getPcMsg: Function = () => {
+//     let interfaces = deviceInfo.networkInterfaces();
+//     let pcObj = reactive([]);
+//     let pcMessage = reactive([]);
+//     for (let key in interfaces) {
+//         if (
+//             key.indexOf("WLAN") !== -1 ||
+//             key.indexOf("无线网络连接") !== -1
+//         ) {
+//             pcObj = interfaces[key];
+//             break;
+//         } else if (
+//             key.indexOf("以太网") !== -1 ||
+//             key.indexOf("本地连接") !== -1
+//         ) {
+//             pcObj = interfaces[key];
+//         } else if (Object.keys(pcObj).length < 1) {
+//             pcObj = interfaces[key];
+//         }
+//     }
+//     pcMessage = pcObj.filter((item: any) => {
+//         if (item.family === "IPv4") {
+//             return item;
+//         }
+//     });
+//     return pcMessage[0];
+// };
 
-const MacId = getPcMsg().mac;
+// const MacId = getPcMsg().mac;
 
 //定义页面事件 (event：事件类型【page-in,page-out,page-stay,click...】，pageName：页面名称，enentId：事件ID，tabName：所点击的区域或者按钮名称)
 const usePageEvent = (pageName: string, isPage?: boolean) => {
@@ -100,10 +103,10 @@ const usePageEvent = (pageName: string, isPage?: boolean) => {
         const pointData: createBuryingPointData = {
             TrackPlatform: "1",
             DeviceType: "windows", //设备类型
-            Mac: MacId, //mac地址
+            Mac: "", //mac地址
             Platform: process.platform,
-            DeviceId: MacId, //设备id
-            Display: display, //分辨率
+            DeviceId: "", //设备id
+            Display: window.screen.width + "*" + window.screen.height, //分辨率
             // Ip: getPcMsg().address, //ip地址
             Token: token, //token
             UserId: userInfo.UserCenterUserID, //用户id

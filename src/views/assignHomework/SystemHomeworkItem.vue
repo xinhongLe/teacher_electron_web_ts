@@ -121,6 +121,7 @@ export default defineComponent({
         .attributebox {
             width: 60%;
             margin-left: auto;
+            white-space: nowrap;
             .attributetype {
                 display: inline-block;
                 width: 80px;
@@ -129,6 +130,9 @@ export default defineComponent({
         }
         p {
             font-weight: 600;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
         }
         span {
             margin-left: 12px;
