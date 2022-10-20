@@ -3,7 +3,7 @@ import { IResponse } from "@/types/response";
 import { ICardList, ITreeList } from "@/types/home";
 import { Slide } from "wincard";
 import { WINDOW_CRAD_API, originType } from "@/config/index";
-import { getWinCardDBData } from "@/utils/database";
+import { getWinCardDBData, WinCardData } from "@/utils/database";
 type BookListResponse = IResponse<ITreeList[]>
 export interface IGetChapters {
     id: string
@@ -278,14 +278,17 @@ export function getWindowCards(data: IGetWindowCards): Promise<GetWindowCardsRes
 }
 
 // 获取页面的详情 (新)
-export async function getPageDetailRes(data:IGetPageData, type: number, callback: any): Promise<GetPageResponse> {
+export async function getPageDetailRes(data:IGetPageData, type: number, callback: any, needLocal = true): Promise<GetPageResponse> {
     const urlList: string[] = [
         "/API/WCP/Window/GetPageElements", // 素材页
         "/Api/WCP/Listen/GetPageWords", // 听写页
         "/Api/WCP/Window/GetPageVideo", // 跟读页
         "/Api/WCP/TeachTool/GetPageTool" // 教具页
     ];
-    const dbResArr = await getWinCardDBData(data.pageID);
+    let dbResArr: Array<WinCardData> = [];
+    if (needLocal) {
+        dbResArr = await getWinCardDBData(data.pageID);
+    }
     return new Promise((resolve) => {
         if (dbResArr.length > 0) {
             callback(JSON.parse(dbResArr[0].result));
@@ -434,10 +437,10 @@ export function movePage(data : IMovePage) : Promise<GetPageResponse> {
 }
 
 // 弹出卡 页列表
-export function getCardDetail(data: string[]): Promise<GetPageResponse> {
+export function getCardDetail(data: { pageIDs: string[] }, noLoading = false): Promise<GetPageResponse> {
     return request({
         url: "/Api/WCP/Window/GetPageInfos",
-        headers: { DeviceID: "Franchisee" },
+        headers: { DeviceID: "Franchisee", ...{ noLoading: (noLoading ? "true" : "") } },
         method: "post",
         baseURL: WINDOW_CRAD_API,
         data

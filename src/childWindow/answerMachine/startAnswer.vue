@@ -104,6 +104,7 @@ import Title from "./title.vue";
 import { UserInfoState } from "@/types/store";
 import { getTeacherClassList } from "@/views/login/api";
 import { IClassItem, IGradeItem } from "@/types/quickAnswer";
+import { ElMessage } from "element-plus";
 
 export default defineComponent({
     components: {
@@ -132,7 +133,6 @@ export default defineComponent({
         const isShowStudentList = ref(false);
         const choiceQuestion = getChoiceQuestion();
         const QuestionType = inject("QuestionType", ref(PADModeQuestionType));
-        console.log(QuestionType, "QuestionType");
         const questionnaireOption = [
             {
                 value: "2",
@@ -158,7 +158,6 @@ export default defineComponent({
 
         const allStudentListMap = computed(() => {
             const allListMap = groupBy(props.allStudentList, "ClassID");
-            console.log(allListMap, "-----allListMap");
             const listMap: Record<string, Student[]> = {};
             Object.keys(allListMap).forEach((key) => {
                 listMap[key] = uniqBy(allListMap[key], "StudentID");
@@ -187,52 +186,54 @@ export default defineComponent({
 
         const formRef = ref();
         const start = (type:number) => {
-            formRef.value.validate(async (valid:boolean) => {
-                if (valid) {
-                    const data: MQTTInfoData = {
-                        TeacherID: props.currentUserInfo!.userCenterUserID,
-                        OrgID: props.currentUserInfo!.schoolId,
-                        ClassID: state.form.selectClass,
-                        QuestionId: `question_${new Date().getTime()}`,
-                        Type: 0,
-                        SaveType: type,
-                        IsEnd: false,
-                        TimeStamp: null,
-                        Topic: `answer_${state.form.selectClass}`,
-                        QuestionDetail: state.form.topicList.map((item: any, index:number) => {
-                            return {
-                                ID: item.ID,
-                                Sort: index,
-                                QuestionType: item.questionType,
-                                QuestionOption: item.selectSetting[1].replaceAll(" ", ";"),
-                                QuestionNum: Number(item.selectSetting[0])
-                            };
-                        })
+            if (type === 0) {
+                handleConfirm(type);
+            } else {
+                formRef.value.validate(async (valid:boolean) => {
+                    if (valid) {
+                        handleConfirm(type);
+                    }
+                });
+            }
+        };
+
+        const handleConfirm = async(type:number) => {
+            console.log(state.form.topicList, "----");
+            const data: MQTTInfoData = {
+                TeacherID: props.currentUserInfo!.userCenterUserID,
+                OrgID: props.currentUserInfo!.schoolId,
+                ClassID: state.form.selectClass,
+                QuestionId: `question_${new Date().getTime()}`,
+                Type: 0,
+                SaveType: type,
+                IsEnd: false,
+                TimeStamp: null,
+                Topic: `answer_${state.form.selectClass}`,
+                QuestionDetail: state.form.topicList.map((item: any, index:number) => {
+                    return {
+                        ID: item.ID,
+                        Sort: index,
+                        QuestionType: item.questionType,
+                        QuestionOption: item.selectSetting.length > 0 ? item.selectSetting[1].replaceAll(" ", ";") : null,
+                        QuestionNum: item.selectSetting.length > 0 ? Number(item.selectSetting[0]) : 0
                     };
-                    console.log(data, "data-----");
-                    if (props.answerMode === AnswerMode.PAD) {
-                        // const res = await sendMQTTInfo(data);
-                        const res = await saveAnswerMachineQuestion(props.lessonId ? { ...data, LessonId: props.lessonId } : data);
-                        if (res.resultCode === 200 && type === 1) {
-                            console.log(allStudentListMap.value, "allStudentListMap.value");
-                            console.log(allStudentListMap.value[state.form.selectClass], "allStudentListMap.value11");
-                            emit("start",
-                                allStudentListMap.value[state.form.selectClass] || [],
-                                // questionType.value,
-                                data,
-                                res.result.AnswerMachineID
-                            );
-                        }
+                })
+            };
+            if (props.answerMode === AnswerMode.PAD) {
+                // const res = await sendMQTTInfo(data);
+                const res = await saveAnswerMachineQuestion(props.lessonId ? { ...data, LessonId: props.lessonId } : data);
+                if (res.resultCode === 200) {
+                    if (type === 1) {
+                        emit("start",
+                            allStudentListMap.value[state.form.selectClass] || [],
+                            data,
+                            res.result.AnswerMachineID
+                        );
                     } else {
-                        // emit(
-                        //     "start",
-                        //     allStudentListMap.value[selectClass.value] || [],
-                        //     // questionType.value,
-                        //     data
-                        // );
+                        ElMessage.success("保存草稿成功");
                     }
                 }
-            });
+            }
         };
 
         const changeMode = () => {
@@ -240,6 +241,7 @@ export default defineComponent({
         };
 
         const addRow = () => {
+            if (state.form.topicList.length === 10) return ElMessage.warning("最多添加10道题");
             state.form.topicList.push(cloneDeep({ questionType: 0, selectSetting: [], option: [] }));
         };
 
@@ -286,8 +288,9 @@ export default defineComponent({
                     const topicList = (res.result && res.result.QuestionDetail) ? res.result.QuestionDetail.map((item:any) => {
                         return {
                             questionType: item.QuestionType,
-                            selectSetting: [item.QuestionNum.toString(), item.QuestionOption.replaceAll(";", " ")],
+                            selectSetting: item.QuestionType ? [item.QuestionNum.toString(), item.QuestionOption.replaceAll(";", " ")] : [],
                             option: item.QuestionType === QuestionType.value.判断题 ? questionnaireOption : choiceQuestion
+
                         };
                     }) : [{ questionType: 0, selectSetting: [], option: [] }];
                     state.form.topicList = topicList;
@@ -307,9 +310,9 @@ export default defineComponent({
                         classList = classList.concat(item.ClassList);
                     });
                     state.classList = classList;
-                    state.form.selectClass = state.classList.length > 0 ? state.classList[0].ClassId : "";
-                    state.form.selectClass && _getAnswerMachineQuestionList();
-                    console.log(res.result, "----");
+                    // state.form.selectClass = state.classList.length > 0 ? state.classList[0].ClassId : "";
+                    // state.form.selectClass && _getAnswerMachineQuestionList();
+                    // console.log(res.result, "----");
                 }
             });
         };

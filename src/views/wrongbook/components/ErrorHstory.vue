@@ -83,7 +83,6 @@
                     "
                 >
                     <el-button
-                        size="small"
                         @click="preNextQuestion(0)"
                         :disabled="state.questionIndex == 1"
                         >上一题</el-button
@@ -93,7 +92,6 @@
                         >/<span>{{ state.errorHistoryList?.length }}</span>
                     </div>
                     <el-button
-                        size="small"
                         @click="preNextQuestion(1)"
                         :disabled="
                             state.questionIndex ==
@@ -198,7 +196,7 @@ const queryStudenQuestiontHistoryStudy = async (params: historyParams) => {
     const res: any = await getStudentQuestionMissionStudyIds(params);
     console.log("查询学生做题历史", res);
     if (res.success && res.resultCode == 200) {
-        state.errorHistoryList = res.result;
+        state.errorHistoryList = res.result.list;
         if (state.errorHistoryList.length) {
             state.currentIndex = state.errorHistoryList[0].MissionStudyId;
             if (state.currentIndex) {
@@ -266,7 +264,8 @@ onMounted(() => {
                         display: flex;
                         justify-content: space-around;
                         padding: 0 6%;
-                        // overflow-x: scroll;
+                        overflow: auto;
+                        overflow-y: hidden;
                         .icon-text {
                             cursor: pointer;
                             display: flex;

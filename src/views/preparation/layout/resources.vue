@@ -57,6 +57,27 @@
             :data="resourceData"
             @eventEmit="eventEmit"
         />
+
+        <div class="download-progress-dialog">
+            <el-dialog
+                class="custom-dialog"
+                title="下载"
+                center
+                align-center
+                destroy-on-close
+                width="300px"
+                :show-close="false"
+                :close-on-click-modal="false"
+                v-model="showDownload"
+            >
+                <div class="download-progress-bar">
+                    <div class="download-progress-line" :style="{ width: downloadProgress + '%' }"></div>
+                </div>
+                <div class="download-progress-tip">
+                    打包下载中，请稍等...
+                </div>
+            </el-dialog>
+        </div>
     </div>
 </template>
 
@@ -81,6 +102,7 @@ import DeleteVideoTip from "./dialog/deleteVideoTip.vue";
 import ResourceView from "./dialog/resourceView.vue";
 import { getDomOffset, sleep } from "@/utils/common";
 import useDownloadFile from "@/hooks/useDownloadFile";
+import { RESOURCE_TYPE } from "@/config/resource";
 import {
     addPreparationPackage,
     fetchResourceList,
@@ -93,7 +115,8 @@ import { MutationTypes, useStore } from "@/store";
 import emitter from "@/utils/mitt";
 import { getOssUrl } from "@/utils/oss";
 import { IViewResourceData } from "@/types/store";
-import { RESOURCE_TYPE } from "@/config/resource";
+import { ElMessage } from "element-plus";
+import LocalCache from "@/utils/localcache";
 interface ICourse {
     chapterId: string;
     lessonId: string;
@@ -149,6 +172,8 @@ export default defineComponent({
         const resourceId = ref("");
         const resourceScroll = ref<HTMLDivElement>();
         const resourceData = ref<null | IViewResourceData>(null);
+        const showDownload = ref(false);
+        const downloadProgress = ref(0);
 
         // 加入备课包
         const addPackage = async (data: IResourceItem) => {
@@ -207,6 +232,36 @@ export default defineComponent({
         const { download } = useDownloadFile();
 
         const downloadFile = async (data: IResourceItem) => {
+            if (data.ResourceShowType === 1) {
+                // 下载窗卡页
+                window.electron.showOpenDialog({
+                    title: "选择保存路径",
+                    buttonLabel: "确定",
+                    properties: ["openDirectory"]
+                }).then(async (file: any) => {
+                    if (!file.canceled) {
+                        const path = file.filePaths[0];
+                        downloadProgress.value = 0;
+                        showDownload.value = true;
+                        new LocalCache({
+                            cachingStatus: (status) => {
+                                console.log(`status: ${status}`);
+                                downloadProgress.value = status;
+                                if (status === 100) {
+                                    showDownload.value = false;
+                                    ElMessage.success("打包下载完成！");
+                                }
+                            }
+                        }).doCache({
+                            WindowID: data.OldResourceId,
+                            OriginType: data.IsSysFile === 1 ? 0 : 1
+                        }, data.Name, path);
+                    }
+                }).catch((err: any) => {
+                    ElMessage({ type: "error", message: "下载失败" });
+                });
+                return;
+            }
             if (data.File) {
                 const url = await getOssUrl(
                     `${data.File.FilePath}/${data.File.FileMD5}.${data.File.FileExtention}`,
@@ -490,7 +545,9 @@ export default defineComponent({
             name,
             resourceScroll,
             resourceId,
-            resourceData
+            resourceData,
+            showDownload,
+            downloadProgress
         };
     }
 });
@@ -524,6 +581,27 @@ export default defineComponent({
     font-weight: 400;
     img {
         margin-bottom: 10px;
+    }
+}
+
+.download-progress-dialog {
+    .download-progress-bar {
+        height: 10px;
+        border-radius: 5px;
+        overflow: hidden;
+        border: 1px solid #4b71ee;
+        .download-progress-line {
+            background: #4b71ee;
+            height: 100%;
+            width: 0;
+            transition: .1s all;
+        }
+    }
+    .download-progress-tip {
+        text-align: center;
+        margin-top: 20px;
+        font-size: 14px;
+        color: #888;
     }
 }
 </style>

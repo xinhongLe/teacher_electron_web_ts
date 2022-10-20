@@ -2,17 +2,16 @@
     <div class="leftone" v-loading="state.loading">
         <div>
             <el-cascader
-                size="small"
                 style="width: 100%"
                 v-model="state.currentBookId"
                 :props="cascaderProps"
                 :options="subjectPublisherBookList"
+                ref="cascaderRef"
                 @change="changeBook"
             ></el-cascader>
         </div>
         <div class="leftone-input">
             <el-input
-                size="small"
                 style="width: 100%"
                 v-model="form.Name"
                 class="w-50 m-2"
@@ -81,6 +80,7 @@ import emitter from "@/utils/mitt"; //全局事件总线
 import useBookList from "@/views/assignHomework/hooks/useBookList";
 import { subjectPublisherBookList } from "@/hooks/useSubjectPublisherBookList";
 import { formateNormDate, formatWeekDay } from "@/utils";
+import { store } from "@/store";
 const { cascaderProps } = useBookList();
 
 const props = defineProps({
@@ -98,7 +98,7 @@ const props = defineProps({
         default: () => [],
     },
 });
-const emit = defineEmits(["update:currentHomeworkBookId"]);
+const emit = defineEmits(["update:currentHomeworkBookId", "selectSubject"]);
 //数据源
 const state = reactive({
     currentLessonIndex: "",
@@ -129,11 +129,14 @@ const debounce = (func: Function, wait: number, params: any) => {
 
 //切换左侧课程卡片
 const switchLessonCard = (item: any) => {
-    console.log(item);
+    console.log("切换左侧课程卡片", item);
+    // store.state.wrongbook.currentPaperName = item.PaperName;
     state.currentLessonIndex = item.ClassPaperId;
     if (state.currentLessonIndex) {
         emitter.emit("errorBookEmit", {
             id: state.currentLessonIndex,
+            classId: props.parentSearch.ClassId,
+            bookId: form.value.BookId,
             name: item.PaperName,
             time: item.PublishTime,
             wrongType: props.currentWrongType,
@@ -155,14 +158,18 @@ const queryLeftMenuByHomeWork = async (params: LeftMenuParams) => {
         state.currentLessonIndex = state.lessonList.length
             ? lessonData?.ClassPaperId
             : "";
+
         const currentLessonName = state.lessonList.length
             ? lessonData?.PaperName
             : "";
+        // store.state.wrongbook.currentPaperName = currentLessonName;
         const currentLessonTime = state.lessonList.length
             ? lessonData?.PublishTime
             : "";
         emitter.emit("errorBookEmit", {
             id: state.currentLessonIndex,
+            classId: props.parentSearch.ClassId,
+            bookId: params.BookId,
             name: currentLessonName,
             time: currentLessonTime,
             wrongType: props.currentWrongType,
@@ -172,9 +179,18 @@ const queryLeftMenuByHomeWork = async (params: LeftMenuParams) => {
         state.loading = false;
     }
 };
+//根据科目id查学生
+const selectSubject = (subject: any) => {
+    emit("selectSubject", subject);
+};
+const cascaderRef = ref<any>(null);
 //改变左侧书册下拉
 const changeBook = (value: string) => {
-    console.log(value);
+    store.state.wrongbook.currentSelectedBookName = cascaderRef.value
+        .getCheckedNodes()[0]
+        .pathLabels.join(" ");
+    store.state.wrongbook.currentSubjectId = value[0];
+    selectSubject(value[0]);
     emit("update:currentHomeworkBookId", value);
     if (value && value.length) {
         form.value.BookId = value[value.length - 1];
@@ -202,15 +218,20 @@ watch(
 watch(
     () => subjectPublisherBookList.value,
     (v) => {
-        console.log("subjectPublisherBookList.value", v);
-        console.log(
-            "----------currentHomeworkBookId",
-            props.currentHomeworkBookId
-        );
         if (!v.length) return;
+        // console.log("subjectPublisherBookList.value", v);
+        // console.log(
+        //     "----------currentHomeworkBookId",
+        //     props.currentHomeworkBookId
+        // );
+        store.state.wrongbook.currentSelectedBookName = `${v[0].Lable} ${
+            v[0].Children![0].Lable
+        } ${v[0].Children![0].Children![0].Lable}`;
+        store.state.wrongbook.currentSubjectId = v[0].Value;
+        selectSubject(v[0].Value);
         if (props.currentHomeworkBookId?.length) {
             state.currentBookId = props.currentHomeworkBookId as any;
-            initData(state.currentBookId);
+            // initData(state.currentBookId);
         } else {
             state.currentBookId = [
                 v[0].Value,

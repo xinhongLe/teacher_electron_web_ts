@@ -74,7 +74,7 @@ export default defineComponent({
 
         const handleChangeGrade = (item:IGradeItem) => {
             item.ClassList.forEach((i:IClassItem) => {
-                i.check = !i.check;
+                i.check = item.check;
             });
         };
 

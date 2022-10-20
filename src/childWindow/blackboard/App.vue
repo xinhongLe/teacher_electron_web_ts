@@ -210,7 +210,7 @@
                         src="./ico/icon_lishi_rest@2x.png"
                         alt=""
                     />
-                    <span class="text">历史黑板</span>
+                    <span class="text">历史黑板1</span>
                 </div>
             </div>
             <div class="btn-container">
@@ -521,6 +521,9 @@ export default defineComponent({
                     height: 8px;
                 }
             }
+            span {
+                white-space: nowrap;
+            }
         }
         .btn-container {
             background: rgba(255, 255, 255, 0.08);
@@ -564,6 +567,9 @@ export default defineComponent({
                 }
                 &:last-child {
                     margin-right: 0;
+                }
+                span {
+                    white-space: nowrap;
                 }
             }
         }

@@ -2,11 +2,11 @@
     <div class="leftthree" v-loading="state.loading">
         <el-cascader
             v-if="props.currentWrongType == 3"
-            size="small"
             style="width: 100%"
             v-model="state.currentBookId"
             :props="cascaderProps"
             :options="subjectPublisherBookList"
+            ref="cascaderRef"
             @change="changeBook"
         ></el-cascader>
         <div class="leftthree-list">
@@ -42,6 +42,8 @@ import useBookList from "@/views/assignHomework/hooks/useBookList";
 import useWrongBook from "../hooks/useWrongBook";
 import emitter from "@/utils/mitt"; //全局事件总线
 import { subjectPublisherBookList } from "@/hooks/useSubjectPublisherBookList";
+import { store } from "@/store";
+
 provide("isShow", false);
 provide("classId", "");
 const { cascaderProps } = useBookList();
@@ -63,7 +65,7 @@ const props = defineProps({
         default: () => [],
     },
 });
-const emit = defineEmits(["update:currentChapterBookId"]);
+const emit = defineEmits(["update:currentChapterBookId", "selectSubject"]);
 
 //搜索区域
 const form = ref({
@@ -143,18 +145,31 @@ const selectedChapter = (val: any) => {
     const chapterId = val.ChapterId || "";
     const lessonId = val.Id || "";
     const name = val.ChapterName || val.Name || "";
+    // store.state.wrongbook.currentPaperName = name;
     emitter.emit("errorBookEmit", {
         name,
         lessonId: lessonId,
         chapterId: chapterId,
         wrongType: props.currentWrongType,
+        bookId: form.value.BookId,
         ...props.parentSearch,
     });
 };
 
+const cascaderRef = ref<any>(null);
+
 //下面是请求方法
+//根据科目id查学生
+const selectSubject = (subject: any) => {
+    emit("selectSubject", subject);
+};
 //改变左侧书册下拉
 const changeBook = (value: string) => {
+    store.state.wrongbook.currentSelectedBookName = cascaderRef.value
+        .getCheckedNodes()[0]
+        .pathLabels.join(" ");
+    store.state.wrongbook.currentSubjectId = value[0];
+    selectSubject(value[0]);
     if (value && value.length) {
         emit("update:currentChapterBookId", value);
         form.value.BookId = value[value.length - 1];
@@ -169,20 +184,21 @@ const queryLeftMeunByChapter = async (params: LeftMenuParams) => {
     state.loading = true;
     // console.log("params", params);
     const res: any = await searchLeftMeunByChapter(params);
-    1;
     if (res.resultCode === 200) {
         state.loading = false;
         state.treeData = res.result;
-        const lessonId = state.treeData?.length
+        const chapterId = state.treeData?.length
             ? state.treeData[0].ChapterId
             : "";
-        selectedID.value = lessonId;
+        selectedID.value = chapterId;
         const name = state.treeData[0].ChapterName || "";
+        // store.state.wrongbook.currentPaperName = name;
         emitter.emit("errorBookEmit", {
             name,
             wrongType: props.currentWrongType,
-            lessonId: lessonId,
-            chapterId: "",
+            lessonId: "",
+            chapterId: chapterId,
+            bookId: form.value.BookId,
             ...props.parentSearch,
         });
     } else {
@@ -198,9 +214,14 @@ const initData = (v: any) => {
 watch(
     () => subjectPublisherBookList.value,
     (v) => {
+        store.state.wrongbook.currentSelectedBookName = `${v[0].Lable} ${
+            v[0].Children![0].Lable
+        } ${v[0].Children![0].Children![0].Lable}`;
+        store.state.wrongbook.currentSubjectId = v[0].Value;
+        selectSubject(v[0].Value);
         if (props.currentChapterBookId?.length) {
             state.currentBookId = props.currentChapterBookId as any;
-            initData(state.currentBookId);
+            // initData(state.currentBookId);
         } else {
             state.currentBookId = [
                 v[0].Value,

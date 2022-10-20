@@ -18,6 +18,7 @@
             />
             <answer-result
                 v-if="isShowAnswerResult"
+                :currentUserInfo="currentUserInfo"
                 :time="answerTime"
                 :answerDetail="answerDetail"
                 :questionType="selectQuestionType"

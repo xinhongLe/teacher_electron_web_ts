@@ -7,12 +7,26 @@ export interface IClassDisabledRes {
 }
 
 /**
+ type 类型 1-表扬 2-批评
   AnswerMachineID 任务ID
 */
 export interface IPraiseStudentRes {
-    StudentIdList: string[],
-    AnswerMachineID:string,
+    Type: number,
+    SchoolID:string,
     TeacherID:string,
+    TeacherName:string,
+    StudentList: {
+        StudentID:string,
+        StudentName:string,
+        ClassID:string,
+        ClassName:string,
+    }[],
+    LabelList: {
+        LabelID: string,
+        LabelName: string,
+        Score: number,
+        ScoreType: number,
+    }[]
 }
 
 export interface IClassItem {

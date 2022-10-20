@@ -1,8 +1,21 @@
 <template>
     <div class="lessonlist">
-        <h3 v-if="state.errorQuestionList.length">
-            {{ state.currentIndexName }}
-        </h3>
+        <div class="titles" v-if="state.errorQuestionList.length">
+            <h3>
+                {{ state.currentIndexName }}
+            </h3>
+            <span v-if="formatIsAll" class="isall">
+                <el-button @click="addAllQuestion"
+                    >添加本页面所有题目</el-button
+                >
+            </span>
+            <span v-else class="noall">
+                <el-button @click="removeAllQuestion"
+                    >移出本页面所有题目</el-button
+                >
+            </span>
+        </div>
+
         <div v-if="props.currentWrongType == 4" class="knowpoint">
             <p class="count">
                 收录错题：<span style="color: #4b71ee">{{
@@ -23,8 +36,18 @@
                     <span style="color: #4b71ee">
                         {{ avgWrongRatioA || 0 }}%</span
                     >，B层知识点掌握度
-                    {{ avgWrongRatioB || 0 }}%，C层知识点掌握度
-                    {{ avgWrongRatioC || 0 }}%）</span
+                    <span style="color: #4b71ee">
+                        {{ avgWrongRatioB || 0 }}%</span
+                    >
+                    ，C层知识点掌握度
+                    <span style="color: #4b71ee">
+                        {{ avgWrongRatioC || 0 }}%</span
+                    >
+                    ，未标记知识点掌握度
+                    <span style="color: #4b71ee">
+                        {{ avgWrongRatioNo || 0 }}%</span
+                    >
+                    ）</span
                 >
             </p>
         </div>
@@ -33,6 +56,7 @@
                 class="list-item"
                 v-for="(item, index) in (state.errorQuestionList as any)"
                 :key="item.QuestionId"
+                @click="openWrongDetails(item)"
             >
                 <div class="item-content">
                     <div class="item-index-title">
@@ -243,7 +267,10 @@
                 </div>
 
                 <div class="item-operate">
-                    <div class="operate-btn" @click="explainQuestion(item)">
+                    <div
+                        class="operate-btn"
+                        @click.stop="explainQuestion(item)"
+                    >
                         <img
                             src="~@/assets/images/wrongbook/icon_voice.png"
                             alt=""
@@ -252,7 +279,7 @@
                     </div>
                     <div
                         class="operate-btn"
-                        @click="
+                        @click.stop="
                             item.IsAnyPureQuestion
                                 ? openSimilarQuestion(item)
                                 : ''
@@ -269,13 +296,15 @@
                             >查看同类题</span
                         >
                     </div>
-                    <div class="operate-btn" @click="addQuestionBasket(item)">
+                    <div class="operate-btn">
                         <template v-if="formatInBasket(item)">
                             <img
                                 src="~@/assets/images/wrongbook/icon_add.png"
                                 alt=""
                             />
-                            <span :style="{ color: '#4B71EE' }"
+                            <span
+                                @click.stop="addQuestionBasket(item)"
+                                :style="{ color: '#4B71EE' }"
                                 >添加试题篮</span
                             >
                         </template>
@@ -284,7 +313,9 @@
                                 src="~@/assets/images/wrongbook/icon_yichu.png"
                                 alt=""
                             />
-                            <span :style="{ color: '#FF6B6B' }"
+                            <span
+                                @click.stop="delQuestionBasket(item)"
+                                :style="{ color: '#FF6B6B' }"
                                 >移出试题篮</span
                             >
                         </template>
@@ -292,7 +323,7 @@
                     <div
                         class="operate-btn"
                         style="padding-left: 5px"
-                        @click="openWrongDetails(item)"
+                        @click.stop="openWrongDetails(item)"
                     >
                         <!-- <img
                             src="~@/assets/images/wrongbook/icon_yichu.png"
@@ -378,7 +409,7 @@ import {
     getErrorQuestionListByKnowledgeLib,
     getBasicTag,
 } from "@/api/errorbook";
-import { MutationTypes, store } from "@/store";
+import { MutationTypes, store, ActionTypes } from "@/store";
 
 import useWrongBook from "../hooks/useWrongBook";
 const {
@@ -389,6 +420,8 @@ const {
     formatQuestionType,
     formatProColor,
     formatRecentColor,
+    formatInBasket,
+    delAllBasketData,
 } = useWrongBook();
 
 const formatKnowledges = (data: any) => {
@@ -461,6 +494,10 @@ const state = reactive({
     currentIndexName: "",
     //当前作左侧树选中的发布时间
     currentIndexTime: "",
+    //当前选择的班级id
+    currentClassId: "",
+    //当前选择的书册id
+    currentBookId: "",
     //基础分层标签list
     basicTagList: [],
     AvgKnowledgeUnderstandRatio: 0, //班级平均知识点掌握率
@@ -493,6 +530,9 @@ const avgWrongRatioB = computed(() => {
 });
 const avgWrongRatioC = computed(() => {
     return formatTagFun(100);
+});
+const avgWrongRatioNo = computed(() => {
+    return formatTagFun(0);
 });
 //综合监听 问题类型和频次字段
 watch(
@@ -535,6 +575,45 @@ watch(
     },
     { deep: true }
 );
+//过滤所有的题目是否在错题栏中
+const formatIsAll = computed(() => {
+    const questionsIds: any = [];
+    const questionBasket = store.state.wrongbook.questionBasket as any;
+    questionBasket.forEach((item: any) => {
+        item.Questions.forEach((data: any) => {
+            questionsIds.push(data.QuestionId);
+        });
+    });
+    const flag = state.errorQuestionList.every((value: any) => {
+        return questionsIds.includes(value.QuestionId);
+    });
+    return !flag;
+});
+//添加试题
+const addQuestion = (questions: any) => {
+    const params = {
+        questions,
+        classId: state.currentClassId,
+        bookId: state.currentBookId,
+    };
+    store.dispatch(ActionTypes.ADD_QUESTION_BASKET, params);
+};
+
+//选择错题列表中所有的错题
+const addAllQuestion = () => {
+    const qsList = state.errorQuestionList.map((item: any) => {
+        return {
+            questionId: item.QuestionId,
+            questionType: item.QuestionType,
+        };
+    });
+    console.log("idList----", qsList);
+    addQuestion(qsList);
+};
+//移出错题列表中所有的错题
+const removeAllQuestion = () => {
+    delAllBasketData();
+};
 //讲解题目
 const explainQuestion = (data: any) => {
     state.explainVisible = true;
@@ -585,7 +664,6 @@ const formatAvgWrongRatio = (type: string, data: any) => {
         }
     }
 };
-
 //根据问题类型和频次综合筛选列表-前端筛选
 const filterErrorListByTypeAndFrequency = (
     type: any,
@@ -714,32 +792,36 @@ const openWrongDetails = (data?: any) => {
         questionList: state.errorQuestionList,
         lessonName: state.lessonName || "",
     };
-    console.log(params);
-
-    emitter.emit("openErrorBookDetails", params);
     emit("update:isShowContent", 2);
+    emitter.emit("openErrorBookDetails", params);
 };
 //添加错题至试题篮
 const addQuestionBasket = (data: any) => {
     console.log("当前错题行数据", data);
+    addQuestion([
+        {
+            questionId: data.QuestionId,
+            questionType: data.QuestionType,
+        },
+    ]);
 };
-//过滤当前的题目是否在错题栏
-const formatInBasket = (data: any) => {
-    return true;
-    // const basketList = store.state.wrongbook.questionBasket.map((item: any) => {
-    //     return item.QuestionId;
-    // });
-    // if (basketList.includes(data.QuestionId)) {
+//移出一条试题篮
+const delQuestionBasket = (data: any) => {
+    // console.log("当前错题行数据", data);
+    const params = {
+        isAllDel: 0,
+        classId: state.currentClassId,
+        bookId: state.currentBookId,
+        questionIds: [data.QuestionId],
+        questionType: data.QuestionType,
+    };
+    store.dispatch(ActionTypes.DEL_QUESTION_BASKET, params);
+};
 
-    //     return false;
-    // } else {
-    //     return true;
-    // }
-};
 //获取基础分层标签
 const queryBasicTag = async () => {
     const res: any = await getBasicTag();
-    console.log(res);
+    // console.log(res);
     if (res.success && res.resultCode == 200) {
         state.basicTagList = res.result;
     }
@@ -757,29 +839,31 @@ onMounted(() => {
 });
 //按照不同维度去查询不同的题目列表
 const queryFuntion = (params: any) => {
-    console.log("type-params", params);
+    // console.log("type-params", params);
+    store.state.wrongbook.currentClassId = state.currentClassId =
+        params.classId || params.ClassId;
+    store.state.wrongbook.currentBookId = state.currentBookId = params.bookId;
     switch (params.wrongType) {
         case 1:
+            // state.currentClassId = params.classId;
+            // state.currentBookId = params.bookId;
             homeworkParams.ClassHomeworkPaperId = params.id;
             state.currentIndexName = params.name || "";
             state.currentIndexTime = params.time || "";
             queryErrorQuestionListByHomework(homeworkParams);
             break;
         case 3:
-            chapterLessonParams.ClassId =
-                params.ClassId || "39F86691B2191CD9ED8E80B291F83635";
+            chapterLessonParams.ClassId = params.ClassId || "";
             state.currentIndexName = params.name || "";
             chapterLessonParams.StartDate = params.StartTime;
             chapterLessonParams.EndDate = params.EndTime;
             chapterLessonParams.ChapterId = params.chapterId;
             // params.lessonId ||
-            chapterLessonParams.LessonId =
-                params.lessonId || "39F7666ABDA60F4E7F69C4EB2CFE70E9";
+            chapterLessonParams.LessonId = params.lessonId || "";
             queryErrorQuestionListByChapterLesson(chapterLessonParams);
             break;
         case 4:
-            knowledgeLibParams.ClassId =
-                params.ClassId || "39F86691B2191CD9ED8E80B291F83635";
+            knowledgeLibParams.ClassId = params.ClassId || "";
             state.currentIndexName = params.KnowledgeLibName || "";
             state.lessonName = params.lessonName || "";
             knowledgeLibParams.StartDate = params.StartTime;
@@ -793,6 +877,10 @@ const queryFuntion = (params: any) => {
             queryErrorQuestionListByKnowledgeLib(knowledgeLibParams);
             break;
     }
+    store.dispatch(ActionTypes.FETCH_BASKET_LIST, {
+        bookId: state.currentBookId,
+        classId: state.currentClassId,
+    });
 };
 onBeforeUnmount(() => {
     emitter.off("errorBookEmit");
@@ -807,12 +895,36 @@ onBeforeUnmount(() => {
     background-color: #fff;
     padding: 16px;
     overflow: auto;
-
-    h3 {
-        font-size: 18px;
-        font-family: HarmonyOS_Sans_SC_Bold;
-        font-weight: bold;
-        color: #19203d;
+    .titles {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        h3 {
+            font-size: 18px;
+            font-family: HarmonyOS_Sans_SC_Bold;
+            font-weight: bold;
+            color: #19203d;
+        }
+        .isall {
+            :deep(.el-button) {
+                background: #f3f7ff;
+                border-radius: 4px;
+                // border: none;
+                color: #4b71ee;
+                border: 1px solid rgba(75, 113, 238, 0.5);
+                font-size: 12px;
+            }
+        }
+        .noall {
+            :deep(.el-button) {
+                background: #fff;
+                border-radius: 4px;
+                // border: none;
+                color: #ff6b6b;
+                border: 1px solid #ff6b6b;
+                font-size: 12px;
+            }
+        }
     }
 
     .knowpoint {

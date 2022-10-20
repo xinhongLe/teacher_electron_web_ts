@@ -309,7 +309,7 @@ export default class TrackService {
         const trackModel = new TrackModel();
         const userInfo = get(STORAGE_TYPES.USER_INFO);
         trackModel.TrackEventType = trackEventType;
-        trackModel.FranchiseeID = userInfo.FranchiseeID;
+        trackModel.FranchiseeID = schoolId;
         trackModel.OperatorID = userInfo.ID;
         trackModel.OperatorName = userInfo.Name;
         trackModel.SessionID = get(STORAGE_TYPES.SESSION_ID);

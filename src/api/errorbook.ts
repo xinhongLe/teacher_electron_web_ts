@@ -133,6 +133,49 @@ export interface historyStudylParams {
 export interface historyParams {
     StudentID: string;
     QuestionId: string;
+    // StartDate: string;
+    // EndDate: string;
+    Result: number;
+}
+interface Questions {
+    questionId: string;
+    questionType: number;
+}
+//添加试题篮入参
+export interface basketParams {
+    questions: Questions[];
+    classId: string;
+    bookId: string;
+    // questionType: number;
+}
+//试题篮集合详情
+export interface basketInfoParams {
+    bookId: string;
+    classId: string;
+}
+//移出试题篮
+export interface delBasketParams {
+    classId: string;
+    bookId: string;
+    questionIds: string[];
+    questionType: number;
+    isAllDel: number;
+}
+//查询布置作业页面信息入参
+export interface homeworkPagerInfoParams {
+    ID: string;
+}
+//修改作业名称入参
+export interface updatePaperNameParams {
+    PaperId: string;
+    Name: string;
+}
+//布置作业入参
+export interface paperWorkParams {
+    PaperId: string;
+    ClassId: string;
+    SubjectId: string;
+    StudentIds: string[];
 }
 
 type GetLeftMenuByHomeWork = IResponse<LeftMenuByHomeWork[]>;
@@ -296,6 +339,97 @@ export function getStudentQuestionMissionStudyIds(data: historyParams) {
         headers: {
             "Content-Type": "application/json-patch+json",
             noLoading: "true",
+        },
+        method: "post",
+        data: data,
+    });
+}
+//添加试题篮
+export function AddIntoPaperBasket(data: basketParams) {
+    return request({
+        baseURL: AI_XUE_SHI_API_WRONG_BOOK,
+        url: "Api/Web/ClassErrorQuestionBook/AddIntoPaperBasket",
+        headers: {
+            "Content-Type": "application/json-patch+json",
+            // noLoading: "true",
+        },
+        method: "post",
+        data: data,
+    });
+}
+//查询试题篮的试题
+export function PaperBasketInfo(data: basketInfoParams) {
+    return request({
+        baseURL: AI_XUE_SHI_API_WRONG_BOOK,
+        url: "Api/Web/ClassErrorQuestionBook/PaperBasketInfo",
+        headers: {
+            "Content-Type": "application/json-patch+json",
+            // noLoading: "true",
+        },
+        method: "post",
+        data: data,
+    });
+}
+//从试题篮中移出
+export function DelQuestionForPaperBasket(data: delBasketParams) {
+    return request({
+        baseURL: AI_XUE_SHI_API_WRONG_BOOK,
+        url: "Api/Web/ClassErrorQuestionBook/DelQuestionForPaperBasket",
+        headers: {
+            "Content-Type": "application/json-patch+json",
+            // noLoading: "true",
+        },
+        method: "post",
+        data: data,
+    });
+}
+//试题生成练习
+export function AddPaperForPaperBasket(data: any) {
+    return request({
+        baseURL: AI_XUE_SHI_API_WRONG_BOOK,
+        url: "Api/Web/ClassErrorQuestionBook/AddPaperForPaperBasket",
+        headers: {
+            "Content-Type": "application/json-patch+json",
+            // noLoading: "true",
+        },
+        method: "post",
+        data: data,
+    });
+}
+//布置作业页面作业信息
+export function getHomeworkPaperInfo(data: homeworkPagerInfoParams) {
+    return request({
+        baseURL: AI_XUE_SHI_API_WRONG_BOOK,
+        url: "Api/Web/ClassErrorQuestionBook/HomeworkPaperInfo",
+        headers: {
+            "Content-Type": "application/json-patch+json",
+            // noLoading: "true",
+        },
+        method: "post",
+        data: data,
+    });
+}
+//修改作业名称
+export function updatePaperName(data: updatePaperNameParams) {
+    return request({
+        baseURL: AI_XUE_SHI_API_WRONG_BOOK,
+        url: "Api/Web/ClassErrorQuestionBook/UpdatePaperName",
+        headers: {
+            "Content-Type": "application/json-patch+json",
+            // noLoading: "true",
+        },
+        method: "post",
+        data: data,
+    });
+}
+//布置作业
+export function sendErrorPaperWork(data: paperWorkParams) {
+    return request({
+        baseURL: AI_XUE_SHI_API_WRONG_BOOK,
+        url: "Api/Web/ClassErrorQuestionBook/SendErrorPaperWork",
+        headers: {
+            "Content-Type": "application/json-patch+json",
+            // noLoading: "true",
         },
         method: "post",
         data: data,

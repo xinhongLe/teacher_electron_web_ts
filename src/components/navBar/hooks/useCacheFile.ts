@@ -1,5 +1,6 @@
 import { ElMessageBox } from "element-plus";
 import { Stats, promises } from "fs";
+const { readdir, stat, unlink, rmdir } = promises;
 import moment from "moment";
 import { join } from "path";
 import { ref, watch, watchEffect } from "vue";
@@ -38,7 +39,15 @@ export default async () => {
             clearCaching.value = true;
             for (const [index, info] of rangeFileList.value.entries()) {
                 try {
-                    await promises.unlink(info.filePath);
+                    if ((await stat(info.filePath)).isDirectory()) {
+                        for (let file of (await readdir(info.filePath))) {
+                            await unlink(info.filePath + '/' + file);
+                        }
+                        await rmdir(info.filePath);
+                    }
+                    else {
+                        await unlink(info.filePath);
+                    }
                 } catch (error) {
                     window.electron.log.error("clearCache error", error);
                 }
@@ -55,9 +64,7 @@ export default async () => {
     });
 
     watchEffect(() => {
-        const id = store.state.userInfo.id;
-        if (!id) return;
-        promises.readdir(getSaveFilePath(id)).then(async (files) => {
+        promises.readdir(getSaveFilePath()).then(async (files) => {
             fileInfoList.value = await Promise.all(
                 files.map(async (file) => ({
                     ...(await promises.stat(join(window.electron.getCachePath(""), file))),

@@ -15,8 +15,7 @@
                 {{ "《" + HomeWorkListItem.WorkbookName + "》" }} {{ HomeWorkListItem.UnitName }}
                 {{ HomeWorkListItem.WorkbookPaperName }}
             </p>
-            <span>{{ HomeWorkListItem.gradeName }} {{ HomeWorkListItem.publisherName }}</span>
-            <span></span>
+            <div><span>{{ HomeWorkListItem.gradeName }} {{ HomeWorkListItem.publisherName }}</span><span></span></div>
         </div>
         <div class="forms">
             <el-form
@@ -31,7 +30,7 @@
                         <el-option label="手动公布" value="shou"></el-option>
                     </el-select>
                 </el-form-item>
-                <el-form-item v-if="HomeWorkListItem.publishType === 'zi'" style="margin-left:10px;">
+                <el-form-item class="time-picker" v-if="HomeWorkListItem.publishType === 'zi'" style="margin-left:10px;">
                     <el-date-picker
                         type="datetime"
                         v-model="HomeWorkListItem.publishTime"
@@ -126,7 +125,8 @@ export default defineComponent({
     padding: 0 20px;
     margin-top: 10px;
     .first-col {
-        width: 40%;
+        flex: 1;
+        min-width: 0;
         align-items: center;
         display: flex;
         .indexNumber {
@@ -145,10 +145,12 @@ export default defineComponent({
         p {
             font-weight: 600;
             white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         span {
             margin-left: 12px;
-            white-space: nowrap;
+            // white-space: nowrap;
         }
         .type {
             color: #4b71ee;
@@ -171,10 +173,19 @@ export default defineComponent({
 }
 .forms{
     white-space: nowrap;
-    width: 30%;
+    display: flex;
     margin-right: 30px;
     :deep(.el-form-item){
         margin: 0;
+    }
+    .time-picker {
+        :deep(.el-date-editor) {
+            --el-date-editor-width: 180px;
+        }
+        :deep(.el-input__inner) {
+            padding-left: 30px;
+            padding-right: 10px;
+        }
     }
 }
 </style>

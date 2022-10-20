@@ -2,7 +2,7 @@
     <div class="content-warp">
         <div class="left">
             <div class="access-system-select">
-                <el-select v-model="selectClassId" placeholder="请选择">
+                <el-select size="large" v-model="selectClassId" placeholder="请选择">
                     <el-option
                         v-for="item in homeworkDetail.classInfo"
                         :key="item.classHomeworkPaperID"
@@ -44,6 +44,9 @@
                 :questionContent="questionContent"
                 :answerContent="answerContent"
                 :type="questionType"
+                :homeworkDetail="homeworkDetail"
+                :questionList="questionList"
+                @updateQuestinInfoByQuestionID="getClassHomeworkPaperQuestionList"
             ></ReviewHomework>
         </div>
     </div>
@@ -131,7 +134,8 @@ export default defineComponent({
             answerContent,
             missionDetails,
             questionContent,
-            questionList
+            questionList,
+            getClassHomeworkPaperQuestionList
         };
     },
     components: { Chart, ReviewHomework }
@@ -149,12 +153,9 @@ export default defineComponent({
         background: #f5f6fa;
         padding: 12px 16px 0 16px;
         .access-system-select {
-            width: 282px;
+            width: 100%;
             height: 40px;
             margin-bottom: 20px;
-            :deep(.el-input__inner) {
-                width: 230px;
-            }
         }
         .access-system-chart {
              flex: 1;

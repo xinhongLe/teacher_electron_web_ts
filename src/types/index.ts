@@ -1,4 +1,4 @@
-import electron, { Remote, SaveDialogReturnValue, SaveDialogOptions, OpenDialogOptions, OpenDialogReturnValue } from "electron";
+import electron, { SaveDialogReturnValue, SaveDialogOptions, OpenDialogOptions, OpenDialogReturnValue, BrowserWindow, Remote } from "electron";
 import { LogFunctions } from "electron-log";
 import Store from "electron-store";
 import { IFileData } from "../../electron/exportWord";
@@ -36,6 +36,9 @@ type Electron = typeof electron & {
     showOpenDialog: (option: OpenDialogOptions) => Promise<OpenDialogReturnValue>,
     getPPTPath: (path: string) => string,
     checkWindowSupportNet: (version: string) => Promise<boolean>,
+    unpackCacheFile: (zipFileName: string, newpath?: string) => Promise<any>,
+    packCacheFiles: (cacheFiles: any, path: string) => Promise<string>,
+    remote: Remote,
     store: Store,
     log: LogFunctions
 }

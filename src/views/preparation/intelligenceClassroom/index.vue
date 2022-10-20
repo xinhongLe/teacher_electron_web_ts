@@ -83,11 +83,15 @@ const props = defineProps({
     isSystem: {
         type: Boolean,
         default: false
+    },
+    resource: {
+        type: Object as PropType<IResourceItem | undefined>,
+        required: true
     }
 });
 const resourceId = toRef(props, "resourceId");
 provide("isShowCardList", isShowCardList);
-const windowInfo = useWindowInfo();
+const windowInfo = useWindowInfo(true, props.resource);
 provide(windowInfoKey, windowInfo);
 const {cardList, refreshWindow, getCardList } = windowInfo;
 

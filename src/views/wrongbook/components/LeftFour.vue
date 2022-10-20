@@ -1,7 +1,6 @@
 <template>
     <div class="leftthree" v-loading="state.loading">
         <el-select
-            size="small"
             style="width: 100%; margin-right: 16px"
             v-model="form.Id"
             @change="changeKnowledgeLab"
@@ -16,7 +15,6 @@
         </el-select>
         <div class="leftthree-input">
             <el-input
-                size="small"
                 style="width: 100%"
                 v-model="form.Name"
                 class="w-50 m-2"
@@ -50,12 +48,14 @@ import {
     watch,
     provide,
     defineEmits,
+    nextTick,
 } from "vue";
 import Tree from "./tree/index.vue";
 import { Search } from "@element-plus/icons-vue";
 import { searchLeftMeunByKnowledge, LeftMenuParams } from "@/api/errorbook";
 import useWrongBook from "../hooks/useWrongBook";
 import emitter from "@/utils/mitt"; //全局事件总线
+import { store } from "@/store";
 const { queryKnowledgeLabList, knowledgeLabList } = useWrongBook();
 provide("isShow", true);
 
@@ -77,7 +77,7 @@ const props = defineProps({
         default: () => "",
     },
 });
-const emit = defineEmits(["update:currentLessonId"]);
+const emit = defineEmits(["update:currentLessonId", "selectSubject"]);
 
 //搜索区域
 const form = ref({
@@ -92,52 +92,7 @@ const state = reactive({
     currentLessonIndex: 1,
     subjectPublisherBookList: [],
     //项目数据源
-    treeData: [
-        // {
-        //     Id: "1",
-        //     Name: "1 准备课",
-        //     count: 20,
-        //     Children: [
-        //         {
-        //             Id: "1 - 1",
-        //             Name: "数一数",
-        //             count: 0,
-        //             Children: null,
-        //         },
-        //         {
-        //             Id: "1 - 2",
-        //             Name: "比多少",
-        //             count: 14,
-        //             Children: [
-        //                 {
-        //                     Id: "1 - 2 - 1",
-        //                     Name: "比较物体大小",
-        //                     count: 3,
-        //                     Children: null,
-        //                 },
-        //                 {
-        //                     Id: "1 - 2 - 2",
-        //                     Name: "比较物体长短高低",
-        //                     count: 4,
-        //                     Children: null,
-        //                 },
-        //                 {
-        //                     Id: "1 - 2 - 3",
-        //                     Name: "比较物体轻重",
-        //                     count: 5,
-        //                     Children: null,
-        //                 },
-        //                 {
-        //                     Id: "1 - 2 - 4",
-        //                     Name: "比较物体多少",
-        //                     count: 2,
-        //                     Children: null,
-        //                 },
-        //             ],
-        //         },
-        //     ],
-        // },
-    ],
+    treeData: [],
     loading: false,
     currentBookId: [] as string[],
     lessonName: "",
@@ -154,7 +109,10 @@ watch(
         deep: true,
     }
 );
-
+//根据科目id查学生
+const selectSubject = (subject: any) => {
+    emit("selectSubject", subject);
+};
 //监听年级变化
 watch(
     () => props.gradeId,
@@ -171,13 +129,17 @@ watch(
     () => knowledgeLabList.value,
     (val) => {
         if (val.length) {
+            const valdata = val[0] as any;
+            store.state.wrongbook.currentSelectedBookName = `${valdata.Name}`;
+            store.state.wrongbook.currentSubjectId = valdata.Name;
+            selectSubject(valdata.Id);
             if (props.currentLessonId) {
                 form.value.Id = props.currentLessonId;
             } else {
-                form.value.Id = val[0].Id;
+                form.value.Id = valdata.Id;
             }
             form.value = Object.assign(form.value, props.parentSearch);
-            state.lessonName = val[0].Name;
+            state.lessonName = valdata.Name;
             queryLeftMeunByKnowledge(form.value);
         }
     },
@@ -204,10 +166,12 @@ const queryLeftMeunByKnowledge = async (params: LeftMenuParams) => {
     if (res.resultCode === 200) {
         state.loading = false;
         state.treeData = res.result;
+        emitter.emit("packButton");
         // console.log("state.treeData ", state.treeData);
         const knowledgeLibId = state.treeData?.length
             ? state.treeData[0].Id
             : "";
+        // store.state.wrongbook.currentPaperName = state.treeData[0].Name;
         // console.log("knowledgeLibId", knowledgeLibId);
         // console.log("state.lessonName", state.lessonName);
 
@@ -216,6 +180,7 @@ const queryLeftMeunByKnowledge = async (params: LeftMenuParams) => {
             lessonName: state.lessonName,
             wrongType: props.currentWrongType,
             KnowledgeLibId: knowledgeLibId,
+            bookId: form.value.Id,
             ...props.parentSearch,
         });
     } else {
@@ -228,6 +193,9 @@ const changeKnowledgeLab = (data: string) => {
     state.lessonName = knowledgeLabList.value.find(
         (item: any) => item.Id == data
     )?.Name;
+    store.state.wrongbook.currentSelectedBookName = state.lessonName;
+    store.state.wrongbook.currentSubjectId = state.lessonName;
+    selectSubject(data);
     emit("update:currentLessonId", data);
     form.value.Id = data;
     queryLeftMeunByKnowledge(form.value);
@@ -240,6 +208,7 @@ const selectedChapter = (val: any) => {
         lessonName: state.lessonName || "",
         KnowledgeLibName,
         KnowledgeLibId,
+        bookId: form.value.Id,
         wrongType: props.currentWrongType,
         ...props.parentSearch,
     });

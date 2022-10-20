@@ -9,7 +9,7 @@ import {
     FetchQuestinInfoByQuestionIDData,
     Mission,
     QuestinInfo,
-    QuestionDetail
+    QuestionDetail, UpLoadWorkbookHomeworkData
 } from "@/types/checkHomework";
 
 // 老师查询班级作业中的学生做题情况
@@ -81,6 +81,19 @@ export const changeResult: RequestFun<ChangeResultData, null> = (data) => {
     return request({
         baseURL: AI_XUE_SHI_API,
         url: "/API/W4/HomeworkIntegration/ChangeResult",
+        headers: {
+            "Content-Type": "application/json-patch+json"
+        },
+        method: "post",
+        data
+    });
+};
+
+// 教辅作业提交上传
+export const upLoadWorkbookHomework: RequestFun<UpLoadWorkbookHomeworkData, null> = (data) => {
+    return request({
+        baseURL: AI_XUE_SHI_API,
+        url: "/Api/V2/Student/HomeworkIntegration/UpLoadWorkbookHomework",
         headers: {
             "Content-Type": "application/json-patch+json"
         },

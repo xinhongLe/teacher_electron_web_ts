@@ -1,22 +1,30 @@
 <template>
     <div>
         <div class="chart-once" :class="activeIndex == index ? 'active' : ''">
-            <div>
-                <p>第{{ index + 1 }}题</p>
-                <p> 正确率 <span>{{ probability }}%</span></p>
+            <div class="chart-row" v-if="item.TotalRight === 0 && item.TotalWrong === 0 && item.TotalNoSure === 0" >
+                <div>
+                    <p>第{{ index + 1 }}题</p>
+                    <P>无人作答</P>
+                </div>
+                <div class="no-chart" >
+                    <img src="" alt="" />
+                </div>
             </div>
-            <div class="chart">
-                <div :id="'main' + index" style="width: 50px; height: 50px" ref="chartRef"></div>
-            </div>
-            <!-- <div class="no-chart">
-                <img src="" alt="" />
-            </div> -->
+           <div  class="chart-row"  v-else>
+               <div>
+                   <p>第{{ index + 1 }}题</p>
+                   <p> 正确率 <span>{{ probability }}%</span></p>
+               </div>
+               <div class="chart">
+                   <div :id="'main' + index" style="width: 50px; height: 50px" ref="chartRef"></div>
+               </div>
+           </div>
         </div>
     </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, ref } from "vue";
+import { defineComponent, watch, ref, nextTick } from "vue";
 import * as echarts from "echarts";
 export default defineComponent({
     props: {
@@ -38,11 +46,15 @@ export default defineComponent({
         const chartRef = ref<HTMLDivElement>();
 
         const initChart = () => {
+            if (props.item.TotalRight === 0 && props.item.TotalWrong === 0 && props.item.TotalNoSure === 0) {
+                return;
+            }
+
             probability.value = props.item.TotalRight === 0 ? 0 : Number(
                 ((props.item.TotalRight / (props.item.TotalWrong + props.item.TotalRight)) * 100).toFixed(2)
             );
-            if (props.item.TotalRight === 0 && props.item.TotalWrong === 0 && props.item.TotalNoSure === 0) return;
             var myChart = echarts.init(chartRef.value!);
+
             const option = {
                 series: [
                     {
@@ -94,9 +106,12 @@ export default defineComponent({
             myChart.setOption(option);
         };
 
-        onMounted(() => {
-            initChart();
-        });
+        watch(() => props.item, () => {
+            nextTick(() => {
+                initChart();
+            });
+        }, { immediate: true });
+
         return {
             probability,
             chartRef
@@ -120,6 +135,12 @@ export default defineComponent({
   margin-bottom:20px;
   text-align: center;
   background: #fff;
+    .chart-row{
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+    }
   .chart {
     width: 42px;
     height: 42px;
@@ -128,16 +149,10 @@ export default defineComponent({
     align-items: center;
   }
   .no-chart {
-    width: 42px;
-    height: 42px;
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    img {
-      width: 42px;
-      height: 42px;
-      border-radius: 50px;
-    }
+      width: 32px;
+      height: 32px;
+      border: 6px solid #A9ACB3;
+      border-radius: 50%;
   }
   p:nth-of-type(1) {
     font-size: 14px;
@@ -152,6 +167,6 @@ export default defineComponent({
 }
 .active {
   border: 1px solid #98aef6;
-  background: #e6ecff;
+  background: #E6ECFF;
 }
 </style>

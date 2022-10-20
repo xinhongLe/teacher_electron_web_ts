@@ -30,6 +30,12 @@
                             @click="teachHomeworkDialog = true"
                             >教辅作业</el-button
                         >
+                        <!-- <el-button
+                            plain
+                            icon="el-icon-plus"
+                            @click="wrongBookDialog = true"
+                            >班级错题本</el-button
+                        > -->
                     </div>
                     <CommonHomeworkItem
                         v-for="(item, index) in commonHomeworkList"
@@ -77,6 +83,8 @@
             v-show="teachHomeworkDialog"
             @update="updateTeachHomeworkList"
         />
+        <!-- 班级错题本弹框 -->
+        <!-- <WrongBookDialog v-model:dialogVisible="wrongBookDialog" /> -->
     </div>
 </template>
 
@@ -95,13 +103,16 @@ import SystemHomeworkDialog from "./systemHomeworkDialog/index.vue";
 import SystemHomeworkItem from "./SystemHomeworkItem.vue";
 import TeachHomeworkDialog from "./TeachHomeworkDialog.vue";
 import TeachHomeworkItem from "./TeachHomeworkItem.vue";
+import WrongBookDialog from "./WrongBookDialog.vue";
 import { Plus } from "@element-plus/icons-vue";
+
 export default defineComponent({
     name: "AssignHomework",
     setup() {
         const commonHomeworkDialog = ref(false);
         const systemHomeworkDialog = ref(false);
         const teachHomeworkDialog = ref(false);
+        const wrongBookDialog = ref(false); //班级错题本
         const assignObjectRef = ref<InstanceType<typeof AssignObject>>();
         const route = useRoute();
         const router = useRouter();
@@ -213,7 +224,8 @@ export default defineComponent({
             updateTeachHomeworkList,
             assignObjectRef,
             systemHomeworkDialog,
-            commonHomeworkDialog
+            commonHomeworkDialog,
+            wrongBookDialog,
         };
     },
     components: {
@@ -224,6 +236,7 @@ export default defineComponent({
         SystemHomeworkItem,
         TeachHomeworkDialog,
         TeachHomeworkItem,
+        WrongBookDialog
     }
 });
 </script>

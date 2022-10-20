@@ -1,5 +1,5 @@
 import request from "@/utils/request";
-import { YUN_API_ONECARD } from "@/config";
+import { YUN_API_ONECARD, YUN_API_PORTRAIT } from "@/config";
 import { RequestFun } from "@/types/response";
 import { IClassDisabledRes, IPraiseStudentRes } from "@/types/quickAnswer";
 
@@ -42,11 +42,24 @@ export const sendRushToAnswer: RequestFun<IClassDisabledRes, any> = (data) => {
     });
 };
 
+// // 点赞表扬
+// export const praiseStudent: RequestFun<IPraiseStudentRes, any> = (data) => {
+//     return request({
+//         baseURL: YUN_API_ONECARD,
+//         url: "/Api/AnswerMachine/PraiseStudent",
+//         headers: {
+//             "Content-Type": "application/json-patch+json"
+//         },
+//         method: "post",
+//         data
+//     });
+// };
+
 // 点赞表扬
 export const praiseStudent: RequestFun<IPraiseStudentRes, any> = (data) => {
     return request({
-        baseURL: YUN_API_ONECARD,
-        url: "/Api/AnswerMachine/PraiseStudent",
+        baseURL: YUN_API_PORTRAIT,
+        url: "/Api/Portrait/Reward/AddRewardrecode",
         headers: {
             "Content-Type": "application/json-patch+json"
         },

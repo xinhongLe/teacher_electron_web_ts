@@ -90,7 +90,7 @@
                 </div>
             </template>
 
-            <div @click.stop="closeWincard" v-if="!dialog" class="me-tool-btn close-button">
+            <div @click.stop="closeWincard" v-if="showClose && !dialog" class="me-tool-btn close-button">
                 <p>关闭</p>
             </div>
 
@@ -188,6 +188,10 @@ export default defineComponent({
         dialog: {
             type: Boolean,
             default: false
+        },
+        showClose: {
+            type: Boolean,
+            default: true
         },
         id: {
             type: String,

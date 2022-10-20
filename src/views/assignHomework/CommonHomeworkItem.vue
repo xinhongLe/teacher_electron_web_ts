@@ -239,6 +239,9 @@ export default defineComponent({
         }
         p {
             font-weight: 600;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
         }
         span {
             margin-left: 12px;

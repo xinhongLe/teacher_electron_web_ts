@@ -52,41 +52,8 @@
             </div>
 
             <div class="header-right">
-                <!-- 题型 -->
-                <el-select
-                    size="small"
-                    style="width: 140px; margin-right: 16px"
-                    v-model="state.QuestionType"
-                >
-                    <el-option
-                        v-for="item in questionTypeList"
-                        :label="item.Name"
-                        :value="item.ID"
-                        :key="item.ID"
-                    >
-                    </el-option>
-                </el-select>
-                <!-- 频次 -->
-                <el-select
-                    v-if="
-                        state.currentWrongType == 3 ||
-                        state.currentWrongType == 4
-                    "
-                    size="small"
-                    style="width: 140px; margin-right: 16px"
-                    v-model="state.Frequency"
-                >
-                    <el-option
-                        v-for="item in frequencyList"
-                        :label="item.name"
-                        :value="item.value"
-                        :key="item.value"
-                    >
-                    </el-option>
-                </el-select>
                 <el-button-group style="margin-right: 16px">
                     <el-button
-                        size="small"
                         @click="
                             toFormatDate(item.id);
                             state.currentDateIndex = item.id;
@@ -98,15 +65,14 @@
                         }"
                         >{{ item.name }}</el-button
                     >
-                    <!-- <el-button size="small" @click="toFormatDate(1)"
+                    <!-- <el-button  @click="toFormatDate(1)"
                         >今日</el-button
                     >
-                    <el-button size="small" @click="toFormatDate(3)"
+                    <el-button  @click="toFormatDate(3)"
                         >本周</el-button
                     > -->
                 </el-button-group>
                 <el-date-picker
-                    size="small"
                     style="width: 225px"
                     v-model="state.dateRange"
                     type="daterange"
@@ -122,7 +88,6 @@
             <header class="top-search">
                 <div class="left-btn">
                     <el-button
-                        size="small"
                         v-for="item in state.wrongTypeButtonList"
                         :key="item.id"
                         @click="
@@ -135,8 +100,57 @@
                         >{{ item.name }}</el-button
                     >
                 </div>
-                <div class="right-sel" v-if="state.currentWrongType == 1">
-                    <el-popover
+                <div class="right-sel">
+                    <span
+                        class="tagtypelist"
+                        v-if="state.currentWrongType == 1"
+                    >
+                        <el-select
+                            style="width: 170px"
+                            v-model="questionTagType"
+                            @change="changeTagType"
+                        >
+                            <el-option
+                                v-for="item in state.tagTypeList"
+                                :label="item.Name"
+                                :value="item.ID"
+                                :key="item.ID"
+                            >
+                            </el-option>
+                        </el-select>
+                    </span>
+
+                    <!-- 题型 -->
+                    <el-select
+                        style="width: 140px"
+                        v-model="state.QuestionType"
+                    >
+                        <el-option
+                            v-for="item in questionTypeList"
+                            :label="item.Name"
+                            :value="item.ID"
+                            :key="item.ID"
+                        >
+                        </el-option>
+                    </el-select>
+                    <!-- 频次 -->
+                    <el-select
+                        v-if="
+                            state.currentWrongType == 3 ||
+                            state.currentWrongType == 4
+                        "
+                        style="width: 140px; margin-left: 16px"
+                        v-model="state.Frequency"
+                    >
+                        <el-option
+                            v-for="item in frequencyList"
+                            :label="item.name"
+                            :value="item.value"
+                            :key="item.value"
+                        >
+                        </el-option>
+                    </el-select>
+                    <!-- <el-popover
                         trigger="hover"
                         v-model:visible="state.visible"
                         placement="bottom-start"
@@ -213,13 +227,7 @@
                                     <span>
                                         {{ item.name }}
                                     </span>
-                                    <!-- <el-icon
-                                        @click.stop="state.currentSortType = 0"
-                                        v-if="
-                                            item.value == state.currentSortType
-                                        "
-                                        ><CircleClose
-                                    /></el-icon> -->
+                                  
                                 </p>
                             </div>
                         </div>
@@ -251,7 +259,7 @@
                                 />
                             </div>
                         </template>
-                    </el-popover>
+                    </el-popover> -->
                 </div>
             </header>
             <div class="top-line"></div>
@@ -264,6 +272,7 @@
                         v-model:currentHomeworkBookId="
                             state.currentHomeworkBookId
                         "
+                        @selectSubject="selectSubject"
                     ></LeftOne>
                     <LeftTwo
                         v-if="state.currentWrongType == 2"
@@ -314,7 +323,9 @@
             :gradeName="state.gradeName"
             :preContent="state.preContent"
             :exerciseData="state.exerciseData"
+            :currentWrongType="state.currentWrongType"
             @onBackWrongBook="onBackWrongBook"
+            :currentClassStudents="state.currentClassStudents"
         />
     </div>
     <QuestionBasket
@@ -325,7 +336,16 @@
 </template>
 
 <script lang="ts" setup>
-import { reactive, ref, defineExpose, watch, onMounted, nextTick } from "vue";
+import {
+    reactive,
+    ref,
+    defineExpose,
+    watch,
+    onMounted,
+    nextTick,
+    onActivated,
+    onDeactivated,
+} from "vue";
 import { ArrowDown, Search, CircleClose } from "@element-plus/icons-vue";
 import LeftOne from "./components/LeftOne.vue";
 import LeftTwo from "./components/LeftTwo.vue";
@@ -337,17 +357,43 @@ import QuestionBasket from "./components/QuestionBasket.vue";
 import GenerateExercise from "./components/GenerateExercise.vue";
 import { get, STORAGE_TYPES } from "@/utils/storage";
 import { getFormatDate } from "@/utils";
+import { fetchGradeClassStudents } from "@/views/assignHomework/api";
+import { useRoute } from "vue-router";
 import useWrongBook from "./hooks/useWrongBook";
+import { store } from "@/store";
+
 const { questionTypeList, frequencyList } = useWrongBook();
+const route = useRoute();
 const classList = get(STORAGE_TYPES.USER_INFO).Classes;
 const gradeId = ref(classList.length ? classList[0]?.GradeID : "");
+const isActivited = ref(false);
 const state = reactive({
+    tagTypeList: [
+        {
+            ID: 1,
+            Name: "平均错误率由高到低",
+        },
+        {
+            ID: 2,
+            Name: "A层错误率由高到低",
+        },
+        {
+            ID: 3,
+            Name: "B层错误率由高到低",
+        },
+        {
+            ID: 4,
+            Name: "C层错误率由高到低",
+        },
+    ],
     //顶部时间选择区间
-    dateRange: getFormatDate(3) || [],
+    dateRange: getFormatDate(1) || [],
     //顶部年级列表
     classList: "",
     //当前选中的班级
     currentClassId: classList.length ? classList[0]?.ID : "",
+    //当前班级的所有学生
+    currentClassStudents: [],
     //显示内容：1列表 2详情 3练习
     isShowContent: 1,
     preContent: 0,
@@ -386,7 +432,7 @@ const state = reactive({
         },
     ],
     //当前日期选中的类型
-    currentDateIndex: 3,
+    currentDateIndex: 1,
     //时间类型按钮list
     dateButtonList: [
         {
@@ -448,11 +494,14 @@ const state = reactive({
     gradeName: classList.length ? classList[0]?.Name : "",
     exerciseData: [],
 });
+//分层筛选
+const questionTagType = ref(1);
 const activeName = ref(0);
 const scrollResultWidth = ref(0); //transform滚动的距离
 const signleWidth = ref(90); //单个流程的宽度
 const currentClickNumber = ref(0);
 const noScrollRight = ref(true);
+const allClassStudents = ref<any>([]);
 //作业维度排序字段
 const sortData = ref({
     //当前选择的分层登记
@@ -461,14 +510,6 @@ const sortData = ref({
     currentSortType: 2,
     //当前选择的排序字段
     currentSortCon: 1,
-});
-const sortDataName = ref({
-    //当前选择的分层登记
-    currentLevelName: "",
-    //题目类型
-    currentSortTypeName: "正序",
-    //当前选择的排序字段
-    currentSortConName: "平均错误率",
 });
 console.log("错题本页面.......");
 watch(
@@ -504,18 +545,92 @@ watch(
         console.log(val);
     }
 );
+//选择详情-右侧-作业维度筛选分层下拉
+const changeTagType = (value: any) => {
+    console.log(value);
+    if (value == 1) {
+        //平均错误率由高到低
+        sortData.value.currentSortCon = 1;
+        sortData.value.currentLevel = 0; //等级
+    } else if (value == 2) {
+        //A层由高到低
+        sortData.value.currentSortCon = 2;
+        sortData.value.currentLevel = 300; //等级
+    } else if (value == 3) {
+        //B层由高到低
+        sortData.value.currentSortCon = 2;
+        sortData.value.currentLevel = 200; //等级
+    } else {
+        // 4 - C层错误率由高到低
+        sortData.value.currentSortCon = 2;
+        sortData.value.currentLevel = 100; //等级
+    }
+};
+//选择科目查学生
+const selectSubject = (subject: any) => {
+    console.log("subjectid", subject);
+    if (subject) {
+        allClassStudents.value = [];
+        queryClassStudents(subject);
+    }
+};
+const queryClassStudents = async (subjectId: any) => {
+    const res = await fetchGradeClassStudents({
+        subjectID: subjectId,
+    });
+
+    if (res.resultCode === 200) {
+        console.log("fetchGradeClassStudents", res);
+
+        res.result.forEach((item: any) => {
+            item.ClassData.forEach((data: any) => {
+                allClassStudents.value.push(data);
+            });
+        });
+    }
+};
+watch(
+    () => allClassStudents.value,
+    (val) => {
+        if (!val.length) return;
+        // console.log("allClassStudents.value", allClassStudents.value);
+
+        filterClassStudent(val);
+    },
+    { deep: true }
+);
+//过滤班级学生
+const filterClassStudent = (val: any) => {
+    state.currentClassStudents = val
+        .find((item: any) => item.ClassId == state.currentClassId)
+        .Students.map((stu: any) => {
+            return {
+                ...stu,
+                TagName: stu.TagName ? stu.TagName : "未标记",
+            };
+        });
+    console.log("currentClassStudents", state.currentClassStudents);
+};
 //生成练习
-const basketGenerateExercise = (data: any, type: number) => {
-    console.log("生成练习", data, type);
+const basketGenerateExercise = async (type: number) => {
+    console.log("生成练习", type);
     state.preContent = type;
-    state.exerciseData = data;
+    // state.exerciseData = store.state.wrongbook.questionBasket as any;
 };
 onMounted(() => {
     nextTick(() => {
+        isActivited.value = true;
+
         setTimeout(() => {
             initgoRightArrow();
         });
     });
+});
+onActivated(() => {
+    isActivited.value = true;
+});
+onDeactivated(() => {
+    isActivited.value = false;
 });
 const fixedBoxRef = ref();
 const fourClassList = ref([]);
@@ -588,8 +703,12 @@ const searchForm = ref({
 });
 //切换顶部选中的班级
 const switchClass = (value: any) => {
+    console.log("选中的班级", value);
+
     state.currentClassId = value.ID;
     searchForm.value.ClassId = value.ID;
+    filterClassStudent(allClassStudents.value);
+
     //传年级id
     gradeId.value = value.GradeID;
     state.gradeName = value.Name;
@@ -666,12 +785,15 @@ const onBackWrongBook = () => {
         }
 
         .header-right {
-            flex: 1;
+            // flex: 1;
             display: flex;
             justify-content: flex-end;
             :deep(.el-button:focus, .el-button:hover),
             :deep(.el-button-group) {
-                .el-button--small.dateActive {
+                span {
+                    font-size: 12px;
+                }
+                .el-button.dateActive {
                     background-color: #f3f7ff;
                     border: 1px solid rgba(75, 113, 238, 0.5);
                     color: #4b71ee;
@@ -694,7 +816,7 @@ const onBackWrongBook = () => {
             padding: 0 16px;
 
             .left-btn {
-                :deep(.el-button--small) {
+                :deep(.el-button) {
                     min-width: 88px;
                     background: #f3f7ff;
                     border-radius: 4px;
@@ -704,7 +826,7 @@ const onBackWrongBook = () => {
                     font-size: 13px;
                 }
 
-                :deep(.el-button--small.isActive) {
+                :deep(.el-button.isActive) {
                     color: #4b71ee;
                     border: 1px solid rgba(75, 113, 238, 0.5);
                 }
@@ -712,6 +834,19 @@ const onBackWrongBook = () => {
                 :deep(.el-button:focus, .el-button:hover, .isActive) {
                     color: #4b71ee;
                     border: 1px solid rgba(75, 113, 238, 0.5);
+                }
+            }
+            .right-sel {
+                .tagtypelist {
+                    margin-left: 20px;
+                    :deep(.el-select .el-input) {
+                        box-shadow: none;
+
+                        .el-input__wrapper,
+                        .el-input.is-focus {
+                            box-shadow: none !important;
+                        }
+                    }
                 }
             }
         }
@@ -728,7 +863,7 @@ const onBackWrongBook = () => {
             height: calc(100% - 57px);
 
             .con-left {
-                width: 20%;
+                width: 316px;
                 background: #ffffff;
                 border-right: 1px solid #f3f4f4;
             }

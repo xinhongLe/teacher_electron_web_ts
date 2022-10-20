@@ -5,6 +5,7 @@
             :resourceId="target"
             :isShowClose="false"
             :dialog="true"
+            :resource="resource"
             :isSystem="isSystem"
         />
         <LookVideo

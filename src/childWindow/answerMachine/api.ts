@@ -51,6 +51,7 @@ export interface StudentAnswerInfoList {
         StudentQuestionOptionsResult: {
             OptionName: string,
             SelectUserCount: number,
+            status?: boolean | undefined,
             SelectStudent: {StudentID: string, StudentName: string}[]
         }[]
     }[]

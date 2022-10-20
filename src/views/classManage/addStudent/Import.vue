@@ -14,26 +14,22 @@
                 :http-request="uploadSectionFile"
                 :auto-upload="false"
             >
-                <span><i class="el-icon-plus"></i>添加文件</span></el-upload
-            >
+                <span><el-icon><Plus /></el-icon>添加文件</span></el-upload>
 
-            <span
-                style="
+            <span style="
                     margin-right: 0;
                     background: #d4d6d9;
                     color: #fff;
                     border-color: #d4d6d9;
-                "
-                v-show="fileInfo.name"
-                ><i class="el-icon-plus"></i>添加文件</span
+                " v-show="fileInfo.name"><el-icon><Plus /></el-icon>添加文件</span
             >
-            <span>
+            <span class="flex-align-items">
                 <el-link
                     type="primary"
                     href="https://app-v.oss-cn-shanghai.aliyuncs.com/other/%E6%89%B9%E9%87%8F%E6%B3%A8%E5%86%8C%E5%AD%A6%E7%94%9F%E4%BF%A1%E6%81%AF%E8%A1%A8.xlsx"
                     download="批量注册学生信息表.xlsx"
                 >
-                    <i class="el-icon-download"></i>下载导入模板
+                    <el-icon><Download /></el-icon>下载导入模板
                 </el-link>
             </span>
         </p>
@@ -47,7 +43,7 @@
                 <img src="@/assets/my-student/icon_excel@2x.png" alt="" />
                 <span>{{ fileInfo.name }}</span>
                 <span>已上传</span>
-                <span @click="delFile"><i class="el-icon-delete"></i>删除</span>
+                <span class="flex-align-items" @click="delFile"><el-icon><Delete /></el-icon>删除</span>
             </div>
             <!-- <div class="result" v-if="result.length > 0">
                 <p>成功导入45条记录，导入失败<span>12</span>条记录</p>

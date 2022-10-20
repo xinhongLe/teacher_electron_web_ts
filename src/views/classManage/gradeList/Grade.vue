@@ -7,11 +7,8 @@
     >
         <p class="name">{{ grade.GradeAlbum + grade.Name }}</p>
         <p class="count">学生： {{ grade.StudentCount }}</p>
-        <div
-            class="info"
-            @click.stop="openDialog(), clicKBuryPoint('班级信息')"
-        >
-            <i class="el-icon-warning-outline" />
+        <div class="info flex-align-items" @click.stop="openDialog(), clicKBuryPoint('班级信息')">
+            <el-icon><Warning /></el-icon>
             班级信息
         </div>
         <img

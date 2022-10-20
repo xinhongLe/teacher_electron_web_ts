@@ -8,7 +8,7 @@
                 <img src="@/assets/images/login/logo.png" alt="" />
                 <p>爱学仕校园</p>
             </div>
-            <el-form :model="form" label-width="0px">
+            <el-form :model="form" label-width="0px" size="large">
                 <el-form-item>
                     <el-input class="zh-class" v-model.trim="form.account" placeholder="请输入手机号码" maxlength="11">
                         <template #prefix>

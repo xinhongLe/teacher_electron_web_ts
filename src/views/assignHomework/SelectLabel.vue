@@ -1,8 +1,8 @@
 <template>
     <div class="select-label">
-        <span style="white-space: nowrap;">选择学生：</span>
+        <span style="white-space: nowrap">选择学生：</span>
         <div class="select" @click.stop="clickSelect">
-            <div class="select-content" >
+            <div class="select-content">
                 <span v-for="item in selectLabel" :key="item" class="label">
                     {{ item }}
                 </span>
@@ -25,7 +25,7 @@
             type="text"
             @click="dialogVisible = true"
         >
-            <i class="el-icon-edit-outline" style="margin-left: 30px"></i>
+            <el-icon style="margin-left: 30px"><Edit /></el-icon>
         </el-button>
 
         <SelectStudent
@@ -47,7 +47,8 @@ import {
     onUnmounted,
     PropType,
     ref,
-    watchEffect
+    watch,
+    watchEffect,
 } from "vue";
 import SelectStudent from "./SelectStudent.vue";
 
@@ -64,12 +65,14 @@ export default defineComponent({
     props: {
         studentList: {
             type: Array as PropType<Student[]>,
-            default: () => []
-        }
+            default: () => [],
+        },
     },
     setup(props) {
         const selectLabel = ref<string[]>([]);
         const isSelect = ref(false);
+        console.log(props.studentList);
+
         const students = computed(() => props.studentList);
         const allStudentCount = computed(() => props.studentList.length);
         const levelList = computed<Level[]>(() => {
@@ -82,22 +85,34 @@ export default defineComponent({
                 levelList.push({
                     label: i,
                     checked: levelStudents.every(({ checked }) => checked),
-                    students: levelStudents
+                    students: levelStudents,
                 });
             }
             return levelList;
         });
+        console.log("levelList.value", levelList.value);
 
         const checkAll = ref(false);
         const dialogVisible = ref(false);
-
+        watch(
+            () => props.studentList,
+            (val) => {
+                console.log("studentList---", val);
+            },
+            { deep: true }
+        );
         watchEffect(() => {
             selectLabel.value = levelList.value
-                .filter((item) => item.students.filter((v) => v.checked).length > 0)
+                .filter(
+                    (item) => item.students.filter((v) => v.checked).length > 0
+                )
                 .map((item) => {
                     const { label, students } = item;
-                    return `${label.replace("Level ", "")}(${getCheckCount(students)})`;
-                }).sort();
+                    return `${label.replace("Level ", "")}(${getCheckCount(
+                        students
+                    )})`;
+                })
+                .sort();
         });
 
         function getSelectCount() {
@@ -184,10 +199,10 @@ export default defineComponent({
             selectLabel,
             isSelect,
             clickSelect,
-            students
+            students,
         };
     },
-    components: { SelectStudent }
+    components: { SelectStudent },
 });
 </script>
 

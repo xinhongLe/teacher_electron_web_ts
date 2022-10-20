@@ -48,6 +48,7 @@ import { sendRushToAnswer, praiseStudent } from "./api";
 import { UserInfoState } from "@/types/store";
 import mqtt from "mqtt";
 import { IClassItem } from "@/types/quickAnswer";
+import { YUN_API_ONECARD_MQTT } from "@/config";
 export default defineComponent({
     name: "quickAnswerDetail",
     props: {
@@ -76,7 +77,7 @@ export default defineComponent({
             }
         }, { immediate: true });
 
-        const client = mqtt.connect("mqtt://emq.aixueshi.top", {
+        const client = mqtt.connect(YUN_API_ONECARD_MQTT || "", {
             port: 1883,
             username: "u001",
             password: "p001",
@@ -107,9 +108,22 @@ export default defineComponent({
 
         const handlePraiseStudent = () => {
             const data = {
-                StudentIdList: [state.studentInfo.id],
-                AnswerMachineID: state.answerMachineID,
-                TeacherID: props.currentUserInfo!.userCenterUserID
+                Type: 1,
+                SchoolID: props.currentUserInfo!.schoolId,
+                TeacherID: props.currentUserInfo!.userCenterUserID,
+                TeacherName: props.currentUserInfo!.name || "",
+                StudentList: [{
+                    StudentID: state.studentInfo.id,
+                    StudentName: state.studentInfo.name,
+                    ClassID: state.currentClass,
+                    ClassName: props.classList?.find(item => item.ClassId === state.currentClass)?.ClassId || ""
+                }],
+                LabelList: [{
+                    LabelID: "ab299e61-bbbd-11ec-8bcf-00163e167f3f",
+                    LabelName: "上课表现积极",
+                    Score: 1,
+                    ScoreType: 1
+                }]
             };
             praiseStudent(data).then(res => {
                 if (res.resultCode === 200) {
@@ -183,9 +197,11 @@ export default defineComponent({
         color: #fff;
         :deep(.el-select){
             width: 120px;
-            .el-input__inner{
+            .el-input__wrapper{
                 background: transparent;
-                border: none;
+                box-shadow: none !important;
+            }
+            .el-input__inner{
                 color: #fff;
             }
         }

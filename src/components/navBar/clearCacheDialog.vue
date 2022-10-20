@@ -126,15 +126,14 @@ const clickTab = (tab: number) => {
 };
 
 const clickSure = () => {
-    const id = store.state.userInfo.id;
-    set(STORAGE_TYPES.AUTO_CLEAR_SETTING + id, autoClearSetting.value);
+    set(STORAGE_TYPES.AUTO_CLEAR_SETTING , autoClearSetting.value);
     ElMessage.success("保存成功");
     close();
 };
 
 watchEffect(() => {
     const id = store.state.userInfo.id;
-    autoClearSetting.value = Number(get(STORAGE_TYPES.AUTO_CLEAR_SETTING + id)) || 0;
+    autoClearSetting.value = Number(get(STORAGE_TYPES.AUTO_CLEAR_SETTING)) || 0;
 });
 
 watchEffect(async () => {

@@ -37,6 +37,7 @@ export interface Homework {
     ChapterName: string;
     ClassHomeworkID: string;
     ClassHomeworkPaperID: string;
+    classHomeworkPaperID?: string;
     ClassID: string;
     ClassName: string;
     ClassifyType: number;

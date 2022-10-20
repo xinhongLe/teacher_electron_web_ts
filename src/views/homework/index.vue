@@ -196,6 +196,7 @@ export default defineComponent({
         background-color: #fff;
         padding: 0 20px;
         position: relative;
+        overflow-x: auto;
         .no-assign-homework {
             img {
                 width: 240px;
@@ -211,6 +212,9 @@ export default defineComponent({
                 line-height: 28px;
                 text-align: center;
             }
+        }
+        .table-list {
+            min-width: 1300px;
         }
         .table-list-no {
             position: absolute;

@@ -101,46 +101,46 @@
                     {{ info.AllStudentCount }}</span
                 >
             </div>
-<!--            <div class="homework-warp">-->
-<!--                <div class="homework" style="display: flex"  v-if="info.HomeworkPaperType === 2">-->
-<!--                    <div class="answer" style="margin-left: 10px" v-if="info.AnswerShowTime">-->
-<!--                        <span v-if="info.showPublish">-->
-<!--                            答案公布时间：{{ detailTime(info.AnswerShowTime) }}-->
-<!--                            <i @click="changeTag" class="el-icon-edit-outline" style="margin: 0 10px; color: #4b71ee" color="#4B71EE"></i>-->
-<!--                            <el-date-picker-->
-<!--                                popper-class="hand-publish"-->
-<!--                                v-if="showdataPicker"-->
-<!--                                ref="dataPicker"-->
-<!--                                type="datetime"-->
-<!--                                v-model="date"-->
-<!--                                size="large"-->
-<!--                                @blur="dataBlur"-->
-<!--                                placeholder="选择日期时间"-->
-<!--                            >-->
-<!--                            </el-date-picker>-->
-<!--                        </span>-->
-<!--                        <el-button v-if="info.showPublish" size="small" type="success" @click="publish(info)">立即发布</el-button>-->
-<!--                        <span v-if="!info.showPublish" style="margin-right: 10px">答案已公布</span>-->
-<!--                        <el-button v-if="!info.showPublish" size="small" @click="hideAnswer(info)">撤回发布</el-button>-->
-<!--                    </div>-->
-<!--                    <div class="detail" style="margin-left: 10px" v-else>-->
-<!--                        <span>手动发布-->
-<!--                            <i @click="changeTag" class="el-icon-edit-outline" style="margin: 0 10px; color: #4b71ee"  color="#4B71EE"></i>-->
-<!--                            <el-date-picker-->
-<!--                                popper-class="hand-publish"-->
-<!--                                v-if="showdataPicker"-->
-<!--                                ref="dataPicker"-->
-<!--                                type="datetime"-->
-<!--                                v-model="date"-->
-<!--                                @blur="dataBlur"-->
-<!--                                placeholder="选择日期时间"-->
-<!--                            >-->
-<!--                            </el-date-picker>-->
-<!--                        </span>-->
-<!--                        <el-button size="small" type="success" @click="publish(info)">立即发布</el-button>-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--            </div>-->
+            <div class="homework-warp">
+                <div class="homework" style="display: flex"  v-if="info.HomeworkPaperType === 2">
+                    <div class="answer" style="margin-left: 10px" v-if="info.AnswerShowTime">
+                        <span v-if="info.showPublish">
+                            答案公布时间：{{ detailTime(info.AnswerShowTime) }}
+                            <i @click="changeTag" class="el-icon-edit-outline" style="margin: 0 10px; color: #4b71ee" color="#4B71EE"></i>
+                            <el-date-picker
+                                popper-class="hand-publish"
+                                v-if="showdataPicker"
+                                ref="dataPicker"
+                                type="datetime"
+                                v-model="date"
+                                size="large"
+                                @blur="dataBlur"
+                                placeholder="选择日期时间"
+                            >
+                            </el-date-picker>
+                        </span>
+                        <el-button v-if="info.showPublish" size="small" type="success" @click="publish(info)">立即发布</el-button>
+                        <span v-if="!info.showPublish" style="margin-right: 10px">答案已公布</span>
+                        <el-button v-if="!info.showPublish" size="small" @click="hideAnswer(info)">撤回发布</el-button>
+                    </div>
+                    <div class="detail" style="margin-left: 10px" v-else>
+                        <span>手动发布
+                            <i @click="changeTag" class="el-icon-edit-outline" style="margin: 0 10px; color: #4b71ee"  color="#4B71EE"></i>
+                            <el-date-picker
+                                popper-class="hand-publish"
+                                v-if="showdataPicker"
+                                ref="dataPicker"
+                                type="datetime"
+                                v-model="date"
+                                @blur="dataBlur"
+                                placeholder="选择日期时间"
+                            >
+                            </el-date-picker>
+                        </span>
+                        <el-button size="small" type="success" @click="publish(info)">立即发布</el-button>
+                    </div>
+                </div>
+            </div>
 
             <div class="btn-list">
                 <!-- <el-button size="small" type="primary" plain @click="$router.push({path: '/lookStudents',})">查阅学生</el-button> -->
@@ -156,7 +156,14 @@
 
         <HignPhoto v-if="info.HomeworkPaperType == 2" :homeworkValue="info" ref="hignPhotoRef" ></HignPhoto>
 
-        <mistakes-collect :info="info" :mistakesCollectState="mistakesCollectState"  v-model:dialogVisible="mistakesCollectDialog"></mistakes-collect>
+        <mistakes-collect :info="info"
+                          :mistakesCollectState="mistakesCollectState"
+                          :isFinishState="isFinishState"
+                          :collectedCount="collectedCount"
+                          :collectionId="collectionId"
+                          v-model:dialogVisible="mistakesCollectDialog">
+
+        </mistakes-collect>
     </div>
 </template>
 
@@ -417,10 +424,16 @@ export default defineComponent({
 
         const mistakesCollectDialog = ref(false);
         const mistakesCollectState = ref(0); // 0未收集过，1已收集过
+        const isFinishState = ref(0); // 0未完成收集，1已完成收集
+        const collectedCount = ref(0); // 0未完成收集，1已完成收集
+        const collectionId = ref("");
         const handleMistakesCollect = (info:Homework) => {
             topicConnectionState({ Id: info.ClassHomeworkPaperID }).then(res => {
                 if (res.resultCode === 200) {
-                    mistakesCollectState.value = res.result.HasCollection;
+                    mistakesCollectState.value = res.result.HasCollection || 0;
+                    isFinishState.value = res.result.IsFinish || 0;
+                    collectedCount.value = res.result.CollectedCount || 0;
+                    collectionId.value = res.result.CollectionId || "";
                     mistakesCollectDialog.value = true;
                 }
             });
@@ -447,6 +460,9 @@ export default defineComponent({
             quickUpload,
             mistakesCollectDialog,
             mistakesCollectState,
+            isFinishState,
+            collectedCount,
+            collectionId,
             handleMistakesCollect
         };
     },
@@ -506,11 +522,16 @@ export default defineComponent({
         height: 100%;
         > span {
             flex: 1;
+            min-width: 0;
             display: block;
+            white-space: nowrap;
         }
         > span:nth-of-type(2),
         .progress-content {
             flex: 1.5;
+            span {
+                white-space: nowrap;
+            }
         }
         p {
             overflow: hidden;
@@ -538,6 +559,8 @@ export default defineComponent({
                 display: flex;
                 justify-content: center;
                 align-items: center;
+                // white-space: nowrap;
+                line-height: 1.4;
             }
         }
     }
@@ -565,10 +588,12 @@ export default defineComponent({
         }
         .course-bag-type {
             flex: 1;
+            min-width: 0;
             font-size: 14px;
             color: #4b71ee;
             position: relative;
             margin-left: 10px;
+            white-space: nowrap;
             &::before {
                 position: absolute;
                 left: -8px;
@@ -605,7 +630,7 @@ export default defineComponent({
     flex-wrap: wrap;
     > .file-info {
         width: auto;
-        max-width: 20%;
+        // max-width: 20%;
     }
 }
 </style>

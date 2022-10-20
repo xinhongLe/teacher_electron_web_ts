@@ -70,7 +70,7 @@
                     <div class="answer" style="margin-left: 10px" v-if="answerShowTime">
                         <span v-if="showPublish">
                             答案公布时间：{{ detailTime(answerShowTime) }}
-                            <i @click="changeTag" class="el-icon-edit-outline" style="margin: 0 10px; color: #4b71ee" color="#4B71EE"></i>
+                            <el-icon @click="changeTag" style="margin: 0 10px; color: #4b71ee"><Edit /></el-icon>
                             <el-date-picker
                                 popper-class="hand-publish"
                                 v-if="showdataPicker"
@@ -83,13 +83,13 @@
                             >
                             </el-date-picker>
                         </span>
-                        <el-button v-if="showPublish" size="small" type="success" @click="publish(homeworkDetail)">立即发布</el-button>
+                        <el-button v-if="showPublish"  type="success" @click="publish(homeworkDetail)">立即发布</el-button>
                         <span v-if="!showPublish" style="margin-right: 10px">答案已公布</span>
-                        <el-button v-if="!showPublish" size="small" @click="hideAnswer(homeworkDetail)">撤回发布</el-button>
+                        <el-button v-if="!showPublish"  @click="hideAnswer(homeworkDetail)">撤回发布</el-button>
                     </div>
                     <div class="detail" style="margin-left: 10px" v-else>
                         <span>手动发布
-                            <i @click="changeTag" class="el-icon-edit-outline" style="margin: 0 10px; color: #4b71ee"  color="#4B71EE"></i>
+                            <el-icon  @click="changeTag" style="margin: 0 10px; color: #4b71ee"><Edit /></el-icon>
                             <el-date-picker
                                 popper-class="hand-publish"
                                 v-if="showdataPicker"
@@ -101,14 +101,20 @@
                             >
                             </el-date-picker>
                         </span>
-                        <el-button size="small" type="success" @click="publish(homeworkDetail)">立即发布</el-button>
+                        <el-button type="success" @click="publish(homeworkDetail)">立即发布</el-button>
                     </div>
                 </div>
-                <el-button  size="small"  plain type="warning" @click="handleMistakesCollect(homeworkDetail)">收集错题</el-button>
+                <el-button  plain type="warning" @click="handleMistakesCollect(homeworkDetail)">收集错题</el-button>
             </div>
         </div>
 
-        <mistakes-collect :info="homeworkDetail" :mistakesCollectState="mistakesCollectState"  v-model:dialogVisible="mistakesCollectDialog"></mistakes-collect>
+        <mistakes-collect
+            :info="homeworkDetail"
+            :mistakesCollectState="mistakesCollectState"
+            :isFinishState="isFinishState"
+            :collectedCount="collectedCount"
+            :collectionId="collectionId"
+            v-model:dialogVisible="mistakesCollectDialog"></mistakes-collect>
     </div>
 </template>
 
@@ -142,10 +148,16 @@ export default defineComponent({
 
         const mistakesCollectDialog = ref(false);
         const mistakesCollectState = ref(0); // 0未收集过，1已收集过
+        const isFinishState = ref(0); // 0未完成收集，1已完成收集
+        const collectedCount = ref(0); // 0未完成收集，1已完成收集
+        const collectionId = ref("");
         const handleMistakesCollect = () => {
             topicConnectionState({ Id: props.homeworkDetail.classHomeworkPaperID }).then(res => {
                 if (res.resultCode === 200) {
-                    mistakesCollectState.value = res.result.HasCollection;
+                    mistakesCollectState.value = res.result.HasCollection || 0;
+                    isFinishState.value = res.result.IsFinish || 0;
+                    collectedCount.value = res.result.CollectedCount || 0;
+                    collectionId.value = res.result.CollectionId || "";
                     mistakesCollectDialog.value = true;
                 }
             });
@@ -275,6 +287,9 @@ export default defineComponent({
             handleMistakesCollect,
             mistakesCollectDialog,
             mistakesCollectState,
+            isFinishState,
+            collectedCount,
+            collectionId,
             showdataPicker,
             dataPicker,
             date,
