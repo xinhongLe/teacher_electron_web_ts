@@ -52,7 +52,7 @@
 			</template>
 		</Calendar>
 		<el-dialog
-			custom-class="custom-dialog resource-dialog"
+			class="custom-dialog resource-dialog"
 			width="90%"
 			:model-value="visible"
             title="预览"
@@ -83,7 +83,7 @@
                             {{ item.Name }}
                         </el-radio-button>
                     </el-radio-group>
-                    
+
                     <el-button class="switch-btn" size="small" type="default" @click="switchClass()">
                         <img src="@/assets/images/preparation/icon_qiehuan.png" alt="">
                         {{isSwitch ? "全部显示" : "仅显示备课包"}}

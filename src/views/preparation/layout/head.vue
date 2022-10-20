@@ -25,7 +25,6 @@
                 <el-radio-group
                     class="custom-radio"
                     v-model="source"
-                    size="small"
                     @change="onSourceChange"
                 >
                     <el-radio-button
@@ -50,7 +49,6 @@
             </div>
             <div class="p-control-btns">
                 <el-button
-                    size="small"
                     type="primary"
                     @click="openUpload(), clicKBuryPoint('上传')"
                 >
@@ -71,7 +69,6 @@
                 <el-radio-group
                     class="custom-radio-two"
                     v-model="type"
-                    size="small"
                     @change="onTypeChange"
                 >
                     <el-radio-button
@@ -85,7 +82,7 @@
         </div>
 
         <el-dialog
-            custom-class="custom-dialog"
+            class="custom-dialog"
             v-model="uploadResourceOpen"
             center
             :title="currentEditType === 'edit' ? '编辑资源' : '上传资源'"
@@ -116,7 +113,6 @@
                     >
                         <el-button
                             type="primary"
-                            size="small"
                             style="font-size: 14px"
                         >
                             &nbsp;&nbsp;&nbsp;
@@ -128,7 +124,6 @@
                 <el-form-item label="资源文件：" v-else>
                     <el-button
                         type="primary"
-                        size="small"
                         style="font-size: 14px"
                         @click="editWincard()"
                     >
@@ -148,7 +143,6 @@
                     <el-radio-group
                         class="custom-radio"
                         v-model="form.type"
-                        size="small"
                     >
                         <el-radio-button
                             v-for="item in typeList.slice(1)"
@@ -247,7 +241,7 @@
         </el-dialog>
 
         <el-dialog
-            custom-class="custom-dialog"
+            class="custom-dialog"
             v-model="courseCartOpen"
             center
             title="备课包操作记录"

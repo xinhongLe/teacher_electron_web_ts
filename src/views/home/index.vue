@@ -162,7 +162,7 @@
         center
         :show-close="false"
         :close-on-click-modal="false"
-        custom-class="home-cus-dialog"
+        class="home-cus-dialog"
         top="37vh"
     >
         <div class="middle-con">

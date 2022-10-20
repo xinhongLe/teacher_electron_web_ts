@@ -76,22 +76,22 @@
                 </div>
                 <div class="p-resource-bottom no-border" v-if="!hover && btns && name !== 'attendClass' && name !== 'preview'">
                     <el-button
-                               class="p-control-btn" size="small" @click.stop="handleCommand('download')"
+                               class="p-control-btn"  @click.stop="handleCommand('download')"
                                v-if="canDownload && RESOURCE_TYPE.TOOL !== data.ResourceType">
                         <img src="@/assets/images/preparation/icon_download_white.png" alt="">
                         下载
                     </el-button>
                     <el-button
-                               class="p-control-btn" size="small" @click.stop="handleCommand('edit')"
+                               class="p-control-btn"  @click.stop="handleCommand('edit')"
                                v-if="canEdit && RESOURCE_TYPE.TOOL !== data.ResourceType">
                         <img src="@/assets/images/preparation/icon_bianji.png" alt="">
                         编辑
                     </el-button>
-                    <el-button class="p-control-btn p-move" size="small" v-if="data.IsBag" @click.stop="handleCommand('move')">
+                    <el-button class="p-control-btn p-move"  v-if="data.IsBag" @click.stop="handleCommand('move')">
                         <img src="@/assets/images/preparation/icon_yichu.png" alt="">
                         移出备课包
                     </el-button>
-                    <el-button class="p-control-btn p-add" size="small" v-if="!data.IsBag" @click.stop="handleCommand('add')">
+                    <el-button class="p-control-btn p-add"  v-if="!data.IsBag" @click.stop="handleCommand('add')">
                         <img src="@/assets/images/preparation/icon_add.png" alt="">
                         加入备课包
                     </el-button>
@@ -100,22 +100,22 @@
         </div>
         <div class="p-resource-bottom" v-if="hover && btns && name !== 'attendClass' && name !== 'preview'">
             <el-button
-                       class="p-control-btn" size="small" @click.stop="handleCommand('download')"
+                       class="p-control-btn"  @click.stop="handleCommand('download')"
                        v-if="canDownload && RESOURCE_TYPE.TOOL !== data.ResourceType">
                 <img src="@/assets/images/preparation/icon_download_white.png" alt="">
                 下载
             </el-button>
             <el-button
-                       class="p-control-btn" size="small" @click.stop="handleCommand('edit')"
+                       class="p-control-btn"  @click.stop="handleCommand('edit')"
                        v-if="canEdit && RESOURCE_TYPE.TOOL !== data.ResourceType">
                 <img src="@/assets/images/preparation/icon_bianji.png" alt="">
                 编辑
             </el-button>
-            <el-button class="p-control-btn p-move" size="small" v-if="data.IsBag" @click.stop="handleCommand('move')">
+            <el-button class="p-control-btn p-move"  v-if="data.IsBag" @click.stop="handleCommand('move')">
                 <img src="@/assets/images/preparation/icon_yichu.png" alt="">
                 移出备课包
             </el-button>
-            <el-button class="p-control-btn p-add" size="small" v-if="!data.IsBag" @click.stop="$event => handleCommand('add', $event)">
+            <el-button class="p-control-btn p-add"  v-if="!data.IsBag" @click.stop="$event => handleCommand('add', $event)">
                 <img src="@/assets/images/preparation/icon_add.png" alt="">
                 加入备课包
             </el-button>

@@ -1,7 +1,7 @@
 <template>
     <div>
         <el-dialog
-            custom-class="custom-dialog resource1-dialog"
+            class="custom-dialog resource1-dialog"
             v-model="visible"
             title="教案设计"
             width="1100px"
@@ -104,7 +104,7 @@
         </el-dialog>
 
         <el-dialog
-            custom-class="custom-dialog tip-dialog"
+            class="custom-dialog tip-dialog"
             v-model="tipVisible"
             title="提示"
             center

@@ -1,6 +1,6 @@
 <template>
     <div>
-        <el-dialog custom-class="custom-dialog resource1-dialog" v-model="visible"  width="1100px" @close="close">
+        <el-dialog class="custom-dialog resource1-dialog" v-model="visible"  width="1100px" @close="close">
             <div class="header">
                 <el-select popper-class="lesson-preview-select" v-model="styleType"  @change="changeStyle" placeholder="请选择">
                     <el-option

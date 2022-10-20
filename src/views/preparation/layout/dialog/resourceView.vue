@@ -1,7 +1,7 @@
 <template>
     <div class="resource-view">
         <el-dialog
-            custom-class="custom-dialog resource-dialog"
+            class="custom-dialog resource-dialog"
             width="90%"
             :close-on-press-escape="false"
             :model-value="visible"
