@@ -162,6 +162,7 @@ export default defineComponent({
                             component: "Wincard",
                             resource: {
                                 id: resource.OldResourceId,
+                                wincardName: resource.Name,
                                 isSystem: resource.IsSysFile === 1,
                                 openMore: true
                             },

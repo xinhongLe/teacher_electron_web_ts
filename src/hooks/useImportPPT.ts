@@ -46,7 +46,7 @@ export default () => {
             if (!file.canceled) {
                 loading.value = true;
                 const path = file.filePaths[0];
-                uploadFileName.value = path.replace(/(.*\/)*([^.]+).*/ig, "$2");
+                uploadFileName.value = path.replace(/(.*[\/\\])*([^.]+).*/ig, "$2");
                 const result = await (window as any).electron.parsePPT(path);
                 pptPages.value = result.slides.length;
                 const ppt = await dataParse(result);
@@ -88,7 +88,7 @@ export default () => {
         return new Promise(resolve => {
             const filePath = window.electron.getPPTPath(path);
             (window as any).electron.readFile(filePath, async (buffer: ArrayBuffer) => {
-                const fileName = createRandomCode() + path.replace(/(.*\/)*([^.]+)/i, "$2");
+                const fileName = createRandomCode() + path.replace(/(.*[\/\\])*([^.]+)/i, "$2");
                 const newFile = new File([buffer], fileName);
                 const filePath = await cooOss(newFile, get(STORAGE_TYPES.OSS_PATHS)?.["ElementFile"]);
                 resolve(filePath?.objectKey || "");

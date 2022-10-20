@@ -2,6 +2,7 @@ import { AI_XUE_SHI_API } from "@/config";
 import { LYXSocketInputDTO } from "@/types";
 import { HubConnection, HubConnectionBuilder, HubConnectionState } from "@microsoft/signalr";
 import { BrowserWindow } from "electron";
+import ElectronLog from "electron-log";
 
 export default class SingalRHelper {
     private connection: HubConnection | null = null;

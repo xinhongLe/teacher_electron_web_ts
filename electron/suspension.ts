@@ -157,7 +157,7 @@ function createRollcall(allStudentList: []) {
     rollCallWin = createWindow(callURL, {
         width: 800,
         frame: false, // 要创建无边框窗口
-        resizable: true, // 禁止窗口大小缩放
+        resizable: false, // 是否允许窗口大小缩放
         height: 600,
         alwaysOnTop: true,
         useContentSize: true,

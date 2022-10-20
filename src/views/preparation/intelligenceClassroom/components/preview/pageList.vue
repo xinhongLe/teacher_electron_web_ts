@@ -60,7 +60,7 @@ export default defineComponent({
         const store = useStore();
         const { getPageDetail, transformType } = useHome();
         const { currentCard, currentWindowInfo, cardList, currentPageIndex, currentSlide, pageList, currentPageInfo } = inject(windowInfoKey)!;
-        
+
         const dialogVisible = ref(false);
         const prevPageFlag = ref(false);
         const keyDisabled = ref(false);
@@ -99,7 +99,7 @@ export default defineComponent({
             currentPageIndex.value = index;
             const DataContext = {
                 Type: EnumTrackEventType.SelectPage,
-                LessonID: store.state.preparation.selectLessonId
+                LessonID: currentWindowInfo.LessonID
             };
             getDataBase(pageList.value[index].ID, pageList.value[index]);
             TrackService.setTrack(EnumTrackEventType.SelectPage, currentWindowInfo.WindowID, currentWindowInfo.WindowName, currentCard.value?.ID, currentCard.value?.Name, item.ID, item.Name, "选择页", JSON.stringify(DataContext), item.ID, store.state.userInfo.schoolId);
@@ -180,7 +180,7 @@ export default defineComponent({
                 isInitPage.value = true;
                 const DataContext = {
                     Type: EnumTrackEventType.SelectPage,
-                    LessonID: store.state.preparation.selectLessonId
+                    LessonID: currentWindowInfo.LessonID
                 };
                 TrackService.setTrack(EnumTrackEventType.SelectPage, currentWindowInfo.WindowID, currentWindowInfo.WindowName, currentCard.value?.ID, currentCard.value?.Name, pageList.value[currentPageIndex.value].ID, pageList.value[currentPageIndex.value].Name, "选择页", JSON.stringify(DataContext), pageList.value[currentPageIndex.value].ID, store.state.userInfo.schoolId);
                 getDataBase(pageList.value[currentPageIndex.value].ID, pageList.value[currentPageIndex.value]);
