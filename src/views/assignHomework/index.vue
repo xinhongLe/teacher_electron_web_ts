@@ -5,12 +5,16 @@
         </header>
         <div class="row-line"></div>
         <div class="assign-homework-content">
-            <AssignObject @updateClassList="updateClassList" ref="assignObjectRef"/>
+            <AssignObject
+                @updateClassList="updateClassList"
+                ref="assignObjectRef"
+            />
             <div>
                 <p class="title-class">作业内容</p>
                 <div class="content-wrapper">
                     <div>
                         <el-button
+                            size="large"
                             plain
                             :icon="Plus"
                             @click="commonHomeworkDialog = true"
@@ -18,6 +22,7 @@
                         >
                         <el-button
                             plain
+                            size="large"
                             type="primary"
                             :icon="Plus"
                             @click="systemHomeworkDialog = true"
@@ -25,6 +30,7 @@
                         >
                         <el-button
                             plain
+                            size="large"
                             type="warning"
                             :icon="Plus"
                             @click="teachHomeworkDialog = true"
@@ -56,7 +62,12 @@
                     <TeachHomeworkItem
                         v-for="(item, index) in teachHomeworkList"
                         :key="item.WorkbookPaperID"
-                        :index="commonHomeworkList.length + systemHomeworkList.length + index + 1"
+                        :index="
+                            commonHomeworkList.length +
+                            systemHomeworkList.length +
+                            index +
+                            1
+                        "
                         :item="item"
                         :realIndex="index"
                         @delete="deleteTeachHomework"
@@ -66,7 +77,9 @@
             </div>
         </div>
         <footer>
-            <el-button type="primary" @click="submit">立即发送</el-button>
+            <el-button type="primary" @click="submit" size="large"
+                >立即发送</el-button
+            >
         </footer>
         <CommonHomeworkDialog
             v-model:dialogVisible="commonHomeworkDialog"
@@ -131,7 +144,7 @@ export default defineComponent({
             teachHomeworkList,
             updateTeachHomeworkList,
             deleteSystemHomework,
-            updateTeachHomework
+            updateTeachHomework,
         } = useHomeworkList();
 
         const submit = async () => {
@@ -140,12 +153,12 @@ export default defineComponent({
                     .filter((val) => val.checked)
                     .map((val) => ({
                         studentID: val.ID,
-                        classID: val.classID!
+                        classID: val.classID!,
                     }));
                 const files = v.files.map((val) => ({
                     fileName: val.fileName,
                     extension: val.extension,
-                    name: val.name
+                    name: val.name,
                 }));
 
                 return {
@@ -153,7 +166,7 @@ export default defineComponent({
                     name: v.name,
                     BookID: v.BookID,
                     students,
-                    files
+                    files,
                 };
             });
             const systemPaper: Paper[] = systemHomeworkList.value.map((v) => {
@@ -161,35 +174,39 @@ export default defineComponent({
                     .filter((val) => val.checked)
                     .map((val) => ({
                         studentID: val.ID,
-                        classID: val.classID!
+                        classID: val.classID!,
                     }));
                 return {
                     type: v.type,
                     paperID: v.PaperID,
                     students,
                     lessonID: v.lessonID,
-                    questionIDs: v.Questions
+                    questionIDs: v.Questions,
                 };
             });
-            const teachPaper: Paper[] = teachHomeworkList.value.map(v => {
+            const teachPaper: Paper[] = teachHomeworkList.value.map((v) => {
                 const students = v.students
                     .filter((val) => val.checked)
                     .map((val) => ({
                         studentID: val.ID,
-                        classID: val.classID!
+                        classID: val.classID!,
                     }));
                 return {
                     type: 2,
                     students,
                     BookID: v.BookID,
                     paperID: v.WorkbookPaperID,
-                    answerShowTime: v.publishTime ? `${moment(v.publishTime).format("YYYY-MM-DD HH:mm:ss")}` : ""
+                    answerShowTime: v.publishTime
+                        ? `${moment(v.publishTime).format(
+                              "YYYY-MM-DD HH:mm:ss"
+                          )}`
+                        : "",
                 };
             });
             const data = {
                 subjectID: route.params.subjectId as string,
                 classes: classList.value.map((v) => ({ classID: v.ClassId })),
-                papers: [...commonPaper, ...systemPaper, ...teachPaper]
+                papers: [...commonPaper, ...systemPaper, ...teachPaper],
             };
             const res = await publishHomework(data);
             if (res.resultCode === 200) {
@@ -198,7 +215,8 @@ export default defineComponent({
                     commonHomeworkList.value = [];
                     teachHomeworkList.value = [];
                     systemHomeworkList.value = [];
-                    assignObjectRef.value && assignObjectRef.value.clearClassList();
+                    assignObjectRef.value &&
+                        assignObjectRef.value.clearClassList();
                     router.push("/homework");
                 }, 500); // 延时跳转，确保服务器数据已刷新
             }
@@ -236,8 +254,8 @@ export default defineComponent({
         SystemHomeworkItem,
         TeachHomeworkDialog,
         TeachHomeworkItem,
-        WrongBookDialog
-    }
+        WrongBookDialog,
+    },
 });
 </script>
 
