@@ -189,14 +189,11 @@ export default defineComponent({
 
         const isPackUp = ref(false);
         const packUp = () => {
-            const win = window.electron.remote.getCurrentWindow();
-            const size =
-                window.electron.remote.screen.getPrimaryDisplay().workAreaSize;
-            win.setSize(200, 250);
-            win.setPosition(
+            const size = window.electron.remote.screen.getPrimaryDisplay().workAreaSize;
+            window.electron.setContentSize(200, 250);
+            window.electron.setPositionWin(
                 size.width - 20 - 200,
-                size.height - 200 - 250,
-                true
+                size.height - 200 - 250
             );
             isPackUp.value = true;
         };
@@ -204,17 +201,13 @@ export default defineComponent({
         const expand = () => {
             if (isPackUp.value) {
                 isPackUp.value = false;
-                const win = window.electron.remote.getCurrentWindow();
-                const size =
-                    window.electron.remote.screen.getPrimaryDisplay()
-                        .workAreaSize;
+                const size = window.electron.remote.screen.getPrimaryDisplay().workAreaSize;
                 const width = size.width > 1200 ? 1200 : size.width;
                 const height = size.height > 800 ? 800 : size.height;
-                win.setSize(width, height);
-                win.setPosition(
+                window.electron.setContentSize(width, height);
+                window.electron.setPositionWin(
                     (size.width - width) / 2,
-                    (size.height - height) / 2,
-                    true
+                    (size.height - height) / 2
                 );
             }
         };
