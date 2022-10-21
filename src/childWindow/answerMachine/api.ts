@@ -65,6 +65,7 @@ export interface IAnswerMachineQuestionRes{
     OrgID: string,
     ClassID: string,
     ResourceMainID?: string,
+    LessonId: string | null
 }
 
 /**
@@ -80,7 +81,7 @@ export interface ISaveAnswerMachineQuestionRes {
     ClassID: string,
     Type: number,
     SaveType: number,
-    LessonId?: string,
+    LessonId: string | null,
     QuestionDetail: {
         ID?: string,
         Sort: number,
@@ -116,7 +117,7 @@ export const saveAnswerMachineQuestion: RequestFun<ISaveAnswerMachineQuestionRes
 };
 
 // 老师收题
-export const finishAnswerMachineQuestion: RequestFun<{TeacherID: string, AnswerMachineID: string }, any> = (data) => {
+export const finishAnswerMachineQuestion: RequestFun<{TeacherID: string, AnswerMachineID: string, LessonId: string | null }, any> = (data) => {
     return request({
         baseURL: YUN_API_ONECARD,
         url: "/Api/AnswerMachine/FinishAnswerMachineQuestion",
