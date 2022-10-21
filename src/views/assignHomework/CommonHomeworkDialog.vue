@@ -10,6 +10,7 @@
             <div class="header">
                 <span class="title-text">选择书册：</span>
                 <el-cascader
+                    size="large"
                     v-model="form.subjectPublisherBookValue"
                     :props="cascaderProps"
                     :options="subjectPublisherBookList"
@@ -31,7 +32,7 @@
                 <div>
                     <span class="title-text">作业内容：</span>
                     <el-button
-                        size="medium"
+                        size="large"
                         type="primary"
                         plain
                         :icon="Plus"
@@ -75,9 +76,10 @@
                                     :limit="5"
                                     :accept="acceptList"
                                     :show-file-list="false"
-                                    :on-exceed="(e) => onExceed(e,index)"
+                                    :on-exceed="(e) => onExceed(e, index)"
                                     :before-upload="beforeUpload"
-                                    :http-request="(e) => uploadSuccess(e, index)
+                                    :http-request="
+                                        (e) => uploadSuccess(e, index)
                                     "
                                 >
                                     <el-button
@@ -99,8 +101,10 @@
                         <div v-if="item.files.length > 0" class="file">
                             <div v-for="(file, j) in item.files" :key="j">
                                 <p>
-                                    <FileType :fileExtension="file.extension"/>
-                                    <span class="ellipsis" :title="file.name">{{ file.name }}</span>
+                                    <FileType :fileExtension="file.extension" />
+                                    <span class="ellipsis" :title="file.name">{{
+                                        file.name
+                                    }}</span>
                                 </p>
                                 <img
                                     src="@/assets/homeworkImg/icon_delete_red@2x.png"
@@ -114,8 +118,12 @@
             </div>
             <template #footer>
                 <span class="dialog-footer">
-                    <el-button @click="handleClose">取 消</el-button>
-                    <el-button type="primary" @click="submit">确 定</el-button>
+                    <el-button @click="handleClose" size="large"
+                        >取 消</el-button
+                    >
+                    <el-button type="primary" @click="submit" size="large"
+                        >确 定</el-button
+                    >
                 </span>
             </template>
         </el-dialog>
@@ -138,13 +146,14 @@ export default defineComponent({
     props: {
         dialogVisible: {
             type: Boolean,
-            default: false
-        }
+            default: false,
+        },
     },
     setup(props, { emit }) {
-        const acceptList = ".ppt,.pptx,.doc,.docx,.pdf,.mp3,.mp4,.mkv,.flv,.jpg,.png,.jpeg";
+        const acceptList =
+            ".ppt,.pptx,.doc,.docx,.pdf,.mp3,.mp4,.mkv,.flv,.jpg,.png,.jpeg";
         const form = reactive({
-            subjectPublisherBookValue: [] as string[]
+            subjectPublisherBookValue: [] as string[],
         });
         const commonList = ref<CommHomework[]>([]);
         const bookImg = ref(defaultBookImg);
@@ -161,7 +170,7 @@ export default defineComponent({
                 return ElMessage.error("请添加作业");
             }
             handleClose();
-            commonList.value = commonList.value.map(item => {
+            commonList.value = commonList.value.map((item) => {
                 item.BookID = form.subjectPublisherBookValue[2];
                 return item;
             });
@@ -173,7 +182,7 @@ export default defineComponent({
                 type: 0,
                 BookID: "",
                 files: [],
-                students: []
+                students: [],
             });
         };
         const delRow = (index: number) => {
@@ -182,16 +191,14 @@ export default defineComponent({
         const delFile = (index: number, j: number) => {
             commonList.value[index].files.splice(j, 1);
         };
-        const onExceed = (e:any, index: number) => {
+        const onExceed = (e: any, index: number) => {
             if (commonList.value[index].files.length === 5) {
                 ElMessage.info("最多添加5个附件");
             } else {
                 uploadSuccess({ file: e[0] }, index);
             }
         };
-        const beforeUpload = ({ name }: {
-            name: string;
-        }) => {
+        const beforeUpload = ({ name }: { name: string }) => {
             const fileType = name.substring(name.lastIndexOf(".") + 1);
             const whiteList = [
                 "ppt",
@@ -205,41 +212,54 @@ export default defineComponent({
                 "flv",
                 "jpg",
                 "png",
-                "jpeg"
+                "jpeg",
             ];
             if (whiteList.indexOf(fileType) === -1) {
-                ElMessage.error("上传文件只能是 ppt,pptx,doc,docx,pdf,mp3,mp4,mkv,flv,jpg,png,jpeg格式");
+                ElMessage.error(
+                    "上传文件只能是 ppt,pptx,doc,docx,pdf,mp3,mp4,mkv,flv,jpg,png,jpeg格式"
+                );
                 return false;
             }
         };
-        const uploadSuccess = async ({ file }: {
-            file: File & Blob;
-        }, index: number) => {
+        const uploadSuccess = async (
+            {
+                file,
+            }: {
+                file: File & Blob;
+            },
+            index: number
+        ) => {
             await uploadFile({ file });
             commonList.value[index].files.push({
                 extension: fileInfo.fileExtension,
                 name: fileInfo.fileName,
-                fileName: fileInfo.name
+                fileName: fileInfo.name,
             });
         };
-        watch(() => form.subjectPublisherBookValue, (v) => {
-            getBookImg({
-                BookID: v[2]
-            }).then((res) => {
-                if (res.resultCode === 200 && res.result.BookCoverFile) {
-                    const key = res.result.BookCoverFile.FilePath +
-                        "/" +
-                        res.result.BookCoverFile.FileName +
-                        "." +
-                        res.result.BookCoverFile.Extention;
-                    getOssUrl(key, res.result.BookCoverFile.Bucket).then((res) => {
-                        bookImg.value = res;
-                    });
-                } else {
-                    bookImg.value = defaultBookImg;
-                }
-            });
-        });
+        watch(
+            () => form.subjectPublisherBookValue,
+            (v) => {
+                getBookImg({
+                    BookID: v[2],
+                }).then((res) => {
+                    if (res.resultCode === 200 && res.result.BookCoverFile) {
+                        const key =
+                            res.result.BookCoverFile.FilePath +
+                            "/" +
+                            res.result.BookCoverFile.FileName +
+                            "." +
+                            res.result.BookCoverFile.Extention;
+                        getOssUrl(key, res.result.BookCoverFile.Bucket).then(
+                            (res) => {
+                                bookImg.value = res;
+                            }
+                        );
+                    } else {
+                        bookImg.value = defaultBookImg;
+                    }
+                });
+            }
+        );
         return {
             Plus,
             Paperclip,
@@ -258,10 +278,10 @@ export default defineComponent({
             bookImg,
             uploadSuccess,
             onExceed,
-            form
+            form,
         };
     },
-    components: { FileType }
+    components: { FileType },
 });
 </script>
 
@@ -349,7 +369,7 @@ export default defineComponent({
                             display: flex;
                             justify-content: center;
                             align-items: center;
-                            >span:first-child{
+                            > span:first-child {
                                 margin-right: 10px;
                             }
                             img {

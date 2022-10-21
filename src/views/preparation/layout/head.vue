@@ -111,10 +111,7 @@
                         "
                         :on-exceed="onExceed"
                     >
-                        <el-button
-                            type="primary"
-                            style="font-size: 14px"
-                        >
+                        <el-button type="primary" style="font-size: 13px">
                             &nbsp;&nbsp;&nbsp;
                             <el-icon :size="14"><upload /></el-icon>
                             &nbsp;上&nbsp;传&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -137,19 +134,16 @@
                     required
                     v-if="form.files.length < 2"
                 >
-                    <el-input v-model="form.name" />
+                    <el-input v-model="form.name" size="large" />
                 </el-form-item>
                 <el-form-item label="类型：" required>
-                    <el-radio-group
-                        class="custom-radio"
-                        v-model="form.type"
-                    >
+                    <el-radio-group class="custom-radio" v-model="form.type">
                         <el-radio-button
                             v-for="item in typeList.slice(1)"
                             :disabled="
                                 [
                                     RESOURCE_TYPE.TEACHING_AIDS,
-                                    RESOURCE_TYPE.TOOL
+                                    RESOURCE_TYPE.TOOL,
                                 ].indexOf(item.Id) > -1
                             "
                             :key="item.Id"
@@ -181,6 +175,7 @@
                     </div>
                     <el-button
                         class="add-btn"
+                        size="large"
                         type="default"
                         @click="addDirectory(), clicKBuryPoint('新增目录')"
                     >
@@ -189,6 +184,7 @@
                 </el-form-item>
                 <el-form-item label="难易程度：">
                     <el-select
+                        size="large"
                         v-model="form.degree"
                         placeholder="请选择"
                         class="select-block"
@@ -249,6 +245,7 @@
             :destroy-on-close="true"
         >
             <el-date-picker
+                size="large"
                 v-model="dateRange"
                 type="daterange"
                 start-placeholder="请选择开始时间"
@@ -927,7 +924,7 @@ export default defineComponent({
             pageChange,
             openCourseCartOptions,
             clicKBuryPoint,
-            RESOURCE_TYPE
+            RESOURCE_TYPE,
         };
     },
 });
@@ -977,9 +974,8 @@ export default defineComponent({
     align-items: center;
     :deep(.el-icon) {
         position: relative;
-        top: 1px;
+        // top: 1px;
     }
-
     .refresh-btn {
         display: block;
         width: 16px;

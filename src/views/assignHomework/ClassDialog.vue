@@ -1,6 +1,12 @@
 <template>
     <div>
-        <el-dialog  :model-value="dialogVisible" title="布置对象" width="30%" center :before-close="handleClose">
+        <el-dialog
+            :model-value="dialogVisible"
+            title="布置对象"
+            width="30%"
+            center
+            :before-close="handleClose"
+        >
             <div class="class-tree">
                 <el-tree
                     ref="treeRef"
@@ -15,10 +21,14 @@
                 </el-tree>
             </div>
             <template #footer>
-            <span class="dialog-footer">
-                <el-button @click="handleClose">取消</el-button>
-                <el-button type="primary" @click="handleSave">确定</el-button>
-            </span>
+                <span class="dialog-footer">
+                    <el-button size="large" @click="handleClose"
+                        >取消</el-button
+                    >
+                    <el-button size="large" type="primary" @click="handleSave"
+                        >确定</el-button
+                    >
+                </span>
             </template>
         </el-dialog>
     </div>

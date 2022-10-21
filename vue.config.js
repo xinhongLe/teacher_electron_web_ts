@@ -12,11 +12,18 @@ const extraResources = process.platform === "darwin" ? [
     {
         from: "./extraResources/mac/ColorPicker",
         to: "ColorPicker"
+    },{
+        from: "./extraResources/whiteboard/Aixueshi.Whiteboard.exe",
+        to: "Aixueshi.Whiteboard.exe"
     }
 ] : [
     {
         from: "./extraResources/ball/",
         to: "extraResources/ball/"
+    },
+    {
+        from: "./extraResources/whiteboard/Aixueshi.Whiteboard.exe",
+        to: "Aixueshi.Whiteboard.exe"
     },
     {
         from: "./extraResources/exportWord/",

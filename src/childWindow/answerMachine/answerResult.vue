@@ -50,13 +50,12 @@
 
 <script lang="ts">
 import { computed, defineComponent, inject, nextTick, onMounted, onUnmounted, PropType, ref } from "vue";
-import { Student } from "@/types/labelManage";
 import { StudentAnswerInfo, StudentAnswerInfoList } from "./api";
 import { PADModeQuestionType } from "./enum";
 import * as echarts from "echarts";
 import StudentInfoList from "./studentInfoList.vue";
 import { screen } from "@electron/remote";
-import { praiseStudent } from "@/childWindow/quickAnswer/api";
+import { praiseStudent, addRewardrecode } from "@/childWindow/quickAnswer/api";
 import { UserInfoState } from "@/types/store";
 export default defineComponent({
     components: {
@@ -87,6 +86,10 @@ export default defineComponent({
         },
         currentUserInfo: {
             type: Object as PropType<UserInfoState>
+        },
+        AnswerMachineID: {
+            type: String,
+            default: ""
         }
     },
     setup(props) {
@@ -96,7 +99,7 @@ export default defineComponent({
             window.electron.destroyWindow();
         };
 
-        const handlePraiseStudent = (value:any) => {
+        const handlePraiseStudent = async (value:any) => {
             const data = {
                 Type: 1,
                 SchoolID: props.currentUserInfo!.schoolId,
@@ -110,11 +113,18 @@ export default defineComponent({
                     ScoreType: 1
                 }]
             };
-            praiseStudent(data).then(res => {
-                if (res.resultCode === 200) {
-                    value.status = true;
-                }
-            });
+
+            const praiseData = {
+                StudentIdList: value.SelectStudent.map((item:any) => item.StudentID),
+                AnswerMachineID: props.AnswerMachineID,
+                TeacherID: props.currentUserInfo!.userCenterUserID
+            };
+
+            const res = await praiseStudent(praiseData);
+            const res1 = await addRewardrecode(data);
+            if (res.resultCode === 200 && res1.resultCode === 200) {
+                value.status = true;
+            }
         };
 
         const customColorMethod = (percentage: number) => {
@@ -126,7 +136,6 @@ export default defineComponent({
 
         const initEchart = () => {
             const chartsDom = document.getElementsByClassName("echart-warp");
-            console.log(chartsDom, "chartsDom====");
             for (let i = 0; i < props.answerDetail!.StudentQuestionResults.length; i++) {
                 const myChart = echarts.init(chartsDom[i] as HTMLElement);
                 const xAxisData = props.answerDetail!.StudentQuestionResults[i]?.StudentQuestionOptionsResult.map(item => item.OptionName);

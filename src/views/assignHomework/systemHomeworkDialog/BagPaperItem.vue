@@ -1,7 +1,7 @@
 <template>
     <div :class="['right-row', 'flex-between-center']">
         <div class="first-col flex-between-center">
-            <el-checkbox @change="_choicePaper" :model-value="isSelect"/>
+            <el-checkbox @change="_choicePaper" :model-value="isSelect" />
             <img
                 v-if="type === 0"
                 src="@/assets/images/homeworkNew/homework1.png"
@@ -12,8 +12,12 @@
                 src="@/assets/images/homeworkNew/icon_shipin.png"
                 alt=""
             />
-            <p class="text-class" v-if="type === 0">{{ info.Questions?.length || 0 }}题</p>
-            <p class="text-class" v-else>时长:{{ formatDuration(info.VideoDuration) }}</p>
+            <p class="text-class" v-if="type === 0">
+                {{ info.Questions?.length || 0 }}题
+            </p>
+            <p class="text-class" v-else>
+                时长:{{ formatDuration(info.VideoDuration) }}
+            </p>
             <span class="before-class">{{
                 getCourseBagType(info.ClassifyType)
             }}</span>
@@ -39,7 +43,14 @@
                 type="primary"
                 plain
                 :icon="Search"
-                @click="lookQuestions({ id: info.PaperID, type: 1, courseBagId, deleteQuestionIds })"
+                @click="
+                    lookQuestions({
+                        id: info.PaperID,
+                        type: 1,
+                        courseBagId,
+                        deleteQuestionIds,
+                    })
+                "
                 >查看题目</el-button
             >
         </div>
@@ -48,39 +59,44 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from "vue";
-import { getCourseBagType, lookQuestions, lookVideo, formatDuration } from "@/utils";
+import {
+    getCourseBagType,
+    lookQuestions,
+    lookVideo,
+    formatDuration,
+} from "@/utils";
 import { BagPapers } from "@/types/preparation";
 import { VideoPlay, Search } from "@element-plus/icons-vue";
 export default defineComponent({
     props: {
         info: {
             type: Object as PropType<BagPapers>,
-            default: () => ({})
+            default: () => ({}),
         },
         index: {
             type: Number,
-            default: 0
+            default: 0,
         },
         isSelect: {
             type: Boolean,
-            default: false
+            default: false,
         },
         choicePaper: {
             type: Function,
-            required: true
+            required: true,
         },
         courseBagId: {
             type: String,
-            required: true
+            required: true,
         },
         deleteQuestionIds: {
             type: Array as PropType<string[]>,
-            default: () => []
+            default: () => [],
         },
         type: {
             type: Number,
-            default: 0
-        }
+            default: 0,
+        },
     },
     setup(props) {
         const _choicePaper = (flag: boolean) => {
@@ -94,9 +110,9 @@ export default defineComponent({
             getCourseBagType,
             _choicePaper,
             formatDuration,
-            lookQuestions
+            lookQuestions,
         };
-    }
+    },
 });
 </script>
 
@@ -144,7 +160,7 @@ export default defineComponent({
             display: flex;
             align-items: center;
             padding: 5px 10px;
-            background-image: linear-gradient(to right, #ffecea , #fff);
+            background-image: linear-gradient(to right, #ffecea, #fff);
             border-radius: 15px;
             font-size: 14px;
             color: #fb7468;

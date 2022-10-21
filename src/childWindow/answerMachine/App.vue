@@ -22,6 +22,7 @@
                 :time="answerTime"
                 :answerDetail="answerDetail"
                 :questionType="selectQuestionType"
+                :AnswerMachineID="AnswerMachineID"
             />
         </div>
     </el-config-provider>

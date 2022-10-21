@@ -2,7 +2,7 @@
     <div class="container">
         <p class="title-class">布置对象</p>
         <div class="class-wrapper">
-            <el-button plain @click="openDialog">{{
+            <el-button size="large" plain @click="openDialog">{{
                 classList.length > 0 ? "重选" : "选择"
             }}</el-button>
             <div class="class-content">
@@ -32,15 +32,21 @@ export default defineComponent({
 
         const openDialog = () => {
             if (classList.value.length > 0) {
-                ElMessageBox.confirm("重选会清空已选的学生, 是否继续?", "提示", {
-                    confirmButtonText: "确定",
-                    cancelButtonText: "取消",
-                    type: "warning"
-                }).then(() => {
-                    dialogVisible.value = true;
-                }).catch(() => {
-                    ElMessage.info("已取消");
-                });
+                ElMessageBox.confirm(
+                    "重选会清空已选的学生, 是否继续?",
+                    "提示",
+                    {
+                        confirmButtonText: "确定",
+                        cancelButtonText: "取消",
+                        type: "warning",
+                    }
+                )
+                    .then(() => {
+                        dialogVisible.value = true;
+                    })
+                    .catch(() => {
+                        ElMessage.info("已取消");
+                    });
             } else {
                 dialogVisible.value = true;
             }
@@ -50,18 +56,22 @@ export default defineComponent({
             classList.value = [];
         };
 
-        watch(classList, (v) => {
-            emit("updateClassList", v);
-        }, { deep: true });
+        watch(
+            classList,
+            (v) => {
+                emit("updateClassList", v);
+            },
+            { deep: true }
+        );
 
         return {
             classList,
             openDialog,
             clearClassList,
-            dialogVisible
+            dialogVisible,
         };
     },
-    components: { ClassDialog }
+    components: { ClassDialog },
 });
 </script>
 

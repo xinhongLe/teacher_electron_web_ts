@@ -29,7 +29,9 @@
                     {{ name }}
                     <template v-if="info.HomeworkPaperType == 2">
                         <span>&nbsp; 第{{ info.WorkbookPaperPageNum }}页</span>
-                        <span :style="{marginLeft: '40px'}">{{info.AlbumName}}</span>
+                        <span :style="{ marginLeft: '40px' }">{{
+                            info.AlbumName
+                        }}</span>
                     </template>
                 </p>
                 <span
@@ -48,7 +50,8 @@
                 <template v-if="info.HomeworkPaperType == 1"
                     >时长：{{
                         formatDuration(info.VideoDurationTick)
-                    }}</template>
+                    }}</template
+                >
             </span>
             <span>
                 <template
@@ -56,7 +59,8 @@
                         info.HomeworkPaperType == 1 ||
                         info.HomeworkPaperType == 0
                     "
-                    >{{ info.AlbumName }} {{ info.ChapterName }} {{info.LessonName}}</template
+                    >{{ info.AlbumName }} {{ info.ChapterName }}
+                    {{ info.LessonName }}</template
                 >
             </span>
 
@@ -102,11 +106,24 @@
                 >
             </div>
             <div class="homework-warp">
-                <div class="homework" style="display: flex"  v-if="info.HomeworkPaperType === 2">
-                    <div class="answer" style="margin-left: 10px" v-if="info.AnswerShowTime">
+                <div
+                    class="homework"
+                    style="display: flex"
+                    v-if="info.HomeworkPaperType === 2"
+                >
+                    <div
+                        class="answer"
+                        style="margin-left: 10px"
+                        v-if="info.AnswerShowTime"
+                    >
                         <span v-if="info.showPublish">
                             答案公布时间：{{ detailTime(info.AnswerShowTime) }}
-                            <i @click="changeTag" class="el-icon-edit-outline" style="margin: 0 10px; color: #4b71ee" color="#4B71EE"></i>
+                            <i
+                                @click="changeTag"
+                                class="el-icon-edit-outline"
+                                style="margin: 0 10px; color: #4b71ee"
+                                color="#4B71EE"
+                            ></i>
                             <el-date-picker
                                 popper-class="hand-publish"
                                 v-if="showdataPicker"
@@ -119,13 +136,32 @@
                             >
                             </el-date-picker>
                         </span>
-                        <el-button v-if="info.showPublish" size="small" type="success" @click="publish(info)">立即发布</el-button>
-                        <span v-if="!info.showPublish" style="margin-right: 10px">答案已公布</span>
-                        <el-button v-if="!info.showPublish" size="small" @click="hideAnswer(info)">撤回发布</el-button>
+                        <el-button
+                            v-if="info.showPublish"
+                            type="success"
+                            @click="publish(info)"
+                            >立即发布</el-button
+                        >
+                        <span
+                            v-if="!info.showPublish"
+                            style="margin-right: 10px"
+                            >答案已公布</span
+                        >
+                        <el-button
+                            v-if="!info.showPublish"
+                            @click="hideAnswer(info)"
+                            >撤回发布</el-button
+                        >
                     </div>
                     <div class="detail" style="margin-left: 10px" v-else>
-                        <span>手动发布
-                            <i @click="changeTag" class="el-icon-edit-outline" style="margin: 0 10px; color: #4b71ee"  color="#4B71EE"></i>
+                        <span
+                            >手动发布
+                            <i
+                                @click="changeTag"
+                                class="el-icon-edit-outline"
+                                style="margin: 0 10px; color: #4b71ee"
+                                color="#4B71EE"
+                            ></i>
                             <el-date-picker
                                 popper-class="hand-publish"
                                 v-if="showdataPicker"
@@ -137,32 +173,60 @@
                             >
                             </el-date-picker>
                         </span>
-                        <el-button size="small" type="success" @click="publish(info)">立即发布</el-button>
+                        <el-button type="success" @click="publish(info)"
+                            >立即发布</el-button
+                        >
                     </div>
                 </div>
             </div>
 
             <div class="btn-list">
-                <!-- <el-button size="small" type="primary" plain @click="$router.push({path: '/lookStudents',})">查阅学生</el-button> -->
-                <el-button size="small" v-if="info.HomeworkPaperType == 2" style="background-color:#00C0FF;border-color:#00C0FF " type="primary" @click="quickUpload(info)">快速上传</el-button>
-                <el-button size="small" v-if="info.HomeworkPaperType == 2 && (info.FinishStudentCount < info.AllStudentCount)" plain type="warning" @click="handleMistakesCollect(info)">收集错题</el-button>
-                <el-button size="small" type="primary" @click="review">查阅作业</el-button>
-                <el-button size="small" type="danger" plain  @click="deleteHomework" >删除</el-button>
+                <!-- <el-button  type="primary" plain @click="$router.push({path: '/lookStudents',})">查阅学生</el-button> -->
+                <el-button
+                    v-if="info.HomeworkPaperType == 2"
+                    style="background-color: #00c0ff; border-color: #00c0ff"
+                    type="primary"
+                    @click="quickUpload(info)"
+                    >快速上传</el-button
+                >
+                <el-button
+                    v-if="
+                        info.HomeworkPaperType == 2 &&
+                        info.FinishStudentCount < info.AllStudentCount
+                    "
+                    plain
+                    type="warning"
+                    @click="handleMistakesCollect(info)"
+                    >收集错题</el-button
+                >
+                <el-button type="primary" @click="review">查阅作业</el-button>
+                <el-button type="danger" plain @click="deleteHomework"
+                    >删除</el-button
+                >
             </div>
         </div>
         <div v-if="info.HomeworkPaperFiles.length > 0" class="file">
-            <FileItem v-for="(file, j) in info.HomeworkPaperFiles" :key="j" :file="file" />
+            <FileItem
+                v-for="(file, j) in info.HomeworkPaperFiles"
+                :key="j"
+                :file="file"
+            />
         </div>
 
-        <HignPhoto v-if="info.HomeworkPaperType == 2" :homeworkValue="info" ref="hignPhotoRef" ></HignPhoto>
+        <HignPhoto
+            v-if="info.HomeworkPaperType == 2"
+            :homeworkValue="info"
+            ref="hignPhotoRef"
+        ></HignPhoto>
 
-        <mistakes-collect :info="info"
-                          :mistakesCollectState="mistakesCollectState"
-                          :isFinishState="isFinishState"
-                          :collectedCount="collectedCount"
-                          :collectionId="collectionId"
-                          v-model:dialogVisible="mistakesCollectDialog">
-
+        <mistakes-collect
+            :info="info"
+            :mistakesCollectState="mistakesCollectState"
+            :isFinishState="isFinishState"
+            :collectedCount="collectedCount"
+            :collectionId="collectionId"
+            v-model:dialogVisible="mistakesCollectDialog"
+        >
         </mistakes-collect>
     </div>
 </template>
@@ -176,7 +240,12 @@ import { set, STORAGE_TYPES } from "@/utils/storage";
 import { ElMessage, ElMessageBox } from "element-plus";
 import moment from "moment";
 import { computed, defineComponent, nextTick, PropType, ref } from "vue";
-import { rebackHomeworkPaper, ShowAnswer, HideAnswer, topicConnectionState } from "./api";
+import {
+    rebackHomeworkPaper,
+    ShowAnswer,
+    HideAnswer,
+    topicConnectionState,
+} from "./api";
 import HignPhoto from "./hignphoto.vue";
 import FileItem from "./FileItem.vue";
 import MistakesCollect from "@/views/homework/components/mistakesCollect.vue";
@@ -184,16 +253,16 @@ export default defineComponent({
     props: {
         info: {
             type: Object as PropType<Homework>,
-            default: () => ({})
+            default: () => ({}),
         },
         homeworkListMap: {
             type: Object as PropType<Record<string, Homework[]>>,
-            default: () => ({})
+            default: () => ({}),
         },
         form: {
-            type: Object as PropType<{subject: string, date:string}>,
-            default: () => ({})
-        }
+            type: Object as PropType<{ subject: string; date: string }>,
+            default: () => ({}),
+        },
     },
     setup(props, { emit }) {
         const probability = computed(() => {
@@ -216,7 +285,9 @@ export default defineComponent({
                 dataPicker.value.display = "none";
                 setTimeout(() => {
                     // 添加日历footer里的的确定和此刻按钮的点击事件
-                    const cur = document.querySelectorAll(".el-picker-panel__link-btn");
+                    const cur = document.querySelectorAll(
+                        ".el-picker-panel__link-btn"
+                    );
                     for (var m in cur) {
                         if (cur[m]) {
                             try {
@@ -226,7 +297,9 @@ export default defineComponent({
                             }
                         }
                     }
-                    const currentBtn = document.querySelectorAll(".hand-publish .el-picker-panel .el-picker-panel__footer .el-button");
+                    const currentBtn = document.querySelectorAll(
+                        ".hand-publish .el-picker-panel .el-picker-panel__footer .el-button"
+                    );
                     for (var i in currentBtn) {
                         if (currentBtn[i]) {
                             try {
@@ -247,7 +320,7 @@ export default defineComponent({
         const dateChange = (val: any, info: any) => {
             const obj = {
                 classHomeworkPaperID: info.ClassHomeworkPaperID,
-                answerShowTime: `${moment(val).format("YYYY-MM-DD HH:mm:ss")}`
+                answerShowTime: `${moment(val).format("YYYY-MM-DD HH:mm:ss")}`,
             };
             ShowAnswer(obj).then((res) => {
                 if (res.resultCode === 200) {
@@ -271,12 +344,12 @@ export default defineComponent({
         const probability1 = computed(() => {
             return props.info.ReviewQuestionCount
                 ? (
-                    (props.info.ReviewQuestionCount /
+                      (props.info.ReviewQuestionCount /
                           (props.info.RightCount +
                               props.info.WrongCount +
                               props.info.NoSureCount)) *
                       100
-                ).toFixed(2)
+                  ).toFixed(2)
                 : 0;
         });
 
@@ -300,7 +373,7 @@ export default defineComponent({
                 ClassName,
                 AllStudentCount,
                 AnswerShowTime,
-                showPublish
+                showPublish,
             } = props.info;
             const classInfo = Object.values(props.homeworkListMap)
                 .flat()
@@ -312,7 +385,7 @@ export default defineComponent({
                 )
                 .map((v) => ({
                     name: v.ClassName,
-                    classHomeworkPaperID: v.ClassHomeworkPaperID
+                    classHomeworkPaperID: v.ClassHomeworkPaperID,
                 }));
             const homeworkDetail: HomeworkDetail = {
                 classHomeworkPaperID: ClassHomeworkPaperID,
@@ -333,11 +406,17 @@ export default defineComponent({
                 className: ClassName,
                 allStudentCount: AllStudentCount,
                 answerShowTime: AnswerShowTime,
-                showPublish: showPublish
+                showPublish: showPublish,
             };
-            set(STORAGE_TYPES.HOMEWORK_DETAIL, Object.assign(homeworkDetail, { formSubjectID: props.form?.subject, formDate: props.form?.date }));
+            set(
+                STORAGE_TYPES.HOMEWORK_DETAIL,
+                Object.assign(homeworkDetail, {
+                    formSubjectID: props.form?.subject,
+                    formDate: props.form?.date,
+                })
+            );
             router.push({
-                path: `/check-homework/${props.info.ClassHomeworkPaperID}`
+                path: `/check-homework/${props.info.ClassHomeworkPaperID}`,
             });
         };
 
@@ -345,13 +424,13 @@ export default defineComponent({
             ElMessageBox.confirm("确认删除此班级的这份作业吗?", "提示", {
                 confirmButtonText: "确定",
                 cancelButtonText: "取消",
-                type: "warning"
+                type: "warning",
             })
                 .then(async () => {
                     const res = await rebackHomeworkPaper({
                         classHomeworkPaperIDs: [
-                            props.info.ClassHomeworkPaperID
-                        ]
+                            props.info.ClassHomeworkPaperID,
+                        ],
                     });
                     if (res.resultCode === 200) {
                         ElMessage.success("删除成功");
@@ -373,12 +452,12 @@ export default defineComponent({
                 {
                     confirmButtonText: "确认公布",
                     cancelButtonText: "取消",
-                    type: "warning"
+                    type: "warning",
                 }
             )
                 .then(() => {
                     const obj = {
-                        classHomeworkPaperID: item.ClassHomeworkPaperID
+                        classHomeworkPaperID: item.ClassHomeworkPaperID,
                     };
                     ShowAnswer(obj).then((res) => {
                         if (res.resultCode === 200) {
@@ -394,7 +473,7 @@ export default defineComponent({
         // 隐藏
         const hideAnswer = (item: any) => {
             const obj = {
-                id: item.ClassHomeworkPaperID
+                id: item.ClassHomeworkPaperID,
             };
             HideAnswer(obj).then((res) => {
                 if (res.resultCode === 200) {
@@ -411,7 +490,7 @@ export default defineComponent({
                 if (device.kind === "videoinput") {
                     list.push({
                         label: device.label,
-                        id: device.deviceId
+                        id: device.deviceId,
                     });
                 }
             });
@@ -427,16 +506,19 @@ export default defineComponent({
         const isFinishState = ref(0); // 0未完成收集，1已完成收集
         const collectedCount = ref(0); // 0未完成收集，1已完成收集
         const collectionId = ref("");
-        const handleMistakesCollect = (info:Homework) => {
-            topicConnectionState({ Id: info.ClassHomeworkPaperID }).then(res => {
-                if (res.resultCode === 200) {
-                    mistakesCollectState.value = res.result.HasCollection || 0;
-                    isFinishState.value = res.result.IsFinish || 0;
-                    collectedCount.value = res.result.CollectedCount || 0;
-                    collectionId.value = res.result.CollectionId || "";
-                    mistakesCollectDialog.value = true;
+        const handleMistakesCollect = (info: Homework) => {
+            topicConnectionState({ Id: info.ClassHomeworkPaperID }).then(
+                (res) => {
+                    if (res.resultCode === 200) {
+                        mistakesCollectState.value =
+                            res.result.HasCollection || 0;
+                        isFinishState.value = res.result.IsFinish || 0;
+                        collectedCount.value = res.result.CollectedCount || 0;
+                        collectionId.value = res.result.CollectionId || "";
+                        mistakesCollectDialog.value = true;
+                    }
                 }
-            });
+            );
         };
 
         return {
@@ -463,14 +545,14 @@ export default defineComponent({
             isFinishState,
             collectedCount,
             collectionId,
-            handleMistakesCollect
+            handleMistakesCollect,
         };
     },
     components: {
         MistakesCollect,
         FileItem,
-        HignPhoto
-    }
+        HignPhoto,
+    },
 });
 </script>
 
@@ -482,21 +564,21 @@ export default defineComponent({
         width: 30px;
     }
 }
-.hign-photo-warp{
-    :deep(.el-dialog__body){
+.hign-photo-warp {
+    :deep(.el-dialog__body) {
         padding: 0;
         overflow: hidden;
     }
-    :deep(.el-dialog__header){
+    :deep(.el-dialog__header) {
         display: none;
     }
-     :deep(.el-dialog){
+    :deep(.el-dialog) {
         margin: 0;
         padding: 30px;
         box-sizing: border-box;
         background: rgba(0, 0, 0, 0.2);
     }
-    :deep(.el-overlay-dialog){
+    :deep(.el-overlay-dialog) {
         height: calc(100vh + 36px);
     }
 }
@@ -551,11 +633,12 @@ export default defineComponent({
             margin-left: 10px;
             text-align: right;
         }
-        .answer, .detail {
+        .answer,
+        .detail {
             display: flex;
             justify-content: center;
             align-items: center;
-            >span {
+            > span {
                 display: flex;
                 justify-content: center;
                 align-items: center;

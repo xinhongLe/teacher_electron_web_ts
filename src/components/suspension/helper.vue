@@ -11,8 +11,13 @@
                 src="@/assets/images/suspension/pic_tittle_zhike@2x.png"
                 alt=""
             />
-            <div class="right-btns ">
-                <el-icon :size="18" class="refresh" @click="clicKBuryPoint('刷新'), getGradeList()"><RefreshRight /></el-icon>
+            <div class="right-btns">
+                <el-icon
+                    :size="18"
+                    class="refresh"
+                    @click="clicKBuryPoint('刷新'), getGradeList()"
+                    ><RefreshRight
+                /></el-icon>
                 <div
                     class="right-btn"
                     @click="clicKBuryPoint('最小化'), close()"
@@ -132,7 +137,10 @@
                                 clicKBuryPoint('黑板'), openBlackboard()
                             "
                         >
-                            <img src="@/assets/images/suspension/pic_blackboard@2x.png" alt=""/>
+                            <img
+                                src="@/assets/images/suspension/pic_blackboard@2x.png"
+                                alt=""
+                            />
                             <div class="blackboard-text">黑板</div>
                             <!-- <div class="blackboard-btn" @click="openBlackboard()">打开</div> -->
                         </div>
@@ -143,7 +151,10 @@
                                     openAnswerMachineWindow()
                             "
                         >
-                            <img src="@/assets/images/suspension/img_datiqi.png" alt=""/>
+                            <img
+                                src="@/assets/images/suspension/img_datiqi.png"
+                                alt=""
+                            />
                             <div class="blackboard-text">答题器</div>
                         </div>
                         <div
@@ -152,7 +163,10 @@
                                 clicKBuryPoint('投影'), clickProjection()
                             "
                         >
-                            <img src="@/assets/images/suspension/pic_touying@2x.png" alt=""/>
+                            <img
+                                src="@/assets/images/suspension/pic_touying@2x.png"
+                                alt=""
+                            />
                             <div class="blackboard-text">投影</div>
                         </div>
                         <div
@@ -161,14 +175,20 @@
                                 clicKBuryPoint('知识图谱'), clickKnowledge()
                             "
                         >
-                            <img src="@/assets/images/suspension/pic_zhishitupu@2x.png" alt=""/>
+                            <img
+                                src="@/assets/images/suspension/pic_zhishitupu@2x.png"
+                                alt=""
+                            />
                             <div class="blackboard-text">知识图谱</div>
                         </div>
                         <div
                             class="blackboard-box"
                             @click.stop="clicKBuryPoint('计时器'), openTimer()"
                         >
-                            <img src="@/assets/images/suspension/pic_timer@2x.png" alt=""/>
+                            <img
+                                src="@/assets/images/suspension/pic_timer@2x.png"
+                                alt=""
+                            />
                             <div class="blackboard-text">计时器</div>
                         </div>
                         <!-- openRollCall -->
@@ -176,16 +196,48 @@
                             class="blackboard-box"
                             @click.stop="clicKBuryPoint('点名'), openRollCall()"
                         >
-                            <img src="@/assets/images/suspension/pic_namer@2x.png" alt=""/>
+                            <img
+                                src="@/assets/images/suspension/pic_namer@2x.png"
+                                alt=""
+                            />
                             <div class="blackboard-text">点名</div>
                         </div>
-                        <div class="blackboard-box" @click.stop="clicKBuryPoint('抢答'), openQuickAnswer(true)">
-                            <img src="@/assets/images/suspension/pic_qd.png" alt=""/>
+                        <div
+                            class="blackboard-box"
+                            @click.stop="
+                                clicKBuryPoint('抢答'), openQuickAnswer(true)
+                            "
+                        >
+                            <img
+                                src="@/assets/images/suspension/pic_qd.png"
+                                alt=""
+                            />
                             <div class="blackboard-text">抢答</div>
                         </div>
-                        <div class="blackboard-box" @click.stop="clicKBuryPoint('锁屏管理'), openQuickAnswer(false)">
-                            <img src="@/assets/images/suspension/pic_sp.png" alt=""/>
+                        <div
+                            class="blackboard-box"
+                            @click.stop="
+                                clicKBuryPoint('锁屏管理'),
+                                    openQuickAnswer(false)
+                            "
+                        >
+                            <img
+                                src="@/assets/images/suspension/pic_sp.png"
+                                alt=""
+                            />
                             <div class="blackboard-text">锁屏管理</div>
+                        </div>
+                        <div
+                            class="blackboard-box"
+                            @click.stop="
+                                clicKBuryPoint('随手画'), openPainting()
+                            "
+                        >
+                            <img
+                                src="@/assets/images/suspension/pic_blackboard@2x.png"
+                                alt=""
+                            />
+                            <div class="blackboard-text">随手画</div>
                         </div>
                     </div>
                 </el-collapse-item>
@@ -219,7 +271,10 @@
                                         @keydown.enter="getGradeList"
                                     >
                                         <template #append>
-                                            <el-button :icon="Search" @click.stop="getGradeList"></el-button>
+                                            <el-button
+                                                :icon="Search"
+                                                @click.stop="getGradeList"
+                                            ></el-button>
                                         </template>
                                     </el-input>
                                 </div>
@@ -263,7 +318,14 @@
     </div>
 </template>
 <script lang="ts">
-import { defineComponent, onMounted, onUnmounted, PropType, ref, watch } from "vue";
+import {
+    defineComponent,
+    onMounted,
+    onUnmounted,
+    PropType,
+    ref,
+    watch,
+} from "vue";
 import { Game } from "./interface";
 import { getToolList } from "@/api/index";
 import { getOssUrl } from "@/utils/oss";
@@ -287,15 +349,15 @@ export default defineComponent({
         const initBookList = [
             {
                 Lable: "全部教具",
-                Value: "全部教具"
-            }
+                Value: "全部教具",
+            },
         ];
         const subjectPublisherBookList = ref<BookList[]>(initBookList);
         const cascaderProps = {
             value: "Value",
             children: "Children",
             label: "Lable",
-            checkStrictly: true
+            checkStrictly: true,
         };
         const searchName = ref("");
         const selectBookList = ref(["全部教具"]);
@@ -303,7 +365,9 @@ export default defineComponent({
         const allStudentList = ref<unknown[]>([]);
         let userInfo = get(STORAGE_TYPES.USER_INFO);
         const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
-        const currentUserInfo:UserInfoState = get(STORAGE_TYPES.CURRENT_USER_INFO);
+        const currentUserInfo: UserInfoState = get(
+            STORAGE_TYPES.CURRENT_USER_INFO
+        );
         console.log(currentUserInfo, "currentUserInfo-----");
         const userId = ref(userInfo.userCenterUserID);
         const openBlackboard = () => {
@@ -326,7 +390,7 @@ export default defineComponent({
             const data = {
                 name: searchName.value,
                 bookID: "",
-                bookIDs: [] as string[]
+                bookIDs: [] as string[],
             };
             if (selectBookList.value.length === 1) {
                 data.bookIDs =
@@ -358,7 +422,7 @@ export default defineComponent({
                 gameList.value = list.map((item, index) => ({
                     url: item.Url,
                     imgUrl: imgList[index],
-                    name: item.Name
+                    name: item.Name,
                 }));
             }
             isLoading.value = false;
@@ -406,7 +470,7 @@ export default defineComponent({
             }
         };
 
-        const openQuickAnswer = (isAnswer:boolean) => {
+        const openQuickAnswer = (isAnswer: boolean) => {
             if (!isGetStudentList.value) {
                 return ElMessage.error("请等待学员加载后答题！");
             }
@@ -414,8 +478,16 @@ export default defineComponent({
                 return ElMessage.error("学生数量为0！");
             }
             if (isElectron()) {
-                return window.electron.ipcRenderer.invoke("openQuickAnswerWindow", JSON.parse(JSON.stringify(allStudentList.value)), isAnswer);
+                return window.electron.ipcRenderer.invoke(
+                    "openQuickAnswerWindow",
+                    JSON.parse(JSON.stringify(allStudentList.value)),
+                    isAnswer
+                );
             }
+        };
+        //工具-随手画
+        const openPainting = () => {
+            window.electron.getWhiteBoard();
         };
         const close = () => {
             if (isElectron()) {
@@ -447,7 +519,7 @@ export default defineComponent({
             allStudentList.value = [];
             const data = {
                 TeacherId: currentUserInfo.userCenterUserID,
-                OrgId: currentUserInfo.schoolId
+                OrgId: currentUserInfo.schoolId,
             };
             const res = await fetchAllStudents(data);
             if (res.resultCode === 200) {
@@ -458,7 +530,9 @@ export default defineComponent({
 
         const resourceList = ref([]);
         const onResources = (event: IpcRendererEvent, data: any) => {
-            if (data.type === "sysData") { resourceList.value = JSON.parse(data.resources || "[]"); }
+            if (data.type === "sysData") {
+                resourceList.value = JSON.parse(data.resources || "[]");
+            }
             if (data.type === "switchClass") isSwitch.value = data.switch;
         };
         // collapse 改变事件
@@ -515,7 +589,7 @@ export default defineComponent({
                 });
 
                 window.electron.ipcRenderer.send("attendClass", "main", {
-                    type: "sysData"
+                    type: "sysData",
                 });
 
                 window.electron.ipcRenderer.on("attendClass", onResources);
@@ -532,13 +606,13 @@ export default defineComponent({
         const openResource = (resource: any) => {
             window.electron.ipcRenderer.send("attendClass", "main", {
                 type: "openResource",
-                resource: JSON.stringify(resource)
+                resource: JSON.stringify(resource),
             });
         };
 
         const switchClass = () => {
             window.electron.ipcRenderer.send("attendClass", "main", {
-                type: "switchClass"
+                type: "switchClass",
             });
         };
 
@@ -576,9 +650,10 @@ export default defineComponent({
             clicKBuryPoint,
             classClicKBuryPoint,
             handleChange,
-            currentClickCol
+            currentClickCol,
+            openPainting,
         };
-    }
+    },
 });
 </script>
 
@@ -624,7 +699,7 @@ export default defineComponent({
                 color: #ffffff;
                 margin-right: 20px;
                 cursor: pointer;
-                svg{
+                svg {
                     width: 24px;
                     height: 24px;
                 }
@@ -766,11 +841,11 @@ export default defineComponent({
     --el-collapse-content-background-color: transparent;
     --el-collapse-header-font-color: #ffffff;
 
-    :deep(.el-collapse-item__header){
-        background: var(--app-color-dark)
+    :deep(.el-collapse-item__header) {
+        background: var(--app-color-dark);
     }
-    :deep(.el-collapse-item__wrap){
-        background: var(--app-color-dark)
+    :deep(.el-collapse-item__wrap) {
+        background: var(--app-color-dark);
     }
 
     .collapse-header {
@@ -918,14 +993,16 @@ export default defineComponent({
         }
     }
 
-    :deep(.el-input__wrapper){
+    :deep(.el-input__wrapper) {
         background: var(--app-color-dark);
     }
-    :deep(.el-input.is-focus .el-input__wrapper){
-        box-shadow: 0 0 0 1px var(--el-input-border-color,var(--el-border-color)) inset;
+    :deep(.el-input.is-focus .el-input__wrapper) {
+        box-shadow: 0 0 0 1px
+            var(--el-input-border-color, var(--el-border-color)) inset;
     }
-    :deep(.el-input__wrapper.is-focus){
-        box-shadow: 0 0 0 1px var(--el-input-border-color,var(--el-border-color)) inset;
+    :deep(.el-input__wrapper.is-focus) {
+        box-shadow: 0 0 0 1px
+            var(--el-input-border-color, var(--el-border-color)) inset;
     }
 
     :deep(.el-input__inner) {

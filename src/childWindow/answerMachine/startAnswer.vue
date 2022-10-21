@@ -198,7 +198,6 @@ export default defineComponent({
         };
 
         const handleConfirm = async(type:number) => {
-            console.log(state.form.topicList, "----");
             const data: MQTTInfoData = {
                 TeacherID: props.currentUserInfo!.userCenterUserID,
                 OrgID: props.currentUserInfo!.schoolId,
@@ -221,7 +220,7 @@ export default defineComponent({
             };
             if (props.answerMode === AnswerMode.PAD) {
                 // const res = await sendMQTTInfo(data);
-                const res = await saveAnswerMachineQuestion(props.lessonId ? { ...data, LessonId: props.lessonId } : data);
+                const res = await saveAnswerMachineQuestion({ ...data, LessonId: props.lessonId ? props.lessonId : null });
                 if (res.resultCode === 200) {
                     if (type === 1) {
                         emit("start",
@@ -277,11 +276,11 @@ export default defineComponent({
             }
         };
         const _getAnswerMachineQuestionList = () => {
-            if (!state.form.selectClass) return;
             const data = {
                 TeacherID: props.currentUserInfo!.userCenterUserID,
                 OrgID: props.currentUserInfo!.schoolId,
-                ClassID: state.form.selectClass
+                ClassID: state.form.selectClass,
+                LessonId: props.lessonId ? props.lessonId : null
             };
             getAnswerMachineQuestionList(data).then(res => {
                 if (res.resultCode === 200) {
@@ -294,6 +293,7 @@ export default defineComponent({
                         };
                     }) : [{ questionType: 0, selectSetting: [], option: [] }];
                     state.form.topicList = topicList;
+                    if (res.result && res.result.ClassID) state.form.selectClass = res.result.ClassID;
                 }
             });
         };
@@ -310,9 +310,7 @@ export default defineComponent({
                         classList = classList.concat(item.ClassList);
                     });
                     state.classList = classList;
-                    // state.form.selectClass = state.classList.length > 0 ? state.classList[0].ClassId : "";
-                    // state.form.selectClass && _getAnswerMachineQuestionList();
-                    // console.log(res.result, "----");
+                    _getAnswerMachineQuestionList(); // 不传ClassID 获取上次的草稿记录
                 }
             });
         };

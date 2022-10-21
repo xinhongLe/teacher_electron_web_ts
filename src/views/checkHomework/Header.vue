@@ -87,8 +87,9 @@
                         <span v-if="!showPublish" style="margin-right: 10px">答案已公布</span>
                         <el-button v-if="!showPublish"  @click="hideAnswer(homeworkDetail)">撤回发布</el-button>
                     </div>
-                    <div class="detail" style="margin-left: 10px" v-else>
-                        <span>手动发布
+                    <div class="detail flex-align-items" style="margin-left: 10px" v-else>
+                        <span class="flex-align-items">
+                            <span>手动发布</span>
                             <el-icon  @click="changeTag" style="margin: 0 10px; color: #4b71ee"><Edit /></el-icon>
                             <el-date-picker
                                 popper-class="hand-publish"

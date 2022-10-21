@@ -18,7 +18,8 @@
                    <img class="photo" v-if="message === 0" src="@/assets/images/suspension/pic_avatar.png" alt="">
                    <div class="quick-success" v-if="message === 2">
                        <div style="text-align: center;">
-                           <img class="photo" src="@/assets/images/suspension/pic_avatar.png" alt="">
+                           <img class="photo" v-if="imgSrc" :src="imgSrc" alt="">
+                           <img class="photo" v-else src="@/assets/images/suspension/pic_avatar.png" alt="">
                            <div class="name">{{studentInfo.name}}</div>
                        </div>
                        <div class="zan">
@@ -44,11 +45,12 @@
 
 <script lang="ts">
 import { defineComponent, PropType, reactive, watch, toRefs, onUnmounted } from "vue";
-import { sendRushToAnswer, praiseStudent } from "./api";
+import { sendRushToAnswer, praiseStudent, addRewardrecode } from "./api";
 import { UserInfoState } from "@/types/store";
 import mqtt from "mqtt";
 import { IClassItem } from "@/types/quickAnswer";
 import { YUN_API_ONECARD_MQTT } from "@/config";
+import { getOssUrl } from "@/utils/oss";
 export default defineComponent({
     name: "quickAnswerDetail",
     props: {
@@ -69,7 +71,8 @@ export default defineComponent({
             studentInfo: {
                 name: "",
                 id: ""
-            }
+            },
+            imgSrc: ""
         });
         watch(() => props.classList, (val) => {
             if (val?.length > 0) {
@@ -97,16 +100,21 @@ export default defineComponent({
         });
 
         client && client.on("message", function (topic:any, message:any) {
-            console.log(message.toString(), "message.toString()");
-            // message is Buffer
             const messageInfo = JSON.parse(message.toString()); // {"ReceiveTime":"2022-09-15 03:54:50","StudentId":"16625405853534467275379851772585","StudentName":"张国庆"}
             state.studentInfo.name = messageInfo.StudentName;
             state.studentInfo.id = messageInfo.StudentId;
+            const file = messageInfo.HeadPortrait;
+            if (file) {
+                const key = file.Extention ? `${file.FilePath}/${file.FileName}.${file.Extention}` : `${file.FilePath}/${file.FileName}`;
+                getOssUrl(key, file.Bucket).then(res => {
+                    state.imgSrc = res;
+                });
+            }
             state.message = 2;
             client.unsubscribe(getPublish(state.answerMachineID));
         });
 
-        const handlePraiseStudent = () => {
+        const handlePraiseStudent = async() => {
             const data = {
                 Type: 1,
                 SchoolID: props.currentUserInfo!.schoolId,
@@ -125,17 +133,25 @@ export default defineComponent({
                     ScoreType: 1
                 }]
             };
-            praiseStudent(data).then(res => {
-                if (res.resultCode === 200) {
-                    state.status = 1;
-                }
-            });
+
+            const praiseData = {
+                StudentIdList: [state.studentInfo.id],
+                AnswerMachineID: state.answerMachineID,
+                TeacherID: props.currentUserInfo!.userCenterUserID
+            };
+
+            const res = await praiseStudent(praiseData);
+            const res1 = await addRewardrecode(data);
+            if (res.resultCode === 200 && res1.resultCode === 200) {
+                state.status = 1;
+            }
         };
 
         const handleConfirm = () => {
             state.status = 0;
             state.studentInfo.name = "";
             state.studentInfo.id = "";
+            state.imgSrc = "";
             if (state.message === 0 || state.message === 2) {
                 const data = {
                     TeacherID: props.currentUserInfo!.userCenterUserID,
