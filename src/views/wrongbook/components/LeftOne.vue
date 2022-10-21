@@ -2,7 +2,6 @@
     <div class="leftone" v-loading="state.loading">
         <div>
             <el-cascader
-                size="small"
                 style="width: 100%"
                 v-model="state.currentBookId"
                 :props="cascaderProps"
@@ -13,7 +12,6 @@
         </div>
         <div class="leftone-input">
             <el-input
-                size="small"
                 style="width: 100%"
                 v-model="form.Name"
                 class="w-50 m-2"
@@ -233,7 +231,7 @@ watch(
         selectSubject(v[0].Value);
         if (props.currentHomeworkBookId?.length) {
             state.currentBookId = props.currentHomeworkBookId as any;
-            initData(state.currentBookId);
+            // initData(state.currentBookId);
         } else {
             state.currentBookId = [
                 v[0].Value,

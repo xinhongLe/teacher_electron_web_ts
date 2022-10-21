@@ -37,7 +37,6 @@
             <div class="header-right">
                 <!-- 题型 -->
                 <el-select
-                    size="small"
                     style="width: 140px; margin-right: 16px"
                     v-model="questionType"
                     clearable
@@ -56,7 +55,6 @@
                         props.currentWrongType == 3 ||
                         props.currentWrongType == 4
                     "
-                    size="small"
                     style="width: 140px; margin-right: 16px"
                     v-model="frequency"
                 >
@@ -74,7 +72,6 @@
             <div class="main-left">
                 <div class="search" v-if="props.currentWrongType == 1">
                     <el-select
-                        size="small"
                         style="width: 100%"
                         v-model="questionTagType"
                         @change="changeTagType"
@@ -286,14 +283,12 @@
                                 <el-button
                                     type="primary"
                                     plain
-                                    size="small"
                                     @click="explainQuestion()"
                                     >讲解题目</el-button
                                 >
                                 <el-button
                                     type="primary"
                                     plain
-                                    size="small"
                                     :disabled="!isHasSimilarQuestion"
                                     :style="{
                                         background: isHasSimilarQuestion
@@ -309,19 +304,18 @@
                                             state.currentQuestionData
                                         )
                                     "
-                                    size="small"
                                     @click="addQuestionBasket()"
+                                    style="font-size: 12px"
                                     >添加试题篮</el-button
                                 >
                                 <el-button
                                     v-else
-                                    size="small"
                                     @click="
                                         delQuestionBasket(
                                             state.currentQuestionData
                                         )
                                     "
-                                    style="color: #f76b6b"
+                                    style="color: #f76b6b; font-size: 12px"
                                     >移出试题篮</el-button
                                 >
                             </div>
@@ -387,7 +381,6 @@
                                 <p class="text">学生答题详情</p>
                                 <p class="switch">
                                     仅看重复错误的学生<el-switch
-                                        size="small"
                                         style="padding-left: 8px"
                                         v-model="state.isRepeat"
                                     />
@@ -913,16 +906,18 @@ provide("nowQuestionID", state.currentIndex);
 //添加错题至试题篮
 const addQuestionBasket = () => {
     console.log("当前错题数据", state.currentQuestionData);
-    store.dispatch(
-        ActionTypes.ADD_QUESTION_BASKET,
-        Object.assign(
+    const data: any = state.currentQuestionData;
+    const params = {
+        questions: [
             {
-                classId: store.state.wrongbook.currentClassId,
-                bookId: store.state.wrongbook.currentBookId,
+                questionId: data.QuestionId,
+                questionType: data.QuestionType,
             },
-            state.currentQuestionData
-        )
-    );
+        ],
+        classId: store.state.wrongbook.currentClassId,
+        bookId: store.state.wrongbook.currentBookId,
+    };
+    store.dispatch(ActionTypes.ADD_QUESTION_BASKET, params);
 };
 //移出一条试题篮
 const delQuestionBasket = (data: any) => {
@@ -1029,10 +1024,9 @@ const formatPreErrorIcon = (data: any) => {
     const preData: any = preDetailList.find((item: any) => {
         return item.TagLevel == data.TagLevel;
     });
-    // console.log("data, preData", data, preData);
-    if (data.WrongRatio > preData.WrongRatio) {
+    if (data?.WrongRatio > preData?.WrongRatio) {
         return 1;
-    } else if (data.WrongRatio < preData.WrongRatio) {
+    } else if (data?.WrongRatio < preData?.WrongRatio) {
         return 2;
     } else {
         return 0;
@@ -1077,7 +1071,7 @@ const aveErrorRate = computed(() => {
 });
 //过滤分层-答错-未答
 const formatAnswerCount = (type: number, data: any) => {
-    if (!data || !data.length) return;
+    if (!data || !data.length) return 0;
     switch (type) {
         case 1: //未答
             return data.filter((item: any) => {
