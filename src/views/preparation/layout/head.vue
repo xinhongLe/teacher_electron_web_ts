@@ -121,7 +121,7 @@
                 <el-form-item label="资源文件：" v-else>
                     <el-button
                         type="primary"
-                        style="font-size: 14px"
+                        style="font-size: 13px"
                         @click="editWincard()"
                     >
                         &nbsp;&nbsp;&nbsp;
