@@ -516,32 +516,18 @@
                                         <span>
                                             ( 答错
                                             {{
-                                                formatAnswerCount(
-                                                    2,
-                                                    item.Students
-                                                        ? item.Students
-                                                        : ""
-                                                )
-                                            }}</span
-                                        >
-                                        / 未答
-                                        <span>
-                                            {{
-                                                formatAnswerCount(
-                                                    1,
-                                                    item.Students
-                                                        ? item.Students
-                                                        : ""
-                                                )
-                                            }}</span
-                                        >
-                                        / 总
-                                        <span style="padding-right: 8px">
-                                            {{
                                                 item.Students
                                                     ? item.Students.length
                                                     : 0
                                             }}</span
+                                        >
+                                        / 未答
+                                        <span>
+                                            {{ item.NoReplyStudentNum }}</span
+                                        >
+                                        / 总
+                                        <span style="padding-right: 8px">
+                                            {{ item.TotalStudentNum }}</span
                                         >
                                         完成率
                                         <span>
