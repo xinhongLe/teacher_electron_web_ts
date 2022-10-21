@@ -16,6 +16,7 @@
             :studentList="selectStudentList"
             :questionType="selectQuestionType"
             @endAnswer="endAnswer"
+            :lessonId="lessonId"
             :AnswerMachineID="AnswerMachineID"
         />
 

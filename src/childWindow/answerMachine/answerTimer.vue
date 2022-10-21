@@ -51,6 +51,10 @@ export default defineComponent({
         },
         currentUserInfo: {
             type: Object as PropType<UserInfoState>
+        },
+        lessonId: {
+            type: String,
+            default: () => ""
         }
     },
     setup(props, { emit }) {
@@ -100,7 +104,8 @@ export default defineComponent({
         const endAnswer = () => {
             const data = {
                 TeacherID: props.currentUserInfo!.userCenterUserID,
-                AnswerMachineID: props.AnswerMachineID
+                AnswerMachineID: props.AnswerMachineID,
+                LessonId: props.lessonId ? props.lessonId : null
             };
             finishAnswerMachineQuestion(data).then(res => {
                 if (res.resultCode === 200) {

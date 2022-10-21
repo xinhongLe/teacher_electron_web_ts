@@ -11,6 +11,12 @@ export interface IClassDisabledRes {
   AnswerMachineID 任务ID
 */
 export interface IPraiseStudentRes {
+    StudentIdList: string[],
+    AnswerMachineID:string,
+    TeacherID:string,
+}
+
+export interface IAddRewardrecodeRes {
     Type: number,
     SchoolID:string,
     TeacherID:string,
