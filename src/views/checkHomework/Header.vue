@@ -105,7 +105,7 @@
                         <el-button type="success" @click="publish(homeworkDetail)">立即发布</el-button>
                     </div>
                 </div>
-                <el-button  plain type="warning" @click="handleMistakesCollect(homeworkDetail)">收集错题</el-button>
+                <el-button v-if="homeworkDetail.finishStudentCount < homeworkDetail.allStudentCount" plain type="warning" @click="handleMistakesCollect(homeworkDetail)">收集错题</el-button>
             </div>
         </div>
 

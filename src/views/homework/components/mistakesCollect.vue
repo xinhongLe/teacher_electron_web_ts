@@ -85,7 +85,7 @@ export default defineComponent({
             default: () => ({})
         }
     },
-    emits: ["update:dialogVisible", "handleAddCard"],
+    emits: ["update:dialogVisible", "updateTaskList"],
     setup(props, { emit }) {
         const state = reactive<State>({
             status: 0,
@@ -107,12 +107,13 @@ export default defineComponent({
             return `ErrorBack_${id}`;
         };
 
-        watch(() => props.dialogVisible, (val) => {
+        watch(() => props.dialogVisible, async(val) => {
             if (val) {
                 state.status = props.mistakesCollectState;
                 state.isFinish = props.isFinishState;
                 state.finishCount = props.collectedCount;
                 state.collectionId = props.collectionId;
+                await _GetStudentMissionList();
             } else {
                 client.unsubscribe(getPublish(state.collectionId));
             }
@@ -134,7 +135,7 @@ export default defineComponent({
         });
 
         const handleComfirm = async () => {
-            await _GetStudentMissionList();
+            // await _GetStudentMissionList();
             await _sendWrongTopicDetail();
         };
         const _GetStudentMissionList = () => {
@@ -178,6 +179,7 @@ export default defineComponent({
             state.finishCount = 0;
             state.collectionId = "";
             state.studentsList = [];
+            emit("updateTaskList");
             emit("update:dialogVisible", false);
         };
 

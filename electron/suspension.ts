@@ -2,10 +2,11 @@ import { BrowserWindow, ipcMain, screen } from "electron";
 import { createWindow } from "./createWindow";
 import ElectronLog from "electron-log";
 import { checkWindowSupportNet } from "./util";
-import { spawn, exec } from "child_process";
+import { spawn, exec, ChildProcessWithoutNullStreams } from "child_process";
 import path, { join } from "path";
+import detect from 'detect-port';
 import { Action, CallBack, SocketHelper } from "./socketHelper";
-const PATH_BALL = join(__dirname, "../extraResources/ball/winball/winball.exe");
+const WIN_PATH_BALL = join(__dirname, "../extraResources/ball/");
 let suspensionWin: BrowserWindow | null;
 let unfoldSuspensionWin: BrowserWindow | null;
 let blackboardWin: BrowserWindow | null;
@@ -23,6 +24,8 @@ let socketHelperHeartbeatInterval: any = -1;
 let socketHelperHeartbeatCheckInterval: any = -1;
 let socketHelperHeartbeatTime = new Date().getTime();
 let isShowSuspension = false;
+let lastSpwan: ChildProcessWithoutNullStreams | null = null;
+let lastPort = 1122;
 
 const timerURL =
     process.env.NODE_ENV === "development"
@@ -369,7 +372,32 @@ function checkIsUseBallEXE(callback: (T: boolean) => void) {
     }
 }
 
+function createBall() {
+    let ballname = "winball/winball.exe";
+    return new Promise(resolve => {
+        checkIsUseBallEXE(status => {
+            if (!status) {
+                ballname = "ball.exe";
+            }
+            try {
+                if (lastSpwan) {
+                    lastSpwan.kill();
+                    lastSpwan.pid && process.kill(lastSpwan.pid);
+                }
+            } catch (e) {
+    
+            }
+            lastSpwan = spawn(join(WIN_PATH_BALL, ballname), [lastPort.toString()]);
+            resolve(true);
+        });
+    });
+}
+
 class CustomCallBack implements CallBack {
+    OnDisconnect(): void {
+        console.log("需要退出重启");
+        createBall();
+    }
     OnConnected(): void {
         console.log("isShowSuspension", isShowSuspension);
         if (isShowSuspension) {
@@ -459,40 +487,6 @@ class CustomCallBack implements CallBack {
     }
 }
 
-function isRunning(query: string, cb: (result: boolean) => void) {
-    let platform = process.platform;
-    let cmd = "";
-    switch (platform) {
-        case "win32":
-            cmd = `tasklist`;
-            break;
-        case "darwin":
-            cmd = `ps -ax | grep ${query}`;
-            break;
-        case "linux":
-            cmd = `ps -A`;
-            break;
-        default:
-            break;
-    }
-    exec(cmd, (err, stdout, stderr) => {
-        cb(stdout.toLowerCase().indexOf(query.toLowerCase()) > -1);
-    });
-}
-
-function killProcess() {
-    return new Promise((resolve, reject) => {
-        exec("taskkill /im winball.exe /t /f", (err, stdout, stderr) => {
-            if (err) {
-                return resolve(true);
-            }
-            console.log("stdout", stdout);
-            console.log("stderr", stderr);
-            resolve(true);
-        });
-    });
-}
-
 function createLocalSuspensionWindow() {
     suspensionWin = createWindow(suspensionURL, {
         width: 120,
@@ -537,51 +531,30 @@ function createLocalSuspensionWindow() {
 
 export function createSuspensionWindow() {
     if (process.platform === "darwin") {
-        suspensionWin = createWindow(suspensionURL, {
-            width: 120,
-            height: 120,
-            type: "toolbar", // 创建的窗口类型为工具栏窗口
-            frame: false, // 要创建无边框窗口
-            resizable: false, // 禁止窗口大小缩放
-            show: false,
-            useContentSize: true,
-            transparent: true, // 设置透明
-            backgroundColor: "#00000000",
-            alwaysOnTop: true, // 窗口是否总是显示在其他窗口之前
-        });
-        const size = screen.getPrimaryDisplay().workAreaSize; // 获取显示器的宽高
-        const winSize = suspensionWin.getSize(); // 获取窗口宽高
-        suspensionWin.setPosition(
-            size.width - winSize[0] - 80,
-            size.height - winSize[1] - 50,
-            false
-        );
-
-        suspensionWin.once("ready-to-show", () => {
-            suspensionWin && suspensionWin.setAlwaysOnTop(true, "pop-up-menu");
-            // createUnfoldSuspensionWindow();
-        });
-        suspensionWin.on("closed", () => {
-            suspensionWin = null;
-            ElectronLog.info("suspensionWin closed");
-        });
-
-        suspensionWin.on("moved", () => {
-            setSuspensionSize(false);
-            checkIsWelt();
-        });
-
-        suspensionWin.on("show", () => {
-            setTimeout(() => {
-                setWelt();
-            }, 3000);
-        });
+        createLocalSuspensionWindow();
     } else {
-        killProcess().then(() => {
-            spawn(PATH_BALL);
-            socketHelper = new SocketHelper(new CustomCallBack());
-            startHeartbeat();
-            // createUnfoldSuspensionWindow();
+        try {
+            if (lastSpwan) {
+                lastSpwan.kill();
+                lastSpwan.pid && process.kill(lastSpwan.pid);
+            }
+        } catch (e) {
+
+        }
+        detect(lastPort).then(_port => {
+            if (lastPort == _port) {
+                console.log(`port: ${lastPort} was not occupied`);
+            } else {
+                console.log(`port: ${lastPort} was occupied, try port: ${_port}`);
+            }
+            lastPort = _port
+            console.log(`port is ${lastPort}`);
+            createBall().then(() => {
+                socketHelper = new SocketHelper(new CustomCallBack(), lastPort);
+                startHeartbeat();
+            });
+        }).catch(err => {
+            console.log(err);
         });
     }
     // checkIsUseBallEXE(isOk => {
@@ -607,9 +580,7 @@ function startHeartbeat() {
     socketHelperHeartbeatCheckInterval = setInterval(() => {
         if ((new Date().getTime() - socketHelperHeartbeatTime) / 1000 > 5) {
             console.log("需要退出重启");
-            killProcess().then(() => {
-                spawn(PATH_BALL);
-            });
+            createBall();
         }
     }, 10000);
 }

@@ -23,6 +23,7 @@ export interface HomeworkDetail {
     classID?: string;
     className?: string;
     allStudentCount?: number;
+    finishStudentCount?: number;
     answerShowTime?: string;
     showPublish?: boolean | undefined;
     formSubjectID?:string,
