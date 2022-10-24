@@ -50,7 +50,7 @@
                     </div>
                 </div>
             </div>
-            <div v-if="detail">
+            <div v-if="detail" style="overflow: auto">
                 <Answer
                     v-if="detail?.Question?.QuestionFiles.length"
                     :data="detailData"
