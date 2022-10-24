@@ -13,6 +13,7 @@ export class Action {
 export interface CallBack {
     OnDataReceive(data: Action): void;
     OnConnected(): void;
+    OnDisconnect(): void;
 }
 
 export class SocketHelper {
@@ -39,6 +40,7 @@ export class SocketHelper {
 
         this.client.on('close', data => {
             if (!this.closeSocket) {
+                this.callback.OnDisconnect();
                 this.sleep(2000).then(() => {
                     this.init(port, hostname);
                 })
