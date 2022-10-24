@@ -37,7 +37,6 @@
             <div class="iframe-video" v-if="isVideo">
                 <video :src="url" controls />
             </div>
-
             <div
                 class="not-preview"
                 v-if="
@@ -47,7 +46,17 @@
                 暂不支持预览，请下载查看
             </div>
         </div>
+        <!-- ppt、word、excel底部工具栏 -->
+        <div class="dialog-footer" v-if="type === 4 || type === 0">
+            <div class="pen" @click="drawingShow = true">
+                <p>画笔</p>
+            </div>
+            <div class="close" @click="close">
+                <p>关闭</p>
+            </div>
+        </div>
     </div>
+    <drawing-board :show="drawingShow" @closeWriteBoard="drawingShow = false" />
 </template>
 
 <script lang="ts">
@@ -66,9 +75,15 @@ import { IResourceItem } from "@/api/resource";
 import { getOssUrl } from "@/utils/oss";
 import { useStore } from "@/store";
 import { IViewResourceData } from "@/types/store";
+import DrawingBoard from "@/components/drawingBoard/index.vue";
 
 export default defineComponent({
-    components: { IntelligenceClassroom, LookVideo, LookQuestion },
+    components: {
+        IntelligenceClassroom,
+        LookVideo,
+        LookQuestion,
+        DrawingBoard,
+    },
     props: {
         target: {
             type: String,
@@ -95,6 +110,8 @@ export default defineComponent({
         },
     },
     setup(props, { emit }) {
+        const drawingShow = ref(false);
+
         const store = useStore();
         const url = ref("");
         const initIframeSrc = async () => {
@@ -144,6 +161,7 @@ export default defineComponent({
             isImage,
             isAudio,
             isVideo,
+            drawingShow,
         };
     },
 });
@@ -197,6 +215,40 @@ export default defineComponent({
                 width: 100%;
                 height: 100%;
                 object-fit: contain;
+            }
+        }
+    }
+    .dialog-footer {
+        width: 100%;
+        // height: 80px;
+        padding: 8px;
+        background: rgb(125, 164, 236);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        > div {
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            margin-right: 20px;
+            p {
+                text-align: center;
+                font-size: 12px;
+                color: #4b71ee;
+                line-height: 24px;
+                margin-top: 28px;
+                font-weight: 550;
+            }
+        }
+        > div.pen {
+            background: url("./../../assets/look/btn_huabi@2x.png");
+            background-size: 100% 100%;
+        }
+        > div.close {
+            background: url("./../../assets/look/btn_guanbi@2x.png");
+            background-size: 100% 100%;
+            p {
+                color: #fff;
             }
         }
     }

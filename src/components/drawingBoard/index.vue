@@ -1,5 +1,5 @@
 <template>
-    <div class="whiteboard-box" :class="{active : show}" ref="whiteboardBox">
+    <div class="whiteboard-box" :class="{ active: show }" ref="whiteboardBox">
         <WhiteBoard :options="options" ref="whiteboard" />
     </div>
 
@@ -7,11 +7,11 @@
         v-show="show"
         @close="closeWriteBoard()"
         @clear="whiteboardOption('clear')"
-        @setPenSize="value => whiteboardOption('setPenSize', value)"
-        @setPenColor="value => whiteboardOption('setPenColor', value)"
+        @setPenSize="(value) => whiteboardOption('setPenSize', value)"
+        @setPenColor="(value) => whiteboardOption('setPenColor', value)"
         @setEraser="whiteboardOption('setEraser')"
         @setMouse="whiteboardOption('setMouse')"
-        @openTool="value => whiteboardOption('openTool', value)"
+        @openTool="(value) => whiteboardOption('openTool', value)"
         @undo="undo()"
         @redo="redo()"
         :canUndo="canUndo"
@@ -20,15 +20,23 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, defineEmits, onMounted, defineProps, watch } from "vue";
+import {
+    computed,
+    ref,
+    defineEmits,
+    onMounted,
+    defineProps,
+    watch,
+    nextTick,
+} from "vue";
 import WritingBoardTool from "./WritingBoardTool.vue";
 import WhiteBoard, { OPTION_TYPE } from "mwhiteboard";
 
 const props = defineProps({
     show: {
         type: Boolean,
-        default: false
-    }
+        default: false,
+    },
 });
 
 const emits = defineEmits(["closeWriteBoard"]);
@@ -37,7 +45,7 @@ const writingBoardNotMouse = ref(true);
 
 const options = ref({
     offsetX: 0,
-    offsetY: 0
+    offsetY: 0,
 });
 
 const closeWriteBoard = () => {
@@ -84,34 +92,39 @@ const resize = () => {
     const { x, y } = whiteboardBox.value.getBoundingClientRect();
     options.value = {
         offsetX: x,
-        offsetY: y
+        offsetY: y + 20,
     };
 };
 
-watch(() => props.show, val => {
-    if (!val) return;
-
-    whiteboard.value.setOptionType(OPTION_TYPE.PEN);
-});
+watch(
+    () => props.show,
+    (val) => {
+        if (!val) return;
+        whiteboard.value.setLineWidth(2);
+        whiteboard.value.setOptionType(OPTION_TYPE.PEN);
+    }
+);
 
 onMounted(() => {
-    resize();
-    window.addEventListener("resize", resize);
+    nextTick(() => {
+        resize();
+        window.addEventListener("resize", resize);
+    });
 });
 </script>
 
 <style scoped lang="scss">
-    .whiteboard-box {
-        width: 100%;
-        height: 100vh;
-        position: fixed;
-        left: 0;
-        right: 0;
-        z-index: 99998;
-        pointer-events: none;
+.whiteboard-box {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    left: 0;
+    right: 0;
+    z-index: 99998;
+    pointer-events: none;
 
-        &.active{
-            pointer-events: all;
-        }
+    &.active {
+        pointer-events: all;
     }
+}
 </style>
