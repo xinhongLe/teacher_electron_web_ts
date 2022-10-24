@@ -190,10 +190,7 @@
                     >快速上传</el-button
                 >
                 <el-button
-                    v-if="
-                        info.HomeworkPaperType == 2 &&
-                        info.FinishStudentCount < info.AllStudentCount
-                    "
+                    v-if="info.HomeworkPaperType == 2 && info.FinishStudentCount < info.AllStudentCount"
                     plain
                     type="warning"
                     @click="handleMistakesCollect(info)"
@@ -226,6 +223,7 @@
             :collectedCount="collectedCount"
             :collectionId="collectionId"
             v-model:dialogVisible="mistakesCollectDialog"
+            @updateTaskList="updateTaskList"
         >
         </mistakes-collect>
     </div>
@@ -244,7 +242,7 @@ import {
     rebackHomeworkPaper,
     ShowAnswer,
     HideAnswer,
-    topicConnectionState,
+    topicConnectionState
 } from "./api";
 import HignPhoto from "./hignphoto.vue";
 import FileItem from "./FileItem.vue";
@@ -253,16 +251,16 @@ export default defineComponent({
     props: {
         info: {
             type: Object as PropType<Homework>,
-            default: () => ({}),
+            default: () => ({})
         },
         homeworkListMap: {
             type: Object as PropType<Record<string, Homework[]>>,
-            default: () => ({}),
+            default: () => ({})
         },
         form: {
             type: Object as PropType<{ subject: string; date: string }>,
-            default: () => ({}),
-        },
+            default: () => ({})
+        }
     },
     setup(props, { emit }) {
         const probability = computed(() => {
@@ -320,7 +318,7 @@ export default defineComponent({
         const dateChange = (val: any, info: any) => {
             const obj = {
                 classHomeworkPaperID: info.ClassHomeworkPaperID,
-                answerShowTime: `${moment(val).format("YYYY-MM-DD HH:mm:ss")}`,
+                answerShowTime: `${moment(val).format("YYYY-MM-DD HH:mm:ss")}`
             };
             ShowAnswer(obj).then((res) => {
                 if (res.resultCode === 200) {
@@ -344,12 +342,12 @@ export default defineComponent({
         const probability1 = computed(() => {
             return props.info.ReviewQuestionCount
                 ? (
-                      (props.info.ReviewQuestionCount /
+                    (props.info.ReviewQuestionCount /
                           (props.info.RightCount +
                               props.info.WrongCount +
                               props.info.NoSureCount)) *
                       100
-                  ).toFixed(2)
+                ).toFixed(2)
                 : 0;
         });
 
@@ -372,8 +370,9 @@ export default defineComponent({
                 ClassID,
                 ClassName,
                 AllStudentCount,
+                FinishStudentCount,
                 AnswerShowTime,
-                showPublish,
+                showPublish
             } = props.info;
             const classInfo = Object.values(props.homeworkListMap)
                 .flat()
@@ -385,7 +384,7 @@ export default defineComponent({
                 )
                 .map((v) => ({
                     name: v.ClassName,
-                    classHomeworkPaperID: v.ClassHomeworkPaperID,
+                    classHomeworkPaperID: v.ClassHomeworkPaperID
                 }));
             const homeworkDetail: HomeworkDetail = {
                 classHomeworkPaperID: ClassHomeworkPaperID,
@@ -405,18 +404,19 @@ export default defineComponent({
                 classID: ClassID,
                 className: ClassName,
                 allStudentCount: AllStudentCount,
+                finishStudentCount: FinishStudentCount,
                 answerShowTime: AnswerShowTime,
-                showPublish: showPublish,
+                showPublish: showPublish
             };
             set(
                 STORAGE_TYPES.HOMEWORK_DETAIL,
                 Object.assign(homeworkDetail, {
                     formSubjectID: props.form?.subject,
-                    formDate: props.form?.date,
+                    formDate: props.form?.date
                 })
             );
             router.push({
-                path: `/check-homework/${props.info.ClassHomeworkPaperID}`,
+                path: `/check-homework/${props.info.ClassHomeworkPaperID}`
             });
         };
 
@@ -424,13 +424,13 @@ export default defineComponent({
             ElMessageBox.confirm("确认删除此班级的这份作业吗?", "提示", {
                 confirmButtonText: "确定",
                 cancelButtonText: "取消",
-                type: "warning",
+                type: "warning"
             })
                 .then(async () => {
                     const res = await rebackHomeworkPaper({
                         classHomeworkPaperIDs: [
-                            props.info.ClassHomeworkPaperID,
-                        ],
+                            props.info.ClassHomeworkPaperID
+                        ]
                     });
                     if (res.resultCode === 200) {
                         ElMessage.success("删除成功");
@@ -452,12 +452,12 @@ export default defineComponent({
                 {
                     confirmButtonText: "确认公布",
                     cancelButtonText: "取消",
-                    type: "warning",
+                    type: "warning"
                 }
             )
                 .then(() => {
                     const obj = {
-                        classHomeworkPaperID: item.ClassHomeworkPaperID,
+                        classHomeworkPaperID: item.ClassHomeworkPaperID
                     };
                     ShowAnswer(obj).then((res) => {
                         if (res.resultCode === 200) {
@@ -473,7 +473,7 @@ export default defineComponent({
         // 隐藏
         const hideAnswer = (item: any) => {
             const obj = {
-                id: item.ClassHomeworkPaperID,
+                id: item.ClassHomeworkPaperID
             };
             HideAnswer(obj).then((res) => {
                 if (res.resultCode === 200) {
@@ -490,7 +490,7 @@ export default defineComponent({
                 if (device.kind === "videoinput") {
                     list.push({
                         label: device.label,
-                        id: device.deviceId,
+                        id: device.deviceId
                     });
                 }
             });
@@ -521,6 +521,10 @@ export default defineComponent({
             );
         };
 
+        const updateTaskList = () => {
+            emit("getTaskList");
+        };
+
         return {
             hignPhotoRef,
             showdataPicker,
@@ -546,13 +550,14 @@ export default defineComponent({
             collectedCount,
             collectionId,
             handleMistakesCollect,
+            updateTaskList
         };
     },
     components: {
         MistakesCollect,
         FileItem,
-        HignPhoto,
-    },
+        HignPhoto
+    }
 });
 </script>
 
