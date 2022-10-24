@@ -30,6 +30,7 @@ protocol.registerSchemesAsPrivileged([
 
 let mainWindow: BrowserWindow | null;
 let singalr: SingalRHelper | null;
+let isCreateWindow = false;
 
 async function createWindow() {
     if (!process.env.WEBPACK_DEV_SERVER_URL) {
@@ -56,7 +57,11 @@ async function createWindow() {
     });
     downloadFile();
     autoUpdater(mainWindow!);
-    createSuspensionWindow();
+    if (!isCreateWindow) {
+        createSuspensionWindow();
+        isCreateWindow = true;
+    }
+
     registerEvent();
 
     if (process.env.WEBPACK_DEV_SERVER_URL) {
@@ -260,8 +265,7 @@ app.on("ready", async () => {
 
 app.on("render-process-gone", (event, webContents, details) => {
     ElectronLog.error(
-        `render-process-gone, webContents title: ${webContents.getTitle()}, reason: ${
-            details.reason
+        `render-process-gone, webContents title: ${webContents.getTitle()}, reason: ${details.reason
         }, exitCode: ${details.exitCode}`
     );
 });

@@ -92,7 +92,7 @@ import {
     PropType,
     ref,
     toRefs,
-    watch,
+    watch
 } from "vue";
 import ResourceItem from "./resourceItem.vue";
 import DeleteTip from "./dialog/deleteTip.vue";
@@ -108,7 +108,7 @@ import {
     IResourceItem,
     logDownload,
     logView,
-    removePreparationPackage,
+    removePreparationPackage
 } from "@/api/resource";
 import { MutationTypes, useStore } from "@/store";
 import emitter from "@/utils/mitt";
@@ -129,29 +129,29 @@ export default defineComponent({
         EditTip,
         ResourceVersion,
         DeleteVideoTip,
-        ResourceView,
+        ResourceView
     },
     props: {
         course: {
             type: Object as PropType<ICourse>,
-            required: true,
+            required: true
         },
         source: {
             type: String,
-            required: true,
+            required: true
         },
         type: {
             type: String,
-            required: true,
+            required: true
         },
         bookId: {
             type: String,
-            required: true,
+            required: true
         },
         name: {
             type: String,
-            default: "",
-        },
+            default: ""
+        }
     },
     emits: ["updateResourceList"],
     setup(props, { expose, emit }) {
@@ -198,7 +198,7 @@ export default defineComponent({
                 chapterId: book.ChapterID || course.value.chapterId,
                 chapterName: book.ChapterName || course.value.chapterName,
                 lessonId: book.LessonID || course.value.lessonId,
-                lessonName: book.LessonName || course.value.lessonName,
+                lessonName: book.LessonName || course.value.lessonName
             });
 
             if (res.success) {
@@ -237,15 +237,10 @@ export default defineComponent({
                 }).then(async (file: any) => {
                     if (!file.canceled) {
                         const path = file.filePaths[0];
-                        downloadProgress.value = 0;
-                        showDownload.value = true;
-                        new LocalCache({
+                        await new LocalCache({
                             cachingStatus: (status) => {
                                 console.log(`status: ${status}`);
-                                downloadProgress.value = status;
                                 if (status === 100) {
-                                    showDownload.value = false;
-                                    ElMessage.success("打包下载完成！")
                                 }
                             }
                         }).doCache({
@@ -258,6 +253,7 @@ export default defineComponent({
                 });
                 return;
             }
+
             if (data.File) {
                 const url = await getOssUrl(
                     `${data.File.FilePath}/${data.File.FileMD5}.${data.File.FileExtention}`,
@@ -282,98 +278,98 @@ export default defineComponent({
             e?: MouseEvent | TouchEvent
         ) => {
             switch (event) {
-                case "delete":
-                    targetDelete.value = data.ResourceId;
-                    deleteTipVisible.value = true;
-                    break;
-                case "edit":
-                    if (
-                        (data.ResourceShowType === 1 ||
+            case "delete":
+                targetDelete.value = data.ResourceId;
+                deleteTipVisible.value = true;
+                break;
+            case "edit":
+                if (
+                    (data.ResourceShowType === 1 ||
                             data.ResourceShowType === 0) &&
                         data.UserId !== userId.value
-                    ) {
-                        resource.value = data;
-                        editTipVisible.value = true;
-                    } else {
-                        emitter.emit("openEditResource", data);
-                    }
-                    break;
-                case "version":
-                    target.value = data.ResourceId;
-                    resourceVersionVisible.value = true;
-                    break;
-                case "download":
-                    downloadFile(data);
-                    break;
-                case "add":
-                    if (e) dealFly(e);
-                    addPackage(data);
-                    break;
-                case "move":
-                    removePackage(data);
-                    break;
-                case "detail":
-                    if (props.name === "attendClass") {
-                        if (data.ResourceShowType === 2) {
-                            // 断点视频
-                            store.commit(
-                                MutationTypes.SET_FULLSCREEN_RESOURCE,
-                                {
-                                    component: "LookVideo",
-                                    resource: { id: data.OldResourceId, openMore: true },
+                ) {
+                    resource.value = data;
+                    editTipVisible.value = true;
+                } else {
+                    emitter.emit("openEditResource", data);
+                }
+                break;
+            case "version":
+                target.value = data.ResourceId;
+                resourceVersionVisible.value = true;
+                break;
+            case "download":
+                downloadFile(data);
+                break;
+            case "add":
+                if (e) dealFly(e);
+                addPackage(data);
+                break;
+            case "move":
+                removePackage(data);
+                break;
+            case "detail":
+                if (props.name === "attendClass") {
+                    if (data.ResourceShowType === 2) {
+                        // 断点视频
+                        store.commit(
+                            MutationTypes.SET_FULLSCREEN_RESOURCE,
+                            {
+                                component: "LookVideo",
+                                resource: { id: data.OldResourceId, openMore: true }
+                            }
+                        );
+                    } else if (data.ResourceShowType === 3) {
+                        // 练习卷
+                        store.commit(
+                            MutationTypes.SET_FULLSCREEN_RESOURCE,
+                            {
+                                component: "LookQuestion",
+                                resource: {
+                                    id: data.OldResourceId,
+                                    courseBagId: "",
+                                    deleteQuestionIds: [],
+                                    type: 1,
+                                    openMore: true
                                 }
-                            );
-                        } else if (data.ResourceShowType === 3) {
-                            // 练习卷
-                            store.commit(
-                                MutationTypes.SET_FULLSCREEN_RESOURCE,
-                                {
-                                    component: "LookQuestion",
-                                    resource: {
-                                        id: data.OldResourceId,
-                                        courseBagId: "",
-                                        deleteQuestionIds: [],
-                                        type: 1,
-                                        openMore: true
-                                    },
+                            }
+                        );
+                    } else if (data.ResourceShowType === 1) {
+                        store.commit(
+                            MutationTypes.SET_FULLSCREEN_RESOURCE,
+                            {
+                                component: "Wincard",
+                                resource: {
+                                    id: data.OldResourceId,
+                                    wincardName: data.Name,
+                                    isSystem: data.IsSysFile === 1,
+                                    openMore: true
                                 }
-                            );
-                        } else if (data.ResourceShowType === 1) {
-                            store.commit(
-                                MutationTypes.SET_FULLSCREEN_RESOURCE,
-                                {
-                                    component: "Wincard",
-                                    resource: {
-                                        id: data.OldResourceId,
-                                        wincardName: data.Name,
-                                        isSystem: data.IsSysFile === 1,
-                                        openMore: true
-                                    },
-                                }
-                            );
-                        } else if (
-                            data.ResourceShowType === 0 ||
+                            }
+                        );
+                    } else if (
+                        data.ResourceShowType === 0 ||
                             data.ResourceShowType === 4
-                        ) {
-                            store.commit(
-                                MutationTypes.SET_FULLSCREEN_RESOURCE,
-                                {
-                                    component: "ScreenViewFile",
-                                    resource: {
-                                        ...data,
-                                        id: data.OldResourceId,
-                                        openMore: true
-                                    },
+                    ) {
+                        store.commit(
+                            MutationTypes.SET_FULLSCREEN_RESOURCE,
+                            {
+                                component: "ScreenViewFile",
+                                resource: {
+                                    ...data,
+                                    id: data.OldResourceId,
+                                    openMore: true
                                 }
-                            );
-                        }
-                    } else {
-                        openResource(data);
+                            }
+                        );
                     }
+                } else {
+                    openResource(data);
+                }
 
-                    logView({ id: data.ResourceId });
-                    data.BrowseNum++;
-                    break;
+                logView({ id: data.ResourceId });
+                data.BrowseNum++;
+                break;
             }
         };
 
@@ -385,7 +381,7 @@ export default defineComponent({
                     id: data.OldResourceId,
                     courseBagId: "",
                     deleteQuestionIds: [],
-                    type: 1,
+                    type: 1
                 };
             }
             resource.value = data;
@@ -469,8 +465,8 @@ export default defineComponent({
                     bookId: bookId.value,
                     pager: {
                         pageNumber: pageNumber.value,
-                        pageSize: pageSize.value,
-                    },
+                        pageSize: pageSize.value
+                    }
                 });
 
                 resourceList.value = resourceList.value.concat(res.result.list);
@@ -490,7 +486,7 @@ export default defineComponent({
                                 .offsetTop;
                             resourceScroll.value.scrollTo({
                                 top,
-                                behavior: "smooth",
+                                behavior: "smooth"
                             });
                         }
                     }
@@ -535,11 +531,11 @@ export default defineComponent({
             name,
             resourceScroll,
             resourceId,
-			resourceData,
+            resourceData,
             showDownload,
             downloadProgress
         };
-    },
+    }
 });
 </script>
 
