@@ -171,7 +171,7 @@ export default defineComponent({
 
         const canEdit = computed(() => [2, 3, 4, 5].indexOf(props.data.ResourceShowType) === -1);
 
-        const canDownload = computed(() => [1, 2, 3, 4, 5].indexOf(props.data.ResourceShowType) === -1);
+        const canDownload = computed(() => [2, 3, 4, 5].indexOf(props.data.ResourceShowType) === -1);
 
         const formatImgs: { [key: string]: any } = {
             "xlsx": require("@/assets/projection/format/icon_execl@2x.png"),

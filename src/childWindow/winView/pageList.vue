@@ -37,12 +37,12 @@
 import { computed, defineComponent, inject, ref, watch } from "vue";
 import TrackService, { EnumTrackEventType } from "@/utils/common";
 import useHome from "@/hooks/useHome";
-import OpenCardViewDialog from "../edit/openCardViewDialog.vue";
-import { getCardDetail } from "../../api";
+import OpenCardViewDialog from "./openCardViewDialog.vue";
+import { getCardDetail } from "@/views/preparation/intelligenceClassroom/api";
 import { getWinCardDBData } from "@/utils/database";
 import { ElMessage } from "element-plus";
 import { useRoute } from "vue-router";
-import PageItem from "../pageItem.vue";
+import PageItem from "@/views/preparation/intelligenceClassroom/components/pageItem.vue";
 import { windowInfoKey } from "@/hooks/useWindowInfo";
 import { SchoolWindowPageInfo } from "@/types/preparation";
 import { find } from "lodash";
@@ -60,10 +60,11 @@ export default defineComponent({
         const store = useStore();
         const { getPageDetail, transformType } = useHome();
         const { currentCard, currentWindowInfo, cardList, currentPageIndex, currentSlide, pageList, currentPageInfo } = inject(windowInfoKey)!;
-
+        
         const dialogVisible = ref(false);
         const prevPageFlag = ref(false);
         const keyDisabled = ref(false);
+        const appjson = inject("appjson") as any;
         const canvasData = computed(() => {
             return canvasDataMap.get(currentSlide.value ? currentSlide.value.id : "") || [];
         });
@@ -97,12 +98,7 @@ export default defineComponent({
         const writeBoardVisible = ref(false);
         const selectPage = (index: number, item: SchoolWindowPageInfo) => {
             currentPageIndex.value = index;
-            const DataContext = {
-                Type: EnumTrackEventType.SelectPage,
-                LessonID: currentWindowInfo.LessonID
-            };
             getDataBase(pageList.value[index].ID, pageList.value[index]);
-            TrackService.setTrack(EnumTrackEventType.SelectPage, currentWindowInfo.WindowID, currentWindowInfo.WindowName, currentCard.value?.ID, currentCard.value?.Name, item.ID, item.Name, "选择页", JSON.stringify(DataContext), item.ID, store.state.userInfo.schoolId);
         };
         const getDataBase = async (str: string, obj:SchoolWindowPageInfo) => {
             const elements = screenRef.value.whiteboard.getElements();
@@ -112,15 +108,18 @@ export default defineComponent({
                 currentSlide.value = {};
                 return false;
             }
-            const dbResArr = await getWinCardDBData(str);
-            if (dbResArr.length > 0) {
-                currentSlide.value = JSON.parse(dbResArr[0].result);
-            } else {
-                await getPageDetail(obj, obj.OriginType, (res: any) => {
-                    if (res && res.id) {
-                        currentSlide.value = res;
-                    }
-                });
+            // const dbResArr = await getWinCardDBData(str);
+            // if (dbResArr.length > 0) {
+            //     currentSlide.value = JSON.parse(dbResArr[0].result);
+            // } else {
+            //     await getPageDetail(obj, obj.OriginType, (res: any) => {
+            //         if (res && res.id) {
+            //             currentSlide.value = res;
+            //         }
+            //     });
+            // }
+            if (appjson.value.slides) {
+                currentSlide.value = appjson.value.slides.find((p: any) => p.id === str);
             }
         };
         const screenRef = ref();
@@ -141,14 +140,7 @@ export default defineComponent({
         const openShape = (event: MouseEvent) => {
             screenRef.value.openShape(event);
         };
-        const route = useRoute();
-        watch(() => route.path, () => {
-            if (route.path !== "/preparation") {
-                keyDisabled.value = true;
-            } else {
-                keyDisabled.value = false;
-            }
-        });
+
         const pagePrev = async () => {
             if (currentPageIndex.value > 0) {
                 currentPageIndex.value--;
@@ -178,11 +170,6 @@ export default defineComponent({
             } else {
                 currentPageIndex.value++;
                 isInitPage.value = true;
-                const DataContext = {
-                    Type: EnumTrackEventType.SelectPage,
-                    LessonID: currentWindowInfo.LessonID
-                };
-                TrackService.setTrack(EnumTrackEventType.SelectPage, currentWindowInfo.WindowID, currentWindowInfo.WindowName, currentCard.value?.ID, currentCard.value?.Name, pageList.value[currentPageIndex.value].ID, pageList.value[currentPageIndex.value].Name, "选择页", JSON.stringify(DataContext), pageList.value[currentPageIndex.value].ID, store.state.userInfo.schoolId);
                 getDataBase(pageList.value[currentPageIndex.value].ID, pageList.value[currentPageIndex.value]);
             }
         };
@@ -201,8 +188,7 @@ export default defineComponent({
             if (wins[0] && wins[0].cards) {
                 keyDisabled.value = true;
                 const cards = wins[0].cards;
-                let pages: any[] = [];
-                const newPages:any[] = [];
+                let pages: Array<any> = [];
                 cards.map((card: any) => {
                     pages = pages.concat(card.slides.map((page: any) => {
                         return {
@@ -214,27 +200,8 @@ export default defineComponent({
                     }));
                 });
                 if (pages.length > 0) {
-                    const pageIDs = pages.map(page => page.ID);
-                    const obj = {
-                        pageIDs
-                        // OriginType: pages[0].OriginType
-                    };
-                    const res = await getCardDetail(obj);
-                    if (res.resultCode === 200 && res.result && res.result.length > 0) {
-                        // 页名称可能会修改
-                        pages.map(item => {
-                            const value = res.result.find((page: any) => page.ID === item.ID);
-                            if (value) {
-                                newPages.push({ Type: item.Type, ID: item.ID, Name: value.Name });
-                            } else {
-                                newPages.push({ Type: item.Type, ID: item.ID, Name: item.Name });
-                            }
-                        });
-                        dialogCardList.value = newPages;
-                        dialogVisible.value = true;
-                    } else {
-                        keyDisabled.value = false;
-                    }
+                    dialogCardList.value = pages;
+                    dialogVisible.value = true;
                 }
             }
         };

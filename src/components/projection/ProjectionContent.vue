@@ -78,6 +78,7 @@
                 <el-popover
                     trigger="click"
                     v-model:visible="isPopover"
+                    :append-to-body="false"
                     placement="top"
                     :style="{ background: 'rgb(40, 40, 40)' }"
                     popper-class="brushPopup"
@@ -304,7 +305,6 @@ export default defineComponent({
             showBrush.value = true;
             viewWidth.value = contentRef.value.clientWidth;
             viewHeight.value = contentRef.value.clientHeight;
-            console.log(viewWidth.value)
         };
 
         return {

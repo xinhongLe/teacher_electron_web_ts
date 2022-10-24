@@ -89,6 +89,13 @@ module.exports = {
             filename: "blackboard.html",
             title: "教学黑板",
             chunks: ["blackboard"]
+        },
+        winView: {
+            entry: "src/childWindow/winView/main.ts",
+            template: "public/index.html",
+            filename: "winView.html",
+            title: "",
+            chunks: ["winView"]
         }
     },
     css: {
@@ -166,6 +173,11 @@ module.exports = {
                     name: "timer",
                     priority: 10,
                     test: "src/childWindow/timer/main.ts"
+                },
+                winView: {
+                    name: "winView",
+                    priority: 10,
+                    test: "src/childWindow/winView/main.ts"
                 }
             }
         });
@@ -240,6 +252,12 @@ module.exports = {
                 win: {
                     // win相关配置
                     icon: "./public/icon.ico", // 图标，当前图标在根目录下，注意这里有两个坑
+                    fileAssociations: [
+                        {
+                            ext: "lyxpkg",
+                            icon: "./public/lyxpkg.ico"
+                        }
+                    ],
                     target: [
                         {
                             target: "nsis", // 利用nsis制作安装程序
@@ -265,6 +283,12 @@ module.exports = {
                             from: "node_modules/trtc-electron-sdk/build/Release/",
                             to: "./Resources",
                             filter: ["**/*"]
+                        }
+                    ],
+                    fileAssociations: [
+                        {
+                            ext: "lyxpkg",
+                            icon: "./public/lyxpkg.icns"
                         }
                     ]
                 },

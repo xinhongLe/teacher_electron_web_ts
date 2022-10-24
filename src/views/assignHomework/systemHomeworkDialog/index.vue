@@ -273,11 +273,22 @@ export default defineComponent({
             margin-bottom: 20px;
         }
     }
+    :deep(.el-dialog) {
+        height: 90vh;
+        display: flex;
+        flex-direction: column;
+        --el-dialog-margin-top: 5vh;
+    }
     :deep(.el-dialog__body) {
         padding: 0;
+        display: flex;
+        flex: 1;
+        min-height: 0;
+        flex-direction: column;
         .content {
             display: flex;
-            height: 600px;
+            flex: 1;
+            min-height: 0;
             border-top: 1px solid #f5f6fa;
             .content-left {
                 width: 240px;

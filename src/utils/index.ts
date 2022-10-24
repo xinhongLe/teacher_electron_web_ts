@@ -193,9 +193,9 @@ export const downLoad = (downUrl: string, fileName: string) => {
     a.remove(); // 移除a标签
 };
 
-export const getSaveFilePath = (id: string) => {
+export const getSaveFilePath = () => {
     const { join } = require("path");
-    const path = join(window.electron.getPath("userData"), "files", id, "/");
+    const path = join(window.electron.getPath("userData"), "files", "/");
     return path;
 };
 

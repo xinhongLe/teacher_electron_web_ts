@@ -6,11 +6,11 @@ export const cacheFile = async (key: string) => {
     if (!key) return;
     return new Promise((resolve) => {
         if (isElectron()) {
-            const fileName = key.replace(/(.*\/)*([^.]+)/i, "$2");
+            const fileName = key.replace(/(.*[\/\\])*([^.]+)/i, "$2");
             if (fileName === "ElementFile/" || fileName === "null") return resolve("");
             return window.electron.isExistFile(fileName).then((isExist) => {
                 if (isExist) {
-                    resolve(window.electron.getFilePath(fileName));
+                    resolve(encodeURI(window.electron.getFilePath(fileName)));
                 } else {
                     getOssUrl(key, "axsfile").then(filePath => {
                         window.electron.ipcRenderer.invoke("downloadFile", filePath, fileName).then(path => resolve(path ? "file://" + path : ""));

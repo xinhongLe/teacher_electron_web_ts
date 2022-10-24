@@ -3,7 +3,7 @@
         <div class="me-remark-content">
             <div class="lesson-set">
                 <div class="me-remark-title">配套教案</div>
-                <div class="lesson-view" @click="openLessonDesign">
+                <div class="lesson-view" v-if="!hideLookAll" @click="openLessonDesign">
                     <span>查看全部</span>
                     <el-icon><ArrowRight /></el-icon>
                 </div>
@@ -38,7 +38,7 @@ import { getLessonPlan } from "@/api/home";
 import LessonPreview from "@/views/preparation/intelligenceClassroom/components/edit/lessonPreview.vue";
 export default defineComponent({
     components: { ArrowRight, LessonPreview },
-    props: ["teachProcess", "design", "resourceId", "isSystem"],
+    props: ["teachProcess", "design", "resourceId", "isSystem", "hideLookAll"],
     setup(props) {
         const teachProcess = computed(() => props.teachProcess);
         const design = computed(() => props.design);

@@ -11,7 +11,6 @@ import ClearCacheSuccess from "./clearCacheSuccess.vue";
 const isShow = ref(false);
 const checked = ref(false);
 const dateText = ref("");
-const id = computed(() => store.state.userInfo.id);
 const {
     clearCache,
     clearCacheEnd,
@@ -29,15 +28,15 @@ const close = () => {
 const notClear = () => {
     if (checked.value) {
         const time = moment().add("1", "w").format();
-        set(STORAGE_TYPES.NEXT_AUTO_CLEAR_TIME + id.value, time);
+        set(STORAGE_TYPES.NEXT_AUTO_CLEAR_TIME, time);
     }
     close();
 };
 
 watchEffect(() => {
-    if (!id.value || fileInfoList.value.length === 0) return;
-    const autoClearSetting = Number(get(STORAGE_TYPES.AUTO_CLEAR_SETTING + id.value));
-    const nextAutoClearTime = get(STORAGE_TYPES.NEXT_AUTO_CLEAR_TIME + id.value);
+    if (fileInfoList.value.length === 0) return;
+    const autoClearSetting = Number(get(STORAGE_TYPES.AUTO_CLEAR_SETTING));
+    const nextAutoClearTime = get(STORAGE_TYPES.NEXT_AUTO_CLEAR_TIME);
     const isAfter = moment().isAfter(nextAutoClearTime);
     if ((autoClearSetting === 1 || autoClearSetting === 2) && (!nextAutoClearTime || (nextAutoClearTime && isAfter))) {
         dateText.value = autoClearSetting === 1 ? "1个月前" : "2个月前";
@@ -46,7 +45,7 @@ watchEffect(() => {
                 ? moment().subtract(1, "months")
                 : moment().subtract(2, "months")
         );
-        set(STORAGE_TYPES.NEXT_AUTO_CLEAR_TIME + id.value, "");
+        set(STORAGE_TYPES.NEXT_AUTO_CLEAR_TIME, "");
         isShow.value = rangeFileList.value.length !== 0;
     }
 });

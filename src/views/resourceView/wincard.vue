@@ -1,7 +1,7 @@
 <template>
     <div class="wincard-fixed">
         <div class="wincard-box">
-            <IntelligenceClassroom :resourceId="wincardId" :isSystem="isSystem" />
+            <IntelligenceClassroom :resourceId="wincardId" :resource="resource" :isSystem="isSystem" />
         </div>
     </div>
 </template>
@@ -17,6 +17,7 @@ const props = defineProps({
         default: 0
     }
 });
+const resource = computed(() => store.state.common.showResourceFullScreen[props.index].resource);
 const wincardId = computed(() => store.state.common.showResourceFullScreen[props.index].resource.id);
 const isSystem = computed(() => store.state.common.showResourceFullScreen[props.index].resource.isSystem);
 </script>

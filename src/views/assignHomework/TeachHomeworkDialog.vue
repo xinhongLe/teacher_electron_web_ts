@@ -244,7 +244,7 @@ export default defineComponent({
 .add-system-homework {
     .header {
         display: flex;
-        padding-left: 20px;
+        padding: 20px 0 0 20px;
     }
     .title-text {
         font-size: 20px;
@@ -252,9 +252,19 @@ export default defineComponent({
         color: #19203d;
         margin: 10px 10px 20px 0;
     }
+    :deep(.el-dialog) {
+        height: 90vh;
+        display: flex;
+        flex-direction: column;
+        --el-dialog-margin-top: 5vh;
+    }
     :deep(.el-dialog__body) {
         padding: 0 0 20px;
         background-color: #f5f6fa;
+        display: flex;
+        flex: 1;
+        min-height: 0;
+        flex-direction: column;
     }
     :deep(.el-form) {
         padding: 20px 20px 0;
@@ -265,7 +275,8 @@ export default defineComponent({
     }
     .content {
         display: flex;
-        height: 400px;
+        flex: 1;
+        min-height: 0;
         border-top: 1px solid #f5f6fa;
         .content-left {
             width: 240px;
@@ -324,7 +335,8 @@ export default defineComponent({
         }
     }
     .content-no {
-        height: 600px;
+        flex: 1;
+        min-height: 0;
         margin: 20px;
         border: 2px dashed #d5d8dd;
         position: relative;
