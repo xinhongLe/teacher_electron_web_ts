@@ -197,7 +197,7 @@
         <div class="right">
             <win-card-edit
                 ref="editRef"
-                :slide="currentSlide"
+                :slide="{...currentSlide}"
                 :allPageSlideListMap="allPageSlideListMap"
                 @onSave="onSave"
                 @updatePageSlide="updatePageSlide"
@@ -469,6 +469,8 @@ export default defineComponent({
                             json = slide.follow?.id || "";
                         } else if (slide.type === "teach") {
                             json = slide.teach?.id || "";
+                        } else if (slide.type === "game") {
+                            json = slide.game?.id || "";
                         }
                     }
                     return {

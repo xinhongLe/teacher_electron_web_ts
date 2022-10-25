@@ -283,7 +283,8 @@ export async function getPageDetailRes(data:IGetPageData, type: number, callback
         "/API/WCP/Window/GetPageElements", // 素材页
         "/Api/WCP/Listen/GetPageWords", // 听写页
         "/Api/WCP/Window/GetPageVideo", // 跟读页
-        "/Api/WCP/TeachTool/GetPageTool" // 教具页
+        "/Api/WCP/TeachTool/GetPageTool", // 教具页
+        "/Api/WCP/Game/GetTeacherPageGameConfig" // 游戏页
     ];
     let dbResArr: Array<WinCardData> = [];
     if (needLocal) {
@@ -327,7 +328,8 @@ export function updatePageRes(data: Slide, type:number) : Promise<GetPageRespons
         "/Api/WCP/Window/SavePageElements",
         "/Api/WCP/Listen/PageSaveWord",
         "/Api/WCP/Window/SavePageVideo",
-        "/Api/WCP/TeachTool/AddOrUpdate"
+        "/Api/WCP/TeachTool/AddOrUpdate",
+        "/Api/WCP/Game/UpdateTeacherPageGame"
     ];
     return request({
         url: urlList[type],
