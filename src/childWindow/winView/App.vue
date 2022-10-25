@@ -153,7 +153,7 @@ export default defineComponent({
         };
 
         onMounted(async () => {
-            const urlSearchParams = new URLSearchParams(window.location.search);
+            const urlSearchParams = new URLSearchParams(window.location.search.replace(/\&/g, '%26'));
             const params = Object.fromEntries(urlSearchParams.entries());
             appjson.value = await window.electron.unpackCacheFile(params.file)
             if (appjson) {

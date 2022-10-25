@@ -237,10 +237,15 @@ export default defineComponent({
                 }).then(async (file: any) => {
                     if (!file.canceled) {
                         const path = file.filePaths[0];
-                        await new LocalCache({
+                        downloadProgress.value = 0;
+                        showDownload.value = true;
+                        new LocalCache({
                             cachingStatus: (status) => {
                                 console.log(`status: ${status}`);
+                                downloadProgress.value = status;
                                 if (status === 100) {
+                                    showDownload.value = false;
+                                    ElMessage.success("打包下载完成！")
                                 }
                             }
                         }).doCache({
