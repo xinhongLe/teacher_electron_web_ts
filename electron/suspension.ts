@@ -68,6 +68,17 @@ const localPreviewURL = process.env.NODE_ENV === "development"
     ? `${process.env.WEBPACK_DEV_SERVER_URL}winView.html`
     : `file://${__dirname}/winView.html`;
 
+app.on('will-quit', () => {
+    try {
+        if (lastSpwan) {
+            lastSpwan.kill();
+            lastSpwan.pid && process.kill(lastSpwan.pid);
+        }
+    } catch (e) {
+        
+    }
+});
+
 function setSuspensionSize(isResetPosition = true, isCloseWelt = false) {
     if (!suspensionWin) {
         return;

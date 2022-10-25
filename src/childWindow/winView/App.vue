@@ -44,7 +44,7 @@
                     <Tools
                         :id="winActiveId"
                         :dialog="false"
-                        :showClose="false"
+                        :showClose="true"
                         :showRemark="previewSection?.showRemark"
                         @toggleRemark="toggleRemark"
                         @prevStep="prevStep"
@@ -54,6 +54,7 @@
                         @showWriteBoard="showWriteBoard"
                         @openShape="openShape"
                         @hideWriteBoard="hideWriteBoard"
+                        @closeWincard="close"
                     />
                 </div>
             </div>
@@ -153,7 +154,7 @@ export default defineComponent({
         };
 
         onMounted(async () => {
-            const urlSearchParams = new URLSearchParams(window.location.search);
+            const urlSearchParams = new URLSearchParams(window.location.search.replace(/\&/g, '%26'));
             const params = Object.fromEntries(urlSearchParams.entries());
             appjson.value = await window.electron.unpackCacheFile(params.file)
             if (appjson) {
@@ -170,6 +171,11 @@ export default defineComponent({
                 });
             }
         });
+
+        const close = () => {
+            window.electron.remote.getCurrentWindow().close();
+        };
+
         return {
             lastPage,
             firstPage,
@@ -191,7 +197,8 @@ export default defineComponent({
             cardList,
             previewOptions,
             winActiveId,
-            WindowName
+            WindowName,
+            close
         };
     }
 });
