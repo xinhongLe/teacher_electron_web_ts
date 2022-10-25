@@ -14,7 +14,7 @@
                     <div class="select-warp">
                         <span class="label p_b_20">请选择班级：</span>
                         <el-form-item label="" prop="selectClass">
-                            <el-select v-model="form.selectClass" @change="_getAnswerMachineQuestionList">
+                            <el-select popper-class="answer-select" v-model="form.selectClass" @change="_getAnswerMachineQuestionList">
                                 <el-option
                                     v-for="item in classList"
                                     :key="item.ClassId"
@@ -54,6 +54,7 @@
                                 <span class="label p_b_20">选项：</span>
                                 <el-form-item label="" :prop="`topicList[${i}].selectSetting`" :rules="rules.option">
                                     <el-cascader
+                                        popper-class="answer-select"
                                         :options="item.option"
                                         v-model="item.selectSetting"
                                         :disabled="!(item.selectSetting.length > 0)"
@@ -343,7 +344,7 @@ $blue: #4b71ee;
 .main_bg{
     height: 550px!important;
     border-radius: 8px;
-    background: #fff;
+    //background: #fff;
     box-shadow: 0px 6px 16px -8px rgba(0, 0, 0, 0.12),
     0px 9px 28px 0px rgba(0, 0, 0, 0.08),
     0px 12px 48px 16px rgba(0, 0, 0, 0.05);
