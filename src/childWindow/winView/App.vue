@@ -44,7 +44,7 @@
                     <Tools
                         :id="winActiveId"
                         :dialog="false"
-                        :showClose="false"
+                        :showClose="true"
                         :showRemark="previewSection?.showRemark"
                         @toggleRemark="toggleRemark"
                         @prevStep="prevStep"
@@ -54,6 +54,7 @@
                         @showWriteBoard="showWriteBoard"
                         @openShape="openShape"
                         @hideWriteBoard="hideWriteBoard"
+                        @closeWincard="close"
                     />
                 </div>
             </div>
@@ -170,6 +171,11 @@ export default defineComponent({
                 });
             }
         });
+
+        const close = () => {
+            window.electron.remote.getCurrentWindow().close();
+        };
+
         return {
             lastPage,
             firstPage,
@@ -191,7 +197,8 @@ export default defineComponent({
             cardList,
             previewOptions,
             winActiveId,
-            WindowName
+            WindowName,
+            close
         };
     }
 });
