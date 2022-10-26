@@ -26,6 +26,8 @@
                         :dialog="dialog"
                         :isSystem="isSystem"
                         :resourceId="resourceId"
+                        :isShowCardList="isShowCardList"
+                        :isFullScreen="isFullScreen"
                         @lastPage="lastPage"
                         @firstPage="firstPage"
                         @changeWinSize="changeWinSize"

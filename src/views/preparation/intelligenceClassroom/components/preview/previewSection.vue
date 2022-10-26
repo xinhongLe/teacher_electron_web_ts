@@ -7,6 +7,8 @@
                 @lastPage="lastPage"
                 @firstPage="firstPage"
                 :dialog="dialog"
+                :isShowCardList="isShowCardList"
+                :isFullScreen="isFullScreen"
             />
             <transition name="fade">
                 <Remark :teachProcess="teachProcess" :isSystem="isSystem" :resourceId="resourceId" :design="design" v-if="showRemark" />
@@ -33,6 +35,14 @@ export default defineComponent({
             default: false
         },
         dialog: {
+            type: Boolean,
+            default: false
+        },
+        isShowCardList: {
+            type: Boolean,
+            default: true
+        },
+        isFullScreen: {
             type: Boolean,
             default: false
         }
