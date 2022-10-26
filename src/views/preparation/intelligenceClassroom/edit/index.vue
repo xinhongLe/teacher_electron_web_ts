@@ -159,8 +159,9 @@
                                             >
                                                 粘贴页
                                             </div>
+                                            <!--游戏页暂不支持复制-->
                                             <div
-                                                v-show="node.level === 2"
+                                                v-show="node.level === 2 && data.Type !==20"
                                                 @click.stop="
                                                     handleCopy(node, data)
                                                 "
