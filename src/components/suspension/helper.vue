@@ -135,7 +135,10 @@
                                 clicKBuryPoint('黑板'), openBlackboard()
                             "
                         >
-                            <img src="@/assets/images/suspension/pic_blackboard@2x.png" alt=""/>
+                            <img
+                                src="@/assets/images/suspension/pic_blackboard@2x.png"
+                                alt=""
+                            />
                             <div class="blackboard-text">黑板</div>
                             <!-- <div class="blackboard-btn" @click="openBlackboard()">打开</div> -->
                         </div>
@@ -146,7 +149,10 @@
                                     openAnswerMachineWindow()
                             "
                         >
-                            <img src="@/assets/images/suspension/img_datiqi.png" alt=""/>
+                            <img
+                                src="@/assets/images/suspension/img_datiqi.png"
+                                alt=""
+                            />
                             <div class="blackboard-text">答题器</div>
                         </div>
                         <div
@@ -155,7 +161,10 @@
                                 clicKBuryPoint('投影'), clickProjection()
                             "
                         >
-                            <img src="@/assets/images/suspension/pic_touying@2x.png" alt=""/>
+                            <img
+                                src="@/assets/images/suspension/pic_touying@2x.png"
+                                alt=""
+                            />
                             <div class="blackboard-text">投影</div>
                         </div>
                         <div
@@ -164,14 +173,20 @@
                                 clicKBuryPoint('知识图谱'), clickKnowledge()
                             "
                         >
-                            <img src="@/assets/images/suspension/pic_zhishitupu@2x.png" alt=""/>
+                            <img
+                                src="@/assets/images/suspension/pic_zhishitupu@2x.png"
+                                alt=""
+                            />
                             <div class="blackboard-text">知识图谱</div>
                         </div>
                         <div
                             class="blackboard-box"
                             @click.stop="clicKBuryPoint('计时器'), openTimer()"
                         >
-                            <img src="@/assets/images/suspension/pic_timer@2x.png" alt=""/>
+                            <img
+                                src="@/assets/images/suspension/pic_timer@2x.png"
+                                alt=""
+                            />
                             <div class="blackboard-text">计时器</div>
                         </div>
                         <!-- openRollCall -->
@@ -179,17 +194,32 @@
                             class="blackboard-box"
                             @click.stop="clicKBuryPoint('点名'), openRollCall()"
                         >
-                            <img src="@/assets/images/suspension/pic_namer@2x.png" alt=""/>
+                            <img
+                                src="@/assets/images/suspension/pic_namer@2x.png"
+                                alt=""
+                            />
                             <div class="blackboard-text">随机点名</div>
                         </div>
-<!--                        <div class="blackboard-box" @click="openQuickAnswer">-->
-<!--                            <img src="@/assets/images/suspension/pic_qd.png" alt=""/>-->
-<!--                            <div class="blackboard-text">抢答</div>-->
-<!--                        </div>-->
-<!--                        <div class="blackboard-box" @click="openRollCall">-->
-<!--                            <img src="@/assets/images/suspension/pic_sp.png" alt=""/>-->
-<!--                            <div class="blackboard-text">锁屏管理</div>-->
-<!--                        </div>-->
+                        <!--                        <div class="blackboard-box" @click="openQuickAnswer">-->
+                        <!--                            <img src="@/assets/images/suspension/pic_qd.png" alt=""/>-->
+                        <!--                            <div class="blackboard-text">抢答</div>-->
+                        <!--                        </div>-->
+                        <!--                        <div class="blackboard-box" @click="openRollCall">-->
+                        <!--                            <img src="@/assets/images/suspension/pic_sp.png" alt=""/>-->
+                        <!--                            <div class="blackboard-text">锁屏管理</div>-->
+                        <!--                        </div>-->
+                        <div
+                            class="blackboard-box"
+                            @click.stop="
+                                clicKBuryPoint('随手画'), openPainting()
+                            "
+                        >
+                            <img
+                                src="@/assets/images/suspension/pic_blackboard@2x.png"
+                                alt=""
+                            />
+                            <div class="blackboard-text">随手画</div>
+                        </div>
                     </div>
                 </el-collapse-item>
                 <el-collapse-item
@@ -421,9 +451,17 @@ export default defineComponent({
                 return ElMessage.error("学生数量为0！");
             }
             if (isElectron()) {
-                return window.electron.ipcRenderer.invoke("openQuickAnswerWindow", JSON.parse(JSON.stringify(allStudentList.value)));
+                return window.electron.ipcRenderer.invoke(
+                    "openQuickAnswerWindow",
+                    JSON.parse(JSON.stringify(allStudentList.value))
+                );
             }
         };
+        //工具-随手画
+        const openPainting = () => {
+            window.electron.getWhiteBoard();
+        };
+
         const close = () => {
             if (isElectron()) {
                 window.electron.ipcRenderer.invoke("hideUnfoldSuspensionWin");
@@ -579,7 +617,8 @@ export default defineComponent({
             clicKBuryPoint,
             classClicKBuryPoint,
             handleChange,
-            currentClickCol
+            currentClickCol,
+            openPainting,
         };
     },
 });
