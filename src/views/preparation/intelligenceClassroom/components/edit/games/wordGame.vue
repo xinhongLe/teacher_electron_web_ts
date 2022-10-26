@@ -67,8 +67,10 @@ import { getTeacherPageGameConfig, wordSet } from "@/api/game.ts";
 import { ElMessage } from "element-plus";
 import { Slide } from "wincard";
 import { get, STORAGE_TYPES } from "@/utils/storage";
+import { Plus } from "@element-plus/icons-vue";
 export default defineComponent({
     name: "wordGame",
+    components: { Plus },
     props: {
         slide: {
             type: Object as PropType<Slide>,
@@ -104,12 +106,11 @@ export default defineComponent({
 
         const upload = async (file:any, index:number) => {
             const filePath = await cooOss(file, get(STORAGE_TYPES.OSS_PATHS)?.["ElementFile"]);
-            console.log(filePath, "filePath");
             const fileInfo = await getOssUrl(filePath?.objectKey as string, get(STORAGE_TYPES.OSS_PATHS)?.["ElementFile"].Bucket);
             state.form.Question[index].File = {
                 url: fileInfo,
                 Bucket: "axsfile",
-                FilePath: filePath?.fileExtension || "",
+                FilePath: filePath?.objectKey.split("/")[0] || "ElementFile",
                 FileName: filePath?.name || "",
                 Name: filePath?.name || "",
                 Extention: filePath?.fileExtension || "",
