@@ -17,8 +17,8 @@
                        </el-form-item>
                    </el-col>
                 </el-row>
-                <div class="add-box"  @click = addQuestion>
-                    <img src="@/assets/projection/icon_add_btn.png" alt="">
+                <div class="add-box">
+                    <img @click = addQuestion src="@/assets/projection/icon_add_btn.png" alt="">
                     <span>新增题目</span>
                 </div>
             </div>
@@ -67,8 +67,10 @@ import { getTeacherPageGameConfig, wordSet } from "@/api/game.ts";
 import { ElMessage } from "element-plus";
 import { Slide } from "wincard";
 import { get, STORAGE_TYPES } from "@/utils/storage";
+import { Plus } from "@element-plus/icons-vue";
 export default defineComponent({
     name: "wordGame",
+    components: { Plus },
     props: {
         slide: {
             type: Object as PropType<Slide>,
@@ -104,12 +106,11 @@ export default defineComponent({
 
         const upload = async (file:any, index:number) => {
             const filePath = await cooOss(file, get(STORAGE_TYPES.OSS_PATHS)?.["ElementFile"]);
-            console.log(filePath, "filePath");
             const fileInfo = await getOssUrl(filePath?.objectKey as string, get(STORAGE_TYPES.OSS_PATHS)?.["ElementFile"].Bucket);
             state.form.Question[index].File = {
                 url: fileInfo,
                 Bucket: "axsfile",
-                FilePath: filePath?.fileExtension || "",
+                FilePath: filePath?.objectKey.split("/")[0] || "ElementFile",
                 FileName: filePath?.name || "",
                 Name: filePath?.name || "",
                 Extention: filePath?.fileExtension || "",
@@ -189,7 +190,7 @@ export default defineComponent({
 
 <style scoped lang="scss">
 .content-box{
-    height: 680px;
+    height: 600px;
     display: flex;
     justify-content: flex-start;
     flex-wrap: wrap;
@@ -218,9 +219,9 @@ export default defineComponent({
     align-items: center;
     font-size: 16px;
     font-weight: 600;
-    cursor: pointer;
     margin-bottom: 20px;
     img{
+        cursor: pointer;
         width: 25px;
         height: 25px;
         padding-bottom: 4px;

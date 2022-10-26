@@ -1,8 +1,8 @@
 <template>
     <div>
         <div v-if="!showTextarea" class="body-content">
-            <div class="add-box" @click = addQuestion>
-                <img src="@/assets/projection/icon_add_btn.png" alt="">
+            <div class="add-box">
+                <img @click = addQuestion src="@/assets/projection/icon_add_btn.png" alt="">
                 <span>新增题目</span>
             </div>
             <el-form ref="formRef" :model="form" :rules="rules" label-width="60px" label-position="left">
@@ -256,9 +256,9 @@ export default defineComponent({
     align-items: center;
     font-size: 16px;
     font-weight: 600;
-    cursor: pointer;
     margin-bottom: 20px;
     img{
+        cursor: pointer;
         width: 25px;
         height: 25px;
         padding-bottom: 4px;
