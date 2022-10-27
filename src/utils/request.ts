@@ -12,6 +12,8 @@ const http = axios.create({
     timeout: 150000
 });
 
+let errMessageInstance: MessageHandle | undefined;
+
 http.interceptors.request.use(
     (config: AxiosRequestConfig) => {
         if (get(STORAGE_TYPES.SET_TOKEN)) {
@@ -80,10 +82,14 @@ http.interceptors.response.use(
         if (error?.config && error.config.url === "Api/Track/create") {
             //
         } else {
-            ElMessage({
+            if (errMessageInstance) return;
+            errMessageInstance = ElMessage({
                 message: "请求失败",
                 type: "error",
-                duration: 5 * 1000
+                duration: 5 * 1000,
+                onClose: () => {
+                    errMessageInstance = undefined;
+                }
             });
         }
         return Promise.reject(error);

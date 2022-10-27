@@ -33,7 +33,8 @@ interface IToolFile {
 
 interface IOldTeach {
     ID: string,
-    ToolFileModel: IToolFile
+    ToolFileModel: IToolFile,
+    Config?: any // 游戏页配置回显
 }
 
 export const initSlideData = (pageID: string, type: number) => {
@@ -138,6 +139,30 @@ export const dealOldDataTeach = (pageID: string, oldSlide: IOldTeach) => {
             src: oldSlide.ToolFileModel.Url,
             file: !(oldSlide.ToolFileModel as any).File ? "" : (oldSlide.ToolFileModel as any).File.FilePath + "/" + (oldSlide.ToolFileModel as any).File.FileName + "." + (oldSlide.ToolFileModel as any).File.Extention,
         };
+    }
+    return slide;
+};
+
+/**
+ 游戏页处理
+ */
+
+export const dealOldDataGame = (pageID: string, oldSlide: IOldTeach) => {
+    const slide: Slide = {
+        id: pageID,
+        type: "game",
+        viewportRatio: 0.5625,
+        elements: []
+    };
+    if (oldSlide && oldSlide.ToolFileModel) {
+        slide.game = {
+            id: oldSlide.ToolFileModel.ID,
+            name: oldSlide.ToolFileModel.Name,
+            src: `${oldSlide.ToolFileModel.Url}?pageId=${pageID}`
+        };
+    }
+    if (oldSlide && oldSlide.Config) {
+        slide.config = oldSlide.Config;
     }
     return slide;
 };

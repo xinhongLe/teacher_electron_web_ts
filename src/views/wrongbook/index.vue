@@ -52,6 +52,38 @@
             </div>
 
             <div class="header-right">
+                <!-- 题型 -->
+                <el-select
+                    size="small"
+                    style="width: 140px; margin-right: 16px"
+                    v-model="state.QuestionType"
+                >
+                    <el-option
+                        v-for="item in questionTypeList"
+                        :label="item.Name"
+                        :value="item.ID"
+                        :key="item.ID"
+                    >
+                    </el-option>
+                </el-select>
+                <!-- 频次 -->
+                <el-select
+                    v-if="
+                        state.currentWrongType == 3 ||
+                        state.currentWrongType == 4
+                    "
+                    size="small"
+                    style="width: 140px; margin-right: 16px"
+                    v-model="state.Frequency"
+                >
+                    <el-option
+                        v-for="item in frequencyList"
+                        :label="item.name"
+                        :value="item.value"
+                        :key="item.value"
+                    >
+                    </el-option>
+                </el-select>
                 <el-button-group style="margin-right: 16px">
                     <el-button
                         @click="
@@ -73,6 +105,7 @@
                     > -->
                 </el-button-group>
                 <el-date-picker
+                    size="small"
                     style="width: 225px"
                     v-model="state.dateRange"
                     type="daterange"
@@ -88,6 +121,7 @@
             <header class="top-search">
                 <div class="left-btn">
                     <el-button
+                        size="small"
                         v-for="item in state.wrongTypeButtonList"
                         :key="item.id"
                         @click="
@@ -227,7 +261,7 @@
                                     <span>
                                         {{ item.name }}
                                     </span>
-                                  
+
                                 </p>
                             </div>
                         </div>
@@ -329,9 +363,9 @@
         />
     </div>
     <QuestionBasket
+        v-if="state.isShowContent != 3"
         @basketGenerateExercise="basketGenerateExercise"
         v-model:isShowContent="state.isShowContent"
-        v-show="state.isShowContent != 3"
     />
 </template>
 
@@ -510,6 +544,14 @@ const sortData = ref({
     currentSortType: 2,
     //当前选择的排序字段
     currentSortCon: 1,
+});
+const sortDataName = ref({
+    //当前选择的分层登记
+    currentLevelName: "",
+    //题目类型
+    currentSortTypeName: "正序",
+    //当前选择的排序字段
+    currentSortConName: "平均错误率",
 });
 console.log("错题本页面.......");
 watch(

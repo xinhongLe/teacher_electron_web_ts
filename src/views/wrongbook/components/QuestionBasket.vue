@@ -81,81 +81,73 @@
                 <div class="footer-btn" @click="generateExercise">生成练习</div>
             </div>
         </div>
-        <!-- 清空提示 -->
-        <el-dialog
-            v-model="dialogVisible"
-            :show-close="false"
-            width="360px"
-            :append-to-body="true"
-            custom-class="cus-basket-dialog"
-        >
-            <template #title>
-                <span></span>
-                <span class="my-header">提示</span>
-                <span @click="dialogVisible = false">
-                    <img
-                        src="~@/assets/images/wrongbook/icon_close_popup_gray.png"
-                        alt=""
-                    />
-                </span>
-            </template>
-            <div class="dialog-content">
-                <img
-                    src="~@/assets/images/wrongbook/icon_tips_popup.png"
-                    alt=""
-                />
-                <span>是否确认清空题目</span>
-            </div>
-            <div class="dialog-footers">
-                <div class="cobtn calcBtn" @click="dialogVisible = false">
-                    取消
-                </div>
-                <div
-                    class="cobtn sureBtn"
-                    @click="
-                        delAllBasketData();
-                        dialogVisible = false;
-                    "
-                >
-                    确定清空
-                </div>
-            </div>
-        </el-dialog>
-        <!-- 删除提示 -->
-        <!-- 删除提示 -->
-        <el-dialog
-            v-model="delDialogVisible"
-            :show-close="false"
-            width="360px"
-            custom-class="homeworkDialog"
-        >
-            <template #title>
-                <span></span>
-                <span class="my-header">删除提示</span>
-                <span @click="delDialogVisible = false">
-                    <img
-                        src="~@/assets/images/wrongbook/icon_close_popup_gray.png"
-                        alt=""
-                    />
-                </span>
-            </template>
-            <div class="dialog-content" style="background-color: #fff">
-                <img
-                    src="~@/assets/images/wrongbook/icon_tips_popup.png"
-                    alt=""
-                />
-                <span>是否删除所有该题型下的题目</span>
-            </div>
-            <div class="dialog-footers">
-                <div class="cobtn calcBtn" @click="delDialogVisible = false">
-                    取消
-                </div>
-                <div class="cobtn sureBtn" @click="sureDelExerciseData">
-                    确定删除
-                </div>
-            </div>
-        </el-dialog>
     </div>
+    <!-- 清空提示 -->
+    <el-dialog
+        v-model="dialogVisible"
+        :show-close="false"
+        width="360px"
+        :append-to-body="true"
+        custom-class="cus-basket-dialog"
+    >
+        <template #title>
+            <span></span>
+            <span class="my-header">提示</span>
+            <span @click="dialogVisible = false">
+                <img
+                    src="~@/assets/images/wrongbook/icon_close_popup_gray.png"
+                    alt=""
+                />
+            </span>
+        </template>
+        <div class="dialog-content">
+            <img src="~@/assets/images/wrongbook/icon_tips_popup.png" alt="" />
+            <span>是否确认清空题目</span>
+        </div>
+        <div class="dialog-footers">
+            <div class="cobtn calcBtn" @click="dialogVisible = false">取消</div>
+            <div
+                class="cobtn sureBtn"
+                @click="
+                    delAllBasketData();
+                    dialogVisible = false;
+                "
+            >
+                确定清空
+            </div>
+        </div>
+    </el-dialog>
+    <!-- 删除提示 -->
+    <!-- 删除提示 -->
+    <el-dialog
+        v-model="delDialogVisible"
+        :show-close="false"
+        width="360px"
+        custom-class="homeworkDialog"
+    >
+        <template #title>
+            <span></span>
+            <span class="my-header">删除提示</span>
+            <span @click="delDialogVisible = false">
+                <img
+                    src="~@/assets/images/wrongbook/icon_close_popup_gray.png"
+                    alt=""
+                />
+            </span>
+        </template>
+        <div class="dialog-content" style="background-color: #fff">
+            <img src="~@/assets/images/wrongbook/icon_tips_popup.png" alt="" />
+            <span>是否删除所有该题型下的题目</span>
+        </div>
+        <div class="dialog-footers">
+            <div class="cobtn calcBtn" @click="delDialogVisible = false">
+                取消
+            </div>
+            <div class="cobtn sureBtn" @click="sureDelExerciseData">
+                确定删除
+            </div>
+        </div>
+    </el-dialog>
 </template>
 <script lang="ts" setup>
 import { ref, watch, defineEmits, defineProps, computed } from "vue";

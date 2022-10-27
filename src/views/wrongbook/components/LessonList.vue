@@ -373,6 +373,7 @@
         v-if="state.explainVisible"
         v-model:visible="state.explainVisible"
         :resource="state.resourceData"
+        :currentquestion="state.currentQuestion"
     >
     </ExplainQuestion>
     <PureQuestionDialog
@@ -506,6 +507,7 @@ const state = reactive({
     pureQuestionVisible: false, //同类题弹框
     resourceData: {} as IViewResourceData,
     currentQuestionId: "",
+    currentQuestion: {},
     explainVisible: false,
 });
 provide("nowQuestionID", state.currentQuestionId);
@@ -616,6 +618,7 @@ const removeAllQuestion = () => {
 };
 //讲解题目
 const explainQuestion = (data: any) => {
+    state.currentQuestion = data;
     state.explainVisible = true;
     state.resourceData = {
         type: 0,
@@ -625,8 +628,10 @@ const explainQuestion = (data: any) => {
 const emit = defineEmits(["update:isShowContent"]);
 //查看同类题
 const openSimilarQuestion = (data: any) => {
+    state.currentQuestion = data;
     state.pureQuestionVisible = true;
     state.currentQuestionId = data.QuestionId;
+
     if (data.IsAnyPureQuestion) {
         // nextTick(() => {
         state.resourceData = {
@@ -906,7 +911,7 @@ onBeforeUnmount(() => {
             color: #19203d;
         }
         .isall {
-            :deep(.el-button) {
+            :deep(.el-button--small) {
                 background: #f3f7ff;
                 border-radius: 4px;
                 // border: none;
@@ -916,7 +921,7 @@ onBeforeUnmount(() => {
             }
         }
         .noall {
-            :deep(.el-button) {
+            :deep(.el-button--small) {
                 background: #fff;
                 border-radius: 4px;
                 // border: none;

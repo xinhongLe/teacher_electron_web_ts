@@ -159,8 +159,9 @@
                                             >
                                                 粘贴页
                                             </div>
+                                            <!--游戏页暂不支持复制-->
                                             <div
-                                                v-show="node.level === 2"
+                                                v-show="node.level === 2 && data.Type !==20"
                                                 @click.stop="
                                                     handleCopy(node, data)
                                                 "
@@ -191,7 +192,7 @@
         <div class="right">
             <win-card-edit
                 ref="editRef"
-                :slide="currentSlide"
+                :slide="{...currentSlide}"
                 :allPageSlideListMap="allPageSlideListMap"
                 @onSave="onSave"
                 @updatePageSlide="updatePageSlide"
@@ -463,6 +464,8 @@ export default defineComponent({
                             json = slide.follow?.id || "";
                         } else if (slide.type === "teach") {
                             json = slide.teach?.id || "";
+                        } else if (slide.type === "game") {
+                            json = slide.game?.id || "";
                         }
                     }
                     return {
