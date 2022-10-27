@@ -256,6 +256,7 @@ export default defineComponent({
                                         showDownload.value = false;
                                         ElMessage.success("打包下载完成！");
                                         logDownload({ id: data.ResourceId });
+                                        data.DownloadNum++;
                                     }
                                 },
                             });
