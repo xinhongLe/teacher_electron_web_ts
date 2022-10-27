@@ -54,7 +54,6 @@
             <div class="header-right">
                 <!-- 题型 -->
                 <el-select
-                    size="small"
                     style="width: 140px; margin-right: 16px"
                     v-model="state.QuestionType"
                 >
@@ -72,7 +71,6 @@
                         state.currentWrongType == 3 ||
                         state.currentWrongType == 4
                     "
-                    size="small"
                     style="width: 140px; margin-right: 16px"
                     v-model="state.Frequency"
                 >
@@ -105,7 +103,6 @@
                     > -->
                 </el-button-group>
                 <el-date-picker
-                    size="small"
                     style="width: 225px"
                     v-model="state.dateRange"
                     type="daterange"
@@ -121,7 +118,6 @@
             <header class="top-search">
                 <div class="left-btn">
                     <el-button
-                        size="small"
                         v-for="item in state.wrongTypeButtonList"
                         :key="item.id"
                         @click="
