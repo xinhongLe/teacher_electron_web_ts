@@ -225,7 +225,7 @@
                             "
                         >
                             <img
-                                src="@/assets/images/suspension/pic_blackboard@2x.png"
+                                src="@/assets/images/suspension/pic_suishouhua.png"
                                 alt=""
                             />
                             <div class="blackboard-text">随手画</div>

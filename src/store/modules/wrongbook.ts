@@ -16,6 +16,7 @@ const initState = (): WrongBookState => ({
     currentGeneratePaperId: "", //生成的练习卷的id
     currentSelectedBookName: "", //当前选择的书册名称
     currentSubjectId: "", //当前科目id
+    currentPureQuestion: {}, //当前同类题
 });
 const mutations: MutationTree<WrongBookState> = {
     [MutationTypes.SET_QUESTION_BASKET](state, data) {

@@ -380,6 +380,7 @@
         v-if="state.pureQuestionVisible"
         v-model:visible="state.pureQuestionVisible"
         :resource="state.resourceData"
+        :isshowbasket="true"
     />
 </template>
 <script lang="ts" setup>
@@ -911,7 +912,7 @@ onBeforeUnmount(() => {
             color: #19203d;
         }
         .isall {
-            :deep(.el-button--small) {
+            :deep(.el-button) {
                 background: #f3f7ff;
                 border-radius: 4px;
                 // border: none;
@@ -921,7 +922,7 @@ onBeforeUnmount(() => {
             }
         }
         .noall {
-            :deep(.el-button--small) {
+            :deep(.el-button) {
                 background: #fff;
                 border-radius: 4px;
                 // border: none;
