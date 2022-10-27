@@ -38,7 +38,8 @@ export class SocketHelper {
             this.quene.push(data);
         })
 
-        this.client.on('close', data => {
+        this.client.on('close', hadError => {
+            console.error('has error', hadError);
             if (!this.closeSocket) {
                 this.callback.OnDisconnect();
                 this.sleep(2000).then(() => {
@@ -51,7 +52,8 @@ export class SocketHelper {
             this.client.destroy();
         })
 
-        this.client.on('error', data => {
+        this.client.on('error', err => {
+            console.error(err);
             this.client.destroy();
         })
 
