@@ -193,7 +193,7 @@
                             />
                             <div class="blackboard-text">点名</div>
                         </div>
-                        <div
+                        <!-- <div
                             class="blackboard-box"
                             @click.stop="
                                 clicKBuryPoint('抢答'), openQuickAnswer(true)
@@ -217,7 +217,7 @@
                                 alt=""
                             />
                             <div class="blackboard-text">锁屏管理</div>
-                        </div>
+                        </div> -->
                         <div
                             class="blackboard-box"
                             @click.stop="
