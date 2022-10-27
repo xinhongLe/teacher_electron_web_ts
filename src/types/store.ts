@@ -132,6 +132,7 @@ export interface WrongBookState {
     currentGeneratePaperId: string;
     currentSelectedBookName: string;
     currentSubjectId: string;
+    currentPureQuestion: any;
 }
 export interface RootState {
     userInfo: UserInfoState;

@@ -35,6 +35,7 @@
                 :dialog="true"
                 :close="close"
                 :resource="resource"
+                :isshowbasket="true"
             />
         </el-dialog>
     </div>
@@ -127,7 +128,7 @@ export default defineComponent({
                 justify-content: space-between;
                 align-items: center;
                 .text {
-                    font-size: 16px;
+                    font-size: 18px;
                     color: #19203d;
                     font-weight: bold;
                 }

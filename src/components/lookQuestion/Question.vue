@@ -84,7 +84,7 @@
                     <div v-if="isLastBtn" class="disabled button prev">
                         <p>上一页</p>
                     </div>
-                    <div v-else @click.stop="lastPage" class="button next">
+                    <div v-else @click.stop="lastPage" class="button prev">
                         <p>上一页</p>
                     </div>
                     <div v-if="isNextBtn" class="disabled button next">

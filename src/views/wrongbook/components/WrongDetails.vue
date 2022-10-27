@@ -295,11 +295,6 @@
                                     plain
                                     size="small"
                                     :disabled="!isHasSimilarQuestion"
-                                    :style="{
-                                        background: isHasSimilarQuestion
-                                            ? '#fff'
-                                            : '#ecf5ff',
-                                    }"
                                     @click="openSimilarQuestion()"
                                     >查看同类题</el-button
                                 >
@@ -672,6 +667,7 @@
         v-if="state.pureQuestionVisible"
         v-model:visible="state.pureQuestionVisible"
         :resource="state.resourceData"
+        :isshowbasket="true"
     />
     <ExplainQuestion
         v-if="state.explainVisible"
