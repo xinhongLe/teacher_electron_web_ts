@@ -398,7 +398,9 @@ function createBall() {
 
             }
             lastSpwan = spawn(join(WIN_PATH_BALL, ballname), [lastPort.toString()]);
-            resolve(true);
+            setTimeout(() => {
+                resolve(true);
+            }, 500);
         });
     });
 }
