@@ -5,6 +5,7 @@
             :slide="slide"
             v-model:windowName="windowName"
             @onSave="onSave"
+            @selectGame="selectGame"
             @addCard="addCard"
             @selectVideo="selectVideo"
             @setQuoteVideo="setQuoteVideo"
@@ -27,24 +28,30 @@
 
         <!--教案设计-->
         <lesson-design v-model:lessonDesignVisible="lessonDesignVisible" @updateLesson="updateLesson" :winId="winId" />
+
+        <!--选择游戏-->
+        <add-game-dialog v-if="addGameVisible" v-model="addGameVisible" @addGame="addGame"></add-game-dialog>
+
+        <!--游戏配置-->
+        <game-type v-if="gameTypeVisible" :slide="Object.assign(slide, currentGame.id ? { game: currentGame } : {})" @addGame="addGame" v-model="gameTypeVisible"></game-type>
+
     </div>
 </template>
 <script lang="ts">
 import { defineComponent, reactive, toRefs, ref, watch, computed, PropType } from "vue";
-import { Slide, IWin, PPTVideoElement, SaveType } from "wincard";
+import { Slide, IWin, IGame, PPTVideoElement, SaveType } from "wincard";
 import CardSelectDialog from "./cardSelectDialog.vue";
 import { IPageValue, ICards } from "@/types/home";
 import SelectVideoDialog from "./selectVideoDialog.vue";
 import LessonDesign from "./lessonDesign.vue";
-import { isEqual } from "lodash";
 import { store } from "@/store";
-import { ElMessage, ElMessageBox } from "element-plus";
 import { useRoute } from "vue-router";
-import emitter from "@/utils/mitt";
-import { getWindowCards } from "@/api/home";
+import AddGameDialog from "./addGameDialog.vue";
+import GameType from "./games/index.vue";
+import { IGameItem } from "@/types/game";
 export default defineComponent({
     name: "winCardEdit",
-    components: { SelectVideoDialog, CardSelectDialog, LessonDesign },
+    components: { GameType, AddGameDialog, SelectVideoDialog, CardSelectDialog, LessonDesign },
     props: {
         slide: {
             type: Object as PropType<Slide>,
@@ -63,7 +70,10 @@ export default defineComponent({
     setup(props, { emit }) {
         const state = reactive({
             dialogVisible: false,
-            dialogVisibleVideo: false
+            dialogVisibleVideo: false,
+            addGameVisible: false,
+            gameTypeVisible: false,
+            currentGame: { id: "", name: "", src: "" }
             // slide: {}
         });
         const page = ref<IPageValue>();
@@ -110,6 +120,30 @@ export default defineComponent({
                 cards: cards
             };
             fun([newCards]);
+        };
+
+        let gameFun: (IGame: IGame) => void;
+        let type:string;
+        const selectGame = (obj: {type: string, fun: (game: IGame) => void}) => {
+            type = obj.type;
+            gameFun = obj.fun;
+            if (type === "selectGame") {
+                state.addGameVisible = true;
+            } else {
+                state.gameTypeVisible = true;
+            }
+        };
+
+        const addGame = (valueGame:IGameItem) => {
+            state.currentGame = {
+                id: valueGame.ID,
+                name: valueGame.Name,
+                src: valueGame.Url
+            };
+            const slide = Object.assign(props.slide, { game: state.currentGame });
+            emit("updatePageSlide", slide);
+            emit("onSave");
+            // gameFun(state.currentGame);
         };
 
         const selectVideo = () => {
@@ -178,6 +212,8 @@ export default defineComponent({
             ...toRefs(state),
             onSave,
             addCard,
+            addGame,
+            selectGame,
             selectCard,
             selectVideo,
             selectVideoVal,

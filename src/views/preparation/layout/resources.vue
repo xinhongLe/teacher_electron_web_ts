@@ -247,7 +247,7 @@ export default defineComponent({
                             cachingStatus: (status) => {
                                 console.log(`status: ${status}`);
                                 downloadProgress.value = status;
-                                if (status === 100) {
+                                if (status === 100 && showDownload.value) {
                                     showDownload.value = false;
                                     ElMessage.success("打包下载完成！");
                                 }
@@ -255,7 +255,10 @@ export default defineComponent({
                         }).doCache({
                             WindowID: data.OldResourceId,
                             OriginType: data.IsSysFile === 1 ? 0 : 1
-                        }, data.Name, path);
+                        }, data.Name, path, () => {
+                            showDownload.value = false;
+                            ElMessage.error("网络异常，打包下载失败！")
+                        });
                     }
                 }).catch((err: any) => {
                     ElMessage({ type: "error", message: "下载失败" });
@@ -395,7 +398,7 @@ export default defineComponent({
                     id: data.OldResourceId,
                     courseBagId: "",
                     deleteQuestionIds: [],
-                    type: 1
+                    type: 1,
                 };
             }
             resource.value = data;
@@ -500,7 +503,7 @@ export default defineComponent({
                                 .offsetTop;
                             resourceScroll.value.scrollTo({
                                 top,
-                                behavior: "smooth"
+                                behavior: "smooth",
                             });
                         }
                     }
@@ -549,7 +552,7 @@ export default defineComponent({
             showDownload,
             downloadProgress
         };
-    }
+    },
 });
 </script>
 

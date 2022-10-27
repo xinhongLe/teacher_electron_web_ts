@@ -6,7 +6,6 @@
                 <div
                     class="card-box-left"
                     :class="{
-                        fullScreen: isFullScreen,
                         hidden: isFullScreen && !isShowCardList,
                     }"
                 >
@@ -22,8 +21,12 @@
                     </div>
                     <div
                         class="card-box-outbottom"
-                        v-show="!isFullScreen"
+                        v-show="!isFullScreen || isShowCardList"
                     ></div>
+
+                    <div class="fold-btn" v-show="isFullScreen" @click="isShowCardList = !isShowCardList">
+                        <i :class="isShowCardList ? 'el-icon-arrow-left': 'el-icon-arrow-right'"></i>
+                    </div>
                 </div>
                 <div class="card-detail">
                     <div class="card-detail-content">
@@ -34,6 +37,8 @@
                             :WindowName="WindowName"
                             :winList="cardList"
                             :isPreview="true"
+                            :isShowCardList="isShowCardList"
+                            :isFullScreen="isFullScreen"
                             @lastPage="lastPage"
                             @firstPage="firstPage"
                             @changeWinSize="changeWinSize"
@@ -44,7 +49,7 @@
                     <Tools
                         :id="winActiveId"
                         :dialog="false"
-                        :showClose="false"
+                        :showClose="true"
                         :showRemark="previewSection?.showRemark"
                         @toggleRemark="toggleRemark"
                         @prevStep="prevStep"
@@ -54,6 +59,7 @@
                         @showWriteBoard="showWriteBoard"
                         @openShape="openShape"
                         @hideWriteBoard="hideWriteBoard"
+                        @closeWincard="close"
                     />
                 </div>
             </div>
@@ -153,7 +159,7 @@ export default defineComponent({
         };
 
         onMounted(async () => {
-            const urlSearchParams = new URLSearchParams(window.location.search);
+            const urlSearchParams = new URLSearchParams(window.location.search.replace(/\&/g, '%26'));
             const params = Object.fromEntries(urlSearchParams.entries());
             appjson.value = await window.electron.unpackCacheFile(params.file)
             if (appjson) {
@@ -170,6 +176,11 @@ export default defineComponent({
                 });
             }
         });
+
+        const close = () => {
+            window.electron.remote.getCurrentWindow().close();
+        };
+
         return {
             lastPage,
             firstPage,
@@ -191,7 +202,8 @@ export default defineComponent({
             cardList,
             previewOptions,
             winActiveId,
-            WindowName
+            WindowName,
+            close
         };
     }
 });
@@ -259,16 +271,39 @@ $border-color: #f5f6fa;
                 min-height: 0;
                 flex-direction: column;
                 background: #fff;
-                &.fullScreen {
-                    background: #f5f6fa;
-                    position: fixed;
-                    left: 0;
-                    top: 0;
-                    height: calc(100% - 84px);
-                    transition: width 0.3s;
-                }
+                transition: width 0.3s;
+                position: relative;
+                border-right: 1px solid #eee;
+                // &.fullScreen {
+                //     background: #f5f6fa;
+                //     position: fixed;
+                //     left: 0;
+                //     top: 0;
+                //     height: calc(100% - 84px);
+                //     transition: width 0.3s;
+                // }
                 &.hidden {
                     width: 0;
+                }
+                .fold-btn {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    position: absolute;
+                    top: 50%;
+                    transform: translateX(100%) translateY(-50%);
+                    right: 0;
+                    height: 104px;
+                    width: 18px;
+                    border-radius: 0px 8px 8px 0px;
+                    background: #F5F6FA;
+                    cursor: pointer;
+                    z-index: 1;
+                    i {
+                        color: #7E7F83;
+                        font-size: 18px;
+                        font-weight: 700;
+                    }
                 }
             }
             .card-box-lefts {
@@ -280,9 +315,9 @@ $border-color: #f5f6fa;
                 margin-bottom: 20px;
             }
             .card-box-outbottom {
-                width: 100%;
+                width: calc(100% + 1px);
                 height: 87px;
-                background: #bccfff;
+                background: #BED2FF;
             }
 
             .card-detail {

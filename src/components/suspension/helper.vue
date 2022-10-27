@@ -163,10 +163,7 @@
                                 clicKBuryPoint('投影'), clickProjection()
                             "
                         >
-                            <img
-                                src="@/assets/images/suspension/pic_touying@2x.png"
-                                alt=""
-                            />
+                            <img src="@/assets/images/suspension/pic_touying@2x.png" alt=""/>
                             <div class="blackboard-text">投影</div>
                         </div>
                         <div
@@ -175,20 +172,14 @@
                                 clicKBuryPoint('知识图谱'), clickKnowledge()
                             "
                         >
-                            <img
-                                src="@/assets/images/suspension/pic_zhishitupu@2x.png"
-                                alt=""
-                            />
+                            <img src="@/assets/images/suspension/pic_zhishitupu@2x.png" alt=""/>
                             <div class="blackboard-text">知识图谱</div>
                         </div>
                         <div
                             class="blackboard-box"
                             @click.stop="clicKBuryPoint('计时器'), openTimer()"
                         >
-                            <img
-                                src="@/assets/images/suspension/pic_timer@2x.png"
-                                alt=""
-                            />
+                            <img src="@/assets/images/suspension/pic_timer@2x.png" alt=""/>
                             <div class="blackboard-text">计时器</div>
                         </div>
                         <!-- openRollCall -->
@@ -489,6 +480,7 @@ export default defineComponent({
         const openPainting = () => {
             window.electron.getWhiteBoard();
         };
+
         const close = () => {
             if (isElectron()) {
                 window.electron.ipcRenderer.invoke("hideUnfoldSuspensionWin");

@@ -670,6 +670,7 @@
         v-if="state.explainVisible"
         v-model:visible="state.explainVisible"
         :resource="state.resourceData"
+        :currentquestion="state.currentQuestionData"
     >
     </ExplainQuestion>
 

@@ -90,8 +90,8 @@
                     </el-button>
                 </div>
             </div>
-		</el-dialog>
-	</div>
+        </el-dialog>
+    </div>
 </template>
 
 <script lang="ts">
@@ -166,16 +166,16 @@ export default defineComponent({
             visible.value = false;
         };
 
-		return {
-			days,
-			nowTime,
-			lateTime,
-			weekPre,
-			success,
-			calendarRef,
-			templatesVisible,
-			weekNext,
-			openCourse,
+        return {
+            days,
+            nowTime,
+            lateTime,
+            weekPre,
+            success,
+            calendarRef,
+            templatesVisible,
+            weekNext,
+            openCourse,
             visible,
             isSwitch,
             resourceList,

@@ -139,7 +139,16 @@ export default defineComponent({
             for (let i = 0; i < props.answerDetail!.StudentQuestionResults.length; i++) {
                 const myChart = echarts.init(chartsDom[i] as HTMLElement);
                 const xAxisData = props.answerDetail!.StudentQuestionResults[i]?.StudentQuestionOptionsResult.map(item => item.OptionName);
-                const seriesData = props.answerDetail!.StudentQuestionResults[i]?.StudentQuestionOptionsResult.map(item => item.SelectUserCount);
+                const seriesData = props.answerDetail!.StudentQuestionResults[i]?.StudentQuestionOptionsResult.map(item => {
+                    if (item.OptionName === "未选择") {
+                        return {
+                            value: item.SelectUserCount,
+                            itemStyle: { color: "#D3D8E1" }
+                        };
+                    } else {
+                        return item.SelectUserCount;
+                    }
+                });
                 const option: echarts.EChartsOption = {
                     xAxis: {
                         type: "category",
@@ -166,6 +175,11 @@ export default defineComponent({
                             itemStyle: {
                                 color: "#6686EE"
                             },
+                            // emphasis: {
+                            //     itemStyle: {
+                            //         color: "#3EDD97" // 选中柱颜色
+                            //     }
+                            // },
                             label: {
                                 formatter: "{c}",
                                 show: true,
@@ -185,6 +199,7 @@ export default defineComponent({
         let timer:any;
         onMounted(() => {
             timer = setTimeout(() => {
+                console.log(props.answerDetail!.StudentQuestionResults, "props.answerDetail!.StudentQuestionResults");
                 initEchart();
             }, 1000);
         });

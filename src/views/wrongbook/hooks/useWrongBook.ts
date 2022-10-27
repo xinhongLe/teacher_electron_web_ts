@@ -129,6 +129,7 @@ export default () => {
     //过滤当前的题目是否在错题栏
     const formatInBasket = (data: any) => {
         // return true;
+        if (!data.QuestionId) return;
         const questions: any = [];
         const questionBasket = store.state.wrongbook.questionBasket as any;
         // console.log("过滤当前的题目是否在错题栏", data, questionBasket);

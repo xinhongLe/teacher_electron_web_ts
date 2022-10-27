@@ -14,7 +14,7 @@
                     <div class="select-warp">
                         <span class="label p_b_20">请选择班级：</span>
                         <el-form-item label="" prop="selectClass">
-                            <el-select v-model="form.selectClass" @change="_getAnswerMachineQuestionList">
+                            <el-select popper-class="answer-select" v-model="form.selectClass" @change="_getAnswerMachineQuestionList">
                                 <el-option
                                     v-for="item in classList"
                                     :key="item.ClassId"
@@ -54,6 +54,7 @@
                                 <span class="label p_b_20">选项：</span>
                                 <el-form-item label="" :prop="`topicList[${i}].selectSetting`" :rules="rules.option">
                                     <el-cascader
+                                        popper-class="answer-select"
                                         :options="item.option"
                                         v-model="item.selectSetting"
                                         :disabled="!(item.selectSetting.length > 0)"
@@ -80,7 +81,7 @@
                 </el-tooltip>
 
                 <el-tooltip content="您可以提前准备好题目并【加入当前备课包】上课时打开备课包可直接使用" placement="top">
-                    <el-button type="primary" @click="start(1)">确定</el-button>
+                    <el-button type="primary" @click="start(1)">立即发放</el-button>
                 </el-tooltip>
             </div>
         </div>
