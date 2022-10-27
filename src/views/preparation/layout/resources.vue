@@ -72,11 +72,12 @@
                 v-model="showDownload"
             >
                 <div class="download-progress-bar">
-                    <div class="download-progress-line" :style="{ width: downloadProgress + '%' }"></div>
+                    <div
+                        class="download-progress-line"
+                        :style="{ width: downloadProgress + '%' }"
+                    ></div>
                 </div>
-                <div class="download-progress-tip">
-                    打包下载中，请稍等...
-                </div>
+                <div class="download-progress-tip">打包下载中，请稍等...</div>
             </el-dialog>
         </div>
     </div>
@@ -93,7 +94,7 @@ import {
     PropType,
     ref,
     toRefs,
-    watch
+    watch,
 } from "vue";
 import ResourceItem from "./resourceItem.vue";
 import DeleteTip from "./dialog/deleteTip.vue";
@@ -110,7 +111,7 @@ import {
     IResourceItem,
     logDownload,
     logView,
-    removePreparationPackage
+    removePreparationPackage,
 } from "@/api/resource";
 import { MutationTypes, useStore } from "@/store";
 import emitter from "@/utils/mitt";
@@ -131,29 +132,29 @@ export default defineComponent({
         EditTip,
         ResourceVersion,
         DeleteVideoTip,
-        ResourceView
+        ResourceView,
     },
     props: {
         course: {
             type: Object as PropType<ICourse>,
-            required: true
+            required: true,
         },
         source: {
             type: String,
-            required: true
+            required: true,
         },
         type: {
             type: String,
-            required: true
+            required: true,
         },
         bookId: {
             type: String,
-            required: true
+            required: true,
         },
         name: {
             type: String,
-            default: ""
-        }
+            default: "",
+        },
     },
     emits: ["updateResourceList"],
     setup(props, { expose, emit }) {
@@ -203,7 +204,7 @@ export default defineComponent({
                 chapterId: book ? book.ChapterID : course.value.chapterId,
                 chapterName: book ? book.ChapterName : course.value.chapterName,
                 lessonId: book ? book.LessonID : course.value.lessonId,
-                lessonName: book ? book.LessonName : course.value.lessonName
+                lessonName: book ? book.LessonName : course.value.lessonName,
             });
 
             if (res.success) {
@@ -236,37 +237,46 @@ export default defineComponent({
         const downloadFile = async (data: IResourceItem) => {
             if (data.ResourceShowType === 1) {
                 // 下载窗卡页
-                window.electron.showOpenDialog({
-                    title: "选择保存路径",
-                    buttonLabel: "确定",
-                    properties: ["openDirectory"]
-                }).then(async (file: any) => {
-                    if (!file.canceled) {
-                        const path = file.filePaths[0];
-                        downloadProgress.value = 0;
-                        showDownload.value = true;
-                        localCache = new LocalCache({
-                            cachingStatus: (status) => {
-                                console.log(`status: ${status}`);
-                                downloadProgress.value = status;
-                                if (status === 100 && showDownload.value) {
-                                    showDownload.value = false;
-                                    ElMessage.success("打包下载完成！");
-                                }
-                            }
-                        });
+                window.electron
+                    .showOpenDialog({
+                        title: "选择保存路径",
+                        buttonLabel: "确定",
+                        properties: ["openDirectory"],
+                    })
+                    .then(async (file: any) => {
+                        if (!file.canceled) {
+                            const path = file.filePaths[0];
+                            downloadProgress.value = 0;
+                            showDownload.value = true;
+                            localCache = new LocalCache({
+                                cachingStatus: (status) => {
+                                    console.log(`status: ${status}`);
+                                    downloadProgress.value = status;
+                                    if (status === 100 && showDownload.value) {
+                                        showDownload.value = false;
+                                        ElMessage.success("打包下载完成！");
+                                        logDownload({ id: data.ResourceId });
+                                    }
+                                },
+                            });
 
-                        localCache.doCache({
-                            WindowID: data.OldResourceId,
-                            OriginType: data.IsSysFile === 1 ? 0 : 1
-                        }, data.Name, path, () => {
-                            showDownload.value = false;
-                            ElMessage.error("网络异常，打包下载失败！")
-                        });
-                    }
-                }).catch((err: any) => {
-                    ElMessage({ type: "error", message: "下载失败" });
-                });
+                            localCache.doCache(
+                                {
+                                    WindowID: data.OldResourceId,
+                                    OriginType: data.IsSysFile === 1 ? 0 : 1,
+                                },
+                                data.Name,
+                                path,
+                                () => {
+                                    showDownload.value = false;
+                                    ElMessage.error("网络异常，打包下载失败！");
+                                }
+                            );
+                        }
+                    })
+                    .catch((err: any) => {
+                        ElMessage({ type: "error", message: "下载失败" });
+                    });
                 return;
             }
             if (data.File) {
@@ -299,104 +309,113 @@ export default defineComponent({
             e?: MouseEvent | TouchEvent
         ) => {
             switch (event) {
-            case "delete":
-                targetDelete.value = data.ResourceId;
-                deleteTipVisible.value = true;
-                break;
-            case "edit":
-                if (
-                    (data.ResourceShowType === 1 || data.ResourceShowType === 0) && data.UserId !== userId.value) {
-                    resource.value = data;
-                    editTipVisible.value = true;
-                } else {
-                    emitter.emit("openEditResource", data);
-                }
-                break;
-            case "version":
-                target.value = data.ResourceId;
-                resourceVersionVisible.value = true;
-                break;
-            case "download":
-                downloadFile(data);
-                break;
-            case "add":
-                if (e) dealFly(e);
-                addPackage(data);
-                break;
-            case "move":
-                removePackage(data);
-                break;
-            case "detail":
-                if (props.name === "attendClass") {
-                    if (data.ResourceShowType === 2) {
-                        // 断点视频
-                        store.commit(
-                            MutationTypes.SET_FULLSCREEN_RESOURCE,
-                            {
-                                component: "LookVideo",
-                                resource: { id: data.OldResourceId, openMore: true }
-                            }
-                        );
-                    } else if (data.ResourceShowType === 3) {
-                        // 练习卷
-                        store.commit(
-                            MutationTypes.SET_FULLSCREEN_RESOURCE,
-                            {
-                                component: "LookQuestion",
-                                resource: {
-                                    id: data.OldResourceId,
-                                    courseBagId: "",
-                                    deleteQuestionIds: [],
-                                    type: 1,
-                                    openMore: true
-                                }
-                            }
-                        );
-                    } else if (data.ResourceShowType === 1) {
-                        store.commit(
-                            MutationTypes.SET_FULLSCREEN_RESOURCE,
-                            {
-                                component: "Wincard",
-                                resource: {
-                                    id: data.OldResourceId,
-                                    isSystem: data.IsSysFile === 1,
-                                    openMore: true
-                                }
-                            }
-                        );
-                    } else if (data.ResourceShowType === 0 || data.ResourceShowType === 4) {
-                        store.commit(
-                            MutationTypes.SET_FULLSCREEN_RESOURCE,
-                            {
-                                component: "ScreenViewFile",
-                                resource: {
-                                    ...data,
-                                    id: data.OldResourceId,
-                                    openMore: true
-                                }
-                            }
-                        );
-                    } else if (data.ResourceShowType === 5) {
-                        store.commit(
-                            MutationTypes.SET_FULLSCREEN_RESOURCE,
-                            {
-                                component: "AnswerMachine",
-                                resource: {
-                                    ...data,
-                                    lessonId: course.value.lessonId,
-                                    id: new Date().getTime(),
-                                    openMore: true
-                                }
-                            }
-                        );
+                case "delete":
+                    targetDelete.value = data.ResourceId;
+                    deleteTipVisible.value = true;
+                    break;
+                case "edit":
+                    if (
+                        (data.ResourceShowType === 1 ||
+                            data.ResourceShowType === 0) &&
+                        data.UserId !== userId.value
+                    ) {
+                        resource.value = data;
+                        editTipVisible.value = true;
+                    } else {
+                        emitter.emit("openEditResource", data);
                     }
-                } else {
-                    openResource(data);
-                }
+                    break;
+                case "version":
+                    target.value = data.ResourceId;
+                    resourceVersionVisible.value = true;
+                    break;
+                case "download":
+                    downloadFile(data);
+                    break;
+                case "add":
+                    if (e) dealFly(e);
+                    addPackage(data);
+                    break;
+                case "move":
+                    removePackage(data);
+                    break;
+                case "detail":
+                    if (props.name === "attendClass") {
+                        if (data.ResourceShowType === 2) {
+                            // 断点视频
+                            store.commit(
+                                MutationTypes.SET_FULLSCREEN_RESOURCE,
+                                {
+                                    component: "LookVideo",
+                                    resource: {
+                                        id: data.OldResourceId,
+                                        openMore: true,
+                                    },
+                                }
+                            );
+                        } else if (data.ResourceShowType === 3) {
+                            // 练习卷
+                            store.commit(
+                                MutationTypes.SET_FULLSCREEN_RESOURCE,
+                                {
+                                    component: "LookQuestion",
+                                    resource: {
+                                        id: data.OldResourceId,
+                                        courseBagId: "",
+                                        deleteQuestionIds: [],
+                                        type: 1,
+                                        openMore: true,
+                                    },
+                                }
+                            );
+                        } else if (data.ResourceShowType === 1) {
+                            store.commit(
+                                MutationTypes.SET_FULLSCREEN_RESOURCE,
+                                {
+                                    component: "Wincard",
+                                    resource: {
+                                        id: data.OldResourceId,
+                                        isSystem: data.IsSysFile === 1,
+                                        openMore: true,
+                                    },
+                                }
+                            );
+                        } else if (
+                            data.ResourceShowType === 0 ||
+                            data.ResourceShowType === 4
+                        ) {
+                            store.commit(
+                                MutationTypes.SET_FULLSCREEN_RESOURCE,
+                                {
+                                    component: "ScreenViewFile",
+                                    resource: {
+                                        ...data,
+                                        id: data.OldResourceId,
+                                        openMore: true,
+                                    },
+                                }
+                            );
+                        } else if (data.ResourceShowType === 5) {
+                            store.commit(
+                                MutationTypes.SET_FULLSCREEN_RESOURCE,
+                                {
+                                    component: "AnswerMachine",
+                                    resource: {
+                                        ...data,
+                                        lessonId: course.value.lessonId,
+                                        id: new Date().getTime(),
+                                        openMore: true,
+                                    },
+                                }
+                            );
+                        }
+                    } else {
+                        openResource(data);
+                    }
 
-                logView({ id: data.ResourceId });
-                data.BrowseNum++;
-                break;
+                    logView({ id: data.ResourceId });
+                    data.BrowseNum++;
+                    break;
             }
         };
 
@@ -492,8 +511,8 @@ export default defineComponent({
                     bookId: bookId.value,
                     pager: {
                         pageNumber: pageNumber.value,
-                        pageSize: pageSize.value
-                    }
+                        pageSize: pageSize.value,
+                    },
                 });
 
                 resourceList.value = resourceList.value.concat(res.result.list);
@@ -561,7 +580,7 @@ export default defineComponent({
             resourceData,
             showDownload,
             downloadProgress,
-            cancelDownload
+            cancelDownload,
         };
     },
 });
@@ -608,7 +627,7 @@ export default defineComponent({
             background: #4b71ee;
             height: 100%;
             width: 0;
-            transition: .1s all;
+            transition: 0.1s all;
         }
     }
     .download-progress-tip {

@@ -1,7 +1,12 @@
 <template>
     <div class="iframe-box">
         <div class="iframe-content" v-if="type === 4 || type === 0">
-            <iframe class="office-iframe" v-if="isOffice" :src="url" sandbox="allow-same-origin allow-scripts"></iframe>
+            <iframe
+                class="office-iframe"
+                v-if="isOffice"
+                :src="url"
+                sandbox="allow-same-origin allow-scripts"
+            ></iframe>
             <iframe v-if="type === 4" :src="url"></iframe>
             <div class="iframe-image" v-if="isImage">
                 <img :src="url" />
@@ -30,11 +35,7 @@
             </div>
         </div>
     </div>
-    <drawing-board
-        :show="drawingShow"
-        @closeWriteBoard="drawingShow = false"
-        :isDialog="true"
-    />
+    <drawing-board :show="drawingShow" @closeWriteBoard="drawingShow = false" />
 </template>
 
 <script lang="ts">
@@ -221,7 +222,11 @@ export default defineComponent({
         }
         .pen {
             background: url("./../../assets/look/btn_huabi@2x.png");
+            background-size: 100% 100%;
             margin-right: 20px;
+            p {
+                color: #4b71ee;
+            }
         }
     }
 }
