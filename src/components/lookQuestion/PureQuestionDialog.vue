@@ -12,6 +12,7 @@
                 :resource="resource"
                 :close="close"
                 :isPureQuestion="true"
+                :dialog="true"
             />
         </el-dialog>
     </div>

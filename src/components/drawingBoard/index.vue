@@ -37,6 +37,10 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
+    isDialog: {
+        type: Boolean,
+        default: false,
+    },
 });
 
 const emits = defineEmits(["closeWriteBoard"]);
@@ -90,9 +94,11 @@ const canRedo = computed(() => whiteboard.value && whiteboard.value.canRedo);
 const resize = () => {
     // 窗口发生变化重新计算距离
     const { x, y } = whiteboardBox.value.getBoundingClientRect();
+    console.log("props.isDialog", props.isDialog);
+
     options.value = {
         offsetX: x,
-        offsetY: y + 20,
+        offsetY: props.isDialog ? y + 20 : y,
     };
 };
 
@@ -119,7 +125,7 @@ onMounted(() => {
     height: 100%;
     position: absolute;
     left: 0;
-    right: 0;
+    top: 0;
     z-index: 99998;
     pointer-events: none;
 

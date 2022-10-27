@@ -19,6 +19,10 @@ const extraResources = process.platform === "darwin" ? [
         to: "extraResources/ball/"
     },
     {
+        from: "./extraResources/whiteboard/",
+        to: "extraResources/whiteboard/"
+    },
+    {
         from: "./extraResources/exportWord/",
         to: "extraResources/exportWord/"
     },

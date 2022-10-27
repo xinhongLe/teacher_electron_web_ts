@@ -335,9 +335,9 @@
         />
     </div>
     <QuestionBasket
+        v-if="state.isShowContent != 3"
         @basketGenerateExercise="basketGenerateExercise"
         v-model:isShowContent="state.isShowContent"
-        v-show="state.isShowContent != 3"
     />
 </template>
 

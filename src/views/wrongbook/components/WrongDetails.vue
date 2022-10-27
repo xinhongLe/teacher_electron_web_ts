@@ -677,6 +677,7 @@
         v-if="state.explainVisible"
         v-model:visible="state.explainVisible"
         :resource="state.resourceData"
+        :currentquestion="state.currentQuestionData"
     >
     </ExplainQuestion>
 
@@ -899,16 +900,18 @@ provide("nowQuestionID", state.currentIndex);
 //添加错题至试题篮
 const addQuestionBasket = () => {
     console.log("当前错题数据", state.currentQuestionData);
-    store.dispatch(
-        ActionTypes.ADD_QUESTION_BASKET,
-        Object.assign(
+    const data: any = state.currentQuestionData;
+    const params = {
+        questions: [
             {
-                classId: store.state.wrongbook.currentClassId,
-                bookId: store.state.wrongbook.currentBookId,
+                questionId: data.QuestionId,
+                questionType: data.QuestionType,
             },
-            state.currentQuestionData
-        )
-    );
+        ],
+        classId: store.state.wrongbook.currentClassId,
+        bookId: store.state.wrongbook.currentBookId,
+    };
+    store.dispatch(ActionTypes.ADD_QUESTION_BASKET, params);
 };
 //移出一条试题篮
 const delQuestionBasket = (data: any) => {

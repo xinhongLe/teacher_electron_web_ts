@@ -5,7 +5,7 @@ import { IPageValue } from '@/types/home';
 import path from 'path';
 import { PPTElement, Slide } from 'wincard';
 import { dealOldData } from './dataParse';
-import { dealOldDataTeach, dealOldDataVideo, dealOldDataWord } from './dataParsePage';
+import { dealOldDataGame, dealOldDataTeach, dealOldDataVideo, dealOldDataWord } from './dataParsePage';
 import { getOssUrl } from './oss';
 
 // new LocalCache({
@@ -49,6 +49,9 @@ export default class LocalCache {
             case 16:
             case "teach":
                 return 3;
+            case 20:
+            case "game":
+                return 4;
             default:
                 return -1;
         }
@@ -139,6 +142,11 @@ export default class LocalCache {
             cacheFiles.push(await this.cacheFile((slide.teach as any).file));
         }
 
+        // 游戏页
+        if (slide.game && (slide.game as any).file) {
+            cacheFiles.push(await this.cacheFile((slide.game as any).file));
+        }
+
         return cacheFiles;
     }
 
@@ -210,6 +218,8 @@ export default class LocalCache {
                 slide = dealOldDataVideo(page.ID, res.result);
             } else if (page.Type === pageType.teach) {
                 slide = dealOldDataTeach(page.ID, res.result);
+            } else if (page.Type === pageType.game) {
+                slide = dealOldDataGame(page.ID, res.result);
             }
 
             if (slide !== null) {

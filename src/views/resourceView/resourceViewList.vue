@@ -56,7 +56,11 @@
             </div>
         </div>
     </div>
-    <drawing-board :show="drawingShow" @closeWriteBoard="drawingShow = false" />
+    <drawing-board
+        :show="drawingShow"
+        @closeWriteBoard="drawingShow = false"
+        :isDialog="true"
+    />
 </template>
 
 <script lang="ts">
