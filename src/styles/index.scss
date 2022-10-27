@@ -357,6 +357,10 @@ html {
     }
 }
 
+.answer-select{
+    z-index: 20000 !important;
+}
+
 // 教案预览下拉框样式
 .lesson-preview-select{
     z-index: 99999 !important;

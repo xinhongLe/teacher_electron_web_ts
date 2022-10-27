@@ -332,6 +332,7 @@ export default defineComponent({
 
         const closeWincard = () => {
             store.commit(MutationTypes.REMOVE_FULLSCREEN_RESOURCE, { id: props.id, openMore: true });
+            emit("closeWincard");
         }
 
         return {

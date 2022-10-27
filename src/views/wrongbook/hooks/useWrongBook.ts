@@ -128,20 +128,26 @@ export default () => {
 
     //过滤当前的题目是否在错题栏
     const formatInBasket = (data: any) => {
+        // console.log("过滤当前的题目是否在错题栏", data);
         // return true;
+        if (data.QuestionID) {
+            data.QuestionId = data.QuestionID;
+        }
         const questions: any = [];
         const questionBasket = store.state.wrongbook.questionBasket as any;
         // console.log("过滤当前的题目是否在错题栏", data, questionBasket);
 
         questionBasket.forEach((item: any) => {
-            item.Questions.forEach((data: any) => {
-                questions.push(data);
+            item.Questions.forEach((datat: any) => {
+                questions.push(datat);
             });
         });
         const basketList =
             questions.map((item: any) => {
                 return item.QuestionId;
             }) || [];
+        // console.log(basketList, data.QuestionId);
+
         if (basketList.includes(data.QuestionId)) {
             return false;
         } else {
@@ -159,6 +165,31 @@ export default () => {
         };
         store.dispatch(ActionTypes.DEL_QUESTION_BASKET, params);
     };
+    //添加试题篮
+    const addQuestionBasket = (data: any) => {
+        const params = {
+            questions: [
+                {
+                    questionId: data.QuestionId,
+                    questionType: data.QuestionType,
+                },
+            ],
+            classId: store.state.wrongbook.currentClassId,
+            bookId: store.state.wrongbook.currentBookId,
+        };
+        store.dispatch(ActionTypes.ADD_QUESTION_BASKET, params);
+    };
+    const delQuestionBasket = (data: any) => {
+        // console.log("当前错题行数据", data);
+        const params = {
+            isAllDel: 0,
+            classId: store.state.wrongbook.currentClassId,
+            bookId: store.state.wrongbook.currentBookId,
+            questionIds: [data.QuestionId],
+            questionType: data.QuestionType,
+        };
+        store.dispatch(ActionTypes.DEL_QUESTION_BASKET, params);
+    };
 
     return {
         queryKnowledgeLabList,
@@ -170,6 +201,8 @@ export default () => {
         formatRecentColor,
         formatInBasket,
         delAllBasketData,
+        addQuestionBasket,
+        delQuestionBasket,
         ...toRefs(state),
     };
 };

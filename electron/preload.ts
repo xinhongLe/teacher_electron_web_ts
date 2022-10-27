@@ -22,7 +22,7 @@ import {
     readFile,
     rm,
     stat,
-    writeFile,
+    writeFile
 } from "fs/promises";
 import crypto from "crypto";
 import { exportWord, IFileData } from "./exportWord";
@@ -32,7 +32,7 @@ const PATH_BINARY =
         : join(__dirname, "../mockingbot-color-picker-ia32.exe");
 const PATH_WhiteBoard = join(
     __dirname,
-     "../extraResources/whiteboard/Aixueshi.Whiteboard.exe"    
+     "../extraResources/whiteboard/Aixueshi.Whiteboard.exe"
 );
 const downloadsPath = join(app.getPath("userData"), "files", "/");
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -82,10 +82,10 @@ export default defineComponent({
             type: String,
             default: "",
         },
-		data: {
-			type: Object as PropType<IViewResourceData>,
-			required: true
-		}
+        data: {
+            type: Object as PropType<IViewResourceData>,
+            required: true,
+        },
     },
     emits: ["eventEmit", "update:visible"],
     setup(props, { emit }) {
@@ -112,10 +112,7 @@ export default defineComponent({
         };
 
         const checkFullScreen = () => {
-            if (
-                !window.electron.isFullScreen() &&
-                isFullScreen.value
-            ) {
+            if (!window.electron.isFullScreen() && isFullScreen.value) {
                 isFullScreen.value = false;
             }
         };
@@ -149,7 +146,7 @@ export default defineComponent({
 <style lang="scss">
 .resource-view {
     .resource-dialog {
-        --el-dialog-margin-top: 5vh;
+        --el-dialog-margin-top: 4vh;
         height: 90vh;
         display: flex;
         flex-direction: column;

@@ -81,92 +81,89 @@
                 <div class="footer-btn" @click="generateExercise">生成练习</div>
             </div>
         </div>
-        <!-- 清空提示 -->
-        <el-dialog
-            v-model="dialogVisible"
-            :show-close="false"
-            width="360px"
-            :append-to-body="true"
-            custom-class="cus-basket-dialog"
-        >
-            <template #title>
-                <span></span>
-                <span class="my-header">提示</span>
-                <span @click="dialogVisible = false">
-                    <img
-                        src="~@/assets/images/wrongbook/icon_close_popup_gray.png"
-                        alt=""
-                    />
-                </span>
-            </template>
-            <div class="dialog-content">
-                <img
-                    src="~@/assets/images/wrongbook/icon_tips_popup.png"
-                    alt=""
-                />
-                <span>是否确认清空题目</span>
-            </div>
-            <div class="dialog-footers">
-                <div class="cobtn calcBtn" @click="dialogVisible = false">
-                    取消
-                </div>
-                <div
-                    class="cobtn sureBtn"
-                    @click="
-                        delAllBasketData();
-                        dialogVisible = false;
-                    "
-                >
-                    确定清空
-                </div>
-            </div>
-        </el-dialog>
-        <!-- 删除提示 -->
-        <!-- 删除提示 -->
-        <el-dialog
-            v-model="delDialogVisible"
-            :show-close="false"
-            width="360px"
-            custom-class="homeworkDialog"
-        >
-            <template #title>
-                <span></span>
-                <span class="my-header">删除提示</span>
-                <span @click="delDialogVisible = false">
-                    <img
-                        src="~@/assets/images/wrongbook/icon_close_popup_gray.png"
-                        alt=""
-                    />
-                </span>
-            </template>
-            <div class="dialog-content" style="background-color: #fff">
-                <img
-                    src="~@/assets/images/wrongbook/icon_tips_popup.png"
-                    alt=""
-                />
-                <span>是否删除所有该题型下的题目</span>
-            </div>
-            <div class="dialog-footers">
-                <div class="cobtn calcBtn" @click="delDialogVisible = false">
-                    取消
-                </div>
-                <div class="cobtn sureBtn" @click="sureDelExerciseData">
-                    确定删除
-                </div>
-            </div>
-        </el-dialog>
     </div>
+    <!-- 清空提示 -->
+    <el-dialog
+        v-model="dialogVisible"
+        :show-close="false"
+        width="360px"
+        :append-to-body="true"
+        custom-class="cus-basket-dialog"
+    >
+        <template #title>
+            <span></span>
+            <span class="my-header">提示</span>
+            <span @click="dialogVisible = false">
+                <img
+                    src="~@/assets/images/wrongbook/icon_close_popup_gray.png"
+                    alt=""
+                />
+            </span>
+        </template>
+        <div class="dialog-content">
+            <img src="~@/assets/images/wrongbook/icon_tips_popup.png" alt="" />
+            <span>是否确认清空题目</span>
+        </div>
+        <div class="dialog-footers">
+            <div class="cobtn calcBtn" @click="dialogVisible = false">取消</div>
+            <div
+                class="cobtn sureBtn"
+                @click="
+                    delAllBasketData();
+                    dialogVisible = false;
+                "
+            >
+                确定清空
+            </div>
+        </div>
+    </el-dialog>
+    <!-- 删除提示 -->
+    <!-- 删除提示 -->
+    <el-dialog
+        v-model="delDialogVisible"
+        :show-close="false"
+        width="360px"
+        custom-class="homeworkDialog"
+    >
+        <template #title>
+            <span></span>
+            <span class="my-header">删除提示</span>
+            <span @click="delDialogVisible = false">
+                <img
+                    src="~@/assets/images/wrongbook/icon_close_popup_gray.png"
+                    alt=""
+                />
+            </span>
+        </template>
+        <div class="dialog-content" style="background-color: #fff">
+            <img src="~@/assets/images/wrongbook/icon_tips_popup.png" alt="" />
+            <span>是否删除所有该题型下的题目</span>
+        </div>
+        <div class="dialog-footers">
+            <div class="cobtn calcBtn" @click="delDialogVisible = false">
+                取消
+            </div>
+            <div class="cobtn sureBtn" @click="sureDelExerciseData">
+                确定删除
+            </div>
+        </div>
+    </el-dialog>
 </template>
 <script lang="ts" setup>
 import { ref, watch, defineEmits, defineProps, computed } from "vue";
 import { MutationTypes, store, ActionTypes } from "@/store";
 import useWrongBook from "../hooks/useWrongBook";
+import { AddPaperForPaperBasket } from "@/api/errorbook";
 const { formatQuestionType, delAllBasketData } = useWrongBook();
 const emit = defineEmits(["update:isShowContent", "basketGenerateExercise"]);
 const props = defineProps({
     isShowContent: {
         type: Number,
         default: 0,
+    },
+    gradeName: {
+        type: String,
+        default: "",
     },
 });
 
@@ -184,14 +181,23 @@ const basketData = computed(() => {
     return store.state.wrongbook.questionBasket;
 });
 //生成练习
-const generateExercise = () => {
+const generateExercise = async () => {
     if (store.state.wrongbook.baskTotal == 0) return;
+
     emit("update:isShowContent", 3);
     // const exerciseParams = {
     //     PaperName: store.state.wrongbook.currentPaperName,
     //     BasketPaperQuestions: basketData.value,
     // };
     emit("basketGenerateExercise", props.isShowContent);
+    //生成练习接口
+    const res: any = await AddPaperForPaperBasket({
+        PaperName: `${props.gradeName}错题复习`,
+        BasketPaperQuestions: store.state.wrongbook.questionBasket,
+    });
+    if (res.resultCode == 200) {
+        store.state.wrongbook.currentGeneratePaperId = res.result.PaperId;
+    }
 };
 
 //删除一条试题栏中的数据

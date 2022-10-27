@@ -47,3 +47,13 @@ export const dealSaveDataTeach = (data: Slide) => {
         teachMiniToolID: data.teach?.id
     };
 };
+
+/**
+ 游戏页保存处理
+ */
+export const dealSaveDataGame = (data: Slide) => {
+    return {
+        PageID: data.id,
+        gameId: data.game?.id
+    };
+};

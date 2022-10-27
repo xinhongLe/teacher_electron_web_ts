@@ -373,12 +373,14 @@
         v-if="state.explainVisible"
         v-model:visible="state.explainVisible"
         :resource="state.resourceData"
+        :currentquestion="state.currentQuestion"
     >
     </ExplainQuestion>
     <PureQuestionDialog
         v-if="state.pureQuestionVisible"
         v-model:visible="state.pureQuestionVisible"
         :resource="state.resourceData"
+        :isshowbasket="true"
     />
 </template>
 <script lang="ts" setup>
@@ -506,6 +508,7 @@ const state = reactive({
     pureQuestionVisible: false, //同类题弹框
     resourceData: {} as IViewResourceData,
     currentQuestionId: "",
+    currentQuestion: {},
     explainVisible: false,
 });
 provide("nowQuestionID", state.currentQuestionId);
@@ -612,10 +615,20 @@ const addAllQuestion = () => {
 };
 //移出错题列表中所有的错题
 const removeAllQuestion = () => {
-    delAllBasketData();
+    const qsList = state.errorQuestionList.map((item: any) => item.QuestionId);
+    console.log("remove-qsList", qsList);
+    const params = {
+        isAllDel: 0,
+        classId: state.currentClassId,
+        bookId: state.currentBookId,
+        questionIds: qsList,
+        questionType: 0,
+    };
+    store.dispatch(ActionTypes.DEL_QUESTION_BASKET, params);
 };
 //讲解题目
 const explainQuestion = (data: any) => {
+    state.currentQuestion = data;
     state.explainVisible = true;
     state.resourceData = {
         type: 0,
@@ -625,8 +638,10 @@ const explainQuestion = (data: any) => {
 const emit = defineEmits(["update:isShowContent"]);
 //查看同类题
 const openSimilarQuestion = (data: any) => {
+    state.currentQuestion = data;
     state.pureQuestionVisible = true;
     state.currentQuestionId = data.QuestionId;
+
     if (data.IsAnyPureQuestion) {
         // nextTick(() => {
         state.resourceData = {

@@ -24,11 +24,16 @@
                 :cardList="dialogCardList"
                 v-model:dialogVisible="dialogVisible"
             ></open-card-view-dialog>
-            <div
-                class="me-page"
-            >
-                <PageItem :pageList="pageList" :selected="currentPageIndex" @selectPage="selectPage"/>
-            </div>
+            <transition name="fade">
+                <div
+                    class="me-page"
+                    :class="{
+                        hidden: isFullScreen && !isShowCardList,
+                    }"
+                >
+                    <PageItem :pageList="pageList" :selected="currentPageIndex" @selectPage="selectPage"/>
+                </div>
+            </transition>
         </div>
     </div>
 </template>
@@ -51,6 +56,14 @@ import { useStore } from "@/store";
 export default defineComponent({
     props: {
         dialog: {
+            type: Boolean,
+            default: false
+        },
+        isShowCardList: {
+            type: Boolean,
+            default: true
+        },
+        isFullScreen: {
             type: Boolean,
             default: false
         }
@@ -355,6 +368,11 @@ export default defineComponent({
     overflow-y: hidden;
     overflow-x: auto;
     border-top: 1px solid #E9ECF0;
+    transition: height 0.3s;
+    &.hidden {
+        height: 0;
+        padding: 0;
+    }
 }
 
 .me-page-item {

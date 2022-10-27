@@ -51,6 +51,7 @@ import mqtt from "mqtt";
 import { IClassItem } from "@/types/quickAnswer";
 import { YUN_API_ONECARD_MQTT } from "@/config";
 import { getOssUrl } from "@/utils/oss";
+import { finishAnswerMachineQuestion } from "@/childWindow/answerMachine/api";
 export default defineComponent({
     name: "quickAnswerDetail",
     props: {
@@ -165,9 +166,18 @@ export default defineComponent({
                         client.subscribe(getPublish(state.answerMachineID));
                     }
                 });
-            } else {
-                state.message = 0;
-                client.unsubscribe(getPublish(state.answerMachineID));
+            } else if (state.message === 1) {
+                const data = {
+                    TeacherID: props.currentUserInfo!.userCenterUserID,
+                    AnswerMachineID: state.answerMachineID,
+                    LessonId: null
+                };
+                finishAnswerMachineQuestion(data).then(res => {
+                    if (res.resultCode === 200) {
+                        state.message = 0;
+                        client.unsubscribe(getPublish(state.answerMachineID));
+                    }
+                });
             }
         };
         const close = () => {

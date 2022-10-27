@@ -260,7 +260,7 @@ app.on("ready", async () => {
     if (!result && !isOpenFile) {
         createWindow();
     }
-    // createLocalPreview(["C:\\Users\\admin\\AppData\\Roaming\\Aixueshi\\files\\《守株待兔》第一课时.lyxpkg"])
+    // createLocalPreview(["/Users/moneyinto/Desktop/《守株待兔》第一课时.lyxpkg"])
 });
 
 app.on("render-process-gone", (event, webContents, details) => {

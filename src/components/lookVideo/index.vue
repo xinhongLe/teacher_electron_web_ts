@@ -1,5 +1,10 @@
 <template>
-    <div class="look-video" :class="{ 'dialog-type': dialog, 'active-window': activeWindow }" v-show="!isMinimized" v-loading="videoLoading">
+    <div
+        class="look-video"
+        :class="{ 'dialog-type': dialog, 'active-window': activeWindow }"
+        v-show="!isMinimized"
+        v-loading="videoLoading"
+    >
         <div class="warp">
             <div class="frames-box">
                 <span class="file-sn" v-if="!dialog">{{ fileSn }}</span>
@@ -40,19 +45,23 @@
                 <div class="pen" @click="drawingShow = true">
                     <p>画笔</p>
                 </div>
-<!--                <div-->
-<!--                    :class="btnType == 2 ? 'active' : ''"-->
-<!--                    @click="eraserHandle"-->
-<!--                >-->
-<!--                    <p>橡皮</p>-->
-<!--                </div>-->
-<!--                <div :class="btnType == 3 ? 'active' : ''" @click="clearBoard">-->
-<!--                    <p>清空</p>-->
-<!--                </div>-->
+                <!--                <div-->
+                <!--                    :class="btnType == 2 ? 'active' : ''"-->
+                <!--                    @click="eraserHandle"-->
+                <!--                >-->
+                <!--                    <p>橡皮</p>-->
+                <!--                </div>-->
+                <!--                <div :class="btnType == 3 ? 'active' : ''" @click="clearBoard">-->
+                <!--                    <p>清空</p>-->
+                <!--                </div>-->
                 <div class="close" @click="closeVideo">
                     <p>关闭</p>
                 </div>
-                <div class="mini" @click="smallVideo" v-show="isElectron && !dialog && !noMinix">
+                <div
+                    class="mini"
+                    @click="smallVideo"
+                    v-show="isElectron && !dialog && !noMinix"
+                >
                     <p>最小化</p>
                 </div>
                 <template v-if="isVideoEnded">
@@ -79,7 +88,11 @@
         </div>
     </div>
 
-    <drawing-board :show="drawingShow" @closeWriteBoard="drawingShow = false"/>
+    <drawing-board
+        :show="drawingShow"
+        @closeWriteBoard="drawingShow = false"
+        :isDialog="dialog"
+    />
 </template>
 
 <script lang="ts">
@@ -92,7 +105,7 @@ import {
     nextTick,
     onUnmounted,
     PropType,
-    computed
+    computed,
 } from "vue";
 import isElectronFun from "is-electron";
 import { getFileAndPauseByFile } from "./api";
@@ -106,22 +119,22 @@ export default defineComponent({
     props: {
         dialog: {
             type: Boolean,
-            default: false
+            default: false,
         },
 
         close: {
             type: Function,
-            default: () => {}
+            default: () => {},
         },
 
         resource: {
             type: Object as PropType<IViewResourceData>,
-            required: true
+            required: true,
         },
         activeWindow: {
             type: Boolean,
-            default: false
-        }
+            default: false,
+        },
     },
     setup(props) {
         const isElectron = isElectronFun();
@@ -147,7 +160,7 @@ export default defineComponent({
             isVideoEnded,
             playPause,
             childRef,
-            replay
+            replay,
         } = useVideo();
 
         const brushHandle = () => {
@@ -167,7 +180,11 @@ export default defineComponent({
 
         const closeVideo = () => {
             if (props.dialog) props.close();
-            store.commit(MutationTypes.REMOVE_FULLSCREEN_RESOURCE, { id: props.resource.id, openMore: props.resource.openMore, type: "LookVideo" });
+            store.commit(MutationTypes.REMOVE_FULLSCREEN_RESOURCE, {
+                id: props.resource.id,
+                openMore: props.resource.openMore,
+                type: "LookVideo",
+            });
         };
 
         const smallVideo = () => {
@@ -196,7 +213,7 @@ export default defineComponent({
             lastId.value = id;
             childRef.value && childRef.value!.clearBrush();
             getFileAndPauseByFile({
-                fileID: id
+                fileID: id,
             }).then(async (res) => {
                 if (res.resultCode === 200) {
                     const { FilePauses, VideoFile } = res.result;
@@ -218,7 +235,10 @@ export default defineComponent({
 
         const openVideoWin = () => {
             isMinimized.value = false;
-            store.commit(MutationTypes.SET_FULLSCREEN_RESOURCE_ACTIVE, "LookVideo");
+            store.commit(
+                MutationTypes.SET_FULLSCREEN_RESOURCE_ACTIVE,
+                "LookVideo"
+            );
             nextTick(() => {
                 if (btnName.value === "暂停") {
                     videoRef.value && videoRef.value.play();
@@ -285,10 +305,10 @@ export default defineComponent({
             childRef,
             videoLoading,
             formateSeconds,
-            drawingShow
+            drawingShow,
         };
     },
-    components: { DrawingBoard }
+    components: { DrawingBoard },
 });
 </script>
 

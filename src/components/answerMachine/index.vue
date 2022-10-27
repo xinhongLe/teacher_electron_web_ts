@@ -26,6 +26,7 @@
             :lessonId="lessonId"
             :answerDetail="answerDetail"
             :questionType="selectQuestionType"
+            :currentUserInfo="currentUserInfo"
         />
         <div class="iframe-footer" v-if="fixed">
             <div class="iframe-footer-btn" @click="close">

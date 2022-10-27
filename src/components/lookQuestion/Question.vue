@@ -48,26 +48,23 @@
                     <div @click.stop="playSounds(1)" class="button">
                         <p>听解析</p>
                     </div>
-                    <div
-                        @click.stop="drawingShow = true"
-                        class="button pen"
-                    >
+                    <div @click.stop="drawingShow = true" class="button pen">
                         <p>画笔</p>
                     </div>
-<!--                    <div-->
-<!--                        :class="btnType == 2 ? 'active' : ''"-->
-<!--                        @click.stop="eraserHandle"-->
-<!--                        class="button"-->
-<!--                    >-->
-<!--                        <p>橡皮</p>-->
-<!--                    </div>-->
-<!--                    <div-->
-<!--                        :class="btnType == 3 ? 'active' : ''"-->
-<!--                        @click.stop="clearBoard"-->
-<!--                        class="button"-->
-<!--                    >-->
-<!--                        <p>清空</p>-->
-<!--                    </div>-->
+                    <!--                    <div-->
+                    <!--                        :class="btnType == 2 ? 'active' : ''"-->
+                    <!--                        @click.stop="eraserHandle"-->
+                    <!--                        class="button"-->
+                    <!--                    >-->
+                    <!--                        <p>橡皮</p>-->
+                    <!--                    </div>-->
+                    <!--                    <div-->
+                    <!--                        :class="btnType == 3 ? 'active' : ''"-->
+                    <!--                        @click.stop="clearBoard"-->
+                    <!--                        class="button"-->
+                    <!--                    >-->
+                    <!--                        <p>清空</p>-->
+                    <!--                    </div>-->
                     <div @click.stop="closeQuestion" class="button close">
                         <p>关闭</p>
                     </div>
@@ -87,7 +84,7 @@
                     <div v-if="isLastBtn" class="disabled button prev">
                         <p>上一页</p>
                     </div>
-                    <div v-else @click.stop="lastPage" class="button next">
+                    <div v-else @click.stop="lastPage" class="button prev">
                         <p>上一页</p>
                     </div>
                     <div v-if="isNextBtn" class="disabled button next">
@@ -101,7 +98,11 @@
         </div>
     </div>
 
-    <drawing-board :show="drawingShow" @closeWriteBoard="drawingShow = false"/>
+    <drawing-board
+        :show="drawingShow"
+        @closeWriteBoard="drawingShow = false"
+        :isDialog="dialog"
+    />
 </template>
 
 <script lang="ts">
@@ -242,7 +243,7 @@ export default defineComponent({
             emitter.off("smallQuestion");
         });
 
-        const drawingShow = ref(false)
+        const drawingShow = ref(false);
 
         return {
             noMinix,
@@ -275,10 +276,10 @@ export default defineComponent({
             questionSn,
             audioRef,
             isElectron,
-            drawingShow
+            drawingShow,
         };
     },
-    components: { DrawingBoard }
+    components: { DrawingBoard },
 });
 </script>
 

@@ -1,4 +1,4 @@
-import { BrowserWindow, ipcMain, screen } from "electron";
+import { BrowserWindow, ipcMain, screen, app } from "electron";
 import { createWindow } from "./createWindow";
 import ElectronLog from "electron-log";
 import { checkWindowSupportNet } from "./util";
@@ -68,6 +68,17 @@ const localPreviewURL =
     process.env.NODE_ENV === "development"
         ? `${process.env.WEBPACK_DEV_SERVER_URL}winView.html`
         : `file://${__dirname}/winView.html`;
+
+app.on("will-quit", () => {
+    try {
+        if (lastSpwan) {
+            lastSpwan.kill();
+            lastSpwan.pid && process.kill(lastSpwan.pid);
+        }
+    } catch (e) {
+
+    }
+});
 
 function setSuspensionSize(isResetPosition = true, isCloseWelt = false) {
     if (!suspensionWin) {
@@ -145,7 +156,7 @@ function createTimerWindow() {
         frame: false, // 要创建无边框窗口
         resizable: false, // 禁止窗口大小缩放
         height: 500,
-        useContentSize: true,
+        useContentSize: true
     });
     timerWin.on("ready-to-show", () => {
         timerWin && timerWin.show();
@@ -168,12 +179,11 @@ function createRollcall(allStudentList: []) {
         height: 600,
         alwaysOnTop: true,
         useContentSize: true,
-        maximizable: false,
+        maximizable: false
     });
 
     rollCallWin.on("ready-to-show", () => {
-        rollCallWin &&
-            rollCallWin.webContents.send("sendAllStudentList", allStudentList);
+        rollCallWin && rollCallWin.webContents.send("sendAllStudentList", allStudentList);
         rollCallWin && rollCallWin.webContents.openDevTools();
     });
 
@@ -195,7 +205,7 @@ function createUnfoldSuspensionWindow() {
         useContentSize: true,
         transparent: true, // 设置透明
         backgroundColor: "#00000000",
-        alwaysOnTop: true, // 窗口是否总是显示在其他窗口之前
+        alwaysOnTop: true // 窗口是否总是显示在其他窗口之前
     });
     // 设置黑板窗口位置
     const winSize = unfoldSuspensionWin.getSize(); // 获取窗口宽高
@@ -223,7 +233,7 @@ function createBlackboardWindow() {
         resizable: false,
         fullscreen: true,
         show: false,
-        useContentSize: true,
+        useContentSize: true
     });
     blackboardWin.once("ready-to-show", () => {
         blackboardWin && blackboardWin.show();
@@ -282,7 +292,7 @@ function createQuickAnswerWindow(allStudentList: [], isAnswer = false) {
         transparent: true,
         type: "toolbar", // 创建的窗口类型为工具栏窗口
         frame: false, // 要创建无边框窗口
-        alwaysOnTop: true,
+        alwaysOnTop: true
     });
 
     quickAnswerWin.on("ready-to-show", () => {
@@ -308,7 +318,7 @@ function createProjectionWindow() {
         type: "toolbar", // 创建的窗口类型为工具栏窗口
         frame: false, // 要创建无边框窗口
         alwaysOnTop: true,
-        resizable: false,
+        resizable: false
     });
 
     projectionWin.once("ready-to-show", () => {
@@ -332,8 +342,8 @@ export function createLocalPreviewWindow(filePath: string) {
             nodeIntegration: true,
             contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
             preload: path.join(__dirname, "preload.js"),
-            devTools: !!process.env.WEBPACK_DEV_SERVER_URL,
-        },
+            devTools: !!process.env.WEBPACK_DEV_SERVER_URL
+        }
     });
     win.once("ready-to-show", () => {
         win.show();
@@ -348,8 +358,8 @@ function createSubjectToolWindow(url: string, name: string) {
         show: false,
         title: `爱学仕学科工具《${name}》`,
         webPreferences: {
-            nodeIntegration: false,
-        },
+            nodeIntegration: false
+        }
     });
     win.once("ready-to-show", () => {
         win.show();
@@ -385,7 +395,7 @@ function createBall() {
                     lastSpwan.pid && process.kill(lastSpwan.pid);
                 }
             } catch (e) {
-    
+
             }
             lastSpwan = spawn(join(WIN_PATH_BALL, ballname), [lastPort.toString()]);
             resolve(true);
