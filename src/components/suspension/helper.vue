@@ -144,7 +144,7 @@
                             <div class="blackboard-text">黑板</div>
                             <!-- <div class="blackboard-btn" @click="openBlackboard()">打开</div> -->
                         </div>
-                        <div
+                        <!-- <div
                             class="blackboard-box"
                             @click.stop="
                                 clicKBuryPoint('答题器'),
@@ -156,7 +156,7 @@
                                 alt=""
                             />
                             <div class="blackboard-text">答题器</div>
-                        </div>
+                        </div> -->
                         <div
                             class="blackboard-box"
                             @click.stop="
