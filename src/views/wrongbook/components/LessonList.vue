@@ -380,6 +380,7 @@
         v-if="state.pureQuestionVisible"
         v-model:visible="state.pureQuestionVisible"
         :resource="state.resourceData"
+        :isshowbasket="true"
     />
 </template>
 <script lang="ts" setup>

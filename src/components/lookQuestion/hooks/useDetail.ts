@@ -4,6 +4,7 @@ import { getOssUrl } from "@/utils/oss";
 import { get, STORAGE_TYPES } from "@/utils/storage";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { computed, ref, watchEffect, Ref } from "vue";
+import { MutationTypes, store, ActionTypes } from "@/store";
 import {
     fetchPureQuestionByQuestionID,
     getCourseBagQuestionsByIds,
@@ -137,6 +138,15 @@ export default (
             getFileList(questionList.value[0].AnswerFiles[0].Files, 2);
             nowQuestionID.value = questionList.value[0].QuestionID;
             isBlackboard.value = true;
+            //错题本试题篮-当前同类题
+            store.state.wrongbook.currentPureQuestion = isPureQuestion
+                ? questionList.value[0]
+                : {};
+            // console.log(
+            //     "store.state.wrongbook.currentPureQuestion",
+            //     isPureQuestion,
+            //     store.state.wrongbook.currentPureQuestion
+            // );
         }
     };
 
@@ -159,6 +169,7 @@ export default (
             number.value++;
             if (number.value <= sum.value) {
                 const question = questionList.value[number.value - 1];
+
                 getFileList(question.QuestionFiles, 1);
                 getFileList(question.AnswerFiles[0].Files, 2);
                 nowQuestionID.value = question.QuestionID;
@@ -169,10 +180,15 @@ export default (
         if (number.value > 1 || nextIndex.value > 1) {
             isLastBtn.value = false;
         }
+        //错题本试题篮-当前同类题
+        store.state.wrongbook.currentPureQuestion = isPureQuestion
+            ? questionList.value[nextIndex.value - 1]
+            : {};
     };
 
     const lastPage = () => {
         isNextBtn.value = false;
+        // debugger;
         if (number.value > 1) {
             isLastBtn.value = false;
             if (nextIndex.value < imageUrl.value.length) {
@@ -186,6 +202,10 @@ export default (
                     getFileList(question.QuestionFiles, 1);
                     getFileList(question.AnswerFiles[0].Files, 2);
                     nowQuestionID.value = question.QuestionID;
+                    //错题本试题篮-当前同类题
+                    store.state.wrongbook.currentPureQuestion = isPureQuestion
+                        ? question
+                        : {};
                 } else {
                     isNextBtn.value = true;
                 }
@@ -214,6 +234,7 @@ export default (
                 playSounds(0);
                 imageRef.value && (imageRef.value.src = imageUrl.value[0]);
                 nextIndex.value--;
+
                 if (nextIndex.value < imageUrl.value.length) {
                     isLastBtn.value = true;
                 }

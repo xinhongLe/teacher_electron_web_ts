@@ -40,6 +40,7 @@
             v-if="dialogVisible"
             :resource="resource"
             v-model:visible="dialogVisible"
+            :isshowbasket="isshowbasket"
         />
     </div>
 </template>
@@ -81,6 +82,10 @@ export default defineComponent({
         },
 
         activeWindow: {
+            type: Boolean,
+            default: false,
+        },
+        isshowbasket: {
             type: Boolean,
             default: false,
         },
