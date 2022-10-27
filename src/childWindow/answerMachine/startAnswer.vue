@@ -344,7 +344,7 @@ $blue: #4b71ee;
 .main_bg{
     height: 550px!important;
     border-radius: 8px;
-    //background: #fff;
+    background: #fff;
     box-shadow: 0px 6px 16px -8px rgba(0, 0, 0, 0.12),
     0px 9px 28px 0px rgba(0, 0, 0, 0.08),
     0px 12px 48px 16px rgba(0, 0, 0, 0.05);

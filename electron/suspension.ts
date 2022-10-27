@@ -1,4 +1,4 @@
-import { BrowserWindow, ipcMain, screen } from "electron";
+import { BrowserWindow, ipcMain, screen, app } from "electron";
 import { createWindow } from "./createWindow";
 import ElectronLog from "electron-log";
 import { checkWindowSupportNet } from "./util";
@@ -69,7 +69,7 @@ const localPreviewURL =
         ? `${process.env.WEBPACK_DEV_SERVER_URL}winView.html`
         : `file://${__dirname}/winView.html`;
 
-app.on('will-quit', () => {
+app.on("will-quit", () => {
     try {
         if (lastSpwan) {
             lastSpwan.kill();
@@ -841,7 +841,7 @@ export function registerEvent() {
         }
     });
 
-    ipcMain.handle("openQuickAnswerWindow", (_, allStudentList) => {
+    ipcMain.handle("openQuickAnswerWindow", (_, allStudentList, isAnswer) => {
         showSuspension();
         if (!quickAnswerWin) {
             console.log(allStudentList, "allStudentList===");
