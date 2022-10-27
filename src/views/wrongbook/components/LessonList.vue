@@ -615,7 +615,16 @@ const addAllQuestion = () => {
 };
 //移出错题列表中所有的错题
 const removeAllQuestion = () => {
-    delAllBasketData();
+    const qsList = state.errorQuestionList.map((item: any) => item.QuestionId);
+    console.log("remove-qsList", qsList);
+    const params = {
+        isAllDel: 0,
+        classId: state.currentClassId,
+        bookId: state.currentBookId,
+        questionIds: qsList,
+        questionType: 0,
+    };
+    store.dispatch(ActionTypes.DEL_QUESTION_BASKET, params);
 };
 //讲解题目
 const explainQuestion = (data: any) => {

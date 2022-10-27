@@ -66,7 +66,8 @@
                 align-center
                 destroy-on-close
                 width="300px"
-                :show-close="false"
+                :show-close="true"
+                :before-close="cancelDownload"
                 :close-on-click-modal="false"
                 v-model="showDownload"
             >
@@ -230,6 +231,7 @@ export default defineComponent({
 
         const loadingShow = ref(false);
         const { download } = useDownloadFile();
+        let localCache: any = null;
 
         const downloadFile = async (data: IResourceItem) => {
             if (data.ResourceShowType === 1) {
@@ -243,7 +245,7 @@ export default defineComponent({
                         const path = file.filePaths[0];
                         downloadProgress.value = 0;
                         showDownload.value = true;
-                        new LocalCache({
+                        localCache = new LocalCache({
                             cachingStatus: (status) => {
                                 console.log(`status: ${status}`);
                                 downloadProgress.value = status;
@@ -252,7 +254,9 @@ export default defineComponent({
                                     ElMessage.success("打包下载完成！");
                                 }
                             }
-                        }).doCache({
+                        });
+
+                        localCache.doCache({
                             WindowID: data.OldResourceId,
                             OriginType: data.IsSysFile === 1 ? 0 : 1
                         }, data.Name, path, () => {
@@ -281,6 +285,12 @@ export default defineComponent({
                     data.DownloadNum++;
                 }
             }
+        };
+
+        const cancelDownload = () => {
+            localCache.cancel();
+            showDownload.value = false;
+            ElMessage.warning("打包下载取消！");
         };
 
         const eventEmit = (
@@ -550,7 +560,8 @@ export default defineComponent({
             resourceId,
             resourceData,
             showDownload,
-            downloadProgress
+            downloadProgress,
+            cancelDownload
         };
     },
 });
