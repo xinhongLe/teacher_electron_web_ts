@@ -67,7 +67,9 @@
             </main>
 
             <div class="exercise-footer">
-                <div class="btn download-btn">下载为word</div>
+                <!-- <div class="btn download-btn" @click="downLoadWord">
+                    下载为word
+                </div> -->
                 <div class="btn next-btn" @click="nexStep">下一步</div>
             </div>
         </template>
@@ -134,7 +136,7 @@
                 </div>
             </main>
             <div class="exercise-footer" style="width: 100%">
-                <div class="btn download-btn">下载为word</div>
+                <!-- <div class="btn download-btn">下载为word</div> -->
                 <div class="btn next-btn" @click="assignHomework">确认布置</div>
             </div>
         </template>
@@ -310,10 +312,10 @@ import { useRouter } from "vue-router";
 import SelectLabel from "@/views/assignHomework/SelectLabel.vue";
 import useWrongBook from "../hooks/useWrongBook";
 import {
-    AddPaperForPaperBasket,
     getHomeworkPaperInfo,
     updatePaperName,
     sendErrorPaperWork,
+    ErrorPaperToWord,
 } from "@/api/errorbook";
 import { ElMessage } from "element-plus";
 import { store, ActionTypes } from "@/store";
@@ -534,6 +536,16 @@ const selectStudent = (data: any) => {
     // console.log("选择学生", data);
     studentVisible.value = true;
 };
+//处理word文件的
+const formatWordFile = async (data: any) => {
+    if (!data) return;
+    const { FileName, FilePath, Bucket, Extention } = data;
+    const key = Extention
+        ? `${FilePath}/${FileName}.${Extention}`
+        : `${FilePath}/${FileName}`;
+    const url = await getOssUrl(key, Bucket);
+    return url;
+};
 //确定布置作业---------------------
 const assignHomework = async () => {
     const checkedStudents = computedCurrentClassStudents.value
@@ -577,21 +589,22 @@ const backList = () => {
         return;
     }
 };
+//下载为word
+const downLoadWord = async () => {
+    if (!formateSum.value) return;
+    const res2: any = await ErrorPaperToWord({
+        ID: store.state.wrongbook.currentGeneratePaperId,
+    });
+    console.log(res2);
+};
 //下一步 + 生成练习
 const nexStep = async () => {
     if (!formateSum.value) return;
     //生成练习接口
-    const res: any = await AddPaperForPaperBasket({
-        PaperName: `${props.gradeName}错题复习`,
-        BasketPaperQuestions: store.state.wrongbook.questionBasket,
-    });
-    if (res.resultCode == 200) {
-        store.state.wrongbook.currentGeneratePaperId = res.result.PaperId;
-        if (store.state.wrongbook.currentGeneratePaperId) {
-            queryHomeworkInfoById();
-        }
-        currentSetp.value = 2;
+    if (store.state.wrongbook.currentGeneratePaperId) {
+        queryHomeworkInfoById();
     }
+    currentSetp.value = 2;
 };
 //根据生成的练习作业id查询布置作业的信息
 const queryHomeworkInfoById = async () => {

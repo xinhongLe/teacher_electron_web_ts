@@ -360,6 +360,7 @@
     </div>
     <QuestionBasket
         v-if="state.isShowContent != 3"
+        :gradeName="state.gradeName"
         @basketGenerateExercise="basketGenerateExercise"
         v-model:isShowContent="state.isShowContent"
     />

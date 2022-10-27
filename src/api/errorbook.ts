@@ -396,6 +396,19 @@ export function AddPaperForPaperBasket(data: any) {
         data: data,
     });
 }
+//下载为word
+export function ErrorPaperToWord(data: any) {
+    return request({
+        baseURL: AI_XUE_SHI_API_WRONG_BOOK,
+        url: "Api/Web/ClassErrorQuestionBook/ErrorPaperToWord",
+        headers: {
+            "Content-Type": "application/json-patch+json",
+            // noLoading: "true",
+        },
+        method: "post",
+        data: data,
+    });
+}
 //布置作业页面作业信息
 export function getHomeworkPaperInfo(data: homeworkPagerInfoParams) {
     return request({
