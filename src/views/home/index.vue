@@ -100,7 +100,7 @@
                         <span>测评中心</span>
                     </div>
                 </div>
-                <!-- <div
+                <div
                     class="item"
                     @click="go('wrongbook'), clicKBuryPoint('班级错题本')"
                 >
@@ -111,7 +111,7 @@
                         />
                         <span>班级错题本</span>
                     </div>
-                </div> -->
+                </div>
                 <div
                     class="item"
                     @click="go('class-manage'), clicKBuryPoint('班级管理')"
