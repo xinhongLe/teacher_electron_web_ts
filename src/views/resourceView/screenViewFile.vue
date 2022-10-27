@@ -1,7 +1,7 @@
 <template>
     <div class="iframe-box">
         <div class="iframe-content" v-if="type === 4 || type === 0">
-            <iframe class="office-iframe" v-if="isOffice" :src="url"></iframe>
+            <iframe class="office-iframe" v-if="isOffice" :src="url" sandbox="allow-same-origin allow-scripts"></iframe>
             <iframe v-if="type === 4" :src="url"></iframe>
             <div class="iframe-image" v-if="isImage">
                 <img :src="url" />
