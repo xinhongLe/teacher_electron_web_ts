@@ -12,7 +12,7 @@ const http = axios.create({
     timeout: 150000
 });
 
-let errMessageInstance: MessageHandle | undefined;
+let errMessageInstance: MessageHandler | undefined;
 
 http.interceptors.request.use(
     (config: AxiosRequestConfig) => {
