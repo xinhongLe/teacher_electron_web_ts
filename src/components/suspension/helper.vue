@@ -144,7 +144,7 @@
                             <div class="blackboard-text">黑板</div>
                             <!-- <div class="blackboard-btn" @click="openBlackboard()">打开</div> -->
                         </div>
-                        <!-- <div
+                         <div
                             class="blackboard-box"
                             @click.stop="
                                 clicKBuryPoint('答题器'),
@@ -156,7 +156,7 @@
                                 alt=""
                             />
                             <div class="blackboard-text">答题器</div>
-                        </div> -->
+                        </div>
                         <div
                             class="blackboard-box"
                             @click.stop="
@@ -193,7 +193,7 @@
                             />
                             <div class="blackboard-text">点名</div>
                         </div>
-                        <!-- <div
+                         <div
                             class="blackboard-box"
                             @click.stop="
                                 clicKBuryPoint('抢答'), openQuickAnswer(true)
@@ -217,7 +217,7 @@
                                 alt=""
                             />
                             <div class="blackboard-text">锁屏管理</div>
-                        </div> -->
+                        </div>
                         <div
                             class="blackboard-box"
                             @click.stop="
@@ -315,7 +315,7 @@ import {
     onUnmounted,
     PropType,
     ref,
-    watch,
+    watch
 } from "vue";
 import { Game } from "./interface";
 import { getToolList } from "@/api/index";
@@ -340,15 +340,15 @@ export default defineComponent({
         const initBookList = [
             {
                 Lable: "全部教具",
-                Value: "全部教具",
-            },
+                Value: "全部教具"
+            }
         ];
         const subjectPublisherBookList = ref<BookList[]>(initBookList);
         const cascaderProps = {
             value: "Value",
             children: "Children",
             label: "Lable",
-            checkStrictly: true,
+            checkStrictly: true
         };
         const searchName = ref("");
         const selectBookList = ref(["全部教具"]);
@@ -381,7 +381,7 @@ export default defineComponent({
             const data = {
                 name: searchName.value,
                 bookID: "",
-                bookIDs: [] as string[],
+                bookIDs: [] as string[]
             };
             if (selectBookList.value.length === 1) {
                 data.bookIDs =
@@ -413,7 +413,7 @@ export default defineComponent({
                 gameList.value = list.map((item, index) => ({
                     url: item.Url,
                     imgUrl: imgList[index],
-                    name: item.Name,
+                    name: item.Name
                 }));
             }
             isLoading.value = false;
@@ -476,7 +476,7 @@ export default defineComponent({
                 );
             }
         };
-        //工具-随手画
+        // 工具-随手画
         const openPainting = () => {
             window.electron.getWhiteBoard();
         };
@@ -511,7 +511,7 @@ export default defineComponent({
             allStudentList.value = [];
             const data = {
                 TeacherId: currentUserInfo.userCenterUserID,
-                OrgId: currentUserInfo.schoolId,
+                OrgId: currentUserInfo.schoolId
             };
             const res = await fetchAllStudents(data);
             if (res.resultCode === 200) {
@@ -581,7 +581,7 @@ export default defineComponent({
                 });
 
                 window.electron.ipcRenderer.send("attendClass", "main", {
-                    type: "sysData",
+                    type: "sysData"
                 });
 
                 window.electron.ipcRenderer.on("attendClass", onResources);
@@ -598,13 +598,13 @@ export default defineComponent({
         const openResource = (resource: any) => {
             window.electron.ipcRenderer.send("attendClass", "main", {
                 type: "openResource",
-                resource: JSON.stringify(resource),
+                resource: JSON.stringify(resource)
             });
         };
 
         const switchClass = () => {
             window.electron.ipcRenderer.send("attendClass", "main", {
-                type: "switchClass",
+                type: "switchClass"
             });
         };
 
@@ -643,9 +643,9 @@ export default defineComponent({
             classClicKBuryPoint,
             handleChange,
             currentClickCol,
-            openPainting,
+            openPainting
         };
-    },
+    }
 });
 </script>
 

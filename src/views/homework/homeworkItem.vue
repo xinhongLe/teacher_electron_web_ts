@@ -189,13 +189,13 @@
                     @click="quickUpload(info)"
                     >快速上传</el-button
                 >
-                <!-- <el-button
+                 <el-button
                     v-if="info.HomeworkPaperType == 2 && info.FinishStudentCount < info.AllStudentCount"
                     plain
                     type="warning"
                     @click="handleMistakesCollect(info)"
                     >收集错题</el-button
-                > -->   
+                >
                 <el-button type="primary" @click="review">查阅作业</el-button>
                 <el-button type="danger" plain @click="deleteHomework"
                     >删除</el-button
