@@ -1,17 +1,19 @@
 import request from "@/utils/request";
-import { AI_XUE_SHI_API } from "@/config";
-import { Student, Tag, TagStudent, TagStudentsData } from "@/types/labelManage";
+import { AI_XUE_SHI_API, YUN_API } from "@/config";
+import { IFetchAllStudents, Student, Tag, TagStudent, TagStudentsData } from "@/types/labelManage";
 import { IResponse, RequestFun } from "@/types/response";
 
 // 学生列表
-export function fetchAllStudents(teacherId: string): Promise<IResponse<Student[]>> {
+export function fetchAllStudents(data: IFetchAllStudents): Promise<IResponse<Student[]>> {
     return request({
-        baseURL: AI_XUE_SHI_API,
-        url: "/Api/V2/Teacher/Student/GetAllStudents/V210918?teacherId=" + teacherId,
+        baseURL: YUN_API,
+        // url: "/Api/V2/Teacher/Student/GetAllStudents/V210918?teacherId=" + teacherId,
+        url: "/Api/Web/ClassTeacherManage/GetAllStudentByTeacher",
         headers: {
             noLoading: "true"
         },
-        method: "get"
+        method: "post",
+        data
     });
 }
 

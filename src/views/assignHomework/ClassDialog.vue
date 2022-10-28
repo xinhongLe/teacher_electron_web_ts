@@ -1,31 +1,37 @@
 <template>
-    <el-dialog
-        title="布置对象"
-        :model-value="dialogVisible"
-        width="50%"
-        center
-        :before-close="handleClose"
-    >
-        <div class="class-tree">
-            <el-tree
-                ref="treeRef"
-                :data="classTreeList"
-                show-checkbox
-                node-key="ClassId"
-                default-expand-all
-                :expand-on-click-node="false"
-                :props="treeProps"
-                @check="checkTreeChange"
-            >
-            </el-tree>
-        </div>
-        <template #footer>
-            <span class="dialog-footer">
-                <el-button @click="handleClose">取消</el-button>
-                <el-button type="primary" @click="handleSave">确定</el-button>
-            </span>
-        </template>
-    </el-dialog>
+    <div>
+        <el-dialog
+            :model-value="dialogVisible"
+            title="布置对象"
+            width="30%"
+            center
+            :before-close="handleClose"
+        >
+            <div class="class-tree">
+                <el-tree
+                    ref="treeRef"
+                    :data="classTreeList"
+                    show-checkbox
+                    node-key="ClassId"
+                    default-expand-all
+                    :expand-on-click-node="false"
+                    :props="treeProps"
+                    @check="checkTreeChange"
+                >
+                </el-tree>
+            </div>
+            <template #footer>
+                <span class="dialog-footer">
+                    <el-button size="large" @click="handleClose"
+                        >取消</el-button
+                    >
+                    <el-button size="large" type="primary" @click="handleSave"
+                        >确定</el-button
+                    >
+                </span>
+            </template>
+        </el-dialog>
+    </div>
 </template>
 
 <script lang="ts">
@@ -41,6 +47,7 @@ export default defineComponent({
         },
     },
     setup(porps, { emit }) {
+        const visible = ref(true);
         const route = useRoute();
         const classTreeList = ref<unknown>([]);
         const treeRef = ref<ElTreeType>();
@@ -118,6 +125,7 @@ export default defineComponent({
         });
 
         return {
+            visible,
             classTreeList,
             handleClose,
             checkTreeChange,

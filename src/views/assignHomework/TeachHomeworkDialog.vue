@@ -10,6 +10,7 @@
             <div class="header">
                 <p class="title-text">选择版本</p>
                 <el-cascader
+                    size="large"
                     v-model="subjectPublisherBookValue"
                     :props="cascaderProps"
                     :options="subjectPublisherBookList"
@@ -72,8 +73,13 @@
 
             <template #footer>
                 <span class="dialog-footer">
-                    <el-button @click="handleClose">取 消</el-button>
-                    <el-button type="primary" @click="handleConfirm"
+                    <el-button size="large" @click="handleClose"
+                        >取 消</el-button
+                    >
+                    <el-button
+                        size="large"
+                        type="primary"
+                        @click="handleConfirm"
                         >确 定</el-button
                     >
                 </span>
@@ -88,22 +94,19 @@ import {
     Publisher,
     TeachHomework,
     Workbook,
-    WorkbookPaper
+    WorkbookPaper,
 } from "@/types/assignHomework";
 import { findFirstId } from "@/utils";
 import { ElMessageBox } from "element-plus";
 import { computed, defineComponent, ref, watch } from "vue";
-import {
-    fetchWorkbookList,
-    fetchWorkbookPaper
-} from "./api";
+import { fetchWorkbookList, fetchWorkbookPaper } from "./api";
 import useBookList from "./hooks/useBookList";
 export default defineComponent({
     props: {
         dialogVisible: {
             type: Boolean,
-            default: false
-        }
+            default: false,
+        },
     },
     setup(props, { emit }) {
         const subjectPublisherBookValue = ref<string[]>([]);
@@ -133,7 +136,7 @@ export default defineComponent({
                     {
                         confirmButtonText: "确定",
                         cancelButtonText: "取消",
-                        type: "warning"
+                        type: "warning",
                     }
                 ).then(() => {
                     selectListMap.value = {};
@@ -172,7 +175,7 @@ export default defineComponent({
                 gradeName,
                 students: [],
                 publishType: "",
-                publishTime: ""
+                publishTime: "",
             };
             if (flag) {
                 selectListMap.value[WorkbookID]
@@ -196,7 +199,7 @@ export default defineComponent({
 
         async function getWorkbookList() {
             const data = {
-                id: subjectPublisherBookValue.value[2]
+                id: subjectPublisherBookValue.value[2],
             };
             const res = await fetchWorkbookList(data);
             if (res.resultCode === 200) {
@@ -212,12 +215,15 @@ export default defineComponent({
 
         watch(subjectPublisherBookList, (v) => {
             if (v) {
-                findFirstId([subjectPublisherBookList.value[0]], subjectPublisherBookValue.value);
+                findFirstId(
+                    [subjectPublisherBookList.value[0]],
+                    subjectPublisherBookValue.value
+                );
             }
         });
 
         watch(subjectPublisherBookValue, handleChange, {
-            deep: true
+            deep: true,
         });
 
         return {
@@ -234,9 +240,9 @@ export default defineComponent({
             subjectPublisherBookList,
             handleChange,
             cascaderProps,
-            subjectPublisherBookValue
+            subjectPublisherBookValue,
         };
-    }
+    },
 });
 </script>
 

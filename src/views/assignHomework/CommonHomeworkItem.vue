@@ -34,7 +34,7 @@
                     size="small"
                     type="danger"
                     style="margin-left: 10px"
-                    icon="el-icon-delete"
+                    :icon="Delete"
                     @click="$emit('deleteCommonHomework', index)"
                 ></el-button>
             </div>
@@ -81,6 +81,7 @@ import { get, STORAGE_TYPES } from "@/utils/storage";
 import useViewHomeworkFile from "@/hooks/useViewHomeworkFile";
 import Enlarge from "@/components/enlarge/index.vue";
 import FileType from "../../components/fileType/index.vue";
+import { Delete } from "@element-plus/icons-vue";
 export default defineComponent({
     props: {
         item: {
@@ -139,6 +140,7 @@ export default defineComponent({
             { deep: true }
         );
         return {
+            Delete,
             showImg,
             delFile,
             updateStudents,

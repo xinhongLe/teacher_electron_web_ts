@@ -1,10 +1,11 @@
 import { createApp } from "vue";
 import App from "./App.vue";
 
-import "../../styles/index.scss";
 import "element-plus/dist/index.css";
+import "../../styles/index.scss";
 
 import {
+    ElSwitch,
     ElAvatar,
     ElIcon,
     ElButton,
@@ -25,6 +26,7 @@ const components = [
     ElOption,
     ElCheckbox,
     ElProgress,
+    ElSwitch,
     Close,
     ElConfigProvider
 ];

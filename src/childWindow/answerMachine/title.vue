@@ -1,7 +1,7 @@
 <template>
     <div class="title">
         {{ title }}
-        <div class="close-btn" @click="close">
+        <div class="close-btn" @click="close" v-if="!lessonId">
             <el-icon :size="14" color="#9C9FAA"><close /></el-icon>
         </div>
     </div>
@@ -18,6 +18,10 @@ export default defineComponent({
         close: {
             type: Function as PropType<(payload: MouseEvent) => void>,
             required: true
+        },
+        lessonId: {
+            type: String,
+            default: () => ""
         }
     },
     setup() {

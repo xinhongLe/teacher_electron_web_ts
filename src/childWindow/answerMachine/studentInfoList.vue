@@ -1,7 +1,7 @@
 <template>
     <div class="student-list">
-        <div class="student-info" v-for="student in studentList" :key="student.StudentID" :title="student.Name">
-            {{ student.Name }}
+        <div class="student-info" v-for="student in studentList" :key="student.StudentID" :title="student.StudentName">
+            {{ student.StudentName }}
         </div>
     </div>
 </template>
@@ -12,7 +12,7 @@ import { Student } from "@/types/labelManage";
 export default defineComponent({
     props: {
         studentList: {
-            type: Array as PropType<Student[]>,
+            type: Array as PropType<{StudentID:string, StudentName:string}[]>,
             default: () => []
         }
     },
@@ -32,9 +32,9 @@ export default defineComponent({
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 110px;
-    height: 50px;
-    background: #fff;
+    width: 100px;
+    height: 40px;
+    background: #F5F6FA;
     border-radius: 4px;
     color: #19203d;
     font-size: 14px;

@@ -83,11 +83,11 @@
                                 <span>{{ item }}</span>
                                 <div v-if="subjectList[item]">
                                     <span
-
+                                        class="flex-align-items"
                                         v-for="(item1) in (subjectList[item] || [])"
                                         :key="item1?.ID"
                                     >
-                                        <i class="el-icon-s-custom"></i>
+                                        <el-icon><UserFilled /></el-icon>
                                         {{ item1?.Name}}
                                         <!-- <i
                                             class="el-icon-remove"

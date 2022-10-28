@@ -1,7 +1,6 @@
 <template>
     <div class="leftthree" v-loading="state.loading">
         <el-select
-            size="small"
             style="width: 100%; margin-right: 16px"
             v-model="form.Id"
             @change="changeKnowledgeLab"
@@ -16,7 +15,6 @@
         </el-select>
         <div class="leftthree-input">
             <el-input
-                size="small"
                 style="width: 100%"
                 v-model="form.Name"
                 class="w-50 m-2"

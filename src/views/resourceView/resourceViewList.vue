@@ -37,6 +37,7 @@
             <div class="iframe-video" v-if="isVideo">
                 <video :src="url" controls />
             </div>
+
             <div
                 class="not-preview"
                 v-if="
@@ -46,6 +47,8 @@
                 暂不支持预览，请下载查看
             </div>
         </div>
+        <answer-machine v-if="type === 5" :lessonId="lessonId"></answer-machine>
+
         <!-- ppt、word、excel底部工具栏 -->
         <div class="dialog-footer" v-if="type === 4 || type === 0">
             <div class="pen" @click="drawingShow = true">
@@ -79,39 +82,38 @@ import { IResourceItem } from "@/api/resource";
 import { getOssUrl } from "@/utils/oss";
 import { useStore } from "@/store";
 import { IViewResourceData } from "@/types/store";
+import AnswerMachine from "@/components/answerMachine/index.vue";
 import DrawingBoard from "@/components/drawingBoard/index.vue";
-
 export default defineComponent({
-    components: {
-        IntelligenceClassroom,
-        LookVideo,
-        LookQuestion,
-        DrawingBoard,
-    },
+    components: { AnswerMachine, DrawingBoard, IntelligenceClassroom, LookVideo, LookQuestion },
     props: {
         target: {
             type: String,
-            default: "",
+            default: ""
         },
         resource: {
             type: Object as PropType<IResourceItem | undefined>,
-            required: true,
+            required: true
         },
         type: {
-            type: Number,
+            type: Number
         },
         visible: {
             type: Boolean,
-            default: false,
+            default: false
         },
         close: {
             type: Function,
-            default: () => {},
+            default: () => {}
         },
         data: {
             type: Object as PropType<IViewResourceData>,
-            required: true,
+            required: true
         },
+        lessonId: {
+            type: String,
+            required: true
+        }
     },
     setup(props, { emit }) {
         const drawingShow = ref(false);

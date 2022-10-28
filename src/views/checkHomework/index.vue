@@ -1,6 +1,6 @@
 <template>
     <div class="container">
-        <Header :homeworkDetail="homeworkDetail" />
+        <Header :homeworkDetail="homeworkDetail"  @changeHomeworkDetail="changeHomeworkDetail"/>
         <CommonHomework
             v-if="homeworkDetail.type === 99"
             :homeworkDetail="homeworkDetail"
@@ -19,7 +19,7 @@
 <script lang="ts">
 import { HomeworkDetail } from "@/types/checkHomework";
 import { get, STORAGE_TYPES } from "@/utils/storage";
-import { defineComponent } from "vue";
+import { defineComponent, ref } from "vue";
 import Header from "./Header.vue";
 import CommonHomework from "./commonHomework/index.vue";
 import SystemHomework from "./systemHomework/index.vue";
@@ -27,12 +27,16 @@ import VideoHomework from "./videoHomework/index.vue";
 export default defineComponent({
     name: "CheckHomework",
     setup() {
-        const homeworkDetail = get(
-            STORAGE_TYPES.HOMEWORK_DETAIL
-        ) as HomeworkDetail;
+        const homeworkDetail = ref(get(STORAGE_TYPES.HOMEWORK_DETAIL) as HomeworkDetail);
+
+        const changeHomeworkDetail = (data:{showPublish:boolean | undefined, answerShowTime:string| undefined}) => {
+            homeworkDetail.value.showPublish = data.showPublish;
+            homeworkDetail.value.answerShowTime = data.answerShowTime;
+        };
 
         return {
-            homeworkDetail
+            homeworkDetail,
+            changeHomeworkDetail
         };
     },
     components: { Header, CommonHomework, SystemHomework, VideoHomework }

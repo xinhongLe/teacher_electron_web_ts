@@ -29,7 +29,9 @@
                     {{ name }}
                     <template v-if="info.HomeworkPaperType == 2">
                         <span>&nbsp; 第{{ info.WorkbookPaperPageNum }}页</span>
-                        <span :style="{marginLeft: '40px'}">{{info.AlbumName}}</span>
+                        <span :style="{ marginLeft: '40px' }">{{
+                            info.AlbumName
+                        }}</span>
                     </template>
                 </p>
                 <span
@@ -48,7 +50,8 @@
                 <template v-if="info.HomeworkPaperType == 1"
                     >时长：{{
                         formatDuration(info.VideoDurationTick)
-                    }}</template>
+                    }}</template
+                >
             </span>
             <span>
                 <template
@@ -56,7 +59,8 @@
                         info.HomeworkPaperType == 1 ||
                         info.HomeworkPaperType == 0
                     "
-                    >{{ info.AlbumName }} {{ info.ChapterName }} {{info.LessonName}}</template
+                    >{{ info.AlbumName }} {{ info.ChapterName }}
+                    {{ info.LessonName }}</template
                 >
             </span>
 
@@ -128,15 +132,12 @@
                                 v-model="date"
                                 size="large"
                                 @blur="dataBlur"
-                                format="YYYY-MM-DD HH:mm"
-                                value-format="YYYY-MM-DD HH:mm"
                                 placeholder="选择日期时间"
                             >
                             </el-date-picker>
                         </span>
                         <el-button
                             v-if="info.showPublish"
-                            size="small"
                             type="success"
                             @click="publish(info)"
                             >立即发布</el-button
@@ -148,7 +149,6 @@
                         >
                         <el-button
                             v-if="!info.showPublish"
-                            size="small"
                             @click="hideAnswer(info)"
                             >撤回发布</el-button
                         >
@@ -157,7 +157,6 @@
                         <span
                             >手动发布
                             <i
-
                                 @click="changeTag"
                                 class="el-icon-edit-outline"
                                 style="margin: 0 10px; color: #4b71ee"
@@ -170,16 +169,11 @@
                                 type="datetime"
                                 v-model="date"
                                 @blur="dataBlur"
-                                format="YYYY-MM-DD HH:mm"
-                                value-format="YYYY-MM-DD HH:mm"
                                 placeholder="选择日期时间"
                             >
                             </el-date-picker>
                         </span>
-                        <el-button
-                            size="small"
-                            type="success"
-                            @click="publish(info)"
+                        <el-button type="success" @click="publish(info)"
                             >立即发布</el-button
                         >
                     </div>
@@ -187,27 +181,23 @@
             </div>
 
             <div class="btn-list">
-                <!-- <el-button
-                    size="small"
-                    type="primary"
-                    plain
-                    @click="
-                      $router.push({
-                        path: '/lookStudents',
-                      })
-                    "
-                    >查阅学生</el-button
-                  > -->
-                <el-button size="small" v-if="info.HomeworkPaperType == 2" style="background-color:#00C0FF;" type="primary" @click="quickUpload(info)">快速上传</el-button>
-                <el-button size="small" type="primary" @click="review"
-                    >查阅作业</el-button
-                >
+                <!-- <el-button  type="primary" plain @click="$router.push({path: '/lookStudents',})">查阅学生</el-button> -->
                 <el-button
-                    size="small"
-                    type="danger"
+                    v-if="info.HomeworkPaperType == 2"
+                    style="background-color: #00c0ff; border-color: #00c0ff"
+                    type="primary"
+                    @click="quickUpload(info)"
+                    >快速上传</el-button
+                >
+                 <el-button
+                    v-if="info.HomeworkPaperType == 2 && info.FinishStudentCount < info.AllStudentCount"
                     plain
-                    icon="el-icon-delete"
-                    @click="deleteHomework"
+                    type="warning"
+                    @click="handleMistakesCollect(info)"
+                    >收集错题</el-button
+                >
+                <el-button type="primary" @click="review">查阅作业</el-button>
+                <el-button type="danger" plain @click="deleteHomework"
                     >删除</el-button
                 >
             </div>
@@ -219,11 +209,23 @@
                 :file="file"
             />
         </div>
-        <HignPhoto 
+
+        <HignPhoto
             v-if="info.HomeworkPaperType == 2"
             :homeworkValue="info"
             ref="hignPhotoRef"
         ></HignPhoto>
+
+        <mistakes-collect
+            :info="info"
+            :mistakesCollectState="mistakesCollectState"
+            :isFinishState="isFinishState"
+            :collectedCount="collectedCount"
+            :collectionId="collectionId"
+            v-model:dialogVisible="mistakesCollectDialog"
+            @updateTaskList="updateTaskList"
+        >
+        </mistakes-collect>
     </div>
 </template>
 
@@ -236,9 +238,15 @@ import { set, STORAGE_TYPES } from "@/utils/storage";
 import { ElMessage, ElMessageBox } from "element-plus";
 import moment from "moment";
 import { computed, defineComponent, nextTick, PropType, ref } from "vue";
-import { rebackHomeworkPaper, ShowAnswer, HideAnswer } from "./api";
+import {
+    rebackHomeworkPaper,
+    ShowAnswer,
+    HideAnswer,
+    topicConnectionState
+} from "./api";
 import HignPhoto from "./hignphoto.vue";
 import FileItem from "./FileItem.vue";
+import MistakesCollect from "@/views/homework/components/mistakesCollect.vue";
 export default defineComponent({
     props: {
         info: {
@@ -247,6 +255,10 @@ export default defineComponent({
         },
         homeworkListMap: {
             type: Object as PropType<Record<string, Homework[]>>,
+            default: () => ({})
+        },
+        form: {
+            type: Object as PropType<{ subject: string; date: string }>,
             default: () => ({})
         }
     },
@@ -271,7 +283,9 @@ export default defineComponent({
                 dataPicker.value.display = "none";
                 setTimeout(() => {
                     // 添加日历footer里的的确定和此刻按钮的点击事件
-                    const cur = document.querySelectorAll(".el-picker-panel__link-btn");
+                    const cur = document.querySelectorAll(
+                        ".el-picker-panel__link-btn"
+                    );
                     for (var m in cur) {
                         if (cur[m]) {
                             try {
@@ -281,7 +295,9 @@ export default defineComponent({
                             }
                         }
                     }
-                    const currentBtn = document.querySelectorAll(".hand-publish .el-picker-panel .el-picker-panel__footer .el-button");
+                    const currentBtn = document.querySelectorAll(
+                        ".hand-publish .el-picker-panel .el-picker-panel__footer .el-button"
+                    );
                     for (var i in currentBtn) {
                         if (currentBtn[i]) {
                             try {
@@ -348,7 +364,15 @@ export default defineComponent({
                 WorkbookPaperPageNum,
                 ChapterName,
                 LessonName,
-                HomeworkName
+                HomeworkName,
+                SubjectID,
+                SubjectName,
+                ClassID,
+                ClassName,
+                AllStudentCount,
+                FinishStudentCount,
+                AnswerShowTime,
+                showPublish
             } = props.info;
             const classInfo = Object.values(props.homeworkListMap)
                 .flat()
@@ -374,9 +398,23 @@ export default defineComponent({
                 workbookPaperPageNum: WorkbookPaperPageNum || "",
                 albumName: AlbumName,
                 lessonName: LessonName,
-                chapterName: ChapterName
+                chapterName: ChapterName,
+                subjectID: SubjectID,
+                subjectName: SubjectName,
+                classID: ClassID,
+                className: ClassName,
+                allStudentCount: AllStudentCount,
+                finishStudentCount: FinishStudentCount,
+                answerShowTime: AnswerShowTime,
+                showPublish: showPublish
             };
-            set(STORAGE_TYPES.HOMEWORK_DETAIL, homeworkDetail);
+            set(
+                STORAGE_TYPES.HOMEWORK_DETAIL,
+                Object.assign(homeworkDetail, {
+                    formSubjectID: props.form?.subject,
+                    formDate: props.form?.date
+                })
+            );
             router.push({
                 path: `/check-homework/${props.info.ClassHomeworkPaperID}`
             });
@@ -463,6 +501,30 @@ export default defineComponent({
             }
         };
 
+        const mistakesCollectDialog = ref(false);
+        const mistakesCollectState = ref(0); // 0未收集过，1已收集过
+        const isFinishState = ref(0); // 0未完成收集，1已完成收集
+        const collectedCount = ref(0); // 0未完成收集，1已完成收集
+        const collectionId = ref("");
+        const handleMistakesCollect = (info: Homework) => {
+            topicConnectionState({ Id: info.ClassHomeworkPaperID }).then(
+                (res) => {
+                    if (res.resultCode === 200) {
+                        mistakesCollectState.value =
+                            res.result.HasCollection || 0;
+                        isFinishState.value = res.result.IsFinish || 0;
+                        collectedCount.value = res.result.CollectedCount || 0;
+                        collectionId.value = res.result.CollectionId || "";
+                        mistakesCollectDialog.value = true;
+                    }
+                }
+            );
+        };
+
+        const updateTaskList = () => {
+            emit("getTaskList");
+        };
+
         return {
             hignPhotoRef,
             showdataPicker,
@@ -481,10 +543,18 @@ export default defineComponent({
             detailTime,
             publish,
             hideAnswer,
-            quickUpload
+            quickUpload,
+            mistakesCollectDialog,
+            mistakesCollectState,
+            isFinishState,
+            collectedCount,
+            collectionId,
+            handleMistakesCollect,
+            updateTaskList
         };
     },
     components: {
+        MistakesCollect,
         FileItem,
         HignPhoto
     }
@@ -499,21 +569,21 @@ export default defineComponent({
         width: 30px;
     }
 }
-.hign-photo-warp{
-    :deep(.el-dialog__body){
+.hign-photo-warp {
+    :deep(.el-dialog__body) {
         padding: 0;
         overflow: hidden;
     }
-    :deep(.el-dialog__header){
+    :deep(.el-dialog__header) {
         display: none;
     }
-     :deep(.el-dialog){
+    :deep(.el-dialog) {
         margin: 0;
         padding: 30px;
         box-sizing: border-box;
         background: rgba(0, 0, 0, 0.2);
     }
-    :deep(.el-overlay-dialog){
+    :deep(.el-overlay-dialog) {
         height: calc(100vh + 36px);
     }
 }
@@ -568,11 +638,12 @@ export default defineComponent({
             margin-left: 10px;
             text-align: right;
         }
-        .answer, .detail {
+        .answer,
+        .detail {
             display: flex;
             justify-content: center;
             align-items: center;
-            >span {
+            > span {
                 display: flex;
                 justify-content: center;
                 align-items: center;

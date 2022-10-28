@@ -10,6 +10,7 @@ export default () => {
         if (isNavigationFailure(failure)) return;
         remove("SET_TOKEN");
         remove("USER_INFO");
+        remove("CURRENT_USER_INFO");
         remove("GetBasicTagList");
         remove("GradeClassList");
         sessionStorage.removeItem("breadList");

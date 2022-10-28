@@ -8,7 +8,7 @@ import {
     ILoginTokenData,
     ILoginResponse,
     ISendMsgData,
-    IYunInfo
+    IYunInfo, IGetTeacherClassListRes
 } from "@/types/login";
 import { IResponse, RequestFun } from "@/types/response";
 
@@ -75,6 +75,16 @@ export const sendMsg: RequestFun<ISendMsgData, null> = (data) => {
     return request({
         baseURL: AI_XUE_SHI_API,
         url: "/Api/W4/Teach/SendMsg",
+        method: "post",
+        data
+    });
+};
+
+// 获取老师的年级班级
+export const getTeacherClassList: RequestFun<IGetTeacherClassListRes, any> = (data) => {
+    return request({
+        baseURL: YUN_API,
+        url: "/Api/Web/ClassTeacherManage/GetUserGradeClassByTeacher",
         method: "post",
         data
     });

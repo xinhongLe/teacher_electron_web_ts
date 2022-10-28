@@ -8,16 +8,9 @@
         />
         <div class="form-warp">
             <el-form ref="form" :model="formData" :inline="true">
-                <i
-                    v-if="$route.name == 'wpf管理标签'"
-                    style="
-                        font-size: 20px;
-                        margin: 10px 10px 10px 0;
-                        cursor: pointer;
-                    "
-                    class="el-icon-arrow-left"
-                    @click="$router.go(-1)"
-                ></i>
+                <el-icon  v-if="$route.name == 'wpf管理标签'"
+                          @click="$router.go(-1)"
+                          style="font-size: 20px;margin: 10px 10px 10px 0;cursor: pointer;"><ArrowLeft /></el-icon>
                 <el-form-item label="学科：" v-if="!canEdit">
                     <el-select
                         v-model="formData.subject"
@@ -36,7 +29,7 @@
                     <el-input
                         v-model="formData.studentName"
                         placeholder="姓名/账号/手机号"
-                        prefix-icon="el-icon-search"
+                        :prefix-icon="Search"
                     >
                         <template #append>
                             <el-button
@@ -84,26 +77,26 @@
 <script lang="ts">
 import { get, STORAGE_TYPES } from "@/utils/storage";
 import { defineComponent, reactive, ref, watch } from "vue";
-import usePageEvent from "@/hooks/usePageEvent"; //埋点事件hooks
+import usePageEvent from "@/hooks/usePageEvent"; // 埋点事件hooks
 import { EVENT_TYPE } from "@/config/event";
-
+import { Search } from "@element-plus/icons-vue";
 export default defineComponent({
     name: "Head",
     props: {
         canEdit: {
             type: Boolean,
-            default: false,
+            default: false
         },
         closeCheckBox: {
             type: Function,
-            required: true,
-        },
+            required: true
+        }
     },
     setup(props, { emit }) {
         const { createBuryingPointFn } = usePageEvent("班级管理");
         const formData = reactive({
             subject: "",
-            studentName: "",
+            studentName: ""
         });
 
         const subjectList = ref([{ Name: "全部学科", ID: "" }]);
@@ -121,16 +114,17 @@ export default defineComponent({
         );
         formData.subject = subjectList.value[1].ID;
 
-        //班级管理页面编辑标签点击埋点事件
+        // 班级管理页面编辑标签点击埋点事件
         const clicKBuryPoint = (name: string) => {
             createBuryingPointFn(EVENT_TYPE.PageClick, name, name);
         };
         return {
+            Search,
             formData,
             subjectList,
-            clicKBuryPoint,
+            clicKBuryPoint
         };
-    },
+    }
 });
 </script>
 

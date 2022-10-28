@@ -15,16 +15,14 @@
                         v-if="formatInBasket(currentquestion)"
                         type="primary"
                         @click.stop="addQuestionBasket"
-                        icon="el-icon-plus"
-                        size="small"
+                        :icon="Plus"
                         >添加试题篮</el-button
                     >
                     <el-button
                         v-else
                         type="danger"
                         @click.stop="delQuestionBasket"
-                        icon="el-icon-minus"
-                        size="small"
+                        :icon="Minus"
                         >移出试题篮</el-button
                     >
                 </p>
@@ -42,6 +40,8 @@
 </template>
 
 <script lang="ts">
+import { Plus, Minus } from "@element-plus/icons-vue";
+
 import { defineComponent, nextTick, ref, PropType } from "vue";
 import LookQuestion from "@/components/lookQuestion/index.vue";
 import Question from "@/components/lookQuestion/Question.vue";
@@ -109,6 +109,8 @@ export default defineComponent({
             addQuestionBasket,
             formatInBasket,
             delQuestionBasket,
+            Plus,
+            Minus,
         };
     },
     components: { Question, LookQuestion },

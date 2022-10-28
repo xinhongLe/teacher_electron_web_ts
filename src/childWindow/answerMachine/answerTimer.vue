@@ -1,36 +1,40 @@
 <template>
-    <div class="answer-timer-warp">
-        <div class="title-warp">
-            <el-icon :size="20"><alarm-clock /></el-icon>
-            <span class="title">计时</span>
-            <span class="question-type">{{QuestionType[questionType]}}</span>
-        </div>
-        <div class="content-warp">
-            <span class="time">{{showTime}}</span>
-            <div class="toll">
-                <div class="number-warp">
-                    <el-icon :size="16" color="#EE6058"><warning /></el-icon>
-                    <span class="number">未答人数：{{unAnswerStudentList.length}}</span>
-                </div>
-                <div class="number-warp">
-                    <el-icon :size="16" color="#83CC53"><circle-check /></el-icon>
-                    <span class="number">已答人数：{{studentList.length - unAnswerStudentList.length}}</span>
+    <div class="answer-timer-box">
+        <div class="answer-timer-warp">
+            <div class="title-warp">
+                <el-icon :size="20"><alarm-clock /></el-icon>
+                <span class="title">计时</span>
+                <span class="question-type">{{questionType}}</span>
+            </div>
+            <div class="content-warp">
+                <span class="time">{{showTime}}</span>
+                <div class="toll">
+                    <div class="number-warp">
+                        <el-icon :size="16" color="#EE6058"><warning /></el-icon>
+                        <span class="number">未答人数：{{ allAStudents - answerStudents }}</span>
+                    </div>
+                    <div class="number-warp">
+                        <el-icon :size="16" color="#83CC53"><circle-check /></el-icon>
+                        <span class="number">已答人数：{{answerStudents}}</span>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="footer" @click="endAnswer">
-            收题
+            <div class="footer" @click="endAnswer">收题</div>
         </div>
     </div>
 </template>
 
 <script lang="ts">
 import { screen } from "@electron/remote";
-import { defineComponent, inject, onMounted, onUnmounted, PropType, ref } from "vue";
+import { defineComponent, inject, onMounted, onUnmounted, PropType, ref, watch } from "vue";
 import useCountDown from "@/hooks/useCountDown";
 import { Student } from "@/types/labelManage";
 import { remove } from "lodash";
 import { PADModeQuestionType } from "./enum";
+import mqtt from "mqtt";
+import { finishAnswerMachineQuestion } from "@/childWindow/answerMachine/api";
+import { UserInfoState } from "@/types/store";
+import { YUN_API_ONECARD_MQTT } from "@/config";
 export default defineComponent({
     props: {
         studentList: {
@@ -38,37 +42,87 @@ export default defineComponent({
             default: () => []
         },
         questionType: {
-            type: Number,
-            default: -1
+            type: String,
+            default: ""
+        },
+        AnswerMachineID: {
+            type: String,
+            default: ""
+        },
+        currentUserInfo: {
+            type: Object as PropType<UserInfoState>
+        },
+        lessonId: {
+            type: String,
+            default: () => ""
         }
     },
     setup(props, { emit }) {
         const size = screen.getPrimaryDisplay().workAreaSize;
-        const unAnswerStudentList = ref([...props.studentList]);
-        const QuestionType = inject(
-            "QuestionType",
-            ref(PADModeQuestionType)
-        );
+        const allAStudents = ref(props.studentList?.length);
+        const answerStudents = ref(0);
+        const QuestionType = inject("QuestionType", ref(PADModeQuestionType));
         const { showTime, startCountDown, endCountDown } = useCountDown();
 
-        const answerJection = (_:unknown, data:any) => {
-            remove(unAnswerStudentList.value, (student) => {
-                return student.StudentID === data.studentId;
-            });
+        const client = mqtt.connect(YUN_API_ONECARD_MQTT || "", {
+            port: 1883,
+            username: "u001",
+            password: "p001",
+            keepalive: 30
+        });
+
+        const getPublish = (id: string) => {
+            return `answer_studentcommitcount_${id}`;
         };
 
+        client && client.on("connect", function (err) {
+            window.electron.log.info("client connect answer", err);
+        });
+
+        client && client.on("error", (err) => {
+            window.electron.log.info("client error answer", err);
+        });
+
+        client && client.on("message", function (topic:any, message:any) {
+            // message is Buffer
+            const infoString = JSON.parse(message.toString());
+            answerStudents.value = Number(infoString.CommitUserCount) || 0;
+            console.log(infoString, "infoString"); // {"AnswerMachineID":"C696DA084848C9E8B2D0A2CB00853504","CommitUserCount":2,"AllUserCount":8}
+        });
+
+        watch(() => props.AnswerMachineID, (val) => {
+            // client.subscribe(getPublish("C696DA084848C9E8B2D0A2CB00853504"));
+            client.subscribe(getPublish(val));
+        }, { immediate: true });
+
+        // const answerJection = (_:unknown, data:any) => {
+        //     remove(unAnswerStudentList.value, (student) => {
+        //         return student.StudentID === data.studentId;
+        //     });
+        // };
+
         const endAnswer = () => {
-            emit("endAnswer", showTime.value, unAnswerStudentList.value);
+            const data = {
+                TeacherID: props.currentUserInfo!.userCenterUserID,
+                AnswerMachineID: props.AnswerMachineID,
+                LessonId: props.lessonId ? props.lessonId : null
+            };
+            finishAnswerMachineQuestion(data).then(res => {
+                if (res.resultCode === 200) {
+                    emit("endAnswer", showTime.value);
+                }
+            });
         };
 
         onMounted(() => {
             startCountDown();
-            window.electron.ipcRenderer.on("answer-jection", answerJection);
+            // window.electron.ipcRenderer.on("answer-jection", answerJection);
         });
 
         onUnmounted(() => {
             endCountDown();
-            window.electron.ipcRenderer.off("answer-jection", answerJection);
+            client.end();
+            // window.electron.ipcRenderer.off("answer-jection", answerJection);
         });
 
         window.electron.setContentSize(383, 253);
@@ -77,13 +131,20 @@ export default defineComponent({
             showTime,
             endAnswer,
             QuestionType,
-            unAnswerStudentList
+            answerStudents,
+            allAStudents,
         };
     }
 });
 </script>
 
 <style lang="scss" scoped>
+.answer-timer-box{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+}
 .answer-timer-warp {
     width: 383px;
     height: 253px;
@@ -112,10 +173,11 @@ export default defineComponent({
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 0 12px;
-            background: #4B71EE;
-            border-radius: 8px 4px 4px 0px;
+            padding: 4px 16px;
+            border-radius: 8px;
             font-size: 14px;
+            border: 1px solid #fff;
+            margin: 10px 16px;
         }
     }
     .content-warp {

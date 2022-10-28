@@ -1,19 +1,21 @@
 export const ENV = process.env.VUE_APP_ENV;
 
 export const AI_XUE_SHI_API = process.env.VUE_APP_AI_XUE_SHI_API;
-export const AI_XUE_SHI_API_WRONG_BOOK =
-    process.env.VUE_APP_AI_XUE_SHI_API_WRONG_BOOK;
+export const AI_XUE_SHI_API_WRONG_BOOK = process.env.VUE_APP_AI_XUE_SHI_API_WRONG_BOOK;
 
 export const WINDOW_CRAD_API = process.env.VUE_APP_AI_XUE_SHI_API;
 export const TIMETABLE_API = process.env.VUE_APP_TIMETABLE_API;
 export const SCHEDULE_API = process.env.VUE_APP_SCHEDULE_API;
 export const YUN_API = process.env.VUE_APP_YUN_API;
+export const YUN_API_ONECARD = process.env.VUE_APP_YUN_API_ONECARD;
+export const YUN_API_PORTRAIT = process.env.VUE_APP_YUN_API_PORTRAIT;
+export const YUN_API_ONECARD_MQTT = process.env.VUE_APP_YUN_API_ONECARD_MQTT;
 export const RESOURCE_API = process.env.VUE_APP_RESOURCE_API;
 export const RESOURCE_WEB = process.env.VUE_APP_RESOURCE_WEB;
 
 export const TRACK_API = process.env.VUE_APP_TRACK;
 
-//埋点日志接环境变量
+// 埋点日志接环境变量
 export const VUE_APP_TRACK_LOG = process.env.VUE_APP_TRACK_LOG;
 
 // export const AI_XUE_SHI_API = "http://apitest.aixueshi.top:5002";
@@ -32,16 +34,16 @@ export const ADD_TEACHER_TEMPLATE =
 export const ALL_SUBJECT_LIST = [
     {
         subjectName: "语文",
-        subjectId: "39F766472E16384149030DFA4E9863B5",
+        subjectId: "39F766472E16384149030DFA4E9863B5"
     },
     {
         subjectName: "数学",
-        subjectId: "39F766472E16F43AE0EAE334481AF7BA",
+        subjectId: "39F766472E16F43AE0EAE334481AF7BA"
     },
     {
         subjectName: "英语",
-        subjectId: "39F766472E161EEFD06F825352362179",
-    },
+        subjectId: "39F766472E161EEFD06F825352362179"
+    }
 ];
 export const pageTypeList = [
     { name: "素材页", value: 11, type: "element" },
@@ -80,7 +82,7 @@ export const fileTypeMap: Record<string, number> = {
     zip: 11,
     excel: 12,
     xls: 12,
-    xlsx: 12,
+    xlsx: 12
 };
 
 // 乐易学云平台下备教systemId

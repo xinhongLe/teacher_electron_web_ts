@@ -5,12 +5,12 @@
                 {{ state.currentIndexName }}
             </h3>
             <span v-if="formatIsAll" class="isall">
-                <el-button size="small" @click="addAllQuestion"
+                <el-button @click="addAllQuestion"
                     >添加本页面所有题目</el-button
                 >
             </span>
             <span v-else class="noall">
-                <el-button size="small" @click="removeAllQuestion"
+                <el-button @click="removeAllQuestion"
                     >移出本页面所有题目</el-button
                 >
             </span>
@@ -615,7 +615,16 @@ const addAllQuestion = () => {
 };
 //移出错题列表中所有的错题
 const removeAllQuestion = () => {
-    delAllBasketData();
+    const qsList = state.errorQuestionList.map((item: any) => item.QuestionId);
+    console.log("remove-qsList", qsList);
+    const params = {
+        isAllDel: 0,
+        classId: state.currentClassId,
+        bookId: state.currentBookId,
+        questionIds: qsList,
+        questionType: 0,
+    };
+    store.dispatch(ActionTypes.DEL_QUESTION_BASKET, params);
 };
 //讲解题目
 const explainQuestion = (data: any) => {
@@ -912,7 +921,7 @@ onBeforeUnmount(() => {
             color: #19203d;
         }
         .isall {
-            :deep(.el-button--small) {
+            :deep(.el-button) {
                 background: #f3f7ff;
                 border-radius: 4px;
                 // border: none;
@@ -922,7 +931,7 @@ onBeforeUnmount(() => {
             }
         }
         .noall {
-            :deep(.el-button--small) {
+            :deep(.el-button) {
                 background: #fff;
                 border-radius: 4px;
                 // border: none;

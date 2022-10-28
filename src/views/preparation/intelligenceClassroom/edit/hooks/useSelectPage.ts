@@ -18,7 +18,7 @@ export default (pageValue: Ref<IPageValue>, allPageSlideListMap: Ref<Map<string,
                 parentID.removeAttribute("id");
             }
             const childrenDom: any = document.querySelector(".active-text");
-            const parentDom: any = childrenDom?.parentNode;
+            const parentDom: any = childrenDom?.parentNode?.parentNode;
             if (parentDom) {
                 parentDom.setAttribute("id", "activeBackground");
             }

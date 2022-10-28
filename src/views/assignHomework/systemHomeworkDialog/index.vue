@@ -10,6 +10,7 @@
             <el-form :model="form" :inline="true" label-width="0px">
                 <span class="title-text">选择版本</span>
                 <el-cascader
+                    size="large"
                     v-model="form.subjectPublisherBookValue"
                     :props="cascaderProps"
                     :options="subjectPublisherBookList"
@@ -62,7 +63,9 @@
                                         :type="1"
                                         :index="index"
                                         :choicePaper="choicePaper(item.ID)"
-                                        :isSelect="getIsSelect(item1.PaperID, 1)"
+                                        :isSelect="
+                                            getIsSelect(item1.PaperID, 1)
+                                        "
                                         :course-bag-id="item.ID"
                                     />
                                 </template>
@@ -72,7 +75,10 @@
                                     :choicePaper="choicePaper(item.ID)"
                                     :isSelect="getIsSelect(item1.PaperID, 0)"
                                     :course-bag-id="item.ID"
-                                    :delete-question-ids="deleteQuestionList.get(item1.PaperID)?.questionIDs || []"
+                                    :delete-question-ids="
+                                        deleteQuestionList.get(item1.PaperID)
+                                            ?.questionIDs || []
+                                    "
                                 />
                             </template>
                         </div>
@@ -81,11 +87,15 @@
             </div>
             <template #footer>
                 <span class="select-count">
-                    已选{{Object.values(selectListMap).flat().length}}
+                    已选{{ Object.values(selectListMap).flat().length }}
                 </span>
                 <span class="dialog-footer">
-                    <el-button @click="handleClose">取 消</el-button>
-                    <el-button type="primary" @click="submit">确 定</el-button>
+                    <el-button size="large" @click="handleClose"
+                        >取 消</el-button
+                    >
+                    <el-button size="large" type="primary" @click="submit"
+                        >确 定</el-button
+                    >
                 </span>
             </template>
         </el-dialog>
@@ -96,7 +106,15 @@
 import { Student, SystemHomework } from "@/types/assignHomework";
 import { BagChapter, BagPapers } from "@/types/preparation";
 import { getCourseBagType, lookQuestions, lookVideo } from "@/utils";
-import { defineComponent, onMounted, onUnmounted, PropType, reactive, ref, watch } from "vue";
+import {
+    defineComponent,
+    onMounted,
+    onUnmounted,
+    PropType,
+    reactive,
+    ref,
+    watch,
+} from "vue";
 import { fetchBagChapter } from "../../preparation/api";
 import useBookList from "../hooks/useBookList";
 import BagPaperItem from "./BagPaperItem.vue";
@@ -108,27 +126,32 @@ export default defineComponent({
     props: {
         dialogVisible: {
             type: Boolean,
-            default: false
+            default: false,
         },
         studentList: {
             type: Array as PropType<Student[]>,
-            default: () => []
-        }
+            default: () => [],
+        },
     },
     setup(props, { emit }) {
-        const { cascaderProps, subjectPublisherBookList } = useBookList(); 
+        const { cascaderProps, subjectPublisherBookList } = useBookList();
         const form = reactive({
-            subjectPublisherBookValue: [] as string[]
+            subjectPublisherBookValue: [] as string[],
         });
         const allList = ref<BagChapter[]>([]);
         const activeLeft = ref(0);
         const selectListMap = reactive<Record<string, SystemHomework[]>>({});
-        const deleteQuestionList = ref<Map<string, {
-            courseBagId: string,
-            questionIDs: string[],
-            id: string,
-            paperId: string
-        }>>(new Map());
+        const deleteQuestionList = ref<
+            Map<
+                string,
+                {
+                    courseBagId: string;
+                    questionIDs: string[];
+                    id: string;
+                    paperId: string;
+                }
+            >
+        >(new Map());
 
         watch(
             subjectPublisherBookList,
@@ -136,11 +159,11 @@ export default defineComponent({
                 form.subjectPublisherBookValue = [
                     v[0].Value,
                     v[0].Children![0].Value,
-                    v[0].Children![0].Children![0].Value
+                    v[0].Children![0].Children![0].Value,
                 ];
             },
             {
-                deep: true
+                deep: true,
             }
         );
         watch(() => form.subjectPublisherBookValue, getList);
@@ -151,15 +174,24 @@ export default defineComponent({
 
         async function getList() {
             const res = await fetchBagChapter({
-                bookID: form.subjectPublisherBookValue[2]
+                bookID: form.subjectPublisherBookValue[2],
             });
             if (res.resultCode === 200) {
                 const list = res.result;
-                for (const [paperId, { courseBagId, id, questionIDs }] of deleteQuestionList.value) {
+                for (const [
+                    paperId,
+                    { courseBagId, id, questionIDs },
+                ] of deleteQuestionList.value) {
                     const bagLessons = find(list, { ID: id })?.BagLessons || [];
-                    const bagPapers = find(bagLessons, { ID: courseBagId })?.BagPapers || [];
-                    const questions = find(bagPapers, { PaperID: paperId })?.Questions || [];
-                    pullAllBy(questions, questionIDs.map(id => ({ QuestionID: id })), "QuestionID");
+                    const bagPapers =
+                        find(bagLessons, { ID: courseBagId })?.BagPapers || [];
+                    const questions =
+                        find(bagPapers, { PaperID: paperId })?.Questions || [];
+                    pullAllBy(
+                        questions,
+                        questionIDs.map((id) => ({ QuestionID: id })),
+                        "QuestionID"
+                    );
                 }
                 allList.value = list;
                 activeLeft.value = 0;
@@ -173,17 +205,21 @@ export default defineComponent({
                 index: number,
                 type: number
             ) => {
-                const { Name, BagLessons, ID } = allList.value[activeLeft.value];
+                const { Name, BagLessons, ID } =
+                    allList.value[activeLeft.value];
                 const bagLessonsName = BagLessons[index].Name;
                 const version = subjectPublisherBookList.value
                     .find(
-                        ({ Value }) => form.subjectPublisherBookValue[0] === Value
+                        ({ Value }) =>
+                            form.subjectPublisherBookValue[0] === Value
                     )
                     ?.Children?.find(
-                        ({ Value }) => form.subjectPublisherBookValue[1] === Value
+                        ({ Value }) =>
+                            form.subjectPublisherBookValue[1] === Value
                     )
                     ?.Children?.find(
-                        ({ Value }) => form.subjectPublisherBookValue[2] === Value
+                        ({ Value }) =>
+                            form.subjectPublisherBookValue[2] === Value
                     )?.Lable as string;
                 const info = {
                     ...item,
@@ -192,7 +228,7 @@ export default defineComponent({
                     type,
                     lessonID,
                     students: [],
-                    version
+                    version,
                 };
                 if (flag) {
                     selectListMap[ID]
@@ -210,26 +246,47 @@ export default defineComponent({
         const getIsSelect = (id: string, type: number) => {
             const { ID } = allList.value[activeLeft.value];
             if (!selectListMap[ID]) return false;
-            const index = selectListMap[allList.value[activeLeft.value].ID].findIndex((v) => id === v.PaperID && v.type === type);
+            const index = selectListMap[
+                allList.value[activeLeft.value].ID
+            ].findIndex((v) => id === v.PaperID && v.type === type);
             return index !== -1;
         };
 
         const submit = () => {
             handleClose();
-            emit("updateSystemHomeworkList", Object.values(selectListMap).flat());
+            emit(
+                "updateSystemHomeworkList",
+                Object.values(selectListMap).flat()
+            );
         };
 
         onMounted(() => {
             emitter.off("deleteQuestion");
-            emitter.on("deleteQuestion", ({ courseBagId, questionID, paperId }) => {
-                const bagPapers = find(allList.value[activeLeft.value].BagLessons, { ID: courseBagId })?.BagPapers || [];
-                const questions = find(bagPapers, { PaperID: paperId })?.Questions || [];
-                pullAllBy(questions, [{ QuestionID: questionID }], "QuestionID");
-                const info = deleteQuestionList.value.get(paperId);
-                const questionIDs = info?.questionIDs || [];
-                questionIDs.push(questionID);
-                deleteQuestionList.value.set(paperId, { courseBagId, paperId, questionIDs, id: allList.value[activeLeft.value].ID });
-            });
+            emitter.on(
+                "deleteQuestion",
+                ({ courseBagId, questionID, paperId }) => {
+                    const bagPapers =
+                        find(allList.value[activeLeft.value].BagLessons, {
+                            ID: courseBagId,
+                        })?.BagPapers || [];
+                    const questions =
+                        find(bagPapers, { PaperID: paperId })?.Questions || [];
+                    pullAllBy(
+                        questions,
+                        [{ QuestionID: questionID }],
+                        "QuestionID"
+                    );
+                    const info = deleteQuestionList.value.get(paperId);
+                    const questionIDs = info?.questionIDs || [];
+                    questionIDs.push(questionID);
+                    deleteQuestionList.value.set(paperId, {
+                        courseBagId,
+                        paperId,
+                        questionIDs,
+                        id: allList.value[activeLeft.value].ID,
+                    });
+                }
+            );
         });
 
         onUnmounted(() => {
@@ -250,10 +307,10 @@ export default defineComponent({
             submit,
             deleteQuestionList,
             selectListMap,
-            cascaderProps
+            cascaderProps,
         };
     },
-    components: { BagPaperItem }
+    components: { BagPaperItem },
 });
 </script>
 

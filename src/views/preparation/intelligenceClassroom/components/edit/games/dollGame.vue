@@ -5,7 +5,7 @@
                 <img @click = addQuestion src="@/assets/projection/icon_add_btn.png" alt="">
                 <span>新增题目</span>
             </div>
-            <el-form ref="formRef" :model="form" :rules="rules" label-width="60px" label-position="left">
+            <el-form ref="formRef" :model="form" :rules="rules" label-width="70px" label-position="left">
                 <div v-for="(item, index) in form.Question" :key="index" class="content">
                     <div class="first-row">
                         <div>{{index + 1}}</div>
@@ -32,7 +32,7 @@
                             </div>
                         </el-col>
                     </el-row>
-                    <el-form-item label="答案" :prop="`Question[${index}].Answer`" :rules="rules.Answer" >
+                    <el-form-item label="结束语" :prop="`Question[${index}].Answer`" :rules="rules.Answer" >
                         <el-input v-model="item.Answer" />
                     </el-form-item>
                 </div>
@@ -76,7 +76,7 @@ export default defineComponent({
             rules: {
                 Subject: [{ required: true, message: "请输入题目", trigger: "blur" }],
                 Options: [{ required: true, message: "请输入选项", trigger: "blur" }],
-                Answer: [{ required: true, message: "请输入答案", trigger: "blur" }],
+                Answer: [{ required: true, message: "请输入结束语", trigger: "blur" }],
                 RightKey: [{ validator: checkRightKey, trigger: "blur" }],
                 RightKeyEmpty: [{ validator: checkRightKeyEmpty, trigger: "blur" }]
             },
@@ -227,7 +227,7 @@ export default defineComponent({
 .content{
     box-sizing: border-box;
     width: 400px;
-    height: 454px;
+    height: 370px;
     border: 1px solid #dcdfe6;
     padding: 24px;
     margin-bottom: 20px;

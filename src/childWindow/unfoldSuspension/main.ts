@@ -1,9 +1,9 @@
 import { createApp } from "vue";
 import App from "./App.vue";
-import "@/styles/index.scss";
 
 import { ElCascader, ElInput, ElButton, ElConfigProvider, ElCollapse, ElCollapseItem } from "element-plus";
 import "element-plus/dist/index.css";
+import "@/styles/var.scss";
 
 const components = [ElCascader, ElButton, ElInput, ElConfigProvider, ElCollapse, ElCollapseItem];
 const app = createApp(App);

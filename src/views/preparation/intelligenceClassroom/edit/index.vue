@@ -14,7 +14,7 @@
                             <el-button
                                 class="add-card"
                                 @click="dialogVisibleCard = true"
-                                size="small"
+                                size="default"
                                 type="primary"
                                 plain
                                 >新增卡</el-button
@@ -24,7 +24,7 @@
                             <el-button
                                 class="add-card"
                                 @click="importPPT()"
-                                size="small"
+                                size="default"
                                 type="primary"
                                 plain
                                 >导入</el-button
@@ -40,7 +40,7 @@
                                     <el-button
                                         class="add-card"
                                         @click.stop
-                                        size="small"
+                                        size="default"
                                         type="primary"
                                         plain
                                         >预览窗</el-button
@@ -107,7 +107,7 @@
                                         trigger="focus"
                                     >
                                         <template #reference>
-                                            <el-button size="mini" @click.stop>
+                                            <el-button @click.stop>
                                                 <el-icon :size="18"
                                                     ><more-filled
                                                 /></el-icon>
@@ -185,13 +185,7 @@
             </div>
             <div class="shrink" ref="shrinkRef">
                 <div @click="showCollapse = !showCollapse">
-                    <i
-                        :style="{
-                            transform:
-                                'rotate(' + (showCollapse ? 0 : 180) + 'deg)',
-                        }"
-                        class="el-icon-arrow-left"
-                    ></i>
+                    <el-icon :style="{ transform:'rotate(' + (showCollapse ? 0 : 180) + 'deg)'}"><ArrowLeft /></el-icon>
                 </div>
             </div>
         </div>
@@ -272,7 +266,7 @@ import { IPageValue, ICardList } from "@/types/home";
 import Node from "element-plus/es/components/tree/src/model/node";
 import useSelectBookInfo from "@/hooks/useSelectBookInfo";
 import { isFullscreen } from "@/utils/fullscreen";
-import { MoreFilled } from "@element-plus/icons";
+import { MoreFilled } from "@element-plus/icons-vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import AddPageDialog from "../components/edit/addPageDialog.vue";
 import UpdateNameCardOrPage from "../components/edit/updateNameCardOrPage.vue";
@@ -768,6 +762,12 @@ export default defineComponent({
             .card-list {
                 flex: 1;
                 overflow-y: auto;
+                .el-tree{
+                    :deep(.el-tree-node__label){
+                        width: 100%;
+                    }
+                }
+
                 :deep(.el-tree-node__content) {
                     height: 46px;
                 }
@@ -813,6 +813,8 @@ export default defineComponent({
             right: 0;
             top: 0;
             > div {
+                display: flex;
+                align-items: center;
                 background: #ccd1e3;
                 width: 100%;
                 position: absolute;
@@ -823,7 +825,7 @@ export default defineComponent({
                 height: 100px;
                 text-align: center;
                 cursor: pointer;
-                i {
+                .el-icon{
                     line-height: 100px;
                     color: #fff;
                     font-size: 14px;

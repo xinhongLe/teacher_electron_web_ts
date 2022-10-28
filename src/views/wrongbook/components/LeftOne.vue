@@ -2,7 +2,6 @@
     <div class="leftone" v-loading="state.loading">
         <div>
             <el-cascader
-                size="small"
                 style="width: 100%"
                 v-model="state.currentBookId"
                 :props="cascaderProps"
@@ -13,7 +12,6 @@
         </div>
         <div class="leftone-input">
             <el-input
-                size="small"
                 style="width: 100%"
                 v-model="form.Name"
                 class="w-50 m-2"

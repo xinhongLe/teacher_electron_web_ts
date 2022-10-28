@@ -1,6 +1,6 @@
 <template>
     <el-dialog
-        custom-class="custom-dialog"
+        class="custom-dialog"
         center
         title="提示"
         width="450px"

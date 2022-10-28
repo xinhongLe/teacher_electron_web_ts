@@ -22,7 +22,7 @@ import {
     readFile,
     rm,
     stat,
-    writeFile,
+    writeFile
 } from "fs/promises";
 import crypto from "crypto";
 import { exportWord, IFileData } from "./exportWord";
@@ -32,7 +32,7 @@ const PATH_BINARY =
         : join(__dirname, "../mockingbot-color-picker-ia32.exe");
 const PATH_WhiteBoard = join(
     __dirname,
-    "../extraResources/whiteboard/Aixueshi.Whiteboard.exe"
+     "../extraResources/whiteboard/Aixueshi.Whiteboard.exe"
 );
 const PATH_White4Board = join(
     __dirname,
@@ -191,6 +191,13 @@ window.electron = {
         );
     },
     getWhiteBoard: async () => {
+        if (
+            process.platform === "darwin" &&
+            (await darwinGetScreenPermissionGranted()) === false
+        ) {
+            await darwinRequestScreenPermissionPopup();
+            return false;
+        }
         return new Promise((resolve, reject) =>
             checkWindowSupportNet("v4.5").then(isOk => {
                 if (isOk) {

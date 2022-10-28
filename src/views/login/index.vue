@@ -8,26 +8,14 @@
                 <img src="@/assets/images/login/logo.png" alt="" />
                 <p>爱学仕校园</p>
             </div>
-            <el-form :model="form" label-width="0px">
+            <el-form :model="form" label-width="0px" size="large">
                 <el-form-item>
-                    <el-input
-                        class="zh-class"
-                        v-model.trim="form.account"
-                        placeholder="请输入手机号码"
-                        maxlength="11"
-                    >
+                    <el-input class="zh-class" v-model.trim="form.account" placeholder="请输入手机号码" maxlength="11">
                         <template #prefix>
-                            <img
-                                src="@/assets/images/login/icon_zhanghao.png"
-                                alt=""
-                            />
+                            <img src="@/assets/images/login/icon_zhanghao.png" alt=""/>
                         </template>
                     </el-input>
-                    <el-select
-                        v-model="form.account"
-                        @change="handleChange"
-                        popper-class="login-select-class"
-                    >
+                    <el-select v-model="form.account" @change="handleChange" popper-class="login-select-class">
                         <el-option
                             v-for="(item, index) in recordAccountList"
                             :key="index"
@@ -35,54 +23,27 @@
                             :value="item.account"
                         >
                             <span style="float: left">{{ item.account }}</span>
-                            <span
-                                style="
-                                    float: right;
-                                    color: #8492a6;
-                                    font-size: 13px;
-                                "
-                            >
-                                <i
-                                    @click.stop="delAccount(index)"
-                                    class="el-icon-close"
-                                ></i>
+                            <span style="float: right; color: #8492a6; font-size: 13px;">
+                                <el-icon @click.stop="delAccount(index)"><Close /></el-icon>
                             </span>
                         </el-option>
                     </el-select>
                 </el-form-item>
                 <el-form-item v-if="isPassWordLogin">
-                    <el-input
-                        type="password"
-                        v-model="form.password"
-                        placeholder="请输入密码"
-                    >
+                    <el-input type="password" v-model="form.password" placeholder="请输入密码">
                         <template #prefix>
-                            <img
-                                src="@/assets/images/login/icon_password.png"
-                                alt=""
-                            />
+                            <img src="@/assets/images/login/icon_password.png" alt=""/>
                         </template>
                         <template #suffix v-if="isElectron">
-                            <img
-                                src="@/assets/images/login/icon_keyboard.png"
-                                alt=""
-                                class="key-board-img"
-                                @click="openVirtualKeyBoard"
-                            />
+                            <img src="@/assets/images/login/icon_keyboard.png" alt=""
+                                class="key-board-img" @click="openVirtualKeyBoard"/>
                         </template>
                     </el-input>
                 </el-form-item>
                 <el-form-item v-else>
-                    <el-input
-                        type="text"
-                        v-model="form.code"
-                        placeholder="请输入验证码"
-                    >
+                    <el-input type="text" v-model="form.code" placeholder="请输入验证码">
                         <template #prefix>
-                            <img
-                                src="@/assets/images/login/icon_yzm.png"
-                                alt=""
-                            />
+                            <img src="@/assets/images/login/icon_yzm.png" alt=""/>
                         </template>
                         <template #suffix>
                             <span class="get-code-btn" @click="getCode" v-if="codeTime === 0">获取验证码</span>
@@ -91,13 +52,7 @@
                     </el-input>
                 </el-form-item>
                 <el-form-item>
-                    <el-button
-                        :loading="loading"
-                        style="width: 100%"
-                        type="primary"
-                        @click="login"
-                        >登录</el-button
-                    >
+                    <el-button :loading="loading" style="width: 100%" type="primary" @click="login">登录</el-button>
                 </el-form-item>
             </el-form>
             <div class="login-method">
@@ -111,7 +66,7 @@
                 </template>
             </div>
             <div class="close-icon" v-if="isElectron" @click="close">
-                <i class="el-icon-close"></i>
+                <el-icon :size="16"><Close /></el-icon>
             </div>
             <div class="prompt-text">
                 <p>违法和不良信息举报电话：0512-65520773</p>
@@ -349,14 +304,14 @@ $btn_color: #4b71ee;
                     height: 18px;
                     z-index: 2;
                 }
+                .el-input__wrapper{
+                    background: #f5f6fa !important;
+                    box-shadow: none !important;
+                }
                 .el-input__inner {
-                    // width: 300px;
                     font-size: 16px;
                     color: #000;
-                    background: #f5f6fa !important;
-                    border: none;
-                    padding-left: 50px;
-                    // padding-right: 95px;
+                    padding-left: 10px;
                 }
                 .el-input__prefix, .el-input__suffix-inner {
                     display: flex;

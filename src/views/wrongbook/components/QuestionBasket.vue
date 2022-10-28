@@ -153,12 +153,17 @@
 import { ref, watch, defineEmits, defineProps, computed } from "vue";
 import { MutationTypes, store, ActionTypes } from "@/store";
 import useWrongBook from "../hooks/useWrongBook";
+import { AddPaperForPaperBasket } from "@/api/errorbook";
 const { formatQuestionType, delAllBasketData } = useWrongBook();
 const emit = defineEmits(["update:isShowContent", "basketGenerateExercise"]);
 const props = defineProps({
     isShowContent: {
         type: Number,
         default: 0,
+    },
+    gradeName: {
+        type: String,
+        default: "",
     },
 });
 
@@ -176,14 +181,23 @@ const basketData = computed(() => {
     return store.state.wrongbook.questionBasket;
 });
 //生成练习
-const generateExercise = () => {
+const generateExercise = async () => {
     if (store.state.wrongbook.baskTotal == 0) return;
+
     emit("update:isShowContent", 3);
     // const exerciseParams = {
     //     PaperName: store.state.wrongbook.currentPaperName,
     //     BasketPaperQuestions: basketData.value,
     // };
     emit("basketGenerateExercise", props.isShowContent);
+    //生成练习接口
+    const res: any = await AddPaperForPaperBasket({
+        PaperName: `${props.gradeName}错题复习`,
+        BasketPaperQuestions: store.state.wrongbook.questionBasket,
+    });
+    if (res.resultCode == 200) {
+        store.state.wrongbook.currentGeneratePaperId = res.result.PaperId;
+    }
 };
 
 //删除一条试题栏中的数据
