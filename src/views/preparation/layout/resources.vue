@@ -517,7 +517,7 @@ export default defineComponent({
                 });
 
                 resourceList.value = resourceList.value.concat(res.result.list);
-                disabledScrollLoad.value = res.result.pager.IsLastPage;
+                disabledScrollLoad.value = res.result.list.length === 0 ? true : res.result.pager.IsLastPage;
 
                 emit("updateResourceList", resourceList.value);
 
