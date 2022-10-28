@@ -67,9 +67,9 @@
             </main>
 
             <div class="exercise-footer">
-                <!-- <div class="btn download-btn" @click="downLoadWord">
+                <div class="btn download-btn" @click="downLoadWord">
                     下载为word
-                </div> -->
+                </div>
                 <div class="btn next-btn" @click="nexStep">下一步</div>
             </div>
         </template>
@@ -136,7 +136,9 @@
                 </div>
             </main>
             <div class="exercise-footer" style="width: 100%">
-                <!-- <div class="btn download-btn">下载为word</div> -->
+                <div class="btn download-btn" @click="downLoadWord">
+                    下载为word
+                </div>
                 <div class="btn next-btn" @click="assignHomework">确认布置</div>
             </div>
         </template>
@@ -592,10 +594,21 @@ const backList = () => {
 //下载为word
 const downLoadWord = async () => {
     if (!formateSum.value) return;
-    const res2: any = await ErrorPaperToWord({
+    const res: any = await ErrorPaperToWord({
         ID: store.state.wrongbook.currentGeneratePaperId,
     });
-    console.log(res2);
+    console.log(res);
+    if (res.resultCode == 200) {
+        const url = await formatWordFile(res.result);
+        console.log("word-url", url);
+        if (!url) return;
+        const link = document.createElement("a"); //创建下载元素
+        link.setAttribute("href", url); //设置href属性
+        link.setAttribute("download", `${props.gradeName}错题复习`); //设置属性download
+        link.click(); //点击触发下载
+        //释放内存
+        window.URL.revokeObjectURL(link.href);
+    }
 };
 //下一步 + 生成练习
 const nexStep = async () => {

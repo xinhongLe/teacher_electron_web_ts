@@ -1291,7 +1291,9 @@ const queryDetails = async (data: any) => {
         }
 
         //处理文件的-
-        formatFiles(errorQuestionDetails.value.QuestionInfo.QuestionOriginFile);
+        formatFiles(
+            errorQuestionDetails.value.QuestionInfo?.QuestionOriginFile
+        );
     }
 };
 //作业维度-查询左边列表

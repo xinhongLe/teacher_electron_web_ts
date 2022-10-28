@@ -377,7 +377,6 @@ import {
     onActivated,
     onDeactivated,
 } from "vue";
-import { ArrowDown, Search, CircleClose } from "@element-plus/icons-vue";
 import LeftOne from "./components/LeftOne.vue";
 import LeftTwo from "./components/LeftTwo.vue";
 import LeftThree from "./components/LeftThree.vue";
@@ -607,7 +606,7 @@ const changeTagType = (value: any) => {
 };
 //选择科目查学生
 const selectSubject = (subject: any) => {
-    console.log("subjectid", subject);
+    // console.log("subjectid", subject);
     if (subject) {
         allClassStudents.value = [];
         queryClassStudents(subject);
@@ -640,14 +639,17 @@ watch(
 );
 //过滤班级学生
 const filterClassStudent = (val: any) => {
-    state.currentClassStudents = val
-        .find((item: any) => item.ClassId == state.currentClassId)
-        .Students.map((stu: any) => {
-            return {
-                ...stu,
-                TagName: stu.TagName ? stu.TagName : "未标记",
-            };
-        });
+    // console.log("---", val);
+    const currentClass = val.find(
+        (item: any) => item.ClassId == state.currentClassId
+    );
+    if (!currentClass) return;
+    state.currentClassStudents = currentClass.Students.map((stu: any) => {
+        return {
+            ...stu,
+            TagName: stu.TagName ? stu.TagName : "未标记",
+        };
+    });
     console.log("currentClassStudents", state.currentClassStudents);
 };
 //生成练习

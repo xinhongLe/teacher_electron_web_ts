@@ -61,7 +61,7 @@ const usePageEvent = (pageName: string, isPage?: boolean) => {
     const userInfo = get(STORAGE_TYPES.USER_INFO);
     // console.log("userInfo", userInfo);
     //处理班级信息
-    const classInfo = userInfo.Classes.map((item: any) => {
+    const classInfo = userInfo.Classes?.map((item: any) => {
         return {
             ClassId: item.ID,
             ClassName: item.Name,
