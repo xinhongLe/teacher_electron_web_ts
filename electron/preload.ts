@@ -9,7 +9,7 @@ import path, { resolve, join } from "path";
 import ElectronLog from "electron-log";
 import fs from "fs";
 import { parsePPT, pptParsePath } from "./parsePPT";
-import { execFile as execFileFromAsar } from "child_process";
+import { execFile as execFileFromAsar, spawn } from "child_process";
 import {
     darwinGetScreenPermissionGranted,
     darwinRequestScreenPermissionPopup,
@@ -33,6 +33,10 @@ const PATH_BINARY =
 const PATH_WhiteBoard = join(
     __dirname,
     "../extraResources/whiteboard/Aixueshi.Whiteboard.exe"
+);
+const PATH_White4Board = join(
+    __dirname,
+    "../extraResources/whiteboard/4.5/Aixueshi.Whiteboard.exe"
 );
 
 const downloadsPath = join(app.getPath("userData"), "files", "/");
@@ -188,9 +192,18 @@ window.electron = {
     },
     getWhiteBoard: async () => {
         return new Promise((resolve, reject) =>
-            execFileFromAsar(PATH_WhiteBoard, (error, stdout, stderr) => {
-                if (error) return reject(error);
-                resolve(stdout);
+            checkWindowSupportNet("v4.5").then(isOk => {
+                if (isOk) {
+                    spawn(PATH_White4Board);
+                    return resolve(true);
+                } 
+                checkWindowSupportNet("v3.5").then(isOk => {
+                    if (isOk) {
+                        spawn(PATH_WhiteBoard);
+                        return resolve(true);
+                    } 
+                    reject(false);
+                });
             })
         );
     },
