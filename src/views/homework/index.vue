@@ -3,6 +3,7 @@
         <header class="flex-between-center">
             <div>
                 <el-select
+                    size="large"
                     style="width: 140px; margin-right: 16px"
                     v-model="form.subject"
                     @change="getHasTaskDate"
@@ -16,6 +17,7 @@
                     </el-option>
                 </el-select>
                 <el-date-picker
+                    size="large"
                     v-model="form.date"
                     type="date"
                     placeholder="选择日期"
@@ -29,11 +31,12 @@
                 <el-button
                     type="primary"
                     plain
-                    icon="el-icon-tickets"
+                    :icon="Tickets"
                     @click="handleClick"
+                    size="large"
                     >布置作业</el-button
                 >
-                <el-button plain icon="el-icon-refresh" @click="initData"
+                <el-button size="large" plain :icon="Refresh" @click="initData"
                     >刷新</el-button
                 >
             </div>
@@ -55,6 +58,7 @@
                 <template v-if="Object.keys(homeworkListMap).length !== 0">
                     <template v-if="homeworkListMap[selectClassId]">
                         <HomeworkItem
+                            :form="form"
                             v-for="item in homeworkListMap[selectClassId]"
                             :key="item.HomeworkPaperID"
                             :info="item"
@@ -98,6 +102,7 @@ import { useRouter } from "vue-router";
 import useHomework from "./hooks/useHomework";
 import HomeworkItem from "./homeworkItem.vue";
 import { ElMessage } from "element-plus";
+import { Tickets, Refresh } from "@element-plus/icons-vue";
 export default defineComponent({
     name: "Homework",
     setup() {
@@ -111,20 +116,22 @@ export default defineComponent({
             selectClassId,
             getTaskList,
             initData,
-            getHasTaskDate
+            getHasTaskDate,
         } = useHomework();
         const subjectName = computed(
-            () =>
-                subjectList.value.find(({ ID }) => ID === form.subject)
-                    ?.Name
+            () => subjectList.value.find(({ ID }) => ID === form.subject)?.Name
         );
         const handleClick = () => {
-            if (!form.subject || !subjectName.value) return ElMessage.warning("你还没有没有科目");
+            if (!form.subject || !subjectName.value)
+                return ElMessage.warning("你还没有没有科目");
             router.push({
-                path: "/assignHomework/" + form.subject + "/" + subjectName.value
+                path:
+                    "/assignHomework/" + form.subject + "/" + subjectName.value,
             });
         };
         return {
+            Tickets,
+            Refresh,
             subjectList,
             form,
             classList,
@@ -135,10 +142,10 @@ export default defineComponent({
             initData,
             handleClick,
             getHasTaskDate,
-            subjectName
+            subjectName,
         };
     },
-    components: { HomeworkItem }
+    components: { HomeworkItem },
 });
 </script>
 

@@ -37,7 +37,6 @@
             <div class="header-right">
                 <!-- 题型 -->
                 <el-select
-                    size="small"
                     style="width: 140px; margin-right: 16px"
                     v-model="questionType"
                     clearable
@@ -56,7 +55,6 @@
                         props.currentWrongType == 3 ||
                         props.currentWrongType == 4
                     "
-                    size="small"
                     style="width: 140px; margin-right: 16px"
                     v-model="frequency"
                 >
@@ -74,7 +72,6 @@
             <div class="main-left">
                 <div class="search" v-if="props.currentWrongType == 1">
                     <el-select
-                        size="small"
                         style="width: 100%"
                         v-model="questionTagType"
                         @change="changeTagType"
@@ -286,14 +283,12 @@
                                 <el-button
                                     type="primary"
                                     plain
-                                    size="small"
                                     @click="explainQuestion()"
                                     >讲解题目</el-button
                                 >
                                 <el-button
                                     type="primary"
                                     plain
-                                    size="small"
                                     :disabled="!isHasSimilarQuestion"
                                     @click="openSimilarQuestion()"
                                     >查看同类题</el-button
@@ -304,19 +299,18 @@
                                             state.currentQuestionData
                                         )
                                     "
-                                    size="small"
                                     @click="addQuestionBasket()"
+                                    style="font-size: 12px"
                                     >添加试题篮</el-button
                                 >
                                 <el-button
                                     v-else
-                                    size="small"
                                     @click="
                                         delQuestionBasket(
                                             state.currentQuestionData
                                         )
                                     "
-                                    style="color: #f76b6b"
+                                    style="color: #f76b6b; font-size: 12px"
                                     >移出试题篮</el-button
                                 >
                             </div>
@@ -382,7 +376,6 @@
                                 <p class="text">学生答题详情</p>
                                 <p class="switch">
                                     仅看重复错误的学生<el-switch
-                                        size="small"
                                         style="padding-left: 8px"
                                         v-model="state.isRepeat"
                                     />

@@ -51,7 +51,7 @@ export const iconResources = {
         [RESOURCE_TYPE.TEST_PAPER]: require("@/assets/images/preparation/resources/icon_xianshang_star.png"),
         [RESOURCE_TYPE.ELECTRONIC_TEST_BOOK]: require("@/assets/images/preparation/resources/icon_keben_star.png"),
         [RESOURCE_TYPE.TEACHING_AIDS]: require("@/assets/images/preparation/resources/pic_shizhong_small_star.png"),
-        [RESOURCE_TYPE.TOOL]: require("@/assets/images/preparation/resources/icon_heiban_star.png"),
+        [RESOURCE_TYPE.TOOL]: require("@/assets/images/preparation/resources/pic_datiqi.png"),
         [RESOURCE_TYPE.MATERIAL]: require("@/assets/images/preparation/resources/icon_sucai_star.png"),
         [RESOURCE_TYPE.OTHER]: require("@/assets/images/preparation/resources/icon_other_star.png")
     },
@@ -64,7 +64,7 @@ export const iconResources = {
         [RESOURCE_TYPE.TEST_PAPER]: require("@/assets/images/preparation/resources/icon_xianshang.png"),
         [RESOURCE_TYPE.ELECTRONIC_TEST_BOOK]: require("@/assets/images/preparation/resources/icon_keben.png"),
         [RESOURCE_TYPE.TEACHING_AIDS]: require("@/assets/images/preparation/resources/pic_shizhong_small.png"),
-        [RESOURCE_TYPE.TOOL]: require("@/assets/images/preparation/resources/icon_heiban.png"),
+        [RESOURCE_TYPE.TOOL]: require("@/assets/images/preparation/resources/pic_datiqi.png"),
         [RESOURCE_TYPE.MATERIAL]: require("@/assets/images/preparation/resources/icon_sucai.png"),
         [RESOURCE_TYPE.OTHER]: require("@/assets/images/preparation/resources/icon_other.png")
     }
@@ -81,7 +81,7 @@ export const textResources = {
     [RESOURCE_TYPE.TOOL]: "工具",
     [RESOURCE_TYPE.MATERIAL]: "素材",
     [RESOURCE_TYPE.OTHER]: "其他"
-}
+};
 
 export const typeResources = {
     [RESOURCE_TYPE.LESSON_PLAN]: 0,
@@ -94,4 +94,4 @@ export const typeResources = {
     [RESOURCE_TYPE.TOOL]: 7,
     [RESOURCE_TYPE.MATERIAL]: 8,
     [RESOURCE_TYPE.OTHER]: 9
-}
+};

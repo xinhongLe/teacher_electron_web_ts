@@ -2,7 +2,7 @@
     <div class="content-warp">
         <div class="left">
             <div class="access-system-select">
-                <el-select v-model="selectClassId" placeholder="请选择">
+                <el-select size="large" v-model="selectClassId" placeholder="请选择">
                     <el-option
                         v-for="item in homeworkDetail.classInfo"
                         :key="item.classHomeworkPaperID"
@@ -44,6 +44,9 @@
                 :questionContent="questionContent"
                 :answerContent="answerContent"
                 :type="questionType"
+                :homeworkDetail="homeworkDetail"
+                :questionList="questionList"
+                @updateQuestinInfoByQuestionID="getClassHomeworkPaperQuestionList"
             ></ReviewHomework>
         </div>
     </div>
@@ -131,7 +134,8 @@ export default defineComponent({
             answerContent,
             missionDetails,
             questionContent,
-            questionList
+            questionList,
+            getClassHomeworkPaperQuestionList
         };
     },
     components: { Chart, ReviewHomework }
@@ -145,33 +149,31 @@ export default defineComponent({
     .left {
         display: flex;
         flex-direction: column;
-        width: 314px;
+        width: 260px;
         background: #f5f6fa;
-        padding: 12px 16px;
-        padding-bottom: 0;
+        padding: 12px 16px 0 16px;
         .access-system-select {
-            width: 282px;
+            width: 100%;
             height: 40px;
-            :deep(.el-input__inner) {
-                width: 282px;
-            }
+            margin-bottom: 20px;
         }
         .access-system-chart {
-            padding: 12px 0;
-            // flex: 1;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            overflow-y: overlay;
+             flex: 1;
+             overflow-y: auto;
+            //padding: 12px 0;
+            //display: flex;
+            //flex-wrap: wrap;
+            //justify-content: space-between;
+            //overflow-y: overlay;
         }
         .access-system-toast {
-            height: 70px;
+            height: 50px;
             bottom: 0;
             left: 0;
             display: flex;
             justify-content: space-around;
             align-items: center;
-            padding: 30px 44px 20px 44px;
+            //padding: 30px 44px 20px 44px;
             div {
                 display: flex;
                 align-items: center;

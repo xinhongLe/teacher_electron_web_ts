@@ -15,7 +15,7 @@
             ></el-progress>
         </div>
     </el-dialog>
-    <el-dialog v-model="newVersionView"  width="400px" center custom-class="versionView" :show-close="false" :close-on-click-modal="false">
+    <el-dialog v-model="newVersionView"  width="400px" center class="versionView" :show-close="false" :close-on-click-modal="false">
        <div class="content">
            <img class="update-img" src="/img/pic_update@2x.png" alt="">
            <div class="title">检测到有新的版本</div>

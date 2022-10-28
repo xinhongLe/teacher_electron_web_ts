@@ -1,5 +1,5 @@
 import request from "@/utils/request";
-import { AI_XUE_SHI_API } from "@/config";
+import { AI_XUE_SHI_API, YUN_API_ONECARD } from "@/config";
 import { RequestFun } from "@/types/response";
 import {
     FetchClassHomeworkPaperListData,
@@ -12,7 +12,7 @@ import {
     StudentDetAndPageInfo,
     PageInfo,
     PointsPackage,
-    SvImgIn
+    SvImgIn, Id, ISendWrongTopicRes
 } from "@/types/homework";
 import { ChartView } from "echarts";
 import { AnyRecord } from "dns";
@@ -204,6 +204,45 @@ export const SaveYuanshiImg: RequestFun<SvImgIn, any> = (
     return request({
         baseURL: AI_XUE_SHI_API,
         url: "/API/V2/Teacher/TeacherHightPhoto/SaveYuanshiImg",
+        headers: {
+            "Content-Type": "application/json-patch+json"
+        },
+        method: "post",
+        data
+    });
+};
+
+// 查询作业是否收集过错题
+export const topicConnectionState: RequestFun<Id, any> = (data) => {
+    return request({
+        baseURL: YUN_API_ONECARD,
+        url: "/Api/ErrorTopicCollection/TopicConnectionState",
+        headers: {
+            "Content-Type": "application/json-patch+json"
+        },
+        method: "post",
+        data
+    });
+};
+
+// 发送错题收集的作业详情
+export const sendWrongTopicDetail: RequestFun<ISendWrongTopicRes, any> = (data) => {
+    return request({
+        baseURL: YUN_API_ONECARD,
+        url: "/Api/ErrorTopicCollection/SendWrongTopicDetail",
+        headers: {
+            "Content-Type": "application/json-patch+json"
+        },
+        method: "post",
+        data
+    });
+};
+
+// 介绍收集
+export const overWrongTopicCollection: RequestFun<Id, any> = (data) => {
+    return request({
+        baseURL: YUN_API_ONECARD,
+        url: "/Api/ErrorTopicCollection/OverWrongTopicCollection",
         headers: {
             "Content-Type": "application/json-patch+json"
         },

@@ -22,7 +22,7 @@
         <div class="right">
             <div class="btn" v-show="tabIndex === ClassroomType.WindowClasses && !showClassArrangement" @click="edit" :class="{disable: winList.length === 0}">
                 <el-icon :size="16" :style="{ marginRight: '4px' }"
-                    ><edit /></el-icon
+                    ><Edit /></el-icon
                 >编辑课件
             </div>
             <div class="btn exit" @click="updateShowClassArrangement(false)" v-if="showClassArrangement">

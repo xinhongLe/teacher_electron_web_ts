@@ -5,17 +5,12 @@
             <div class="form-warp">
                <el-input
                     v-model="form.studentName"
-                    prefix-icon="el-icon-search"
+                    :prefix-icon="Search"
                     placeholder="请输入要搜索的学生"
                     @keyup.enter="searchStudent(), clicKBuryPoint('搜索')"
                 >
                     <template #append>
-                        <el-button
-                            @click="
-                                searchStudent(), clicKBuryPoint('搜索')
-                            "
-                            >搜索</el-button
-                        >
+                        <el-button @click=" searchStudent(), clicKBuryPoint('搜索')">搜索</el-button>
                     </template>
                 </el-input>
             </div>
@@ -41,6 +36,7 @@ import AddStudent from "../addStudent/index.vue";
 import BulkImportDialog from "./bulkImportDialog.vue";
 import usePageEvent from "@/hooks/usePageEvent"; //埋点事件hooks
 import { EVENT_TYPE } from "@/config/event";
+import { Search } from "@element-plus/icons-vue";
 export default defineComponent({
     name: "Head",
     setup() {
@@ -100,6 +96,7 @@ export default defineComponent({
         );
 
         return {
+            Search,
             form,
             searchStudent,
             goLabel,

@@ -19,16 +19,14 @@
                             v-if="formatInBasket(currentPureQuestion)"
                             type="primary"
                             @click.stop="addQuestionBasket(currentPureQuestion)"
-                            icon="el-icon-plus"
-                            size="small"
+                            :icon="Plus"
                             >添加试题篮</el-button
                         >
                         <el-button
                             v-else
                             type="danger"
                             @click.stop="delQuestionBasket(currentPureQuestion)"
-                            icon="el-icon-minus"
-                            size="small"
+                            :icon="Minus"
                             >移出试题篮</el-button
                         >
                     </span>
@@ -45,6 +43,7 @@
 </template>
 
 <script lang="ts">
+import { Plus, Minus } from "@element-plus/icons-vue";
 import { defineComponent, nextTick, ref, computed, watch } from "vue";
 import Question from "./Question.vue";
 import useWrongBook from "@/views/wrongbook/hooks/useWrongBook";
@@ -99,6 +98,8 @@ export default defineComponent({
             delQuestionBasket,
             store,
             currentPureQuestion,
+            Plus,
+            Minus,
         };
     },
     components: { Question },

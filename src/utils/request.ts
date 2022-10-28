@@ -1,18 +1,18 @@
 import axios, { AxiosRequestConfig, AxiosRequestHeaders, Method } from "axios";
-import { ElMessage, MessageHandle } from "element-plus";
+import { ElMessage, MessageHandler } from "element-plus";
 import { clear, get, STORAGE_TYPES } from "./storage";
 import router from "@/router/index";
-import { initAllState } from "@/store";
+import { initAllState, store } from "@/store";
 import loading from "@/components/loading";
 import isElectron from "is-electron";
 import moment from "moment";
 
 const http = axios.create({
     baseURL: "/",
-    timeout: 150000
+    timeout: 150000,
 });
 
-let errMessageInstance: MessageHandle | undefined;
+let errMessageInstance: MessageHandler | undefined;
 
 http.interceptors.request.use(
     (config: AxiosRequestConfig) => {
@@ -22,7 +22,10 @@ http.interceptors.request.use(
                 ...config.headers,
                 Token: get(STORAGE_TYPES.SET_TOKEN),
                 startTime: moment().format("YYYY-MM-DD HH:mm:ss.SSS"),
-                Authorization: "Bearer" + " " + get(STORAGE_TYPES.SET_TOKEN)
+                Authorization: "Bearer" + " " + get(STORAGE_TYPES.SET_TOKEN),
+                OrgId: store.state.userInfo.schoolId
+                    ? store.state.userInfo.schoolId
+                    : get(STORAGE_TYPES.CURRENT_USER_INFO)?.schoolId,
             };
         }
         if (!config.headers?.noLoading) {
@@ -36,13 +39,15 @@ http.interceptors.request.use(
     }
 );
 
-let messageInterface: MessageHandle | null = null;
+let messageInterface: MessageHandler | null = null;
 
 http.interceptors.response.use(
     (response) => {
         if (!response.config.headers?.noLoading) loading.hide();
         const res = response.data;
-        window.electron.log.info(`request url:${response.config.url}, request resultCode: ${res.resultCode}, request resultDesc: ${res.resultDesc}, request startTime:${response?.config?.headers?.startTime}`);
+        window.electron.log.info(
+            `request url:${response.config.url}, request resultCode: ${res.resultCode}, request resultDesc: ${res.resultDesc}, request startTime:${response?.config?.headers?.startTime}`
+        );
         if (res.resultCode === 103) {
             if (!messageInterface) {
                 messageInterface = ElMessage({
@@ -51,14 +56,24 @@ http.interceptors.response.use(
                     duration: 5 * 1000,
                     onClose: () => {
                         messageInterface = null;
-                    }
+                    },
                 });
             }
             clear();
             router.push("/login");
             // 登录超时，外部系统返回登录页
-            if (window.top && window.top[0]?.location?.origin?.indexOf("yueyangyun") > -1 && !isElectron()) {
-                if (window.parent && window.parent.window && window.parent.window[0] && window.parent.window[0].location && window.parent.window[0].location.ancestorOrigins) {
+            if (
+                window.top &&
+                window.top[0]?.location?.origin?.indexOf("yueyangyun") > -1 &&
+                !isElectron()
+            ) {
+                if (
+                    window.parent &&
+                    window.parent.window &&
+                    window.parent.window[0] &&
+                    window.parent.window[0].location &&
+                    window.parent.window[0].location.ancestorOrigins
+                ) {
                     window.top.location.href = `${window.parent.window[0].location.ancestorOrigins[0]}?isReset=true`;
                 } else if (window.top && window.top.parent) {
                     window.top.location.href = `${window.top.parent}?isReset=true`;
@@ -68,11 +83,12 @@ http.interceptors.response.use(
             }
             initAllState();
         } else if (res.resultCode !== 200) {
-            res.resultDesc && ElMessage({
-                message: res.resultDesc,
-                type: "error",
-                duration: 5 * 1000
-            });
+            res.resultDesc &&
+                ElMessage({
+                    message: res.resultDesc,
+                    type: "error",
+                    duration: 5 * 1000,
+                });
         }
         return response;
     },
@@ -88,7 +104,7 @@ http.interceptors.response.use(
                 duration: 5 * 1000,
                 onClose: () => {
                     errMessageInstance = undefined;
-                }
+                },
             });
         }
         return Promise.reject(error);
@@ -99,51 +115,52 @@ interface IRequest<T> {
     baseURL: string | undefined;
     url: string;
     method: Method;
-    headers?: AxiosRequestHeaders
-    data?: T
+    headers?: AxiosRequestHeaders;
+    data?: T;
 }
 
 interface Request<T, U> {
-    options: IRequest<T>,
-    callback: (value: U | PromiseLike<U>)=> void
+    options: IRequest<T>;
+    callback: (value: U | PromiseLike<U>) => void;
 }
 
 const queueMap = new Map();
 
 class Queue<T, U> {
-    requestList: Request<T, U>[] = []
-    isRequesting = false
+    requestList: Request<T, U>[] = [];
+    isRequesting = false;
     add(data: Request<T, U>) {
         this.requestList.push(data);
         this.start();
     }
 
-     start = async () => {
-         if (this.isRequesting || this.requestList.length === 0) return;
-         this.isRequesting = true;
-         const [request] = this.requestList.splice(0, 1);
-         try {
-             const res = await http(request.options);
-             request.callback(res.data);
-         } catch (error) {
-             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-             // @ts-ignore
-             request.callback({});
-         }
+    start = async () => {
+        if (this.isRequesting || this.requestList.length === 0) return;
+        this.isRequesting = true;
+        const [request] = this.requestList.splice(0, 1);
+        try {
+            const res = await http(request.options);
+            request.callback(res.data);
+        } catch (error) {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            request.callback({});
+        }
 
-         setTimeout(() => { // 300毫秒之后才能再次执行
-             this.isRequesting = false;
-             if (this.requestList.length !== 0) {
-                 this.start();
-             } else {
-                 queueMap.delete(request.options.url);
-             }
-         }, 300);
-     }
+        setTimeout(() => {
+            // 300毫秒之后才能再次执行
+            this.isRequesting = false;
+            if (this.requestList.length !== 0) {
+                this.start();
+            } else {
+                queueMap.delete(request.options.url);
+            }
+        }, 300);
+    };
 }
 
 function request<T, U>(options: IRequest<T>): Promise<U> {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
         if (queueMap.has(options.url)) {
             const queue = queueMap.get(options.url);
             queue.add({ options, callback: resolve });

@@ -39,7 +39,9 @@ export class SocketHelper {
         })
 
         this.client.on('close', hadError => {
-            console.error('has error', hadError);
+            if (hadError) {
+                console.error('hadError: ', hadError);
+            }
             if (!this.closeSocket) {
                 this.callback.OnDisconnect();
                 this.sleep(2000).then(() => {
@@ -53,7 +55,9 @@ export class SocketHelper {
         })
 
         this.client.on('error', err => {
-            console.error(err);
+            if (err) {
+                console.error(err);
+            }
             this.client.destroy();
         })
 

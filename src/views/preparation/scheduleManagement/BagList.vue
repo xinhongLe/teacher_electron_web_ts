@@ -57,7 +57,7 @@ const delCourse = () => {
     <div class="title-bar">
         <div class="bag-list-swiper-warp" :class="{ 'no-right': !isOperator }">
             <div class="slide-btn prev" :class="{ hidden: !isShowSlideBtn, 'disable': isDisablePrev }" @click="slidePrev">
-                <i class="el-icon-arrow-left"></i>
+                <el-icon><ArrowLeft /></el-icon>
             </div>
             <div class="bag-list-warp" ref="listWarpRef">
                 <div class="bag-list-swiper" ref="swiperRef" :style="{'transform': `translateX(-${translateX}px)`}">
@@ -74,15 +74,15 @@ const delCourse = () => {
                 </div>
             </div>
             <div class="slide-btn next" :class="{ hidden: !isShowSlideBtn, 'disable': isDisableNext }" @click="slideNext">
-                <i class="el-icon-arrow-right"></i>
+                <el-icon><ArrowRight /></el-icon>
             </div>
         </div>
         <div class="icon-list-warp" v-if="selectBag?.ID && isOperator">
             <div class="icon-warp" @click="dialogVisible = true">
-                <i class="el-icon-edit-outline"></i>
+                <el-icon><Edit /></el-icon>
             </div>
             <div class="icon-warp" @click="delCourse" :class="{'disable': bagList.length === 1}">
-                <i class="el-icon-delete"></i>
+                <el-icon><Delete /></el-icon>
             </div>
         </div>
     </div>

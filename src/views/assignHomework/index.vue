@@ -14,22 +14,25 @@
                 <div class="content-wrapper">
                     <div>
                         <el-button
+                            size="large"
                             plain
-                            icon="el-icon-plus"
+                            :icon="Plus"
                             @click="commonHomeworkDialog = true"
                             >自定义作业</el-button
                         >
                         <el-button
                             plain
+                            size="large"
                             type="primary"
-                            icon="el-icon-plus"
+                            :icon="Plus"
                             @click="systemHomeworkDialog = true"
                             >在线作业</el-button
                         >
                         <el-button
                             plain
+                            size="large"
                             type="warning"
-                            icon="el-icon-plus"
+                            :icon="Plus"
                             @click="teachHomeworkDialog = true"
                             >教辅作业</el-button
                         >
@@ -74,7 +77,9 @@
             </div>
         </div>
         <footer>
-            <el-button type="primary" @click="submit">立即发送</el-button>
+            <el-button type="primary" @click="submit" size="large"
+                >立即发送</el-button
+            >
         </footer>
         <CommonHomeworkDialog
             v-model:dialogVisible="commonHomeworkDialog"
@@ -112,6 +117,7 @@ import SystemHomeworkItem from "./SystemHomeworkItem.vue";
 import TeachHomeworkDialog from "./TeachHomeworkDialog.vue";
 import TeachHomeworkItem from "./TeachHomeworkItem.vue";
 import WrongBookDialog from "./WrongBookDialog.vue";
+import { Plus } from "@element-plus/icons-vue";
 
 export default defineComponent({
     name: "AssignHomework",
@@ -217,6 +223,7 @@ export default defineComponent({
         };
 
         return {
+            Plus,
             classList,
             updateClassList,
             studentList,

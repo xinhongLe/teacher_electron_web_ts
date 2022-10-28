@@ -1,10 +1,13 @@
 import { createApp } from "vue";
 import App from "./App.vue";
 
-import "../../styles/index.scss";
 import "element-plus/dist/index.css";
+import "../../styles/index.scss";
 
 import {
+    ElForm,
+    ElFormItem,
+    ElTooltip,
     ElAvatar,
     ElIcon,
     ElButton,
@@ -25,6 +28,9 @@ import {
 } from "@element-plus/icons-vue";
 
 const components = [
+    ElForm,
+    ElFormItem,
+    ElTooltip,
     ElAvatar,
     ElIcon,
     ElButton,

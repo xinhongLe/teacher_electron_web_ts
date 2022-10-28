@@ -55,7 +55,7 @@
         </div>
 
         <el-dialog
-            custom-class="custom-dialog"
+            class="custom-dialog"
             v-model="setbookSelectOpen"
             center
             title="书册筛选"

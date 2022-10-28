@@ -83,7 +83,6 @@
                     "
                 >
                     <el-button
-                        size="small"
                         @click="preNextQuestion(0)"
                         :disabled="state.questionIndex == 1"
                         >上一题</el-button
@@ -93,7 +92,6 @@
                         >/<span>{{ state.errorHistoryList?.length }}</span>
                     </div>
                     <el-button
-                        size="small"
                         @click="preNextQuestion(1)"
                         :disabled="
                             state.questionIndex ==

@@ -26,9 +26,9 @@
                         {{ item.Name }}
                     </div>
                 </div>
-                <div class="me-page-step">
-                    <div @click="prevCard"><i class="el-icon-arrow-left"></i>上一页</div>
-                    <div @click="nextCard">下一页<i class="el-icon-arrow-right"></i></div>
+                <div class="me-page-step flex-align-items">
+                    <div @click="prevCard"><el-icon><ArrowLeft /></el-icon>上一页</div>
+                    <div @click="nextCard">下一页<el-icon><ArrowRight /></el-icon></div>
                 </div>
             </div>
         </div>

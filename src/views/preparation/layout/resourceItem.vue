@@ -1,54 +1,105 @@
 <template>
     <div
         class="p-resource-item"
-        :class="{ 'resource-courseware': data.ResourceType === RESOURCE_TYPE.COURSEWARD && data.IsSysFile === 1, hover: hover }"
+        :class="{
+            'resource-courseware':
+                data.ResourceType === RESOURCE_TYPE.COURSEWARD &&
+                data.IsSysFile === 1,
+            hover: hover,
+        }"
         @click="handleCommand('detail')"
     >
-        <div class="p-resource-mark" v-if="data.IsMine === 1 && data.IsSchool !== 1">我的</div>
-        <div class="p-resource-school-mark" v-if="data.IsSchool === 1">校本</div>
+        <div
+            class="p-resource-mark"
+            v-if="data.IsMine === 1 && data.IsSchool !== 1"
+        >
+            我的
+        </div>
+        <div class="p-resource-school-mark" v-if="data.IsSchool === 1">
+            校本
+        </div>
         <div class="p-resource-top">
             <div class="resource-icon">
-                <img :src="data.IsSysFile === 1 ? iconResources.selfStudy[data.ResourceType] : iconResources.other[data.ResourceType]" alt="" />
+                <img
+                    :src="
+                        data.IsSysFile === 1
+                            ? iconResources.selfStudy[data.ResourceType]
+                            : iconResources.other[data.ResourceType]
+                    "
+                    alt=""
+                />
             </div>
             <div class="resource-content">
                 <div class="resource-title">
-                    {{data.Name}}
-                    <img class="resource-format" v-if="data.File" :src="formatImg" />
+                    {{ data.Name }}
+                    <img
+                        class="resource-format"
+                        v-if="data.File"
+                        :src="formatImg"
+                    />
                 </div>
                 <div class="resource-message">
                     <img
                         src="@/assets/images/preparation/icon_gengxin.png"
                         alt=""
                     />
-                    &nbsp;&nbsp;更新时间：{{dealTime(data.DateTime || data.CreateTime)}}
+                    &nbsp;&nbsp;更新时间：{{
+                        dealTime(data.DateTime || data.CreateTime)
+                    }}
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     <img
                         src="@/assets/images/preparation/icon_download.png"
                         alt=""
                     />
-                    &nbsp;&nbsp;下载次数：{{data.DownloadNum}} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    &nbsp;&nbsp;下载次数：{{ data.DownloadNum }}
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     <img
                         src="@/assets/images/preparation/icon_liulan_grey.png"
                         alt=""
                     />
-                    &nbsp;&nbsp;浏览：{{data.BrowseNum}} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    &nbsp;&nbsp;浏览：{{ data.BrowseNum }}
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     <img
                         src="@/assets/images/preparation/icon_zhinanzhen.png"
                         alt=""
                     />
-                    &nbsp;&nbsp;来源：{{data.Source}} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    &nbsp;&nbsp;来源：{{ data.Source }}
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 </div>
                 <div class="resource-classify">
-                    <img src="@/assets/images/preparation/icon_mulu.png" alt="" />
-                    所属目录：{{directoryName}}
+                    <img
+                        src="@/assets/images/preparation/icon_mulu.png"
+                        alt=""
+                    />
+                    所属目录：{{ directoryName }}
                 </div>
             </div>
             <div class="resource-control">
                 <div class="resource-control-up">
-                    <div class="resource-degree" :class="['', 'difficult', 'middle', ''][data.Degree]">{{["", "高", "中", "易"][data.Degree]}}</div>
-                    <div class="resource-type" :class="typeResources[data.ResourceType] < 9 && 'p-r-' + typeResources[data.ResourceType]">{{textResources[data.ResourceType]}}</div>
+                    <div
+                        class="resource-degree"
+                        v-if="RESOURCE_TYPE.TOOL !== data.ResourceType"
+                        :class="['', 'difficult', 'middle', ''][data.Degree]"
+                    >
+                        {{ ["", "高", "中", "易"][data.Degree] }}
+                    </div>
+                    <div
+                        class="resource-type"
+                        :class="
+                            typeResources[data.ResourceType] < 9 &&
+                            'p-r-' + typeResources[data.ResourceType]
+                        "
+                    >
+                        {{ textResources[data.ResourceType] }}
+                    </div>
                     <el-dropdown
-                        v-if="btns && name !== 'attendClass' && name !== 'preview' && (data.ResourceShowType === 0 || (data.ResourceShowType === 1 && isMySelf))"
+                        v-if="
+                            btns &&
+                            name !== 'attendClass' &&
+                            name !== 'preview' &&
+                            (data.ResourceShowType === 0 ||
+                                (data.ResourceShowType === 1 && isMySelf))
+                        "
                         trigger="click"
                         placement="bottom"
                         @command="handleCommand"
@@ -58,7 +109,10 @@
                         </div>
                         <template #dropdown>
                             <el-dropdown-menu>
-                                <el-dropdown-item command="version" v-if="data.ResourceShowType === 0">
+                                <el-dropdown-item
+                                    command="version"
+                                    v-if="data.ResourceShowType === 0"
+                                >
                                     <div class="dropdown-item">
                                         <img
                                             src="@/assets/images/preparation/icon_bbjl_blue.png"
@@ -67,7 +121,10 @@
                                         &nbsp;&nbsp;版本记录
                                     </div>
                                 </el-dropdown-item>
-                                <el-dropdown-item command="delete" v-if="isMySelf">
+                                <el-dropdown-item
+                                    command="delete"
+                                    v-if="isMySelf"
+                                >
                                     <div class="dropdown-item delete">
                                         <img
                                             src="@/assets/images/preparation/icon_delete.png"
@@ -80,41 +137,104 @@
                         </template>
                     </el-dropdown>
                 </div>
-                <div class="p-resource-bottom no-border" v-if="!hover && btns && name !== 'attendClass' && name !== 'preview'">
-                    <el-button class="p-control-btn" size="small" @click.stop="handleCommand('download')" v-if="canDownload">
-                        <img src="@/assets/images/preparation/icon_download_white.png" alt="">
+                <div
+                    class="p-resource-bottom no-border"
+                    v-if="
+                        !hover &&
+                        btns &&
+                        name !== 'attendClass' &&
+                        name !== 'preview'
+                    "
+                >
+                    <el-button
+                        class="p-control-btn"
+                        @click.stop="handleCommand('download')"
+                        v-if="
+                            canDownload &&
+                            RESOURCE_TYPE.TOOL !== data.ResourceType
+                        "
+                    >
+                        <img
+                            src="@/assets/images/preparation/icon_download_white.png"
+                            alt=""
+                        />
                         下载
                     </el-button>
-                    <el-button class="p-control-btn" size="small" @click.stop="handleCommand('edit')" v-if="canEdit">
-                        <img src="@/assets/images/preparation/icon_bianji.png" alt="">
+                    <el-button
+                        class="p-control-btn"
+                        @click.stop="handleCommand('edit')"
+                        v-if="
+                            canEdit && RESOURCE_TYPE.TOOL !== data.ResourceType
+                        "
+                    >
+                        <img
+                            src="@/assets/images/preparation/icon_bianji.png"
+                            alt=""
+                        />
                         编辑
                     </el-button>
-                    <el-button class="p-control-btn p-move" size="small" v-if="data.IsBag" @click.stop="handleCommand('move')">
-                        <img src="@/assets/images/preparation/icon_yichu.png" alt="">
+                    <el-button
+                        class="p-control-btn p-move"
+                        v-if="data.IsBag"
+                        @click.stop="handleCommand('move')"
+                    >
+                        <img
+                            src="@/assets/images/preparation/icon_yichu.png"
+                            alt=""
+                        />
                         移出备课包
                     </el-button>
-                    <el-button class="p-control-btn p-add" size="small" v-if="!data.IsBag" @click.stop="handleCommand('add')">
-                        <img src="@/assets/images/preparation/icon_add.png" alt="">
+                    <el-button
+                        class="p-control-btn p-add"
+                        v-if="!data.IsBag"
+                        @click.stop="handleCommand('add')"
+                    >
+                        <img
+                            src="@/assets/images/preparation/icon_add.png"
+                            alt=""
+                        />
                         加入备课包
                     </el-button>
                 </div>
             </div>
         </div>
-        <div class="p-resource-bottom" v-if="hover && btns && name !== 'attendClass' && name !== 'preview'">
-            <el-button class="p-control-btn" size="small" @click.stop="handleCommand('download')" v-if="canDownload">
-                <img src="@/assets/images/preparation/icon_download_white.png" alt="">
+        <div
+            class="p-resource-bottom"
+            v-if="hover && btns && name !== 'attendClass' && name !== 'preview'"
+        >
+            <el-button
+                class="p-control-btn"
+                @click.stop="handleCommand('download')"
+                v-if="canDownload && RESOURCE_TYPE.TOOL !== data.ResourceType"
+            >
+                <img
+                    src="@/assets/images/preparation/icon_download_white.png"
+                    alt=""
+                />
                 下载
             </el-button>
-            <el-button class="p-control-btn" size="small" @click.stop="handleCommand('edit')" v-if="canEdit">
-                <img src="@/assets/images/preparation/icon_bianji.png" alt="">
+            <el-button
+                class="p-control-btn"
+                @click.stop="handleCommand('edit')"
+                v-if="canEdit && RESOURCE_TYPE.TOOL !== data.ResourceType"
+            >
+                <img src="@/assets/images/preparation/icon_bianji.png" alt="" />
                 编辑
             </el-button>
-            <el-button class="p-control-btn p-move" size="small" v-if="data.IsBag" @click.stop="handleCommand('move')">
-                <img src="@/assets/images/preparation/icon_yichu.png" alt="">
+            <el-button
+                class="p-control-btn p-move"
+                v-if="data.IsBag"
+                @click.stop="handleCommand('move')"
+            >
+                <img src="@/assets/images/preparation/icon_yichu.png" alt="" />
                 移出备课包
             </el-button>
-            <el-button class="p-control-btn p-add" size="small" v-if="!data.IsBag" @click.stop="$event => handleCommand('add', $event)">
-                <img src="@/assets/images/preparation/icon_add.png" alt="">
+            <el-button
+                class="p-control-btn p-add"
+                v-if="!data.IsBag"
+                @click.stop="($event) => handleCommand('add', $event)"
+            >
+                <img src="@/assets/images/preparation/icon_add.png" alt="" />
                 加入备课包
             </el-button>
         </div>
@@ -124,40 +244,47 @@
 <script lang="ts">
 import { computed, defineComponent, PropType } from "vue";
 import { Refresh, MoreFilled } from "@element-plus/icons-vue";
-import { iconResources, textResources, typeResources } from "@/config/resource";
+import {
+    iconResources,
+    textResources,
+    typeResources,
+    RESOURCE_TYPE,
+} from "@/config/resource";
 import { IResourceItem } from "@/api/resource";
 import moment from "moment";
 import { useStore } from "@/store";
-import { RESOURCE_TYPE } from "@/config/resource";
 export default defineComponent({
     components: { Refresh, MoreFilled },
     props: {
         data: {
             type: Object as PropType<IResourceItem>,
-            required: true
+            required: true,
         },
         hover: {
             type: Boolean,
-            default: true
+            default: true,
         },
         btns: {
             type: Boolean,
-            default: true
+            default: true,
         },
         lessonId: {
             type: String,
-            required: true
+            required: true,
         },
         name: {
-			type: String,
-			default: ""
-		}
+            type: String,
+            default: "",
+        },
     },
     emits: ["eventEmit"],
     setup(props, { emit }) {
         const store = useStore();
 
-        const handleCommand = (command: string, event?: MouseEvent | TouchEvent) => {
+        const handleCommand = (
+            command: string,
+            event?: MouseEvent | TouchEvent
+        ) => {
             if (!props.hover && command === "detail") return;
             emit("eventEmit", command, props.data, event);
         };
@@ -167,38 +294,54 @@ export default defineComponent({
         };
 
         // 是否是我的
-        const isMySelf = computed(() => props.data.UserId === store.state.userInfo.userCenterUserID);
+        const isMySelf = computed(
+            () => props.data.UserId === store.state.userInfo.userCenterUserID
+        );
 
-        const canEdit = computed(() => [2, 3, 4, 5].indexOf(props.data.ResourceShowType) === -1);
+        const canEdit = computed(
+            () => [2, 3, 4, 5].indexOf(props.data.ResourceShowType) === -1
+        );
 
-        const canDownload = computed(() => [2, 3, 4, 5].indexOf(props.data.ResourceShowType) === -1);
+        const canDownload = computed(
+            () => [2, 3, 4, 5].indexOf(props.data.ResourceShowType) === -1
+        );
 
         const formatImgs: { [key: string]: any } = {
-            "xlsx": require("@/assets/projection/format/icon_execl@2x.png"),
-            "xls": require("@/assets/projection/format/icon_execl@2x.png"),
-            "ppt": require("@/assets/projection/format/icon_ppt@2x.png"),
-            "pptx": require("@/assets/projection/format/icon_ppt@2x.png"),
-            "doc": require("@/assets/projection/format/icon_word@2x.png"),
-            "docx": require("@/assets/projection/format/icon_word@2x.png"),
-            "pdf": require("@/assets/projection/format/icon_pdf@2x.png"),
-            "gif": require("@/assets/projection/format/icon_pic@2x.png"),
-            "png": require("@/assets/projection/format/icon_pic@2x.png"),
-            "jpg": require("@/assets/projection/format/icon_pic@2x.png"),
-            "jpeg": require("@/assets/projection/format/icon_pic@2x.png"),
-            "mp3": require("@/assets/projection/format/icon_music@2x.png"),
-            "wav": require("@/assets/projection/format/icon_music@2x.png"),
-            "mp4": require("@/assets/projection/format/icon_shipin@2x.png"),
-            "other": require("@/assets/projection/format/icon_other@2x.png")
+            xlsx: require("@/assets/projection/format/icon_execl@2x.png"),
+            xls: require("@/assets/projection/format/icon_execl@2x.png"),
+            ppt: require("@/assets/projection/format/icon_ppt@2x.png"),
+            pptx: require("@/assets/projection/format/icon_ppt@2x.png"),
+            doc: require("@/assets/projection/format/icon_word@2x.png"),
+            docx: require("@/assets/projection/format/icon_word@2x.png"),
+            pdf: require("@/assets/projection/format/icon_pdf@2x.png"),
+            gif: require("@/assets/projection/format/icon_pic@2x.png"),
+            png: require("@/assets/projection/format/icon_pic@2x.png"),
+            jpg: require("@/assets/projection/format/icon_pic@2x.png"),
+            jpeg: require("@/assets/projection/format/icon_pic@2x.png"),
+            mp3: require("@/assets/projection/format/icon_music@2x.png"),
+            wav: require("@/assets/projection/format/icon_music@2x.png"),
+            mp4: require("@/assets/projection/format/icon_shipin@2x.png"),
+            other: require("@/assets/projection/format/icon_other@2x.png"),
         };
 
-        const formatImg = computed(() => formatImgs[props.data.File?.FileExtention || "other"]);
+        const formatImg = computed(
+            () => formatImgs[props.data.File?.FileExtention || "other"]
+        );
 
-        const directoryName = computed(() =>  {
+        const directoryName = computed(() => {
             if (!props.data.TextBooks) return "--";
-            const book = props.data.TextBooks.find(item =>  {
+            const book = props.data.TextBooks.find((item) => {
                 return props.lessonId === item.LessonID || !item.LessonID;
             });
-            return book ? book.SubjectName + " / " + book.PublisherName + " / " + book.AlbumName + (book.ChapterName ? " / " + book.ChapterName : "") + (book.LessonName ? " / " + book.LessonName : "") : "--";
+            return book
+                ? book.SubjectName +
+                      " / " +
+                      book.PublisherName +
+                      " / " +
+                      book.AlbumName +
+                      (book.ChapterName ? " / " + book.ChapterName : "") +
+                      (book.LessonName ? " / " + book.LessonName : "")
+                : "--";
         });
 
         return {
@@ -212,9 +355,9 @@ export default defineComponent({
             canEdit,
             canDownload,
             formatImg,
-            RESOURCE_TYPE
+            RESOURCE_TYPE,
         };
-    }
+    },
 });
 </script>
 
@@ -257,7 +400,7 @@ export default defineComponent({
         position: absolute;
         bottom: 20px;
         left: -8px;
-        color: #4B71EE;
+        color: #4b71ee;
         font-size: 12px;
     }
     .p-resource-school-mark {
@@ -268,7 +411,7 @@ export default defineComponent({
         position: absolute;
         bottom: 20px;
         left: -8px;
-        color: #F98A33;
+        color: #f98a33;
         font-size: 12px;
     }
     &.resource-courseware {
@@ -409,7 +552,7 @@ export default defineComponent({
 .dropdown-item {
     display: flex;
     align-items: center;
-    color: #486DE5;
+    color: #486de5;
     &.delete {
         color: var(--app-color-red);
         &.is-disabled {
@@ -422,23 +565,24 @@ export default defineComponent({
 }
 
 .p-control-btn {
-    background: rgba(75, 113, 238, .1);
-    color: #486DE5;
+    background: rgba(75, 113, 238, 0.1);
+    color: #486de5;
     border: none;
     &:hover {
         opacity: 0.6;
     }
     &.p-move {
-        background: rgba(241, 45, 25, .1);
-        color: #F12D19;
+        background: rgba(241, 45, 25, 0.1);
+        color: #f12d19;
     }
     &.p-add {
-        background: #4B71EE;
+        background: #4b71ee;
         color: #fff;
     }
     :deep(span) {
         display: flex;
         align-items: center;
+        font-size: 12px;
         img {
             display: block;
             margin-right: 3px;

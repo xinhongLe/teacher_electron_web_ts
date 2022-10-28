@@ -61,7 +61,7 @@ const useLogout = () => {
                     <div class="avatar-wrapper">
                         <img src="./img/avator_small.svg" />
                         <span class="name">{{ name || "匿名" }}</span>
-                        <i class="el-icon-caret-bottom icon" />
+                        <el-icon class="icon"><CaretBottom /></el-icon>
                     </div>
                 </template>
                 <el-menu-item index="user-info" class="nav-user-info-box">

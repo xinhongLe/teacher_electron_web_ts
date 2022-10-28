@@ -1,6 +1,6 @@
 <template>
     <el-dialog
-        custom-class="custom-dialog"
+        class="custom-dialog"
         center
         title="删除资源"
         width="450px"

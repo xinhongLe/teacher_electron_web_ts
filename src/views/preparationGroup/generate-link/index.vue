@@ -13,14 +13,14 @@
         <div class="dialog-teachinfo auto">{{ currentItem.CreaterName }}邀请您参加集体备课</div>
         <div class="dialog-timeinfo auto">创建时间：{{ moment(currentItem.CreateTime).format("YYYY-MM-DD HH:mm:ss") }}</div>
         <div class="dialog-linkinfo auto">
-            <span class="icon"><i class="el-icon-paperclip"></i></span>
+            <span class="icon"><el-icon><Paperclip /></el-icon></span>
             <span class="link ellipsis">{{ `${url}` }}</span>
         </div>
         <div class="dialog-tipinfo auto">请用电脑端登陆【爱学仕】系统，再点击以上链接加入集体备课</div>
         <template #footer>
             <span class="dialog-footer">
                 <el-button style="background-color:#48DBBF;color:#fff;border: none;" v-if="isCopy" @click="dialogVisible = false">复制成功</el-button>
-                <el-button style="background-color:#4B71EE;color:#fff;border: none;" icon="el-icon-copy-document" @click="copyText" v-else>复制邀请链接</el-button>
+                <el-button style="background-color:#4B71EE;color:#fff;border: none;" :icon="CopyDocument" @click="copyText" v-else>复制邀请链接</el-button>
             </span>
         </template>
     </el-dialog>
@@ -28,6 +28,7 @@
 <script>
 import { defineComponent, ref, watch } from "vue";
 import { makeInviteeLink } from "../api";
+import { CopyDocument } from "@element-plus/icons-vue";
 import moment from "moment";
 export default defineComponent({
     props: {
@@ -85,6 +86,7 @@ export default defineComponent({
             deep: true
         });
         return {
+            CopyDocument,
             dialogVisible,
             isCopy,
             origin,

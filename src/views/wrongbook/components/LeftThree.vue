@@ -2,7 +2,6 @@
     <div class="leftthree" v-loading="state.loading">
         <el-cascader
             v-if="props.currentWrongType == 3"
-            size="small"
             style="width: 100%"
             v-model="state.currentBookId"
             :props="cascaderProps"
@@ -188,17 +187,17 @@ const queryLeftMeunByChapter = async (params: LeftMenuParams) => {
     if (res.resultCode === 200) {
         state.loading = false;
         state.treeData = res.result;
-        const lessonId = state.treeData?.length
+        const chapterId = state.treeData?.length
             ? state.treeData[0].ChapterId
             : "";
-        selectedID.value = lessonId;
+        selectedID.value = chapterId;
         const name = state.treeData[0].ChapterName || "";
         // store.state.wrongbook.currentPaperName = name;
         emitter.emit("errorBookEmit", {
             name,
             wrongType: props.currentWrongType,
-            lessonId: lessonId,
-            chapterId: "",
+            lessonId: "",
+            chapterId: chapterId,
             bookId: form.value.BookId,
             ...props.parentSearch,
         });

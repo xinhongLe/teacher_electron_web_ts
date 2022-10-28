@@ -5,6 +5,8 @@
             :index="index"
             :key="item.resource.id"
             :is="viewComponents[item.component]"
+            :lessonId="item.resource.lessonId"
+            :fixed="true"
             :resource="item.resource"
         />
 
@@ -30,6 +32,7 @@ import LookQuestion from "@/components/lookQuestion/index.vue";
 import LookVideo from "@/components/lookVideo/index.vue";
 import ScreenViewFile from "./screenViewFile.vue";
 import Wincard from "./wincard.vue";
+import AnswerMachine from "@/components/answerMachine/index.vue";
 import { useStore } from "@/store";
 
 const viewComponents = {
@@ -37,6 +40,7 @@ const viewComponents = {
     LookVideo: LookVideo,
     ScreenViewFile: ScreenViewFile,
     Wincard: Wincard,
+    AnswerMachine: AnswerMachine
 };
 
 const store = useStore();

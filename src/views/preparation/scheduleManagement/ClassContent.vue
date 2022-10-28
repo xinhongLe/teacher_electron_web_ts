@@ -1,16 +1,16 @@
 <template>
     <div class="class-content">
         <div class="btn-list" ref="btnListRef" v-if="isOperator">
-            <p @click="move">
-                <i class="el-icon-rank"></i>
+            <p @click="move" class="flex-align-items">
+                <el-icon><Rank /></el-icon>
                 <span>移动</span>
             </p>
-            <p @click="copy">
-                <i class="el-icon-document-copy"></i>
+            <p @click="copy" class="flex-align-items">
+                <el-icon><DocumentCopy /></el-icon>
                 <span>复制</span>
             </p>
-            <p @click="exit">
-                <i class="el-icon-circle-close"></i>
+            <p @click="exit" class="flex-align-items">
+                <el-icon><CircleClose /></el-icon>
                 <span>取消</span>
             </p>
         </div>

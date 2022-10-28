@@ -25,8 +25,8 @@
                         <div class="ali-header-more" v-if="isHasRule(item)" @click.stop="changeEditBoxSwtich(index)">
                             <img src="@/assets/preparationGroup/icon_more.png" alt="">
                             <div class="ahm-edit" v-if="editBoxSwtich === index">
-                                <div @click.stop="edit(index, 0, item)"><i class="el-icon-edit"></i>编辑</div>
-                                <div @click.stop="del(item)"><i class="el-icon-delete"></i>删除</div>
+                                <div class="flex-align-items" @click.stop="edit(index, 0, item)"><el-icon><Edit /></el-icon>编辑</div>
+                                <div class="flex-align-items" @click.stop="del(item)"><el-icon><Delete /></el-icon>删除</div>
                             </div>
                         </div>
                     </div>

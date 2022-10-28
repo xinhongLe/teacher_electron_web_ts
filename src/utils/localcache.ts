@@ -24,12 +24,12 @@ import { getOssUrl } from './oss';
 export interface CacheCallback {
     cachingStatus(status: number): void
 }
-
-let isFail = false;
-
 export default class LocalCache {
 
     private readonly cacheCallback: CacheCallback;
+
+    private isFail = false;
+    private isEnd = false;
 
     constructor(cacheCallback: CacheCallback) {
         this.cacheCallback = cacheCallback;
@@ -85,6 +85,7 @@ export default class LocalCache {
 
     private async cacheSlide(slide: Slide) {
         let cacheFiles = [];
+        if (this.isEnd) return [];
         // 背景图片资源
         if (slide.background && slide.background.image) {
             cacheFiles.push(await this.cacheFile(slide.background.image));
@@ -152,14 +153,15 @@ export default class LocalCache {
 
     async dealPauseVideo(slide: Slide, fail: () => void) {
         for (const element of slide.elements) {
+            if (this.isEnd) break;
             if (element.type === "video" && element.fileID) {
                 const res = await getVideoQuoteInfo({ FileIDs: [element.fileID] });
-                if (!res.success) isFail = true;
+                if (!res.success) this.isFail = true;
                 if (res.resultCode === 200 && res.result.length > 0) {
                     element.src = res.result[0].File.FilePath + "/" + res.result[0].File.FileName + "." + res.result[0].File.Extention;
                     element.pauseList = res.result[0].Pauses;
                 }
-                if (isFail) {
+                if (this.isFail) {
                     fail();
                     break;
                 }
@@ -169,6 +171,7 @@ export default class LocalCache {
     };
 
     async getElementWinCards(element: any, originType: number, winpages: Array<{ id: string, result: string }>, slides: Array<Slide>, fail: () => void) {
+        if (this.isEnd) return;
         if (element.wins) {
             for (let win of element.wins) {
                 const cards = win.cards;
@@ -198,6 +201,7 @@ export default class LocalCache {
     }
 
     async getPageSlide(page: any, originType: number, pages: Array<{ id: string, result: string }>, slides: Array<Slide>, fail: () => void) {
+        if (this.isEnd) return;
         let res = await this.getPageDetail(page, originType);
         if (!res) {
             return;
@@ -233,11 +237,16 @@ export default class LocalCache {
         }
     }
 
-    async doCache(winInfo: IGetWindowCards, cacheFileName: string, path: string, fail: () => void) {
-        isFail = false;
-        this.cacheCallback?.cachingStatus(0);
+    async cancel() {
+        this.isEnd = true;
+    }
 
+    async doCache(winInfo: IGetWindowCards, cacheFileName: string, path: string, fail: () => void) {
+        this.isFail = false;
+        this.isEnd = false;
+        this.cacheCallback?.cachingStatus(0);
         const res = (await getWindowCards(winInfo));
+        if (this.isEnd) return;
         if (res.success) {
             let cards = res.result;
             let pages: Array<{ id: string, result: string }> = [];
@@ -257,21 +266,27 @@ export default class LocalCache {
                     current++;
                     await this.getPageSlide(page, winInfo.OriginType!, pages, slides, () => {
                         fail();
-                        isFail = true;
+                        this.isFail = true;
                     });
-                    if (isFail) break;
+                    if (this.isFail) break;
+                    if (this.isEnd) break;
                     this.cacheCallback?.cachingStatus(parseInt(((30 / total) * (current)).toFixed(0)));
                 }
             }
 
-            if (isFail) return fail();
+            if (this.isEnd) return;
+
+            if (this.isFail) return fail();
 
             this.cacheCallback?.cachingStatus(30);
 
             for (let i = 0; i < slides.length; i++) {
                 cacheFiles = [...cacheFiles, ...await this.cacheSlide(slides[i])];
                 this.cacheCallback?.cachingStatus(30 + parseInt(((69 / slides.length) * (i + 1)).toFixed(0)));
+                if (this.isEnd) break;
             }
+
+            if (this.isEnd) return;
 
             this.cacheCallback?.cachingStatus(99);
 
@@ -287,6 +302,8 @@ export default class LocalCache {
             }
 
             let fileName = await window.electron.packCacheFiles(cacheData, path);
+
+            if (this.isEnd) return;
 
             this.cacheCallback?.cachingStatus(100);
             // 清空数组

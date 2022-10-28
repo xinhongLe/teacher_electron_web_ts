@@ -42,6 +42,8 @@ export default () => {
                 const { ClassID } = item;
                 homeworkListMap.value[ClassID] ? homeworkListMap.value[ClassID].push(item) : (homeworkListMap.value[ClassID] = [item]);
             });
+            console.log(detailList, "----");
+            console.log(homeworkListMap.value, "----");
         }
     };
 
@@ -73,6 +75,7 @@ export default () => {
 
     const initData = () => {
         const userInfo = get(STORAGE_TYPES.USER_INFO);
+        console.log(userInfo, "userInfo");
         subjectList.value = (userInfo.Subjects as LessonSubject[]).filter(
             ({ Name }) => Name !== "拼音"
         );
@@ -84,10 +87,11 @@ export default () => {
     };
 
     onActivated(() => {
-        if (!router.currentRoute.value.meta.isBack) {
-            initData();
-        }
-        router.currentRoute.value.meta.isBack = false;
+        initData();
+        // if (!router.currentRoute.value.meta.isBack) {
+        //     initData();
+        // }
+        // router.currentRoute.value.meta.isBack = false;
     });
 
     return {

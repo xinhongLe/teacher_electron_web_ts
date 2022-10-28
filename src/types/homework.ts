@@ -1,5 +1,6 @@
 import { int } from "@zxing/library/esm/customTypings";
 import { FileInfo } from "./lookQuestion";
+import {sendWrongTopicDetail} from "@/views/homework/api";
 
 export interface FetchHomeworkDateByYearData {
     subjectID: string;
@@ -36,6 +37,7 @@ export interface Homework {
     ChapterName: string;
     ClassHomeworkID: string;
     ClassHomeworkPaperID: string;
+    classHomeworkPaperID?: string;
     ClassID: string;
     ClassName: string;
     ClassifyType: number;
@@ -66,6 +68,7 @@ export interface Homework {
     VideoID: string;
     WrongCount: number;
     AnswerShowTime?: string;
+    showPublish?: boolean | undefined;
 }
 
 export interface MissionDetail {
@@ -178,4 +181,18 @@ export interface BatchCheckUpdateIn{
 export interface SvImgIn{
     MissionID: string;
     Base64Img: string;
+}
+
+export interface Id {
+    Id: string
+}
+
+export interface ISendWrongTopicRes{
+    ClassHomeworkPaperID:string,
+    SubjectId:string,
+    SubjectName:string,
+    ClassId:string,
+    ClassName:string,
+    TotalCount:number,
+    StudentIds:string[],
 }

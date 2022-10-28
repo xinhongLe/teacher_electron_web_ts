@@ -52,9 +52,38 @@
             </div>
 
             <div class="header-right">
+                <!-- 题型 -->
+                <el-select
+                    style="width: 140px; margin-right: 16px"
+                    v-model="state.QuestionType"
+                >
+                    <el-option
+                        v-for="item in questionTypeList"
+                        :label="item.Name"
+                        :value="item.ID"
+                        :key="item.ID"
+                    >
+                    </el-option>
+                </el-select>
+                <!-- 频次 -->
+                <el-select
+                    v-if="
+                        state.currentWrongType == 3 ||
+                        state.currentWrongType == 4
+                    "
+                    style="width: 140px; margin-right: 16px"
+                    v-model="state.Frequency"
+                >
+                    <el-option
+                        v-for="item in frequencyList"
+                        :label="item.name"
+                        :value="item.value"
+                        :key="item.value"
+                    >
+                    </el-option>
+                </el-select>
                 <el-button-group style="margin-right: 16px">
                     <el-button
-                        size="small"
                         @click="
                             toFormatDate(item.id);
                             state.currentDateIndex = item.id;
@@ -66,15 +95,14 @@
                         }"
                         >{{ item.name }}</el-button
                     >
-                    <!-- <el-button size="small" @click="toFormatDate(1)"
+                    <!-- <el-button  @click="toFormatDate(1)"
                         >今日</el-button
                     >
-                    <el-button size="small" @click="toFormatDate(3)"
+                    <el-button  @click="toFormatDate(3)"
                         >本周</el-button
                     > -->
                 </el-button-group>
                 <el-date-picker
-                    size="small"
                     style="width: 225px"
                     v-model="state.dateRange"
                     type="daterange"
@@ -90,7 +118,6 @@
             <header class="top-search">
                 <div class="left-btn">
                     <el-button
-                        size="small"
                         v-for="item in state.wrongTypeButtonList"
                         :key="item.id"
                         @click="
@@ -109,7 +136,6 @@
                         v-if="state.currentWrongType == 1"
                     >
                         <el-select
-                            size="small"
                             style="width: 170px"
                             v-model="questionTagType"
                             @change="changeTagType"
@@ -126,8 +152,7 @@
 
                     <!-- 题型 -->
                     <el-select
-                        size="small"
-                        style="width: 140px; margin-right: 16px"
+                        style="width: 140px"
                         v-model="state.QuestionType"
                     >
                         <el-option
@@ -144,8 +169,7 @@
                             state.currentWrongType == 3 ||
                             state.currentWrongType == 4
                         "
-                        size="small"
-                        style="width: 140px"
+                        style="width: 140px; margin-left: 16px"
                         v-model="state.Frequency"
                     >
                         <el-option
@@ -233,7 +257,7 @@
                                     <span>
                                         {{ item.name }}
                                     </span>
-                                  
+
                                 </p>
                             </div>
                         </div>
@@ -336,6 +360,7 @@
     </div>
     <QuestionBasket
         v-if="state.isShowContent != 3"
+        :gradeName="state.gradeName"
         @basketGenerateExercise="basketGenerateExercise"
         v-model:isShowContent="state.isShowContent"
     />
@@ -516,6 +541,14 @@ const sortData = ref({
     currentSortType: 2,
     //当前选择的排序字段
     currentSortCon: 1,
+});
+const sortDataName = ref({
+    //当前选择的分层登记
+    currentLevelName: "",
+    //题目类型
+    currentSortTypeName: "正序",
+    //当前选择的排序字段
+    currentSortConName: "平均错误率",
 });
 console.log("错题本页面.......");
 watch(
@@ -791,12 +824,15 @@ const onBackWrongBook = () => {
         }
 
         .header-right {
-            flex: 1;
+            // flex: 1;
             display: flex;
             justify-content: flex-end;
             :deep(.el-button:focus, .el-button:hover),
             :deep(.el-button-group) {
-                .el-button--small.dateActive {
+                span {
+                    font-size: 12px;
+                }
+                .el-button.dateActive {
                     background-color: #f3f7ff;
                     border: 1px solid rgba(75, 113, 238, 0.5);
                     color: #4b71ee;
@@ -819,7 +855,7 @@ const onBackWrongBook = () => {
             padding: 0 16px;
 
             .left-btn {
-                :deep(.el-button--small) {
+                :deep(.el-button) {
                     min-width: 88px;
                     background: #f3f7ff;
                     border-radius: 4px;
@@ -829,7 +865,7 @@ const onBackWrongBook = () => {
                     font-size: 13px;
                 }
 
-                :deep(.el-button--small.isActive) {
+                :deep(.el-button.isActive) {
                     color: #4b71ee;
                     border: 1px solid rgba(75, 113, 238, 0.5);
                 }
@@ -842,8 +878,13 @@ const onBackWrongBook = () => {
             .right-sel {
                 .tagtypelist {
                     margin-left: 20px;
-                    :deep(.el-select .el-input__inner) {
-                        border: none;
+                    :deep(.el-select .el-input) {
+                        box-shadow: none;
+
+                        .el-input__wrapper,
+                        .el-input.is-focus {
+                            box-shadow: none !important;
+                        }
                     }
                 }
             }

@@ -1,7 +1,7 @@
 <template>
     <div>
         <el-dialog
-            custom-class="custom-dialog resource1-dialog"
+            class="custom-dialog resource1-dialog"
             v-model="visible"
             title="教案设计"
             width="1100px"
@@ -104,7 +104,7 @@
         </el-dialog>
 
         <el-dialog
-            custom-class="custom-dialog tip-dialog"
+            class="custom-dialog tip-dialog"
             v-model="tipVisible"
             title="提示"
             center
@@ -133,7 +133,7 @@ import { getLessonPlan, getLessonPlanTemplate, changeLessonPlanTemplate, ISaveLe
 import { ElMessage } from "element-plus";
 import { defineComponent, reactive, ref, watch } from "vue";
 import draggable from "vuedraggable";
-import { Setting } from "@element-plus/icons";
+import { Setting } from "@element-plus/icons-vue";
 import { toChinesNum } from "@/utils/common";
 import LessonTemplateSet from "@/views/preparation/intelligenceClassroom/components/edit/lessonTemplateSet.vue";
 import { ITemplateList, IFrom, ItemForm } from "@/types/lessonDesign.ts";
