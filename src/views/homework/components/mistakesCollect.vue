@@ -1,5 +1,5 @@
 <template>
-    <el-dialog v-if="visible" v-model="visible" title="提示" width="362px" center @close="close">
+    <el-dialog v-if="visible" align-center class="custom-dialog" v-model="visible" title="提示" width="362px" center @close="close">
             <div class="content" v-if="status === 0">
                 <img class="img_class" src="@/assets/images/homeworkNew/pic_ctsj.png" alt="">
                 <div class="content-text" v-if="status === 0">
@@ -36,6 +36,7 @@
             <el-button v-if="status === 0" type="primary" @click="handleComfirm">开始</el-button>
             <div v-if="status === 1">
                  <el-button v-if="isFinish === 0" type="danger"  plain @click="stopWrongTopicCollection">结束收集</el-button>
+                 <el-button v-if="isFinish === 1"  @click="close">取消</el-button>
                  <el-button v-if="isFinish === 1" type="primary"  @click="handleComfirm">确定</el-button>
             </div>
           </span>
