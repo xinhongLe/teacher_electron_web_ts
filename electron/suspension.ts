@@ -400,7 +400,11 @@ function createBall() {
             } catch (e) {
 
             }
-            lastSpwan = spawn(join(WIN_PATH_BALL, ballname), [lastPort.toString()]);
+            try {
+                lastSpwan = spawn(join(WIN_PATH_BALL, ballname), [lastPort.toString()]);
+            } catch (e) {
+
+            }
             setTimeout(() => {
                 resolve(true);
             }, 500);

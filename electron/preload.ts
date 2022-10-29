@@ -199,16 +199,16 @@ window.electron = {
             return false;
         }
         return new Promise((resolve, reject) =>
-            checkWindowSupportNet("v4.5").then(isOk => {
+            checkWindowSupportNet("v4.0").then(isOk => {
                 if (isOk) {
                     spawn(PATH_White4Board);
                     return resolve(true);
-                } 
+                }
                 checkWindowSupportNet("v3.5").then(isOk => {
                     if (isOk) {
                         spawn(PATH_WhiteBoard);
                         return resolve(true);
-                    } 
+                    }
                     reject(false);
                 });
             })
