@@ -30,7 +30,6 @@
             <div>
                 <el-button
                     type="primary"
-                    plain
                     :icon="Tickets"
                     @click="handleClick"
                     size="large"

@@ -1,6 +1,7 @@
 <template>
-    <div  :class="['answer-result-warp', lessonId ? '' : 'answer-result-warp_bg']">
-        <div class="title-warp">
+    <div  :class="['answer-result-warp', lessonId ? '' : 'answer-result-warp_bg']"
+          :style="{width: width > 1240 ? '1240px' : (width - 100) + 'px', height: height > 929 ? '929px' : (height - 100) + 'px'}">
+       <div class="title-warp">
             <div class="progress-warp">
                 <el-icon :size="22" color="#8B8B8F"><clock /></el-icon>
                 <span class="text">答题计时：{{time}}</span>
@@ -208,9 +209,9 @@ export default defineComponent({
             timer && clearTimeout(timer);
         });
 
-        const size = screen.getPrimaryDisplay().workAreaSize;
-        window.electron.setContentSize(size.width > 1240 ? 1240 : (size.width - 100), size.height > 929 ? 929 : (size.height - 100));
-        // window.electron.setContentSize(1240, 929);
+        const { width, height } = screen.getPrimaryDisplay().workAreaSize;
+        // window.electron.setContentSize(size.width > 1240 ? 1240 : (size.width - 100), size.height > 929 ? 929 : (size.height - 100));
+        window.electron.setContentSize(width, height);
         window.electron.setCenter();
         return	{
             close,
@@ -218,7 +219,9 @@ export default defineComponent({
             percentage: computed(() => props.answerDetail!.AllUserCount ? Math.round((props.answerDetail!.CommitUserCount / props.answerDetail!.AllUserCount) * 100) : 0),
             echartRef,
             customColorMethod,
-            handlePraiseStudent
+            handlePraiseStudent,
+            width,
+            height
         };
     }
 });
@@ -226,15 +229,15 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .answer-result-warp_bg{
-    height: 929px;
+    //height: 929px;
     border-radius: 8px;
     background: #F5F6FA;
     box-shadow: 0px 6px 16px -8px rgba(0, 0, 0, 0.12), 0px 9px 28px 0px rgba(0, 0, 0, 0.08), 0px 12px 48px 16px rgba(0, 0, 0, 0.05);
     border: 1px solid #ccc;
 }
 .answer-result-warp {
-    width: 1240px;
-    height: 100%;
+    //width: 1240px;
+    //height: 100%;
     display: flex;
     flex-direction: column;
     .title {
