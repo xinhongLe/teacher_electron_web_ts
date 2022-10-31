@@ -332,7 +332,6 @@ function createProjectionWindow() {
 
 export function createLocalPreviewWindow(filePath: string) {
     const win = createWindow(localPreviewURL + "?file=" + filePath, {
-        alwaysOnTop: true,
         show: false,
         frame: false,
         webPreferences: {
@@ -368,12 +367,12 @@ function createSubjectToolWindow(url: string, name: string) {
     win.maximize();
 }
 
-function checkIsUseBallEXE(callback: (T: boolean) => void) {
+function checkIsUseBallEXE(callback: (T: boolean, env?: number) => void) {
     if (process.platform === "win32") {
-        checkWindowSupportNet("v3.5").then((isOk) => {
-            if (isOk) return callback(isOk);
-            checkWindowSupportNet("v4.0").then((isOk) => {
-                if (isOk) return callback(isOk);
+        checkWindowSupportNet("v4.0").then((isOk) => {
+            if (isOk) return callback(isOk, 4);
+            checkWindowSupportNet("v3.5").then((isOk) => {
+                if (isOk) return callback(isOk, 3);
                 return callback(false);
             });
         });
@@ -385,9 +384,13 @@ function checkIsUseBallEXE(callback: (T: boolean) => void) {
 function createBall() {
     let ballname = "winball/winball.exe";
     return new Promise(resolve => {
-        checkIsUseBallEXE(status => {
+        checkIsUseBallEXE((status, env) => {
             if (!status) {
                 ballname = "ball.exe";
+            } else {
+                if (env === 4) {
+                    ballname = "winball/4.5/winball.exe";
+                }
             }
             try {
                 if (lastSpwan) {
@@ -397,7 +400,11 @@ function createBall() {
             } catch (e) {
 
             }
-            lastSpwan = spawn(join(WIN_PATH_BALL, ballname), [lastPort.toString()]);
+            try {
+                lastSpwan = spawn(join(WIN_PATH_BALL, ballname), [lastPort.toString()]);
+            } catch (e) {
+
+            }
             setTimeout(() => {
                 resolve(true);
             }, 500);
