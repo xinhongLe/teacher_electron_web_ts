@@ -4,7 +4,7 @@ import ElectronLog from "electron-log";
 import { checkWindowSupportNet } from "./util";
 import { spawn, exec, ChildProcessWithoutNullStreams } from "child_process";
 import path, { join } from "path";
-import detect from 'detect-port';
+import detect from "detect-port";
 import { Action, CallBack, SocketHelper } from "./socketHelper";
 const WIN_PATH_BALL = join(__dirname, "../extraResources/ball/");
 let suspensionWin: BrowserWindow | null;
@@ -263,17 +263,17 @@ function createAnswerMachineWindow(allStudentList: []) {
         type: "toolbar", // 创建的窗口类型为工具栏窗口
         frame: false, // 要创建无边框窗口
         alwaysOnTop: true,
-        resizable: false,
+        resizable: false
     });
 
     answerMachineWin.on("ready-to-show", () => {
         answerMachineWin && answerMachineWin.show();
         answerMachineWin && answerMachineWin.focus();
-        answerMachineWin &&
-            answerMachineWin.webContents.send(
-                "sendAllStudentList",
-                allStudentList
-            );
+        answerMachineWin && answerMachineWin.webContents.send(
+            "sendAllStudentList",
+            allStudentList
+        );
+        answerMachineWin && answerMachineWin.setAlwaysOnTop(true, "pop-up-menu");
     });
 
     answerMachineWin.on("closed", () => {
@@ -298,12 +298,12 @@ function createQuickAnswerWindow(allStudentList: [], isAnswer = false) {
     quickAnswerWin.on("ready-to-show", () => {
         quickAnswerWin && quickAnswerWin.show();
         quickAnswerWin && quickAnswerWin.focus();
-        quickAnswerWin &&
-            quickAnswerWin.webContents.send(
-                "sendAllStudentList",
-                allStudentList,
-                isAnswer
-            );
+        quickAnswerWin && quickAnswerWin.webContents.send(
+            "sendAllStudentList",
+            allStudentList,
+            isAnswer
+        );
+        answerMachineWin && answerMachineWin.setAlwaysOnTop(true, "pop-up-menu");
     });
 
     quickAnswerWin.on("closed", () => {
@@ -428,91 +428,93 @@ class CustomCallBack implements CallBack {
         console.log("需要退出重启");
         createBall();
     }
+
     OnConnected(): void {
         console.log("isShowSuspension", isShowSuspension);
         if (isShowSuspension) {
             showSuspension();
         }
     }
+
     OnDataReceive(data: Action): void {
         switch (data.METHOD) {
-            case "MENUSHOW":
-                socketHelper.sendMessage(new Action("SMALLMENUHIDE", ""));
-                if (!unfoldSuspensionWin) {
-                    createUnfoldSuspensionWindow();
-                }
-                if (unfoldSuspensionWin) {
-                    unfoldSuspensionWin.showInactive();
-                }
-                const size = screen.getPrimaryDisplay().workAreaSize;
-                const winSize = unfoldSuspensionWin!.getSize();
+        case "MENUSHOW":
+            socketHelper.sendMessage(new Action("SMALLMENUHIDE", ""));
+            if (!unfoldSuspensionWin) {
+                createUnfoldSuspensionWindow();
+            }
+            if (unfoldSuspensionWin) {
+                unfoldSuspensionWin.showInactive();
+            }
+            const size = screen.getPrimaryDisplay().workAreaSize;
+            const winSize = unfoldSuspensionWin!.getSize();
 
-                let newLeft = parseInt(data.DATA.split(",")[0]);
-                if (newLeft + winSize[0] > size.width) {
-                    newLeft = size.width - winSize[0];
-                }
+            let newLeft = parseInt(data.DATA.split(",")[0]);
+            if (newLeft + winSize[0] > size.width) {
+                newLeft = size.width - winSize[0];
+            }
 
-                let newTop = parseInt(data.DATA.split(",")[1]);
-                if (newTop + winSize[1] > size.height) {
-                    newTop = size.height - winSize[1];
-                }
+            let newTop = parseInt(data.DATA.split(",")[1]);
+            if (newTop + winSize[1] > size.height) {
+                newTop = size.height - winSize[1];
+            }
 
-                if (newTop < 100) {
-                    newTop = 100;
-                }
+            if (newTop < 100) {
+                newTop = 100;
+            }
 
                 unfoldSuspensionWin!.setPosition(newLeft, newTop);
 
-                // 主进程悬浮球点击事件分发
-                ipcMain.emit("suspensionClick");
-                break;
-            case "BLACKBOARDSHOW":
-                isShowBlackboard = true;
-                socketHelper.sendMessage(new Action("BLACKBOARDSHOW", ""));
-                if (blackboardWin) {
-                    blackboardWin.show();
-                } else {
-                    createBlackboardWindow();
-                }
-                break;
-            case "BLACKBOARDHIDE":
-                isShowBlackboard = false;
-                blackboardWin && blackboardWin.destroy();
-                break;
-            case "VIDEOSHOW":
-                isShowVideo = true;
-                socketHelper.sendMessage(new Action("VIDEOSHOW", ""));
-                ipcMain.emit("openVideoWin");
-                break;
-            case "VIDEOHIDE":
-                isShowVideo = false;
-                ipcMain.emit("closeVideoWin");
-                break;
-            case "QUESTIONSHOW":
-                isShowQuestion = true;
-                socketHelper.sendMessage(new Action("QUESTIONSHOW", ""));
-                ipcMain.emit("openQuestion");
-                break;
-            case "QUESTIONHIDE":
-                isShowQuestion = false;
-                ipcMain.emit("closeQuestion");
-                break;
-            case "QUICKTIMESHOW":
-                isShowTimer = true;
-                socketHelper.sendMessage(new Action("QUICKTIMESHOW", ""));
-                if (timerWin) {
-                    timerWin.show();
-                } else {
-                    createTimerWindow();
-                }
-                break;
-            case "QUICKTIMEHIDE":
-                isShowTimer = false;
-                timerWin && timerWin.destroy();
-                break;
-            case "PONG":
-                socketHelperHeartbeatTime = new Date().getTime();
-                break;
+            // 主进程悬浮球点击事件分发
+            ipcMain.emit("suspensionClick");
+            break;
+        case "BLACKBOARDSHOW":
+            isShowBlackboard = true;
+            socketHelper.sendMessage(new Action("BLACKBOARDSHOW", ""));
+            if (blackboardWin) {
+                blackboardWin.show();
+            } else {
+                createBlackboardWindow();
+            }
+            break;
+        case "BLACKBOARDHIDE":
+            isShowBlackboard = false;
+            blackboardWin && blackboardWin.destroy();
+            break;
+        case "VIDEOSHOW":
+            isShowVideo = true;
+            socketHelper.sendMessage(new Action("VIDEOSHOW", ""));
+            ipcMain.emit("openVideoWin");
+            break;
+        case "VIDEOHIDE":
+            isShowVideo = false;
+            ipcMain.emit("closeVideoWin");
+            break;
+        case "QUESTIONSHOW":
+            isShowQuestion = true;
+            socketHelper.sendMessage(new Action("QUESTIONSHOW", ""));
+            ipcMain.emit("openQuestion");
+            break;
+        case "QUESTIONHIDE":
+            isShowQuestion = false;
+            ipcMain.emit("closeQuestion");
+            break;
+        case "QUICKTIMESHOW":
+            isShowTimer = true;
+            socketHelper.sendMessage(new Action("QUICKTIMESHOW", ""));
+            if (timerWin) {
+                timerWin.show();
+            } else {
+                createTimerWindow();
+            }
+            break;
+        case "QUICKTIMEHIDE":
+            isShowTimer = false;
+            timerWin && timerWin.destroy();
+            break;
+        case "PONG":
+            socketHelperHeartbeatTime = new Date().getTime();
+            break;
         }
     }
 }
@@ -528,7 +530,7 @@ function createLocalSuspensionWindow() {
         useContentSize: true,
         transparent: true, // 设置透明
         backgroundColor: "#00000000",
-        alwaysOnTop: true, // 窗口是否总是显示在其他窗口之前
+        alwaysOnTop: true // 窗口是否总是显示在其他窗口之前
     });
     const size = screen.getPrimaryDisplay().workAreaSize; // 获取显示器的宽高
     const winSize = suspensionWin.getSize(); // 获取窗口宽高
@@ -577,7 +579,7 @@ export function createSuspensionWindow() {
             } else {
                 console.log(`port: ${lastPort} was occupied, try port: ${_port}`);
             }
-            lastPort = _port
+            lastPort = _port;
             console.log(`port is ${lastPort}`);
             createBall().then(() => {
                 socketHelper = new SocketHelper(new CustomCallBack(), lastPort);

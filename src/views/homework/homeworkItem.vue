@@ -196,7 +196,7 @@
                     @click="handleMistakesCollect(info)"
                     >收集错题</el-button
                 >
-                <el-button type="primary" @click="review">查阅作业</el-button>
+                <el-button type="primary" plain @click="review">查阅作业</el-button>
                 <el-button type="danger" plain @click="deleteHomework"
                     >删除</el-button
                 >
