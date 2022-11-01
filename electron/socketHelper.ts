@@ -89,7 +89,8 @@ export class SocketHelper {
         return new Promise((resolve, reject) => {
             this.client.writable && this.client.write(JSON.stringify(action) + '\n', err => {
                 if (err) {
-                    console.log(err);
+                    console.error(err);
+                    return reject("false");
                     // return reject(err);
                 }
                 return resolve("ok");

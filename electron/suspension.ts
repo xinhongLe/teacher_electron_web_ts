@@ -402,6 +402,17 @@ function createBall() {
             }
             try {
                 lastSpwan = spawn(join(WIN_PATH_BALL, ballname), [lastPort.toString()]);
+                lastSpwan.stdout.on('data', (data) => {
+                    console.log(`stdout: ${data}`);
+                });
+
+                lastSpwan.stderr.on('data', (data) => {
+                    console.error(`stderr: ${data}`);
+                });
+
+                lastSpwan.on('close', (code) => {
+                    console.log(`child process exited with code ${code}`);
+                });
             } catch (e) {
 
             }
