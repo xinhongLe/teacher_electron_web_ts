@@ -55,27 +55,14 @@
                     <template #title>
                         <div class="collapse-header">
                             <div class="collapse-title">
-                                <img
-                                    src="@/assets/images/suspension/icon_sk.png"
-                                    alt=""
-                                />
+                                <img src="@/assets/images/suspension/icon_sk.png" alt=""/>
                                 上课
                             </div>
                             <div
                                 class="attend-class-view"
-                                @click.stop="
-                                    switchClass(),
-                                        clicKBuryPoint(
-                                            isSwitch
-                                                ? '全部显示'
-                                                : '仅显示备课篮'
-                                        )
-                                "
-                            >
-                                <img
-                                    src="@/assets/images/preparation/icon_qiehuan_1.png"
-                                    alt=""
-                                />
+                                @click.stop="switchClass(),clicKBuryPoint(isSwitch
+                                                ? '全部显示' : '仅显示备课篮')">
+                                <img src="@/assets/images/preparation/icon_qiehuan_1.png" alt=""/>
                                 {{ isSwitch ? "全部显示" : "仅显示备课包" }}
                             </div>
                         </div>
@@ -86,30 +73,16 @@
                             :class="{ courseware: resource.UserId === userId }"
                             v-for="(resource, index) in resourceList"
                             :key="index"
-                            @click.stop="
-                                classClicKBuryPoint(resource),
-                                    openResource(resource)
-                            "
+                            @click.stop="classClicKBuryPoint(resource),openResource(resource)"
                         >
                             <div class="resource-left-title">
-                                <img
-                                    :src="
-                                        iconResources.selfStudy[
-                                            resource.ResourceType
-                                        ]
-                                    "
-                                    alt=""
-                                />
-                                {{ resource.Name }}
+                                <img :src="iconResources.selfStudy[resource.ResourceType]" alt=""/>
+                                <span>{{ resource.Name }}</span>
+                                <span class="tool-text">{{resource.ToolInfo ? `共${ resource.ToolInfo.QuestionCount }题 ( ${ resource.ToolInfo.QuestionTypeName })` : ""}}</span>
                             </div>
                             <div
                                 class="resource-type"
-                                :class="
-                                    typeResources[resource.ResourceType] < 9 &&
-                                    'p-r-' +
-                                        typeResources[resource.ResourceType]
-                                "
-                            >
+                                :class="typeResources[resource.ResourceType] < 9 &&'p-r-' + typeResources[resource.ResourceType]">
                                 {{ textResources[resource.ResourceType] }}
                             </div>
                         </div>
@@ -524,6 +497,7 @@ export default defineComponent({
         const onResources = (event: IpcRendererEvent, data: any) => {
             if (data.type === "sysData") {
                 resourceList.value = JSON.parse(data.resources || "[]");
+                console.log(resourceList.value, "resourceList.value---");
             }
             if (data.type === "switchClass") isSwitch.value = data.switch;
         };
@@ -899,6 +873,10 @@ export default defineComponent({
                     width: 30px;
                     display: block;
                     margin-right: 5px;
+                }
+                .tool-text{
+                    margin-left: 6px;
+                    font-size: 12px;
                 }
             }
 

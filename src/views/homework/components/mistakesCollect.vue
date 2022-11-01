@@ -82,7 +82,7 @@ export default defineComponent({
             default: () => ""
         },
         info: {
-            type: Object as PropType<Homework>,
+            type: Object,
             default: () => ({})
         }
     },
@@ -149,12 +149,12 @@ export default defineComponent({
 
         const _sendWrongTopicDetail = () => {
             const data = {
-                ClassHomeworkPaperID: props.info?.ClassHomeworkPaperID,
-                SubjectId: props.info?.SubjectID,
-                SubjectName: props.info?.SubjectName,
-                ClassId: props.info?.ClassID,
-                ClassName: props.info?.ClassName,
-                TotalCount: props.info?.AllStudentCount,
+                ClassHomeworkPaperID: props.info?.ClassHomeworkPaperID || props.info?.classHomeworkPaperID ,
+                SubjectId: props.info?.SubjectID || props.info?.subjectID,
+                SubjectName: props.info?.SubjectName || props.info?.subjectName,
+                ClassId: props.info?.ClassID || props.info?.classID,
+                ClassName: props.info?.ClassName || props.info?.className,
+                TotalCount: props.info?.AllStudentCount || props.info?.allStudentCount,
                 StudentIds: state.studentsList.map((item:StudentMission) => item.StudentID)
             };
             sendWrongTopicDetail(data).then(res => {
