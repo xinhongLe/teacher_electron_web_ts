@@ -1,6 +1,9 @@
 <template>
     <div  :class="['answer-result-warp', lessonId ? '' : 'answer-result-warp_bg']"
-          :style="{width: width > 1240 ? '1240px' : (width - 100) + 'px', height: height > 929 ? '929px' : (height - 100) + 'px'}">
+          :style="{width: width > 1240 ? '1240px' : (width - 100) + 'px',
+          height: height > 929 ? '929px' : (height - 100) + 'px',
+          flex: lessonId ? 1 : 'none'
+    }">
        <div class="title-warp">
             <div class="progress-warp">
                 <el-icon :size="22" color="#8B8B8F"><clock /></el-icon>
@@ -160,7 +163,15 @@ export default defineComponent({
                         data: xAxisData
                     },
                     tooltip: {
-                        trigger: "axis"
+                        trigger: "axis",
+                        axisPointer: {
+                            type: "shadow"
+                        }
+                        // formatter: (params:any) => {
+                        //     console.log(params, "params");
+                        //     return params[0].name + "<br/>" + params[0].data.studentList;
+                        // },
+                        // extraCssText: "max-width:200px;white-space:pre-wrap"
                     },
                     yAxis: {
                         type: "value",

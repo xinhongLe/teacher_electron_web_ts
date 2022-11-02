@@ -53,7 +53,7 @@ import {
     PropType,
     provide,
     ref,
-    watch,
+    watch
 } from "vue";
 import ResourceViewList from "@/views/resourceView/resourceViewList.vue";
 import ResourceItem from "../resourceItem.vue";
@@ -65,33 +65,37 @@ export default defineComponent({
     props: {
         target: {
             type: String,
-            default: "",
+            default: ""
         },
         resource: {
-            type: Object as PropType<IResourceItem>,
+            type: Object as PropType<IResourceItem>
         },
         visible: {
             type: Boolean,
-            default: false,
+            default: false
         },
         lessonId: {
             type: String,
-            default: "",
+            default: ""
         },
         name: {
             type: String,
-            default: "",
+            default: ""
         },
         data: {
             type: Object as PropType<IViewResourceData>,
-            required: true,
-        },
+            required: true
+        }
     },
-    emits: ["eventEmit", "update:visible"],
+    emits: ["eventEmit", "update:visible", "closeDetail"],
     setup(props, { emit }) {
         const isFullScreen = ref(false);
         const close = () => {
-            emit("update:visible", false);
+            if (props.resource?.ResourceShowType === 5) {
+                emit("closeDetail");
+            } else {
+                emit("update:visible", false);
+            }
         };
 
         const setFullScreen = async () => {
@@ -137,9 +141,9 @@ export default defineComponent({
             isFullScreen,
             close,
             setFullScreen,
-            eventEmit,
+            eventEmit
         };
-    },
+    }
 });
 </script>
 
