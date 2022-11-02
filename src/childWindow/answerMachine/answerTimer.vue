@@ -125,14 +125,16 @@ export default defineComponent({
             // window.electron.ipcRenderer.off("answer-jection", answerJection);
         });
 
-        window.electron.setContentSize(383, 253);
-        window.electron.setPositionWin(size.width - 24 - 383, 84);
+        if (!props.lessonId) {
+            window.electron.setContentSize(383, 253);
+            window.electron.setPositionWin(size.width - 24 - 383, 84);
+        }
         return	{
             showTime,
             endAnswer,
             QuestionType,
             answerStudents,
-            allAStudents,
+            allAStudents
         };
     }
 });

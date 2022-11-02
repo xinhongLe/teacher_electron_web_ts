@@ -78,7 +78,9 @@
                             <div class="resource-left-title">
                                 <img :src="iconResources.selfStudy[resource.ResourceType]" alt=""/>
                                 <span>{{ resource.Name }}</span>
-                                <span class="tool-text">{{resource.ToolInfo ? `共${ resource.ToolInfo.QuestionCount }题 ( ${ resource.ToolInfo.QuestionTypeName })` : ""}}</span>
+                                <span class="tool-text">
+                                    {{resource.ToolInfo ? `共${ resource.ToolInfo.QuestionCount }题 ( ${ resource.ToolInfo.QuestionTypeName })` : ""}}
+                                </span>
                             </div>
                             <div
                                 class="resource-type"

@@ -55,6 +55,7 @@
             :lessonId="course.lessonId"
             v-model:visible="resourceVisible"
             :data="resourceData"
+            @closeDetail="closeDetail"
             @eventEmit="eventEmit"
         />
 
@@ -541,6 +542,11 @@ export default defineComponent({
             }
         };
 
+        const closeDetail = () => {
+            resourceVisible.value = false;
+            update("");
+        };
+
         const disabledScrollLoad = ref(true);
         const load = () => {
             pageNumber.value++;
@@ -571,6 +577,7 @@ export default defineComponent({
             eventEmit,
             resourceVisible,
             load,
+            closeDetail,
             disabledScrollLoad,
             onDeleteSuccess,
             update,

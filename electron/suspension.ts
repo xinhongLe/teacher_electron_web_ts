@@ -215,8 +215,7 @@ function createUnfoldSuspensionWindow() {
     );
     // unfoldSuspensionWin.webContents.openDevTools(); //这是打开智课助手悬浮球打开窗口的的调试器
     unfoldSuspensionWin.once("ready-to-show", () => {
-        unfoldSuspensionWin &&
-            unfoldSuspensionWin.setAlwaysOnTop(true, "pop-up-menu");
+        unfoldSuspensionWin && unfoldSuspensionWin.setAlwaysOnTop(true, "pop-up-menu");
     });
 
     unfoldSuspensionWin.on("closed", () => {
@@ -273,6 +272,9 @@ function createAnswerMachineWindow(allStudentList: []) {
             "sendAllStudentList",
             allStudentList
         );
+    });
+
+    answerMachineWin.once("ready-to-show", () => {
         answerMachineWin && answerMachineWin.setAlwaysOnTop(true, "pop-up-menu");
     });
 
@@ -303,7 +305,10 @@ function createQuickAnswerWindow(allStudentList: [], isAnswer = false) {
             allStudentList,
             isAnswer
         );
-        answerMachineWin && answerMachineWin.setAlwaysOnTop(true, "pop-up-menu");
+    });
+
+    quickAnswerWin.once("ready-to-show", () => {
+        quickAnswerWin && quickAnswerWin.setAlwaysOnTop(true, "pop-up-menu");
     });
 
     quickAnswerWin.on("closed", () => {

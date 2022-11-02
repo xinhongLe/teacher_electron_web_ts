@@ -1,7 +1,8 @@
 <template>
     <div class="student-list">
-        <div class="student-info" v-for="student in studentList" :key="student.StudentID" :title="student.StudentName">
+        <div class="student-info" v-for="(student, i) in studentList" :key="student.StudentID" :title="student.StudentName">
             {{ student.StudentName }}
+            <span v-if="i < (studentList.length - 1)">、</span>
         </div>
     </div>
 </template>
@@ -27,24 +28,27 @@ export default defineComponent({
     width: 100%;
     display: flex;
     flex-wrap: wrap;
+    margin-left: 8px;
 }
 .student-info {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 100px;
-    height: 40px;
-    background: #F5F6FA;
-    border-radius: 4px;
-    color: #19203d;
-    font-size: 14px;
-    @include text-ellipsis;
-    margin-right: 10px;
-    &:nth-child(10n+0) {
-        margin-right: 0;
-    }
-    &:nth-child(n+11) {
-        margin-top: 10px;
-    }
+    flex-wrap: wrap;
+    //width: 100px;
+    //height: 40px;
+    //background: #F5F6FA;
+    //border-radius: 4px;
+    font-size: 16px;
+    color: #5F626F;
+    margin-bottom: 10px;
+    //@include text-ellipsis;
+    //margin-right: 10px;
+    //&:nth-child(10n+0) {
+    //    margin-right: 0;
+    //}
+    //&:nth-child(n+11) {
+    //    margin-top: 10px;
+    //}
 }
 </style>

@@ -1,6 +1,9 @@
 <template>
     <div  :class="['answer-result-warp', lessonId ? '' : 'answer-result-warp_bg']"
-          :style="{width: width > 1240 ? '1240px' : (width - 100) + 'px', height: height > 929 ? '929px' : (height - 100) + 'px'}">
+          :style="{width: width > 1240 ? '1240px' : (width - 100) + 'px',
+          height: height > 929 ? '929px' : (height - 100) + 'px',
+          flex: lessonId ? 1 : 'none'
+    }">
        <div class="title-warp">
             <div class="progress-warp">
                 <el-icon :size="22" color="#8B8B8F"><clock /></el-icon>
@@ -144,10 +147,14 @@ export default defineComponent({
                     if (item.OptionName === "未选择") {
                         return {
                             value: item.SelectUserCount,
-                            itemStyle: { color: "#D3D8E1" }
+                            itemStyle: { color: "#D3D8E1" },
+                            studentList: item.SelectStudent.map(j => j.StudentName).join("、")
                         };
                     } else {
-                        return item.SelectUserCount;
+                        return {
+                            value: item.SelectUserCount,
+                            studentList: item.SelectStudent.map(j => j.StudentName).join("、")
+                        };
                     }
                 });
                 const option: echarts.EChartsOption = {
@@ -160,7 +167,16 @@ export default defineComponent({
                         data: xAxisData
                     },
                     tooltip: {
-                        trigger: "axis"
+                        trigger: "axis",
+                        axisPointer: {
+                            type: "shadow"
+                        },
+                        formatter: (params:any) => {
+                            console.log(params, "params");
+                            return params[0].name + "<br/>" + params[0].data.studentList;
+                        },
+                        extraCssText: "max-width:200px;white-space:pre-wrap"
+
                     },
                     yAxis: {
                         type: "value",
@@ -176,11 +192,11 @@ export default defineComponent({
                             itemStyle: {
                                 color: "#6686EE"
                             },
-                            // emphasis: {
-                            //     itemStyle: {
-                            //         color: "#3EDD97" // 选中柱颜色
-                            //     }
-                            // },
+                            emphasis: {
+                                itemStyle: {
+                                    color: "#3EDD97" // 选中柱颜色
+                                }
+                            },
                             label: {
                                 formatter: "{c}",
                                 show: true,
