@@ -147,14 +147,10 @@ export default defineComponent({
                     if (item.OptionName === "未选择") {
                         return {
                             value: item.SelectUserCount,
-                            itemStyle: { color: "#D3D8E1" },
-                            studentList: item.SelectStudent.map(j => j.StudentName).join("、")
+                            itemStyle: { color: "#D3D8E1" }
                         };
                     } else {
-                        return {
-                            value: item.SelectUserCount,
-                            studentList: item.SelectStudent.map(j => j.StudentName).join("、")
-                        };
+                        return item.SelectUserCount;
                     }
                 });
                 const option: echarts.EChartsOption = {
@@ -170,13 +166,12 @@ export default defineComponent({
                         trigger: "axis",
                         axisPointer: {
                             type: "shadow"
-                        },
-                        formatter: (params:any) => {
-                            console.log(params, "params");
-                            return params[0].name + "<br/>" + params[0].data.studentList;
-                        },
-                        extraCssText: "max-width:200px;white-space:pre-wrap"
-
+                        }
+                        // formatter: (params:any) => {
+                        //     console.log(params, "params");
+                        //     return params[0].name + "<br/>" + params[0].data.studentList;
+                        // },
+                        // extraCssText: "max-width:200px;white-space:pre-wrap"
                     },
                     yAxis: {
                         type: "value",
@@ -192,11 +187,11 @@ export default defineComponent({
                             itemStyle: {
                                 color: "#6686EE"
                             },
-                            emphasis: {
-                                itemStyle: {
-                                    color: "#3EDD97" // 选中柱颜色
-                                }
-                            },
+                            // emphasis: {
+                            //     itemStyle: {
+                            //         color: "#3EDD97" // 选中柱颜色
+                            //     }
+                            // },
                             label: {
                                 formatter: "{c}",
                                 show: true,
