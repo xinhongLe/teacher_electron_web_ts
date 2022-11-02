@@ -418,19 +418,19 @@ function createBall() {
             }
             setTimeout(() => {
                 resolve(true);
-            }, 500);
+            }, 3000);
         });
     });
 }
 
 class CustomCallBack implements CallBack {
     OnDisconnect(): void {
-        console.log("需要退出重启");
+        ElectronLog.log("Error, 需要退出重启");
         createBall();
     }
 
     OnConnected(): void {
-        console.log("isShowSuspension", isShowSuspension);
+        ElectronLog.log("isShowSuspension", isShowSuspension);
         if (isShowSuspension) {
             showSuspension();
         }
@@ -575,18 +575,18 @@ export function createSuspensionWindow() {
         }
         detect(lastPort).then(_port => {
             if (lastPort == _port) {
-                console.log(`port: ${lastPort} was not occupied`);
+                ElectronLog.log(`port: ${lastPort} was not occupied`);
             } else {
-                console.log(`port: ${lastPort} was occupied, try port: ${_port}`);
+                ElectronLog.log(`port: ${lastPort} was occupied, try port: ${_port}`);
             }
             lastPort = _port;
-            console.log(`port is ${lastPort}`);
+            ElectronLog.log(`port is ${lastPort}`);
             createBall().then(() => {
                 socketHelper = new SocketHelper(new CustomCallBack(), lastPort);
                 startHeartbeat();
             });
         }).catch(err => {
-            console.log(err);
+            ElectronLog.log(err);
         });
     }
     // checkIsUseBallEXE(isOk => {
@@ -611,7 +611,7 @@ function startHeartbeat() {
 
     socketHelperHeartbeatCheckInterval = setInterval(() => {
         if ((new Date().getTime() - socketHelperHeartbeatTime) / 1000 > 5) {
-            console.log("需要退出重启");
+            console.log("Heart, 需要退出重启");
             createBall();
         }
     }, 10000);
