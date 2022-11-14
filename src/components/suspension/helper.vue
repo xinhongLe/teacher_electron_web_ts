@@ -330,10 +330,6 @@ export default defineComponent({
         const isLoading = ref(false);
         const allStudentList = ref<unknown[]>([]);
         let userInfo = get(STORAGE_TYPES.USER_INFO);
-        const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
-        const currentUserInfo: UserInfoState = get(
-            STORAGE_TYPES.CURRENT_USER_INFO
-        );
         const userId = ref(userInfo.userCenterUserID);
         const openBlackboard = () => {
             if (isElectron()) {
@@ -482,6 +478,7 @@ export default defineComponent({
         };
         const isGetStudentList = ref(false);
         const getStudentList = async () => {
+            const currentUserInfo: UserInfoState = get(STORAGE_TYPES.CURRENT_USER_INFO);
             allStudentList.value = [];
             const data = {
                 TeacherId: currentUserInfo.userCenterUserID,
