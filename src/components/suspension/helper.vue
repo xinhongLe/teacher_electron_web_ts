@@ -298,7 +298,7 @@ import { getOssUrl } from "@/utils/oss";
 import isElectron from "is-electron";
 import { ElMessage } from "element-plus";
 import { BookList } from "@/types/preparation";
-import { get, STORAGE_TYPES, storeChange } from "@/utils/storage";
+import { get, set, STORAGE_TYPES, storeChange } from "@/utils/storage";
 import { fetchAllStudents } from "@/views/labelManage/api";
 import { IpcRendererEvent } from "electron";
 import { iconResources, textResources, typeResources } from "@/config/resource";
@@ -334,7 +334,6 @@ export default defineComponent({
         const currentUserInfo: UserInfoState = get(
             STORAGE_TYPES.CURRENT_USER_INFO
         );
-        console.log(currentUserInfo, "currentUserInfo-----");
         const userId = ref(userInfo.userCenterUserID);
         const openBlackboard = () => {
             if (isElectron()) {
@@ -492,6 +491,7 @@ export default defineComponent({
             if (res.resultCode === 200) {
                 isGetStudentList.value = true;
                 allStudentList.value = res.result;
+                set(STORAGE_TYPES.STUDENT_LIST, res.result);
             }
         };
 
@@ -499,7 +499,6 @@ export default defineComponent({
         const onResources = (event: IpcRendererEvent, data: any) => {
             if (data.type === "sysData") {
                 resourceList.value = JSON.parse(data.resources || "[]");
-                console.log(resourceList.value, "resourceList.value---");
             }
             if (data.type === "switchClass") isSwitch.value = data.switch;
         };

@@ -122,12 +122,12 @@ export default defineComponent({
         //         currentGradeId = data.GradeID;
         //     }
         // };
-
+        const allStudentList = get(STORAGE_TYPES.STUDENT_LIST) || [];
         const state = reactive<State>({
             activeIndex: 0,
             gradeList: [],
             classList: [],
-            allStudentList: [],
+            allStudentList: allStudentList,
             checkStudentList: [],
             lastCheckGradeId: ""
         });
