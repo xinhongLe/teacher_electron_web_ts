@@ -26,6 +26,7 @@ let socketHelperHeartbeatTime = new Date().getTime();
 let isShowSuspension = false;
 let lastSpwan: ChildProcessWithoutNullStreams | null = null;
 let lastPort = 1122;
+let isFirstTime = true;
 
 const timerURL =
     process.env.NODE_ENV === "development"
@@ -431,10 +432,13 @@ function createBall() {
 class CustomCallBack implements CallBack {
     OnDisconnect(): void {
         ElectronLog.log("Error, 需要退出重启");
-        createBall();
+        if (!isFirstTime) {
+            createBall();
+        }
     }
 
     OnConnected(): void {
+        isFirstTime = false;
         ElectronLog.log("isShowSuspension", isShowSuspension);
         if (isShowSuspension) {
             showSuspension();
@@ -468,8 +472,7 @@ class CustomCallBack implements CallBack {
                 newTop = 100;
             }
 
-                unfoldSuspensionWin!.setPosition(newLeft, newTop);
-
+            unfoldSuspensionWin!.setPosition(newLeft, newTop);
             // 主进程悬浮球点击事件分发
             ipcMain.emit("suspensionClick");
             break;
@@ -619,7 +622,7 @@ function startHeartbeat() {
             console.log("Heart, 需要退出重启");
             createBall();
         }
-    }, 10000);
+    }, 25000);
 }
 
 function showSuspension() {

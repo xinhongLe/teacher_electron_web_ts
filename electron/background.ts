@@ -55,6 +55,7 @@ async function createWindow() {
             devTools: !!process.env.WEBPACK_DEV_SERVER_URL,
         },
     });
+    mainWindow.setContentProtection(true);
     downloadFile();
     autoUpdater(mainWindow!);
     if (!isCreateWindow) {

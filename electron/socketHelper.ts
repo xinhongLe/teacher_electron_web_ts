@@ -45,7 +45,7 @@ export class SocketHelper {
             }
             if (!this.closeSocket) {
                 this.callback.OnDisconnect();
-                this.sleep(3000).then(() => {
+                this.sleep(1000).then(() => {
                     this.init(port, hostname);
                 })
             }
