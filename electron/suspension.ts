@@ -182,10 +182,10 @@ function createRollcall(allStudentList: []) {
         useContentSize: true,
         maximizable: false
     });
-
+    
     rollCallWin.on("ready-to-show", () => {
         rollCallWin && rollCallWin.webContents.send("sendAllStudentList", allStudentList);
-        rollCallWin && rollCallWin.webContents.openDevTools();
+        // rollCallWin && rollCallWin.webContents.openDevTools();
     });
 
     rollCallWin.on("closed", () => {

@@ -202,10 +202,10 @@ export default defineComponent({
                 publisherName: book ? book.PublisherName : "",
                 albumId: book ? book.AlbumID : "",
                 albumName: book ? book.AlbumName : "",
-                chapterId: book ? book.ChapterID : course.value.chapterId,
-                chapterName: book ? book.ChapterName : course.value.chapterName,
-                lessonId: book ? book.LessonID : course.value.lessonId,
-                lessonName: book ? book.LessonName : course.value.lessonName,
+                chapterId: (book && book.ChapterID) || course.value.chapterId,
+                chapterName: (book && book.ChapterName) || course.value.chapterName,
+                lessonId: (book && book.LessonID) || course.value.lessonId,
+                lessonName: (book && book.LessonName) || course.value.lessonName,
             });
 
             if (res.success) {
