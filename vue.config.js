@@ -211,7 +211,7 @@ module.exports = {
             builderOptions: {
                 appId: process.env.VUE_APP_ID,
                 productName: process.env.VUE_APP_PRODUCT_NAME, // 项目名
-                copyright: "Copyright © 2021", // 版权信息
+                copyright: "COPYRIGHT © 2022 江苏乐易智慧科技有限公司 ALL RIGHTS RESERVED", // 版权信息
                 artifactName: "${productName}-${version}" + ".${ext}",
                 directories: {
                     output: "./dist_electron" // 输出文件路径
@@ -240,6 +240,9 @@ module.exports = {
                             type: "file"
                         }
                     ]
+                },
+                extraMetadata: {
+                    name: process.env.APP_NAME || 'Aixueshi'
                 },
                 nsis: {
                     oneClick: false, // 是否一键安装

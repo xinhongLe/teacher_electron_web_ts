@@ -26,6 +26,7 @@ let socketHelperHeartbeatTime = new Date().getTime();
 let isShowSuspension = false;
 let lastSpwan: ChildProcessWithoutNullStreams | null = null;
 let lastPort = 1122;
+let isFirstTime = true;
 
 const timerURL =
     process.env.NODE_ENV === "development"
@@ -407,24 +408,38 @@ function createBall() {
             }
             try {
                 lastSpwan = spawn(join(WIN_PATH_BALL, ballname), [lastPort.toString()]);
+                lastSpwan.stdout.on('data', (data) => {
+                    console.log(`stdout: ${data}`);
+                });
+
+                lastSpwan.stderr.on('data', (data) => {
+                    console.error(`stderr: ${data}`);
+                });
+
+                lastSpwan.on('close', (code) => {
+                    console.log(`child process exited with code ${code}`);
+                });
             } catch (e) {
 
             }
             setTimeout(() => {
                 resolve(true);
-            }, 500);
+            }, 3000);
         });
     });
 }
 
 class CustomCallBack implements CallBack {
     OnDisconnect(): void {
-        console.log("需要退出重启");
-        createBall();
+        ElectronLog.log("Error, 需要退出重启");
+        if (!isFirstTime) {
+            createBall();
+        }
     }
 
     OnConnected(): void {
-        console.log("isShowSuspension", isShowSuspension);
+        isFirstTime = false;
+        ElectronLog.log("isShowSuspension", isShowSuspension);
         if (isShowSuspension) {
             showSuspension();
         }
@@ -457,8 +472,7 @@ class CustomCallBack implements CallBack {
                 newTop = 100;
             }
 
-                unfoldSuspensionWin!.setPosition(newLeft, newTop);
-
+            unfoldSuspensionWin!.setPosition(newLeft, newTop);
             // 主进程悬浮球点击事件分发
             ipcMain.emit("suspensionClick");
             break;
@@ -569,18 +583,18 @@ export function createSuspensionWindow() {
         }
         detect(lastPort).then(_port => {
             if (lastPort == _port) {
-                console.log(`port: ${lastPort} was not occupied`);
+                ElectronLog.log(`port: ${lastPort} was not occupied`);
             } else {
-                console.log(`port: ${lastPort} was occupied, try port: ${_port}`);
+                ElectronLog.log(`port: ${lastPort} was occupied, try port: ${_port}`);
             }
             lastPort = _port;
-            console.log(`port is ${lastPort}`);
+            ElectronLog.log(`port is ${lastPort}`);
             createBall().then(() => {
                 socketHelper = new SocketHelper(new CustomCallBack(), lastPort);
                 startHeartbeat();
             });
         }).catch(err => {
-            console.log(err);
+            ElectronLog.log(err);
         });
     }
     // checkIsUseBallEXE(isOk => {
@@ -605,10 +619,10 @@ function startHeartbeat() {
 
     socketHelperHeartbeatCheckInterval = setInterval(() => {
         if ((new Date().getTime() - socketHelperHeartbeatTime) / 1000 > 5) {
-            console.log("需要退出重启");
+            console.log("Heart, 需要退出重启");
             createBall();
         }
-    }, 10000);
+    }, 25000);
 }
 
 function showSuspension() {
