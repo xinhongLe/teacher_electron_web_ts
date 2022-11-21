@@ -29,7 +29,7 @@
                 <div
                     class="student-item"
                     v-for="(student, i) in unselectedStudent"
-                    :key="student.StudentID"
+                    :key="i"
                     :style="{
                         transform: `translateX(-102px) rotateY(${
                             (360 / unselectedStudent.length) * i
@@ -200,15 +200,19 @@ export default defineComponent({
 
         const expand = () => {
             if (isPackUp.value) {
-                isPackUp.value = false;
                 const size = window.electron.remote.screen.getPrimaryDisplay().workAreaSize;
                 const width = size.width > 1200 ? 1200 : size.width;
                 const height = size.height > 800 ? 800 : size.height;
-                window.electron.setContentSize(width, height);
-                window.electron.setPositionWin(
-                    (size.width - width) / 2,
-                    (size.height - height) / 2
-                );
+                
+                setTimeout(() => {
+                    window.electron.setContentSize(width, height);
+                    window.electron.setPositionWin(
+                        (size.width - width) / 2,
+                        (size.height - height) / 2
+                    );
+
+                    isPackUp.value = false;
+                }, 200);
             }
         };
 
@@ -241,6 +245,7 @@ export default defineComponent({
     background-size: cover;
     background-position: center;
     overflow: hidden;
+    -webkit-app-region: drag;
     .select-student-list {
         position: absolute;
         left: 40px;
@@ -277,6 +282,7 @@ export default defineComponent({
             min-height: 0;
             flex: 1;
             padding: 0 5px;
+            -webkit-app-region: no-drag;
             .student-selected-item {
                 height: 46px;
                 line-height: 46px;
@@ -305,6 +311,7 @@ export default defineComponent({
         z-index: 1;
         transform: translateX(-50%);
         display: flex;
+        -webkit-app-region: no-drag;
     }
 }
 
@@ -416,11 +423,13 @@ export default defineComponent({
     position: absolute;
     right: 120px;
     bottom: 98px;
+    -webkit-app-region: no-drag;
 }
 
 .close-btn {
     position: absolute;
     right: 20px;
     bottom: 98px;
+    -webkit-app-region: no-drag;
 }
 </style>
