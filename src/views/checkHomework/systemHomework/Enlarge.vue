@@ -1,19 +1,11 @@
 <template>
-    <el-dialog
-        title="查看"
-        v-if="visible"
-        v-model="visible"
-        width="1000px"
-    >
+    <el-dialog title="查看" v-if="visible" v-model="visible" width="1000px">
         <div class="look-images">
             <div class="subject-list">
                 <slot :detail="detail" :detailData="detailData" :answer="answer" :question="question"></slot>
                 <div class="subject-detail">
                     <div class="head-photo flex-between-center">
-                        <Avatar
-                            :file="detail.Student?.HeadPortrait"
-                            :size="78"
-                        ></Avatar>
+                        <Avatar :file="detail.Student?.HeadPortrait" :size="78"></Avatar>
                         <div class="info">
                             <p class="name">{{ detail.Student ? detail.Student.Name : '' }}</p>
                             <el-tooltip placement="bottom">
@@ -26,26 +18,31 @@
                         </div>
                     </div>
                     <div class="btns">
-                        <div
-                            class="btn-class el-icon-check"
-                            :class="{success: detail?.Detail?.Result == QuestionResultTypeEnum.RIGHT}"
-                            @click="successHandle"
-                        ></div>
-                        <div
-                            class="btn-class el-icon-close"
-                            @click="errorHandle"
-                            :class="{error: detail?.Detail?.Result == QuestionResultTypeEnum.ERROR}"
-                        >
-                            <i></i>
+                        <div class="btn-class"
+                            :class="{ success: detail?.Detail?.Result == QuestionResultTypeEnum.RIGHT }"
+                            @click="successHandle">
+                            <el-icon>
+                                <Check />
+                            </el-icon>
+                        </div>
+                        <div class="btn-class" @click="errorHandle"
+                            :class="{ error: detail?.Detail?.Result == QuestionResultTypeEnum.ERROR }">
+                            <el-icon>
+                                <Close />
+                            </el-icon>
                         </div>
                     </div>
                     <div class="page">
-                        <span class="btn" :class="{display: isDisplayPrev}" @click="prevPage">
-                            <el-icon><ArrowLeft /></el-icon>
+                        <span class="btn" :class="{ display: isDisplayPrev }" @click="prevPage">
+                            <el-icon>
+                                <ArrowLeft />
+                            </el-icon>
                         </span>
-                        {{currentIndex+1}}/{{detailList.length}}
-                        <span class="btn" :class="{display: isDisplayNext}" @click="nextPage">
-                            <el-icon><ArrowRight /></el-icon>
+                        {{ currentIndex + 1 }}/{{ detailList.length }}
+                        <span class="btn" :class="{ display: isDisplayNext }" @click="nextPage">
+                            <el-icon>
+                                <ArrowRight />
+                            </el-icon>
                         </span>
                     </div>
                 </div>
@@ -145,12 +142,15 @@ export default defineComponent({
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+
 .look-images {
     width: 100%;
+
     .show-type {
         display: flex;
         justify-content: center;
-        > p {
+
+        >p {
             width: 120px;
             height: 40px;
             line-height: 40px;
@@ -161,12 +161,14 @@ export default defineComponent({
             cursor: pointer;
             text-align: center;
             color: #5f626f;
+
             &.active {
                 color: #fff;
                 background: #4b71ee;
             }
         }
     }
+
     .subject-list {
         margin: 0px auto;
         margin-bottom: 15px;
@@ -174,18 +176,22 @@ export default defineComponent({
         max-height: 800px;
         display: flex;
         flex-direction: column;
+
         .img-class {
             width: 100%;
             height: calc(100% - 85px);
         }
+
         .img-class-no {
             background-color: #fff;
             text-align: center;
+
             img {
                 width: 240px;
                 height: 160px;
             }
         }
+
         .subject-detail {
             padding: 10px 20px 0 10px;
             background-color: #fff;
@@ -193,19 +199,23 @@ export default defineComponent({
             display: flex;
             justify-content: space-between;
             align-items: center;
+
             .head-photo {
                 margin-top: 10px;
                 float: left;
                 height: 100px;
+
                 .info {
                     margin-left: 10px;
                 }
+
                 .name {
                     font-size: 16px;
                     font-weight: 600;
                     color: #19203d;
                 }
             }
+
             .btn-class {
                 width: 100px;
                 height: 40px;
@@ -217,40 +227,48 @@ export default defineComponent({
                 font-weight: 900;
                 color: #4B71EE;
                 cursor: pointer;
+
                 &:first-child {
                     margin-right: 20px;
                 }
+
                 &.success {
                     background: #34E1B6;
                     color: #fff;
                 }
+
                 &.error {
                     background: #FF6B6B;
                     color: #fff;
                 }
             }
+
             .btns {
                 position: absolute;
                 left: 50%;
                 transform: translate(-50%);
             }
+
             .collection-btn {
                 padding: 8px;
                 background: #ffeaa2;
                 border-radius: 4px;
                 cursor: pointer;
+
                 img {
                     width: 16px;
                     height: 12px;
                     vertical-align: text-bottom;
                 }
             }
+
             .page {
                 margin-left: 10px;
                 color: #a7aab4;
                 font-size: 14px;
                 display: flex;
                 align-items: center;
+
                 .btn {
                     width: 28px;
                     height: 28px;
@@ -261,18 +279,22 @@ export default defineComponent({
                     align-items: center;
                     justify-content: center;
                     cursor: pointer;
+
                     &:first-child {
                         margin-right: 16px;
                     }
+
                     &:last-child {
                         margin-left: 16px;
                     }
+
                     &.display {
                         background: #D4D6D9;
                         border: none;
                         color: #fff;
                     }
                 }
+
                 i {
                     cursor: pointer;
                 }

@@ -2,7 +2,7 @@ import { App } from "vue";
 import {
     Close, ArrowLeft, ArrowRight, RefreshRight, CloseBold, Setting, Plus, Search, MoreFilled,
     CircleCloseFilled, Rank, DocumentCopy, CircleClose, DArrowLeft, DArrowRight, Paperclip,
-    Iphone, User, UserFilled, Warning, Download, Edit, ArrowRightBold, ArrowUpBold, ArrowDownBold
+    Iphone, User, UserFilled, Warning, Download, Edit, ArrowRightBold, ArrowUpBold, ArrowDownBold,Check
 } from "@element-plus/icons-vue";
 
 export default {
@@ -32,5 +32,6 @@ export default {
         app.component("UserFilled", UserFilled);
         app.component("Warning", Warning);
         app.component("Download", Download);
+        app.component("Check", Check);
     }
 };
