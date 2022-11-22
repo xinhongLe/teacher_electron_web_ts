@@ -55,6 +55,7 @@
             :lessonId="course.lessonId"
             v-model:visible="resourceVisible"
             :data="resourceData"
+            @closeDetail="closeDetail"
             @eventEmit="eventEmit"
         />
 
@@ -201,10 +202,10 @@ export default defineComponent({
                 publisherName: book ? book.PublisherName : "",
                 albumId: book ? book.AlbumID : "",
                 albumName: book ? book.AlbumName : "",
-                chapterId: book ? book.ChapterID : course.value.chapterId,
-                chapterName: book ? book.ChapterName : course.value.chapterName,
-                lessonId: book ? book.LessonID : course.value.lessonId,
-                lessonName: book ? book.LessonName : course.value.lessonName,
+                chapterId: (book && book.ChapterID) || course.value.chapterId,
+                chapterName: (book && book.ChapterName) || course.value.chapterName,
+                lessonId: (book && book.LessonID) || course.value.lessonId,
+                lessonName: (book && book.LessonName) || course.value.lessonName,
             });
 
             if (res.success) {
@@ -516,8 +517,8 @@ export default defineComponent({
                     },
                 });
 
-                resourceList.value = resourceList.value.concat(res.result.list);
-                disabledScrollLoad.value = res.result.pager.IsLastPage;
+                resourceList.value = pageNumber.value === 1 ? res.result.list : resourceList.value.concat(res.result.list);
+                disabledScrollLoad.value = res.result.list.length === 0 ? true : res.result.pager.IsLastPage;
 
                 emit("updateResourceList", resourceList.value);
 
@@ -539,6 +540,11 @@ export default defineComponent({
                     }
                 });
             }
+        };
+
+        const closeDetail = () => {
+            resourceVisible.value = false;
+            update("");
         };
 
         const disabledScrollLoad = ref(true);
@@ -571,6 +577,7 @@ export default defineComponent({
             eventEmit,
             resourceVisible,
             load,
+            closeDetail,
             disabledScrollLoad,
             onDeleteSuccess,
             update,

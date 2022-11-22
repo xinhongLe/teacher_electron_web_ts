@@ -73,7 +73,6 @@
                     <el-radio-group
                         class="custom-radio-two"
                         v-model="type"
-                        size="small"
                     >
                         <el-radio-button
                             v-for="item in typeList"
@@ -84,7 +83,7 @@
                         </el-radio-button>
                     </el-radio-group>
 
-                    <el-button class="switch-btn" size="small" type="default" @click="switchClass()">
+                    <el-button class="switch-btn"  type="default" @click="switchClass()">
                         <img src="@/assets/images/preparation/icon_qiehuan.png" alt="">
                         {{isSwitch ? "全部显示" : "仅显示备课包"}}
                     </el-button>

@@ -1,3 +1,4 @@
+import ElectronLog from "electron-log";
 import net from "net";
 
 export class Action {
@@ -40,11 +41,11 @@ export class SocketHelper {
 
         this.client.on('close', hadError => {
             if (hadError) {
-                console.error('hadError: ', hadError);
+                ElectronLog.log('hadError: ', hadError);
             }
             if (!this.closeSocket) {
                 this.callback.OnDisconnect();
-                this.sleep(2000).then(() => {
+                this.sleep(1000).then(() => {
                     this.init(port, hostname);
                 })
             }
@@ -56,7 +57,7 @@ export class SocketHelper {
 
         this.client.on('error', err => {
             if (err) {
-                console.error(err);
+                ElectronLog.log(err);
             }
             this.client.destroy();
         })
@@ -89,7 +90,8 @@ export class SocketHelper {
         return new Promise((resolve, reject) => {
             this.client.writable && this.client.write(JSON.stringify(action) + '\n', err => {
                 if (err) {
-                    console.log(err);
+                    console.error(err);
+                    return reject("false");
                     // return reject(err);
                 }
                 return resolve("ok");

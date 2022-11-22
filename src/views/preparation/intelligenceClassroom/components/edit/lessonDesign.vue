@@ -484,6 +484,8 @@ export default defineComponent({
             }
             ::v-deep(.el-textarea__inner) {
                 border: 0;
+                resize: none;
+                box-shadow: none;
             }
         }
     }

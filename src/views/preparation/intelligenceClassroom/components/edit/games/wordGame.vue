@@ -26,7 +26,7 @@
                <div v-for="(item, index) in form.Question" :key="index" class="content">
                  <div class="first-row">
                      <div>{{index + 1}}</div>
-                     <div v-if="index !==0" class="text" @click="delQuestion(index)">移除</div>
+                     <div v-if="index > 1" class="text" @click="delQuestion(index)">移除</div>
                  </div>
                  <el-form-item label="题目" :prop="`Question[${index}].Subject`" :rules="rules.option">
                      <el-input v-model="item.Subject" />
@@ -90,6 +90,7 @@ export default defineComponent({
                 MemoryTime: "",
                 Round: "",
                 Question: [
+                    { Subject: "", Word: "", File: { url: "", Bucket: "", Name: "", FileName: "", FilePath: "", Extention: "", Type: 2 } },
                     { Subject: "", Word: "", File: { url: "", Bucket: "", Name: "", FileName: "", FilePath: "", Extention: "", Type: 2 } }
                 ]
             }

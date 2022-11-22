@@ -4,15 +4,15 @@
         <div class="content">
           <div class="row" v-for="(item,i) in classList" :key="i">
               <span>{{item.ClassName}}</span>
-              <el-switch v-model="item.Stauts"
-                         @change="_classDisabled(item)"
-                         inline-prompt
-                         :active-value="0"
-                         :inactive-value="1"
-                         active-text="解锁"
-                         inactive-text="锁定"
-                         size="large"
-              />
+             <div>
+                 <span class="text">{{item.Stauts === 0 ? "解锁" : "锁定"}}</span>
+                 <el-switch v-model="item.Stauts"
+                            @change="_classDisabled(item)"
+                            inline-prompt
+                            :active-value="0"
+                            :inactive-value="1"
+                 />
+             </div>
           </div>
         </div>
     </div>
@@ -109,11 +109,23 @@ export default defineComponent({
        align-items: center;
        border-bottom: 1px solid #E9ECF0;
        color: #19203D;
-       //:deep(.el-switch){
-       //    .el-switch__label.is-active{
-       //        color: #6E6D7A;
-       //    }
-       //}
+       .text{
+           font-size: 14px;
+           color: #6E6D7A;
+           margin-right: 10px;
+       }
+       :deep(.el-switch.is-checked .el-switch__core){
+           background-color: #E6ECFF;
+           border: 1px solid #E6ECFF;
+           .el-switch__action{
+               background-color: #4B71EE;
+           }
+       }
+       :deep(.el-switch__core .el-switch__action){
+           width: 20px;
+           height: 20px;
+           left: 0;
+       }
    }
 }
 </style>

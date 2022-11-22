@@ -89,7 +89,11 @@ export enum STORAGE_TYPES {
     /**
      * 云平台信息
      */
-    YUN_INFO = "YUN_INFO"
+    YUN_INFO = "YUN_INFO",
+    /**
+     * 存储学生列表
+     */
+    STUDENT_LIST= "STUDENT_LIST"
 }
 
 export const set = (name: STORAGE_TYPES | string, value: unknown, isEncrypt = false) => {

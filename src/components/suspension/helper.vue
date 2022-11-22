@@ -55,27 +55,14 @@
                     <template #title>
                         <div class="collapse-header">
                             <div class="collapse-title">
-                                <img
-                                    src="@/assets/images/suspension/icon_sk.png"
-                                    alt=""
-                                />
+                                <img src="@/assets/images/suspension/icon_sk.png" alt=""/>
                                 上课
                             </div>
                             <div
                                 class="attend-class-view"
-                                @click.stop="
-                                    switchClass(),
-                                        clicKBuryPoint(
-                                            isSwitch
-                                                ? '全部显示'
-                                                : '仅显示备课篮'
-                                        )
-                                "
-                            >
-                                <img
-                                    src="@/assets/images/preparation/icon_qiehuan_1.png"
-                                    alt=""
-                                />
+                                @click.stop="switchClass(),clicKBuryPoint(isSwitch
+                                                ? '全部显示' : '仅显示备课篮')">
+                                <img src="@/assets/images/preparation/icon_qiehuan_1.png" alt=""/>
                                 {{ isSwitch ? "全部显示" : "仅显示备课包" }}
                             </div>
                         </div>
@@ -86,30 +73,18 @@
                             :class="{ courseware: resource.UserId === userId }"
                             v-for="(resource, index) in resourceList"
                             :key="index"
-                            @click.stop="
-                                classClicKBuryPoint(resource),
-                                    openResource(resource)
-                            "
+                            @click.stop="classClicKBuryPoint(resource),openResource(resource)"
                         >
                             <div class="resource-left-title">
-                                <img
-                                    :src="
-                                        iconResources.selfStudy[
-                                            resource.ResourceType
-                                        ]
-                                    "
-                                    alt=""
-                                />
-                                {{ resource.Name }}
+                                <img :src="iconResources.selfStudy[resource.ResourceType]" alt=""/>
+                                <span>{{ resource.Name }}</span>
+                                <span class="tool-text">
+                                    {{resource.ToolInfo ? `共${ resource.ToolInfo.QuestionCount }题 ( ${ resource.ToolInfo.QuestionTypeName })` : ""}}
+                                </span>
                             </div>
                             <div
                                 class="resource-type"
-                                :class="
-                                    typeResources[resource.ResourceType] < 9 &&
-                                    'p-r-' +
-                                        typeResources[resource.ResourceType]
-                                "
-                            >
+                                :class="typeResources[resource.ResourceType] < 9 &&'p-r-' + typeResources[resource.ResourceType]">
                                 {{ textResources[resource.ResourceType] }}
                             </div>
                         </div>
@@ -144,7 +119,7 @@
                             <div class="blackboard-text">黑板</div>
                             <!-- <div class="blackboard-btn" @click="openBlackboard()">打开</div> -->
                         </div>
-                        <!-- <div
+                         <div
                             class="blackboard-box"
                             @click.stop="
                                 clicKBuryPoint('答题器'),
@@ -156,7 +131,7 @@
                                 alt=""
                             />
                             <div class="blackboard-text">答题器</div>
-                        </div> -->
+                        </div>
                         <div
                             class="blackboard-box"
                             @click.stop="
@@ -193,7 +168,7 @@
                             />
                             <div class="blackboard-text">点名</div>
                         </div>
-                        <!-- <div
+                         <div
                             class="blackboard-box"
                             @click.stop="
                                 clicKBuryPoint('抢答'), openQuickAnswer(true)
@@ -217,7 +192,7 @@
                                 alt=""
                             />
                             <div class="blackboard-text">锁屏管理</div>
-                        </div> -->
+                        </div>
                         <div
                             class="blackboard-box"
                             @click.stop="
@@ -315,7 +290,7 @@ import {
     onUnmounted,
     PropType,
     ref,
-    watch,
+    watch
 } from "vue";
 import { Game } from "./interface";
 import { getToolList } from "@/api/index";
@@ -323,7 +298,7 @@ import { getOssUrl } from "@/utils/oss";
 import isElectron from "is-electron";
 import { ElMessage } from "element-plus";
 import { BookList } from "@/types/preparation";
-import { get, STORAGE_TYPES, storeChange } from "@/utils/storage";
+import { get, set, STORAGE_TYPES, storeChange } from "@/utils/storage";
 import { fetchAllStudents } from "@/views/labelManage/api";
 import { IpcRendererEvent } from "electron";
 import { iconResources, textResources, typeResources } from "@/config/resource";
@@ -340,26 +315,21 @@ export default defineComponent({
         const initBookList = [
             {
                 Lable: "全部教具",
-                Value: "全部教具",
-            },
+                Value: "全部教具"
+            }
         ];
         const subjectPublisherBookList = ref<BookList[]>(initBookList);
         const cascaderProps = {
             value: "Value",
             children: "Children",
             label: "Lable",
-            checkStrictly: true,
+            checkStrictly: true
         };
         const searchName = ref("");
         const selectBookList = ref(["全部教具"]);
         const isLoading = ref(false);
         const allStudentList = ref<unknown[]>([]);
         let userInfo = get(STORAGE_TYPES.USER_INFO);
-        const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
-        const currentUserInfo: UserInfoState = get(
-            STORAGE_TYPES.CURRENT_USER_INFO
-        );
-        console.log(currentUserInfo, "currentUserInfo-----");
         const userId = ref(userInfo.userCenterUserID);
         const openBlackboard = () => {
             if (isElectron()) {
@@ -381,7 +351,7 @@ export default defineComponent({
             const data = {
                 name: searchName.value,
                 bookID: "",
-                bookIDs: [] as string[],
+                bookIDs: [] as string[]
             };
             if (selectBookList.value.length === 1) {
                 data.bookIDs =
@@ -413,7 +383,7 @@ export default defineComponent({
                 gameList.value = list.map((item, index) => ({
                     url: item.Url,
                     imgUrl: imgList[index],
-                    name: item.Name,
+                    name: item.Name
                 }));
             }
             isLoading.value = false;
@@ -476,7 +446,7 @@ export default defineComponent({
                 );
             }
         };
-        //工具-随手画
+        // 工具-随手画
         const openPainting = () => {
             window.electron.getWhiteBoard();
         };
@@ -508,15 +478,17 @@ export default defineComponent({
         };
         const isGetStudentList = ref(false);
         const getStudentList = async () => {
+            const currentUserInfo: UserInfoState = get(STORAGE_TYPES.CURRENT_USER_INFO);
             allStudentList.value = [];
             const data = {
                 TeacherId: currentUserInfo.userCenterUserID,
-                OrgId: currentUserInfo.schoolId,
+                OrgId: currentUserInfo.schoolId
             };
             const res = await fetchAllStudents(data);
             if (res.resultCode === 200) {
                 isGetStudentList.value = true;
                 allStudentList.value = res.result;
+                set(STORAGE_TYPES.STUDENT_LIST, res.result);
             }
         };
 
@@ -581,7 +553,7 @@ export default defineComponent({
                 });
 
                 window.electron.ipcRenderer.send("attendClass", "main", {
-                    type: "sysData",
+                    type: "sysData"
                 });
 
                 window.electron.ipcRenderer.on("attendClass", onResources);
@@ -598,13 +570,13 @@ export default defineComponent({
         const openResource = (resource: any) => {
             window.electron.ipcRenderer.send("attendClass", "main", {
                 type: "openResource",
-                resource: JSON.stringify(resource),
+                resource: JSON.stringify(resource)
             });
         };
 
         const switchClass = () => {
             window.electron.ipcRenderer.send("attendClass", "main", {
-                type: "switchClass",
+                type: "switchClass"
             });
         };
 
@@ -643,9 +615,9 @@ export default defineComponent({
             classClicKBuryPoint,
             handleChange,
             currentClickCol,
-            openPainting,
+            openPainting
         };
-    },
+    }
 });
 </script>
 
@@ -899,6 +871,10 @@ export default defineComponent({
                     width: 30px;
                     display: block;
                     margin-right: 5px;
+                }
+                .tool-text{
+                    margin-left: 6px;
+                    font-size: 12px;
                 }
             }
 
