@@ -319,10 +319,12 @@ import {
     sendErrorPaperWork,
     ErrorPaperToWord,
 } from "@/api/errorbook";
+import useDownloadFile from "@/hooks/useDownloadFile";
 import { ElMessage } from "element-plus";
 import { store, ActionTypes } from "@/store";
 const { formatQuestionType, delAllBasketData } = useWrongBook();
 const emit = defineEmits(["update:isShowContent", "onBackWrongBook"]);
+const { download } = useDownloadFile();
 const props = defineProps({
     isShowContent: {
         type: Number,
@@ -600,14 +602,16 @@ const downLoadWord = async () => {
     console.log(res);
     if (res.resultCode == 200) {
         const url = await formatWordFile(res.result);
-        console.log("word-url", url);
         if (!url) return;
-        const link = document.createElement("a"); //创建下载元素
-        link.setAttribute("href", url); //设置href属性
-        link.setAttribute("download", `${props.gradeName}错题复习`); //设置属性download
-        link.click(); //点击触发下载
-        //释放内存
-        window.URL.revokeObjectURL(link.href);
+        const success = await download(
+            url,
+            res.result.FileName + ".docx",
+            res.result.Extention
+        );
+        console.log("success", success);
+        if (success) {
+            ElMessage.success("下载完成！");
+        }
     }
 };
 //下一步 + 生成练习
