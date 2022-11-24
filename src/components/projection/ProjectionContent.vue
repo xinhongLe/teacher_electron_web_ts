@@ -78,7 +78,7 @@
                 <el-popover
                     trigger="click"
                     v-model:visible="isPopover"
-                    :append-to-body="false"
+                    :teleported="false"
                     placement="top"
                     :style="{ background: 'rgb(40, 40, 40)' }"
                     popper-class="brushPopup"
