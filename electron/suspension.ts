@@ -13,6 +13,7 @@ let blackboardWin: BrowserWindow | null;
 let timerWin: BrowserWindow | null;
 let projectionWin: BrowserWindow | null;
 let rollCallWin: BrowserWindow | null;
+let teamCompetitionWin: BrowserWindow | null;
 let answerMachineWin: BrowserWindow | null;
 let quickAnswerWin: BrowserWindow | null;
 let isShowTimer = false; // 悬浮球是否显示时间
@@ -64,6 +65,11 @@ const quickAnswerURL =
     process.env.NODE_ENV === "development"
         ? `${process.env.WEBPACK_DEV_SERVER_URL}quickAnswer.html`
         : `file://${__dirname}/quickAnswer.html`;
+
+const localTeamURL =
+    process.env.NODE_ENV === "development"
+        ? `${process.env.WEBPACK_DEV_SERVER_URL}teamCompetition.html`
+        : `file://${__dirname}/teamCompetition.html`;
 
 const localPreviewURL =
     process.env.NODE_ENV === "development"
@@ -692,6 +698,7 @@ export function registerEvent() {
         unfoldSuspensionWin && unfoldSuspensionWin.hide();
         rollCallWin && rollCallWin.destroy();
         answerMachineWin && answerMachineWin.destroy();
+        teamCompetitionWin && teamCompetitionWin.destroy();
         hideSuspensionIcon();
     });
 
@@ -794,6 +801,15 @@ export function registerEvent() {
         }
     });
 
+    ipcMain.handle("openTeamCompetition", () => {
+        showSuspension();
+        if (teamCompetitionWin) {
+            teamCompetitionWin.show();
+        } else {
+            createTeamCompetition();
+        }
+    });
+
     ipcMain.handle("timerWinHide", (_, time) => {
         showSuspension();
         isShowTimer = true;
@@ -874,7 +890,6 @@ export function registerEvent() {
     ipcMain.handle("openQuickAnswerWindow", (_, allStudentList, isAnswer) => {
         showSuspension();
         if (!quickAnswerWin) {
-            console.log(allStudentList, "allStudentList===");
             createQuickAnswerWindow(allStudentList, isAnswer);
         }
     });
@@ -900,3 +915,23 @@ export const unfoldSuspensionWinSendMessage = (
 ) => {
     unfoldSuspensionWin && unfoldSuspensionWin.webContents.send(event, message);
 };
+
+function createTeamCompetition() {
+    teamCompetitionWin = createWindow(localTeamURL, {
+        width: 360,
+        frame: false, // 要创建无边框窗口
+        resizable: false, // 是否允许窗口大小缩放
+        height: 250,
+        alwaysOnTop: true,
+        useContentSize: true,
+        maximizable: false
+    });
+
+    teamCompetitionWin.on("ready-to-show", () => {
+        // teamCompetitionWin && teamCompetitionWin.webContents.openDevTools();
+    });
+    
+    teamCompetitionWin.on("closed", () => {
+        teamCompetitionWin = null;
+    });
+}
