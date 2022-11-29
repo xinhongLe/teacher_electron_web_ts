@@ -73,6 +73,7 @@
         <div class="award-animation" ref="awardAni"></div>
         <div class="award-team-text">第 {{awardTeamShow + 1}} 小组</div>
     </div>
+    <!-- <audio controls src="./award.mp3" ref="audioRef"></audio> -->
 </template>
 
 <script lang="ts">
@@ -159,12 +160,14 @@ export default defineComponent({
         });
 
         const awardTeamShow = ref(0);
+        const audioRef = ref();
         const award = (i: number) => {
             awardShow.value = true;
             // awardLottie?.play();
             awardLottie?.goToAndPlay(0);
             awardTeamShow.value = i;
             playAudio(addAwardAudio);
+            // audioRef.value.play();
             setTimeout(() => {
                 awardShow.value = false;
                 if (awardTeam.value.indexOf(i) === -1) {
@@ -173,14 +176,15 @@ export default defineComponent({
             }, 2000);
         };
 
-        const playAudio = (src: string) => {
-            const audio = document.createElement("audio");
+        const playAudio = (src: any) => {
+            const audio = new Audio();
+            audio.crossOrigin = "anonymous";
             audio.src = src;
-            audio.onloadeddata = () => {
+            audio.oncanplaythrough = () => {
                 audio.play();
             };
             audio.onended = () => {
-                audio.remove();
+               audio.remove();
             }
 
         };
@@ -213,7 +217,8 @@ export default defineComponent({
             teamColors,
             awardShow,
             awardTeam,
-            awardTeamShow
+            awardTeamShow,
+            audioRef
         };
     }
 });
@@ -278,11 +283,13 @@ export default defineComponent({
     position: relative;
     font-size: 12px;
     top: 4px;
+    width: 52px;
 }
 
 .expand .team-name {
     font-size: 14px;
     top: 4px;
+    width: 64px;
 }
 
 .expand .team-item {
