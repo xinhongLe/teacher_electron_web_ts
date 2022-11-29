@@ -255,6 +255,10 @@ export default defineComponent({
     flex: 1;
 }
 
+.star-list::-webkit-scrollbar {
+  display: none;
+}
+
 .team-item {
     display: flex;
     align-items: flex-start;
@@ -267,6 +271,7 @@ export default defineComponent({
 
 .expand.star-list {
     padding: 26px 40px 0;
+    margin-bottom: 40px;
 }
 
 .team-name {
@@ -445,7 +450,7 @@ export default defineComponent({
     width: 20px;
     left: -25px;
     margin-top: 4px;
-    animation: award-show-animation 1.5s forwards;
+    animation: award-show-animation 1s forwards;
 }
 
 .expand .team-award-img {
@@ -466,34 +471,7 @@ export default defineComponent({
 
 @keyframes award-show-animation {
     0% {
-        transform: scale(1);
-    }
-    10% {
-        transform: scale(1.5);
-    }
-    20% {
-        transform: scale(1);
-    }
-    30% {
-        transform: scale(.5);
-    }
-    40% {
-        transform: scale(1);
-    }
-    50% {
-        transform: scale(1.5);
-    }
-    60% {
-        transform: scale(1);
-    }
-    70% {
-        transform: scale(.5);
-    }
-    80% {
-        transform: scale(1);
-    }
-    90% {
-        transform: scale(1.5);
+        transform: scale(0);
     }
     100% {
         transform: scale(1);
