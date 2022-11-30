@@ -73,7 +73,7 @@
         <div class="award-animation" ref="awardAni"></div>
         <div class="award-team-text">第 {{awardTeamShow + 1}} 小组</div>
     </div>
-    <!-- <audio controls src="./award.mp3" ref="audioRef"></audio> -->
+    <!-- <audio controls src="../../assets/teamCompetition/award.mp3" ref="audioRef"></audio> -->
 </template>
 
 <script lang="ts">
@@ -81,6 +81,7 @@ import { nextTick } from "process";
 import { computed, defineComponent, watch, ref } from "vue";
 import { animationData } from "./animation/data";
 import lottie, { AnimationItem } from "lottie-web";
+import { awardAudio } from "./award";
 
 export default defineComponent({
     props: {
@@ -143,8 +144,8 @@ export default defineComponent({
             require("./images/star10@2x.png")
         ];
 
-        const addStarAudio = require("./star.mp3");
-        const addAwardAudio = require("./award.mp3");
+        const addStarAudio = require("../../assets/teamCompetition/star.mp3");
+        const addAwardAudio = awardAudio;
 
         const awardShow = ref(false);
         const awardAni = ref();
@@ -283,7 +284,7 @@ export default defineComponent({
     position: relative;
     font-size: 12px;
     top: 4px;
-    width: 52px;
+    width: 54px;
 }
 
 .expand .team-name {
