@@ -1,6 +1,6 @@
 
 <template>
-    <el-dialog v-model="visible" title="游戏" width="30%" center @close="close">
+    <el-dialog v-model="visible" title="游戏" width="785px" center @close="close">
         <div class="page-type-box">
             <div :class="['content', currentIndex === index ? 'active'  : '']" v-for="(item, index) in list" :key="item.ID" @click="handleSelect(item, index)">
                 <img style="height: 100px;width: 140px" :src="item.imgUrl" alt="">
@@ -91,25 +91,25 @@ export default defineComponent({
     display: flex;
     justify-content: flex-start;
     flex-wrap: wrap;
-    margin-right: 20px;
-   .content{
-       text-align: center;
-       margin-left: 20px;
-       margin-bottom: 20px;
-       padding: 10px;
-       img{
-           width: 140px;
-           height: 100px;
-           cursor: pointer;
-       }
-       .text{
-           font-size: 16px;
-           font-weight: 600;
-           margin-top: 10px;
-       }
-   }
+    .content{
+        text-align: center;
+        margin-left: 20px;
+        margin-bottom: 20px;
+        padding: 10px;
+        border: 1px solid #fff;
+        img{
+            width: 140px;
+            height: 100px;
+            cursor: pointer;
+        }
+        .text{
+            font-size: 16px;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+    }
     .active{
-        border: 1px solid #409eff;
+        border: 1px solid var(--el-color-primary);
     }
 }
 </style>

@@ -33,7 +33,7 @@
         <add-game-dialog v-if="addGameVisible" v-model="addGameVisible" @addGame="addGame"></add-game-dialog>
 
         <!--游戏配置-->
-        <game-type v-if="gameTypeVisible" :slide="Object.assign(slide, currentGame.id ? { game: currentGame } : {})" @addGame="addGame" v-model="gameTypeVisible"></game-type>
+        <game-type v-if="gameTypeVisible" :slide="slide" @addGame="addGame" v-model="gameTypeVisible"></game-type>
 
     </div>
 </template>

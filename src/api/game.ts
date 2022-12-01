@@ -1,6 +1,6 @@
 import request from "@/utils/request";
 import { IResponse } from "@/types/response";
-import { IDollSetRes, IGetGameToolList, IQuackDollSetRes, IWordSet } from "@/types/game";
+import { IDollSetRes, IGetGameToolList, IQuackDollSetRes, IWordSet, ICarSetRes, ITugOfWarSetRes, IClassSetRes } from "@/types/game";
 import { originType, WINDOW_CRAD_API } from "@/config";
 
 type IResult = IResponse<any>
@@ -61,6 +61,45 @@ export function wordSet(data: IWordSet): Promise<IResult> {
 export function getTeacherPageGameConfig(data: {PageID: string}): Promise<IResult> {
     return request({
         url: "/Api/WCP/Game/GetTeacherPageGameConfig",
+        headers: {
+            "Content-Type": "application/json-patch+json"
+        },
+        method: "post",
+        baseURL: WINDOW_CRAD_API,
+        data: Object.assign(data, { OriginType: originType })
+    });
+}
+
+// 赛车游戏配置
+export function carSet(data: ICarSetRes): Promise<IResult> {
+    return request({
+        url: "/Api/WCP/Game/UpdateSpeedCarGameOption",
+        headers: {
+            "Content-Type": "application/json-patch+json"
+        },
+        method: "post",
+        baseURL: WINDOW_CRAD_API,
+        data: Object.assign(data, { OriginType: originType })
+    });
+}
+
+// 拔河游戏配置
+export function tugOfWarSet(data: ITugOfWarSetRes): Promise<IResult> {
+    return request({
+        url: "/Api/WCP/Game/UpdateTugOfWarOption",
+        headers: {
+            "Content-Type": "application/json-patch+json"
+        },
+        method: "post",
+        baseURL: WINDOW_CRAD_API,
+        data: Object.assign(data, { OriginType: originType })
+    });
+}
+
+// 超级分类配置
+export function classSet(data: IClassSetRes): Promise<IResult> {
+    return request({
+        url: "/Api/WCP/Game/UpdateSuperClassifyOption",
         headers: {
             "Content-Type": "application/json-patch+json"
         },
