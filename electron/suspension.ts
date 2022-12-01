@@ -1,4 +1,4 @@
-import { BrowserWindow, ipcMain, screen, app } from "electron";
+import { BrowserWindow, ipcMain, screen, app, remote, powerMonitor } from "electron";
 import { createWindow } from "./createWindow";
 import ElectronLog from "electron-log";
 import { checkWindowSupportNet } from "./util";
@@ -77,6 +77,22 @@ const localPreviewURL =
     process.env.NODE_ENV === "development"
         ? `${process.env.WEBPACK_DEV_SERVER_URL}winView.html`
         : `file://${__dirname}/winView.html`;
+
+powerMonitor.on("suspend", () => {
+    ElectronLog.log("系统即将休眠");
+});
+
+powerMonitor.on("resume", () => {
+    ElectronLog.log("解锁后重启小尖尖");
+    try {
+        if (lastSpwan) {
+            lastSpwan.kill();
+            lastSpwan.pid && process.kill(lastSpwan.pid);
+        }
+    } catch (e) {
+
+    }
+});
 
 app.on("will-quit", () => {
     try {
