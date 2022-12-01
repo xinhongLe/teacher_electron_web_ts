@@ -39,14 +39,16 @@
                          class="avatar-uploader"
                          action=""
                          accept=".jpg,.jpeg,.gif,.png"
-                         :http-request="(file) => uploadHttp(file, index)"
+                         :auto-upload="false"
+                         :on-change="(file) => onChange(file, index)"
                          :show-file-list="false"
                      >
                          <img v-if="item.File.url" :src="item.File.url" class="avatar" />
                          <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
                          <template #tip>
                              <div class="el-upload__tip">
-                                 支持jpg.jpeg.gif.png
+                                 <span>支持jpg.jpeg.gif.png</span>
+                                 <div style="color: red">*图片像素不超过508 * 180</div>
                              </div>
                          </template>
                      </el-upload>
@@ -93,7 +95,9 @@ export default defineComponent({
                     { Subject: "", Word: "", File: { url: "", Bucket: "", Name: "", FileName: "", FilePath: "", Extention: "", Type: 2 } },
                     { Subject: "", Word: "", File: { url: "", Bucket: "", Name: "", FileName: "", FilePath: "", Extention: "", Type: 2 } }
                 ]
-            }
+            },
+            imgWidth: 0,
+            imgHeight: 0
         });
 
         const addQuestion = () => {
@@ -118,8 +122,26 @@ export default defineComponent({
                 Type: 2
             };
         };
-        const uploadHttp = async (value: any, index:number) => {
-            upload(value.file, index);
+
+        const onChange = (file:any, index:number) => {
+            if (file) {
+                var reader = new FileReader();
+                reader.onload = function (event:any) {
+                    var base64 = event.target.result;
+                    var img = document.createElement("img");
+                    img.src = base64;
+                    img.onload = function () { // 注意只有onload以后才可以拿到图片信息
+                        state.imgWidth = img.width;
+                        state.imgHeight = img.height;
+
+                        if (state.imgWidth > 508 || state.imgHeight > 180) {
+                            return ElMessage.warning("图片像素不超过508 * 180");
+                        }
+                        upload(file.raw, index);
+                    };
+                };
+                reader.readAsDataURL(file.raw);
+            }
         };
 
         const formRef = ref();
@@ -181,7 +203,7 @@ export default defineComponent({
             ...toRefs(state),
             addQuestion,
             delQuestion,
-            uploadHttp,
+            onChange,
             handleComfirm
         };
     }
@@ -201,7 +223,7 @@ export default defineComponent({
     box-sizing: border-box;
     width: 390px;
     height: 320px;
-    border: 1px solid #dcdfe6;
+    border: 1px solid var(--el-border-color);
     padding: 24px;
     margin-bottom: 20px;
     margin-right: 20px;
@@ -210,7 +232,7 @@ export default defineComponent({
         justify-content: space-between;
         margin-bottom: 10px;
         .text{
-            color: #409eff;
+            color: var(--el-color-primary);
             cursor: pointer;
         }
     }
@@ -248,7 +270,7 @@ export default defineComponent({
         transition: var(--el-transition-duration-fast);
     }
     .el-icon.avatar-uploader-icon {
-        border: 1px solid #dcdfe6;
+        border: 1px solid var(--el-border-color);
         font-size: 28px;
         color: #8c939d;
         width: 96px;

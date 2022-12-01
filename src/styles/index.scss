@@ -262,6 +262,9 @@ html {
     border: none !important;
     --el-color-white: rgb(40, 40, 40);
     --el-border-color-light: rgb(40, 40, 40);
+    &.el-popper.is-light .el-popper__arrow::before {
+        background-color: #282828;
+    }
     .eraserPopup {
         display: flex;
         padding: 12px;
