@@ -1,4 +1,4 @@
-import { BrowserWindow, ipcMain, screen, app } from "electron";
+import { BrowserWindow, ipcMain, screen, app, remote, powerMonitor } from "electron";
 import { createWindow } from "./createWindow";
 import ElectronLog from "electron-log";
 import { checkWindowSupportNet } from "./util";
@@ -28,6 +28,8 @@ let isShowSuspension = false;
 let lastSpwan: ChildProcessWithoutNullStreams | null = null;
 let lastPort = 1122;
 let isFirstTime = true;
+let openTimes = -1;
+let lastOpenTime = new Date().getTime();
 
 const timerURL =
     process.env.NODE_ENV === "development"
@@ -75,6 +77,22 @@ const localPreviewURL =
     process.env.NODE_ENV === "development"
         ? `${process.env.WEBPACK_DEV_SERVER_URL}winView.html`
         : `file://${__dirname}/winView.html`;
+
+powerMonitor.on("suspend", () => {
+    ElectronLog.log("系统即将休眠");
+});
+
+powerMonitor.on("resume", () => {
+    ElectronLog.log("解锁后重启小尖尖");
+    try {
+        if (lastSpwan) {
+            lastSpwan.kill();
+            lastSpwan.pid && process.kill(lastSpwan.pid);
+        }
+    } catch (e) {
+
+    }
+});
 
 app.on("will-quit", () => {
     try {
@@ -393,12 +411,13 @@ function checkIsUseBallEXE(callback: (T: boolean, env?: number) => void) {
     }
 }
 
-function createBall() {
+function createBall(forcec = false) {
     let ballname = "winball/winball.exe";
+    let cballname = "ball.exe";
     return new Promise(resolve => {
         checkIsUseBallEXE((status, env) => {
             if (!status) {
-                ballname = "ball.exe";
+                ballname = cballname;
             } else {
                 if (env === 4) {
                     ballname = "winball/4.5/winball.exe";
@@ -413,7 +432,7 @@ function createBall() {
 
             }
             try {
-                lastSpwan = spawn(join(WIN_PATH_BALL, ballname), [lastPort.toString()]);
+                lastSpwan = spawn(join(WIN_PATH_BALL, forcec ? cballname : ballname), [lastPort.toString()]);
                 lastSpwan.stdout.on('data', (data) => {
                     console.log(`stdout: ${data}`);
                 });
@@ -445,6 +464,7 @@ class CustomCallBack implements CallBack {
 
     OnConnected(): void {
         isFirstTime = false;
+        openTimes = (new Date().getTime() - lastOpenTime) / 1000;
         ElectronLog.log("isShowSuspension", isShowSuspension);
         if (isShowSuspension) {
             showSuspension();
@@ -626,7 +646,13 @@ function startHeartbeat() {
     socketHelperHeartbeatCheckInterval = setInterval(() => {
         if ((new Date().getTime() - socketHelperHeartbeatTime) / 1000 > 5) {
             console.log("Heart, 需要退出重启");
-            createBall();
+            if (openTimes === -1) {
+                // 说明程序没起来过
+                createBall(true);
+            } else {
+                // 程序被杀掉或者意外闪退, 尝试重启
+                createBall();
+            }
         }
     }, 25000);
 }
