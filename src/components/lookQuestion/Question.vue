@@ -98,11 +98,7 @@
         </div>
     </div>
 
-    <drawing-board
-        :show="drawingShow"
-        @closeWriteBoard="drawingShow = false"
-        :isDialog="dialog"
-    />
+    <drawing-board :show="drawingShow" @closeWriteBoard="drawingShow = false" />
 </template>
 
 <script lang="ts">

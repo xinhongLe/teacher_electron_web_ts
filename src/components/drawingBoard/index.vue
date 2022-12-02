@@ -37,10 +37,6 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
-    isDialog: {
-        type: Boolean,
-        default: false,
-    },
 });
 
 const emits = defineEmits(["closeWriteBoard"]);
@@ -94,11 +90,9 @@ const canRedo = computed(() => whiteboard.value && whiteboard.value.canRedo);
 const resize = () => {
     // 窗口发生变化重新计算距离
     const { x, y } = whiteboardBox.value.getBoundingClientRect();
-    console.log("props.isDialog", props.isDialog);
-
     options.value = {
         offsetX: x,
-        offsetY: props.isDialog ? y + 20 : y,
+        offsetY: y,
     };
 };
 
@@ -113,7 +107,11 @@ watch(
 
 onMounted(() => {
     nextTick(() => {
-        resize();
+        const { x, y } = whiteboardBox.value.getBoundingClientRect();
+        options.value = {
+            offsetX: x,
+            offsetY: x == 0 && y == 0 ? y : y + 20, //初始化加载画笔偏移 + 20
+        };
         window.addEventListener("resize", resize);
     });
 });
