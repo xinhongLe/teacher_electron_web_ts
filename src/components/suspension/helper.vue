@@ -205,6 +205,18 @@
                             />
                             <div class="blackboard-text">随手画</div>
                         </div>
+                        <div
+                            class="blackboard-box"
+                            @click.stop="
+                                clicKBuryPoint('小组比拼'), openTeamCompetition()
+                            "
+                        >
+                            <img
+                                src="@/assets/images/suspension/pic_xzbp@2x.png"
+                                alt=""
+                            />
+                            <div class="blackboard-text">小组比拼</div>
+                        </div>
                     </div>
                 </el-collapse-item>
                 <el-collapse-item
@@ -399,9 +411,11 @@ export default defineComponent({
             }
             window.open(url);
         };
+
         const clickKnowledge = () => {
             openUrl("https://knowledge.aixueshi.top/", "知识图谱");
         };
+
         const openRollCall = () => {
             if (!isGetStudentList.value) {
                 return ElMessage.error("请等待学员加载后点名！");
@@ -416,6 +430,7 @@ export default defineComponent({
                 );
             }
         };
+
         const openAnswerMachineWindow = () => {
             if (!isGetStudentList.value) {
                 return ElMessage.error("请等待学员加载后答题！");
@@ -446,10 +461,16 @@ export default defineComponent({
                 );
             }
         };
+
         // 工具-随手画
         const openPainting = () => {
             window.electron.getWhiteBoard();
         };
+
+        // 打开小组比拼
+        const openTeamCompetition = () => {
+            if (isElectron()) window.electron.ipcRenderer.invoke("openTeamCompetition");
+        }
 
         const close = () => {
             if (isElectron()) {
@@ -615,7 +636,8 @@ export default defineComponent({
             classClicKBuryPoint,
             handleChange,
             currentClickCol,
-            openPainting
+            openPainting,
+            openTeamCompetition
         };
     }
 });

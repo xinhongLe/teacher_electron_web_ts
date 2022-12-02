@@ -1,4 +1,4 @@
-import { BrowserWindow, ipcMain, screen, app } from "electron";
+import { BrowserWindow, ipcMain, screen, app, remote, powerMonitor } from "electron";
 import { createWindow } from "./createWindow";
 import ElectronLog from "electron-log";
 import { checkWindowSupportNet } from "./util";
@@ -13,6 +13,7 @@ let blackboardWin: BrowserWindow | null;
 let timerWin: BrowserWindow | null;
 let projectionWin: BrowserWindow | null;
 let rollCallWin: BrowserWindow | null;
+let teamCompetitionWin: BrowserWindow | null;
 let answerMachineWin: BrowserWindow | null;
 let quickAnswerWin: BrowserWindow | null;
 let isShowTimer = false; // 悬浮球是否显示时间
@@ -27,6 +28,8 @@ let isShowSuspension = false;
 let lastSpwan: ChildProcessWithoutNullStreams | null = null;
 let lastPort = 1122;
 let isFirstTime = true;
+let openTimes = -1;
+let lastOpenTime = new Date().getTime();
 
 const timerURL =
     process.env.NODE_ENV === "development"
@@ -65,10 +68,31 @@ const quickAnswerURL =
         ? `${process.env.WEBPACK_DEV_SERVER_URL}quickAnswer.html`
         : `file://${__dirname}/quickAnswer.html`;
 
+const localTeamURL =
+    process.env.NODE_ENV === "development"
+        ? `${process.env.WEBPACK_DEV_SERVER_URL}teamCompetition.html`
+        : `file://${__dirname}/teamCompetition.html`;
+
 const localPreviewURL =
     process.env.NODE_ENV === "development"
         ? `${process.env.WEBPACK_DEV_SERVER_URL}winView.html`
         : `file://${__dirname}/winView.html`;
+
+powerMonitor.on("suspend", () => {
+    ElectronLog.log("系统即将休眠");
+});
+
+powerMonitor.on("resume", () => {
+    ElectronLog.log("解锁后重启小尖尖");
+    try {
+        if (lastSpwan) {
+            lastSpwan.kill();
+            lastSpwan.pid && process.kill(lastSpwan.pid);
+        }
+    } catch (e) {
+
+    }
+});
 
 app.on("will-quit", () => {
     try {
@@ -387,12 +411,13 @@ function checkIsUseBallEXE(callback: (T: boolean, env?: number) => void) {
     }
 }
 
-function createBall() {
+function createBall(forcec = false) {
     let ballname = "winball/winball.exe";
+    let cballname = "ball.exe";
     return new Promise(resolve => {
         checkIsUseBallEXE((status, env) => {
             if (!status) {
-                ballname = "ball.exe";
+                ballname = cballname;
             } else {
                 if (env === 4) {
                     ballname = "winball/4.5/winball.exe";
@@ -407,7 +432,7 @@ function createBall() {
 
             }
             try {
-                lastSpwan = spawn(join(WIN_PATH_BALL, ballname), [lastPort.toString()]);
+                lastSpwan = spawn(join(WIN_PATH_BALL, forcec ? cballname : ballname), [lastPort.toString()]);
                 lastSpwan.stdout.on('data', (data) => {
                     console.log(`stdout: ${data}`);
                 });
@@ -439,6 +464,7 @@ class CustomCallBack implements CallBack {
 
     OnConnected(): void {
         isFirstTime = false;
+        openTimes = (new Date().getTime() - lastOpenTime) / 1000;
         ElectronLog.log("isShowSuspension", isShowSuspension);
         if (isShowSuspension) {
             showSuspension();
@@ -620,7 +646,13 @@ function startHeartbeat() {
     socketHelperHeartbeatCheckInterval = setInterval(() => {
         if ((new Date().getTime() - socketHelperHeartbeatTime) / 1000 > 5) {
             console.log("Heart, 需要退出重启");
-            createBall();
+            if (openTimes === -1) {
+                // 说明程序没起来过
+                createBall(true);
+            } else {
+                // 程序被杀掉或者意外闪退, 尝试重启
+                createBall();
+            }
         }
     }, 25000);
 }
@@ -692,6 +724,7 @@ export function registerEvent() {
         unfoldSuspensionWin && unfoldSuspensionWin.hide();
         rollCallWin && rollCallWin.destroy();
         answerMachineWin && answerMachineWin.destroy();
+        teamCompetitionWin && teamCompetitionWin.destroy();
         hideSuspensionIcon();
     });
 
@@ -794,6 +827,15 @@ export function registerEvent() {
         }
     });
 
+    ipcMain.handle("openTeamCompetition", () => {
+        showSuspension();
+        if (teamCompetitionWin) {
+            teamCompetitionWin.show();
+        } else {
+            createTeamCompetition();
+        }
+    });
+
     ipcMain.handle("timerWinHide", (_, time) => {
         showSuspension();
         isShowTimer = true;
@@ -874,7 +916,6 @@ export function registerEvent() {
     ipcMain.handle("openQuickAnswerWindow", (_, allStudentList, isAnswer) => {
         showSuspension();
         if (!quickAnswerWin) {
-            console.log(allStudentList, "allStudentList===");
             createQuickAnswerWindow(allStudentList, isAnswer);
         }
     });
@@ -900,3 +941,23 @@ export const unfoldSuspensionWinSendMessage = (
 ) => {
     unfoldSuspensionWin && unfoldSuspensionWin.webContents.send(event, message);
 };
+
+function createTeamCompetition() {
+    teamCompetitionWin = createWindow(localTeamURL, {
+        width: 360,
+        frame: false, // 要创建无边框窗口
+        resizable: false, // 是否允许窗口大小缩放
+        height: 250,
+        alwaysOnTop: true,
+        useContentSize: true,
+        maximizable: false
+    });
+
+    teamCompetitionWin.on("ready-to-show", () => {
+        // teamCompetitionWin && teamCompetitionWin.webContents.openDevTools();
+    });
+    
+    teamCompetitionWin.on("closed", () => {
+        teamCompetitionWin = null;
+    });
+}

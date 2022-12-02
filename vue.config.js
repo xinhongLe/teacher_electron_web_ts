@@ -100,6 +100,13 @@ module.exports = {
             filename: "winView.html",
             title: "",
             chunks: ["winView"]
+        },
+        teamCompetition: {
+            entry: "src/childWindow/teamCompetition/main.ts",
+            template: "public/index.html",
+            filename: "teamCompetition.html",
+            title: "小组比拼",
+            chunks: ["teamCompetition"]
         }
     },
     css: {
