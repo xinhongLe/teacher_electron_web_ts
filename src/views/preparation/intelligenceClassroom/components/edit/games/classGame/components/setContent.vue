@@ -152,9 +152,9 @@ export default defineComponent({
     setup(props, { emit }) {
         const state = reactive({
             typeList: [
-                { name: "文本->文本", value: 1 },
-                { name: "文本->图片", value: 2 },
-                { name: "图片->图片", value: 3 }
+                { name: "文本+文本", value: 1 },
+                { name: "图片+文本", value: 2 },
+                { name: "图片+图片", value: 3 }
             ],
             optionList: [
                 { name: "树林", value: 0 },
