@@ -37,6 +37,7 @@
                     :lessonId="lessonId"
                     v-if="visible"
                     :close="close"
+                    :isFullScreen="!isFullScreen"
                 />
             </div>
         </el-dialog>
@@ -53,7 +54,7 @@ import {
     PropType,
     provide,
     ref,
-    watch
+    watch,
 } from "vue";
 import ResourceViewList from "@/views/resourceView/resourceViewList.vue";
 import ResourceItem from "../resourceItem.vue";
@@ -65,27 +66,27 @@ export default defineComponent({
     props: {
         target: {
             type: String,
-            default: ""
+            default: "",
         },
         resource: {
-            type: Object as PropType<IResourceItem>
+            type: Object as PropType<IResourceItem>,
         },
         visible: {
             type: Boolean,
-            default: false
+            default: false,
         },
         lessonId: {
             type: String,
-            default: ""
+            default: "",
         },
         name: {
             type: String,
-            default: ""
+            default: "",
         },
         data: {
             type: Object as PropType<IViewResourceData>,
-            required: true
-        }
+            required: true,
+        },
     },
     emits: ["eventEmit", "update:visible", "closeDetail"],
     setup(props, { emit }) {
@@ -141,9 +142,9 @@ export default defineComponent({
             isFullScreen,
             close,
             setFullScreen,
-            eventEmit
+            eventEmit,
         };
-    }
+    },
 });
 </script>
 
@@ -198,7 +199,7 @@ export default defineComponent({
         position: absolute;
         top: 10px;
         right: 10px;
-        z-index: 9999;
+        z-index: 99999;
         cursor: pointer;
     }
 }

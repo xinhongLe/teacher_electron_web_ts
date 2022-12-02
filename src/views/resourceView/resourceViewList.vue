@@ -59,11 +59,7 @@
             </div>
         </div>
     </div>
-    <drawing-board
-        :show="drawingShow"
-        @closeWriteBoard="drawingShow = false"
-        :isDialog="true"
-    />
+    <drawing-board :show="drawingShow" @closeWriteBoard="drawingShow = false" />
 </template>
 
 <script lang="ts">
@@ -85,39 +81,44 @@ import { IViewResourceData } from "@/types/store";
 import AnswerMachine from "@/components/answerMachine/index.vue";
 import DrawingBoard from "@/components/drawingBoard/index.vue";
 export default defineComponent({
-    components: { AnswerMachine, DrawingBoard, IntelligenceClassroom, LookVideo, LookQuestion },
+    components: {
+        AnswerMachine,
+        DrawingBoard,
+        IntelligenceClassroom,
+        LookVideo,
+        LookQuestion,
+    },
     props: {
         target: {
             type: String,
-            default: ""
+            default: "",
         },
         resource: {
             type: Object as PropType<IResourceItem | undefined>,
-            required: true
+            required: true,
         },
         type: {
-            type: Number
+            type: Number,
         },
         visible: {
             type: Boolean,
-            default: false
+            default: false,
         },
         close: {
             type: Function,
-            default: () => {}
+            default: () => {},
         },
         data: {
             type: Object as PropType<IViewResourceData>,
-            required: true
+            required: true,
         },
         lessonId: {
             type: String,
-            required: true
-        }
+            required: true,
+        },
     },
     setup(props, { emit }) {
         const drawingShow = ref(false);
-
         const store = useStore();
         const url = ref("");
         const initIframeSrc = async () => {
