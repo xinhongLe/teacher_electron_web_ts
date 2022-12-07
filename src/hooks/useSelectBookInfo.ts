@@ -1,15 +1,12 @@
 import {
-    getSubjectPublisherBookList, getChapters, getWindowCards, deleteCardOrPage, addPage,
-    renameCardOrPage, setCardOrPageState, updateCardSort, movePage, addCard, copyPage,
-    IGetChapters, IGetWindowCards, IDelCardOrPage, IAddPage, IRenameCardOrPage,
-    ICardOrPageState, ICardSortRes, IAddCard, ICopyPage, IMovePage
+    getSubjectPublisherBookList, getChapters, getWindowStruct,
+    IGetChapters, IGetWindowCards
 } from "@/api/home";
 import { ITreeList, ICardList, IPageValue } from "@/types/home";
-import { reactive, ref, computed } from "vue";
-import { ElMessageBox, ElMessage } from "element-plus";
-import Node from "element-plus/es/components/tree/src/model/node";
+import { reactive, ref, toRefs } from "vue";
 import { useRoute } from "vue-router";
-import TrackService, { EnumTrackEventType } from "@/utils/common";
+import { Slide } from "wincard";
+import useHome from "@/hooks/useHome";
 interface State {
     subjectPublisherBookList: ITreeList[],
     subjectPublisherBookValue: string[],
@@ -19,6 +16,8 @@ interface State {
     winValue: string[],
     windowCards: ICardList[],
     oldWindowCards: ICardList[], // 拖拽使用
+    allPageListMap: Map<string, Slide>
+    oldAllPageListMap: Map<string, Slide>
     pastePage: IPageValue | null
 }
 
@@ -32,7 +31,7 @@ export default () => {
         State: false
     });
     const cardsValue = ref({ ID: "" });
-    const isSetCache = ref(false); // 是否需要更新窗下的数据
+    // const isSetCache = ref(false); // 是否需要更新窗下的数据
     const state = reactive<State>({
         subjectPublisherBookList: [],
         subjectPublisherBookValue: [],
@@ -42,8 +41,12 @@ export default () => {
         winValue: [],
         windowCards: [],
         oldWindowCards: [],
+        allPageListMap: new Map(),
+        oldAllPageListMap: new Map(),
         pastePage: null // 粘贴卡
     });
+
+    const { transformPageDetail } = useHome();
 
     const findFirstId = (tree: ITreeList[], ids: string[]) => {
         tree.forEach((item) => {
@@ -92,18 +95,42 @@ export default () => {
         state.windowCards = [];
     };
 
-    const _getWindowCards = (data: IGetWindowCards, isCache = false) => {
-        return getWindowCards(data).then(res => {
+    const _getWindowCards = (data: IGetWindowCards) => {
+        // return getWindowCards(data).then(res => {
+        //     if (res.resultCode === 200) {
+        //         state.windowCards = res.result;
+        //         isSetCache.value = isCache;
+        //         state.oldWindowCards = JSON.parse(JSON.stringify(res.result));
+        //     }
+        // });
+        state.allPageListMap.clear();
+        state.oldAllPageListMap.clear();
+        return getWindowStruct(data).then(res => {
             if (res.resultCode === 200) {
-                state.windowCards = res.result;
-                isSetCache.value = isCache;
-                state.oldWindowCards = JSON.parse(JSON.stringify(res.result));
+                state.windowCards = res.result.CardData || [];
+                // isSetCache.value = isCache;
+                state.oldWindowCards = JSON.parse(JSON.stringify(state.windowCards));
+                savePageDB(JSON.parse(JSON.stringify(state.windowCards)));
             }
         });
     };
 
+    // 缓存页到本地数据库DB、处理所有的页数据
+    const savePageDB = (windowCards: ICardList[]) => {
+        windowCards.forEach((card: ICardList) => {
+            card.PageList.forEach(async (page: IPageValue) => {
+                page.Json = page.Json && typeof page.Json === "string" ? JSON.parse(page.Json) : page.Json;
+                const newSlide: Slide = await transformPageDetail(page, page.Json);
+                state.allPageListMap.set(page.ID, newSlide);
+                state.oldAllPageListMap.set(page.ID, newSlide);
+            });
+        });
+
+        console.log(state.allPageListMap, "state.allPageListMap====");
+    };
+
     return {
-        isSetCache,
+        // isSetCache,
         defaultProps,
         pageValue,
         cardsValue,

@@ -193,7 +193,7 @@
             <win-card-edit
                 ref="editRef"
                 :slide="{...currentSlide}"
-                :allPageSlideListMap="allPageSlideListMap"
+                :allPageSlideListMap="allPageListMap"
                 @onSave="onSave"
                 @updatePageSlide="updatePageSlide"
                 @updateAllPageSlideListMap="updateAllPageSlideListMap"
@@ -308,19 +308,22 @@ export default defineComponent({
         const showCollapse = ref(true);
         const shrinkRef = ref();
 
-        const { state, defaultProps, pageValue, isSetCache, _getWindowCards } =
+        const { state, defaultProps, pageValue, _getWindowCards } =
             useSelectBookInfo();
 
         const windowCards = toRef(state, "windowCards");
 
         const oldWindowCards = toRef(state, "oldWindowCards");
 
+        const allPageListMap = toRef(state, "allPageListMap");
+        const oldAllPageListMap = toRef(state, "oldAllPageListMap");
+
         const {
-            fetchAllPageSlide,
-            allPageSlideListMap,
-            oldAllPageSlideListMap,
-            isLoadEnd,
-            resetPageSlide
+            // fetchAllPageSlide,
+            // allPageSlideListMap,
+            // oldAllPageSlideListMap,
+            // isLoadEnd,
+            // resetPageSlide
         } = useGetPageSlide(pageValue);
 
         const {
@@ -334,7 +337,7 @@ export default defineComponent({
 
         const { handleCopy, handlePaste, pastePage } = useCopyPage(
             windowCards,
-            allPageSlideListMap
+            allPageListMap
         );
 
         const {
@@ -345,14 +348,14 @@ export default defineComponent({
             allPageList,
             isWatchChange,
             cardListRef
-        } = useSelectPage(pageValue, allPageSlideListMap);
+        } = useSelectPage(pageValue, allPageListMap);
 
         const { allowDrop } = useDragPage();
 
         const { handleAdd, addPageCallback, dialogVisible } = useAddPage(
             shrinkRef,
             windowCards,
-            allPageSlideListMap
+            allPageListMap
         );
 
         const {
@@ -429,9 +432,9 @@ export default defineComponent({
         };
 
         const onSave = async () => {
-            if (!isLoadEnd.value) {
-                return ElMessage.warning("资源正在加载，请稍后再试...");
-            }
+            // if (!isLoadEnd.value) {
+            //     return ElMessage.warning("资源正在加载，请稍后再试...");
+            // }
             const cardData = windowCards.value.map((card, index) => {
                 const cardID = card.isAdd ? "" : card.ID;
                 const cardName = card.Name;
@@ -439,7 +442,7 @@ export default defineComponent({
                 const pageList = card.PageList;
                 const pageData = pageList.map((page, pageIndex) => {
                     const { ID, Name, Type, State, isAdd } = page;
-                    const slide = allPageSlideListMap.value.get(ID);
+                    const slide = allPageListMap.value.get(ID);
                     let json = "";
                     const academicPresupposition = slide?.remark || "";
                     const designIntent = slide?.design || "";
@@ -509,8 +512,8 @@ export default defineComponent({
                 store.commit(MutationTypes.SET_EDIT_WINDOW_INFO, {
                     ...windowInfo.value
                 });
-                allPageSlideListMap.value.forEach((item, key) => {
-                    oldAllPageSlideListMap.value.set(key, cloneDeep(item));
+                allPageListMap.value.forEach((item, key) => {
+                    oldAllPageListMap.value.set(key, cloneDeep(item));
                 });
                 oldWindowCards.value = cloneDeep(windowCards.value);
             }
@@ -585,7 +588,7 @@ export default defineComponent({
                 const name = uploadFileName.value.split("\\");
                 const pageList = result.slides.map((item, index) => {
                     const id = uuidv4();
-                    allPageSlideListMap.value.set(id, item);
+                    allPageListMap.value.set(id, item);
                     return {
                         ID: id,
                         Name: name[name.length - 1] + "-" + (index + 1),
@@ -607,33 +610,29 @@ export default defineComponent({
 
         const updatePageSlide = (slide: Slide) => {
             if (!pageValue.value.ID) return;
-            allPageSlideListMap.value.set(pageValue.value.ID, slide);
+            allPageListMap.value.set(pageValue.value.ID, slide);
         };
 
         // 同步教案的数据
         const updateAllPageSlideListMap = (newAllPageList:any[]) => {
             newAllPageList.forEach((item:any) => {
-                const value = allPageSlideListMap.value.get(item.TeachPageID);
+                const value = allPageListMap.value.get(item.TeachPageID);
                 const newValue = {
                     ...value,
                     remark: item.AcademicPresupposition || "",
                     design: item.DesignIntent || ""
                 };
-                allPageSlideListMap.value.set(item.TeachPageID, newValue as Slide);
-                oldAllPageSlideListMap.value.set(item.TeachPageID, cloneDeep(newValue as Slide));
+                allPageListMap.value.set(item.TeachPageID, newValue as Slide);
+                oldAllPageListMap.value.set(item.TeachPageID, cloneDeep(newValue as Slide));
             });
         };
 
         const winCardViewRef = ref();
         onMounted(() => {
-            _getWindowCards(
-                {
-                    WindowID: windowInfo.value.id,
-                    OriginType: windowInfo.value.originType
-                },
-                true
+            _getWindowCards({ WindowID: windowInfo.value.id, OriginType: windowInfo.value.originType }
             ).then(() => {
-                fetchAllPageSlide(getAllPageList());
+                console.log("111111111111================");
+                // fetchAllPageSlide(getAllPageList());
             });
             window.addEventListener("keydown", keyDown);
 
@@ -654,11 +653,11 @@ export default defineComponent({
         onBeforeRouteLeave(async () => {
             // 先更新一下当前页
             const slide = editRef.value.getCurrentSlide();
-            allPageSlideListMap.value.set(pageValue.value.ID, slide);
+            allPageListMap.value.set(pageValue.value.ID, slide);
             if (
                 isEqual(
-                    allPageSlideListMap.value,
-                    oldAllPageSlideListMap.value
+                    allPageListMap.value,
+                    oldAllPageListMap.value
                 ) &&
                 isEqual(windowCards.value, oldWindowCards.value)
             ) return true;
@@ -682,7 +681,7 @@ export default defineComponent({
             cardListRef,
             ...toRefs(state),
             allPageList,
-            isSetCache,
+            // isSetCache,
             defaultProps,
             pageValue,
             currentValue,
@@ -713,13 +712,13 @@ export default defineComponent({
             pptPages,
             updatePageSlide,
             updateAllPageSlideListMap,
-            allPageSlideListMap,
-            oldAllPageSlideListMap,
+            // allPageSlideListMap,
+            // oldAllPageSlideListMap,
             _getWindowCards,
             offScreen,
             handleMask,
             currentSlide: computed(
-                () => allPageSlideListMap.value.get(pageValue.value.ID) || {}
+                () => allPageListMap.value.get(pageValue.value.ID) || {}
             ),
             windowInfo,
             importPPT

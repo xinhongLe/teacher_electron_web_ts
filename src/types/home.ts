@@ -18,7 +18,8 @@ export interface IPageValue {
     originType?: number,
     OriginType?: number,
     isAdd?: boolean,
-    State: boolean
+    State: boolean,
+    Json?: string
 }
 
 export interface ICardList {
