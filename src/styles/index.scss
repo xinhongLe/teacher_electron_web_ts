@@ -205,6 +205,27 @@ html {
             }
         }
 
+        // 首页气泡样式
+        .tooltip-class{
+            position: absolute;
+            padding: 12px;
+            background-color: #303133;
+            z-index: 999;
+            color: #fff;
+            border-radius: 10px;
+            &:after{
+                display: block;
+                content: "";
+                width: 15px;
+                height: 15px;
+                background-color: #303133;
+                transform: rotate(45deg);
+                position: absolute;
+                left:10px;
+                top: 25px;
+            }
+        }
+
     }
 }
 

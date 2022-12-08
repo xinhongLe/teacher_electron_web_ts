@@ -1,64 +1,25 @@
 <template>
     <div class="home">
-        <div
-            class="left"
-            :style="{
-                width: showCollapse ? '280px' : '0px',
-                padding: showCollapse ? '0px' : '0px 9px',
-            }"
-        >
+        <div class="left" :style="{  width: showCollapse ? '280px' : '0px', padding: showCollapse ? '0px' : '0px 9px',}">
             <div class="left-content">
                 <div>
                     <el-row :gutter="20" v-if="windowInfo.id.length > 0">
                         <el-col :span="8">
-                            <el-button
-                                class="add-card"
-                                @click="dialogVisibleCard = true"
-                                size="default"
-                                type="primary"
-                                plain
-                                >新增卡</el-button
-                            >
+                            <el-button class="add-card" @click="dialogVisibleCard = true" size="default" type="primary" plain>新增卡</el-button>
                         </el-col>
                         <el-col :span="8">
-                            <el-button
-                                class="add-card"
-                                @click="importPPT()"
-                                size="default"
-                                type="primary"
-                                plain
-                                >导入</el-button
-                            >
+                            <el-button class="add-card" @click="importPPT()" size="default" type="primary" plain>导入</el-button>
                         </el-col>
                         <el-col :span="8">
-                            <el-popover
-                                placement="bottom-start"
-                                :width="50"
-                                trigger="focus"
-                            >
+                            <el-popover placement="bottom-start" :width="50" trigger="focus">
                                 <template #reference>
-                                    <el-button
-                                        class="add-card"
-                                        @click.stop
-                                        size="default"
-                                        type="primary"
-                                        plain
-                                        >预览窗</el-button
-                                    >
+                                    <el-button class="add-card" @click.stop size="default" type="primary" plain>预览窗</el-button>
                                 </template>
                                 <div class="operation-box">
-                                    <div
-                                        @click="
-                                            handleView(allPageList, 'first')
-                                        "
-                                    >
+                                    <div @click="  handleView(allPageList, 'first')">
                                         首页预览
                                     </div>
-                                    <div
-                                        @click="
-                                            handleView(allPageList, 'active')
-                                        "
-                                    >
+                                    <div @click=" handleView(allPageList, 'active')">
                                         当前页预览
                                     </div>
                                 </div>
@@ -68,6 +29,7 @@
                 </div>
                 <div class="card-list" ref="cardListRef">
                     <el-tree
+                        :class="viewTree ? 'view-tree-box' : 'tree-box'"
                         default-expand-all
                         node-key="ID"
                         draggable
@@ -79,102 +41,54 @@
                         @node-click="handleNodeClick"
                     >
                         <template #default="{ node, data }">
-                            <div
-                                :class="[
-                                    'custom-tree-node',
-                                    pageValue.ID === data.ID
-                                        ? 'active-text'
-                                        : '',
-                                ]"
-                            >
-                                <span class="label-class">
-                                    <span
-                                        :style="{
-                                            color:
-                                                !data.State && node.level === 2
-                                                    ? '#c0c4cc'
-                                                    : pageValue.ID === data.ID
-                                                    ? '#409Eff'
-                                                    : '#333',
-                                        }"
-                                        >{{ node.label }}</span
-                                    >
-                                </span>
+                            <div :class="[ 'custom-tree-node',  pageValue.ID === data.ID ? 'active-text' : '' ]">
+                                <div class="label-class" @mouseenter="mouseenter($event, node.label)" @mouseleave="mouseleave">
+                                    <span  v-if="!viewTree"
+                                           :style="{
+                                        color: !data.State && node.level === 2 ? '#c0c4cc': pageValue.ID === data.ID? '#409Eff': '#333'}">
+                                        {{ node.label }}
+                                    </span>
+
+                                    <div v-else>
+                                        <span v-if="node.level === 1">{{ node.label }}</span>
+                                        <div v-else v-contextmenu="(el: any) => contextmenus(el, data)">
+                                            <div
+                                                @click.stop="handleSelectPages(data)"
+                                                :style="{ backgroundColor: (selectPageData.map(((item: any) => item.ID)).includes(data.ID) ? 'var(--el-color-primary)' : '#fff') }"
+                                                class="select-page"
+                                            >
+                                                <el-icon color="#fff">
+                                                    <Check />
+                                                </el-icon>
+                                            </div>
+                                            <ThumbnailSlide
+                                                v-if="data.Type === pageType.element || data.Type === pageType.listen"
+                                                :slide="allPageListMap.get(data.ID) || {}"
+                                                :size="190"
+                                                style="border: 1px solid #ebeff1"
+                                            ></ThumbnailSlide>
+                                            <div class="view-empty" v-else>{{ data.Name }}</div>
+                                        </div>
+                                    </div>
+                                </div>
                                 <div class="icon-box">
-                                    <el-popover
-                                        placement="right-start"
-                                        :width="50"
-                                        trigger="focus"
-                                    >
+                                    <el-popover placement="right-start" :width="50" trigger="focus">
                                         <template #reference>
-                                            <el-button @click.stop>
-                                                <el-icon :size="18"
-                                                    ><more-filled
-                                                /></el-icon>
+                                            <el-button size="small" @click.stop>
+                                                <el-icon :size="18"><more-filled/></el-icon>
                                             </el-button>
                                         </template>
                                         <div class="operation-box">
-                                            <div
-                                                v-show="node.level === 1"
-                                                @click.stop="
-                                                    handleView(
-                                                        data.PageList,
-                                                        'first'
-                                                    )
-                                                "
-                                            >
-                                                预览
+                                            <div v-show="node.level === 1" @click.stop=" handleView(data.PageList,'first')">预览</div>
+                                            <div v-show="node.level === 1" @click.stop="handleAdd(node, data)">新增页</div>
+                                            <div @click.stop=" handleUpdateName(node, data)">修改名称</div>
+                                            <div v-show="node.level === 2" @click.stop=" handleUpdateState( node,data )">
+                                                {{data.State ? "下架" : "上架"}}
                                             </div>
-                                            <div
-                                                v-show="node.level === 1"
-                                                @click.stop="
-                                                    handleAdd(node, data)
-                                                "
-                                            >
-                                                新增页
-                                            </div>
-                                            <div
-                                                @click.stop="
-                                                    handleUpdateName(node, data)
-                                                "
-                                            >
-                                                修改名称
-                                            </div>
-                                            <div
-                                                v-show="node.level === 2"
-                                                @click.stop="
-                                                    handleUpdateState(
-                                                        node,
-                                                        data
-                                                    )
-                                                "
-                                            >
-                                                {{
-                                                    data.State ? "下架" : "上架"
-                                                }}
-                                            </div>
-                                            <div
-                                                v-show="node.level === 1"
-                                                @click.stop="handlePaste(data)"
-                                            >
-                                                粘贴页
-                                            </div>
+                                            <div v-show="node.level === 1" @click.stop="handlePaste(data)">粘贴页</div>
                                             <!--游戏页暂不支持复制-->
-                                            <div
-                                                v-show="node.level === 2 && data.Type !==20"
-                                                @click.stop="
-                                                    handleCopy(node, data)
-                                                "
-                                            >
-                                                复制页
-                                            </div>
-                                            <div
-                                                @click.stop="
-                                                    handleDel(node, data)
-                                                "
-                                            >
-                                                删除
-                                            </div>
+                                            <div v-show="node.level === 2 && data.Type !==20" @click.stop=" handleCopy(node, data)"> 复制页</div>
+                                            <div @click.stop=" handleDel(node, data)">删除</div>
                                         </div>
                                     </el-popover>
                                 </div>
@@ -280,7 +194,8 @@ import useDragPage from "./hooks/useDragPage";
 import useAddCard from "./hooks/useAddCard";
 import useAddPage from "./hooks/useAddPage";
 import useUpdateName from "./hooks/useUpdateName";
-import useGetPageSlide from "./hooks/useGetPageSlide";
+import useSaveTemplate from "./hooks/useSaveTemplate";
+// import useGetPageSlide from "./hooks/useGetPageSlide";
 import isElectron from "is-electron";
 import { Slide } from "wincard";
 import { saveWindows, saveAsWindows } from "../api";
@@ -289,6 +204,7 @@ import emitter from "@/utils/mitt";
 import exitDialog, { ExitType } from "./exitDialog";
 import TrackService, { EnumTrackEventType } from "@/utils/common";
 import useImportPPT from "@/hooks/useImportPPT";
+import useTooltipShow from "./hooks/useTooltipShow";
 import { v4 as uuidv4 } from "uuid";
 import { pageType } from "@/config";
 import { MutationTypes, store } from "@/store";
@@ -307,9 +223,10 @@ export default defineComponent({
     setup() {
         const showCollapse = ref(true);
         const shrinkRef = ref();
+        const viewTree = ref(true);
 
-        const { state, defaultProps, pageValue, _getWindowCards } =
-            useSelectBookInfo();
+        const { tooltipShow, mouseenter, mouseleave } = useTooltipShow();
+        const { state, defaultProps, pageValue, _getWindowCards } = useSelectBookInfo();
 
         const windowCards = toRef(state, "windowCards");
 
@@ -318,13 +235,15 @@ export default defineComponent({
         const allPageListMap = toRef(state, "allPageListMap");
         const oldAllPageListMap = toRef(state, "oldAllPageListMap");
 
-        const {
-            // fetchAllPageSlide,
-            // allPageSlideListMap,
-            // oldAllPageSlideListMap,
-            // isLoadEnd,
-            // resetPageSlide
-        } = useGetPageSlide(pageValue);
+        // const {
+        // fetchAllPageSlide,
+        // allPageSlideListMap,
+        // oldAllPageSlideListMap,
+        // isLoadEnd,
+        // resetPageSlide
+        // } = useGetPageSlide(pageValue);
+
+        const { selectPageData, contextmenus, handleSelectPages } = useSaveTemplate();
 
         const {
             previewPageList,
@@ -675,6 +594,7 @@ export default defineComponent({
         });
 
         return {
+            viewTree,
             editRef,
             shrinkRef,
             winCardViewRef,
@@ -684,6 +604,7 @@ export default defineComponent({
             // isSetCache,
             defaultProps,
             pageValue,
+            pageType,
             currentValue,
             previewPageList,
             activePreviewPageIndex,
@@ -693,6 +614,9 @@ export default defineComponent({
             dialogVisibleName,
             winScreenView,
             isWatchChange,
+            tooltipShow,
+            mouseenter,
+            mouseleave,
             handleNodeClick,
             allowDrop,
             handleAddCard,
@@ -721,7 +645,10 @@ export default defineComponent({
                 () => allPageListMap.value.get(pageValue.value.ID) || {}
             ),
             windowInfo,
-            importPPT
+            importPPT,
+            selectPageData,
+            contextmenus,
+            handleSelectPages
         };
     }
 });
@@ -761,39 +688,72 @@ export default defineComponent({
             .card-list {
                 flex: 1;
                 overflow-y: auto;
-                .el-tree{
-                    :deep(.el-tree-node__label){
+                overflow-x: hidden;
+
+                :deep(.el-tree-node:focus > .el-tree-node__content) {
+                    background-color: #fff;
+                }
+
+                .el-tree {
+                    :deep(.el-tree-node__label) {
                         width: 100%;
                     }
                 }
 
-                :deep(.el-tree-node__content) {
-                    height: 46px;
-                }
-                :deep(.el-tree-node:focus > .el-tree-node__content) {
-                    background-color: #fff;
-                }
-                .custom-tree-node {
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    width: 80%;
-                    position: relative;
-                    .label-class {
-                        width: 100%;
-                        text-overflow: ellipsis;
-                        white-space: nowrap;
-                        overflow: hidden;
+                .view-tree-box {
+                    :deep(.el-tree-node__children) {
+                        .el-tree-node__content {
+                            height: auto;
+                            padding: 10px 0 !important;
+                            margin-bottom: 10px;
+                        }
+
+                        .icon-box {
+                            position: absolute;
+                            bottom: 0;
+                            right: 0;
+                        }
                     }
+
+                    .select-page {
+                        position: absolute;
+                        left: -12px;
+                        top: -8px;
+                        width: 16px;
+                        height: 16px;
+                        border: 1px solid var(--el-color-primary);
+                        border-radius: 50%;
+                        cursor: pointer;
+                        z-index: 2;
+                        //background-color: var(--el-color-primary);
+                    }
+
+                    .view-empty {
+                        width: 190px;
+                        height: 106px;
+                        padding: 10px;
+                        border: 1px solid #ebeff1;
+                    }
+
+                    .custom-tree-node {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        width: 86%;
+                        position: relative;
+                    }
+
                     .icon-box {
                         .el-button {
                             border: none !important;
                             padding: 6px;
                             background-color: transparent;
+
                             &:hover {
                                 background-color: transparent;
                             }
                         }
+
                         .el-icon {
                             svg {
                                 width: 18px;
@@ -802,8 +762,49 @@ export default defineComponent({
                         }
                     }
                 }
+
+                .tree-box {
+                    :deep(.el-tree-node__content) {
+                        height: 46px;
+                    }
+
+                    .custom-tree-node {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        width: 80%;
+                        position: relative;
+
+                        .label-class {
+                            width: 100%;
+                            text-overflow: ellipsis;
+                            white-space: nowrap;
+                            overflow: hidden;
+                        }
+
+                        .icon-box {
+                            .el-button {
+                                border: none !important;
+                                padding: 6px;
+                                background-color: transparent;
+
+                                &:hover {
+                                    background-color: transparent;
+                                }
+                            }
+
+                            .el-icon {
+                                svg {
+                                    width: 18px;
+                                    height: 18px;
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
+
         .shrink {
             background: #dde1f1;
             width: 18px;
@@ -811,6 +812,7 @@ export default defineComponent({
             position: absolute;
             right: 0;
             top: 0;
+
             > div {
                 display: flex;
                 align-items: center;
@@ -824,7 +826,8 @@ export default defineComponent({
                 height: 100px;
                 text-align: center;
                 cursor: pointer;
-                .el-icon{
+
+                .el-icon {
                     line-height: 100px;
                     color: #fff;
                     font-size: 14px;
@@ -832,13 +835,15 @@ export default defineComponent({
                 }
             }
         }
+
         .active-text {
             .label-class {
                 > span {
-                    color: #409eff;
+                    color: var(--el-color-primary);
                 }
             }
         }
+
         :deep(#activeBackground) {
             background-color: #ecf5ff;
         }
