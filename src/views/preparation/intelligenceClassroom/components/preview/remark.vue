@@ -42,6 +42,7 @@ export default defineComponent({
     setup(props) {
         const teachProcess = computed(() => props.teachProcess);
         const design = computed(() => props.design);
+        const hideLookAll = computed(() => !!props.hideLookAll);
 
         const form = reactive<IFrom>({
             templateType: "",
@@ -91,7 +92,8 @@ export default defineComponent({
             form,
             openLessonDesign,
             teachProcess,
-            design
+            design,
+            hideLookAll
         };
     }
 });

@@ -8,7 +8,7 @@
                 <div class="hwc-minimize" @click="useMinimizeWindow()"></div>
                 <div class="hwc-maximize" @click="useMaximizeWindow()"></div>
                 <div class="hwc-close" @click="close">
-                    <i class="el-icon-close"></i>
+                    <el-icon><CloseBold /></el-icon>
                 </div>
             </div>
         </div>
@@ -19,6 +19,7 @@
 import { defineComponent } from "vue";
 import useMaximizeWindow from "@/hooks/useMaximizeWindow";
 import useMinimizeWindow from "@/hooks/useMinimizeWindow";
+import { CloseBold } from "@element-plus/icons-vue";
 
 export default defineComponent({
     name: "NavBar",
@@ -30,13 +31,14 @@ export default defineComponent({
     setup() {
         const close = () => {
             window.electron.remote.getCurrentWindow().close();
-        }
+        };
         return {
             close,
             useMinimizeWindow,
             useMaximizeWindow
         };
-    }
+    },
+    components: { CloseBold }
 });
 </script>
 
