@@ -61,6 +61,7 @@
                                                     <Check />
                                                 </el-icon>
                                             </div>
+                                            <div class="status" :style="{background: data.State ? '#5CD494' : '#90949E'}"></div>
                                             <ThumbnailSlide
                                                 v-if="data.Type === pageType.element || data.Type === pageType.listen"
                                                 :slide="allPageListMap.get(data.ID) || {}"
@@ -726,6 +727,16 @@ export default defineComponent({
                         cursor: pointer;
                         z-index: 2;
                         //background-color: var(--el-color-primary);
+                    }
+
+                    .status{
+                        position: absolute;
+                        right: -12px;
+                        top: -4px;
+                        width: 10px;
+                        height: 10px;
+                        border-radius: 50%;
+                        z-index: 2;
                     }
 
                     .view-empty {
