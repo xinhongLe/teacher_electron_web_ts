@@ -1,25 +1,64 @@
 <template>
     <div class="home">
-        <div class="left" :style="{  width: showCollapse ? '280px' : '0px', padding: showCollapse ? '0px' : '0px 9px',}">
+        <div
+            class="left"
+            :style="{
+                width: showCollapse ? '280px' : '0px',
+                padding: showCollapse ? '0px' : '0px 9px',
+            }"
+        >
             <div class="left-content">
                 <div>
                     <el-row :gutter="20" v-if="windowInfo.id.length > 0">
                         <el-col :span="8">
-                            <el-button class="add-card" @click="dialogVisibleCard = true" size="default" type="primary" plain>新增卡</el-button>
+                            <el-button
+                                class="add-card"
+                                @click="dialogVisibleCard = true"
+                                size="default"
+                                type="primary"
+                                plain
+                                >新增卡</el-button
+                            >
                         </el-col>
                         <el-col :span="8">
-                            <el-button class="add-card" @click="importPPT()" size="default" type="primary" plain>导入</el-button>
+                            <el-button
+                                class="add-card"
+                                @click="importPPT()"
+                                size="default"
+                                type="primary"
+                                plain
+                                >导入</el-button
+                            >
                         </el-col>
                         <el-col :span="8">
-                            <el-popover placement="bottom-start" :width="50" trigger="focus">
+                            <el-popover
+                                placement="bottom-start"
+                                :width="50"
+                                trigger="focus"
+                            >
                                 <template #reference>
-                                    <el-button class="add-card" @click.stop size="default" type="primary" plain>预览窗</el-button>
+                                    <el-button
+                                        class="add-card"
+                                        @click.stop
+                                        size="default"
+                                        type="primary"
+                                        plain
+                                        >预览窗</el-button
+                                    >
                                 </template>
                                 <div class="operation-box">
-                                    <div @click="  handleView(allPageList, 'first')">
+                                    <div
+                                        @click="
+                                            handleView(allPageList, 'first')
+                                        "
+                                    >
                                         首页预览
                                     </div>
-                                    <div @click=" handleView(allPageList, 'active')">
+                                    <div
+                                        @click="
+                                            handleView(allPageList, 'active')
+                                        "
+                                    >
                                         当前页预览
                                     </div>
                                 </div>
@@ -41,19 +80,45 @@
                         @node-click="handleNodeClick"
                     >
                         <template #default="{ node, data }">
-                            <div :class="[ 'custom-tree-node',  pageValue.ID === data.ID ? 'active-text' : '' ]">
-                                <div class="label-class" @mouseenter="mouseenter($event, node.label)" @mouseleave="mouseleave">
-                                    <span  v-if="!viewTree"
-                                           :style="{
-                                        color: !data.State && node.level === 2 ? '#c0c4cc': pageValue.ID === data.ID? '#409Eff': '#333'}">
+                            <div
+                                :class="[
+                                    'custom-tree-node',
+                                    pageValue.ID === data.ID
+                                        ? 'active-text'
+                                        : '',
+                                ]"
+                            >
+                                <div
+                                    class="label-class"
+                                    @mouseenter="mouseenter($event, node.label)"
+                                    @mouseleave="mouseleave"
+                                >
+                                    <span
+                                        v-if="!viewTree"
+                                        :style="{
+                                            color:
+                                                !data.State && node.level === 2
+                                                    ? '#c0c4cc'
+                                                    : pageValue.ID === data.ID
+                                                    ? '#409Eff'
+                                                    : '#333',
+                                        }"
+                                    >
                                         {{ node.label }}
                                     </span>
 
                                     <div v-else>
-                                        <span v-if="node.level === 1">{{ node.label }}</span>
-                                        <div v-else v-contextmenu="(el: any) => contextmenus(el, data)">
+                                        <span v-if="node.level === 1">{{
+                                            node.label
+                                        }}</span>
+                                        <div
+                                            v-else
+                                            v-contextmenu="(el: any) => contextmenus(el, data)"
+                                        >
                                             <div
-                                                @click.stop="handleSelectPages(data)"
+                                                @click.stop="
+                                                    handleSelectPages(data)
+                                                "
                                                 :style="{ backgroundColor: (selectPageData.map(((item: any) => item.ID)).includes(data.ID) ? 'var(--el-color-primary)' : '#fff') }"
                                                 class="select-page"
                                             >
@@ -61,35 +126,115 @@
                                                     <Check />
                                                 </el-icon>
                                             </div>
-                                            <div class="status" :style="{background: data.State ? '#5CD494' : '#90949E'}"></div>
+                                            <div
+                                                class="status"
+                                                :style="{
+                                                    background: data.State
+                                                        ? '#5CD494'
+                                                        : '#90949E',
+                                                }"
+                                            ></div>
                                             <ThumbnailSlide
-                                                v-if="data.Type === pageType.element || data.Type === pageType.listen"
-                                                :slide="allPageListMap.get(data.ID) || {}"
+                                                v-if="
+                                                    data.Type ===
+                                                        pageType.element ||
+                                                    data.Type ===
+                                                        pageType.listen
+                                                "
+                                                :slide="
+                                                    allPageListMap.get(
+                                                        data.ID
+                                                    ) || {}
+                                                "
                                                 :size="190"
-                                                style="border: 1px solid #ebeff1"
+                                                style="
+                                                    border: 1px solid #ebeff1;
+                                                "
                                             ></ThumbnailSlide>
-                                            <div class="view-empty" v-else>{{ data.Name }}</div>
+                                            <div class="view-empty" v-else>
+                                                {{ data.Name }}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="icon-box">
-                                    <el-popover placement="right-start" :width="50" trigger="focus">
+                                    <el-popover
+                                        placement="right-start"
+                                        :width="50"
+                                        trigger="focus"
+                                    >
                                         <template #reference>
                                             <el-button size="small" @click.stop>
-                                                <el-icon :size="18"><more-filled/></el-icon>
+                                                <el-icon :size="18"
+                                                    ><more-filled
+                                                /></el-icon>
                                             </el-button>
                                         </template>
                                         <div class="operation-box">
-                                            <div v-show="node.level === 1" @click.stop=" handleView(data.PageList,'first')">预览</div>
-                                            <div v-show="node.level === 1" @click.stop="handleAdd(node, data)">新增页</div>
-                                            <div @click.stop=" handleUpdateName(node, data)">修改名称</div>
-                                            <div v-show="node.level === 2" @click.stop=" handleUpdateState( node,data )">
-                                                {{data.State ? "下架" : "上架"}}
+                                            <div
+                                                v-show="node.level === 1"
+                                                @click.stop="
+                                                    handleView(
+                                                        data.PageList,
+                                                        'first'
+                                                    )
+                                                "
+                                            >
+                                                预览
                                             </div>
-                                            <div v-show="node.level === 1" @click.stop="handlePaste(data)">粘贴页</div>
+                                            <div
+                                                v-show="node.level === 1"
+                                                @click.stop="
+                                                    handleAdd(node, data)
+                                                "
+                                            >
+                                                新增页
+                                            </div>
+                                            <div
+                                                @click.stop="
+                                                    handleUpdateName(node, data)
+                                                "
+                                            >
+                                                修改名称
+                                            </div>
+                                            <div
+                                                v-show="node.level === 2"
+                                                @click.stop="
+                                                    handleUpdateState(
+                                                        node,
+                                                        data
+                                                    )
+                                                "
+                                            >
+                                                {{
+                                                    data.State ? "下架" : "上架"
+                                                }}
+                                            </div>
+                                            <div
+                                                v-show="node.level === 1"
+                                                @click.stop="handlePaste(data)"
+                                            >
+                                                粘贴页
+                                            </div>
                                             <!--游戏页暂不支持复制-->
-                                            <div v-show="node.level === 2 && data.Type !==20" @click.stop=" handleCopy(node, data)"> 复制页</div>
-                                            <div @click.stop=" handleDel(node, data)">删除</div>
+                                            <div
+                                                v-show="
+                                                    node.level === 2 &&
+                                                    data.Type !== 20
+                                                "
+                                                @click.stop="
+                                                    handleCopy(node, data)
+                                                "
+                                            >
+                                                复制页
+                                            </div>
+                                            <div
+                                                @click.stop="
+                                                    handleDel(node, data)
+                                                "
+                                            >
+                                                删除
+                                            </div>
                                         </div>
                                     </el-popover>
                                 </div>
@@ -100,25 +245,31 @@
             </div>
             <div class="shrink" ref="shrinkRef">
                 <div @click="showCollapse = !showCollapse">
-                    <el-icon :style="{ transform:'rotate(' + (showCollapse ? 0 : 180) + 'deg)'}"><ArrowLeft /></el-icon>
+                    <el-icon
+                        :style="{
+                            transform:
+                                'rotate(' + (showCollapse ? 0 : 180) + 'deg)',
+                        }"
+                        ><ArrowLeft
+                    /></el-icon>
                 </div>
             </div>
         </div>
         <div class="right">
             <win-card-edit
                 ref="editRef"
-                :slide="{...currentSlide}"
+                :slide="{ ...currentSlide }"
                 :allPageSlideListMap="allPageListMap"
                 @onSave="onSave"
                 @updatePageSlide="updatePageSlide"
                 @updateAllPageSlideListMap="updateAllPageSlideListMap"
                 :winId="windowInfo?.id"
             ></win-card-edit>
-<!--            <div-->
-<!--                v-show="!pageValue.ID"-->
-<!--                class="mask-right"-->
-<!--                @click.stop="handleMask"-->
-<!--            ></div>-->
+            <!--            <div-->
+            <!--                v-show="!pageValue.ID"-->
+            <!--                class="mask-right"-->
+            <!--                @click.stop="handleMask"-->
+            <!--            ></div>-->
         </div>
     </div>
     <!--上传ppt遮罩-->
@@ -163,6 +314,33 @@
         :currentValue="currentValue"
         @updateName="updateName"
     ></update-name-card-or-page>
+
+    <!-- 保存模板弹框-->
+    <save-template-dialog
+        v-if="dialogVisibleTemplate"
+        v-model:dialogVisible="dialogVisibleTemplate"
+        :showTemplateType="showTemplateType"
+        @handleAddTemplate="handleAddTemplate"
+        :subjectID="subjectPublisherBookValue?.SubjectId || ''"
+        :lessonId="windowInfo?.lessonId || ''"
+        @cacleTemplateDialog="cacleTemplateDialog"
+        :dialogStatus="dialogStatus"
+        :selectPageData="selectPageData"
+    >
+    </save-template-dialog>
+    <!-- 资源库 -->
+    <materialCenter
+        ref="materialCenterRef"
+        @insertData="handleInsertData"
+        @insertTools="handleInsertTool"
+        @editTemplate="editTemplate"
+        :subjectID="subjectPublisherBookValue?.SubjectId || ''"
+        :lessonId="windowInfo?.lessonId || ''"
+    ></materialCenter>
+    <!-- 查看我的模板：老师才有，教研没有 -->
+    <div v-if="isshowCusTooltip" class="cus-open-tooltip">
+        前往<span @click="gotoMyTemplate">「我的」</span>查看已保存模板
+    </div>
 </template>
 
 <script lang="ts">
@@ -174,7 +352,8 @@ import {
     ref,
     watch,
     toRef,
-    computed
+    computed,
+    nextTick,
 } from "vue";
 import WinCardEdit from "../components/edit/winCardEdit.vue";
 import { IPageValue, ICardList } from "@/types/home";
@@ -211,6 +390,9 @@ import { pageType } from "@/config";
 import { MutationTypes, store } from "@/store";
 import SaveDialog from "../components/edit/saveDialog/saveDialog.vue";
 import SaveAsDialog from "../components/edit/saveDialog/saveAsDialog.vue";
+import materialCenter from "../components/edit/materialCenter/index.vue";
+import SaveTemplateDialog from "../components/edit/saveTemplateDialog.vue";
+
 export default defineComponent({
     components: {
         AddCardDialog,
@@ -218,16 +400,22 @@ export default defineComponent({
         UpdateNameCardOrPage,
         AddPageDialog,
         WinCardEdit,
-        MoreFilled
+        MoreFilled,
+        materialCenter,
+        SaveTemplateDialog,
     },
     name: "Edit",
     setup() {
+        const materialCenterRef = ref(); //资源库组件实例
+        const isshowCusTooltip = ref(false); //展示查看已保存模板提示框
+
         const showCollapse = ref(true);
         const shrinkRef = ref();
         const viewTree = ref(true);
 
         const { tooltipShow, mouseenter, mouseleave } = useTooltipShow();
-        const { state, defaultProps, pageValue, _getWindowCards } = useSelectBookInfo();
+        const { state, defaultProps, pageValue, _getWindowCards, insertData } =
+            useSelectBookInfo();
 
         const windowCards = toRef(state, "windowCards");
 
@@ -244,7 +432,18 @@ export default defineComponent({
         // resetPageSlide
         // } = useGetPageSlide(pageValue);
 
-        const { selectPageData, contextmenus, handleSelectPages } = useSaveTemplate();
+        const {
+            selectPageData,
+            contextmenus,
+            handleSelectPages,
+            dialogVisibleTemplate,
+            showTemplateType,
+            handleSaveTemplate,
+            saveTemplateFrom,
+            editTemplate,
+            dialogStatus,
+            templateFormData,
+        } = useSaveTemplate(allPageListMap);
 
         const {
             previewPageList,
@@ -252,7 +451,7 @@ export default defineComponent({
             winScreenView,
             keyDown,
             offScreen,
-            activePreviewPageIndex
+            activePreviewPageIndex,
         } = usePreview(pageValue);
 
         const { handleCopy, handlePaste, pastePage } = useCopyPage(
@@ -267,7 +466,7 @@ export default defineComponent({
             activeAllPageListIndex,
             allPageList,
             isWatchChange,
-            cardListRef
+            cardListRef,
         } = useSelectPage(pageValue, allPageListMap);
 
         const { allowDrop } = useDragPage();
@@ -282,7 +481,7 @@ export default defineComponent({
             dialogVisibleName,
             currentValue,
             handleUpdateName,
-            updateName
+            updateName,
         } = useUpdateName(shrinkRef);
 
         const route = useRoute();
@@ -290,14 +489,25 @@ export default defineComponent({
         const windowInfo = computed(
             () => store.state.preparation.editWindowInfo
         );
+        const subjectPublisherBookValue = computed(
+            () => store.state.preparation.subjectPublisherBookValue
+        );
+        // console.log(
+        //     "windowInfo===================>",
+        //     windowInfo,
+        //     store.state.preparation.subjectPublisherBookValue
+        // );
 
-        const { handleAddCard, dialogVisibleCard } = useAddCard(windowCards, windowInfo);
+        const { handleAddCard, dialogVisibleCard } = useAddCard(
+            windowCards,
+            windowInfo
+        );
 
         const handleDel = (node: Node, data: ICardList) => {
             ElMessageBox.confirm("此操作将删除该数据, 是否继续?", "提示", {
                 confirmButtonText: "确认",
                 cancelButtonText: "取消",
-                type: "warning"
+                type: "warning",
             })
                 .then(() => {
                     // 删除的是卡 判断当前页是否在删除卡下
@@ -310,7 +520,7 @@ export default defineComponent({
                             pageValue.value = {
                                 ...pageValue.value!,
                                 ID: "",
-                                Type: 11
+                                Type: 11,
                             };
                         }
                     } else {
@@ -323,7 +533,7 @@ export default defineComponent({
                             pageValue.value = {
                                 ...pageValue.value!,
                                 ID: "",
-                                Type: 11
+                                Type: 11,
                             };
                         }
                         windowCards.value = [...windowCards.value];
@@ -378,7 +588,7 @@ export default defineComponent({
                                         PageWordID: word.pageWordID
                                             ? null
                                             : word.pageWordID,
-                                        WordInterval: 2
+                                        WordInterval: 2,
                                     };
                                 }
                             );
@@ -399,7 +609,7 @@ export default defineComponent({
                         designIntent,
                         sort: pageIndex + 1,
                         json,
-                        state: Number(State)
+                        state: Number(State),
                     };
                 });
 
@@ -407,7 +617,7 @@ export default defineComponent({
                     cardID,
                     sort,
                     pageData,
-                    cardName
+                    cardName,
                 };
             });
 
@@ -417,7 +627,7 @@ export default defineComponent({
                 cardData,
                 originType: 1,
                 windowName: windowInfo.value.name,
-                windowID: windowInfo.value.id
+                windowID: windowInfo.value.id,
             };
 
             const lessonId = (windowInfo.value.lessonId as string) || "";
@@ -427,10 +637,10 @@ export default defineComponent({
             if (res.resultCode === 200) {
                 ElMessage.success({
                     message,
-                    duration: 2000
+                    duration: 2000,
                 });
                 store.commit(MutationTypes.SET_EDIT_WINDOW_INFO, {
-                    ...windowInfo.value
+                    ...windowInfo.value,
                 });
                 allPageListMap.value.forEach((item, key) => {
                     oldAllPageListMap.value.set(key, cloneDeep(item));
@@ -465,7 +675,7 @@ export default defineComponent({
                             pageValue.value = newPageValue;
                         }
                         const obj = {
-                            ...pageValue.value
+                            ...pageValue.value,
                         };
                         selectPageValue(obj, true);
                     } else {
@@ -477,7 +687,7 @@ export default defineComponent({
                 }
             },
             {
-                deep: true
+                deep: true,
             }
         );
         const getAllPageList = () => {
@@ -500,7 +710,7 @@ export default defineComponent({
             loading,
             parsePptPage,
             pptPages,
-            percentage
+            percentage,
         } = useImportPPT();
 
         const importPPT = () => {
@@ -514,7 +724,7 @@ export default defineComponent({
                         Name: name[name.length - 1] + "-" + (index + 1),
                         Type: pageType.element,
                         isAdd: true,
-                        State: true
+                        State: true,
                     };
                 });
                 const card = {
@@ -522,7 +732,7 @@ export default defineComponent({
                     ID: uuidv4(),
                     Sort: windowCards.value.length,
                     isAdd: true,
-                    PageList: pageList
+                    PageList: pageList,
                 };
                 windowCards.value.push(card);
             });
@@ -534,23 +744,28 @@ export default defineComponent({
         };
 
         // 同步教案的数据
-        const updateAllPageSlideListMap = (newAllPageList:any[]) => {
-            newAllPageList.forEach((item:any) => {
+        const updateAllPageSlideListMap = (newAllPageList: any[]) => {
+            newAllPageList.forEach((item: any) => {
                 const value = allPageListMap.value.get(item.TeachPageID);
                 const newValue = {
                     ...value,
                     remark: item.AcademicPresupposition || "",
-                    design: item.DesignIntent || ""
+                    design: item.DesignIntent || "",
                 };
                 allPageListMap.value.set(item.TeachPageID, newValue as Slide);
-                oldAllPageListMap.value.set(item.TeachPageID, cloneDeep(newValue as Slide));
+                oldAllPageListMap.value.set(
+                    item.TeachPageID,
+                    cloneDeep(newValue as Slide)
+                );
             });
         };
 
         const winCardViewRef = ref();
         onMounted(() => {
-            _getWindowCards({ WindowID: windowInfo.value.id, OriginType: windowInfo.value.originType }
-            ).then(() => {
+            _getWindowCards({
+                WindowID: windowInfo.value.id,
+                OriginType: windowInfo.value.originType,
+            }).then(() => {
                 console.log("111111111111================");
                 // fetchAllPageSlide(getAllPageList());
             });
@@ -575,12 +790,10 @@ export default defineComponent({
             const slide = editRef.value.getCurrentSlide();
             allPageListMap.value.set(pageValue.value.ID, slide);
             if (
-                isEqual(
-                    allPageListMap.value,
-                    oldAllPageListMap.value
-                ) &&
+                isEqual(allPageListMap.value, oldAllPageListMap.value) &&
                 isEqual(windowCards.value, oldWindowCards.value)
-            ) return true;
+            )
+                return true;
             const res = await exitDialog();
             if (res === ExitType.Cancel) {
                 return false;
@@ -593,6 +806,81 @@ export default defineComponent({
                 }
             }
         });
+
+        //资源库-模板素材操作
+        //插入左侧窗卡页
+        const handleInsertData = async (data: any) => {
+            if (editRef.value.getDataIsChange() && data.type === "elements") {
+                const slide = editRef.value.getCurrentSlide();
+                // console.log('slde', slide);
+                state.allPageListMap.set(pageValue.value.ID, slide);
+            }
+            const res: any = await insertData(data);
+            if (res) {
+                nextTick(() => {
+                    materialCenterRef.value.addLinkCount(
+                        data.teachPageTemplateID || ""
+                    );
+                });
+            }
+        };
+        //插入教具内容以及教具页
+        const handleInsertTool = async (data: any) => {
+            if (pageValue.value.ID) {
+                const params = {
+                    name: "教具页",
+                    type: "teach",
+                    value: 16,
+                };
+                state.windowCards.forEach((item: any, windex: number) => {
+                    item.PageList.forEach((page: any, index: number) => {
+                        if (page.ID === pageValue.value.ID) {
+                            currentValue.value = item;
+                        }
+                    });
+                });
+                await addPageCallback(params, currentValue.value);
+                console.log("windowCards---", state.windowCards);
+
+                pageValue.value =
+                    currentValue.value.PageList[
+                        currentValue.value.PageList?.length - 1
+                    ];
+                console.log("pageValue.value", pageValue.value);
+                const res: any = await insertData(data);
+            } else {
+                ElMessage.warning("请先选择页，再进行插入");
+                return;
+            }
+        };
+        //保存模板
+        const handleAddTemplate = async (formData: any) => {
+            // onSave();
+            const res: any = await saveTemplateFrom(formData);
+            if (res) {
+                dialogVisibleTemplate.value = false;
+                isshowCusTooltip.value = true;
+                setTimeout(() => {
+                    isshowCusTooltip.value = false;
+                }, 5000);
+                //弹窗关闭，页面中间跳出提示：前往 我的 查看已保存模板保留三秒消失
+                nextTick(() => {
+                    materialCenterRef.value.queryTemplateList();
+                });
+            }
+        };
+        //去我的模板
+        const gotoMyTemplate = () => {
+            nextTick(() => {
+                nextTick(() => {
+                    materialCenterRef.value.handleClick(3);
+                });
+            });
+        };
+        //取消保存-清空已选中的页
+        const cacleTemplateDialog = () => {
+            selectPageData.value = [];
+        };
 
         return {
             viewTree,
@@ -649,13 +937,48 @@ export default defineComponent({
             importPPT,
             selectPageData,
             contextmenus,
-            handleSelectPages
+            handleSelectPages,
+            handleInsertData,
+            dialogVisibleTemplate,
+            showTemplateType,
+            handleSaveTemplate,
+            saveTemplateFrom,
+            materialCenterRef,
+            editTemplate,
+            dialogStatus,
+            templateFormData,
+            handleAddTemplate,
+            cacleTemplateDialog,
+            subjectPublisherBookValue,
+            isshowCusTooltip,
+            gotoMyTemplate,
+            handleInsertTool,
         };
-    }
+    },
 });
 </script>
 
 <style lang="scss" scoped>
+.cus-open-tooltip {
+    z-index: 9999;
+    position: absolute;
+    width: 15%;
+    padding: 10px;
+    top: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    color: rgb(255, 255, 255);
+    border-radius: 4px;
+    font-size: 14px;
+    background: rgba(77, 77, 77, 0.67);
+    span {
+        cursor: pointer;
+    }
+    span:hover {
+        color: #409eff;
+    }
+}
 .home {
     display: flex;
     width: 100%;
@@ -729,7 +1052,7 @@ export default defineComponent({
                         //background-color: var(--el-color-primary);
                     }
 
-                    .status{
+                    .status {
                         position: absolute;
                         right: -12px;
                         top: -4px;
