@@ -11,7 +11,7 @@
                 :isFullScreen="isFullScreen"
             />
             <transition name="fade">
-                <Remark :teachProcess="teachProcess" :isSystem="isSystem" :resourceId="resourceId" :design="design" v-if="showRemark" />
+                <Remark :teachProcess="teachProcess" :isSystem="isSystem" :resourceId="resourceId" :design="design" :hideLookAll="true" v-if="showRemark" />
             </transition>
         </div>
     </div>

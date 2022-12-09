@@ -34,10 +34,10 @@ const PATH_WhiteBoard = join(
     __dirname,
      "../extraResources/whiteboard/Aixueshi.Whiteboard.exe"
 );
-const PATH_White4Board = join(
-    __dirname,
-    "../extraResources/whiteboard/4.5/Aixueshi.Whiteboard.exe"
-);
+// const PATH_White4Board = join(
+//     __dirname,
+//     "../extraResources/whiteboard/4.5/Aixueshi.Whiteboard.exe"
+// );
 
 const downloadsPath = join(app.getPath("userData"), "files", "/");
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -201,7 +201,7 @@ window.electron = {
         return new Promise((resolve, reject) =>
             checkWindowSupportNet("v4.0").then(isOk => {
                 if (isOk) {
-                    spawn(PATH_White4Board);
+                    spawn(PATH_WhiteBoard);
                     return resolve(true);
                 }
                 checkWindowSupportNet("v3.5").then(isOk => {
