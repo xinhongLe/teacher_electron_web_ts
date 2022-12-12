@@ -276,6 +276,9 @@ export default defineComponent({
         //保存后查询我的模板-页数变为1
 
         const quertSaveMyTemplate = async (type?: number) => {
+            // state.serchForm.Pager.PageSize =
+            //     state.serchForm.Pager.PageNumber *
+            //     state.serchForm.Pager.PageSize;
             state.serchForm.Pager.PageNumber = 1;
             await quertMyTemplate();
         };

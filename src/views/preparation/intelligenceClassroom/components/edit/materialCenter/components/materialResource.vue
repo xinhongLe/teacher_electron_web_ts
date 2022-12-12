@@ -135,7 +135,7 @@
 
                 <!--插画-->
                 <p
-                    v-if="activeIndex === 3 && !isColInner"
+                    v-if="activeIndex === 3 && !isColInner && row.Type === 3"
                     class="text-type"
                     @click="isOpen = !isOpen"
                 >
@@ -173,7 +173,7 @@
 
                 <!--插画-合集 ，点击可进入合集内页-->
                 <p
-                    v-if="activeIndex === 3 && !isColInner"
+                    v-if="activeIndex === 3 && !isColInner && row.Type === 3"
                     class="text-type"
                     style="margin-top: 20px"
                 >
@@ -210,7 +210,8 @@
                     v-if="
                         activeIndex === 3 &&
                         isColInner &&
-                        collectionInnerData.Id
+                        collectionInnerData.Id &&
+                        row.Type === 3
                     "
                 >
                     <div class="data-text" @click="isColInner = false">
@@ -643,6 +644,8 @@ export default defineComponent({
         //点击插画类型下的 插画合集
         const innerCollection = (item: any) => {
             state.collectionInnerData = item;
+            console.log("state.collectionInnerData", state.collectionInnerData);
+
             //查询推荐合集
             const params = {
                 Id: item.Id,
@@ -957,6 +960,7 @@ export default defineComponent({
             }
             p {
                 margin: 12px 0;
+                font-size: 14px;
             }
         }
 
