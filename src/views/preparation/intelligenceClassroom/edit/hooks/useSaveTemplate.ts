@@ -275,18 +275,26 @@ export default (pageListMap?: any) => {
     };
     //获取我的窗卡页模板列表
     const queryMyTemplateLis = async (data: IGetMyList, type: number = 0) => {
+        isLoading.value = true;
         const res: any = await getMyWindowsTemplateList(data);
-        pager.value = res.result.pager;
-        const temdata = res.result.list;
-        await formataSlideMap(temdata, allPageListMap.value);
-        setTimeout(() => {
-            if (type) {
-                const concatData: any = templateList.value.concat(temdata);
-                templateList.value = concatData;
-            } else {
-                templateList.value = temdata;
-            }
-        }, 100);
+        if (res && res.resultCode === 200) {
+            pager.value = res.result.pager;
+            const temdata = res.result.list;
+            await formataSlideMap(temdata, allPageListMap.value);
+            setTimeout(() => {
+                if (type) {
+                    const concatData: any = templateList.value.concat(temdata);
+                    templateList.value = concatData;
+                } else {
+                    templateList.value = temdata;
+                }
+                isLoading.value = false;
+            }, 100);
+            return true;
+        } else {
+            return false;
+            isLoading.value = false;
+        }
     };
 
     //删除窗卡页模板

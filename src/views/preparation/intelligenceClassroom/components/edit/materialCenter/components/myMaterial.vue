@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div v-loading="isLoading">
         <div class="tab-class">
             <div
                 @click="activeIndex = item.value"
@@ -202,6 +202,7 @@ export default defineComponent({
             myAssemblyList,
             pager,
             deleteSourceAssembly,
+            isLoading,
         } = useSaveTemplate();
         const { parseElements } = useSaveElements();
         const myTemplateList: any = ref([]);
@@ -271,7 +272,7 @@ export default defineComponent({
         };
         //查询我的模板
         const quertMyTemplate = async (type?: number) => {
-            await queryMyTemplateLis(state.serchForm, type);
+            return await queryMyTemplateLis(state.serchForm, type);
         };
         //保存后查询我的模板-页数变为1
 
@@ -307,7 +308,10 @@ export default defineComponent({
             }
             setTimeout(async () => {
                 state.serchForm.Pager.PageNumber += 1;
-                await quertMyTemplate(1);
+                const res = await quertMyTemplate(1);
+                if (!res) {
+                    state.serchForm.Pager.PageNumber = 1;
+                }
                 state.loading = false;
             }, 1000);
         };
@@ -381,6 +385,7 @@ export default defineComponent({
             TContextmenus,
             handleDeleteTitle,
             insertMaterial,
+            isLoading,
         };
     },
 });
