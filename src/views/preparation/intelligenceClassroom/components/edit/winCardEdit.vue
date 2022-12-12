@@ -10,7 +10,7 @@
             @selectVideo="selectVideo"
             @setQuoteVideo="setQuoteVideo"
             @updateQuoteVideo="updateQuoteVideo"
-            @updateSlide="updateSlide"
+            @outElements="outElements"
             @openLessonDesign="openLessonDesign"
         />
         <!--选择弹卡-->
@@ -27,57 +27,104 @@
         ></select-video-dialog>
 
         <!--教案设计-->
-        <lesson-design v-model:lessonDesignVisible="lessonDesignVisible" @updateLesson="updateLesson" :winId="winId" />
+        <lesson-design
+            v-model:lessonDesignVisible="lessonDesignVisible"
+            @updateLesson="updateLesson"
+            :winId="winId"
+        />
 
         <!--选择游戏-->
-        <add-game-dialog v-if="addGameVisible" v-model="addGameVisible" @addGame="addGame"></add-game-dialog>
+        <add-game-dialog
+            v-if="addGameVisible"
+            v-model="addGameVisible"
+            @addGame="addGame"
+        ></add-game-dialog>
 
         <!--游戏配置-->
-        <game-type v-if="gameTypeVisible" :slide="slide" @addGame="addGame" v-model="gameTypeVisible"></game-type>
-
+        <game-type
+            v-if="gameTypeVisible"
+            :slide="slide"
+            @addGame="addGame"
+            v-model="gameTypeVisible"
+        ></game-type>
     </div>
 </template>
 <script lang="ts">
-import { defineComponent, reactive, toRefs, ref, watch, computed, PropType } from "vue";
-import { Slide, IWin, IGame, PPTVideoElement, SaveType } from "wincard";
+import {
+    defineComponent,
+    reactive,
+    toRefs,
+    ref,
+    watch,
+    computed,
+    PropType,
+} from "vue";
+import {
+    Slide,
+    IWin,
+    IGame,
+    PPTVideoElement,
+    SaveType,
+    PPTElement,
+} from "wincard";
+import useSaveElements from "../edit/materialCenter/hooks/useSaveElements";
 import CardSelectDialog from "./cardSelectDialog.vue";
 import { IPageValue, ICards } from "@/types/home";
 import SelectVideoDialog from "./selectVideoDialog.vue";
 import LessonDesign from "./lessonDesign.vue";
-import { store } from "@/store";
 import { useRoute } from "vue-router";
 import AddGameDialog from "./addGameDialog.vue";
 import GameType from "./games/index.vue";
 import { IGameItem } from "@/types/game";
+import { store } from "@/store";
 export default defineComponent({
     name: "winCardEdit",
-    components: { GameType, AddGameDialog, SelectVideoDialog, CardSelectDialog, LessonDesign },
+    components: {
+        GameType,
+        AddGameDialog,
+        SelectVideoDialog,
+        CardSelectDialog,
+        LessonDesign,
+    },
     props: {
         slide: {
             type: Object as PropType<Slide>,
-            default: () => ({})
+            default: () => ({}),
         },
         winId: {
             type: String,
-            required: true
+            required: true,
         },
         allPageSlideListMap: {
             type: Object as PropType<Map<string, Slide>>,
-            required: true
-        }
+            required: true,
+        },
+        subjectID: {
+            type: String,
+            required: true,
+        },
     },
-
+    emits: [
+        "onSave",
+        "updatePageSlide",
+        "updateAllPageSlideListMap",
+        "updateMaterial",
+    ],
     setup(props, { emit }) {
+        const { saveElements } = useSaveElements();
+        const TeacherID = computed(() => store.state.userInfo.id);
         const state = reactive({
             dialogVisible: false,
             dialogVisibleVideo: false,
             addGameVisible: false,
             gameTypeVisible: false,
-            currentGame: { id: "", name: "", src: "" }
+            currentGame: { id: "", name: "", src: "" },
             // slide: {}
         });
         const page = ref<IPageValue>();
-        const windowInfo = computed(() => store.state.preparation.editWindowInfo);
+        const windowInfo = computed(
+            () => store.state.preparation.editWindowInfo
+        );
         const updateVideoElement = ref<PPTVideoElement | null>(null);
         const windowName = ref(windowInfo.value.name);
         const route = useRoute();
@@ -92,12 +139,16 @@ export default defineComponent({
             emit("updateAllPageSlideListMap", allPageList);
         };
 
-        const updateSlide = (slide: Slide) => {
-            // if (!isEqual(props.slide, slide)) {
-                // emit("updatePageSlide", storeSilde);
-            // }
+        const outElements = async (elements: PPTElement[]) => {
+            const res: boolean = await saveElements(
+                elements,
+                props.subjectID,
+                TeacherID.value
+            );
+            if (res) {
+                emit("updateMaterial");
+            }
         };
-
         const isShowSaveDialog = ref(false);
         const isShowSaveAsDialog = ref(false);
 
@@ -117,14 +168,17 @@ export default defineComponent({
             state.dialogVisible = false;
             const newCards = {
                 id: page.value!.ID,
-                cards: cards
+                cards: cards,
             };
             fun([newCards]);
         };
 
         let gameFun: (IGame: IGame) => void;
-        let type:string;
-        const selectGame = (obj: {type: string, fun: (game: IGame) => void}) => {
+        let type: string;
+        const selectGame = (obj: {
+            type: string;
+            fun: (game: IGame) => void;
+        }) => {
             type = obj.type;
             gameFun = obj.fun;
             if (type === "selectGame") {
@@ -134,13 +188,15 @@ export default defineComponent({
             }
         };
 
-        const addGame = (valueGame:IGameItem) => {
+        const addGame = (valueGame: IGameItem) => {
             state.currentGame = {
                 id: valueGame.ID,
                 name: valueGame.Name,
-                src: valueGame.Url
+                src: valueGame.Url,
             };
-            const slide = Object.assign(props.slide, { game: state.currentGame });
+            const slide = Object.assign(props.slide, {
+                game: state.currentGame,
+            });
             emit("updatePageSlide", slide);
             emit("onSave");
             // gameFun(state.currentGame);
@@ -156,14 +212,29 @@ export default defineComponent({
             if (isSetQuoteVideo.value) {
                 isSetQuoteVideo.value = false;
                 if (updateVideoElement.value) {
-                    PPTEditRef.value.updateVideoElement({ ...updateVideoElement.value, src: val.src, fileID: val.fileID, pauseList: val.pauseList.map((item: any) => item.time), ossSrc: "", ossPoster: "", ossIcon: "" });
+                    PPTEditRef.value.updateVideoElement({
+                        ...updateVideoElement.value,
+                        src: val.src,
+                        fileID: val.fileID,
+                        pauseList: val.pauseList.map((item: any) => item.time),
+                        ossSrc: "",
+                        ossPoster: "",
+                        ossIcon: "",
+                    });
                     updateVideoElement.value = null;
                 } else {
-                    PPTEditRef.value.createQuoteVideo(val.src, val.fileID, val.pauseList.map((item: any) => item.time));
+                    PPTEditRef.value.createQuoteVideo(
+                        val.src,
+                        val.fileID,
+                        val.pauseList.map((item: any) => item.time)
+                    );
                 }
             } else {
                 delete val.fileID;
-                emit("updatePageSlide", Object.assign({}, props.slide, { follow: val }));
+                emit(
+                    "updatePageSlide",
+                    Object.assign({}, props.slide, { follow: val })
+                );
                 // state.slide = Object.assign({}, state.slide, { follow: val });
             }
             state.dialogVisibleVideo = false;
@@ -227,15 +298,16 @@ export default defineComponent({
             setQuoteVideo,
             windowInfo,
             isShowSaveDialog,
-            updateSlide,
+            outElements,
             isShowSaveAsDialog,
             windowName,
             updateQuoteVideo,
             lessonDesignVisible,
             openLessonDesign,
-            updateLesson
+            updateLesson,
+            TeacherID,
         };
-    }
+    },
 });
 </script>
 

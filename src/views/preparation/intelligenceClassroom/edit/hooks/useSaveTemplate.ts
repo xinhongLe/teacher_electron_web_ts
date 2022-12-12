@@ -274,13 +274,18 @@ export default (pageListMap?: any) => {
         }
     };
     //获取我的窗卡页模板列表
-    const queryMyTemplateLis = async (data: IGetMyList) => {
+    const queryMyTemplateLis = async (data: IGetMyList, type: number = 0) => {
         const res: any = await getMyWindowsTemplateList(data);
         pager.value = res.result.pager;
         const temdata = res.result.list;
         await formataSlideMap(temdata, allPageListMap.value);
         setTimeout(() => {
-            templateList.value = temdata;
+            if (type) {
+                const concatData: any = templateList.value.concat(temdata);
+                templateList.value = concatData;
+            } else {
+                templateList.value = temdata;
+            }
         }, 100);
     };
 

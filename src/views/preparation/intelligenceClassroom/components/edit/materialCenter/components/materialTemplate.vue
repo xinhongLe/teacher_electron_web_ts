@@ -138,7 +138,6 @@
                                         placement="right-start"
                                         :width="24"
                                         trigger="hover"
-                                        style="text-align: left"
                                     >
                                         <template #reference>
                                             <el-button size="small" @click.stop>
@@ -149,7 +148,7 @@
                                         </template>
                                         <div
                                             class="operation-box-temp"
-                                            style="text-align: center"
+                                            style="text-align: left"
                                         >
                                             <!-- <div v-show="node.level === 1" @click.stop="handleView(data.PageList, 'first')">预览</div> -->
                                             <div
@@ -665,6 +664,7 @@ export default defineComponent({
                         color: #fff;
                         padding: 2px 4px;
                         border-radius: 4px;
+                        font-size: 16px;
                     }
                     .el-button {
                         border: none;

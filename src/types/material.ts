@@ -8,6 +8,16 @@ export interface ISaveMaterial {
     Files: { Json: string }[];
     lessons: { SubjectID: string; LessonID: string[] }[];
 }
+export interface ISaveAssembly {
+    Name?: string;
+    Remarks?: string;
+    Sort?: number;
+    Status?: number;
+    TeacherID: string;
+    Json: string;
+    SubjectID: string;
+    UserId?: string;
+}
 export interface IPageData {
     PageID: string;
     PageName: string;

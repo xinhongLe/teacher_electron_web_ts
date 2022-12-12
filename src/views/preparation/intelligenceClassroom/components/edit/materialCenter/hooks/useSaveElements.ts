@@ -3,7 +3,7 @@ import {
     getElementsMaxSize,
     getElementsMinPoints,
 } from "@/utils/elementsParse";
-import { saveSourceMaterial } from "@/api/material";
+import { saveSourceAssembly } from "@/api/material";
 import { ElMessage } from "element-plus";
 export default () => {
     const parseElements = (elements: PPTElement[]) => {
@@ -30,20 +30,24 @@ export default () => {
     const saveElements = async (
         elements: PPTElement[],
         SubjectID: string,
-        LessonID: string
+        TeacherID: string
     ) => {
         const newElements = parseElements(elements);
         const data = {
-            Type: 4,
-            Files: [{ Json: JSON.stringify(newElements) }],
-            lessons: [
-                {
-                    SubjectID: SubjectID,
-                    LessonID: [LessonID],
-                },
-            ],
+            Status: 1,
+            TeacherID: TeacherID,
+            Json: JSON.stringify(newElements),
+            SubjectID: SubjectID,
+            // Type: 4,
+            // Files: [{ Json: JSON.stringify(newElements) }],
+            // lessons: [
+            //     {
+            //         SubjectID: SubjectID,
+            //         LessonID: [LessonID],
+            //     },
+            // ],
         };
-        const res: any = await saveSourceMaterial(data);
+        const res: any = await saveSourceAssembly(data);
         if (res.resultCode === 200) {
             ElMessage({ type: "success", message: "组件保存成功" });
             return true;

@@ -122,6 +122,10 @@ export default defineComponent({
                 currentComponent.value = markRaw(myMaterial);
             }
         };
+        const gotoMyTemplate = () => {
+            state.activeName = 3;
+            handleClick(3);
+        };
 
         //编辑模板
         const editTemplate = (data: any) => {
@@ -135,11 +139,16 @@ export default defineComponent({
         const insertTools = (obj: any) => {
             emit("insertTools", obj);
         };
-        //查询模板里诶包
+        //查询我的模板里诶包
         const queryTemplateList = () => {
-            if (state.activeName === 1) {
+            // if (state.activeName === 1) {
+            //     nextTick(() => {
+            //         componentRef.value.querySaveTemplateList();
+            //     });
+            // } else
+            if (state.activeName === 3) {
                 nextTick(() => {
-                    componentRef.value.querySaveTemplateList();
+                    componentRef.value.quertSaveMyTemplate();
                 });
             }
         };
@@ -156,6 +165,10 @@ export default defineComponent({
                 nextTick(() => {
                     componentRef.value.queryMaterialList();
                 });
+            } else if (state.activeName === 3) {
+                nextTick(() => {
+                    componentRef.value.queryAssemblyList();
+                });
             }
         };
         return {
@@ -171,6 +184,7 @@ export default defineComponent({
             queryTemplateList,
             addLinkCount,
             insertTools,
+            gotoMyTemplate,
         };
     },
 });

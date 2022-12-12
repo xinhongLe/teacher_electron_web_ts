@@ -263,7 +263,9 @@
                 @onSave="onSave"
                 @updatePageSlide="updatePageSlide"
                 @updateAllPageSlideListMap="updateAllPageSlideListMap"
+                :subjectID="subjectPublisherBookValue?.SubjectId || ''"
                 :winId="windowInfo?.id"
+                @updateMaterial="updateMaterial"
             ></win-card-edit>
             <!--            <div-->
             <!--                v-show="!pageValue.ID"-->
@@ -703,6 +705,12 @@ export default defineComponent({
         const handleMask = () => {
             ElMessage({ type: "warning", message: "请先选择页，在进行编辑" });
         };
+        //保存完组件后刷新素材列表
+        const updateMaterial = () => {
+            nextTick(() => {
+                materialCenterRef.value.updateMaterialList();
+            });
+        };
 
         const {
             importByElectron,
@@ -873,7 +881,7 @@ export default defineComponent({
         const gotoMyTemplate = () => {
             nextTick(() => {
                 nextTick(() => {
-                    materialCenterRef.value.handleClick(3);
+                    materialCenterRef.value.gotoMyTemplate();
                 });
             });
         };
@@ -953,6 +961,7 @@ export default defineComponent({
             isshowCusTooltip,
             gotoMyTemplate,
             handleInsertTool,
+            updateMaterial,
         };
     },
 });

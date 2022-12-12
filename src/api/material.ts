@@ -2,6 +2,7 @@ import request from "@/utils/request";
 import { IResponse } from "@/types/response";
 import {
     ISaveMaterial,
+    ISaveAssembly,
     ISaveTemplate,
     IClassRoom,
     IGetList,
@@ -25,11 +26,23 @@ const OriginType = computed(
 );
 type IResult = IResponse<any>;
 
-// 保存组件
+// 保存素材
 export function saveSourceMaterial(data: ISaveMaterial): Promise<IResult> {
     return request({
         baseURL: MATERIAL_API,
         url: "/Api/SourceMaterial/SourceMaterial/SaveSourceMaterial",
+        headers: {
+            "Content-Type": "application/json-patch+json",
+        },
+        method: "post",
+        data,
+    });
+}
+//保存组件
+export function saveSourceAssembly(data: ISaveAssembly): Promise<IResult> {
+    return request({
+        baseURL: MATERIAL_API,
+        url: "/Api/SourceMaterial/SourceMaterial/SaveSourceAssembly",
         headers: {
             "Content-Type": "application/json-patch+json",
         },

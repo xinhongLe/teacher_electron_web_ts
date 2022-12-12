@@ -301,7 +301,6 @@
                             ? row.Materials
                             : row.Materials.slice(0, 2)"
                         :key="i"
-                        v-contextmenu="(el: any) => row.Type === 5 ? VContextmenus(el, item) : ''"
                         @mouseenter="VAMouseHandler('VARef' + item.Id, item, 1)"
                         @mouseleave="VAMouseHandler('VARef' + item.Id, item, 0)"
                         @click="handleView(item)"
@@ -694,34 +693,34 @@ export default defineComponent({
         };
         //标题框右击菜单
         const TContextmenus = (el: any, data: any) => {
-            return [
-                {
-                    text: "删除",
-                    subText: "",
-                    handler: () => handleDeleteTitle(data),
-                },
-            ];
+            // return [
+            //     {
+            //         text: "删除",
+            //         subText: "",
+            //         handler: () => handleDeleteTitle(data),
+            //     },
+            // ];
         };
         //视频右击菜单
 
-        const VContextmenus = (el: any, data: any) => {
-            return [
-                {
-                    text: "插入大视频", //0
-                    subText: "",
-                    handler: () => {
-                        insertMaterial({ showType: 0, ...data });
-                    },
-                },
-                {
-                    text: "插入小视频", //1
-                    subText: "",
-                    handler: () => {
-                        insertMaterial({ showType: 1, ...data });
-                    },
-                },
-            ];
-        };
+        // const VContextmenus = (el: any, data: any) => {
+        //     return [
+        //         {
+        //             text: "插入大视频", //0
+        //             subText: "",
+        //             handler: () => {
+        //                 insertMaterial({ showType: 0, ...data });
+        //             },
+        //         },
+        //         {
+        //             text: "插入小视频", //1
+        //             subText: "",
+        //             handler: () => {
+        //                 insertMaterial({ showType: 1, ...data });
+        //             },
+        //         },
+        //     ];
+        // };
         //音频右击菜单
         // const AContextmenus = (el: any, data: any) => {
         //   return [
@@ -787,8 +786,7 @@ export default defineComponent({
             insertMaterial,
             adviceCollection,
             TContextmenus,
-            VContextmenus,
-            // AContextmenus,
+            // VContextmenus,
             handleDeleteTitle,
             VAMouseHandler,
             updateTime,

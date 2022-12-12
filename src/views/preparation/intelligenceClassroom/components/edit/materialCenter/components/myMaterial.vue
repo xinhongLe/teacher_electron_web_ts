@@ -16,12 +16,23 @@
             placeholder="输入关键字搜索"
             :prefix-icon="Search"
         />
-        <div class="mymaterials">
+        <div
+            class="mymaterials"
+            v-infinite-scroll="loadMore"
+            :infinite-scroll-disabled="disabled"
+            infinite-scroll-distance="1"
+            :infinite-scroll-immediate="false"
+        >
             <div
                 v-if="activeIndex === 1 && myAssemblyList.length"
                 class="row-element"
             >
-                <div v-for="(item, i) in (myAssemblyList as any)" :key="i">
+                <div
+                    v-for="(item, i) in (myAssemblyList as any)"
+                    :key="i"
+                    @click="insertMaterial(item)"
+                    v-contextmenu="(el: any) => TContextmenus(el, item)"
+                >
                     <!-- 需要winCard更新-->
                     <ThumbnailElements
                         :size="130"
@@ -29,72 +40,79 @@
                     ></ThumbnailElements>
                 </div>
             </div>
-
-            <div
-                v-else-if="activeIndex === 2 && myTemplateList.length"
-                class="row-content"
-            >
-                <div
-                    v-for="(item, i) in myTemplateList"
-                    :key="i"
-                    @click="handleView(item)"
-                >
-                    <img
-                        class="jpzy"
-                        src="@/assets/images/material/icon_jpzy.png"
-                        alt=""
-                    />
-                    <ThumbnailSlide
-                        :slide="
-                            allPageListMap.get(
-                                item.CardData[0]?.PageList[0]?.ID
-                            ) || {}
-                        "
-                        :size="225"
-                    ></ThumbnailSlide>
-                    <div class="info flex-between-center">
-                        <span class="text">{{ item.Name }}</span>
-                        <span class="page">{{ item.PageCount }}页</span>
-                        <el-popover
-                            placement="right-start"
-                            :width="24"
-                            trigger="click"
-                        >
-                            <template #reference>
-                                <el-button size="small" @click.stop>
-                                    <el-icon :size="18"
-                                        ><more-filled
-                                    /></el-icon>
-                                </el-button>
-                            </template>
-                            <div class="operation-box">
-                                <!--<div v-show="node.level === 1" @click.stop=" handleView(data.PageList, 'first')">预览</div>-->
-                                <div
-                                    class="operation-item"
-                                    @click.stop="handleDel(item)"
-                                    style="color: red"
-                                >
-                                    删除
+            <div v-else-if="activeIndex === 2 && myTemplateList.length">
+                <div class="row-content">
+                    <div
+                        v-for="(item, i) in myTemplateList"
+                        :key="i"
+                        @click="handleView(item)"
+                    >
+                        <img
+                            class="jpzy"
+                            src="@/assets/images/material/icon_jpzy.png"
+                            alt=""
+                        />
+                        <ThumbnailSlide
+                            :slide="
+                                allPageListMap.get(
+                                    item.CardData[0]?.PageList[0]?.ID
+                                ) || {}
+                            "
+                            :size="225"
+                        ></ThumbnailSlide>
+                        <div class="info flex-between-center">
+                            <span class="text">{{ item.Name }}</span>
+                            <span class="page">{{ item.PageCount }}页</span>
+                            <el-popover
+                                placement="right-start"
+                                :width="24"
+                                trigger="hover"
+                            >
+                                <template #reference>
+                                    <el-button size="small" @click.stop>
+                                        <el-icon :size="18"
+                                            ><more-filled
+                                        /></el-icon>
+                                    </el-button>
+                                </template>
+                                <div class="operation-box-temp">
+                                    <!--<div v-show="node.level === 1" @click.stop=" handleView(data.PageList, 'first')">预览</div>-->
+                                    <div
+                                        class="operation-item"
+                                        @click.stop="handleDel(item)"
+                                        style="color: red"
+                                    >
+                                        删除
+                                    </div>
                                 </div>
+                            </el-popover>
+                        </div>
+                        <div class="footer">
+                            <span>已引用 {{ item.LinkCount }}次</span>
+                            <div>
+                                <img
+                                    v-if="item.HavingVideo"
+                                    src="@/assets/images/material/icon_sp.png"
+                                    alt=""
+                                />
+                                <img
+                                    v-if="item.HavingAudio"
+                                    src="@/assets/images/material/icon_yp.png"
+                                    alt=""
+                                />
                             </div>
-                        </el-popover>
-                    </div>
-                    <div class="footer">
-                        <span>已引用 {{ item.LinkCount }}次</span>
-                        <div>
-                            <img
-                                v-if="item.HavingVideo"
-                                src="@/assets/images/material/icon_sp.png"
-                                alt=""
-                            />
-                            <img
-                                v-if="item.HavingAudio"
-                                src="@/assets/images/material/icon_yp.png"
-                                alt=""
-                            />
                         </div>
                     </div>
                 </div>
+                <p
+                    v-if="!noMore"
+                    class="loadmore"
+                    style="color: #409eff"
+                    @click="loadMore"
+                >
+                    {{ loading ? "加载中..." : "加载更多" }}
+                </p>
+                <p v-if="noMore" class="nomore">没有更多了</p>
             </div>
 
             <div v-else>
@@ -149,10 +167,13 @@ export default defineComponent({
     emits: ["insertData"],
     setup(props, { emit }) {
         const TeacherID = computed(() => store.state.userInfo.id);
+        const noMore = computed(() => pager.value.IsLastPage); //不在显示更多
         const state = reactive({
             visibleView: false,
             currentSelectTemplate: [],
             activeIndex: 1,
+            loading: false,
+            disabled: false, //是否终止滚动加载
             // slide: slides[0],
             tabList: [
                 { name: "我的组件", value: 1 },
@@ -163,6 +184,13 @@ export default defineComponent({
             serchForm: {
                 QueryText: "", //关键词
                 TeacherID: TeacherID.value, //在备教端取用户信息
+                Pager: {
+                    PageNumber: 1,
+                    PageSize: 10,
+                    SortField: "",
+                    SortType: "",
+                    Total: 0,
+                },
             },
         });
         const {
@@ -172,6 +200,8 @@ export default defineComponent({
             deleteTemplate,
             getSourceAssemblyList,
             myAssemblyList,
+            pager,
+            deleteSourceAssembly,
         } = useSaveTemplate();
         const { parseElements } = useSaveElements();
         const myTemplateList: any = ref([]);
@@ -203,11 +233,11 @@ export default defineComponent({
         //监听是我的组件还是我的模板
         watch(
             () => state.activeIndex,
-            (curVal) => {
+            async (curVal) => {
                 if (curVal === 1) {
                     queryAssemblyList();
                 } else {
-                    quertMyTemplate();
+                    await quertSaveMyTemplate();
                 }
             },
             { deep: true, immediate: true }
@@ -240,8 +270,14 @@ export default defineComponent({
                 .catch(() => {});
         };
         //查询我的模板
-        const quertMyTemplate = () => {
-            queryMyTemplateLis(state.serchForm);
+        const quertMyTemplate = async (type?: number) => {
+            await queryMyTemplateLis(state.serchForm, type);
+        };
+        //保存后查询我的模板-页数变为1
+
+        const quertSaveMyTemplate = async (type?: number) => {
+            state.serchForm.Pager.PageNumber = 1;
+            await quertMyTemplate();
         };
         //点击某一个模板打开预览
         const handleView = (item: any) => {
@@ -258,6 +294,63 @@ export default defineComponent({
             } else {
                 return null;
             }
+        };
+        //滚动加载更多
+        const loadMore = () => {
+            state.loading = true;
+            if (pager.value.IsLastPage) {
+                state.loading = false;
+                return;
+            }
+            setTimeout(async () => {
+                state.serchForm.Pager.PageNumber += 1;
+                await quertMyTemplate(1);
+                state.loading = false;
+            }, 1000);
+        };
+        //删除标题框
+        const handleDeleteTitle = async (data: any) => {
+            console.log("dadadad", data);
+            ElMessageBox.confirm("确定要删除当前选择的组件吗？", "提示", {
+                confirmButtonText: "确定",
+                cancelButtonText: "取消",
+                type: "warning",
+            })
+                .then(async () => {
+                    const res: any = await deleteSourceAssembly({
+                        Id: data.Id,
+                    });
+                    if (res) {
+                        console.log(myAssemblyList.value);
+                        myAssemblyList.value.splice(
+                            myAssemblyList.value.findIndex(
+                                (item: any) => item.Id == data.Id
+                            ),
+                            1
+                        );
+                        // state.searchForm.Type = state.currentAllType;
+                        // queryMaterialList();
+                    }
+                })
+                .catch(() => {});
+        };
+        //标题框右击菜单
+        const TContextmenus = (el: any, data: any) => {
+            return [
+                {
+                    text: "删除",
+                    subText: "",
+                    handler: () => handleDeleteTitle(data),
+                },
+            ];
+        };
+        //点击插入素材至窗卡页中
+        const insertMaterial = (data: any) => {
+            data.Type = 4;
+            emit("insertData", {
+                data,
+                type: "elements",
+            });
         };
         // onMounted(() => {
         //   quertMyTemplate();
@@ -279,6 +372,12 @@ export default defineComponent({
             formateElement,
             nameInput,
             TeacherID,
+            loadMore,
+            noMore,
+            quertSaveMyTemplate,
+            TContextmenus,
+            handleDeleteTitle,
+            insertMaterial,
         };
     },
 });
@@ -358,6 +457,7 @@ export default defineComponent({
                     color: #fff;
                     padding: 2px 4px;
                     border-radius: 4px;
+                    font-size: 16px;
                 }
                 .el-button {
                     border: none;
@@ -387,6 +487,16 @@ export default defineComponent({
                 }
             }
         }
+    }
+    .nomore,
+    .loadmore {
+        margin-top: 10px;
+        text-align: center;
+        margin-bottom: 40px;
+        font-size: 12px;
+    }
+    .loadmore {
+        cursor: pointer;
     }
 }
 </style>
