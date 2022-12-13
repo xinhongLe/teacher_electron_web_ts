@@ -265,7 +265,7 @@ import draggable from "vuedraggable";
 
 export default defineComponent({
     components: { TemplateView, draggable },
-    emits: ["insertData", "editTemplate"],
+    emits: ["insertData", "editTemplate", "checkoutTab"],
     props: {
         subjectID: {
             type: String,
@@ -335,6 +335,11 @@ export default defineComponent({
                     state.serchForm?.TeachPageClassroomLinkID
                 ) {
                     goBackAllList();
+                }
+                if (!val.length) {
+                    setTimeout(() => {
+                        emit("checkoutTab");
+                    }, 1000);
                 }
             },
             { deep: true }

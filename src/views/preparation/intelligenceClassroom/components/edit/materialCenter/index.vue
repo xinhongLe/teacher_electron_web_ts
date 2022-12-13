@@ -34,6 +34,7 @@
                     @insertData="insertData"
                     @insertTools="insertTools"
                     @editTemplate="editTemplate"
+                    @checkoutTab="checkoutTab"
                     :subjectID="subjectID"
                     :lessonId="lessonId"
                     ref="componentRef"
@@ -173,6 +174,11 @@ export default defineComponent({
                 });
             }
         };
+        //切换tab页
+        const checkoutTab = () => {
+            state.activeName = 2;
+            handleClick(2);
+        };
         return {
             router,
             currentComponent,
@@ -187,6 +193,7 @@ export default defineComponent({
             addLinkCount,
             insertTools,
             gotoMyTemplate,
+            checkoutTab,
         };
     },
 });

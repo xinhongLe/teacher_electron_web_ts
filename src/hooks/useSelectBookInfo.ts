@@ -213,6 +213,18 @@ export default () => {
                 const currentPageData: any = JSON.parse(
                     JSON.stringify(state.allPageListMap.get(pageValue.value.ID))
                 );
+                //只有素材也才能插入素材
+                if (
+                    currentPageData.type == "game" ||
+                    currentPageData.type == "teach" ||
+                    currentPageData.type == "listen" ||
+                    currentPageData.type == "follow"
+                ) {
+                    ElMessage.warning(
+                        "当前页无法添加素材，请先切换到素材页哦！"
+                    );
+                    return;
+                }
                 if (!currentPageData.id) return;
                 //如果是元素
                 //如果是图片
