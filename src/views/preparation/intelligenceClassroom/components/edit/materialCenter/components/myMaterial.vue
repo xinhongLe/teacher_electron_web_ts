@@ -47,19 +47,52 @@
                         :key="i"
                         @click="handleView(item)"
                     >
-                        <img
-                            class="jpzy"
-                            src="@/assets/images/material/icon_jpzy.png"
-                            alt=""
-                        />
-                        <ThumbnailSlide
-                            :slide="
-                                allPageListMap.get(
-                                    item.CardData[0]?.PageList[0]?.ID
-                                ) || {}
+                        <!-- <div class="jpzy-bg">
+                            <img
+                                class="jpzy"
+                                src="@/assets/images/material/icon_jpzy.png"
+                                alt=""
+                            />
+                        </div> -->
+                        <!-- <div class="cardname" v-if="item.CardData[0]?.PageList[0]?.Name">
+                  {{ item.CardData[0]?.PageList[0]?.Name }}
+                </div> -->
+                        <!-- 游戏页或者教具页 显示大图 -->
+                        <el-tooltip
+                            :disabled="
+                                item.CardData[0]?.PageList[0]?.Name
+                                    ? false
+                                    : true
                             "
-                            :size="225"
-                        ></ThumbnailSlide>
+                            :content="item.CardData[0]?.PageList[0]?.Name"
+                            placement="bottom"
+                            effect="dark"
+                        >
+                            <el-image
+                                v-if="
+                                    item.CardData[0]?.PageList[0]?.Type ===
+                                        20 ||
+                                    item.CardData[0]?.PageList[0]?.Type === 16
+                                "
+                                :src="item.CardData[0]?.PageList[0]?.url"
+                                fit="cover"
+                            >
+                                <template #error>
+                                    <div class="image-slot">加载失败...</div>
+                                </template>
+                            </el-image>
+                            <!-- 其它页显示源资源 -->
+                            <ThumbnailSlide
+                                v-else
+                                :slide="
+                                    allPageListMap.get(
+                                        item.CardData[0]?.PageList[0]?.ID
+                                    ) || {}
+                                "
+                                :size="225"
+                            ></ThumbnailSlide>
+                        </el-tooltip>
+
                         <div class="info flex-between-center">
                             <span class="text">{{ item.Name }}</span>
                             <span class="page">{{ item.PageCount }}页</span>
@@ -359,6 +392,16 @@ export default defineComponent({
                 type: "elements",
             });
         };
+        //静态使用次数 加1
+        const addLinkCount = (id: string) => {
+            if (state.activeIndex === 2) {
+                myTemplateList.value.forEach((page: any, index: number) => {
+                    if (page.TeachPageTemplateID === id) {
+                        page.LinkCount += 1;
+                    }
+                });
+            }
+        };
         // onMounted(() => {
         //   quertMyTemplate();
         // });
@@ -386,6 +429,7 @@ export default defineComponent({
             handleDeleteTitle,
             insertMaterial,
             isLoading,
+            addLinkCount,
         };
     },
 });
@@ -443,11 +487,18 @@ export default defineComponent({
             border-radius: 4px;
             cursor: pointer;
             margin-bottom: 15px;
-            .jpzy {
+            .jpzy-bg {
+                width: 36px;
+                height: 34px;
+                background: rgba(255, 255, 255, 0.6);
+                border-radius: 4px;
+                backdrop-filter: blur(5px);
                 position: absolute;
-                left: 0px;
-                top: 0px;
+                left: 4px;
+                top: 4px;
                 z-index: 2;
+                .jpzy {
+                }
             }
             .info {
                 margin: 10px;
@@ -477,6 +528,20 @@ export default defineComponent({
                         padding: 6px 0;
                         cursor: pointer;
                     }
+                }
+            }
+            :deep(.el-image) {
+                height: 126px;
+                width: 100%;
+                .image-slot {
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    width: 100%;
+                    height: 100%;
+                    background: var(--el-fill-color-light);
+                    color: var(--el-text-color-secondary);
+                    font-size: 20px;
                 }
             }
 

@@ -75,7 +75,7 @@
             >
                 <div v-if="row.Materials?.length">
                     <div v-if="!isAllList" class="row-header">
-                        <span class="title">{{ row.Name || "临时名称" }}</span>
+                        <span class="title">{{ row.Name }}</span>
                         <span
                             v-if="row.Materials?.length > 2"
                             class="icon-box"

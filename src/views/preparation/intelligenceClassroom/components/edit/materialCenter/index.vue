@@ -123,6 +123,7 @@ export default defineComponent({
             }
         };
         const gotoMyTemplate = () => {
+            state.isOpen = true;
             state.activeName = 3;
             handleClick(3);
         };
@@ -154,18 +155,19 @@ export default defineComponent({
         };
         //模板引用次数本地数据加1
         const addLinkCount = (id: string) => {
-            if (state.activeName === 1) {
+            if (state.activeName === 1 || state.activeName === 3) {
                 if (!id) return;
                 componentRef.value.addLinkCount(id);
             }
         };
         // 更新素材列表
         const updateMaterialList = () => {
-            if (state.activeName === 2) {
-                nextTick(() => {
-                    componentRef.value.queryMaterialList();
-                });
-            } else if (state.activeName === 3) {
+            // if (state.activeName === 2) {
+            //     nextTick(() => {
+            //         componentRef.value.queryMaterialList();
+            //     });
+            // } else
+            if (state.activeName === 3) {
                 nextTick(() => {
                     componentRef.value.queryAssemblyList();
                 });
