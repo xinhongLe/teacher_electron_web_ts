@@ -225,6 +225,10 @@ export default defineComponent({
                     isPlay.value = true;
                     isPause.value = false;
                 }
+                if (second.value === 3) {
+                    audioRef.value.currentTime = 0;
+                    audioRef.value.play();
+                }
                 clearInterval(timer.value);
                 timer.value = setInterval(() => {
                     if (second.value === 1) {
