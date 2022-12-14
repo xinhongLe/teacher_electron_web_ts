@@ -181,7 +181,7 @@ import {
 // import { slides, elements } from '@/mocks/slides';
 import { Search } from "@element-plus/icons-vue";
 import { ITemplateSave } from "@/types/home";
-import { debounce } from "@/utils/common";
+import { debounce, throttle } from "@/utils/common";
 import TemplateView from "./templateView.vue";
 import useSaveElements from "../hooks/useSaveElements";
 import useSaveTemplate from "@/views/preparation/intelligenceClassroom/edit/hooks/useSaveTemplate";
@@ -339,7 +339,7 @@ export default defineComponent({
                 state.loading = false;
                 return;
             }
-            setTimeout(async () => {
+            throttle(async () => {
                 state.serchForm.Pager.PageNumber += 1;
                 const res = await quertMyTemplate(1);
                 if (!res) {

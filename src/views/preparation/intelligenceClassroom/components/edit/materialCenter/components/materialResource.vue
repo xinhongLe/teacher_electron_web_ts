@@ -16,14 +16,15 @@
             :prefix-icon="Search"
             @input="nameInput"
         />
-        <div class="tag-data" v-if="isShowTag && !isColInner">
-            <div class="tags">
-                <el-icon @click="clearTag"><Close /></el-icon>
-                <span
-                    v-for="(item, index) in (categoryData as any)"
-                    :key="index"
-                >
-                    <!-- <el-link
+        <div class="material-con">
+            <div class="tag-data" v-if="isShowTag && !isColInner">
+                <div class="tags">
+                    <el-icon @click="clearTag"><Close /></el-icon>
+                    <span
+                        v-for="(item, index) in (categoryData as any)"
+                        :key="index"
+                    >
+                        <!-- <el-link
             @click="
               clickClassTag(item.Id);
               currentClassIndex = item.Id;
@@ -33,18 +34,18 @@
             }"
             >{{ item.Name }}
           </el-link> -->
-                    <el-check-tag
-                        :checked="item.Id == currentClassIndex"
-                        @click="
-                            clickClassTag(item.Id);
-                            currentClassIndex = item.Id;
-                        "
-                        >{{ item.Name }}</el-check-tag
-                    >
-                    <!-- <span v-if="index !== categoryData.length - 1"> | </span> -->
-                </span>
-            </div>
-            <!-- <div v-if="secondLabelList.length" style="margin-top: 10px">
+                        <el-check-tag
+                            :checked="item.Id == currentClassIndex"
+                            @click="
+                                clickClassTag(item.Id);
+                                currentClassIndex = item.Id;
+                            "
+                            >{{ item.Name }}</el-check-tag
+                        >
+                        <!-- <span v-if="index !== categoryData.length - 1"> | </span> -->
+                    </span>
+                </div>
+                <!-- <div v-if="secondLabelList.length" style="margin-top: 10px">
         <span v-for="(item, index) in (secondLabelList as any)" :key="index">
           <el-link
             @click="
@@ -59,174 +60,83 @@
           <span v-if="index !== secondLabelList.length - 1"> | </span>
         </span>
       </div> -->
-        </div>
-        <div
-            style="
-                height: calc(100% - 130px);
-                overflow-y: auto;
-                margin-top: 20px;
-            "
-        >
-            <div
-                class="row"
-                v-for="(row, i) in (materialList as any)"
-                :key="i"
-                v-if="materialList.length"
-            >
-                <div v-if="row.Materials?.length">
-                    <div v-if="!isAllList" class="row-header">
-                        <span class="title">{{ row.Name }}</span>
-                        <span
-                            v-if="row.Materials?.length > 2"
-                            class="icon-box"
-                            @click="getAllList(row.Type)"
-                            >更多<el-icon><ArrowRight /></el-icon
-                        ></span>
-                    </div>
-                    <div
-                        v-else-if="isAllList && activeIndex == 0"
-                        class="row-header"
-                    >
-                        <span @click="goBackAllList" class="title back-text"
-                            ><el-icon><ArrowLeft /></el-icon
-                            >{{ row.Name }}</span
-                        >
-                    </div>
-                </div>
-                <!-- 教具 -->
+            </div>
+            <div style="flex: 1; overflow-y: auto; margin-top: 20px">
                 <div
-                    class="row-content"
-                    v-if="
-                        row.Type === 1 &&
-                        (activeIndex === 0 || activeIndex === 1)
-                    "
+                    class="row"
+                    v-for="(row, i) in (materialList as any)"
+                    :key="i"
+                    v-if="materialList.length"
                 >
-                    <div
-                        v-for="(item, i) in isAllList ? toolList : (toolList.slice(0, 3) as any)"
-                        :key="i"
-                        class="jiaoju"
-                        @click="insertMaterial(item, row.Type)"
-                    >
-                        <el-image
-                            :draggable="false"
-                            v-if="item.url"
-                            :src="item.url"
-                            fit="cover"
-                        />
-                        <div class="title-text">{{ item.Name }}</div>
-                    </div>
-                </div>
-                <!--照片-->
-                <div class="row-content" v-if="row.Type === 2">
-                    <div
-                        v-for="(item, i) in isAllList
-                            ? row.Materials
-                            : row.Materials.slice(0, 3)"
-                        :key="i"
-                        @click="insertMaterial(item)"
-                    >
-                        <el-image
-                            :draggable="false"
-                            :src="item.url"
-                            fit="contain"
-                        />
-                    </div>
-                </div>
-
-                <!--插画-->
-                <p
-                    v-if="activeIndex === 3 && !isColInner && row.Type === 3"
-                    class="text-type"
-                    @click="isOpen = !isOpen"
-                >
-                    插画
-                    <img
-                        src="@/assets/images/material/icon_arrow_down.png"
-                        alt=""
-                        v-if="isOpen"
-                    />
-                    <img
-                        src="@/assets/images/material/icon_arrow_up.png"
-                        alt=""
-                        v-else
-                    />
-                </p>
-                <div
-                    class="row-content"
-                    v-if="row.Type === 3 && isOpen && !isColInner"
-                >
-                    <!-- <div>插画</div> -->
-                    <div
-                        v-for="(item, i) in isAllList
-                            ? row.Materials
-                            : row.Materials.slice(0, 3)"
-                        :key="i"
-                        @click="insertMaterial(item)"
-                    >
-                        <el-image
-                            :draggable="false"
-                            :src="item.url"
-                            fit="contain"
-                        />
-                    </div>
-                </div>
-
-                <!--插画-合集 ，点击可进入合集内页-->
-                <p
-                    v-if="activeIndex === 3 && !isColInner && row.Type === 3"
-                    class="text-type"
-                    style="margin-top: 20px"
-                >
-                    合集
-                </p>
-                <div
-                    class="row-content"
-                    v-if="activeIndex === 3 && !isColInner"
-                >
-                    <!-- <div>插画</div> -->
-                    <div
-                        v-for="(item, i) in isAllList
-                            ? row.Collections
-                            : row.Collections.slice(0, 3)"
-                        :key="i"
-                        class="collection"
-                        @click="(isColInner = true), innerCollection(item)"
-                    >
-                        <div class="count">
-                            {{ item.MaterialNum }}
+                    <div v-if="row.Materials?.length">
+                        <div v-if="!isAllList" class="row-header">
+                            <span class="title">{{ row.Name }}</span>
+                            <span
+                                v-if="row.Materials?.length > 2"
+                                class="icon-box"
+                                @click="getAllList(row.Type)"
+                                >更多<el-icon><ArrowRight /></el-icon
+                            ></span>
                         </div>
-                        <el-image
-                            :draggable="false"
-                            v-if="item.url"
-                            :src="item.url"
-                            fit="cover"
-                        />
-                        <p>{{ item.Name }}</p>
+                        <div
+                            v-else-if="isAllList && activeIndex == 0"
+                            class="row-header"
+                        >
+                            <span @click="goBackAllList" class="title back-text"
+                                ><el-icon><ArrowLeft /></el-icon
+                                >{{ row.Name }}</span
+                            >
+                        </div>
                     </div>
-                </div>
+                    <!-- 教具 -->
+                    <div
+                        class="row-content"
+                        v-if="
+                            row.Type === 1 &&
+                            (activeIndex === 0 || activeIndex === 1)
+                        "
+                    >
+                        <div
+                            v-for="(item, i) in isAllList ? toolList : (toolList.slice(0, 3) as any)"
+                            :key="i"
+                            class="jiaoju"
+                            @click="insertMaterial(item, row.Type)"
+                        >
+                            <el-image
+                                :draggable="false"
+                                v-if="item.url"
+                                :src="item.url"
+                                fit="cover"
+                            />
+                            <div class="title-text">{{ item.Name }}</div>
+                        </div>
+                    </div>
+                    <!--照片-->
+                    <div class="row-content" v-if="row.Type === 2">
+                        <div
+                            v-for="(item, i) in isAllList
+                                ? row.Materials
+                                : row.Materials.slice(0, 3)"
+                            :key="i"
+                            @click="insertMaterial(item)"
+                        >
+                            <el-image
+                                :draggable="false"
+                                :src="item.url"
+                                fit="contain"
+                            />
+                        </div>
+                    </div>
 
-                <!-- 插画合集点击进去到内页了 -->
-                <div
-                    v-if="
-                        activeIndex === 3 &&
-                        isColInner &&
-                        collectionInnerData.Id &&
-                        row.Type === 3
-                    "
-                >
-                    <div class="data-text" @click="isColInner = false">
-                        <img
-                            src="@/assets/images/material/icon_arrow_back.png"
-                            alt=""
-                        />
-                        返回
-                    </div>
+                    <!--插画-->
                     <p
+                        v-if="
+                            activeIndex === 3 && !isColInner && row.Type === 3
+                        "
                         class="text-type"
                         @click="isOpen = !isOpen"
-                        style="margin-top: 20px"
                     >
-                        {{ collectionInnerData.Name }}
+                        插画
                         <img
                             src="@/assets/images/material/icon_arrow_down.png"
                             alt=""
@@ -238,25 +148,45 @@
                             v-else
                         />
                     </p>
-                    <div class="row-content" v-if="isOpen">
+                    <div
+                        class="row-content"
+                        v-if="row.Type === 3 && isOpen && !isColInner"
+                    >
+                        <!-- <div>插画</div> -->
                         <div
-                            v-for="(item, i) in (collectionInnerData.Files as any) "
+                            v-for="(item, i) in isAllList
+                                ? row.Materials
+                                : row.Materials.slice(0, 3)"
                             :key="i"
                             @click="insertMaterial(item)"
                         >
                             <el-image
                                 :draggable="false"
-                                v-if="item.url"
                                 :src="item.url"
                                 fit="contain"
                             />
                         </div>
                     </div>
 
-                    <p class="text-type" style="margin-top: 20px">其它推荐</p>
-                    <div class="row-content">
+                    <!--插画-合集 ，点击可进入合集内页-->
+                    <p
+                        v-if="
+                            activeIndex === 3 && !isColInner && row.Type === 3
+                        "
+                        class="text-type"
+                        style="margin-top: 20px"
+                    >
+                        合集
+                    </p>
+                    <div
+                        class="row-content"
+                        v-if="activeIndex === 3 && !isColInner"
+                    >
+                        <!-- <div>插画</div> -->
                         <div
-                            v-for="(item, i) in (adviceCollection as any)"
+                            v-for="(item, i) in isAllList
+                                ? row.Collections
+                                : row.Collections.slice(0, 3)"
                             :key="i"
                             class="collection"
                             @click="(isColInner = true), innerCollection(item)"
@@ -273,122 +203,209 @@
                             <p>{{ item.Name }}</p>
                         </div>
                     </div>
-                </div>
 
-                <!--标题框 wincard -->
-                <div
-                    class="row-content"
-                    v-if="row.Type === 4 && row.Materials?.length"
-                >
+                    <!-- 插画合集点击进去到内页了 -->
                     <div
-                        v-for="(item, i) in isAllList
-                            ? row.Materials
-                            : row.Materials.slice(0, 6)"
-                        :key="i"
-                        @click="insertMaterial(item)"
-                        v-contextmenu="(el: any) => TContextmenus(el, item)"
+                        v-if="
+                            activeIndex === 3 &&
+                            isColInner &&
+                            collectionInnerData.Id &&
+                            row.Type === 3
+                        "
                     >
-                        <ThumbnailElements
-                            :size="120"
-                            :slide="formateElement(item.Files[0]) || {}"
-                        ></ThumbnailElements>
-                    </div>
-                </div>
-                <!--视频/音频-->
-                <div v-if="row.Type === 5 || row.Type === 6">
-                    <div
-                        class="row-video"
-                        v-for="(item, i) in isAllList
-                            ? row.Materials
-                            : row.Materials.slice(0, 2)"
-                        :key="i"
-                        @mouseenter="VAMouseHandler('VARef' + item.Id, item, 1)"
-                        @mouseleave="VAMouseHandler('VARef' + item.Id, item, 0)"
-                        @click="handleView(item)"
-                    >
-                        <div class="video-play">
+                        <div class="data-text" @click="isColInner = false">
+                            <img
+                                src="@/assets/images/material/icon_arrow_back.png"
+                                alt=""
+                            />
+                            返回
+                        </div>
+                        <p
+                            class="text-type"
+                            @click="isOpen = !isOpen"
+                            style="margin-top: 20px"
+                        >
+                            {{ collectionInnerData.Name }}
+                            <img
+                                src="@/assets/images/material/icon_arrow_down.png"
+                                alt=""
+                                v-if="isOpen"
+                            />
+                            <img
+                                src="@/assets/images/material/icon_arrow_up.png"
+                                alt=""
+                                v-else
+                            />
+                        </p>
+                        <div class="row-content" v-if="isOpen">
                             <div
-                                class="video-img"
-                                v-if="item.Type == 5 && item.url2"
-                            >
-                                <!-- controls -->
-                                <video
-                                    object-fit="cover"
-                                    :ref="'VARef' + item.Id"
-                                    :src="item.url2"
-                                    @timeupdate="
-                                        updateTime('VARef' + item.Id, item)
-                                    "
-                                >
-                                    您的浏览器不支持视频播放
-                                </video>
-                                <div class="playicon">
-                                    <el-icon v-if="item.isPlay"
-                                        ><VideoPause
-                                    /></el-icon>
-                                    <el-icon v-else><VideoPlay /></el-icon>
-                                </div>
-                                <span>
-                                    {{ item.currentTime || "00:00" }} /
-                                    {{
-                                        formatSeconds(
-                                            item.Files.find(
-                                                (file: any) => file.Type == 1
-                                            )?.Duration
-                                        )
-                                    }}
-                                </span>
-                            </div>
-                            <div
-                                class="audio-img"
-                                v-if="item.Type == 6 && item.url"
+                                v-for="(item, i) in (collectionInnerData.Files as any) "
+                                :key="i"
+                                @click="insertMaterial(item)"
                             >
                                 <el-image
                                     :draggable="false"
+                                    v-if="item.url"
+                                    :src="item.url"
+                                    fit="contain"
+                                />
+                            </div>
+                        </div>
+
+                        <p class="text-type" style="margin-top: 20px">
+                            其它推荐
+                        </p>
+                        <div class="row-content">
+                            <div
+                                v-for="(item, i) in (adviceCollection as any)"
+                                :key="i"
+                                class="collection"
+                                @click="
+                                    (isColInner = true), innerCollection(item)
+                                "
+                            >
+                                <div class="count">
+                                    {{ item.MaterialNum }}
+                                </div>
+                                <el-image
+                                    :draggable="false"
+                                    v-if="item.url"
                                     :src="item.url"
                                     fit="cover"
                                 />
-                                <div class="lines">
-                                    <div class="duan"></div>
-                                    <div class="chang"></div>
-                                    <div class="duan"></div>
-                                    <div class="chang"></div>
-                                    <div class="duan"></div>
-                                </div>
-                                <span>
-                                    {{ item.currentTime || "00:00" }} /
-                                    {{
-                                        formatSeconds(
-                                            item.Files.find(
-                                                (file: any) => file.Type == 1
-                                            )?.Duration
-                                        )
-                                    }}
-                                </span>
-                                <audio
-                                    :ref="'VARef' + item.Id"
-                                    controls
-                                    preload="auto"
-                                    v-show="false"
-                                    @timeupdate="
-                                        updateTime('VARef' + item.Id, item)
-                                    "
-                                >
-                                    <source :src="item.url2" type="audio/mp3" />
-                                    <source :src="item.url2" type="audio/ogg" />
-                                    您的浏览器不支持 audio 元素。
-                                </audio>
+                                <p>{{ item.Name }}</p>
                             </div>
                         </div>
-                        <div class="video-text">
-                            <div class="title-text">{{ item.Name }}</div>
-                            <span class="gary-text">{{ item.Remarks }}</span>
+                    </div>
+
+                    <!--标题框 wincard -->
+                    <div
+                        class="row-content"
+                        v-if="row.Type === 4 && row.Materials?.length"
+                    >
+                        <div
+                            v-for="(item, i) in isAllList
+                                ? row.Materials
+                                : row.Materials.slice(0, 6)"
+                            :key="i"
+                            @click="insertMaterial(item)"
+                            v-contextmenu="(el: any) => TContextmenus(el, item)"
+                        >
+                            <ThumbnailElements
+                                :size="120"
+                                :slide="formateElement(item.Files[0]) || {}"
+                            ></ThumbnailElements>
                         </div>
                     </div>
-                </div>
+                    <!--视频/音频-->
+                    <div v-if="row.Type === 5 || row.Type === 6">
+                        <div
+                            class="row-video"
+                            v-for="(item, i) in isAllList
+                                ? row.Materials
+                                : row.Materials.slice(0, 2)"
+                            :key="i"
+                            @mouseenter="
+                                VAMouseHandler('VARef' + item.Id, item, 1)
+                            "
+                            @mouseleave="
+                                VAMouseHandler('VARef' + item.Id, item, 0)
+                            "
+                            @click="handleView(item)"
+                        >
+                            <div class="video-play">
+                                <div
+                                    class="video-img"
+                                    v-if="item.Type == 5 && item.url2"
+                                >
+                                    <!-- controls -->
+                                    <video
+                                        object-fit="cover"
+                                        :ref="'VARef' + item.Id"
+                                        :src="item.url2"
+                                        @timeupdate="
+                                            updateTime('VARef' + item.Id, item)
+                                        "
+                                    >
+                                        您的浏览器不支持视频播放
+                                    </video>
+                                    <div class="playicon">
+                                        <el-icon v-if="item.isPlay"
+                                            ><VideoPause
+                                        /></el-icon>
+                                        <el-icon v-else><VideoPlay /></el-icon>
+                                    </div>
+                                    <span>
+                                        {{ item.currentTime || "00:00" }} /
+                                        {{
+                                            formatSeconds(
+                                                item.Files.find(
+                                                    (file: any) =>
+                                                        file.Type == 1
+                                                )?.Duration
+                                            )
+                                        }}
+                                    </span>
+                                </div>
+                                <div
+                                    class="audio-img"
+                                    v-if="item.Type == 6 && item.url"
+                                >
+                                    <el-image
+                                        :draggable="false"
+                                        :src="item.url"
+                                        fit="cover"
+                                    />
+                                    <div class="lines">
+                                        <div class="duan"></div>
+                                        <div class="chang"></div>
+                                        <div class="duan"></div>
+                                        <div class="chang"></div>
+                                        <div class="duan"></div>
+                                    </div>
+                                    <span>
+                                        {{ item.currentTime || "00:00" }} /
+                                        {{
+                                            formatSeconds(
+                                                item.Files.find(
+                                                    (file: any) =>
+                                                        file.Type == 1
+                                                )?.Duration
+                                            )
+                                        }}
+                                    </span>
+                                    <audio
+                                        :ref="'VARef' + item.Id"
+                                        controls
+                                        preload="auto"
+                                        v-show="false"
+                                        @timeupdate="
+                                            updateTime('VARef' + item.Id, item)
+                                        "
+                                    >
+                                        <source
+                                            :src="item.url2"
+                                            type="audio/mp3"
+                                        />
+                                        <source
+                                            :src="item.url2"
+                                            type="audio/ogg"
+                                        />
+                                        您的浏览器不支持 audio 元素。
+                                    </audio>
+                                </div>
+                            </div>
+                            <div class="video-text">
+                                <div class="title-text">{{ item.Name }}</div>
+                                <span class="gary-text">{{
+                                    item.Remarks
+                                }}</span>
+                            </div>
+                        </div>
+                    </div>
 
-                <!--题目-->
-                <!-- <div v-if="row.Type === 7">
+                    <!--题目-->
+                    <!-- <div v-if="row.Type === 7">
           <div class="row-topic" v-for="(item, i) in row.Materials.slice(0, 3)" :key="i">
             <div>
               <span :class="['type-topic', i === 0 ? 'type-topic-active' : '']">书本题目</span>
@@ -397,14 +414,15 @@
             <div class="gary-text">5题</div>
           </div>
         </div> -->
-            </div>
-            <div v-else>
-                <el-empty
-                    :image="
-                        require('@/assets/images/material/pic_nothing_big.png')
-                    "
-                    description="这里空空如也..."
-                />
+                </div>
+                <div v-else>
+                    <el-empty
+                        :image="
+                            require('@/assets/images/material/pic_nothing_big.png')
+                        "
+                        description="这里空空如也..."
+                    />
+                </div>
             </div>
         </div>
         <template-view
@@ -829,271 +847,279 @@ export default defineComponent({
         color: #fff;
     }
 }
-.tag-data {
-    margin-top: 20px;
-    .tags {
-        display: flex;
-        align-items: center;
-        .el-icon {
-            margin-right: 5px;
-            color: red;
-            cursor: pointer;
-        }
-        .el-icon:hover {
-            opacity: 0.8;
-        }
-        span {
-            // padding-right: 5px;
-            margin-right: 5px;
-        }
-        :deep(.el-check-tag) {
-            font-size: 14px;
-            // font-weight: 600;
-        }
-
-        .isActive {
-            color: var(--el-link-hover-text-color);
-            border-bottom: 2px solid var(--el-link-hover-text-color);
-        }
-    }
-}
-
-.row {
-    .row-header {
-        display: flex;
-        justify-content: space-between;
-        font-size: 14px;
-        color: #90949e;
-        margin: 24px 0 0px;
-        .title {
+.material-con {
+    display: flex;
+    flex-direction: column;
+    height: calc(100% - 120px);
+    .tag-data {
+        margin-top: 20px;
+        .tags {
             display: flex;
             align-items: center;
-            font-size: 16px;
-            font-weight: 600;
-            color: #212121;
-        }
-        .icon-box {
-            display: flex;
-            align-items: center;
-            cursor: pointer;
-        }
-        .back-text {
-            cursor: pointer;
-        }
-    }
-
-    .title-text {
-        font-size: 14px;
-        color: #212121;
-        margin-bottom: 10px;
-    }
-
-    .gary-text {
-        font-size: 12px;
-        color: #90949e;
-    }
-
-    .text-type {
-        font-size: 14px;
-        font-weight: 400;
-        color: #90949e;
-        display: flex;
-        align-items: center;
-        cursor: pointer;
-        img {
-            margin-left: 5px;
-        }
-    }
-    .data-text {
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        font-size: 14px;
-        font-weight: 600;
-        color: #212121;
-        img {
-            margin-right: 5px;
-        }
-    }
-    .row-content {
-        display: flex;
-        justify-content: flex-start;
-        flex-wrap: wrap;
-        > div {
-            width: 30.3%;
-            box-shadow: 0px 3px 7px 0px rgba(0, 0, 0, 0.1);
-            border-radius: 4px;
-            cursor: pointer;
-            margin: 10px 3% 10px 0;
-            padding: 10px;
-            text-align: center;
-            background: #f6f7f8;
-            .el-image {
-                width: 100%;
-                height: 130px;
-            }
-        }
-        .collection {
-            background: #fff;
-            border: 1px solid #d8dbdd;
-            position: relative;
-            border-bottom: 2px double #bfbfbf;
-            padding: 0;
-            .el-image {
-                width: 100%;
-                height: 120px;
-            }
-            .count {
-                position: absolute;
-                right: 3px;
-                top: 3px;
-                width: 18px;
-                height: 18px;
-                line-height: 18px;
-                background: #000000;
-                border-radius: 2px;
-                opacity: 0.5;
-                font-size: 12px;
-                font-weight: 400;
-                color: #ffffff;
-                z-index: 99;
-            }
-            p {
-                margin: 12px 0;
+            flex-wrap: wrap;
+            .el-icon {
+                margin-right: 5px;
+                color: red;
+                cursor: pointer;
                 font-size: 14px;
             }
-        }
-
-        .jiaoju {
-            padding: 0;
-            :deep(.el-image) {
-                height: 100px;
+            .el-icon:hover {
+                opacity: 0.8;
             }
-            .title-text {
-                height: 26px;
-                line-height: 26px;
-                margin: 0;
+            span {
+                // padding-right: 5px;
+                margin-right: 5px;
+            }
+            :deep(.el-check-tag) {
+                font-size: 14px;
+                // font-weight: 600;
+                margin-bottom: 5px;
+            }
+
+            .isActive {
+                color: var(--el-link-hover-text-color);
+                border-bottom: 2px solid var(--el-link-hover-text-color);
             }
         }
     }
 
-    .row-video {
-        cursor: pointer;
-        display: flex;
-        justify-content: flex-start;
-        align-items: center;
-        background: #f6f7f8;
-        border-radius: 4px;
-        margin-top: 10px;
-        height: 72px;
-        // padding: 10px 0;
-        .video-play {
-            width: 28%;
-            height: 100%;
-            margin-right: 20px;
-            border-radius: 4px 0px 0px 4px;
-            position: relative;
-
-            .video-img {
-                width: 100%;
-                height: 100%;
-                position: relative;
-                video {
-                    width: 100%;
-                    height: 100%;
-                }
-                span {
-                    position: absolute;
-                    right: 4px;
-                    bottom: 4px;
-                    color: #fff;
-                    font-size: 12px;
-                }
-                .playicon {
-                    cursor: pointer;
-                    position: absolute;
-                    top: 50%;
-                    left: 50%;
-                    transform: translate(-50%, -50%);
-                    .el-icon {
-                        backdrop-filter: blur(5px);
-                        font-size: 20px;
-                        color: rgba(255, 255, 255, 0.7);
-                    }
-                }
+    .row {
+        .row-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            color: #90949e;
+            margin: 24px 0 0px;
+            .title {
+                display: flex;
+                align-items: center;
+                font-size: 16px;
+                font-weight: 600;
+                color: #212121;
             }
-            .audio-img {
-                width: 100%;
-                height: 100%;
-                position: relative;
+            .icon-box {
+                display: flex;
+                align-items: center;
+                cursor: pointer;
+            }
+            .back-text {
+                cursor: pointer;
+            }
+        }
+
+        .title-text {
+            font-size: 14px;
+            color: #212121;
+            margin-bottom: 10px;
+        }
+
+        .gary-text {
+            font-size: 12px;
+            color: #90949e;
+        }
+
+        .text-type {
+            font-size: 14px;
+            font-weight: 400;
+            color: #90949e;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            img {
+                margin-left: 5px;
+            }
+        }
+        .data-text {
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            font-weight: 600;
+            color: #212121;
+            img {
+                margin-right: 5px;
+            }
+        }
+        .row-content {
+            display: flex;
+            justify-content: flex-start;
+            flex-wrap: wrap;
+            > div {
+                width: 30.3%;
+                box-shadow: 0px 3px 7px 0px rgba(0, 0, 0, 0.1);
+                border-radius: 4px;
+                cursor: pointer;
+                margin: 10px 3% 10px 0;
+                padding: 10px;
+                text-align: center;
+                background: #f6f7f8;
                 .el-image {
                     width: 100%;
-                    height: 100%;
+                    height: 130px;
                 }
-                span {
+            }
+            .collection {
+                background: #fff;
+                border: 1px solid #d8dbdd;
+                position: relative;
+                border-bottom: 2px double #bfbfbf;
+                padding: 0;
+                .el-image {
+                    width: 100%;
+                    height: 120px;
+                }
+                .count {
                     position: absolute;
-                    right: 4px;
-                    bottom: 4px;
-                    color: #fff;
+                    right: 3px;
+                    top: 3px;
+                    width: 18px;
+                    height: 18px;
+                    line-height: 18px;
+                    background: #000000;
+                    border-radius: 2px;
+                    opacity: 0.5;
                     font-size: 12px;
+                    font-weight: 400;
+                    color: #ffffff;
+                    z-index: 99;
                 }
-                .lines {
-                    cursor: pointer;
-                    position: absolute;
-                    top: 40%;
-                    left: 50%;
-                    transform: translateX(-50%);
-                    display: flex;
-                    align-items: center;
-                    .duan {
-                        margin: 1px;
-                        width: 2px;
-                        height: 6px;
-                        background-color: #fff;
-                    }
-                    .chang {
-                        margin: 1px;
-                        width: 2px;
-                        height: 17px;
-                        background-color: #fff;
-                    }
+                p {
+                    margin: 12px 0;
+                    font-size: 14px;
+                }
+            }
+
+            .jiaoju {
+                padding: 0;
+                :deep(.el-image) {
+                    height: 100px;
+                }
+                .title-text {
+                    height: 26px;
+                    line-height: 26px;
+                    margin: 0;
                 }
             }
         }
 
-        .video-text {
-            flex: 1;
-            flex-wrap: wrap;
-        }
-        // img {
-        //   width: 96px;
-        //   height: 72px;
-        //   margin-right: 20px;
-        // }
-    }
-    .row-video:hover {
-        opacity: 0.8;
-        .duan,
-        .chang {
-            opacity: 0.5;
-        }
-    }
-    .row-topic {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        border-radius: 4px;
-        margin: 20px 0;
-        padding: 20px 10px;
-        background: #f6f7f8;
-        .type-topic {
+        .row-video {
+            cursor: pointer;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            background: #f6f7f8;
             border-radius: 4px;
-            padding: 4px;
-            margin-right: 20px;
+            margin-top: 10px;
+            height: 72px;
+            // padding: 10px 0;
+            .video-play {
+                width: 28%;
+                height: 100%;
+                margin-right: 20px;
+                border-radius: 4px 0px 0px 4px;
+                position: relative;
+
+                .video-img {
+                    width: 100%;
+                    height: 100%;
+                    position: relative;
+                    video {
+                        width: 100%;
+                        height: 100%;
+                    }
+                    span {
+                        position: absolute;
+                        right: 4px;
+                        bottom: 4px;
+                        color: #fff;
+                        font-size: 12px;
+                    }
+                    .playicon {
+                        cursor: pointer;
+                        position: absolute;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                        .el-icon {
+                            backdrop-filter: blur(5px);
+                            font-size: 20px;
+                            color: rgba(255, 255, 255, 0.7);
+                        }
+                    }
+                }
+                .audio-img {
+                    width: 100%;
+                    height: 100%;
+                    position: relative;
+                    .el-image {
+                        width: 100%;
+                        height: 100%;
+                    }
+                    span {
+                        position: absolute;
+                        right: 4px;
+                        bottom: 4px;
+                        color: #fff;
+                        font-size: 12px;
+                    }
+                    .lines {
+                        cursor: pointer;
+                        position: absolute;
+                        top: 40%;
+                        left: 50%;
+                        transform: translateX(-50%);
+                        display: flex;
+                        align-items: center;
+                        .duan {
+                            margin: 1px;
+                            width: 2px;
+                            height: 6px;
+                            background-color: #fff;
+                        }
+                        .chang {
+                            margin: 1px;
+                            width: 2px;
+                            height: 17px;
+                            background-color: #fff;
+                        }
+                    }
+                }
+            }
+
+            .video-text {
+                flex: 1;
+                flex-wrap: wrap;
+            }
+            // img {
+            //   width: 96px;
+            //   height: 72px;
+            //   margin-right: 20px;
+            // }
         }
-        .type-topic-active {
-            color: #2e95ff;
-            border: 1px solid #2e95ff;
+        .row-video:hover {
+            opacity: 0.8;
+            .duan,
+            .chang {
+                opacity: 0.5;
+            }
+        }
+        .row-topic {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 4px;
+            margin: 20px 0;
+            padding: 20px 10px;
+            background: #f6f7f8;
+            .type-topic {
+                border-radius: 4px;
+                padding: 4px;
+                margin-right: 20px;
+            }
+            .type-topic-active {
+                color: #2e95ff;
+                border: 1px solid #2e95ff;
+            }
         }
     }
 }

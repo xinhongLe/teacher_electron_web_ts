@@ -259,7 +259,7 @@ import { ITemplateSave } from "@/types/home";
 import { IRecordSort } from "@/types/material";
 import useSaveTemplate from "@/views/preparation/intelligenceClassroom/edit/hooks/useSaveTemplate";
 import { ElMessage, ElMessageBox } from "element-plus";
-import { debounce } from "@/utils/common";
+import { debounce, throttle } from "@/utils/common";
 
 import draggable from "vuedraggable";
 
@@ -351,7 +351,7 @@ export default defineComponent({
                 state.loading = false;
                 return;
             }
-            setTimeout(async () => {
+            throttle(async () => {
                 state.serchForm.Pager.PageNumber += 1;
                 await queryTemplateList(1);
                 state.loading = false;

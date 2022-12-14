@@ -431,6 +431,15 @@ export const debounce = (func: Function, wait: number) => {
         func();
     }, wait);
 };
+
+let timer: any = "";
+// 节流
+export const throttle = (fn?: any, wait?: any, scope?: any) => {
+    clearTimeout(timer);
+    timer = setTimeout(function () {
+        fn.apply(scope);
+    }, wait);
+};
 //  秒数转化为时分秒
 //  秒数转化为时分秒
 export const formatSeconds = (value: number) => {
