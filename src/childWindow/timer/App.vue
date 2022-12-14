@@ -76,6 +76,7 @@
                 </div>
             </div>
         </div>
+        <audio :src="timeAudio" ref="audioRef"></audio>
     </div>
 </template>
 
@@ -95,6 +96,8 @@ export default defineComponent({
         const timer = ref();
         const time = ref(0);
         const isHide = ref(false);
+        const audioRef = ref();
+        const timeAudio = require("./assets/timer.mp3");
 
         const showTime = computed(() => {
             let showTime = "";
@@ -231,6 +234,10 @@ export default defineComponent({
                         isElectron() && window.electron.ipcRenderer.invoke("hideTimerWin");
                     }
                     second.value--;
+                    if (second.value === 3) {
+                        audioRef.value.currentTime = 0;
+                        audioRef.value.play();
+                    }
                     setCountDownList();
                 }, 1000);
             } else {
@@ -252,6 +259,7 @@ export default defineComponent({
             isPlay.value = false;
             isPause.value = true;
             timer.value && clearInterval(timer.value);
+            audioRef.value.pause();
         };
 
         watch(activeIndex, reset);
@@ -274,7 +282,9 @@ export default defineComponent({
             play,
             reset,
             pauseTimer,
-            countDownList
+            countDownList,
+            timeAudio,
+            audioRef
         };
     }
 });
