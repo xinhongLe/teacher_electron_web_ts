@@ -369,6 +369,7 @@ export default () => {
             top: (VIEWPORT_SIZE * viewportRatio.value - height) / 2,
             src: `${file.FilePath}/${file.FileMD5}.${file.FileExtention}`,
             showType: elData.showType,
+            clip: elData.clip ? elData.clip : undefined
         };
         //给当前选择的页的element元素中 添加一条素材
         currentPageData.elements.push(elParams);
