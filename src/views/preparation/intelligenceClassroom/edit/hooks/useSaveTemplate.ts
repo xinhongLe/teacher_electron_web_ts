@@ -329,36 +329,74 @@ export default (pageListMap?: any) => {
         }
     };
     //查询素材库列表
-    const getSourceMaterials = async (data: IMaterialParams) => {
+    const getSourceMaterials = async (
+        data: IMaterialParams,
+        type: number = 0
+    ) => {
         isLoading.value = true;
         const res: any = await GetSourceMaterials(data);
         isLoading.value = false;
         if (res.resultCode === 200 && res.result?.length) {
-            materialList.value = res.result;
-            materialList.value.forEach((item: any) => {
-                item.Materials?.forEach((item2: any) => {
-                    item2.Files.forEach(async (item3: any) => {
-                        if (item3.Type == 0) {
-                            //图片附件的
-                            item2.url = await formateOssUrl(item3);
-                        } else {
-                            //音频视频 源文件的
-                            item2.url2 = await formateOssUrl(item3);
-                        }
+            if (type) {
+                materialList.value.forEach((item: any) => {
+                    res.result.forEach(async (re: any) => {
+                        item.CollectionPager = re.CollectionPager;
+                        item.Materials = item.Materials.concat(re.Materials);
+                        item.SourcePager = re.SourcePager;
+                        pager.value =
+                            !re.SourcePager.IsLastPage && re.SourcePager.length
+                                ? re.SourcePager
+                                : re.CollectionPager &&
+                                  !re.CollectionPager.IsLastPage &&
+                                  re.Collections.length
+                                ? re.CollectionPager
+                                : re.SourcePager;
+                        await formatMaterial(item);
                     });
                 });
-                //下面是合集
-                item.Collections?.forEach(async (item2: any) => {
-                    item2.url = await formateOssUrl(item2.Files[0]);
-                    item2.Files.forEach(async (item3: any) => {
-                        //图片附件的
-                        item3.url = await formateOssUrl(item3);
-                    });
+            } else {
+                if (data.Type !== 0) {
+                    const re = res.result[0];
+                    pager.value =
+                        !re.SourcePager.IsLastPage && re.SourcePager.length
+                            ? re.SourcePager
+                            : re.CollectionPager &&
+                              !re.CollectionPager.IsLastPage &&
+                              re.Collections.length
+                            ? re.CollectionPager
+                            : re.SourcePager;
+                }
+                materialList.value = res.result;
+                materialList.value.forEach(async (item: any) => {
+                    await formatMaterial(item);
                 });
-            });
+                console.log(materialList.value);
+            }
         } else {
             materialList.value = [];
         }
+    };
+    //过滤文件
+    const formatMaterial = async (item: any) => {
+        item.Materials?.forEach((item2: any) => {
+            item2.Files?.forEach(async (item3: any) => {
+                if (item3.Type == 0) {
+                    //图片附件的
+                    item2.url = await formateOssUrl(item3);
+                } else {
+                    //音频视频 源文件的
+                    item2.url2 = await formateOssUrl(item3);
+                }
+            });
+        });
+        //下面是合集
+        item.Collections?.forEach(async (item2: any) => {
+            item2.url = await formateOssUrl(item2.Files[0]);
+            item2.Files?.forEach(async (item3: any) => {
+                //图片附件的
+                item3.url = await formateOssUrl(item3);
+            });
+        });
     };
     //获取其他推荐合集
     const getAdviceCollection = async (data: IAdviceCol) => {

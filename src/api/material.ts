@@ -17,6 +17,7 @@ import {
     IAdviceCol,
     IDAssembly,
     IGAssembly,
+    IAddSource,
 } from "@/types/material";
 import { MATERIAL_API, AI_XUE_SHI_API } from "@/config";
 import { store } from "@/store";
@@ -224,6 +225,16 @@ export function GetSourceAssemblyList(data: IGAssembly) {
     return request({
         baseURL: MATERIAL_API,
         url: "/Api/SourceMaterial/SourceMaterial/GetSourceAssemblyList",
+        method: "post",
+        data,
+    });
+}
+
+//素材引用
+export function AddSourceMaterialCall(data: IAddSource) {
+    return request({
+        baseURL: MATERIAL_API,
+        url: "/Api/SourceMaterial/SourceMaterial/AddSourceMaterialCall",
         method: "post",
         data,
     });

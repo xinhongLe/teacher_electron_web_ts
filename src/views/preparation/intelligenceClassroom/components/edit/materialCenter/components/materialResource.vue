@@ -61,171 +61,95 @@
         </span>
       </div> -->
             </div>
-            <div style="flex: 1; overflow-y: auto; margin-top: 20px">
-                <div
-                    class="row"
-                    v-for="(row, i) in (materialList as any)"
-                    :key="i"
-                    v-if="materialList.length"
-                >
-                    <div v-if="row.Materials?.length">
-                        <div v-if="!isAllList" class="row-header">
-                            <span class="title">{{ row.Name }}</span>
-                            <span
-                                v-if="row.Materials?.length > 2"
-                                class="icon-box"
-                                @click="getAllList(row.Type)"
-                                >更多<el-icon><ArrowRight /></el-icon
-                            ></span>
-                        </div>
-                        <div
-                            v-else-if="isAllList && activeIndex == 0"
-                            class="row-header"
-                        >
-                            <span @click="goBackAllList" class="title back-text"
-                                ><el-icon><ArrowLeft /></el-icon
-                                >{{ row.Name }}</span
-                            >
-                        </div>
-                    </div>
-                    <!-- 教具 -->
+            <div
+                v-if="materialList.length"
+                style="overflow: auto; margin-top: 20px; flex: 1"
+                v-infinite-scroll="loadMore"
+                :infinite-scroll-disabled="disabled"
+                infinite-scroll-distance="1"
+                :infinite-scroll-immediate="false"
+                ref="templateScollRef"
+            >
+                <div>
                     <div
-                        class="row-content"
-                        v-if="
-                            row.Type === 1 &&
-                            (activeIndex === 0 || activeIndex === 1)
-                        "
+                        class="row"
+                        v-for="(row, i) in (materialList as any)"
+                        :key="i"
+                        v-if="materialList.length"
                     >
-                        <div
-                            v-for="(item, i) in isAllList ? toolList : (toolList.slice(0, 3) as any)"
-                            :key="i"
-                            class="jiaoju"
-                            @click="insertMaterial(item, row.Type)"
-                        >
-                            <el-image
-                                :draggable="false"
-                                v-if="item.url"
-                                :src="item.url"
-                                fit="cover"
-                            />
-                            <div class="title-text">{{ item.Name }}</div>
-                        </div>
-                    </div>
-                    <!--照片-->
-                    <div class="row-content" v-if="row.Type === 2">
-                        <div
-                            v-for="(item, i) in isAllList
-                                ? row.Materials
-                                : row.Materials.slice(0, 3)"
-                            :key="i"
-                            @click="insertMaterial(item)"
-                        >
-                            <el-image
-                                :draggable="false"
-                                :src="item.url"
-                                fit="contain"
-                            />
-                        </div>
-                    </div>
-
-                    <!--插画-->
-                    <p
-                        v-if="
-                            activeIndex === 3 && !isColInner && row.Type === 3
-                        "
-                        class="text-type"
-                        @click="isOpen = !isOpen"
-                    >
-                        插画
-                        <img
-                            src="@/assets/images/material/icon_arrow_down.png"
-                            alt=""
-                            v-if="isOpen"
-                        />
-                        <img
-                            src="@/assets/images/material/icon_arrow_up.png"
-                            alt=""
-                            v-else
-                        />
-                    </p>
-                    <div
-                        class="row-content"
-                        v-if="row.Type === 3 && isOpen && !isColInner"
-                    >
-                        <!-- <div>插画</div> -->
-                        <div
-                            v-for="(item, i) in isAllList
-                                ? row.Materials
-                                : row.Materials.slice(0, 3)"
-                            :key="i"
-                            @click="insertMaterial(item)"
-                        >
-                            <el-image
-                                :draggable="false"
-                                :src="item.url"
-                                fit="contain"
-                            />
-                        </div>
-                    </div>
-
-                    <!--插画-合集 ，点击可进入合集内页-->
-                    <p
-                        v-if="
-                            activeIndex === 3 && !isColInner && row.Type === 3
-                        "
-                        class="text-type"
-                        style="margin-top: 20px"
-                    >
-                        合集
-                    </p>
-                    <div
-                        class="row-content"
-                        v-if="activeIndex === 3 && !isColInner"
-                    >
-                        <!-- <div>插画</div> -->
-                        <div
-                            v-for="(item, i) in isAllList
-                                ? row.Collections
-                                : row.Collections.slice(0, 3)"
-                            :key="i"
-                            class="collection"
-                            @click="(isColInner = true), innerCollection(item)"
-                        >
-                            <div class="count">
-                                {{ item.MaterialNum }}
+                        <div v-if="row.Materials?.length">
+                            <div v-if="!isAllList" class="row-header">
+                                <span class="title">{{ row.Name }}</span>
+                                <span
+                                    v-if="row.Materials?.length > 2"
+                                    class="icon-box"
+                                    @click="getAllList(row)"
+                                    >更多<el-icon><ArrowRight /></el-icon
+                                ></span>
                             </div>
-                            <el-image
-                                :draggable="false"
-                                v-if="item.url"
-                                :src="item.url"
-                                fit="cover"
-                            />
-                            <p>{{ item.Name }}</p>
+                            <div
+                                v-else-if="isAllList && activeIndex == 0"
+                                class="row-header"
+                            >
+                                <span
+                                    @click="goBackAllList"
+                                    class="title back-text"
+                                    ><el-icon><ArrowLeft /></el-icon
+                                    >{{ row.Name }}</span
+                                >
+                            </div>
                         </div>
-                    </div>
+                        <!-- 教具 -->
+                        <div
+                            class="row-content"
+                            v-if="
+                                row.Type === 1 &&
+                                (activeIndex === 0 || activeIndex === 1)
+                            "
+                        >
+                            <div
+                                v-for="(item, i) in isAllList ? toolList : (toolList.slice(0, 3) as any)"
+                                :key="i"
+                                class="jiaoju"
+                                @click="insertMaterial(item, row.Type)"
+                            >
+                                <el-image
+                                    :draggable="false"
+                                    v-if="item.url"
+                                    :src="item.url"
+                                    fit="cover"
+                                />
+                                <div class="title-text">{{ item.Name }}</div>
+                            </div>
+                        </div>
+                        <!--照片-->
+                        <div class="row-content" v-if="row.Type === 2">
+                            <div
+                                v-for="(item, i) in isAllList
+                                    ? row.Materials
+                                    : row.Materials.slice(0, 3)"
+                                :key="i"
+                                @click="insertMaterial(item)"
+                            >
+                                <el-image
+                                    :draggable="false"
+                                    :src="item.url"
+                                    fit="contain"
+                                />
+                            </div>
+                        </div>
 
-                    <!-- 插画合集点击进去到内页了 -->
-                    <div
-                        v-if="
-                            activeIndex === 3 &&
-                            isColInner &&
-                            collectionInnerData.Id &&
-                            row.Type === 3
-                        "
-                    >
-                        <div class="data-text" @click="isColInner = false">
-                            <img
-                                src="@/assets/images/material/icon_arrow_back.png"
-                                alt=""
-                            />
-                            返回
-                        </div>
+                        <!--插画-->
                         <p
+                            v-if="
+                                activeIndex === 3 &&
+                                !isColInner &&
+                                row.Type === 3
+                            "
                             class="text-type"
                             @click="isOpen = !isOpen"
-                            style="margin-top: 20px"
                         >
-                            {{ collectionInnerData.Name }}
+                            插画
                             <img
                                 src="@/assets/images/material/icon_arrow_down.png"
                                 alt=""
@@ -237,27 +161,47 @@
                                 v-else
                             />
                         </p>
-                        <div class="row-content" v-if="isOpen">
+                        <div
+                            class="row-content"
+                            v-if="row.Type === 3 && isOpen && !isColInner"
+                        >
+                            <!-- <div>插画</div> -->
                             <div
-                                v-for="(item, i) in (collectionInnerData.Files as any) "
+                                v-for="(item, i) in isAllList
+                                    ? row.Materials
+                                    : row.Materials.slice(0, 3)"
                                 :key="i"
                                 @click="insertMaterial(item)"
                             >
                                 <el-image
                                     :draggable="false"
-                                    v-if="item.url"
                                     :src="item.url"
                                     fit="contain"
                                 />
                             </div>
                         </div>
 
-                        <p class="text-type" style="margin-top: 20px">
-                            其它推荐
+                        <!--插画-合集 ，点击可进入合集内页-->
+                        <p
+                            v-if="
+                                activeIndex === 3 &&
+                                !isColInner &&
+                                row.Type === 3
+                            "
+                            class="text-type"
+                            style="margin-top: 20px"
+                        >
+                            合集
                         </p>
-                        <div class="row-content">
+                        <div
+                            class="row-content"
+                            v-if="activeIndex === 3 && !isColInner"
+                        >
+                            <!-- <div>插画</div> -->
                             <div
-                                v-for="(item, i) in (adviceCollection as any)"
+                                v-for="(item, i) in isAllList
+                                    ? row.Collections
+                                    : row.Collections.slice(0, 3)"
                                 :key="i"
                                 class="collection"
                                 @click="
@@ -276,136 +220,220 @@
                                 <p>{{ item.Name }}</p>
                             </div>
                         </div>
-                    </div>
 
-                    <!--标题框 wincard -->
-                    <div
-                        class="row-content"
-                        v-if="row.Type === 4 && row.Materials?.length"
-                    >
+                        <!-- 插画合集点击进去到内页了 -->
                         <div
-                            v-for="(item, i) in isAllList
-                                ? row.Materials
-                                : row.Materials.slice(0, 6)"
-                            :key="i"
-                            @click="insertMaterial(item)"
-                            v-contextmenu="(el: any) => TContextmenus(el, item)"
-                        >
-                            <ThumbnailElements
-                                :size="120"
-                                :slide="formateElement(item.Files[0]) || {}"
-                            ></ThumbnailElements>
-                        </div>
-                    </div>
-                    <!--视频/音频-->
-                    <div v-if="row.Type === 5 || row.Type === 6">
-                        <div
-                            class="row-video"
-                            v-for="(item, i) in isAllList
-                                ? row.Materials
-                                : row.Materials.slice(0, 2)"
-                            :key="i"
-                            @mouseenter="
-                                VAMouseHandler('VARef' + item.Id, item, 1)
+                            v-if="
+                                activeIndex === 3 &&
+                                isColInner &&
+                                collectionInnerData.Id &&
+                                row.Type === 3
                             "
-                            @mouseleave="
-                                VAMouseHandler('VARef' + item.Id, item, 0)
-                            "
-                            @click="handleView(item)"
                         >
-                            <div class="video-play">
+                            <div class="data-text" @click="isColInner = false">
+                                <img
+                                    src="@/assets/images/material/icon_arrow_back.png"
+                                    alt=""
+                                />
+                                返回
+                            </div>
+                            <p
+                                class="text-type"
+                                @click="isOpen = !isOpen"
+                                style="margin-top: 20px"
+                            >
+                                {{ collectionInnerData.Name }}
+                                <img
+                                    src="@/assets/images/material/icon_arrow_down.png"
+                                    alt=""
+                                    v-if="isOpen"
+                                />
+                                <img
+                                    src="@/assets/images/material/icon_arrow_up.png"
+                                    alt=""
+                                    v-else
+                                />
+                            </p>
+                            <div class="row-content" v-if="isOpen">
                                 <div
-                                    class="video-img"
-                                    v-if="item.Type == 5 && item.url2"
-                                >
-                                    <!-- controls -->
-                                    <video
-                                        object-fit="cover"
-                                        :ref="'VARef' + item.Id"
-                                        :src="item.url2"
-                                        @timeupdate="
-                                            updateTime('VARef' + item.Id, item)
-                                        "
-                                    >
-                                        您的浏览器不支持视频播放
-                                    </video>
-                                    <div class="playicon">
-                                        <el-icon v-if="item.isPlay"
-                                            ><VideoPause
-                                        /></el-icon>
-                                        <el-icon v-else><VideoPlay /></el-icon>
-                                    </div>
-                                    <span>
-                                        {{ item.currentTime || "00:00" }} /
-                                        {{
-                                            formatSeconds(
-                                                item.Files.find(
-                                                    (file: any) =>
-                                                        file.Type == 1
-                                                )?.Duration
-                                            )
-                                        }}
-                                    </span>
-                                </div>
-                                <div
-                                    class="audio-img"
-                                    v-if="item.Type == 6 && item.url"
+                                    v-for="(item, i) in (collectionInnerData.Files as any) "
+                                    :key="i"
+                                    @click="insertMaterial(item)"
                                 >
                                     <el-image
                                         :draggable="false"
+                                        v-if="item.url"
+                                        :src="item.url"
+                                        fit="contain"
+                                    />
+                                </div>
+                            </div>
+
+                            <p class="text-type" style="margin-top: 20px">
+                                其它推荐
+                            </p>
+                            <div class="row-content">
+                                <div
+                                    v-for="(item, i) in (adviceCollection as any)"
+                                    :key="i"
+                                    class="collection"
+                                    @click="
+                                        (isColInner = true),
+                                            innerCollection(item)
+                                    "
+                                >
+                                    <div class="count">
+                                        {{ item.MaterialNum }}
+                                    </div>
+                                    <el-image
+                                        :draggable="false"
+                                        v-if="item.url"
                                         :src="item.url"
                                         fit="cover"
                                     />
-                                    <div class="lines">
-                                        <div class="duan"></div>
-                                        <div class="chang"></div>
-                                        <div class="duan"></div>
-                                        <div class="chang"></div>
-                                        <div class="duan"></div>
-                                    </div>
-                                    <span>
-                                        {{ item.currentTime || "00:00" }} /
-                                        {{
-                                            formatSeconds(
-                                                item.Files.find(
-                                                    (file: any) =>
-                                                        file.Type == 1
-                                                )?.Duration
-                                            )
-                                        }}
-                                    </span>
-                                    <audio
-                                        :ref="'VARef' + item.Id"
-                                        controls
-                                        preload="auto"
-                                        v-show="false"
-                                        @timeupdate="
-                                            updateTime('VARef' + item.Id, item)
-                                        "
-                                    >
-                                        <source
-                                            :src="item.url2"
-                                            type="audio/mp3"
-                                        />
-                                        <source
-                                            :src="item.url2"
-                                            type="audio/ogg"
-                                        />
-                                        您的浏览器不支持 audio 元素。
-                                    </audio>
+                                    <p>{{ item.Name }}</p>
                                 </div>
                             </div>
-                            <div class="video-text">
-                                <div class="title-text">{{ item.Name }}</div>
-                                <span class="gary-text">{{
-                                    item.Remarks
-                                }}</span>
+                        </div>
+
+                        <!--标题框 wincard -->
+                        <div
+                            class="row-content"
+                            v-if="row.Type === 4 && row.Materials?.length"
+                        >
+                            <div
+                                v-for="(item, i) in isAllList
+                                    ? row.Materials
+                                    : row.Materials.slice(0, 6)"
+                                :key="i"
+                                @click="insertMaterial(item)"
+                                v-contextmenu="(el: any) => TContextmenus(el, item)"
+                            >
+                                <ThumbnailElements
+                                    :size="120"
+                                    :slide="formateElement(item.Files[0]) || {}"
+                                ></ThumbnailElements>
                             </div>
                         </div>
-                    </div>
+                        <!--视频/音频-->
+                        <div v-if="row.Type === 5 || row.Type === 6">
+                            <div
+                                class="row-video"
+                                v-for="(item, i) in isAllList
+                                    ? row.Materials
+                                    : row.Materials.slice(0, 2)"
+                                :key="i"
+                                @mouseenter="
+                                    VAMouseHandler('VARef' + item.Id, item, 1)
+                                "
+                                @mouseleave="
+                                    VAMouseHandler('VARef' + item.Id, item, 0)
+                                "
+                                @click="handleView(item)"
+                            >
+                                <div class="video-play">
+                                    <div
+                                        class="video-img"
+                                        v-if="item.Type == 5 && item.url2"
+                                    >
+                                        <!-- controls -->
+                                        <video
+                                            object-fit="cover"
+                                            :ref="'VARef' + item.Id"
+                                            :src="item.url2"
+                                            @timeupdate="
+                                                updateTime(
+                                                    'VARef' + item.Id,
+                                                    item
+                                                )
+                                            "
+                                        >
+                                            您的浏览器不支持视频播放
+                                        </video>
+                                        <div class="playicon">
+                                            <el-icon v-if="item.isPlay"
+                                                ><VideoPause
+                                            /></el-icon>
+                                            <el-icon v-else
+                                                ><VideoPlay
+                                            /></el-icon>
+                                        </div>
+                                        <span>
+                                            {{ item.currentTime || "00:00" }} /
+                                            {{
+                                                formatSeconds(
+                                                    item.Files.find(
+                                                        (file: any) =>
+                                                            file.Type == 1
+                                                    )?.Duration
+                                                )
+                                            }}
+                                        </span>
+                                    </div>
+                                    <div
+                                        class="audio-img"
+                                        v-if="item.Type == 6 && item.url"
+                                    >
+                                        <el-image
+                                            :draggable="false"
+                                            :src="item.url"
+                                            fit="cover"
+                                        />
+                                        <div class="lines">
+                                            <div class="duan"></div>
+                                            <div class="chang"></div>
+                                            <div class="duan"></div>
+                                            <div class="chang"></div>
+                                            <div class="duan"></div>
+                                        </div>
+                                        <span>
+                                            {{ item.currentTime || "00:00" }} /
+                                            {{
+                                                formatSeconds(
+                                                    item.Files.find(
+                                                        (file: any) =>
+                                                            file.Type == 1
+                                                    )?.Duration
+                                                )
+                                            }}
+                                        </span>
+                                        <audio
+                                            :ref="'VARef' + item.Id"
+                                            controls
+                                            preload="auto"
+                                            v-show="false"
+                                            @timeupdate="
+                                                updateTime(
+                                                    'VARef' + item.Id,
+                                                    item
+                                                )
+                                            "
+                                        >
+                                            <source
+                                                :src="item.url2"
+                                                type="audio/mp3"
+                                            />
+                                            <source
+                                                :src="item.url2"
+                                                type="audio/ogg"
+                                            />
+                                            您的浏览器不支持 audio 元素。
+                                        </audio>
+                                    </div>
+                                </div>
+                                <div class="video-text">
+                                    <div class="title-text">
+                                        {{ item.Name }}
+                                    </div>
+                                    <span class="gary-text">{{
+                                        item.Remarks
+                                    }}</span>
+                                </div>
+                            </div>
+                        </div>
 
-                    <!--题目-->
-                    <!-- <div v-if="row.Type === 7">
+                        <!--题目-->
+                        <!-- <div v-if="row.Type === 7">
           <div class="row-topic" v-for="(item, i) in row.Materials.slice(0, 3)" :key="i">
             <div>
               <span :class="['type-topic', i === 0 ? 'type-topic-active' : '']">书本题目</span>
@@ -414,15 +442,27 @@
             <div class="gary-text">5题</div>
           </div>
         </div> -->
+                    </div>
+                    <div v-if="isAllList && searchForm?.Type !== 1">
+                        <p
+                            v-if="!noMore"
+                            class="loadmore"
+                            style="color: #409eff"
+                            @click="loadMore"
+                        >
+                            {{ loading ? "加载中..." : "加载更多" }}
+                        </p>
+                        <p v-if="noMore" class="nomore">没有更多了</p>
+                    </div>
                 </div>
-                <div v-else>
-                    <el-empty
-                        :image="
-                            require('@/assets/images/material/pic_nothing_big.png')
-                        "
-                        description="这里空空如也..."
-                    />
-                </div>
+            </div>
+            <div v-else>
+                <el-empty
+                    :image="
+                        require('@/assets/images/material/pic_nothing_big.png')
+                    "
+                    description="这里空空如也..."
+                />
             </div>
         </div>
         <template-view
@@ -449,7 +489,7 @@ import {
 } from "vue";
 import TemplateView from "./templateView.vue";
 // import { elements } from '@/mocks/slides';
-import { formatSeconds, debounce } from "@/utils/common";
+import { formatSeconds, debounce, throttle } from "@/utils/common";
 import { Search, VideoPause, VideoPlay, Close } from "@element-plus/icons-vue";
 import useSaveElements from "../hooks/useSaveElements";
 import useSaveTemplate from "@/views/preparation/intelligenceClassroom/edit/hooks/useSaveTemplate";
@@ -484,6 +524,7 @@ export default defineComponent({
             allPageListMap,
             queryToolList,
             toolList,
+            pager,
         } = useSaveTemplate();
         const isShowTag = ref(false);
         // computed(() => {
@@ -503,6 +544,11 @@ export default defineComponent({
                     CollectionsMainID: "",
                 },
                 Lable: "",
+                Pager: {
+                    PageNumber: 1,
+                    PageSize: 9,
+                    Total: 0,
+                },
             },
             activeIndex: 0,
             isAllList: false,
@@ -530,8 +576,11 @@ export default defineComponent({
             currentAllType: 0,
             visibleView: false, //视频预览
             currentSelectTemplate: [], //当前选择的模板
+            disabled: false, //是否终止滚动加载
+            loading: false,
         });
-
+        const noMore = computed(() => pager.value.IsLastPage); //不在显示更多
+        const templateScollRef = ref(); //滚动区域
         const { parseElements } = useSaveElements();
         // const arr = elements.map(item => {
         //   return parseElements(item);
@@ -551,6 +600,7 @@ export default defineComponent({
             async (val: number) => {
                 state.currentClassIndex = "";
                 state.searchForm.Name = "";
+                state.searchForm.Pager.PageNumber = 1;
                 state.searchForm.Lable = "";
                 state.searchForm.Type = val;
                 state.isColInner = false;
@@ -569,6 +619,9 @@ export default defineComponent({
                         state.isAllList = true;
                         isShowTag.value = true;
                         break;
+                    case 4:
+                        state.isAllList = true;
+                        break;
                     default:
                         break;
                 }
@@ -578,6 +631,7 @@ export default defineComponent({
                         MaterialId: "",
                     });
                 }
+                materialList.value = [];
                 await queryMaterialList();
                 insertJiaoJu();
             }
@@ -593,12 +647,14 @@ export default defineComponent({
         );
         //教具内容添加进素材里面
         const insertJiaoJu = async () => {
-            if (toolList.value.length) {
-                materialList.value.unshift({
-                    Materials: toolList.value,
-                    Name: "教具",
-                    Type: 1,
-                });
+            if (state.activeIndex === 0 || state.activeIndex === 1) {
+                if (toolList.value.length) {
+                    materialList.value.unshift({
+                        Materials: toolList.value,
+                        Name: "教具",
+                        Type: 1,
+                    });
+                }
             }
         };
         //点击视频预览
@@ -611,38 +667,50 @@ export default defineComponent({
             }
         };
         //关键词搜索
+        //关键词搜索
         const nameInput = () => {
+            state.searchForm.Pager.PageNumber = 1;
             debounce(queryMaterialList, 600);
         };
         //清空分类选择的标签
         const clearTag = () => {
             state.searchForm.Lable = "";
             state.currentClassIndex = "";
+            state.searchForm.Pager.PageNumber = 1;
             queryMaterialList();
         };
         //点击分类标签
         const clickClassTag = (label: string) => {
             if (label) {
                 state.searchForm.Lable = label;
+                state.searchForm.Pager.PageNumber = 1;
                 queryMaterialList();
             }
         };
         //查询素材列表-按类型
-        const queryMaterialList = async () => {
-            await getSourceMaterials(state.searchForm);
+        const queryMaterialList = async (type?: number) => {
+            await getSourceMaterials(state.searchForm, type);
         };
 
         //查询某个类型下全部素材
-        const getAllList = (type: number) => {
-            //   state.currentAllType = type;
+        const getAllList = async (row: any) => {
             state.isAllList = true;
-            materialList.value = materialList.value.filter((item: any) => {
-                return item.Type == type;
-            });
-            if (type === 2 || type === 3) {
+            state.searchForm.Type = row.Type;
+            if (row.Type === 1) {
+                materialList.value = materialList.value.filter((item: any) => {
+                    return item.Type == row.Type;
+                });
+                templateScollRef.value.scrollTop = 0; //滚动条归零
+            } else {
+                state.searchForm.Pager.PageNumber = 1;
+                await queryMaterialList();
+                templateScollRef.value.scrollTop = 0; //滚动条归零
+            }
+
+            if (row.Type === 2 || row.Type === 3) {
                 isShowTag.value = true;
                 queryCategoryByMaterialType({
-                    Type: type,
+                    Type: row.Type,
                     MaterialId: "",
                 });
             } else {
@@ -655,8 +723,10 @@ export default defineComponent({
             //   state.activeIndex = 0;
             //   state.currentAllType = 0;
             state.searchForm.Type = 0;
+            state.searchForm.Pager.PageNumber = 1;
             state.isAllList = false;
             await queryMaterialList();
+            templateScollRef.value.scrollTop = 0; //滚动条归零
             insertJiaoJu();
         };
         //点击插画类型下的 插画合集
@@ -781,6 +851,20 @@ export default defineComponent({
             };
             await queryToolList(data);
         };
+        //滚动加载更多
+        const loadMore = () => {
+            if (state.activeIndex === 0 && !state.isAllList) return;
+            state.loading = true;
+            if (pager.value.IsLastPage) {
+                state.loading = false;
+                return;
+            }
+            throttle(async () => {
+                state.searchForm.Pager.PageNumber += 1;
+                await queryMaterialList(1);
+                state.loading = false;
+            }, 1000);
+        };
         onMounted(async () => {
             await queryMaterialList();
             await queryTools();
@@ -819,6 +903,9 @@ export default defineComponent({
             queryToolList,
             toolList,
             insertJiaoJu,
+            noMore,
+            loadMore,
+            templateScollRef,
         };
     },
 });
@@ -1121,6 +1208,16 @@ export default defineComponent({
                 border: 1px solid #2e95ff;
             }
         }
+    }
+    .nomore,
+    .loadmore {
+        margin-top: 10px;
+        text-align: center;
+        margin-bottom: 10px;
+        font-size: 12px;
+    }
+    .loadmore {
+        cursor: pointer;
     }
 }
 </style>

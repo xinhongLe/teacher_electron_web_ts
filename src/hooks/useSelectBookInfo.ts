@@ -13,7 +13,10 @@ import useHome from "@/hooks/useHome";
 import { ElMessageBox, ElMessage } from "element-plus";
 import { getImageSize } from "@/utils/image";
 import { createRandomCode } from "@/utils/common";
-import { addTeachPageTemplateLinkCount } from "@/api/material";
+import {
+    addTeachPageTemplateLinkCount,
+    AddSourceMaterialCall,
+} from "@/api/material";
 interface State {
     subjectPublisherBookList: ITreeList[];
     subjectPublisherBookValue: string[];
@@ -248,6 +251,14 @@ export default () => {
                     default:
                         break;
                 }
+
+                //素材被调用了
+                const params = {
+                    UserID: jsonData.TeacherID,
+                    SourceMaterialMainID: jsonData.Id,
+                    PageID: pageValue.value.ID,
+                };
+                await AddSourceMaterialCall(params);
             } else if (obj.type === "teach") {
                 //教具内容插入
                 //深拷贝 获取当前的页的数据

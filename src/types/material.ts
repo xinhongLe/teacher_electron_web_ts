@@ -121,3 +121,16 @@ export interface IGAssembly {
     QueryText?: string;
     TeacherID?: string;
 }
+
+export interface IAddSource {
+    UserID?: string;
+    OrgID?: string;
+    PageID?: string;
+    CollectionsMainID?: string;
+    SourceMaterialMainID?: string;
+    SubjectID?: string;
+    PublisherID?: string;
+    AlbumID?: string;
+    ChapterID?: string;
+    LessonID?: string;
+}
