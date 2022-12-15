@@ -25,7 +25,7 @@
                 </div>
             </div>
             <div v-if="templateData.Type === 5" class="video_header">
-                <div class="cvideo" v-if="templateData.url2">
+                <div @click="initVideoClip" class="cvideo" v-if="templateData.url2">
                     <img src="@/assets/images/material/icon_cj.png" alt="" />
                 </div>
                 <el-button size="large" type="primary" @click="insertVideo"
@@ -40,10 +40,29 @@
         </div>
         <div class="content">
             <!-- type为5视频裁剪 -->
-            <div class="row" v-if="templateData.Type === 5">
-                <video object-fit="cover" :src="templateData.url2" controls>
-                    您的浏览器不支持视频播放
-                </video>
+            <div v-if="templateData.Type === 5">
+                <div class="row">
+                    <VideoPlayer
+                        ref="videoPlayerRef"
+                        v-if="videoElement.src"
+                        :videoElement="videoElement"
+                        :src="templateData.url2"
+                        :isScreening="true"
+                        :width="1040"
+                        :height="585"
+                    >
+                    </VideoPlayer>
+                </div>
+                <div class="video-clip" v-if="showClip">
+                    <div class="slider-clip">
+                        <el-slider :format-tooltip="formatTooltip" @change="handleSliderChange" :max="duration" v-model="sliderValue" range />
+                    </div>
+
+                    <div class="operate-btn">
+                        <el-button @click="resetBtn" class="reset-btn" round plain><el-icon color="#333" :size="14"><IconUndo /></el-icon>还原</el-button>
+                        <el-button @click="saveBtn" round type="success"><el-icon color="#fff" :size="14"><IconSave /></el-icon>完成</el-button>
+                    </div>
+                </div>
             </div>
             <div
                 class="row"
@@ -82,21 +101,22 @@
 
 <script lang="ts">
 import { computed, defineComponent, reactive, toRefs } from "vue";
+import useVideo from "../hooks/useVideo";
 export default defineComponent({
     name: "templateView",
     props: {
         dialogVisible: {
             type: Boolean,
-            require: true,
+            require: true
         },
         currentSelectTemplate: {
             type: Object,
-            required: true,
+            required: true
         },
         allPageListMap: {
             type: Object,
-            required: true,
-        },
+            required: true
+        }
     },
 
     emits: ["update:dialogVisible", "insertData", "insertMaterial"],
@@ -105,6 +125,20 @@ export default defineComponent({
         const templateData = computed(() => props.currentSelectTemplate);
 
         const pageListMap = computed(() => props.allPageListMap);
+
+        const {
+            videoPlayerRef,
+            showClip,
+            duration,
+            sliderValue,
+            videoElement,
+            initVideoClip,
+            handleSliderChange,
+            formatTooltip,
+            resetBtn,
+            saveBtn
+        } = useVideo(props.currentSelectTemplate);
+
         const close = () => {
             emit("update:dialogVisible", false);
         };
@@ -113,18 +147,18 @@ export default defineComponent({
                 emit("insertData", {
                     type: "page",
                     data: templateData.value.CardData[0]?.PageList,
-                    teachPageTemplateID: templateData.value.TeachPageTemplateID,
+                    teachPageTemplateID: templateData.value.TeachPageTemplateID
                 });
             } else {
                 emit("insertData", {
                     type: "page",
                     data: [page],
-                    teachPageTemplateID: templateData.value.TeachPageTemplateID,
+                    teachPageTemplateID: templateData.value.TeachPageTemplateID
                 });
             }
             close();
         };
-        //插入视频
+        // 插入视频
         const insertVideo = () => {
             emit("insertMaterial", { showType: 0, ...templateData.value });
         };
@@ -136,8 +170,18 @@ export default defineComponent({
             handleInsert,
             insertVideo,
             close,
+            videoPlayerRef,
+            showClip,
+            duration,
+            sliderValue,
+            videoElement,
+            initVideoClip,
+            handleSliderChange,
+            formatTooltip,
+            resetBtn,
+            saveBtn
         };
-    },
+    }
 });
 </script>
 
@@ -215,6 +259,22 @@ export default defineComponent({
         }
         video {
             width: 100%;
+        }
+    }
+}
+
+.video-clip {
+    width: calc(100% - 12px);
+    .operate-btn{
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+        .el-icon{
+            margin-right: 6px;
+        }
+        .reset-btn:focus, .reset-btn:hover{
+            color: #606266;
+            border-color: #dcdfe6;
         }
     }
 }

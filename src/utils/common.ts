@@ -500,3 +500,12 @@ export const formatSeconds = (value: number) => {
     //  }
     return result;
 };
+
+export const secondToTime = (second = 0) => {
+    if (second === 0 || isNaN(second)) return "00:00";
+    const add0 = (num: number) => (num < 10 ? "0" + num : "" + num);
+    const hour = Math.floor(second / 3600);
+    const min = Math.floor((second - hour * 3600) / 60);
+    const sec = Math.floor(second - hour * 3600 - min * 60);
+    return (hour > 0 ? [hour, min, sec] : [min, sec]).map(add0).join(":");
+};
