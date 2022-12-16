@@ -80,9 +80,9 @@
                     <el-button type="primary"  @click="start(0)" plain>保存为草稿</el-button>
                 </el-tooltip>
 
-                <el-tooltip content="您可以提前准备好题目并【加入当前备课包】上课时打开备课包可直接使用" placement="top">
+<!--            <el-tooltip content="您可以提前准备好题目并【加入当前备课包】上课时打开备课包可直接使用" placement="top">-->
                     <el-button type="primary" @click="start(1)">立即发放</el-button>
-                </el-tooltip>
+<!--            </el-tooltip>-->
             </div>
         </div>
     </div>
