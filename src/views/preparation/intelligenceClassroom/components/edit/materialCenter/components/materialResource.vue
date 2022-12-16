@@ -861,6 +861,9 @@ export default defineComponent({
             }
             throttle(async () => {
                 state.searchForm.Pager.PageNumber += 1;
+                if (state.activeIndex === 3) {
+                    templateScollRef.value.scrollTop -= 100; //滚动条
+                }
                 await queryMaterialList(1);
                 state.loading = false;
             }, 1000);
