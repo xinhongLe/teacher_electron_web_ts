@@ -1,6 +1,7 @@
 import request from "@/utils/request";
 import { AI_XUE_SHI_API_WRONG_BOOK } from "@/config";
 import { IResponse, RequestFun } from "@/types/response";
+import { IErrorHBook } from "@/types/errorbook";
 
 //错题本左侧树形数据
 export interface LeftMenuByHomeWork {
@@ -440,6 +441,20 @@ export function sendErrorPaperWork(data: paperWorkParams) {
     return request({
         baseURL: AI_XUE_SHI_API_WRONG_BOOK,
         url: "Api/Web/ClassErrorQuestionBook/SendErrorPaperWork",
+        headers: {
+            "Content-Type": "application/json-patch+json",
+            // noLoading: "true",
+        },
+        method: "post",
+        data: data,
+    });
+}
+
+//获取指定时间段内班级有错题作业的教科书
+export function GetErrorHomeworkBooks(data: IErrorHBook) {
+    return request({
+        baseURL: AI_XUE_SHI_API_WRONG_BOOK,
+        url: "Api/Web/ClassErrorQuestionBook/GetErrorHomeworkBooks",
         headers: {
             "Content-Type": "application/json-patch+json",
             // noLoading: "true",

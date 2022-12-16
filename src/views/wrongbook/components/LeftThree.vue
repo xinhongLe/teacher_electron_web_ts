@@ -16,7 +16,12 @@
                 v-model:value="selectedID"
                 :treeData="state.treeData"
             />
-            <p v-else style="text-align: center; margin-top: 20%">暂无数据</p>
+            <p
+                v-else
+                style="text-align: center; margin-top: 20%; font-size: 14px"
+            >
+                暂无数据
+            </p>
             <!-- :tipTarget="tipTarget"
                     :showClassArrangement="showClassArrangement" -->
         </div>
@@ -38,15 +43,17 @@ import {
     searchLeftMeunByKnowledge,
     LeftMenuParams,
 } from "@/api/errorbook";
-import useBookList from "@/views/assignHomework/hooks/useBookList";
-import useWrongBook from "../hooks/useWrongBook";
 import emitter from "@/utils/mitt"; //全局事件总线
-import { subjectPublisherBookList } from "@/hooks/useSubjectPublisherBookList";
+import useWrongBook from "@/views/wrongbook/hooks/useWrongBook";
 import { store } from "@/store";
-
+const cascaderProps = {
+    value: "Value",
+    children: "Children",
+    label: "Label",
+};
+const { subjectPublisherBookList, getErrorHomeworkBooks } = useWrongBook();
 provide("isShow", false);
 provide("classId", "");
-const { cascaderProps } = useBookList();
 const props = defineProps({
     currentWrongType: {
         type: Number,
@@ -131,12 +138,19 @@ const state = reactive({
 });
 watch(
     () => props.parentSearch,
-    (data) => {
+    async (data) => {
+        const params = {
+            ClassId: data.ClassId,
+            StartTime: data.StartTime,
+            EndTime: data.EndTime,
+        };
+        const res = await getErrorHomeworkBooks(params);
         form.value = Object.assign(form.value, data);
-        queryLeftMeunByChapter(form.value);
+        // queryLeftMeunByChapter(form.value);
     },
     {
         deep: true,
+        immediate: true,
     }
 );
 
@@ -214,14 +228,19 @@ const initData = (v: any) => {
 watch(
     () => subjectPublisherBookList.value,
     (v) => {
-        store.state.wrongbook.currentSelectedBookName = `${v[0].Lable} ${
-            v[0].Children![0].Lable
+        if (!v.length) {
+            state.treeData = [];
+            emitter.emit("clearErrorBookList");
+            return;
+        }
+        store.state.wrongbook.currentSelectedBookName = `${v[0].Label} ${
+            v[0].Children![0].Label
         } ${v[0].Children![0].Children![0].Lable}`;
         store.state.wrongbook.currentSubjectId = v[0].Value;
         selectSubject(v[0].Value);
         if (props.currentChapterBookId?.length) {
             state.currentBookId = props.currentChapterBookId as any;
-            // initData(state.currentBookId);
+            initData(state.currentBookId);
         } else {
             state.currentBookId = [
                 v[0].Value,
@@ -235,10 +254,9 @@ watch(
 watch(
     () => state.currentBookId,
     (v) => {
-        // console.log("vvvv", v);
         initData(v);
     },
-    { deep: true, immediate: true }
+    { deep: true }
 );
 </script>
 <style lang="scss" scoped>

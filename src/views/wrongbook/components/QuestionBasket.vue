@@ -342,6 +342,7 @@ const dragend = (e: any) => {
                 height: 234px;
                 width: 100%;
                 overflow: auto;
+                font-size: 14px;
                 .list-item {
                     color: #ffffff;
                     display: flex;

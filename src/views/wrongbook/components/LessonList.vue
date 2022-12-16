@@ -841,6 +841,11 @@ const queryBasicTag = async () => {
         state.basicTagList = res.result;
     }
 };
+//清空错题本列表
+const clearErrorBookList = () => {
+    state.initErrorQuestionList = [];
+    state.errorQuestionList = [];
+};
 onMounted(() => {
     // nextTick(() => {
     emitter.on("errorBookEmit", (data) => {
@@ -848,6 +853,12 @@ onMounted(() => {
         //初始化时去查对应的维度的题目列表
         queryFuntion(data);
     });
+    emitter.on("clearErrorBookList", () => {
+        // console.log("errorBookEmit", data);
+        //初始化时去查对应的维度的题目列表
+        clearErrorBookList();
+    });
+
     // });
 
     // queryBasicTag();
@@ -900,6 +911,7 @@ const queryFuntion = (params: any) => {
 onBeforeUnmount(() => {
     emitter.off("errorBookEmit");
     emitter.off("openErrorBookDetails");
+    emitter.off("clearErrorBookList");
 });
 </script>
 <style lang="scss" scoped>
@@ -1026,6 +1038,7 @@ onBeforeUnmount(() => {
                     margin-left: 68px;
                     display: flex;
                     align-items: center;
+                    font-size: 14px;
                     .frequency {
                         margin-right: 26px;
                         .title {

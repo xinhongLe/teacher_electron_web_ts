@@ -68,7 +68,12 @@
                     }}</span> -->
                 </div>
             </div>
-            <p v-else style="text-align: center; margin-top: 20%">暂无数据</p>
+            <p
+                v-else
+                style="text-align: center; margin-top: 20%; font-size: 14px"
+            >
+                暂无数据
+            </p>
         </div>
     </div>
 </template>
@@ -78,10 +83,16 @@ import { Search } from "@element-plus/icons-vue";
 import { searchLeftMenuByHomeWork, LeftMenuParams } from "@/api/errorbook";
 import emitter from "@/utils/mitt"; //全局事件总线
 import useBookList from "@/views/assignHomework/hooks/useBookList";
-import { subjectPublisherBookList } from "@/hooks/useSubjectPublisherBookList";
+// import { subjectPublisherBookList } from "@/hooks/useSubjectPublisherBookList";
+import useWrongBook from "@/views/wrongbook/hooks/useWrongBook";
 import { formateNormDate, formatWeekDay } from "@/utils";
 import { store } from "@/store";
-const { cascaderProps } = useBookList();
+const cascaderProps = {
+    value: "Value",
+    children: "Children",
+    label: "Label",
+};
+const { subjectPublisherBookList, getErrorHomeworkBooks } = useWrongBook();
 
 const props = defineProps({
     parentSearch: {
@@ -205,28 +216,38 @@ const initData = (v: any) => {
 };
 watch(
     () => props.parentSearch,
-    (data) => {
+    async (data) => {
         console.log("data", data);
+        const params = {
+            ClassId: data.ClassId,
+            StartTime: data.StartTime,
+            EndTime: data.EndTime,
+        };
+        const res = await getErrorHomeworkBooks(params);
         form.value = Object.assign(form.value, data);
-        queryLeftMenuByHomeWork(form.value);
+        // queryLeftMenuByHomeWork(form.value);
     },
     {
         deep: true,
-        // immediate: true,
+        immediate: true,
     }
 );
 watch(
     () => subjectPublisherBookList.value,
     (v) => {
-        if (!v.length) return;
+        if (!v.length) {
+            state.lessonList = [];
+            emitter.emit("clearErrorBookList");
+            return;
+        }
         // console.log("subjectPublisherBookList.value", v);
         // console.log(
         //     "----------currentHomeworkBookId",
         //     props.currentHomeworkBookId
         // );
-        store.state.wrongbook.currentSelectedBookName = `${v[0].Lable} ${
-            v[0].Children![0].Lable
-        } ${v[0].Children![0].Children![0].Lable}`;
+        store.state.wrongbook.currentSelectedBookName = `${v[0].Label} ${
+            v[0].Children![0].Label
+        } ${v[0].Children![0].Children![0].Label}`;
         store.state.wrongbook.currentSubjectId = v[0].Value;
         selectSubject(v[0].Value);
         if (props.currentHomeworkBookId?.length) {
@@ -240,17 +261,16 @@ watch(
             ];
         }
     },
-    { deep: true, immediate: true }
+    { deep: true }
 );
 
 watch(
     () => state.currentBookId,
     (v) => {
-        console.log("vvvv", v);
         if (!v.length) return;
         initData(v);
     },
-    { deep: true, immediate: true }
+    { deep: true }
 );
 
 // onMounted(() => {});

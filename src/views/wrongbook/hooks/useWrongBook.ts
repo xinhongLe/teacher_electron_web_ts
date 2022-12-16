@@ -1,7 +1,11 @@
 import { reactive, ref, toRefs } from "vue";
-import { searchByKnowledgeLabList, KnowledgeLabParams } from "@/api/errorbook";
+import {
+    searchByKnowledgeLabList,
+    KnowledgeLabParams,
+    GetErrorHomeworkBooks,
+} from "@/api/errorbook";
 import { MutationTypes, store, ActionTypes } from "@/store";
-
+import { IErrorHBook } from "@/types/errorbook";
 export default () => {
     const state = reactive({
         knowledgeLabList: [],
@@ -55,6 +59,7 @@ export default () => {
             },
         ],
         currentHomeworkBookId: [],
+        subjectPublisherBookList: [],
     });
     //获取下拉数据
     const queryKnowledgeLabList = async (params: KnowledgeLabParams) => {
@@ -190,6 +195,17 @@ export default () => {
         };
         store.dispatch(ActionTypes.DEL_QUESTION_BASKET, params);
     };
+    //获取指定时间段内班级有错题作业的教科书
+    const getErrorHomeworkBooks = async (params: IErrorHBook) => {
+        const res: any = await GetErrorHomeworkBooks(params);
+        console.log("res--->", res);
+        if (res.resultCode && res.result?.length) {
+            state.subjectPublisherBookList = res.result;
+            return true;
+        } else {
+            state.subjectPublisherBookList = [];
+        }
+    };
 
     return {
         queryKnowledgeLabList,
@@ -203,6 +219,7 @@ export default () => {
         delAllBasketData,
         addQuestionBasket,
         delQuestionBasket,
+        getErrorHomeworkBooks,
         ...toRefs(state),
     };
 };
