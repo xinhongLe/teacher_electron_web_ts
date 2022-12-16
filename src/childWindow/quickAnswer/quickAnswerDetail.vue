@@ -181,7 +181,18 @@ export default defineComponent({
             }
         };
         const close = () => {
-            window.electron.destroyWindow();
+            const data = {
+                TeacherID: props.currentUserInfo!.userCenterUserID,
+                AnswerMachineID: state.answerMachineID,
+                LessonId: null
+            };
+            finishAnswerMachineQuestion(data).then(res => {
+                if (res.resultCode === 200) {
+                    state.message = 0;
+                    client.unsubscribe(getPublish(state.answerMachineID));
+                    window.electron.destroyWindow();
+                }
+            });
         };
 
         onUnmounted(() => {
