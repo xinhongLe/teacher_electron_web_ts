@@ -323,15 +323,25 @@
                                     ? row.Materials
                                     : row.Materials.slice(0, 2)"
                                 :key="i"
-                                @mouseenter="
-                                    VAMouseHandler('VARef' + item.Id, item, 1)
-                                "
-                                @mouseleave="
-                                    VAMouseHandler('VARef' + item.Id, item, 0)
-                                "
                                 @click="handleView(item)"
                             >
-                                <div class="video-play">
+                                <div
+                                    class="video-play"
+                                    @mouseenter="
+                                        VAMouseHandler(
+                                            'VARef' + item.Id,
+                                            item,
+                                            1
+                                        )
+                                    "
+                                    @mouseleave="
+                                        VAMouseHandler(
+                                            'VARef' + item.Id,
+                                            item,
+                                            0
+                                        )
+                                    "
+                                >
                                     <div
                                         class="video-img"
                                         v-if="item.Type == 5 && item.url2"
@@ -501,6 +511,10 @@ export default defineComponent({
             type: String,
             required: true,
         },
+        lessonId: {
+            type: String,
+            required: true,
+        },
     },
     emits: ["insertData", "insertTools"],
     components: {
@@ -539,7 +553,7 @@ export default defineComponent({
                     PublisherID: "",
                     AlbumID: "",
                     ChapterID: "",
-                    LessonID: [],
+                    LessonID: [props.lessonId],
                     SourceMaterialMainID: "",
                     CollectionsMainID: "",
                 },
@@ -642,6 +656,15 @@ export default defineComponent({
             (curVal) => {
                 state.searchForm.LessonLable.SubjectID = curVal;
                 queryMaterialList();
+            },
+            { deep: true }
+        );
+        //监听课时改变
+        watch(
+            () => props.lessonId,
+            async (curVal) => {
+                state.searchForm.LessonLable.LessonID = [curVal];
+                await queryMaterialList();
             },
             { deep: true }
         );

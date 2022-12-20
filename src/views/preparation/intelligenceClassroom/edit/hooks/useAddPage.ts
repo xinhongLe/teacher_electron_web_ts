@@ -36,27 +36,29 @@ export default (
                 ? currentValue.value.PageList.length
                 : 0,
         };
-        await addPage(value).then((res) => {
-            if (res.resultCode === 200) {
-                const cardIndex = findIndex(windowCards.value, {
-                    ID: currentValue.value.ID,
-                });
-                const page: IPageValue = {
-                    ID: res.result.ID,
-                    Name: data.name,
-                    Type: data.value,
-                    // isAdd: true,
-                    isAdd: false,
-                    State: true,
-                };
-                windowCards.value[cardIndex].PageList.push(page);
-                // 只有解构赋值，tree组件才刷新
-                const slide = initSlideData(page.ID, page.Type);
-                allPageSlideListMap.value.set(page.ID, slide);
-                windowCards.value = [...windowCards.value];
-                dialogVisible.value = false;
-            }
-        });
+        const res = await addPage(value);
+        if (res.resultCode === 200) {
+            const cardIndex = findIndex(windowCards.value, {
+                ID: currentValue.value.ID,
+            });
+            const page: IPageValue = {
+                ID: res.result.ID,
+                Name: data.name,
+                Type: data.value,
+                // isAdd: true,
+                isAdd: false,
+                State: true,
+            };
+            windowCards.value[cardIndex].PageList.push(page);
+            // 只有解构赋值，tree组件才刷新
+            const slide = initSlideData(page.ID, page.Type);
+            allPageSlideListMap.value.set(page.ID, slide);
+            windowCards.value = [...windowCards.value];
+            dialogVisible.value = false;
+            return page;
+        } else {
+            return false;
+        }
     };
 
     return {

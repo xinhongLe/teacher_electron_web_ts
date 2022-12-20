@@ -11,6 +11,7 @@
             </div>
         </div>
         <el-input
+            v-if="activeIndex === 2"
             v-model="serchForm.QueryText"
             @input="nameInput(activeIndex)"
             placeholder="输入关键字搜索"
@@ -29,7 +30,7 @@
             >
                 <div
                     v-for="(item, i) in (myAssemblyList as any)"
-                    :key="i"
+                    :key="item.Id"
                     @click="insertMaterial(item)"
                     v-contextmenu="(el: any) => TContextmenus(el, item)"
                 >
@@ -350,7 +351,6 @@ export default defineComponent({
         };
         //删除标题框
         const handleDeleteTitle = async (data: any) => {
-            console.log("dadadad", data);
             ElMessageBox.confirm("确定要删除当前选择的组件吗？", "提示", {
                 confirmButtonText: "确定",
                 cancelButtonText: "取消",
@@ -361,15 +361,16 @@ export default defineComponent({
                         Id: data.Id,
                     });
                     if (res) {
-                        console.log(myAssemblyList.value);
                         myAssemblyList.value.splice(
                             myAssemblyList.value.findIndex(
                                 (item: any) => item.Id == data.Id
                             ),
                             1
                         );
+                        // myAssemblyList.value = [...myAssemblyList.value];
                         // state.searchForm.Type = state.currentAllType;
                         // queryMaterialList();
+                        // queryAssemblyList();
                     }
                 })
                 .catch(() => {});
@@ -402,6 +403,9 @@ export default defineComponent({
                 });
             }
         };
+        const checkMyTemplateTab = () => {
+            state.activeIndex = 2;
+        };
         // onMounted(() => {
         //   quertMyTemplate();
         // });
@@ -430,6 +434,7 @@ export default defineComponent({
             insertMaterial,
             isLoading,
             addLinkCount,
+            checkMyTemplateTab,
         };
     },
 });

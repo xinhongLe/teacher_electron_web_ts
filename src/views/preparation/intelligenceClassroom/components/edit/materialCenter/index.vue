@@ -127,6 +127,9 @@ export default defineComponent({
             state.isOpen = true;
             state.activeName = 3;
             handleClick(3);
+            nextTick(() => {
+                componentRef.value.checkMyTemplateTab();
+            });
         };
 
         //编辑模板

@@ -307,7 +307,7 @@
     <add-page-dialog
         v-if="dialogVisible"
         v-model:dialogVisible="dialogVisible"
-        @addPage="addPageCallback"
+        @addPage="addPage"
     ></add-page-dialog>
 
     <!-- 修改名称弹框-->
@@ -824,7 +824,10 @@ export default defineComponent({
                 state.allPageListMap.set(pageValue.value.ID, slide);
             }
             const res: any = await insertData(data);
-            if (res) {
+            if (data.type === "elements") return;
+            if (res[0]) {
+                pageValue.value = res[1][0];
+                selectPageValue(pageValue.value, false);
                 nextTick(() => {
                     materialCenterRef.value.addLinkCount(
                         data.teachPageTemplateID || ""
@@ -880,14 +883,20 @@ export default defineComponent({
         //去我的模板
         const gotoMyTemplate = () => {
             nextTick(() => {
-                nextTick(() => {
-                    materialCenterRef.value.gotoMyTemplate();
-                });
+                materialCenterRef.value.gotoMyTemplate();
             });
         };
         //取消保存-清空已选中的页
         const cacleTemplateDialog = () => {
             selectPageData.value = [];
+        };
+        const addPage = async (data: any) => {
+            const res = await addPageCallback(data);
+            console.log("resresres--", res);
+            if (res) {
+                // pageValue.value = res;
+                selectPageValue(res, false);
+            }
         };
 
         return {
@@ -962,6 +971,7 @@ export default defineComponent({
             gotoMyTemplate,
             handleInsertTool,
             updateMaterial,
+            addPage,
         };
     },
 });

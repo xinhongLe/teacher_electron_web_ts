@@ -114,6 +114,8 @@ export default (pageListMap?: any) => {
         // console.log(dialogStatus.value, temData);
         // return;
         const PageData: any = selectPageData.value;
+        console.log("PageData=====>", PageData);
+
         PageData.forEach((item: any) => {
             if (item.ID) {
                 // console.log("pageListMap=====>", pageListMap.value);
@@ -134,6 +136,7 @@ export default (pageListMap?: any) => {
                 item.AcademicPresupposition = temPage.remark;
                 item.DesignIntent = temPage.design;
                 console.log("temPage", temPage);
+                item.State = item.State ? 1 : 0;
                 if (temPage) {
                     //给当前页 做判断 slide 类型
                     switch (temPage.type) {

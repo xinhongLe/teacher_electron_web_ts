@@ -210,7 +210,7 @@ export default () => {
                 const res = await addTemLinkCount(
                     obj.teachPageTemplateID || ""
                 );
-                return res;
+                return [res, jsonData];
             } else if (obj.type === "elements") {
                 //深拷贝 获取当前的页的数据
                 const currentPageData: any = JSON.parse(
@@ -340,6 +340,9 @@ export default () => {
         if (file && file.Json) {
             const jsonData = JSON.parse(file.Json);
             if (!jsonData) return;
+            jsonData.offSetElements.forEach(
+                (item: any) => (item.id = createRandomCode())
+            );
             currentPageData.elements.push(...jsonData.offSetElements);
             state.windowCards = [...state.windowCards];
             state.allPageListMap.set(currentPageData.id, currentPageData);
@@ -369,7 +372,7 @@ export default () => {
             top: (VIEWPORT_SIZE * viewportRatio.value - height) / 2,
             src: `${file.FilePath}/${file.FileMD5}.${file.FileExtention}`,
             showType: elData.showType,
-            clip: elData.clip ? elData.clip : undefined
+            clip: elData.clip ? elData.clip : undefined,
         };
         //给当前选择的页的element元素中 添加一条素材
         currentPageData.elements.push(elParams);
