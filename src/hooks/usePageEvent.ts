@@ -57,37 +57,6 @@ const usePageEvent = (pageName: string, isPage?: boolean) => {
     const pageouttime = ref("");
     //记录页面停留时间 stay
     const pagestay = ref(0);
-    //用户信息
-    const userInfo = get(STORAGE_TYPES.USER_INFO);
-    // console.log("userInfo", userInfo);
-    //处理班级信息
-    const classInfo = userInfo.Classes?.map((item: any) => {
-        return {
-            ClassId: item.ID,
-            ClassName: item.Name,
-        };
-    });
-    //处理年级信息
-    const gradeInfo = userInfo.GradeIDs.map((item: any) => {
-        return {
-            GradeID: item,
-            GradeName: "",
-        };
-    });
-    //处理科目信息
-    const subjectInfo = userInfo.Subjects.map((item: any) => {
-        return {
-            SubjectID: item.ID,
-            SubjectName: item.Name,
-        };
-    });
-
-    //云平台信息
-    const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
-    // console.log("yunInfo", yunInfo);
-
-    //token 令牌
-    const token = get(STORAGE_TYPES.SET_TOKEN);
 
     //获取网络连接
     const navigatorNew: any = window.navigator;
@@ -99,6 +68,33 @@ const usePageEvent = (pageName: string, isPage?: boolean) => {
         tabName?: string, //按钮或者区域名称
         otherData?: any //可能会携带的一些其他参数
     ) => {
+        //云平台信息
+        const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
+        //token 令牌
+        const token = get(STORAGE_TYPES.SET_TOKEN);
+        //用户信息
+        const userInfo = get(STORAGE_TYPES.USER_INFO);
+        //处理班级信息
+        const classInfo = userInfo.Classes?.map((item: any) => {
+            return {
+                ClassId: item.ID,
+                ClassName: item.Name,
+            };
+        });
+        //处理年级信息
+        const gradeInfo = userInfo.GradeIDs.map((item: any) => {
+            return {
+                GradeID: item,
+                GradeName: "",
+            };
+        });
+        //处理科目信息
+        const subjectInfo = userInfo.Subjects.map((item: any) => {
+            return {
+                SubjectID: item.ID,
+                SubjectName: item.Name,
+            };
+        });
         //埋点信息
         const pointData: createBuryingPointData = {
             TrackPlatform: "1",
