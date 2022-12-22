@@ -1,50 +1,99 @@
 <template>
     <div>
-       <div class="quick-detail">
-           <div class="content">
-               <div class="header">
-                   <span>班级：</span>
-                   <el-select v-model="currentClass"  placeholder="请选择">
-                       <el-option
-                           v-for="item in classList"
-                           :key="item.ClassId"
-                           :label="item.ClassName"
-                           :value="item.ClassId"
-                       />
-                   </el-select>
-               </div>
-               <div class="process">
-                   <div class="title">{{message === 0 ? "还未开始抢答" : (message === 1 ? "抢答中…" : "抢答成功学生")}}</div>
-                   <img class="photo" v-if="message === 0" src="@/assets/images/suspension/pic_avatar.png" alt="">
-                   <div class="quick-success" v-if="message === 2">
-                       <div style="text-align: center;">
-                           <img class="photo" v-if="imgSrc" :src="imgSrc" alt="">
-                           <img class="photo" v-else src="@/assets/images/suspension/pic_avatar.png" alt="">
-                           <div class="name">{{studentInfo.name}}</div>
-                       </div>
-                       <div class="zan">
-                           <img @click="handlePraiseStudent" v-if="status === 0" src="@/assets/images/suspension/icon_zan1.png" alt="">
-                           <img v-else src="@/assets/images/suspension/icon_zan_selected1.png" alt="">
-                       </div>
-                   </div>
-           </div>
-       </div>
-       <div class="footer">
-           <div :class="['custom-btn', message === 1 ? 'canCle-btn' : '']" @click="handleConfirm">{{message === 0 ? "开始抢答" : (message === 1 ? "取消抢答" : "再抢一次")}}</div>
-       </div>
-
-       </div>
-       <div class="close-row">
-           <div class="close-btn" @click="close">
-               <el-icon :size="14" color="#FFFFFF"><close /></el-icon>
-               <span>关闭</span>
-           </div>
-       </div>
+        <div class="quick-detail">
+            <div class="content">
+                <div class="header">
+                    <span>班级：</span>
+                    <el-select v-model="currentClass" placeholder="请选择">
+                        <el-option
+                            v-for="item in classList"
+                            :key="item.ClassId"
+                            :label="item.ClassName"
+                            :value="item.ClassId"
+                        />
+                    </el-select>
+                </div>
+                <div class="process">
+                    <div class="title">
+                        {{
+                            message === 0
+                                ? "还未开始抢答"
+                                : message === 1
+                                ? "抢答中…"
+                                : "抢答成功学生"
+                        }}
+                    </div>
+                    <img
+                        class="photo"
+                        v-if="message === 0"
+                        src="@/assets/images/suspension/pic_avatar.png"
+                        alt=""
+                    />
+                    <div class="quick-success" v-if="message === 2">
+                        <div style="text-align: center">
+                            <img
+                                class="photo"
+                                v-if="imgSrc"
+                                :src="imgSrc"
+                                alt=""
+                            />
+                            <img
+                                class="photo"
+                                v-else
+                                src="@/assets/images/suspension/pic_avatar.png"
+                                alt=""
+                            />
+                            <div class="name">{{ studentInfo.name }}</div>
+                        </div>
+                        <div class="zan">
+                            <img
+                                @click="handlePraiseStudent"
+                                v-if="status === 0"
+                                src="@/assets/images/suspension/icon_zan1.png"
+                                alt=""
+                            />
+                            <img
+                                v-else
+                                src="@/assets/images/suspension/icon_zan_selected1.png"
+                                alt=""
+                            />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="footer">
+                <div
+                    :class="['custom-btn', message === 1 ? 'canCle-btn' : '']"
+                    @click="handleConfirm"
+                >
+                    {{
+                        message === 0
+                            ? "开始抢答"
+                            : message === 1
+                            ? "取消抢答"
+                            : "再抢一次"
+                    }}
+                </div>
+            </div>
+        </div>
+        <div class="close-row">
+            <div class="close-btn" @click="close">
+                <el-icon :size="14" color="#FFFFFF"><close /></el-icon>
+                <span>关闭</span>
+            </div>
+        </div>
     </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, reactive, watch, toRefs, onUnmounted } from "vue";
+import {
+    defineComponent,
+    PropType,
+    reactive,
+    watch,
+    toRefs,
+    onUnmounted,
+} from "vue";
 import { sendRushToAnswer, praiseStudent, addRewardrecode } from "./api";
 import { UserInfoState } from "@/types/store";
 import mqtt from "mqtt";
@@ -57,11 +106,11 @@ export default defineComponent({
     props: {
         classList: {
             type: Array as PropType<IClassItem[]>,
-            default: () => []
+            default: () => [],
         },
         currentUserInfo: {
-            type: Object as PropType<UserInfoState>
-        }
+            type: Object as PropType<UserInfoState>,
+        },
     },
     setup(props) {
         const state = reactive({
@@ -71,74 +120,90 @@ export default defineComponent({
             message: 0, // 0未开始抢答 1抢答中 2抢答成功
             studentInfo: {
                 name: "",
-                id: ""
+                id: "",
             },
-            imgSrc: ""
+            imgSrc: "",
         });
-        watch(() => props.classList, (val) => {
-            if (val?.length > 0) {
-                state.currentClass = val[0].ClassId;
-            }
-        }, { immediate: true });
+        watch(
+            () => props.classList,
+            (val) => {
+                if (val?.length > 0) {
+                    state.currentClass = val[0].ClassId;
+                }
+            },
+            { immediate: true }
+        );
 
         const client = mqtt.connect(YUN_API_ONECARD_MQTT || "", {
             port: 1883,
             username: "u001",
             password: "p001",
-            keepalive: 30
+            keepalive: 30,
         });
 
         const getPublish = (id: string) => {
             return `answer_student_rush_${id}`;
         };
 
-        client && client.on("connect", function (err) {
-            window.electron.log.info("client connect quickAnswer", err);
-        });
+        client &&
+            client.on("connect", function (err) {
+                window.electron.log.info("client connect quickAnswer", err);
+            });
 
-        client && client.on("error", (err) => {
-            window.electron.log.info("client error quickAnswer", err);
-        });
+        client &&
+            client.on("error", (err) => {
+                window.electron.log.info("client error quickAnswer", err);
+            });
 
-        client && client.on("message", function (topic:any, message:any) {
-            const messageInfo = JSON.parse(message.toString()); // {"ReceiveTime":"2022-09-15 03:54:50","StudentId":"16625405853534467275379851772585","StudentName":"张国庆"}
-            state.studentInfo.name = messageInfo.StudentName;
-            state.studentInfo.id = messageInfo.StudentId;
-            const file = messageInfo.HeadPortrait;
-            if (file) {
-                const key = file.Extention ? `${file.FilePath}/${file.FileName}.${file.Extention}` : `${file.FilePath}/${file.FileName}`;
-                getOssUrl(key, file.Bucket).then(res => {
-                    state.imgSrc = res;
-                });
-            }
-            state.message = 2;
-            client.unsubscribe(getPublish(state.answerMachineID));
-        });
+        client &&
+            client.on("message", function (topic: any, message: any) {
+                const messageInfo = JSON.parse(message.toString()); // {"ReceiveTime":"2022-09-15 03:54:50","StudentId":"16625405853534467275379851772585","StudentName":"张国庆"}
+                state.studentInfo.name = messageInfo.StudentName;
+                state.studentInfo.id = messageInfo.StudentId;
+                const file = messageInfo.HeadPortrait;
+                if (file) {
+                    const key = file.Extention
+                        ? `${file.FilePath}/${file.FileName}.${file.Extention}`
+                        : `${file.FilePath}/${file.FileName}`;
+                    getOssUrl(key, file.Bucket).then((res) => {
+                        state.imgSrc = res;
+                    });
+                }
+                state.message = 2;
+                client.unsubscribe(getPublish(state.answerMachineID));
+            });
 
-        const handlePraiseStudent = async() => {
+        const handlePraiseStudent = async () => {
             const data = {
                 Type: 1,
                 SchoolID: props.currentUserInfo!.schoolId,
                 TeacherID: props.currentUserInfo!.userCenterUserID,
                 TeacherName: props.currentUserInfo!.name || "",
-                StudentList: [{
-                    StudentID: state.studentInfo.id,
-                    StudentName: state.studentInfo.name,
-                    ClassID: state.currentClass,
-                    ClassName: props.classList?.find(item => item.ClassId === state.currentClass)?.ClassId || ""
-                }],
-                LabelList: [{
-                    LabelID: "ab299e61-bbbd-11ec-8bcf-00163e167f3f",
-                    LabelName: "上课表现积极",
-                    Score: 1,
-                    ScoreType: 1
-                }]
+                StudentList: [
+                    {
+                        StudentID: state.studentInfo.id,
+                        StudentName: state.studentInfo.name,
+                        ClassID: state.currentClass,
+                        ClassName:
+                            props.classList?.find(
+                                (item) => item.ClassId === state.currentClass
+                            )?.ClassId || "",
+                    },
+                ],
+                LabelList: [
+                    {
+                        LabelID: "ab299e61-bbbd-11ec-8bcf-00163e167f3f",
+                        LabelName: "上课表现积极",
+                        Score: 1,
+                        ScoreType: 1,
+                    },
+                ],
             };
 
             const praiseData = {
                 StudentIdList: [state.studentInfo.id],
                 AnswerMachineID: state.answerMachineID,
-                TeacherID: props.currentUserInfo!.userCenterUserID
+                TeacherID: props.currentUserInfo!.userCenterUserID,
             };
 
             const res = await praiseStudent(praiseData);
@@ -157,9 +222,9 @@ export default defineComponent({
                 const data = {
                     TeacherID: props.currentUserInfo!.userCenterUserID,
                     OrgID: props.currentUserInfo!.schoolId,
-                    ClassID: state.currentClass
+                    ClassID: state.currentClass,
                 };
-                sendRushToAnswer(data).then(res => {
+                sendRushToAnswer(data).then((res) => {
                     if (res.resultCode === 200) {
                         state.message = 1;
                         state.answerMachineID = res.result.AnswerMachineID;
@@ -170,9 +235,9 @@ export default defineComponent({
                 const data = {
                     TeacherID: props.currentUserInfo!.userCenterUserID,
                     AnswerMachineID: state.answerMachineID,
-                    LessonId: null
+                    LessonId: null,
                 };
-                finishAnswerMachineQuestion(data).then(res => {
+                finishAnswerMachineQuestion(data).then((res) => {
                     if (res.resultCode === 200) {
                         state.message = 0;
                         client.unsubscribe(getPublish(state.answerMachineID));
@@ -181,18 +246,22 @@ export default defineComponent({
             }
         };
         const close = () => {
-            const data = {
-                TeacherID: props.currentUserInfo!.userCenterUserID,
-                AnswerMachineID: state.answerMachineID,
-                LessonId: null
-            };
-            finishAnswerMachineQuestion(data).then(res => {
-                if (res.resultCode === 200) {
-                    state.message = 0;
-                    client.unsubscribe(getPublish(state.answerMachineID));
-                    window.electron.destroyWindow();
-                }
-            });
+            if (state.answerMachineID && state.message === 1) {
+                const data = {
+                    TeacherID: props.currentUserInfo!.userCenterUserID,
+                    AnswerMachineID: state.answerMachineID,
+                    LessonId: null,
+                };
+                finishAnswerMachineQuestion(data).then((res) => {
+                    if (res.resultCode === 200) {
+                        state.message = 0;
+                        client.unsubscribe(getPublish(state.answerMachineID));
+                        window.electron.destroyWindow();
+                    }
+                });
+            } else {
+                window.electron.destroyWindow();
+            }
         };
 
         onUnmounted(() => {
@@ -203,18 +272,18 @@ export default defineComponent({
             ...toRefs(state),
             handleConfirm,
             handlePraiseStudent,
-            close
+            close,
         };
-    }
+    },
 });
 </script>
 
 <style scoped lang="scss">
-.quick-detail{
+.quick-detail {
     border-radius: 12px;
     background-color: #fff;
 }
-.content{
+.content {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -226,44 +295,44 @@ export default defineComponent({
     background-position: center center;
     background-size: 100% 100%;
     background-repeat: no-repeat;
-    .header{
+    .header {
         position: absolute;
         left: 20px;
         top: 10px;
         font-size: 14px;
         color: #fff;
-        :deep(.el-select){
+        :deep(.el-select) {
             width: 120px;
-            .el-input__wrapper{
+            .el-input__wrapper {
                 background: transparent;
                 box-shadow: none !important;
             }
-            .el-input__inner{
+            .el-input__inner {
                 color: #fff;
             }
         }
     }
-    .process{
-        .title{
+    .process {
+        .title {
             font-size: 20px;
-            color: #FFFFFF;
+            color: #ffffff;
             margin: 40px 0 20px;
         }
-        .photo{
+        .photo {
             width: 88px;
             height: 88px;
         }
-        .quick-success{
+        .quick-success {
             display: flex;
             align-items: center;
             justify-content: center;
             position: relative;
-            .name{
+            .name {
                 font-size: 16px;
-                color: #FFFFFF;
+                color: #ffffff;
                 margin-top: 10px;
             }
-            .zan{
+            .zan {
                 cursor: pointer;
                 position: absolute;
                 top: 30px;
@@ -273,7 +342,7 @@ export default defineComponent({
         }
     }
 }
-.footer{
+.footer {
     background-color: #fff;
     display: flex;
     justify-content: center;
@@ -282,27 +351,29 @@ export default defineComponent({
     width: 100%;
     padding: 2rem 0 10px;
     border-radius: 12px;
-    .custom-btn{
+    .custom-btn {
         cursor: pointer;
         width: 196px;
         height: 64px;
         line-height: 50px;
         text-align: center;
         font-size: 16px;
-        color: #FFFFFF;
-        background: url("../../assets/images/suspension/btn_qd.png") no-repeat center center;
+        color: #ffffff;
+        background: url("../../assets/images/suspension/btn_qd.png") no-repeat
+            center center;
         background-size: 100% 100%;
     }
-    .canCle-btn{
-        background: url("../../assets/images/suspension/btn_quxiao.png") no-repeat center center;
+    .canCle-btn {
+        background: url("../../assets/images/suspension/btn_quxiao.png")
+            no-repeat center center;
     }
 }
 
-.close-row{
+.close-row {
     display: flex;
     justify-content: center;
     width: 100%;
-    .close-btn{
+    .close-btn {
         cursor: pointer;
         display: flex;
         align-items: center;
@@ -312,15 +383,14 @@ export default defineComponent({
         line-height: 36px;
         text-align: center;
         font-size: 14px;
-        color: #FFFFFF;
-        background: rgba(255,255,255,0.2);
+        color: #ffffff;
+        background: rgba(255, 255, 255, 0.2);
         border-radius: 18px;
-        border: 1px solid #FFFFFF;
+        border: 1px solid #ffffff;
         margin-top: 20px;
-        >span{
+        > span {
             margin-left: 4px;
         }
     }
 }
-
 </style>

@@ -1,4 +1,11 @@
-import { BrowserWindow, ipcMain, screen, app, remote, powerMonitor } from "electron";
+import {
+    BrowserWindow,
+    ipcMain,
+    screen,
+    app,
+    remote,
+    powerMonitor,
+} from "electron";
 import { createWindow } from "./createWindow";
 import ElectronLog from "electron-log";
 import { checkWindowSupportNet } from "./util";
@@ -89,9 +96,7 @@ powerMonitor.on("resume", () => {
             lastSpwan.kill();
             lastSpwan.pid && process.kill(lastSpwan.pid);
         }
-    } catch (e) {
-
-    }
+    } catch (e) {}
 });
 
 app.on("will-quit", () => {
@@ -100,9 +105,7 @@ app.on("will-quit", () => {
             lastSpwan.kill();
             lastSpwan.pid && process.kill(lastSpwan.pid);
         }
-    } catch (e) {
-
-    }
+    } catch (e) {}
 });
 
 function setSuspensionSize(isResetPosition = true, isCloseWelt = false) {
@@ -181,7 +184,7 @@ function createTimerWindow() {
         frame: false, // 要创建无边框窗口
         resizable: false, // 禁止窗口大小缩放
         height: 500,
-        useContentSize: true
+        useContentSize: true,
     });
     timerWin.on("ready-to-show", () => {
         timerWin && timerWin.show();
@@ -204,11 +207,12 @@ function createRollcall(allStudentList: []) {
         height: 600,
         alwaysOnTop: true,
         useContentSize: true,
-        maximizable: false
+        maximizable: false,
     });
-    
+
     rollCallWin.on("ready-to-show", () => {
-        rollCallWin && rollCallWin.webContents.send("sendAllStudentList", allStudentList);
+        rollCallWin &&
+            rollCallWin.webContents.send("sendAllStudentList", allStudentList);
         // rollCallWin && rollCallWin.webContents.openDevTools();
     });
 
@@ -230,7 +234,7 @@ function createUnfoldSuspensionWindow() {
         useContentSize: true,
         transparent: true, // 设置透明
         backgroundColor: "#00000000",
-        alwaysOnTop: true // 窗口是否总是显示在其他窗口之前
+        alwaysOnTop: true, // 窗口是否总是显示在其他窗口之前
     });
     // 设置黑板窗口位置
     const winSize = unfoldSuspensionWin.getSize(); // 获取窗口宽高
@@ -240,7 +244,8 @@ function createUnfoldSuspensionWindow() {
     );
     // unfoldSuspensionWin.webContents.openDevTools(); //这是打开智课助手悬浮球打开窗口的的调试器
     unfoldSuspensionWin.once("ready-to-show", () => {
-        unfoldSuspensionWin && unfoldSuspensionWin.setAlwaysOnTop(true, "pop-up-menu");
+        unfoldSuspensionWin &&
+            unfoldSuspensionWin.setAlwaysOnTop(true, "pop-up-menu");
     });
 
     unfoldSuspensionWin.on("closed", () => {
@@ -257,7 +262,7 @@ function createBlackboardWindow() {
         resizable: false,
         fullscreen: true,
         show: false,
-        useContentSize: true
+        useContentSize: true,
     });
     blackboardWin.once("ready-to-show", () => {
         blackboardWin && blackboardWin.show();
@@ -287,20 +292,22 @@ function createAnswerMachineWindow(allStudentList: []) {
         type: "toolbar", // 创建的窗口类型为工具栏窗口
         frame: false, // 要创建无边框窗口
         alwaysOnTop: true,
-        resizable: false
+        resizable: false,
     });
 
     answerMachineWin.on("ready-to-show", () => {
         answerMachineWin && answerMachineWin.show();
         answerMachineWin && answerMachineWin.focus();
-        answerMachineWin && answerMachineWin.webContents.send(
-            "sendAllStudentList",
-            allStudentList
-        );
+        answerMachineWin &&
+            answerMachineWin.webContents.send(
+                "sendAllStudentList",
+                allStudentList
+            );
     });
 
     answerMachineWin.once("ready-to-show", () => {
-        answerMachineWin && answerMachineWin.setAlwaysOnTop(true, "pop-up-menu");
+        answerMachineWin &&
+            answerMachineWin.setAlwaysOnTop(true, "pop-up-menu");
     });
 
     answerMachineWin.on("closed", () => {
@@ -319,17 +326,19 @@ function createQuickAnswerWindow(allStudentList: [], isAnswer = false) {
         transparent: true,
         type: "toolbar", // 创建的窗口类型为工具栏窗口
         frame: false, // 要创建无边框窗口
-        alwaysOnTop: true
+        alwaysOnTop: true,
     });
+    // quickAnswerWin.webContents.openDevTools(); //打开的抢答器调试器
 
     quickAnswerWin.on("ready-to-show", () => {
         quickAnswerWin && quickAnswerWin.show();
         quickAnswerWin && quickAnswerWin.focus();
-        quickAnswerWin && quickAnswerWin.webContents.send(
-            "sendAllStudentList",
-            allStudentList,
-            isAnswer
-        );
+        quickAnswerWin &&
+            quickAnswerWin.webContents.send(
+                "sendAllStudentList",
+                allStudentList,
+                isAnswer
+            );
     });
 
     quickAnswerWin.once("ready-to-show", () => {
@@ -348,7 +357,7 @@ function createProjectionWindow() {
         type: "toolbar", // 创建的窗口类型为工具栏窗口
         frame: false, // 要创建无边框窗口
         alwaysOnTop: true,
-        resizable: false
+        resizable: false,
     });
 
     projectionWin.once("ready-to-show", () => {
@@ -371,8 +380,8 @@ export function createLocalPreviewWindow(filePath: string) {
             nodeIntegration: true,
             contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
             preload: path.join(__dirname, "preload.js"),
-            devTools: !!process.env.WEBPACK_DEV_SERVER_URL
-        }
+            devTools: !!process.env.WEBPACK_DEV_SERVER_URL,
+        },
     });
     win.once("ready-to-show", () => {
         win.show();
@@ -387,8 +396,8 @@ function createSubjectToolWindow(url: string, name: string) {
         show: false,
         title: `爱学仕学科工具《${name}》`,
         webPreferences: {
-            nodeIntegration: false
-        }
+            nodeIntegration: false,
+        },
     });
     win.once("ready-to-show", () => {
         win.show();
@@ -414,7 +423,7 @@ function checkIsUseBallEXE(callback: (T: boolean, env?: number) => void) {
 function createBall(forcec = false) {
     let ballname = "winball/winball.exe";
     let cballname = "ball.exe";
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
         checkIsUseBallEXE((status, env) => {
             if (!status) {
                 ballname = cballname;
@@ -428,25 +437,24 @@ function createBall(forcec = false) {
                     lastSpwan.kill();
                     lastSpwan.pid && process.kill(lastSpwan.pid);
                 }
-            } catch (e) {
-
-            }
+            } catch (e) {}
             try {
-                lastSpwan = spawn(join(WIN_PATH_BALL, forcec ? cballname : ballname), [lastPort.toString()]);
-                lastSpwan.stdout.on('data', (data) => {
+                lastSpwan = spawn(
+                    join(WIN_PATH_BALL, forcec ? cballname : ballname),
+                    [lastPort.toString()]
+                );
+                lastSpwan.stdout.on("data", (data) => {
                     console.log(`stdout: ${data}`);
                 });
 
-                lastSpwan.stderr.on('data', (data) => {
+                lastSpwan.stderr.on("data", (data) => {
                     console.error(`stderr: ${data}`);
                 });
 
-                lastSpwan.on('close', (code) => {
+                lastSpwan.on("close", (code) => {
                     console.log(`child process exited with code ${code}`);
                 });
-            } catch (e) {
-
-            }
+            } catch (e) {}
             setTimeout(() => {
                 resolve(true);
             }, 3000);
@@ -473,82 +481,82 @@ class CustomCallBack implements CallBack {
 
     OnDataReceive(data: Action): void {
         switch (data.METHOD) {
-        case "MENUSHOW":
-            socketHelper.sendMessage(new Action("SMALLMENUHIDE", ""));
-            if (!unfoldSuspensionWin) {
-                createUnfoldSuspensionWindow();
-            }
-            if (unfoldSuspensionWin) {
-                unfoldSuspensionWin.showInactive();
-            }
-            const size = screen.getPrimaryDisplay().workAreaSize;
-            const winSize = unfoldSuspensionWin!.getSize();
+            case "MENUSHOW":
+                socketHelper.sendMessage(new Action("SMALLMENUHIDE", ""));
+                if (!unfoldSuspensionWin) {
+                    createUnfoldSuspensionWindow();
+                }
+                if (unfoldSuspensionWin) {
+                    unfoldSuspensionWin.showInactive();
+                }
+                const size = screen.getPrimaryDisplay().workAreaSize;
+                const winSize = unfoldSuspensionWin!.getSize();
 
-            let newLeft = parseInt(data.DATA.split(",")[0]);
-            if (newLeft + winSize[0] > size.width) {
-                newLeft = size.width - winSize[0];
-            }
+                let newLeft = parseInt(data.DATA.split(",")[0]);
+                if (newLeft + winSize[0] > size.width) {
+                    newLeft = size.width - winSize[0];
+                }
 
-            let newTop = parseInt(data.DATA.split(",")[1]);
-            if (newTop + winSize[1] > size.height) {
-                newTop = size.height - winSize[1];
-            }
+                let newTop = parseInt(data.DATA.split(",")[1]);
+                if (newTop + winSize[1] > size.height) {
+                    newTop = size.height - winSize[1];
+                }
 
-            if (newTop < 100) {
-                newTop = 100;
-            }
+                if (newTop < 100) {
+                    newTop = 100;
+                }
 
-            unfoldSuspensionWin!.setPosition(newLeft, newTop);
-            // 主进程悬浮球点击事件分发
-            ipcMain.emit("suspensionClick");
-            break;
-        case "BLACKBOARDSHOW":
-            isShowBlackboard = true;
-            socketHelper.sendMessage(new Action("BLACKBOARDSHOW", ""));
-            if (blackboardWin) {
-                blackboardWin.show();
-            } else {
-                createBlackboardWindow();
-            }
-            break;
-        case "BLACKBOARDHIDE":
-            isShowBlackboard = false;
-            blackboardWin && blackboardWin.destroy();
-            break;
-        case "VIDEOSHOW":
-            isShowVideo = true;
-            socketHelper.sendMessage(new Action("VIDEOSHOW", ""));
-            ipcMain.emit("openVideoWin");
-            break;
-        case "VIDEOHIDE":
-            isShowVideo = false;
-            ipcMain.emit("closeVideoWin");
-            break;
-        case "QUESTIONSHOW":
-            isShowQuestion = true;
-            socketHelper.sendMessage(new Action("QUESTIONSHOW", ""));
-            ipcMain.emit("openQuestion");
-            break;
-        case "QUESTIONHIDE":
-            isShowQuestion = false;
-            ipcMain.emit("closeQuestion");
-            break;
-        case "QUICKTIMESHOW":
-            isShowTimer = true;
-            socketHelper.sendMessage(new Action("QUICKTIMESHOW", ""));
-            if (timerWin) {
-                timerWin.show();
-            } else {
-                createTimerWindow();
-            }
-            break;
-        case "QUICKTIMEHIDE":
-            isShowTimer = false;
-            timerWin && timerWin.destroy();
-            break;
-        case "PONG":
-            socketHelperHeartbeatTime = new Date().getTime();
-            break;
+                unfoldSuspensionWin!.setPosition(newLeft, newTop);
+                // 主进程悬浮球点击事件分发
+                ipcMain.emit("suspensionClick");
+                break;
+            case "BLACKBOARDSHOW":
+                isShowBlackboard = true;
+                socketHelper.sendMessage(new Action("BLACKBOARDSHOW", ""));
+                if (blackboardWin) {
+                    blackboardWin.show();
+                } else {
+                    createBlackboardWindow();
+                }
+                break;
+            case "BLACKBOARDHIDE":
+                isShowBlackboard = false;
+                blackboardWin && blackboardWin.destroy();
+                break;
+            case "VIDEOSHOW":
+                isShowVideo = true;
+                socketHelper.sendMessage(new Action("VIDEOSHOW", ""));
+                ipcMain.emit("openVideoWin");
+                break;
+            case "VIDEOHIDE":
+                isShowVideo = false;
+                ipcMain.emit("closeVideoWin");
+                break;
+            case "QUESTIONSHOW":
+                isShowQuestion = true;
+                socketHelper.sendMessage(new Action("QUESTIONSHOW", ""));
+                ipcMain.emit("openQuestion");
+                break;
+            case "QUESTIONHIDE":
+                isShowQuestion = false;
+                ipcMain.emit("closeQuestion");
+                break;
+            case "QUICKTIMESHOW":
+                isShowTimer = true;
+                socketHelper.sendMessage(new Action("QUICKTIMESHOW", ""));
+                if (timerWin) {
+                    timerWin.show();
+                } else {
+                    createTimerWindow();
+                }
+                break;
+            case "QUICKTIMEHIDE":
+                isShowTimer = false;
+                timerWin && timerWin.destroy();
+                break;
+            case "PONG":
+                socketHelperHeartbeatTime = new Date().getTime();
+                break;
         }
     }
 }
@@ -564,7 +572,7 @@ function createLocalSuspensionWindow() {
         useContentSize: true,
         transparent: true, // 设置透明
         backgroundColor: "#00000000",
-        alwaysOnTop: true // 窗口是否总是显示在其他窗口之前
+        alwaysOnTop: true, // 窗口是否总是显示在其他窗口之前
     });
     const size = screen.getPrimaryDisplay().workAreaSize; // 获取显示器的宽高
     const winSize = suspensionWin.getSize(); // 获取窗口宽高
@@ -604,24 +612,29 @@ export function createSuspensionWindow() {
                 lastSpwan.kill();
                 lastSpwan.pid && process.kill(lastSpwan.pid);
             }
-        } catch (e) {
-
-        }
-        detect(lastPort).then(_port => {
-            if (lastPort == _port) {
-                ElectronLog.log(`port: ${lastPort} was not occupied`);
-            } else {
-                ElectronLog.log(`port: ${lastPort} was occupied, try port: ${_port}`);
-            }
-            lastPort = _port;
-            ElectronLog.log(`port is ${lastPort}`);
-            createBall().then(() => {
-                socketHelper = new SocketHelper(new CustomCallBack(), lastPort);
-                startHeartbeat();
+        } catch (e) {}
+        detect(lastPort)
+            .then((_port) => {
+                if (lastPort == _port) {
+                    ElectronLog.log(`port: ${lastPort} was not occupied`);
+                } else {
+                    ElectronLog.log(
+                        `port: ${lastPort} was occupied, try port: ${_port}`
+                    );
+                }
+                lastPort = _port;
+                ElectronLog.log(`port is ${lastPort}`);
+                createBall().then(() => {
+                    socketHelper = new SocketHelper(
+                        new CustomCallBack(),
+                        lastPort
+                    );
+                    startHeartbeat();
+                });
+            })
+            .catch((err) => {
+                ElectronLog.log(err);
             });
-        }).catch(err => {
-            ElectronLog.log(err);
-        });
     }
     // checkIsUseBallEXE(isOk => {
     //     if (isOk) {
@@ -950,13 +963,13 @@ function createTeamCompetition() {
         height: 250,
         alwaysOnTop: true,
         useContentSize: true,
-        maximizable: false
+        maximizable: false,
     });
 
     teamCompetitionWin.on("ready-to-show", () => {
         // teamCompetitionWin && teamCompetitionWin.webContents.openDevTools();
     });
-    
+
     teamCompetitionWin.on("closed", () => {
         teamCompetitionWin = null;
     });
