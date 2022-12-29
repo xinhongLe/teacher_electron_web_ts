@@ -330,6 +330,9 @@ export default (pageListMap?: any) => {
                     res.result.forEach(async (re: any) => {
                         item.CollectionPager = re.CollectionPager;
                         item.Materials = item.Materials.concat(re.Materials);
+                        item.Collections = item.Collections?.concat(
+                            re.Collections
+                        );
                         item.SourcePager = re.SourcePager;
                         pager.value =
                             !re.SourcePager.IsLastPage && re.SourcePager.length
