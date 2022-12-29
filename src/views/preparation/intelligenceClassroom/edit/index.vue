@@ -250,8 +250,9 @@
                             transform:
                                 'rotate(' + (showCollapse ? 0 : 180) + 'deg)',
                         }"
-                        ><ArrowLeft
-                    /></el-icon>
+                    >
+                        <ArrowLeft />
+                    </el-icon>
                 </div>
             </div>
         </div>
@@ -436,7 +437,6 @@ export default defineComponent({
 
         const {
             selectPageData,
-            contextmenus,
             handleSelectPages,
             dialogVisibleTemplate,
             showTemplateType,
@@ -898,6 +898,29 @@ export default defineComponent({
                 selectPageValue(res, false);
             }
         };
+        const rightClick = () => {
+            const slide = editRef.value.getCurrentSlide();
+            // console.log('slde', slide);
+            state.allPageListMap.set(pageValue.value.ID, slide);
+        };
+        //窗卡页 右键-menu菜单
+        const contextmenus = (el: any, data: any) => {
+            return [
+                {
+                    text: "保存模板",
+                    subText: "",
+                    handler: () => {
+                        rightClick();
+                        handleSaveTemplate(1, data);
+                    },
+                },
+                // {
+                //     text: "保存题目",
+                //     subText: "",
+                //     handler: () => handleSaveTemplate(2)
+                // }
+            ];
+        };
 
         return {
             viewTree,
@@ -972,6 +995,7 @@ export default defineComponent({
             handleInsertTool,
             updateMaterial,
             addPage,
+            rightClick,
         };
     },
 });
@@ -991,13 +1015,16 @@ export default defineComponent({
     border-radius: 4px;
     font-size: 14px;
     background: rgba(77, 77, 77, 0.67);
+
     span {
         cursor: pointer;
     }
+
     span:hover {
         color: #409eff;
     }
 }
+
 .home {
     display: flex;
     width: 100%;
@@ -1013,21 +1040,25 @@ export default defineComponent({
         background-color: #fff;
         overflow: hidden;
         transition: all 0.5s;
+
         .left-content {
             display: flex;
             flex-direction: column;
             height: 100%;
             width: 280px;
             padding: 10px 28px 10px 10px;
+
             :deep(.el-cascader),
             :deep(.el-select) {
                 width: 100%;
                 margin-bottom: 10px;
             }
+
             .add-card {
                 width: 100%;
                 margin-bottom: 10px;
             }
+
             .card-list {
                 flex: 1;
                 overflow-y: auto;
@@ -1208,6 +1239,7 @@ export default defineComponent({
         height: 100%;
         background-color: #fff;
         position: relative;
+
         .mask-right {
             width: 100%;
             height: 100%;
@@ -1219,13 +1251,16 @@ export default defineComponent({
         }
     }
 }
+
 .operation-box {
     text-align: center;
+
     div {
         cursor: pointer;
         padding: 4px 0;
     }
 }
+
 .mask-ppt {
     display: flex;
     align-items: center;
@@ -1236,9 +1271,11 @@ export default defineComponent({
     left: 0;
     right: 0;
     background-color: rgba(255, 255, 255, 0.6);
+
     .ppt-content {
         width: 300px;
         text-align: center;
+
         .ppt-text {
             margin-top: 20px;
             font-size: 18px;

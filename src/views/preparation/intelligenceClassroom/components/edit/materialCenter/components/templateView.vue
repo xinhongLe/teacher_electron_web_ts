@@ -25,7 +25,11 @@
                 </div>
             </div>
             <div v-if="templateData.Type === 5" class="video_header">
-                <div @click="initVideoClip" class="cvideo" v-if="templateData.url2">
+                <div
+                    @click="initVideoClip"
+                    class="cvideo"
+                    v-if="templateData.url2"
+                >
                     <img src="@/assets/images/material/icon_cj.png" alt="" />
                 </div>
                 <el-button size="large" type="primary" @click="insertVideo"
@@ -55,12 +59,30 @@
                 </div>
                 <div class="video-clip" v-if="showClip">
                     <div class="slider-clip">
-                        <el-slider :format-tooltip="formatTooltip" @change="handleSliderChange" :max="duration" v-model="sliderValue" range />
+                        <el-slider
+                            :format-tooltip="formatTooltip"
+                            @change="handleSliderChange"
+                            :max="duration"
+                            v-model="sliderValue"
+                            range
+                        />
                     </div>
 
                     <div class="operate-btn">
-                        <el-button @click="resetBtn" class="reset-btn" round plain><el-icon color="#333" :size="14"><IconUndo /></el-icon>还原</el-button>
-                        <el-button @click="saveBtn" round type="success"><el-icon color="#fff" :size="14"><IconSave /></el-icon>完成</el-button>
+                        <el-button
+                            @click="resetBtn"
+                            class="reset-btn"
+                            round
+                            plain
+                            ><el-icon color="#333" :size="14"
+                                ><IconUndo /></el-icon
+                            >还原</el-button
+                        >
+                        <el-button @click="saveBtn" round type="success"
+                            ><el-icon color="#fff" :size="14"
+                                ><IconSave /></el-icon
+                            >完成</el-button
+                        >
                     </div>
                 </div>
             </div>
@@ -107,16 +129,16 @@ export default defineComponent({
     props: {
         dialogVisible: {
             type: Boolean,
-            require: true
+            require: true,
         },
         currentSelectTemplate: {
             type: Object,
-            required: true
+            required: true,
         },
         allPageListMap: {
             type: Object,
-            required: true
-        }
+            required: true,
+        },
     },
 
     emits: ["update:dialogVisible", "insertData", "insertMaterial"],
@@ -136,7 +158,7 @@ export default defineComponent({
             handleSliderChange,
             formatTooltip,
             resetBtn,
-            saveBtn
+            saveBtn,
         } = useVideo(props.currentSelectTemplate);
 
         const close = () => {
@@ -147,20 +169,27 @@ export default defineComponent({
                 emit("insertData", {
                     type: "page",
                     data: templateData.value.CardData[0]?.PageList,
-                    teachPageTemplateID: templateData.value.TeachPageTemplateID
+                    teachPageTemplateID: templateData.value.TeachPageTemplateID,
                 });
             } else {
                 emit("insertData", {
                     type: "page",
                     data: [page],
-                    teachPageTemplateID: templateData.value.TeachPageTemplateID
+                    teachPageTemplateID: templateData.value.TeachPageTemplateID,
                 });
             }
             close();
         };
-        // 插入视频
+        //插入视频
         const insertVideo = () => {
-            emit("insertMaterial", { showType: 0, ...templateData.value });
+            emit("insertMaterial", {
+                showType: 0,
+                ...templateData.value,
+                clip:
+                    sliderValue.value.length > 0
+                        ? sliderValue.value
+                        : undefined,
+            });
         };
 
         return {
@@ -179,9 +208,9 @@ export default defineComponent({
             handleSliderChange,
             formatTooltip,
             resetBtn,
-            saveBtn
+            saveBtn,
         };
-    }
+    },
 });
 </script>
 
@@ -265,14 +294,15 @@ export default defineComponent({
 
 .video-clip {
     width: calc(100% - 12px);
-    .operate-btn{
+    .operate-btn {
         display: flex;
         justify-content: center;
         margin-top: 20px;
-        .el-icon{
+        .el-icon {
             margin-right: 6px;
         }
-        .reset-btn:focus, .reset-btn:hover{
+        .reset-btn:focus,
+        .reset-btn:hover {
             color: #606266;
             border-color: #dcdfe6;
         }

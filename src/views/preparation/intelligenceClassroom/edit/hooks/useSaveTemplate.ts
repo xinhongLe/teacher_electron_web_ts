@@ -78,7 +78,8 @@ export default (pageListMap?: any) => {
         }
     };
     //打开保存模板表单弹框
-    const handleSaveTemplate = (type: number) => {
+    const handleSaveTemplate = (type: number, data: any) => {
+        currentRightPage.value = data;
         if (!selectPageData.value.length) {
             handleSelectPages(currentRightPage.value);
         }
@@ -196,22 +197,6 @@ export default (pageListMap?: any) => {
         }
     };
 
-    //窗卡页 右键-menu菜单
-    const contextmenus = (el: any, data: any) => {
-        currentRightPage.value = data;
-        return [
-            {
-                text: "保存模板",
-                subText: "",
-                handler: () => handleSaveTemplate(1),
-            },
-            // {
-            //     text: "保存题目",
-            //     subText: "",
-            //     handler: () => handleSaveTemplate(2)
-            // }
-        ];
-    };
     const formataSlideMap = async (arr: any, mapList: any) => {
         arr.forEach((item: any) => {
             item.TeachPageTemplate.forEach((item2: any) => {
@@ -489,7 +474,6 @@ export default (pageListMap?: any) => {
         myAssemblyList,
         isLoading,
         toolList,
-        contextmenus,
         handleSaveTemplate,
         handleSelectPages,
         saveTemplateFrom,
