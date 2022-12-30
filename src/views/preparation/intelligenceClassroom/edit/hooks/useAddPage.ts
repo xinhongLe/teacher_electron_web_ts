@@ -22,7 +22,7 @@ export default (
     };
 
     const addPageCallback = async (
-        data: { name: string; value: number },
+        data: { name: string; value: number; url?: string },
         pageValue?: any
     ) => {
         if (pageValue?.ID) {
@@ -48,6 +48,7 @@ export default (
                 // isAdd: true,
                 isAdd: false,
                 State: true,
+                url: data.url || "",
             };
             windowCards.value[cardIndex].PageList.push(page);
             // 只有解构赋值，tree组件才刷新

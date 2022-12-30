@@ -75,7 +75,7 @@
                         :allow-drop="allowDrop"
                         :expand-on-click-node="false"
                         :highlight-current="false"
-                        :data="windowCards"
+                        :data="newWindowCards"
                         :props="defaultProps"
                         @node-click="handleNodeClick"
                     >
@@ -134,26 +134,45 @@
                                                         : '#90949E',
                                                 }"
                                             ></div>
-                                            <ThumbnailSlide
+                                            <!-- 游戏页或者教具页显示封面图 -->
+                                            <el-image
                                                 v-if="
-                                                    data.Type ===
-                                                        pageType.element ||
-                                                    data.Type ===
-                                                        pageType.listen
+                                                    (data.Type === 20 ||
+                                                        data.Type === 16) &&
+                                                    data.url
                                                 "
-                                                :slide="
-                                                    allPageListMap.get(
-                                                        data.ID
-                                                    ) || {}
-                                                "
-                                                :size="190"
-                                                style="
-                                                    border: 1px solid #ebeff1;
-                                                "
-                                            ></ThumbnailSlide>
-                                            <div class="view-empty" v-else>
-                                                {{ data.Name }}
-                                            </div>
+                                                :src="data.url"
+                                                fit="cover"
+                                            >
+                                                <template #error>
+                                                    <div class="image-slot">
+                                                        加载失败...
+                                                    </div>
+                                                </template>
+                                            </el-image>
+                                            <template v-else>
+                                                <ThumbnailSlide
+                                                    v-if="
+                                                        data.Type ===
+                                                            pageType.element ||
+                                                        data.Type ===
+                                                            pageType.listen
+                                                    "
+                                                    :slide="
+                                                        allPageListMap.get(
+                                                            data.ID
+                                                        ) || {}
+                                                    "
+                                                    :size="190"
+                                                    style="
+                                                        border: 1px solid
+                                                            #ebeff1;
+                                                    "
+                                                ></ThumbnailSlide>
+                                                <div class="view-empty" v-else>
+                                                    {{ data.Name }}
+                                                </div>
+                                            </template>
                                         </div>
                                     </div>
                                 </div>
@@ -409,6 +428,7 @@ export default defineComponent({
     },
     name: "Edit",
     setup() {
+        const newWindowCards = ref([]);
         const materialCenterRef = ref(); //资源库组件实例
         const isshowCusTooltip = ref(false); //展示查看已保存模板提示框
 
@@ -445,6 +465,7 @@ export default defineComponent({
             editTemplate,
             dialogStatus,
             templateFormData,
+            formateOssUrl,
         } = useSaveTemplate(allPageListMap);
 
         const {
@@ -653,7 +674,7 @@ export default defineComponent({
 
         watch(
             () => state.windowCards,
-            () => {
+            async () => {
                 allPageList.value = getAllPageList();
                 if (state.windowCards.length > 0) {
                     // 先判断是否是粘贴/新增的卡 如果是粘贴/新增卡先选中粘贴/新增卡
@@ -686,12 +707,45 @@ export default defineComponent({
                             selectPageValue(winCard.PageList[0], true);
                         }
                     }
+                    console.log(" state.windowCards,----", state.windowCards);
+
+                    //过滤教具页和游戏页的封面
+                    await formataWindowCards(
+                        state.windowCards,
+                        allPageList.value
+                    );
                 }
             },
             {
                 deep: true,
             }
         );
+        //过滤教具页和游戏页的封面
+        const formataWindowCards = async (arr: any, mapList?: any) => {
+            newWindowCards.value = JSON.parse(JSON.stringify(arr));
+            newWindowCards.value.forEach((item: any) => {
+                item.PageList?.forEach(async (page: IPageValue) => {
+                    if (page) {
+                        page.Json =
+                            page.Json && typeof page.Json === "string"
+                                ? JSON.parse(page.Json)
+                                : page.Json;
+                        // const newSlide: Slide = await transformPageDetail(page, page.Json);
+                        if (page.Type === 20 || page.Type === 16) {
+                            const temJson: any = page.Json;
+                            if (page.url) return;
+                            page.url = temJson?.ToolFileModel
+                                ? await formateOssUrl(
+                                      temJson?.ToolFileModel?.File
+                                  )
+                                : "";
+                        }
+                    }
+                });
+            });
+            newWindowCards.value = [...newWindowCards.value];
+            console.log("newWindowCards.value------", newWindowCards.value);
+        };
         const getAllPageList = () => {
             let data: IPageValue[] = [];
             state.windowCards.map((card) => {
@@ -774,7 +828,6 @@ export default defineComponent({
                 WindowID: windowInfo.value.id,
                 OriginType: windowInfo.value.originType,
             }).then(() => {
-                console.log("111111111111================");
                 // fetchAllPageSlide(getAllPageList());
             });
             window.addEventListener("keydown", keyDown);
@@ -842,6 +895,7 @@ export default defineComponent({
                     name: "教具页",
                     type: "teach",
                     value: 16,
+                    url: data.data?.url,
                 };
                 state.windowCards.forEach((item: any, windex: number) => {
                     item.PageList.forEach((page: any, index: number) => {
@@ -851,13 +905,10 @@ export default defineComponent({
                     });
                 });
                 await addPageCallback(params, currentValue.value);
-                console.log("windowCards---", state.windowCards);
-
                 pageValue.value =
                     currentValue.value.PageList[
                         currentValue.value.PageList?.length - 1
                     ];
-                console.log("pageValue.value", pageValue.value);
                 const res: any = await insertData(data);
             } else {
                 ElMessage.warning("请先选择页，再进行插入");
@@ -923,6 +974,7 @@ export default defineComponent({
         };
 
         return {
+            newWindowCards,
             viewTree,
             editRef,
             shrinkRef,
@@ -1110,6 +1162,20 @@ export default defineComponent({
                         height: 10px;
                         border-radius: 50%;
                         z-index: 2;
+                    }
+                    :deep(.el-image) {
+                        height: 106px;
+                        width: 100%;
+                        .image-slot {
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            width: 100%;
+                            height: 100%;
+                            background: var(--el-fill-color-light);
+                            color: var(--el-text-color-secondary);
+                            font-size: 20px;
+                        }
                     }
 
                     .view-empty {
