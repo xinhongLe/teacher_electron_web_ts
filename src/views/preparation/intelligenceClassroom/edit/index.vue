@@ -677,6 +677,11 @@ export default defineComponent({
             async () => {
                 allPageList.value = getAllPageList();
                 if (state.windowCards.length > 0) {
+                    //过滤教具页和游戏页的封面
+                    await formataWindowCards(
+                        state.windowCards,
+                        allPageList.value
+                    );
                     // 先判断是否是粘贴/新增的卡 如果是粘贴/新增卡先选中粘贴/新增卡
                     if (pastePage.value && pastePage.value.ID) {
                         selectPageValue(pastePage.value, false);
@@ -707,13 +712,6 @@ export default defineComponent({
                             selectPageValue(winCard.PageList[0], true);
                         }
                     }
-                    console.log(" state.windowCards,----", state.windowCards);
-
-                    //过滤教具页和游戏页的封面
-                    await formataWindowCards(
-                        state.windowCards,
-                        allPageList.value
-                    );
                 }
             },
             {
@@ -744,7 +742,6 @@ export default defineComponent({
                 });
             });
             newWindowCards.value = [...newWindowCards.value];
-            console.log("newWindowCards.value------", newWindowCards.value);
         };
         const getAllPageList = () => {
             let data: IPageValue[] = [];
