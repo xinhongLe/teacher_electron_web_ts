@@ -11,7 +11,13 @@
                 :isFullScreen="isFullScreen"
             />
             <transition name="fade">
-                <Remark :teachProcess="teachProcess" :isSystem="isSystem" :resourceId="resourceId" :design="design" v-if="showRemark" />
+                <Remark
+                    :teachProcess="teachProcess"
+                    :isSystem="isSystem"
+                    :resourceId="resourceId"
+                    :design="design"
+                    v-if="showRemark"
+                />
             </transition>
         </div>
     </div>
@@ -28,34 +34,44 @@ export default defineComponent({
     props: {
         resourceId: {
             type: String,
-            default: ""
+            default: "",
         },
         isSystem: {
             type: Boolean,
-            default: false
+            default: false,
         },
         dialog: {
             type: Boolean,
-            default: false
+            default: false,
         },
         isShowCardList: {
             type: Boolean,
-            default: true
+            default: true,
         },
         isFullScreen: {
             type: Boolean,
-            default: false
-        }
+            default: false,
+        },
     },
     components: {
         Remark,
-        PageList
+        PageList,
     },
     setup(props, { emit }) {
         const { data, showRemark, toggleRemark } = preventRemark(props.dialog);
         const { currentPageIndex, currentCard } = inject(windowInfoKey)!;
-        const teachProcess = computed(() => !isEmpty(currentCard.value?.PageList) && currentCard.value?.PageList[currentPageIndex.value]?.AcademicPresupposition);
-        const design = computed(() => !isEmpty(currentCard.value?.PageList) && currentCard.value?.PageList[currentPageIndex.value]?.DesignIntent);
+        const teachProcess = computed(
+            () =>
+                !isEmpty(currentCard.value?.PageList) &&
+                currentCard.value?.PageList[currentPageIndex.value]
+                    ?.AcademicPresupposition
+        );
+        const design = computed(
+            () =>
+                !isEmpty(currentCard.value?.PageList) &&
+                currentCard.value?.PageList[currentPageIndex.value]
+                    ?.DesignIntent
+        );
         const pageListRef = ref();
         const changeWinSize = () => {
             emit("changeWinSize"); // 切换窗口大小，清除缓存的笔记列表
@@ -76,6 +92,11 @@ export default defineComponent({
             pageListRef.value.hideWriteBoard();
             pageListRef.value.openShape(event);
         };
+        //橡皮擦
+        const openEraser = (event: MouseEvent) => {
+            pageListRef.value.openEraser(event);
+        };
+
         const lastPage = () => {
             emit("lastPage");
         };
@@ -111,14 +132,15 @@ export default defineComponent({
             showWriteBoard,
             hideWriteBoard,
             openShape,
-            changeWinSize
+            changeWinSize,
+            openEraser,
         };
-    }
+    },
 });
 </script>
 
 <style lang="scss" scoped>
-.remark-fullSrceen{
+.remark-fullSrceen {
     position: fixed;
     width: 220px;
     height: calc(100% - 86px);

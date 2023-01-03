@@ -70,14 +70,11 @@
                     alt=""
                 />
             </div>
-            <div
-                class="me-tool-btn"
-                @click="openShape"
-            >
-                <img
-                    src="../../images/icon_rest_xz_big.png"
-                    alt=""
-                />
+            <div class="me-tool-btn" @click="openShape">
+                <img src="../../images/icon_rest_xz_big.png" alt="" />
+            </div>
+            <div class="me-tool-btn" @click="openEraser">
+                <img src="../../images/xiangpi_rest.png" alt="" />
             </div>
         </div>
         <div class="me-tools-system">
@@ -90,7 +87,11 @@
                 </div>
             </template>
 
-            <div @click.stop="closeWincard" v-if="showClose && !dialog" class="me-tool-btn close-button">
+            <div
+                @click.stop="closeWincard"
+                v-if="showClose && !dialog"
+                class="me-tool-btn close-button"
+            >
                 <p>关闭</p>
             </div>
 
@@ -148,17 +149,28 @@
         <div class="me-tool-btn" v-if="isShowClose" @click="$emit('close')">
             <img src="../../images/guanbi_rest.png" />
         </div>
-        <ResourceDialog v-if="showResourceDialog" v-model="showResourceDialog"/>
+        <ResourceDialog
+            v-if="showResourceDialog"
+            v-model="showResourceDialog"
+        />
     </div>
-
 </template>
 
 <script lang="ts">
-import { ref, defineComponent, watch, onMounted, onUnmounted, computed, onActivated, onDeactivated } from "vue";
+import {
+    ref,
+    defineComponent,
+    watch,
+    onMounted,
+    onUnmounted,
+    computed,
+    onActivated,
+    onDeactivated,
+} from "vue";
 import {
     enterFullscreen,
     exitFullscreen,
-    isFullscreen
+    isFullscreen,
 } from "@/utils/fullscreen";
 import { useRouter } from "vue-router";
 import isElectron from "is-electron";
@@ -171,32 +183,32 @@ export default defineComponent({
     props: {
         showRemark: {
             type: Boolean,
-            default: true
+            default: true,
         },
         isShowRemarkBtn: {
             type: Boolean,
-            default: true
+            default: true,
         },
         isShowFullscreen: {
             type: Boolean,
-            default: true
+            default: true,
         },
         isShowClose: {
             type: Boolean,
-            default: false
+            default: false,
         },
         dialog: {
             type: Boolean,
-            default: false
+            default: false,
         },
         showClose: {
             type: Boolean,
-            default: true
+            default: true,
         },
         id: {
             type: String,
-            default: ""
-        }
+            default: "",
+        },
     },
     setup(props, { emit }) {
         const router = useRouter();
@@ -205,7 +217,9 @@ export default defineComponent({
         const isFirst = ref(false);
         const showremark = ref(true);
         const scale = ref(1);
-        const selectNextType = computed(() => store.state.preparation.selectNextType);
+        const selectNextType = computed(
+            () => store.state.preparation.selectNextType
+        );
         const goback = () => {
             router.push("/");
         };
@@ -217,20 +231,23 @@ export default defineComponent({
         const nextSettingTypeList = [
             {
                 text: "仅右侧",
-                type: NextSettingType.Right
+                type: NextSettingType.Right,
             },
             {
                 text: "仅左侧",
-                type: NextSettingType.Left
+                type: NextSettingType.Left,
             },
             {
                 text: "左右侧",
-                type: NextSettingType.All
-            }
+                type: NextSettingType.All,
+            },
         ];
-        watch(() => props.showRemark, () => {
-            showremark.value = props.showRemark;
-        });
+        watch(
+            () => props.showRemark,
+            () => {
+                showremark.value = props.showRemark;
+            }
+        );
         const changeNextType = (type: NextSettingType) => {
             store.commit(MutationTypes.SET_SELECT_NEXT_TYPE, type);
             set(STORAGE_TYPES.NEXT_SETTING + store.state.userInfo.id, type);
@@ -267,7 +284,9 @@ export default defineComponent({
                 switchFlag.value = false;
             } else if (!switchFlag.value && isFullscreen()) {
             } else {
-                if (isElectron()) { return false; }
+                if (isElectron()) {
+                    return false;
+                }
                 activeFlag.value = false;
                 await sleep(300);
                 emit("clockFullScreen");
@@ -286,20 +305,28 @@ export default defineComponent({
             emit("nextStep");
         };
         const keyDown = async (e: any) => {
-            if (!isElectron()) { return false; }
+            if (!isElectron()) {
+                return false;
+            }
             if (e.keyCode === 27) {
-                if (!activeFlag.value) { return false; }
+                if (!activeFlag.value) {
+                    return false;
+                }
                 activeFlag.value = false;
-                if (!isFullscreen()) { return false; }
+                if (!isFullscreen()) {
+                    return false;
+                }
                 exitFullscreen();
                 emit("clockFullScreen");
             }
         };
         // 点击全屏
         const fullScreen = async () => {
-            if ((window as any).electron &&
+            if (
+                (window as any).electron &&
                 !(window as any).electron.isFullScreen() &&
-                !(window as any).electron.isMac()) {
+                !(window as any).electron.isMac()
+            ) {
                 (window as any).electron.setFullScreen();
                 await sleep(300);
             }
@@ -321,19 +348,28 @@ export default defineComponent({
         const openShape = (event: MouseEvent) => {
             emit("openShape", event);
         };
+        //橡皮擦
+        const openEraser = (event: MouseEvent) => {
+            emit("openEraser", event);
+        };
         const hideWriteBoard = () => {
             emit("hideWriteBoard");
         };
         function getLocalNextType() {
-            const type = get(STORAGE_TYPES.NEXT_SETTING + store.state.userInfo.id);
+            const type = get(
+                STORAGE_TYPES.NEXT_SETTING + store.state.userInfo.id
+            );
             changeNextType(type || NextSettingType.All);
         }
         getLocalNextType();
 
         const closeWincard = () => {
-            store.commit(MutationTypes.REMOVE_FULLSCREEN_RESOURCE, { id: props.id, openMore: true });
+            store.commit(MutationTypes.REMOVE_FULLSCREEN_RESOURCE, {
+                id: props.id,
+                openMore: true,
+            });
             emit("closeWincard");
-        }
+        };
 
         return {
             scale,
@@ -358,19 +394,31 @@ export default defineComponent({
             selectNextType,
             openShape,
             hideWriteBoard,
-            closeWincard
+            closeWincard,
+            openEraser,
         };
     },
-    components: { ResourceDialog }
+    components: { ResourceDialog },
 });
 </script>
 
 <style lang="scss" scoped>
 .me-tools {
-    background-color: #BED2FF;
+    // background-color: #BED2FF;
+    // padding: 14px;
+    // display: flex;
+    // position: relative;
+
+    background-color: #bed2ff;
     padding: 14px;
-    display: flex;
-    position: relative;
+    /* display: flex; */
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 240px;
+    /* height: 45%; */
+    overflow: auto;
+    max-height: 45%;
     &.tools-fullSrceen {
         position: fixed;
         bottom: 0;
@@ -436,9 +484,11 @@ export default defineComponent({
 }
 
 .me-tools-canvas {
-    justify-content: flex-end;
-    margin-right: 50px;
-    flex: 3;
+    // justify-content: flex-end;
+    // margin-right: 50px;
+    // flex: 3;
+
+    flex-wrap: wrap;
 }
 
 .me-tools-canvas,
@@ -451,11 +501,12 @@ export default defineComponent({
 
 .me-tools-steps {
     flex: 1;
-    margin-left: 50px;
+    // margin-left: 50px;
 }
 
 .me-tool-btn {
-    margin: 0 10px;
+    // margin: 0 10px;
+    margin: 10px 10px;
     border: 2px solid #77a1ed;
     box-sizing: border-box;
     border-radius: 14px;

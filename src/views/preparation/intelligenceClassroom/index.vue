@@ -1,5 +1,5 @@
 <template>
-    <div class="intelligence" :class="{'full-screen': isFullScreen}">
+    <div class="intelligence" :class="{ 'full-screen': isFullScreen }">
         <div class="top">
             <transition name="fade">
                 <div
@@ -14,8 +14,18 @@
                             @updateFlag="updateFlag"
                         />
                     </div>
-                    <div class="fold-btn" v-show="isFullScreen" @click="isShowCardList = !isShowCardList">
-                        <i :class="isShowCardList ? 'el-icon-arrow-left': 'el-icon-arrow-right'"></i>
+                    <div
+                        class="fold-btn"
+                        v-show="isFullScreen"
+                        @click="isShowCardList = !isShowCardList"
+                    >
+                        <i
+                            :class="
+                                isShowCardList
+                                    ? 'el-icon-arrow-left'
+                                    : 'el-icon-arrow-right'
+                            "
+                        ></i>
                     </div>
                 </div>
             </transition>
@@ -46,6 +56,7 @@
             @clockFullScreen="clockFullScreen"
             @showWriteBoard="showWriteBoard"
             @openShape="openShape"
+            @openEraser="openEraser"
             @hideWriteBoard="hideWriteBoard"
         />
     </div>
@@ -63,7 +74,7 @@ import {
     watchEffect,
     defineEmits,
     toRef,
-    onUnmounted
+    onUnmounted,
 } from "vue";
 import CardList from "./cardList/index.vue";
 import PreviewSection from "./components/preview/previewSection.vue";
@@ -76,26 +87,26 @@ const cardListComponents = ref<InstanceType<typeof CardList>>();
 const props = defineProps({
     resourceId: {
         type: String,
-        default: ""
+        default: "",
     },
     dialog: {
         type: Boolean,
-        default: false
+        default: false,
     },
     isSystem: {
         type: Boolean,
-        default: false
+        default: false,
     },
     resource: {
         type: Object as PropType<IResourceItem | undefined>,
-        required: true
-    }
+        required: true,
+    },
 });
 const resourceId = toRef(props, "resourceId");
 provide("isShowCardList", isShowCardList);
 const windowInfo = useWindowInfo(true, props.resource);
 provide(windowInfoKey, windowInfo);
-const {cardList, refreshWindow, getCardList } = windowInfo;
+const { cardList, refreshWindow, getCardList } = windowInfo;
 
 watchEffect(() => {
     if (resourceId.value) {
@@ -152,6 +163,10 @@ const showWriteBoard = () => {
 
 const openShape = (event: MouseEvent) => {
     previewSection.value && previewSection.value.openShape(event);
+};
+//橡皮擦
+const openEraser = (event: MouseEvent) => {
+    previewSection.value && previewSection.value.openEraser(event);
 };
 
 const hideWriteBoard = () => {
@@ -233,11 +248,11 @@ $border-color: #f5f6fa;
                 height: 104px;
                 width: 18px;
                 border-radius: 0px 8px 8px 0px;
-                background: #F5F6FA;
+                background: #f5f6fa;
                 cursor: pointer;
                 z-index: 1;
                 i {
-                    color: #7E7F83;
+                    color: #7e7f83;
                     font-size: 18px;
                     font-weight: 700;
                 }
