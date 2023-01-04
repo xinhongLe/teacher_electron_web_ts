@@ -1,23 +1,11 @@
 <template>
     <div class="me-preview">
         <div class="mep-container">
-            <PageList
-                class="preview-pagelist"
-                ref="pageListRef"
-                @lastPage="lastPage"
-                @firstPage="firstPage"
-                :dialog="dialog"
-                :isShowCardList="isShowCardList"
-                :isFullScreen="isFullScreen"
-            />
+            <PageList class="preview-pagelist" ref="pageListRef" @lastPage="lastPage" @firstPage="firstPage"
+                :dialog="dialog" :isShowCardList="isShowCardList" :isFullScreen="isFullScreen" />
             <transition name="fade">
-                <Remark
-                    :teachProcess="teachProcess"
-                    :isSystem="isSystem"
-                    :resourceId="resourceId"
-                    :design="design"
-                    v-if="showRemark"
-                />
+                <Remark :teachProcess="teachProcess" :isSystem="isSystem" :resourceId="resourceId" :design="design"
+                    v-if="showRemark" />
             </transition>
         </div>
     </div>
@@ -92,9 +80,9 @@ export default defineComponent({
             pageListRef.value.hideWriteBoard();
             pageListRef.value.openShape(event);
         };
-        //橡皮擦
-        const openEraser = (event: MouseEvent) => {
-            pageListRef.value.openEraser(event);
+        //橡皮擦..
+        const openPaintTool = (event: MouseEvent, type: string) => {
+            pageListRef.value.openPaintTool(event, type);
         };
 
         const lastPage = () => {
@@ -133,7 +121,7 @@ export default defineComponent({
             hideWriteBoard,
             openShape,
             changeWinSize,
-            openEraser,
+            openPaintTool,
         };
     },
 });
@@ -147,6 +135,7 @@ export default defineComponent({
     top: 0;
     right: 0;
 }
+
 .me-preview {
     flex: 1;
     display: flex;
@@ -154,6 +143,7 @@ export default defineComponent({
     overflow: hidden;
     background-color: #f5f6fb;
 }
+
 .mep-container {
     min-width: 0;
     flex: 1;
@@ -161,11 +151,13 @@ export default defineComponent({
     min-height: 0;
     margin: 0;
     justify-content: space-between;
+
     div {
         margin: 0;
         padding: 0;
     }
 }
+
 .fade-enter-active,
 .fade-leave-active {
     transition-property: width, padding;

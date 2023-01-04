@@ -2,63 +2,33 @@
     <div class="intelligence" :class="{ 'full-screen': isFullScreen }">
         <div class="top">
             <transition name="fade">
-                <div
-                    class="card-box-left"
-                    :class="{
-                        hidden: isFullScreen && !isShowCardList,
-                    }"
-                >
+                <div class="card-box-left" :class="{
+    hidden: isFullScreen && !isShowCardList,
+}">
                     <div class="card-box-lefts">
-                        <CardList
-                            ref="cardListComponents"
-                            @updateFlag="updateFlag"
-                        />
+                        <CardList ref="cardListComponents" @updateFlag="updateFlag" />
                     </div>
-                    <div
-                        class="fold-btn"
-                        v-show="isFullScreen"
-                        @click="isShowCardList = !isShowCardList"
-                    >
-                        <i
-                            :class="
-                                isShowCardList
-                                    ? 'el-icon-arrow-left'
-                                    : 'el-icon-arrow-right'
-                            "
-                        ></i>
+                    <div class="fold-btn" v-show="isFullScreen" @click="isShowCardList = !isShowCardList">
+                        <i :class="
+    isShowCardList
+        ? 'el-icon-arrow-left'
+        : 'el-icon-arrow-right'
+"></i>
                     </div>
                 </div>
             </transition>
             <div class="card-detail">
                 <div class="card-detail-content">
-                    <PreviewSection
-                        ref="previewSection"
-                        :dialog="dialog"
-                        :isSystem="isSystem"
-                        :resourceId="resourceId"
-                        :isShowCardList="isShowCardList"
-                        :isFullScreen="isFullScreen"
-                        @lastPage="lastPage"
-                        @firstPage="firstPage"
-                        @changeWinSize="changeWinSize"
-                    />
+                    <PreviewSection ref="previewSection" :dialog="dialog" :isSystem="isSystem" :resourceId="resourceId"
+                        :isShowCardList="isShowCardList" :isFullScreen="isFullScreen" @lastPage="lastPage"
+                        @firstPage="firstPage" @changeWinSize="changeWinSize" />
                 </div>
             </div>
         </div>
-        <Tools
-            :id="resourceId"
-            :dialog="dialog"
-            :showRemark="previewSection?.showRemark"
-            @toggleRemark="toggleRemark"
-            @prevStep="prevStep"
-            @nextStep="nextStep"
-            @fullScreen="fullScreen"
-            @clockFullScreen="clockFullScreen"
-            @showWriteBoard="showWriteBoard"
-            @openShape="openShape"
-            @openEraser="openEraser"
-            @hideWriteBoard="hideWriteBoard"
-        />
+        <Tools :id="resourceId" :dialog="dialog" :showRemark="previewSection?.showRemark" @toggleRemark="toggleRemark"
+            @prevStep="prevStep" @nextStep="nextStep" @fullScreen="fullScreen" @clockFullScreen="clockFullScreen"
+            @showWriteBoard="showWriteBoard" @openShape="openShape" @openPaintTool="openPaintTool"
+            @hideWriteBoard="hideWriteBoard" />
     </div>
 </template>
 
@@ -165,8 +135,8 @@ const openShape = (event: MouseEvent) => {
     previewSection.value && previewSection.value.openShape(event);
 };
 //橡皮擦
-const openEraser = (event: MouseEvent) => {
-    previewSection.value && previewSection.value.openEraser(event);
+const openPaintTool = (event: MouseEvent, type: string) => {
+    previewSection.value && previewSection.value.openPaintTool(event, type);
 };
 
 const hideWriteBoard = () => {
@@ -190,6 +160,7 @@ onUnmounted(() => {
 
 <style lang="scss" scoped>
 $border-color: #f5f6fa;
+
 .intelligence {
     display: flex;
     flex-direction: column;
@@ -197,6 +168,7 @@ $border-color: #f5f6fa;
     min-height: 0;
     min-width: 0;
     background-color: $border-color;
+
     &.full-screen {
         position: fixed;
         top: 0;
@@ -205,11 +177,13 @@ $border-color: #f5f6fa;
         right: 0;
         z-index: 1;
     }
+
     .top {
         display: flex;
         flex: 1;
         min-width: 0;
         min-height: 0;
+
         .card-box-away {
             position: absolute;
             top: calc(50% - 60px);
@@ -221,6 +195,7 @@ $border-color: #f5f6fa;
             align-items: center;
             font-size: 20px;
         }
+
         .card-box-left {
             width: 200px;
             text-align: center;
@@ -234,9 +209,11 @@ $border-color: #f5f6fa;
             margin-right: 8px;
             transition: width 0.3s;
             position: relative;
+
             &.hidden {
                 width: 0;
             }
+
             .fold-btn {
                 display: flex;
                 align-items: center;
@@ -251,6 +228,7 @@ $border-color: #f5f6fa;
                 background: #f5f6fa;
                 cursor: pointer;
                 z-index: 1;
+
                 i {
                     color: #7e7f83;
                     font-size: 18px;
@@ -258,6 +236,7 @@ $border-color: #f5f6fa;
                 }
             }
         }
+
         .card-box-lefts {
             display: flex;
             flex: 1;
@@ -271,6 +250,7 @@ $border-color: #f5f6fa;
             min-width: 0;
             display: flex;
             justify-content: space-between;
+
             .card-detail-content {
                 height: 100%;
                 display: flex;
@@ -286,6 +266,7 @@ $border-color: #f5f6fa;
                 padding: 15px;
                 background-color: #fff;
                 border-top: 1px solid #ccc;
+
                 .me-page-item {
                     background-color: #f0f3ff;
                     color: #444;
@@ -307,6 +288,7 @@ $border-color: #f5f6fa;
             }
         }
     }
+
     .bottom {
         height: 88px;
     }

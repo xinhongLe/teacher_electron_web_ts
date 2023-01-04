@@ -1,44 +1,20 @@
 <template>
     <div class="pageListComponents">
         <div class="me-work">
-            <ScreenView
-                class="me-work-screen"
-                :inline="true"
-                :isInit="isInitPage"
-                ref="screenRef"
-                :slide="currentSlide"
-                :writeBoardVisible="writeBoardVisible"
-                :keyDisabled="keyDisabled"
-                :useScale="false"
-                :winList="cardList"
-                :canvasData="canvasData"
-                @openCard="openCard"
-                @pagePrev="pagePrev"
-                @pageNext="pageNext"
-                @closeWriteBoard="closeWriteBoard"
-            />
-            <open-card-view-dialog
-                @closeOpenCard="closeOpenCard"
-                v-if="dialogVisible"
-                :dialog="dialog"
-                :cardList="dialogCardList"
-                v-model:dialogVisible="dialogVisible"
-            ></open-card-view-dialog>
+            <ScreenView class="me-work-screen" :inline="true" :isInit="isInitPage" ref="screenRef" :slide="currentSlide"
+                :writeBoardVisible="writeBoardVisible" :keyDisabled="keyDisabled" :useScale="false" :winList="cardList"
+                :canvasData="canvasData" @openCard="openCard" @pagePrev="pagePrev" @pageNext="pageNext"
+                @closeWriteBoard="closeWriteBoard" />
+            <open-card-view-dialog @closeOpenCard="closeOpenCard" v-if="dialogVisible" :dialog="dialog"
+                :cardList="dialogCardList" v-model:dialogVisible="dialogVisible"></open-card-view-dialog>
             <div class="me-pager">
                 {{ currentPageNum + "/" + pageListCount.length }}
             </div>
             <transition name="fade">
-                <div
-                    class="me-page"
-                    :class="{
-                        hidden: isFullScreen && !isShowCardList,
-                    }"
-                >
-                    <PageItem
-                        :pageList="pageList"
-                        :selected="currentPageIndex"
-                        @selectPage="selectPage"
-                    />
+                <div class="me-page" :class="{
+    hidden: isFullScreen && !isShowCardList,
+}">
+                    <PageItem :pageList="pageList" :selected="currentPageIndex" @selectPage="selectPage" />
                 </div>
             </transition>
         </div>
@@ -214,8 +190,8 @@ export default defineComponent({
             screenRef.value.openShape(event);
         };
         //橡皮擦
-        const openEraser = (event: MouseEvent) => {
-            screenRef.value.openEraser(event);
+        const openPaintTool = (event: MouseEvent, type: string) => {
+            screenRef.value.openPaintTool(event, type);
         };
         const route = useRoute();
         watch(
@@ -384,7 +360,7 @@ export default defineComponent({
             hideWriteBoard,
             openShape,
             closeWriteBoard,
-            openEraser,
+            openPaintTool,
             canvasData,
             pageListCount,
             currentPageNum,
@@ -399,6 +375,7 @@ export default defineComponent({
     :deep(.el-overlay) {
         z-index: 9999 !important;
     }
+
     :deep(.el-dialog.is-fullscreen) {
         --el-dialog-width: 94%;
         --el-dialog-margin-top: 0;
@@ -410,6 +387,7 @@ export default defineComponent({
         flex-direction: column;
         flex: 1;
     }
+
     :deep(.el-dialog__body) {
         width: 100%;
         display: flex;
@@ -419,15 +397,18 @@ export default defineComponent({
         overflow-y: auto;
     }
 }
+
 .pageListComponents {
     display: flex;
     flex: 1;
     min-width: 0;
     margin-right: 8px !important;
+
     ::v-deep .slide-list {
         background-color: #fff;
     }
 }
+
 .fullscreen {
     position: fixed;
     top: 0;
@@ -437,6 +418,7 @@ export default defineComponent({
     transition-property: left, width;
     transition-duration: 0.3s;
 }
+
 .me-work {
     flex: 1;
     min-width: 0;
@@ -444,6 +426,7 @@ export default defineComponent({
     flex-direction: column;
     overflow: hidden;
     position: relative;
+
     .fold-btn {
         display: flex;
         align-items: center;
@@ -457,22 +440,26 @@ export default defineComponent({
         border-radius: 0px 8px 8px 0px;
         background: #f5f6fa;
         cursor: pointer;
+
         i {
             color: #7e7f83;
             font-size: 18px;
             font-weight: 700;
         }
     }
+
     .me-pager {
         position: absolute;
         right: 4px;
         bottom: 65px;
     }
 }
+
 .me-work-screen {
     width: 100%;
     height: 100%;
 }
+
 .me-page {
     min-width: 0;
     background-color: #fff;
@@ -484,6 +471,7 @@ export default defineComponent({
     overflow-x: auto;
     border-top: 1px solid #e9ecf0;
     transition: height 0.3s;
+
     &.hidden {
         height: 0;
         padding: 0;

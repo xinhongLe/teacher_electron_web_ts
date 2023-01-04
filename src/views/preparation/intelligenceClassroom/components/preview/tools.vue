@@ -2,34 +2,21 @@
     <div class="me-tools" ref="metools">
         <div class="me-tools-set">
             <div class="setting" v-show="isShowMenu">
-                <span @click.stop="isShowSubMenu = true" class="setting-item"
-                    >【下一步】位置设置 ></span
-                >
+                <span @click.stop="isShowSubMenu = true" class="setting-item">【下一步】位置设置 ></span>
                 <div class="setting-sub-menu" v-show="isShowSubMenu">
-                    <div
-                        v-for="item in nextSettingTypeList"
-                        :key="item.text"
-                        class="menu"
-                        @click="changeNextType(item.type)"
-                    >
+                    <div v-for="item in nextSettingTypeList" :key="item.text" class="menu"
+                        @click="changeNextType(item.type)">
                         {{ item.text }}
                     </div>
                 </div>
             </div>
-            <div
-                class="me-tool-btn setting-btn"
-                @click.stop="isShowMenu = true"
-            >
+            <div class="me-tool-btn setting-btn" @click.stop="isShowMenu = true">
                 <img src="../../images/btn_more.png" />
             </div>
-            <div
-                class="me-tool-btn setting-btn"
-                @click="nextStep"
-                v-show="
-                    selectNextType === NextSettingType.Left ||
-                    selectNextType === NextSettingType.All
-                "
-            >
+            <div class="me-tool-btn setting-btn" @click="nextStep" v-show="
+    selectNextType === NextSettingType.Left ||
+    selectNextType === NextSettingType.All
+">
                 <img src="../../images/btn_next.png" />
             </div>
         </div>
@@ -38,43 +25,22 @@
         </div> -->
         <div class="me-tools-screen"></div>
         <div class="me-tools-canvas">
-            <div
-                class="me-tool-btn"
-                :class="type === 'mouse' && 'active'"
-                @click="hideWriteBoard"
-            >
-                <img
-                    v-if="type !== 'mouse'"
-                    src="../../images/shubiao_rest.png"
-                    alt=""
-                />
-                <img
-                    v-if="type === 'mouse'"
-                    src="../../images/shubiao_selected.png"
-                    alt=""
-                />
+            <div class="me-tool-btn" :class="type === 'mouse' && 'active'" @click="hideWriteBoard">
+                <img v-if="type !== 'mouse'" src="../../images/shubiao_rest.png" alt="" />
+                <img v-if="type === 'mouse'" src="../../images/shubiao_selected.png" alt="" />
             </div>
-            <div
-                class="me-tool-btn"
-                :class="type === 'pen' && 'active'"
-                @click="showWriteBoard"
-            >
-                <img
-                    v-if="type !== 'pen'"
-                    src="../../images/huabi_rest.png"
-                    alt=""
-                />
-                <img
-                    v-if="type === 'pen'"
-                    src="../../images/huabi_selected.png"
-                    alt=""
-                />
+            <div class="me-tool-btn" :class="type === 'pen' && 'active'" @click="openPaintTool($event, 'paint')">
+                <img v-if="type !== 'pen'" src="../../images/huabi_rest.png" alt="" />
+                <img v-if="type === 'pen'" src="../../images/huabi_selected.png" alt="" />
             </div>
             <div class="me-tool-btn" @click="openShape">
                 <img src="../../images/icon_rest_xz_big.png" alt="" />
             </div>
-            <div class="me-tool-btn" @click="openEraser">
+            <div class="me-tool-btn" @click="openPaintTool($event, 'eraser')">
                 <img src="../../images/xiangpi_rest.png" alt="" />
+            </div>
+            <div class="me-tool-btn" @click="openPaintTool($event, 'rest')">
+                <img src="../../images/qingkong_rest.png" alt="" />
             </div>
         </div>
         <div class="me-tools-system">
@@ -87,72 +53,32 @@
                 </div>
             </template>
 
-            <div
-                @click.stop="closeWincard"
-                v-if="showClose && !dialog"
-                class="me-tool-btn close-button"
-            >
+            <div @click.stop="closeWincard" v-if="showClose && !dialog" class="me-tool-btn close-button">
                 <p>关闭</p>
             </div>
 
-            <div
-                class="me-tool-btn"
-                @click="toggleRemark"
-                v-if="isShowRemarkBtn"
-            >
-                <img
-                    v-if="!showremark"
-                    src="../../images/xianshibeizhu_rest.png"
-                    alt=""
-                />
-                <img
-                    v-if="showremark"
-                    src="../../images/yincangbeizhu_rest.png"
-                    alt=""
-                />
+            <div class="me-tool-btn" @click="toggleRemark" v-if="isShowRemarkBtn">
+                <img v-if="!showremark" src="../../images/xianshibeizhu_rest.png" alt="" />
+                <img v-if="showremark" src="../../images/yincangbeizhu_rest.png" alt="" />
             </div>
         </div>
         <div class="me-tools-steps">
             <div class="me-tool-btn" :disabled="isFirst" @click="prevStep">
-                <img
-                    v-if="!isFirst"
-                    src="../../images/shangyiye_rest.png"
-                    alt=""
-                />
-                <img
-                    v-if="isFirst"
-                    src="../../images/shangyiye_disabled.png"
-                    alt=""
-                />
+                <img v-if="!isFirst" src="../../images/shangyiye_rest.png" alt="" />
+                <img v-if="isFirst" src="../../images/shangyiye_disabled.png" alt="" />
             </div>
-            <div
-                class="me-tool-btn next-step"
-                :disabled="isLast"
-                @click="nextStep"
-                v-show="
-                    selectNextType === NextSettingType.Right ||
-                    selectNextType === NextSettingType.All
-                "
-            >
-                <img
-                    v-if="!isLast"
-                    src="../../images/xiayiye_rest.png"
-                    alt=""
-                />
-                <img
-                    v-if="isLast"
-                    src="../../images/xiayiye_disabled.png"
-                    alt=""
-                />
+            <div class="me-tool-btn next-step" :disabled="isLast" @click="nextStep" v-show="
+    selectNextType === NextSettingType.Right ||
+    selectNextType === NextSettingType.All
+">
+                <img v-if="!isLast" src="../../images/xiayiye_rest.png" alt="" />
+                <img v-if="isLast" src="../../images/xiayiye_disabled.png" alt="" />
             </div>
         </div>
         <div class="me-tool-btn" v-if="isShowClose" @click="$emit('close')">
             <img src="../../images/guanbi_rest.png" />
         </div>
-        <ResourceDialog
-            v-if="showResourceDialog"
-            v-model="showResourceDialog"
-        />
+        <ResourceDialog v-if="showResourceDialog" v-model="showResourceDialog" />
     </div>
 </template>
 
@@ -349,8 +275,8 @@ export default defineComponent({
             emit("openShape", event);
         };
         //橡皮擦
-        const openEraser = (event: MouseEvent) => {
-            emit("openEraser", event);
+        const openPaintTool = (event: MouseEvent, type: string) => {
+            emit("openPaintTool", event, type);
         };
         const hideWriteBoard = () => {
             emit("hideWriteBoard");
@@ -395,7 +321,7 @@ export default defineComponent({
             openShape,
             hideWriteBoard,
             closeWincard,
-            openEraser,
+            openPaintTool,
         };
     },
     components: { ResourceDialog },
@@ -419,20 +345,26 @@ export default defineComponent({
     /* height: 45%; */
     overflow: auto;
     max-height: 45%;
+    z-index: 999;
+
     &.tools-fullSrceen {
         position: fixed;
         bottom: 0;
         left: 0;
         width: 100%;
+
         .me-tools-set {
             transform: none;
+
             .setting {
                 position: absolute;
             }
         }
     }
+
     .me-tools-set {
         width: fit-content;
+
         .setting {
             position: absolute;
             top: -55px;
@@ -441,6 +373,7 @@ export default defineComponent({
             background: #000;
             width: max-content;
             z-index: 1;
+
             .setting-item {
                 padding: 0 16px;
                 height: 50px;
@@ -449,11 +382,13 @@ export default defineComponent({
                 justify-content: center;
                 cursor: pointer;
             }
+
             .setting-sub-menu {
                 position: absolute;
                 right: -10px;
                 transform: translateX(100%);
                 bottom: 10px;
+
                 .menu {
                     height: 40px;
                     padding: 0 16px;
@@ -464,17 +399,20 @@ export default defineComponent({
                     justify-content: center;
                     cursor: pointer;
                     border-bottom: 1px solid #fff;
+
                     &:last-child {
                         border-bottom: none;
                     }
                 }
             }
         }
+
         .setting-btn {
             display: flex;
             justify-content: center;
             color: #254d98;
             font-weight: 700;
+
             span {
                 position: absolute;
                 bottom: 0;
@@ -589,6 +527,7 @@ export default defineComponent({
     border-color: #2085ef;
     box-shadow: 0 3px 0 #2085ef;
     margin-left: 20px;
+
     img {
         width: 180px;
         height: 64px;
@@ -604,6 +543,7 @@ export default defineComponent({
     display: flex;
     align-items: flex-end;
     justify-content: center;
+
     p {
         color: #fff;
         font-size: 12px;
