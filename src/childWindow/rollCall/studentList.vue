@@ -1,80 +1,90 @@
 <template>
     <div class="container">
-        <div
-            class="select-student-list"
-            :class="isPackUp && 'pack-up'"
-            @click="expand"
-        >
-            <div class="title" @click.stop="">
-                <div class="drag-area">
-                    <Drag />
-                </div>
-                点名学生清单
-            </div>
-            <div class="list">
-                <div class="student-selected-item" v-for="student in selectStudent" :key="student.StudentID">
-                    {{ student?.Name }}
-                </div>
-            </div>
-        </div>
-
-        <div class="student-list-content" v-show="!isPackUp">
+        <div class="content">
             <div
-                class="student-box"
-                :style="{
-                    transform: `rotateX(${rotateX}deg) rotateY(${randomDeg}deg)`,
-                    transition: `all ${animationTime}ms ease-in-out`,
-                }"
+                class="select-student-list"
+                :class="isPackUp && 'pack-up'"
+                @click="expand"
             >
+                <div class="title" @click.stop="">
+                    <div class="drag-area">
+                        <Drag />
+                    </div>
+                    点名学生清单
+                </div>
+                <div class="list">
+                    <div
+                        class="student-selected-item"
+                        v-for="student in selectStudent"
+                        :key="student.StudentID"
+                    >
+                        {{ student?.Name }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="student-list-content" v-show="!isPackUp">
                 <div
-                    class="student-item"
-                    v-for="(student, i) in unselectedStudent"
-                    :key="i"
+                    class="student-box"
                     :style="{
-                        transform: `translateX(-102px) rotateY(${
-                            (360 / unselectedStudent.length) * i
-                        }deg) translateZ(2000px) scale(${
-                            !isStart && currentIndex === i ? 2 : 1
-                        })`,
+                        transform: `rotateX(${rotateX}deg) rotateY(${randomDeg}deg)`,
+                        transition: `all ${animationTime}ms ease-in-out`,
                     }"
                 >
-                    <Avatar
-                        :file="student?.HeadPortrait"
-                        :size="20"
-                        :alt="student.Name"
-                        style="transform: scale(4.5)"
-                    />
-                    <div class="student-name">{{ student.Name }}</div>
+                    <div
+                        class="student-item"
+                        v-for="(student, i) in unselectedStudent"
+                        :key="i"
+                        :style="{
+                            transform: `translateX(-102px) rotateY(${
+                                (360 / unselectedStudent.length) * i
+                            }deg) translateZ(2000px) scale(${
+                                !isStart && currentIndex === i ? 2 : 1
+                            })`,
+                        }"
+                    >
+                        <Avatar
+                            :file="student?.HeadPortrait"
+                            :size="20"
+                            :alt="student.Name"
+                            style="transform: scale(4.5)"
+                        />
+                        <div class="student-name">{{ student.Name }}</div>
+                    </div>
                 </div>
             </div>
-        </div>
-        <el-button
-            v-show="!isPackUp"
-            type="default"
-            round
-            plain
-            class="min-btn"
-            @click="packUp"
-            :disabled="isStart"
-            >最小化</el-button
-        >
-        <el-button
-            v-show="!isPackUp"
-            type="danger"
-            round
-            plain
-            class="close-btn"
-            @click="close"
-            :disabled="isStart"
-            >关闭</el-button
-        >
-        <div class="cotrol-btn" v-show="!isPackUp">
-            <div class="custom-reset-btn" :class="isStart && 'disabled'">
-                <el-button type="primary" @click="reset" :disabled="isStart">重置</el-button>
-            </div>
+            <el-button
+                v-show="!isPackUp"
+                type="default"
+                round
+                plain
+                class="min-btn"
+                @click="packUp"
+                :disabled="isStart"
+                >最小化</el-button
+            >
+            <el-button
+                v-show="!isPackUp"
+                type="danger"
+                round
+                plain
+                class="close-btn"
+                @click="close"
+                :disabled="isStart"
+                >关闭</el-button
+            >
+            <div class="cotrol-btn" v-show="!isPackUp">
+                <div class="custom-reset-btn" :class="isStart && 'disabled'">
+                    <el-button type="primary" @click="reset" :disabled="isStart"
+                        >重置</el-button
+                    >
+                </div>
 
-            <div class="custom-start-btn" :class="isStart && 'disabled'">
-                <el-button type="primary" @click="start" :disabled="isStart">开始</el-button>
+                <div class="custom-start-btn" :class="isStart && 'disabled'">
+                    <el-button type="primary" @click="start" :disabled="isStart"
+                        >开始</el-button
+                    >
+                </div>
             </div>
         </div>
     </div>
@@ -90,7 +100,7 @@ import { Drag } from "@icon-park/vue-next";
 export default defineComponent({
     components: {
         Drag,
-        Avatar
+        Avatar,
     },
     props: {
         studentList: {
@@ -189,7 +199,8 @@ export default defineComponent({
 
         const isPackUp = ref(false);
         const packUp = () => {
-            const size = window.electron.remote.screen.getPrimaryDisplay().workAreaSize;
+            const size =
+                window.electron.remote.screen.getPrimaryDisplay().workAreaSize;
             window.electron.setContentSize(200, 250);
             window.electron.setPositionWin(
                 size.width - 20 - 200,
@@ -200,10 +211,12 @@ export default defineComponent({
 
         const expand = () => {
             if (isPackUp.value) {
-                const size = window.electron.remote.screen.getPrimaryDisplay().workAreaSize;
+                const size =
+                    window.electron.remote.screen.getPrimaryDisplay()
+                        .workAreaSize;
                 const width = size.width > 1200 ? 1200 : size.width;
                 const height = size.height > 800 ? 800 : size.height;
-                
+
                 setTimeout(() => {
                     window.electron.setContentSize(width, height);
                     window.electron.setPositionWin(
@@ -231,7 +244,7 @@ export default defineComponent({
             isPackUp,
             expand,
         };
-    }
+    },
 });
 </script>
 
@@ -246,72 +259,79 @@ export default defineComponent({
     background-position: center;
     overflow: hidden;
     -webkit-app-region: drag;
-    .select-student-list {
-        position: absolute;
-        left: 40px;
-        width: 200px;
-        height: 250px;
-        border-radius: 10px;
-        font-size: 14px;
-        background: #fff;
-        display: flex;
-        flex-direction: column;
-        z-index: 1;
-        top: 20px;
-        overflow: hidden;
-        .title {
-            font-size: 16px;
+    .content {
+        -webkit-app-region: no-drag;
+        .select-student-list {
+            position: absolute;
+            left: 40px;
+            width: 200px;
+            height: 250px;
+            border-radius: 10px;
+            font-size: 14px;
+            background: #fff;
             display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 10px 0;
-            font-weight: 600;
-            color: #848891;
-            background: linear-gradient(270deg, rgba(237,244,246,0) 0%, #EDF4F6 100%);
-            position: relative;
-            .drag-area {
-                position: absolute;
-                left: 10px;
-                font-size: 20px;
-                top: 10px;
+            flex-direction: column;
+            z-index: 1;
+            top: 20px;
+            overflow: hidden;
+            .title {
+                font-size: 16px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 10px 0;
+                font-weight: 600;
+                color: #848891;
+                background: linear-gradient(
+                    270deg,
+                    rgba(237, 244, 246, 0) 0%,
+                    #edf4f6 100%
+                );
+                position: relative;
+                .drag-area {
+                    position: absolute;
+                    left: 10px;
+                    font-size: 20px;
+                    top: 10px;
+                }
             }
-        }
-        .list {
-            overflow-y: auto;
-            text-align: center;
-            min-height: 0;
-            flex: 1;
-            padding: 0 5px;
-            -webkit-app-region: no-drag;
-            .student-selected-item {
-                height: 46px;
-                line-height: 46px;
-                color: #242B3A;
-                font-size: 14px;
-                border-bottom: 1px solid #EDF4F6;
-                &:last-child {
-                    border-bottom: 0;
+            .list {
+                overflow-y: auto;
+                text-align: center;
+                min-height: 0;
+                flex: 1;
+                padding: 0 5px;
+                -webkit-app-region: no-drag;
+                .student-selected-item {
+                    height: 46px;
+                    line-height: 46px;
+                    color: #242b3a;
+                    font-size: 14px;
+                    border-bottom: 1px solid #edf4f6;
+                    &:last-child {
+                        border-bottom: 0;
+                    }
+                }
+            }
+            &.pack-up {
+                top: 0;
+                left: 0;
+                .title {
+                    -webkit-app-region: drag;
+                    cursor: move;
                 }
             }
         }
-        &.pack-up {
-            top: 0;
-            left: 0;
-            .title {
-                -webkit-app-region: drag;
-                cursor: move;
-            }
-        }
-    }
 
-    .cotrol-btn {
-        position: absolute;
-        bottom: 50px;
-        left: 50%;
-        z-index: 1;
-        transform: translateX(-50%);
-        display: flex;
-        -webkit-app-region: no-drag;
+        .cotrol-btn {
+            position: absolute;
+            bottom: 50px;
+            left: 50%;
+            z-index: 1;
+            transform: translateX(-50%);
+            display: flex;
+            -webkit-app-region: no-drag;
+        }
     }
 }
 
