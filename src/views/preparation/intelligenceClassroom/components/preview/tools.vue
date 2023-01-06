@@ -337,14 +337,12 @@ export default defineComponent({
 
     background-color: #bed2ff;
     padding: 14px;
-    /* display: flex; */
     position: absolute;
     right: 0;
     bottom: 0;
     width: 240px;
-    /* height: 45%; */
     overflow: auto;
-    max-height: 45%;
+    max-height: 60%;
     z-index: 999;
 
     &.tools-fullSrceen {
