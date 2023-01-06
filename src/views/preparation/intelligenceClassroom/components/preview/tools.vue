@@ -14,9 +14,9 @@
                 <img src="../../images/btn_more.png" />
             </div>
             <div class="me-tool-btn setting-btn" @click="nextStep" v-show="
-    selectNextType === NextSettingType.Left ||
-    selectNextType === NextSettingType.All
-">
+                selectNextType === NextSettingType.Left ||
+                selectNextType === NextSettingType.All
+            ">
                 <img src="../../images/btn_next.png" />
             </div>
         </div>
@@ -41,6 +41,24 @@
             </div>
             <div class="me-tool-btn" @click="openPaintTool($event, 'rest')">
                 <img src="../../images/qingkong_rest.png" alt="" />
+            </div>
+            <div class="me-tool-btn" @click="openPaintTool($event, 'ruler')">
+                <div class="icon-text">
+                    <IconRuler />
+                    <span class="text">直尺</span>
+                </div>
+            </div>
+            <div class="me-tool-btn" @click="openPaintTool($event, 'protractor')">
+                <div class="icon-text">
+                    <IconProtractor />
+                    <span class="text">量角器</span>
+                </div>
+            </div>
+            <div class="me-tool-btn" @click="openPaintTool($event, 'compass')">
+                <div class="icon-text">
+                    <IconCompass />
+                    <span class="text">圆规</span>
+                </div>
             </div>
         </div>
         <div class="me-tools-system">
@@ -68,9 +86,9 @@
                 <img v-if="isFirst" src="../../images/shangyiye_disabled.png" alt="" />
             </div>
             <div class="me-tool-btn next-step" :disabled="isLast" @click="nextStep" v-show="
-    selectNextType === NextSettingType.Right ||
-    selectNextType === NextSettingType.All
-">
+                selectNextType === NextSettingType.Right ||
+                selectNextType === NextSettingType.All
+            ">
                 <img v-if="!isLast" src="../../images/xiayiye_rest.png" alt="" />
                 <img v-if="isLast" src="../../images/xiayiye_disabled.png" alt="" />
             </div>
@@ -505,6 +523,30 @@ export default defineComponent({
     border-color: #4b71ee;
     box-shadow: 0 3px 0 #4b71ee;
 }
+
+.me-tool-btn {
+    .icon-text {
+        background: #e5eeff;
+        width: 55px;
+        height: 55px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-around;
+        padding: 4px 0;
+
+        .i-icon {
+            font-size: 28px;
+        }
+
+        .text {
+            font-size: 12px;
+            font-weight: bold;
+            color: #4467a9;
+        }
+    }
+}
+
 
 .me-draw-board.move {
     pointer-events: none;
