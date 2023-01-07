@@ -66,7 +66,11 @@
                         </el-col>
                     </el-row>
                 </div>
-                <div class="card-list" ref="cardListRef">
+                <div
+                    class="card-list"
+                    ref="cardListRef"
+                    v-if="windowCards.length"
+                >
                     <el-tree
                         default-expand-all
                         node-key="ID"
@@ -161,7 +165,10 @@
                                             </div>
                                             <!--游戏页暂不支持复制-->
                                             <div
-                                                v-show="node.level === 2 && data.Type !==20"
+                                                v-show="
+                                                    node.level === 2 &&
+                                                    data.Type !== 20
+                                                "
                                                 @click.stop="
                                                     handleCopy(node, data)
                                                 "
@@ -185,25 +192,31 @@
             </div>
             <div class="shrink" ref="shrinkRef">
                 <div @click="showCollapse = !showCollapse">
-                    <el-icon :style="{ transform:'rotate(' + (showCollapse ? 0 : 180) + 'deg)'}"><ArrowLeft /></el-icon>
+                    <el-icon
+                        :style="{
+                            transform:
+                                'rotate(' + (showCollapse ? 0 : 180) + 'deg)',
+                        }"
+                        ><ArrowLeft
+                    /></el-icon>
                 </div>
             </div>
         </div>
         <div class="right">
             <win-card-edit
                 ref="editRef"
-                :slide="{...currentSlide}"
+                :slide="{ ...currentSlide }"
                 :allPageSlideListMap="allPageSlideListMap"
                 @onSave="onSave"
                 @updatePageSlide="updatePageSlide"
                 @updateAllPageSlideListMap="updateAllPageSlideListMap"
                 :winId="windowInfo?.id"
             ></win-card-edit>
-<!--            <div-->
-<!--                v-show="!pageValue.ID"-->
-<!--                class="mask-right"-->
-<!--                @click.stop="handleMask"-->
-<!--            ></div>-->
+            <!--            <div-->
+            <!--                v-show="!pageValue.ID"-->
+            <!--                class="mask-right"-->
+            <!--                @click.stop="handleMask"-->
+            <!--            ></div>-->
         </div>
     </div>
     <!--上传ppt遮罩-->
@@ -259,7 +272,7 @@ import {
     ref,
     watch,
     toRef,
-    computed
+    computed,
 } from "vue";
 import WinCardEdit from "../components/edit/winCardEdit.vue";
 import { IPageValue, ICardList } from "@/types/home";
@@ -301,10 +314,15 @@ export default defineComponent({
         UpdateNameCardOrPage,
         AddPageDialog,
         WinCardEdit,
-        MoreFilled
+        MoreFilled,
     },
     name: "Edit",
     setup() {
+        console.log(
+            "store.state.preparation.editWindowInfo",
+            store.state.preparation
+        );
+
         const showCollapse = ref(true);
         const shrinkRef = ref();
 
@@ -320,7 +338,7 @@ export default defineComponent({
             allPageSlideListMap,
             oldAllPageSlideListMap,
             isLoadEnd,
-            resetPageSlide
+            resetPageSlide,
         } = useGetPageSlide(pageValue);
 
         const {
@@ -329,7 +347,7 @@ export default defineComponent({
             winScreenView,
             keyDown,
             offScreen,
-            activePreviewPageIndex
+            activePreviewPageIndex,
         } = usePreview(pageValue);
 
         const { handleCopy, handlePaste, pastePage } = useCopyPage(
@@ -344,7 +362,7 @@ export default defineComponent({
             activeAllPageListIndex,
             allPageList,
             isWatchChange,
-            cardListRef
+            cardListRef,
         } = useSelectPage(pageValue, allPageSlideListMap);
 
         const { allowDrop } = useDragPage();
@@ -359,7 +377,7 @@ export default defineComponent({
             dialogVisibleName,
             currentValue,
             handleUpdateName,
-            updateName
+            updateName,
         } = useUpdateName(shrinkRef);
 
         const route = useRoute();
@@ -367,14 +385,18 @@ export default defineComponent({
         const windowInfo = computed(
             () => store.state.preparation.editWindowInfo
         );
+        console.log("windowInfo-----", windowInfo.value);
 
-        const { handleAddCard, dialogVisibleCard } = useAddCard(windowCards, windowInfo);
+        const { handleAddCard, dialogVisibleCard } = useAddCard(
+            windowCards,
+            windowInfo
+        );
 
         const handleDel = (node: Node, data: ICardList) => {
             ElMessageBox.confirm("此操作将删除该数据, 是否继续?", "提示", {
                 confirmButtonText: "确认",
                 cancelButtonText: "取消",
-                type: "warning"
+                type: "warning",
             })
                 .then(() => {
                     // 删除的是卡 判断当前页是否在删除卡下
@@ -387,7 +409,7 @@ export default defineComponent({
                             pageValue.value = {
                                 ...pageValue.value!,
                                 ID: "",
-                                Type: 11
+                                Type: 11,
                             };
                         }
                     } else {
@@ -400,7 +422,7 @@ export default defineComponent({
                             pageValue.value = {
                                 ...pageValue.value!,
                                 ID: "",
-                                Type: 11
+                                Type: 11,
                             };
                         }
                         windowCards.value = [...windowCards.value];
@@ -455,7 +477,7 @@ export default defineComponent({
                                         PageWordID: word.pageWordID
                                             ? null
                                             : word.pageWordID,
-                                        WordInterval: 2
+                                        WordInterval: 2,
                                     };
                                 }
                             );
@@ -476,7 +498,7 @@ export default defineComponent({
                         designIntent,
                         sort: pageIndex + 1,
                         json,
-                        state: Number(State)
+                        state: Number(State),
                     };
                 });
 
@@ -484,7 +506,7 @@ export default defineComponent({
                     cardID,
                     sort,
                     pageData,
-                    cardName
+                    cardName,
                 };
             });
 
@@ -494,7 +516,7 @@ export default defineComponent({
                 cardData,
                 originType: 1,
                 windowName: windowInfo.value.name,
-                windowID: windowInfo.value.id
+                windowID: windowInfo.value.id,
             };
 
             const lessonId = (windowInfo.value.lessonId as string) || "";
@@ -504,10 +526,10 @@ export default defineComponent({
             if (res.resultCode === 200) {
                 ElMessage.success({
                     message,
-                    duration: 2000
+                    duration: 2000,
                 });
                 store.commit(MutationTypes.SET_EDIT_WINDOW_INFO, {
-                    ...windowInfo.value
+                    ...windowInfo.value,
                 });
                 allPageSlideListMap.value.forEach((item, key) => {
                     oldAllPageSlideListMap.value.set(key, cloneDeep(item));
@@ -542,7 +564,7 @@ export default defineComponent({
                             pageValue.value = newPageValue;
                         }
                         const obj = {
-                            ...pageValue.value
+                            ...pageValue.value,
                         };
                         selectPageValue(obj, true);
                     } else {
@@ -554,7 +576,7 @@ export default defineComponent({
                 }
             },
             {
-                deep: true
+                deep: true,
             }
         );
         const getAllPageList = () => {
@@ -577,7 +599,7 @@ export default defineComponent({
             loading,
             parsePptPage,
             pptPages,
-            percentage
+            percentage,
         } = useImportPPT();
 
         const importPPT = () => {
@@ -591,7 +613,7 @@ export default defineComponent({
                         Name: name[name.length - 1] + "-" + (index + 1),
                         Type: pageType.element,
                         isAdd: true,
-                        State: true
+                        State: true,
                     };
                 });
                 const card = {
@@ -599,7 +621,7 @@ export default defineComponent({
                     ID: uuidv4(),
                     Sort: windowCards.value.length,
                     isAdd: true,
-                    PageList: pageList
+                    PageList: pageList,
                 };
                 windowCards.value.push(card);
             });
@@ -611,16 +633,22 @@ export default defineComponent({
         };
 
         // 同步教案的数据
-        const updateAllPageSlideListMap = (newAllPageList:any[]) => {
-            newAllPageList.forEach((item:any) => {
+        const updateAllPageSlideListMap = (newAllPageList: any[]) => {
+            newAllPageList.forEach((item: any) => {
                 const value = allPageSlideListMap.value.get(item.TeachPageID);
                 const newValue = {
                     ...value,
                     remark: item.AcademicPresupposition || "",
-                    design: item.DesignIntent || ""
+                    design: item.DesignIntent || "",
                 };
-                allPageSlideListMap.value.set(item.TeachPageID, newValue as Slide);
-                oldAllPageSlideListMap.value.set(item.TeachPageID, cloneDeep(newValue as Slide));
+                allPageSlideListMap.value.set(
+                    item.TeachPageID,
+                    newValue as Slide
+                );
+                oldAllPageSlideListMap.value.set(
+                    item.TeachPageID,
+                    cloneDeep(newValue as Slide)
+                );
             });
         };
 
@@ -629,7 +657,7 @@ export default defineComponent({
             _getWindowCards(
                 {
                     WindowID: windowInfo.value.id,
-                    OriginType: windowInfo.value.originType
+                    OriginType: windowInfo.value.originType,
                 },
                 true
             ).then(() => {
@@ -661,7 +689,8 @@ export default defineComponent({
                     oldAllPageSlideListMap.value
                 ) &&
                 isEqual(windowCards.value, oldWindowCards.value)
-            ) return true;
+            )
+                return true;
             const res = await exitDialog();
             if (res === ExitType.Cancel) {
                 return false;
@@ -722,9 +751,9 @@ export default defineComponent({
                 () => allPageSlideListMap.value.get(pageValue.value.ID) || {}
             ),
             windowInfo,
-            importPPT
+            importPPT,
         };
-    }
+    },
 });
 </script>
 
@@ -762,8 +791,8 @@ export default defineComponent({
             .card-list {
                 flex: 1;
                 overflow-y: auto;
-                .el-tree{
-                    :deep(.el-tree-node__label){
+                .el-tree {
+                    :deep(.el-tree-node__label) {
                         width: 100%;
                     }
                 }
@@ -825,7 +854,7 @@ export default defineComponent({
                 height: 100px;
                 text-align: center;
                 cursor: pointer;
-                .el-icon{
+                .el-icon {
                     line-height: 100px;
                     color: #fff;
                     font-size: 14px;

@@ -1,6 +1,5 @@
 <template>
-    <div class="card-dialog"
-    >
+    <div class="card-dialog">
         <ScreenView
             ref="screenRef"
             :inline="true"
@@ -10,9 +9,16 @@
             @pageNext="execNext"
             @closeWriteBoard="closeWriteBoard"
             :slide="slideView"
+            :isShowPenTools="false"
+            v-model:isCanUndo="isCanUndo"
+            v-model:isCanRedo="isCanRedo"
         />
         <div class="cardLis-class">
-            <PageItem :pageList="cardList" :selected="selected" @selectPage="checkPage"/>
+            <PageItem
+                :pageList="cardList"
+                :selected="selected"
+                @selectPage="checkPage"
+            />
             <!-- <div
                 class="me-page-item"
                 :class="selected === index && 'active'"
@@ -34,6 +40,9 @@
             :isShowFullscreen="false"
             :isShowRemarkBtn="false"
             :isShowClose="true"
+            @openPaintTool="openPaintTool"
+            :isCanUndo="isCanUndo"
+            :isCanRedo="isCanRedo"
         />
     </div>
 </template>
@@ -50,19 +59,21 @@ export default defineComponent({
     props: {
         dialogVisible: {
             type: Boolean,
-            require: true
+            require: true,
         },
         cardList: {
             type: Array,
-            default: () => []
+            default: () => [],
         },
         dialog: {
             type: Boolean,
-            default: false
-        }
+            default: false,
+        },
     },
     emits: ["closeOpenCard"],
     setup(props, { emit }) {
+        const isCanUndo = ref(false);
+        const isCanRedo = ref(false);
         const visible = computed(() => props.dialogVisible);
         const slideView = ref({});
         const cardList = ref<any[]>([]);
@@ -87,7 +98,7 @@ export default defineComponent({
             if (selected.value === cardList.value.length - 1) {
                 return ElMessage({
                     type: "warning",
-                    message: "已经是最后一页"
+                    message: "已经是最后一页",
                 });
             }
             selected.value++;
@@ -117,12 +128,18 @@ export default defineComponent({
                 slideView.value = JSON.parse(dbResArr[0].result);
                 if (!cardList.value[index].update) {
                     // 更新本地缓存弹卡信息
-                    await getPageDetail(cardList.value[index], 0, (res: any) => {
-                        if (!res.from) { // 线上返回
-                            cardList.value[index].update = true; // 标识弹卡已经更新过
-                            if (dbResArr[0].result !== JSON.stringify(res)) slideView.value = res; // 本地缓存和线上不一致 重新赋值
+                    await getPageDetail(
+                        cardList.value[index],
+                        0,
+                        (res: any) => {
+                            if (!res.from) {
+                                // 线上返回
+                                cardList.value[index].update = true; // 标识弹卡已经更新过
+                                if (dbResArr[0].result !== JSON.stringify(res))
+                                    slideView.value = res; // 本地缓存和线上不一致 重新赋值
+                            }
                         }
-                    });
+                    );
                 }
             } else {
                 await getPageDetail(cardList.value[index], 0, (res: any) => {
@@ -142,6 +159,11 @@ export default defineComponent({
         const close = () => {
             emit("closeOpenCard");
         };
+        //工具栏-画笔
+        const openPaintTool = (event: MouseEvent, type: string) => {
+            console.log("previewSection.value", event, type);
+            screenRef.value && screenRef.value.openPaintTool(event, type);
+        };
         return {
             visible,
             isInit,
@@ -158,10 +180,13 @@ export default defineComponent({
             prevCard,
             openShape,
             closeWriteBoard,
-            close
+            close,
+            openPaintTool,
+            isCanUndo,
+            isCanRedo,
         };
     },
-    components: { Tools, PageItem }
+    components: { Tools, PageItem },
 });
 </script>
 

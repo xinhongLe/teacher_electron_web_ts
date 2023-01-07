@@ -1,20 +1,19 @@
 import { createApp } from "vue";
 import App from "./App.vue";
 // import "./registerServiceWorker";
-import router from "./router";
-import { store, key } from "./store";
+import { store, key } from "@/store";
 import ElementPlus from "element-plus";
 import zhCn from "element-plus/es/locale/lang/zh-cn";
 import "element-plus/dist/index.css";
-import Icon from "./plugins/icon";
+import Icon from "@/plugins/icon";
 
-import Directive from "./directive/index";
-import Drag from "./directive/drag";
+import Directive from "@/directive/index";
+import Drag from "@/directive/drag";
 // import "@/utils/flexible";
-import "./permission";
-import "./styles/index.scss";
-import "./types";
-import "./utils/web";
+import "@/permission";
+import "@/styles/index.scss";
+import "@/types";
+import "@/utils/web";
 
 import Wincard from "wincard";
 import "wincard/dist/wincard.css";
@@ -22,7 +21,7 @@ import "wincard/dist/wincard.css";
 import mitt from "mitt";
 
 import TrackService from "@/utils/common";
-import { cacheFile } from "./utils/file";
+import { cacheFile } from "@/utils/file";
 TrackService.useTrackPoint();
 
 const app = createApp(App);
@@ -35,7 +34,6 @@ app.use(
     .use(ElementPlus, { locale: zhCn })
     .use(Icon)
     .use(store, key)
-    .use(router)
     .use(Directive)
     .use(Drag)
     .mount("#app");

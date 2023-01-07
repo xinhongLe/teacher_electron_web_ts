@@ -1,20 +1,47 @@
 <template>
     <div class="pageListComponents">
         <div class="me-work">
-            <ScreenView class="me-work-screen" :inline="true" :isInit="isInitPage" ref="screenRef" :slide="currentSlide"
-                :writeBoardVisible="writeBoardVisible" :keyDisabled="keyDisabled" :useScale="false" :winList="cardList"
-                :canvasData="canvasData" @openCard="openCard" @pagePrev="pagePrev" @pageNext="pageNext"
-                @closeWriteBoard="closeWriteBoard" />
-            <open-card-view-dialog @closeOpenCard="closeOpenCard" v-if="dialogVisible" :dialog="dialog"
-                :cardList="dialogCardList" v-model:dialogVisible="dialogVisible"></open-card-view-dialog>
+            <ScreenView
+                class="me-work-screen"
+                :inline="true"
+                :isInit="isInitPage"
+                ref="screenRef"
+                :slide="currentSlide"
+                :writeBoardVisible="writeBoardVisible"
+                :keyDisabled="keyDisabled"
+                :useScale="false"
+                :winList="cardList"
+                :canvasData="canvasData"
+                @openCard="openCard"
+                @pagePrev="pagePrev"
+                @pageNext="pageNext"
+                @closeWriteBoard="closeWriteBoard"
+                :isShowPenTools="false"
+                v-model:isCanUndo="isCanUndo"
+                v-model:isCanRedo="isCanRedo"
+            />
+            <open-card-view-dialog
+                @closeOpenCard="closeOpenCard"
+                v-if="dialogVisible"
+                :dialog="dialog"
+                :cardList="dialogCardList"
+                v-model:dialogVisible="dialogVisible"
+            ></open-card-view-dialog>
             <div class="me-pager">
                 {{ currentPageNum + "/" + pageListCount.length }}
             </div>
             <transition name="fade">
-                <div class="me-page" :class="{
-    hidden: isFullScreen && !isShowCardList,
-}">
-                    <PageItem :pageList="pageList" :selected="currentPageIndex" @selectPage="selectPage" />
+                <div
+                    class="me-page"
+                    :class="{
+                        hidden: isFullScreen && !isShowCardList,
+                    }"
+                >
+                    <PageItem
+                        :pageList="pageList"
+                        :selected="currentPageIndex"
+                        @selectPage="selectPage"
+                    />
                 </div>
             </transition>
         </div>
@@ -336,6 +363,20 @@ export default defineComponent({
             dialogVisible.value = false;
             keyDisabled.value = false;
         };
+        const isCanUndo = ref(false);
+        const isCanRedo = ref(false);
+        watch(
+            () => isCanUndo.value,
+            (val) => {
+                emit("update:isCanUndo", val);
+            }
+        );
+        watch(
+            () => isCanRedo.value,
+            (val) => {
+                emit("update:isCanRedo", val);
+            }
+        );
 
         return {
             screenRef,
@@ -365,6 +406,8 @@ export default defineComponent({
             pageListCount,
             currentPageNum,
             selectPageInfo,
+            isCanUndo,
+            isCanRedo,
         };
     },
 });

@@ -1,18 +1,32 @@
 <template>
     <div class="me-preview">
         <div class="mep-container">
-            <PageList class="preview-pagelist" ref="pageListRef" @lastPage="lastPage" @firstPage="firstPage"
-                :dialog="dialog" :isShowCardList="isShowCardList" :isFullScreen="isFullScreen" />
+            <PageList
+                class="preview-pagelist"
+                ref="pageListRef"
+                @lastPage="lastPage"
+                @firstPage="firstPage"
+                :dialog="dialog"
+                :isShowCardList="isShowCardList"
+                :isFullScreen="isFullScreen"
+                v-model:isCanUndo="isCanUndo"
+                v-model:isCanRedo="isCanRedo"
+            />
             <transition name="fade">
-                <Remark :teachProcess="teachProcess" :isSystem="isSystem" :resourceId="resourceId" :design="design"
-                    v-if="showRemark" />
+                <Remark
+                    :teachProcess="teachProcess"
+                    :isSystem="isSystem"
+                    :resourceId="resourceId"
+                    :design="design"
+                    v-if="showRemark"
+                />
             </transition>
         </div>
     </div>
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, inject, ref, toRefs } from "vue";
+import { computed, defineComponent, inject, ref, toRefs, watch } from "vue";
 import preventRemark from "../../hooks/previewRemark";
 import Remark from "./remark.vue";
 import PageList from "./pageList.vue";
@@ -102,6 +116,20 @@ export default defineComponent({
         const updateFlag = () => {
             pageListRef.value.updateFlags();
         };
+        const isCanUndo = ref(false);
+        const isCanRedo = ref(false);
+        watch(
+            () => isCanUndo.value,
+            (val) => {
+                emit("update:isCanUndo", val);
+            }
+        );
+        watch(
+            () => isCanRedo.value,
+            (val) => {
+                emit("update:isCanRedo", val);
+            }
+        );
 
         return {
             teachProcess,
@@ -122,6 +150,8 @@ export default defineComponent({
             openShape,
             changeWinSize,
             openPaintTool,
+            isCanUndo,
+            isCanRedo,
         };
     },
 });

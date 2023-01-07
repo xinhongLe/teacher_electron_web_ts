@@ -287,6 +287,7 @@ import {
     ref,
     toRefs,
     watch,
+    nextTick,
 } from "vue";
 import { Plus, Refresh, Upload, Edit } from "@element-plus/icons-vue";
 import {
@@ -309,6 +310,8 @@ import moment from "moment";
 import usePageEvent from "@/hooks/usePageEvent"; //埋点事件hooks
 import { EVENT_TYPE } from "@/config/event";
 import { RESOURCE_TYPE } from "@/config/resource";
+import isElectron from "is-electron";
+
 interface IDirectoryItem {
     id: string;
     name: string;
@@ -808,9 +811,24 @@ export default defineComponent({
                 lessonId: store.state.preparation.selectLessonId,
                 originType: 1,
             });
-            router.push("/windowcard-edit");
+            const windowInfo = {
+                id: cacheResource.OldResourceId,
+                name: cacheResource.Name,
+                lessonId: store.state.preparation.selectLessonId,
+                originType: 1,
+            };
+            openWinCard(windowInfo);
+            // router.push("/windowcard-edit");
         };
-
+        //打开窗卡页编辑子窗
+        const openWinCard = (windowinfo: any) => {
+            if (isElectron()) {
+                return window.electron.ipcRenderer.invoke(
+                    "openWinCardWin",
+                    windowinfo
+                );
+            }
+        };
         const courseCartOpen = ref(false);
         const tableData = ref<ICourseCartOption[]>([]);
         const pageNumber = ref(0);
@@ -925,6 +943,7 @@ export default defineComponent({
             openCourseCartOptions,
             clicKBuryPoint,
             RESOURCE_TYPE,
+            openWinCard,
         };
     },
 });

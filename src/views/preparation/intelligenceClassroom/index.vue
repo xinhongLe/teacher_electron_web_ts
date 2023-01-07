@@ -2,33 +2,67 @@
     <div class="intelligence" :class="{ 'full-screen': isFullScreen }">
         <div class="top">
             <transition name="fade">
-                <div class="card-box-left" :class="{
-    hidden: isFullScreen && !isShowCardList,
-}">
+                <div
+                    class="card-box-left"
+                    :class="{
+                        hidden: isFullScreen && !isShowCardList,
+                    }"
+                >
                     <div class="card-box-lefts">
-                        <CardList ref="cardListComponents" @updateFlag="updateFlag" />
+                        <CardList
+                            ref="cardListComponents"
+                            @updateFlag="updateFlag"
+                        />
                     </div>
-                    <div class="fold-btn" v-show="isFullScreen" @click="isShowCardList = !isShowCardList">
-                        <i :class="
-    isShowCardList
-        ? 'el-icon-arrow-left'
-        : 'el-icon-arrow-right'
-"></i>
+                    <div
+                        class="fold-btn"
+                        v-show="isFullScreen"
+                        @click="isShowCardList = !isShowCardList"
+                    >
+                        <i
+                            :class="
+                                isShowCardList
+                                    ? 'el-icon-arrow-left'
+                                    : 'el-icon-arrow-right'
+                            "
+                        ></i>
                     </div>
                 </div>
             </transition>
             <div class="card-detail">
                 <div class="card-detail-content">
-                    <PreviewSection ref="previewSection" :dialog="dialog" :isSystem="isSystem" :resourceId="resourceId"
-                        :isShowCardList="isShowCardList" :isFullScreen="isFullScreen" @lastPage="lastPage"
-                        @firstPage="firstPage" @changeWinSize="changeWinSize" />
+                    <PreviewSection
+                        ref="previewSection"
+                        :dialog="dialog"
+                        :isSystem="isSystem"
+                        :resourceId="resourceId"
+                        :isShowCardList="isShowCardList"
+                        :isFullScreen="isFullScreen"
+                        @lastPage="lastPage"
+                        @firstPage="firstPage"
+                        @changeWinSize="changeWinSize"
+                        v-model:isCanUndo="isCanUndo"
+                        v-model:isCanRedo="isCanRedo"
+                    />
                 </div>
             </div>
         </div>
-        <Tools :id="resourceId" :dialog="dialog" :showRemark="previewSection?.showRemark" @toggleRemark="toggleRemark"
-            @prevStep="prevStep" @nextStep="nextStep" @fullScreen="fullScreen" @clockFullScreen="clockFullScreen"
-            @showWriteBoard="showWriteBoard" @openShape="openShape" @openPaintTool="openPaintTool"
-            @hideWriteBoard="hideWriteBoard" />
+        <Tools
+            :id="resourceId"
+            :dialog="dialog"
+            :showRemark="previewSection?.showRemark"
+            @toggleRemark="toggleRemark"
+            @prevStep="prevStep"
+            @nextStep="nextStep"
+            @fullScreen="fullScreen"
+            @clockFullScreen="clockFullScreen"
+            @showWriteBoard="showWriteBoard"
+            @openShape="openShape"
+            @openPaintTool="openPaintTool"
+            @hideWriteBoard="hideWriteBoard"
+            :isCanUndo="isCanUndo"
+            :isCanRedo="isCanRedo"
+        />
     </div>
 </template>
 
@@ -72,6 +106,8 @@ const props = defineProps({
         required: true,
     },
 });
+const isCanUndo = ref(false);
+const isCanRedo = ref(false);
 const resourceId = toRef(props, "resourceId");
 provide("isShowCardList", isShowCardList);
 const windowInfo = useWindowInfo(true, props.resource);
@@ -134,8 +170,10 @@ const showWriteBoard = () => {
 const openShape = (event: MouseEvent) => {
     previewSection.value && previewSection.value.openShape(event);
 };
-//橡皮擦
+//工具栏-画笔
 const openPaintTool = (event: MouseEvent, type: string) => {
+    console.log("previewSection.value", event, type);
+
     previewSection.value && previewSection.value.openPaintTool(event, type);
 };
 
