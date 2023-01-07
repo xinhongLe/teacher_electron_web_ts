@@ -16,7 +16,7 @@ import "./styles/index.scss";
 import "./types";
 import "./utils/web";
 
-import Wincard from "wincard";
+import WinCard from "wincard";
 import "wincard/dist/wincard.css";
 
 import mitt from "mitt";
@@ -27,7 +27,7 @@ TrackService.useTrackPoint();
 
 const app = createApp(App);
 app.use(
-    Wincard,
+    WinCard,
     process.env.VUE_APP_AI_XUE_SHI_API,
     "https://wincard.lyx-edu.com/swf2canvas.html",
     cacheFile

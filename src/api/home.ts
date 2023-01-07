@@ -37,6 +37,8 @@ interface Remark {
 
 type GetWindowCardsResponse = IResponse<ICardList[]>
 
+type GetWindowStructResponse = IResponse<{ WindowID: string, CardData: ICardList[]}>
+
 type GetPageResponse = IResponse<any>
 
 export interface IDelCardOrPage {
@@ -264,7 +266,7 @@ export function getElementsVideo(data: IElementsVideo): Promise<GetPageResponse>
         data: Object.assign(data, { OriginType: originType })
     });
 }
-// 获取窗下的卡、页
+// 获取窗下的卡、页(树形结构)
 export function getWindowCards(data: IGetWindowCards): Promise<GetWindowCardsResponse> {
     return request({
         url: "API/W4/Card/GetWindowCards",
@@ -274,6 +276,19 @@ export function getWindowCards(data: IGetWindowCards): Promise<GetWindowCardsRes
         method: "post",
         baseURL: WINDOW_CRAD_API,
         data
+    });
+}
+
+// 批量获取页详情(获取窗下的卡、页(包含页详情))
+export function getWindowStruct(data: IGetWindowCards): Promise<GetWindowStructResponse> {
+    return request({
+        url: "Api/WCP/Window/GetAllWindowsStructData",
+        headers: {
+            "Content-Type": "application/json-patch+json"
+        },
+        method: "post",
+        baseURL: WINDOW_CRAD_API,
+        data: Object.assign(data, { OriginType: originType })
     });
 }
 

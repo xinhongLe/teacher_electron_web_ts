@@ -160,7 +160,7 @@ export enum EnumTrackSource {
     /// <summary>
     /// APP
     /// </summary>
-    APP = 40
+    APP = 40,
 }
 export class TrackModel {
     /// <summary>
@@ -250,7 +250,7 @@ export class TrackDataModel {
     /// </summary>
     DataContext = "";
     EventID = "";
-    EventType = ""
+    EventType = "";
 }
 
 /**
@@ -258,7 +258,8 @@ export class TrackDataModel {
  * @param len 随机码长度
  */
 export const createRandomCode = (len = 6) => {
-    const charset = "_0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    const charset =
+        "_0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
     const maxLen = charset.length;
     let ret = "";
     for (let i = 0; i < len; i++) {
@@ -281,7 +282,7 @@ export const fillDigit = (digit: number, len: number) => {
  * 等待
  */
 export const sleep = (time: number) => {
-    return new Promise<number>(resolve => {
+    return new Promise<number>((resolve) => {
         setTimeout(() => {
             resolve(1);
         }, time);
@@ -305,7 +306,19 @@ export default class TrackService {
         }
     }
 
-    static setTrack(trackEventType: number, windowId = "", windowName = "", cardId = "", cardName = "", pageId = "", pageName = "", content = "", dataContext = "", currentId = "", schoolId: string) {
+    static setTrack(
+        trackEventType: number,
+        windowId = "",
+        windowName = "",
+        cardId = "",
+        cardName = "",
+        pageId = "",
+        pageName = "",
+        content = "",
+        dataContext = "",
+        currentId = "",
+        schoolId: string
+    ) {
         const trackModel = new TrackModel();
         const userInfo = get(STORAGE_TYPES.USER_INFO);
         trackModel.TrackEventType = trackEventType;
@@ -343,10 +356,10 @@ export default class TrackService {
                     url: this.TRACKAPIPATH,
                     headers: {
                         "Content-Type": "application/json-patch+json",
-                        noLoading: "true"
+                        noLoading: "true",
                     },
                     method: "post",
-                    data: model
+                    data: model,
                 });
             }
             await sleep(100);
@@ -369,14 +382,32 @@ export const getDomOffset = (dom: HTMLElement) => {
     return { left, top };
 };
 
-export const toChinesNum = (num:any) => {
+export const toChinesNum = (num: any) => {
     const arr1 = ["零", "一", "二", "三", "四", "五", "六", "七", "八", "九"];
-    const arr2 = ["", "十", "百", "千", "万", "十", "百", "千", "亿", "十", "百", "千", "万", "十", "百", "千", "亿"];
+    const arr2 = [
+        "",
+        "十",
+        "百",
+        "千",
+        "万",
+        "十",
+        "百",
+        "千",
+        "亿",
+        "十",
+        "百",
+        "千",
+        "万",
+        "十",
+        "百",
+        "千",
+        "亿",
+    ];
     if (!num || isNaN(num)) return "零";
     const english = num.toString().split("");
     let result = "";
     for (let i = 0; i < english.length; i++) {
-        const desI = english.length - 1 - i;// 倒序排列设值
+        const desI = english.length - 1 - i; // 倒序排列设值
         result = arr2[i] + result;
         const arr1Index = english[desI];
         result = arr1[arr1Index] + result;
@@ -389,4 +420,92 @@ export const toChinesNum = (num:any) => {
     // 将【一十】换成【十】
     result = result.replace(/^一十/g, "十");
     return result;
+};
+
+//时间
+let timeOut: any = "";
+//关键词搜索-防抖函数
+export const debounce = (func: Function, wait: number) => {
+    if (timeOut) clearTimeout(timeOut);
+    timeOut = setTimeout(() => {
+        func();
+    }, wait);
+};
+
+let timer: any = "";
+// 节流
+export const throttle = (fn?: any, wait?: any, scope?: any) => {
+    clearTimeout(timer);
+    timer = setTimeout(function () {
+        fn.apply(scope);
+    }, wait);
+};
+//  秒数转化为时分秒
+//  秒数转化为时分秒
+export const formatSeconds = (value: number) => {
+    //  秒
+    let second: number = Math.floor(value);
+    //  分
+    let minute = 0;
+    //  小时
+    let hour = 0;
+    //  天
+    //  let day = 0
+    //  如果秒数大于60，将秒数转换成整数
+    if (second > 60) {
+        //  获取分钟，除以60取整数，得到整数分钟
+        minute = Math.floor(second / 60);
+        //  获取秒数，秒数取佘，得到整数秒数
+        second = Math.floor(second % 60);
+        //  如果分钟大于60，将分钟转换成小时
+        if (minute > 60) {
+            //  获取小时，获取分钟除以60，得到整数小时
+            hour = Math.floor(minute / 60);
+            //  获取小时后取佘的分，获取分钟除以60取佘的分
+            minute = Math.floor(minute % 60);
+            //  如果小时大于24，将小时转换成天
+            //  if (hour > 23) {
+            //    //  获取天数，获取小时除以24，得到整天数
+            //    day = Math.floor(hour / 24)
+            //    //  获取天数后取余的小时，获取小时除以24取余的小时
+            //    hour = Math.floor(hour % 24)
+            //  }
+        }
+    }
+
+    let result =
+        "00:" +
+        (Math.floor(second) > 10
+            ? Math.floor(second)
+            : "0" + Math.floor(second));
+    if (minute > 0) {
+        result =
+            (Math.floor(minute) > 10
+                ? Math.floor(minute)
+                : "0" + Math.floor(minute)) +
+            ":" +
+            Math.floor(second);
+    }
+    if (hour > 0) {
+        result =
+            (Math.floor(hour) > 10
+                ? Math.floor(hour)
+                : "0" + Math.floor(hour)) +
+            ":" +
+            Math.floor(minute) +
+            Math.floor(second);
+    }
+    //  if (day > 0) {
+    //    result = '' + Math.floor(day) + '天' + result
+    //  }
+    return result;
+};
+
+export const secondToTime = (second = 0) => {
+    if (second === 0 || isNaN(second)) return "00:00";
+    const add0 = (num: number) => (num < 10 ? "0" + num : "" + num);
+    const hour = Math.floor(second / 3600);
+    const min = Math.floor((second - hour * 3600) / 60);
+    const sec = Math.floor(second - hour * 3600 - min * 60);
+    return (hour > 0 ? [hour, min, sec] : [min, sec]).map(add0).join(":");
 };

@@ -10,7 +10,7 @@
             @selectVideo="selectVideo"
             @setQuoteVideo="setQuoteVideo"
             @updateQuoteVideo="updateQuoteVideo"
-            @updateSlide="updateSlide"
+            @outElements="outElements"
             @openLessonDesign="openLessonDesign"
         />
         <!--选择弹卡-->
@@ -59,16 +59,24 @@ import {
     computed,
     PropType,
 } from "vue";
-import { Slide, IWin, IGame, PPTVideoElement, SaveType } from "wincard";
+import {
+    Slide,
+    IWin,
+    IGame,
+    PPTVideoElement,
+    SaveType,
+    PPTElement,
+} from "wincard";
+import useSaveElements from "../edit/materialCenter/hooks/useSaveElements";
 import CardSelectDialog from "./cardSelectDialog.vue";
 import { IPageValue, ICards } from "@/types/home";
 import SelectVideoDialog from "./selectVideoDialog.vue";
 import LessonDesign from "./lessonDesign.vue";
-import { store } from "@/store";
 import { useRoute } from "vue-router";
 import AddGameDialog from "./addGameDialog.vue";
 import GameType from "./games/index.vue";
 import { IGameItem } from "@/types/game";
+import { store } from "@/store";
 export default defineComponent({
     name: "winCardEdit",
     components: {
@@ -91,9 +99,20 @@ export default defineComponent({
             type: Object as PropType<Map<string, Slide>>,
             required: true,
         },
+        subjectID: {
+            type: String,
+            required: true,
+        },
     },
-
+    emits: [
+        "onSave",
+        "updatePageSlide",
+        "updateAllPageSlideListMap",
+        "updateMaterial",
+    ],
     setup(props, { emit }) {
+        const { saveElements } = useSaveElements();
+        const TeacherID = computed(() => store.state.userInfo.id);
         const state = reactive({
             dialogVisible: false,
             dialogVisibleVideo: false,
@@ -120,12 +139,16 @@ export default defineComponent({
             emit("updateAllPageSlideListMap", allPageList);
         };
 
-        const updateSlide = (slide: Slide) => {
-            // if (!isEqual(props.slide, slide)) {
-            // emit("updatePageSlide", storeSilde);
-            // }
+        const outElements = async (elements: PPTElement[]) => {
+            const res: boolean = await saveElements(
+                elements,
+                props.subjectID,
+                TeacherID.value
+            );
+            if (res) {
+                emit("updateMaterial");
+            }
         };
-
         const isShowSaveDialog = ref(false);
         const isShowSaveAsDialog = ref(false);
 
@@ -275,13 +298,14 @@ export default defineComponent({
             setQuoteVideo,
             windowInfo,
             isShowSaveDialog,
-            updateSlide,
+            outElements,
             isShowSaveAsDialog,
             windowName,
             updateQuoteVideo,
             lessonDesignVisible,
             openLessonDesign,
             updateLesson,
+            TeacherID,
         };
     },
 });
@@ -292,6 +316,7 @@ export default defineComponent({
     padding: 0px !important;
     height: 100%;
 }
+
 .ppt-editor {
     width: 100%;
 }

@@ -72,13 +72,14 @@
                     v-if="windowCards.length"
                 >
                     <el-tree
+                        :class="viewTree ? 'view-tree-box' : 'tree-box'"
                         default-expand-all
                         node-key="ID"
                         draggable
                         :allow-drop="allowDrop"
                         :expand-on-click-node="false"
                         :highlight-current="false"
-                        :data="windowCards"
+                        :data="newWindowCards"
                         :props="defaultProps"
                         @node-click="handleNodeClick"
                     >
@@ -91,8 +92,13 @@
                                         : '',
                                 ]"
                             >
-                                <span class="label-class">
+                                <div
+                                    class="label-class"
+                                    @mouseenter="mouseenter($event, node.label)"
+                                    @mouseleave="mouseleave"
+                                >
                                     <span
+                                        v-if="!viewTree"
                                         :style="{
                                             color:
                                                 !data.State && node.level === 2
@@ -101,9 +107,79 @@
                                                     ? '#409Eff'
                                                     : '#333',
                                         }"
-                                        >{{ node.label }}</span
                                     >
-                                </span>
+                                        {{ node.label }}
+                                    </span>
+
+                                    <div v-else>
+                                        <span v-if="node.level === 1">{{
+                                            node.label
+                                        }}</span>
+                                        <div
+                                            v-else
+                                            v-contextmenu="(el: any) => contextmenus(el, data)"
+                                        >
+                                            <div
+                                                @click.stop="
+                                                    handleSelectPages(data)
+                                                "
+                                                :style="{ backgroundColor: (selectPageData.map(((item: any) => item.ID)).includes(data.ID) ? 'var(--el-color-primary)' : '#fff') }"
+                                                class="select-page"
+                                            >
+                                                <el-icon color="#fff">
+                                                    <Check />
+                                                </el-icon>
+                                            </div>
+                                            <div
+                                                class="status"
+                                                :style="{
+                                                    background: data.State
+                                                        ? '#5CD494'
+                                                        : '#90949E',
+                                                }"
+                                            ></div>
+                                            <!-- 游戏页或者教具页显示封面图 -->
+                                            <el-image
+                                                v-if="
+                                                    (data.Type === 20 ||
+                                                        data.Type === 16) &&
+                                                    data.url
+                                                "
+                                                :src="data.url"
+                                                fit="cover"
+                                            >
+                                                <template #error>
+                                                    <div class="image-slot">
+                                                        加载失败...
+                                                    </div>
+                                                </template>
+                                            </el-image>
+                                            <template v-else>
+                                                <ThumbnailSlide
+                                                    v-if="
+                                                        data.Type ===
+                                                            pageType.element ||
+                                                        data.Type ===
+                                                            pageType.listen
+                                                    "
+                                                    :slide="
+                                                        allPageListMap.get(
+                                                            data.ID
+                                                        ) || {}
+                                                    "
+                                                    :size="190"
+                                                    style="
+                                                        border: 1px solid
+                                                            #ebeff1;
+                                                    "
+                                                ></ThumbnailSlide>
+                                                <div class="view-empty" v-else>
+                                                    {{ data.Name }}
+                                                </div>
+                                            </template>
+                                        </div>
+                                    </div>
+                                </div>
                                 <div class="icon-box">
                                     <el-popover
                                         placement="right-start"
@@ -111,7 +187,7 @@
                                         trigger="focus"
                                     >
                                         <template #reference>
-                                            <el-button @click.stop>
+                                            <el-button size="small" @click.stop>
                                                 <el-icon :size="18"
                                                     ><more-filled
                                                 /></el-icon>
@@ -197,8 +273,9 @@
                             transform:
                                 'rotate(' + (showCollapse ? 0 : 180) + 'deg)',
                         }"
-                        ><ArrowLeft
-                    /></el-icon>
+                    >
+                        <ArrowLeft />
+                    </el-icon>
                 </div>
             </div>
         </div>
@@ -206,11 +283,13 @@
             <win-card-edit
                 ref="editRef"
                 :slide="{ ...currentSlide }"
-                :allPageSlideListMap="allPageSlideListMap"
+                :allPageSlideListMap="allPageListMap"
                 @onSave="onSave"
                 @updatePageSlide="updatePageSlide"
                 @updateAllPageSlideListMap="updateAllPageSlideListMap"
+                :subjectID="subjectPublisherBookValue?.SubjectId || ''"
                 :winId="windowInfo?.id"
+                @updateMaterial="updateMaterial"
             ></win-card-edit>
             <!--            <div-->
             <!--                v-show="!pageValue.ID"-->
@@ -252,7 +331,7 @@
     <add-page-dialog
         v-if="dialogVisible"
         v-model:dialogVisible="dialogVisible"
-        @addPage="addPageCallback"
+        @addPage="addPage"
     ></add-page-dialog>
 
     <!-- 修改名称弹框-->
@@ -261,6 +340,33 @@
         :currentValue="currentValue"
         @updateName="updateName"
     ></update-name-card-or-page>
+
+    <!-- 保存模板弹框-->
+    <save-template-dialog
+        v-if="dialogVisibleTemplate"
+        v-model:dialogVisible="dialogVisibleTemplate"
+        :showTemplateType="showTemplateType"
+        @handleAddTemplate="handleAddTemplate"
+        :subjectID="subjectPublisherBookValue?.SubjectId || ''"
+        :lessonId="windowInfo?.lessonId || ''"
+        @cacleTemplateDialog="cacleTemplateDialog"
+        :dialogStatus="dialogStatus"
+        :selectPageData="selectPageData"
+    >
+    </save-template-dialog>
+    <!-- 资源库 -->
+    <materialCenter
+        ref="materialCenterRef"
+        @insertData="handleInsertData"
+        @insertTools="handleInsertTool"
+        @editTemplate="editTemplate"
+        :subjectID="subjectPublisherBookValue?.SubjectId || ''"
+        :lessonId="windowInfo?.lessonId || ''"
+    ></materialCenter>
+    <!-- 查看我的模板：老师才有，教研没有 -->
+    <div v-if="isshowCusTooltip" class="cus-open-tooltip">
+        前往<span @click="gotoMyTemplate">「我的」</span>查看已保存模板
+    </div>
 </template>
 
 <script lang="ts">
@@ -273,6 +379,7 @@ import {
     watch,
     toRef,
     computed,
+    nextTick,
 } from "vue";
 import WinCardEdit from "../components/edit/winCardEdit.vue";
 import { IPageValue, ICardList } from "@/types/home";
@@ -293,7 +400,8 @@ import useDragPage from "./hooks/useDragPage";
 import useAddCard from "./hooks/useAddCard";
 import useAddPage from "./hooks/useAddPage";
 import useUpdateName from "./hooks/useUpdateName";
-import useGetPageSlide from "./hooks/useGetPageSlide";
+import useSaveTemplate from "./hooks/useSaveTemplate";
+// import useGetPageSlide from "./hooks/useGetPageSlide";
 import isElectron from "is-electron";
 import { Slide } from "wincard";
 import { saveWindows, saveAsWindows } from "../api";
@@ -302,11 +410,15 @@ import emitter from "@/utils/mitt";
 import exitDialog, { ExitType } from "./exitDialog";
 import TrackService, { EnumTrackEventType } from "@/utils/common";
 import useImportPPT from "@/hooks/useImportPPT";
+import useTooltipShow from "./hooks/useTooltipShow";
 import { v4 as uuidv4 } from "uuid";
 import { pageType } from "@/config";
 import { MutationTypes, store } from "@/store";
 import SaveDialog from "../components/edit/saveDialog/saveDialog.vue";
 import SaveAsDialog from "../components/edit/saveDialog/saveAsDialog.vue";
+import materialCenter from "../components/edit/materialCenter/index.vue";
+import SaveTemplateDialog from "../components/edit/saveTemplateDialog.vue";
+
 export default defineComponent({
     components: {
         AddCardDialog,
@@ -315,31 +427,50 @@ export default defineComponent({
         AddPageDialog,
         WinCardEdit,
         MoreFilled,
+        materialCenter,
+        SaveTemplateDialog,
     },
     name: "Edit",
     setup() {
-        console.log(
-            "store.state.preparation.editWindowInfo",
-            store.state.preparation
-        );
+        const newWindowCards = ref([]);
+        const materialCenterRef = ref(); //资源库组件实例
+        const isshowCusTooltip = ref(false); //展示查看已保存模板提示框
 
         const showCollapse = ref(true);
         const shrinkRef = ref();
+        const viewTree = ref(true);
 
-        const { state, defaultProps, pageValue, isSetCache, _getWindowCards } =
+        const { tooltipShow, mouseenter, mouseleave } = useTooltipShow();
+        const { state, defaultProps, pageValue, _getWindowCards, insertData } =
             useSelectBookInfo();
 
         const windowCards = toRef(state, "windowCards");
 
         const oldWindowCards = toRef(state, "oldWindowCards");
 
+        const allPageListMap = toRef(state, "allPageListMap");
+        const oldAllPageListMap = toRef(state, "oldAllPageListMap");
+
+        // const {
+        // fetchAllPageSlide,
+        // allPageSlideListMap,
+        // oldAllPageSlideListMap,
+        // isLoadEnd,
+        // resetPageSlide
+        // } = useGetPageSlide(pageValue);
+
         const {
-            fetchAllPageSlide,
-            allPageSlideListMap,
-            oldAllPageSlideListMap,
-            isLoadEnd,
-            resetPageSlide,
-        } = useGetPageSlide(pageValue);
+            selectPageData,
+            handleSelectPages,
+            dialogVisibleTemplate,
+            showTemplateType,
+            handleSaveTemplate,
+            saveTemplateFrom,
+            editTemplate,
+            dialogStatus,
+            templateFormData,
+            formateOssUrl,
+        } = useSaveTemplate(allPageListMap);
 
         const {
             previewPageList,
@@ -352,7 +483,7 @@ export default defineComponent({
 
         const { handleCopy, handlePaste, pastePage } = useCopyPage(
             windowCards,
-            allPageSlideListMap
+            allPageListMap
         );
 
         const {
@@ -363,14 +494,14 @@ export default defineComponent({
             allPageList,
             isWatchChange,
             cardListRef,
-        } = useSelectPage(pageValue, allPageSlideListMap);
+        } = useSelectPage(pageValue, allPageListMap);
 
         const { allowDrop } = useDragPage();
 
         const { handleAdd, addPageCallback, dialogVisible } = useAddPage(
             shrinkRef,
             windowCards,
-            allPageSlideListMap
+            allPageListMap
         );
 
         const {
@@ -385,7 +516,14 @@ export default defineComponent({
         const windowInfo = computed(
             () => store.state.preparation.editWindowInfo
         );
-        console.log("windowInfo-----", windowInfo.value);
+        const subjectPublisherBookValue = computed(
+            () => store.state.preparation.subjectPublisherBookValue
+        );
+        // console.log(
+        //     "windowInfo===================>",
+        //     windowInfo,
+        //     store.state.preparation.subjectPublisherBookValue
+        // );
 
         const { handleAddCard, dialogVisibleCard } = useAddCard(
             windowCards,
@@ -451,9 +589,9 @@ export default defineComponent({
         };
 
         const onSave = async () => {
-            if (!isLoadEnd.value) {
-                return ElMessage.warning("资源正在加载，请稍后再试...");
-            }
+            // if (!isLoadEnd.value) {
+            //     return ElMessage.warning("资源正在加载，请稍后再试...");
+            // }
             const cardData = windowCards.value.map((card, index) => {
                 const cardID = card.isAdd ? "" : card.ID;
                 const cardName = card.Name;
@@ -461,7 +599,7 @@ export default defineComponent({
                 const pageList = card.PageList;
                 const pageData = pageList.map((page, pageIndex) => {
                     const { ID, Name, Type, State, isAdd } = page;
-                    const slide = allPageSlideListMap.value.get(ID);
+                    const slide = allPageListMap.value.get(ID);
                     let json = "";
                     const academicPresupposition = slide?.remark || "";
                     const designIntent = slide?.design || "";
@@ -531,8 +669,8 @@ export default defineComponent({
                 store.commit(MutationTypes.SET_EDIT_WINDOW_INFO, {
                     ...windowInfo.value,
                 });
-                allPageSlideListMap.value.forEach((item, key) => {
-                    oldAllPageSlideListMap.value.set(key, cloneDeep(item));
+                allPageListMap.value.forEach((item, key) => {
+                    oldAllPageListMap.value.set(key, cloneDeep(item));
                 });
                 oldWindowCards.value = cloneDeep(windowCards.value);
             }
@@ -540,9 +678,14 @@ export default defineComponent({
 
         watch(
             () => state.windowCards,
-            () => {
+            async () => {
                 allPageList.value = getAllPageList();
                 if (state.windowCards.length > 0) {
+                    //过滤教具页和游戏页的封面
+                    await formataWindowCards(
+                        state.windowCards,
+                        allPageList.value
+                    );
                     // 先判断是否是粘贴/新增的卡 如果是粘贴/新增卡先选中粘贴/新增卡
                     if (pastePage.value && pastePage.value.ID) {
                         selectPageValue(pastePage.value, false);
@@ -579,6 +722,31 @@ export default defineComponent({
                 deep: true,
             }
         );
+        //过滤教具页和游戏页的封面
+        const formataWindowCards = async (arr: any, mapList?: any) => {
+            newWindowCards.value = JSON.parse(JSON.stringify(arr));
+            newWindowCards.value.forEach((item: any) => {
+                item.PageList?.forEach(async (page: IPageValue) => {
+                    if (page) {
+                        page.Json =
+                            page.Json && typeof page.Json === "string"
+                                ? JSON.parse(page.Json)
+                                : page.Json;
+                        // const newSlide: Slide = await transformPageDetail(page, page.Json);
+                        if (page.Type === 20 || page.Type === 16) {
+                            const temJson: any = page.Json;
+                            if (page.url) return;
+                            page.url = temJson?.ToolFileModel
+                                ? await formateOssUrl(
+                                      temJson?.ToolFileModel?.File
+                                  )
+                                : "";
+                        }
+                    }
+                });
+            });
+            newWindowCards.value = [...newWindowCards.value];
+        };
         const getAllPageList = () => {
             let data: IPageValue[] = [];
             state.windowCards.map((card) => {
@@ -591,6 +759,12 @@ export default defineComponent({
         };
         const handleMask = () => {
             ElMessage({ type: "warning", message: "请先选择页，在进行编辑" });
+        };
+        //保存完组件后刷新素材列表
+        const updateMaterial = () => {
+            nextTick(() => {
+                materialCenterRef.value.updateMaterialList();
+            });
         };
 
         const {
@@ -607,7 +781,7 @@ export default defineComponent({
                 const name = uploadFileName.value.split("\\");
                 const pageList = result.slides.map((item, index) => {
                     const id = uuidv4();
-                    allPageSlideListMap.value.set(id, item);
+                    allPageListMap.value.set(id, item);
                     return {
                         ID: id,
                         Name: name[name.length - 1] + "-" + (index + 1),
@@ -629,23 +803,20 @@ export default defineComponent({
 
         const updatePageSlide = (slide: Slide) => {
             if (!pageValue.value.ID) return;
-            allPageSlideListMap.value.set(pageValue.value.ID, slide);
+            allPageListMap.value.set(pageValue.value.ID, slide);
         };
 
         // 同步教案的数据
         const updateAllPageSlideListMap = (newAllPageList: any[]) => {
             newAllPageList.forEach((item: any) => {
-                const value = allPageSlideListMap.value.get(item.TeachPageID);
+                const value = allPageListMap.value.get(item.TeachPageID);
                 const newValue = {
                     ...value,
                     remark: item.AcademicPresupposition || "",
                     design: item.DesignIntent || "",
                 };
-                allPageSlideListMap.value.set(
-                    item.TeachPageID,
-                    newValue as Slide
-                );
-                oldAllPageSlideListMap.value.set(
+                allPageListMap.value.set(item.TeachPageID, newValue as Slide);
+                oldAllPageListMap.value.set(
                     item.TeachPageID,
                     cloneDeep(newValue as Slide)
                 );
@@ -654,14 +825,11 @@ export default defineComponent({
 
         const winCardViewRef = ref();
         onMounted(() => {
-            _getWindowCards(
-                {
-                    WindowID: windowInfo.value.id,
-                    OriginType: windowInfo.value.originType,
-                },
-                true
-            ).then(() => {
-                fetchAllPageSlide(getAllPageList());
+            _getWindowCards({
+                WindowID: windowInfo.value.id,
+                OriginType: windowInfo.value.originType,
+            }).then(() => {
+                // fetchAllPageSlide(getAllPageList());
             });
             window.addEventListener("keydown", keyDown);
 
@@ -682,12 +850,9 @@ export default defineComponent({
         onBeforeRouteLeave(async () => {
             // 先更新一下当前页
             const slide = editRef.value.getCurrentSlide();
-            allPageSlideListMap.value.set(pageValue.value.ID, slide);
+            allPageListMap.value.set(pageValue.value.ID, slide);
             if (
-                isEqual(
-                    allPageSlideListMap.value,
-                    oldAllPageSlideListMap.value
-                ) &&
+                isEqual(allPageListMap.value, oldAllPageListMap.value) &&
                 isEqual(windowCards.value, oldWindowCards.value)
             )
                 return true;
@@ -704,16 +869,124 @@ export default defineComponent({
             }
         });
 
+        //资源库-模板素材操作
+        //插入左侧窗卡页
+        const handleInsertData = async (data: any) => {
+            if (editRef.value.getDataIsChange() && data.type === "elements") {
+                const slide = editRef.value.getCurrentSlide();
+                // console.log('slde', slide);
+                state.allPageListMap.set(pageValue.value.ID, slide);
+            }
+            const res: any = await insertData(data);
+            if (data.type === "elements") return;
+            if (res[0]) {
+                pageValue.value = res[1][0];
+                selectPageValue(pageValue.value, false);
+                nextTick(() => {
+                    materialCenterRef.value.addLinkCount(
+                        data.teachPageTemplateID || ""
+                    );
+                });
+            }
+        };
+        //插入教具内容以及教具页
+        const handleInsertTool = async (data: any) => {
+            if (pageValue.value.ID) {
+                const params = {
+                    name: "教具页",
+                    type: "teach",
+                    value: 16,
+                    url: data.data?.url,
+                };
+                state.windowCards.forEach((item: any, windex: number) => {
+                    item.PageList.forEach((page: any, index: number) => {
+                        if (page.ID === pageValue.value.ID) {
+                            currentValue.value = item;
+                        }
+                    });
+                });
+                await addPageCallback(params, currentValue.value);
+                pageValue.value =
+                    currentValue.value.PageList[
+                        currentValue.value.PageList?.length - 1
+                    ];
+                const res: any = await insertData(data);
+            } else {
+                ElMessage.warning("请先选择页，再进行插入");
+                return;
+            }
+        };
+        //保存模板
+        const handleAddTemplate = async (formData: any) => {
+            // onSave();
+            const res: any = await saveTemplateFrom(formData);
+            if (res) {
+                dialogVisibleTemplate.value = false;
+                isshowCusTooltip.value = true;
+                setTimeout(() => {
+                    isshowCusTooltip.value = false;
+                }, 5000);
+                //弹窗关闭，页面中间跳出提示：前往 我的 查看已保存模板保留三秒消失
+                nextTick(() => {
+                    materialCenterRef.value.queryTemplateList();
+                });
+            }
+        };
+        //去我的模板
+        const gotoMyTemplate = () => {
+            nextTick(() => {
+                materialCenterRef.value.gotoMyTemplate();
+            });
+        };
+        //取消保存-清空已选中的页
+        const cacleTemplateDialog = () => {
+            selectPageData.value = [];
+        };
+        const addPage = async (data: any) => {
+            const res = await addPageCallback(data);
+            console.log("resresres--", res);
+            if (res) {
+                // pageValue.value = res;
+                selectPageValue(res, false);
+            }
+        };
+        const rightClick = () => {
+            const slide = editRef.value.getCurrentSlide();
+            // console.log('slde', slide);
+            state.allPageListMap.set(pageValue.value.ID, slide);
+        };
+        //窗卡页 右键-menu菜单
+        const contextmenus = (el: any, data: any) => {
+            return [
+                {
+                    text: "保存模板",
+                    subText: "",
+                    handler: () => {
+                        rightClick();
+                        handleSaveTemplate(1, data);
+                    },
+                },
+                // {
+                //     text: "保存题目",
+                //     subText: "",
+                //     handler: () => handleSaveTemplate(2)
+                // }
+            ];
+        };
+
         return {
+            newWindowCards,
+            viewTree,
             editRef,
             shrinkRef,
             winCardViewRef,
             cardListRef,
             ...toRefs(state),
             allPageList,
-            isSetCache,
+            // isSetCache,
             defaultProps,
             pageValue,
+            pageType,
             currentValue,
             previewPageList,
             activePreviewPageIndex,
@@ -723,6 +996,9 @@ export default defineComponent({
             dialogVisibleName,
             winScreenView,
             isWatchChange,
+            tooltipShow,
+            mouseenter,
+            mouseleave,
             handleNodeClick,
             allowDrop,
             handleAddCard,
@@ -742,22 +1018,66 @@ export default defineComponent({
             pptPages,
             updatePageSlide,
             updateAllPageSlideListMap,
-            allPageSlideListMap,
-            oldAllPageSlideListMap,
+            // allPageSlideListMap,
+            // oldAllPageSlideListMap,
             _getWindowCards,
             offScreen,
             handleMask,
             currentSlide: computed(
-                () => allPageSlideListMap.value.get(pageValue.value.ID) || {}
+                () => allPageListMap.value.get(pageValue.value.ID) || {}
             ),
             windowInfo,
             importPPT,
+            selectPageData,
+            contextmenus,
+            handleSelectPages,
+            handleInsertData,
+            dialogVisibleTemplate,
+            showTemplateType,
+            handleSaveTemplate,
+            saveTemplateFrom,
+            materialCenterRef,
+            editTemplate,
+            dialogStatus,
+            templateFormData,
+            handleAddTemplate,
+            cacleTemplateDialog,
+            subjectPublisherBookValue,
+            isshowCusTooltip,
+            gotoMyTemplate,
+            handleInsertTool,
+            updateMaterial,
+            addPage,
+            rightClick,
         };
     },
 });
 </script>
 
 <style lang="scss" scoped>
+.cus-open-tooltip {
+    z-index: 9999;
+    position: absolute;
+    width: 15%;
+    padding: 10px;
+    top: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    color: rgb(255, 255, 255);
+    border-radius: 4px;
+    font-size: 14px;
+    background: rgba(77, 77, 77, 0.67);
+
+    span {
+        cursor: pointer;
+    }
+
+    span:hover {
+        color: #409eff;
+    }
+}
+
 .home {
     display: flex;
     width: 100%;
@@ -773,57 +1093,118 @@ export default defineComponent({
         background-color: #fff;
         overflow: hidden;
         transition: all 0.5s;
+
         .left-content {
             display: flex;
             flex-direction: column;
             height: 100%;
             width: 280px;
             padding: 10px 28px 10px 10px;
+
             :deep(.el-cascader),
             :deep(.el-select) {
                 width: 100%;
                 margin-bottom: 10px;
             }
+
             .add-card {
                 width: 100%;
                 margin-bottom: 10px;
             }
+
             .card-list {
                 flex: 1;
                 overflow-y: auto;
+                overflow-x: hidden;
+
+                :deep(.el-tree-node:focus > .el-tree-node__content) {
+                    background-color: #fff;
+                }
+
                 .el-tree {
                     :deep(.el-tree-node__label) {
                         width: 100%;
                     }
                 }
 
-                :deep(.el-tree-node__content) {
-                    height: 46px;
-                }
-                :deep(.el-tree-node:focus > .el-tree-node__content) {
-                    background-color: #fff;
-                }
-                .custom-tree-node {
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    width: 80%;
-                    position: relative;
-                    .label-class {
-                        width: 100%;
-                        text-overflow: ellipsis;
-                        white-space: nowrap;
-                        overflow: hidden;
+                .view-tree-box {
+                    :deep(.el-tree-node__children) {
+                        .el-tree-node__content {
+                            height: auto;
+                            padding: 10px 0 !important;
+                            margin-bottom: 10px;
+                        }
+
+                        .icon-box {
+                            position: absolute;
+                            bottom: 0;
+                            right: 0;
+                        }
                     }
+
+                    .select-page {
+                        position: absolute;
+                        left: -12px;
+                        top: -8px;
+                        width: 16px;
+                        height: 16px;
+                        border: 1px solid var(--el-color-primary);
+                        border-radius: 50%;
+                        cursor: pointer;
+                        z-index: 2;
+                        //background-color: var(--el-color-primary);
+                    }
+
+                    .status {
+                        position: absolute;
+                        right: -12px;
+                        top: -4px;
+                        width: 10px;
+                        height: 10px;
+                        border-radius: 50%;
+                        z-index: 2;
+                    }
+                    :deep(.el-image) {
+                        height: 106px;
+                        width: 100%;
+                        .image-slot {
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            width: 100%;
+                            height: 100%;
+                            background: var(--el-fill-color-light);
+                            color: var(--el-text-color-secondary);
+                            font-size: 20px;
+                        }
+                    }
+
+                    .view-empty {
+                        width: 190px;
+                        height: 106px;
+                        padding: 10px;
+                        border: 1px solid #ebeff1;
+                    }
+
+                    .custom-tree-node {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        width: 86%;
+                        position: relative;
+                    }
+
                     .icon-box {
                         .el-button {
                             border: none !important;
                             padding: 6px;
                             background-color: transparent;
+
                             &:hover {
                                 background-color: transparent;
                             }
                         }
+
                         .el-icon {
                             svg {
                                 width: 18px;
@@ -832,8 +1213,49 @@ export default defineComponent({
                         }
                     }
                 }
+
+                .tree-box {
+                    :deep(.el-tree-node__content) {
+                        height: 46px;
+                    }
+
+                    .custom-tree-node {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        width: 80%;
+                        position: relative;
+
+                        .label-class {
+                            width: 100%;
+                            text-overflow: ellipsis;
+                            white-space: nowrap;
+                            overflow: hidden;
+                        }
+
+                        .icon-box {
+                            .el-button {
+                                border: none !important;
+                                padding: 6px;
+                                background-color: transparent;
+
+                                &:hover {
+                                    background-color: transparent;
+                                }
+                            }
+
+                            .el-icon {
+                                svg {
+                                    width: 18px;
+                                    height: 18px;
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
+
         .shrink {
             background: #dde1f1;
             width: 18px;
@@ -841,6 +1263,7 @@ export default defineComponent({
             position: absolute;
             right: 0;
             top: 0;
+
             > div {
                 display: flex;
                 align-items: center;
@@ -862,13 +1285,15 @@ export default defineComponent({
                 }
             }
         }
+
         .active-text {
             .label-class {
                 > span {
-                    color: #409eff;
+                    color: var(--el-color-primary);
                 }
             }
         }
+
         :deep(#activeBackground) {
             background-color: #ecf5ff;
         }
@@ -880,6 +1305,7 @@ export default defineComponent({
         height: 100%;
         background-color: #fff;
         position: relative;
+
         .mask-right {
             width: 100%;
             height: 100%;
@@ -891,13 +1317,16 @@ export default defineComponent({
         }
     }
 }
+
 .operation-box {
     text-align: center;
+
     div {
         cursor: pointer;
         padding: 4px 0;
     }
 }
+
 .mask-ppt {
     display: flex;
     align-items: center;
@@ -908,9 +1337,11 @@ export default defineComponent({
     left: 0;
     right: 0;
     background-color: rgba(255, 255, 255, 0.6);
+
     .ppt-content {
         width: 300px;
         text-align: center;
+
         .ppt-text {
             margin-top: 20px;
             font-size: 18px;

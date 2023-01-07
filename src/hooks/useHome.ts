@@ -94,6 +94,28 @@ export default () => {
             };
         }
     };
+
+    const transformPageDetail = async (page: IPageValue, pageDetail: any) => {
+        let newSlide:any = {};
+        if (page.Type === pageType.element) {
+            const oldSlide = pageDetail || {};
+            // 素材页如果是新数据直接赋值(更新id是为了避免复制卡过后id不统一问题)，旧数据dealOldData处理
+            newSlide = oldSlide.type ? { ...await dealPauseVideo(oldSlide as Slide), id: page.ID } : await dealOldData(page.ID, page.originType, oldSlide);
+            cacheSildeFiles(newSlide); // 素材页存缓存
+        } else if (page.Type === pageType.listen) {
+            newSlide = dealOldDataWord(page.ID, pageDetail);
+        } else if (page.Type === pageType.follow) {
+            newSlide = dealOldDataVideo(page.ID, pageDetail);
+        } else if (page.Type === pageType.teach) {
+            newSlide = dealOldDataTeach(page.ID, pageDetail);
+        } else if (page.Type === pageType.game) {
+            newSlide = dealOldDataGame(page.ID, pageDetail);
+        }
+        const pageSlide = Object.assign(newSlide, { remark: page.AcademicPresupposition || "", design: page.DesignIntent || "" });
+        await saveDBdata(pageSlide);
+        return pageSlide;
+    };
+
     // 处理好的数据直接保存在本地数据库
     const saveDBdata = async (pageSlide: any) => {
         const dbResArr = await getWinCardDBData(pageSlide.id);
@@ -110,7 +132,7 @@ export default () => {
     const savePage = async (slide: Slide) => {
         const type: number = transformType(slide.type);
         let newSlide:any = {};
-        let updateRemark:any = {};
+        const updateRemark:any = {};
         let updateProcessAndDesign: ISaveProcessAndDesignData = {
             ID: "",
             DesignIntent: "",
@@ -147,6 +169,7 @@ export default () => {
         getPageDetail,
         dealPageDetail,
         savePage,
-        transformType
+        transformType,
+        transformPageDetail
     };
 };
