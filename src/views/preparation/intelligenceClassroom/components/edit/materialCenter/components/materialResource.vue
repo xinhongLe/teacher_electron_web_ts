@@ -499,7 +499,7 @@ import {
 } from "vue";
 import TemplateView from "./templateView.vue";
 // import { elements } from '@/mocks/slides';
-import { formatSeconds, debounce, throttle } from "@/utils/common";
+import { formatSeconds, debounce, debounceT, throttle } from "@/utils/common";
 import { Search, VideoPause, VideoPlay, Close } from "@element-plus/icons-vue";
 import useSaveElements from "../hooks/useSaveElements";
 import useSaveTemplate from "@/views/preparation/intelligenceClassroom/edit/hooks/useSaveTemplate";
@@ -647,7 +647,7 @@ export default defineComponent({
                 }
                 materialList.value = [];
                 await queryMaterialList();
-                insertJiaoJu();
+                // insertJiaoJu();
             }
         );
         //监听科目改变
@@ -665,6 +665,13 @@ export default defineComponent({
             async (curVal) => {
                 state.searchForm.LessonLable.LessonID = [curVal];
                 await queryMaterialList();
+            },
+            { deep: true }
+        );
+        watch(
+            () => materialList.value,
+            (val: any) => {
+                insertJiaoJu();
             },
             { deep: true }
         );
@@ -690,10 +697,14 @@ export default defineComponent({
             }
         };
         //关键词搜索
-        //关键词搜索
-        const nameInput = () => {
-            state.searchForm.Pager.PageNumber = 1;
-            debounce(queryMaterialList, 600);
+        const nameInput = async () => {
+            if (state.activeIndex === 1 || state.activeIndex === 0) {
+                debounceT(queryTools, 600);
+            }
+            if (state.activeIndex !== 1) {
+                state.searchForm.Pager.PageNumber = 1;
+                debounce(queryMaterialList, 500);
+            }
         };
         //清空分类选择的标签
         const clearTag = () => {
@@ -750,7 +761,7 @@ export default defineComponent({
             state.isAllList = false;
             await queryMaterialList();
             templateScollRef.value.scrollTop = 0; //滚动条归零
-            insertJiaoJu();
+            // insertJiaoJu();
         };
         //点击插画类型下的 插画合集
         const innerCollection = (item: any) => {
@@ -894,7 +905,7 @@ export default defineComponent({
         onMounted(async () => {
             await queryMaterialList();
             await queryTools();
-            insertJiaoJu();
+            // insertJiaoJu();
         });
 
         return {

@@ -431,6 +431,15 @@ export const debounce = (func: Function, wait: number) => {
         func();
     }, wait);
 };
+//时间2
+let timeOutT: any = "";
+//关键词搜索-防抖函数
+export const debounceT = (func: Function, wait: number) => {
+    if (timeOutT) clearTimeout(timeOutT);
+    timeOutT = setTimeout(() => {
+        func();
+    }, wait);
+};
 
 let timer: any = "";
 // 节流
