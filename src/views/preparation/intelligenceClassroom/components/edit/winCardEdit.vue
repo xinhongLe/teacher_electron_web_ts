@@ -167,7 +167,7 @@ export default defineComponent({
         const selectCard = (cards: ICards[]) => {
             state.dialogVisible = false;
             const newCards = {
-                id: page.value!.ID,
+                id: page.value?.ID || "",
                 cards: cards,
             };
             fun([newCards]);
@@ -316,6 +316,7 @@ export default defineComponent({
     padding: 0px !important;
     height: 100%;
 }
+
 .ppt-editor {
     width: 100%;
 }
