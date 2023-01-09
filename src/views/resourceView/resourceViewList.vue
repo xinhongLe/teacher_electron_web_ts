@@ -143,21 +143,21 @@ export default defineComponent({
         const isOffice = computed(
             () =>
                 ["ppt", "pptx", "doc", "docx", "xls", "xlsx", "pdf"].indexOf(
-                    props.resource!.File?.FileExtention
+                    props.resource!.File?.FileExtention.toLocaleLowerCase()
                 ) > -1
         );
         const isImage = computed(
             () =>
                 ["gif", "png", "jpg", "jpeg"].indexOf(
-                    props.resource!.File?.FileExtention
+                    props.resource!.File?.FileExtention.toLocaleLowerCase()
                 ) > -1
         );
         const isAudio = computed(
             () =>
-                ["mp3", "wav"].indexOf(props.resource!.File?.FileExtention) > -1
+                ["mp3", "wav"].indexOf(props.resource!.File?.FileExtention.toLocaleLowerCase()) > -1
         );
         const isVideo = computed(
-            () => ["mp4"].indexOf(props.resource!.File?.FileExtention) > -1
+            () => ["mp4"].indexOf(props.resource!.File?.FileExtention.toLocaleLowerCase()) > -1
         );
 
         watchEffect(initIframeSrc);
