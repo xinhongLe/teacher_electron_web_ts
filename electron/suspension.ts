@@ -351,17 +351,19 @@ function createQuickAnswerWindow(allStudentList: [], isAnswer = false) {
 }
 
 function createProjectionWindow() {
+    const size = screen.getPrimaryDisplay().workAreaSize;
     projectionWin = createWindow(projectionURL, {
-        width: 1400,
-        height: 1000,
+        width: size.width,
+        height: size.height,
         type: "toolbar", // 创建的窗口类型为工具栏窗口
         frame: false, // 要创建无边框窗口
         alwaysOnTop: true,
-        resizable: false,
+        resizable: false
     });
 
     projectionWin.once("ready-to-show", () => {
         projectionWin && projectionWin.show();
+        // projectionWin && projectionWin.webContents.openDevTools();
     });
 
     projectionWin.once("closed", () => {

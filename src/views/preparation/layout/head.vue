@@ -102,7 +102,7 @@
                         :show-file-list="true"
                         :before-remove="beforeRemove"
                         :before-upload="beforeUpload"
-                        :http-request="(e) => uploadSuccess(e, index)"
+                        :http-request="(e: { file: File & Blob & { uid: number; }; }) => uploadSuccess(e, index)"
                         :file-list="fileList"
                         :limit="
                             currentEditType === 'edit' && form.files.length > 0
@@ -244,14 +244,23 @@
             width="1200px"
             :destroy-on-close="true"
         >
-            <el-date-picker
-                size="large"
-                v-model="dateRange"
-                type="daterange"
-                start-placeholder="请选择开始时间"
-                end-placeholder="请选择结束时间"
-                @change="dateRangeChange"
-            />
+            <div class="p-log-header">
+                <div>
+                    <el-date-picker
+                        size="large"
+                        v-model="dateRange"
+                        type="daterange"
+                        start-placeholder="请选择开始时间"
+                        end-placeholder="请选择结束时间"
+                        @change="dateRangeChange"
+                    />
+                </div>
+
+                <el-button type="primary" @click="output()">
+                    <el-icon><Upload /></el-icon>
+                    &nbsp;导出
+                </el-button>
+            </div>
             <el-table class="custom-table" :data="tableData" stripe>
                 <el-table-column width="140px" prop="time" label="操作时间" />
                 <el-table-column width="120px" prop="name" label="动作" />
@@ -311,7 +320,7 @@ import usePageEvent from "@/hooks/usePageEvent"; //埋点事件hooks
 import { EVENT_TYPE } from "@/config/event";
 import { RESOURCE_TYPE } from "@/config/resource";
 import isElectron from "is-electron";
-
+import { exportExcel, IExcel } from "mexcel";
 interface IDirectoryItem {
     id: string;
     name: string;
@@ -909,6 +918,172 @@ export default defineComponent({
             }
         );
 
+        const output = () => {
+            if (!dateRange.value[1] || !dateRange.value[0]) {
+                return ElMessage.warning("请选择小于31天的日期区间！");
+            }
+            if (
+                moment(dateRange.value[1]).unix() -
+                    moment(dateRange.value[0]).unix() >
+                31 * 24 * 60 * 60
+            ) {
+                return ElMessage.warning("仅支持导出31天以内的数据！");
+            }
+            const fileName = "备课包信操作记录表";
+            window.electron
+                .showSaveDialog({
+                    defaultPath: fileName + ".xlsx",
+                    filters: [
+                        {
+                            name: "xlsx文件",
+                            extensions: ["xlsx"],
+                        },
+                    ],
+                })
+                .then(({ filePath, canceled }) => {
+                    if (canceled) return;
+                    getCartOptionList({
+                        lessonId: course.value.lessonId,
+                        startTime: dateRange.value[0]
+                            ? moment(dateRange.value[0]).format(
+                                  "YYYY-MM-DD 00:00:00"
+                              )
+                            : "",
+                        endTime: dateRange.value[1]
+                            ? moment(dateRange.value[1]).format(
+                                  "YYYY-MM-DD 23:59:59"
+                              )
+                            : "",
+                        paper: {
+                            pageNumber: 1,
+                            pageSize: 10000,
+                        },
+                    }).then((res) => {
+                        const data = res.result.list.map((item) => {
+                            return {
+                                time: moment(item.CreateTime).format(
+                                    "YYYY-MM-DD HH:mm"
+                                ),
+                                name: item.OprateName,
+                                type: item.ResourceTypeName,
+                                resource: item.ResourceName,
+                                directory: directoryName(item.Lessons),
+                            };
+                        });
+
+                        const excelData: IExcel = {
+                            sheets: [
+                                {
+                                    title: "备课包信操作记录表",
+                                    tHeaders: [
+                                        [
+                                            "操作时间",
+                                            "动作",
+                                            "资源类型",
+                                            "资源名称",
+                                            "资源目录",
+                                        ],
+                                    ],
+                                    table: data,
+                                    cols: [
+                                        {
+                                            width: 30,
+                                        },
+                                        {
+                                            width: 20,
+                                        },
+                                        {
+                                            width: 20,
+                                        },
+                                        {
+                                            width: 50,
+                                        },
+                                        {
+                                            width: 75,
+                                        },
+                                    ],
+                                    titleRow: {
+                                        hpx: 60,
+                                    },
+                                    headerRows: [
+                                        {
+                                            hpx: 40,
+                                        },
+                                    ],
+                                    row: {
+                                        hpx: 30,
+                                    },
+                                    keys: [
+                                        "time",
+                                        "name",
+                                        "type",
+                                        "resource",
+                                        "directory",
+                                    ],
+                                    sheetName: "备课包信操作记录表",
+                                    globalStyle: {
+                                        font: {
+                                            sz: 12,
+                                        },
+                                        alignment: {
+                                            horizontal: "center",
+                                            vertical: "center",
+                                            wrapText: true,
+                                        },
+                                        border: {
+                                            top: { style: "thin", color: {} },
+                                            right: { style: "thin", color: {} },
+                                            bottom: {
+                                                style: "thin",
+                                                color: {},
+                                            },
+                                            left: { style: "thin", color: {} },
+                                        },
+                                    },
+                                    titleStyle: {
+                                        font: {
+                                            sz: 18,
+                                            color: {
+                                                rgb: "f60000",
+                                            },
+                                        },
+                                        alignment: {
+                                            horizontal: "center",
+                                            vertical: "center",
+                                            wrapText: true,
+                                        },
+                                        border: {
+                                            top: { style: "thin", color: {} },
+                                            right: { style: "thin", color: {} },
+                                            bottom: {
+                                                style: "thin",
+                                                color: {},
+                                            },
+                                            left: { style: "thin", color: {} },
+                                        },
+                                    },
+                                },
+                            ],
+                            fileName: "备课包信操作记录表",
+                        };
+
+                        exportExcel(
+                            excelData,
+                            filePath,
+                            () => {
+                                ElMessage.success(fileName + "下载成功");
+                            },
+                            (err: any) => {
+                                console.log("fail", err);
+                            }
+                        );
+                    });
+                })
+                .catch((err) => {
+                    console.log(err);
+                });
+        };
+
         return {
             source,
             sourceList,
@@ -944,6 +1119,7 @@ export default defineComponent({
             clicKBuryPoint,
             RESOURCE_TYPE,
             openWinCard,
+            output,
         };
     },
 });
@@ -1139,5 +1315,11 @@ export default defineComponent({
     margin-top: 15px;
     display: flex;
     justify-content: flex-end;
+}
+
+.p-log-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 </style>

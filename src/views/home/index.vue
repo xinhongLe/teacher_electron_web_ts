@@ -22,7 +22,7 @@
                         <span>班级错题本</span>
                     </div> -->
                 </div>
-                <div class="right">
+                <div class="right" ref="classSchedule">
                     <Calendar ref="calendar" :days="days" :isShowDetailBtn="true">
                         <template v-slot:default="slotProps">
                             <header class="header">
@@ -280,7 +280,7 @@ export default defineComponent({
             days,
             calendar,
             clicKBuryPoint,
-            moreVisible,
+            moreVisible
         };
     },
 });
@@ -452,9 +452,9 @@ export default defineComponent({
             }
 
             .right {
-                flex: 2;
+                // flex: 2;
                 min-width: 300px;
-                overflow-y: auto;
+                // overflow-y: auto;
             }
         }
 

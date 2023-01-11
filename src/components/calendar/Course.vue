@@ -129,7 +129,7 @@ const router = useRouter();
 const isDragging = computed(() => store.state.common.isDragging);
 
 const bgColor = computed(
-    () => CourseBgColor[props.colData.CourseName || "其他"]
+    () => CourseBgColor[props.colData.CourseName || "其他"] || "#84AAF7"
 );
 const scheduleID = computed(() => props.colData.ID || "");
 const originScheduleID = computed(() => props.colData.OriginScheduleID || "");

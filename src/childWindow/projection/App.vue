@@ -41,8 +41,8 @@ export default defineComponent({
         const videoList = ref<{ label: string; id: string }[]>([]);
         const mediaStreamConstraints = reactive({
             video: {
-                width: 720,
-                height: 720
+                width: window.innerHeight - 10,
+                height: window.innerHeight - 10
             },
             deviceId: "",
             audio: false
