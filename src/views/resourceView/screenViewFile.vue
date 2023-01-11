@@ -82,16 +82,16 @@ export default defineComponent({
         const isOffice = computed(
             () =>
                 ["ppt", "pptx", "doc", "docx", "xls", "xlsx", "pdf"].indexOf(
-                    extention.value
+                    extention.value.toLocaleLowerCase()
                 ) > -1
         );
         const isImage = computed(
-            () => ["gif", "png", "jpg", "jpeg"].indexOf(extention.value) > -1
+            () => ["gif", "png", "jpg", "jpeg"].indexOf(extention.value.toLocaleLowerCase()) > -1
         );
         const isAudio = computed(
-            () => ["mp3", "wav"].indexOf(extention.value) > -1
+            () => ["mp3", "wav"].indexOf(extention.value.toLocaleLowerCase()) > -1
         );
-        const isVideo = computed(() => ["mp4"].indexOf(extention.value) > -1);
+        const isVideo = computed(() => ["mp4"].indexOf(extention.value.toLocaleLowerCase()) > -1);
 
         const initIframeSrc = async () => {
             if (!resource.value) return;
