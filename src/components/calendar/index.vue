@@ -1,5 +1,5 @@
 <template>
-    <div class="calendar">
+    <div ref="calendarRef" class="calendar" :style="{ transform: `scale(${scale})`, height: `${height}px`, width: `${width}px` }">
         <slot :initSchedules="initSchedules" />
         <div class="content-header">
             <div class="item">上课时间</div>
@@ -17,23 +17,25 @@
                 <img src="@/assets/indexImages/pic_none.png" alt="" />
                 未检测到教师课表
             </div>
-            <div class="col" v-for="col in schedules" :key="col.ClassIndex">
-                <div class="time cell">
-                    <span>{{ col.fontShowTime }}</span>
-                    <span>{{ col.SectionName }}</span>
+            <div class="content-box" ref="contentRef">
+                <div class="col" v-for="col in schedules" :key="col.ClassIndex">
+                    <div class="time cell">
+                        <span>{{ col.fontShowTime }}</span>
+                        <span>{{ col.SectionName }}</span>
+                    </div>
+                    <Course
+                        v-for="item in col.colData"
+                        :key="item.index"
+                        :rowData="col"
+                        :colData="item"
+                        :isDrop="isDrop"
+                        :isShowText="isShowText"
+                        :isShowDelete="isShowDelete"
+                        :isShowDetailBtn="isShowDetailBtn"
+                        @openCourse="openCourse"
+                        @createHomePoint="createHomePoint"
+                    />
                 </div>
-                <Course
-                    v-for="item in col.colData"
-                    :key="item.index"
-                    :rowData="col"
-                    :colData="item"
-                    :isDrop="isDrop"
-                    :isShowText="isShowText"
-                    :isShowDelete="isShowDelete"
-                    :isShowDetailBtn="isShowDetailBtn"
-                    @openCourse="openCourse"
-                    @createHomePoint="createHomePoint"
-                />
             </div>
         </div>
     </div>
@@ -43,7 +45,7 @@
 import useSchedules, { ColData } from "@/hooks/useSchedules";
 import useTime from "@/hooks/useTime";
 import moment from "moment";
-import { computed, defineComponent, PropType, provide } from "vue";
+import { computed, defineComponent, PropType, provide, ref, watch, nextTick, onUnmounted } from "vue";
 import Course from "./Course.vue";
 import usePageEvent from "@/hooks/usePageEvent";
 import { EVENT_TYPE } from "@/config/event";
@@ -105,6 +107,39 @@ export default defineComponent({
             );
         };
 
+        const resize = () => {
+            nextTick(() => {
+                width.value = window.innerWidth * 0.6;
+                height.value = calendarRef.value.parentElement.clientHeight;
+                const calendarHeight = height.value;
+                const contentHeight = calendarHeight - 128;
+                const contentScrollHeight = contentRef.value.scrollHeight;
+                if (contentHeight < contentScrollHeight) {
+                    // 内容放置不下
+                    scale.value = calendarHeight / (contentScrollHeight + 128);
+                    height.value = height.value / scale.value;
+                }
+                calendarRef.value.parentElement.style.width = width.value * (scale.value > 1 ? 1 : scale.value) + "px";
+            });
+        };
+
+        nextTick(() => {
+            calendarRef.value.parentElement.style.width = window.innerWidth * 0.6 + "px";
+        });
+
+        window.addEventListener("resize", resize);
+
+        onUnmounted(() => {
+            window.removeEventListener("resize", resize);
+        });
+
+        const scale = ref(1);
+        const height = ref(0);
+        const width = ref(window.innerWidth * 0.6);
+        const calendarRef = ref();
+        const contentRef = ref();
+        watch(schedules, resize);
+
         return {
             weekNext,
             weekPre,
@@ -117,6 +152,11 @@ export default defineComponent({
             formWeek,
             openCourse,
             createHomePoint,
+            calendarRef,
+            contentRef,
+            scale,
+            height,
+            width
         };
     },
 
@@ -131,6 +171,7 @@ export default defineComponent({
     height: 100%;
     background-color: #fff;
     border-radius: 16px;
+    transform-origin: top left;
 
     .no-schedules {
         height: 100%;
@@ -175,6 +216,12 @@ export default defineComponent({
         }
     }
 }
+
+.content-box {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
 .content {
     display: flex;
     flex: 1;
@@ -185,10 +232,11 @@ export default defineComponent({
     border-bottom-right-radius: 16px;
     padding: 0 16px 16px;
     .col {
-        height: 80px;
+        min-height: 80px;
         display: flex;
         align-items: center;
         flex-shrink: 0;
+        flex: 1;
         &:last-child {
             .cell {
                 border-bottom: none;
