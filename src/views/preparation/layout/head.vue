@@ -256,7 +256,10 @@
                     />
                 </div>
 
-                <el-button type="primary" @click="output()">导出</el-button>
+                <el-button type="primary" @click="output()">
+                    <el-icon><Upload /></el-icon>
+                    &nbsp;导出
+                </el-button>
             </div>
             <el-table class="custom-table" :data="tableData" stripe>
                 <el-table-column width="140px" prop="time" label="操作时间" />
