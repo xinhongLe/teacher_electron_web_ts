@@ -6,7 +6,7 @@ const wincardURL =
     process.env.NODE_ENV === "development"
         ? `${process.env.WEBPACK_DEV_SERVER_URL}editWinCard.html`
         : `file://${__dirname}/editWinCard.html`;
-export function createWinCardWindow(windowInfo: any) {
+export function createWinCardWindow() {
     editWin = createWindow(wincardURL, {
         autoHideMenuBar: true,
         alwaysOnTop: true,
@@ -20,12 +20,6 @@ export function createWinCardWindow(windowInfo: any) {
 
     editWin.on("ready-to-show", () => {
         editWin && editWin.show();
-        editWin && editWin.focus();
-        editWin && editWin.webContents.send("sendStoreWindowInfo", windowInfo);
-        console.log(
-            "windowInfo33333333333333333333333333333333333333",
-            windowInfo
-        );
     });
     editWin.on("show", () => {
         // editWin && editWin.webContents.send("sendStoreWindowInfo", windowInfo);
@@ -36,9 +30,9 @@ export function createWinCardWindow(windowInfo: any) {
     editWin.maximize();
 }
 
-export function openWinCardWin(windowInfo: any) {
+export function openWinCardWin() {
     // if (editWin) {
     //     return editWin.show();
     // }
-    createWinCardWindow(windowInfo);
+    createWinCardWindow();
 }

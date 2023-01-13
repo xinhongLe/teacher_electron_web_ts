@@ -513,17 +513,15 @@ export default defineComponent({
 
         const route = useRoute();
         const router = useRouter();
-        const windowInfo = computed(
-            () => store.state.preparation.editWindowInfo
+        const windowInfo: any = computed(() =>
+            store.state.preparation.editWindowInfo.id
+                ? store.state.preparation.editWindowInfo
+                : window.electron.store.get("windowInfo")
         );
         const subjectPublisherBookValue = computed(
             () => store.state.preparation.subjectPublisherBookValue
         );
-        // console.log(
-        //     "windowInfo===================>",
-        //     windowInfo,
-        //     store.state.preparation.subjectPublisherBookValue
-        // );
+        console.log("windowInfo===================>", windowInfo.value);
 
         const { handleAddCard, dialogVisibleCard } = useAddCard(
             windowCards,
@@ -825,6 +823,7 @@ export default defineComponent({
 
         const winCardViewRef = ref();
         onMounted(() => {
+            console.log("windowInfo===================>", windowInfo.value);
             _getWindowCards({
                 WindowID: windowInfo.value.id,
                 OriginType: windowInfo.value.originType,

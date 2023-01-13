@@ -62,6 +62,7 @@
             @hideWriteBoard="hideWriteBoard"
             :isCanUndo="isCanUndo"
             :isCanRedo="isCanRedo"
+            :isFullScreen="isFullScreen"
         />
     </div>
 </template>
@@ -79,6 +80,7 @@ import {
     defineEmits,
     toRef,
     onUnmounted,
+    watch,
 } from "vue";
 import CardList from "./cardList/index.vue";
 import PreviewSection from "./components/preview/previewSection.vue";

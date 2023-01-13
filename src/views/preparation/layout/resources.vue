@@ -5,7 +5,11 @@
         v-infinite-scroll="load"
         :infinite-scroll-disabled="disabledScrollLoad"
     >
-        <div class="tip" v-if="resourceList.length === 0">
+        <div class="tip" v-if="isLaoding && resourceList.length === 0">
+            <img src="@/assets/images/preparation/pic_loading.png" alt="" />
+            资源正在加载，请稍候…
+        </div>
+        <div class="tip" v-if="!isLaoding && resourceList.length === 0">
             <img
                 src="@/assets/images/preparation/pic_finish_buzhi.png"
                 alt=""
@@ -120,6 +124,7 @@ import { getOssUrl } from "@/utils/oss";
 import { IViewResourceData } from "@/types/store";
 import { ElMessage } from "element-plus";
 import LocalCache from "@/utils/localcache";
+import isElectron from "is-electron";
 interface ICourse {
     chapterId: string;
     lessonId: string;
@@ -203,9 +208,11 @@ export default defineComponent({
                 albumId: book ? book.AlbumID : "",
                 albumName: book ? book.AlbumName : "",
                 chapterId: (book && book.ChapterID) || course.value.chapterId,
-                chapterName: (book && book.ChapterName) || course.value.chapterName,
+                chapterName:
+                    (book && book.ChapterName) || course.value.chapterName,
                 lessonId: (book && book.LessonID) || course.value.lessonId,
-                lessonName: (book && book.LessonName) || course.value.lessonName,
+                lessonName:
+                    (book && book.LessonName) || course.value.lessonName,
             });
 
             if (res.success) {
@@ -315,7 +322,7 @@ export default defineComponent({
                     targetDelete.value = data.ResourceId;
                     deleteTipVisible.value = true;
                     break;
-                case "edit":
+                case "property": //原先的编辑改为编辑属性
                     if (
                         (data.ResourceShowType === 1 ||
                             data.ResourceShowType === 0) &&
@@ -418,9 +425,30 @@ export default defineComponent({
                     logView({ id: data.ResourceId });
                     data.BrowseNum++;
                     break;
+                case "edit":
+                    editWincard(data);
+                    break;
             }
         };
-
+        //直接打开编辑窗口
+        const editWincard = (data: any) => {
+            const cacheResource = data;
+            const windowInfo = {
+                id: cacheResource.OldResourceId,
+                name: cacheResource.Name,
+                lessonId: store.state.preparation.selectLessonId,
+                originType: 1,
+            };
+            window.electron.store.set("windowInfo", windowInfo);
+            openWinCard();
+            // router.push("/windowcard-edit");
+        };
+        //直接打开编辑窗口
+        const openWinCard = () => {
+            if (isElectron()) {
+                return window.electron.ipcRenderer.invoke("openWinCardWin");
+            }
+        };
         const openResource = (data: IResourceItem) => {
             if (data.ResourceShowType === 2) {
                 resourceData.value = { id: data.OldResourceId };
@@ -501,9 +529,11 @@ export default defineComponent({
             resourceId.value = id;
             getResources();
         };
-
+        const isLaoding = ref(false);
         const getResources = async () => {
             if (course.value.chapterId && course.value.lessonId) {
+                isLaoding.value = true;
+
                 const res = await fetchResourceList({
                     chapterId: course.value.chapterId,
                     lessonId: course.value.lessonId,
@@ -516,9 +546,16 @@ export default defineComponent({
                         pageSize: pageSize.value,
                     },
                 });
+                isLaoding.value = false;
 
-                resourceList.value = pageNumber.value === 1 ? res.result.list : resourceList.value.concat(res.result.list);
-                disabledScrollLoad.value = res.result.list.length === 0 ? true : res.result.pager.IsLastPage;
+                resourceList.value =
+                    pageNumber.value === 1
+                        ? res.result.list
+                        : resourceList.value.concat(res.result.list);
+                disabledScrollLoad.value =
+                    res.result.list.length === 0
+                        ? true
+                        : res.result.pager.IsLastPage;
 
                 emit("updateResourceList", resourceList.value);
 
@@ -589,6 +626,9 @@ export default defineComponent({
             showDownload,
             downloadProgress,
             cancelDownload,
+            isLaoding,
+            editWincard,
+            openWinCard,
         };
     },
 });
@@ -609,7 +649,7 @@ export default defineComponent({
 }
 
 .tip {
-    width: 200px;
+    width: 240px;
     position: absolute;
     top: 50%;
     left: 50%;

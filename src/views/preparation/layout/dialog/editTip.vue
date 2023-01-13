@@ -15,7 +15,12 @@
         <template #footer>
             <span class="dialog-footer">
                 <el-button @click="close()">取消</el-button>
-                <el-button type="primary" :disabled="disabledBtn" @click="save()">保存为我的文件</el-button>
+                <el-button
+                    type="primary"
+                    :disabled="disabledBtn"
+                    @click="save()"
+                    >保存为我的文件</el-button
+                >
             </span>
         </template>
     </el-dialog>
@@ -31,6 +36,7 @@ import { useStore } from "@/store";
 import { computed, defineComponent, PropType, ref } from "vue";
 import { CopyWindow } from "../../intelligenceClassroom/api";
 import loading from "@/components/loading";
+import emitter from "@/utils/mitt";
 
 export default defineComponent({
     props: {
@@ -60,7 +66,7 @@ export default defineComponent({
                         id: props.resource.OldResourceId,
                         originType: props.resource.UserId ? 1 : null,
                         sourceLessonID: store.state.preparation.selectLessonId,
-                        targetLessonID: store.state.preparation.selectLessonId
+                        targetLessonID: store.state.preparation.selectLessonId,
                     });
 
                     if (res.success) {
@@ -69,11 +75,12 @@ export default defineComponent({
                             userId: userId.value,
                             lessonID: lessonId.value,
                             schoolId: schoolId.value,
-                            schoolName: schoolName.value
+                            schoolName: schoolName.value,
                         });
                         loading.destroy();
                         emit("update:visible", false);
-                        emit("update", sysRes.result.Id);
+                        // emit("update", sysRes.result.Id);
+                        emitter.emit("toMyResource");
                     } else {
                         loading.destroy();
                     }
@@ -81,11 +88,12 @@ export default defineComponent({
                     const res = await saveToMyResource({
                         resourceId: props.resource.ResourceId,
                         schoolId: schoolId.value,
-                        schoolName: schoolName.value
+                        schoolName: schoolName.value,
                     });
                     if (res.success) {
                         emit("update:visible", false);
-                        emit("update", res.result.ResourceId);
+                        // emit("update", res.result.ResourceId);
+                        emitter.emit("toMyResource");
                     }
                 }
 
@@ -100,9 +108,9 @@ export default defineComponent({
         return {
             disabledBtn,
             close,
-            save
+            save,
         };
-    }
+    },
 });
 </script>
 

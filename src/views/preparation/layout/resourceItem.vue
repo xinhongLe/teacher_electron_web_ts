@@ -111,7 +111,10 @@
                             <el-dropdown-menu>
                                 <el-dropdown-item
                                     command="version"
-                                    v-if="data.ResourceShowType === 0 || data.ResourceShowType === 5"
+                                    v-if="
+                                        data.ResourceShowType === 0 ||
+                                        data.ResourceShowType === 5
+                                    "
                                 >
                                     <div class="dropdown-item">
                                         <img
@@ -119,6 +122,18 @@
                                             alt=""
                                         />
                                         &nbsp;&nbsp;版本记录
+                                    </div>
+                                </el-dropdown-item>
+                                <el-dropdown-item
+                                    command="property"
+                                    v-if="isMySelf"
+                                >
+                                    <div class="dropdown-item">
+                                        <img
+                                            src="@/assets/images/preparation/icon_bjsx_hover.png"
+                                            alt=""
+                                        />
+                                        &nbsp;&nbsp;编辑属性
                                     </div>
                                 </el-dropdown-item>
                                 <el-dropdown-item
@@ -139,7 +154,13 @@
                 </div>
                 <div
                     class="p-resource-bottom no-border"
-                    v-if=" !hover && btns &&name !== 'attendClass' && name !== 'preview'">
+                    v-if="
+                        !hover &&
+                        btns &&
+                        name !== 'attendClass' &&
+                        name !== 'preview'
+                    "
+                >
                     <el-button
                         class="p-control-btn"
                         @click.stop="handleCommand('download')"
@@ -190,50 +211,83 @@
                         加入备课包
                     </el-button>
                 </div>
-                <div class="tool-text" v-if="(hover && btns && name === 'attendClass')">
-                    <span>{{data.ToolInfo ? `共${ data.ToolInfo.QuestionCount }题` : ""}}</span>
-                    <span>{{ data.ToolInfo ? ` ( ${ data.ToolInfo.QuestionTypeName })` : ""}}</span>
+                <div
+                    class="tool-text"
+                    v-if="hover && btns && name === 'attendClass'"
+                >
+                    <span>{{
+                        data.ToolInfo
+                            ? `共${data.ToolInfo.QuestionCount}题`
+                            : ""
+                    }}</span>
+                    <span>{{
+                        data.ToolInfo
+                            ? ` ( ${data.ToolInfo.QuestionTypeName})`
+                            : ""
+                    }}</span>
                 </div>
             </div>
         </div>
-        <div class="p-resource-bottom" v-if="hover && btns && name !== 'attendClass' && name !== 'preview'">
-             <div class="tool-text">
-                 <span class="total">{{data.ToolInfo ? `共${ data.ToolInfo.QuestionCount }题` : ""}}</span>
-                 <span>{{ data.ToolInfo ? ` ( ${ data.ToolInfo.QuestionTypeName })` : ""}}</span>
-             </div>
-             <div>
-                 <el-button
-                     class="p-control-btn"
-                     @click.stop="handleCommand('download')"
-                     v-if="canDownload && RESOURCE_TYPE.TOOL !== data.ResourceType">
-                     <img  src="@/assets/images/preparation/icon_download_white.png" alt="" />
-                     下载
-                 </el-button>
-                 <el-button
-                     class="p-control-btn"
-                     @click.stop="handleCommand('edit')"
-                     v-if="canEdit && RESOURCE_TYPE.TOOL !== data.ResourceType"
-                 >
-                     <img src="@/assets/images/preparation/icon_bianji.png" alt="" />
-                     编辑
-                 </el-button>
-                 <el-button
-                     class="p-control-btn p-move"
-                     v-if="data.IsBag"
-                     @click.stop="handleCommand('move')"
-                 >
-                     <img src="@/assets/images/preparation/icon_yichu.png" alt="" />
-                     移出备课包
-                 </el-button>
-                 <el-button
-                     class="p-control-btn p-add"
-                     v-if="!data.IsBag"
-                     @click.stop="($event) => handleCommand('add', $event)"
-                 >
-                     <img src="@/assets/images/preparation/icon_add.png" alt="" />
-                     加入备课包
-                 </el-button>
-             </div>
+        <div
+            class="p-resource-bottom"
+            v-if="hover && btns && name !== 'attendClass' && name !== 'preview'"
+        >
+            <div class="tool-text">
+                <span class="total">{{
+                    data.ToolInfo ? `共${data.ToolInfo.QuestionCount}题` : ""
+                }}</span>
+                <span>{{
+                    data.ToolInfo ? ` ( ${data.ToolInfo.QuestionTypeName})` : ""
+                }}</span>
+            </div>
+            <div>
+                <el-button
+                    class="p-control-btn"
+                    @click.stop="handleCommand('download')"
+                    v-if="
+                        canDownload && RESOURCE_TYPE.TOOL !== data.ResourceType
+                    "
+                >
+                    <img
+                        src="@/assets/images/preparation/icon_download_white.png"
+                        alt=""
+                    />
+                    下载
+                </el-button>
+                <el-button
+                    class="p-control-btn"
+                    @click.stop="handleCommand('edit')"
+                    v-if="canEdit && RESOURCE_TYPE.TOOL !== data.ResourceType"
+                >
+                    <img
+                        src="@/assets/images/preparation/icon_bianji.png"
+                        alt=""
+                    />
+                    编辑
+                </el-button>
+                <el-button
+                    class="p-control-btn p-move"
+                    v-if="data.IsBag"
+                    @click.stop="handleCommand('move')"
+                >
+                    <img
+                        src="@/assets/images/preparation/icon_yichu.png"
+                        alt=""
+                    />
+                    移出备课包
+                </el-button>
+                <el-button
+                    class="p-control-btn p-add"
+                    v-if="!data.IsBag"
+                    @click.stop="($event) => handleCommand('add', $event)"
+                >
+                    <img
+                        src="@/assets/images/preparation/icon_add.png"
+                        alt=""
+                    />
+                    加入备课包
+                </el-button>
+            </div>
         </div>
     </div>
 </template>
@@ -382,11 +436,11 @@ export default defineComponent({
             border: 0;
             padding-top: 0;
         }
-        .tool-text{
+        .tool-text {
             font-size: 14px;
-            color: #5F626F;
+            color: #5f626f;
             margin-left: 80px;
-            .total{
+            .total {
                 font-size: 16px;
             }
         }
@@ -476,8 +530,8 @@ export default defineComponent({
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        .tool-text{
-            color: #5F626F;
+        .tool-text {
+            color: #5f626f;
             margin-top: 10px;
         }
         .resource-control-up {

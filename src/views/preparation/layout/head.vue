@@ -493,9 +493,17 @@ export default defineComponent({
             uploadResourceOpen.value = true;
         });
 
+        emitter.on("toMyResource", () => {
+            nextTick(() => {
+                source.value = "4";
+                onSourceChange();
+            });
+        });
+
         onUnmounted(() => {
             emitter.off("updatePackageCount");
             emitter.off("openEditResource");
+            emitter.off("toMyResource");
         });
 
         const source = ref("");
@@ -813,29 +821,31 @@ export default defineComponent({
         };
 
         const router = useRouter();
+
+        // const Store = require("electron-store");
+        // const electron_store = new Store();
         const editWincard = () => {
-            store.commit(MutationTypes.SET_EDIT_WINDOW_INFO, {
-                id: cacheResource.OldResourceId,
-                name: cacheResource.Name,
-                lessonId: store.state.preparation.selectLessonId,
-                originType: 1,
-            });
+            // store.commit(MutationTypes.SET_EDIT_WINDOW_INFO, {
+            //     id: cacheResource.OldResourceId,
+            //     name: cacheResource.Name,
+            //     lessonId: store.state.preparation.selectLessonId,
+            //     originType: 1,
+            // });
+
             const windowInfo = {
                 id: cacheResource.OldResourceId,
                 name: cacheResource.Name,
                 lessonId: store.state.preparation.selectLessonId,
                 originType: 1,
             };
-            openWinCard(windowInfo);
+            window.electron.store.set("windowInfo", windowInfo);
+            openWinCard();
             // router.push("/windowcard-edit");
         };
         //打开窗卡页编辑子窗
-        const openWinCard = (windowinfo: any) => {
+        const openWinCard = () => {
             if (isElectron()) {
-                return window.electron.ipcRenderer.invoke(
-                    "openWinCardWin",
-                    windowinfo
-                );
+                return window.electron.ipcRenderer.invoke("openWinCardWin");
             }
         };
         const courseCartOpen = ref(false);

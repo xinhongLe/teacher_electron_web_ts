@@ -209,8 +209,8 @@ async function createWindow() {
         mainWindow!.webContents.send("suspensionClick");
     });
 
-    ipcMain.handle("openWinCardWin", (_, windowinfo: any) => {
-        openWinCardWin(windowinfo);
+    ipcMain.handle("openWinCardWin", () => {
+        openWinCardWin();
     });
 }
 

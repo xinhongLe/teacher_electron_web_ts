@@ -22,7 +22,7 @@ import {
     readFile,
     rm,
     stat,
-    writeFile
+    writeFile,
 } from "fs/promises";
 import crypto from "crypto";
 import { exportWord, IFileData } from "./exportWord";
@@ -32,7 +32,7 @@ const PATH_BINARY =
         : join(__dirname, "../mockingbot-color-picker-ia32.exe");
 const PATH_WhiteBoard = join(
     __dirname,
-     "../extraResources/whiteboard/Aixueshi.Whiteboard.exe"
+    "../extraResources/whiteboard/Aixueshi.Whiteboard.exe"
 );
 // const PATH_White4Board = join(
 //     __dirname,
@@ -199,12 +199,12 @@ window.electron = {
             return false;
         }
         return new Promise((resolve, reject) =>
-            checkWindowSupportNet("v4.0").then(isOk => {
+            checkWindowSupportNet("v4.0").then((isOk) => {
                 if (isOk) {
                     spawn(PATH_WhiteBoard);
                     return resolve(true);
                 }
-                checkWindowSupportNet("v3.5").then(isOk => {
+                checkWindowSupportNet("v3.5").then((isOk) => {
                     if (isOk) {
                         spawn(PATH_WhiteBoard);
                         return resolve(true);

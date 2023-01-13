@@ -358,7 +358,7 @@ function createProjectionWindow() {
         type: "toolbar", // 创建的窗口类型为工具栏窗口
         frame: false, // 要创建无边框窗口
         alwaysOnTop: true,
-        resizable: false
+        resizable: false,
     });
 
     projectionWin.once("ready-to-show", () => {

@@ -1,26 +1,18 @@
 <template>
     <div class="main-container">
         <div class="main-body">
-            <editWinCard v-if="windowinfos.id" />
+            <editWinCard />
         </div>
     </div>
 </template>
 
 <script lang="ts" setup>
-import isElectron from "is-electron";
 import editWinCard from "../../views/preparation/intelligenceClassroom/edit/index.vue";
-// router.push("/windowcard-edit")
-import { computed, ref, watch, onMounted } from "vue";
-import { MutationTypes, store } from "@/store";
-const windowinfos: any = ref({});
-console.log("editWinCard", editWinCard);
-onMounted(() => {
-    window.electron.ipcRenderer.on("sendStoreWindowInfo", (_, windowinfo) => {
-        windowinfos.value = windowinfo;
-        console.log(windowinfos.value, store);
-        store.commit(MutationTypes.SET_EDIT_WINDOW_INFO, windowinfo);
-    });
-});
+// onMounted(() => {
+//     nextTick(() => {
+//         console.log("window.electron.store------------", window.electron.store);
+//     });
+// });
 </script>
 
 <style lang="scss" scoped>
