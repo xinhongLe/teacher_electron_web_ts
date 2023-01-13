@@ -231,12 +231,21 @@
                                 <div class="count">
                                     {{ item.MaterialNum }}
                                 </div>
-                                <el-image
-                                    :draggable="false"
-                                    v-if="item.url"
-                                    :src="item.url"
-                                    fit="cover"
-                                />
+                                <el-tooltip
+                                    placement="top"
+                                    :content="item.Name"
+                                    :disabled="item.Name ? false : true"
+                                    effect="dark"
+                                    :hide-after="0"
+                                >
+                                    <el-image
+                                        :draggable="false"
+                                        v-if="item.url"
+                                        :src="item.url"
+                                        fit="cover"
+                                    />
+                                </el-tooltip>
+
                                 <p>{{ item.Name }}</p>
                             </div>
                         </div>
@@ -286,8 +295,12 @@
                                 >
                                     <el-tooltip
                                         placement="top"
-                                        :content="item.Name"
-                                        :disabled="item.Name ? false : true"
+                                        :content="item.Name || item.FileName"
+                                        :disabled="
+                                            item.Name || item.FileName
+                                                ? false
+                                                : true
+                                        "
                                         effect="dark"
                                         :hide-after="0"
                                     >
@@ -320,12 +333,20 @@
                                     <div class="count">
                                         {{ item.MaterialNum }}
                                     </div>
-                                    <el-image
-                                        :draggable="false"
-                                        v-if="item.url"
-                                        :src="item.url"
-                                        fit="cover"
-                                    />
+                                    <el-tooltip
+                                        placement="top"
+                                        :content="item.Name"
+                                        :disabled="item.Name ? false : true"
+                                        effect="dark"
+                                        :hide-after="0"
+                                    >
+                                        <el-image
+                                            :draggable="false"
+                                            v-if="item.url"
+                                            :src="item.url"
+                                            fit="cover"
+                                        />
+                                    </el-tooltip>
                                     <p>{{ item.Name }}</p>
                                 </div>
                             </div>

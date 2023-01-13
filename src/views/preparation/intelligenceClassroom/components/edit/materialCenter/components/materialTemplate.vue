@@ -184,12 +184,12 @@
                                                     size="small"
                                                 />
                                             </div>
-                                            <div
+                                            <!-- <div
                                                 class="operation-item"
                                                 @click.stop="handleDel(item)"
                                             >
                                                 删除
-                                            </div>
+                                            </div> -->
                                         </div>
                                     </el-popover>
                                 </div>

@@ -182,22 +182,28 @@ export default () => {
 
                 jsonData.forEach(async (item: any) => {
                     // state.allPageListMap.set(item.ID, item.Json); //添加一条Map
-
                     item.Json =
                         item.Json && typeof item.Json === "string"
                             ? JSON.parse(item.Json)
                             : item.Json; //转为对象
                     item.AcademicPresupposition = item.Json.remark; //
                     item.DesignIntent = item.Json.design;
+                    const id = createRandomCode(); //随机唯一id
+                    item.TeachPageRelationID = "";
+                    item.PageID = id; //新插入的 pageid置空
+                    item.ID = id; //新插入的 pageid置空
+                    item.isAdd = true; //新插入的 pageid置空
+                    item.Json.id = id;
                     const newSlide: Slide = await transformPageDetail(
                         item,
                         item.Json
                     );
-                    state.allPageListMap.set(item.ID, newSlide);
-                    item.isAdd = true; //新插入的 pageid置空
-                    console.log("item======>", item);
+                    newSlide.id = id;
+                    state.allPageListMap.set(id, newSlide);
                 });
 
+                // setTimeout(async () => {
+                pageValue.value = jsonData[0];
                 state.windowCards[findex]?.PageList.splice(
                     sindex + 1,
                     0,
@@ -210,7 +216,7 @@ export default () => {
                 const res = await addTemLinkCount(
                     obj.teachPageTemplateID || ""
                 );
-                return [res, jsonData];
+                // return [res, jsonData];
             } else if (obj.type === "elements") {
                 //深拷贝 获取当前的页的数据
                 const currentPageData: any = JSON.parse(
