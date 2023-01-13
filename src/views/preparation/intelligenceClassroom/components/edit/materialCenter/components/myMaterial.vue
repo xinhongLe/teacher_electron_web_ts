@@ -32,8 +32,10 @@
                     v-for="(item, i) in (myAssemblyList as any)"
                     :key="item.Id"
                     @click="insertMaterial(item)"
-                    v-contextmenu="(el: any) => TContextmenus(el, item)"
+                    @contextmenu.prevent="TContextmenusRight($event, item)"
                 >
+                    <!-- v-contextmenu="(el: any) => TContextmenus(el, item)" -->
+
                     <!-- 需要winCard更新-->
                     <ThumbnailElements
                         :size="130"
@@ -41,6 +43,7 @@
                     ></ThumbnailElements>
                 </div>
             </div>
+
             <div v-else-if="activeIndex === 2 && myTemplateList.length">
                 <div class="row-content">
                     <div
@@ -157,6 +160,20 @@
                     description="这里空空如也..."
                 />
             </div>
+            <!-- 右键菜单 -->
+            <ul
+                v-show="contextMenuVisible"
+                :style="{
+                    left: contextMenu.x + 'px',
+                    top: contextMenu.y + 'px',
+                }"
+                class="contextmenu"
+            >
+                <li @click="handleDeleteTitle(contextMenu.rightClickItem)">
+                    <i class="el-icon-edit"></i>
+                    删除组件
+                </li>
+            </ul>
         </div>
 
         <template-view
@@ -227,6 +244,13 @@ export default defineComponent({
                 },
             },
         });
+        const contextMenuVisible = ref(false);
+        const contextMenu = ref({
+            rightClickItemIndex: null,
+            rightClickItem: null,
+            x: null,
+            y: null,
+        });
         const {
             queryMyTemplateLis,
             templateList,
@@ -254,6 +278,17 @@ export default defineComponent({
                         myTemplateList.value.push(page);
                     });
                 });
+            },
+            { deep: true }
+        );
+        watch(
+            () => contextMenuVisible.value,
+            (value: any) => {
+                if (value) {
+                    document.body.addEventListener("click", closeMenu);
+                } else {
+                    document.body.removeEventListener("click", closeMenu);
+                }
             },
             { deep: true }
         );
@@ -375,6 +410,18 @@ export default defineComponent({
                 })
                 .catch(() => {});
         };
+        //标题框右击菜单-自定义
+        const TContextmenusRight = (el: any, data: any) => {
+            contextMenuVisible.value = true;
+            contextMenu.value.rightClickItem = data;
+            var x = el.pageX;
+            var y = el.pageY;
+            contextMenu.value.x = x;
+            contextMenu.value.y = y;
+        };
+        const closeMenu = () => {
+            contextMenuVisible.value = false;
+        };
         //标题框右击菜单
         const TContextmenus = (el: any, data: any) => {
             return [
@@ -435,12 +482,44 @@ export default defineComponent({
             isLoading,
             addLinkCount,
             checkMyTemplateTab,
+            contextMenuVisible,
+            contextMenu,
+            TContextmenusRight,
+            closeMenu,
         };
     },
 });
 </script>
 
 <style scoped lang="scss">
+.contextmenu {
+    margin: 0;
+    background: #fff;
+    z-index: 3000;
+    position: fixed; //关键样式设置固定定位
+    list-style-type: none;
+    padding: 5px 0;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 400;
+    color: #333;
+    box-shadow: 2px 2px 3px 0 rgba(0, 0, 0, 0.3);
+    li {
+        list-style: none;
+        padding: 0 20px;
+        color: #555;
+        font-size: 12px;
+        transition: all 0.1s;
+        white-space: nowrap;
+        height: 30px;
+        line-height: 30px;
+        background-color: #fff;
+        cursor: pointer;
+    }
+    li:hover {
+        background-color: rgba(24, 144, 255, 0.2);
+    }
+}
 .tab-class {
     display: flex;
     justify-content: space-between;

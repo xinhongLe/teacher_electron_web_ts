@@ -7,7 +7,7 @@ import ElementPlus from "element-plus";
 import zhCn from "element-plus/es/locale/lang/zh-cn";
 import "element-plus/dist/index.css";
 import Icon from "./plugins/icon";
-
+import DragLine from "./directive/dragLine";
 import Directive from "./directive/index";
 import Drag from "./directive/drag";
 // import "@/utils/flexible";
@@ -38,6 +38,7 @@ app.use(
     .use(router)
     .use(Directive)
     .use(Drag)
+    .use(DragLine)
     .mount("#app");
 app.config.globalProperties.mittBus = mitt();
 

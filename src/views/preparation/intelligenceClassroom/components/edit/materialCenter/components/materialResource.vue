@@ -231,12 +231,21 @@
                                 <div class="count">
                                     {{ item.MaterialNum }}
                                 </div>
-                                <el-image
-                                    :draggable="false"
-                                    v-if="item.url"
-                                    :src="item.url"
-                                    fit="cover"
-                                />
+                                <el-tooltip
+                                    placement="top"
+                                    :content="item.Name"
+                                    :disabled="item.Name ? false : true"
+                                    effect="dark"
+                                    :hide-after="0"
+                                >
+                                    <el-image
+                                        :draggable="false"
+                                        v-if="item.url"
+                                        :src="item.url"
+                                        fit="cover"
+                                    />
+                                </el-tooltip>
+
                                 <p>{{ item.Name }}</p>
                             </div>
                         </div>
@@ -286,8 +295,12 @@
                                 >
                                     <el-tooltip
                                         placement="top"
-                                        :content="item.Name"
-                                        :disabled="item.Name ? false : true"
+                                        :content="item.Name || item.FileName"
+                                        :disabled="
+                                            item.Name || item.FileName
+                                                ? false
+                                                : true
+                                        "
                                         effect="dark"
                                         :hide-after="0"
                                     >
@@ -320,12 +333,20 @@
                                     <div class="count">
                                         {{ item.MaterialNum }}
                                     </div>
-                                    <el-image
-                                        :draggable="false"
-                                        v-if="item.url"
-                                        :src="item.url"
-                                        fit="cover"
-                                    />
+                                    <el-tooltip
+                                        placement="top"
+                                        :content="item.Name"
+                                        :disabled="item.Name ? false : true"
+                                        effect="dark"
+                                        :hide-after="0"
+                                    >
+                                        <el-image
+                                            :draggable="false"
+                                            v-if="item.url"
+                                            :src="item.url"
+                                            fit="cover"
+                                        />
+                                    </el-tooltip>
                                     <p>{{ item.Name }}</p>
                                 </div>
                             </div>
@@ -341,9 +362,6 @@
                                     : row.Materials.slice(0, 6)"
                                 :key="i"
                                 @click="insertMaterial(item)"
-                                @contextmenu.prevent="
-                                    TContextmenusRight($event, item)
-                                "
                             >
                                 <!-- v-contextmenu="(el: any) => TContextmenus(el, item)" -->
 
@@ -353,26 +371,6 @@
                                 ></ThumbnailElements>
                             </div>
                         </div>
-                        <!-- 右键菜单 -->
-                        <ul
-                            v-show="contextMenuVisible"
-                            :style="{
-                                left: contextMenu.x + 'px',
-                                top: contextMenu.y + 'px',
-                            }"
-                            class="contextmenu"
-                        >
-                            <li
-                                @click="
-                                    handleDeleteTitle(
-                                        contextMenu.rightClickItem
-                                    )
-                                "
-                            >
-                                <i class="el-icon-edit"></i>
-                                删除组件
-                            </li>
-                        </ul>
                         <!--视频/音频-->
                         <div v-if="row.Type === 5 || row.Type === 6">
                             <div
@@ -740,17 +738,7 @@ export default defineComponent({
             },
             { deep: true }
         );
-        watch(
-            () => contextMenuVisible.value,
-            (value: any) => {
-                if (value) {
-                    document.body.addEventListener("click", closeMenu);
-                } else {
-                    document.body.removeEventListener("click", closeMenu);
-                }
-            },
-            { deep: true }
-        );
+
         //教具内容添加进素材里面
         const insertJiaoJu = async () => {
             if (state.activeIndex === 0 || state.activeIndex === 1) {
@@ -911,19 +899,6 @@ export default defineComponent({
             //     },
             // ];
         };
-        //标题框右击菜单-自定义
-        const TContextmenusRight = (el: any, data: any) => {
-            contextMenuVisible.value = true;
-            contextMenu.value.rightClickItem = data;
-            var x = el.pageX;
-            var y = el.pageY;
-            contextMenu.value.x = x;
-            contextMenu.value.y = y;
-        };
-        const closeMenu = () => {
-            contextMenuVisible.value = false;
-        };
-
         //视频右击菜单
 
         // const VContextmenus = (el: any, data: any) => {
@@ -1041,44 +1016,12 @@ export default defineComponent({
             noMore,
             loadMore,
             templateScollRef,
-            contextMenuVisible,
-            contextMenu,
-            TContextmenusRight,
-            closeMenu,
         };
     },
 });
 </script>
 
 <style scoped lang="scss">
-.contextmenu {
-    margin: 0;
-    background: #fff;
-    z-index: 3000;
-    position: fixed; //关键样式设置固定定位
-    list-style-type: none;
-    padding: 5px 0;
-    border-radius: 4px;
-    font-size: 12px;
-    font-weight: 400;
-    color: #333;
-    box-shadow: 2px 2px 3px 0 rgba(0, 0, 0, 0.3);
-    li {
-        list-style: none;
-        padding: 0 20px;
-        color: #555;
-        font-size: 12px;
-        transition: all 0.1s;
-        white-space: nowrap;
-        height: 30px;
-        line-height: 30px;
-        background-color: #fff;
-        cursor: pointer;
-    }
-    li:hover {
-        background-color: rgba(24, 144, 255, 0.2);
-    }
-}
 .tab-class {
     display: flex;
     justify-content: flex-start;

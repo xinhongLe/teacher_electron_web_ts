@@ -1,6 +1,6 @@
 <template>
     <div :class="['fixed-content-right', isOpen ? '' : 'open-box']">
-        <div class="btn-box">
+        <div class="btn-box" v-dragLine>
             <div class="btn" @click="switchMenu">
                 <span
                     style="
@@ -11,8 +11,18 @@
                 >
                     资源库
                 </span>
-
                 <IconRight />
+                <el-icon
+                    style="
+                        position: absolute;
+                        bottom: -2px;
+                        right: 10px;
+                        cursor: move;
+                        color: #000;
+                    "
+                >
+                    <Rank />
+                </el-icon>
             </div>
         </div>
         <div class="content-box">
@@ -67,8 +77,9 @@ import myMaterial from "./components/myMaterial.vue";
 import materialResource from "./components/materialResource.vue";
 import { ITemplateSave } from "@/types/home";
 import { useRouter } from "vue-router";
+import { Rank } from "@element-plus/icons-vue";
 export default defineComponent({
-    components: { materialTemplate, myMaterial, materialResource },
+    components: { materialTemplate, myMaterial, materialResource, Rank },
     props: {
         subjectID: {
             type: String,

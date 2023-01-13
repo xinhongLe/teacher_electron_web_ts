@@ -871,22 +871,23 @@ export default defineComponent({
         //资源库-模板素材操作
         //插入左侧窗卡页
         const handleInsertData = async (data: any) => {
+            const jsonData = JSON.parse(JSON.stringify(data));
             if (editRef.value.getDataIsChange() && data.type === "elements") {
                 const slide = editRef.value.getCurrentSlide();
                 // console.log('slde', slide);
                 state.allPageListMap.set(pageValue.value.ID, slide);
             }
-            const res: any = await insertData(data);
-            if (data.type === "elements") return;
-            if (res[0]) {
-                pageValue.value = res[1][0];
-                selectPageValue(pageValue.value, false);
-                nextTick(() => {
-                    materialCenterRef.value.addLinkCount(
-                        data.teachPageTemplateID || ""
-                    );
-                });
-            }
+            const res: any = await insertData(jsonData);
+            if (jsonData.type === "elements") return;
+            // if (res[0]) {
+            //     pageValue.value = res[1][0];
+            //     selectPageValue(pageValue.value, false);
+            nextTick(() => {
+                materialCenterRef.value.addLinkCount(
+                    jsonData.teachPageTemplateID || ""
+                );
+            });
+            // }
         };
         //插入教具内容以及教具页
         const handleInsertTool = async (data: any) => {
