@@ -8,6 +8,7 @@ import "element-plus/dist/index.css";
 import Icon from "@/plugins/icon";
 
 import Directive from "@/directive/index";
+import DragLine from "@/directive/dragLine";
 import Drag from "@/directive/drag";
 // import "@/utils/flexible";
 import "@/permission";
@@ -36,6 +37,7 @@ app.use(
     .use(store, key)
     .use(Directive)
     .use(Drag)
+    .use(DragLine)
     .mount("#app");
 app.config.globalProperties.mittBus = mitt();
 
