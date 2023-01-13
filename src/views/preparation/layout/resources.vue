@@ -322,7 +322,7 @@ export default defineComponent({
                     targetDelete.value = data.ResourceId;
                     deleteTipVisible.value = true;
                     break;
-                case "property": //原先的编辑改为编辑属性
+                case "edit":
                     if (
                         (data.ResourceShowType === 1 ||
                             data.ResourceShowType === 0) &&
@@ -331,7 +331,9 @@ export default defineComponent({
                         resource.value = data;
                         editTipVisible.value = true;
                     } else {
-                        emitter.emit("openEditResource", data);
+                    }
+                    if (source.value === "4") {
+                        editWincard(data);
                     }
                     break;
                 case "version":
@@ -425,8 +427,9 @@ export default defineComponent({
                     logView({ id: data.ResourceId });
                     data.BrowseNum++;
                     break;
-                case "edit":
-                    editWincard(data);
+                case "property":
+                    emitter.emit("openEditResource", data);
+
                     break;
             }
         };
