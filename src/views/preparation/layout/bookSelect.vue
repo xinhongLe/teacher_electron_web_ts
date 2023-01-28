@@ -383,6 +383,7 @@ export default defineComponent({
     width: 100%;
     position: relative;
     z-index: 10;
+    font-size: 14px;
 }
 
 .book-select {

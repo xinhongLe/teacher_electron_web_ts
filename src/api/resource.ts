@@ -91,6 +91,7 @@ export interface IResourceItem {
     BagId: string;
     ResourceToolUrl: string;
     IsSysFile: number;
+    IsMine: number;
     File: {
         Id: string;
         Name: string;

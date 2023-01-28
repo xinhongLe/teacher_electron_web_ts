@@ -350,7 +350,7 @@ export default defineComponent({
         );
 
         const canEdit = computed(
-            () => [2, 3, 4, 5].indexOf(props.data.ResourceShowType) === -1
+            () => [0, 2, 3, 4, 5].indexOf(props.data.ResourceShowType) === -1
         );
 
         const canDownload = computed(

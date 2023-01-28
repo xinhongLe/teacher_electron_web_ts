@@ -330,9 +330,7 @@ export default defineComponent({
                     ) {
                         resource.value = data;
                         editTipVisible.value = true;
-                    } else {
-                    }
-                    if (source.value === "4") {
+                    } else if (data.IsMine === 1 && data.IsSchool !== 1) {
                         editWincard(data);
                     }
                     break;
