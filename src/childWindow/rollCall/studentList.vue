@@ -202,9 +202,10 @@ export default defineComponent({
             const size =
                 window.electron.remote.screen.getPrimaryDisplay().workAreaSize;
             window.electron.setContentSize(200, 250);
+            const top = size.height - 100 - 250;
             window.electron.setPositionWin(
                 size.width - 20 - 200,
-                size.height - 200 - 250
+                top > 0 ? top : 20
             );
             isPackUp.value = true;
         };
