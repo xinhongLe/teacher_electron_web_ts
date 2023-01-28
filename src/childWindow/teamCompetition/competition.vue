@@ -118,9 +118,10 @@ export default defineComponent({
             const size =
                 window.electron.remote.screen.getPrimaryDisplay().workAreaSize;
             window.electron.setContentSize(300, 244);
+            const top = size.height - 100 - 244 - 260;
             window.electron.setPositionWin(
                 size.width - 20 - 300,
-                size.height - 300 - 244 - 260
+                top > 0 ? top : 20
             );
         };
 
