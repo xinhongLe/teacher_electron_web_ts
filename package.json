@@ -49,7 +49,7 @@
         "mitt": "^3.0.0",
         "moment": "^2.29.1",
         "mqtt": "^4.3.2",
-        "mwhiteboard": "^0.1.9",
+        "mwhiteboard": "^0.2.0",
         "pizzip": "^3.1.1",
         "port-used": "^2.0.8",
         "postcss-px2rem-exclude": "0.0.6",
