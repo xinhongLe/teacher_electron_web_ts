@@ -2,7 +2,7 @@
 node_modules
 /dist
 /dist_electron
-
+.history
 # local env files
 .env.local
 .env.*.local
