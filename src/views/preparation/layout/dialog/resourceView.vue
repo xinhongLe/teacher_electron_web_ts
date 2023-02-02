@@ -37,7 +37,7 @@
                     :lessonId="lessonId"
                     v-if="visible"
                     :close="close"
-                    :isFullScreen="!isFullScreen"
+                    :isFullScreen="isFullScreen"
                 />
             </div>
         </el-dialog>
@@ -199,7 +199,7 @@ export default defineComponent({
         position: absolute;
         top: 10px;
         right: 10px;
-        z-index: 99999;
+        z-index: 99;
         cursor: pointer;
     }
 }

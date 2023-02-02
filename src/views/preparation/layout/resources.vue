@@ -125,6 +125,7 @@ import { IViewResourceData } from "@/types/store";
 import { ElMessage } from "element-plus";
 import LocalCache from "@/utils/localcache";
 import isElectron from "is-electron";
+import { get, set, STORAGE_TYPES } from "@/utils/storage";
 interface ICourse {
     chapterId: string;
     lessonId: string;
@@ -440,14 +441,21 @@ export default defineComponent({
                 lessonId: store.state.preparation.selectLessonId,
                 originType: 1,
             };
-            window.electron.store.set("windowInfo", windowInfo);
-            openWinCard();
+            set(STORAGE_TYPES.WINDOW_INFO, windowInfo);
+            set(
+                STORAGE_TYPES.SUBJECT_BOOK_INFO,
+                store.state.preparation.subjectPublisherBookValue
+            );
+            openWinCard(cacheResource.Name);
             // router.push("/windowcard-edit");
         };
         //直接打开编辑窗口
-        const openWinCard = () => {
+        const openWinCard = (name: any) => {
             if (isElectron()) {
-                return window.electron.ipcRenderer.invoke("openWinCardWin");
+                return window.electron.ipcRenderer.invoke(
+                    "openWinCardWin",
+                    name
+                );
             }
         };
         const openResource = (data: IResourceItem) => {

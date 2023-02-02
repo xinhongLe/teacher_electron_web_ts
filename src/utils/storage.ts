@@ -23,7 +23,7 @@ export enum STORAGE_TYPES {
      * 是否有正在请求的页
      */
 
-     SET_PAGEIDING = "SET_PAGEIDING",
+    SET_PAGEIDING = "SET_PAGEIDING",
     // 登录历史
     RECORD_LOGIN_LIST = "RECORD_LOGIN_LIST",
     /**
@@ -36,7 +36,7 @@ export enum STORAGE_TYPES {
     AUTO_PALY_RESOLUTION_SWITCH = "AUTO_PALY_RESOLUTION_SWITCH",
     /**
      * oss存储路径
-    */
+     */
     OSS_PATHS = "OSS_PATHS",
     /**
      * 查阅作业的详情
@@ -53,7 +53,7 @@ export enum STORAGE_TYPES {
     /**
      * TEACHER_LIST 集体备课邀请老师的列表
      */
-     TEACHER_LIST = "TEACHER_LIST",
+    TEACHER_LIST = "TEACHER_LIST",
     /**
      * 是否开启缓存
      */
@@ -93,10 +93,27 @@ export enum STORAGE_TYPES {
     /**
      * 存储学生列表
      */
-    STUDENT_LIST= "STUDENT_LIST"
+    STUDENT_LIST = "STUDENT_LIST",
+    /**
+     * 存储窗体信息
+     */
+    WINDOW_INFO = "WINDOW_INFO",
+    /**
+     * 存储科目书册信息
+     */
+    SUBJECT_BOOK_INFO = "SUBJECT_BOOK_INFO",
+
+    /**
+     * 多个窗体下 赋值的窗卡页信息
+     */
+    WIN_COPY_VALUE = "WIN_COPY_VALUE",
 }
 
-export const set = (name: STORAGE_TYPES | string, value: unknown, isEncrypt = false) => {
+export const set = (
+    name: STORAGE_TYPES | string,
+    value: unknown,
+    isEncrypt = false
+) => {
     let newValue = typeof value === "string" ? value : JSON.stringify(value);
     newValue = isEncrypt ? encrypt(newValue) : newValue;
     if (isElectron()) {
@@ -115,15 +132,18 @@ export const get = (name: STORAGE_TYPES | string, isDecrypt = false) => {
     }
     let result;
     try {
-        item = isDecrypt ? decrypt(item as string || "") : item;
+        item = isDecrypt ? decrypt((item as string) || "") : item;
         result = !item ? null : JSON.parse(item as string);
-    } catch(err) {
+    } catch (err) {
         result = item;
     }
     return result;
 };
 
-export const storeChange = (name: STORAGE_TYPES | string, callback: (newValue: unknown, oldValue: unknown) => void) => {
+export const storeChange = (
+    name: STORAGE_TYPES | string,
+    callback: (newValue: unknown, oldValue: unknown) => void
+) => {
     return window.electron.store.onDidChange(`${PREFIX}_${name}`, callback);
 };
 
@@ -150,7 +170,12 @@ export const clear = () => {
 
             // 记录账号历史记录的不删除
             // OSS_PATHS不能删 （被人顶掉以后不执行App组件的getoss，导致上传报错）
-            if (!REGEXP.test(name) || name.includes(STORAGE_TYPES.RECORD_LOGIN_LIST) || name.includes(STORAGE_TYPES.OSS_PATHS) || name.includes(STORAGE_TYPES.SELECT_BOOK_ID)) {
+            if (
+                !REGEXP.test(name) ||
+                name.includes(STORAGE_TYPES.RECORD_LOGIN_LIST) ||
+                name.includes(STORAGE_TYPES.OSS_PATHS) ||
+                name.includes(STORAGE_TYPES.SELECT_BOOK_ID)
+            ) {
                 return;
             }
             remove(name.substring(4));

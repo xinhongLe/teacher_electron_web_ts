@@ -1,5 +1,11 @@
 <template>
-    <div class="nextpage">
+    <div
+        class="nextpage background"
+        :style="{
+            left: isFullScreenStatus ? 0 : '-20px',
+            bottom: isTKdialog ? '56px' : isFullScreenStatus ? 0 : '-20px',
+        }"
+    >
         <div
             class="me-tool-btn setting-btn"
             @click="nextStep"
@@ -162,24 +168,7 @@
                         />
                     </div>
                 </div>
-                <div class="me-tools-steps">
-                    <div
-                        class="me-tool-btn"
-                        :disabled="isFirst"
-                        @click="prevStep"
-                    >
-                        <img
-                            v-if="!isFirst"
-                            src="../../images/shangyiye_rest.png"
-                            alt=""
-                        />
-                        <img
-                            v-if="isFirst"
-                            src="../../images/shangyiye_disabled.png"
-                            alt=""
-                        />
-                    </div>
-                </div>
+
                 <div class="me-tools-set">
                     <div class="setting" v-show="isShowMenu">
                         <span
@@ -200,7 +189,7 @@
                     </div>
                     <div
                         class="me-tool-btn setting-btn"
-                        @click.stop="isShowMenu = true"
+                        @click.stop="moreSet($event)"
                     >
                         <img src="../../images/btn_more.png" />
                     </div>
@@ -215,6 +204,24 @@
                 <img src="../../images/btn_next.png" />
             </div> -->
                 </div>
+                <div class="me-tools-steps">
+                    <div
+                        class="me-tool-btn"
+                        :disabled="isFirst"
+                        @click="prevStep"
+                    >
+                        <img
+                            v-if="!isFirst"
+                            src="../../images/shangyiye_rest.png"
+                            alt=""
+                        />
+                        <img
+                            v-if="isFirst"
+                            src="../../images/shangyiye_disabled.png"
+                            alt=""
+                        />
+                    </div>
+                </div>
                 <div style="display: flex">
                     <div
                         class="me-tool-btn"
@@ -228,9 +235,15 @@
             <div class="me-tools-steps righticon">
                 <div
                     @click.prevent.stop="showDrawToos"
-                    style="cursor: pointer; font-size: 20px"
+                    style="
+                        cursor: pointer;
+                        font-size: 20px;
+                        display: flex;
+                        align-items: center;
+                    "
                 >
-                    左
+                    <el-icon v-if="!isOpen"><ArrowLeftBold /></el-icon>
+                    <el-icon v-else><ArrowRightBold /></el-icon>
                 </div>
                 <div
                     class="me-tool-btn next-step"
@@ -273,6 +286,7 @@ import {
     onActivated,
     onDeactivated,
 } from "vue";
+import { ArrowLeftBold, ArrowRightBold } from "@element-plus/icons-vue";
 import {
     enterFullscreen,
     exitFullscreen,
@@ -299,6 +313,10 @@ export default defineComponent({
             type: Boolean,
             default: true,
         },
+        isFullScreenStatus: {
+            type: Boolean,
+            default: false,
+        },
         isShowClose: {
             type: Boolean,
             default: false,
@@ -323,14 +341,21 @@ export default defineComponent({
             type: Boolean,
             default: false,
         },
+        isTKdialog: {
+            type: Boolean,
+            default: false,
+        },
     },
     setup(props, { emit }) {
+        const isOpen = ref(false);
         const showDrawToos = () => {
             const dom: any = document.querySelector(".draw-content");
             const outdom: any = document.querySelector(".me-tools");
             if (outdom.style.width == "1224px") {
-                outdom.style.width = "150px";
+                isOpen.value = false;
+                outdom.style.width = "190px";
             } else {
+                isOpen.value = true;
                 outdom.style.width = "1224px";
             }
             if (dom.style.width == "1073px") {
@@ -375,6 +400,16 @@ export default defineComponent({
             () => {
                 showremark.value = props.showRemark;
             }
+        );
+        watch(
+            () => props.isFullScreenStatus,
+            (val: any) => {
+                // console.log(
+                //     "---------------isFullScreenStatus",
+                //     props.isFullScreenStatus
+                // );
+            },
+            { deep: true }
         );
         const changeNextType = (type: NextSettingType) => {
             store.commit(MutationTypes.SET_SELECT_NEXT_TYPE, type);
@@ -478,8 +513,7 @@ export default defineComponent({
         };
         //橡皮擦
         const openPaintTool = (event: MouseEvent, type: string) => {
-            console.log("event, type", event, type);
-
+            // console.log("event, type", event, type);
             emit("openPaintTool", event, type);
         };
         const hideWriteBoard = () => {
@@ -500,8 +534,16 @@ export default defineComponent({
             });
             emit("closeWincard");
         };
+        //更多设置时 改变固定定位位置
+        const moreSet = (e: any) => {
+            const dom: any = document.querySelector(".setting");
+            dom.style.left = e.clientX + "px";
+            dom.style.top = e.clientY - 82 + "px";
+            isShowMenu.value = true;
+        };
 
         return {
+            isOpen,
             scale,
             type,
             isLast,
@@ -527,25 +569,36 @@ export default defineComponent({
             closeWincard,
             openPaintTool,
             showDrawToos,
+            moreSet,
         };
     },
-    components: { ResourceDialog },
+    components: { ResourceDialog, ArrowLeftBold, ArrowRightBold },
 });
 </script>
 
 <style lang="scss" scoped>
 .nextpage {
     position: absolute;
-    left: -30px;
-    bottom: -26px;
+    left: 0;
+    bottom: 0;
+}
+.background {
+    background: rgba($color: #fff, $alpha: 0.3);
+    // background: rgb(218 25 25 / 40%);
+    width: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 160px;
+    border-radius: 40px;
 }
 .me-tools {
     // background-color: #BED2FF;
     // padding: 14px;
     // display: flex;
     // position: relative;
-
-    background-color: #bed2ff;
+    border-radius: 40px;
+    background: rgba($color: #fff, $alpha: 0.3);
     z-index: 999;
     cursor: move;
     height: 78px;
@@ -553,7 +606,7 @@ export default defineComponent({
     overflow: auto;
     bottom: 6vh;
     right: 9vh;
-    width: 150px;
+    width: 190px;
     transition: width 0.5s, transform 0.5s;
     overflow-y: hidden;
     // width: 80%;
@@ -566,13 +619,19 @@ export default defineComponent({
             position: absolute;
             width: 0;
             overflow: hidden;
-            right: 150px;
+            right: 130px;
             transition: width 0.5s, transform 0.5s;
         }
         .righticon {
-            width: 150px;
+            width: 180px;
             position: absolute;
             right: 0;
+            .el-icon {
+                cursor: pointer;
+                font-size: 32px;
+                display: flex;
+                align-items: center;
+            }
         }
     }
     &.tools-fullSrceen {
@@ -595,7 +654,7 @@ export default defineComponent({
         position: relative;
 
         .setting {
-            position: absolute;
+            position: fixed;
             top: -55px;
             left: 10px;
             color: #fff;
@@ -683,6 +742,9 @@ export default defineComponent({
     position: relative;
     top: 0;
     transition: all 0.1s;
+
+    width: 59px;
+    height: 59px;
 }
 
 .me-tool-btn.next-step {

@@ -839,13 +839,16 @@ export default defineComponent({
                 originType: 1,
             };
             window.electron.store.set("windowInfo", windowInfo);
-            openWinCard();
+            openWinCard(cacheResource.Name);
             // router.push("/windowcard-edit");
         };
         //打开窗卡页编辑子窗
-        const openWinCard = () => {
+        const openWinCard = (name: any) => {
             if (isElectron()) {
-                return window.electron.ipcRenderer.invoke("openWinCardWin");
+                return window.electron.ipcRenderer.invoke(
+                    "openWinCardWin",
+                    name
+                );
             }
         };
         const courseCartOpen = ref(false);
