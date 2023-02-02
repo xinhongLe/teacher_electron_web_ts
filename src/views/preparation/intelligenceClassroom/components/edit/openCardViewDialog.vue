@@ -30,6 +30,7 @@
             </div> -->
         </div>
         <Tools
+            :isTKdialog="true"
             @prevStep="prevCard"
             @nextStep="nextCard"
             @showWriteBoard="showWriteBoard"
@@ -38,6 +39,7 @@
             :dialog="dialog"
             @openShape="openShape"
             :isShowFullscreen="false"
+            :isFullScreenStatus="true"
             :isShowRemarkBtn="false"
             :isShowClose="true"
             @openPaintTool="openPaintTool"

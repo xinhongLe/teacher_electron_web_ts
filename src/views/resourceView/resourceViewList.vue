@@ -7,6 +7,7 @@
             :dialog="true"
             :resource="resource"
             :isSystem="isSystem"
+            :isFullScreenStatus="isFullScreen"
         />
         <LookVideo
             :resource="data"
@@ -70,6 +71,7 @@ import {
     provide,
     ref,
     watchEffect,
+    watch,
 } from "vue";
 import IntelligenceClassroom from "../preparation/intelligenceClassroom/index.vue";
 import LookVideo from "@/components/lookVideo/index.vue";
@@ -116,8 +118,19 @@ export default defineComponent({
             type: String,
             required: true,
         },
+        isFullScreen: {
+            type: Boolean,
+            default: false,
+        },
     },
     setup(props, { emit }) {
+        watch(
+            () => props.isFullScreen,
+            (val: any) => {
+                console.log("isFullScreen", props.isFullScreen);
+            },
+            { deep: true }
+        );
         const drawingShow = ref(false);
         const store = useStore();
         const url = ref("");
@@ -154,10 +167,15 @@ export default defineComponent({
         );
         const isAudio = computed(
             () =>
-                ["mp3", "wav"].indexOf(props.resource!.File?.FileExtention.toLocaleLowerCase()) > -1
+                ["mp3", "wav"].indexOf(
+                    props.resource!.File?.FileExtention.toLocaleLowerCase()
+                ) > -1
         );
         const isVideo = computed(
-            () => ["mp4"].indexOf(props.resource!.File?.FileExtention.toLocaleLowerCase()) > -1
+            () =>
+                ["mp4"].indexOf(
+                    props.resource!.File?.FileExtention.toLocaleLowerCase()
+                ) > -1
         );
 
         watchEffect(initIframeSrc);

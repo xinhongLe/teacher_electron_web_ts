@@ -62,7 +62,7 @@
             @hideWriteBoard="hideWriteBoard"
             :isCanUndo="isCanUndo"
             :isCanRedo="isCanRedo"
-            :isFullScreen="isFullScreen"
+            :isFullScreenStatus="isFullScreenStatus"
         />
     </div>
 </template>
@@ -107,7 +107,18 @@ const props = defineProps({
         type: Object as PropType<IResourceItem | undefined>,
         required: true,
     },
+    isFullScreenStatus: {
+        type: Boolean,
+        default: false,
+    },
 });
+watch(
+    () => props.isFullScreenStatus,
+    (val: any) => {
+        console.log("isFullScreenStatus", props.isFullScreenStatus);
+    },
+    { deep: true }
+);
 const isCanUndo = ref(false);
 const isCanRedo = ref(false);
 const resourceId = toRef(props, "resourceId");

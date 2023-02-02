@@ -11,7 +11,11 @@ import {
     unfoldSuspensionWinSendMessage,
 } from "./suspension";
 import autoUpdater from "./autoUpdater";
-import { openWinCardWin } from "./wincard";
+import {
+    createWinCardWindow,
+    registerWinCardEvent,
+    openWinCardWin,
+} from "./wincard";
 import SingalRHelper from "./singalr";
 import ElectronLog from "electron-log";
 import os from "os";
@@ -70,6 +74,7 @@ async function createWindow() {
     }
 
     registerEvent();
+    registerWinCardEvent();
 
     if (process.env.WEBPACK_DEV_SERVER_URL) {
         require("@electron/remote/main").enable(mainWindow.webContents);
@@ -209,9 +214,13 @@ async function createWindow() {
         mainWindow!.webContents.send("suspensionClick");
     });
 
-    ipcMain.handle("openWinCardWin", () => {
-        openWinCardWin();
-    });
+    // ipcMain.handle("openWinCardWin", () => {
+    //     openWinCardWin();
+    // });
+    // ipcMain.on("closeWinCard", () => {
+    //     mainWindow!.webContents.send("closeVideoWin");
+    // });
+    // registerWinCardEvent();
 }
 
 app.on("window-all-closed", () => {
