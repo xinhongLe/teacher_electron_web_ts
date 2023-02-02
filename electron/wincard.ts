@@ -45,9 +45,5 @@ export function registerWinCardEvent() {
     // });
 }
 export function openWinCardWin() {
-    // if (editWin) {
-    //     return editWin.show();
-    // }
-    // createWinCardWindow();
     editWin && editWin.show();
 }

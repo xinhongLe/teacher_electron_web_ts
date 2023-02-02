@@ -11,11 +11,7 @@ import {
     unfoldSuspensionWinSendMessage,
 } from "./suspension";
 import autoUpdater from "./autoUpdater";
-import {
-    createWinCardWindow,
-    registerWinCardEvent,
-    openWinCardWin,
-} from "./wincard";
+import { createWinCardWindow, registerWinCardEvent } from "./wincard";
 import SingalRHelper from "./singalr";
 import ElectronLog from "electron-log";
 import os from "os";
@@ -220,7 +216,6 @@ async function createWindow() {
     // ipcMain.on("closeWinCard", () => {
     //     mainWindow!.webContents.send("closeVideoWin");
     // });
-    // registerWinCardEvent();
 }
 
 app.on("window-all-closed", () => {

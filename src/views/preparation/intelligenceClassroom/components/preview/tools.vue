@@ -404,10 +404,10 @@ export default defineComponent({
         watch(
             () => props.isFullScreenStatus,
             (val: any) => {
-                console.log(
-                    "---------------isFullScreenStatus",
-                    props.isFullScreenStatus
-                );
+                // console.log(
+                //     "---------------isFullScreenStatus",
+                //     props.isFullScreenStatus
+                // );
             },
             { deep: true }
         );
@@ -513,8 +513,7 @@ export default defineComponent({
         };
         //橡皮擦
         const openPaintTool = (event: MouseEvent, type: string) => {
-            console.log("event, type", event, type);
-
+            // console.log("event, type", event, type);
             emit("openPaintTool", event, type);
         };
         const hideWriteBoard = () => {
@@ -535,11 +534,9 @@ export default defineComponent({
             });
             emit("closeWincard");
         };
+        //更多设置时 改变固定定位位置
         const moreSet = (e: any) => {
-            console.log(e);
             const dom: any = document.querySelector(".setting");
-            console.log(dom);
-
             dom.style.left = e.clientX + "px";
             dom.style.top = e.clientY - 82 + "px";
             isShowMenu.value = true;

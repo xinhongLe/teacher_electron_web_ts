@@ -22,23 +22,23 @@
                 <!-- <ExitDialog v-model:visible="visible" /> -->
             </div>
             <div style="height: calc(100% - 48px)">
-                <editWinCard />
+                <editWinCard ref="editWinCardRef" />
             </div>
         </div>
     </div>
 </template>
 
 <script lang="ts" setup>
-import { onMounted, ref } from "vue";
+import { onMounted, ref, nextTick } from "vue";
 import { CloseBold } from "@element-plus/icons-vue";
 import editWinCard from "../../views/preparation/intelligenceClassroom/edit/index.vue";
-import { getCurrentWindow } from "@electron/remote";
 import isElectron from "is-electron";
 // onMounted(() => {
 //     window.electron.ipcRenderer.on("setTitle", (_, title) => {
 //         console.log("titles", title);
 //     });
 // });
+const editWinCardRef = ref();
 //获取url中"?"符后的字串
 const name: string = window.location.search;
 console.log("window.location.search", decodeURIComponent(name.substring(1)));
@@ -46,7 +46,12 @@ const currentTitle = ref(decodeURIComponent(name.substring(1)));
 document.title = currentTitle.value;
 
 const close = () => {
-    window.electron.destroyWindow();
+    nextTick(async () => {
+        const res = await editWinCardRef.value.closeCurrentWinCard();
+        if (res == "exit" || res == "save" || res == "nosave") {
+            window.electron.destroyWindow();
+        }
+    });
 };
 const minimizeWindow = () => {
     // if (isElectron()) {

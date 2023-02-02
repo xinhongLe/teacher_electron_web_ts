@@ -163,7 +163,7 @@ export default defineComponent({
         };
         //工具栏-画笔
         const openPaintTool = (event: MouseEvent, type: string) => {
-            console.log("previewSection.value", event, type);
+            // console.log("previewSection.value", event, type);
             screenRef.value && screenRef.value.openPaintTool(event, type);
         };
         return {

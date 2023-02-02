@@ -418,6 +418,7 @@ import SaveDialog from "../components/edit/saveDialog/saveDialog.vue";
 import SaveAsDialog from "../components/edit/saveDialog/saveAsDialog.vue";
 import materialCenter from "../components/edit/materialCenter/index.vue";
 import SaveTemplateDialog from "../components/edit/saveTemplateDialog.vue";
+import { get, set, STORAGE_TYPES } from "@/utils/storage";
 
 export default defineComponent({
     components: {
@@ -516,12 +517,18 @@ export default defineComponent({
         const windowInfo: any = computed(() =>
             store.state.preparation.editWindowInfo.id
                 ? store.state.preparation.editWindowInfo
-                : window.electron.store.get("windowInfo")
+                : get(STORAGE_TYPES.WINDOW_INFO)
         );
-        const subjectPublisherBookValue = computed(
-            () => store.state.preparation.subjectPublisherBookValue
+        const subjectPublisherBookValue = computed(() =>
+            store.state.preparation.editWindowInfo.id
+                ? store.state.preparation.subjectPublisherBookValue
+                : get(STORAGE_TYPES.SUBJECT_BOOK_INFO)
         );
-        console.log("windowInfo===================>", windowInfo.value);
+        // console.log("windowInfo===================>", windowInfo.value);
+        // console.log(
+        //     "subjectPublisherBookValue===================>",
+        //     subjectPublisherBookValue.value
+        // );
 
         const { handleAddCard, dialogVisibleCard } = useAddCard(
             windowCards,
@@ -671,6 +678,9 @@ export default defineComponent({
                     oldAllPageListMap.value.set(key, cloneDeep(item));
                 });
                 oldWindowCards.value = cloneDeep(windowCards.value);
+                return true;
+            } else {
+                return false;
             }
         };
 
@@ -868,6 +878,42 @@ export default defineComponent({
             }
         });
 
+        //子窗体关闭 提示
+        const closeCurrentWinCard = async () => {
+            // 先更新一下当前页
+            const slide = editRef.value.getCurrentSlide();
+            allPageListMap.value.set(pageValue.value.ID, slide);
+            // console.log(
+            //     "123123",
+            //     isEqual(allPageListMap.value, oldAllPageListMap.value),
+            //     isEqual(windowCards.value, oldWindowCards.value),
+            //     allPageListMap.value,
+            //     oldAllPageListMap.value
+            // );
+
+            if (
+                isEqual(allPageListMap.value, oldAllPageListMap.value) &&
+                isEqual(windowCards.value, oldWindowCards.value)
+            ) {
+                return "nosave";
+            }
+
+            const res = await exitDialog();
+            if (res === ExitType.Cancel) {
+                return "cancel";
+            }
+            if (res === ExitType.Exit) {
+                return "exit";
+            }
+            if (res === ExitType.Save) {
+                if (windowInfo.value.originType === 0) {
+                    return false;
+                } else {
+                    return (await onSave()) ? "save" : false;
+                }
+            }
+        };
+
         //资源库-模板素材操作
         //插入左侧窗卡页
         const handleInsertData = async (data: any) => {
@@ -1049,6 +1095,7 @@ export default defineComponent({
             updateMaterial,
             addPage,
             rightClick,
+            closeCurrentWinCard,
         };
     },
 });
