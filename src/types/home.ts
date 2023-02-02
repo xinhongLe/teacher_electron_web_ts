@@ -21,6 +21,9 @@ export interface IPageValue {
     State: boolean;
     Json?: string;
     url?: string;
+    ParentNum?: number;
+    ParentID?: string;
+    count?: number;
 }
 
 export interface ICardList {

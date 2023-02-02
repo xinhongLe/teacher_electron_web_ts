@@ -69,8 +69,8 @@
                 <div
                     class="card-list"
                     ref="cardListRef"
-                    v-if="windowCards.length"
                 >
+                
                     <el-tree
                         :class="viewTree ? 'view-tree-box' : 'tree-box'"
                         default-expand-all
@@ -82,6 +82,7 @@
                         :data="newWindowCards"
                         :props="defaultProps"
                         @node-click="handleNodeClick"
+                        @node-drop="handleNodedrop"
                     >
                         <template #default="{ node, data }">
                             <div
@@ -123,10 +124,10 @@
                                                 @click.stop="
                                                     handleSelectPages(data)
                                                 "
-                                                :style="{ backgroundColor: (selectPageData.map(((item: any) => item.ID)).includes(data.ID) ? 'var(--el-color-primary)' : '#fff') }"
                                                 class="select-page"
                                             >
-                                                <el-icon color="#fff">
+                                                <span class="chapter-num">{{data.count}}</span>
+                                                <el-icon :style="{ backgroundColor: (selectPageData.map(((item: any) => item.ID)).includes(data.ID) ? 'var(--el-color-primary)' : '#fff') }" color="#fff">
                                                     <Check />
                                                 </el-icon>
                                             </div>
@@ -264,6 +265,9 @@
                             </div>
                         </template>
                     </el-tree>
+                    <div class="page-intro">
+                        当前页{{pageValue.ParentNum || 1}}/{{newWindowCards.length}}
+                    </div>
                 </div>
             </div>
             <div class="shrink" ref="shrinkRef">
@@ -521,7 +525,6 @@ export default defineComponent({
         const subjectPublisherBookValue = computed(
             () => store.state.preparation.subjectPublisherBookValue
         );
-        console.log("windowInfo===================>", windowInfo.value);
 
         const { handleAddCard, dialogVisibleCard } = useAddCard(
             windowCards,
@@ -723,9 +726,12 @@ export default defineComponent({
         //过滤教具页和游戏页的封面
         const formataWindowCards = async (arr: any, mapList?: any) => {
             newWindowCards.value = JSON.parse(JSON.stringify(arr));
-            newWindowCards.value.forEach((item: any) => {
-                item.PageList?.forEach(async (page: IPageValue) => {
+            newWindowCards.value.forEach((item: any,idx: number) => {
+                item.num = Number(idx + 1);
+                item.PageList?.forEach(async (page: IPageValue,cidx: number) => {
                     if (page) {
+                        page.ParentNum = item.num;
+                        page.ParentID = item.ID;
                         page.Json =
                             page.Json && typeof page.Json === "string"
                                 ? JSON.parse(page.Json)
@@ -740,11 +746,45 @@ export default defineComponent({
                                   )
                                 : "";
                         }
+                        
+                        
                     }
                 });
             });
             newWindowCards.value = [...newWindowCards.value];
+            console.log('-------------',newWindowCards.value);
+            flatAndRebuild();
         };
+        const handleNodedrop = ()=>{
+            console.log('dropdropdropdropdropdropdrop');
+            flatAndRebuild();
+        }
+        /**
+         * 构造排序
+         */
+        const flatAndRebuild = ()=>{
+            let arr = [] as any[];
+            for (let s in newWindowCards.value) {
+                let idx = Number(s);
+                let item = newWindowCards.value[idx] as any;
+                arr = arr.concat(item.PageList)
+                //     item.PageList.forEach((page: IPageValue,cidx: number) => {
+                //         if(Number(idx) < 1){
+                //             page.count = cidx+1;
+                //         }else{
+                //             let lst = newWindowCards.value[idx-1] as any;
+                //             page.count = lst.PageList[lst.PageList.length-1].count + cidx + 1;
+                //         }
+                //     }); 
+            }
+            console.log('-aaaaaaaaaa------------',arr);
+            arr.forEach((ele:any,i:number)=>{
+                ele.count = i + 1;
+            })
+            newWindowCards.value.forEach((nitem: any) => {
+                nitem.PageList = arr.filter(m=>m.ParentID === nitem.ID)
+            })
+        }
         const getAllPageList = () => {
             let data: IPageValue[] = [];
             state.windowCards.map((card) => {
@@ -823,7 +863,6 @@ export default defineComponent({
 
         const winCardViewRef = ref();
         onMounted(() => {
-            console.log("windowInfo===================>", windowInfo.value);
             _getWindowCards({
                 WindowID: windowInfo.value.id,
                 OriginType: windowInfo.value.originType,
@@ -944,7 +983,6 @@ export default defineComponent({
         };
         const addPage = async (data: any) => {
             const res = await addPageCallback(data);
-            console.log("resresres--", res);
             if (res) {
                 // pageValue.value = res;
                 selectPageValue(res, false);
@@ -952,7 +990,6 @@ export default defineComponent({
         };
         const rightClick = () => {
             const slide = editRef.value.getCurrentSlide();
-            // console.log('slde', slide);
             state.allPageListMap.set(pageValue.value.ID, slide);
         };
         //窗卡页 右键-menu菜单
@@ -1114,14 +1151,30 @@ export default defineComponent({
 
             .card-list {
                 flex: 1;
-                overflow-y: auto;
-                overflow-x: hidden;
+                height:100%;
+                position:relative;
+                padding-bottom:32px;
+                .page-intro{
+                    position:absolute;
+                    bottom:32px;
+                    width:100%;
+                    height:40px;
+                    line-height:30px;
+                    font-size:13px;
+                    padding-right:12px;
+                    box-sizing:border-box;
+                    color:#333;
+                    text-align:right;
+                }
 
                 :deep(.el-tree-node:focus > .el-tree-node__content) {
                     background-color: #fff;
                 }
 
                 .el-tree {
+                    height:calc(100% - 50px);
+                    overflow-y: auto;
+                    overflow-x: hidden;
                     :deep(.el-tree-node__label) {
                         width: 100%;
                     }
@@ -1146,12 +1199,16 @@ export default defineComponent({
                         position: absolute;
                         left: -12px;
                         top: -8px;
+                        cursor: pointer;
+                        z-index: 2;
+                        display:flex;
+                        align-items:center;
+                        .el-icon{
                         width: 16px;
                         height: 16px;
                         border: 1px solid var(--el-color-primary);
                         border-radius: 50%;
-                        cursor: pointer;
-                        z-index: 2;
+                        }
                         //background-color: var(--el-color-primary);
                     }
 
@@ -1192,6 +1249,13 @@ export default defineComponent({
                         align-items: center;
                         width: 86%;
                         position: relative;
+                        .chapter-num{
+                            display:block;
+                            margin-right:5px;
+                            font-size:14px;
+                            font-weight:bold;
+                            color:#333;
+                        }
                     }
 
                     .icon-box {
