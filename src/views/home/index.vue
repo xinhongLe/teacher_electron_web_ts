@@ -23,10 +23,17 @@
                     </div> -->
                 </div>
                 <div class="right" ref="classSchedule">
-                    <Calendar ref="calendar" :days="days" :isShowDetailBtn="true">
+                    <Calendar
+                        ref="calendar"
+                        :days="days"
+                        :isShowDetailBtn="true"
+                    >
                         <template v-slot:default="slotProps">
                             <header class="header">
-                                <div @click="weekPre(), clicKBuryPoint('上周')" class="week flex-align-items">
+                                <div
+                                    @click="weekPre(), clicKBuryPoint('上周')"
+                                    class="week flex-align-items"
+                                >
                                     <el-icon :size="16"><ArrowLeft /></el-icon>
                                     上周
                                 </div>
@@ -36,12 +43,23 @@
                                         class="refresh flex-align-items"
                                         @click="slotProps.initSchedules"
                                     >
-                                        <el-icon :size="16"  :style="{ marginRight: '4px' }"><RefreshRight /></el-icon>
+                                        <el-icon
+                                            :size="16"
+                                            :style="{ marginRight: '4px' }"
+                                            ><RefreshRight
+                                        /></el-icon>
                                         刷新课表
                                     </div>
-                                    <div @click=" weekNext(), clicKBuryPoint('下周')" class="week flex-align-items">
+                                    <div
+                                        @click="
+                                            weekNext(), clicKBuryPoint('下周')
+                                        "
+                                        class="week flex-align-items"
+                                    >
                                         下周
-                                        <el-icon :size="16"><ArrowRight /></el-icon>
+                                        <el-icon :size="16"
+                                            ><ArrowRight
+                                        /></el-icon>
                                     </div>
                                 </div>
                             </header>
@@ -280,7 +298,7 @@ export default defineComponent({
             days,
             calendar,
             clicKBuryPoint,
-            moreVisible
+            moreVisible,
         };
     },
 });
@@ -455,6 +473,7 @@ export default defineComponent({
                 // flex: 2;
                 min-width: 300px;
                 // overflow-y: auto;
+                height: 100%;
             }
         }
 

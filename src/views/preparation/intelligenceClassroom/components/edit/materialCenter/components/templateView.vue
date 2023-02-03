@@ -92,22 +92,29 @@
                 v-for="item in templateData.CardData[0]?.PageList"
                 :key="item"
             >
-                <!-- 游戏页或者教具页 显示大图 -->
-                <el-image
-                    v-if="item.Type === 20 || item.Type === 16"
-                    :src="item.url"
-                    fit="cover"
+                <el-tooltip
+                    :disabled="item.Name ? false : true"
+                    :content="item.Name"
+                    placement="right"
+                    effect="dark"
                 >
-                    <template #error>
-                        <div class="image-slot">加载失败...</div>
-                    </template>
-                </el-image>
-                <!-- 其它页显示源资源 -->
-                <ThumbnailSlide
-                    v-else
-                    :slide="pageListMap.get(item.ID) || {}"
-                    :size="1040"
-                ></ThumbnailSlide>
+                    <!-- 游戏页或者教具页 显示大图 -->
+                    <el-image
+                        v-if="item.Type === 20 || item.Type === 16"
+                        :src="item.url"
+                        fit="cover"
+                    >
+                        <template #error>
+                            <div class="image-slot">加载失败...</div>
+                        </template>
+                    </el-image>
+                    <!-- 其它页显示源资源 -->
+                    <ThumbnailSlide
+                        v-else
+                        :slide="pageListMap.get(item.ID) || {}"
+                        :size="1040"
+                    ></ThumbnailSlide>
+                </el-tooltip>
                 <div
                     class="custom-btn"
                     size="large"

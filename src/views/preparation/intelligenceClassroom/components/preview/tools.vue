@@ -49,11 +49,14 @@
                             <span class="text">恢复</span>
                         </div>
                     </div>
+                    <!-- 鼠标 -->
                     <div
                         class="me-tool-btn"
                         :class="type === 'mouse' && 'active'"
                         @click="
-                            hideWriteBoard(), openPaintTool($event, 'mouse')
+                            hideWriteBoard(),
+                                openPaintTool($event, 'mouse'),
+                                (type = 'mouse')
                         "
                     >
                         <img
@@ -67,10 +70,11 @@
                             alt=""
                         />
                     </div>
+                    <!-- 画笔 -->
                     <div
                         class="me-tool-btn"
                         :class="type === 'pen' && 'active'"
-                        @click="openPaintTool($event, 'paint')"
+                        @click="openPaintTool($event, 'paint'), (type = 'pen')"
                     >
                         <img
                             v-if="type !== 'pen'"
@@ -83,42 +87,64 @@
                             alt=""
                         />
                     </div>
+                    <!-- 形状 -->
                     <div class="me-tool-btn" @click="openShape">
                         <img src="../../images/icon_rest_xz_big.png" alt="" />
                     </div>
+                    <!-- 橡皮擦 -->
                     <div
                         class="me-tool-btn"
-                        @click="openPaintTool($event, 'eraser')"
+                        :class="type === 'eraser' && 'active'"
+                        @click="
+                            openPaintTool($event, 'eraser'), (type = 'eraser')
+                        "
                     >
-                        <img src="../../images/xiangpi_rest.png" alt="" />
+                        <img
+                            v-if="type !== 'eraser'"
+                            src="../../images/xiangpi_rest.png"
+                            alt=""
+                        />
+                        <img
+                            v-if="type === 'eraser'"
+                            src="../../images/xiangpi_selected.png"
+                            alt=""
+                        />
                     </div>
+                    <!-- 清空笔记 -->
                     <div
                         class="me-tool-btn"
-                        @click="openPaintTool($event, 'rest')"
+                        @click="openPaintTool($event, 'rest'), (type = 'pen')"
                     >
                         <img src="../../images/qingkong_rest.png" alt="" />
                     </div>
+                    <!-- 直尺 -->
                     <div
                         class="me-tool-btn"
-                        @click="openPaintTool($event, 'ruler')"
+                        @click="openPaintTool($event, 'ruler'), (type = 'pen')"
                     >
                         <div class="icon-text">
                             <IconRuler />
                             <span class="text">直尺</span>
                         </div>
                     </div>
+                    <!-- 量角器 -->
                     <div
                         class="me-tool-btn"
-                        @click="openPaintTool($event, 'protractor')"
+                        @click="
+                            openPaintTool($event, 'protractor'), (type = 'pen')
+                        "
                     >
                         <div class="icon-text">
                             <IconProtractor />
                             <span class="text">量角器</span>
                         </div>
                     </div>
+                    <!-- 圆规 -->
                     <div
                         class="me-tool-btn"
-                        @click="openPaintTool($event, 'compass')"
+                        @click="
+                            openPaintTool($event, 'compass'), (type = 'pen')
+                        "
                     >
                         <div class="icon-text">
                             <IconCompass />
@@ -386,10 +412,10 @@ export default defineComponent({
                 text: "仅右侧",
                 type: NextSettingType.Right,
             },
-            {
-                text: "仅左侧",
-                type: NextSettingType.Left,
-            },
+            // {
+            //     text: "仅左侧",
+            //     type: NextSettingType.Left,
+            // },
             {
                 text: "左右侧",
                 type: NextSettingType.All,
