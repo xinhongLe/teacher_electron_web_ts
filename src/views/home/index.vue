@@ -2,25 +2,97 @@
     <div class="home" style="height: 100%">
         <div class="main">
             <div class="top">
-                <div class="left">
+                <div class="left" ref="leftBlock">
                     <div
+                        v-if="!layoutAdjust"
                         class="left-one"
                         @click="go('preparation'), clicKBuryPoint('备课')"
                     >
                         <span>备课</span>
                     </div>
                     <div
+                        v-if="!layoutAdjust"
                         class="left-two"
                         @click="go('homework'), clicKBuryPoint('作业')"
                     >
                         <span>作业</span>
                     </div>
-                    <!-- <div
-                        class="left-three"
-                        @click="go('wrongbook'), clicKBuryPoint('班级错题本')"
-                    >
-                        <span>班级错题本</span>
-                    </div> -->
+                    <div class="left-row" v-if="layoutAdjust">
+                        <div
+                            class="left-one"
+                            @click="go('preparation'), clicKBuryPoint('备课')"
+                        >
+                            <span>备课</span>
+                        </div>
+                        <div
+                            class="left-two"
+                            @click="go('homework'), clicKBuryPoint('作业')"
+                        >
+                            <span>作业</span>
+                        </div>
+                        <div
+                            class="left-three"
+                            @click="go('report-center'), clicKBuryPoint('报表中心')"
+                        >
+                            <span>报表中心</span>
+                        </div>
+                        <div
+                            class="left-four"
+                            @click="go('resource-center'), clicKBuryPoint('资源中心')"
+                        >
+                            <span>资源中心</span>
+                        </div>
+                    </div>
+                    <div class="bottom" v-if="layoutAdjust">
+                        <div
+                            class="item"
+                            @click="go('assessment-center'), clicKBuryPoint('评测中心')"
+                        >
+                            <div class="item_div">
+                                <img
+                                    src="../../assets/indexImages/pic_kaoshi_new.png"
+                                    alt=""
+                                />
+                                <span>测评中心</span>
+                            </div>
+                        </div>
+                        <div
+                            class="item"
+                            @click="go('wrongbook'), clicKBuryPoint('班级错题本')"
+                        >
+                            <div class="item_div">
+                                <img
+                                    src="../../assets/indexImages/card_cuotiben.png"
+                                    alt=""
+                                />
+                                <span>班级错题本</span>
+                            </div>
+                        </div>
+                        <div
+                            class="item"
+                            @click="go('class-manage'), clicKBuryPoint('班级管理')"
+                        >
+                            <div class="item_div">
+                                <img
+                                    src="../../assets/indexImages/icon_xuesheng.png"
+                                    alt=""
+                                />
+                                <span>班级管理</span>
+                            </div>
+                        </div>
+                        <div
+                            class="item"
+                            @click="go('more-content'), clicKBuryPoint('更多')"
+                        >
+                            <div class="item_div">
+                                <img
+                                    src="../../assets/indexImages/icon_more.png"
+                                    alt=""
+                                />
+                                <span>更多</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="right" ref="classSchedule">
                     <Calendar ref="calendar" :days="days" :isShowDetailBtn="true">
@@ -49,7 +121,7 @@
                     </Calendar>
                 </div>
             </div>
-            <div class="bottom">
+            <div class="bottom" v-if="!layoutAdjust">
                 <div
                     class="item"
                     @click="go('report-center'), clicKBuryPoint('报表中心')"
@@ -255,6 +327,34 @@ export default defineComponent({
             calendar.value.initSchedules();
         });
 
+        const leftBlock = ref();
+        const layoutAdjust = ref(false);
+        const resize = () => {
+            if (leftBlock.value) {
+                // 左边过大，进行布局调整
+                if (layoutAdjust.value) {
+                    if (leftBlock.value.clientWidth < window.innerWidth * 0.4) {
+                        layoutAdjust.value = false;
+                    }
+                } else {
+                    if (leftBlock.value.clientWidth > window.innerWidth * 0.6) {
+                        layoutAdjust.value = true;
+                    }
+                }
+            }
+        };
+        const resizeObserver = new ResizeObserver(resize);
+        onMounted(() => {
+            if (leftBlock.value) {
+                resize();
+                resizeObserver.observe(leftBlock.value);
+            }
+        });
+
+        onUnmounted(() => {
+            if (leftBlock.value) resizeObserver.unobserve(leftBlock.value);
+        });
+
         onMounted(() => {
             if (isElectron()) {
                 //注册悬浮球点击事件
@@ -280,7 +380,9 @@ export default defineComponent({
             days,
             calendar,
             clicKBuryPoint,
-            moreVisible
+            moreVisible,
+            leftBlock,
+            layoutAdjust
         };
     },
 });
@@ -362,6 +464,48 @@ export default defineComponent({
                 flex-direction: column;
                 justify-content: space-between;
 
+                .left-row {
+                    display: flex;
+                    flex-wrap: wrap;
+                    flex: 1;
+                    .left-one, .left-two, .left-three, .left-four {
+                        flex: auto;
+                        width: calc(50% - 14px);
+                    }
+
+                    .left-two, .left-four {
+                        margin-bottom: 28px;
+                        margin-left: 28px;
+                    }
+
+                    &:hover {
+                        box-shadow: none;
+                    }
+                }
+
+                .bottom {
+                    .item {
+                        padding: 14px;
+                        padding-top: 0;
+                        padding-bottom: 0;
+                        &:last-child {
+                            padding-right: 0;
+                        }
+                        &:first-child {
+                            padding-left: 0;
+                        }
+                        &:hover {
+                            box-shadow: none;
+                        }
+                        .item_div {
+                            border-radius: 15px;
+                        }
+                    }
+                    &:hover {
+                        box-shadow: none;
+                    }
+                }
+
                 div:hover {
                     margin-top: 0px;
                     /*和hover的margin-top有对比，原无30,现在0，相当于上移了,30px*/
@@ -425,9 +569,37 @@ export default defineComponent({
                 .left-three {
                     box-sizing: border-box;
                     position: relative;
+                    margin-bottom: 28px;
                     cursor: pointer;
                     flex: 1;
-                    background: url("./../../assets/indexImages/card_cuotiben.png")
+                    background: url("./../../assets/indexImages/pic_baobiao_new.png")
+                        no-repeat;
+                    background-position: center center;
+                    background-size: cover;
+                    border-radius: 15px;
+
+                    img {
+                        // width: 100%;
+                        height: 100%;
+                        border-radius: 15px;
+                    }
+
+                    span {
+                        position: absolute;
+                        top: 10%;
+                        left: 6%;
+                        font-size: 46px;
+                        font-family: PingFang-SC-Heavy, PingFang-SC;
+                        font-weight: 800;
+                        color: #ffffff;
+                    }
+                }
+                .left-four {
+                    box-sizing: border-box;
+                    position: relative;
+                    cursor: pointer;
+                    flex: 1;
+                    background: url("./../../assets/indexImages/pic_zyzx.png")
                         no-repeat;
                     background-position: center center;
                     background-size: cover;
