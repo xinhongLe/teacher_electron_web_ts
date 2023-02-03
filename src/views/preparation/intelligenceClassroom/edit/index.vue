@@ -69,8 +69,8 @@
                 <div
                     class="card-list"
                     ref="cardListRef"
-                    v-if="windowCards.length"
                 >
+
                     <el-tree
                         :class="viewTree ? 'view-tree-box' : 'tree-box'"
                         default-expand-all
@@ -82,6 +82,7 @@
                         :data="newWindowCards"
                         :props="defaultProps"
                         @node-click="handleNodeClick"
+                        @node-drop="handleNodedrop"
                     >
                         <template #default="{ node, data }">
                             <div
@@ -123,10 +124,10 @@
                                                 @click.stop="
                                                     handleSelectPages(data)
                                                 "
-                                                :style="{ backgroundColor: (selectPageData.map(((item: any) => item.ID)).includes(data.ID) ? 'var(--el-color-primary)' : '#fff') }"
                                                 class="select-page"
                                             >
-                                                <el-icon color="#fff">
+                                                <span class="chapter-num">{{data.count}}</span>
+                                                <el-icon :style="{ backgroundColor: (selectPageData.map(((item: any) => item.ID)).includes(data.ID) ? 'var(--el-color-primary)' : '#fff') }" color="#fff">
                                                     <Check />
                                                 </el-icon>
                                             </div>
@@ -264,6 +265,9 @@
                             </div>
                         </template>
                     </el-tree>
+                    <div class="page-intro">
+                        当前页{{pageValue.ParentNum || 1}}/{{newWindowCards.length}}
+                    </div>
                 </div>
             </div>
             <div class="shrink" ref="shrinkRef">
@@ -379,7 +383,7 @@ import {
     watch,
     toRef,
     computed,
-    nextTick,
+    nextTick
 } from "vue";
 import WinCardEdit from "../components/edit/winCardEdit.vue";
 import { IPageValue, ICardList } from "@/types/home";
@@ -429,13 +433,13 @@ export default defineComponent({
         WinCardEdit,
         MoreFilled,
         materialCenter,
-        SaveTemplateDialog,
+        SaveTemplateDialog
     },
     name: "Edit",
     setup() {
         const newWindowCards = ref([]);
-        const materialCenterRef = ref(); //资源库组件实例
-        const isshowCusTooltip = ref(false); //展示查看已保存模板提示框
+        const materialCenterRef = ref(); // 资源库组件实例
+        const isshowCusTooltip = ref(false); // 展示查看已保存模板提示框
 
         const showCollapse = ref(true);
         const shrinkRef = ref();
@@ -470,7 +474,7 @@ export default defineComponent({
             editTemplate,
             dialogStatus,
             templateFormData,
-            formateOssUrl,
+            formateOssUrl
         } = useSaveTemplate(allPageListMap);
 
         const {
@@ -479,7 +483,7 @@ export default defineComponent({
             winScreenView,
             keyDown,
             offScreen,
-            activePreviewPageIndex,
+            activePreviewPageIndex
         } = usePreview(pageValue);
 
         const { handleCopy, handlePaste, pastePage } = useCopyPage(
@@ -494,7 +498,7 @@ export default defineComponent({
             activeAllPageListIndex,
             allPageList,
             isWatchChange,
-            cardListRef,
+            cardListRef
         } = useSelectPage(pageValue, allPageListMap);
 
         const { allowDrop } = useDragPage();
@@ -509,7 +513,7 @@ export default defineComponent({
             dialogVisibleName,
             currentValue,
             handleUpdateName,
-            updateName,
+            updateName
         } = useUpdateName(shrinkRef);
 
         const route = useRoute();
@@ -539,7 +543,7 @@ export default defineComponent({
             ElMessageBox.confirm("此操作将删除该数据, 是否继续?", "提示", {
                 confirmButtonText: "确认",
                 cancelButtonText: "取消",
-                type: "warning",
+                type: "warning"
             })
                 .then(() => {
                     // 删除的是卡 判断当前页是否在删除卡下
@@ -552,7 +556,7 @@ export default defineComponent({
                             pageValue.value = {
                                 ...pageValue.value!,
                                 ID: "",
-                                Type: 11,
+                                Type: 11
                             };
                         }
                     } else {
@@ -565,7 +569,7 @@ export default defineComponent({
                             pageValue.value = {
                                 ...pageValue.value!,
                                 ID: "",
-                                Type: 11,
+                                Type: 11
                             };
                         }
                         windowCards.value = [...windowCards.value];
@@ -620,7 +624,7 @@ export default defineComponent({
                                         PageWordID: word.pageWordID
                                             ? null
                                             : word.pageWordID,
-                                        WordInterval: 2,
+                                        WordInterval: 2
                                     };
                                 }
                             );
@@ -641,7 +645,7 @@ export default defineComponent({
                         designIntent,
                         sort: pageIndex + 1,
                         json,
-                        state: Number(State),
+                        state: Number(State)
                     };
                 });
 
@@ -649,7 +653,7 @@ export default defineComponent({
                     cardID,
                     sort,
                     pageData,
-                    cardName,
+                    cardName
                 };
             });
 
@@ -659,7 +663,7 @@ export default defineComponent({
                 cardData,
                 originType: 1,
                 windowName: windowInfo.value.name,
-                windowID: windowInfo.value.id,
+                windowID: windowInfo.value.id
             };
 
             const lessonId = (windowInfo.value.lessonId as string) || "";
@@ -669,10 +673,10 @@ export default defineComponent({
             if (res.resultCode === 200) {
                 ElMessage.success({
                     message,
-                    duration: 2000,
+                    duration: 2000
                 });
                 store.commit(MutationTypes.SET_EDIT_WINDOW_INFO, {
-                    ...windowInfo.value,
+                    ...windowInfo.value
                 });
                 allPageListMap.value.forEach((item, key) => {
                     oldAllPageListMap.value.set(key, cloneDeep(item));
@@ -689,7 +693,7 @@ export default defineComponent({
             async () => {
                 allPageList.value = getAllPageList();
                 if (state.windowCards.length > 0) {
-                    //过滤教具页和游戏页的封面
+                    // 过滤教具页和游戏页的封面
                     await formataWindowCards(
                         state.windowCards,
                         allPageList.value
@@ -715,7 +719,7 @@ export default defineComponent({
                             pageValue.value = newPageValue;
                         }
                         const obj = {
-                            ...pageValue.value,
+                            ...pageValue.value
                         };
                         selectPageValue(obj, true);
                     } else {
@@ -727,15 +731,18 @@ export default defineComponent({
                 }
             },
             {
-                deep: true,
+                deep: true
             }
         );
-        //过滤教具页和游戏页的封面
+        // 过滤教具页和游戏页的封面
         const formataWindowCards = async (arr: any, mapList?: any) => {
             newWindowCards.value = JSON.parse(JSON.stringify(arr));
-            newWindowCards.value.forEach((item: any) => {
-                item.PageList?.forEach(async (page: IPageValue) => {
+            newWindowCards.value.forEach((item: any, idx: number) => {
+                item.num = Number(idx + 1);
+                item.PageList?.forEach(async (page: IPageValue, cidx: number) => {
                     if (page) {
+                        page.ParentNum = item.num;
+                        page.ParentID = item.ID;
                         page.Json =
                             page.Json && typeof page.Json === "string"
                                 ? JSON.parse(page.Json)
@@ -747,13 +754,45 @@ export default defineComponent({
                             page.url = temJson?.ToolFileModel
                                 ? await formateOssUrl(
                                       temJson?.ToolFileModel?.File
-                                  )
+                                )
                                 : "";
                         }
                     }
                 });
             });
             newWindowCards.value = [...newWindowCards.value];
+            console.log("-------------", newWindowCards.value);
+            flatAndRebuild();
+        };
+        const handleNodedrop = () => {
+            console.log("dropdropdropdropdropdropdrop");
+            flatAndRebuild();
+        };
+        /**
+         * 构造排序
+         */
+        const flatAndRebuild = () => {
+            let arr = [] as any[];
+            for (const s in newWindowCards.value) {
+                const idx = Number(s);
+                const item = newWindowCards.value[idx] as any;
+                arr = arr.concat(item.PageList);
+                //     item.PageList.forEach((page: IPageValue,cidx: number) => {
+                //         if(Number(idx) < 1){
+                //             page.count = cidx+1;
+                //         }else{
+                //             let lst = newWindowCards.value[idx-1] as any;
+                //             page.count = lst.PageList[lst.PageList.length-1].count + cidx + 1;
+                //         }
+                //     });
+            }
+            console.log("-aaaaaaaaaa------------", arr);
+            arr.forEach((ele:any, i:number) => {
+                ele.count = i + 1;
+            });
+            newWindowCards.value.forEach((nitem: any) => {
+                nitem.PageList = arr.filter(m => m.ParentID === nitem.ID);
+            });
         };
         const getAllPageList = () => {
             let data: IPageValue[] = [];
@@ -768,7 +807,7 @@ export default defineComponent({
         const handleMask = () => {
             ElMessage({ type: "warning", message: "请先选择页，在进行编辑" });
         };
-        //保存完组件后刷新素材列表
+        // 保存完组件后刷新素材列表
         const updateMaterial = () => {
             nextTick(() => {
                 materialCenterRef.value.updateMaterialList();
@@ -781,7 +820,7 @@ export default defineComponent({
             loading,
             parsePptPage,
             pptPages,
-            percentage,
+            percentage
         } = useImportPPT();
 
         const importPPT = () => {
@@ -795,7 +834,7 @@ export default defineComponent({
                         Name: name[name.length - 1] + "-" + (index + 1),
                         Type: pageType.element,
                         isAdd: true,
-                        State: true,
+                        State: true
                     };
                 });
                 const card = {
@@ -803,7 +842,7 @@ export default defineComponent({
                     ID: uuidv4(),
                     Sort: windowCards.value.length,
                     isAdd: true,
-                    PageList: pageList,
+                    PageList: pageList
                 };
                 windowCards.value.push(card);
             });
@@ -821,7 +860,7 @@ export default defineComponent({
                 const newValue = {
                     ...value,
                     remark: item.AcademicPresupposition || "",
-                    design: item.DesignIntent || "",
+                    design: item.DesignIntent || ""
                 };
                 allPageListMap.value.set(item.TeachPageID, newValue as Slide);
                 oldAllPageListMap.value.set(
@@ -833,10 +872,9 @@ export default defineComponent({
 
         const winCardViewRef = ref();
         onMounted(() => {
-            console.log("windowInfo===================>", windowInfo.value);
             _getWindowCards({
                 WindowID: windowInfo.value.id,
-                OriginType: windowInfo.value.originType,
+                OriginType: windowInfo.value.originType
             }).then(() => {
                 // fetchAllPageSlide(getAllPageList());
             });
@@ -863,8 +901,7 @@ export default defineComponent({
             if (
                 isEqual(allPageListMap.value, oldAllPageListMap.value) &&
                 isEqual(windowCards.value, oldWindowCards.value)
-            )
-                return true;
+            ) { return true; }
             const res = await exitDialog();
             if (res === ExitType.Cancel) {
                 return false;
@@ -878,7 +915,7 @@ export default defineComponent({
             }
         });
 
-        //子窗体关闭 提示
+        // 子窗体关闭 提示
         const closeCurrentWinCard = async () => {
             // 先更新一下当前页
             const slide = editRef.value.getCurrentSlide();
@@ -914,8 +951,8 @@ export default defineComponent({
             }
         };
 
-        //资源库-模板素材操作
-        //插入左侧窗卡页
+        // 资源库-模板素材操作
+        // 插入左侧窗卡页
         const handleInsertData = async (data: any) => {
             const jsonData = JSON.parse(JSON.stringify(data));
             if (editRef.value.getDataIsChange() && data.type === "elements") {
@@ -935,14 +972,14 @@ export default defineComponent({
             });
             // }
         };
-        //插入教具内容以及教具页
+        // 插入教具内容以及教具页
         const handleInsertTool = async (data: any) => {
             if (pageValue.value.ID) {
                 const params = {
                     name: "教具页",
                     type: "teach",
                     value: 16,
-                    url: data.data?.url,
+                    url: data.data?.url
                 };
                 state.windowCards.forEach((item: any, windex: number) => {
                     item.PageList.forEach((page: any, index: number) => {
@@ -959,10 +996,9 @@ export default defineComponent({
                 const res: any = await insertData(data);
             } else {
                 ElMessage.warning("请先选择页，再进行插入");
-                return;
             }
         };
-        //保存模板
+        // 保存模板
         const handleAddTemplate = async (formData: any) => {
             // onSave();
             const res: any = await saveTemplateFrom(formData);
@@ -972,25 +1008,24 @@ export default defineComponent({
                 setTimeout(() => {
                     isshowCusTooltip.value = false;
                 }, 5000);
-                //弹窗关闭，页面中间跳出提示：前往 我的 查看已保存模板保留三秒消失
+                // 弹窗关闭，页面中间跳出提示：前往 我的 查看已保存模板保留三秒消失
                 nextTick(() => {
                     materialCenterRef.value.queryTemplateList();
                 });
             }
         };
-        //去我的模板
+        // 去我的模板
         const gotoMyTemplate = () => {
             nextTick(() => {
                 materialCenterRef.value.gotoMyTemplate();
             });
         };
-        //取消保存-清空已选中的页
+        // 取消保存-清空已选中的页
         const cacleTemplateDialog = () => {
             selectPageData.value = [];
         };
         const addPage = async (data: any) => {
             const res = await addPageCallback(data);
-            console.log("resresres--", res);
             if (res) {
                 // pageValue.value = res;
                 selectPageValue(res, false);
@@ -998,10 +1033,9 @@ export default defineComponent({
         };
         const rightClick = () => {
             const slide = editRef.value.getCurrentSlide();
-            // console.log('slde', slide);
             state.allPageListMap.set(pageValue.value.ID, slide);
         };
-        //窗卡页 右键-menu菜单
+        // 窗卡页 右键-menu菜单
         const contextmenus = (el: any, data: any) => {
             return [
                 {
@@ -1010,8 +1044,8 @@ export default defineComponent({
                     handler: () => {
                         rightClick();
                         handleSaveTemplate(1, data);
-                    },
-                },
+                    }
+                }
                 // {
                 //     text: "保存题目",
                 //     subText: "",
@@ -1095,9 +1129,9 @@ export default defineComponent({
             updateMaterial,
             addPage,
             rightClick,
-            closeCurrentWinCard,
+            closeCurrentWinCard
         };
-    },
+    }
 });
 </script>
 
@@ -1161,14 +1195,30 @@ export default defineComponent({
 
             .card-list {
                 flex: 1;
-                overflow-y: auto;
-                overflow-x: hidden;
+                height:100%;
+                position:relative;
+                padding-bottom:32px;
+                .page-intro{
+                    position:absolute;
+                    bottom:32px;
+                    width:100%;
+                    height:40px;
+                    line-height:30px;
+                    font-size:13px;
+                    padding-right:12px;
+                    box-sizing:border-box;
+                    color:#333;
+                    text-align:right;
+                }
 
                 :deep(.el-tree-node:focus > .el-tree-node__content) {
                     background-color: #fff;
                 }
 
                 .el-tree {
+                    height:calc(100% - 50px);
+                    overflow-y: auto;
+                    overflow-x: hidden;
                     :deep(.el-tree-node__label) {
                         width: 100%;
                     }
@@ -1193,12 +1243,16 @@ export default defineComponent({
                         position: absolute;
                         left: -12px;
                         top: -8px;
+                        cursor: pointer;
+                        z-index: 2;
+                        display:flex;
+                        align-items:center;
+                        .el-icon{
                         width: 16px;
                         height: 16px;
                         border: 1px solid var(--el-color-primary);
                         border-radius: 50%;
-                        cursor: pointer;
-                        z-index: 2;
+                        }
                         //background-color: var(--el-color-primary);
                     }
 
@@ -1239,6 +1293,13 @@ export default defineComponent({
                         align-items: center;
                         width: 86%;
                         position: relative;
+                        .chapter-num{
+                            display:block;
+                            margin-right:5px;
+                            font-size:14px;
+                            font-weight:bold;
+                            color:#333;
+                        }
                     }
 
                     .icon-box {
