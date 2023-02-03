@@ -601,12 +601,14 @@ export default defineComponent({
             // if (!isLoadEnd.value) {
             //     return ElMessage.warning("资源正在加载，请稍后再试...");
             // }
-            const cardData = windowCards.value.map((card, index) => {
+            // return
+            // 2023-02-03 原 WindowCards 修改为newWindowCards
+            const cardData = newWindowCards.value.map((card:any, index:number) => {
                 const cardID = card.isAdd ? "" : card.ID;
                 const cardName = card.Name;
                 const sort = index + 1;
                 const pageList = card.PageList;
-                const pageData = pageList.map((page, pageIndex) => {
+                const pageData = pageList.map((page:any, pageIndex:number) => {
                     const { ID, Name, Type, State, isAdd } = page;
                     const slide = allPageListMap.value.get(ID);
                     let json = "";
@@ -742,7 +744,7 @@ export default defineComponent({
                 item.PageList?.forEach(async (page: IPageValue, cidx: number) => {
                     if (page) {
                         page.ParentNum = item.num;
-                        page.ParentID = item.ID;
+                        // page.ParentID = item.ID;
                         page.Json =
                             page.Json && typeof page.Json === "string"
                                 ? JSON.parse(page.Json)
@@ -761,38 +763,35 @@ export default defineComponent({
                 });
             });
             newWindowCards.value = [...newWindowCards.value];
-            console.log("-------------", newWindowCards.value);
             flatAndRebuild();
         };
         const handleNodedrop = () => {
-            console.log("dropdropdropdropdropdropdrop");
             flatAndRebuild();
         };
         /**
          * 构造排序
          */
         const flatAndRebuild = () => {
+            newWindowCards.value.forEach((mitem: any) => {
+                    mitem.PageList?.forEach(async (page: IPageValue, cidx: number) => {
+                        page.ParentID = mitem.ID;
+                    });
+                });
             let arr = [] as any[];
             for (const s in newWindowCards.value) {
                 const idx = Number(s);
                 const item = newWindowCards.value[idx] as any;
                 arr = arr.concat(item.PageList);
-                //     item.PageList.forEach((page: IPageValue,cidx: number) => {
-                //         if(Number(idx) < 1){
-                //             page.count = cidx+1;
-                //         }else{
-                //             let lst = newWindowCards.value[idx-1] as any;
-                //             page.count = lst.PageList[lst.PageList.length-1].count + cidx + 1;
-                //         }
-                //     });
             }
-            console.log("-aaaaaaaaaa------------", arr);
+
             arr.forEach((ele:any, i:number) => {
                 ele.count = i + 1;
             });
-            newWindowCards.value.forEach((nitem: any) => {
-                nitem.PageList = arr.filter(m => m.ParentID === nitem.ID);
-            });
+            setTimeout(() => {
+               newWindowCards.value.forEach((nitem: any) => {
+                    nitem.PageList = arr.filter(m => m.ParentID === nitem.ID);
+                });
+            }, 10);
         };
         const getAllPageList = () => {
             let data: IPageValue[] = [];
@@ -1129,7 +1128,8 @@ export default defineComponent({
             updateMaterial,
             addPage,
             rightClick,
-            closeCurrentWinCard
+            closeCurrentWinCard,
+            handleNodedrop
         };
     }
 });

@@ -26,7 +26,6 @@ export default (pageValue: Ref<IPageValue>, allPageSlideListMap: Ref<Map<string,
         });
     };
     const selectPageValue = (data: IPageValue, flag: boolean) => {
-        console.log('selectPageValue:',data);
         isWatchChange.value = flag;
         pageValue.value = data;
         setDomClass();

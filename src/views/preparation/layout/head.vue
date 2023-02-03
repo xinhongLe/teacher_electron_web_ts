@@ -118,7 +118,7 @@
                         </el-button>
                     </el-upload>
                 </el-form-item>
-                <el-form-item label="资源文件：" v-else>
+                <!-- <el-form-item label="资源文件：" v-else>
                     <el-button
                         type="primary"
                         style="font-size: 13px"
@@ -128,7 +128,7 @@
                         <el-icon :size="14"><Edit /></el-icon>
                         &nbsp;编&nbsp;辑&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     </el-button>
-                </el-form-item>
+                </el-form-item> -->
                 <el-form-item
                     label="资源名称："
                     required
