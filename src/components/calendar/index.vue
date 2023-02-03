@@ -1,5 +1,13 @@
 <template>
-    <div ref="calendarRef" class="calendar" :style="{ transform: `scale(${scale})`, height: `${height}px`, width: `${width}px` }">
+    <div
+        ref="calendarRef"
+        class="calendar"
+        :style="{
+            transform: `scale(${scale})`,
+            height: `${height}px`,
+            width: `${width}px`,
+        }"
+    >
         <slot :initSchedules="initSchedules" />
         <div class="content-header">
             <div class="item">上课时间</div>
@@ -45,7 +53,16 @@
 import useSchedules, { ColData } from "@/hooks/useSchedules";
 import useTime from "@/hooks/useTime";
 import moment from "moment";
-import { computed, defineComponent, PropType, provide, ref, watch, nextTick, onUnmounted } from "vue";
+import {
+    computed,
+    defineComponent,
+    PropType,
+    provide,
+    ref,
+    watch,
+    nextTick,
+    onUnmounted,
+} from "vue";
 import Course from "./Course.vue";
 import usePageEvent from "@/hooks/usePageEvent";
 import { EVENT_TYPE } from "@/config/event";
@@ -119,12 +136,14 @@ export default defineComponent({
                     scale.value = calendarHeight / (contentScrollHeight + 128);
                     height.value = height.value / scale.value;
                 }
-                calendarRef.value.parentElement.style.width = width.value * (scale.value > 1 ? 1 : scale.value) + "px";
+                calendarRef.value.parentElement.style.width =
+                    width.value * (scale.value > 1 ? 1 : scale.value) + "px";
             });
         };
 
         nextTick(() => {
-            calendarRef.value.parentElement.style.width = window.innerWidth * 0.6 + "px";
+            calendarRef.value.parentElement.style.width =
+                window.innerWidth * 0.6 + "px";
         });
 
         window.addEventListener("resize", resize);
@@ -156,7 +175,7 @@ export default defineComponent({
             contentRef,
             scale,
             height,
-            width
+            width,
         };
     },
 
