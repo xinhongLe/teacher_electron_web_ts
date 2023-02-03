@@ -473,7 +473,7 @@ export default defineComponent({
                 // flex: 2;
                 min-width: 300px;
                 // overflow-y: auto;
-                height: 100%;
+                // height: 100%;
             }
         }
 

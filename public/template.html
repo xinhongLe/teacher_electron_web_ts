@@ -7,28 +7,30 @@
     <link rel="icon" href="<%= BASE_URL %>favicon.ico">
     <title>爱学仕校园教师端</title>
     <style>
-      .loading{
-        width: 100%;
+       #app {
+        position: relative;
+        z-index: 1;
+      }
+      .launch {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
         text-align: center;
-        margin-top: 20%;
-        font-size: 40px;
-        font-weight: bold;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-direction: column;
+      }
+      .launch-loading {
+        font-size: 50px;
+        font-weight: 600;
+        margin-top: 20px;
       }
     </style>
   </head>
   <body>
-
+    <div class="launch">
+      <img src="./logo.png" alt="">
+      <div class="launch-loading">资源加载中...</div>
+    </div>
     <div id="app">
-      <div class="loading">
-        <img src="./logo.png" alt="" style="width: 200px;height: 200px;">
-        <span>
-          资源加载中...
-        </span>
-      </div>
     </div>
     <!-- built files will be auto injected -->
     <script type="text/javascript">

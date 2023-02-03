@@ -88,7 +88,14 @@
                         />
                     </div>
                     <!-- 形状 -->
-                    <div class="me-tool-btn" @click="openShape">
+                    <div
+                        class="me-tool-btn"
+                        @click="
+                            openPaintTool($event, 'mouse'),
+                                (type = 'mouse'),
+                                openShape($event)
+                        "
+                    >
                         <img src="../../images/icon_rest_xz_big.png" alt="" />
                     </div>
                     <!-- 橡皮擦 -->
@@ -113,7 +120,7 @@
                     <!-- 清空笔记 -->
                     <div
                         class="me-tool-btn"
-                        @click="openPaintTool($event, 'rest'), (type = 'pen')"
+                        @click="openPaintTool($event, 'rest')"
                     >
                         <img src="../../images/qingkong_rest.png" alt="" />
                     </div>
