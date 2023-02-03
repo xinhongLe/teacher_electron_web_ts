@@ -30,7 +30,7 @@ export function createWinCardWindow(title: string) {
     //         contextIsolation: false,
     //     },
     // });
-    // editWin && editWin.webContents.openDevTools(); //打开调试器
+    editWin && editWin.webContents.openDevTools(); //打开调试器
     // require("@electron/remote/main").enable(editWin.webContents);
     // editWin.loadURL(wincardURL);
     editWin.maximize();
