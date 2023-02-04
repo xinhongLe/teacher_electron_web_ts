@@ -434,6 +434,10 @@ export default defineComponent({
         };
         //直接打开编辑窗口
         const editWincard = (data: any) => {
+            set(
+                STORAGE_TYPES.SUBJECT_BOOK_INFO,
+                store.state.preparation.subjectPublisherBookValue
+            );
             const cacheResource = data;
             const windowInfo = {
                 id: cacheResource.OldResourceId,
@@ -442,10 +446,6 @@ export default defineComponent({
                 originType: 1,
             };
             set(STORAGE_TYPES.WINDOW_INFO, windowInfo);
-            set(
-                STORAGE_TYPES.SUBJECT_BOOK_INFO,
-                store.state.preparation.subjectPublisherBookValue
-            );
             openWinCard(cacheResource.Name);
             // router.push("/windowcard-edit");
         };
