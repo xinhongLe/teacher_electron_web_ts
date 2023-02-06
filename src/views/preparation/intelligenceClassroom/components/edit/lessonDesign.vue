@@ -356,7 +356,8 @@ export default defineComponent({
         const visible = ref(props.lessonDesignVisible);
         const classTypeList = ref<{ label: string; value: string }[]>([]);
         const templateList = ref<ITemplateList[]>([]);
-        const winUserInfo: any = get(STORAGE_TYPES.CURRENT_USER_INFO);
+        const winUserInfo = get(STORAGE_TYPES.CURRENT_USER_INFO);
+        // console.log("winUserInfo---", winUserInfo);
         const saveData: ISaveLessonPlan = {
             ID: "",
             Name: "",
@@ -478,7 +479,7 @@ export default defineComponent({
             const data = {
                 TeachPageID: props.winId,
                 LessonPlanTemplateMainID: val,
-                TeacherID: store.state.userInfo?.id || winUserInfo.ID,
+                TeacherID: store.state.userInfo?.id || winUserInfo.id,
                 FranchiseeID: store.state.userInfo.schoolId,
             };
             return changeLessonPlanTemplate(data).then((res) => {
@@ -491,7 +492,7 @@ export default defineComponent({
         const _getLessonPlan = () => {
             const data = {
                 TeachPageID: props.winId,
-                TeacherID: store.state.userInfo.id || winUserInfo.ID,
+                TeacherID: store.state.userInfo.id || winUserInfo.id,
                 FranchiseeID:
                     store.state.userInfo.schoolId || winUserInfo.schoolId,
             };

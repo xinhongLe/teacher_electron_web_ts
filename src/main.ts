@@ -8,7 +8,7 @@ import zhCn from "element-plus/es/locale/lang/zh-cn";
 import "element-plus/dist/index.css";
 import Icon from "./plugins/icon";
 import Directive from "./directive/index";
-import Drag from "./directive/drag";
+import Drag from "./directive/drag"; 
 import DragLine from "./directive/dragLine";
 // import "@/utils/flexible";
 import "./permission";

@@ -23,210 +23,237 @@
         </div> -->
         <div class="me-tools-draw">
             <div class="draw-content">
-                <div class="me-tools-screen"></div>
-                <div class="me-tools-canvas">
-                    <div
-                        class="me-tool-btn"
-                        @click="openPaintTool($event, 'undo')"
-                    >
-                        <div
-                            class="icon-text"
-                            :class="{ disabled: !isCanUndo }"
-                        >
-                            <IconBack />
-                            <span class="text">撤销</span>
-                        </div>
-                    </div>
-                    <div
-                        class="me-tool-btn"
-                        @click="openPaintTool($event, 'redo')"
-                    >
-                        <div
-                            class="icon-text"
-                            :class="{ disabled: !isCanRedo }"
-                        >
-                            <IconNext />
-                            <span class="text">恢复</span>
-                        </div>
-                    </div>
-                    <!-- 鼠标 -->
-                    <div
-                        class="me-tool-btn"
-                        :class="type === 'mouse' && 'active'"
-                        @click="
-                            hideWriteBoard(),
-                                openPaintTool($event, 'mouse'),
-                                (type = 'mouse')
-                        "
-                    >
-                        <img
-                            v-if="type !== 'mouse'"
-                            src="../../images/shubiao_rest.png"
-                            alt=""
-                        />
-                        <img
-                            v-if="type === 'mouse'"
-                            src="../../images/shubiao_selected.png"
-                            alt=""
-                        />
-                    </div>
-                    <!-- 画笔 -->
-                    <div
-                        class="me-tool-btn"
-                        :class="type === 'pen' && 'active'"
-                        @click="openPaintTool($event, 'paint'), (type = 'pen')"
-                    >
-                        <img
-                            v-if="type !== 'pen'"
-                            src="../../images/huabi_rest.png"
-                            alt=""
-                        />
-                        <img
-                            v-if="type === 'pen'"
-                            src="../../images/huabi_selected.png"
-                            alt=""
-                        />
-                    </div>
-                    <!-- 形状 -->
-                    <div
-                        class="me-tool-btn"
-                        @click="
-                            openPaintTool($event, 'mouse'),
-                                (type = 'mouse'),
-                                openShape($event)
-                        "
-                    >
-                        <img src="../../images/icon_rest_xz_big.png" alt="" />
-                    </div>
-                    <!-- 橡皮擦 -->
-                    <div
-                        class="me-tool-btn"
-                        :class="type === 'eraser' && 'active'"
-                        @click="
-                            openPaintTool($event, 'eraser'), (type = 'eraser')
-                        "
-                    >
-                        <img
-                            v-if="type !== 'eraser'"
-                            src="../../images/xiangpi_rest.png"
-                            alt=""
-                        />
-                        <img
-                            v-if="type === 'eraser'"
-                            src="../../images/xiangpi_selected.png"
-                            alt=""
-                        />
-                    </div>
-                    <!-- 清空笔记 -->
-                    <div
-                        class="me-tool-btn"
-                        @click="openPaintTool($event, 'rest')"
-                    >
-                        <img src="../../images/qingkong_rest.png" alt="" />
-                    </div>
-                    <!-- 直尺 -->
-                    <div
-                        class="me-tool-btn"
-                        @click="openPaintTool($event, 'ruler'), (type = 'pen')"
-                    >
-                        <div class="icon-text">
-                            <IconRuler />
-                            <span class="text">直尺</span>
-                        </div>
-                    </div>
-                    <!-- 量角器 -->
-                    <div
-                        class="me-tool-btn"
-                        @click="
-                            openPaintTool($event, 'protractor'), (type = 'pen')
-                        "
-                    >
-                        <div class="icon-text">
-                            <IconProtractor />
-                            <span class="text">量角器</span>
-                        </div>
-                    </div>
-                    <!-- 圆规 -->
-                    <div
-                        class="me-tool-btn"
-                        @click="
-                            openPaintTool($event, 'compass'), (type = 'pen')
-                        "
-                    >
-                        <div class="icon-text">
-                            <IconCompass />
-                            <span class="text">圆规</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="me-tools-system">
-                    <template v-if="isShowFullscreen && !dialog">
-                        <div
-                            class="me-tool-btn"
-                            @click="fullScreen"
-                            v-if="!activeFlag"
-                        >
-                            <img src="../../images/quanping_rest.png" alt="" />
-                        </div>
-                        <div class="me-tool-btn" @click="fillScreen" v-else>
-                            <img
-                                src="../../images/tuichuquanping_rest.png"
-                                alt=""
-                            />
-                        </div>
-                    </template>
-
-                    <div
-                        @click.stop="closeWincard"
-                        v-if="showClose && !dialog"
-                        class="me-tool-btn close-button"
-                    >
-                        <p>关闭</p>
-                    </div>
-
-                    <div
-                        class="me-tool-btn"
-                        @click="toggleRemark"
-                        v-if="isShowRemarkBtn"
-                    >
-                        <img
-                            v-if="!showremark"
-                            src="../../images/xianshibeizhu_rest.png"
-                            alt=""
-                        />
-                        <img
-                            v-if="showremark"
-                            src="../../images/yincangbeizhu_rest.png"
-                            alt=""
-                        />
-                    </div>
-                </div>
-
-                <div class="me-tools-set">
-                    <div class="setting" v-show="isShowMenu">
-                        <span
-                            @click.stop="isShowSubMenu = true"
-                            class="setting-item"
-                            >【下一步】位置设置 ></span
-                        >
-                        <div class="setting-sub-menu" v-show="isShowSubMenu">
+                <el-scrollbar :always="true">
+                    <div style="display: flex">
+                        <div class="me-tools-screen"></div>
+                        <div class="me-tools-canvas">
                             <div
-                                v-for="item in nextSettingTypeList"
-                                :key="item.text"
-                                class="menu"
-                                @click="changeNextType(item.type)"
+                                class="me-tool-btn"
+                                @click="openPaintTool($event, 'undo')"
                             >
-                                {{ item.text }}
+                                <div
+                                    class="icon-text"
+                                    :class="{ disabled: !isCanUndo }"
+                                >
+                                    <IconBack />
+                                    <span class="text">撤销</span>
+                                </div>
+                            </div>
+                            <div
+                                class="me-tool-btn"
+                                @click="openPaintTool($event, 'redo')"
+                            >
+                                <div
+                                    class="icon-text"
+                                    :class="{ disabled: !isCanRedo }"
+                                >
+                                    <IconNext />
+                                    <span class="text">恢复</span>
+                                </div>
+                            </div>
+                            <!-- 鼠标 -->
+                            <div
+                                class="me-tool-btn"
+                                :class="type === 'mouse' && 'active'"
+                                @click="
+                                    hideWriteBoard(),
+                                        openPaintTool($event, 'mouse'),
+                                        (type = 'mouse')
+                                "
+                            >
+                                <img
+                                    v-if="type !== 'mouse'"
+                                    src="../../images/shubiao_rest.png"
+                                    alt=""
+                                />
+                                <img
+                                    v-if="type === 'mouse'"
+                                    src="../../images/shubiao_selected.png"
+                                    alt=""
+                                />
+                            </div>
+                            <!-- 画笔 -->
+                            <div
+                                class="me-tool-btn"
+                                :class="type === 'pen' && 'active'"
+                                @click="
+                                    openPaintTool($event, 'paint'),
+                                        (type = 'pen')
+                                "
+                            >
+                                <img
+                                    v-if="type !== 'pen'"
+                                    src="../../images/huabi_rest.png"
+                                    alt=""
+                                />
+                                <img
+                                    v-if="type === 'pen'"
+                                    src="../../images/huabi_selected.png"
+                                    alt=""
+                                />
+                            </div>
+                            <!-- 形状 -->
+                            <div
+                                class="me-tool-btn"
+                                @click="
+                                    openPaintTool($event, 'mouse'),
+                                        (type = 'mouse'),
+                                        openShape($event)
+                                "
+                            >
+                                <img
+                                    src="../../images/icon_rest_xz_big.png"
+                                    alt=""
+                                />
+                            </div>
+                            <!-- 橡皮擦 -->
+                            <div
+                                class="me-tool-btn"
+                                :class="type === 'eraser' && 'active'"
+                                @click="
+                                    openPaintTool($event, 'eraser'),
+                                        (type = 'eraser')
+                                "
+                            >
+                                <img
+                                    v-if="type !== 'eraser'"
+                                    src="../../images/xiangpi_rest.png"
+                                    alt=""
+                                />
+                                <img
+                                    v-if="type === 'eraser'"
+                                    src="../../images/xiangpi_selected.png"
+                                    alt=""
+                                />
+                            </div>
+                            <!-- 清空笔记 -->
+                            <div
+                                class="me-tool-btn"
+                                @click="openPaintTool($event, 'rest')"
+                            >
+                                <img
+                                    src="../../images/qingkong_rest.png"
+                                    alt=""
+                                />
+                            </div>
+                            <!-- 直尺 -->
+                            <div
+                                class="me-tool-btn"
+                                @click="
+                                    openPaintTool($event, 'ruler'),
+                                        (type = 'pen')
+                                "
+                            >
+                                <div class="icon-text">
+                                    <IconRuler />
+                                    <span class="text">直尺</span>
+                                </div>
+                            </div>
+                            <!-- 量角器 -->
+                            <div
+                                class="me-tool-btn"
+                                @click="
+                                    openPaintTool($event, 'protractor'),
+                                        (type = 'pen')
+                                "
+                            >
+                                <div class="icon-text">
+                                    <IconProtractor />
+                                    <span class="text">量角器</span>
+                                </div>
+                            </div>
+                            <!-- 圆规 -->
+                            <div
+                                class="me-tool-btn"
+                                @click="
+                                    openPaintTool($event, 'compass'),
+                                        (type = 'pen')
+                                "
+                            >
+                                <div class="icon-text">
+                                    <IconCompass />
+                                    <span class="text">圆规</span>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div
-                        class="me-tool-btn setting-btn"
-                        @click.stop="moreSet($event)"
-                    >
-                        <img src="../../images/btn_more.png" />
-                    </div>
-                    <!-- <div
+                        <div class="me-tools-system">
+                            <template v-if="isShowFullscreen && !dialog">
+                                <div
+                                    class="me-tool-btn"
+                                    @click="fullScreen"
+                                    v-if="!activeFlag"
+                                >
+                                    <img
+                                        src="../../images/quanping_rest.png"
+                                        alt=""
+                                    />
+                                </div>
+                                <div
+                                    class="me-tool-btn"
+                                    @click="fillScreen"
+                                    v-else
+                                >
+                                    <img
+                                        src="../../images/tuichuquanping_rest.png"
+                                        alt=""
+                                    />
+                                </div>
+                            </template>
+
+                            <div
+                                @click.stop="closeWincard"
+                                v-if="showClose && !dialog"
+                                class="me-tool-btn close-button"
+                            >
+                                <p>关闭</p>
+                            </div>
+
+                            <div
+                                class="me-tool-btn"
+                                @click="toggleRemark"
+                                v-if="isShowRemarkBtn"
+                            >
+                                <img
+                                    v-if="!showremark"
+                                    src="../../images/xianshibeizhu_rest.png"
+                                    alt=""
+                                />
+                                <img
+                                    v-if="showremark"
+                                    src="../../images/yincangbeizhu_rest.png"
+                                    alt=""
+                                />
+                            </div>
+                        </div>
+
+                        <div class="me-tools-set">
+                            <div class="setting" v-show="isShowMenu">
+                                <span
+                                    @click.stop="isShowSubMenu = true"
+                                    class="setting-item"
+                                    >【下一步】位置设置 ></span
+                                >
+                                <div
+                                    class="setting-sub-menu"
+                                    v-show="isShowSubMenu"
+                                >
+                                    <div
+                                        v-for="item in nextSettingTypeList"
+                                        :key="item.text"
+                                        class="menu"
+                                        @click="changeNextType(item.type)"
+                                    >
+                                        {{ item.text }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div
+                                class="me-tool-btn setting-btn"
+                                @click.stop="moreSet($event)"
+                            >
+                                <img src="../../images/btn_more.png" />
+                            </div>
+                            <!-- <div
                 class="me-tool-btn setting-btn"
                 @click="nextStep"
                 v-show="
@@ -236,34 +263,36 @@
             >
                 <img src="../../images/btn_next.png" />
             </div> -->
-                </div>
-                <div class="me-tools-steps">
-                    <div
-                        class="me-tool-btn"
-                        :disabled="isFirst"
-                        @click="prevStep"
-                    >
-                        <img
-                            v-if="!isFirst"
-                            src="../../images/shangyiye_rest.png"
-                            alt=""
-                        />
-                        <img
-                            v-if="isFirst"
-                            src="../../images/shangyiye_disabled.png"
-                            alt=""
-                        />
+                        </div>
+                        <div class="me-tools-steps">
+                            <div
+                                class="me-tool-btn"
+                                :disabled="isFirst"
+                                @click="prevStep"
+                            >
+                                <img
+                                    v-if="!isFirst"
+                                    src="../../images/shangyiye_rest.png"
+                                    alt=""
+                                />
+                                <img
+                                    v-if="isFirst"
+                                    src="../../images/shangyiye_disabled.png"
+                                    alt=""
+                                />
+                            </div>
+                        </div>
+                        <div style="display: flex">
+                            <div
+                                class="me-tool-btn"
+                                v-if="isShowClose"
+                                @click="$emit('close')"
+                            >
+                                <img src="../../images/guanbi_rest.png" />
+                            </div>
+                        </div>
                     </div>
-                </div>
-                <div style="display: flex">
-                    <div
-                        class="me-tool-btn"
-                        v-if="isShowClose"
-                        @click="$emit('close')"
-                    >
-                        <img src="../../images/guanbi_rest.png" />
-                    </div>
-                </div>
+                </el-scrollbar>
             </div>
             <div class="me-tools-steps righticon">
                 <div
@@ -384,6 +413,9 @@ export default defineComponent({
         const showDrawToos = () => {
             const dom: any = document.querySelector(".draw-content");
             const outdom: any = document.querySelector(".me-tools");
+            // if(props.isShowClose){
+
+            // }
             if (outdom.style.width == "1224px") {
                 isOpen.value = false;
                 outdom.style.width = "190px";
@@ -391,10 +423,10 @@ export default defineComponent({
                 isOpen.value = true;
                 outdom.style.width = "1224px";
             }
-            if (dom.style.width == "1073px") {
+            if (dom.style.width == "1034px") {
                 dom.style.width = 0;
             } else {
-                dom.style.width = "1073px";
+                dom.style.width = "1034px";
             }
         };
         const router = useRouter();
@@ -652,13 +684,14 @@ export default defineComponent({
             position: absolute;
             width: 0;
             overflow: hidden;
-            right: 130px;
+            right: 190px;
             transition: width 0.5s, transform 0.5s;
         }
         .righticon {
-            width: 180px;
+            width: 190px;
             position: absolute;
             right: 0;
+            justify-content: center;
             .el-icon {
                 cursor: pointer;
                 font-size: 32px;

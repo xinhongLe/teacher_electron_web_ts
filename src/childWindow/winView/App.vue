@@ -24,8 +24,18 @@
                         v-show="!isFullScreen || isShowCardList"
                     ></div>
 
-                    <div class="fold-btn" v-show="isFullScreen" @click="isShowCardList = !isShowCardList">
-                        <i :class="isShowCardList ? 'el-icon-arrow-left': 'el-icon-arrow-right'"></i>
+                    <div
+                        class="fold-btn"
+                        v-show="isFullScreen"
+                        @click="isShowCardList = !isShowCardList"
+                    >
+                        <i
+                            :class="
+                                isShowCardList
+                                    ? 'el-icon-arrow-left'
+                                    : 'el-icon-arrow-right'
+                            "
+                        ></i>
                     </div>
                 </div>
                 <div class="card-detail">
@@ -44,37 +54,37 @@
                             @changeWinSize="changeWinSize"
                             @fullScreen="fullScreen"
                             @clockFullScreen="clockFullScreen"
+                            v-model:isCanUndo="isCanUndo"
+                            v-model:isCanRedo="isCanRedo"
                         />
                     </div>
-                    <Tools
-                        :id="winActiveId"
-                        :dialog="false"
-                        :showClose="true"
-                        :showRemark="previewSection?.showRemark"
-                        @toggleRemark="toggleRemark"
-                        @prevStep="prevStep"
-                        @nextStep="nextStep"
-                        @fullScreen="fullScreen"
-                        @clockFullScreen="clockFullScreen"
-                        @showWriteBoard="showWriteBoard"
-                        @openShape="openShape"
-                        @hideWriteBoard="hideWriteBoard"
-                        @closeWincard="close"
-                    />
                 </div>
             </div>
         </div>
+        <Tools
+            :id="winActiveId"
+            :dialog="false"
+            :showClose="true"
+            :showRemark="previewSectionRef?.showRemark"
+            @toggleRemark="toggleRemark"
+            @prevStep="prevStep"
+            @nextStep="nextStep"
+            @fullScreen="fullScreen"
+            @clockFullScreen="clockFullScreen"
+            @showWriteBoard="showWriteBoard"
+            @openShape="openShape"
+            @hideWriteBoard="hideWriteBoard"
+            @closeWincard="close"
+            :isCanUndo="isCanUndo"
+            :isCanRedo="isCanRedo"
+            :isFullScreenStatus="true"
+            @openPaintTool="openPaintTool"
+        />
     </div>
 </template>
 
 <script lang="ts">
-import {
-    defineComponent,
-    nextTick,
-    onMounted,
-    provide,
-    ref
-} from "vue";
+import { defineComponent, nextTick, onMounted, provide, ref } from "vue";
 import CardList from "./CardList.vue";
 import PreviewSection from "./previewSection.vue";
 import NavBar from "./NavBar.vue";
@@ -86,12 +96,13 @@ export default defineComponent({
         CardList,
         PreviewSection,
         NavBar,
-        Tools
+        Tools,
     },
     setup() {
+        const isCanUndo = ref(false);
+        const isCanRedo = ref(false);
         // 默认开启缓存
         set(STORAGE_TYPES.SET_ISCACHE, true);
-        
         const isFullScreen = ref(false);
         const isShowCardList = ref(true);
         const cardListComponents = ref();
@@ -102,15 +113,19 @@ export default defineComponent({
         const windowInfo = useWindowInfo(false);
         provide(windowInfoKey, windowInfo);
         const { cardList } = windowInfo;
-        const appjson = ref<{ cards?: any, pages?: any, slides?: any, windowId?: string, windowName?: string }>({});
+        const appjson = ref<{
+            cards?: any;
+            pages?: any;
+            slides?: any;
+            windowId?: string;
+            windowName?: string;
+        }>({});
         provide("appjson", appjson);
         const updatePageList = (card: any) => {
             previewOptions.value = card;
         };
 
-        const changeWinSize = () => {
-            
-        };
+        const changeWinSize = () => {};
 
         const lastPage = () => {
             cardListComponents.value.changeReducePage();
@@ -131,7 +146,8 @@ export default defineComponent({
         const clockFullScreen = () => {
             isFullScreen.value = false;
             isShowCardList.value = true;
-            previewSectionRef.value && previewSectionRef.value.clockFullScreen();
+            previewSectionRef.value &&
+                previewSectionRef.value.clockFullScreen();
         };
 
         const toggleRemark = () => {
@@ -159,14 +175,18 @@ export default defineComponent({
         };
 
         onMounted(async () => {
-            const urlSearchParams = new URLSearchParams(window.location.search.replace(/\&/g, '%26'));
+            const urlSearchParams = new URLSearchParams(
+                window.location.search.replace(/\&/g, "%26")
+            );
             const params = Object.fromEntries(urlSearchParams.entries());
-            appjson.value = await window.electron.unpackCacheFile(params.file)
+            appjson.value = await window.electron.unpackCacheFile(params.file);
             if (appjson) {
                 winActiveId.value = appjson.value.windowId!;
                 WindowName.value = appjson.value.windowName!;
                 appjson.value.cards.forEach((c: any) => {
-                    c.PageList = c.PageList.filter((p: any) => p.State === true);
+                    c.PageList = c.PageList.filter(
+                        (p: any) => p.State === true
+                    );
                 });
                 console.log(appjson.value);
                 cardList.value = appjson.value.cards;
@@ -179,6 +199,12 @@ export default defineComponent({
 
         const close = () => {
             window.electron.remote.getCurrentWindow().close();
+        };
+        //工具栏-画笔
+        const openPaintTool = (event: MouseEvent, type: string) => {
+            // console.log("previewSection.value", event, type);
+            previewSectionRef.value &&
+                previewSectionRef.value.openPaintTool(event, type);
         };
 
         return {
@@ -203,9 +229,12 @@ export default defineComponent({
             previewOptions,
             winActiveId,
             WindowName,
-            close
+            close,
+            isCanUndo,
+            isCanRedo,
+            openPaintTool,
         };
-    }
+    },
 });
 </script>
 
@@ -296,11 +325,11 @@ $border-color: #f5f6fa;
                     height: 104px;
                     width: 18px;
                     border-radius: 0px 8px 8px 0px;
-                    background: #F5F6FA;
+                    background: #f5f6fa;
                     cursor: pointer;
                     z-index: 1;
                     i {
-                        color: #7E7F83;
+                        color: #7e7f83;
                         font-size: 18px;
                         font-weight: 700;
                     }
@@ -317,7 +346,7 @@ $border-color: #f5f6fa;
             .card-box-outbottom {
                 width: calc(100% + 1px);
                 height: 87px;
-                background: #BED2FF;
+                background: #fff;
             }
 
             .card-detail {

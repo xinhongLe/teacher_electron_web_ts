@@ -11,14 +11,21 @@
                 :isFullScreen="isFullScreen"
             />
             <transition name="fade">
-                <Remark :teachProcess="teachProcess" :isSystem="isSystem" :resourceId="resourceId" :design="design" :hideLookAll="true" v-if="showRemark" />
+                <Remark
+                    :teachProcess="teachProcess"
+                    :isSystem="isSystem"
+                    :resourceId="resourceId"
+                    :design="design"
+                    :hideLookAll="true"
+                    v-if="showRemark"
+                />
             </transition>
         </div>
     </div>
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, inject, ref, toRefs } from "vue";
+import { computed, defineComponent, inject, ref, toRefs, watch } from "vue";
 import preventRemark from "../../views/preparation/intelligenceClassroom/hooks/previewRemark";
 import Remark from "../../views/preparation/intelligenceClassroom/components/preview/remark.vue";
 import PageList from "./pageList.vue";
@@ -28,34 +35,44 @@ export default defineComponent({
     props: {
         resourceId: {
             type: String,
-            default: ""
+            default: "",
         },
         isSystem: {
             type: Boolean,
-            default: false
+            default: false,
         },
         dialog: {
             type: Boolean,
-            default: false
+            default: false,
         },
         isShowCardList: {
             type: Boolean,
-            default: true
+            default: true,
         },
         isFullScreen: {
             type: Boolean,
-            default: false
-        }
+            default: false,
+        },
     },
     components: {
         Remark,
-        PageList
+        PageList,
     },
     setup(props, { emit }) {
         const { data, showRemark, toggleRemark } = preventRemark(props.dialog);
         const { currentPageIndex, currentCard } = inject(windowInfoKey)!;
-        const teachProcess = computed(() => !isEmpty(currentCard.value?.PageList) && currentCard.value?.PageList[currentPageIndex.value]?.AcademicPresupposition);
-        const design = computed(() => !isEmpty(currentCard.value?.PageList) && currentCard.value?.PageList[currentPageIndex.value]?.DesignIntent);
+        const teachProcess = computed(
+            () =>
+                !isEmpty(currentCard.value?.PageList) &&
+                currentCard.value?.PageList[currentPageIndex.value]
+                    ?.AcademicPresupposition
+        );
+        const design = computed(
+            () =>
+                !isEmpty(currentCard.value?.PageList) &&
+                currentCard.value?.PageList[currentPageIndex.value]
+                    ?.DesignIntent
+        );
         const pageListRef = ref();
         const changeWinSize = () => {
             emit("changeWinSize"); // 切换窗口大小，清除缓存的笔记列表
@@ -93,6 +110,24 @@ export default defineComponent({
         const updateFlag = () => {
             pageListRef.value.updateFlags();
         };
+        //橡皮擦..
+        const openPaintTool = (event: MouseEvent, type: string) => {
+            pageListRef.value.openPaintTool(event, type);
+        };
+        const isCanUndo = ref(false);
+        const isCanRedo = ref(false);
+        watch(
+            () => isCanUndo.value,
+            (val) => {
+                emit("update:isCanUndo", val);
+            }
+        );
+        watch(
+            () => isCanRedo.value,
+            (val) => {
+                emit("update:isCanRedo", val);
+            }
+        );
 
         return {
             teachProcess,
@@ -111,14 +146,17 @@ export default defineComponent({
             showWriteBoard,
             hideWriteBoard,
             openShape,
-            changeWinSize
+            changeWinSize,
+            openPaintTool,
+            isCanUndo,
+            isCanRedo,
         };
-    }
+    },
 });
 </script>
 
 <style lang="scss" scoped>
-.remark-fullSrceen{
+.remark-fullSrceen {
     position: fixed;
     width: 220px;
     height: calc(100% - 86px);
