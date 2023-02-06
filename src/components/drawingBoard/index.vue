@@ -89,11 +89,13 @@ const canRedo = computed(() => whiteboard.value && whiteboard.value.canRedo);
 
 const resize = () => {
     // 窗口发生变化重新计算距离
-    const { x, y } = whiteboardBox.value.getBoundingClientRect();
-    options.value = {
-        offsetX: x,
-        offsetY: y,
-    };
+    setTimeout(() => {
+        const { x, y } = whiteboardBox.value.getBoundingClientRect();
+        options.value = {
+            offsetX: x,
+            offsetY: y,
+        };
+    }, 100);
 };
 
 watch(

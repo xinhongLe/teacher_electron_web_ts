@@ -942,7 +942,7 @@ export default defineComponent({
             ) {
                 return ElMessage.warning("仅支持导出31天以内的数据！");
             }
-            const fileName = "备课包信操作记录表";
+            const fileName = "备课包操作记录表";
             window.electron
                 .showSaveDialog({
                     defaultPath: fileName + ".xlsx",
@@ -987,7 +987,7 @@ export default defineComponent({
                         const excelData: IExcel = {
                             sheets: [
                                 {
-                                    title: "备课包信操作记录表",
+                                    title: "备课包操作记录表",
                                     tHeaders: [
                                         [
                                             "操作时间",
@@ -1033,7 +1033,7 @@ export default defineComponent({
                                         "resource",
                                         "directory",
                                     ],
-                                    sheetName: "备课包信操作记录表",
+                                    sheetName: "备课包操作记录表",
                                     globalStyle: {
                                         font: {
                                             sz: 12,
@@ -1077,7 +1077,7 @@ export default defineComponent({
                                     },
                                 },
                             ],
-                            fileName: "备课包信操作记录表",
+                            fileName: "备课包操作记录表",
                         };
 
                         exportExcel(
