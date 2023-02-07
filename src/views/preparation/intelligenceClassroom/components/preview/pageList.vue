@@ -16,6 +16,7 @@
                 @pagePrev="pagePrev"
                 @pageNext="pageNext"
                 @closeWriteBoard="closeWriteBoard"
+                @closeTool="closeTool"
                 :isShowPenTools="false"
                 v-model:isCanUndo="isCanUndo"
                 v-model:isCanRedo="isCanRedo"
@@ -213,6 +214,11 @@ export default defineComponent({
         const closeWriteBoard = () => {
             writeBoardVisible.value = false;
         };
+        const closeTool = (val: any) => {
+            // console.log("val--------", val);
+            // writeBoardVisible.value = false;
+        };
+
         const openShape = (event: MouseEvent) => {
             screenRef.value.openShape(event);
         };
@@ -401,6 +407,7 @@ export default defineComponent({
             hideWriteBoard,
             openShape,
             closeWriteBoard,
+            closeTool,
             openPaintTool,
             canvasData,
             pageListCount,

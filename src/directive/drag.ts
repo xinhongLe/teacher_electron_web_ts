@@ -64,7 +64,7 @@ const drag = {
             }
             el.style.position = "absolute";
         }
-
+        //鼠标------
         // 鼠标在目标元素上按下
         el.addEventListener("mousedown", (e) => {
             let { width, height } = el.getBoundingClientRect();
@@ -108,6 +108,53 @@ const drag = {
             document.onmouseup = () => {
                 document.onmousemove = null;
                 document.onmouseup = null;
+            };
+        });
+
+        //触摸屏-----
+        //触摸屏 触摸按下
+        el.addEventListener("touchstart", (e) => {
+            let { width, height } = el.getBoundingClientRect();
+            // 当前目标元素的left与top
+            const left = el.offsetLeft;
+            const top = el.offsetTop;
+            // 保存按下的触摸按下的X与Y
+            const mouseX = e.touches[0].clientX;
+            const mouseY = e.touches[0].clientY;
+            // 计算边界值
+            const leftLimit = left;
+            const rightLimit = containerWidth - left - width;
+            const topLimit = top;
+            const bottomLimit = containerHeight - top - height;
+
+            // 监听触摸移动
+            document.ontouchmove = (e) => {
+                // 鼠标移动的距离
+                let disX = e.touches[0].clientX - mouseX;
+                let disY = e.touches[0].clientY - mouseY;
+                // 左右边界
+                if (disX < 0 && disX <= -leftLimit) {
+                    // el.style.right = leftLimit + width + "px";
+                } else if (disX > 0 && disX >= rightLimit) {
+                    // el.style.right = rightLimit - width + "px";
+                } else {
+                    el.style.right = rightLimit - disX + "px";
+                }
+                // 上下边界
+                if (disY < 0 && disY <= -topLimit) {
+                    el.style.top = top - topLimit + "px";
+                } else if (disY > 0 && disY >= bottomLimit) {
+                    el.style.top = top + bottomLimit + "px";
+                } else {
+                    el.style.top = top + disY + "px";
+                }
+                return false;
+            };
+
+            // 监听触摸抬起
+            document.ontouchend = () => {
+                document.ontouchmove = null;
+                document.ontouchcancel = null;
             };
         });
     },
