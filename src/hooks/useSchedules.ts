@@ -1,7 +1,7 @@
 import { fetchClassArrangement } from "@/api/resource";
 import { fetchActiveTimetableID, fetchUserSchedules, IScheduleContent, fetchTermCodeBySchoolId, TableTime, IScheduleDetail } from "@/api/timetable";
 import { MutationTypes, store } from "@/store";
-import { computed, ref, Ref, watch, watchEffect } from "vue";
+import { computed, nextTick, ref, Ref, watch, watchEffect } from "vue";
 
 interface TeachClassSchedule extends IScheduleDetail {
     DateOfWeek: number;
@@ -118,7 +118,7 @@ export default (days: Ref<string[]>) => {
         if (!timetableID.value) return;
         await getTeachClassSchedule();
         dealSchedules();
-        resize && resize();
+        resize && nextTick(resize);
     };
 
     // watch(schoolID, initSchedules)

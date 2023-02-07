@@ -90,11 +90,13 @@ const canRedo = computed(() => whiteboard.value && whiteboard.value.canRedo);
 const resize = () => {
     // 窗口发生变化重新计算距离
     setTimeout(() => {
-        const { x, y } = whiteboardBox.value.getBoundingClientRect();
-        options.value = {
-            offsetX: x,
-            offsetY: y,
-        };
+        if (whiteboardBox.value) {
+            const { x, y } = whiteboardBox.value.getBoundingClientRect();
+            options.value = {
+                offsetX: x,
+                offsetY: y,
+            };
+        }
     }, 100);
 };
 
@@ -109,11 +111,13 @@ watch(
 
 onMounted(() => {
     nextTick(() => {
-        const { x, y } = whiteboardBox.value.getBoundingClientRect();
-        options.value = {
-            offsetX: x,
-            offsetY: x == 0 && y == 0 ? y : y + 20, //初始化加载画笔偏移 + 20
-        };
+        if (whiteboardBox.value) {
+            const { x, y } = whiteboardBox.value.getBoundingClientRect();
+            options.value = {
+                offsetX: x,
+                offsetY: x == 0 && y == 0 ? y : y + 20, //初始化加载画笔偏移 + 20
+            };
+        }
         window.addEventListener("resize", resize);
     });
 });

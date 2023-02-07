@@ -301,6 +301,7 @@ import usePageEvent from "@/hooks/usePageEvent";
 import isElectron from "is-electron";
 import { EVENT_TYPE } from "@/config/event";
 import { nextTick } from "process";
+import { debounce } from "lodash";
 
 export default defineComponent({
     name: "Home",
@@ -356,35 +357,44 @@ export default defineComponent({
         const calendar = ref();
         onActivated(() => {
             calendar.value.initSchedules(resize);
-            nextTick(resize);
+            // nextTick(resize);
         });
 
         const leftBlock = ref();
         const classSchedule = ref();
         const layoutAdjust = ref(false);
-        const resize = () => {
+        let timer: any = null;
+        const resize = debounce(() => {
             if (classSchedule.value && route.path === "/home") {
                 // 右边边小于一半，没有进行过布局调整，进行布局调整
-                if (!layoutAdjust.value) {
-                    if (classSchedule.value.clientWidth < window.innerWidth * 0.5) {
-                        layoutAdjust.value = true;
-                    }
+                if (classSchedule.value.clientWidth < window.innerWidth * 0.5) {
+                    layoutAdjust.value = true;
                 }
 
-                calendar.value.resize();
+                nextTick(() => {
+                    calendar.value.resize();
+
+                    // 2s后再次重新计算，降低误差出现
+                    if (timer) clearTimeout(timer);
+                    timer = setTimeout(() => {
+                        clearTimeout(timer);
+                        timer = null;
+                        calendar.value.resize();
+                    }, 2000);
+                });
             }
-        };
-        // const resizeObserver = new ResizeObserver(resize);
+        }, 100);
+        const resizeObserver = new ResizeObserver(resize);
         onMounted(() => {
-            // if (leftBlock.value) {
-            //     resizeObserver.observe(leftBlock.value);
-            // }
+            if (leftBlock.value) {
+                resizeObserver.observe(leftBlock.value);
+            }
             window.addEventListener("resize", resize);
         });
 
         onUnmounted(() => {
             window.removeEventListener("resize", resize);
-            // if (leftBlock.value) resizeObserver.unobserve(leftBlock.value);
+            if (leftBlock.value) resizeObserver.unobserve(leftBlock.value);
         });
 
         onMounted(() => {

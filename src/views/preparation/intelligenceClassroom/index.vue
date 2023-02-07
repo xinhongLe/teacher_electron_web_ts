@@ -77,7 +77,7 @@ import {
     ref,
     defineProps,
     watchEffect,
-    defineEmits,
+    PropType,
     toRef,
     onUnmounted,
     watch,
@@ -87,6 +87,7 @@ import PreviewSection from "./components/preview/previewSection.vue";
 import Tools from "./components/preview/tools.vue";
 import emitter from "@/utils/mitt";
 import useWindowInfo, { windowInfoKey } from "@/hooks/useWindowInfo";
+import { IResourceItem } from "@/api/resource";
 const isFullScreen = ref(false);
 const isShowCardList = ref(true);
 const cardListComponents = ref<InstanceType<typeof CardList>>();

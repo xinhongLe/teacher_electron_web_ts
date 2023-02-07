@@ -120,8 +120,8 @@ export default defineComponent({
         };
 
         const resize = () => {
-            if (route.path === "/home") {
-                nextTick(() => {
+            nextTick(() => {
+                if (route.path === "/home" && calendarRef.value) {
                     width.value = window.innerWidth * 0.6;
                     height.value = calendarRef.value.parentElement.clientHeight;
                     const calendarHeight = height.value;
@@ -132,10 +132,16 @@ export default defineComponent({
                         scale.value = calendarHeight / (contentScrollHeight + 128);
                         height.value = height.value / scale.value;
                     }
-                    calendarRef.value.parentElement.style.width =
-                        width.value * (scale.value > 1 ? 1 : scale.value) + "px";
-                });
-            }
+
+                    if (calendarRef.value.parentElement.clientHeight !== height.value * scale.value) {
+                        // 内容高度小，需要重新计算
+                        calendarRef.value.parentElement.style.width = calendarRef.value.parentElement.clientHeight / height.value / scale.value * calendarRef.value.parentElement.clientWidth;
+                        // resize();
+                    } else {
+                        calendarRef.value.parentElement.style.width = width.value * (scale.value > 1 ? 1 : scale.value) + "px";
+                    }
+                }
+            });
         };
 
         const route = useRoute();
@@ -145,11 +151,11 @@ export default defineComponent({
             }
         });
 
-        window.addEventListener("resize", resize);
+        // window.addEventListener("resize", resize);
 
-        onUnmounted(() => {
-            window.removeEventListener("resize", resize);
-        });
+        // onUnmounted(() => {
+        //     window.removeEventListener("resize", resize);
+        // });
 
         expose({ initSchedules, resize });
 
@@ -158,7 +164,7 @@ export default defineComponent({
         const width = ref(window.innerWidth * 0.6);
         const calendarRef = ref();
         const contentRef = ref();
-        watch(schedules, resize);
+        // watch(schedules, resize);
 
         const calendarStyles = computed(() => {
             return route.path === "/home" ? {

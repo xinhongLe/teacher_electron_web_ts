@@ -36,7 +36,7 @@
             @showWriteBoard="showWriteBoard"
             @hideWriteBoard="hideWriteBoard"
             @close="close"
-            :dialog="dialog"
+            :dialog="true"
             @openShape="openShape"
             :isShowFullscreen="false"
             :isFullScreenStatus="true"
@@ -213,7 +213,7 @@ export default defineComponent({
 .cardLis-class {
     display: flex;
     justify-content: flex-start;
-    overflow-y: auto;
+    overflow-y: hidden;
     padding: 10px 20px;
     .me-page-item {
         background-color: #f0f3ff;
