@@ -20,6 +20,7 @@ type Events = {
     packButton: any;
     clearErrorBookList: any;
     toMyResource: any;
+    closeTool: any;
 };
 
 const emitter = mitt<Events>();
