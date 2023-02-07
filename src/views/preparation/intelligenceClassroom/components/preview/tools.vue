@@ -2,8 +2,12 @@
     <div
         class="nextpage background"
         :style="{
-            left: isFullScreenStatus ? 0 : '-20px',
-            bottom: isTKdialog ? '56px' : isFullScreenStatus ? 0 : '-20px',
+            left: '30px',
+            bottom: isTKdialog
+                ? '56px'
+                : isFullScreenStatus || isShowFullscreen
+                ? '30px'
+                : 0,
         }"
     >
         <div
@@ -24,7 +28,7 @@
         <div class="me-tools-draw">
             <div class="draw-content">
                 <el-scrollbar :always="true">
-                    <div style="display: flex">
+                    <div class="me-tools-drag" style="display: flex">
                         <div class="me-tools-screen"></div>
                         <div class="me-tools-canvas">
                             <div
@@ -136,12 +140,45 @@
                                     alt=""
                                 />
                             </div>
-                            <!-- 直尺 -->
+                            <!-- 尺规:三合一-->
                             <div
+                                class="me-tool-btn"
+                                :class="type === 'rulers' && 'active'"
+                                @click="
+                                    openPaintTool($event, 'rulers'),
+                                        (type = 'rulers')
+                                "
+                            >
+                                <!-- <div
+                                    class="icon-text"
+                                    :style="{
+                                        backgroundColor:
+                                            type === 'rulers'
+                                                ? '#fff'
+                                                : '#e5eeff',
+                                    }"
+                                >
+                                    <IconRuler />
+                                    <span class="text">尺规</span>
+                                </div> -->
+                                <img
+                                    v-if="type !== 'rulers'"
+                                    src="../../images/btn_chigui_defaulted.png"
+                                    alt=""
+                                />
+                                <img
+                                    v-if="type === 'rulers'"
+                                    src="../../images/btn_chigui_selected.png"
+                                    alt=""
+                                />
+                            </div>
+
+                            <!-- 直尺 -->
+                            <!-- <div
                                 class="me-tool-btn"
                                 @click="
                                     openPaintTool($event, 'ruler'),
-                                        (type = 'pen')
+                                        (type = 'ruler')
                                 "
                             >
                                 <div
@@ -156,13 +193,13 @@
                                     <IconRuler />
                                     <span class="text">直尺</span>
                                 </div>
-                            </div>
+                            </div> -->
                             <!-- 量角器 -->
-                            <div
+                            <!-- <div
                                 class="me-tool-btn"
                                 @click="
                                     openPaintTool($event, 'protractor'),
-                                        (type = 'pen')
+                                        (type = 'protractor')
                                 "
                             >
                                 <div
@@ -177,13 +214,13 @@
                                     <IconProtractor />
                                     <span class="text">量角器</span>
                                 </div>
-                            </div>
+                            </div> -->
                             <!-- 圆规 -->
-                            <div
+                            <!-- <div
                                 class="me-tool-btn"
                                 @click="
                                     openPaintTool($event, 'compass'),
-                                        (type = 'pen')
+                                        (type = 'compass')
                                 "
                             >
                                 <div
@@ -198,56 +235,7 @@
                                     <IconCompass />
                                     <span class="text">圆规</span>
                                 </div>
-                            </div>
-                        </div>
-                        <div class="me-tools-system">
-                            <template v-if="isShowFullscreen && !dialog">
-                                <div
-                                    class="me-tool-btn"
-                                    @click="fullScreen"
-                                    v-if="!activeFlag"
-                                >
-                                    <img
-                                        src="../../images/quanping_rest.png"
-                                        alt=""
-                                    />
-                                </div>
-                                <div
-                                    class="me-tool-btn"
-                                    @click="fillScreen"
-                                    v-else
-                                >
-                                    <img
-                                        src="../../images/tuichuquanping_rest.png"
-                                        alt=""
-                                    />
-                                </div>
-                            </template>
-
-                            <div
-                                @click.stop="closeWincard"
-                                v-if="showClose && !dialog"
-                                class="me-tool-btn close-button"
-                            >
-                                <p>关闭</p>
-                            </div>
-
-                            <div
-                                class="me-tool-btn"
-                                @click="toggleRemark"
-                                v-if="isShowRemarkBtn"
-                            >
-                                <img
-                                    v-if="!showremark"
-                                    src="../../images/xianshibeizhu_rest.png"
-                                    alt=""
-                                />
-                                <img
-                                    v-if="showremark"
-                                    src="../../images/yincangbeizhu_rest.png"
-                                    alt=""
-                                />
-                            </div>
+                            </div> -->
                         </div>
 
                         <div class="me-tools-set">
@@ -287,6 +275,54 @@
             >
                 <img src="../../images/btn_next.png" />
             </div> -->
+                        </div>
+                        <div class="me-tools-system">
+                            <div
+                                class="me-tool-btn"
+                                @click="toggleRemark"
+                                v-if="isShowRemarkBtn"
+                            >
+                                <img
+                                    v-if="!showremark"
+                                    src="../../images/xianshibeizhu_rest.png"
+                                    alt=""
+                                />
+                                <img
+                                    v-if="showremark"
+                                    src="../../images/yincangbeizhu_rest.png"
+                                    alt=""
+                                />
+                            </div>
+                            <template v-if="isShowFullscreen && !dialog">
+                                <div
+                                    class="me-tool-btn"
+                                    @click="fullScreen"
+                                    v-if="!activeFlag"
+                                >
+                                    <img
+                                        src="../../images/quanping_rest.png"
+                                        alt=""
+                                    />
+                                </div>
+                                <div
+                                    class="me-tool-btn"
+                                    @click="fillScreen"
+                                    v-else
+                                >
+                                    <img
+                                        src="../../images/tuichuquanping_rest.png"
+                                        alt=""
+                                    />
+                                </div>
+                            </template>
+
+                            <div
+                                @click.stop="closeWincard"
+                                v-if="showClose && !dialog"
+                                class="me-tool-btn close-button"
+                            >
+                                <p>关闭</p>
+                            </div>
                         </div>
                         <div class="me-tools-steps">
                             <div
@@ -385,6 +421,8 @@ import { STORAGE_TYPES, set, get } from "@/utils/storage";
 import { MutationTypes, store } from "@/store";
 import { NextSettingType } from "@/types/preparation";
 import ResourceDialog from "./resourceDialog.vue";
+import emitter from "@/utils/mitt";
+
 export default defineComponent({
     props: {
         showRemark: {
@@ -401,7 +439,7 @@ export default defineComponent({
         },
         isFullScreenStatus: {
             type: Boolean,
-            default: false,
+            default: true,
         },
         isShowClose: {
             type: Boolean,
@@ -437,20 +475,27 @@ export default defineComponent({
         const showDrawToos = () => {
             const dom: any = document.querySelector(".draw-content");
             const outdom: any = document.querySelector(".me-tools");
+            const btndom: any = document.querySelectorAll(
+                ".me-tools-drag .me-tool-btn"
+            );
+
+            console.log("btndom----", btndom);
+            const widths = btndom.length * 81 + 190;
             // if(props.isShowClose){
 
             // }
-            if (outdom.style.width == "1224px") {
+            if (outdom.style.width == widths + "px") {
                 isOpen.value = false;
                 outdom.style.width = "190px";
             } else {
                 isOpen.value = true;
-                outdom.style.width = "1224px";
+                outdom.style.width = widths + "px";
             }
-            if (dom.style.width == "1034px") {
+            const width2 = widths - 190;
+            if (dom.style.width == width2 + "px") {
                 dom.style.width = 0;
             } else {
-                dom.style.width = "1034px";
+                dom.style.width = width2 + "px";
             }
         };
         const router = useRouter();
@@ -521,9 +566,11 @@ export default defineComponent({
         };
         onMounted(() => {
             addEvent();
+            emitter.on("closeTool", closeTool);
         });
         onUnmounted(() => {
             removeEvent();
+            emitter.off("closeTool");
         });
         onActivated(() => {
             addEvent();
@@ -630,6 +677,14 @@ export default defineComponent({
             dom.style.top = e.clientY - 82 + "px";
             isShowMenu.value = true;
         };
+        //关闭工具
+        const closeTool = (e: any) => {
+            openPaintTool(e, "paint");
+            type.value = "pen";
+
+            // openPaintTool(e, "mouse");
+            // type.value = "mouse";
+        };
 
         return {
             isOpen,
@@ -659,6 +714,7 @@ export default defineComponent({
             openPaintTool,
             showDrawToos,
             moreSet,
+            closeTool,
         };
     },
     components: { ResourceDialog, ArrowLeftBold, ArrowRightBold },
@@ -672,13 +728,12 @@ export default defineComponent({
     bottom: 0;
 }
 .background {
-    background: rgba($color: #fff, $alpha: 0.3);
+    background: rgba(64, 73, 92, 0.6);
     // background: rgb(218 25 25 / 40%);
-    width: 100px;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 160px;
+    width: 120px;
     border-radius: 40px;
 }
 .me-tools {
@@ -687,14 +742,14 @@ export default defineComponent({
     // display: flex;
     // position: relative;
     border-radius: 40px;
-    background: rgba($color: #fff, $alpha: 0.3);
+    background: rgba(64, 73, 92, 0.6);
     z-index: 999;
     cursor: move;
     height: 78px;
     display: flex;
     overflow: auto;
-    bottom: 6vh;
-    right: 9vh;
+    bottom: 9vh;
+    right: 10vh;
     width: 190px;
     transition: width 0.5s, transform 0.5s;
     overflow-y: hidden;
@@ -708,7 +763,7 @@ export default defineComponent({
             position: absolute;
             width: 0;
             overflow: hidden;
-            right: 190px;
+            right: 170px;
             transition: width 0.5s, transform 0.5s;
         }
         .righticon {
@@ -721,6 +776,7 @@ export default defineComponent({
                 font-size: 32px;
                 display: flex;
                 align-items: center;
+                color: #e0e2e7;
             }
         }
     }

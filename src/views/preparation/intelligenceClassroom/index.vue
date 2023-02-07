@@ -63,7 +63,7 @@
             :isCanUndo="isCanUndo"
             :isCanRedo="isCanRedo"
             :isFullScreenStatus="isFullScreenStatus"
-        /> 
+        />
     </div>
 </template>
 
