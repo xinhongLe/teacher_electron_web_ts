@@ -367,7 +367,7 @@ export default defineComponent({
         const resize = debounce(() => {
             if (classSchedule.value && route.path === "/home") {
                 // 右边边小于一半，没有进行过布局调整，进行布局调整
-                if (classSchedule.value.clientWidth < window.innerWidth * 0.5) {
+                if (classSchedule.value.clientWidth < window.innerWidth * 0.4) {
                     layoutAdjust.value = true;
                 }
 
