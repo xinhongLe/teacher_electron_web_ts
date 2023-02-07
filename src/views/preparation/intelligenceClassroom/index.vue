@@ -48,6 +48,7 @@
             </div>
         </div>
         <Tools
+            :cardClass="'intelligence'"
             :id="resourceId"
             :dialog="dialog"
             :showRemark="previewSection?.showRemark"

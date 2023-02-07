@@ -10,12 +10,11 @@
             isDragging ? 'drag-event-class' : '',
         ]"
     >
-        <el-popover
-            :disabled="isMobile"
+        <!-- <el-popover
             trigger="hover"
             popper-class="preparation-popper-class-adjust"
             :append-to-body="false"
-            v-if="colData.ClassName"
+            v-if="colData.ClassName && !isMobile"
         >
             <div>
                 <p v-show="colData.LessonName">
@@ -72,7 +71,53 @@
                     </div>
                 </div>
             </template>
-        </el-popover>
+        </el-popover> -->
+
+        <div class="course-content-warp">
+            <div
+                class="course-content"
+                :class="{
+                    'has-course': colData.LessonName,
+                    end: isEnd,
+                }"
+                @click="goToClass(), clicKBuryPoint()"
+            >
+                <div class="course-name">
+                    {{ colData.LessonName }}
+                </div>
+                <div class="bottom">
+                    <div class="class-name">
+                        {{ colData.ClassName }}
+                    </div>
+                    <div
+                        v-if="colData.count > 0"
+                        class="my-course-cart"
+                        :num="colData.count"
+                    >
+                        <img
+                            src="@/assets/images/preparation/cart.png"
+                            alt=""
+                        />
+                    </div>
+                    <div
+                        v-if="colData.CourseName"
+                        class="content-class"
+                        :style="{
+                            backgroundColor: bgColor,
+                        }"
+                    >
+                        {{ colData.CourseName?.substring(0, 1) }}
+                    </div>
+                </div>
+                <div
+                    class="delete-icon-warp"
+                    v-if="colData.LessonName && isShowDelete"
+                    @click.stop="deleteCourse"
+                >
+                    <span class="line"></span>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -81,7 +126,15 @@ import { ColData, Schedule } from "@/hooks/useSchedules";
 import { SchoolLesson } from "@/types/preparation";
 import { ElMessage, ElMessageBox } from "element-plus";
 import moment from "moment";
-import { computed, inject, PropType, ref, defineProps, defineEmits } from "vue";
+import {
+    computed,
+    inject,
+    PropType,
+    ref,
+    defineProps,
+    defineEmits,
+    onMounted,
+} from "vue";
 import { useRouter } from "vue-router";
 import { updateSchedule } from "@/api/timetable";
 import { store } from "@/store";
@@ -125,21 +178,11 @@ const props = defineProps({
 });
 const isMobile = ref(false);
 const getMobile = () => {
-    let userAgentInfo = navigator.userAgent;
-    let Agents = [
-        "Android",
-        "iPhone",
-        "SymbianOS",
-        "Windows Phone",
-        "iPad",
-        "iPod",
-    ];
-    let getArr = Agents.filter((i) => userAgentInfo.includes(i));
-    isMobile.value = getArr.length ? true : false;
+    isMobile.value = navigator.maxTouchPoints ? true : false;
 };
-window.onresize = () => {
+onMounted(() => {
     getMobile();
-};
+});
 
 const isActive = ref(false);
 const router = useRouter();

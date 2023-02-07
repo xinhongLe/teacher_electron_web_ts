@@ -469,17 +469,20 @@ export default defineComponent({
             type: Boolean,
             default: false,
         },
+        cardClass: {
+            type: String,
+            default: "",
+        },
     },
     setup(props, { emit }) {
         const isOpen = ref(false);
         const showDrawToos = () => {
             const dom: any = document.querySelector(".draw-content");
             const outdom: any = document.querySelector(".me-tools");
-            const btndom: any = document.querySelectorAll(
-                ".me-tools-drag .me-tool-btn"
-            );
 
-            console.log("btndom----", btndom);
+            const btn_class =
+                "." + props.cardClass + " " + ".me-tools-drag .me-tool-btn";
+            const btndom: any = document.querySelectorAll(btn_class);
             const widths = btndom.length * 81 + 190;
             // if(props.isShowClose){
 
@@ -566,7 +569,7 @@ export default defineComponent({
         };
         onMounted(() => {
             addEvent();
-            emitter.on("closeTool", closeTool);
+            emitter.on("closeTool", closeRulersTool);
         });
         onUnmounted(() => {
             removeEvent();
@@ -678,12 +681,9 @@ export default defineComponent({
             isShowMenu.value = true;
         };
         //关闭工具
-        const closeTool = (e: any) => {
+        const closeRulersTool = (e: any) => {
             openPaintTool(e, "paint");
             type.value = "pen";
-
-            // openPaintTool(e, "mouse");
-            // type.value = "mouse";
         };
 
         return {
@@ -714,7 +714,6 @@ export default defineComponent({
             openPaintTool,
             showDrawToos,
             moreSet,
-            closeTool,
         };
     },
     components: { ResourceDialog, ArrowLeftBold, ArrowRightBold },
@@ -728,7 +727,7 @@ export default defineComponent({
     bottom: 0;
 }
 .background {
-    background: rgba(64, 73, 92, 0.6);
+    background: rgba(255, 255, 255, 0.3);
     // background: rgb(218 25 25 / 40%);
     display: flex;
     align-items: center;
@@ -742,7 +741,7 @@ export default defineComponent({
     // display: flex;
     // position: relative;
     border-radius: 40px;
-    background: rgba(64, 73, 92, 0.6);
+    background: rgba(255, 255, 255, 0.3);
     z-index: 999;
     cursor: move;
     height: 78px;
@@ -776,7 +775,7 @@ export default defineComponent({
                 font-size: 32px;
                 display: flex;
                 align-items: center;
-                color: #e0e2e7;
+                // color: #e0e2e7;
             }
         }
     }

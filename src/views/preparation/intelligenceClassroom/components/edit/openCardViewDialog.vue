@@ -30,6 +30,7 @@
             </div> -->
         </div>
         <Tools
+            :cardClass="'card-dialog'"
             :isTKdialog="true"
             @prevStep="prevCard"
             @nextStep="nextCard"
