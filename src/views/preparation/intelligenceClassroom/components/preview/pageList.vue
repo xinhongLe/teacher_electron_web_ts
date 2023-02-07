@@ -64,6 +64,7 @@ import { SchoolWindowPageInfo } from "@/types/preparation";
 import { find } from "lodash";
 import { IElement } from "mwhiteboard";
 import { useStore } from "@/store";
+import emitter from "@/utils/mitt";
 export default defineComponent({
     props: {
         dialog: {
@@ -214,8 +215,8 @@ export default defineComponent({
         const closeWriteBoard = () => {
             writeBoardVisible.value = false;
         };
-        const closeTool = (val: any) => {
-            // console.log("val--------", val);
+        const closeTool = () => {
+            emitter.emit("closeTool");
             // writeBoardVisible.value = false;
         };
 

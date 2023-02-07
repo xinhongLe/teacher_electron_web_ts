@@ -11,6 +11,7 @@
         ]"
     >
         <el-popover
+            :disabled="isMobile"
             trigger="hover"
             popper-class="preparation-popper-class-adjust"
             :append-to-body="false"
@@ -122,6 +123,23 @@ const props = defineProps({
         default: false,
     },
 });
+const isMobile = ref(false);
+const getMobile = () => {
+    let userAgentInfo = navigator.userAgent;
+    let Agents = [
+        "Android",
+        "iPhone",
+        "SymbianOS",
+        "Windows Phone",
+        "iPad",
+        "iPod",
+    ];
+    let getArr = Agents.filter((i) => userAgentInfo.includes(i));
+    isMobile.value = getArr.length ? true : false;
+};
+window.onresize = () => {
+    getMobile();
+};
 
 const isActive = ref(false);
 const router = useRouter();
