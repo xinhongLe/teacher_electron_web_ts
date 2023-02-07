@@ -113,11 +113,12 @@ export default (days: Ref<string[]>) => {
         });
     };
 
-    const initSchedules = async () => {
+    const initSchedules = async (resize?: () => void) => {
         await getTimetableID();
         if (!timetableID.value) return;
         await getTeachClassSchedule();
         dealSchedules();
+        resize && resize();
     };
 
     // watch(schoolID, initSchedules)

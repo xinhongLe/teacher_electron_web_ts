@@ -336,6 +336,7 @@ export default defineComponent({
         margin-right: 25px;
         display: flex;
         align-items: center;
+        font-size: 12px;
     }
     &:after {
         border: 1px solid var(--el-border-color-light);

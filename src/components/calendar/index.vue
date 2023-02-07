@@ -2,11 +2,7 @@
     <div
         ref="calendarRef"
         class="calendar"
-        :style="{
-            transform: `scale(${scale})`,
-            height: `${height}px`,
-            width: `${width}px`,
-        }"
+        :style="calendarStyles"
     >
         <slot :initSchedules="initSchedules" />
         <div class="content-header">
@@ -66,6 +62,7 @@ import {
 import Course from "./Course.vue";
 import usePageEvent from "@/hooks/usePageEvent";
 import { EVENT_TYPE } from "@/config/event";
+import { useRoute } from "vue-router";
 export default defineComponent({
     name: "Calendar",
     props: {
@@ -109,8 +106,6 @@ export default defineComponent({
 
         provide("updateSchedules", updateSchedules);
 
-        expose({ initSchedules });
-
         const openCourse = (data: ColData) => {
             emit("openCourse", data);
         };
@@ -125,25 +120,29 @@ export default defineComponent({
         };
 
         const resize = () => {
-            nextTick(() => {
-                width.value = window.innerWidth * 0.6;
-                height.value = calendarRef.value.parentElement.clientHeight;
-                const calendarHeight = height.value;
-                const contentHeight = calendarHeight - 128;
-                const contentScrollHeight = contentRef.value.scrollHeight;
-                if (contentHeight < contentScrollHeight) {
-                    // 内容放置不下
-                    scale.value = calendarHeight / (contentScrollHeight + 128);
-                    height.value = height.value / scale.value;
-                }
-                calendarRef.value.parentElement.style.width =
-                    width.value * (scale.value > 1 ? 1 : scale.value) + "px";
-            });
+            if (route.path === "/home") {
+                nextTick(() => {
+                    width.value = window.innerWidth * 0.6;
+                    height.value = calendarRef.value.parentElement.clientHeight;
+                    const calendarHeight = height.value;
+                    const contentHeight = calendarHeight - 128;
+                    const contentScrollHeight = contentRef.value.scrollHeight;
+                    if (contentHeight < contentScrollHeight) {
+                        // 内容放置不下
+                        scale.value = calendarHeight / (contentScrollHeight + 128);
+                        height.value = height.value / scale.value;
+                    }
+                    calendarRef.value.parentElement.style.width =
+                        width.value * (scale.value > 1 ? 1 : scale.value) + "px";
+                });
+            }
         };
 
+        const route = useRoute();
         nextTick(() => {
-            calendarRef.value.parentElement.style.width =
-                window.innerWidth * 0.6 + "px";
+            if (route.path === "/home") {
+                calendarRef.value.parentElement.style.width = window.innerWidth * 0.6 + "px";
+            }
         });
 
         window.addEventListener("resize", resize);
@@ -152,12 +151,22 @@ export default defineComponent({
             window.removeEventListener("resize", resize);
         });
 
+        expose({ initSchedules, resize });
+
         const scale = ref(1);
         const height = ref(0);
         const width = ref(window.innerWidth * 0.6);
         const calendarRef = ref();
         const contentRef = ref();
         watch(schedules, resize);
+
+        const calendarStyles = computed(() => {
+            return route.path === "/home" ? {
+                transform: `scale(${scale.value})`,
+                height: `${height.value}px`,
+                width: `${width.value}px`,
+            } : {};
+        });
 
         return {
             weekNext,
@@ -176,6 +185,7 @@ export default defineComponent({
             scale,
             height,
             width,
+            calendarStyles
         };
     },
 
