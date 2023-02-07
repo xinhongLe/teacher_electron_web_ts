@@ -144,7 +144,15 @@
                                         (type = 'pen')
                                 "
                             >
-                                <div class="icon-text">
+                                <div
+                                    class="icon-text"
+                                    :style="{
+                                        backgroundColor:
+                                            type === 'ruler'
+                                                ? '#fff'
+                                                : '#e5eeff',
+                                    }"
+                                >
                                     <IconRuler />
                                     <span class="text">直尺</span>
                                 </div>
@@ -157,7 +165,15 @@
                                         (type = 'pen')
                                 "
                             >
-                                <div class="icon-text">
+                                <div
+                                    class="icon-text"
+                                    :style="{
+                                        backgroundColor:
+                                            type === 'protractor'
+                                                ? '#fff'
+                                                : '#e5eeff',
+                                    }"
+                                >
                                     <IconProtractor />
                                     <span class="text">量角器</span>
                                 </div>
@@ -170,7 +186,15 @@
                                         (type = 'pen')
                                 "
                             >
-                                <div class="icon-text">
+                                <div
+                                    class="icon-text"
+                                    :style="{
+                                        backgroundColor:
+                                            type === 'compass'
+                                                ? '#fff'
+                                                : '#e5eeff',
+                                    }"
+                                >
                                     <IconCompass />
                                     <span class="text">圆规</span>
                                 </div>
