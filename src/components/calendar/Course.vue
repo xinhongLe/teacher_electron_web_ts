@@ -335,7 +335,7 @@ const clicKBuryPoint = () => {
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            background-color: #f0f2f6;
+            background-color: #fff;
             border-radius: 2px;
             &.has-course {
                 border: 1px solid #456ced;
