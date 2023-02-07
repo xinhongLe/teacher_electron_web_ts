@@ -67,9 +67,9 @@
             </main>
 
             <div class="exercise-footer">
-                <div class="btn download-btn" @click="downLoadWord">
+                <!-- <div class="btn download-btn" @click="downLoadWord">
                     下载为word
-                </div>
+                </div> -->
                 <div class="btn next-btn" @click="nexStep">下一步</div>
             </div>
         </template>
@@ -136,9 +136,9 @@
                 </div>
             </main>
             <div class="exercise-footer" style="width: 100%">
-                <div class="btn download-btn" @click="downLoadWord">
+                <!-- <div class="btn download-btn" @click="downLoadWord">
                     下载为word
-                </div>
+                </div> -->
                 <div class="btn next-btn" @click="assignHomework">确认布置</div>
             </div>
         </template>
