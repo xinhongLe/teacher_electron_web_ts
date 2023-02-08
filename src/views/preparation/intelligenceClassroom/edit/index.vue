@@ -266,7 +266,7 @@
                         </template>
                     </el-tree>
                     <div class="page-intro">
-                        当前页{{pageValue.ParentNum || 1}}/{{newWindowCards.length}}
+                        当前页{{currentActivePage || 1}}/{{pptCount}}
                     </div>
                 </div>
             </div>
@@ -437,6 +437,7 @@ export default defineComponent({
     },
     name: "Edit",
     setup() {
+        const pptCount = ref(0); // ppt总页数
         const newWindowCards = ref([]);
         const materialCenterRef = ref(); // 资源库组件实例
         const isshowCusTooltip = ref(false); // 展示查看已保存模板提示框
@@ -493,6 +494,7 @@ export default defineComponent({
 
         const {
             handleNodeClick,
+            currentActivePage,
             selectPageValue,
             editRef,
             activeAllPageListIndex,
@@ -783,10 +785,12 @@ export default defineComponent({
                 const item = newWindowCards.value[idx] as any;
                 arr = arr.concat(item.PageList);
             }
+            pptCount.value = arr.length;
 
             arr.forEach((ele:any, i:number) => {
                 ele.count = i + 1;
             });
+
             setTimeout(() => {
                newWindowCards.value.forEach((nitem: any) => {
                     nitem.PageList = arr.filter(m => m.ParentID === nitem.ID);
@@ -1054,6 +1058,8 @@ export default defineComponent({
         };
 
         return {
+            pptCount,
+            currentActivePage,
             newWindowCards,
             viewTree,
             editRef,
