@@ -10,8 +10,8 @@
             isDragging ? 'drag-event-class' : '',
         ]"
     >
-        <!-- <el-popover
-            trigger="hover"
+        <el-popover
+            :visible="currentClassId === colData.ID"
             popper-class="preparation-popper-class-adjust"
             :append-to-body="false"
             v-if="colData.ClassName && !isMobile"
@@ -25,7 +25,11 @@
                 <p>班级：{{ colData.ClassName }}</p>
             </div>
             <template #reference>
-                <div class="course-content-warp">
+                <div
+                    class="course-content-warp"
+                    @mouseenter="currentClassId = colData.ID"
+                    @mouseleave="currentClassId = ''"
+                >
                     <div
                         class="course-content"
                         :class="{
@@ -71,53 +75,7 @@
                     </div>
                 </div>
             </template>
-        </el-popover> -->
-
-        <div class="course-content-warp">
-            <div
-                class="course-content"
-                :class="{
-                    'has-course': colData.LessonName,
-                    end: isEnd,
-                }"
-                @click="goToClass(), clicKBuryPoint()"
-            >
-                <div class="course-name">
-                    {{ colData.LessonName }}
-                </div>
-                <div class="bottom">
-                    <div class="class-name">
-                        {{ colData.ClassName }}
-                    </div>
-                    <div
-                        v-if="colData.count > 0"
-                        class="my-course-cart"
-                        :num="colData.count"
-                    >
-                        <img
-                            src="@/assets/images/preparation/cart.png"
-                            alt=""
-                        />
-                    </div>
-                    <div
-                        v-if="colData.CourseName"
-                        class="content-class"
-                        :style="{
-                            backgroundColor: bgColor,
-                        }"
-                    >
-                        {{ colData.CourseName?.substring(0, 1) }}
-                    </div>
-                </div>
-                <div
-                    class="delete-icon-warp"
-                    v-if="colData.LessonName && isShowDelete"
-                    @click.stop="deleteCourse"
-                >
-                    <span class="line"></span>
-                </div>
-            </div>
-        </div>
+        </el-popover>
     </div>
 </template>
 
@@ -176,6 +134,7 @@ const props = defineProps({
         default: false,
     },
 });
+const currentClassId: any = ref("");
 const isMobile = ref(false);
 const getMobile = () => {
     isMobile.value = navigator.maxTouchPoints ? true : false;
