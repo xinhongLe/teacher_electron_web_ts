@@ -338,6 +338,10 @@ export default defineComponent({
                     };
                     const res: any = await deleteTemplate(params);
                     if (res) {
+                        state.serchForm.Pager.PageSize =
+                            state.serchForm.Pager.PageNumber *
+                            state.serchForm.Pager.PageSize;
+                        state.serchForm.Pager.PageNumber = 1;
                         quertMyTemplate();
                     }
                 })
