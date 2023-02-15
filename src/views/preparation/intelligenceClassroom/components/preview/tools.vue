@@ -471,7 +471,7 @@ export default defineComponent({
         },
         cardClass: {
             type: String,
-            default: "",
+            default: "intelligence",
         },
     },
     setup(props, { emit }) {

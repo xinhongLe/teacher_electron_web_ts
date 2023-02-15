@@ -66,11 +66,7 @@
                         </el-col>
                     </el-row>
                 </div>
-                <div
-                    class="card-list"
-                    ref="cardListRef"
-                >
-
+                <div class="card-list" ref="cardListRef">
                     <el-tree
                         :class="viewTree ? 'view-tree-box' : 'tree-box'"
                         default-expand-all
@@ -126,8 +122,13 @@
                                                 "
                                                 class="select-page"
                                             >
-                                                <span class="chapter-num">{{data.count}}</span>
-                                                <el-icon :style="{ backgroundColor: (selectPageData.map(((item: any) => item.ID)).includes(data.ID) ? 'var(--el-color-primary)' : '#fff') }" color="#fff">
+                                                <span class="chapter-num">{{
+                                                    data.count
+                                                }}</span>
+                                                <el-icon
+                                                    :style="{ backgroundColor: (selectPageData.map(((item: any) => item.ID)).includes(data.ID) ? 'var(--el-color-primary)' : '#fff') }"
+                                                    color="#fff"
+                                                >
                                                     <Check />
                                                 </el-icon>
                                             </div>
@@ -266,7 +267,7 @@
                         </template>
                     </el-tree>
                     <div class="page-intro">
-                        当前页{{currentActivePage || 1}}/{{pptCount}}
+                        当前页{{ currentActivePage || 1 }}/{{ pptCount }}
                     </div>
                 </div>
             </div>
@@ -383,7 +384,7 @@ import {
     watch,
     toRef,
     computed,
-    nextTick
+    nextTick,
 } from "vue";
 import WinCardEdit from "../components/edit/winCardEdit.vue";
 import { IPageValue, ICardList } from "@/types/home";
@@ -433,7 +434,7 @@ export default defineComponent({
         WinCardEdit,
         MoreFilled,
         materialCenter,
-        SaveTemplateDialog
+        SaveTemplateDialog,
     },
     name: "Edit",
     setup() {
@@ -449,9 +450,7 @@ export default defineComponent({
         const { tooltipShow, mouseenter, mouseleave } = useTooltipShow();
         const { state, defaultProps, pageValue, _getWindowCards, insertData } =
             useSelectBookInfo();
-
         const windowCards = toRef(state, "windowCards");
-
         const oldWindowCards = toRef(state, "oldWindowCards");
 
         const allPageListMap = toRef(state, "allPageListMap");
@@ -475,7 +474,7 @@ export default defineComponent({
             editTemplate,
             dialogStatus,
             templateFormData,
-            formateOssUrl
+            formateOssUrl,
         } = useSaveTemplate(allPageListMap);
 
         const {
@@ -484,7 +483,7 @@ export default defineComponent({
             winScreenView,
             keyDown,
             offScreen,
-            activePreviewPageIndex
+            activePreviewPageIndex,
         } = usePreview(pageValue);
 
         const { handleCopy, handlePaste, pastePage } = useCopyPage(
@@ -500,7 +499,7 @@ export default defineComponent({
             activeAllPageListIndex,
             allPageList,
             isWatchChange,
-            cardListRef
+            cardListRef,
         } = useSelectPage(pageValue, allPageListMap);
 
         const { allowDrop } = useDragPage();
@@ -515,7 +514,7 @@ export default defineComponent({
             dialogVisibleName,
             currentValue,
             handleUpdateName,
-            updateName
+            updateName,
         } = useUpdateName(shrinkRef);
 
         const route = useRoute();
@@ -545,7 +544,7 @@ export default defineComponent({
             ElMessageBox.confirm("此操作将删除该数据, 是否继续?", "提示", {
                 confirmButtonText: "确认",
                 cancelButtonText: "取消",
-                type: "warning"
+                type: "warning",
             })
                 .then(() => {
                     // 删除的是卡 判断当前页是否在删除卡下
@@ -558,7 +557,7 @@ export default defineComponent({
                             pageValue.value = {
                                 ...pageValue.value!,
                                 ID: "",
-                                Type: 11
+                                Type: 11,
                             };
                         }
                     } else {
@@ -571,7 +570,7 @@ export default defineComponent({
                             pageValue.value = {
                                 ...pageValue.value!,
                                 ID: "",
-                                Type: 11
+                                Type: 11,
                             };
                         }
                         windowCards.value = [...windowCards.value];
@@ -605,61 +604,65 @@ export default defineComponent({
             // }
             // return
             // 2023-02-03 原 WindowCards 修改为newWindowCards
-            const cardData = newWindowCards.value.map((card:any, index:number) => {
-                const cardID = card.isAdd ? "" : card.ID;
-                const cardName = card.Name;
-                const sort = index + 1;
-                const pageList = card.PageList;
-                const pageData = pageList.map((page:any, pageIndex:number) => {
-                    const { ID, Name, Type, State, isAdd } = page;
-                    const slide = allPageListMap.value.get(ID);
-                    let json = "";
-                    const academicPresupposition = slide?.remark || "";
-                    const designIntent = slide?.design || "";
-                    if (slide) {
-                        if (slide.type === "element") {
-                            json = JSON.stringify(slide);
-                        } else if (slide.type === "listen") {
-                            const Words = slide.listenWords?.map(
-                                (word, index) => {
-                                    return {
-                                        sort: index + 1,
-                                        WordID: word.id,
-                                        PageWordID: word.pageWordID
-                                            ? null
-                                            : word.pageWordID,
-                                        WordInterval: 2
-                                    };
+            const cardData = newWindowCards.value.map(
+                (card: any, index: number) => {
+                    const cardID = card.isAdd ? "" : card.ID;
+                    const cardName = card.Name;
+                    const sort = index + 1;
+                    const pageList = card.PageList;
+                    const pageData = pageList.map(
+                        (page: any, pageIndex: number) => {
+                            const { ID, Name, Type, State, isAdd } = page;
+                            const slide = allPageListMap.value.get(ID);
+                            let json = "";
+                            const academicPresupposition = slide?.remark || "";
+                            const designIntent = slide?.design || "";
+                            if (slide) {
+                                if (slide.type === "element") {
+                                    json = JSON.stringify(slide);
+                                } else if (slide.type === "listen") {
+                                    const Words = slide.listenWords?.map(
+                                        (word, index) => {
+                                            return {
+                                                sort: index + 1,
+                                                WordID: word.id,
+                                                PageWordID: word.pageWordID
+                                                    ? null
+                                                    : word.pageWordID,
+                                                WordInterval: 2,
+                                            };
+                                        }
+                                    );
+                                    json = JSON.stringify(Words);
+                                } else if (slide.type === "follow") {
+                                    json = slide.follow?.id || "";
+                                } else if (slide.type === "teach") {
+                                    json = slide.teach?.id || "";
+                                } else if (slide.type === "game") {
+                                    json = slide.game?.id || "";
                                 }
-                            );
-                            json = JSON.stringify(Words);
-                        } else if (slide.type === "follow") {
-                            json = slide.follow?.id || "";
-                        } else if (slide.type === "teach") {
-                            json = slide.teach?.id || "";
-                        } else if (slide.type === "game") {
-                            json = slide.game?.id || "";
+                            }
+                            return {
+                                pageID: isAdd ? "" : ID,
+                                pageName: Name || "",
+                                type: Type,
+                                academicPresupposition,
+                                designIntent,
+                                sort: pageIndex + 1,
+                                json,
+                                state: Number(State),
+                            };
                         }
-                    }
-                    return {
-                        pageID: isAdd ? "" : ID,
-                        pageName: Name || "",
-                        type: Type,
-                        academicPresupposition,
-                        designIntent,
-                        sort: pageIndex + 1,
-                        json,
-                        state: Number(State)
-                    };
-                });
+                    );
 
-                return {
-                    cardID,
-                    sort,
-                    pageData,
-                    cardName
-                };
-            });
+                    return {
+                        cardID,
+                        sort,
+                        pageData,
+                        cardName,
+                    };
+                }
+            );
 
             const data = {
                 franchiseeID: store.state.userInfo.schoolId,
@@ -667,7 +670,7 @@ export default defineComponent({
                 cardData,
                 originType: 1,
                 windowName: windowInfo.value.name,
-                windowID: windowInfo.value.id
+                windowID: windowInfo.value.id,
             };
 
             const lessonId = (windowInfo.value.lessonId as string) || "";
@@ -677,10 +680,10 @@ export default defineComponent({
             if (res.resultCode === 200) {
                 ElMessage.success({
                     message,
-                    duration: 2000
+                    duration: 2000,
                 });
                 store.commit(MutationTypes.SET_EDIT_WINDOW_INFO, {
-                    ...windowInfo.value
+                    ...windowInfo.value,
                 });
                 allPageListMap.value.forEach((item, key) => {
                     oldAllPageListMap.value.set(key, cloneDeep(item));
@@ -723,7 +726,7 @@ export default defineComponent({
                             pageValue.value = newPageValue;
                         }
                         const obj = {
-                            ...pageValue.value
+                            ...pageValue.value,
                         };
                         selectPageValue(obj, true);
                     } else {
@@ -735,7 +738,7 @@ export default defineComponent({
                 }
             },
             {
-                deep: true
+                deep: true,
             }
         );
         // 过滤教具页和游戏页的封面
@@ -743,26 +746,28 @@ export default defineComponent({
             newWindowCards.value = JSON.parse(JSON.stringify(arr));
             newWindowCards.value.forEach((item: any, idx: number) => {
                 item.num = Number(idx + 1);
-                item.PageList?.forEach(async (page: IPageValue, cidx: number) => {
-                    if (page) {
-                        page.ParentNum = item.num;
-                        // page.ParentID = item.ID;
-                        page.Json =
-                            page.Json && typeof page.Json === "string"
-                                ? JSON.parse(page.Json)
-                                : page.Json;
-                        // const newSlide: Slide = await transformPageDetail(page, page.Json);
-                        if (page.Type === 20 || page.Type === 16) {
-                            const temJson: any = page.Json;
-                            if (page.url) return;
-                            page.url = temJson?.ToolFileModel
-                                ? await formateOssUrl(
-                                      temJson?.ToolFileModel?.File
-                                )
-                                : "";
+                item.PageList?.forEach(
+                    async (page: IPageValue, cidx: number) => {
+                        if (page) {
+                            page.ParentNum = item.num;
+                            // page.ParentID = item.ID;
+                            page.Json =
+                                page.Json && typeof page.Json === "string"
+                                    ? JSON.parse(page.Json)
+                                    : page.Json;
+                            // const newSlide: Slide = await transformPageDetail(page, page.Json);
+                            if (page.Type === 20 || page.Type === 16) {
+                                const temJson: any = page.Json;
+                                if (page.url) return;
+                                page.url = temJson?.ToolFileModel
+                                    ? await formateOssUrl(
+                                          temJson?.ToolFileModel?.File
+                                      )
+                                    : "";
+                            }
                         }
                     }
-                });
+                );
             });
             newWindowCards.value = [...newWindowCards.value];
             flatAndRebuild();
@@ -775,10 +780,12 @@ export default defineComponent({
          */
         const flatAndRebuild = () => {
             newWindowCards.value.forEach((mitem: any) => {
-                    mitem.PageList?.forEach(async (page: IPageValue, cidx: number) => {
+                mitem.PageList?.forEach(
+                    async (page: IPageValue, cidx: number) => {
                         page.ParentID = mitem.ID;
-                    });
-                });
+                    }
+                );
+            });
             let arr = [] as any[];
             for (const s in newWindowCards.value) {
                 const idx = Number(s);
@@ -787,13 +794,13 @@ export default defineComponent({
             }
             pptCount.value = arr.length;
 
-            arr.forEach((ele:any, i:number) => {
+            arr.forEach((ele: any, i: number) => {
                 ele.count = i + 1;
             });
 
             setTimeout(() => {
-               newWindowCards.value.forEach((nitem: any) => {
-                    nitem.PageList = arr.filter(m => m.ParentID === nitem.ID);
+                newWindowCards.value.forEach((nitem: any) => {
+                    nitem.PageList = arr.filter((m) => m.ParentID === nitem.ID);
                 });
             }, 10);
         };
@@ -823,7 +830,7 @@ export default defineComponent({
             loading,
             parsePptPage,
             pptPages,
-            percentage
+            percentage,
         } = useImportPPT();
 
         const importPPT = () => {
@@ -837,7 +844,7 @@ export default defineComponent({
                         Name: name[name.length - 1] + "-" + (index + 1),
                         Type: pageType.element,
                         isAdd: true,
-                        State: true
+                        State: true,
                     };
                 });
                 const card = {
@@ -845,7 +852,7 @@ export default defineComponent({
                     ID: uuidv4(),
                     Sort: windowCards.value.length,
                     isAdd: true,
-                    PageList: pageList
+                    PageList: pageList,
                 };
                 windowCards.value.push(card);
             });
@@ -863,7 +870,7 @@ export default defineComponent({
                 const newValue = {
                     ...value,
                     remark: item.AcademicPresupposition || "",
-                    design: item.DesignIntent || ""
+                    design: item.DesignIntent || "",
                 };
                 allPageListMap.value.set(item.TeachPageID, newValue as Slide);
                 oldAllPageListMap.value.set(
@@ -877,7 +884,7 @@ export default defineComponent({
         onMounted(() => {
             _getWindowCards({
                 WindowID: windowInfo.value.id,
-                OriginType: windowInfo.value.originType
+                OriginType: windowInfo.value.originType,
             }).then(() => {
                 // fetchAllPageSlide(getAllPageList());
             });
@@ -904,7 +911,9 @@ export default defineComponent({
             if (
                 isEqual(allPageListMap.value, oldAllPageListMap.value) &&
                 isEqual(windowCards.value, oldWindowCards.value)
-            ) { return true; }
+            ) {
+                return true;
+            }
             const res = await exitDialog();
             if (res === ExitType.Cancel) {
                 return false;
@@ -960,7 +969,6 @@ export default defineComponent({
             const jsonData = JSON.parse(JSON.stringify(data));
             if (editRef.value.getDataIsChange() && data.type === "elements") {
                 const slide = editRef.value.getCurrentSlide();
-                // console.log('slde', slide);
                 state.allPageListMap.set(pageValue.value.ID, slide);
             }
             const res: any = await insertData(jsonData);
@@ -982,7 +990,7 @@ export default defineComponent({
                     name: "教具页",
                     type: "teach",
                     value: 16,
-                    url: data.data?.url
+                    url: data.data?.url,
                 };
                 state.windowCards.forEach((item: any, windex: number) => {
                     item.PageList.forEach((page: any, index: number) => {
@@ -1047,8 +1055,8 @@ export default defineComponent({
                     handler: () => {
                         rightClick();
                         handleSaveTemplate(1, data);
-                    }
-                }
+                    },
+                },
                 // {
                 //     text: "保存题目",
                 //     subText: "",
@@ -1135,9 +1143,9 @@ export default defineComponent({
             addPage,
             rightClick,
             closeCurrentWinCard,
-            handleNodedrop
+            handleNodedrop,
         };
-    }
+    },
 });
 </script>
 
@@ -1201,20 +1209,20 @@ export default defineComponent({
 
             .card-list {
                 flex: 1;
-                height:100%;
-                position:relative;
-                padding-bottom:32px;
-                .page-intro{
-                    position:absolute;
-                    bottom:32px;
-                    width:100%;
-                    height:40px;
-                    line-height:30px;
-                    font-size:13px;
-                    padding-right:12px;
-                    box-sizing:border-box;
-                    color:#333;
-                    text-align:right;
+                height: 100%;
+                position: relative;
+                padding-bottom: 32px;
+                .page-intro {
+                    position: absolute;
+                    bottom: 32px;
+                    width: 100%;
+                    height: 40px;
+                    line-height: 30px;
+                    font-size: 13px;
+                    padding-right: 12px;
+                    box-sizing: border-box;
+                    color: #333;
+                    text-align: right;
                 }
 
                 :deep(.el-tree-node:focus > .el-tree-node__content) {
@@ -1222,7 +1230,7 @@ export default defineComponent({
                 }
 
                 .el-tree {
-                    height:calc(100% - 50px);
+                    height: calc(100% - 50px);
                     overflow-y: auto;
                     overflow-x: hidden;
                     :deep(.el-tree-node__label) {
@@ -1251,13 +1259,13 @@ export default defineComponent({
                         top: -8px;
                         cursor: pointer;
                         z-index: 2;
-                        display:flex;
-                        align-items:center;
-                        .el-icon{
-                        width: 16px;
-                        height: 16px;
-                        border: 1px solid var(--el-color-primary);
-                        border-radius: 50%;
+                        display: flex;
+                        align-items: center;
+                        .el-icon {
+                            width: 16px;
+                            height: 16px;
+                            border: 1px solid var(--el-color-primary);
+                            border-radius: 50%;
                         }
                         //background-color: var(--el-color-primary);
                     }
@@ -1299,12 +1307,12 @@ export default defineComponent({
                         align-items: center;
                         width: 86%;
                         position: relative;
-                        .chapter-num{
-                            display:block;
-                            margin-right:5px;
-                            font-size:14px;
-                            font-weight:bold;
-                            color:#333;
+                        .chapter-num {
+                            display: block;
+                            margin-right: 5px;
+                            font-size: 14px;
+                            font-weight: bold;
+                            color: #333;
                         }
                     }
 

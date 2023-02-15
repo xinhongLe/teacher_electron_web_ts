@@ -62,6 +62,7 @@
             </div>
         </div>
         <Tools
+            :cardClass="'intelligence'"
             :id="winActiveId"
             :dialog="false"
             :showClose="true"
