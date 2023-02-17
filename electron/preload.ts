@@ -345,6 +345,7 @@ window.electron = {
             await mkdirs(filePath);
             let uuid = guid().replaceAll("-", "");
             const jsonFileName = filePath + `/${uuid}app.json`;
+            console.log("jsonFileName-------", jsonFileName);
 
             // 生成JSON文件
             await writeFile(
@@ -361,6 +362,7 @@ window.electron = {
                     "lyxpkg"
                 )
             );
+            console.log("cacheFiles-------", cacheFiles);
 
             for (let cacheFile of cacheFiles) {
                 cacheFile = cacheFile.replace("file:///", "");
@@ -403,7 +405,7 @@ window.electron = {
 
             return customZipFile;
         } catch (e) {
-            console.error(e);
+            console.error("报错--", e);
             return "";
         } finally {
             await rm(filePath, { recursive: true, force: true });
