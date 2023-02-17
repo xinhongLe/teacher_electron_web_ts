@@ -11,6 +11,9 @@
                         <Drag />
                     </div>
                     点名学生清单
+                    <div class="icon" @click="hideWindow" v-if="isPackUp">
+                        <DoubleRight />
+                    </div>
                 </div>
                 <div class="list">
                     <div
@@ -20,6 +23,9 @@
                     >
                         {{ student?.Name }}
                     </div>
+                </div>
+                <div class="open" v-if="isHide" @click.stop="showWindow">
+                    <DoubleLeft />
                 </div>
             </div>
 
@@ -96,12 +102,14 @@ import { ElMessageBox } from "element-plus";
 import { clearInterval, setInterval } from "timers";
 import { computed, defineComponent, onMounted, PropType, ref } from "vue";
 import Avatar from "../../components/avatar/index.vue";
-import { Drag } from "@icon-park/vue-next";
+import { DoubleLeft, Drag, DoubleRight } from "@icon-park/vue-next";
 export default defineComponent({
     components: {
-        Drag,
-        Avatar,
-    },
+    Drag,
+    Avatar,
+    DoubleRight,
+    DoubleLeft
+},
     props: {
         studentList: {
             type: Array as PropType<Student[]>,
@@ -197,10 +205,10 @@ export default defineComponent({
             window.electron.destroyWindow();
         };
 
+        const isHide = ref(false);
         const isPackUp = ref(false);
         const packUp = () => {
-            const size =
-                window.electron.remote.screen.getPrimaryDisplay().workAreaSize;
+            const size = window.electron.remote.screen.getPrimaryDisplay().workAreaSize;
             window.electron.setContentSize(200, 250);
             const top = size.height - 100 - 250;
             window.electron.setPositionWin(
@@ -208,6 +216,20 @@ export default defineComponent({
                 top > 0 ? top : 20
             );
             isPackUp.value = true;
+        };
+
+        const hideWindow = () => {
+            isHide.value = true;
+            const size = window.electron.remote.screen.getPrimaryDisplay().workAreaSize;
+            const position = window.electron.getPositionWin();
+            window.electron.setPositionWin(size.width - 30, position[1]);
+        };
+
+        const showWindow = () => {
+            isHide.value = false;
+            const size = window.electron.remote.screen.getPrimaryDisplay().workAreaSize;
+            const position = window.electron.getPositionWin();
+            window.electron.setPositionWin(size.width - 20 - 200, position[1]);
         };
 
         const expand = () => {
@@ -243,7 +265,10 @@ export default defineComponent({
             close,
             packUp,
             isPackUp,
+            isHide,
             expand,
+            hideWindow,
+            showWindow
         };
     },
 });
@@ -295,6 +320,13 @@ export default defineComponent({
                     font-size: 20px;
                     top: 10px;
                 }
+                .icon {
+                    position: absolute;
+                    right: 10px;
+                    top: 10px;
+                    cursor: pointer;
+                    -webkit-app-region: no-drag;
+                }
             }
             .list {
                 overflow-y: auto;
@@ -313,6 +345,21 @@ export default defineComponent({
                         border-bottom: 0;
                     }
                 }
+            }
+
+            .open {
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                width: 30px;
+                left: 0;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                cursor: pointer;
+                font-size: 16px;
+                color: #888;
+                z-index: 10;
             }
             &.pack-up {
                 top: 0;
