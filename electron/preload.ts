@@ -96,6 +96,10 @@ window.electron = {
         const currentWindow = getCurrentWindow();
         currentWindow.setContentSize(width, height);
     },
+    getPositionWin: () => {
+        const currentWindow = getCurrentWindow();
+        return currentWindow.getPosition();
+    },
     setPositionWin: (x, y) => {
         const currentWindow = getCurrentWindow();
         currentWindow.setPosition(x, y);
