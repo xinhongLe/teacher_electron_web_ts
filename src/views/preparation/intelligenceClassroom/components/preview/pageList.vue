@@ -34,15 +34,18 @@
             <transition name="fade">
                 <div
                     class="me-page"
+                    ref="container"
                     :class="{
                         hidden: isFullScreen && !isShowCardList,
                     }"
                 >
-                    <PageItem
-                        :pageList="pageList"
-                        :selected="currentPageIndex"
-                        @selectPage="selectPage"
-                    />
+                    <div class="page-list-item">
+                        <PageItem
+                            :pageList="pageList"
+                            :selected="currentPageIndex"
+                            @selectPage="selectPage"
+                        />
+                    </div>
                 </div>
             </transition>
         </div>
@@ -50,7 +53,15 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, inject, ref, watch } from "vue";
+import {
+    computed,
+    defineComponent,
+    inject,
+    ref,
+    watch,
+    onMounted,
+    nextTick,
+} from "vue";
 import TrackService, { EnumTrackEventType } from "@/utils/common";
 import useHome from "@/hooks/useHome";
 import OpenCardViewDialog from "../edit/openCardViewDialog.vue";
@@ -259,6 +270,7 @@ export default defineComponent({
         const nextCard = () => {
             isInitPage.value = true;
             screenRef.value.execNext();
+            scrollToNextPage();
         };
 
         const pageNext = async () => {
@@ -385,7 +397,48 @@ export default defineComponent({
             }
         );
 
+        const container: any = ref<HTMLElement | null>(null);
+        const selectedTabId = ref<string>("");
+
+        const scrollToNextPage = () => {
+            if (!container.value) {
+                return;
+            }
+            nextTick(() => {
+                const selectedTab = container.value.querySelector(
+                    ".me-page-item.active"
+                );
+                console.log("selectedTab", selectedTab);
+
+                if (!selectedTab) {
+                    return;
+                }
+                const containerWidth = container.value.clientWidth;
+                const scrollLeft = container.value.scrollLeft;
+                const selectedTabRect = selectedTab.getBoundingClientRect();
+                console.log("selectedTabRect", selectedTabRect);
+
+                const selectedTabWidth = selectedTabRect.width;
+                const selectedTabLeft =
+                    selectedTabRect.left -
+                    container.value.getBoundingClientRect().left;
+                if (
+                    selectedTabLeft < 0 ||
+                    selectedTabLeft + selectedTabWidth > containerWidth
+                ) {
+                    const scrollDistance =
+                        selectedTabLeft - containerWidth + selectedTabWidth;
+                    container.value.scrollTo({
+                        left: scrollLeft + scrollDistance,
+                        behavior: "smooth",
+                    });
+                }
+            });
+        };
         return {
+            scrollToNextPage,
+            container,
+            selectedTabId,
             screenRef,
             isInitPage,
             currentSlide,
@@ -522,7 +575,10 @@ export default defineComponent({
     overflow-x: auto;
     border-top: 1px solid #e9ecf0;
     transition: height 0.3s;
-
+    .page-list-item {
+        display: flex;
+        flex-wrap: nowrap;
+    }
     &.hidden {
         height: 0;
         padding: 0;

@@ -3,11 +3,11 @@ import { defineProps, PropType, defineEmits } from "vue";
 
 defineProps({
     selected: {
-        type: Number
+        type: Number,
     },
     pageList: {
-        type: Array as PropType<any[]>
-    }
+        type: Array as PropType<any[]>,
+    },
 });
 
 defineEmits(["selectPage"]);
@@ -17,7 +17,7 @@ defineEmits(["selectPage"]);
         class="me-page-item"
         :class="selected === index && 'active'"
         v-for="(item, index) in pageList"
-        :key="index"
+        :key="item.ID"
         @click="$emit('selectPage', index, item)"
     >
         {{ item.Name }}
@@ -26,7 +26,7 @@ defineEmits(["selectPage"]);
 
 <style lang="scss" scoped>
 .me-page-item {
-    background-color: #F0F4FF;
+    background-color: #f0f4ff;
     color: var(--app-color-primary);
     padding: 0px 20px;
     height: 36px;

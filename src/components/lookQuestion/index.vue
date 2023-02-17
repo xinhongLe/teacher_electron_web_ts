@@ -251,6 +251,6 @@ export default defineComponent({
 }
 
 .active-window {
-    z-index: 10001 !important;
+    z-index: 11000 !important;
 }
 </style>
