@@ -1,15 +1,13 @@
 <template>
-    <div
-        class="nextpage background"
-        :style="{
+    <div v-dragLine="'left'" class="nextpage background">
+        <!-- :style="{
             left: '30px',
             bottom: isTKdialog
                 ? '56px'
                 : isFullScreenStatus || isShowFullscreen
                 ? '30px'
                 : 0,
-        }"
-    >
+        }" -->
         <div
             class="me-tool-btn setting-btn"
             @click="nextStep"
@@ -722,9 +720,11 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .nextpage {
-    position: absolute;
-    left: 0;
-    bottom: 0;
+    cursor: move;
+    position: fixed;
+    left: 6vw;
+    bottom: 9vh;
+    // top: 86vh;
 }
 .background {
     background: rgba(255, 255, 255, 0.3);
@@ -748,7 +748,7 @@ export default defineComponent({
     display: flex;
     overflow: auto;
     bottom: 9vh;
-    right: 10vh;
+    right: 6vw;
     width: 190px;
     transition: width 0.5s, transform 0.5s;
     overflow-y: hidden;
