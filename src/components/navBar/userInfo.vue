@@ -235,7 +235,7 @@ const useLogout = () => {
     line-height: 48px;
     border-bottom: 0;
     background-color: transparent !important;
-    ::v-deep(.el-sub-menu__title) {
+    :deep(.el-sub-menu__title) {
         height: 48px;
         line-height: 48px;
         background-color: transparent !important;

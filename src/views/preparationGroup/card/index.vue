@@ -236,7 +236,7 @@ export default defineComponent({
             margin-right: 16px;
             cursor: pointer;
         }
-        ::v-deep(.el-button) {
+        :deep(.el-button) {
             width: 120px;
             height: 36px;
             border-radius: 4px;
@@ -249,7 +249,7 @@ export default defineComponent({
             color: #4B71EE;
             padding: 0;
         }
-        ::v-deep(.el-button--primary.is-plain:hover) {
+        :deep(.el-button--primary.is-plain:hover) {
             color: #fff;
             background: #4B71EE;
         }

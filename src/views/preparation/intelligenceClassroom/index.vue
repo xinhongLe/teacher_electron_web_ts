@@ -70,18 +70,16 @@
 
 <script lang="ts" setup>
 import {
-    inject,
     onActivated,
     onDeactivated,
     onMounted,
     provide,
     ref,
-    defineProps,
     watchEffect,
     PropType,
     toRef,
     onUnmounted,
-    watch,
+    watch
 } from "vue";
 import CardList from "./cardList/index.vue";
 import PreviewSection from "./components/preview/previewSection.vue";

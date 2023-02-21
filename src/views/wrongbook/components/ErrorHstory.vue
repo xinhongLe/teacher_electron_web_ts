@@ -108,10 +108,8 @@
 <script setup lang="ts">
 import {
     ref,
-    defineProps,
     reactive,
     nextTick,
-    defineEmits,
     onMounted,
     computed,
     watch,

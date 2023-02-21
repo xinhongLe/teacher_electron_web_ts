@@ -715,13 +715,13 @@ export default defineComponent({
             .grey {
                 color: rgba(33, 33, 33, 0.79);
             }
-            ::v-deep(.el-textarea) {
+            :deep(.el-textarea) {
                 height: 100%;
                 .el-input__count {
                     bottom: -12px;
                 }
             }
-            ::v-deep(.el-textarea__inner) {
+            :deep(.el-textarea__inner) {
                 border: 0;
                 resize: none;
                 box-shadow: none;
@@ -741,7 +741,7 @@ export default defineComponent({
     justify-content: flex-end;
     border-top: 1px solid #ebeff1;
     padding-top: 20px;
-    ::v-deep(.el-button) {
+    :deep(.el-button) {
         width: 120px;
     }
 }

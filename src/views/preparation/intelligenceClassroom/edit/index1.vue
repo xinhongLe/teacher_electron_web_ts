@@ -1,66 +1,145 @@
 <template>
-    <div class="container">
-        <div class="top">
-            <div class="handles">
-                <div class="btn" @click="handleSave">
-                    <img src="@/assets/edit/icon_save.png" alt=""/>
-                    保存
+    <div class="home">
+        <div
+            class="left"
+            :style="{
+                width: showCollapse ? '280px' : '0px',
+                padding: showCollapse ? '0px' : '0px 9px',
+            }"
+        >
+            <div class="left-content">
+                <div>
+                    <el-row :gutter="20" v-if="windowInfo.id.length > 0">
+                        <el-col :span="8">
+                            <el-button
+                                class="add-card"
+                                @click="dialogVisibleCard = true"
+                                size="default"
+                                type="primary"
+                                plain
+                                >新增卡</el-button
+                            >
+                        </el-col>
+                        <el-col :span="8">
+                            <el-button
+                                class="add-card"
+                                @click="importPPT()"
+                                size="default"
+                                type="primary"
+                                plain
+                                >导入</el-button
+                            >
+                        </el-col>
+                        <el-col :span="8">
+                            <el-popover
+                                placement="bottom-start"
+                                :width="50"
+                                trigger="focus"
+                            >
+                                <template #reference>
+                                    <el-button
+                                        class="add-card"
+                                        @click.stop
+                                        size="default"
+                                        type="primary"
+                                        plain
+                                        >预览窗</el-button
+                                    >
+                                </template>
+                                <div class="operation-box">
+                                    <div
+                                        @click="
+                                            handleView(allPageList, 'first')
+                                        "
+                                    >
+                                        首页预览
+                                    </div>
+                                    <div
+                                        @click="
+                                            handleView(allPageList, 'active')
+                                        "
+                                    >
+                                        当前页预览
+                                    </div>
+                                </div>
+                            </el-popover>
+                        </el-col>
+                    </el-row>
                 </div>
-                <div class="btn preview" @click="handlePreview">
-                    <img src="@/assets/edit/icon_start1.png" alt=""/>
-                    从当前开始
-                </div>
-                <div class="btn">
-                    <img src="@/assets/edit/icon_start2.png" alt=""/>
-                    从头开始
-                </div>
-                <div class="btn" @click="importPPT">
-                    <img src="@/assets/edit/icon_export.png" alt=""/>
-                    导入ppt
-                </div>
-                <div class="btn" @click="handleOpenLessonDesign">
-                    <img src="@/assets/edit/icon_design.png" alt=""/>
-                    教案设计
-                </div>
-            </div>
-            <div class="help" @click="handleHelper">
-                <img src="@/assets/edit/icon_help.png" alt=""/>
-                帮助
-            </div>
-        </div>
-        <div class="wrapper">
-            <div class="left" :class="{collapse:!showCollapse}">
-                <div class="placeholder"/>
-                <div class="card">
+                <div class="card-list" ref="cardListRef">
                     <el-tree
-                        draggable
-                        node-key="ID"
-                        default-expand-all
-                        :props="defaultProps"
-                        :data="newWindowCards"
-                        :allow-drop="allowDrop"
-                        :highlight-current="false"
-                        @node-drop="handleNodedrop"
-                        :expand-on-click-node="false"
-                        @node-click="handleNodeClick"
                         :class="viewTree ? 'view-tree-box' : 'tree-box'"
+                        default-expand-all
+                        node-key="ID"
+                        draggable
+                        :allow-drop="allowDrop"
+                        :expand-on-click-node="false"
+                        :highlight-current="false"
+                        :data="newWindowCards"
+                        :props="defaultProps"
+                        @node-click="handleNodeClick"
+                        @node-drop="handleNodedrop"
                     >
                         <template #default="{ node, data }">
-                            <div :class="['custom-tree-node', pageValue.ID === data.ID ? 'active-text': '']">
-                                <div class="label-class" @mouseenter="mouseenter($event, node.label)"
-                                     @mouseleave="mouseleave">
-                                    <span v-if="!viewTree"
-                                          :style="{ color:!data.State && node.level === 2? '#c0c4cc' : pageValue.ID === data.ID    ? '#409Eff': '#333'}">
+                            <div
+                                :class="[
+                                    'custom-tree-node',
+                                    pageValue.ID === data.ID
+                                        ? 'active-text'
+                                        : '',
+                                ]"
+                            >
+                                <div
+                                    class="label-class"
+                                    @mouseenter="mouseenter($event, node.label)"
+                                    @mouseleave="mouseleave"
+                                >
+                                    <span
+                                        v-if="!viewTree"
+                                        :style="{
+                                            color:
+                                                !data.State && node.level === 2
+                                                    ? '#c0c4cc'
+                                                    : pageValue.ID === data.ID
+                                                    ? '#409Eff'
+                                                    : '#333',
+                                        }"
+                                    >
                                         {{ node.label }}
                                     </span>
+
                                     <div v-else>
-                                        <span v-if="node.level === 1">{{ node.label }}</span>
-                                        <div v-else v-contextmenu="(el: any) => contextmenus(el, data)">
-                                            <div class="select-page">
-                                                <span class="chapter-num">{{ data.count }}</span>
+                                        <span v-if="node.level === 1">{{
+                                            node.label
+                                        }}</span>
+                                        <div
+                                            v-else
+                                            v-contextmenu="(el: any) => contextmenus(el, data)"
+                                        >
+                                            <div
+                                                @click.stop="
+                                                    handleSelectPages(data)
+                                                "
+                                                class="select-page"
+                                            >
+                                                <span class="chapter-num">{{
+                                                    data.count
+                                                }}</span>
+                                                <el-icon
+                                                    :style="{ backgroundColor: (selectPageData.map(((item: any) => item.ID)).includes(data.ID) ? 'var(--el-color-primary)' : '#fff') }"
+                                                    color="#fff"
+                                                >
+                                                    <Check />
+                                                </el-icon>
                                             </div>
-                                            <div class="status"
-                                                 :style="{  background: data.State ? '#5CD494'  : '#90949E' }"></div>
+                                            <div
+                                                class="status"
+                                                :style="{
+                                                    background: data.State
+                                                        ? '#5CD494'
+                                                        : '#90949E',
+                                                }"
+                                            ></div>
                                             <!-- 游戏页或者教具页显示封面图 -->
                                             <el-image
                                                 v-if="
@@ -79,14 +158,23 @@
                                             </el-image>
                                             <template v-else>
                                                 <ThumbnailSlide
-                                                    v-if="data.Type ===pageType.element ||data.Type ===pageType.listen "
-                                                    :slide=" allPageListMap.get(data.ID ) || {} "
+                                                    v-if="
+                                                        data.Type ===
+                                                            pageType.element ||
+                                                        data.Type ===
+                                                            pageType.listen
+                                                    "
+                                                    :slide="
+                                                        allPageListMap.get(
+                                                            data.ID
+                                                        ) || {}
+                                                    "
                                                     :size="190"
                                                     style="
                                                         border: 1px solid
                                                             #ebeff1;
                                                     "
-                                                />
+                                                ></ThumbnailSlide>
                                                 <div class="view-empty" v-else>
                                                     {{ data.Name }}
                                                 </div>
@@ -103,10 +191,8 @@
                                         <template #reference>
                                             <el-button size="small" @click.stop>
                                                 <el-icon :size="18"
-                                                >
-                                                    <more-filled
-                                                    />
-                                                </el-icon>
+                                                    ><more-filled
+                                                /></el-icon>
                                             </el-button>
                                         </template>
                                         <div class="operation-box">
@@ -184,29 +270,39 @@
                         当前页{{ currentActivePage || 1 }}/{{ pptCount }}
                     </div>
                 </div>
-
-                <div class="shrink" ref="shrinkRef" @click="showCollapse = !showCollapse">
-                    <el-icon :style="{ transform:'rotate(' + (showCollapse ? 0 : 180) + 'deg)'}">
-                        <ArrowLeft/>
+            </div>
+            <div class="shrink" ref="shrinkRef">
+                <div @click="showCollapse = !showCollapse">
+                    <el-icon
+                        :style="{
+                            transform:
+                                'rotate(' + (showCollapse ? 0 : 180) + 'deg)',
+                        }"
+                    >
+                        <ArrowLeft />
                     </el-icon>
                 </div>
             </div>
-            <div class="right" :class="{collapse:!showCollapse}">
-                <win-card-edit
-                    ref="editRef"
-                    @onSave="onSave"
-                    :slide="{ ...currentSlide }"
-                    :winId="windowInfo?.id"
-                    @updateMaterial="updateMaterial"
-                    @updatePageSlide="updatePageSlide"
-                    :allPageSlideListMap="allPageListMap"
-                    :subjectID="subjectPublisherBookValue?.SubjectId || ''"
-                    @updateAllPageSlideListMap="updateAllPageSlideListMap"
-                />
-            </div>
+        </div>
+        <div class="right">
+            <win-card-edit
+                ref="editRef"
+                :slide="{ ...currentSlide }"
+                :allPageSlideListMap="allPageListMap"
+                @onSave="onSave"
+                @updatePageSlide="updatePageSlide"
+                @updateAllPageSlideListMap="updateAllPageSlideListMap"
+                :subjectID="subjectPublisherBookValue?.SubjectId || ''"
+                :winId="windowInfo?.id"
+                @updateMaterial="updateMaterial"
+            ></win-card-edit>
+            <!--            <div-->
+            <!--                v-show="!pageValue.ID"-->
+            <!--                class="mask-right"-->
+            <!--                @click.stop="handleMask"-->
+            <!--            ></div>-->
         </div>
     </div>
-
     <!--上传ppt遮罩-->
     <div class="mask-ppt" v-if="loading">
         <div class="ppt-content">
@@ -279,53 +375,68 @@
 </template>
 
 <script lang="ts">
+import {
+    onMounted,
+    onUnmounted,
+    defineComponent,
+    toRefs,
+    ref,
+    watch,
+    toRef,
+    computed,
+    nextTick,
+} from "vue";
 import WinCardEdit from "../components/edit/winCardEdit.vue";
-import { computed, defineComponent, nextTick, onMounted, onUnmounted, ref, toRef, toRefs, watch } from "vue";
-import useTooltipShow from "@/views/preparation/intelligenceClassroom/edit/hooks/useTooltipShow";
-import useSelectBookInfo from "@/hooks/useSelectBookInfo";
-import useSaveTemplate from "@/views/preparation/intelligenceClassroom/edit/hooks/useSaveTemplate";
-import usePreview from "@/views/preparation/intelligenceClassroom/edit/hooks/usePreview";
-import useCopyPage from "@/views/preparation/intelligenceClassroom/edit/hooks/useCopyPage";
-import useSelectPage from "@/views/preparation/intelligenceClassroom/edit/hooks/useSelectPage";
-import useDragPage from "@/views/preparation/intelligenceClassroom/edit/hooks/useDragPage";
-import useAddPage from "@/views/preparation/intelligenceClassroom/edit/hooks/useAddPage";
-import useUpdateName from "@/views/preparation/intelligenceClassroom/edit/hooks/useUpdateName";
-import { onBeforeRouteLeave } from "vue-router";
-import { MutationTypes, store } from "@/store";
-import { get, STORAGE_TYPES } from "@/utils/storage";
-import useAddCard from "@/views/preparation/intelligenceClassroom/edit/hooks/useAddCard";
+import { IPageValue, ICardList } from "@/types/home";
 import Node from "element-plus/es/components/tree/src/model/node";
-import { ICardList, IPageValue } from "@/types/home";
+import useSelectBookInfo from "@/hooks/useSelectBookInfo";
+import { isFullscreen } from "@/utils/fullscreen";
+import { MoreFilled } from "@element-plus/icons-vue";
 import { ElMessage, ElMessageBox } from "element-plus";
-import { cloneDeep, find, isEqual, pullAllBy } from "lodash";
+import AddPageDialog from "../components/edit/addPageDialog.vue";
+import UpdateNameCardOrPage from "../components/edit/updateNameCardOrPage.vue";
+import WinCardView from "../components/edit/winScreenView.vue";
+import AddCardDialog from "../components/edit/addCardDialog.vue";
+import { onBeforeRouteLeave, useRoute, useRouter } from "vue-router";
+import usePreview from "./hooks/usePreview";
+import useCopyPage from "./hooks/useCopyPage";
+import useSelectPage from "./hooks/useSelectPage";
+import useDragPage from "./hooks/useDragPage";
+import useAddCard from "./hooks/useAddCard";
+import useAddPage from "./hooks/useAddPage";
+import useUpdateName from "./hooks/useUpdateName";
+import useSaveTemplate from "./hooks/useSaveTemplate";
+// import useGetPageSlide from "./hooks/useGetPageSlide";
+import isElectron from "is-electron";
+import { Slide } from "wincard";
+import { saveWindows, saveAsWindows } from "../api";
+import { find, isEqual, pullAllBy, cloneDeep } from "lodash";
+import emitter from "@/utils/mitt";
+import exitDialog, { ExitType } from "./exitDialog";
 import TrackService, { EnumTrackEventType } from "@/utils/common";
-import { saveWindows } from "@/views/preparation/intelligenceClassroom/api";
 import useImportPPT from "@/hooks/useImportPPT";
+import useTooltipShow from "./hooks/useTooltipShow";
 import { v4 as uuidv4 } from "uuid";
 import { pageType } from "@/config";
-import { Slide } from "wincard";
-import { isFullscreen } from "@/utils/fullscreen";
-import exitDialog, { ExitType } from "@/views/preparation/intelligenceClassroom/edit/exitDialog";
-import AddCardDialog from "@/views/preparation/intelligenceClassroom/components/edit/addCardDialog.vue";
-import WinCardView from "@/views/preparation/intelligenceClassroom/components/edit/winScreenView.vue";
-import UpdateNameCardOrPage from "@/views/preparation/intelligenceClassroom/components/edit/updateNameCardOrPage.vue";
-import AddPageDialog from "@/views/preparation/intelligenceClassroom/components/edit/addPageDialog.vue";
-import { MoreFilled } from "@element-plus/icons-vue";
-import materialCenter from "@/views/preparation/intelligenceClassroom/components/edit/materialCenter/index.vue";
-import SaveTemplateDialog from "@/views/preparation/intelligenceClassroom/components/edit/saveTemplateDialog.vue";
+import { MutationTypes, store } from "@/store";
+import SaveDialog from "../components/edit/saveDialog/saveDialog.vue";
+import SaveAsDialog from "../components/edit/saveDialog/saveAsDialog.vue";
+import materialCenter from "../components/edit/materialCenter/index.vue";
+import SaveTemplateDialog from "../components/edit/saveTemplateDialog.vue";
+import { get, set, STORAGE_TYPES } from "@/utils/storage";
 
 export default defineComponent({
-    name: "Edit",
     components: {
-        WinCardEdit,
         AddCardDialog,
         WinCardView,
         UpdateNameCardOrPage,
         AddPageDialog,
+        WinCardEdit,
         MoreFilled,
         materialCenter,
-        SaveTemplateDialog
+        SaveTemplateDialog,
     },
+    name: "Edit",
     setup() {
         const pptCount = ref(0); // ppt总页数
         const newWindowCards = ref([]);
@@ -345,6 +456,14 @@ export default defineComponent({
         const allPageListMap = toRef(state, "allPageListMap");
         const oldAllPageListMap = toRef(state, "oldAllPageListMap");
 
+        // const {
+        // fetchAllPageSlide,
+        // allPageSlideListMap,
+        // oldAllPageSlideListMap,
+        // isLoadEnd,
+        // resetPageSlide
+        // } = useGetPageSlide(pageValue);
+
         const {
             selectPageData,
             handleSelectPages,
@@ -355,7 +474,7 @@ export default defineComponent({
             editTemplate,
             dialogStatus,
             templateFormData,
-            formateOssUrl
+            formateOssUrl,
         } = useSaveTemplate(allPageListMap);
 
         const {
@@ -364,7 +483,7 @@ export default defineComponent({
             winScreenView,
             keyDown,
             offScreen,
-            activePreviewPageIndex
+            activePreviewPageIndex,
         } = usePreview(pageValue);
 
         const { handleCopy, handlePaste, pastePage } = useCopyPage(
@@ -380,7 +499,7 @@ export default defineComponent({
             activeAllPageListIndex,
             allPageList,
             isWatchChange,
-            cardListRef
+            cardListRef,
         } = useSelectPage(pageValue, allPageListMap);
 
         const { allowDrop } = useDragPage();
@@ -391,8 +510,15 @@ export default defineComponent({
             allPageListMap
         );
 
-        const { dialogVisibleName, currentValue, handleUpdateName, updateName } = useUpdateName(shrinkRef);
+        const {
+            dialogVisibleName,
+            currentValue,
+            handleUpdateName,
+            updateName,
+        } = useUpdateName(shrinkRef);
 
+        const route = useRoute();
+        const router = useRouter();
         const windowInfo: any = computed(() =>
             store.state.preparation.editWindowInfo.id
                 ? store.state.preparation.editWindowInfo
@@ -403,6 +529,11 @@ export default defineComponent({
                 ? store.state.preparation.subjectPublisherBookValue
                 : get(STORAGE_TYPES.SUBJECT_BOOK_INFO)
         );
+        // console.log("windowInfo===================>", windowInfo.value);
+        // console.log(
+        //     "subjectPublisherBookValue===================>",
+        //     subjectPublisherBookValue.value
+        // );
 
         const { handleAddCard, dialogVisibleCard } = useAddCard(
             windowCards,
@@ -413,7 +544,7 @@ export default defineComponent({
             ElMessageBox.confirm("此操作将删除该数据, 是否继续?", "提示", {
                 confirmButtonText: "确认",
                 cancelButtonText: "取消",
-                type: "warning"
+                type: "warning",
             })
                 .then(() => {
                     // 删除的是卡 判断当前页是否在删除卡下
@@ -426,7 +557,7 @@ export default defineComponent({
                             pageValue.value = {
                                 ...pageValue.value!,
                                 ID: "",
-                                Type: 11
+                                Type: 11,
                             };
                         }
                     } else {
@@ -439,7 +570,7 @@ export default defineComponent({
                             pageValue.value = {
                                 ...pageValue.value!,
                                 ID: "",
-                                Type: 11
+                                Type: 11,
                             };
                         }
                         windowCards.value = [...windowCards.value];
@@ -495,8 +626,10 @@ export default defineComponent({
                                             return {
                                                 sort: index + 1,
                                                 WordID: word.id,
-                                                PageWordID: word.pageWordID ? null : word.pageWordID,
-                                                WordInterval: 2
+                                                PageWordID: word.pageWordID
+                                                    ? null
+                                                    : word.pageWordID,
+                                                WordInterval: 2,
                                             };
                                         }
                                     );
@@ -517,7 +650,7 @@ export default defineComponent({
                                 designIntent,
                                 sort: pageIndex + 1,
                                 json,
-                                state: Number(State)
+                                state: Number(State),
                             };
                         }
                     );
@@ -526,7 +659,7 @@ export default defineComponent({
                         cardID,
                         sort,
                         pageData,
-                        cardName
+                        cardName,
                     };
                 }
             );
@@ -537,7 +670,7 @@ export default defineComponent({
                 cardData,
                 originType: 1,
                 windowName: windowInfo.value.name,
-                windowID: windowInfo.value.id
+                windowID: windowInfo.value.id,
             };
 
             const lessonId = (windowInfo.value.lessonId as string) || "";
@@ -547,10 +680,10 @@ export default defineComponent({
             if (res.resultCode === 200) {
                 ElMessage.success({
                     message,
-                    duration: 2000
+                    duration: 2000,
                 });
                 store.commit(MutationTypes.SET_EDIT_WINDOW_INFO, {
-                    ...windowInfo.value
+                    ...windowInfo.value,
                 });
                 allPageListMap.value.forEach((item, key) => {
                     oldAllPageListMap.value.set(key, cloneDeep(item));
@@ -592,7 +725,9 @@ export default defineComponent({
                         if (newPageValue) {
                             pageValue.value = newPageValue;
                         }
-                        const obj = { ...pageValue.value };
+                        const obj = {
+                            ...pageValue.value,
+                        };
                         selectPageValue(obj, true);
                     } else {
                         const winCard = selectFirstPage(state.windowCards);
@@ -603,7 +738,7 @@ export default defineComponent({
                 }
             },
             {
-                deep: true
+                deep: true,
             }
         );
         // 过滤教具页和游戏页的封面
@@ -626,8 +761,8 @@ export default defineComponent({
                                 if (page.url) return;
                                 page.url = temJson?.ToolFileModel
                                     ? await formateOssUrl(
-                                        temJson?.ToolFileModel?.File
-                                    )
+                                          temJson?.ToolFileModel?.File
+                                      )
                                     : "";
                             }
                         }
@@ -709,7 +844,7 @@ export default defineComponent({
                         Name: name[name.length - 1] + "-" + (index + 1),
                         Type: pageType.element,
                         isAdd: true,
-                        State: true
+                        State: true,
                     };
                 });
                 const card = {
@@ -717,7 +852,7 @@ export default defineComponent({
                     ID: uuidv4(),
                     Sort: windowCards.value.length,
                     isAdd: true,
-                    PageList: pageList
+                    PageList: pageList,
                 };
                 windowCards.value.push(card);
             });
@@ -735,7 +870,7 @@ export default defineComponent({
                 const newValue = {
                     ...value,
                     remark: item.AcademicPresupposition || "",
-                    design: item.DesignIntent || ""
+                    design: item.DesignIntent || "",
                 };
                 allPageListMap.value.set(item.TeachPageID, newValue as Slide);
                 oldAllPageListMap.value.set(
@@ -749,7 +884,7 @@ export default defineComponent({
         onMounted(() => {
             _getWindowCards({
                 WindowID: windowInfo.value.id,
-                OriginType: windowInfo.value.originType
+                OriginType: windowInfo.value.originType,
             }).then(() => {
                 // fetchAllPageSlide(getAllPageList());
             });
@@ -855,7 +990,7 @@ export default defineComponent({
                     name: "教具页",
                     type: "teach",
                     value: 16,
-                    url: data.data?.url
+                    url: data.data?.url,
                 };
                 state.windowCards.forEach((item: any, windex: number) => {
                     item.PageList.forEach((page: any, index: number) => {
@@ -866,7 +1001,9 @@ export default defineComponent({
                 });
                 await addPageCallback(params, currentValue.value);
                 pageValue.value =
-                    currentValue.value.PageList[currentValue.value.PageList?.length - 1];
+                    currentValue.value.PageList[
+                        currentValue.value.PageList?.length - 1
+                    ];
                 const res: any = await insertData(data);
             } else {
                 ElMessage.warning("请先选择页，再进行插入");
@@ -918,28 +1055,14 @@ export default defineComponent({
                     handler: () => {
                         rightClick();
                         handleSaveTemplate(1, data);
-                    }
-                }
+                    },
+                },
+                // {
+                //     text: "保存题目",
+                //     subText: "",
+                //     handler: () => handleSaveTemplate(2)
+                // }
             ];
-        };
-
-        const handleSave = () => {
-            if (!editRef.value) return;
-            editRef.value.handleSave();
-        };
-
-        const handlePreview = () => {
-            if (!editRef.value) return;
-            editRef.value.currentPreview();
-        };
-
-        const handleOpenLessonDesign = () => {
-            if (!editRef.value) return;
-            editRef.value.openLessonDesign();
-        };
-        const handleHelper = () => {
-            if (!editRef.value) return;
-            editRef.value.handleHelper();
         };
 
         return {
@@ -1021,295 +1144,298 @@ export default defineComponent({
             rightClick,
             closeCurrentWinCard,
             handleNodedrop,
-            handleSave,
-            handlePreview,
-            handleOpenLessonDesign,
-            handleHelper
         };
-    }
+    },
 });
 </script>
 
 <style lang="scss" scoped>
-.container {
-    height: 100%;
-    width: 100%;
-    background-color: #FFFFFF;
-}
+.cus-open-tooltip {
+    z-index: 9999;
+    position: absolute;
+    width: 15%;
+    padding: 10px;
+    top: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    color: rgb(255, 255, 255);
+    border-radius: 4px;
+    font-size: 14px;
+    background: rgba(77, 77, 77, 0.67);
 
-.top {
-    height: 56px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    .handles {
-        margin-left: 24px;
-        display: flex;
-
-        .btn {
-            margin-right: 49px;
-            display: flex;
-            align-items: center;
-            position: relative;
-            cursor: pointer;
-
-            &.preview {
-                margin-right: 24px !important;
-
-                &:after {
-                    display: none;
-                }
-            }
-
-            &:last-child:after {
-                display: none;
-            }
-
-            &:after {
-                position: absolute;
-                content: '';
-                display: block;
-                width: 1px;
-                height: 16px;
-                background: #EBEFF1;
-                right: -24px;
-            }
-        }
-    }
-
-    .help {
-        margin-right: 24px;
+    span {
         cursor: pointer;
-        display: flex;
-        align-items: center;
     }
 
-    img {
-        height: 16px;
-        margin-right: 4px;
+    span:hover {
+        color: #409eff;
     }
 }
 
-.wrapper {
-    height: calc(100% - 56px);
+.home {
     display: flex;
+    width: 100%;
+    height: 100%;
+    background-color: #f5f6fa;
+    padding: 10px;
 
     .left {
-        width: 280px;
-        height: 100%;
         position: relative;
+        height: 100%;
+        margin-right: 10px;
+        box-sizing: border-box;
+        background-color: #fff;
+        overflow: hidden;
         transition: all 0.5s;
 
-        &.collapse {
-            width: 0;
-        }
+        .left-content {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            width: 280px;
+            padding: 10px 28px 10px 10px;
 
-        .placeholder {
-            height: 56px;
-            box-shadow: inset 0px -1px 0px 0px #EBEFF1;
+            :deep(.el-cascader),
+            :deep(.el-select) {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+
+            .add-card {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+
+            .card-list {
+                flex: 1;
+                height: 100%;
+                position: relative;
+                padding-bottom: 32px;
+                .page-intro {
+                    position: absolute;
+                    bottom: 32px;
+                    width: 100%;
+                    height: 40px;
+                    line-height: 30px;
+                    font-size: 13px;
+                    padding-right: 12px;
+                    box-sizing: border-box;
+                    color: #333;
+                    text-align: right;
+                }
+
+                :deep(.el-tree-node:focus > .el-tree-node__content) {
+                    background-color: #fff;
+                }
+
+                .el-tree {
+                    height: calc(100% - 50px);
+                    overflow-y: auto;
+                    overflow-x: hidden;
+                    :deep(.el-tree-node__label) {
+                        width: 100%;
+                    }
+                }
+
+                .view-tree-box {
+                    :deep(.el-tree-node__children) {
+                        .el-tree-node__content {
+                            height: auto;
+                            padding: 10px 0 !important;
+                            margin-bottom: 10px;
+                        }
+
+                        .icon-box {
+                            position: absolute;
+                            bottom: 0;
+                            right: 0;
+                        }
+                    }
+
+                    .select-page {
+                        position: absolute;
+                        left: -12px;
+                        top: -8px;
+                        cursor: pointer;
+                        z-index: 2;
+                        display: flex;
+                        align-items: center;
+                        .el-icon {
+                            width: 16px;
+                            height: 16px;
+                            border: 1px solid var(--el-color-primary);
+                            border-radius: 50%;
+                        }
+                        //background-color: var(--el-color-primary);
+                    }
+
+                    .status {
+                        position: absolute;
+                        right: -12px;
+                        top: -4px;
+                        width: 10px;
+                        height: 10px;
+                        border-radius: 50%;
+                        z-index: 2;
+                    }
+                    :deep(.el-image) {
+                        height: 106px;
+                        width: 100%;
+                        .image-slot {
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            width: 100%;
+                            height: 100%;
+                            background: var(--el-fill-color-light);
+                            color: var(--el-text-color-secondary);
+                            font-size: 20px;
+                        }
+                    }
+
+                    .view-empty {
+                        width: 190px;
+                        height: 106px;
+                        padding: 10px;
+                        border: 1px solid #ebeff1;
+                    }
+
+                    .custom-tree-node {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        width: 86%;
+                        position: relative;
+                        .chapter-num {
+                            display: block;
+                            margin-right: 5px;
+                            font-size: 14px;
+                            font-weight: bold;
+                            color: #333;
+                        }
+                    }
+
+                    .icon-box {
+                        .el-button {
+                            border: none !important;
+                            padding: 6px;
+                            background-color: transparent;
+
+                            &:hover {
+                                background-color: transparent;
+                            }
+                        }
+
+                        .el-icon {
+                            svg {
+                                width: 18px;
+                                height: 18px;
+                            }
+                        }
+                    }
+                }
+
+                .tree-box {
+                    :deep(.el-tree-node__content) {
+                        height: 46px;
+                    }
+
+                    .custom-tree-node {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        width: 80%;
+                        position: relative;
+
+                        .label-class {
+                            width: 100%;
+                            text-overflow: ellipsis;
+                            white-space: nowrap;
+                            overflow: hidden;
+                        }
+
+                        .icon-box {
+                            .el-button {
+                                border: none !important;
+                                padding: 6px;
+                                background-color: transparent;
+
+                                &:hover {
+                                    background-color: transparent;
+                                }
+                            }
+
+                            .el-icon {
+                                svg {
+                                    width: 18px;
+                                    height: 18px;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         .shrink {
+            background: #dde1f1;
+            width: 18px;
+            height: 100%;
             position: absolute;
-            width: 12px;
-            height: 64px;
-            background: #414E65;
-            border-radius: 6px;
-            top: 50%;
-            margin-top: -32px;
-            right: -6px;
-            z-index: 999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            color: #FFFFFF;
-        }
+            right: 0;
+            top: 0;
 
-        .card {
-            height: calc(100% - 56px);
-        }
-
-        :deep(.el-tree-node:focus > .el-tree-node__content) {
-            background-color: #fff;
-        }
-
-        .el-tree {
-            height: calc(100% - 40px);
-            overflow-y: auto;
-            overflow-x: hidden;
-
-            :deep(.el-tree-node__label) {
+            > div {
+                display: flex;
+                align-items: center;
+                background: #ccd1e3;
                 width: 100%;
-            }
-        }
-
-        .view-tree-box {
-            :deep(.el-tree-node__children) {
-                .el-tree-node__content {
-                    height: auto;
-                    padding: 10px 0 !important;
-                    margin-bottom: 10px;
-                }
-
-                .is-current {
-                    background-color: rgba(46, 149, 255, 0.1);
-                }
-
-                .icon-box {
-                    position: absolute;
-                    bottom: 0;
-                    right: 0;
-                }
-            }
-
-            .select-page {
                 position: absolute;
-                left: -12px;
-                top: -8px;
+                top: 30%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                margin: auto;
+                height: 100px;
+                text-align: center;
                 cursor: pointer;
-                z-index: 2;
-                display: flex;
-                align-items: center;
-
                 .el-icon {
-                    width: 16px;
-                    height: 16px;
-                    border: 1px solid var(--el-color-primary);
-                    border-radius: 50%;
-                }
-
-                //background-color: var(--el-color-primary);
-            }
-
-            .status {
-                position: absolute;
-                right: -12px;
-                top: -4px;
-                width: 10px;
-                height: 10px;
-                border-radius: 50%;
-                z-index: 2;
-            }
-
-            :deep(.el-image) {
-                height: 106px;
-                width: 100%;
-
-                .image-slot {
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    width: 100%;
-                    height: 100%;
-                    background: var(--el-fill-color-light);
-                    color: var(--el-text-color-secondary);
-                    font-size: 20px;
-                }
-            }
-
-            .view-empty {
-                width: 190px;
-                height: 106px;
-                padding: 10px;
-                border: 1px solid #ebeff1;
-            }
-
-            .custom-tree-node {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                width: 86%;
-                position: relative;
-
-                .chapter-num {
-                    display: block;
-                    margin-right: 5px;
+                    line-height: 100px;
+                    color: #fff;
                     font-size: 14px;
-                    font-weight: bold;
-                    color: #333;
-                }
-            }
-
-            .icon-box {
-                .el-button {
-                    border: none !important;
-                    padding: 6px;
-                    background-color: transparent;
-
-                    &:hover {
-                        background-color: transparent;
-                    }
-                }
-
-                .el-icon {
-                    svg {
-                        width: 18px;
-                        height: 18px;
-                    }
+                    transition: all 0.2s;
                 }
             }
         }
 
-        .tree-box {
-            :deep(.el-tree-node__content) {
-                height: 46px;
-            }
-
-            .custom-tree-node {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                width: 80%;
-                position: relative;
-
-                .label-class {
-                    width: 100%;
-                    text-overflow: ellipsis;
-                    white-space: nowrap;
-                    overflow: hidden;
-                }
-
-                .icon-box {
-                    .el-button {
-                        border: none !important;
-                        padding: 6px;
-                        background-color: transparent;
-
-                        &:hover {
-                            background-color: transparent;
-                        }
-                    }
-
-                    .el-icon {
-                        svg {
-                            width: 18px;
-                            height: 18px;
-                        }
-                    }
+        .active-text {
+            .label-class {
+                > span {
+                    color: var(--el-color-primary);
                 }
             }
         }
 
-        .page-intro {
-            width: 100%;
-            height: 40px;
-            line-height: 40px;
-            font-size: 13px;
-            padding-right: 12px;
-            box-sizing: border-box;
-            color: #333;
-            text-align: right;
+        :deep(#activeBackground) {
+            background-color: #ecf5ff;
         }
     }
 
     .right {
-        width: calc(100% - 280px);
-        transition: all 0.5s;
+        flex: 1;
+        padding: 0px 10px;
+        height: 100%;
+        background-color: #fff;
+        position: relative;
 
-        &.collapse {
+        .mask-right {
             width: 100%;
+            height: 100%;
+            cursor: pointer;
+            position: absolute;
+            left: 0;
+            top: 0;
+            background: transparent;
         }
     }
 }
@@ -1344,29 +1470,6 @@ export default defineComponent({
             color: #409eff;
             font-weight: 600;
         }
-    }
-}
-
-.cus-open-tooltip {
-    z-index: 9999;
-    position: absolute;
-    width: 15%;
-    padding: 10px;
-    top: 20%;
-    left: 50%;
-    transform: translateX(-50%);
-    text-align: center;
-    color: rgb(255, 255, 255);
-    border-radius: 4px;
-    font-size: 14px;
-    background: rgba(77, 77, 77, 0.67);
-
-    span {
-        cursor: pointer;
-    }
-
-    span:hover {
-        color: #409eff;
     }
 }
 </style>

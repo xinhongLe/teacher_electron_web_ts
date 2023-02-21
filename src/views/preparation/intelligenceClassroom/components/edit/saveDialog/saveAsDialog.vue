@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import BaseDialog from "./baseDialog.vue";
-import { defineEmits, defineProps, PropType } from "vue";
+import { PropType } from "vue";
 
 defineProps({
     name: {

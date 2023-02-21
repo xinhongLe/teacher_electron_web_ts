@@ -3,14 +3,14 @@
         <PPTEditor
             ref="PPTEditRef"
             :slide="slide"
-            v-model:windowName="windowName"
             @onSave="onSave"
-            @selectGame="selectGame"
             @addCard="addCard"
+            @selectGame="selectGame"
             @selectVideo="selectVideo"
-            @setQuoteVideo="setQuoteVideo"
-            @updateQuoteVideo="updateQuoteVideo"
             @outElements="outElements"
+            @setQuoteVideo="setQuoteVideo"
+            v-model:windowName="windowName"
+            @updateQuoteVideo="updateQuoteVideo"
             @openLessonDesign="openLessonDesign"
         />
         <!--选择弹卡-->
@@ -18,13 +18,13 @@
             v-if="dialogVisible"
             v-model:dialogVisible="dialogVisible"
             @selectCard="selectCard"
-        ></card-select-dialog>
+        />
         <!--选择跟读页视频-->
         <select-video-dialog
             v-if="dialogVisibleVideo"
             v-model:dialogVisible="dialogVisibleVideo"
             @selectVideoVal="selectVideoVal"
-        ></select-video-dialog>
+        />
 
         <!--教案设计-->
         <lesson-design
@@ -38,7 +38,7 @@
             v-if="addGameVisible"
             v-model="addGameVisible"
             @addGame="addGame"
-        ></add-game-dialog>
+        />
 
         <!--游戏配置-->
         <game-type
@@ -46,37 +46,22 @@
             :slide="slide"
             @addGame="addGame"
             v-model="gameTypeVisible"
-        ></game-type>
+        />
     </div>
 </template>
 <script lang="ts">
-import {
-    defineComponent,
-    reactive,
-    toRefs,
-    ref,
-    watch,
-    computed,
-    PropType,
-} from "vue";
-import {
-    Slide,
-    IWin,
-    IGame,
-    PPTVideoElement,
-    SaveType,
-    PPTElement,
-} from "wincard";
+import { defineComponent, reactive, toRefs, ref, computed, PropType } from "vue";
+import { Slide, IWin, IGame, PPTVideoElement, PPTElement } from "wincard";
 import useSaveElements from "../edit/materialCenter/hooks/useSaveElements";
 import CardSelectDialog from "./cardSelectDialog.vue";
 import { IPageValue, ICards } from "@/types/home";
 import SelectVideoDialog from "./selectVideoDialog.vue";
 import LessonDesign from "./lessonDesign.vue";
-import { useRoute } from "vue-router";
 import AddGameDialog from "./addGameDialog.vue";
 import GameType from "./games/index.vue";
 import { IGameItem } from "@/types/game";
 import { store } from "@/store";
+
 export default defineComponent({
     name: "winCardEdit",
     components: {
@@ -84,31 +69,31 @@ export default defineComponent({
         AddGameDialog,
         SelectVideoDialog,
         CardSelectDialog,
-        LessonDesign,
+        LessonDesign
     },
     props: {
         slide: {
             type: Object as PropType<Slide>,
-            default: () => ({}),
+            default: () => ({})
         },
         winId: {
             type: String,
-            required: true,
+            required: true
         },
         allPageSlideListMap: {
             type: Object as PropType<Map<string, Slide>>,
-            required: true,
+            required: true
         },
         subjectID: {
             type: String,
-            required: true,
-        },
+            required: true
+        }
     },
     emits: [
         "onSave",
         "updatePageSlide",
         "updateAllPageSlideListMap",
-        "updateMaterial",
+        "updateMaterial"
     ],
     setup(props, { emit }) {
         const { saveElements } = useSaveElements();
@@ -118,8 +103,7 @@ export default defineComponent({
             dialogVisibleVideo: false,
             addGameVisible: false,
             gameTypeVisible: false,
-            currentGame: { id: "", name: "", src: "" },
-            // slide: {}
+            currentGame: { id: "", name: "", src: "" }
         });
         const page = ref<IPageValue>();
         const windowInfo = computed(
@@ -127,7 +111,6 @@ export default defineComponent({
         );
         const updateVideoElement = ref<PPTVideoElement | null>(null);
         const windowName = ref(windowInfo.value.name);
-        const route = useRoute();
 
         const PPTEditRef = ref();
 
@@ -168,7 +151,7 @@ export default defineComponent({
             state.dialogVisible = false;
             const newCards = {
                 id: page.value?.ID || "",
-                cards: cards,
+                cards: cards
             };
             fun([newCards]);
         };
@@ -192,10 +175,10 @@ export default defineComponent({
             state.currentGame = {
                 id: valueGame.ID,
                 name: valueGame.Name,
-                src: valueGame.Url,
+                src: valueGame.Url
             };
             const slide = Object.assign(props.slide, {
-                game: state.currentGame,
+                game: state.currentGame
             });
             emit("updatePageSlide", slide);
             emit("onSave");
@@ -279,6 +262,24 @@ export default defineComponent({
             lessonDesignVisible.value = true;
         };
 
+        const handleSave = () => {
+            if (!PPTEditRef.value) return;
+
+            PPTEditRef.value.onSave();
+        };
+
+        const currentPreview = () => {
+            if (!PPTEditRef.value) return;
+
+            PPTEditRef.value.enterScreening();
+        };
+
+        const handleHelper = () => {
+            if (!PPTEditRef.value) return;
+
+            PPTEditRef.value.handleHelper();
+        };
+
         return {
             ...toRefs(state),
             onSave,
@@ -306,14 +307,17 @@ export default defineComponent({
             openLessonDesign,
             updateLesson,
             TeacherID,
+            handleSave,
+            currentPreview,
+            handleHelper
         };
-    },
+    }
 });
 </script>
 
 <style scoped lang="scss">
 .ppt-container {
-    padding: 0px !important;
+    padding: 0 !important;
     height: 100%;
 }
 

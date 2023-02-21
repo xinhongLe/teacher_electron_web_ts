@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { Close } from "@element-plus/icons-vue";
 import { ElIcon } from "element-plus";
-import { defineProps, defineEmits, ref, PropType } from "vue";
+import { ref, PropType } from "vue";
 const props = defineProps({
     title: {
         type: String

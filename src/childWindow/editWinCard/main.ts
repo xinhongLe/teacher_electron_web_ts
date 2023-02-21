@@ -26,12 +26,8 @@ import { cacheFile } from "@/utils/file";
 TrackService.useTrackPoint();
 
 const app = createApp(App);
-app.use(
-    Wincard,
-    process.env.VUE_APP_AI_XUE_SHI_API,
-    "https://wincard.lyx-edu.com/swf2canvas.html",
-    cacheFile
-)
+// @ts-ignore
+app.use(Wincard, process.env.VUE_APP_AI_XUE_SHI_API, "https://wincard.lyx-edu.com/swf2canvas.html", cacheFile)
     .use(ElementPlus, { locale: zhCn })
     .use(Icon)
     .use(store, key)

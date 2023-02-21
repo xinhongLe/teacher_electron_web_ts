@@ -342,7 +342,7 @@ export default defineComponent({
     flex: 1;
     min-width: 0;
     margin-right: 8px !important;
-    ::v-deep .slide-list {
+    :deep .slide-list {
         background-color: #fff;
     }
 }
