@@ -9,7 +9,7 @@
         >
             <div class="left-content">
                 <div>
-                    <el-row :gutter="20" v-if="windowInfo.id.length > 0">
+                    <el-row :gutter="20" v-if="windowInfo?.id.length > 0">
                         <el-col :span="8">
                             <el-button
                                 class="add-card"
@@ -669,11 +669,11 @@ export default defineComponent({
                 teacherID: store.state.userInfo.id,
                 cardData,
                 originType: 1,
-                windowName: windowInfo.value.name,
-                windowID: windowInfo.value.id,
+                windowName: windowInfo.value?.name,
+                windowID: windowInfo.value?.id,
             };
 
-            const lessonId = (windowInfo.value.lessonId as string) || "";
+            const lessonId = (windowInfo.value?.lessonId as string) || "";
             const message = "保存成功";
 
             const res = await saveWindows(data);
@@ -883,8 +883,8 @@ export default defineComponent({
         const winCardViewRef = ref();
         onMounted(() => {
             _getWindowCards({
-                WindowID: windowInfo.value.id,
-                OriginType: windowInfo.value.originType,
+                WindowID: windowInfo.value?.id,
+                OriginType: windowInfo.value?.originType,
             }).then(() => {
                 // fetchAllPageSlide(getAllPageList());
             });
