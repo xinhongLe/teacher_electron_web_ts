@@ -268,12 +268,6 @@ export default defineComponent({
             PPTEditRef.value.onSave();
         };
 
-        const currentPreview = () => {
-            if (!PPTEditRef.value) return;
-
-            PPTEditRef.value.enterScreening();
-        };
-
         const handleHelper = () => {
             if (!PPTEditRef.value) return;
 
@@ -308,7 +302,6 @@ export default defineComponent({
             updateLesson,
             TeacherID,
             handleSave,
-            currentPreview,
             handleHelper
         };
     }

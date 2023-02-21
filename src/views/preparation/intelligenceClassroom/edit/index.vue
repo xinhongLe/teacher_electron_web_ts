@@ -6,11 +6,11 @@
                     <img src="@/assets/edit/icon_save.png" alt=""/>
                     保存
                 </div>
-                <div class="btn preview" @click="handlePreview">
+                <div class="btn preview" @click="handleView(allPageList, 'active')">
                     <img src="@/assets/edit/icon_start1.png" alt=""/>
                     从当前开始
                 </div>
-                <div class="btn">
+                <div class="btn" @click="handleView(allPageList, 'first')">
                     <img src="@/assets/edit/icon_start2.png" alt=""/>
                     从头开始
                 </div>
@@ -928,11 +928,6 @@ export default defineComponent({
             editRef.value.handleSave();
         };
 
-        const handlePreview = () => {
-            if (!editRef.value) return;
-            editRef.value.currentPreview();
-        };
-
         const handleOpenLessonDesign = () => {
             if (!editRef.value) return;
             editRef.value.openLessonDesign();
@@ -1022,7 +1017,6 @@ export default defineComponent({
             closeCurrentWinCard,
             handleNodedrop,
             handleSave,
-            handlePreview,
             handleOpenLessonDesign,
             handleHelper
         };
