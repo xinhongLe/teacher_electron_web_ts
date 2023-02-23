@@ -215,6 +215,7 @@ export default defineComponent({
                 size.width - 20 - 200,
                 top > 0 ? top : 20
             );
+            hideWindow();
             isPackUp.value = true;
         };
 
