@@ -34,6 +34,7 @@ export interface ICardList {
     PageList: IPageValue[];
     isAdd?: boolean;
     State?: boolean;
+    ParentID: string
 }
 
 export interface ISlides {

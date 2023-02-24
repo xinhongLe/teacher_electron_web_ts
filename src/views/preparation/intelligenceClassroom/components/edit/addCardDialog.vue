@@ -1,5 +1,5 @@
 <template>
-    <el-dialog v-if="visible" v-model="visible" title="请添加卡名称" width="30%" center @close="close">
+    <el-dialog v-if="visible" v-model="visible" title="请填写文件夹名称" width="30%" center @close="close">
         <div class="page-type-box">
             <el-form ref="ruleForm" :model="form" :rules="rules" label-width="120px" @submit.prevent="() => false">
                 <el-form-item label="名称" prop="name">
@@ -19,9 +19,6 @@
     </el-dialog>
 </template>
 
-<script>
-
-</script>
 <script lang="ts">
 import { computed, defineComponent, reactive, toRefs, ref } from "vue";
 

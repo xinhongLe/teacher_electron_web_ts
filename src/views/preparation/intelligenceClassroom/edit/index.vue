@@ -47,10 +47,8 @@
                     >
                         <template #default="{ node, data }">
                             <div :class="['custom-tree-node', pageValue.ID === data.ID ? 'active-text': '']">
-                                <div class="label-class" @mouseenter="mouseenter($event, node.label)"
-                                     @mouseleave="mouseleave">
-                                    <span v-if="!viewTree"
-                                          :style="{ color:!data.State && node.level === 2? '#c0c4cc' : pageValue.ID === data.ID    ? '#409Eff': '#333'}">
+                                <div class="label-class" @mouseenter="mouseenter($event, node.label)" @mouseleave="mouseleave">
+                                    <span v-if="!viewTree" :style="{ color:!data.State && node.level === 2? '#c0c4cc' : pageValue.ID === data.ID ? '#409Eff': '#333'}">
                                         {{ node.label }}
                                     </span>
                                     <div v-else>
@@ -59,121 +57,58 @@
                                             <div class="select-page">
                                                 <span class="chapter-num">{{ data.count }}</span>
                                             </div>
-                                            <div class="status"
-                                                 :style="{  background: data.State ? '#5CD494'  : '#90949E' }"></div>
+                                            <div class="status" :style="{background: data.State ? '#5CD494' : '#90949E'}"></div>
                                             <!-- 游戏页或者教具页显示封面图 -->
-                                            <el-image
-                                                v-if="
-                                                    (data.Type === 20 ||
-                                                        data.Type === 16) &&
-                                                    data.url
-                                                "
-                                                :src="data.url"
-                                                fit="cover"
-                                            >
+                                            <el-image v-if="(data.Type === 20 || data.Type === 16) && data.url" :src="data.url" fit="cover">
                                                 <template #error>
-                                                    <div class="image-slot">
-                                                        加载失败...
-                                                    </div>
+                                                    <div class="image-slot">加载失败...</div>
                                                 </template>
                                             </el-image>
                                             <template v-else>
                                                 <ThumbnailSlide
-                                                    v-if="data.Type ===pageType.element ||data.Type ===pageType.listen "
-                                                    :slide=" allPageListMap.get(data.ID ) || {} "
                                                     :size="190"
-                                                    style="
-                                                        border: 1px solid
-                                                            #ebeff1;
-                                                    "
+                                                    style="border: 1px solid #ebeff1"
+                                                    :slide=" allPageListMap.get(data.ID ) || {}"
+                                                    v-if="data.Type ===pageType.element ||data.Type === pageType.listen"
                                                 />
-                                                <div class="view-empty" v-else>
-                                                    {{ data.Name }}
-                                                </div>
+                                                <div class="view-empty" v-else>{{ data.Name }}</div>
                                             </template>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="icon-box">
-                                    <el-popover
-                                        placement="right-start"
-                                        :width="50"
-                                        trigger="focus"
-                                    >
+                                    <el-popover placement="right-start" :width="50" trigger="focus">
                                         <template #reference>
                                             <el-button size="small" @click.stop>
-                                                <el-icon :size="18"
-                                                >
-                                                    <more-filled
-                                                    />
+                                                <el-icon :size="18">
+                                                    <more-filled/>
                                                 </el-icon>
                                             </el-button>
                                         </template>
                                         <div class="operation-box">
-                                            <div
-                                                v-show="node.level === 1"
-                                                @click.stop="
-                                                    handleView(
-                                                        data.PageList,
-                                                        'first'
-                                                    )
-                                                "
-                                            >
-                                                预览
+                                            <div v-show="node.level === 1" @click.stop="dialogVisibleCard = true">新增文件夹</div>
+                                            <div v-show="node.level === 1" @click.stop="handleAddBlank(node,data)">新增空白页</div>
+                                            <div @click.stop="handleUpdateName(node, data)">重命名</div>
+                                            <div v-show="node.level === 2" @click.stop="handleUpdateState(node, data)">
+                                                {{ data.State ? "隐藏" : "显示" }}
                                             </div>
-                                            <div
-                                                v-show="node.level === 1"
-                                                @click.stop="
-                                                    handleAdd(node, data)
-                                                "
-                                            >
-                                                新增页
-                                            </div>
-                                            <div
-                                                @click.stop="
-                                                    handleUpdateName(node, data)
-                                                "
-                                            >
-                                                修改名称
-                                            </div>
-                                            <div
-                                                v-show="node.level === 2"
-                                                @click.stop="
-                                                    handleUpdateState(
-                                                        node,
-                                                        data
-                                                    )
-                                                "
-                                            >
-                                                {{
-                                                    data.State ? "下架" : "上架"
-                                                }}
-                                            </div>
-                                            <div
-                                                v-show="node.level === 1"
-                                                @click.stop="handlePaste(data)"
-                                            >
-                                                粘贴页
-                                            </div>
+                                            <div v-show="node.level === 1" @click.stop="handlePaste(data)">粘贴页</div>
                                             <!--游戏页暂不支持复制-->
-                                            <div
-                                                v-show="
-                                                    node.level === 2 &&
-                                                    data.Type !== 20
-                                                "
-                                                @click.stop="
-                                                    handleCopy(node, data)
-                                                "
-                                            >
-                                                复制页
-                                            </div>
-                                            <div
-                                                @click.stop="
-                                                    handleDel(node, data)
-                                                "
-                                            >
-                                                删除
-                                            </div>
+                                            <div v-show="node.level === 2 && data.Type !== 20" @click.stop="handleCopy(node, data)">复制页</div>
+                                            <div @click.stop="handleDel(node, data) ">删除</div>
+                                        </div>
+                                    </el-popover>
+                                </div>
+                                <div class="icon-add" v-if="node.level === 2">
+                                    <el-popover placement="right-start" :width="50" trigger="focus">
+                                        <template #reference>
+                                            <el-button size="small" @click.stop>
+                                                <img src="@/assets/edit/icon_add_hover.png" alt="" class="add"/>
+                                            </el-button>
+                                        </template>
+                                        <div class="operation-box">
+                                            <div @click.stop="handleAddBlank(node,data)">新增空白页</div>
+                                            <div @click.stop="handleAddInteraction(node, data)">新增互动页</div>
                                         </div>
                                     </el-popover>
                                 </div>
@@ -185,10 +120,12 @@
                     </div>
                 </div>
 
-                <div class="shrink" ref="shrinkRef" @click="showCollapse = !showCollapse">
-                    <el-icon :style="{ transform:'rotate(' + (showCollapse ? 0 : 180) + 'deg)'}">
-                        <ArrowLeft/>
-                    </el-icon>
+                <div class="shrink" ref="shrinkRef">
+                    <div @click="handleCollapse">
+                        <el-icon :style="{ transform:'rotate(' + (showCollapse ? 0 : 180) + 'deg)'}">
+                            <ArrowLeft/>
+                        </el-icon>
+                    </div>
                 </div>
             </div>
             <div class="right" :class="{collapse:!showCollapse}">
@@ -221,34 +158,24 @@
             </div>
         </div>
     </div>
+
     <!--预览界面-->
     <win-card-view
         ref="winCardViewRef"
-        @offScreen="offScreen"
         v-if="winScreenView"
+        @offScreen="offScreen"
         :pageList="previewPageList"
         :activePageIndex="activePreviewPageIndex"
-    ></win-card-view>
+    />
 
     <!-- 新增卡弹框-->
-    <add-card-dialog
-        v-model:dialogVisible="dialogVisibleCard"
-        @handleAddCard="handleAddCard"
-    ></add-card-dialog>
+    <add-card-dialog v-model:dialogVisible="dialogVisibleCard" @handleAddCard="handleAddCard"/>
 
     <!-- 新增页弹框-->
-    <add-page-dialog
-        v-if="dialogVisible"
-        v-model:dialogVisible="dialogVisible"
-        @addPage="addPage"
-    ></add-page-dialog>
+    <add-page-dialog v-if="dialogVisible" v-model:dialogVisible="dialogVisible" @addPage="addPage"/>
 
     <!-- 修改名称弹框-->
-    <update-name-card-or-page
-        v-model:dialogVisible="dialogVisibleName"
-        :currentValue="currentValue"
-        @updateName="updateName"
-    ></update-name-card-or-page>
+    <update-name-card-or-page v-model:dialogVisible="dialogVisibleName" :currentValue="currentValue" @updateName="updateName"/>
 
     <!-- 保存模板弹框-->
     <save-template-dialog
@@ -261,8 +188,8 @@
         @cacleTemplateDialog="cacleTemplateDialog"
         :dialogStatus="dialogStatus"
         :selectPageData="selectPageData"
-    >
-    </save-template-dialog>
+    />
+
     <!-- 资源库 -->
     <materialCenter
         ref="materialCenterRef"
@@ -271,7 +198,8 @@
         @editTemplate="editTemplate"
         :subjectID="subjectPublisherBookValue?.SubjectId || ''"
         :lessonId="windowInfo?.lessonId || ''"
-    ></materialCenter>
+    />
+
     <!-- 查看我的模板：老师才有，教研没有 -->
     <div v-if="isshowCusTooltip" class="cus-open-tooltip">
         前往<span @click="gotoMyTemplate">「我的」</span>查看已保存模板
@@ -302,7 +230,7 @@ import TrackService, { EnumTrackEventType } from "@/utils/common";
 import { saveWindows } from "@/views/preparation/intelligenceClassroom/api";
 import useImportPPT from "@/hooks/useImportPPT";
 import { v4 as uuidv4 } from "uuid";
-import { pageType } from "@/config";
+import { pageType, pageTypeList } from "@/config";
 import { Slide } from "wincard";
 import { isFullscreen } from "@/utils/fullscreen";
 import exitDialog, { ExitType } from "@/views/preparation/intelligenceClassroom/edit/exitDialog";
@@ -385,7 +313,7 @@ export default defineComponent({
 
         const { allowDrop } = useDragPage();
 
-        const { handleAdd, addPageCallback, dialogVisible } = useAddPage(
+        const { handleAdd, addPageCallback, dialogVisible, assignmentCurrentValue } = useAddPage(
             shrinkRef,
             windowCards,
             allPageListMap
@@ -689,14 +617,7 @@ export default defineComponent({
             });
         };
 
-        const {
-            importByElectron,
-            uploadFileName,
-            loading,
-            parsePptPage,
-            pptPages,
-            percentage,
-        } = useImportPPT();
+        const { importByElectron, uploadFileName, loading, parsePptPage, pptPages, percentage } = useImportPPT();
 
         const importPPT = () => {
             importByElectron((result) => {
@@ -797,13 +718,6 @@ export default defineComponent({
             // 先更新一下当前页
             const slide = editRef.value.getCurrentSlide();
             allPageListMap.value.set(pageValue.value.ID, slide);
-            // console.log(
-            //     "123123",
-            //     isEqual(allPageListMap.value, oldAllPageListMap.value),
-            //     isEqual(windowCards.value, oldWindowCards.value),
-            //     allPageListMap.value,
-            //     oldAllPageListMap.value
-            // );
 
             if (
                 isEqual(allPageListMap.value, oldAllPageListMap.value) &&
@@ -841,7 +755,7 @@ export default defineComponent({
             // if (res[0]) {
             //     pageValue.value = res[1][0];
             //     selectPageValue(pageValue.value, false);
-            nextTick(() => {
+            await nextTick(() => {
                 materialCenterRef.value.addLinkCount(
                     jsonData.teachPageTemplateID || ""
                 );
@@ -937,6 +851,29 @@ export default defineComponent({
             editRef.value.handleHelper();
         };
 
+        const handleCollapse = (e: Event) => {
+            e.stopPropagation();
+            showCollapse.value = !showCollapse.value;
+        };
+
+        const handleAddBlank = (node: Node, data: ICardList) => {
+            if (node.level === 1) {
+                assignmentCurrentValue(data);
+            } else {
+                assignmentCurrentValue(newWindowCards.value.find((item: any) => item.ID === data.ParentID));
+            }
+
+            addPage(pageTypeList[0]);
+        };
+
+        const handleAddInteraction = (node: Node, data: ICardList) => {
+            if (node.level === 1) {
+                handleAdd(node, data);
+            } else {
+                handleAdd(node, newWindowCards.value.find((item: any) => item.ID === data.ParentID));
+            }
+        };
+
         return {
             pptCount,
             currentActivePage,
@@ -983,8 +920,6 @@ export default defineComponent({
             pptPages,
             updatePageSlide,
             updateAllPageSlideListMap,
-            // allPageSlideListMap,
-            // oldAllPageSlideListMap,
             _getWindowCards,
             offScreen,
             handleMask,
@@ -1018,7 +953,11 @@ export default defineComponent({
             handleNodedrop,
             handleSave,
             handleOpenLessonDesign,
-            handleHelper
+            handleHelper,
+            handleCollapse,
+            pageTypeList,
+            handleAddBlank,
+            handleAddInteraction
         };
     }
 });
@@ -1047,6 +986,7 @@ export default defineComponent({
             align-items: center;
             position: relative;
             cursor: pointer;
+            font-size: 14px;
 
             &.preview {
                 margin-right: 24px !important;
@@ -1108,125 +1048,132 @@ export default defineComponent({
             position: absolute;
             width: 12px;
             height: 64px;
-            background: #414E65;
             border-radius: 6px;
             top: 50%;
             margin-top: -32px;
             right: -6px;
             z-index: 999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             cursor: pointer;
-            color: #FFFFFF;
+            overflow: hidden;
+
+            & > div {
+                background: #414E65;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: #FFFFFF;
+                width: 100%;
+                height: 100%;
+            }
         }
 
         .card {
             height: calc(100% - 56px);
-        }
 
-        :deep(.el-tree-node:focus > .el-tree-node__content) {
-            background-color: #fff;
-        }
+            :deep(.el-tree) {
+                height: calc(100% - 40px);
+                overflow-y: auto;
+                overflow-x: hidden;
 
-        .el-tree {
-            height: calc(100% - 40px);
-            overflow-y: auto;
-            overflow-x: hidden;
+                .el-tree-node:focus > .el-tree-node__content {
+                    background-color: transparent;
+                }
 
-            :deep(.el-tree-node__label) {
-                width: 100%;
-            }
-        }
+                .el-tree-node > .el-tree-node__content {
+                    height: 44px;
+                }
 
-        .view-tree-box {
-            :deep(.el-tree-node__children) {
-                .el-tree-node__content {
+                .el-tree-node__children .el-tree-node__content {
                     height: auto;
                     padding: 10px 0 !important;
                     margin-bottom: 10px;
+
+                    &:hover {
+                        background-color: rgba(46, 149, 255, 0.1);
+                    }
                 }
 
-                .is-current {
+                .el-tree-node__children .label-class {
+                    margin-left: 15px;
+                }
+
+                .el-tree-node__children .is-current {
                     background-color: rgba(46, 149, 255, 0.1);
                 }
 
-                .icon-box {
+                .el-tree-node__children .icon-box {
                     position: absolute;
                     bottom: 0;
                     right: 0;
                 }
-            }
 
-            .select-page {
-                position: absolute;
-                left: -12px;
-                top: -8px;
-                cursor: pointer;
-                z-index: 2;
-                display: flex;
-                align-items: center;
-
-                .el-icon {
-                    width: 16px;
-                    height: 16px;
-                    border: 1px solid var(--el-color-primary);
-                    border-radius: 50%;
-                }
-
-                //background-color: var(--el-color-primary);
-            }
-
-            .status {
-                position: absolute;
-                right: -12px;
-                top: -4px;
-                width: 10px;
-                height: 10px;
-                border-radius: 50%;
-                z-index: 2;
-            }
-
-            :deep(.el-image) {
-                height: 106px;
-                width: 100%;
-
-                .image-slot {
+                .select-page {
+                    position: absolute;
+                    left: -12px;
+                    top: -8px;
+                    cursor: pointer;
+                    z-index: 2;
                     display: flex;
-                    justify-content: center;
                     align-items: center;
+
+                    .el-icon {
+                        width: 16px;
+                        height: 16px;
+                        border: 1px solid var(--el-color-primary);
+                        border-radius: 50%;
+                    }
+                }
+
+                .status {
+                    position: absolute;
+                    right: -12px;
+                    top: -4px;
+                    width: 10px;
+                    height: 10px;
+                    border-radius: 50%;
+                    z-index: 2;
+                }
+
+                .el-image {
+                    height: 106px;
                     width: 100%;
+
+                    .image-slot {
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        width: 100%;
+                        height: 100%;
+                        background: var(--el-fill-color-light);
+                        color: var(--el-text-color-secondary);
+                        font-size: 20px;
+                    }
+                }
+
+                .view-empty {
+                    width: 190px;
+                    height: 106px;
+                    padding: 10px;
+                    border: 1px solid #ebeff1;
+                }
+
+                .custom-tree-node {
+                    display: flex;
+                    justify-content: space-between;
                     height: 100%;
-                    background: var(--el-fill-color-light);
-                    color: var(--el-text-color-secondary);
-                    font-size: 20px;
+                    align-items: center;
+                    width: 86%;
+                    position: relative;
+
+                    .chapter-num {
+                        display: block;
+                        margin-right: 13px;
+                        font-size: 14px;
+                        font-weight: bold;
+                        color: #333;
+                    }
                 }
-            }
 
-            .view-empty {
-                width: 190px;
-                height: 106px;
-                padding: 10px;
-                border: 1px solid #ebeff1;
-            }
-
-            .custom-tree-node {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                width: 86%;
-                position: relative;
-
-                .chapter-num {
-                    display: block;
-                    margin-right: 5px;
-                    font-size: 14px;
-                    font-weight: bold;
-                    color: #333;
-                }
-            }
-
-            .icon-box {
                 .el-button {
                     border: none !important;
                     padding: 6px;
@@ -1243,6 +1190,17 @@ export default defineComponent({
                         height: 18px;
                     }
                 }
+
+                .icon-add {
+                    position: absolute;
+                    bottom: -3px;
+                    right: 36px;
+
+                    .add {
+                        width: 32px;
+                        height: 32px;
+                    }
+                }
             }
         }
 
@@ -1256,6 +1214,7 @@ export default defineComponent({
                 justify-content: space-between;
                 align-items: center;
                 width: 80%;
+                margin-left: 5px;
                 position: relative;
 
                 .label-class {

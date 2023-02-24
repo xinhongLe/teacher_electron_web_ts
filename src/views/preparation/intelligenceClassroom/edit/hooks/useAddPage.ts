@@ -5,6 +5,8 @@ import { findIndex } from "lodash";
 import { Slide } from "wincard";
 import { initSlideData } from "@/utils/dataParsePage";
 import { addPage } from "@/api/home";
+import Node from "element-plus/es/components/tree/src/model/node";
+import { pageTypeList } from "@/config";
 
 export default (
     shrinkRef: Ref,
@@ -13,18 +15,19 @@ export default (
 ) => {
     const dialogVisible = ref(false);
     const currentValue = ref();
-    const handleAdd = (node: Node, data: ICardList) => {
+    const handleAdd = (node: Node, data: ICardList | undefined) => {
         shrinkRef.value.click();
-        console.log("data------", data);
 
         dialogVisible.value = true;
         currentValue.value = data;
     };
 
-    const addPageCallback = async (
-        data: { name: string; value: number; url?: string },
-        pageValue?: any
-    ) => {
+    const assignmentCurrentValue = (data: ICardList | undefined) => {
+        if (!data) return;
+        currentValue.value = data;
+    };
+
+    const addPageCallback = async (data: { name: string; value: number; url?: string }, pageValue?: any) => {
         if (pageValue?.ID) {
             currentValue.value = pageValue;
         }
@@ -32,14 +35,12 @@ export default (
             CardID: currentValue.value.ID,
             Name: data.name,
             Type: data.value,
-            Sort: currentValue.value.PageList
-                ? currentValue.value.PageList.length
-                : 0,
+            Sort: currentValue.value.PageList ? currentValue.value.PageList.length : 0
         };
         const res = await addPage(value);
         if (res.resultCode === 200) {
             const cardIndex = findIndex(windowCards.value, {
-                ID: currentValue.value.ID,
+                ID: currentValue.value.ID
             });
             const page: IPageValue = {
                 ID: res.result.ID,
@@ -48,7 +49,7 @@ export default (
                 // isAdd: true,
                 isAdd: false,
                 State: true,
-                url: data.url || "",
+                url: data.url || ""
             };
             windowCards.value[cardIndex].PageList.push(page);
             // 只有解构赋值，tree组件才刷新
@@ -66,5 +67,6 @@ export default (
         handleAdd,
         dialogVisible,
         addPageCallback,
+        assignmentCurrentValue
     };
 };
