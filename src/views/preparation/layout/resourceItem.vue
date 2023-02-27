@@ -309,24 +309,24 @@ export default defineComponent({
     props: {
         data: {
             type: Object as PropType<IResourceItem>,
-            required: true,
+            required: true
         },
         hover: {
             type: Boolean,
-            default: true,
+            default: true
         },
         btns: {
             type: Boolean,
-            default: true,
+            default: true
         },
         lessonId: {
             type: String,
-            required: true,
+            required: true
         },
         name: {
             type: String,
-            default: "",
-        },
+            default: ""
+        }
     },
     emits: ["eventEmit"],
     setup(props, { emit }) {

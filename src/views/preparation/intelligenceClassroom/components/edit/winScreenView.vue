@@ -1,20 +1,22 @@
 <template>
     <div class="view-box">
-        <ScreenView ref="screenRef" @openMenu="openMenu" @offScreen="offScreen" :keyDisabled="keyDisabled" :isInit="isInit" :slide="slideView"  @openCard="openCard"  @pagePrev="pagePrev()" @pageNext="pageNext()"/>
+        <ScreenView ref="screenRef" @openMenu="openMenu" @offScreen="offScreen" :keyDisabled="keyDisabled" :isInit="isInit"
+            :slide="slideView" @openCard="openCard" @pagePrev="pagePrev()" @pageNext="pageNext()" />
 
         <div class="right-fixed" v-if="showCollapse">
-            <div class="right-content" >
+            <div class="right-content">
                 <div class="text title">页列表</div>
-                <div :class="['text', index === i ? 'active': '']" @click="handleActive(i)" v-for="(item, i) in pageList" :KEY="item.ID">{{item.Name}}</div>
+                <div :class="['text', index === i ? 'active' : '']" @click="handleActive(i)" v-for="(item, i) in pageList"
+                    :KEY="item.ID">{{ item.Name }}</div>
             </div>
         </div>
-<!--        <div :class="['fixed-box', showCollapse ? 'showCollapseClass' : 'hideCollapseClass']" @click="showCollapse = !showCollapse">-->
-<!--            <i class="el-icon-menu"></i>-->
-<!--        </div>-->
+        <!--        <div :class="['fixed-box', showCollapse ? 'showCollapseClass' : 'hideCollapseClass']" @click="showCollapse = !showCollapse">-->
+        <!--            <i class="el-icon-menu"></i>-->
+        <!--        </div>-->
 
         <!-- 弹卡-->
-        <open-card-view-dialog v-if="dialogVisible" :cardList="cardList"
-          @closeOpenCard="closeOpenCard" v-model:dialogVisible="dialogVisible"></open-card-view-dialog>
+        <open-card-view-dialog v-if="dialogVisible" :cardList="cardList" @closeOpenCard="closeOpenCard"
+            v-model:dialogVisible="dialogVisible"></open-card-view-dialog>
     </div>
 </template>
 
@@ -172,22 +174,26 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-.view-box{
-    :deep(.el-overlay){
+.view-box {
+    :deep(.el-overlay) {
         z-index: 999999 !important;
     }
-    :deep(.el-dialog){
+
+    :deep(.el-dialog) {
         --el-dialog-margin-top: 5vh;
-        .slide-list{
+
+        .slide-list {
             background-color: #fff;
         }
     }
-    :deep(.el-dialog__body){
+
+    :deep(.el-dialog__body) {
         height: 80vh !important;
         width: 100%;
         overflow-y: auto;
     }
-    .right-fixed{
+
+    .right-fixed {
         position: fixed;
         left: 0;
         top: 0;
@@ -195,12 +201,14 @@ export default defineComponent({
         width: 240px;
         height: 100vh;
         z-index: 99999;
-        .right-content{
+
+        .right-content {
             height: 100%;
             width: 100%;
             overflow: auto;
         }
-        .text{
+
+        .text {
             padding: 0 20px;
             cursor: pointer;
             height: 40px;
@@ -208,19 +216,22 @@ export default defineComponent({
             font-size: 14px;
             border-bottom: 0.1px solid #f0f0f0;
             overflow: hidden;
-            text-overflow:ellipsis;
+            text-overflow: ellipsis;
             white-space: nowrap;
-            &.title{
+
+            &.title {
                 padding: 0 10px;
                 font-size: 16px;
             }
-            &.active{
+
+            &.active {
                 color: #409eff;
                 background-color: #ecf5ff;
             }
         }
     }
-    .fixed-box{
+
+    .fixed-box {
         position: fixed;
         left: 0px;
         bottom: 0px;
@@ -235,16 +246,18 @@ export default defineComponent({
         z-index: 99999;
         font-size: 18px;
         cursor: pointer;
-        &:hover{
+
+        &:hover {
             border: 1px solid #333;
             color: #333;
         }
     }
+
     .showCollapseClass {
         left: 242px;
     }
+
     .hideCollapseClass {
         left: 0;
     }
-}
-</style>
+}</style>

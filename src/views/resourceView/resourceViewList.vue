@@ -1,34 +1,12 @@
 <template>
     <div class="resource-view">
-        <IntelligenceClassroom
-            v-if="type === 1"
-            :resourceId="target"
-            :isShowClose="false"
-            :dialog="true"
-            :resource="resource"
-            :isSystem="isSystem"
-            :isFullScreenStatus="isFullScreen"
-        />
-        <LookVideo
-            :resource="data"
-            v-if="type === 2"
-            :dialog="true"
-            :close="close"
-        />
-        <LookQuestion
-            :resource="data"
-            v-if="type === 3"
-            :dialog="true"
-            :close="close"
-        />
+        <IntelligenceClassroom v-if="type === 1" :resourceId="target" :isShowClose="false" :dialog="true"
+            :resource="resource" :isSystem="isSystem" :isFullScreenStatus="isFullScreen" />
+        <LookVideo :resource="data" v-if="type === 2" :dialog="true" :close="close" />
+        <LookQuestion :resource="data" v-if="type === 3" :dialog="true" :close="close" />
         <div class="iframe-teach-box" v-if="type === 4 || type === 0">
             <iframe v-if="type === 4" :src="url"></iframe>
-            <iframe
-                class="office-iframe"
-                sandbox="allow-same-origin allow-scripts"
-                v-if="isOffice"
-                :src="url"
-            ></iframe>
+            <iframe class="office-iframe" sandbox="allow-same-origin allow-scripts" v-if="isOffice" :src="url"></iframe>
             <div class="iframe-image" v-if="isImage">
                 <img :src="url" />
             </div>
@@ -39,21 +17,24 @@
                 <video :src="url" controls />
             </div>
 
-            <div
-                class="not-preview"
-                v-if="
-                    !isVideo && !isAudio && !isImage && !isOffice && type !== 4
-                "
-            >
+            <div class="not-preview" v-if="
+                !isVideo && !isAudio && !isImage && !isOffice && type !== 4
+            ">
                 暂不支持预览，请下载查看
             </div>
         </div>
         <answer-machine v-if="type === 5" :lessonId="lessonId"></answer-machine>
 
-        <!-- ppt、word、excel底部工具栏 -->
+        <!-- ppt、word、excel底部工具栏 --> 
         <div class="dialog-footer" v-if="type === 4 || type === 0">
             <div class="pen" @click="drawingShow = true">
                 <p>画笔</p>
+            </div>
+            <div class="full-screen-set" @click="setFullScreen()">
+                <img v-if="isFullScreen" src="@/views/preparation/intelligenceClassroom/images/tuichuquanping_rest.png"
+                    alt="" />
+                <img v-else src="@/views/preparation/intelligenceClassroom/images/quanping_rest.png" alt="" />
+
             </div>
             <div class="close" @click="close">
                 <p>关闭</p>
@@ -108,7 +89,7 @@ export default defineComponent({
         },
         close: {
             type: Function,
-            default: () => {},
+            default: () => { },
         },
         data: {
             type: Object as PropType<IViewResourceData>,
@@ -124,13 +105,7 @@ export default defineComponent({
         },
     },
     setup(props, { emit }) {
-        watch(
-            () => props.isFullScreen,
-            (val: any) => {
-                console.log("isFullScreen", props.isFullScreen);
-            },
-            { deep: true }
-        );
+
         const drawingShow = ref(false);
         const store = useStore();
         const url = ref("");
@@ -143,7 +118,7 @@ export default defineComponent({
                 const fileUrl = await getOssUrl(key, FileBucket);
                 url.value = isOffice.value
                     ? "https://owa.lyx-edu.com/op/view.aspx?src=" +
-                      encodeURIComponent(fileUrl)
+                    encodeURIComponent(fileUrl)
                     : fileUrl;
             }
 
@@ -177,6 +152,9 @@ export default defineComponent({
                     props.resource!.File?.FileExtention.toLocaleLowerCase()
                 ) > -1
         );
+        const setFullScreen = async () => {
+            emit("setFullScreen")
+        };
 
         watchEffect(initIframeSrc);
         return {
@@ -187,6 +165,7 @@ export default defineComponent({
             isAudio,
             isVideo,
             drawingShow,
+            setFullScreen
         };
     },
 });
@@ -198,11 +177,13 @@ export default defineComponent({
     min-height: 0;
     display: flex;
     flex-direction: column;
+
     .iframe-teach-box {
         width: 100%;
         height: 100%;
         overflow: hidden;
         background: #fff;
+
         .not-preview {
             width: 100%;
             height: 100%;
@@ -214,14 +195,17 @@ export default defineComponent({
             align-items: center;
             justify-content: center;
         }
+
         iframe {
             width: 100%;
             height: 100%;
         }
+
         .office-iframe {
             height: calc(100% + 55px);
             margin-top: -55px;
         }
+
         .iframe-image,
         .iframe-video,
         .iframe-audio {
@@ -230,12 +214,14 @@ export default defineComponent({
             justify-content: center;
             width: 100%;
             height: 100%;
+
             img {
                 width: 100%;
                 height: 100%;
                 object-fit: contain;
                 display: block;
             }
+
             video {
                 width: 100%;
                 height: 100%;
@@ -243,6 +229,7 @@ export default defineComponent({
             }
         }
     }
+
     .dialog-footer {
         width: 100%;
         // height: 80px;
@@ -251,11 +238,13 @@ export default defineComponent({
         display: flex;
         align-items: center;
         justify-content: center;
-        > div {
+
+        >div {
             width: 50px;
             height: 50px;
             cursor: pointer;
             margin-right: 20px;
+
             p {
                 text-align: center;
                 font-size: 12px;
@@ -265,15 +254,25 @@ export default defineComponent({
                 font-weight: 550;
             }
         }
-        > div.pen {
+
+        >div.pen {
             background: url("./../../assets/look/btn_huabi@2x.png");
             background-size: 100% 100%;
         }
-        > div.close {
+
+        >div.close {
             background: url("./../../assets/look/btn_guanbi@2x.png");
             background-size: 100% 100%;
+
             p {
                 color: #fff;
+            }
+        }
+
+        >div.full-screen-set {
+            img {
+                width: 100%;
+                height: 100%;
             }
         }
     }
