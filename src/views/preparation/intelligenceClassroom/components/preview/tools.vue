@@ -1,5 +1,5 @@
 <template>
-    <div v-dragLine="'left'" class="nextpage background">
+    <div v-dragLine="'left'" class="nextpage">
         <!-- :style="{
             left: '30px',
             bottom: isTKdialog
@@ -8,16 +8,28 @@
                 ? '30px'
                 : 0,
         }" -->
-        <div
-            class="me-tool-btn setting-btn"
-            @click="nextStep"
-            v-show="
+        <div class="me-tools-steps-new">
+
+            <div class="me-tool-btn-new" :disabled="isFirst" @click="prevStep">
+                <div class="icon-text">
+                    <img src="../../images/slices/arrow_left.png" alt="" />
+                    <span class="text">上一页</span>
+                </div>
+                <!-- <img v-if="!isFirst" src="../../images/shangyiye_rest.png" alt="" />
+                <img v-if="isFirst" src="../../images/shangyiye_disabled.png" alt="" /> -->
+            </div>
+            <div class="me-tool-btn-new" @click="nextStep">
+                <!-- v-show="
                 selectNextType === NextSettingType.Left ||
                 selectNextType === NextSettingType.All
-            "
-        >
-            <img src="../../images/btn_next.png" />
+            " -->
+                <div class="icon-text">
+                    <img src="../../images/slices/arrow_right.png" alt="" />
+                    <span class="text">下一页</span>
+                </div>
+            </div>
         </div>
+
     </div>
     <div class="me-tools" ref="metools" v-drag>
         <!-- <div class="me-tool-btn invoking-btn-warp" @click="showResourceDialog = true">
@@ -29,124 +41,60 @@
                     <div class="me-tools-drag" style="display: flex">
                         <div class="me-tools-screen"></div>
                         <div class="me-tools-canvas">
-                            <div
-                                class="me-tool-btn"
-                                @click="openPaintTool($event, 'undo')"
-                            >
-                                <div
-                                    class="icon-text"
-                                    :class="{ disabled: !isCanUndo }"
-                                >
+                            <div class="me-tool-btn" @click="openPaintTool($event, 'undo')">
+                                <div class="icon-text" :class="{ disabled: !isCanUndo }">
                                     <IconBack />
                                     <span class="text">撤销</span>
                                 </div>
                             </div>
-                            <div
-                                class="me-tool-btn"
-                                @click="openPaintTool($event, 'redo')"
-                            >
-                                <div
-                                    class="icon-text"
-                                    :class="{ disabled: !isCanRedo }"
-                                >
+                            <div class="me-tool-btn" @click="openPaintTool($event, 'redo')">
+                                <div class="icon-text" :class="{ disabled: !isCanRedo }">
                                     <IconNext />
                                     <span class="text">恢复</span>
                                 </div>
                             </div>
                             <!-- 鼠标 -->
-                            <div
-                                class="me-tool-btn"
-                                :class="type === 'mouse' && 'active'"
-                                @click="
-                                    hideWriteBoard(),
-                                        openPaintTool($event, 'mouse'),
-                                        (type = 'mouse')
-                                "
-                            >
-                                <img
-                                    v-if="type !== 'mouse'"
-                                    src="../../images/shubiao_rest.png"
-                                    alt=""
-                                />
-                                <img
-                                    v-if="type === 'mouse'"
-                                    src="../../images/shubiao_selected.png"
-                                    alt=""
-                                />
+                            <div class="me-tool-btn" :class="type === 'mouse' && 'active'" @click="
+                                hideWriteBoard(),
+                                openPaintTool($event, 'mouse'),
+                                (type = 'mouse')
+                            ">
+                                <img v-if="type !== 'mouse'" src="../../images/shubiao_rest.png" alt="" />
+                                <img v-if="type === 'mouse'" src="../../images/shubiao_selected.png" alt="" />
                             </div>
                             <!-- 画笔 -->
-                            <div
-                                class="me-tool-btn"
-                                :class="type === 'pen' && 'active'"
-                                @click="
-                                    openPaintTool($event, 'paint'),
-                                        (type = 'pen')
-                                "
-                            >
-                                <img
-                                    v-if="type !== 'pen'"
-                                    src="../../images/huabi_rest.png"
-                                    alt=""
-                                />
-                                <img
-                                    v-if="type === 'pen'"
-                                    src="../../images/huabi_selected.png"
-                                    alt=""
-                                />
+                            <div class="me-tool-btn" :class="type === 'pen' && 'active'" @click="
+                                openPaintTool($event, 'paint'),
+                                (type = 'pen')
+                            ">
+                                <img v-if="type !== 'pen'" src="../../images/huabi_rest.png" alt="" />
+                                <img v-if="type === 'pen'" src="../../images/huabi_selected.png" alt="" />
                             </div>
                             <!-- 形状 -->
-                            <div
-                                class="me-tool-btn"
-                                @click="
-                                    openPaintTool($event, 'mouse'),
-                                        (type = 'mouse'),
-                                        openShape($event)
-                                "
-                            >
-                                <img
-                                    src="../../images/icon_rest_xz_big.png"
-                                    alt=""
-                                />
+                            <div class="me-tool-btn" @click="
+                                openPaintTool($event, 'mouse'),
+                                (type = 'mouse'),
+                                openShape($event)
+                            ">
+                                <img src="../../images/icon_rest_xz_big.png" alt="" />
                             </div>
                             <!-- 橡皮擦 -->
-                            <div
-                                class="me-tool-btn"
-                                :class="type === 'eraser' && 'active'"
-                                @click="
-                                    openPaintTool($event, 'eraser'),
-                                        (type = 'eraser')
-                                "
-                            >
-                                <img
-                                    v-if="type !== 'eraser'"
-                                    src="../../images/xiangpi_rest.png"
-                                    alt=""
-                                />
-                                <img
-                                    v-if="type === 'eraser'"
-                                    src="../../images/xiangpi_selected.png"
-                                    alt=""
-                                />
+                            <div class="me-tool-btn" :class="type === 'eraser' && 'active'" @click="
+                                openPaintTool($event, 'eraser'),
+                                (type = 'eraser')
+                            ">
+                                <img v-if="type !== 'eraser'" src="../../images/xiangpi_rest.png" alt="" />
+                                <img v-if="type === 'eraser'" src="../../images/xiangpi_selected.png" alt="" />
                             </div>
                             <!-- 清空笔记 -->
-                            <div
-                                class="me-tool-btn"
-                                @click="openPaintTool($event, 'rest')"
-                            >
-                                <img
-                                    src="../../images/qingkong_rest.png"
-                                    alt=""
-                                />
+                            <div class="me-tool-btn" @click="openPaintTool($event, 'rest')">
+                                <img src="../../images/qingkong_rest.png" alt="" />
                             </div>
                             <!-- 尺规:三合一-->
-                            <div
-                                class="me-tool-btn"
-                                :class="type === 'rulers' && 'active'"
-                                @click="
-                                    openPaintTool($event, 'rulers'),
-                                        (type = 'rulers')
-                                "
-                            >
+                            <div class="me-tool-btn" :class="type === 'rulers' && 'active'" @click="
+                                openPaintTool($event, 'rulers'),
+                                (type = 'rulers')
+                            ">
                                 <!-- <div
                                     class="icon-text"
                                     :style="{
@@ -159,16 +107,8 @@
                                     <IconRuler />
                                     <span class="text">尺规</span>
                                 </div> -->
-                                <img
-                                    v-if="type !== 'rulers'"
-                                    src="../../images/btn_chigui_defaulted.png"
-                                    alt=""
-                                />
-                                <img
-                                    v-if="type === 'rulers'"
-                                    src="../../images/btn_chigui_selected.png"
-                                    alt=""
-                                />
+                                <img v-if="type !== 'rulers'" src="../../images/btn_chigui_defaulted.png" alt="" />
+                                <img v-if="type === 'rulers'" src="../../images/btn_chigui_selected.png" alt="" />
                             </div>
 
                             <!-- 直尺 -->
@@ -238,29 +178,15 @@
 
                         <div class="me-tools-set">
                             <div class="setting" v-show="isShowMenu">
-                                <span
-                                    @click.stop="isShowSubMenu = true"
-                                    class="setting-item"
-                                    >【下一步】位置设置 ></span
-                                >
-                                <div
-                                    class="setting-sub-menu"
-                                    v-show="isShowSubMenu"
-                                >
-                                    <div
-                                        v-for="item in nextSettingTypeList"
-                                        :key="item.text"
-                                        class="menu"
-                                        @click="changeNextType(item.type)"
-                                    >
+                                <span @click.stop="isShowSubMenu = true" class="setting-item">【下一步】位置设置 ></span>
+                                <div class="setting-sub-menu" v-show="isShowSubMenu">
+                                    <div v-for="item in nextSettingTypeList" :key="item.text" class="menu"
+                                        @click="changeNextType(item.type)">
                                         {{ item.text }}
                                     </div>
                                 </div>
                             </div>
-                            <div
-                                class="me-tool-btn setting-btn"
-                                @click.stop="moreSet($event)"
-                            >
+                            <div class="me-tool-btn setting-btn" @click.stop="moreSet($event)">
                                 <img src="../../images/btn_more.png" />
                             </div>
                             <!-- <div
@@ -275,77 +201,31 @@
             </div> -->
                         </div>
                         <div class="me-tools-system">
-                            <div
-                                class="me-tool-btn"
-                                @click="toggleRemark"
-                                v-if="isShowRemarkBtn"
-                            >
-                                <img
-                                    v-if="!showremark"
-                                    src="../../images/xianshibeizhu_rest.png"
-                                    alt=""
-                                />
-                                <img
-                                    v-if="showremark"
-                                    src="../../images/yincangbeizhu_rest.png"
-                                    alt=""
-                                />
+                            <div class="me-tool-btn" @click="toggleRemark" v-if="isShowRemarkBtn">
+                                <img v-if="!showremark" src="../../images/xianshibeizhu_rest.png" alt="" />
+                                <img v-if="showremark" src="../../images/yincangbeizhu_rest.png" alt="" />
                             </div>
                             <template v-if="isShowFullscreen && !dialog">
-                                <div
-                                    class="me-tool-btn"
-                                    @click="fullScreen"
-                                    v-if="!activeFlag"
-                                >
-                                    <img
-                                        src="../../images/quanping_rest.png"
-                                        alt=""
-                                    />
+                                <div class="me-tool-btn" @click="fullScreen" v-if="!activeFlag">
+                                    <img src="../../images/quanping_rest.png" alt="" />
                                 </div>
-                                <div
-                                    class="me-tool-btn"
-                                    @click="fillScreen"
-                                    v-else
-                                >
-                                    <img
-                                        src="../../images/tuichuquanping_rest.png"
-                                        alt=""
-                                    />
+                                <div class="me-tool-btn" @click="fillScreen" v-else>
+                                    <img src="../../images/tuichuquanping_rest.png" alt="" />
                                 </div>
                             </template>
 
-                            <div
-                                @click.stop="closeWincard"
-                                v-if="showClose && !dialog"
-                                class="me-tool-btn close-button"
-                            >
+                            <div @click.stop="closeWincard" v-if="showClose && !dialog" class="me-tool-btn close-button">
                                 <p>关闭</p>
                             </div>
                         </div>
                         <div class="me-tools-steps">
-                            <div
-                                class="me-tool-btn"
-                                :disabled="isFirst"
-                                @click="prevStep"
-                            >
-                                <img
-                                    v-if="!isFirst"
-                                    src="../../images/shangyiye_rest.png"
-                                    alt=""
-                                />
-                                <img
-                                    v-if="isFirst"
-                                    src="../../images/shangyiye_disabled.png"
-                                    alt=""
-                                />
+                            <div class="me-tool-btn" :disabled="isFirst" @click="prevStep">
+                                <img v-if="!isFirst" src="../../images/shangyiye_rest.png" alt="" />
+                                <img v-if="isFirst" src="../../images/shangyiye_disabled.png" alt="" />
                             </div>
                         </div>
                         <div style="display: flex">
-                            <div
-                                class="me-tool-btn"
-                                v-if="isShowClose"
-                                @click="$emit('close')"
-                            >
+                            <div class="me-tool-btn" v-if="isShowClose" @click="$emit('close')">
                                 <img src="../../images/guanbi_rest.png" />
                             </div>
                         </div>
@@ -353,45 +233,30 @@
                 </el-scrollbar>
             </div>
             <div class="me-tools-steps righticon">
-                <div
-                    @click.prevent.stop="showDrawToos"
-                    style="
-                        cursor: pointer;
-                        font-size: 20px;
-                        display: flex;
-                        align-items: center;
-                    "
-                >
-                    <el-icon v-if="!isOpen"><ArrowLeftBold /></el-icon>
-                    <el-icon v-else><ArrowRightBold /></el-icon>
+                <div @click.prevent.stop="showDrawToos" style="
+                                                                                cursor: pointer;
+                                                                                font-size: 20px;
+                                                                                display: flex;
+                                                                                align-items: center;
+                                                                            ">
+                    <el-icon v-if="!isOpen">
+                        <ArrowLeftBold />
+                    </el-icon>
+                    <el-icon v-else>
+                        <ArrowRightBold />
+                    </el-icon>
                 </div>
-                <div
-                    class="me-tool-btn next-step"
-                    :disabled="isLast"
-                    @click="nextStep"
-                    v-show="
-                        selectNextType === NextSettingType.Right ||
-                        selectNextType === NextSettingType.All
-                    "
-                >
-                    <img
-                        v-if="!isLast"
-                        src="../../images/xiayiye_rest.png"
-                        alt=""
-                    />
-                    <img
-                        v-if="isLast"
-                        src="../../images/xiayiye_disabled.png"
-                        alt=""
-                    />
+                <div class="me-tool-btn next-step" :disabled="isLast" @click="nextStep" v-show="
+                    selectNextType === NextSettingType.Right ||
+                    selectNextType === NextSettingType.All
+                ">
+                    <img v-if="!isLast" src="../../images/xiayiye_rest.png" alt="" />
+                    <img v-if="isLast" src="../../images/xiayiye_disabled.png" alt="" />
                 </div>
             </div>
         </div>
 
-        <ResourceDialog
-            v-if="showResourceDialog"
-            v-model="showResourceDialog"
-        />
+        <ResourceDialog v-if="showResourceDialog" v-model="showResourceDialog" />
     </div>
 </template>
 
@@ -719,22 +584,56 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
+// 左边-新的按钮样式
 .nextpage {
     cursor: move;
     position: fixed;
-    left: 6vw;
-    bottom: 9vh;
-    // top: 86vh;
+    left: 3vw;
+    bottom: 4vh;
+
+    .me-tools-steps-new {
+        width: 164px;
+        height: 88px;
+        background: rgba(15, 39, 91, 0.15);
+        border-radius: 12px;
+        display: flex;
+        justify-content: space-evenly;
+        align-items: center;
+    }
 }
-.background {
-    background: rgba(255, 255, 255, 0.3);
-    // background: rgb(218 25 25 / 40%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 120px;
-    border-radius: 40px;
+
+.me-tool-btn-new {
+    cursor: pointer;
+    width: 64px;
+    height: 64px;
+    background: #FFFFFF;
+    border-radius: 8px;
+    position: relative;
+    top: 0;
+    transition: all 0.1s;
+
+    .icon-text {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+        align-items: center;
+        padding: 4px 0;
+
+        .text {
+            font-size: 12px;
+            font-family: HarmonyOS_Sans_SC_Medium;
+            color: #414E65;
+        }
+    }
 }
+
+.me-tool-btn-new:active {
+    top: 2px;
+    box-shadow: 0 0 0 !important;
+}
+
 .me-tools {
     // background-color: #BED2FF;
     // padding: 14px;
@@ -752,11 +651,13 @@ export default defineComponent({
     width: 190px;
     transition: width 0.5s, transform 0.5s;
     overflow-y: hidden;
+
     // width: 80%;
     .me-tools-draw {
         display: flex;
         position: relative;
         width: 100%;
+
         .draw-content {
             display: flex;
             position: absolute;
@@ -765,11 +666,13 @@ export default defineComponent({
             right: 170px;
             transition: width 0.5s, transform 0.5s;
         }
+
         .righticon {
             width: 190px;
             position: absolute;
             right: 0;
             justify-content: center;
+
             .el-icon {
                 cursor: pointer;
                 font-size: 32px;
@@ -779,6 +682,7 @@ export default defineComponent({
             }
         }
     }
+
     &.tools-fullSrceen {
         position: fixed;
         bottom: 0;
@@ -964,6 +868,7 @@ export default defineComponent({
             font-weight: bold;
             color: #4467a9;
         }
+
         &.disabled {
             color: #aaa;
             cursor: not-allowed;
