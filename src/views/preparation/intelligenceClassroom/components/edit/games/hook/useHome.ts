@@ -13,7 +13,7 @@ export default () => {
             { type: 2, com: markRaw(TugOfWarGame) },
             { type: 3, com: markRaw(ClassGame) },
             { type: 4, com: markRaw(CarGame) },
-            { type: 5, com: markRaw(RunningGame) }
+            { type: 11, com: markRaw(RunningGame) }
         ]
     });
     return {

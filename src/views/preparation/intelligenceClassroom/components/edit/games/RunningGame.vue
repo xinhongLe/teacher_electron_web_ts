@@ -79,7 +79,7 @@ import { ElMessage } from "element-plus";
 import { Slide } from "wincard";
 import { get, STORAGE_TYPES } from "@/utils/storage";
 export default defineComponent({
-    name: "RunningGame",    
+    name: "carGame",
     props: {
         slide: {
             type: Object as PropType<Slide>,
@@ -145,8 +145,8 @@ export default defineComponent({
                     img.onload = function () { // 注意只有onload以后才可以拿到图片信息
                         const imgWidth = img.width;
                         const imgHeight = img.height;
-                        if (imgWidth > 420 || imgHeight > 520 || (file.raw.size / 1024) > 1024) {
-                            return ElMessage.warning("图片像素不超过420 * 520，且文件大小不超过1M");
+                        if (imgWidth > 510 || imgHeight > 510 || (file.raw.size / 1024) > 1024) {
+                            return ElMessage.warning("图片像素不超过510 * 510，且文件大小不超过1M");
                         }
                         upload(file.raw, index);
                     };
