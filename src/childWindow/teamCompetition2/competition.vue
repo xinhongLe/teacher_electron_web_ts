@@ -110,8 +110,8 @@ export default defineComponent({
                 actionAnimationStar.value = "";
             }, 100);
 
-            if (arr.length % 10 === 1 && !isExpand) {
-                minimize();
+            if (arr.length % 10 === 1 && !isExpand.value) {
+                minimize(true);
             }
         };
 
@@ -119,18 +119,19 @@ export default defineComponent({
             window.electron.destroyWindow();
         };
 
-        const minimize = () => {
+        const minimize = (updateHeight?: boolean) => {
             isExpand.value = false;
             const size = window.electron.remote.screen.getPrimaryDisplay().workAreaSize;
-            let height = 50 + teamArr.value.length * 34;
+            let height = 80 + teamArr.value.length * 34;
             teamArr.value.forEach(item => {
                 height += Math.floor(item.length / 10) * 24;
             });
             window.electron.setContentSize(320, height);
             const top = size.height - 100 - height - 260;
+            const [x, y] = window.electron.getPositionWin();
             window.electron.setPositionWin(
-                size.width - 20 - 320,
-                top > 0 ? top : 20
+                updateHeight ? x : size.width - 20 - 320,
+                updateHeight ? y : top > 0 ? top : 20
             );
             win.setHasShadow(false);
         };
@@ -142,7 +143,6 @@ export default defineComponent({
             emit("expand");
             win.setHasShadow(true);
             setTimeout(() => {
-                console.log(starBox.value.clientHeight);
                 starHeight.value = ((starBox.value.clientHeight - 26) / 10 - 10);
             }, 1000);
         };
