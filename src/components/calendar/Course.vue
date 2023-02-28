@@ -11,10 +11,10 @@
         ]"
     >
         <el-popover
-            :visible="currentClassId === colData.ID"
+            :visible="currentClassId === colData.ID && !isMobile"
             popper-class="preparation-popper-class-adjust"
             :append-to-body="false"
-            v-if="colData.ClassName && !isMobile"
+            v-if="colData.ClassName"
         >
             <div>
                 <p v-show="colData.LessonName">
