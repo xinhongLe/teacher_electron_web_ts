@@ -217,6 +217,18 @@
                             />
                             <div class="blackboard-text">小组比拼</div>
                         </div>
+                        <div
+                            class="blackboard-box"
+                            @click.stop="
+                                clicKBuryPoint('小组比拼2'), openTeamCompetition2()
+                            "
+                        >
+                            <img
+                                src="@/assets/images/suspension/pic_xzbp2@2x.png"
+                                alt=""
+                            />
+                            <div class="blackboard-text">小组比拼2</div>
+                        </div>
                     </div>
                 </el-collapse-item>
                 <el-collapse-item
@@ -472,6 +484,11 @@ export default defineComponent({
             if (isElectron()) window.electron.ipcRenderer.invoke("openTeamCompetition");
         }
 
+        // 打开小组比拼
+        const openTeamCompetition2 = () => {
+            if (isElectron()) window.electron.ipcRenderer.invoke("openTeamCompetition2");
+        }
+
         const close = () => {
             if (isElectron()) {
                 window.electron.ipcRenderer.invoke("hideUnfoldSuspensionWin");
@@ -637,7 +654,8 @@ export default defineComponent({
             handleChange,
             currentClickCol,
             openPainting,
-            openTeamCompetition
+            openTeamCompetition,
+            openTeamCompetition2
         };
     }
 });
