@@ -66,12 +66,8 @@ export default (pageListMap?: any) => {
     //单独右击选择的页信息
     const currentRightPage = ref<any>();
     const handleSelectPages = (data: IPageValue) => {
-        if (
-            selectPageData.value.map((item: any) => item.ID).includes(data.ID)
-        ) {
-            const index = selectPageData.value
-                .map((item: any) => item.ID)
-                .findIndex((id: string) => id === data.ID);
+        if (selectPageData.value.map((item: any) => item.ID).includes(data.ID)) {
+            const index = selectPageData.value.map((item: any) => item.ID).findIndex((id: string) => id === data.ID);
             selectPageData.value.splice(index, 1);
         } else {
             selectPageData.value.push(data);

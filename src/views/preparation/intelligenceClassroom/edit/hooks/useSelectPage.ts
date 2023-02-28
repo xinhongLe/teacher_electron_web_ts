@@ -32,7 +32,8 @@ export default (pageValue: Ref<IPageValue>, allPageSlideListMap: Ref<Map<string,
         setDomClass();
     };
 
-    const handleNodeClick = (data: IPageValue, Node: Node | null) => {
+    const handleNodeClick = (data: IPageValue, Node: Node | null, item?: any, e?: KeyboardEvent) => {
+        if (e?.shiftKey) return;
         if (Node) {
             activeAllPageListIndex.value = allPageList.value.findIndex(item => item.ID === data.ID);
         }

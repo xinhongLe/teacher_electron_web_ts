@@ -46,7 +46,7 @@
                         :class="viewTree ? 'view-tree-box' : 'tree-box'"
                     >
                         <template #default="{ node, data }">
-                            <div :class="['custom-tree-node', pageValue.ID === data.ID ? 'active-text': '']">
+                            <div :class="['custom-tree-node', pageValue.ID === data.ID ? 'active-text': '']" @mousedown.stop="handleKey($event,data)">
                                 <div class="label-class" @mouseenter="mouseenter($event, node.label)" @mouseleave="mouseleave">
                                     <span v-if="!viewTree" :style="{ color:!data.State && node.level === 2? '#c0c4cc' : pageValue.ID === data.ID ? '#409Eff': '#333'}">
                                         {{ node.label }}
@@ -56,6 +56,13 @@
                                         <div v-else v-contextmenu="(el: any) => contextmenus(el, data)">
                                             <div class="select-page">
                                                 <span class="chapter-num">{{ data.count }}</span>
+                                                <el-icon
+                                                    color="#fff"
+                                                    v-if="selectPageData.length > 0"
+                                                    :style="{ backgroundColor: (selectPageData.map(((item: any) => item.ID)).includes(data.ID) ? 'var(--el-color-primary)' : '#fff') }"
+                                                >
+                                                    <Check/>
+                                                </el-icon>
                                             </div>
                                             <div class="status" :style="{background: data.State ? '#5CD494' : '#90949E'}"></div>
                                             <!-- 游戏页或者教具页显示封面图 -->
@@ -86,16 +93,54 @@
                                             </el-button>
                                         </template>
                                         <div class="operation-box">
-                                            <div v-show="node.level === 1" @click.stop="dialogVisibleCard = true">新增文件夹</div>
-                                            <div v-show="node.level === 1" @click.stop="handleAddBlank(node,data)">新增空白页</div>
-                                            <div @click.stop="handleUpdateName(node, data)">重命名</div>
+                                            <div v-show="node.level === 1" @click.stop="dialogVisibleCard = true">
+                                                <img src="@/assets/edit/icon_file_add.png" alt=""/>
+                                                新增文件夹
+                                            </div>
+                                            <div v-show="node.level === 1" @click.stop="handleAddBlank(node,data)">
+                                                <img src="@/assets/edit/icon_page_add.png" alt=""/>
+                                                新增空白页
+                                            </div>
+                                            <div @click.stop="handleUpdateName(node, data)">
+                                                <img src="@/assets/edit/icon_cmm.png" alt=""/>
+                                                重命名
+                                            </div>
                                             <div v-show="node.level === 2" @click.stop="handleUpdateState(node, data)">
+                                                <img src="@/assets/edit/icon_yc.png" alt=""/>
                                                 {{ data.State ? "隐藏" : "显示" }}
                                             </div>
-                                            <div v-show="node.level === 1" @click.stop="handlePaste(data)">粘贴页</div>
+                                            <div v-show="node.level === 1" @click.stop="handlePaste(data)">
+                                                <img src="@/assets/edit/icon_nt.png" alt=""/>
+                                                粘贴页
+                                            </div>
                                             <!--游戏页暂不支持复制-->
-                                            <div v-show="node.level === 2 && data.Type !== 20" @click.stop="handleCopy(node, data)">复制页</div>
-                                            <div @click.stop="handleDel(node, data) ">删除</div>
+                                            <div v-show="node.level === 2 && data.Type !== 20" @click.stop="handleCopy(node, data)">
+                                                <img src="@/assets/edit/icon_copy.png" alt=""/>
+                                                复制页
+                                            </div>
+                                            <div v-show="node.level === 2 && data.Type !== 20" @click.stop="handleSaveTemplate(1, data)">
+                                                <img src="@/assets/edit/icon_save.png" alt=""/>
+                                                保存模板
+                                                <el-popover placement="right-start" :width="222" trigger="hover" effect="dark" class="tips-popover" :teleported="true">
+                                                    <template #reference>
+                                                        <img src="@/assets/edit/icon_wenti.png" alt="" style="margin-left:4px "/>
+                                                    </template>
+                                                    <div class="tips">
+                                                        <div class="title" @click.stop>
+                                                            <img src="@/assets/edit/pic_wenti.png" alt=""/>
+                                                            小贴士
+                                                        </div>
+                                                        <p>
+                                                            试试按住Shift键点选多页 <br/>
+                                                            鼠标右击「<i>批量保存模板</i>」
+                                                        </p>
+                                                    </div>
+                                                </el-popover>
+                                            </div>
+                                            <div @click.stop="handleDel(node, data)" class="delete">
+                                                <img src="@/assets/edit/icon_delete.png" alt=""/>
+                                                删除
+                                            </div>
                                         </div>
                                     </el-popover>
                                 </div>
@@ -107,8 +152,14 @@
                                             </el-button>
                                         </template>
                                         <div class="operation-box">
-                                            <div @click.stop="handleAddBlank(node,data)">新增空白页</div>
-                                            <div @click.stop="handleAddInteraction(node, data)">新增互动页</div>
+                                            <div @click.stop="handleAddBlank(node,data)">
+                                                <img src="@/assets/edit/icon_file_add.png" alt=""/>
+                                                新增空白页
+                                            </div>
+                                            <div @click.stop="handleAddInteraction(node, data)">
+                                                <img src="@/assets/edit/icon_page_add.png" alt=""/>
+                                                新增互动页
+                                            </div>
                                         </div>
                                     </el-popover>
                                 </div>
@@ -874,6 +925,12 @@ export default defineComponent({
             }
         };
 
+        const handleKey = (e: KeyboardEvent, data: IPageValue) => {
+            if (e.shiftKey) {
+                handleSelectPages(data);
+            }
+        };
+
         return {
             pptCount,
             currentActivePage,
@@ -957,7 +1014,8 @@ export default defineComponent({
             handleCollapse,
             pageTypeList,
             handleAddBlank,
-            handleAddInteraction
+            handleAddInteraction,
+            handleKey
         };
     }
 });
@@ -1268,11 +1326,22 @@ export default defineComponent({
 }
 
 .operation-box {
-    text-align: center;
+    img {
+        width: 16px;
+        height: 16px;
+        margin-right: 8px;
+    }
 
-    div {
+    & > div {
         cursor: pointer;
         padding: 4px 0;
+        display: flex;
+        align-items: center;
+        margin-left: 16px;
+
+        &.delete {
+            color: #FB5151;
+        }
     }
 }
 
@@ -1320,6 +1389,27 @@ export default defineComponent({
 
     span:hover {
         color: #409eff;
+    }
+}
+</style>
+
+<style lang="scss">
+.tips {
+    .title {
+        font-family: HarmonyOS_Sans_SC_Bold;
+        display: flex;
+        align-items: center;
+        margin-bottom: 16px;
+
+        img {
+            width: 19px;
+            height: 21px;
+            margin-right: 8px;
+        }
+    }
+
+    i {
+        color: #2E95FF;
     }
 }
 </style>
