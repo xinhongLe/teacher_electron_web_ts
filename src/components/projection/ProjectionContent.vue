@@ -276,15 +276,7 @@ export default defineComponent({
         }
     },
     setup(props) {
-        const imgList = computed(() => [
-            "https://alipic.lanhuapp.com/SketchPng3614782b7ba0aa79d5e1d30bea469d83c4587d5dd5a6f9d534e4b20b718433ee",
-            "https://alipic.lanhuapp.com/SketchPnga7b7a7e67545284034591f8853ff2110152a68320c991bb4af18689a87cb91de",
-            "https://alipic.lanhuapp.com/SketchPng9f2aac2002c7922d4fb3454c065f72a2a5e8917e6e189482597f34012cfb60f6",
-            "https://alipic.lanhuapp.com/SketchPngc409b1ec283bab417577805aa05367ebc310202fc0f1e3993f095e5a83857f49",
-            "https://alipic.lanhuapp.com/SketchPngffc770d668d3554b12261654f42ab72bb5b617def269dabfe4ab909a47abc3f2",
-            "https://alipic.lanhuapp.com/SketchPng989847721b11835d8383821240eef03b3ce83337eec68665117923934f32daea",
-            "https://alipic.lanhuapp.com/SketchPngc4214bdb5b31301f83b7ecc2416eb1769d8c6407361ff92565af330ef1dec84a"
-        ]);
+        const imgList = computed(() => props.list);
         const currentIndex = ref(props.index);
         const isBrush = ref(false);
         const isPopover = ref(false);
@@ -345,6 +337,9 @@ export default defineComponent({
         const layoutIndex = ref(0);
 
         const layoutImages = ref<string[]>(imgList.value.slice(layoutIndex.value, layoutType.value.num * (layoutIndex.value + 1)));
+        watch(imgList, () => {
+            layoutImages.value = imgList.value.slice(layoutIndex.value, layoutType.value.num * (layoutIndex.value + 1));
+        });
 
         const setLayoutType = (type: { type: string, num: number }) => {
             layoutType.value = type;
