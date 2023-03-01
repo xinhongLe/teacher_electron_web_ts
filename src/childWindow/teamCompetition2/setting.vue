@@ -27,8 +27,8 @@ export default defineComponent({
             window.electron.destroyWindow();
         };
 
-        const win = window.electron.remote.getCurrentWindow();
-        win.setHasShadow(true);
+        // const win = window.electron.remote.getCurrentWindow();
+        // win.setHasShadow(true);
 
         const submit = () => {
             emit("update:modelValue", teamNum.value);
