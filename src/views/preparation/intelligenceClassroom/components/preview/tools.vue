@@ -169,11 +169,6 @@
                                 <img v-if="isFirst" src="../../images/shangyiye_disabled.png" alt="" />
                             </div>
                         </div> -->
-                    <div style="display: flex">
-                        <div class="me-tool-btn" v-if="isShowClose" @click="$emit('close')">
-                            <img src="../../images/guanbi_rest.png" />
-                        </div>
-                    </div>
                 </div>
                 <!-- </el-scrollbar> -->
             </div>
@@ -247,6 +242,12 @@
                     </div>
                 </template>
                 <!-- 关闭 -->
+                <div class="me-tool-btn-new" v-if="isShowClose" @click="$emit('close')">
+                    <div class="icon-text">
+                        <img src="../../images/slices/close.png" />
+                        <span class="text">关闭</span>
+                    </div>
+                </div>
                 <div @click.stop="closeWincard" v-if="showClose && !dialog" class="me-tool-btn-new">
                     <div class="icon-text">
                         <img src="../../images/slices/close.png" alt="" />
@@ -639,6 +640,7 @@ export default defineComponent({
 .next-step {
     background: #F8F9FF;
     border: 2px solid #4B71EE;
+
     .icon-text {
         .next-icon {
             width: 24px;
@@ -661,6 +663,7 @@ export default defineComponent({
     }
 
     background: #4B71EE;
+
     .text {
         color: #fff !important;
     }
