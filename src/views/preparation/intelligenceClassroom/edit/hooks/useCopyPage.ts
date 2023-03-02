@@ -2,19 +2,19 @@ import { ICardList, IPageValue } from "@/types/home";
 import { ElMessage } from "element-plus";
 import Node from "element-plus/es/components/tree/src/model/node";
 import { Ref, ref } from "vue";
-import { v4 as uuidv4 } from "uuid";
 import { findIndex } from "lodash";
 import TrackService, { EnumTrackEventType } from "@/utils/common";
 import { Slide } from "wincard";
 import { copyPage } from "@/api/home";
 import { useStore } from "@/store";
 import { get, set, STORAGE_TYPES } from "@/utils/storage";
+import { PageProps } from "@/views/preparation/intelligenceClassroom/api/props";
 export default (
     windowCards: Ref<ICardList[]>,
     allPageSlideListMap: Ref<Map<string, Slide>>
 ) => {
     let copyValue: IPageValue;
-    const pastePage = ref<IPageValue>();
+    const pastePage = ref<PageProps>();
     let count = 0;
     let copyPageId = "";
     const handleCopy = (node: Node, data: IPageValue) => {

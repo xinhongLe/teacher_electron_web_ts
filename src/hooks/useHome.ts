@@ -8,6 +8,8 @@ import { dealSaveDataWord, dealSaveDataVideo, dealSaveDataTeach, dealSaveDataGam
 import { getWinCardDBData, setWinCardDBData, updateWinCardDBData } from "@/utils/database";
 import { originType, pageType } from "@/config";
 import { cacheSildeFiles } from "@/utils/file";
+import { PageProps } from "@/views/preparation/intelligenceClassroom/api/props";
+
 interface PageData {
     pageID: string,
     OriginType: any
@@ -65,7 +67,7 @@ export default () => {
         if (res.resultCode) {
             // 后台请求成功回调
             if (res.resultCode === 200) {
-                let newSlide:any = {};
+                let newSlide: any = {};
                 if (page.Type === pageType.element) {
                     const slideString = res.result.Json || "{}";
                     const oldSlide = JSON.parse(slideString);
@@ -95,8 +97,8 @@ export default () => {
         }
     };
 
-    const transformPageDetail = async (page: IPageValue, pageDetail: any) => {
-        let newSlide:any = {};
+    const transformPageDetail = async (page: any, pageDetail: any) => {
+        let newSlide: any = {};
         if (page.Type === pageType.element) {
             const oldSlide = pageDetail || {};
             // 素材页如果是新数据直接赋值(更新id是为了避免复制卡过后id不统一问题)，旧数据dealOldData处理
@@ -131,8 +133,8 @@ export default () => {
 
     const savePage = async (slide: Slide) => {
         const type: number = transformType(slide.type);
-        let newSlide:any = {};
-        const updateRemark:any = {};
+        let newSlide: any = {};
+        const updateRemark: any = {};
         let updateProcessAndDesign: ISaveProcessAndDesignData = {
             ID: "",
             DesignIntent: "",

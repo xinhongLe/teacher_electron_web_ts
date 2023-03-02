@@ -7,6 +7,7 @@ import { initSlideData } from "@/utils/dataParsePage";
 import { addPage } from "@/api/home";
 import Node from "element-plus/es/components/tree/src/model/node";
 import { pageTypeList } from "@/config";
+import { CardProps } from "@/views/preparation/intelligenceClassroom/api/props";
 
 export default (
     shrinkRef: Ref,
@@ -22,7 +23,7 @@ export default (
         currentValue.value = data;
     };
 
-    const assignmentCurrentValue = (data: ICardList | undefined) => {
+    const assignmentCurrentValue = (data: CardProps | undefined) => {
         if (!data) return;
         currentValue.value = data;
     };

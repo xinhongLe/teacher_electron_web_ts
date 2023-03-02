@@ -4,7 +4,7 @@
             <el-form ref="ruleForm" :model="form" :rules="rules" label-width="120px" @submit.prevent="() => false">
                 <el-form-item label="名称" prop="name">
                     <el-input
-                        @keyup.enter="handleComfirm"
+                        @keyup.enter="handleConfirm"
                         v-model="form.name"
                     ></el-input>
                 </el-form-item>
@@ -13,7 +13,7 @@
         <template #footer>
           <span class="dialog-footer">
             <el-button @click="close">取消</el-button>
-            <el-button type="primary" @click="handleComfirm">确定</el-button>
+            <el-button type="primary" @click="handleConfirm">确定</el-button>
           </span>
         </template>
     </el-dialog>
@@ -28,7 +28,7 @@ export default defineComponent({
         dialogVisible: {
             type: Boolean,
             require: true
-        },
+        }
     },
     emits: ["update:dialogVisible", "handleAddCard"],
     setup(props, { emit }) {
@@ -46,13 +46,13 @@ export default defineComponent({
         });
         const visible = computed(() => props.dialogVisible);
 
-        const handleComfirm = () => {
-            ruleForm.value.validate((valid: Boolean) => {
-                if(valid){
+        const handleConfirm = () => {
+            ruleForm.value.validate((valid: boolean) => {
+                if (valid) {
                     emit("handleAddCard", form.value.name);
                     close();
                 }
-            })
+            });
         };
         const close = () => {
             form.value.name = "";
@@ -63,13 +63,9 @@ export default defineComponent({
             form,
             ruleForm,
             visible,
-            handleComfirm,
+            handleConfirm,
             close
         };
     }
 });
 </script>
-
-<style scoped>
-
-</style>
