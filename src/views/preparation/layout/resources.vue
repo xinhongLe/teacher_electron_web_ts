@@ -299,7 +299,7 @@ export default defineComponent({
                     removePackage(data);
                     break;
                 case "detail":
-                    if (props.name === "attendClass") {
+                    // if (props.name === "attendClass") {
                         if (data.ResourceShowType === 2) {
                             // 断点视频
                             store.commit(
@@ -368,10 +368,9 @@ export default defineComponent({
                                 }
                             );
                         }
-                    } else {
-
-                        openResource(data);
-                    }
+                    // } else {
+                    //     openResource(data);
+                    // }
 
                     logView({ id: data.ResourceId });
                     data.BrowseNum++;

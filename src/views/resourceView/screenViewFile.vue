@@ -1,7 +1,8 @@
 <template>
     <div class="iframe-box">
         <div class="iframe-content" v-if="type === 4 || type === 0">
-            <iframe class="office-iframe" v-if="isOffice" :src="url" sandbox="allow-same-origin allow-scripts"></iframe>
+            <iframe class="office-iframe" v-if="isOffice" :src="url" sandbox="allow-same-origin allow-scripts"
+                id="office-iframe"></iframe>
             <iframe v-if="type === 4" :src="url"></iframe>
             <div class="iframe-image" v-if="isImage">
                 <img :src="url" />
@@ -17,6 +18,8 @@
             ">
                 暂不支持预览，请下载查看
             </div>
+        </div>
+        <div class="mask">
         </div>
         <div class="iframe-footer">
             <div class="iframe-footer-btn pen" @click="drawingShow = true">
@@ -37,6 +40,7 @@ import { getOssUrl } from "@/utils/oss";
 import {
     computed,
     defineComponent,
+    onMounted,
     onUnmounted,
     PropType,
     ref,
@@ -104,6 +108,7 @@ export default defineComponent({
                 resource.value.ResourceToolUrl
             ) {
                 url.value = resource.value.ResourceToolUrl;
+                console.log("url.value", url.value);
             }
         };
 
@@ -116,6 +121,20 @@ export default defineComponent({
                 openMore: resource.value?.openMore,
             });
         };
+        onMounted(() => {
+            const iframe: any = document.getElementById("office-iframe");
+            const mask: any = document.querySelector('.mask');
+            iframe.addEventListener("load", function () {
+                // 在这里写回调函数的逻辑
+                setTimeout(function () {
+                    // 这里放置你的代码
+                    mask.style.display = 'block';
+                }, 300);
+            });
+            iframe.addEventListener('error', function () {
+                mask.style.display = 'none';
+            });
+        })
         return {
             close,
             type,
@@ -196,6 +215,16 @@ export default defineComponent({
         }
     }
 
+    .mask {
+        display: none;
+        position: absolute;
+        bottom: 80px;
+        width: 77px;
+        height: 22px;
+        background: #d24726;
+        right: 1px;
+    }
+
     .iframe-footer {
         width: 100%;
         height: 80px;
@@ -233,4 +262,5 @@ export default defineComponent({
             }
         }
     }
-}</style>
+}
+</style>
