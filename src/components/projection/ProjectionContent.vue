@@ -580,6 +580,7 @@ export default defineComponent({
                 flex-direction: column;
                 align-items: center;
                 justify-content: center;
+                min-width: 50px;
             }
         }
     }
@@ -677,5 +678,7 @@ export default defineComponent({
     right: 0;
     z-index: 10;
     background: #eef4ff;
+    width: 100% !important;
+    height: 100% !important;
 }
 </style>
