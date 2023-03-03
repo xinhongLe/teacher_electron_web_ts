@@ -1,25 +1,13 @@
 <template>
     <div class="me-preview">
         <div class="mep-container">
-            <PageList
-                class="preview-pagelist"
-                ref="pageListRef"
-                @lastPage="lastPage"
-                @firstPage="firstPage"
-                :dialog="dialog"
-                :isShowCardList="isShowCardList"
-                :isFullScreen="isFullScreen"
-                v-model:isCanUndo="isCanUndo"
-                v-model:isCanRedo="isCanRedo"
-            />
+            <PageList class="preview-pagelist" ref="pageListRef" @lastPage="lastPage" @firstPage="firstPage"
+                :dialog="dialog" :isShowCardList="isShowCardList" :isFullScreen="isFullScreen" v-model:isCanUndo="isCanUndo"
+                v-model:isCanRedo="isCanRedo" v-model:currentDrawColor="currentDrawColor"
+                v-model:currentLineWidth="currentLineWidth" />
             <transition name="fade">
-                <Remark
-                    :teachProcess="teachProcess"
-                    :isSystem="isSystem"
-                    :resourceId="resourceId"
-                    :design="design"
-                    v-if="showRemark"
-                />
+                <Remark :teachProcess="teachProcess" :isSystem="isSystem" :resourceId="resourceId" :design="design"
+                    v-if="showRemark" />
             </transition>
         </div>
     </div>
@@ -116,6 +104,20 @@ export default defineComponent({
         const updateFlag = () => {
             pageListRef.value.updateFlags();
         };
+        const currentDrawColor = ref("#f60000");
+        const currentLineWidth = ref(2);
+        watch(
+            () => currentDrawColor.value,
+            (val) => {
+                emit("update:currentDrawColor", val);
+            }
+        );
+        watch(
+            () => currentLineWidth.value,
+            (val) => {
+                emit("update:currentLineWidth", val);
+            }
+        );
         const isCanUndo = ref(false);
         const isCanRedo = ref(false);
         watch(
@@ -130,6 +132,20 @@ export default defineComponent({
                 emit("update:isCanRedo", val);
             }
         );
+        const whiteboardOption = (option: string, value?: number) => {
+            // console.log("previewSection.value", event, type);
+            pageListRef.value && pageListRef.value.whiteboardOption(option, value);
+        };
+
+        // 退回
+        const redo = () => {
+            pageListRef.value && pageListRef.value.redo();
+        };
+        // 撤回
+        const undo = () => {
+            pageListRef.value && pageListRef.value.undo();
+        };
+
 
         return {
             teachProcess,
@@ -150,8 +166,13 @@ export default defineComponent({
             openShape,
             changeWinSize,
             openPaintTool,
+            whiteboardOption,
+            redo,
+            undo,
             isCanUndo,
             isCanRedo,
+            currentDrawColor,
+            currentLineWidth
         };
     },
 });

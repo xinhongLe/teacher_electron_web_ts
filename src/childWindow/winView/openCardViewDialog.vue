@@ -1,45 +1,19 @@
 <template>
     <div class="card-dialog">
-        <ScreenView
-            ref="screenRef"
-            :inline="true"
-            :isInit="isInit"
-            :writeBoardVisible="writeBoardVisible"
-            @pagePrev="execPrev"
-            @pageNext="execNext"
-            @closeWriteBoard="closeWriteBoard"
-            :slide="slideView"
-            v-model:isCanUndo="isCanUndo"
-            v-model:isCanRedo="isCanRedo"
-            :isShowPenTools="false"
-        />
+        <ScreenView ref="screenRef" :inline="true" :isInit="isInit" :writeBoardVisible="writeBoardVisible"
+            @pagePrev="execPrev" @pageNext="execNext" @closeWriteBoard="closeWriteBoard" :slide="slideView"
+            v-model:isCanUndo="isCanUndo" v-model:isCanRedo="isCanRedo" v-model:currentDrawColor="currentDrawColor"
+            v-model:currentLineWidth="currentLineWidth" :isShowPenTools="false" />
         <div class="cardLis-class">
-            <div
-                class="me-page-item"
-                :class="selected === index && 'active'"
-                v-for="(item, index) in cardList"
-                @click="checkPage(index)"
-                :key="(item as any).ID"
-            >
+            <div class="me-page-item" :class="selected === index && 'active'" v-for="(item, index) in cardList"
+                @click="checkPage(index)" :key="(item as any).ID">
                 {{ (item as any).Name }}
             </div>
         </div>
-        <Tools
-            @prevStep="prevCard"
-            @nextStep="nextCard"
-            @showWriteBoard="showWriteBoard"
-            @hideWriteBoard="hideWriteBoard"
-            @close="close"
-            :dialog="true"
-            @openShape="openShape"
-            :isShowFullscreen="false"
-            :isShowRemarkBtn="false"
-            :isShowClose="true"
-            :isCanUndo="isCanUndo"
-            :isCanRedo="isCanRedo"
-            @openPaintTool="openPaintTool"
-            :isFullScreenStatus="true"
-        />
+        <Tools @prevStep="prevCard" @nextStep="nextCard" @showWriteBoard="showWriteBoard" @hideWriteBoard="hideWriteBoard"
+            @close="close" :dialog="true" @openShape="openShape" :isShowFullscreen="false" :isShowRemarkBtn="false"
+            :isShowClose="true" :isCanUndo="isCanUndo" :isCanRedo="isCanRedo" @openPaintTool="openPaintTool"
+            :isFullScreenStatus="true" :currentDrawColor="currentDrawColor" :currentLineWidth="currentLineWidth" />
         <!-- <Tools
             @prevStep="prevCard"
             @nextStep="nextCard"
@@ -143,6 +117,20 @@ export default defineComponent({
         const close = () => {
             emit("closeOpenCard");
         };
+
+        const whiteboardOption = (option: string, value?: number) => {
+            screenRef.value.whiteboardOption(option, value);
+        };
+        const currentDrawColor = ref("#f60000");
+        const currentLineWidth = ref(2);
+        // 退回
+        const redo = () => {
+            screenRef.value.redo();
+        };
+        // 撤回
+        const undo = () => {
+            screenRef.value.undo();
+        };
         return {
             visible,
             isInit,
@@ -163,6 +151,11 @@ export default defineComponent({
             openPaintTool,
             isCanUndo,
             isCanRedo,
+            currentDrawColor,
+            currentLineWidth,
+            whiteboardOption,
+            redo,
+            undo
         };
     },
     components: { Tools },
@@ -180,18 +173,22 @@ export default defineComponent({
     display: flex;
     flex-direction: column;
     background: #fff;
+
     :deep(.me-tools-set) {
         transform: none;
     }
+
     :deep(.me-tools-steps) {
         flex: 0.5;
     }
 }
+
 .cardLis-class {
     display: flex;
     justify-content: flex-start;
     overflow-y: hidden;
     padding: 10px 20px;
+
     .me-page-item {
         background-color: #f0f3ff;
         color: #444;

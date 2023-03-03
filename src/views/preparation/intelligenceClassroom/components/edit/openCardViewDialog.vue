@@ -12,6 +12,9 @@
             :isShowPenTools="false"
             v-model:isCanUndo="isCanUndo"
             v-model:isCanRedo="isCanRedo"
+            v-model:currentDrawColor="currentDrawColor"
+            v-model:currentLineWidth="currentLineWidth"
+
         />
         <div class="cardLis-class">
             <PageItem
@@ -46,6 +49,8 @@
             @openPaintTool="openPaintTool"
             :isCanUndo="isCanUndo"
             :isCanRedo="isCanRedo"
+            :currentDrawColor="currentDrawColor"
+            :currentLineWidth="currentLineWidth"
         />
     </div>
 </template>
@@ -167,6 +172,20 @@ export default defineComponent({
             // console.log("previewSection.value", event, type);
             screenRef.value && screenRef.value.openPaintTool(event, type);
         };
+        const currentDrawColor = ref("#f60000");
+        const currentLineWidth = ref(2);
+        const whiteboardOption = (option: string, value?: number) => {
+            screenRef.value.whiteboardOption(option, value);
+        };
+        // 退回
+        const redo = () => {
+            screenRef.value.redo();
+        };
+        // 撤回
+        const undo = () => {
+            screenRef.value.undo();
+        };
+        
         return {
             visible,
             isInit,
@@ -187,6 +206,11 @@ export default defineComponent({
             openPaintTool,
             isCanUndo,
             isCanRedo,
+            currentDrawColor,
+            currentLineWidth,
+            whiteboardOption,
+            redo,
+            undo
         };
     },
     components: { Tools, PageItem },

@@ -258,6 +258,15 @@
         </div>
 
         <ResourceDialog v-if="showResourceDialog" v-model="showResourceDialog" />
+
+        <PenTool v-if="isShowPen" v-model:isShowPen="isShowPen" :penTop="penTop" :penLeft="penLeft"
+            :currentDrawColor="currentDrawColor" :currentLineWidth="currentLineWidth" @undo="undo()" @redo="redo()"
+            @setEraser="whiteboardOption('setEraser')" @clear="whiteboardOption('clear')" :canUndo="isCanUndo"
+            :canRedo="isCanRedo" @setPenSize="(value) => whiteboardOption('setPenSize', value)"
+            @setPenColor="(value) => whiteboardOption('setPenColor', value)"></PenTool>
+
+        <!-- <RulersTool v-if="isShowRulers" v-model:isShowRulers="isShowRulers" :rulersTop="rulersTop" :rulersLeft="rulersLeft"
+            @setRulersTool="setRulersTool"></RulersTool> -->
     </div>
 </template>
 
@@ -286,6 +295,7 @@ import { MutationTypes, store } from "@/store";
 import { NextSettingType } from "@/types/preparation";
 import ResourceDialog from "./resourceDialog.vue";
 import emitter from "@/utils/mitt";
+import PenTool from "./PenTool.vue";
 
 export default defineComponent({
     props: {
@@ -329,6 +339,14 @@ export default defineComponent({
             type: Boolean,
             default: false,
         },
+        currentDrawColor: {
+            type: String,
+            default: "#f60000",
+        },
+        currentLineWidth: {
+            type: Number,
+            default: 2,
+        },
         isTKdialog: {
             type: Boolean,
             default: false,
@@ -339,7 +357,15 @@ export default defineComponent({
         },
     },
     setup(props, { emit }) {
+        const isShowPen = ref(false);
+        const isShowRulers = ref(false);
+        const penLeft = ref(0);
+        const penTop = ref(0);
+        const rulersLeft = ref(0);
+        const rulersTop = ref(0);
         const isOpen = ref(false);
+        // const currentLineWidth: any = ref(2); // 当前选择的画笔宽度
+        // const currentDrawColor: any = ref("#f60000"); // 当前选择的画笔颜色
         const showDrawToos = () => {
             const dom: any = document.querySelector(".draw-content");
             const outdom: any = document.querySelector(".me-tools");
@@ -517,6 +543,14 @@ export default defineComponent({
         //橡皮擦
         const openPaintTool = (event: MouseEvent, type: string) => {
             // console.log("event, type", event, type);
+
+            if (type === 'paint') {
+                const target = event.target as HTMLDivElement;
+                const { left, top } = target.getBoundingClientRect();
+                isShowPen.value = true;
+                penLeft.value = left;
+                penTop.value = top;
+            }
             emit("openPaintTool", event, type);
         };
         const hideWriteBoard = () => {
@@ -549,6 +583,15 @@ export default defineComponent({
             openPaintTool(e, "paint");
             type.value = "pen";
         };
+        const whiteboardOption = (option: string, value?: number) => {
+            emit("whiteboardOption", option, value);
+        };
+        const undo = () => {
+            emit("undo");
+        };
+        const redo = () => {
+            emit("redo");
+        };
 
         return {
             isOpen,
@@ -558,6 +601,12 @@ export default defineComponent({
             isFirst,
             activeFlag,
             showremark,
+            penLeft,
+            penTop,
+            isShowPen,
+            isShowRulers,
+            rulersLeft,
+            rulersTop,
             goback,
             toggleRemark,
             showResourceDialog,
@@ -578,9 +627,12 @@ export default defineComponent({
             openPaintTool,
             showDrawToos,
             moreSet,
+            whiteboardOption,
+            undo,
+            redo
         };
     },
-    components: { ResourceDialog, ArrowLeftBold, ArrowRightBold },
+    components: { ResourceDialog, ArrowLeftBold, ArrowRightBold, PenTool },
 });
 </script>
 

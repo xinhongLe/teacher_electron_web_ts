@@ -369,7 +369,6 @@ export default defineComponent({
                             );
                         }
                     // } else {
-
                     //     openResource(data);
                     // }
 
