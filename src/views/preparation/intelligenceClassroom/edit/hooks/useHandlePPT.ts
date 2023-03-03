@@ -6,10 +6,38 @@ import { v4 as uuidv4 } from "uuid";
 import useHome from "@/hooks/useHome";
 import { pageTypeList } from "@/config";
 import { cloneDeep } from "lodash";
+import messageBox from "@/utils/messageBox";
+import { initSlideData } from "@/utils/dataParsePage";
 
-export default (windowCards: Ref<CardProps[]>, allPages: Ref<PageProps[]>, pageMap: Ref<Map<string, Slide>>, currentPage: Ref<PageProps | undefined>) => {
+export default (windowCards: Ref<CardProps[]>, allPages: Ref<PageProps[]>, pageMap: Ref<Map<string, Slide>>, currentPage: Ref<PageProps | undefined>, editRef: Ref<any>) => {
     const { transformPageDetail } = useHome();
     let backupPage: PageProps | null = null;
+
+    // 切换ppt页面
+    const handlePageClick = (data: PageProps, e?: KeyboardEvent) => {
+        if (e?.shiftKey || e?.ctrlKey) return;
+        if (data.ID === currentPage.value?.ID) return;
+
+        currentPage.value = data;
+    };
+
+    // 教研设计
+    const handleOpenLessonDesign = () => {
+        if (!editRef.value) return;
+        editRef.value.openLessonDesign();
+    };
+
+    // 帮助按钮
+    const handleHelper = () => {
+        if (!editRef.value) return;
+        editRef.value.handleHelper();
+    };
+
+    // 整体保存
+    const handleSave = () => {
+        if (!editRef.value) return;
+        editRef.value.handleSave();
+    };
 
     // 创建文件夹
     const createFolder = () => {
@@ -88,6 +116,24 @@ export default (windowCards: Ref<CardProps[]>, allPages: Ref<PageProps[]>, pageM
         await sortWindowCards(index);
     };
 
+    // 删除
+    const remove = (data: CardProps | PageProps) => {
+        messageBox({
+            content: "此操作将删除该数据, 是否继续?"
+        }).then(async () => {
+            if (!(data as PageProps).ParentID) {
+                const index = windowCards.value.findIndex(item => item.ID === (data as CardProps).ID);
+                windowCards.value.splice(index, 1);
+            } else {
+                const find = windowCards.value.find(item => item.ID === (data as PageProps).ParentID);
+                if (find) {
+                    find.PageList.splice((data as PageProps).Sort - 1, 1);
+                }
+            }
+            await sortWindowCards();
+        });
+    };
+
     // 重新排序ppt
     const sortWindowCards = async (idx = 0) => {
         pageMap.value.clear();
@@ -103,7 +149,7 @@ export default (windowCards: Ref<CardProps[]>, allPages: Ref<PageProps[]>, pageM
             for (let j = 0; j < item.PageList.length; j++) {
                 const it = item.PageList[j];
 
-                const slide: Slide = await transformPageDetail(it, it.Json);
+                const slide = initSlideData(it.ID, it.Type);
                 pageMap.value.set(it.ID, slide);
 
                 it.Index = index;
@@ -123,9 +169,14 @@ export default (windowCards: Ref<CardProps[]>, allPages: Ref<PageProps[]>, pageM
     return {
         copy,
         paste,
+        remove,
         rename,
+        handleSave,
         createFolder,
+        handleHelper,
         createCardPage,
-        sortWindowCards
+        sortWindowCards,
+        handlePageClick,
+        handleOpenLessonDesign
     };
 };

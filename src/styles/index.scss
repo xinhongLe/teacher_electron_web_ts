@@ -444,3 +444,20 @@ html {
   display: flex;
   align-items: center;
 }
+
+
+.el-message-box__status {
+  top: 0;
+  transform: none;
+}
+
+.messageBox-title {
+  display: block;
+  color: #242b3a;
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+.el-message-box__content {
+  padding-bottom: 32px;
+}

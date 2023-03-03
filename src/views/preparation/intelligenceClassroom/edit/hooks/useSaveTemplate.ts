@@ -35,20 +35,19 @@ import { ElMessage } from "element-plus";
 import useHome from "@/hooks/useHome";
 import { Slide } from "wincard";
 import { getOssUrl } from "@/utils/oss";
-
 export default (pageListMap?: any) => {
     const { transformPageDetail } = useHome();
     const selectPageData = ref<any[]>([]);
     const dialogVisibleTemplate = ref(false);
     const showTemplateType = ref(1);
-    const classroomLinkList = ref<any>([]); // 课堂环节
-    const templateList = ref([]); // 模板列表
-    const dialogStatus = ref("add"); // 是保存还是编辑
-    const templateFormData = ref({}); // 编辑时候回显用的表单
-    const materialList = ref<any>([]); // 素材列表
-    const categoryData = ref([]); // 一级标签列表
-    const adviceCollection = ref([]); // 推荐合集
-    const toolList = ref([]); // 工具列表
+    const classroomLinkList = ref<any>([]); //课堂环节
+    const templateList = ref([]); //模板列表
+    const dialogStatus = ref("add"); //是保存还是编辑
+    const templateFormData = ref({}); //编辑时候回显用的表单
+    const materialList = ref<any>([]); //素材列表
+    const categoryData = ref([]); //一级标签列表
+    const adviceCollection = ref([]); //推荐合集
+    const toolList = ref([]); //工具列表
     const pager = ref({
         PageNumber: 1,
         PageSize: 10,
@@ -63,12 +62,16 @@ export default (pageListMap?: any) => {
     //   allPageListMap: new Map() as Map<string, Slide>
     // });
     const allPageListMap = ref(new Map() as Map<string, Slide>);
-    const myAssemblyList = ref([]); // 我的组件列表
-    // 单独右击选择的页信息
+    const myAssemblyList = ref([]); //我的组件列表
+    //单独右击选择的页信息
     const currentRightPage = ref<any>();
     const handleSelectPages = (data: IPageValue) => {
-        if (selectPageData.value.map((item: any) => item.ID).includes(data.ID)) {
-            const index = selectPageData.value.map((item: any) => item.ID).findIndex((id: string) => id === data.ID);
+        if (
+            selectPageData.value.map((item: any) => item.ID).includes(data.ID)
+        ) {
+            const index = selectPageData.value
+                .map((item: any) => item.ID)
+                .findIndex((id: string) => id === data.ID);
             selectPageData.value.splice(index, 1);
         } else {
             selectPageData.value.push(data);
@@ -335,10 +338,10 @@ export default (pageListMap?: any) => {
                             !re.SourcePager.IsLastPage && re.SourcePager.length
                                 ? re.SourcePager
                                 : re.CollectionPager &&
-                                !re.CollectionPager.IsLastPage &&
-                                re.Collections.length
-                                    ? re.CollectionPager
-                                    : re.SourcePager;
+                                  !re.CollectionPager.IsLastPage &&
+                                  re.Collections.length
+                                ? re.CollectionPager
+                                : re.SourcePager;
                         await formatMaterial(item);
                     });
                 });
@@ -349,10 +352,10 @@ export default (pageListMap?: any) => {
                         !re.SourcePager.IsLastPage && re.SourcePager.length
                             ? re.SourcePager
                             : re.CollectionPager &&
-                            !re.CollectionPager.IsLastPage &&
-                            re.Collections.length
-                                ? re.CollectionPager
-                                : re.SourcePager;
+                              !re.CollectionPager.IsLastPage &&
+                              re.Collections.length
+                            ? re.CollectionPager
+                            : re.SourcePager;
                 }
                 materialList.value = res.result;
                 materialList.value.forEach(async (item: any) => {

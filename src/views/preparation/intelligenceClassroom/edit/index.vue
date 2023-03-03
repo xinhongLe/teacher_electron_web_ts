@@ -45,7 +45,13 @@
                         </div>
                         <vue-draggable-next v-model="folder.PageList" group="site" tag="div" class="pages" v-show="folder.Fold" @end="sortWindowCards">
                             <transition-group>
-                                <div class="page" v-for="page in folder.PageList" :key="page.ID" @click="handlePageClick(page, $event)">
+                                <div
+                                    class="page"
+                                    @click="handlePageClick(page, $event)"
+                                    @mousedown="handleSelect($event,page.ID)"
+                                    v-contextmenu="() => contextMenus(page)"
+                                    v-for="page in folder.PageList" :key="page.ID"
+                                >
                                     <div class="page-left">
                                         <p class="index">{{ page.Index }}</p>
                                     </div>
@@ -85,6 +91,8 @@
                                             </card-popover>
                                         </div>
                                     </div>
+
+                                    <img v-if="selectPageIds.length > 0" class="select-icon" :src="require(`@/assets/edit/icon_${selectPageIds.includes(page.ID) ? 'clicked' : 'unclick'}.png`)" alt=""/>
                                 </div>
                             </transition-group>
                         </vue-draggable-next>
@@ -138,14 +146,27 @@
             </div>
         </div>
     </div>
+
+    <!-- 新增页弹框-->
+    <add-page-dialog v-if="addPageVisible" v-model:dialogVisible="addPageVisible" @addPage="addInteractionPage"/>
+
+    <!-- 资源库 -->
+    <material-center
+        ref="materialCenterRef"
+        @insertData="handleInsertData"
+        @insertTools="handleInsertTool"
+        @editTemplate="editTemplate"
+        :lessonId="windowInfo?.lessonId || ''"
+        :subjectID="subjectPublisherBookValue?.SubjectId || ''"
+    />
 </template>
 
 <script lang="ts">
 import { VueDraggableNext } from "vue-draggable-next";
-import { CirclePlusFilled } from "@element-plus/icons-vue";
+import { CirclePlusFilled, MessageBox, Position } from "@element-plus/icons-vue";
 import WinCardEdit from "../components/edit/winCardEdit.vue";
 import CardPopover from "../components/edit/CardPopover.vue";
-import { computed, defineComponent, onMounted, onUnmounted, ref } from "vue";
+import { computed, defineComponent, nextTick, onMounted, onUnmounted, ref } from "vue";
 import { CardProps, PageProps } from "@/views/preparation/intelligenceClassroom/api/props";
 import { getWindowStruct } from "@/api/home";
 import { store } from "@/store";
@@ -160,6 +181,13 @@ import { isFullscreen } from "@/utils/fullscreen";
 import { v4 as uuidv4 } from "uuid";
 import useImportPPT from "@/hooks/useImportPPT";
 import useHandlePPT from "@/views/preparation/intelligenceClassroom/edit/hooks/useHandlePPT";
+import AddPageDialog from "../components/edit/addPageDialog.vue";
+import loading from "@/components/loading";
+import { cloneDeep, isEqual } from "lodash";
+import materialCenter from "../components/edit/materialCenter/index.vue";
+import { ElMessage, ElMessageBox } from "element-plus";
+import { saveTemplate } from "@/api/material";
+import exitDialog, { ExitType } from "@/views/preparation/intelligenceClassroom/edit/exitDialog";
 
 export default defineComponent({
     name: "Edit",
@@ -168,7 +196,9 @@ export default defineComponent({
         WinCardEdit,
         WinCardView,
         VueDraggableNext,
-        CirclePlusFilled
+        CirclePlusFilled,
+        AddPageDialog,
+        materialCenter
     },
     setup() {
         const { transformPageDetail } = useHome();
@@ -183,48 +213,26 @@ export default defineComponent({
         );
 
         const editRef = ref();
+        const materialCenterRef = ref();
         const total = ref(0);
         const showCollapse = ref(true);
+        const addPageVisible = ref(false);
         const currentPage = ref<PageProps>();
-        const pageMap = ref(new Map<string, Slide>());
         const allPages = ref<PageProps[]>([]);
+        const pageMap = ref(new Map<string, Slide>());
+        const selectPageIds = ref<string[]>([]);
         const windowCards = ref<CardProps[]>([]);
 
         getWindowCardsData();
 
         const pptHandle = useImportPPT();
         const previewHandle = usePreview(allPages, currentPage);
-        const addHandle = useHandlePPT(windowCards, allPages, pageMap, currentPage);
-
-        // 切换ppt页面
-        const handlePageClick = (data: PageProps, e?: KeyboardEvent) => {
-            if (e?.shiftKey || e?.ctrlKey) return;
-            if (data.ID === currentPage.value?.ID) return;
-
-            currentPage.value = data;
-        };
-
-        // 教研设计
-        const handleOpenLessonDesign = () => {
-            if (!editRef.value) return;
-            editRef.value.openLessonDesign();
-        };
-
-        // 帮助按钮
-        const handleHelper = () => {
-            if (!editRef.value) return;
-            editRef.value.handleHelper();
-        };
-
-        // 整体保存
-        const handleSave = () => {
-            if (!editRef.value) return;
-            editRef.value.handleSave();
-        };
+        const addHandle = useHandlePPT(windowCards, allPages, pageMap, currentPage, editRef);
 
         // win-card-edit插件保存回调
         const winCardSave = () => {
             console.log("保存");
+            return true;
         };
 
         // 导入PPT
@@ -267,29 +275,177 @@ export default defineComponent({
             });
         };
 
+        let selectPage: PageProps | null = null;
         // PPT悬浮操作（1-新增文件夹，2-新增空白页，3-重命名，4-隐藏/显示，5-粘贴页，6-复制页，7-保存模板，8-删除，9-新增互动页）
         const handleCartItem = (type: number, data: PageProps | CardProps) => {
             switch (type) {
                 case 1:
+                    loading.show();
                     addHandle.createFolder();
                     break;
                 case 2:
+                    loading.show();
                     addHandle.createCardPage(pageTypeList[0], data);
                     break;
                 case 3:
                     addHandle.rename(data);
                     break;
                 case 4:
-                    (data as PageProps).State = (data as PageProps).State ? 0 : 1
+                    (data as PageProps).State = (data as PageProps).State ? 0 : 1;
                     break;
                 case 5:
+                    loading.show();
                     addHandle.paste(data as CardProps);
                     break;
                 case 6:
+                    loading.show();
                     addHandle.copy(data as PageProps);
+                    break;
+                case 7:
+                    handleSaveTemplate(data as PageProps);
+                    break;
+                case 8:
+                    loading.show();
+                    addHandle.remove(data);
+                    break;
+                case 9:
+                    selectPage = cloneDeep<PageProps>(data as PageProps);
+                    addPageVisible.value = true;
                     break;
                 default:
                     console.log("1");
+            }
+
+            setTimeout(() => {
+                loading.hide();
+            }, 500);
+        };
+
+        // 新增互动页
+        const addInteractionPage = (pageType: any) => {
+            loading.show();
+            addHandle.createCardPage(pageType, selectPage as PageProps);
+            addPageVisible.value = false;
+            selectPage = null;
+            loading.hide();
+        };
+
+        // 按住shift和ctrl选中
+        const handleSelect = (e: KeyboardEvent, id: string) => {
+            if (e.shiftKey && e.ctrlKey) return;
+            if (!(e.shiftKey || e.ctrlKey)) return;
+
+            const index = selectPageIds.value.findIndex(item => item === id);
+
+            if (index > 0) {
+                selectPageIds.value.splice(index, 1);
+            } else {
+                selectPageIds.value.push(id);
+            }
+        };
+
+        // 保存模板
+        const handleSaveTemplate = (page?: PageProps) => {
+            if (!page && selectPageIds.value.length === 0) {
+                ElMessage.warning("请先选中需要保存的模板");
+                return;
+            }
+            ElMessageBox.prompt("", "保存模板", {
+                inputPattern: /\S/,
+                inputErrorMessage: "请填写模板名称"
+            }).then(async ({ value }) => {
+                const list: any = page ? [page] : selectPageIds.value.map(item => allPages.value.find(it => it.ID === item));
+
+                const params = {
+                    ID: "",
+                    Status: 1,
+                    Name: value,
+                    HavingAudio: 0,
+                    HavingVideo: 0,
+                    EstimatedDuration: 0,
+                    TeachPageClassroomLink: null,
+                    LessonID: windowInfo.value.lessonId,
+                    SubjectID: subjectPublisherBookValue.value?.SubjectId || "",
+                    TeacherID: store.state.userInfo.id ? store.state.userInfo.id : get(STORAGE_TYPES.USER_INFO).ID
+                };
+
+                for (let i = 0; i < list.length; i++) {
+                    const item = list[i];
+
+                    if (!item.ID) continue;
+
+                    const temPage: Slide | undefined = pageMap.value.get(item.ID);
+
+                    if (!temPage) continue;
+
+                    params.HavingAudio = temPage.elements.some(item => item.type === "audio") ? 1 : 0;
+                    params.HavingVideo = temPage.elements.some(item => item.type === "video") ? 1 : 0;
+                    item.AcademicPresupposition = temPage.remark;
+                    item.DesignIntent = temPage.design;
+
+                    if (temPage.type === "element") {
+                        item.Json = JSON.stringify(temPage);
+                    }
+                    if (temPage.type === "listen") {
+                        const words = temPage.listenWords?.map((word: any, index: number) => {
+                            return {
+                                sort: index + 1,
+                                WordID: word.id,
+                                PageWordID: word.pageWordID ? null : word.pageWordID,
+                                WordInterval: 2
+                            };
+                        });
+                        item.Json = JSON.stringify(words);
+                    }
+                    if (temPage.type === "follow") {
+                        item.Json = temPage.follow?.id || "";
+                    }
+                    if (temPage.type === "teach") {
+                        item.Json = temPage.teach?.id || "";
+                    }
+                    if (temPage.type === "game") {
+                        item.Json = temPage.game?.id || "";
+                    }
+                }
+
+                const res = await saveTemplate({ ...params, PageData: list });
+
+                if (res.resultCode !== 200) return;
+                ElMessage.success("保存成功，请前往「我的」查看已保存模板");
+                selectPageIds.value = [];
+                await nextTick(() => {
+                    materialCenterRef.value.queryTemplateList();
+                });
+            });
+        };
+
+        const contextMenus = (page: PageProps) => {
+            return [
+                {
+                    text: "保存模板",
+                    subText: "",
+                    handler: () => {
+                        handleSaveTemplate(page);
+                    }
+                }
+            ];
+        };
+
+        // 子窗体关闭 提示
+        const closeCurrentWinCard = async () => {
+            const res = await exitDialog();
+            if (res === ExitType.Cancel) {
+                return "cancel";
+            }
+            if (res === ExitType.Exit) {
+                return "exit";
+            }
+            if (res === ExitType.Save) {
+                if (windowInfo.value.originType === 0) {
+                    return false;
+                } else {
+                    return (await winCardSave()) ? "save" : false;
+                }
             }
         };
 
@@ -395,14 +551,17 @@ export default defineComponent({
             currentPage,
             windowCards,
             showCollapse,
+            selectPageIds,
+            addPageVisible,
+            materialCenterRef,
             subjectPublisherBookValue,
             importPPT,
-            handleSave,
             winCardSave,
-            handleHelper,
+            handleSelect,
+            contextMenus,
             handleCartItem,
-            handlePageClick,
-            handleOpenLessonDesign,
+            addInteractionPage,
+            closeCurrentWinCard,
             ...addHandle,
             ...pptHandle,
             ...previewHandle
@@ -554,7 +713,16 @@ export default defineComponent({
                 .page {
                     display: flex;
                     margin-bottom: 16px;
+                    position: relative;
                     cursor: pointer;
+
+                    .select-icon {
+                        position: absolute;
+                        width: 16px;
+                        height: 16px;
+                        left: 20px;
+                        z-index: 9999;
+                    }
 
                     .page-left {
                         width: 24px;
@@ -600,6 +768,13 @@ export default defineComponent({
                                 width: 15px;
                                 height: 3px;
                             }
+                        }
+
+                        .view-empty {
+                            width: 100%;
+                            height: 128px;
+                            padding: 10px;
+                            border: 1px solid #ebeff1;
                         }
                     }
                 }

@@ -3,16 +3,15 @@ import { ElMessage, ElMessageBox } from "element-plus";
 import Node from "element-plus/es/components/tree/src/model/node";
 import { nextTick, onMounted, onUnmounted, Ref, ref } from "vue";
 import { Slide } from "wincard";
-import { CardProps, PageProps } from "@/views/preparation/intelligenceClassroom/api/props";
 
-export default (pageValue: Ref<Partial<PageProps>>, allPageSlideListMap: Ref<Map<string, Slide>>) => {
-    const allPageList = ref<PageProps[]>([]);
+export default (pageValue: Ref<IPageValue>, allPageSlideListMap: Ref<Map<string, Slide>>) => {
+    const allPageList = ref<IPageValue[]>([]);
     const activeAllPageListIndex = ref(0);
     const isWatchChange = ref(true); // 是否是监听改变的pageValue
     const editRef = ref();
     const cardListRef = ref<HTMLDivElement>();
+    //
     const currentActivePage = ref(1); // 当前选中页码
-
     const setDomClass = () => {
         nextTick(() => {
             const parentID = document.getElementById("activeBackground");
@@ -26,24 +25,38 @@ export default (pageValue: Ref<Partial<PageProps>>, allPageSlideListMap: Ref<Map
             }
         });
     };
-    const selectPageValue = (data: PageProps) => {
+    const selectPageValue = (data: IPageValue, flag: boolean) => {
+        isWatchChange.value = flag;
         pageValue.value = data;
-        currentActivePage.value = data.Index || 1;
+        currentActivePage.value = data.count || 1;
+        setDomClass();
     };
 
-    const handleNodeClick = (data: PageProps, e?: KeyboardEvent) => {
-        if (e?.shiftKey || e?.ctrlKey) return;
-        if (data.ID === pageValue.value?.ID) return;
-
-        activeAllPageListIndex.value = data.Index + 1;
-
-        // TODO 监听当前页数据是否变化，暂时不要
+    const handleNodeClick = (data: IPageValue, Node: Node | null) => {
+        if (Node) {
+            activeAllPageListIndex.value = allPageList.value.findIndex(item => item.ID === data.ID);
+        }
+        if (data.ID === pageValue.value?.ID || (Node && Node.level === 1)) return;
+        if (editRef.value.getDataIsChange()) {
+            const slide = editRef.value.getCurrentSlide();
+            allPageSlideListMap.value.set(pageValue.value.ID, slide);
+        }
+        selectPageValue(data, false);
         // if (editRef.value.getDataIsChange()) {
-        //     const slide = editRef.value.getCurrentSlide();
-        //     allPageSlideListMap.value.set(pageValue.value.ID, slide);
+        //     ElMessageBox.confirm("尚未保存修改, 是否继续操作?", "提示", {
+        //         confirmButtonText: "确认",
+        //         cancelButtonText: "取消",
+        //         type: "warning"
+        //     })
+        //         .then(() => {
+        //             selectPageValue(data, false);
+        //         })
+        //         .catch((err) => {
+        //             return err;
+        //         });
+        // } else {
+        //     selectPageValue(data, false);
         // }
-
-        selectPageValue(data);
     };
 
     const pagePrev = () => {
@@ -52,7 +65,7 @@ export default (pageValue: Ref<Partial<PageProps>>, allPageSlideListMap: Ref<Map
             return ElMessage({ type: "warning", message: "已经是第一页" });
         }
         activeAllPageListIndex.value--;
-        handleNodeClick(allPageList.value[activeAllPageListIndex.value]);
+        handleNodeClick(allPageList.value[activeAllPageListIndex.value], null);
     };
 
     const pageNext = () => {
@@ -61,7 +74,7 @@ export default (pageValue: Ref<Partial<PageProps>>, allPageSlideListMap: Ref<Map
             return ElMessage({ type: "warning", message: "已经是最后页" });
         }
         activeAllPageListIndex.value++;
-        handleNodeClick(allPageList.value[activeAllPageListIndex.value]);
+        handleNodeClick(allPageList.value[activeAllPageListIndex.value], null);
     };
 
     const checkPageDownload = (e: any) => {
