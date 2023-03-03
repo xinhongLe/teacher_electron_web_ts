@@ -1002,7 +1002,8 @@ function createTeamCompetition2() {
         height: 250,
         alwaysOnTop: true,
         useContentSize: true,
-        maximizable: false
+        maximizable: false,
+        transparent: true
     });
 
     teamCompetitionWin2.on("ready-to-show", () => {

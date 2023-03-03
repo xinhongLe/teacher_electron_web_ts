@@ -89,8 +89,8 @@ export default defineComponent({
     components: { DoubleLeft, DoubleRight, Fireworks },
     emits: ["expand"],
     setup(props, { emit }) {
-        // const win = window.electron.remote.getCurrentWindow();
-        // win.setHasShadow(false);
+        const win = window.electron.remote.getCurrentWindow();
+        if (window.electron.isMac()) win.setHasShadow(false);
 
         const starBox = ref();
 
@@ -133,7 +133,7 @@ export default defineComponent({
                 updateHeight ? x : size.width - 20 - 320,
                 updateHeight ? y : top > 0 ? top : 20
             );
-            // win.setHasShadow(false);
+            if (window.electron.isMac()) win.setHasShadow(false);
         };
 
         minimize();
@@ -141,7 +141,7 @@ export default defineComponent({
         const expand = () => {
             isExpand.value = true;
             emit("expand");
-            // win.setHasShadow(true);
+            if (window.electron.isMac()) win.setHasShadow(true);
             setTimeout(() => {
                 starHeight.value = ((starBox.value.clientHeight - 26) / 10 - 10);
             }, 1000);
