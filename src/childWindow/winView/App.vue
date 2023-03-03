@@ -3,84 +3,41 @@
         <NavBar :resourceName="WindowName" />
         <div class="right">
             <div class="right-bottom">
-                <div
-                    class="card-box-left"
-                    :class="{
-                        hidden: isFullScreen && !isShowCardList,
-                    }"
-                >
+                <div class="card-box-left" :class="{
+                    hidden: isFullScreen && !isShowCardList,
+                }">
                     <div class="card-box-lefts">
-                        <CardList
-                            ref="cardListComponents"
-                            :winActiveId="winActiveId"
-                            :WindowName="WindowName"
-                            :cardList="cardList"
-                            @updatePageList="updatePageList"
-                            @updateFlag="updateFlag"
-                        />
+                        <CardList ref="cardListComponents" :winActiveId="winActiveId" :WindowName="WindowName"
+                            :cardList="cardList" @updatePageList="updatePageList" @updateFlag="updateFlag" />
                     </div>
-                    <div
-                        class="card-box-outbottom"
-                        v-show="!isFullScreen || isShowCardList"
-                    ></div>
+                    <div class="card-box-outbottom" v-show="!isFullScreen || isShowCardList"></div>
 
-                    <div
-                        class="fold-btn"
-                        v-show="isFullScreen"
-                        @click="isShowCardList = !isShowCardList"
-                    >
-                        <i
-                            :class="
-                                isShowCardList
-                                    ? 'el-icon-arrow-left'
-                                    : 'el-icon-arrow-right'
-                            "
-                        ></i>
+                    <div class="fold-btn" v-show="isFullScreen" @click="isShowCardList = !isShowCardList">
+                        <i :class="
+                            isShowCardList
+                                ? 'el-icon-arrow-left'
+                                : 'el-icon-arrow-right'
+                        "></i>
                     </div>
                 </div>
                 <div class="card-detail">
                     <div class="card-detail-content">
-                        <PreviewSection
-                            ref="previewSectionRef"
-                            :options="previewOptions"
-                            :winActiveId="winActiveId"
-                            :WindowName="WindowName"
-                            :winList="cardList"
-                            :isPreview="true"
-                            :isShowCardList="isShowCardList"
-                            :isFullScreen="isFullScreen"
-                            @lastPage="lastPage"
-                            @firstPage="firstPage"
-                            @changeWinSize="changeWinSize"
-                            @fullScreen="fullScreen"
-                            @clockFullScreen="clockFullScreen"
-                            v-model:isCanUndo="isCanUndo"
-                            v-model:isCanRedo="isCanRedo"
-                        />
+                        <PreviewSection ref="previewSectionRef" :options="previewOptions" :winActiveId="winActiveId"
+                            :WindowName="WindowName" :winList="cardList" :isPreview="true" :isShowCardList="isShowCardList"
+                            :isFullScreen="isFullScreen" @lastPage="lastPage" @firstPage="firstPage"
+                            @changeWinSize="changeWinSize" @fullScreen="fullScreen" @clockFullScreen="clockFullScreen"
+                            v-model:isCanUndo="isCanUndo" v-model:isCanRedo="isCanRedo" />
                     </div>
                 </div>
             </div>
         </div>
-        <Tools
-            :cardClass="'intelligence'"
-            :id="winActiveId"
-            :dialog="false"
-            :showClose="true"
-            :showRemark="previewSectionRef?.showRemark"
-            @toggleRemark="toggleRemark"
-            @prevStep="prevStep"
-            @nextStep="nextStep"
-            @fullScreen="fullScreen"
-            @clockFullScreen="clockFullScreen"
-            @showWriteBoard="showWriteBoard"
-            @openShape="openShape"
-            @hideWriteBoard="hideWriteBoard"
-            @closeWincard="close"
-            :isCanUndo="isCanUndo"
-            :isCanRedo="isCanRedo"
-            :isFullScreenStatus="true"
-            @openPaintTool="openPaintTool"
-        />
+        <Tools :cardClass="'intelligence'" :id="winActiveId" :dialog="false" :showClose="true"
+            :showRemark="previewSectionRef?.showRemark" @toggleRemark="toggleRemark" @prevStep="prevStep"
+            @nextStep="nextStep" @fullScreen="fullScreen" @clockFullScreen="clockFullScreen"
+            @showWriteBoard="showWriteBoard" @openShape="openShape" @hideWriteBoard="hideWriteBoard" @closeWincard="close"
+            :isCanUndo="isCanUndo" :isCanRedo="isCanRedo" :isFullScreenStatus="true" @openPaintTool="openPaintTool"
+            :currentDrawColor="currentDrawColor" :currentLineWidth="currentLineWidth" @whiteboardOption="whiteboardOption"
+            @redo="redo" @undo="undo" />
     </div>
 </template>
 
@@ -126,7 +83,7 @@ export default defineComponent({
             previewOptions.value = card;
         };
 
-        const changeWinSize = () => {};
+        const changeWinSize = () => { };
 
         const lastPage = () => {
             cardListComponents.value.changeReducePage();
@@ -207,6 +164,21 @@ export default defineComponent({
             previewSectionRef.value &&
                 previewSectionRef.value.openPaintTool(event, type);
         };
+        const currentDrawColor = ref("#f60000");
+        const currentLineWidth = ref(2);
+
+        // 工具栏 画笔配置
+        const whiteboardOption = (option: string, value?: number) => {
+            previewSectionRef.value && previewSectionRef.value.whiteboardOption(option, value);
+        };
+        // 退回
+        const redo = () => {
+            previewSectionRef.value && previewSectionRef.value.redo();
+        };
+        // 撤回
+        const undo = () => {
+            previewSectionRef.value && previewSectionRef.value.undo();
+        };
 
         return {
             lastPage,
@@ -234,6 +206,11 @@ export default defineComponent({
             isCanUndo,
             isCanRedo,
             openPaintTool,
+            currentDrawColor,
+            currentLineWidth,
+            whiteboardOption,
+            redo,
+            undo
         };
     },
 });
@@ -241,6 +218,7 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 $border-color: #f5f6fa;
+
 .intelligence {
     display: flex;
     flex-direction: column;
@@ -251,22 +229,26 @@ $border-color: #f5f6fa;
     right: 0;
     min-height: 0;
     background-color: #f5f6fa;
+
     .right {
         display: flex;
         justify-content: space-between;
         flex: 1;
         min-height: 0;
         background-color: #fff;
+
         .right-top {
             height: 80px;
             line-height: 80px;
             border-bottom: 1px solid $border-color;
             text-align: center;
             padding: 0 20px;
-            > p {
+
+            >p {
                 float: left;
             }
-            > div {
+
+            >div {
                 cursor: pointer;
             }
         }
@@ -277,6 +259,7 @@ $border-color: #f5f6fa;
             flex: 1;
             min-width: 0;
             justify-content: space-between;
+
             .card-box-away {
                 position: absolute;
                 top: calc(50% - 60px);
@@ -288,6 +271,7 @@ $border-color: #f5f6fa;
                 align-items: center;
                 font-size: 20px;
             }
+
             .card-box-left {
                 // position: relative;
                 // height: 100%;
@@ -304,6 +288,7 @@ $border-color: #f5f6fa;
                 transition: width 0.3s;
                 position: relative;
                 border-right: 1px solid #eee;
+
                 // &.fullScreen {
                 //     background: #f5f6fa;
                 //     position: fixed;
@@ -315,6 +300,7 @@ $border-color: #f5f6fa;
                 &.hidden {
                     width: 0;
                 }
+
                 .fold-btn {
                     display: flex;
                     align-items: center;
@@ -329,6 +315,7 @@ $border-color: #f5f6fa;
                     background: #f5f6fa;
                     cursor: pointer;
                     z-index: 1;
+
                     i {
                         color: #7e7f83;
                         font-size: 18px;
@@ -336,6 +323,7 @@ $border-color: #f5f6fa;
                     }
                 }
             }
+
             .card-box-lefts {
                 display: flex;
                 flex: 1;
@@ -344,6 +332,7 @@ $border-color: #f5f6fa;
                 overflow-y: auto;
                 margin-bottom: 20px;
             }
+
             .card-box-outbottom {
                 width: calc(100% + 1px);
                 height: 87px;
@@ -356,6 +345,7 @@ $border-color: #f5f6fa;
                 display: flex;
                 flex-direction: column;
                 justify-content: space-between;
+
                 .card-detail-content {
                     height: 100%;
                     display: flex;
@@ -371,6 +361,7 @@ $border-color: #f5f6fa;
                     padding: 15px;
                     background-color: #fff;
                     border-top: 1px solid #ccc;
+
                     .me-page-item {
                         background-color: #f0f3ff;
                         color: #444;

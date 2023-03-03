@@ -1,27 +1,11 @@
 <template>
     <div class="card-dialog">
-        <ScreenView
-            ref="screenRef"
-            :inline="true"
-            :isInit="isInit"
-            :writeBoardVisible="writeBoardVisible"
-            @pagePrev="execPrev"
-            @pageNext="execNext"
-            @closeWriteBoard="closeWriteBoard"
-            :slide="slideView"
-            :isShowPenTools="false"
-            v-model:isCanUndo="isCanUndo"
-            v-model:isCanRedo="isCanRedo"
-            v-model:currentDrawColor="currentDrawColor"
-            v-model:currentLineWidth="currentLineWidth"
-
-        />
+        <ScreenView ref="screenRef" :inline="true" :isInit="isInit" :writeBoardVisible="writeBoardVisible"
+            @pagePrev="execPrev" @pageNext="execNext" @closeWriteBoard="closeWriteBoard" :slide="slideView"
+            :isShowPenTools="false" v-model:isCanUndo="isCanUndo" v-model:isCanRedo="isCanRedo"
+            v-model:currentDrawColor="currentDrawColor" v-model:currentLineWidth="currentLineWidth" />
         <div class="cardLis-class">
-            <PageItem
-                :pageList="cardList"
-                :selected="selected"
-                @selectPage="checkPage"
-            />
+            <PageItem :pageList="cardList" :selected="selected" @selectPage="checkPage" />
             <!-- <div
                 class="me-page-item"
                 :class="selected === index && 'active'"
@@ -32,26 +16,12 @@
                 {{ item.Name }}
             </div> -->
         </div>
-        <Tools
-            :cardClass="'card-dialog'"
-            :isTKdialog="true"
-            @prevStep="prevCard"
-            @nextStep="nextCard"
-            @showWriteBoard="showWriteBoard"
-            @hideWriteBoard="hideWriteBoard"
-            @close="close"
-            :dialog="true"
-            @openShape="openShape"
-            :isShowFullscreen="false"
-            :isFullScreenStatus="true"
-            :isShowRemarkBtn="false"
-            :isShowClose="true"
-            @openPaintTool="openPaintTool"
-            :isCanUndo="isCanUndo"
-            :isCanRedo="isCanRedo"
-            :currentDrawColor="currentDrawColor"
-            :currentLineWidth="currentLineWidth"
-        />
+        <Tools :cardClass="'card-dialog'" :isTKdialog="true" @prevStep="prevCard" @nextStep="nextCard"
+            @showWriteBoard="showWriteBoard" @hideWriteBoard="hideWriteBoard" @close="close" :dialog="true"
+            @openShape="openShape" :isShowFullscreen="false" :isFullScreenStatus="true" :isShowRemarkBtn="false"
+            :isShowClose="true" @openPaintTool="openPaintTool" @whiteboardOption="whiteboardOption" @redo="redo"
+            @undo="undo" :isCanUndo="isCanUndo" :isCanRedo="isCanRedo" :currentDrawColor="currentDrawColor"
+            :currentLineWidth="currentLineWidth" />
     </div>
 </template>
 
@@ -185,7 +155,7 @@ export default defineComponent({
         const undo = () => {
             screenRef.value.undo();
         };
-        
+
         return {
             visible,
             isInit,
@@ -228,18 +198,22 @@ export default defineComponent({
     display: flex;
     flex-direction: column;
     background: #fff;
+
     :deep(.me-tools-set) {
         transform: none;
     }
+
     :deep(.me-tools-steps) {
         flex: 0.5;
     }
 }
+
 .cardLis-class {
     display: flex;
     justify-content: flex-start;
     overflow-y: hidden;
     padding: 10px 20px;
+
     .me-page-item {
         background-color: #f0f3ff;
         color: #444;

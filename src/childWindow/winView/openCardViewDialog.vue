@@ -13,7 +13,8 @@
         <Tools @prevStep="prevCard" @nextStep="nextCard" @showWriteBoard="showWriteBoard" @hideWriteBoard="hideWriteBoard"
             @close="close" :dialog="true" @openShape="openShape" :isShowFullscreen="false" :isShowRemarkBtn="false"
             :isShowClose="true" :isCanUndo="isCanUndo" :isCanRedo="isCanRedo" @openPaintTool="openPaintTool"
-            :isFullScreenStatus="true" :currentDrawColor="currentDrawColor" :currentLineWidth="currentLineWidth" />
+            @whiteboardOption="whiteboardOption" @redo="redo" @undo="undo" :isFullScreenStatus="true"
+            :currentDrawColor="currentDrawColor" :currentLineWidth="currentLineWidth" />
         <!-- <Tools
             @prevStep="prevCard"
             @nextStep="nextCard"
