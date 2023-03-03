@@ -17,7 +17,8 @@
                                 size="default"
                                 type="primary"
                                 plain
-                                >新增卡</el-button
+                            >新增卡
+                            </el-button
                             >
                         </el-col>
                         <el-col :span="8">
@@ -27,7 +28,8 @@
                                 size="default"
                                 type="primary"
                                 plain
-                                >导入</el-button
+                            >导入
+                            </el-button
                             >
                         </el-col>
                         <el-col :span="8">
@@ -43,7 +45,8 @@
                                         size="default"
                                         type="primary"
                                         plain
-                                        >预览窗</el-button
+                                    >预览窗
+                                    </el-button
                                     >
                                 </template>
                                 <div class="operation-box">
@@ -110,8 +113,8 @@
 
                                     <div v-else>
                                         <span v-if="node.level === 1">{{
-                                            node.label
-                                        }}</span>
+                                                node.label
+                                            }}</span>
                                         <div
                                             v-else
                                             v-contextmenu="(el: any) => contextmenus(el, data)"
@@ -123,13 +126,13 @@
                                                 class="select-page"
                                             >
                                                 <span class="chapter-num">{{
-                                                    data.count
-                                                }}</span>
+                                                        data.count
+                                                    }}</span>
                                                 <el-icon
                                                     :style="{ backgroundColor: (selectPageData.map(((item: any) => item.ID)).includes(data.ID) ? 'var(--el-color-primary)' : '#fff') }"
                                                     color="#fff"
                                                 >
-                                                    <Check />
+                                                    <Check/>
                                                 </el-icon>
                                             </div>
                                             <div
@@ -191,8 +194,10 @@
                                         <template #reference>
                                             <el-button size="small" @click.stop>
                                                 <el-icon :size="18"
-                                                    ><more-filled
-                                                /></el-icon>
+                                                >
+                                                    <more-filled
+                                                    />
+                                                </el-icon>
                                             </el-button>
                                         </template>
                                         <div class="operation-box">
@@ -279,7 +284,7 @@
                                 'rotate(' + (showCollapse ? 0 : 180) + 'deg)',
                         }"
                     >
-                        <ArrowLeft />
+                        <ArrowLeft/>
                     </el-icon>
                 </div>
             </div>
@@ -604,65 +609,59 @@ export default defineComponent({
             // }
             // return
             // 2023-02-03 原 WindowCards 修改为newWindowCards
-            const cardData = newWindowCards.value.map(
-                (card: any, index: number) => {
-                    const cardID = card.isAdd ? "" : card.ID;
-                    const cardName = card.Name;
-                    const sort = index + 1;
-                    const pageList = card.PageList;
-                    const pageData = pageList.map(
-                        (page: any, pageIndex: number) => {
-                            const { ID, Name, Type, State, isAdd } = page;
-                            const slide = allPageListMap.value.get(ID);
-                            let json = "";
-                            const academicPresupposition = slide?.remark || "";
-                            const designIntent = slide?.design || "";
-                            if (slide) {
-                                if (slide.type === "element") {
-                                    json = JSON.stringify(slide);
-                                } else if (slide.type === "listen") {
-                                    const Words = slide.listenWords?.map(
-                                        (word, index) => {
-                                            return {
-                                                sort: index + 1,
-                                                WordID: word.id,
-                                                PageWordID: word.pageWordID
-                                                    ? null
-                                                    : word.pageWordID,
-                                                WordInterval: 2,
-                                            };
-                                        }
-                                    );
-                                    json = JSON.stringify(Words);
-                                } else if (slide.type === "follow") {
-                                    json = slide.follow?.id || "";
-                                } else if (slide.type === "teach") {
-                                    json = slide.teach?.id || "";
-                                } else if (slide.type === "game") {
-                                    json = slide.game?.id || "";
-                                }
-                            }
-                            return {
-                                pageID: isAdd ? "" : ID,
-                                pageName: Name || "",
-                                type: Type,
-                                academicPresupposition,
-                                designIntent,
-                                sort: pageIndex + 1,
-                                json,
-                                state: Number(State),
-                            };
+            const cardData = newWindowCards.value.map((card: any, index: number) => {
+                const cardID = card.isAdd ? "" : card.ID;
+                const cardName = card.Name;
+                const sort = index + 1;
+                const pageList = card.PageList;
+                const pageData = pageList.map((page: any, pageIndex: number) => {
+                    const { ID, Name, Type, State, isAdd } = page;
+                    const slide = allPageListMap.value.get(ID);
+                    let json = "";
+                    const academicPresupposition = slide?.remark || "";
+                    const designIntent = slide?.design || "";
+                    if (slide) {
+                        if (slide.type === "element") {
+                            json = JSON.stringify(slide);
+                        } else if (slide.type === "listen") {
+                            const Words = slide.listenWords?.map((word, index) => {
+                                return {
+                                    sort: index + 1,
+                                    WordID: word.id,
+                                    PageWordID: word.pageWordID
+                                        ? null
+                                        : word.pageWordID,
+                                    WordInterval: 2,
+                                };
+                            });
+                            json = JSON.stringify(Words);
+                        } else if (slide.type === "follow") {
+                            json = slide.follow?.id || "";
+                        } else if (slide.type === "teach") {
+                            json = slide.teach?.id || "";
+                        } else if (slide.type === "game") {
+                            json = slide.game?.id || "";
                         }
-                    );
-
+                    }
                     return {
-                        cardID,
-                        sort,
-                        pageData,
-                        cardName,
+                        pageID: isAdd ? "" : ID,
+                        pageName: Name || "",
+                        type: Type,
+                        academicPresupposition,
+                        designIntent,
+                        sort: pageIndex + 1,
+                        json,
+                        state: Number(State)
                     };
-                }
-            );
+                });
+
+                return {
+                    cardID,
+                    sort,
+                    pageData,
+                    cardName
+                };
+            });
 
             const data = {
                 franchiseeID: store.state.userInfo.schoolId,
@@ -689,7 +688,7 @@ export default defineComponent({
                     oldAllPageListMap.value.set(key, cloneDeep(item));
                 });
                 oldWindowCards.value = cloneDeep(windowCards.value);
-                return true;
+                return false;
             } else {
                 return false;
             }
@@ -761,8 +760,8 @@ export default defineComponent({
                                 if (page.url) return;
                                 page.url = temJson?.ToolFileModel
                                     ? await formateOssUrl(
-                                          temJson?.ToolFileModel?.File
-                                      )
+                                        temJson?.ToolFileModel?.File
+                                    )
                                     : "";
                             }
                         }
@@ -1002,8 +1001,8 @@ export default defineComponent({
                 await addPageCallback(params, currentValue.value);
                 pageValue.value =
                     currentValue.value.PageList[
-                        currentValue.value.PageList?.length - 1
-                    ];
+                    currentValue.value.PageList?.length - 1
+                        ];
                 const res: any = await insertData(data);
             } else {
                 ElMessage.warning("请先选择页，再进行插入");
@@ -1053,7 +1052,6 @@ export default defineComponent({
                     text: "保存模板",
                     subText: "",
                     handler: () => {
-                        rightClick();
                         handleSaveTemplate(1, data);
                     },
                 },
@@ -1212,6 +1210,7 @@ export default defineComponent({
                 height: 100%;
                 position: relative;
                 padding-bottom: 32px;
+
                 .page-intro {
                     position: absolute;
                     bottom: 32px;
@@ -1233,6 +1232,7 @@ export default defineComponent({
                     height: calc(100% - 50px);
                     overflow-y: auto;
                     overflow-x: hidden;
+
                     :deep(.el-tree-node__label) {
                         width: 100%;
                     }
@@ -1261,12 +1261,14 @@ export default defineComponent({
                         z-index: 2;
                         display: flex;
                         align-items: center;
+
                         .el-icon {
                             width: 16px;
                             height: 16px;
                             border: 1px solid var(--el-color-primary);
                             border-radius: 50%;
                         }
+
                         //background-color: var(--el-color-primary);
                     }
 
@@ -1279,9 +1281,11 @@ export default defineComponent({
                         border-radius: 50%;
                         z-index: 2;
                     }
+
                     :deep(.el-image) {
                         height: 106px;
                         width: 100%;
+
                         .image-slot {
                             display: flex;
                             justify-content: center;
@@ -1294,12 +1298,6 @@ export default defineComponent({
                         }
                     }
 
-                    .view-empty {
-                        width: 190px;
-                        height: 106px;
-                        padding: 10px;
-                        border: 1px solid #ebeff1;
-                    }
 
                     .custom-tree-node {
                         display: flex;
@@ -1307,6 +1305,7 @@ export default defineComponent({
                         align-items: center;
                         width: 86%;
                         position: relative;
+
                         .chapter-num {
                             display: block;
                             margin-right: 5px;
@@ -1399,6 +1398,7 @@ export default defineComponent({
                 height: 100px;
                 text-align: center;
                 cursor: pointer;
+
                 .el-icon {
                     line-height: 100px;
                     color: #fff;

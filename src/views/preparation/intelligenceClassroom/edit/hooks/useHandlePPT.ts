@@ -1,15 +1,16 @@
-import { ref, Ref } from "vue";
-import { CardProps, PageProps } from "@/views/preparation/intelligenceClassroom/api/props";
+import { Ref } from "vue";
 import { Slide } from "wincard";
-import { ElMessage, ElMessageBox } from "element-plus";
+import { cloneDeep } from "lodash";
 import { v4 as uuidv4 } from "uuid";
 import useHome from "@/hooks/useHome";
 import { pageTypeList } from "@/config";
-import { cloneDeep } from "lodash";
 import messageBox from "@/utils/messageBox";
 import { initSlideData } from "@/utils/dataParsePage";
+import { ElMessage, ElMessageBox } from "element-plus";
+import { CardProps, PageProps } from "../../api/props";
 
-export default (windowCards: Ref<CardProps[]>, allPages: Ref<PageProps[]>, pageMap: Ref<Map<string, Slide>>, currentPage: Ref<PageProps | undefined>, editRef: Ref<any>) => {
+
+export default (windowCards: Ref<CardProps[]>, allPages: Ref<PageProps[]>, pageMap: Ref<Map<string, Slide>>, currentPage: Ref<PageProps | undefined>, editRef: Ref) => {
     const { transformPageDetail } = useHome();
     let backupPage: PageProps | null = null;
 
@@ -73,7 +74,7 @@ export default (windowCards: Ref<CardProps[]>, allPages: Ref<PageProps[]>, pageM
             State: 1,
             AcademicPresupposition: "",
             DesignIntent: "",
-            Json: {},
+            Json: initSlideData(id, pageType.value),
             Index: 1,
             Url: "",
             ParentID: parentId
@@ -127,7 +128,8 @@ export default (windowCards: Ref<CardProps[]>, allPages: Ref<PageProps[]>, pageM
             } else {
                 const find = windowCards.value.find(item => item.ID === (data as PageProps).ParentID);
                 if (find) {
-                    find.PageList.splice((data as PageProps).Sort - 1, 1);
+                    const index = find.PageList.findIndex(item => item.ID === data.ID);
+                    find.PageList.splice(index, 1);
                 }
             }
             await sortWindowCards();
@@ -149,7 +151,7 @@ export default (windowCards: Ref<CardProps[]>, allPages: Ref<PageProps[]>, pageM
             for (let j = 0; j < item.PageList.length; j++) {
                 const it = item.PageList[j];
 
-                const slide = initSlideData(it.ID, it.Type);
+                const slide = await transformPageDetail(it, it.Json);
                 pageMap.value.set(it.ID, slide);
 
                 it.Index = index;

@@ -162,32 +162,33 @@
 </template>
 
 <script lang="ts">
+import { store } from "@/store";
+import { Slide } from "wincard";
+import { cloneDeep } from "lodash";
+import { v4 as uuidv4 } from "uuid";
+import { saveWindows } from "../api";
+import useHome from "@/hooks/useHome";
+import { getOssUrl } from "@/utils/oss";
+import loading from "@/components/loading";
+import { getWindowStruct } from "@/api/home";
+import usePreview from "./hooks/usePreview";
+import { saveTemplate } from "@/api/material";
+import useImportPPT from "@/hooks/useImportPPT";
+import useHandlePPT from "./hooks/useHandlePPT";
+import { isFullscreen } from "@/utils/fullscreen";
+import { pageType, pageTypeList } from "@/config";
+import { CardProps, PageProps } from "../api/props";
+import { get, STORAGE_TYPES } from "@/utils/storage";
 import { VueDraggableNext } from "vue-draggable-next";
-import { CirclePlusFilled, MessageBox, Position } from "@element-plus/icons-vue";
+import { ElMessage, ElMessageBox } from "element-plus";
+import exitDialog, { ExitType } from "../edit/exitDialog";
+import { CirclePlusFilled } from "@element-plus/icons-vue";
 import WinCardEdit from "../components/edit/winCardEdit.vue";
 import CardPopover from "../components/edit/CardPopover.vue";
-import { computed, defineComponent, nextTick, onMounted, onUnmounted, ref } from "vue";
-import { CardProps, PageProps } from "@/views/preparation/intelligenceClassroom/api/props";
-import { getWindowStruct } from "@/api/home";
-import { store } from "@/store";
-import { get, STORAGE_TYPES } from "@/utils/storage";
-import { Slide } from "wincard";
-import { getOssUrl } from "@/utils/oss";
-import useHome from "@/hooks/useHome";
-import { pageType, pageTypeList } from "@/config";
-import usePreview from "@/views/preparation/intelligenceClassroom/edit/hooks/usePreview";
 import WinCardView from "../components/edit/winScreenView.vue";
-import { isFullscreen } from "@/utils/fullscreen";
-import { v4 as uuidv4 } from "uuid";
-import useImportPPT from "@/hooks/useImportPPT";
-import useHandlePPT from "@/views/preparation/intelligenceClassroom/edit/hooks/useHandlePPT";
 import AddPageDialog from "../components/edit/addPageDialog.vue";
-import loading from "@/components/loading";
-import { cloneDeep, isEqual } from "lodash";
 import materialCenter from "../components/edit/materialCenter/index.vue";
-import { ElMessage, ElMessageBox } from "element-plus";
-import { saveTemplate } from "@/api/material";
-import exitDialog, { ExitType } from "@/views/preparation/intelligenceClassroom/edit/exitDialog";
+import { computed, defineComponent, nextTick, onMounted, onUnmounted, ref } from "vue";
 
 export default defineComponent({
     name: "Edit",
@@ -230,8 +231,73 @@ export default defineComponent({
         const addHandle = useHandlePPT(windowCards, allPages, pageMap, currentPage, editRef);
 
         // win-card-edit插件保存回调
-        const winCardSave = () => {
-            console.log("保存");
+        const winCardSave = async () => {
+            const list = [];
+            for (let i = 0; i < windowCards.value.length; i++) {
+                const item = windowCards.value[i];
+
+                const obj: any = {
+                    cardID: item.ID,
+                    sort: item.Sort,
+                    cardName: item.Name,
+                    pageData: []
+                };
+
+                for (let j = 0; j < item.PageList.length; j++) {
+                    const it = item.PageList[j];
+                    const slide: Slide | undefined = pageMap.value.get(it.ID);
+
+                    let json = "";
+                    if (slide?.type === "element") {
+                        json = JSON.stringify(slide);
+                    }
+                    if (slide?.type === "listen") {
+                        const words = slide.listenWords?.map((word: any, index: number) => {
+                            return {
+                                sort: index + 1,
+                                WordID: word.id,
+                                PageWordID: word.pageWordID ? null : word.pageWordID,
+                                WordInterval: 2
+                            };
+                        });
+                        json = JSON.stringify(words);
+                    }
+                    if (slide?.type === "follow") {
+                        json = slide.follow?.id || "";
+                    }
+                    if (slide?.type === "teach") {
+                        json = slide.teach?.id || "";
+                    }
+                    if (slide?.type === "game") {
+                        json = slide.game?.id || "";
+                    }
+
+                    obj.pageData.push({
+                        pageID: it.ID,
+                        pageName: it.Name,
+                        type: it.Type,
+                        academicPresupposition: slide?.remark,
+                        designIntent: slide?.design,
+                        sort: it.Sort,
+                        state: it.State,
+                        json
+                    });
+                }
+
+                list.push(obj);
+            }
+
+            const res = await saveWindows({
+                originType: 1,
+                cardData: list,
+                windowID: windowInfo.value.id,
+                windowName: windowInfo.value.name,
+                teacherID: store.state.userInfo.id,
+                franchiseeID: store.state.userInfo.schoolId
+            });
+            if (res.resultCode !== 200) return false;
+
+            ElMessage.success("保存成功");
             return true;
         };
 
@@ -279,41 +345,40 @@ export default defineComponent({
         // PPT悬浮操作（1-新增文件夹，2-新增空白页，3-重命名，4-隐藏/显示，5-粘贴页，6-复制页，7-保存模板，8-删除，9-新增互动页）
         const handleCartItem = (type: number, data: PageProps | CardProps) => {
             switch (type) {
-                case 1:
-                    loading.show();
-                    addHandle.createFolder();
-                    break;
-                case 2:
-                    loading.show();
-                    addHandle.createCardPage(pageTypeList[0], data);
-                    break;
-                case 3:
-                    addHandle.rename(data);
-                    break;
-                case 4:
-                    (data as PageProps).State = (data as PageProps).State ? 0 : 1;
-                    break;
-                case 5:
-                    loading.show();
-                    addHandle.paste(data as CardProps);
-                    break;
-                case 6:
-                    loading.show();
-                    addHandle.copy(data as PageProps);
-                    break;
-                case 7:
-                    handleSaveTemplate(data as PageProps);
-                    break;
-                case 8:
-                    loading.show();
-                    addHandle.remove(data);
-                    break;
-                case 9:
-                    selectPage = cloneDeep<PageProps>(data as PageProps);
-                    addPageVisible.value = true;
-                    break;
-                default:
-                    console.log("1");
+            case 1:
+                loading.show();
+                addHandle.createFolder();
+                break;
+            case 2:
+                loading.show();
+                addHandle.createCardPage(pageTypeList[0], data);
+                break;
+            case 3:
+                addHandle.rename(data);
+                break;
+            case 4:
+                (data as PageProps).State = (data as PageProps).State ? 0 : 1;
+                break;
+            case 5:
+                loading.show();
+                addHandle.paste(data as CardProps);
+                break;
+            case 6:
+                loading.show();
+                addHandle.copy(data as PageProps);
+                break;
+            case 7:
+                handleSaveTemplate(data as PageProps);
+                break;
+            case 8:
+                addHandle.remove(data);
+                break;
+            case 9:
+                selectPage = cloneDeep<PageProps>(data as PageProps);
+                addPageVisible.value = true;
+                break;
+            default:
+                console.log("1");
             }
 
             setTimeout(() => {
