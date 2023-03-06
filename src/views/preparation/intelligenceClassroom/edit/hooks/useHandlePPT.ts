@@ -9,7 +9,6 @@ import { initSlideData } from "@/utils/dataParsePage";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { CardProps, PageProps } from "../../api/props";
 
-
 export default (windowCards: Ref<CardProps[]>, allPages: Ref<PageProps[]>, pageMap: Ref<Map<string, Slide>>, currentPage: Ref<PageProps | undefined>, editRef: Ref) => {
     const { transformPageDetail } = useHome();
     let backupPage: PageProps | null = null;
@@ -82,7 +81,7 @@ export default (windowCards: Ref<CardProps[]>, allPages: Ref<PageProps[]>, pageM
         const index = windowCards.value.findIndex(item => item.ID === parentId);
 
         windowCards.value[index].PageList.push(page);
-        await sortWindowCards(index);
+        await sortWindowCards(index, windowCards.value[index].PageList.length - 1);
     };
 
     // 重名名
@@ -114,7 +113,7 @@ export default (windowCards: Ref<CardProps[]>, allPages: Ref<PageProps[]>, pageM
         data.PageList.push(backupPage);
 
         const index = windowCards.value.findIndex(item => item.ID === data.ID);
-        await sortWindowCards(index);
+        await sortWindowCards(index, data.PageList.length-1);
     };
 
     // 删除
@@ -122,26 +121,28 @@ export default (windowCards: Ref<CardProps[]>, allPages: Ref<PageProps[]>, pageM
         messageBox({
             content: "此操作将删除该数据, 是否继续?"
         }).then(async () => {
+            const index = windowCards.value.findIndex(item => item.ID === (data as CardProps).ID);
             if (!(data as PageProps).ParentID) {
-                const index = windowCards.value.findIndex(item => item.ID === (data as CardProps).ID);
                 windowCards.value.splice(index, 1);
+                await sortWindowCards(0, 0);
             } else {
                 const find = windowCards.value.find(item => item.ID === (data as PageProps).ParentID);
                 if (find) {
-                    const index = find.PageList.findIndex(item => item.ID === data.ID);
+                    const idx = find.PageList.findIndex(item => item.ID === data.ID);
                     find.PageList.splice(index, 1);
+                    await sortWindowCards(index, find.ID === currentPage.value?.ID ? 0 : idx);
                 }
             }
-            await sortWindowCards();
         });
     };
 
     // 重新排序ppt
-    const sortWindowCards = async (idx = 0) => {
+    const sortWindowCards = async (index1 = 0, index2 = 0) => {
         pageMap.value.clear();
         allPages.value = [];
 
         const list = cloneDeep<CardProps[]>(windowCards.value);
+        currentPage.value = list[index1].PageList[index2];
         const backupPages = [];
 
         let index = 1;
@@ -161,11 +162,22 @@ export default (windowCards: Ref<CardProps[]>, allPages: Ref<PageProps[]>, pageM
                 index++;
             }
         }
-
         windowCards.value = list;
-        const pageList = list[idx].PageList;
-        currentPage.value = pageList[pageList.length - 1];
         allPages.value = backupPages;
+    };
+
+    // 当前page替换
+    const replaceCurrentPage = async (page: PageProps) => {
+        const index = windowCards.value.findIndex(item => item.ID === page.ParentID);
+        const subIndex = windowCards.value[index].PageList.findIndex(item => item.ID === page.ID);
+
+        windowCards.value[index].PageList.splice(subIndex, 1, page);
+
+        const slide = await transformPageDetail(page, page.Json);
+        pageMap.value.set(page?.ID, slide);
+
+        const idx = allPages.value.findIndex(item => item.ID === page?.ID);
+        allPages.value[idx] = page;
     };
 
     return {
@@ -179,6 +191,7 @@ export default (windowCards: Ref<CardProps[]>, allPages: Ref<PageProps[]>, pageM
         createCardPage,
         sortWindowCards,
         handlePageClick,
+        replaceCurrentPage,
         handleOpenLessonDesign
     };
 };

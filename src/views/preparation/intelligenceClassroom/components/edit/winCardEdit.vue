@@ -202,7 +202,7 @@ export default defineComponent({
                         pauseList: val.pauseList.map((item: any) => item.time),
                         ossSrc: "",
                         ossPoster: "",
-                        ossIcon: "",
+                        ossIcon: ""
                     });
                     updateVideoElement.value = null;
                 } else {

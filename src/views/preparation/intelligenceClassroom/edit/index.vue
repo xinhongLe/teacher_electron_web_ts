@@ -117,7 +117,6 @@
                     @updatePageSlide="updatePageSlide"
                     :slide="{ ...pageMap.get(currentPage?.ID ) }"
                     :subjectID="subjectPublisherBookValue?.SubjectId || ''"
-                    @updateAllPageSlideListMap="updateAllPageSlideListMap"
                 />
             </div>
         </div>
@@ -155,7 +154,6 @@
         ref="materialCenterRef"
         @insertData="handleInsertData"
         @insertTools="handleInsertTool"
-        @editTemplate="editTemplate"
         :lessonId="windowInfo?.lessonId || ''"
         :subjectID="subjectPublisherBookValue?.SubjectId || ''"
     />
@@ -170,9 +168,9 @@ import { saveWindows } from "../api";
 import useHome from "@/hooks/useHome";
 import { getOssUrl } from "@/utils/oss";
 import loading from "@/components/loading";
-import { getWindowStruct } from "@/api/home";
 import usePreview from "./hooks/usePreview";
-import { saveTemplate } from "@/api/material";
+import { getImageSize } from "@/utils/image";
+import { getWindowStruct } from "@/api/home";
 import useImportPPT from "@/hooks/useImportPPT";
 import useHandlePPT from "./hooks/useHandlePPT";
 import { isFullscreen } from "@/utils/fullscreen";
@@ -188,6 +186,7 @@ import CardPopover from "../components/edit/CardPopover.vue";
 import WinCardView from "../components/edit/winScreenView.vue";
 import AddPageDialog from "../components/edit/addPageDialog.vue";
 import materialCenter from "../components/edit/materialCenter/index.vue";
+import { addTeachPageTemplateLinkCount, saveTemplate } from "@/api/material";
 import { computed, defineComponent, nextTick, onMounted, onUnmounted, ref } from "vue";
 
 export default defineComponent({
@@ -344,41 +343,37 @@ export default defineComponent({
         let selectPage: PageProps | null = null;
         // PPT悬浮操作（1-新增文件夹，2-新增空白页，3-重命名，4-隐藏/显示，5-粘贴页，6-复制页，7-保存模板，8-删除，9-新增互动页）
         const handleCartItem = (type: number, data: PageProps | CardProps) => {
-            switch (type) {
-            case 1:
+            if (type === 1) {
                 loading.show();
                 addHandle.createFolder();
-                break;
-            case 2:
+            }
+            if (type === 2) {
                 loading.show();
                 addHandle.createCardPage(pageTypeList[0], data);
-                break;
-            case 3:
+            }
+            if (type === 3) {
                 addHandle.rename(data);
-                break;
-            case 4:
+            }
+            if (type === 4) {
                 (data as PageProps).State = (data as PageProps).State ? 0 : 1;
-                break;
-            case 5:
+            }
+            if (type === 5) {
                 loading.show();
                 addHandle.paste(data as CardProps);
-                break;
-            case 6:
+            }
+            if (type === 6) {
                 loading.show();
                 addHandle.copy(data as PageProps);
-                break;
-            case 7:
+            }
+            if (type === 7) {
                 handleSaveTemplate(data as PageProps);
-                break;
-            case 8:
+            }
+            if (type === 8) {
                 addHandle.remove(data);
-                break;
-            case 9:
+            }
+            if (type === 9) {
                 selectPage = cloneDeep<PageProps>(data as PageProps);
                 addPageVisible.value = true;
-                break;
-            default:
-                console.log("1");
             }
 
             setTimeout(() => {
@@ -514,6 +509,174 @@ export default defineComponent({
             }
         };
 
+        // 插入左侧窗卡页 资源库-模板素材操作
+        const handleInsertData = async (obj: { type: "elements" | "page", data: any, teachPageTemplateID?: string }) => {
+            if (!currentPage.value) {
+                ElMessage.warning("请先选择页，再进行插入");
+                return;
+            }
+            const page = currentPage.value;
+            const index = windowCards.value.findIndex(item => item.ID === page?.ParentID);
+            const subIndex = windowCards.value[index].PageList.findIndex(item => item.ID === page?.ID);
+
+            if (obj.type === "page") {
+                windowCards.value[index].PageList.splice(subIndex + 1, 0, ...obj.data);
+                await addHandle.sortWindowCards(index, 0);
+
+                // 插入成功后调用一下增加次数的接口
+                await addTeachPageTemplateLinkCount({
+                    TeacherID: "",
+                    TeachPageTemplateID: obj.teachPageTemplateID || ""
+                });
+                await nextTick(() => {
+                    materialCenterRef.value.addLinkCount(
+                        obj.teachPageTemplateID || ""
+                    );
+                });
+            }
+            if (obj.type === "elements") {
+                if (page?.Type === pageType.game || page?.Type === pageType.teach || page?.Type === pageType.listen || page?.Type === pageType.follow) {
+                    ElMessage.warning("当前页无法添加素材，请先切换到素材页哦！");
+                    return;
+                }
+                const data = obj.data;
+                if (!(page.Json.elements instanceof Array)) {
+                    page.Json.elements = [];
+                }
+
+                if ([2, 3].includes(data.Type)) {
+                    const element = await getImageData(data);
+                    page.Json.elements.push(element);
+                }
+
+                if (data.Type === 4) {
+                    const file = data.Files?.length ? data.Files.find((item: any) => item.Type === 0) : null;
+                    if (!file) return;
+
+                    const element = JSON.parse(file.Json);
+                    element.offSetElements.forEach((item: any) => (item.id = uuidv4()));
+
+                    page.Json.elements.push(...element.offSetElements);
+                }
+
+                if ([5, 6].includes(data.Type)) {
+                    const element = getAudioVideoData(data, data.Type === 5 ? "video" : "audio");
+                    page.Json.elements.push(element);
+                }
+
+                await addHandle.replaceCurrentPage(page);
+            }
+        };
+
+        // 插入教具内容以及教具页
+        const handleInsertTool = async (obj: any) => {
+            if (!currentPage.value) {
+                ElMessage.warning("请先选择页，再进行插入");
+                return;
+            }
+            const id = uuidv4();
+            const page = {
+                ID: id,
+                TeachPageRelationID: "",
+                Name: "教具页",
+                Height: 0,
+                Width: 0,
+                Type: pageType.teach,
+                Sort: 0,
+                State: 1,
+                AcademicPresupposition: "",
+                DesignIntent: "",
+                Index: 0,
+                Url: obj.data.url,
+                ParentID: currentPage.value?.ID,
+                Json: {
+                    TeachPageID: id,
+                    TeachingMiniToolID: obj.data.ID,
+                    ToolFileModel: {
+                        ID: obj.data.ID,
+                        Name: obj.data.Name,
+                        File: obj.data.File,
+                        Url: obj.data.Url
+                    }
+                }
+            };
+            const index = windowCards.value.findIndex(item => item.ID === currentPage.value?.ParentID);
+            const subIndex = windowCards.value[index].PageList.findIndex(item => item.ID === currentPage.value?.ID);
+
+            windowCards.value[index].PageList.splice(subIndex + 1, 0, page);
+            await addHandle.sortWindowCards(index, subIndex);
+        };
+
+        // 保存完组件后刷新素材列表
+        const updateMaterial = () => {
+            nextTick(() => {
+                materialCenterRef.value.updateMaterialList();
+            });
+        };
+
+        const updatePageSlide = (slide: Slide) => {
+            if (!currentPage.value) return;
+            currentPage.value.Json = slide;
+
+            addHandle.replaceCurrentPage(currentPage.value);
+        };
+
+        const VIEWPORT_RATIO = 0.5625;
+        const VIEWPORT_SIZE = 1280;
+
+        function getImageData(data: any) {
+            return new Promise(resolve => {
+                getImageSize(data.url).then(({ width, height }) => {
+                    const scale = height / width;
+                    if (scale < VIEWPORT_RATIO && width > VIEWPORT_SIZE) {
+                        width = VIEWPORT_SIZE;
+                        height = width * scale;
+                    } else if (height > VIEWPORT_SIZE * VIEWPORT_RATIO) {
+                        height = VIEWPORT_SIZE * VIEWPORT_RATIO;
+                        width = height / scale;
+                    }
+
+                    const file = data.Files?.length ? data.Files.find((item: any) => item.Type === 0) : data.SourceMaterialMainID ? data : null;
+
+                    if (!file) return resolve(null);
+
+                    return resolve({
+                        id: uuidv4(),
+                        fixedRatio: true,
+                        name: data.name,
+                        rotate: 0,
+                        src: `${file.FilePath}/${file.FileMD5}.${file.FileExtention}`,
+                        stretch: 1,
+                        eft: (VIEWPORT_SIZE - width) / 2,
+                        top: (VIEWPORT_SIZE * VIEWPORT_RATIO - height) / 2,
+                        type: "image",
+                        width,
+                        height
+                    });
+                });
+            });
+        }
+
+        function getAudioVideoData(data: any, type: "video" | "audio") {
+            const file = data.Files?.length ? data.Files.find((item: any) => item.Type === 1) : null;
+            const width = data.showType === 0 ? 500 : 100;
+            const height = data.showType === 0 ? 300 : 100;
+
+            return {
+                name: data.Name,
+                type: type,
+                id: uuidv4(),
+                width,
+                height,
+                rotate: 0,
+                left: (VIEWPORT_SIZE - width) / 2,
+                top: (VIEWPORT_SIZE * VIEWPORT_RATIO - height) / 2,
+                src: `${file.FilePath}/${file.FileMD5}.${file.FileExtention}`,
+                showType: data.showType,
+                clip: data.clip ? data.clip : undefined
+            };
+        }
+
         function getWindowCardsData() {
             getWindowStruct({
                 WindowID: windowInfo.value.id,
@@ -522,6 +685,7 @@ export default defineComponent({
                 if (res.resultCode !== 200) return;
 
                 const arr = res.result.CardData;
+                if (!arr || arr.length === 0) return;
                 assembleCardData(arr);
             });
         }
@@ -625,6 +789,10 @@ export default defineComponent({
             handleSelect,
             contextMenus,
             handleCartItem,
+            updateMaterial,
+            handleInsertData,
+            updatePageSlide,
+            handleInsertTool,
             addInteractionPage,
             closeCurrentWinCard,
             ...addHandle,

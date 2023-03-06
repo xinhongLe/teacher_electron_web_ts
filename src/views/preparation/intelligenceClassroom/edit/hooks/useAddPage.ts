@@ -1,12 +1,10 @@
 import { ICardList, IPageValue } from "@/types/home";
 import { Ref, ref } from "vue";
-import { v4 as uuidv4 } from "uuid";
 import { findIndex } from "lodash";
 import { Slide } from "wincard";
 import { initSlideData } from "@/utils/dataParsePage";
 import { addPage } from "@/api/home";
 import Node from "element-plus/es/components/tree/src/model/node";
-import { pageTypeList } from "@/config";
 import { CardProps } from "@/views/preparation/intelligenceClassroom/api/props";
 
 export default (
