@@ -213,7 +213,7 @@
                 <img v-if="isFirst" src="../../images/shangyiye_disabled.png" alt="" /> -->
                 </div>
                 <!-- 下一页 -->
-                <div class="me-tool-btn-new next-step" style="width: 120px;" :disabled="isLast" @click="nextStep" v-show="
+                <div class="me-tool-btn-new next-step" style="width: 90px;" :disabled="isLast" @click="nextStep" v-show="
                     selectNextType === NextSettingType.Right ||
                     selectNextType === NextSettingType.All
                 ">
@@ -373,18 +373,18 @@ export default defineComponent({
             // const btn_class =
             //     "." + props.cardClass + " " + ".me-tools-drag .me-tool-btn";
             // const btndom: any = document.querySelectorAll(btn_class);
-            // const widths = btndom.length * 81 + 532;
+            // const widths = btndom.length * 81 + 378;
             // if(props.isShowClose){
 
             // }
-            if (outdom.style.width == "1036px") {
+            if (outdom.style.width == "730px") {
                 isOpen.value = false;
-                outdom.style.width = "532px";
+                outdom.style.width = "378px";
             } else {
                 isOpen.value = true;
-                outdom.style.width = "1036px";
+                outdom.style.width = "730px";
             }
-            const width2 = 1036 - 532;
+            const width2 = 730 - 378;
             if (dom.style.width == width2 + "px") {
                 dom.style.width = 0;
             } else {
@@ -645,8 +645,8 @@ export default defineComponent({
     bottom: 4vh;
 
     .me-tools-steps-new {
-        width: 164px;
-        height: 88px;
+        width: 116px;
+        height: 64px;
         background: rgba(15, 39, 91, 0.15);
         border-radius: 12px;
         display: flex;
@@ -657,8 +657,8 @@ export default defineComponent({
 
 .me-tool-btn-new {
     cursor: pointer;
-    width: 64px;
-    height: 64px;
+    width: 48px;
+    height: 48px;
     background: #FFFFFF;
     border-radius: 8px;
     position: relative;
@@ -675,7 +675,7 @@ export default defineComponent({
         padding: 4px 0;
 
         .text {
-            font-size: 12px;
+            font-size: 9px;
             font-family: HarmonyOS_Sans_SC_Medium;
             color: #414E65;
         }
@@ -684,7 +684,7 @@ export default defineComponent({
 
 .me-tool-btn-line {
     width: 1px;
-    height: 64px;
+    height: 48px;
     background: rgba(65, 78, 101, 0.1);
     margin: 0px 5px;
 }
@@ -695,8 +695,8 @@ export default defineComponent({
 
     .icon-text {
         .next-icon {
-            width: 24px;
-            height: 24px;
+            width: 18px;
+            height: 18px;
             background: url("../../images/slices/arrow_right_blue.png");
             background-size: 100% 100%;
         }
@@ -742,12 +742,12 @@ export default defineComponent({
     // background: rgba(255, 255, 255, 0.3);
     z-index: 999;
     cursor: move;
-    height: 88px;
+    height: 64px;
     display: flex;
     overflow: auto;
     bottom: 9vh;
     right: 6vw;
-    width: 532px;
+    width: 378px;
     transition: width 0.5s, transform 0.5s;
     overflow-y: hidden;
 
@@ -763,7 +763,7 @@ export default defineComponent({
             position: absolute;
             width: 0;
             overflow: hidden;
-            right: 532px;
+            right: 376px;
             height: 100%;
             transition: width 0.5s, transform 0.5s;
         }
@@ -771,8 +771,8 @@ export default defineComponent({
         .me-tools-righttool {
             position: absolute;
             right: 0;
-            width: 532px;
-            height: 88px;
+            width: 378px;
+            height: 64px;
             // background: rgba(15, 39, 91, 0.15);
             border-radius: 12px;
             display: flex;
@@ -798,7 +798,7 @@ export default defineComponent({
 
                 .text {
                     padding-top: 8px;
-                    font-size: 12px;
+                    font-size: 9px;
                     color: #414E65;
                 }
             }
@@ -823,7 +823,7 @@ export default defineComponent({
     .me-tools-set {
         width: fit-content;
         position: relative;
-        width: 164px;
+        width: 118px;
         justify-content: space-evenly;
         align-items: center;
 
@@ -885,9 +885,9 @@ export default defineComponent({
 
 .me-tools-canvas {
     flex: 1;
-    width: 318px;
+    width: 230px;
     align-items: center;
-    margin-left: 24px;
+    // margin-left: 24px;
     justify-content: space-evenly;
 }
 
@@ -989,7 +989,7 @@ export default defineComponent({
         }
 
         .text {
-            font-size: 12px;
+            font-size: 9px;
             font-weight: bold;
             color: #4467a9;
         }
