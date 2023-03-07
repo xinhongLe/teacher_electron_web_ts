@@ -1,5 +1,5 @@
 <template>
-    <div class="p-layout-list" ref="resourceScroll" v-infinite-scroll="load" :infinite-scroll-disabled="disabledScrollLoad">
+    <div class="p-layout">
         <div class="tip" v-if="isLaoding && resourceList.length === 0">
             <img src="@/assets/images/preparation/pic_loading.png" alt="" />
             资源正在加载，请稍候…
@@ -8,31 +8,38 @@
             <img src="@/assets/images/preparation/pic_finish_buzhi.png" alt="" />
             没有相关资源
         </div>
-        <ResourceItem :class="[
-            `resource-${item.ResourceId}`,
-            item.ResourceId === resourceId ? 'doing' : 'custom',
-        ]" v-for="(item, index) in resourceList" :key="index" :data="item" :name="name" :lessonId="course.lessonId"
-            @eventEmit="eventEmit" />
+        <div class="p-layout-lesson" v-if="resourceList.length">
+            <LessonPackage />
+        </div>
+        <div class="p-layout-list" ref="resourceScroll" v-infinite-scroll="load"
+            :infinite-scroll-disabled="disabledScrollLoad">
 
-        <DeleteTip :target="targetDelete" v-model:visible="deleteTipVisible" @onDeleteSuccess="onDeleteSuccess" />
+            <ResourceItem :class="[
+                `resource-${item.ResourceId}`,
+                item.ResourceId === resourceId ? 'doing' : 'custom',
+            ]" v-for="(item, index) in resourceList" :key="index" :data="item" :name="name" :lessonId="course.lessonId"
+                @eventEmit="eventEmit" />
 
-        <EditTip @update="update" :resource="resource" v-model:visible="editTipVisible" />
+            <DeleteTip :target="targetDelete" v-model:visible="deleteTipVisible" @onDeleteSuccess="onDeleteSuccess" />
 
-        <ResourceVersion :target="target" v-model:visible="resourceVersionVisible" />
+            <EditTip @update="update" :resource="resource" v-model:visible="editTipVisible" />
 
-        <DeleteVideoTip :target="target" :resource="resource" v-model:visible="deleteVideoTipVisible" />
+            <ResourceVersion :target="target" v-model:visible="resourceVersionVisible" />
 
-        <ResourceView :name="name" :target="target" :resource="resource" :lessonId="course.lessonId"
-            v-model:visible="resourceVisible" :data="resourceData" @closeDetail="closeDetail" @eventEmit="eventEmit" />
+            <DeleteVideoTip :target="target" :resource="resource" v-model:visible="deleteVideoTipVisible" />
 
-        <div class="download-progress-dialog">
-            <el-dialog class="custom-dialog" title="下载" center align-center destroy-on-close width="300px"
-                :show-close="true" :before-close="cancelDownload" :close-on-click-modal="false" v-model="showDownload">
-                <div class="download-progress-bar">
-                    <div class="download-progress-line" :style="{ width: downloadProgress + '%' }"></div>
-                </div>
-                <div class="download-progress-tip">打包下载中，请稍等...</div>
-            </el-dialog>
+            <ResourceView :name="name" :target="target" :resource="resource" :lessonId="course.lessonId"
+                v-model:visible="resourceVisible" :data="resourceData" @closeDetail="closeDetail" @eventEmit="eventEmit" />
+
+            <div class="download-progress-dialog">
+                <el-dialog class="custom-dialog" title="下载" center align-center destroy-on-close width="300px"
+                    :show-close="true" :before-close="cancelDownload" :close-on-click-modal="false" v-model="showDownload">
+                    <div class="download-progress-bar">
+                        <div class="download-progress-line" :style="{ width: downloadProgress + '%' }"></div>
+                    </div>
+                    <div class="download-progress-tip">打包下载中，请稍等...</div>
+                </el-dialog>
+            </div>
         </div>
     </div>
 </template>
@@ -51,6 +58,7 @@ import {
     watch
 } from "vue";
 import ResourceItem from "./resourceItem.vue";
+import LessonPackage from "./lessonPackage.vue";
 import DeleteTip from "./dialog/deleteTip.vue";
 import EditTip from "./dialog/editTip.vue";
 import ResourceVersion from "./dialog/resourceVersion.vue";
@@ -84,6 +92,7 @@ interface ICourse {
 export default defineComponent({
     components: {
         ResourceItem,
+        LessonPackage,
         DeleteTip,
         EditTip,
         ResourceVersion,
@@ -300,74 +309,74 @@ export default defineComponent({
                     break;
                 case "detail":
                     // if (props.name === "attendClass") {
-                        if (data.ResourceShowType === 2) {
-                            // 断点视频
-                            store.commit(
-                                MutationTypes.SET_FULLSCREEN_RESOURCE,
-                                {
-                                    component: "LookVideo",
-                                    resource: {
-                                        id: data.OldResourceId,
-                                        openMore: true,
-                                    },
-                                }
-                            );
-                        } else if (data.ResourceShowType === 3) {
-                            // 练习卷
-                            store.commit(
-                                MutationTypes.SET_FULLSCREEN_RESOURCE,
-                                {
-                                    component: "LookQuestion",
-                                    resource: {
-                                        id: data.OldResourceId,
-                                        courseBagId: "",
-                                        deleteQuestionIds: [],
-                                        type: 1,
-                                        openMore: true,
-                                    },
-                                }
-                            );
-                        } else if (data.ResourceShowType === 1) {
-                            store.commit(
-                                MutationTypes.SET_FULLSCREEN_RESOURCE,
-                                {
-                                    component: "Wincard",
-                                    resource: {
-                                        id: data.OldResourceId,
-                                        isSystem: data.IsSysFile === 1,
-                                        openMore: true,
-                                    },
-                                }
-                            );
-                        } else if (
-                            data.ResourceShowType === 0 ||
-                            data.ResourceShowType === 4
-                        ) {
-                            store.commit(
-                                MutationTypes.SET_FULLSCREEN_RESOURCE,
-                                {
-                                    component: "ScreenViewFile",
-                                    resource: {
-                                        ...data,
-                                        id: data.OldResourceId,
-                                        openMore: true,
-                                    },
-                                }
-                            );
-                        } else if (data.ResourceShowType === 5) {
-                            store.commit(
-                                MutationTypes.SET_FULLSCREEN_RESOURCE,
-                                {
-                                    component: "AnswerMachine",
-                                    resource: {
-                                        ...data,
-                                        lessonId: course.value.lessonId,
-                                        id: new Date().getTime(),
-                                        openMore: true,
-                                    },
-                                }
-                            );
-                        }
+                    if (data.ResourceShowType === 2) {
+                        // 断点视频
+                        store.commit(
+                            MutationTypes.SET_FULLSCREEN_RESOURCE,
+                            {
+                                component: "LookVideo",
+                                resource: {
+                                    id: data.OldResourceId,
+                                    openMore: true,
+                                },
+                            }
+                        );
+                    } else if (data.ResourceShowType === 3) {
+                        // 练习卷
+                        store.commit(
+                            MutationTypes.SET_FULLSCREEN_RESOURCE,
+                            {
+                                component: "LookQuestion",
+                                resource: {
+                                    id: data.OldResourceId,
+                                    courseBagId: "",
+                                    deleteQuestionIds: [],
+                                    type: 1,
+                                    openMore: true,
+                                },
+                            }
+                        );
+                    } else if (data.ResourceShowType === 1) {
+                        store.commit(
+                            MutationTypes.SET_FULLSCREEN_RESOURCE,
+                            {
+                                component: "Wincard",
+                                resource: {
+                                    id: data.OldResourceId,
+                                    isSystem: data.IsSysFile === 1,
+                                    openMore: true,
+                                },
+                            }
+                        );
+                    } else if (
+                        data.ResourceShowType === 0 ||
+                        data.ResourceShowType === 4
+                    ) {
+                        store.commit(
+                            MutationTypes.SET_FULLSCREEN_RESOURCE,
+                            {
+                                component: "ScreenViewFile",
+                                resource: {
+                                    ...data,
+                                    id: data.OldResourceId,
+                                    openMore: true,
+                                },
+                            }
+                        );
+                    } else if (data.ResourceShowType === 5) {
+                        store.commit(
+                            MutationTypes.SET_FULLSCREEN_RESOURCE,
+                            {
+                                component: "AnswerMachine",
+                                resource: {
+                                    ...data,
+                                    lessonId: course.value.lessonId,
+                                    id: new Date().getTime(),
+                                    openMore: true,
+                                },
+                            }
+                        );
+                    }
                     // } else {
                     //     openResource(data);
                     // }
@@ -607,18 +616,32 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-.p-layout-list {
-    flex: 1;
-    min-height: 0;
-    min-width: 0;
+.p-layout {
+    display: flex;
     position: relative;
-    padding: 0 20px;
-    overflow-y: auto;
 
-    .doing {
-        border-left: 4px solid #4b71ee;
-        box-shadow: 0px 6px 16px 0px rgba(0, 0, 0, 0.16);
+    .p-layout-lesson {
+        display: flex;
+        padding-left: 20px;
+        // width: 20%;
     }
+
+    .p-layout-list {
+        height: calc(100vh - 230px);
+        flex: 1;
+        min-height: 0;
+        min-width: 0;
+        position: relative;
+        padding: 0 20px;
+        overflow-y: auto;
+        // display: flex; 
+
+        .doing {
+            border-left: 4px solid #4b71ee;
+            box-shadow: 0px 6px 16px 0px rgba(0, 0, 0, 0.16);
+        }
+    }
+
 }
 
 .tip {

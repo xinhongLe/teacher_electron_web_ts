@@ -1,21 +1,16 @@
 <template>
-    <div
-        @drop.prevent="isDrop && colData.ID ? onDrop($event, colData) : null"
+    <div @drop.prevent="isDrop && colData.ID ? onDrop($event, colData) : null"
         @dragover="isDrop && colData.ID ? $event.preventDefault() : null"
         @dragenter="isDrop && colData.ID ? (isActive = true) : null"
         @dragleave="isDrop && colData.ID ? (isActive = false) : null"
-        class="course cell"
-        :class="[
+        @mouseenter="isDragging && colData.ID ? (isActive = true) : null"
+        @mouseleave="isDragging && colData.ID ? (isActive = false) : null"
+        @mousedown.prevent="onMouseDownEnd($event, colData)" class="course cell" :class="[
             isActive ? 'active' : '',
             isDragging ? 'drag-event-class' : '',
-        ]"
-    >
-        <el-popover
-            :visible="currentClassId === colData.ID && !isMobile"
-            popper-class="preparation-popper-class-adjust"
-            :append-to-body="false"
-            v-if="colData.ClassName"
-        >
+        ]">
+        <el-popover :visible="currentClassId === colData.ID && !isMobile" popper-class="preparation-popper-class-adjust"
+            :append-to-body="false" v-if="colData.ClassName">
             <div>
                 <p v-show="colData.LessonName">
                     课程名称：{{ colData.LessonName }}
@@ -25,19 +20,12 @@
                 <p>班级：{{ colData.ClassName }}</p>
             </div>
             <template #reference>
-                <div
-                    class="course-content-warp"
-                    @mouseenter="currentClassId = colData.ID"
-                    @mouseleave="currentClassId = ''"
-                >
-                    <div
-                        class="course-content"
-                        :class="{
-                            'has-course': colData.LessonName,
-                            end: isEnd,
-                        }"
-                        @click="goToClass(), clicKBuryPoint()"
-                    >
+                <div class="course-content-warp" @mouseenter="currentClassId = colData.ID"
+                    @mouseleave="currentClassId = ''">
+                    <div class="course-content" :class="{
+                        'has-course': colData.LessonName,
+                        end: isEnd,
+                    }" @click="goToClass(), clicKBuryPoint()">
                         <div class="course-name">
                             {{ colData.LessonName }}
                         </div>
@@ -45,31 +33,16 @@
                             <div class="class-name">
                                 {{ colData.ClassName }}
                             </div>
-                            <div
-                                v-if="colData.count > 0"
-                                class="my-course-cart"
-                                :num="colData.count"
-                            >
-                                <img
-                                    src="@/assets/images/preparation/cart.png"
-                                    alt=""
-                                />
+                            <div v-if="colData.count > 0" class="my-course-cart" :num="colData.count">
+                                <img src="@/assets/images/preparation/cart.png" alt="" />
                             </div>
-                            <div
-                                v-if="colData.CourseName"
-                                class="content-class"
-                                :style="{
-                                    backgroundColor: bgColor,
-                                }"
-                            >
+                            <div v-if="colData.CourseName" class="content-class" :style="{
+                                backgroundColor: bgColor,
+                            }">
                                 {{ colData.CourseName?.substring(0, 1) }}
                             </div>
                         </div>
-                        <div
-                            class="delete-icon-warp"
-                            v-if="colData.LessonName && isShowDelete"
-                            @click.stop="deleteCourse"
-                        >
+                        <div class="delete-icon-warp" v-if="colData.LessonName && isShowDelete" @click.stop="deleteCourse">
                             <span class="line"></span>
                         </div>
                     </div>
@@ -99,7 +72,9 @@ import { store } from "@/store";
 import { addSchedulePackage, removeSchedulePackage } from "@/api/resource";
 import usePageEvent from "@/hooks/usePageEvent";
 import { EVENT_TYPE } from "@/config/event";
+import useClickDrag from "@/hooks/useClickDrag";
 const { createBuryingPointFn } = usePageEvent("备课");
+const { clickOutSide } = useClickDrag();
 const CourseBgColor: Record<string, string> = {
     语文: "#4FCC94",
     数学: "#63D1FA",
@@ -147,6 +122,7 @@ const isActive = ref(false);
 const router = useRouter();
 
 const isDragging = computed(() => store.state.common.isDragging);
+const currentPackageData = computed(() => store.state.common.currentPackageData);
 
 const bgColor = computed(
     () => CourseBgColor[props.colData.CourseName || "其他"] || "#84AAF7"
@@ -216,6 +192,53 @@ const addSchedule = async (dragInfo: SchoolLesson) => {
     return res;
 };
 
+// 鼠标在课表区域按下
+const onMouseDownEnd = async (ev: MouseEvent, colData: ColData) => {
+    const dom: any = document.querySelector('.dragging-click-dom-ele');//备课包虚拟dom
+    const dragInfo: SchoolLesson = currentPackageData.value;
+    if (!dragInfo) return;
+    if (isDragging && colData.ID) {
+        isActive.value = false;
+        clickOutSide(ev, dom)
+        if (!colData.ID) return;
+        if (props.colData.LessonID) {
+            return ElMessageBox.confirm(
+                "当前时间点已有排课，是否覆盖？",
+                "覆盖提示",
+                {
+                    confirmButtonText: "确定",
+                    cancelButtonText: "取消",
+                    type: "warning",
+                }
+            ).then(async () => {
+                const res = await addSchedule(dragInfo);
+                // console.log("dragInfo", dragInfo, colData);
+
+                if (res.resultCode === 200) {
+                    ElMessage.success("更新成功");
+                    updateSchedules();
+                    //拖动课程进入课表成功后，调用埋点接口
+                    createBuryingPointFn(
+                        EVENT_TYPE.ScheduleStart,
+                        "排课",
+                        "课表",
+                        colData
+                    );
+                }
+            });
+        }
+        const res = await addSchedule(dragInfo);
+        if (res.resultCode === 200) {
+            ElMessage.success("排课成功");
+            updateSchedules();
+            //拖动课程进入课表成功后，调用埋点接口
+            createBuryingPointFn(EVENT_TYPE.ScheduleStart, "排课", "课表", colData);
+        }
+    } else {
+        clickOutSide(ev, dom);
+    }
+};
+
 const onDrop = async (ev: DragEvent, colData: ColData) => {
     isActive.value = false;
     const dragInfo = JSON.parse(
@@ -281,13 +304,18 @@ const clicKBuryPoint = () => {
 <style lang="scss" scoped>
 .course {
     &.active {
-        border: 2px solid #a5b8f6 !important;
+        cursor: copy;
+        // border: 2px solid #a5b8f6 !important;
+        // outline: #a5b8f6;
+        outline: solid 2px #a5b8f6
     }
+
     .course-content-warp {
         padding: 2px;
         height: 100%;
         width: 100%;
         position: relative;
+
         .course-content {
             height: 100%;
             width: 100%;
@@ -296,14 +324,17 @@ const clicKBuryPoint = () => {
             justify-content: space-between;
             background-color: #fff;
             border-radius: 2px;
+
             &.has-course {
                 border: 1px solid #456ced;
                 background: #cbdaff;
             }
+
             &.end {
                 background: #d7f6e7;
                 border: none;
             }
+
             .course-name {
                 overflow: hidden;
                 text-overflow: ellipsis;
@@ -318,12 +349,14 @@ const clicKBuryPoint = () => {
                 color: #19203d;
                 margin-bottom: 6px;
             }
+
             .bottom {
                 padding: 0 2px 2px 12px;
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
             }
+
             .class-name {
                 color: #19203d;
                 font-size: 12px;
@@ -333,6 +366,7 @@ const clicKBuryPoint = () => {
                 min-width: 0;
                 @include text-ellipsis();
             }
+
             .content-class {
                 height: 20px;
                 padding: 0 4px;
@@ -343,6 +377,7 @@ const clicKBuryPoint = () => {
                 font-size: 12px;
                 border-radius: 2px;
             }
+
             .delete-icon-warp {
                 position: absolute;
                 right: 0;
@@ -355,6 +390,7 @@ const clicKBuryPoint = () => {
                 justify-content: center;
                 align-items: center;
                 cursor: pointer;
+
                 .line {
                     background-color: #ffffff;
                     height: 2px;
@@ -369,6 +405,7 @@ const clicKBuryPoint = () => {
     margin: 0 10px;
     font-size: 14px;
     position: relative;
+
     &:before {
         content: attr(num);
         display: block;
@@ -386,6 +423,7 @@ const clicKBuryPoint = () => {
         text-align: center;
         line-height: 1;
     }
+
     img {
         width: 30px;
         display: block;

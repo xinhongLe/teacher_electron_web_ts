@@ -10,6 +10,7 @@ import Icon from "./plugins/icon";
 import Directive from "./directive/index";
 import Drag from "./directive/drag"; 
 import DragLine from "./directive/dragLine";
+import MouseFollow from "./directive/mouseFollow";
 // import "@/utils/flexible";
 import "./permission";
 import "./styles/index.scss";
@@ -35,6 +36,7 @@ app.use(
     .use(router)
     .use(Directive)
     .use(DragLine)
+    .use(MouseFollow)
     .use(Drag)
     .mount("#app");
 app.config.globalProperties.mittBus = mitt();
