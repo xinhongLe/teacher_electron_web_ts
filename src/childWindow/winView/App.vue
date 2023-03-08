@@ -26,7 +26,8 @@
                             :WindowName="WindowName" :winList="cardList" :isPreview="true" :isShowCardList="isShowCardList"
                             :isFullScreen="isFullScreen" @lastPage="lastPage" @firstPage="firstPage"
                             @changeWinSize="changeWinSize" @fullScreen="fullScreen" @clockFullScreen="clockFullScreen"
-                            v-model:isCanUndo="isCanUndo" v-model:isCanRedo="isCanRedo" />
+                            v-model:isCanUndo="isCanUndo" v-model:isCanRedo="isCanRedo"
+                            v-model:currentDrawColor="currentDrawColor" v-model:currentLineWidth="currentLineWidth" />
                     </div>
                 </div>
             </div>

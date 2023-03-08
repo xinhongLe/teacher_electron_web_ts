@@ -266,9 +266,14 @@ export default defineComponent({
         watch(
             () => currentLineWidth.value,
             (val) => {
+                console.log('currentLineWidth.value',currentLineWidth.value);
+                
                 emit("update:currentLineWidth", val);
             }
         );
+        const whiteboardOption = (option: string, value?: number) => {
+            screenRef.value && screenRef.value.whiteboardOption(option, value);
+        };
         // 退回
         const redo = () => {
             screenRef.value.redo();
@@ -308,7 +313,8 @@ export default defineComponent({
             currentDrawColor,
             currentLineWidth,
             redo,
-            undo
+            undo,
+            whiteboardOption
         };
     },
 });

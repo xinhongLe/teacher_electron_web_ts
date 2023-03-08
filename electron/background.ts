@@ -275,7 +275,7 @@ app.on("ready", async () => {
     if (!result && !isOpenFile) {
         createWindow();
     }
-    // createLocalPreview(["/Users/admin/Desktop/识字1《春夏秋冬》第一课时(副本).lyxpkg"])
+    createLocalPreview(["/Users/admin/Desktop/识字1《春夏秋冬》第一课时(副本).lyxpkg"])
 });
 
 app.on("render-process-gone", (event, webContents, details) => {

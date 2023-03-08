@@ -391,7 +391,7 @@ export function createLocalPreviewWindow(filePath: string) {
             devTools: !!process.env.WEBPACK_DEV_SERVER_URL,
         },
     });
-    // win.webContents.openDevTools();
+    win.webContents.openDevTools();
     win.once("ready-to-show", () => {
         win.show();
     });
