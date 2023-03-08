@@ -18,23 +18,23 @@ interface PageData {
 export default () => {
     const transformType = (type: number | string) => {
         switch (type) {
-        case 11:
-        case "element":
-            return 0;
-        case 12:
-        case "listen":
-            return 1;
-        case 13:
-        case "follow":
-            return 2;
-        case 16:
-        case "teach":
-            return 3;
-        case 20:
-        case "game":
-            return 4;
-        default:
-            return -1;
+            case 11:
+            case "element":
+                return 0;
+            case 12:
+            case "listen":
+                return 1;
+            case 13:
+            case "follow":
+                return 2;
+            case 16:
+            case "teach":
+                return 3;
+            case 20:
+            case "game":
+                return 4;
+            default:
+                return -1;
         }
     };
     const getPageDetail = async (page: IPageValue, originType: any, callback: any) => {
@@ -45,7 +45,7 @@ export default () => {
             const res = {}; // 不支持页面返回空对象
             return callback(res);
         }
-        await getPageDetailRes(data, type, async(res:any) => {
+        await getPageDetailRes(data, type, async (res: any) => {
             const pageDetail = await dealPageDetail(page, res);
             callback(pageDetail);
         });
@@ -114,7 +114,7 @@ export default () => {
             newSlide = dealOldDataGame(page.ID, pageDetail);
         }
         const pageSlide = Object.assign(newSlide, { remark: page.AcademicPresupposition || "", design: page.DesignIntent || "" });
-        await saveDBdata(pageSlide);
+        saveDBdata(pageSlide);
         return pageSlide;
     };
 
@@ -167,11 +167,19 @@ export default () => {
         }
     };
 
+    // 组装PPT中slide数据
+    const assemblePageSlide = (page: PageProps, json: any) => {
+        if (json.Type === pageType.element) {
+
+        }
+    };
+
     return {
-        getPageDetail,
-        dealPageDetail,
         savePage,
+        getPageDetail,
         transformType,
+        dealPageDetail,
+        assemblePageSlide,
         transformPageDetail
     };
 };

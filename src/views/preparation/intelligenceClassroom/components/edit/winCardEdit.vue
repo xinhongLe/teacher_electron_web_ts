@@ -5,6 +5,7 @@
             :slide="slide"
             @onSave="onSave"
             @addCard="addCard"
+            :showThemeAllUse="true"
             @selectGame="selectGame"
             @selectVideo="selectVideo"
             @outElements="outElements"
@@ -12,6 +13,7 @@
             v-model:windowName="windowName"
             @updateQuoteVideo="updateQuoteVideo"
             @openLessonDesign="openLessonDesign"
+            @applyBackgroundAllSlide="applyBackgroundAllSlide"
         />
         <!--选择弹卡-->
         <card-select-dialog
@@ -92,8 +94,9 @@ export default defineComponent({
     emits: [
         "onSave",
         "updatePageSlide",
-        "updateAllPageSlideListMap",
-        "updateMaterial"
+        "updateMaterial",
+        "applyBackgroundAllSlide",
+        "updateAllPageSlideListMap"
     ],
     setup(props, { emit }) {
         const { saveElements } = useSaveElements();
@@ -274,6 +277,10 @@ export default defineComponent({
             PPTEditRef.value.handleHelper();
         };
 
+        const applyBackgroundAllSlide = (data: any) => {
+            emit("applyBackgroundAllSlide", data);
+        };
+
         return {
             ...toRefs(state),
             onSave,
@@ -302,7 +309,8 @@ export default defineComponent({
             updateLesson,
             TeacherID,
             handleSave,
-            handleHelper
+            handleHelper,
+            applyBackgroundAllSlide
         };
     }
 });

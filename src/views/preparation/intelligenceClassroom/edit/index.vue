@@ -116,6 +116,7 @@
                     @updateMaterial="updateMaterial"
                     @updatePageSlide="updatePageSlide"
                     :slide="{ ...pageMap.get(currentPage?.ID ) }"
+                    @applyBackgroundAllSlide="applyBackgroundAllSlide"
                     :subjectID="subjectPublisherBookValue?.SubjectId || ''"
                 />
             </div>
@@ -621,6 +622,31 @@ export default defineComponent({
             addHandle.replaceCurrentPage(currentPage.value);
         };
 
+        const applyBackgroundAllSlide = (data: any) => {
+            const list = cloneDeep<CardProps[]>(windowCards.value);
+            for (let i = 0; i < list.length; i++) {
+                const item = list[i];
+
+                for (let j = 0; j < item.PageList.length; j++) {
+                    const it = item.PageList[j];
+
+                    if (!it.Json.background) continue;
+                    pageMap.value.set(it.ID, it.Json);
+
+                    it.Json.background = data;
+                }
+            }
+
+            windowCards.value = list;
+
+            for (let i = 0; i < allPages.value.length; i++) {
+                const item = allPages.value[i];
+
+                if (!item.Json.background) continue;
+                item.Json.background = data;
+            }
+        };
+
         const VIEWPORT_RATIO = 0.5625;
         const VIEWPORT_SIZE = 1280;
 
@@ -684,9 +710,9 @@ export default defineComponent({
             }).then(res => {
                 if (res.resultCode !== 200) return;
 
-                const arr = res.result.CardData;
-                if (!arr || arr.length === 0) return;
-                assembleCardData(arr);
+                const list = res.result.CardData;
+                if (!list || list.length === 0) return;
+                assembleCardData(list);
             });
         }
 
@@ -795,6 +821,7 @@ export default defineComponent({
             handleInsertTool,
             addInteractionPage,
             closeCurrentWinCard,
+            applyBackgroundAllSlide,
             ...addHandle,
             ...pptHandle,
             ...previewHandle
@@ -1129,5 +1156,13 @@ export default defineComponent({
     i {
         color: #2E95FF;
     }
+}
+
+.canvas-tool .left-handler {
+    position: fixed;
+    left: 26px;
+    height: 56px;
+    display: flex;
+    align-items: center;
 }
 </style>
