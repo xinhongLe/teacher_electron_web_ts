@@ -18,7 +18,7 @@
                         ? iconResources.selfStudy[data.ResourceType]
                         : iconResources.other[data.ResourceType]
                 " alt="" />
-                <el-button type="primary" size="small">排课</el-button>
+                <el-button v-if="source != 'me'" type="primary" size="small">排课</el-button>
             </div>
             <div class="resource-content">
                 <div class="resource-title">
@@ -159,11 +159,11 @@
                     编辑
                 </el-button>
 
-                <el-popover placement="bottom" :width="200" trigger="hover">
+                <el-popover placement="bottom" :width="150" trigger="hover" popper-class="lesson-package-popover">
                     <template #reference>
                         <el-button class="p-control-btn p-move" v-if="data.IsBag" @click.stop="handleCommand('move')">
-                            <img src="@/assets/images/preparation/icon_yichu.png" alt="" />
-                            移出备课包
+                            <!-- <img src="@/assets/images/preparation/icon_yichu.png" alt="" /> -->
+                            已加入备课包
                         </el-button>
                         <el-button class="p-control-btn p-add" v-if="!data.IsBag"
                             @click.stop="($event) => handleCommand('add', $event)">
@@ -171,13 +171,13 @@
                             加入备课包
                         </el-button>
                     </template>
-                    <div>
-                        <div>备课包1</div>
-                        <div>备课包2</div>
-                        <div>备课包3</div>
-                        <el-button>
-                            新增
-                        </el-button>
+                    <div class="lesson-package-select">
+                        <div class="package-item" v-for="(item,index) in lessonPackageList" :class="{ isInPackage: item.Status }">{{ item.Name }}</div>
+                        <div class="package-add">
+                            <el-button type="text" @click="addLessonPackage">
+                                新增
+                            </el-button>
+                        </div>
                     </div>
 
                 </el-popover>
@@ -199,6 +199,7 @@ import {
 import { IResourceItem } from "@/api/resource";
 import moment from "moment";
 import { useStore } from "@/store";
+import  { IPackage } from "@/hooks/useLessonPackage";
 export default defineComponent({
     components: { Refresh, MoreFilled },
     props: {
@@ -221,9 +222,17 @@ export default defineComponent({
         name: {
             type: String,
             default: ""
+        },
+        source:{
+            type: String,
+            default: ""
+        },
+        lessonPackageList: {
+            type: Object as PropType<IPackage[]>,
+            default: () => [],
         }
     },
-    emits: ["eventEmit"],
+    emits: ["eventEmit","addLessonPackage"],
     setup(props, { emit }) {
         const store = useStore();
 
@@ -289,10 +298,13 @@ export default defineComponent({
                 (book.LessonName ? " / " + book.LessonName : "")
                 : "--";
         });
-
+        const addLessonPackage = ()=>{
+            emit("addLessonPackage")
+        }
         return {
             handleCommand,
             dealTime,
+            addLessonPackage,
             iconResources,
             textResources,
             directoryName,
@@ -591,4 +603,44 @@ export default defineComponent({
         }
     }
 }
-</style>
+
+.lesson-package-popover {
+    .lesson-package-select {
+        .package-item {
+            width: 100%;
+            height: 28px;
+            line-height: 28px;
+            border: 1px solid #e1e1e1;
+            border-radius: 6px;
+            text-align: center;
+            margin-bottom: 6px;
+            cursor: pointer;
+
+            &.isInPackage {
+                border-color: #67c23a;
+                position: relative;
+
+                &::after {
+                    position: absolute;
+                    width: 24px;
+                    height: 24px;
+                    content: "";
+                    right: -5px;
+                    top: -5px;
+                    display: block;
+                    background: url(~@/assets/images/preparation/check.png) no-repeat;
+                    background-size: cover;
+                }
+            }
+
+        }
+
+        .package-item:hover {
+            border-color: #409eff;
+        }
+
+        .package-add {
+            text-align: center;
+        }
+    }
+}</style>

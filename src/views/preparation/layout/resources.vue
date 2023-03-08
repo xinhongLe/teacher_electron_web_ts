@@ -8,17 +8,16 @@
             <img src="@/assets/images/preparation/pic_finish_buzhi.png" alt="" />
             没有相关资源
         </div>
-        <div class="p-layout-lesson" v-if="resourceList.length">
-            <LessonPackage />
+        <div class="p-layout-lesson" v-if="resourceList.length && source == 'me'">
+            <LessonPackage :isMouseDrag="false" :lessonPackageList="lessonPackageList" />
         </div>
         <div class="p-layout-list" ref="resourceScroll" v-infinite-scroll="load"
             :infinite-scroll-disabled="disabledScrollLoad">
-
             <ResourceItem :class="[
                 `resource-${item.ResourceId}`,
                 item.ResourceId === resourceId ? 'doing' : 'custom',
             ]" v-for="(item, index) in resourceList" :key="index" :data="item" :name="name" :lessonId="course.lessonId"
-                @eventEmit="eventEmit" />
+                :source="source" @eventEmit="eventEmit" @addLessonPackage="addLessonPackage" :lessonPackageList="lessonPackageList"/>
 
             <DeleteTip :target="targetDelete" v-model:visible="deleteTipVisible" @onDeleteSuccess="onDeleteSuccess" />
 
@@ -83,6 +82,7 @@ import { ElMessage } from "element-plus";
 import LocalCache from "@/utils/localcache";
 import isElectron from "is-electron";
 import { get, set, STORAGE_TYPES } from "@/utils/storage";
+import useLessonPackage, { IPackage } from "@/hooks/useLessonPackage";
 interface ICourse {
     chapterId: string;
     lessonId: string;
@@ -119,12 +119,15 @@ export default defineComponent({
         name: {
             type: String,
             default: ""
+        },
+        lessonPackageList: {
+            type: Object as PropType<IPackage[]>,
+            default: () => [],
         }
     },
-    emits: ["updateResourceList"],
+    emits: ["updateResourceList", "addLessonPackage","toMyLessonPackage"],
     setup(props, { expose, emit }) {
         const resourceList = ref<IResourceItem[]>([]);
-
         const deleteTipVisible = ref(false);
         const editTipVisible = ref(false);
         const resourceVersionVisible = ref(false);
@@ -500,7 +503,10 @@ export default defineComponent({
         const userId = computed(() => store.state.userInfo.userCenterUserID);
 
         const { source, type, course, bookId } = toRefs(props);
+
         watch([source, type, course, schoolId, bookId], () => {
+            console.log('source.value', source.value);
+            if (source.value === 'me') return;
             update("");
         });
 
@@ -580,7 +586,10 @@ export default defineComponent({
             emitter.emit("updatePackageCount", null);
             if (resourceVisible.value) resourceVisible.value = false;
         };
-
+        const addLessonPackage = () => {
+            emit("toMyLessonPackage")
+            emit("addLessonPackage");
+        };
         expose({ update, openResource, eventEmit });
 
         return {
@@ -592,6 +601,7 @@ export default defineComponent({
             editTipVisible,
             resourceVersionVisible,
             deleteVideoTipVisible,
+            addLessonPackage,
             eventEmit,
             resourceVisible,
             load,
@@ -621,13 +631,12 @@ export default defineComponent({
     position: relative;
 
     .p-layout-lesson {
-        display: flex;
-        padding-left: 20px;
-        // width: 20%;
+        height: calc(100vh - 165px);
+        overflow-y: auto;
     }
 
     .p-layout-list {
-        height: calc(100vh - 230px);
+        height: calc(100vh - 165px);
         flex: 1;
         min-height: 0;
         min-width: 0;

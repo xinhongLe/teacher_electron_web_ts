@@ -1,25 +1,15 @@
 <template>
-    <div class="preparation">
-        <LeftMenu
-            v-model:showClassArrangement="showClassArrangement"
-            v-model:course="course"
-            v-model:bookId="bookId"
-        />
+    <div class="preparation" @mousedown.stop.prevent="clickOutSide($event)">
+        <LeftMenu v-model:showClassArrangement="showClassArrangement" v-model:course="course" v-model:bookId="bookId" />
         <div class="content-wrapper" v-show="!showClassArrangement">
-            <Head
-                :course="course"
-                v-model:source="source"
-                v-model:type="type"
-            />
-            <Resources
-                :course="course"
-                :source="source"
-                :type="type"
-                :bookId="bookId"
-            />
+
+            <Head :course="course" v-model:source="source" v-model:type="type" ref="HeadRef" />
+            <Resources :course="course" :source="source" :type="type" :bookId="bookId"
+                :lessonPackageList="lessonPackageList" @addLessonPackage="addLessonPackage"
+                @toMyLessonPackage="toMyLessonPackage" />
         </div>
         <div class="content-wrapper" v-if="showClassArrangement">
-            <ClassArrangement />
+            <ClassArrangement :lessonPackageList="lessonPackageList" />
         </div>
     </div>
 </template>
@@ -39,9 +29,13 @@ import Resources from "./layout/resources.vue";
 import ClassArrangement from "./classArrangement/index.vue";
 import usePageEvent from "@/hooks/usePageEvent";
 import { RESOURCE_TYPE } from "@/config/resource";
+import useClickDrag from "@/hooks/useClickDrag";
+import useLessonPackage from "@/hooks/useLessonPackage";
 export default defineComponent({
     name: "Preparation",
     setup() {
+        const { lessonPackageList, addLessonPackage } = useLessonPackage();
+        const { startDrag, clickOutSide } = useClickDrag();
         //埋点需求
         const { createBuryingPointFn } = usePageEvent("备课", true);
         const showClassArrangement = ref(false);
@@ -53,13 +47,24 @@ export default defineComponent({
         const source = ref("");
         const type = ref(RESOURCE_TYPE.COURSEWARD);
         const bookId = ref("");
-
+        const HeadRef = ref();
+        const toMyLessonPackage = () => {
+            console.log('HeadRef.value',HeadRef.value);
+            
+            HeadRef.value && HeadRef.value.toMyLessonPackage()
+        };
         return {
             course,
             showClassArrangement,
             source,
             type,
             bookId,
+            HeadRef,
+            clickOutSide,
+            addLessonPackage,
+            toMyLessonPackage,
+            lessonPackageList
+
         };
     },
     components: {

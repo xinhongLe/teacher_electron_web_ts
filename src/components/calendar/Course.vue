@@ -3,8 +3,9 @@
         @dragover="isDrop && colData.ID ? $event.preventDefault() : null"
         @dragenter="isDrop && colData.ID ? (isActive = true) : null"
         @dragleave="isDrop && colData.ID ? (isActive = false) : null"
-        @mouseenter="isDragging && colData.ID ? (isActive = true) : null"
-        @mouseleave="isDragging && colData.ID ? (isActive = false) : null"
+
+        @mouseenter="onMouseEnter"
+        @mouseleave="onMouseLeave"
         @mousedown.prevent="onMouseDownEnd($event, colData)" class="course cell" :class="[
             isActive ? 'active' : '',
             isDragging ? 'drag-event-class' : '',
@@ -192,6 +193,16 @@ const addSchedule = async (dragInfo: SchoolLesson) => {
     return res;
 };
 
+const onMouseEnter = async (ev: MouseEvent) => {
+    if (isDragging.value ) {
+        isActive.value = true
+    } 
+};
+const onMouseLeave = async (ev: MouseEvent) => {
+    if (isDragging.value) {
+        isActive.value = false
+    } 
+};
 // 鼠标在课表区域按下
 const onMouseDownEnd = async (ev: MouseEvent, colData: ColData) => {
     const dom: any = document.querySelector('.dragging-click-dom-ele');//备课包虚拟dom

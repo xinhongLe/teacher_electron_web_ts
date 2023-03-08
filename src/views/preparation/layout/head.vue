@@ -64,7 +64,7 @@
                 />
             </div>
         </div>
-        <div class="p-head-filter">
+        <!-- <div class="p-head-filter">
             <div class="p-filter-content">
                 <el-radio-group
                     class="custom-radio-two"
@@ -79,7 +79,7 @@
                     >
                 </el-radio-group>
             </div>
-        </div>
+        </div> -->
 
         <el-dialog
             class="custom-dialog"
@@ -1097,6 +1097,11 @@ export default defineComponent({
                 });
         };
 
+        const toMyLessonPackage = () =>{
+            source.value = "me";
+            onSourceChange();
+        }
+
         return {
             source,
             sourceList,
@@ -1133,6 +1138,7 @@ export default defineComponent({
             RESOURCE_TYPE,
             openWinCard,
             output,
+            toMyLessonPackage
         };
     },
 });

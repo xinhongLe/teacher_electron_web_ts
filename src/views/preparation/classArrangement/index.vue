@@ -1,14 +1,11 @@
 <template>
 	<div class="p-layout">
-		<div class="p-layout-lesson" @mousedown.stop.prevent="clickOutSide($event)">
-			<div class="package-item" @mousedown.stop.prevent="startDrag($event, { ID: 1, Name: '备课包1' })">
-				<!-- @mouseup="stopDrag" @dragstart="onDragStart($event, { ID: 1, Name: '备课包1' })" @dragend="onDragEnd($event)" -->
-				<!-- @drag="onDrag($event)" -->
-				备课包1
-			</div>
-			<div class="package-item">
-				备课包2
-			</div>
+		<div class="p-layout-lesson">
+			<!-- <div class="package-item" :class="{isActive:item.ID == currentSelectPackageId}" v-for="(item, index) in lessonPackageList"
+				@mousedown.stop.prevent="startDrag($event, item)" @click.stop.prevent="currentSelectPackageId=item.ID">
+			{{ item.Name }}
+			</div> -->
+			<LessonPackage :isMouseDrag="true" :lessonPackageList="lessonPackageList" />
 		</div>
 		<div class="class-arrangement-warp">
 			<Calendar :days="days" ref="calendarRef" :isShowText="true" :isDrop="true" :isShowDetailBtn="true"
@@ -79,18 +76,23 @@
 
 <script lang="ts">
 import useTime from "@/hooks/useTime";
-import { defineComponent, ref } from "vue";
+import { defineComponent, ref, PropType } from "vue";
 import Calendar from "@/components/calendar/index.vue";
 import { ArrowLeftBold, ArrowRightBold } from "@element-plus/icons-vue";
 import { ColData } from "@/hooks/useSchedules";
 import Resources from "../layout/resources.vue";
 import { fetchResourceType, IResourceItem } from "@/api/resource";
 import LessonPackage from "../layout/lessonPackage.vue";
-import useClickDrag from "@/hooks/useClickDrag";
-
+import useLessonPackage, { IPackage } from "@/hooks/useLessonPackage";
 export default defineComponent({
+	props: {
+		lessonPackageList: {
+			type: Object as PropType<IPackage[]>,
+			default: () => [],
+		}
+	},
 	setup() {
-		const { onDragEnd, startDrag, clickOutSide } = useClickDrag();
+		const { currentSelectPackageId } = useLessonPackage();
 		const templatesVisible = ref(false);
 		const calendarRef = ref<InstanceType<typeof Calendar>>();
 		const { days, initDays, nowTime, lateTime, weekPre, weekNext } =
@@ -154,6 +156,7 @@ export default defineComponent({
 		};
 
 		return {
+			currentSelectPackageId,
 			days,
 			nowTime,
 			lateTime,
@@ -171,10 +174,7 @@ export default defineComponent({
 			source,
 			type,
 			switchClass,
-			close,
-			onDragEnd,
-			startDrag,
-			clickOutSide
+			close
 		};
 	},
 	components: { Calendar, ArrowRightBold, ArrowLeftBold, Resources, LessonPackage }
@@ -186,10 +186,9 @@ export default defineComponent({
 	display: flex;
 
 	.p-layout-lesson {
-		padding: 12px 0 0 12px;
+		height: calc(100vh - 80px);
 		overflow-y: auto;
-
-		// height: calc(100vh - 230px);
+		margin-top: 10px;
 		.package-item {
 			height: 180px;
 			text-align: center;
@@ -199,6 +198,10 @@ export default defineComponent({
 			font-size: 30px;
 			cursor: pointer;
 			margin-bottom: 20px;
+
+			&.isActive {
+				outline: 1px solid #409eff;
+			}
 		}
 	}
 

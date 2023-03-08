@@ -238,12 +238,12 @@ html {
 
         .dragging-click-dom-ele {
             pointer-events: none;
-            cursor: not-allowed;
             text-align: center;
-            font-size: 20px;
+            font-size: 22px;
             background-color: rgba($color: #fff, $alpha: 0.8);
             color: #aaa;
             border: 1px solid #aaa;
+            position: relative;
             .problem_item {
                 width: 100%;
                 padding: 12px;
@@ -446,6 +446,20 @@ html {
                     cursor: pointer;
                 }
             }
+
+            .not-allowed-icon {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translateXY(-50%,-50%);
+                width: 30px;
+                height: 30px;
+                box-sizing: border-box;
+                background: url("~@/assets/images/preparation/forbid.png") no-repeat center center;
+                background-size: 100% 100%;
+                pointer-events: none;
+            }
+            
         }
 
         // 首页气泡样式
