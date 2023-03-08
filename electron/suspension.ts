@@ -391,7 +391,7 @@ export function createLocalPreviewWindow(filePath: string) {
             devTools: !!process.env.WEBPACK_DEV_SERVER_URL,
         },
     });
-    win.webContents.openDevTools();
+    // win.webContents.openDevTools();
     win.once("ready-to-show", () => {
         win.show();
     });
@@ -1002,8 +1002,7 @@ function createTeamCompetition2() {
         height: 250,
         alwaysOnTop: true,
         useContentSize: true,
-        maximizable: false,
-        transparent: true
+        maximizable: false
     });
 
     teamCompetitionWin2.on("ready-to-show", () => {
