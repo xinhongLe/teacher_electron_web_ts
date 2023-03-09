@@ -59,6 +59,7 @@ export default (windowCards: Ref<CardProps[]>, allPages: Ref<PageProps[]>, pageM
     const createCardPage = async (pageType: any, data: CardProps | PageProps) => {
         const parentId = (data as PageProps).ParentID || data?.ID;
         const id = uuidv4();
+        const json = initSlideData(id, pageType.value);
         const page = {
             ID: id,
             TeachPageRelationID: "",
@@ -70,15 +71,15 @@ export default (windowCards: Ref<CardProps[]>, allPages: Ref<PageProps[]>, pageM
             State: 1,
             AcademicPresupposition: "",
             DesignIntent: "",
-            Json: initSlideData(id, pageType.value),
+            Json: json,
             Index: 1,
             Url: "",
             ParentID: parentId
         };
         const index = windowCards.value.findIndex(item => item.ID === parentId);
 
-        windowCards.value[index].PageList.push(page);
-        await sortWindowCards(index, windowCards.value[index].PageList.length - 1);
+        insertWindowsCards(page, index);
+        sortWindowCards();
     };
 
     // 重名名
@@ -106,11 +107,11 @@ export default (windowCards: Ref<CardProps[]>, allPages: Ref<PageProps[]>, pageM
         }
         backupPage.ID = uuidv4();
         backupPage.Name = backupPage.Name + "（新）";
-
-        data.PageList.push(backupPage);
-
         const index = windowCards.value.findIndex(item => item.ID === data.ID);
-        await sortWindowCards(index, data.PageList.length - 1);
+
+        insertWindowsCards(backupPage, index);
+
+        sortWindowCards();
     };
 
     // 删除
@@ -118,31 +119,35 @@ export default (windowCards: Ref<CardProps[]>, allPages: Ref<PageProps[]>, pageM
         messageBox({
             content: "此操作将删除该数据, 是否继续?"
         }).then(async () => {
-            if (!(data as PageProps).ParentID) {
-                const index = windowCards.value.findIndex(item => item.ID === (data as CardProps).ID);
-                windowCards.value.splice(index, 1);
-                await sortWindowCards(0, 0);
-            } else {
-                const index = windowCards.value.findIndex(item => item.ID === (data as PageProps).ParentID);
-                const find = windowCards.value.find(item => item.ID === (data as PageProps).ParentID);
+            let list: PageProps[] = [];
+            if ("ParentID" in data) {
+                const find = windowCards.value.find(item => item.ID === data.ParentID);
+                list = [data];
+
                 if (find) {
                     const idx = find.PageList.findIndex(item => item.ID === data.ID);
                     find.PageList.splice(idx, 1);
-                    await sortWindowCards(index, find.ID === currentPage.value?.ID ? 0 : idx - 1);
                 }
+            } else {
+                const index = windowCards.value.findIndex(item => item.ID === (data as CardProps).ID);
+                list = windowCards.value[index].PageList;
+                windowCards.value.splice(index, 1);
             }
+
+            for (let i = 0; i < list.length; i++) {
+                const item = list[i];
+
+                pageMap.value.delete(item.ID);
+
+                allPages.value = allPages.value.filter(it => it.ID !== item.ID);
+            }
+            sortWindowCards();
         });
     };
 
     // 重新排序ppt
-    const sortWindowCards = async (index1 = 0, index2 = 0) => {
-        pageMap.value.clear();
-        allPages.value = [];
-        const time = new Date().getTime();
-
+    const sortWindowCards = () => {
         const list = cloneDeep<CardProps[]>(windowCards.value);
-        currentPage.value = list[index1].PageList[index2];
-        const backupPages = [];
 
         let index = 1;
         for (let i = 0; i < list.length; i++) {
@@ -151,20 +156,14 @@ export default (windowCards: Ref<CardProps[]>, allPages: Ref<PageProps[]>, pageM
             for (let j = 0; j < item.PageList.length; j++) {
                 const it = item.PageList[j];
 
-                const slide = await transformPageDetail(it, it.Json);
-                pageMap.value.set(it.ID, slide);
-
                 it.Index = index;
                 it.Sort = index + 1;
                 it.ParentID = item.ID;
-                backupPages.push(it);
                 index++;
             }
         }
-        console.log((new Date().getTime() - time) * 1000);
 
         windowCards.value = list;
-        allPages.value = backupPages;
     };
 
     // 当前page替换
@@ -181,6 +180,19 @@ export default (windowCards: Ref<CardProps[]>, allPages: Ref<PageProps[]>, pageM
         allPages.value[idx] = page;
     };
 
+    // 往windowsCard插入或删除page数据
+    const insertWindowsCards = async (page: PageProps, index: number, subIndex?: number) => {
+        if (typeof subIndex === "number") {
+            windowCards.value[index].PageList.splice(subIndex + 1, 0, page);
+        } else {
+            windowCards.value[index].PageList.push(page);
+        }
+
+        const slide = await transformPageDetail(page, page.Json);
+        pageMap.value.set(page.ID, slide);
+        allPages.value.push(page);
+    };
+
     return {
         copy,
         paste,
@@ -191,6 +203,7 @@ export default (windowCards: Ref<CardProps[]>, allPages: Ref<PageProps[]>, pageM
         createCardPage,
         sortWindowCards,
         handlePageClick,
+        insertWindowsCards,
         replaceCurrentPage,
         handleOpenLessonDesign
     };

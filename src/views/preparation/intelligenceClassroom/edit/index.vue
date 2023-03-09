@@ -43,7 +43,7 @@
                                 </el-button>
                             </card-popover>
                         </div>
-                        <vue-draggable-next v-model="folder.PageList" group="site" tag="div" class="pages" v-show="folder.Fold" @end="sortWindowCards(0,0)">
+                        <vue-draggable-next v-model="folder.PageList" group="site" tag="div" class="pages" v-show="folder.Fold" @end="sortWindowCards">
                             <transition-group>
                                 <div
                                     class="page"
@@ -524,7 +524,7 @@ export default defineComponent({
 
             if (obj.type === "page") {
                 windowCards.value[index].PageList.splice(subIndex + 1, 0, ...obj.data);
-                await addHandle.sortWindowCards(index, 0);
+                addHandle.sortWindowCards();
 
                 // 插入成功后调用一下增加次数的接口
                 await addTeachPageTemplateLinkCount({
@@ -606,8 +606,8 @@ export default defineComponent({
             const index = windowCards.value.findIndex(item => item.ID === currentPage.value?.ParentID);
             const subIndex = windowCards.value[index].PageList.findIndex(item => item.ID === currentPage.value?.ID);
 
-            windowCards.value[index].PageList.splice(subIndex + 1, 0, page);
-            await addHandle.sortWindowCards(index, subIndex);
+            addHandle.insertWindowsCards(page, index, subIndex);
+            addHandle.sortWindowCards();
         };
 
         // 保存完组件后刷新素材列表
