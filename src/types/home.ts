@@ -20,6 +20,7 @@ export interface IPageValue {
     isAdd?: boolean;
     State: boolean;
     Json?: string;
+    PageID?: string;
     url?: string;
     ParentNum?: number;
     ParentID?: string;

@@ -4,7 +4,7 @@ import DollGame from "../dollGame.vue";
 import CarGame from "../carGame.vue";
 import TugOfWarGame from "../tugOfWarGame.vue";
 import ClassGame from "../classGame/index.vue";
-
+import RunningGame from "../RunningGame.vue";
 export default () => {
     const state = reactive({
         gameTypeList: [
@@ -12,7 +12,8 @@ export default () => {
             { type: 1, com: markRaw(WrdGame) },
             { type: 2, com: markRaw(TugOfWarGame) },
             { type: 3, com: markRaw(ClassGame) },
-            { type: 4, com: markRaw(CarGame) }
+            { type: 4, com: markRaw(CarGame) },
+            { type: 11, com: markRaw(RunningGame) }
         ]
     });
     return {

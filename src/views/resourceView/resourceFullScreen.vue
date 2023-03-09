@@ -20,7 +20,7 @@
         <component
             v-if="videoResource"
             :activeWindow="videoResource && activeWindow === videoResource.component"
-            :is="viewComponents[videoResource.component]"
+            :is="viewComponents[videoResource.component]" 
             :resource="videoResource.resource"
         />
     </div>

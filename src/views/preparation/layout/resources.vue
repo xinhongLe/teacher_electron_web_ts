@@ -1,86 +1,35 @@
 <template>
-    <div
-        class="p-layout-list"
-        ref="resourceScroll"
-        v-infinite-scroll="load"
-        :infinite-scroll-disabled="disabledScrollLoad"
-    >
+    <div class="p-layout-list" ref="resourceScroll" v-infinite-scroll="load" :infinite-scroll-disabled="disabledScrollLoad">
         <div class="tip" v-if="isLaoding && resourceList.length === 0">
             <img src="@/assets/images/preparation/pic_loading.png" alt="" />
             资源正在加载，请稍候…
         </div>
         <div class="tip" v-if="!isLaoding && resourceList.length === 0">
-            <img
-                src="@/assets/images/preparation/pic_finish_buzhi.png"
-                alt=""
-            />
+            <img src="@/assets/images/preparation/pic_finish_buzhi.png" alt="" />
             没有相关资源
         </div>
-        <ResourceItem
-            :class="[
-                `resource-${item.ResourceId}`,
-                item.ResourceId === resourceId ? 'doing' : 'custom',
-            ]"
-            v-for="(item, index) in resourceList"
-            :key="index"
-            :data="item"
-            :name="name"
-            :lessonId="course.lessonId"
-            @eventEmit="eventEmit"
-        />
+        <ResourceItem :class="[
+            `resource-${item.ResourceId}`,
+            item.ResourceId === resourceId ? 'doing' : 'custom',
+        ]" v-for="(item, index) in resourceList" :key="index" :data="item" :name="name" :lessonId="course.lessonId"
+            @eventEmit="eventEmit" />
 
-        <DeleteTip
-            :target="targetDelete"
-            v-model:visible="deleteTipVisible"
-            @onDeleteSuccess="onDeleteSuccess"
-        />
+        <DeleteTip :target="targetDelete" v-model:visible="deleteTipVisible" @onDeleteSuccess="onDeleteSuccess" />
 
-        <EditTip
-            @update="update"
-            :resource="resource"
-            v-model:visible="editTipVisible"
-        />
+        <EditTip @update="update" :resource="resource" v-model:visible="editTipVisible" />
 
-        <ResourceVersion
-            :target="target"
-            v-model:visible="resourceVersionVisible"
-        />
+        <ResourceVersion :target="target" v-model:visible="resourceVersionVisible" />
 
-        <DeleteVideoTip
-            :target="target"
-            :resource="resource"
-            v-model:visible="deleteVideoTipVisible"
-        />
+        <DeleteVideoTip :target="target" :resource="resource" v-model:visible="deleteVideoTipVisible" />
 
-        <ResourceView
-            :name="name"
-            :target="target"
-            :resource="resource"
-            :lessonId="course.lessonId"
-            v-model:visible="resourceVisible"
-            :data="resourceData"
-            @closeDetail="closeDetail"
-            @eventEmit="eventEmit"
-        />
+        <ResourceView :name="name" :target="target" :resource="resource" :lessonId="course.lessonId"
+            v-model:visible="resourceVisible" :data="resourceData" @closeDetail="closeDetail" @eventEmit="eventEmit" />
 
         <div class="download-progress-dialog">
-            <el-dialog
-                class="custom-dialog"
-                title="下载"
-                center
-                align-center
-                destroy-on-close
-                width="300px"
-                :show-close="true"
-                :before-close="cancelDownload"
-                :close-on-click-modal="false"
-                v-model="showDownload"
-            >
+            <el-dialog class="custom-dialog" title="下载" center align-center destroy-on-close width="300px"
+                :show-close="true" :before-close="cancelDownload" :close-on-click-modal="false" v-model="showDownload">
                 <div class="download-progress-bar">
-                    <div
-                        class="download-progress-line"
-                        :style="{ width: downloadProgress + '%' }"
-                    ></div>
+                    <div class="download-progress-line" :style="{ width: downloadProgress + '%' }"></div>
                 </div>
                 <div class="download-progress-tip">打包下载中，请稍等...</div>
             </el-dialog>
@@ -99,7 +48,7 @@ import {
     PropType,
     ref,
     toRefs,
-    watch,
+    watch
 } from "vue";
 import ResourceItem from "./resourceItem.vue";
 import DeleteTip from "./dialog/deleteTip.vue";
@@ -116,7 +65,7 @@ import {
     IResourceItem,
     logDownload,
     logView,
-    removePreparationPackage,
+    removePreparationPackage
 } from "@/api/resource";
 import { MutationTypes, useStore } from "@/store";
 import emitter from "@/utils/mitt";
@@ -139,29 +88,29 @@ export default defineComponent({
         EditTip,
         ResourceVersion,
         DeleteVideoTip,
-        ResourceView,
+        ResourceView
     },
     props: {
         course: {
             type: Object as PropType<ICourse>,
-            required: true,
+            required: true
         },
         source: {
             type: String,
-            required: true,
+            required: true
         },
         type: {
             type: String,
-            required: true,
+            required: true
         },
         bookId: {
             type: String,
-            required: true,
+            required: true
         },
         name: {
             type: String,
-            default: "",
-        },
+            default: ""
+        }
     },
     emits: ["updateResourceList"],
     setup(props, { expose, emit }) {
@@ -213,7 +162,7 @@ export default defineComponent({
                     (book && book.ChapterName) || course.value.chapterName,
                 lessonId: (book && book.LessonID) || course.value.lessonId,
                 lessonName:
-                    (book && book.LessonName) || course.value.lessonName,
+                    (book && book.LessonName) || course.value.lessonName
             });
 
             if (res.success) {
@@ -350,7 +299,7 @@ export default defineComponent({
                     removePackage(data);
                     break;
                 case "detail":
-                    if (props.name === "attendClass") {
+                    // if (props.name === "attendClass") {
                         if (data.ResourceShowType === 2) {
                             // 断点视频
                             store.commit(
@@ -419,9 +368,9 @@ export default defineComponent({
                                 }
                             );
                         }
-                    } else {
-                        openResource(data);
-                    }
+                    // } else {
+                    //     openResource(data);
+                    // }
 
                     logView({ id: data.ResourceId });
                     data.BrowseNum++;
@@ -432,7 +381,7 @@ export default defineComponent({
                     break;
             }
         };
-        //直接打开编辑窗口
+        // 直接打开编辑窗口
         const editWincard = (data: any) => {
             set(
                 STORAGE_TYPES.SUBJECT_BOOK_INFO,
@@ -449,7 +398,7 @@ export default defineComponent({
             openWinCard(cacheResource.Name);
             // router.push("/windowcard-edit");
         };
-        //直接打开编辑窗口
+        // 直接打开编辑窗口
         const openWinCard = (name: any) => {
             if (isElectron()) {
                 return window.electron.ipcRenderer.invoke(
@@ -459,21 +408,35 @@ export default defineComponent({
             }
         };
         const openResource = (data: IResourceItem) => {
-            if (data.ResourceShowType === 2) {
-                resourceData.value = { id: data.OldResourceId };
-            } else if (data.ResourceShowType === 3) {
-                resourceData.value = {
-                    id: data.OldResourceId,
-                    courseBagId: "",
-                    deleteQuestionIds: [],
-                    type: 1,
-                };
+            console.log("data------", data);
+            if (data.ResourceShowType === 1) {
+                store.commit(
+                    MutationTypes.SET_FULLSCREEN_RESOURCE,
+                    {
+                        component: "Wincard",
+                        resource: {
+                            id: data.OldResourceId,
+                            isSystem: data.IsSysFile === 1,
+                            openMore: true
+                        }
+                    }
+                );
+            } else {
+                if (data.ResourceShowType === 2) {
+                    resourceData.value = { id: data.OldResourceId };
+                } else if (data.ResourceShowType === 3) {
+                    resourceData.value = {
+                        id: data.OldResourceId,
+                        courseBagId: "",
+                        deleteQuestionIds: [],
+                        type: 1
+                    };
+                }
+                resource.value = data;
+                target.value = data.OldResourceId;
+                resourceVisible.value = true;
             }
-            resource.value = data;
-            target.value = data.OldResourceId;
-            resourceVisible.value = true;
         };
-
         const dealFly = async (event: MouseEvent | TouchEvent) => {
             // 简单的加入购物车动画
             const x =
@@ -552,8 +515,8 @@ export default defineComponent({
                     bookId: bookId.value,
                     pager: {
                         pageNumber: pageNumber.value,
-                        pageSize: pageSize.value,
-                    },
+                        pageSize: pageSize.value
+                    }
                 });
                 isLaoding.value = false;
 
@@ -580,7 +543,7 @@ export default defineComponent({
                                 .offsetTop;
                             resourceScroll.value.scrollTo({
                                 top,
-                                behavior: "smooth",
+                                behavior: "smooth"
                             });
                         }
                     }
@@ -637,7 +600,7 @@ export default defineComponent({
             cancelDownload,
             isLaoding,
             editWincard,
-            openWinCard,
+            openWinCard
         };
     },
 });
@@ -651,6 +614,7 @@ export default defineComponent({
     position: relative;
     padding: 0 20px;
     overflow-y: auto;
+
     .doing {
         border-left: 4px solid #4b71ee;
         box-shadow: 0px 6px 16px 0px rgba(0, 0, 0, 0.16);
@@ -669,6 +633,7 @@ export default defineComponent({
     justify-content: center;
     font-size: 20px;
     font-weight: 400;
+
     img {
         margin-bottom: 10px;
     }
@@ -680,6 +645,7 @@ export default defineComponent({
         border-radius: 5px;
         overflow: hidden;
         border: 1px solid #4b71ee;
+
         .download-progress-line {
             background: #4b71ee;
             height: 100%;
@@ -687,6 +653,7 @@ export default defineComponent({
             transition: 0.1s all;
         }
     }
+
     .download-progress-tip {
         text-align: center;
         margin-top: 20px;

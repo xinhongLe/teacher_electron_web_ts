@@ -112,6 +112,13 @@ module.exports = {
             title: "小组比拼",
             chunks: ["teamCompetition"],
         },
+        teamCompetition2: {
+            entry: "src/childWindow/teamCompetition2/main.ts",
+            template: "public/index.html",
+            filename: "teamCompetition2.html",
+            title: "小组比拼2",
+            chunks: ["teamCompetition2"],
+        },
         editWinCard: {
             entry: "src/childWindow/editWinCard/main.ts",
             template: "public/template.html",

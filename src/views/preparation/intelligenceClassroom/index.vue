@@ -2,69 +2,37 @@
     <div class="intelligence" :class="{ 'full-screen': isFullScreen }">
         <div class="top">
             <transition name="fade">
-                <div
-                    class="card-box-left"
-                    :class="{
-                        hidden: isFullScreen && !isShowCardList,
-                    }"
-                >
+                <div class="card-box-left" :class="{
+                    hidden: isFullScreen && !isShowCardList,
+                }">
                     <div class="card-box-lefts">
-                        <CardList
-                            ref="cardListComponents"
-                            @updateFlag="updateFlag"
-                        />
+                        <CardList ref="cardListComponents" @updateFlag="updateFlag" />
                     </div>
-                    <div
-                        class="fold-btn"
-                        v-show="isFullScreen"
-                        @click="isShowCardList = !isShowCardList"
-                    >
-                        <i
-                            :class="
-                                isShowCardList
-                                    ? 'el-icon-arrow-left'
-                                    : 'el-icon-arrow-right'
-                            "
-                        ></i>
+                    <div class="fold-btn" v-show="isFullScreen" @click="isShowCardList = !isShowCardList">
+                        <i :class="
+                            isShowCardList
+                                ? 'el-icon-arrow-left'
+                                : 'el-icon-arrow-right'
+                        "></i>
                     </div>
                 </div>
             </transition>
             <div class="card-detail">
                 <div class="card-detail-content">
-                    <PreviewSection
-                        ref="previewSection"
-                        :dialog="dialog"
-                        :isSystem="isSystem"
-                        :resourceId="resourceId"
-                        :isShowCardList="isShowCardList"
-                        :isFullScreen="isFullScreen"
-                        @lastPage="lastPage"
-                        @firstPage="firstPage"
-                        @changeWinSize="changeWinSize"
-                        v-model:isCanUndo="isCanUndo"
-                        v-model:isCanRedo="isCanRedo"
-                    />
+                    <PreviewSection ref="previewSection" :dialog="dialog" :isSystem="isSystem" :resourceId="resourceId"
+                        :isShowCardList="isShowCardList" :isFullScreen="isFullScreen" @lastPage="lastPage"
+                        @firstPage="firstPage" @changeWinSize="changeWinSize" v-model:isCanUndo="isCanUndo"
+                        v-model:isCanRedo="isCanRedo" v-model:currentDrawColor="currentDrawColor"
+                        v-model:currentLineWidth="currentLineWidth" />
                 </div>
             </div>
         </div>
-        <Tools
-            :cardClass="'intelligence'"
-            :id="resourceId"
-            :dialog="dialog"
-            :showRemark="previewSection?.showRemark"
-            @toggleRemark="toggleRemark"
-            @prevStep="prevStep"
-            @nextStep="nextStep"
-            @fullScreen="fullScreen"
-            @clockFullScreen="clockFullScreen"
-            @showWriteBoard="showWriteBoard"
-            @openShape="openShape"
-            @openPaintTool="openPaintTool"
-            @hideWriteBoard="hideWriteBoard"
-            :isCanUndo="isCanUndo"
-            :isCanRedo="isCanRedo"
-            :isFullScreenStatus="isFullScreenStatus"
-        />
+        <Tools :cardClass="'intelligence'" :id="resourceId" :dialog="dialog" :showRemark="previewSection?.showRemark"
+            @toggleRemark="toggleRemark" @prevStep="prevStep" @nextStep="nextStep" @fullScreen="fullScreen"
+            @clockFullScreen="clockFullScreen" @showWriteBoard="showWriteBoard" @openShape="openShape"
+            @openPaintTool="openPaintTool" @hideWriteBoard="hideWriteBoard" @whiteboardOption="whiteboardOption"
+            @redo="redo" @undo="undo" :isCanUndo="isCanUndo" :isCanRedo="isCanRedo" :currentDrawColor="currentDrawColor"
+            :currentLineWidth="currentLineWidth" :isFullScreenStatus="isFullScreenStatus" />
     </div>
 </template>
 
@@ -121,6 +89,8 @@ watch(
 );
 const isCanUndo = ref(false);
 const isCanRedo = ref(false);
+const currentDrawColor = ref("#f60000");
+const currentLineWidth = ref(2);
 const resourceId = toRef(props, "resourceId");
 provide("isShowCardList", isShowCardList);
 const windowInfo = useWindowInfo(true, props.resource);
@@ -187,6 +157,18 @@ const openShape = (event: MouseEvent) => {
 const openPaintTool = (event: MouseEvent, type: string) => {
     // console.log("previewSection.value", event, type);
     previewSection.value && previewSection.value.openPaintTool(event, type);
+};
+// 工具栏 画笔配置
+const whiteboardOption = (option: string, value?: number) => {
+    previewSection.value && previewSection.value.whiteboardOption(option, value);
+};
+// 退回
+const redo = () => {
+    previewSection.value && previewSection.value.redo();
+};
+// 撤回
+const undo = () => {
+    previewSection.value && previewSection.value.undo();
 };
 
 const hideWriteBoard = () => {

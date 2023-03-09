@@ -21,6 +21,7 @@ let timerWin: BrowserWindow | null;
 let projectionWin: BrowserWindow | null;
 let rollCallWin: BrowserWindow | null;
 let teamCompetitionWin: BrowserWindow | null;
+let teamCompetitionWin2: BrowserWindow | null;
 let answerMachineWin: BrowserWindow | null;
 let quickAnswerWin: BrowserWindow | null;
 let isShowTimer = false; // 悬浮球是否显示时间
@@ -79,6 +80,11 @@ const localTeamURL =
     process.env.NODE_ENV === "development"
         ? `${process.env.WEBPACK_DEV_SERVER_URL}teamCompetition.html`
         : `file://${__dirname}/teamCompetition.html`;
+
+const localTeamURL2 =
+    process.env.NODE_ENV === "development"
+        ? `${process.env.WEBPACK_DEV_SERVER_URL}teamCompetition2.html`
+        : `file://${__dirname}/teamCompetition2.html`;
 
 const localPreviewURL =
     process.env.NODE_ENV === "development"
@@ -741,6 +747,7 @@ export function registerEvent() {
         rollCallWin && rollCallWin.destroy();
         answerMachineWin && answerMachineWin.destroy();
         teamCompetitionWin && teamCompetitionWin.destroy();
+        teamCompetitionWin2 && teamCompetitionWin2.destroy();
         hideSuspensionIcon();
     });
 
@@ -849,6 +856,15 @@ export function registerEvent() {
             teamCompetitionWin.show();
         } else {
             createTeamCompetition();
+        }
+    });
+
+    ipcMain.handle("openTeamCompetition2", () => {
+        showSuspension();
+        if (teamCompetitionWin2) {
+            teamCompetitionWin2.show();
+        } else {
+            createTeamCompetition2();
         }
     });
 
@@ -975,5 +991,25 @@ function createTeamCompetition() {
 
     teamCompetitionWin.on("closed", () => {
         teamCompetitionWin = null;
+    });
+}
+
+function createTeamCompetition2() {
+    teamCompetitionWin2 = createWindow(localTeamURL2, {
+        width: 360,
+        frame: false, // 要创建无边框窗口
+        resizable: false, // 是否允许窗口大小缩放
+        height: 250,
+        alwaysOnTop: true,
+        useContentSize: true,
+        maximizable: false
+    });
+
+    teamCompetitionWin2.on("ready-to-show", () => {
+        // teamCompetitionWin && teamCompetitionWin.webContents.openDevTools();
+    });
+
+    teamCompetitionWin2.on("closed", () => {
+        teamCompetitionWin2 = null;
     });
 }

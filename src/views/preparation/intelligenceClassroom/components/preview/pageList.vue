@@ -1,50 +1,23 @@
 <template>
     <div class="pageListComponents">
         <div class="me-work">
-            <ScreenView
-                class="me-work-screen"
-                :inline="true"
-                :isInit="isInitPage"
-                ref="screenRef"
-                :slide="currentSlide"
-                :writeBoardVisible="writeBoardVisible"
-                :keyDisabled="keyDisabled"
-                :useScale="false"
-                :winList="cardList"
-                :canvasData="canvasData"
-                @openCard="openCard"
-                @pagePrev="pagePrev"
-                @pageNext="pageNext"
-                @closeWriteBoard="closeWriteBoard"
-                @closeTool="closeTool"
-                :isShowPenTools="false"
-                v-model:isCanUndo="isCanUndo"
-                v-model:isCanRedo="isCanRedo"
-            />
-            <open-card-view-dialog
-                @closeOpenCard="closeOpenCard"
-                v-if="dialogVisible"
-                :dialog="dialog"
-                :cardList="dialogCardList"
-                v-model:dialogVisible="dialogVisible"
-            ></open-card-view-dialog>
+            <ScreenView class="me-work-screen" :inline="true" :isInit="isInitPage" ref="screenRef" :slide="currentSlide"
+                :writeBoardVisible="writeBoardVisible" :keyDisabled="keyDisabled" :useScale="false" :winList="cardList"
+                :canvasData="canvasData" @openCard="openCard" @pagePrev="pagePrev" @pageNext="pageNext"
+                @closeWriteBoard="closeWriteBoard" @closeTool="closeTool" :isShowPenTools="false"
+                v-model:isCanUndo="isCanUndo" v-model:isCanRedo="isCanRedo" v-model:currentDrawColor="currentDrawColor"
+                v-model:currentLineWidth="currentLineWidth" />
+            <open-card-view-dialog @closeOpenCard="closeOpenCard" v-if="dialogVisible" :dialog="dialog"
+                :cardList="dialogCardList" v-model:dialogVisible="dialogVisible"></open-card-view-dialog>
             <div class="me-pager">
                 {{ currentPageNum + "/" + pageListCount.length }}
             </div>
             <transition name="fade">
-                <div
-                    class="me-page"
-                    ref="container"
-                    :class="{
-                        hidden: isFullScreen && !isShowCardList,
-                    }"
-                >
+                <div class="me-page" ref="container" :class="{
+                    hidden: isFullScreen && !isShowCardList,
+                }">
                     <div class="page-list-item">
-                        <PageItem
-                            :pageList="pageList"
-                            :selected="currentPageIndex"
-                            @selectPage="selectPage"
-                        />
+                        <PageItem :pageList="pageList" :selected="currentPageIndex" @selectPage="selectPage" />
                     </div>
                 </div>
             </transition>
@@ -435,6 +408,32 @@ export default defineComponent({
                 }
             });
         };
+
+        const whiteboardOption = (option: string, value?: number) => {
+            screenRef.value.whiteboardOption(option, value);
+        };
+        const currentDrawColor = ref("#f60000");
+        const currentLineWidth = ref(2);
+        watch(
+            () => currentDrawColor.value,
+            (val) => {
+                emit("update:currentDrawColor", val);
+            }
+        );
+        watch(
+            () => currentLineWidth.value,
+            (val) => {
+                emit("update:currentLineWidth", val);
+            }
+        );
+        // 退回
+        const redo = () => {
+            screenRef.value.redo();
+        };
+        // 撤回
+        const undo = () => {
+            screenRef.value.undo();
+        };
         return {
             scrollToNextPage,
             container,
@@ -469,6 +468,11 @@ export default defineComponent({
             selectPageInfo,
             isCanUndo,
             isCanRedo,
+            currentDrawColor,
+            currentLineWidth,
+            whiteboardOption,
+            redo,
+            undo
         };
     },
 });
@@ -575,10 +579,12 @@ export default defineComponent({
     overflow-x: auto;
     border-top: 1px solid #e9ecf0;
     transition: height 0.3s;
+
     .page-list-item {
         display: flex;
         flex-wrap: nowrap;
     }
+
     &.hidden {
         height: 0;
         padding: 0;

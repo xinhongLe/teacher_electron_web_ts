@@ -9,6 +9,9 @@
                 :dialog="dialog"
                 :isShowCardList="isShowCardList"
                 :isFullScreen="isFullScreen"
+                v-model:isCanUndo="isCanUndo"
+                v-model:isCanRedo="isCanRedo" v-model:currentDrawColor="currentDrawColor"
+                v-model:currentLineWidth="currentLineWidth"
             />
             <transition name="fade">
                 <Remark
@@ -114,6 +117,20 @@ export default defineComponent({
         const openPaintTool = (event: MouseEvent, type: string) => {
             pageListRef.value.openPaintTool(event, type);
         };
+        const currentDrawColor = ref("#f60000");
+        const currentLineWidth = ref(2);
+        watch(
+            () => currentDrawColor.value,
+            (val) => {
+                emit("update:currentDrawColor", val);
+            }
+        );
+        watch(
+            () => currentLineWidth.value,
+            (val) => {
+                emit("update:currentLineWidth", val);
+            }
+        );
         const isCanUndo = ref(false);
         const isCanRedo = ref(false);
         watch(
@@ -129,12 +146,30 @@ export default defineComponent({
             }
         );
 
+        const whiteboardOption = (option: string, value?: number) => {
+            // console.log("previewSection.value", event, type);
+            pageListRef.value && pageListRef.value.whiteboardOption(option, value);
+        };
+
+        // 退回
+        const redo = () => {
+            pageListRef.value && pageListRef.value.redo();
+        };
+        // 撤回
+        const undo = () => {
+            pageListRef.value && pageListRef.value.undo();
+        };
+
         return {
             teachProcess,
             design,
             pageListRef,
             ...toRefs(data),
             showRemark,
+            isCanUndo,
+            isCanRedo,
+            currentDrawColor,
+            currentLineWidth,
             toggleRemark,
             prevStep,
             nextStep,
@@ -148,8 +183,10 @@ export default defineComponent({
             openShape,
             changeWinSize,
             openPaintTool,
-            isCanUndo,
-            isCanRedo,
+            whiteboardOption,
+            redo,
+            undo
+        
         };
     },
 });

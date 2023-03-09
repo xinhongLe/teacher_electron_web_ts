@@ -9,6 +9,8 @@ import { Slide } from "wincard";
 import { copyPage } from "@/api/home";
 import { useStore } from "@/store";
 import { get, set, STORAGE_TYPES } from "@/utils/storage";
+const winUserInfo = get(STORAGE_TYPES.CURRENT_USER_INFO);
+
 export default (
     windowCards: Ref<ICardList[]>,
     allPageSlideListMap: Ref<Map<string, Slide>>
@@ -17,6 +19,7 @@ export default (
     const pastePage = ref<IPageValue>();
     let count = 0;
     let copyPageId = "";
+    const winUserInfo = get(STORAGE_TYPES.CURRENT_USER_INFO);
     const handleCopy = (node: Node, data: IPageValue) => {
         copyValue = { ...data, OldCardID: node.parent.data.ID };
         set(STORAGE_TYPES.WIN_COPY_VALUE, copyValue);
@@ -54,7 +57,13 @@ export default (
                     const cardIndex = findIndex(windowCards.value, {
                         ID: data.ID,
                     });
-                    const slide = allPageSlideListMap.value.get(copyValue.ID);
+
+                    let slide: any = allPageSlideListMap.value.get(
+                        copyValue.ID
+                    );
+                    slide = slide ? slide : winCopyValue.Json;
+                    copyValue.PageID = res.result.ID;
+                    // copyValue.Json &&  copyValue.Json?.id = res.result.ID ;
                     pastePage.value = {
                         ...copyValue,
                         // isAdd: true,
@@ -69,13 +78,13 @@ export default (
                             : slide?.design,
                         Name: copyValue.Name + str,
                     };
+                    if (!slide) return;
+                    slide.id = res.result.ID;
                     slide &&
                         allPageSlideListMap.value.set(pastePage.value.ID, {
                             ...slide,
                             id: pastePage.value.ID,
                         });
-                    windowCards.value[cardIndex].PageList.push(pastePage.value);
-                    windowCards.value = [...windowCards.value];
                     TrackService.setTrack(
                         EnumTrackEventType.PastePage,
                         "",
@@ -87,8 +96,10 @@ export default (
                         "粘贴卡",
                         "",
                         "",
-                        store.state.userInfo.schoolId
+                        store.state.userInfo.schoolId || winUserInfo.schoolId
                     );
+                    windowCards.value[cardIndex].PageList.push(pastePage.value);
+                    windowCards.value = [...windowCards.value];
                 }
             });
         } else {
