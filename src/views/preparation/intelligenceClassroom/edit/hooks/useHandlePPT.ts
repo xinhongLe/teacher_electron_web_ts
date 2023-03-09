@@ -110,7 +110,7 @@ export default (windowCards: Ref<CardProps[]>, allPages: Ref<PageProps[]>, pageM
         data.PageList.push(backupPage);
 
         const index = windowCards.value.findIndex(item => item.ID === data.ID);
-        await sortWindowCards(index, data.PageList.length-1);
+        await sortWindowCards(index, data.PageList.length - 1);
     };
 
     // 删除
@@ -118,16 +118,17 @@ export default (windowCards: Ref<CardProps[]>, allPages: Ref<PageProps[]>, pageM
         messageBox({
             content: "此操作将删除该数据, 是否继续?"
         }).then(async () => {
-            const index = windowCards.value.findIndex(item => item.ID === (data as CardProps).ID);
             if (!(data as PageProps).ParentID) {
+                const index = windowCards.value.findIndex(item => item.ID === (data as CardProps).ID);
                 windowCards.value.splice(index, 1);
                 await sortWindowCards(0, 0);
             } else {
+                const index = windowCards.value.findIndex(item => item.ID === (data as PageProps).ParentID);
                 const find = windowCards.value.find(item => item.ID === (data as PageProps).ParentID);
                 if (find) {
                     const idx = find.PageList.findIndex(item => item.ID === data.ID);
-                    find.PageList.splice(index, 1);
-                    await sortWindowCards(index, find.ID === currentPage.value?.ID ? 0 : idx);
+                    find.PageList.splice(idx, 1);
+                    await sortWindowCards(index, find.ID === currentPage.value?.ID ? 0 : idx - 1);
                 }
             }
         });
@@ -137,6 +138,7 @@ export default (windowCards: Ref<CardProps[]>, allPages: Ref<PageProps[]>, pageM
     const sortWindowCards = async (index1 = 0, index2 = 0) => {
         pageMap.value.clear();
         allPages.value = [];
+        const time = new Date().getTime();
 
         const list = cloneDeep<CardProps[]>(windowCards.value);
         currentPage.value = list[index1].PageList[index2];
@@ -159,6 +161,8 @@ export default (windowCards: Ref<CardProps[]>, allPages: Ref<PageProps[]>, pageM
                 index++;
             }
         }
+        console.log((new Date().getTime() - time) * 1000);
+
         windowCards.value = list;
         allPages.value = backupPages;
     };

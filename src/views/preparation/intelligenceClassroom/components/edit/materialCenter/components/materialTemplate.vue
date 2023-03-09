@@ -40,9 +40,7 @@
                                         src="@/assets/images/material/icon_td.png"
                                         alt=""
                                     />
-                                    <span class="title">{{
-                                        element.Name
-                                    }}</span>
+                                    <span class="title">{{element.Name}}</span>
                                 </div>
                                 <span
                                     v-if="element.TeachPageTemplateCount > 2"
@@ -249,16 +247,14 @@ import {
     ref,
     toRefs,
     computed,
-    onMounted,
     watch,
-    nextTick,
 } from "vue";
 import { Search } from "@element-plus/icons-vue";
 import TemplateView from "./templateView.vue";
 import { ITemplateSave } from "@/types/home";
 import { IRecordSort } from "@/types/material";
 import useSaveTemplate from "@/views/preparation/intelligenceClassroom/edit/hooks/useSaveTemplate";
-import { ElMessage, ElMessageBox } from "element-plus";
+import { ElMessageBox } from "element-plus";
 import { debounce, throttle } from "@/utils/common";
 
 import draggable from "vuedraggable";

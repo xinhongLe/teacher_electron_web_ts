@@ -1,4 +1,4 @@
-const { NormalModuleReplacementPlugin } = require("webpack");
+const {NormalModuleReplacementPlugin} = require("webpack");
 
 const BundleAnalyzerPlugin =
     require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
@@ -8,33 +8,33 @@ const moment = require("moment");
 const extraResources =
     process.platform === "darwin"
         ? [
-              {
-                  from: "./extraResources/ball/",
-                  to: "extraResources/ball/",
-              },
-              {
-                  from: "./extraResources/mac/ColorPicker",
-                  to: "ColorPicker",
-              },
-          ]
+            {
+                from: "./extraResources/ball/",
+                to: "extraResources/ball/",
+            },
+            {
+                from: "./extraResources/mac/ColorPicker",
+                to: "ColorPicker",
+            },
+        ]
         : [
-              {
-                  from: "./extraResources/ball/",
-                  to: "extraResources/ball/",
-              },
-              {
-                  from: "./extraResources/whiteboard/",
-                  to: "extraResources/whiteboard/",
-              },
-              {
-                  from: "./extraResources/exportWord/",
-                  to: "extraResources/exportWord/",
-              },
-              {
-                  from: "./extraResources/win/mockingbot-color-picker-ia32.exe",
-                  to: "mockingbot-color-picker-ia32.exe",
-              },
-          ];
+            {
+                from: "./extraResources/ball/",
+                to: "extraResources/ball/",
+            },
+            {
+                from: "./extraResources/whiteboard/",
+                to: "extraResources/whiteboard/",
+            },
+            {
+                from: "./extraResources/exportWord/",
+                to: "extraResources/exportWord/",
+            },
+            {
+                from: "./extraResources/win/mockingbot-color-picker-ia32.exe",
+                to: "mockingbot-color-picker-ia32.exe",
+            },
+        ];
 
 module.exports = {
     productionSourceMap: false,
@@ -240,7 +240,7 @@ module.exports = {
         electronBuilder: {
             nodeIntegration: true,
             mainProcessFile: "electron/background.ts",
-            preload: { preload: "electron/preload.ts" },
+            preload: {preload: "electron/preload.ts"},
             mainProcessWatch: ["electron/**/*"],
             files: ["dist_electron/**/*"],
             builderOptions: {

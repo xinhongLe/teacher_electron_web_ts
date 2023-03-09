@@ -43,7 +43,7 @@
                                 </el-button>
                             </card-popover>
                         </div>
-                        <vue-draggable-next v-model="folder.PageList" group="site" tag="div" class="pages" v-show="folder.Fold" @end="sortWindowCards">
+                        <vue-draggable-next v-model="folder.PageList" group="site" tag="div" class="pages" v-show="folder.Fold" @end="sortWindowCards(0,0)">
                             <transition-group>
                                 <div
                                     class="page"

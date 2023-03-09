@@ -378,7 +378,7 @@ export default defineComponent({
                 isEditChange.value = false;
                 if (visible.value) {
                     handleShowSetBtn();
-                    await _getLessonPlanTemplate();
+                    await getLessonPlanTemplateData();
                     await _getLessonPlan();
                 }
             }
@@ -471,7 +471,7 @@ export default defineComponent({
         };
 
         const updateLessonPlanTemplateList = async () => {
-            await _getLessonPlanTemplate();
+            await getLessonPlanTemplateData();
             await _getLessonPlan();
         };
 
@@ -542,7 +542,7 @@ export default defineComponent({
             });
         };
 
-        const _getLessonPlanTemplate = () => {
+        const getLessonPlanTemplateData = () => {
             return getLessonPlanTemplate({
                 FranchiseeID:
                     store.state.userInfo.schoolId || winUserInfo.schoolId,
@@ -574,7 +574,7 @@ export default defineComponent({
             tipVisible,
             toChinesNum,
             updateLessonPlanTemplateList,
-            _getLessonPlanTemplate,
+            getLessonPlanTemplateData,
             changeTemplate,
             templateSet,
             close,
