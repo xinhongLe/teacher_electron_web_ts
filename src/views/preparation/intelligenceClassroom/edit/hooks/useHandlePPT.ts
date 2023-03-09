@@ -18,6 +18,9 @@ export default (windowCards: Ref<CardProps[]>, allPages: Ref<PageProps[]>, pageM
         if (e?.shiftKey || e?.ctrlKey) return;
         if (data.ID === currentPage.value?.ID) return;
 
+        if (!editRef.value) return;
+        editRef.value.saveSlide();
+
         currentPage.value = data;
     };
 
@@ -31,12 +34,6 @@ export default (windowCards: Ref<CardProps[]>, allPages: Ref<PageProps[]>, pageM
     const handleHelper = () => {
         if (!editRef.value) return;
         editRef.value.handleHelper();
-    };
-
-    // 整体保存
-    const handleSave = () => {
-        if (!editRef.value) return;
-        editRef.value.handleSave();
     };
 
     // 创建文件夹
@@ -185,7 +182,6 @@ export default (windowCards: Ref<CardProps[]>, allPages: Ref<PageProps[]>, pageM
         paste,
         remove,
         rename,
-        handleSave,
         createFolder,
         handleHelper,
         createCardPage,

@@ -1,5 +1,5 @@
 <template>
-    <el-popover placement="right-start" :width="50" trigger="focus" :teleported="true">
+    <el-popover :placement="placement" :width="50" trigger="hover">
         <template #reference>
             <slot></slot>
         </template>
@@ -81,6 +81,10 @@ export default defineComponent({
         data: {
             type: Object as PropType<CardProps | PageProps>,
             default: null
+        },
+        placement: {
+            type: String,
+            default: "right-start"
         }
     },
     emits: ["handle"],

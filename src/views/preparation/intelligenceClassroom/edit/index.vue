@@ -54,6 +54,8 @@
                                 >
                                     <div class="page-left">
                                         <p class="index">{{ page.Index }}</p>
+                                        <img src="@/assets/edit/icon_donghua.png" alt="" v-if="checkIsHandle(2,page.Json)"/>
+                                        <img src="@/assets/edit/icon_shijian.png" alt="" v-if="checkIsHandle(1,page.Json)"/>
                                     </div>
                                     <div class="page-right" :class="{active:currentPage.ID === page.ID}">
                                         <el-image v-if="(page.Type === 20 || page.Type === 16) && page.Url" :src="page.Url" fit="cover">
@@ -227,7 +229,7 @@ export default defineComponent({
         getWindowCardsData();
 
         const pptHandle = useImportPPT();
-        const previewHandle = usePreview(allPages, currentPage);
+        const previewHandle = usePreview(allPages, currentPage, editRef);
         const addHandle = useHandlePPT(windowCards, allPages, pageMap, currentPage, editRef);
 
         // win-card-edit插件保存回调
@@ -647,6 +649,28 @@ export default defineComponent({
             }
         };
 
+        // 整体保存
+        const handleSave = () => {
+            if (!editRef.value) return;
+            editRef.value.saveSlide();
+
+            setTimeout(() => {
+                winCardSave();
+            }, 500);
+        };
+
+        // 判断该PPT有无事件，动画，超链接素材（1-事件，2-动画，3-超链接素材）
+        const checkIsHandle = (type: 1 | 2 | 3, json: any) => {
+            if (!json) return false;
+            if (type === 1) {
+                return (json.elements || []).filter((item: any) => item.actions && item.actions.length > 0).length > 0;
+            }
+            if (type === 2) {
+                return json.animations && json.animations.length > 0;
+            }
+            return false;
+        };
+
         const VIEWPORT_RATIO = 0.5625;
         const VIEWPORT_SIZE = 1280;
 
@@ -780,6 +804,7 @@ export default defineComponent({
             allPages.value = backupPages;
             total.value = pageMap.value.size;
             currentPage.value = list[0].PageList[0];
+            console.log(backupPages);
         }
 
         onMounted(() => {
@@ -811,9 +836,11 @@ export default defineComponent({
             materialCenterRef,
             subjectPublisherBookValue,
             importPPT,
+            handleSave,
             winCardSave,
             handleSelect,
             contextMenus,
+            checkIsHandle,
             handleCartItem,
             updateMaterial,
             handleInsertData,
@@ -991,6 +1018,14 @@ export default defineComponent({
                             color: #5D5D5D;
                             font-size: 12px;
                         }
+
+                        img {
+                            width: 14px;
+                            height: 14px;
+                            margin-top: 8px;
+                            margin-left: -3px;
+                            display: block;
+                        }
                     }
 
                     .page-right {
@@ -998,7 +1033,15 @@ export default defineComponent({
                         position: relative;
 
                         &.active {
-                            border: 2px solid #2E95FF;
+                            outline: 2px solid #2E95FF;
+
+                            .handle {
+                                display: block !important;
+                            }
+                        }
+
+                        &:hover .handle {
+                            display: block;
                         }
 
                         .down {
@@ -1023,6 +1066,7 @@ export default defineComponent({
                             position: absolute;
                             bottom: 0;
                             right: 0;
+                            display: none;
 
                             .more img {
                                 width: 15px;
@@ -1131,7 +1175,8 @@ export default defineComponent({
 .no-border {
     border: none !important;
     background-color: transparent;
-    margin: 0 !important;
+    margin: 0 7px 0 0 !important;
+    padding: 8px;
 
     &:hover, &:active, &:focus {
         background-color: transparent;

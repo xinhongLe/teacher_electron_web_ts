@@ -3,8 +3,8 @@
         <PPTEditor
             ref="PPTEditRef"
             :slide="slide"
-            @onSave="onSave"
             @addCard="addCard"
+            @onSave="getSlide"
             :showThemeAllUse="true"
             @selectGame="selectGame"
             @selectVideo="selectVideo"
@@ -138,10 +138,9 @@ export default defineComponent({
         const isShowSaveDialog = ref(false);
         const isShowSaveAsDialog = ref(false);
 
-        const onSave = async (slide: Slide) => {
+        const getSlide = async (slide: Slide) => {
             // 保存时更新slide
             emit("updatePageSlide", slide);
-            emit("onSave");
         };
 
         let fun: (win: IWin[]) => void;
@@ -265,7 +264,7 @@ export default defineComponent({
             lessonDesignVisible.value = true;
         };
 
-        const handleSave = () => {
+        const saveSlide = () => {
             if (!PPTEditRef.value) return;
 
             PPTEditRef.value.onSave();
@@ -283,7 +282,8 @@ export default defineComponent({
 
         return {
             ...toRefs(state),
-            onSave,
+            saveSlide,
+            getSlide,
             addCard,
             addGame,
             selectGame,
@@ -308,7 +308,6 @@ export default defineComponent({
             openLessonDesign,
             updateLesson,
             TeacherID,
-            handleSave,
             handleHelper,
             applyBackgroundAllSlide
         };
