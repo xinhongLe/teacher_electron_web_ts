@@ -8,27 +8,41 @@ export default () => {
         layerY: 0, // 鼠标.y 相对于元素左上角.top  的偏移
     };
 
-    const dragStartIndex = ref();
+    // const dragStartIndex = ref();
 
-    const startDrag = (event:MouseEvent,info:unknown) => {
+    const startDrag = (event:MouseEvent,info:any) => {
         if (dragDom && store.state.common.currentPackageData) {
             onDragEnd(event)
         }else{
             store.commit(MutationTypes.SET_IS_DRAGGING, true);
             const target = event.target as HTMLElement;
-            dragStartIndex.value = target.getAttribute("data-id");
+            // dragStartIndex.value = target.getAttribute("data-id");
             dragDom = document.createElement("div");
             dragDom.classList.add("dragging-click-dom-ele");
-            dragDom.style.width = target.offsetWidth + "px";
-            dragDom.style.height = target.offsetHeight + "px";
-            dragDom.style.lineHeight = target.offsetHeight + "px";
-            const cloneTarget = target.cloneNode(true) as HTMLElement;
+            const nameDiv:any = document.createElement('div');
+            console.log('infoinfoinfo',info);
+            
+            nameDiv.innerHTML  = `
+            <div class="item-name">
+                <div class="names">
+                    ${info.Title}
+                </div>
+            </div>
+            `
+            dragDom!.appendChild(nameDiv);
+            // dragDom.style.width = target.offsetWidth + "px";
+            // dragDom.style.height = target.offsetHeight + "px";
+            // dragDom.style.lineHeight = target.offsetHeight + "px";
+            // const cloneTarget = target.cloneNode(true) as HTMLElement;
             nextTick(()=>{
-                cloneTarget.removeChild(cloneTarget.childNodes[0]);
-                cloneTarget.removeChild(cloneTarget.childNodes[1]);
-                dragDom!.appendChild(cloneTarget);
+                // cloneTarget.removeChild(cloneTarget.childNodes[0]);
+                // cloneTarget.removeChild(cloneTarget.childNodes[1]);
+                // dragDom!.appendChild(cloneTarget);
+                // dragDom!.appendChild(cloneTarget);
+
+                console.log('dragDom',dragDom);
+
                 document.body.appendChild(dragDom!);
-        
                 origin.layerX = event.offsetX;
                 origin.layerY = event.offsetY;
                 dragDom!.style.position = "fixed";

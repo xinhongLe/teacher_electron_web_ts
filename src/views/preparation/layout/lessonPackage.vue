@@ -3,25 +3,27 @@
         <div class="lesson-package">
             <div class="package-item" :class="{ isActive: item.ID == currentSelectPackageId }"
                 v-for="(item, index) in lessonPackageList"
-                @mousedown.stop.prevent="isMouseDrag ? startDrag($event, item) : null"
+                
                 @click.stop.prevent="currentSelectPackageId = item.ID">
                 <div class="item-name">
-                    {{ item.Title }}
+                    <div class="names">
+                        {{ item.Title }}
+                    </div>
+                    <img @click.stop.prevent="emits('deleteLessonPackage', item.ID)"
+                        src="@/assets/images/preparation/icon_delete_beike.png" alt="">
                 </div>
                 <div class="items">
                     {{ item.Name }}
                 </div>
                 <div class="item-footer">
-                    <div class="delete-icon">
-                        <img src="@/assets/images/preparation/delete.png" alt="">
-                    </div>
-                    <div class="paike-status">
+                    <div class="item-button" :class="{ isPaike: item.Status }" @mousedown.stop.prevent="isMouseDrag ? startDrag($event, item) : null" @click.stop.prevent="emits('toMyLessonPackage',item,0)">
                         {{ item.Status ? '已排课' : '排课' }}
                     </div>
                 </div>
             </div>
-            <div class="package-item-add">
-                <img src="@/assets/images/preparation/plus.png" alt="">
+            <div class="package-item-add" @click.stop.prevent="addLessonPackage">
+                <img src="@/assets/images/preparation/icon_add_black.png" alt="">
+                <span>新增课包</span>
             </div>
         </div>
     </div>
@@ -29,101 +31,154 @@
 
 <script lang="ts" setup>
 import useLessonPackage, { IPackage } from "@/hooks/useLessonPackage";
-import useClickDrag,{} from "@/hooks/useClickDrag";
+import useClickDrag, { } from "@/hooks/useClickDrag";
 import {
     ref,
     defineProps,
     defineEmits,
     PropType,
-    onMounted
+    onMounted,
+    defineExpose,
+    nextTick
 } from "vue";
-const { currentSelectPackageId } = useLessonPackage();
+const currentSelectPackageId = ref("");
 const { startDrag } = useClickDrag();
 const props = defineProps({
     isMouseDrag: {
         type: Boolean,
         default: true,
     },
-    lessonPackageList:{
+    lessonPackageList: {
         type: Object as PropType<IPackage[]>,
-        default: ()=>[] ,
+        default: () => [],
     }
+});
+const emits = defineEmits(["addLessonPackage", "deleteLessonPackage", "toMyLessonPackage"]);
+
+const addLessonPackage = () => {
+    emits("addLessonPackage");
+};
+
+const selectPackage = (data: any) => {
+    currentSelectPackageId.value = data!.ID;
+    nextTick(() => {
+        const dom: HTMLElement = document.querySelector('.package-item.isActive') as HTMLElement
+        if (props.isMouseDrag && dom) {
+            const event: MouseEvent = new MouseEvent('mousedown');
+            event.preventDefault();
+            dom.dispatchEvent(event);
+        }
+    })
+};
+defineExpose({
+    selectPackage
 });
 
 </script>
 
 <style lang="scss" scoped >
 .p-layout-package {
-    padding: 0 5px 0 20px;
+    background-color: #fff;
+    width: 248px;
+    padding: 24px;
 
-    // background-color: #fff;
     .package-item {
-        width: 232px;
-        background-color: #fff;
-        height: 180px;
+        width: 200px;
+        // background-color: #fff;
+        background: url("~@/assets/images/preparation/bg_kebao.png") no-repeat;
+        background-size: cover;
+        height: 142px;
         cursor: pointer;
         margin-bottom: 20px;
-        padding: 10px;
+        padding: 12px;
         display: flex;
         flex-direction: column;
-        justify-content: space-between;
+        // justify-content: space-between;
 
         &.isActive {
             border: 1px solid #409eff;
         }
 
         .item-name {
-            font-size: 14px;
-            width: 100%;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+            display: flex;
+            justify-content: space-between;
+            margin-top: 24px;
+            align-items: flex-end;
+
+            .names {
+                width: 80%;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                font-size: 14px;
+                font-weight: 600;
+                color: rgba($color: #fff, $alpha: 0.5);
+            }
+
+            img {
+                cursor: pointer;
+                width: 24px;
+                height: 24px;
+                // flex: 1;
+            }
+
         }
 
         .items {
             width: 100%;
-            text-align: center;
-            font-size: 30px;
+            font-size: 20px;
+            font-weight: 600;
+            color: #FFFFFF;
+            margin: 8px 0 14px 0;
         }
 
         .item-footer {
-            display: flex;
-            justify-content: space-between;
+            width: 100%;
+            text-align: right;
 
-            .delete-icon {
-                width: 50%;
-                text-align: right;
-
-                img {
-                    width: 20px;
-                }
-            }
-
-            .paike-status {
-                width: 40%;
-                text-align: center;
+            .item-button {
+                width: 72px;
+                height: 28px;
+                background: #FFEDBF;
+                border-radius: 16px;
                 font-size: 14px;
-                padding-top: 4px;
-                background: #67c23a;
-                color: #fff;
+                font-weight: 600;
+                color: #D36719;
+                text-align: center;
+                display: inline-block;
+                line-height: 28px;
+
+                &.isPaike {
+                    background: rgba(255, 255, 255, 0.3);
+                    color: #FFFFFF;
+                }
             }
         }
     }
 
     .package-item-add {
-        height: 100px;
-        width: 100%;
+        width: 200px;
+        height: 40px;
+        background: #FFFFFF;
+        border-radius: 4px;
+        border: 1px solid #E0E2E7;
         cursor: pointer;
-        background-color: #fff;
         padding: 10px;
         display: flex;
         justify-content: center;
         align-items: center;
+        font-size: 14px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: #4B71EE;
 
-        img {
-            width: 30px;
-            height: 30px;
+        span {
+            padding-left: 8px;
         }
+
+        // img {
+        //     width: 30px;
+        //     height: 30px;
+        // }
     }
-}
-</style>
+}</style>

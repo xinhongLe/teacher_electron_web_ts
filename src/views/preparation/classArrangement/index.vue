@@ -1,11 +1,9 @@
 <template>
 	<div class="p-layout">
 		<div class="p-layout-lesson">
-			<!-- <div class="package-item" :class="{isActive:item.ID == currentSelectPackageId}" v-for="(item, index) in lessonPackageList"
-				@mousedown.stop.prevent="startDrag($event, item)" @click.stop.prevent="currentSelectPackageId=item.ID">
-			{{ item.Name }}
-			</div> -->
-			<LessonPackage :isMouseDrag="true" :lessonPackageList="lessonPackageList" />
+			<LessonPackage :isMouseDrag="true" :lessonPackageList="lessonPackageList"
+				@addLessonPackage="$emit('addLessonPackage')" ref="LessonPackageRef"
+				@deleteLessonPackage="deleteLessonPackage" />
 		</div>
 		<div class="class-arrangement-warp">
 			<Calendar :days="days" ref="calendarRef" :isShowText="true" :isDrop="true" :isShowDetailBtn="true"
@@ -40,6 +38,9 @@
 								<img src="@/assets/images/preparation/icon_shuaxin_rest.svg" alt="" />
 								<span>刷新</span>
 							</div>
+						</div>
+						<div class="close">
+							<img src="@/assets/images/preparation/close.png" alt="">
 						</div>
 					</header>
 				</template>
@@ -76,7 +77,7 @@
 
 <script lang="ts">
 import useTime from "@/hooks/useTime";
-import { defineComponent, ref, PropType } from "vue";
+import { defineComponent, ref, PropType, nextTick } from "vue";
 import Calendar from "@/components/calendar/index.vue";
 import { ArrowLeftBold, ArrowRightBold } from "@element-plus/icons-vue";
 import { ColData } from "@/hooks/useSchedules";
@@ -91,7 +92,8 @@ export default defineComponent({
 			default: () => [],
 		}
 	},
-	setup() {
+	emits: ["addLessonPackage", "deleteLessonPackage"],
+	setup(props, { expose, emit }) {
 		const { currentSelectPackageId } = useLessonPackage();
 		const templatesVisible = ref(false);
 		const calendarRef = ref<InstanceType<typeof Calendar>>();
@@ -149,10 +151,18 @@ export default defineComponent({
 				// 获取我的备课包
 				source.value = "me";
 			}
-		}
-
+		};
 		const close = () => {
 			visible.value = false;
+		};
+		const LessonPackageRef = ref();
+		const toArrange = (data: any) => {
+			nextTick(() => {
+				LessonPackageRef.value.selectPackage(data)
+			})
+		};
+		const deleteLessonPackage = (id: string) => {
+			emit("deleteLessonPackage", id)
 		};
 
 		return {
@@ -173,8 +183,11 @@ export default defineComponent({
 			course,
 			source,
 			type,
+			LessonPackageRef,
 			switchClass,
-			close
+			close,
+			toArrange,
+			deleteLessonPackage
 		};
 	},
 	components: { Calendar, ArrowRightBold, ArrowLeftBold, Resources, LessonPackage }
@@ -189,6 +202,8 @@ export default defineComponent({
 		height: calc(100vh - 80px);
 		overflow-y: auto;
 		margin-top: 10px;
+		padding-left: 20px;
+
 		.package-item {
 			height: 180px;
 			text-align: center;
@@ -250,6 +265,7 @@ export default defineComponent({
 			align-items: center;
 			height: 73px;
 			padding: 0 20px;
+			position: relative;
 
 			.left {
 				display: flex;
@@ -329,6 +345,18 @@ export default defineComponent({
 					&:last-child {
 						margin-right: 0;
 					}
+				}
+			}
+
+			.close {
+				position: absolute;
+				right: 0;
+				top: 0;
+				cursor: pointer;
+
+				img {
+					width: 20px;
+					height: 20px;
 				}
 			}
 		}

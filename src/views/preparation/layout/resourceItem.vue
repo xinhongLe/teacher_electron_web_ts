@@ -18,7 +18,6 @@
                         ? iconResources.selfStudy[data.ResourceType]
                         : iconResources.other[data.ResourceType]
                 " alt="" />
-                <el-button v-if="source != 'me'" type="primary" size="small">排课</el-button>
             </div>
             <div class="resource-content">
                 <div class="resource-title">
@@ -101,6 +100,7 @@
                     name !== 'attendClass' &&
                     name !== 'preview'
                 ">
+
                     <el-button class="p-control-btn" @click.stop="handleCommand('download')" v-if="
                         canDownload &&
                         RESOURCE_TYPE.TOOL !== data.ResourceType
@@ -138,13 +138,18 @@
             </div>
         </div>
         <div class="p-resource-bottom" v-if="hover && btns && name !== 'attendClass' && name !== 'preview'">
-            <div class="tool-text">
-                <span class="total">{{
-                    data.ToolInfo ? `共${data.ToolInfo.QuestionCount}题` : ""
-                }}</span>
-                <span>{{
-                    data.ToolInfo ? ` ( ${data.ToolInfo.QuestionTypeName})` : ""
-                }}</span>
+            <div style="padding-left: 66px;">
+                <el-button class="p-control-btn" v-if="source != 'me'" @click.stop.prevent="toArrangeClass(data)">
+                    <img src="@/assets/images/preparation/icon_download_white.png" alt="" />
+                    排课</el-button>
+                <div class="tool-text">
+                    <span class="total">{{
+                        data.ToolInfo ? `共${data.ToolInfo.QuestionCount}题` : ""
+                    }}</span>
+                    <span>{{
+                        data.ToolInfo ? ` ( ${data.ToolInfo.QuestionTypeName})` : ""
+                    }}</span>
+                </div>
             </div>
             <div>
                 <el-button class="p-control-btn" @click.stop="handleCommand('download')" v-if="
@@ -172,11 +177,21 @@
                         </el-button>
                     </template>
                     <div class="lesson-package-select">
-                        <div class="package-item" v-for="(item,index) in lessonPackageList" :class="{ isInPackage: item.Status }">{{ item.Name }}</div>
+                        <div class="package-content">
+                            <div class="package-item" v-for="(item, index) in lessonPackageList">
+                                <span>
+                                    {{ item.Name }}
+                                </span>
+                                <img v-if="item.Status" src="@/assets/images/preparation/icon_dui.png" alt="">
+                            </div>
+                        </div>
+                        <div class="deadline">
+                        </div>
                         <div class="package-add">
-                            <el-button type="text" @click="addLessonPackage">
+                            <img src="@/assets/images/preparation/icon_add_black.png" alt="">
+                            <span class="add-text" @click="addLessonPackage">
                                 新增
-                            </el-button>
+                            </span>
                         </div>
                     </div>
 
@@ -199,7 +214,7 @@ import {
 import { IResourceItem } from "@/api/resource";
 import moment from "moment";
 import { useStore } from "@/store";
-import  { IPackage } from "@/hooks/useLessonPackage";
+import { IPackage } from "@/hooks/useLessonPackage";
 export default defineComponent({
     components: { Refresh, MoreFilled },
     props: {
@@ -223,7 +238,7 @@ export default defineComponent({
             type: String,
             default: ""
         },
-        source:{
+        source: {
             type: String,
             default: ""
         },
@@ -232,7 +247,7 @@ export default defineComponent({
             default: () => [],
         }
     },
-    emits: ["eventEmit","addLessonPackage"],
+    emits: ["eventEmit", "addLessonPackage", "toArrangeClass"],
     setup(props, { emit }) {
         const store = useStore();
 
@@ -298,13 +313,17 @@ export default defineComponent({
                 (book.LessonName ? " / " + book.LessonName : "")
                 : "--";
         });
-        const addLessonPackage = ()=>{
+        const addLessonPackage = () => {
             emit("addLessonPackage")
-        }
+        };
+        const toArrangeClass = (data: any) => {
+            emit("toArrangeClass", data, 1)
+        };
         return {
             handleCommand,
             dealTime,
             addLessonPackage,
+            toArrangeClass,
             iconResources,
             textResources,
             directoryName,
@@ -392,7 +411,7 @@ export default defineComponent({
 
     &.resource-courseware {
         background: #e6f1ff;
-        // border-left: 4px solid #4b71ee;
+        border-left: 4px solid #4b71ee;
     }
 
     .resource-icon {
@@ -603,44 +622,68 @@ export default defineComponent({
         }
     }
 }
+</style>
 
+<style lang="scss">
 .lesson-package-popover {
+    width: 122px !important;
+    min-width: 122px !important;
+    height: 151px;
+    background: #FFFFFF !important;
+    box-shadow: 0px 8px 24px 0px #00000029 !important;
+    border-radius: 6px !important;
+    padding: 12px 0 !important;
+
     .lesson-package-select {
-        .package-item {
-            width: 100%;
-            height: 28px;
-            line-height: 28px;
-            border: 1px solid #e1e1e1;
-            border-radius: 6px;
-            text-align: center;
-            margin-bottom: 6px;
-            cursor: pointer;
+        position: relative;
+        height: 130px;
 
-            &.isInPackage {
-                border-color: #67c23a;
-                position: relative;
+        .package-content {
+            height: 103px;
+            overflow-y: auto;
+            padding: 0 16px;
 
-                &::after {
-                    position: absolute;
-                    width: 24px;
-                    height: 24px;
-                    content: "";
-                    right: -5px;
-                    top: -5px;
-                    display: block;
-                    background: url(~@/assets/images/preparation/check.png) no-repeat;
-                    background-size: cover;
-                }
+            .package-item {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                width: 100%;
+                font-size: 14px;
+                font-weight: 400;
+                color: #0D0B22;
+                margin-bottom: 12px;
+                cursor: pointer;
             }
 
+            .package-item:hover {
+                border-color: #486CE4;
+            }
         }
 
-        .package-item:hover {
-            border-color: #409eff;
+        .deadline {
+            width: 90px;
+            height: 1px;
+            background: #F3F4F4;
+            margin-bottom: 12px;
+
         }
 
         .package-add {
-            text-align: center;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            padding: 0 16px;
+
+            .add-text {
+                font-size: 14px;
+                font-family: PingFangSC-Regular, PingFang SC;
+                font-weight: 400;
+                color: #486CE4;
+            }
         }
     }
-}</style>
+}
+</style>

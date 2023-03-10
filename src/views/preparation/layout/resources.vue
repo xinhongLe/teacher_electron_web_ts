@@ -8,8 +8,9 @@
             <img src="@/assets/images/preparation/pic_finish_buzhi.png" alt="" />
             没有相关资源
         </div>
-        <div class="p-layout-lesson" v-if="resourceList.length && source == 'me'">
-            <LessonPackage :isMouseDrag="false" :lessonPackageList="lessonPackageList" />
+        <div class="p-layout-lesson" v-if="source == 'me'">
+            <LessonPackage :isMouseDrag="false" :lessonPackageList="lessonPackageList" @addLessonPackage="addLessonPackage"
+                @deleteLessonPackage="deleteLessonPackage" @toMyLessonPackage="toArrangeClass" />
         </div>
         <div class="p-layout-list" ref="resourceScroll" v-infinite-scroll="load"
             :infinite-scroll-disabled="disabledScrollLoad">
@@ -17,7 +18,8 @@
                 `resource-${item.ResourceId}`,
                 item.ResourceId === resourceId ? 'doing' : 'custom',
             ]" v-for="(item, index) in resourceList" :key="index" :data="item" :name="name" :lessonId="course.lessonId"
-                :source="source" @eventEmit="eventEmit" @addLessonPackage="addLessonPackage" :lessonPackageList="lessonPackageList"/>
+                :source="source" @eventEmit="eventEmit" @addLessonPackage="addLessonPackage"
+                @toArrangeClass="toArrangeClass" :lessonPackageList="lessonPackageList" />
 
             <DeleteTip :target="targetDelete" v-model:visible="deleteTipVisible" @onDeleteSuccess="onDeleteSuccess" />
 
@@ -40,6 +42,7 @@
                 </el-dialog>
             </div>
         </div>
+
     </div>
 </template>
 
@@ -90,15 +93,7 @@ interface ICourse {
     chapterName: string;
 }
 export default defineComponent({
-    components: {
-        ResourceItem,
-        LessonPackage,
-        DeleteTip,
-        EditTip,
-        ResourceVersion,
-        DeleteVideoTip,
-        ResourceView
-    },
+ 
     props: {
         course: {
             type: Object as PropType<ICourse>,
@@ -123,9 +118,13 @@ export default defineComponent({
         lessonPackageList: {
             type: Object as PropType<IPackage[]>,
             default: () => [],
-        }
+        },
+        showClassArrangement: {
+            type: Boolean,
+            required: true
+        },
     },
-    emits: ["updateResourceList", "addLessonPackage","toMyLessonPackage"],
+    emits: ["updateResourceList", "addLessonPackage", "toMyLessonPackage", "toArrangeClass", "deleteLessonPackage"],
     setup(props, { expose, emit }) {
         const resourceList = ref<IResourceItem[]>([]);
         const deleteTipVisible = ref(false);
@@ -587,10 +586,17 @@ export default defineComponent({
             if (resourceVisible.value) resourceVisible.value = false;
         };
         const addLessonPackage = () => {
-            emit("toMyLessonPackage")
+            emit("toMyLessonPackage");
             emit("addLessonPackage");
         };
-        expose({ update, openResource, eventEmit });
+        const toArrangeClass = (data: any, type: number) => {
+            emit("toArrangeClass", data, type);
+        };
+
+        const deleteLessonPackage = (id: string) => {
+            emit("deleteLessonPackage", id);
+        };
+        expose({ update, openResource, eventEmit, addLessonPackage, toArrangeClass });
 
         return {
             resourceList,
@@ -602,6 +608,7 @@ export default defineComponent({
             resourceVersionVisible,
             deleteVideoTipVisible,
             addLessonPackage,
+            toArrangeClass,
             eventEmit,
             resourceVisible,
             load,
@@ -619,8 +626,18 @@ export default defineComponent({
             cancelDownload,
             isLaoding,
             editWincard,
-            openWinCard
+            openWinCard,
+            deleteLessonPackage
         };
+    },
+    components: {
+        ResourceItem,
+        LessonPackage,
+        DeleteTip,
+        EditTip,
+        ResourceVersion,
+        DeleteVideoTip,
+        ResourceView,
     },
 });
 </script>
@@ -631,7 +648,8 @@ export default defineComponent({
     position: relative;
 
     .p-layout-lesson {
-        height: calc(100vh - 165px);
+        height: calc(100vh - 160px);
+        padding-left: 20px;
         overflow-y: auto;
     }
 

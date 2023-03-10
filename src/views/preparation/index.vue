@@ -1,16 +1,19 @@
 <template>
     <div class="preparation" @mousedown.stop.prevent="clickOutSide($event)">
         <LeftMenu v-model:showClassArrangement="showClassArrangement" v-model:course="course" v-model:bookId="bookId" />
-        <div class="content-wrapper" v-show="!showClassArrangement">
+        <div class="content-wrapper">
 
             <Head :course="course" v-model:source="source" v-model:type="type" ref="HeadRef" />
-            <Resources :course="course" :source="source" :type="type" :bookId="bookId"
-                :lessonPackageList="lessonPackageList" @addLessonPackage="addLessonPackage"
-                @toMyLessonPackage="toMyLessonPackage" />
+            <Resources v-show="!showClassArrangement" :course="course" :source="source" :type="type" :bookId="bookId"
+                :showClassArrangement="showClassArrangement" :lessonPackageList="lessonPackageList"
+                @addLessonPackage="addLessonPackage" @toMyLessonPackage="toMyLessonPackage" @toArrangeClass="toArrangeClass"
+                @deleteLessonPackage="deleteLessonPackage" />
+            <div class="content-wrapper" v-if="showClassArrangement">
+                <ClassArrangement :lessonPackageList="lessonPackageList" @addLessonPackage="addLessonPackage"
+                    ref="ClassArrangementRef" />
+            </div>
         </div>
-        <div class="content-wrapper" v-if="showClassArrangement">
-            <ClassArrangement :lessonPackageList="lessonPackageList" />
-        </div>
+
     </div>
 </template>
 
@@ -22,6 +25,7 @@ import {
     ref,
     onActivated,
     onDeactivated,
+    nextTick
 } from "vue";
 import LeftMenu from "./layout/leftMenu.vue";
 import Head from "./layout/head.vue";
@@ -34,7 +38,7 @@ import useLessonPackage from "@/hooks/useLessonPackage";
 export default defineComponent({
     name: "Preparation",
     setup() {
-        const { lessonPackageList, addLessonPackage } = useLessonPackage();
+        const { lessonPackageList, addLessonPackage, deleteLessonPackage } = useLessonPackage();
         const { startDrag, clickOutSide } = useClickDrag();
         //埋点需求
         const { createBuryingPointFn } = usePageEvent("备课", true);
@@ -49,9 +53,26 @@ export default defineComponent({
         const bookId = ref("");
         const HeadRef = ref();
         const toMyLessonPackage = () => {
-            console.log('HeadRef.value',HeadRef.value);
-            
+            console.log('HeadRef.value', HeadRef.value);
+
             HeadRef.value && HeadRef.value.toMyLessonPackage()
+        };
+        const ClassArrangementRef = ref();
+        // 去排课
+        const toArrangeClass = async (data: any, type: number) => {
+            if (type == 1) {
+                const res = await addLessonPackage(data);
+                showClassArrangement.value = true;
+                nextTick(() => {
+                    ClassArrangementRef.value.toArrange(res);
+                })
+            } else {
+                showClassArrangement.value = true;
+                nextTick(() => {
+                    ClassArrangementRef.value.toArrange(data);
+                })
+            }
+
         };
         return {
             course,
@@ -61,10 +82,12 @@ export default defineComponent({
             bookId,
             HeadRef,
             clickOutSide,
+            lessonPackageList,
             addLessonPackage,
             toMyLessonPackage,
-            lessonPackageList
-
+            toArrangeClass,
+            deleteLessonPackage,
+            ClassArrangementRef
         };
     },
     components: {

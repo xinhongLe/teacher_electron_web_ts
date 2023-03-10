@@ -16,7 +16,7 @@
                 />
             </div>
         </div>
-        <el-button
+        <!-- <el-button
             class="p-work-schedule"
             :class="showClassArrangement && 'out'"
             @click="
@@ -31,7 +31,7 @@
             <div class="work-schedule-text" v-else>
                 <img src="@/assets/images/preparation/icon_paike.svg" /> 去排课
             </div>
-        </el-button>
+        </el-button> -->
     </div>
 </template>
 
