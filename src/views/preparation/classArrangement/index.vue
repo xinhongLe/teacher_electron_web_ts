@@ -39,7 +39,7 @@
 								<span>刷新</span>
 							</div>
 						</div>
-						<div class="close">
+						<div class="close" @click="">
 							<img src="@/assets/images/preparation/close.png" alt="">
 						</div>
 					</header>
@@ -199,9 +199,8 @@ export default defineComponent({
 	display: flex;
 
 	.p-layout-lesson {
-		height: calc(100vh - 80px);
+		height: calc(100vh - 160px);
 		overflow-y: auto;
-		margin-top: 10px;
 		padding-left: 20px;
 
 		.package-item {
@@ -222,7 +221,7 @@ export default defineComponent({
 
 	.class-arrangement-warp {
 		flex: 1;
-		padding: 12px 0 0 12px;
+		padding: 0 20px;
 		min-height: 0;
 		display: flex;
 		flex-direction: column;
@@ -350,8 +349,8 @@ export default defineComponent({
 
 			.close {
 				position: absolute;
-				right: 0;
-				top: 0;
+				right: -10px;
+				top: -10px;
 				cursor: pointer;
 
 				img {

@@ -1,18 +1,9 @@
 <template>
-    <div
-        ref="calendarRef"
-        class="calendar"
-        :style="calendarStyles"
-    >
+    <div ref="calendarRef" class="calendar" :style="calendarStyles">
         <slot :initSchedules="initSchedules" />
         <div class="content-header">
             <div class="item">上课时间</div>
-            <div
-                v-for="(day, index) in days"
-                :key="day"
-                class="item"
-                :class="{ current: isCurrentDay(day) }"
-            >
+            <div v-for="(day, index) in days" :key="day" class="item" :class="{ current: isCurrentDay(day) }">
                 {{ `${formTime(day)} 周${formWeek(index + 1)}` }}
             </div>
         </div>
@@ -27,28 +18,22 @@
                         <span>{{ col.fontShowTime }}</span>
                         <span>{{ col.SectionName }}</span>
                     </div>
-                    <Course
-                        v-for="item in col.colData"
-                        :key="item.index"
-                        :rowData="col"
-                        :colData="item"
-                        :isDrop="isDrop"
-                        :isShowText="isShowText"
-                        :isShowDelete="isShowDelete"
-                        :isShowDetailBtn="isShowDetailBtn"
-                        @openCourse="openCourse"
-                        @createHomePoint="createHomePoint"
-                    />
+                    <Course v-for="item in col.colData" :key="item.index" :rowData="col" :colData="item" :isDrop="isDrop"
+                        :isShowText="isShowText" :isShowDelete="isShowDelete"
+                        :isShowDetailBtn="isShowDetailBtn" @openCourse="openCourse" @createHomePoint="createHomePoint" @openClassDialog="openClassDialog"/>
                 </div>
             </div>
         </div>
     </div>
+    <selectClass v-model:classVisible="classVisible" />
+    <!-- <hasLessonDialogTip v-model:hasLessonVisible="hasLessonVisible" /> -->
 </template>
 
 <script lang="ts">
 import useSchedules, { ColData } from "@/hooks/useSchedules";
 import useTime from "@/hooks/useTime";
 import moment from "moment";
+import selectClass from "@/components/selectClass/index.vue";
 import {
     computed,
     defineComponent,
@@ -93,6 +78,7 @@ export default defineComponent({
         const { weekNext, weekPre, initDays, formTime, formWeek } = useTime();
         initDays();
         const days = computed(() => props.days);
+        const classVisible = ref(false);
         const currentDay = new Date().getDate();
         const {
             schedules,
@@ -117,6 +103,10 @@ export default defineComponent({
                 "上课",
                 data
             );
+        };
+        // 打开选择班级弹框
+        const openClassDialog = (val:boolean) => {
+            classVisible.value = true;
         };
 
         const resize = () => {
@@ -186,16 +176,18 @@ export default defineComponent({
             formWeek,
             openCourse,
             createHomePoint,
+            openClassDialog,
             calendarRef,
             contentRef,
             scale,
             height,
             width,
-            calendarStyles
+            calendarStyles,
+            classVisible
         };
     },
 
-    components: { Course },
+    components: { Course, selectClass }
 });
 </script>
 
@@ -217,6 +209,7 @@ export default defineComponent({
         font-weight: 500;
         color: #9e9ea7;
         flex-direction: column;
+
         img {
             margin-bottom: 20px;
             display: block;
@@ -230,6 +223,7 @@ export default defineComponent({
     background-color: #fff;
     padding: 0 16px;
     height: 32px;
+
     .item {
         flex: 1;
         height: 100%;
@@ -244,6 +238,7 @@ export default defineComponent({
         background-color: #f5f6fa;
         border-top: 1px solid #e0e2e7;
         border-bottom: 1px solid #e0e2e7;
+
         &.current {
             background: #98aef6;
             color: #fff;
@@ -257,6 +252,7 @@ export default defineComponent({
     display: flex;
     flex-direction: column;
 }
+
 .content {
     display: flex;
     flex: 1;
@@ -266,27 +262,32 @@ export default defineComponent({
     border-bottom-left-radius: 16px;
     border-bottom-right-radius: 16px;
     padding: 0 16px 16px;
+
     .col {
         min-height: 80px;
         display: flex;
         align-items: center;
         flex-shrink: 0;
         flex: 1;
+
         &:last-child {
             .cell {
                 border-bottom: none;
             }
         }
+
         .cell {
             height: 100%;
             flex: 1;
             min-width: 0;
             border-right: 1px solid #e0e2e7;
             border-bottom: 1px solid #e0e2e7;
+
             &:last-child {
                 border-right: none;
             }
         }
+
         .time {
             display: flex;
             align-items: center;
@@ -299,8 +300,10 @@ export default defineComponent({
             border-left: none;
             flex-direction: column;
         }
+
         .course {
             position: relative;
+
             .course-content {
                 height: 100%;
                 width: 100%;
@@ -308,18 +311,21 @@ export default defineComponent({
                 display: flex;
                 flex-direction: column;
                 justify-content: space-between;
+
                 .title {
                     display: flex;
                     justify-content: space-between;
                     align-items: center;
                     font-size: 14px;
                     height: 24px;
+
                     .course-name {
                         overflow: hidden;
                         white-space: nowrap;
                         text-overflow: ellipsis;
                         color: #19203d;
                     }
+
                     .del-class {
                         width: 24px;
                         height: 24px;
@@ -332,16 +338,19 @@ export default defineComponent({
                         opacity: 0.2;
                     }
                 }
+
                 .class-name {
                     margin-top: 6px;
                     color: #5f626f;
                     font-size: 12px;
                 }
+
                 .content-detail {
                     cursor: pointer;
                     font-size: 14px;
                     color: #19203d;
                 }
+
                 .content-class {
                     position: absolute;
                     right: 0;

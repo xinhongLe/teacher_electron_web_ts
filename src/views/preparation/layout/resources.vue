@@ -12,7 +12,7 @@
             <LessonPackage :isMouseDrag="false" :lessonPackageList="lessonPackageList" @addLessonPackage="addLessonPackage"
                 @deleteLessonPackage="deleteLessonPackage" @toMyLessonPackage="toArrangeClass" />
         </div>
-        <div class="p-layout-list" ref="resourceScroll" v-infinite-scroll="load"
+        <div class="p-layout-list" ref="resourceScroll" v-infinite-scroll="load" :style="{height:source == 'me' ? 'calc(100vh - 160px)' : 'calc(100vh - 240px)'}"
             :infinite-scroll-disabled="disabledScrollLoad">
             <ResourceItem :class="[
                 `resource-${item.ResourceId}`,
@@ -504,10 +504,10 @@ export default defineComponent({
         const { source, type, course, bookId } = toRefs(props);
 
         watch([source, type, course, schoolId, bookId], () => {
-            console.log('source.value', source.value);
-            if (source.value === 'me') return;
+            console.log('source.value123123', source.value);
+            // if (source.value === 'me') return;
             update("");
-        });
+        },{deep:true});
 
         const update = (id: string) => {
             resourceList.value = [];
@@ -542,7 +542,8 @@ export default defineComponent({
                     res.result.list.length === 0
                         ? true
                         : res.result.pager.IsLastPage;
-
+                    console.log('resourceList.value',resourceList.value);
+                    
                 emit("updateResourceList", resourceList.value);
 
                 nextTick(() => {
@@ -654,7 +655,7 @@ export default defineComponent({
     }
 
     .p-layout-list {
-        height: calc(100vh - 165px);
+        height: calc(100vh - 240px);
         flex: 1;
         min-height: 0;
         min-width: 0;

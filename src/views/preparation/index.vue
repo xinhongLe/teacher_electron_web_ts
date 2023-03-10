@@ -1,19 +1,20 @@
 <template>
     <div class="preparation" @mousedown.stop.prevent="clickOutSide($event)">
-        <LeftMenu v-model:showClassArrangement="showClassArrangement" v-model:course="course" v-model:bookId="bookId" />
+        <LeftMenu  v-model:course="course" v-model:bookId="bookId" />
         <div class="content-wrapper">
-
             <Head :course="course" v-model:source="source" v-model:type="type" ref="HeadRef" />
-            <Resources v-show="!showClassArrangement" :course="course" :source="source" :type="type" :bookId="bookId"
-                :showClassArrangement="showClassArrangement" :lessonPackageList="lessonPackageList"
-                @addLessonPackage="addLessonPackage" @toMyLessonPackage="toMyLessonPackage" @toArrangeClass="toArrangeClass"
-                @deleteLessonPackage="deleteLessonPackage" />
-            <div class="content-wrapper" v-if="showClassArrangement">
+            <div v-show="!showPackage && !showClassArrangement">
+                <Resources :course="course" :source="source" :type="type" :bookId="bookId"
+                    :showClassArrangement="showClassArrangement" :lessonPackageList="lessonPackageList"
+                    @addLessonPackage="addLessonPackage" @toMyLessonPackage="toMyLessonPackage"
+                    @toArrangeClass="toArrangeClass" @deleteLessonPackage="deletenPackage" />
+            </div>
+            <div v-if="showPackage && showClassArrangement">
                 <ClassArrangement :lessonPackageList="lessonPackageList" @addLessonPackage="addLessonPackage"
                     ref="ClassArrangementRef" />
             </div>
         </div>
-
+        <deletePackage v-model:visible="deleteVisible" @onDeletePackage="deleteLessonPackage(deleteTargetId)" />
     </div>
 </template>
 
@@ -25,7 +26,8 @@ import {
     ref,
     onActivated,
     onDeactivated,
-    nextTick
+    nextTick,
+    watch
 } from "vue";
 import LeftMenu from "./layout/leftMenu.vue";
 import Head from "./layout/head.vue";
@@ -35,6 +37,7 @@ import usePageEvent from "@/hooks/usePageEvent";
 import { RESOURCE_TYPE } from "@/config/resource";
 import useClickDrag from "@/hooks/useClickDrag";
 import useLessonPackage from "@/hooks/useLessonPackage";
+import deletePackage from "./layout/dialog/deletePackage.vue";
 export default defineComponent({
     name: "Preparation",
     setup() {
@@ -43,6 +46,7 @@ export default defineComponent({
         //埋点需求
         const { createBuryingPointFn } = usePageEvent("备课", true);
         const showClassArrangement = ref(false);
+        const showPackage = ref(false);
         const course = ref({
             chapterId: "",
             lessonId: "",
@@ -52,27 +56,43 @@ export default defineComponent({
         const type = ref(RESOURCE_TYPE.COURSEWARD);
         const bookId = ref("");
         const HeadRef = ref();
+        const deleteVisible = ref(false);
         const toMyLessonPackage = () => {
-            console.log('HeadRef.value', HeadRef.value);
-
             HeadRef.value && HeadRef.value.toMyLessonPackage()
         };
         const ClassArrangementRef = ref();
         // 去排课
         const toArrangeClass = async (data: any, type: number) => {
+            HeadRef.value && HeadRef.value.toMyLessonPackage();
+            source.value = 'me';
+            showPackage.value = true;
+            showClassArrangement.value = true;
             if (type == 1) {
                 const res = await addLessonPackage(data);
-                showClassArrangement.value = true;
                 nextTick(() => {
                     ClassArrangementRef.value.toArrange(res);
                 })
             } else {
-                showClassArrangement.value = true;
                 nextTick(() => {
                     ClassArrangementRef.value.toArrange(data);
                 })
             }
 
+        };
+        watch(()=>source.value,(val)=>{
+            if (val === 'me') {
+                // showClassArrangement.value = false;
+            }else{
+                showClassArrangement.value = false;
+                showPackage.value = false;
+            }
+            
+        },{deep:true});
+        const deleteTargetId = ref("");
+        // 删除
+        const deletenPackage = (id: string) => {
+            deleteTargetId.value = id;
+            deleteVisible.value = true
         };
         return {
             course,
@@ -81,13 +101,18 @@ export default defineComponent({
             type,
             bookId,
             HeadRef,
-            clickOutSide,
+            deleteVisible,
+            deleteTargetId,
+            ClassArrangementRef,
             lessonPackageList,
+            showPackage,
+            clickOutSide,
             addLessonPackage,
             toMyLessonPackage,
             toArrangeClass,
             deleteLessonPackage,
-            ClassArrangementRef
+            deletenPackage,
+
         };
     },
     components: {
@@ -95,6 +120,7 @@ export default defineComponent({
         Head,
         Resources,
         ClassArrangement,
+        deletePackage
     },
 });
 </script>

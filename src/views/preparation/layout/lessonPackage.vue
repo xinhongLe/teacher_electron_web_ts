@@ -62,7 +62,7 @@ const addLessonPackage = () => {
 const selectPackage = (data: any) => {
     currentSelectPackageId.value = data!.ID;
     nextTick(() => {
-        const dom: HTMLElement = document.querySelector('.package-item.isActive') as HTMLElement
+        const dom: HTMLElement = document.querySelector('.package-item.isActive > .item-footer > .item-button') as HTMLElement;
         if (props.isMouseDrag && dom) {
             const event: MouseEvent = new MouseEvent('mousedown');
             event.preventDefault();

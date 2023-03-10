@@ -54,27 +54,12 @@ export default () => {
     };
 
     const deleteLessonPackage = (id: string) => {
-        ElMessageBox.confirm(
-            '确定要删除吗？',
-            '提示',
-            {
-                confirmButtonText: '确定',
-                cancelButtonText: '取消',
-                type: 'warning',
-            }
-        )
-            .then(() => {
-                state.lessonPackageList = state.lessonPackageList.filter((item:any)=>{
-                    return item.ID !== id
-                })
-                console.log('state.lessonPackageLis',state.lessonPackageList);
-                
-                ElMessage({
-                    type: 'success',
-                    message: '删除成功',
-                })
+            state.lessonPackageList = state.lessonPackageList.filter((item:any)=>{
+                return item.ID !== id
             })
-            .catch(() => {
+            ElMessage({
+                type: 'success',
+                message: '删除成功',
             })
     }
     return {

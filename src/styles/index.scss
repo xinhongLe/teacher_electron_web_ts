@@ -238,17 +238,15 @@ html {
 
         .dragging-click-dom-ele {
             pointer-events: none;
-            // text-align: center;
-            // font-size: 22px;
-            // background-color: rgba($color: #fff, $alpha: 0.8);
-            // color: #aaa;
-            // border: 1px solid #aaa;
             position: relative;
             width: 200px;
-            // background-color: #fff;
-            background: url("~@/assets/images/preparation/bg_kebao.png") no-repeat;
+            background-image: url("~@/assets/images/preparation/bg_kebao.png");
+            background-repeat: no-repeat;
             background-size: cover;
             height: 142px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
 
             .item-name {
                 display: flex;
@@ -275,16 +273,15 @@ html {
                 margin: 8px 0 14px 0;
             }
 
-            .not-allowed-icon {
+            .not-allowed {
+                width: 200px;
+                height: 142px;
                 position: absolute;
-                top: 50%;
-                left: 50%;
-                transform: translateXY(-50%, -50%);
-                width: 30px;
-                height: 30px;
-                box-sizing: border-box;
-                background: url("~@/assets/images/preparation/forbid.png") no-repeat center center;
-                background-size: 100% 100%;
+                top: 0;
+                left: 0;
+                background-image: url("~@/assets/images/preparation/bg_kebao_not.png");
+                background-repeat: no-repeat;
+                background-size: cover;
                 pointer-events: none;
             }
 

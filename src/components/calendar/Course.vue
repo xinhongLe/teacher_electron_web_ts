@@ -2,11 +2,8 @@
     <div @drop.prevent="isDrop && colData.ID ? onDrop($event, colData) : null"
         @dragover="isDrop && colData.ID ? $event.preventDefault() : null"
         @dragenter="isDrop && colData.ID ? (isActive = true) : null"
-        @dragleave="isDrop && colData.ID ? (isActive = false) : null"
-
-        @mouseenter="onMouseEnter"
-        @mouseleave="onMouseLeave"
-        @mousedown.prevent="onMouseDownEnd($event, colData)" class="course cell" :class="[
+        @dragleave="isDrop && colData.ID ? (isActive = false) : null" @mouseenter="onMouseEnter" @mouseleave="onMouseLeave"
+        @mousedown.stop.prevent="onMouseDownEnd($event, colData)" class="course cell" :class="[
             isActive ? 'active' : '',
             isDragging ? 'drag-event-class' : '',
         ]">
@@ -108,7 +105,7 @@ const props = defineProps({
     isDrop: {
         type: Boolean,
         default: false,
-    },
+    }
 });
 const currentClassId: any = ref("");
 const isMobile = ref(false);
@@ -194,23 +191,35 @@ const addSchedule = async (dragInfo: SchoolLesson) => {
 };
 
 const onMouseEnter = async (ev: MouseEvent) => {
-    if (isDragging.value ) {
-        isActive.value = true
-    } 
+    if (isDragging.value && !isEnd.value) {
+        isActive.value = true;
+    } else {
+        const dom: HTMLElement = document.querySelector('.dragging-click-dom-ele') as HTMLElement;//备课包虚拟dom
+        // dom. = `url(${require('@/assets/images/preparation/bg_kebao_not.png')})`;
+        const notDom: HTMLElement = document.createElement('div');
+        notDom!.classList.add("not-allowed");
+        dom && dom.appendChild(notDom)
+
+    }
 };
 const onMouseLeave = async (ev: MouseEvent) => {
     if (isDragging.value) {
-        isActive.value = false
-    } 
+        isActive.value = false;
+        const dom: HTMLElement = document.querySelector('.dragging-click-dom-ele') as HTMLElement;//备课包虚拟dom
+        const notDom: HTMLElement = document.querySelector('.not-allowed') as HTMLElement;
+        if (!notDom) return;
+        dom && dom.removeChild(notDom)
+    }
 };
 // 鼠标在课表区域按下
 const onMouseDownEnd = async (ev: MouseEvent, colData: ColData) => {
     const dom: any = document.querySelector('.dragging-click-dom-ele');//备课包虚拟dom
     const dragInfo: SchoolLesson = currentPackageData.value;
+    console.log('dragInfo',dragInfo);
+    
     if (!dragInfo) return;
-    if (isDragging && colData.ID) {
+    if (isDragging && !isEnd.value && colData.ID) {
         isActive.value = false;
-        clickOutSide(ev, dom)
         if (!colData.ID) return;
         if (props.colData.LessonID) {
             return ElMessageBox.confirm(
@@ -241,12 +250,16 @@ const onMouseDownEnd = async (ev: MouseEvent, colData: ColData) => {
         const res = await addSchedule(dragInfo);
         if (res.resultCode === 200) {
             ElMessage.success("排课成功");
+            clickOutSide(ev, dom)
             updateSchedules();
             //拖动课程进入课表成功后，调用埋点接口
             createBuryingPointFn(EVENT_TYPE.ScheduleStart, "排课", "课表", colData);
         }
-    } else {
-        clickOutSide(ev, dom);
+    }
+    console.log('isEnd', isEnd.value);
+
+    if (isDragging && !colData.ID && !isEnd.value) {
+        emit("openClassDialog", true)
     }
 };
 
@@ -294,7 +307,7 @@ const onDrop = async (ev: DragEvent, colData: ColData) => {
     }
 };
 
-const emit = defineEmits(["openCourse", "createHomePoint"]);
+const emit = defineEmits(["openCourse", "createHomePoint", "openClassDialog"]);
 
 const goToClass = () => {
     if (!props.colData.LessonName) return;
