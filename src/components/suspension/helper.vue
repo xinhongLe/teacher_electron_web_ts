@@ -581,6 +581,10 @@ export default defineComponent({
                 getStudentList();
             }
             if (isElectron()) {
+                storeChange(STORAGE_TYPES.CURRENT_USER_INFO, (value) => {
+                    // 组织切换 更新学生
+                    if (value) getStudentList();
+                });
                 storeChange(STORAGE_TYPES.USER_INFO, (value) => {
                     if (value) {
                         userInfo = get(STORAGE_TYPES.USER_INFO);
