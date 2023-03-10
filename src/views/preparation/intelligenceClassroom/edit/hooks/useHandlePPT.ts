@@ -9,7 +9,7 @@ import { initSlideData } from "@/utils/dataParsePage";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { CardProps, PageProps } from "../../api/props";
 
-export default (windowCards: Ref<CardProps[]>, allPages: Ref<PageProps[]>, pageMap: Ref<Map<string, Slide>>, currentPage: Ref<PageProps | undefined>, editRef: Ref) => {
+export default (windowCards: Ref<CardProps[]>, allPages: Ref<PageProps[]>, pageMap: Ref<Map<string, Slide>>, currentPage: Ref<PageProps | null>, editRef: Ref) => {
     const { transformPageDetail } = useHome();
     let backupPage: PageProps | null = null;
 
@@ -37,22 +37,17 @@ export default (windowCards: Ref<CardProps[]>, allPages: Ref<PageProps[]>, pageM
     };
 
     // 创建文件夹
-    const createFolder = () => {
-        ElMessageBox.prompt("", "新建文件夹", {
-            inputPattern: /\S/,
-            inputErrorMessage: "请填写文件夹名称"
-        }).then(async ({ value }) => {
-            const card = {
-                ID: uuidv4(),
-                TeachPageRelationID: "",
-                Name: value,
-                Sort: windowCards.value.length,
-                PageList: [],
-                Fold: true
-            };
-            windowCards.value.push(card);
-            await createCardPage(pageTypeList[0], card);
-        });
+    const createFolder = async (name: string) => {
+        const card = {
+            ID: uuidv4(),
+            TeachPageRelationID: "",
+            Name: name,
+            Sort: windowCards.value.length,
+            PageList: [],
+            Fold: true
+        };
+        windowCards.value.push(card);
+        await createCardPage(pageTypeList[0], card);
     };
 
     // 新增空白页/互动页
@@ -119,29 +114,83 @@ export default (windowCards: Ref<CardProps[]>, allPages: Ref<PageProps[]>, pageM
         messageBox({
             content: "此操作将删除该数据, 是否继续?"
         }).then(async () => {
-            let list: PageProps[] = [];
-            if ("ParentID" in data) {
-                const find = windowCards.value.find(item => item.ID === data.ParentID);
-                list = [data];
+            const cardsList = windowCards.value;
+            if (!("ParentID" in data)) {
+                const index = cardsList.findIndex(item => item.ID === data.ID);
+                const index1 = cardsList.findIndex(item => item.ID === currentPage.value?.ParentID);
+                if (cardsList.length !== 1) {
+                    if (index === index1) {
+                        currentPage.value = cardsList[1].PageList[0];
+                    }
+                    let cloneAllPage = cloneDeep(allPages.value);
+                    for (let i = 0; i < cardsList[index].PageList.length; i++) {
+                        const item = cardsList[index].PageList[i];
 
-                if (find) {
-                    const idx = find.PageList.findIndex(item => item.ID === data.ID);
-                    find.PageList.splice(idx, 1);
+                        pageMap.value.delete(item.ID);
+
+                        cloneAllPage = cloneAllPage.filter(it => it.ID !== item.ID);
+                    }
+                    windowCards.value.splice(index, 1);
+                    allPages.value = cloneAllPage;
+                    sortWindowCards();
+                } else {
+                    windowCards.value = [];
+                    allPages.value = [];
+                    pageMap.value.clear();
+                    await createFolder("文件夹一");
+                    currentPage.value = windowCards.value[0].PageList[0];
                 }
+                return;
+            }
+            const index = cardsList.findIndex(item => item.ID === data.ParentID);
+            if (index === -1) return;
+
+            let page: PageProps | null = null;
+            const pageList = cardsList[index].PageList;
+            const idx = pageList.findIndex(item => item.ID === data.ID);
+            if (currentPage.value?.ID === data.ID) {
+                if (pageList.length === 1) {
+                    const selectPageList = cardsList[length - 1]?.PageList;
+                    page = selectPageList ? selectPageList[selectPageList.length - 1] : null;
+                }
+
+                if (pageList.length > 1 && idx === pageList.length - 1) {
+                    page = pageList[idx - 1];
+                }
+                if (pageList.length > 1 && idx !== pageList.length - 1) {
+                    page = pageList[idx + 1];
+                }
+                if (pageList.length === 1) {
+                    const selectPageList = cardsList[index + 1]?.PageList;
+                    page = selectPageList ? selectPageList[0] : null;
+                }
+                if (index === 0 && pageList.length === 1) {
+                    const selectPageList = cardsList[index + 1]?.PageList;
+                    page = selectPageList ? selectPageList[0] : null;
+                }
+                if (index === cardsList.length - 1 && pageList.length === 1) {
+                    const selectPageList = cardsList[cardsList.length - 1]?.PageList;
+                    page = selectPageList ? selectPageList[selectPageList.length - 1] : null;
+                }
+                currentPage.value = page;
+            }
+
+            if (allPages.value.length !== 1) {
+                pageMap.value.delete(pageList[idx].ID);
+                allPages.value = allPages.value.filter(it => it.ID !== pageList[idx].ID);
+                if (pageList.length === 1) {
+                    cardsList.splice(index, 1);
+                } else {
+                    pageList.splice(idx, 1);
+                }
+                sortWindowCards();
             } else {
-                const index = windowCards.value.findIndex(item => item.ID === (data as CardProps).ID);
-                list = windowCards.value[index].PageList;
-                windowCards.value.splice(index, 1);
+                allPages.value = [];
+                windowCards.value = [];
+                pageMap.value.clear();
+                await createFolder("文件夹一");
+                currentPage.value = windowCards.value[0].PageList[0];
             }
-
-            for (let i = 0; i < list.length; i++) {
-                const item = list[i];
-
-                pageMap.value.delete(item.ID);
-
-                allPages.value = allPages.value.filter(it => it.ID !== item.ID);
-            }
-            sortWindowCards();
         });
     };
 

@@ -220,7 +220,7 @@ export default defineComponent({
         const total = ref(0);
         const showCollapse = ref(true);
         const addPageVisible = ref(false);
-        const currentPage = ref<PageProps>();
+        const currentPage = ref<PageProps | null>(null);
         const allPages = ref<PageProps[]>([]);
         const pageMap = ref(new Map<string, Slide>());
         const selectPageIds = ref<string[]>([]);
@@ -347,8 +347,12 @@ export default defineComponent({
         // PPT悬浮操作（1-新增文件夹，2-新增空白页，3-重命名，4-隐藏/显示，5-粘贴页，6-复制页，7-保存模板，8-删除，9-新增互动页）
         const handleCartItem = (type: number, data: PageProps | CardProps) => {
             if (type === 1) {
-                loading.show();
-                addHandle.createFolder();
+                ElMessageBox.prompt("", "新建文件夹", {
+                    inputPattern: /\S/,
+                    inputErrorMessage: "请填写文件夹名称"
+                }).then(async ({ value }) => {
+                    addHandle.createFolder(value);
+                });
             }
             if (type === 2) {
                 loading.show();

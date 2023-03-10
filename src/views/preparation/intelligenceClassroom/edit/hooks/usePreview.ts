@@ -4,7 +4,7 @@ import { computed, Ref, ref } from "vue";
 import { enterFullscreen } from "@/utils/fullscreen";
 import { PageProps } from "@/views/preparation/intelligenceClassroom/api/props";
 
-export default (pageList: Ref<PageProps[]>, currentPage: Ref<PageProps | undefined>, editRef: Ref) => {
+export default (pageList: Ref<PageProps[]>, currentPage: Ref<PageProps | null>, editRef: Ref) => {
     const previewPageList = computed(() => pageList.value.filter(item => item.State));
     const previewIndex = ref(0);
     const winScreenView = ref(false);
