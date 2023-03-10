@@ -215,37 +215,36 @@ const onMouseLeave = async (ev: MouseEvent) => {
 const onMouseDownEnd = async (ev: MouseEvent, colData: ColData) => {
     const dom: any = document.querySelector('.dragging-click-dom-ele');//备课包虚拟dom
     const dragInfo: SchoolLesson = currentPackageData.value;
-    console.log('dragInfo',dragInfo);
-    
     if (!dragInfo) return;
     if (isDragging && !isEnd.value && colData.ID) {
         isActive.value = false;
         if (!colData.ID) return;
         if (props.colData.LessonID) {
-            return ElMessageBox.confirm(
-                "当前时间点已有排课，是否覆盖？",
-                "覆盖提示",
-                {
-                    confirmButtonText: "确定",
-                    cancelButtonText: "取消",
-                    type: "warning",
-                }
-            ).then(async () => {
-                const res = await addSchedule(dragInfo);
-                // console.log("dragInfo", dragInfo, colData);
 
-                if (res.resultCode === 200) {
-                    ElMessage.success("更新成功");
-                    updateSchedules();
-                    //拖动课程进入课表成功后，调用埋点接口
-                    createBuryingPointFn(
-                        EVENT_TYPE.ScheduleStart,
-                        "排课",
-                        "课表",
-                        colData
-                    );
-                }
-            });
+            
+            // return ElMessageBox.confirm(
+            //     "当前时间点已有排课，是否覆盖？",
+            //     "覆盖提示",
+            //     {
+            //         confirmButtonText: "确定",
+            //         cancelButtonText: "取消",
+            //         type: "warning",
+            //     }
+            // ).then(async () => {
+            //     const res = await addSchedule(dragInfo);
+
+            //     if (res.resultCode === 200) {
+            //         ElMessage.success("更新成功");
+            //         updateSchedules();
+            //         //拖动课程进入课表成功后，调用埋点接口
+            //         createBuryingPointFn(
+            //             EVENT_TYPE.ScheduleStart,
+            //             "排课",
+            //             "课表",
+            //             colData
+            //         );
+            //     }
+            // });
         }
         const res = await addSchedule(dragInfo);
         if (res.resultCode === 200) {
@@ -256,8 +255,6 @@ const onMouseDownEnd = async (ev: MouseEvent, colData: ColData) => {
             createBuryingPointFn(EVENT_TYPE.ScheduleStart, "排课", "课表", colData);
         }
     }
-    console.log('isEnd', isEnd.value);
-
     if (isDragging && !colData.ID && !isEnd.value) {
         emit("openClassDialog", true)
     }
