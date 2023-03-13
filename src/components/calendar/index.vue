@@ -19,14 +19,15 @@
                         <span>{{ col.SectionName }}</span>
                     </div>
                     <Course v-for="item in col.colData" :key="item.index" :rowData="col" :colData="item" :isDrop="isDrop"
-                        :isShowText="isShowText" :isShowDelete="isShowDelete"
-                        :isShowDetailBtn="isShowDetailBtn" @openCourse="openCourse" @createHomePoint="createHomePoint" @openClassDialog="openClassDialog"/>
+                        :isShowText="isShowText" :isShowDelete="isShowDelete" :isShowDetailBtn="isShowDetailBtn"
+                        @openCourse="openCourse" @createHomePoint="createHomePoint" @openClassDialog="openClassDialog"
+                        @openLessonDialogTip="openLessonDialogTip" />
                 </div>
             </div>
         </div>
     </div>
     <selectClass v-model:classVisible="classVisible" />
-    <!-- <hasLessonDialogTip v-model:hasLessonVisible="hasLessonVisible" /> -->
+    <hasLessonDialogTip v-model:hasLessonVisible="hasLessonVisible" />
 </template>
 
 <script lang="ts">
@@ -34,6 +35,7 @@ import useSchedules, { ColData } from "@/hooks/useSchedules";
 import useTime from "@/hooks/useTime";
 import moment from "moment";
 import selectClass from "@/components/selectClass/index.vue";
+import hasLessonDialogTip from "./hasLessonDialogTip.vue";
 import {
     computed,
     defineComponent,
@@ -78,7 +80,8 @@ export default defineComponent({
         const { weekNext, weekPre, initDays, formTime, formWeek } = useTime();
         initDays();
         const days = computed(() => props.days);
-        const classVisible = ref(false);
+        const classVisible = ref(false);// 选择班级弹框
+        const hasLessonVisible = ref(false);// 已排课包弹框提示
         const currentDay = new Date().getDate();
         const {
             schedules,
@@ -104,11 +107,6 @@ export default defineComponent({
                 data
             );
         };
-        // 打开选择班级弹框
-        const openClassDialog = (val:boolean) => {
-            classVisible.value = true;
-        };
-
         const resize = () => {
             nextTick(() => {
                 if (route.path === "/home" && calendarRef.value) {
@@ -142,7 +140,6 @@ export default defineComponent({
         });
 
         // window.addEventListener("resize", resize);
-
         // onUnmounted(() => {
         //     window.removeEventListener("resize", resize);
         // });
@@ -164,6 +161,15 @@ export default defineComponent({
             } : {};
         });
 
+        // 打开选择班级弹框
+        const openClassDialog = (val: boolean) => {
+            classVisible.value = true;
+        };
+        // 打开已有课程弹框提示
+        const openLessonDialogTip = (val: boolean) => {
+            hasLessonVisible.value = true;
+        };
+
         return {
             weekNext,
             weekPre,
@@ -177,17 +183,19 @@ export default defineComponent({
             openCourse,
             createHomePoint,
             openClassDialog,
+            openLessonDialogTip,
             calendarRef,
             contentRef,
             scale,
             height,
             width,
             calendarStyles,
-            classVisible
+            classVisible,
+            hasLessonVisible
         };
     },
 
-    components: { Course, selectClass }
+    components: { Course, selectClass, hasLessonDialogTip }
 });
 </script>
 

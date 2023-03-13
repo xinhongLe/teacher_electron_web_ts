@@ -216,12 +216,16 @@ const onMouseDownEnd = async (ev: MouseEvent, colData: ColData) => {
     const dom: any = document.querySelector('.dragging-click-dom-ele');//备课包虚拟dom
     const dragInfo: SchoolLesson = currentPackageData.value;
     if (!dragInfo) return;
+    if (isEnd.value) {
+        return ElMessage.error("已经结束的课程无法重新排课");
+    }
     if (isDragging && !isEnd.value && colData.ID) {
         isActive.value = false;
         if (!colData.ID) return;
         if (props.colData.LessonID) {
+            console.log('props.colData--226', props.colData);
 
-            
+            emit("hasLessonDialogTip");
             // return ElMessageBox.confirm(
             //     "当前时间点已有排课，是否覆盖？",
             //     "覆盖提示",
@@ -245,15 +249,17 @@ const onMouseDownEnd = async (ev: MouseEvent, colData: ColData) => {
             //         );
             //     }
             // });
+        } else {
+            const res = await addSchedule(dragInfo);
+            if (res.resultCode === 200) {
+                ElMessage.success("排课成功");
+                clickOutSide(ev, dom)
+                updateSchedules();
+                //拖动课程进入课表成功后，调用埋点接口
+                createBuryingPointFn(EVENT_TYPE.ScheduleStart, "排课", "课表", colData);
+            }
         }
-        const res = await addSchedule(dragInfo);
-        if (res.resultCode === 200) {
-            ElMessage.success("排课成功");
-            clickOutSide(ev, dom)
-            updateSchedules();
-            //拖动课程进入课表成功后，调用埋点接口
-            createBuryingPointFn(EVENT_TYPE.ScheduleStart, "排课", "课表", colData);
-        }
+
     }
     if (isDragging && !colData.ID && !isEnd.value) {
         emit("openClassDialog", true)
@@ -304,7 +310,7 @@ const onDrop = async (ev: DragEvent, colData: ColData) => {
     }
 };
 
-const emit = defineEmits(["openCourse", "createHomePoint", "openClassDialog"]);
+const emit = defineEmits(["openCourse", "createHomePoint", "openClassDialog", "hasLessonDialogTip"]);
 
 const goToClass = () => {
     if (!props.colData.LessonName) return;
