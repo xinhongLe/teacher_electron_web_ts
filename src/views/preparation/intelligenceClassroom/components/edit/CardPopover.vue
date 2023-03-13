@@ -1,78 +1,93 @@
 <template>
-    <el-popover :placement="placement" :width="50" trigger="hover">
-        <template #reference>
-            <slot></slot>
-        </template>
-        <div class="operation" v-if="!flag">
-            <template v-if="!data.ParentID">
-                <div @click.stop="handleItem(1)">
-                    <img src="@/assets/edit/icon_file_add.png" alt=""/>
-                    新增文件夹
-                </div>
-                <div @click.stop="handleItem(2)">
-                    <img src="@/assets/edit/icon_page_add.png" alt=""/>
-                    新增空白页
-                </div>
-                <div @click.stop="handleItem(5)">
-                    <img src="@/assets/edit/icon_nt.png" alt=""/>
-                    粘贴页
-                </div>
-            </template>
-            <template v-else>
-                <div @click.stop="handleItem(4)">
-                    <img src="@/assets/edit/icon_yc.png" alt=""/>
-                    {{ data.State ? "隐藏" : "显示" }}
-                </div>
-                <!--游戏页暂不支持复制-->
-                <div v-if="data.Type !== 20" @click.stop="handleItem(6)">
-                    <img src="@/assets/edit/icon_copy.png" alt=""/>
-                    复制页
-                </div>
-                <div v-show="data.Type !== 20" @click.stop="handleItem(7)">
-                    <img src="@/assets/edit/icon_save.png" alt=""/>
-                    保存模板
-                    <el-popover placement="right-start" :width="222" trigger="hover" effect="dark" class="tips-popover" :teleported="true">
-                        <template #reference>
-                            <img src="@/assets/edit/icon_wenti.png" alt="" style="margin-left:4px "/>
-                        </template>
-                        <div class="tips">
-                            <div class="title" @click.stop>
-                                <img src="@/assets/edit/pic_wenti.png" alt=""/>
-                                小贴士
-                            </div>
-                            <p>
-                                试试按住Shift键点选多页 <br/>
-                                鼠标右击「<i>批量保存模板</i>」
-                            </p>
-                        </div>
-                    </el-popover>
-                </div>
-            </template>
+    <div ref="popoverRef">
+        <slot></slot>
 
-            <div @click.stop="handleItem(3)">
-                <img src="@/assets/edit/icon_cmm.png" alt=""/>
-                重命名
+        <div class="triangle"></div>
+
+        <transition name="fade">
+            <div class="operation" v-show="visible" :style="{left:left+10+'px',top:top+'px'}" ref="operationRef">
+                <template v-if="!data.ParentID && !flag">
+                    <div @click.stop="handleItem(1)">
+                        <img src="@/assets/edit/icon_file_add.png" alt=""/>
+                        新增文件夹
+                    </div>
+                    <div @click.stop="handleItem(2)">
+                        <img src="@/assets/edit/icon_page_add.png" alt=""/>
+                        新增空白页
+                    </div>
+                    <div @click.stop="handleItem(3)">
+                        <img src="@/assets/edit/icon_cmm.png" alt=""/>
+                        重命名
+                    </div>
+                    <div @click.stop="handleItem(5)">
+                        <img src="@/assets/edit/icon_nt.png" alt=""/>
+                        粘贴页
+                    </div>
+                    <div @click.stop="handleItem(8)" class="delete">
+                        <img src="@/assets/edit/icon_delete.png" alt=""/>
+                        删除
+                    </div>
+                </template>
+                <template v-if="data.ParentID && !flag">
+                    <div @click.stop="handleItem(3)">
+                        <img src="@/assets/edit/icon_cmm.png" alt=""/>
+                        重命名
+                    </div>
+                    <div @click.stop="handleItem(4)">
+                        <img src="@/assets/edit/icon_yc.png" alt=""/>
+                        {{ data.State ? "隐藏" : "显示" }}
+                    </div>
+                    <!--游戏页暂不支持复制-->
+                    <div v-if="data.Type !== 20" @click.stop="handleItem(6)">
+                        <img src="@/assets/edit/icon_copy.png" alt=""/>
+                        复制页
+                    </div>
+                    <div v-show="data.Type !== 20" @click.stop="handleItem(7)">
+                        <img src="@/assets/edit/icon_save.png" alt=""/>
+                        保存为模板
+                        <img class="tips" src="@/assets/edit/icon_help.png" alt="" @click.prevent.stop="handleShowTips($event)"/>
+                    </div>
+                    <div @click.stop="handleItem(8)" class="delete">
+                        <img src="@/assets/edit/icon_delete.png" alt=""/>
+                        删除
+                    </div>
+                </template>
+                <template v-if="flag">
+                    <div @click.stop="handleItem(2)">
+                        <img src="@/assets/edit/icon_file_add.png" alt=""/>
+                        新增空白页
+                    </div>
+                    <div @click.stop="handleItem(9)">
+                        <img src="@/assets/edit/icon_page_add.png" alt=""/>
+                        新增互动页
+                    </div>
+                </template>
             </div>
-            <div @click.stop="handleItem(8)" class="delete">
-                <img src="@/assets/edit/icon_delete.png" alt=""/>
-                删除
-            </div>
-        </div>
-        <div class="operation" v-else>
-            <div @click.stop="handleItem(2)">
-                <img src="@/assets/edit/icon_file_add.png" alt=""/>
-                新增空白页
-            </div>
-            <div @click.stop="handleItem(9)">
-                <img src="@/assets/edit/icon_page_add.png" alt=""/>
-                新增互动页
-            </div>
-        </div>
-    </el-popover>
+        </transition>
+
+        <teleport to="body">
+            <transition name="fade">
+                <div class="tips-wrapper" v-if="tipsShow" :style="{left:tipsL+'px',top:tipsT+'px'}">
+                    <div class="title">
+                        <img src="@/assets/edit/pic_wenti.png" alt=""/>
+                        小贴士
+                    </div>
+                    <p>
+                        试试按住Shift键点选多页 <br/>
+                        鼠标右击「<i>批量保存为模板</i>」
+                    </p>
+
+                    <div class="close-icon" @click="tipsShow = false">
+                        <img src="@/assets/edit/icon_guanbi_small.png" alt=""/>
+                    </div>
+                </div>
+            </transition>
+        </teleport>
+    </div>
 </template>
 
 <script lang=ts>
-import { computed, defineComponent, PropType } from "vue";
+import { computed, defineComponent, PropType, onMounted, ref } from "vue";
 import { CardProps, PageProps } from "@/views/preparation/intelligenceClassroom/api/props";
 
 export default defineComponent({
@@ -88,16 +103,69 @@ export default defineComponent({
         }
     },
     emits: ["handle"],
-    setup(props, { emit, attrs }) {
+    setup(props, { emit, attrs, slots }) {
         const handleItem = (type: number) => {
             emit("handle", type, props.data);
         };
 
         const flag = computed(() => attrs.add === "");
+        const popoverRef = ref<HTMLElement>();
+        const operationRef = ref<HTMLElement>();
+
+        const left = ref(0);
+        const top = ref(0);
+        const visible = ref(false);
+        const tipsShow = ref(false);
+        const tipsL = ref(0);
+        const tipsT = ref(0);
+
+        const handleShowTips = (e: MouseEvent) => {
+            tipsL.value = e.x + 10;
+            tipsT.value = e.y;
+            tipsShow.value = true;
+        };
+
+        function getElementHeight(element: any) {
+            const node = element.cloneNode(true);
+            node.style.display = "block";
+            node.style.position = "absolute";
+            node.style.top = "-100000px";
+            document.body.appendChild(node);
+
+            const height = node.offsetHeight;
+            document.body.removeChild(node);
+            return height;
+        }
+
+        onMounted(() => {
+            const slot = slots.default && slots.default()[0];
+            const slotDom = document.getElementById(slot?.props?.id);
+            const height = getElementHeight(operationRef.value);
+
+            popoverRef.value?.addEventListener("mouseenter", function () {
+                const t = slotDom?.getBoundingClientRect().top || 0;
+                const l = slotDom?.getBoundingClientRect().left || 0;
+                left.value = l + (slotDom?.clientWidth || 0);
+                top.value = t + height > document.body.clientHeight ? t - height + 15 : t - 15;
+                visible.value = true;
+            });
+            popoverRef.value?.addEventListener("mouseleave", function () {
+                visible.value = false;
+            });
+        });
 
         return {
+            top,
+            left,
             flag,
-            handleItem
+            tipsL,
+            tipsT,
+            visible,
+            tipsShow,
+            popoverRef,
+            operationRef,
+            handleItem,
+            handleShowTips
         };
     }
 });
@@ -105,7 +173,14 @@ export default defineComponent({
 
 <style scoped lang="scss">
 .operation {
-    text-align: left;
+    position: fixed;
+    width: 162px;
+    background: #FFFFFF;
+    box-shadow: 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0px 6px 16px 0px rgba(0, 0, 0, 0.08), 0px 9px 28px 8px rgba(0, 0, 0, 0.05);
+    border-radius: 8px;
+    padding: 6px;
+    box-sizing: border-box;
+    z-index: 9999;
 
     img {
         width: 16px;
@@ -115,14 +190,93 @@ export default defineComponent({
 
     & > div {
         cursor: pointer;
-        padding: 4px 0;
         display: flex;
         align-items: center;
-        margin-left: 16px;
+        height: 32px;
+        padding-left: 10px;
+
+        &:hover {
+            background: #F7F8FA;
+        }
 
         &.delete {
             color: #FB5151;
         }
     }
+}
+
+.triangle {
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 10px 15px 10px 0;
+    border-color: transparent transparent transparent transparent;
+}
+
+.tips {
+    margin-left: 4px;
+}
+
+.tips-wrapper {
+    width: 222px;
+    height: 114px;
+    background: rgba(31, 36, 54, 0.9);
+    border-radius: 8px;
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 9999;
+    padding: 16px 20px;
+    box-sizing: border-box;
+    color: #FFFFFF;
+
+    .title {
+        display: flex;
+        align-items: center;
+        margin-bottom: 16px;
+
+        img {
+            width: 19px;
+            height: 21px;
+            margin-right: 8px;
+        }
+    }
+
+    i {
+        color: #2E95FF;
+    }
+
+    p {
+        line-height: 20px;
+    }
+
+    .close-icon {
+        width: 10px;
+        height: 10px;
+        padding: 10px;
+        position: absolute;
+        right: 15px;
+        top: 5px;
+        cursor: pointer;
+        z-index: 9999;
+        box-sizing: border-box;
+
+        img {
+            width: 10px;
+            height: 10px;
+        }
+    }
+}
+
+.fade-enter-from, .fade-leave-to {
+    opacity: 0;
+}
+
+.fade-enter-to, .fade-leave-from {
+    opacity: 1;
+}
+
+.fade-enter-active, .fade-leave-active {
+    transition: all 0.5s;
 }
 </style>

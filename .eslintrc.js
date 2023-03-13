@@ -28,6 +28,7 @@ module.exports = {
         "@typescript-eslint/no-var-requires": "off",
         "no-unmodified-loop-condition": "off",
         "no-tabs": "off",
-        "@typescript-eslint/no-explicit-any": "off"
+        "@typescript-eslint/no-explicit-any": "off",
+        "no-unused-expressions": "off"
     }
 };

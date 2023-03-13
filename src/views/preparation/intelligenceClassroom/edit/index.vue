@@ -37,10 +37,8 @@
                             <i class="triangle" :class="{rotate:!folder.Fold}"></i>
                             <img class="file-icon" src="@/assets/edit/icon_file.png" alt=""/>
                             <span>{{ folder.Name }}</span>
-                            <card-popover :data="folder" @handle="handleCartItem">
-                                <el-button class="more no-border" @click.stop>
-                                    <img src="@/assets/edit/icon_file_more.png" alt=""/>
-                                </el-button>
+                            <card-popover :data="folder" @handle="handleCartItem" class="more">
+                                <img src="@/assets/edit/icon_file_more.png" alt="" :id="`popover-${folder.ID}`" @click.stop/>
                             </card-popover>
                         </div>
                         <vue-draggable-next v-model="folder.PageList" group="site" tag="div" class="pages" v-show="folder.Fold" @end="sortWindowCards">
@@ -78,18 +76,13 @@
                                         </template>
 
                                         <div class="handle">
-                                            <card-popover :data="page" add @handle="handleCartItem">
-                                                <el-button @click.stop class="no-border">
-                                                    <el-icon color="#2D93FD" :size="20" @click.stop>
-                                                        <CirclePlusFilled/>
-                                                    </el-icon>
-                                                </el-button>
+                                            <div class="name" v-if="[pageType.listen,pageType.element].includes(page.Type)">{{ page.Name }}</div>
+                                            <card-popover :data="page" add @handle="handleCartItem" class="handler-item add">
+                                                <img :id="`popover-add-${page.ID}`" src="@/assets/edit/icon_add_hover.png" alt=""/>
                                             </card-popover>
 
-                                            <card-popover :data="page" @handle="handleCartItem">
-                                                <el-button class="more no-border" @click.stop>
-                                                    <img src="@/assets/edit/icon_file_more.png" alt="" @click.stop/>
-                                                </el-button>
+                                            <card-popover :data="page" @handle="handleCartItem" class="handler-item more">
+                                                <img :id="`popover-more-${page.ID}`" src="@/assets/edit/icon_more_big.png" alt=""/>
                                             </card-popover>
                                         </div>
                                     </div>
@@ -183,7 +176,6 @@ import { get, STORAGE_TYPES } from "@/utils/storage";
 import { VueDraggableNext } from "vue-draggable-next";
 import { ElMessage, ElMessageBox } from "element-plus";
 import exitDialog, { ExitType } from "../edit/exitDialog";
-import { CirclePlusFilled } from "@element-plus/icons-vue";
 import WinCardEdit from "../components/edit/winCardEdit.vue";
 import CardPopover from "../components/edit/CardPopover.vue";
 import WinCardView from "../components/edit/winScreenView.vue";
@@ -199,7 +191,6 @@ export default defineComponent({
         WinCardEdit,
         WinCardView,
         VueDraggableNext,
-        CirclePlusFilled,
         AddPageDialog,
         materialCenter
     },
@@ -808,7 +799,6 @@ export default defineComponent({
             allPages.value = backupPages;
             total.value = pageMap.value.size;
             currentPage.value = list[0].PageList[0];
-            console.log(backupPages);
         }
 
         onMounted(() => {
@@ -955,8 +945,9 @@ export default defineComponent({
                 height: 44px;
                 display: flex;
                 align-items: center;
-                position: relative;
                 cursor: pointer;
+                position: relative;
+                width: 100%;
 
                 .triangle {
                     width: 0;
@@ -1039,13 +1030,13 @@ export default defineComponent({
                         &.active {
                             outline: 2px solid #2E95FF;
 
-                            .handle {
-                                display: block !important;
+                            .handler-item {
+                                display: flex !important;
                             }
                         }
 
-                        &:hover .handle {
-                            display: block;
+                        &:hover .handler-item {
+                            display: flex !important;
                         }
 
                         .down {
@@ -1069,12 +1060,41 @@ export default defineComponent({
                         .handle {
                             position: absolute;
                             bottom: 0;
+                            left: 0;
                             right: 0;
-                            display: none;
+                            height: 40px;
+                            background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.5) 100%);
 
-                            .more img {
-                                width: 15px;
-                                height: 3px;
+                            .handler-item {
+                                position: absolute;
+                                align-items: center;
+                                justify-content: center;
+                                width: 32px;
+                                height: 32px;
+                                display: none;
+
+                                &.add {
+                                    right: 36px;
+                                    bottom: -16px;
+                                    margin-right: 10px;
+
+                                    img {
+                                        width: 32px;
+                                        height: 32px;
+                                        display: block;
+                                    }
+                                }
+
+                                &.more {
+                                    right: 0;
+                                    bottom: 0;
+
+                                    img {
+                                        width: 15px;
+                                        height: 3px;
+                                        display: block;
+                                    }
+                                }
                             }
                         }
 
@@ -1083,6 +1103,16 @@ export default defineComponent({
                             height: 128px;
                             padding: 10px;
                             border: 1px solid #ebeff1;
+                            display: flex;
+                            align-items: flex-end;
+                        }
+
+                        .name {
+                            color: #FFFFFF;
+                            font-size: 12px;
+                            position: absolute;
+                            left: 10px;
+                            bottom: 10px;
                         }
                     }
                 }
@@ -1189,24 +1219,6 @@ export default defineComponent({
 </style>
 
 <style lang="scss">
-.tips {
-    .title {
-        display: flex;
-        align-items: center;
-        margin-bottom: 16px;
-
-        img {
-            width: 19px;
-            height: 21px;
-            margin-right: 8px;
-        }
-    }
-
-    i {
-        color: #2E95FF;
-    }
-}
-
 .canvas-tool .left-handler {
     position: fixed;
     left: 26px;
