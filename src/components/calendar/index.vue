@@ -21,13 +21,14 @@
                     <Course v-for="item in col.colData" :key="item.index" :rowData="col" :colData="item" :isDrop="isDrop"
                         :isShowText="isShowText" :isShowDelete="isShowDelete" :isShowDetailBtn="isShowDetailBtn"
                         @openCourse="openCourse" @createHomePoint="createHomePoint" @openClassDialog="openClassDialog"
-                        @openLessonDialogTip="openLessonDialogTip" />
+                        @openLessonDialogTip="openLessonDialogTip" @openDeleteDialogTip="openDeleteDialogTip"/>
                 </div>
             </div>
         </div>
     </div>
     <selectClass v-model:classVisible="classVisible" />
     <hasLessonDialogTip v-model:hasLessonVisible="hasLessonVisible" />
+    <deleteLessonDialogTip v-if="deleteLessonVisible" v-model:deleteLessonVisible="deleteLessonVisible" />
 </template>
 
 <script lang="ts">
@@ -36,6 +37,7 @@ import useTime from "@/hooks/useTime";
 import moment from "moment";
 import selectClass from "@/components/selectClass/index.vue";
 import hasLessonDialogTip from "./hasLessonDialogTip.vue";
+import deleteLessonDialogTip from "./deleteLessonDialogTip.vue";
 import {
     computed,
     defineComponent,
@@ -82,6 +84,7 @@ export default defineComponent({
         const days = computed(() => props.days);
         const classVisible = ref(false);// 选择班级弹框
         const hasLessonVisible = ref(false);// 已排课包弹框提示
+        const deleteLessonVisible = ref(false);// 删除发现多个课程包提示
         const currentDay = new Date().getDate();
         const {
             schedules,
@@ -169,6 +172,10 @@ export default defineComponent({
         const openLessonDialogTip = (val: boolean) => {
             hasLessonVisible.value = true;
         };
+        // 打开删除课程时提示有多个课包
+        const openDeleteDialogTip = (val:boolean) => {
+            deleteLessonVisible.value = true;
+        };
 
         return {
             weekNext,
@@ -184,6 +191,7 @@ export default defineComponent({
             createHomePoint,
             openClassDialog,
             openLessonDialogTip,
+            openDeleteDialogTip,
             calendarRef,
             contentRef,
             scale,
@@ -191,11 +199,12 @@ export default defineComponent({
             width,
             calendarStyles,
             classVisible,
-            hasLessonVisible
+            hasLessonVisible,
+            deleteLessonVisible
         };
     },
 
-    components: { Course, selectClass, hasLessonDialogTip }
+    components: { Course, selectClass, hasLessonDialogTip, deleteLessonDialogTip }
 });
 </script>
 
@@ -272,7 +281,7 @@ export default defineComponent({
     padding: 0 16px 16px;
 
     .col {
-        min-height: 80px;
+        min-height: 82px;
         display: flex;
         align-items: center;
         flex-shrink: 0;

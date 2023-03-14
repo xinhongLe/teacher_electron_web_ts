@@ -29,7 +29,7 @@ const isSystem = computed(() => store.state.common.showResourceFullScreen[props.
     bottom: 0;
     left: 0;
     right: 0;
-    z-index: 10000;
+    z-index: 11000;
     .wincard-box {
         height: 100%;
         position: relative;

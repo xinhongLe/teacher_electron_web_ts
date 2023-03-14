@@ -166,6 +166,8 @@ clicKBuryPoint('我的备课包');
             <el-table class="custom-table" :data="tableData" stripe>
                 <el-table-column width="140px" prop="time" label="操作时间" />
                 <el-table-column width="120px" prop="name" label="动作" />
+                <el-table-column width="120px" prop="kebao" label="课包" />
+                <el-table-column width="140px" prop="kebaomulu" label="课包目录" />
                 <el-table-column width="120px" prop="type" label="资源类型" />
                 <el-table-column prop="resource" label="资源名称" />
                 <el-table-column prop="directory" label="资源目录"></el-table-column>

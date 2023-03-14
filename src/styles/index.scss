@@ -247,6 +247,7 @@ html {
             padding: 12px;
             display: flex;
             flex-direction: column;
+            z-index: 1001;
 
             .item-name {
                 display: flex;
@@ -322,7 +323,82 @@ html {
 }
 
 .preparation-popper-class-adjust {
-    width: 220px !important;
+    width: 298px !important;
+
+    .lesson-contents {
+        .lesson-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #19203D;
+        }
+
+        .lesson-time {
+            font-size: 14px;
+            font-weight: 400;
+            color: #19203D;
+            margin: 7px 0 16px 0;
+        }
+
+        .lesson-packages {
+            width: 100%;
+            height: 60px;
+            background: #FAFAFC;
+            border-radius: 4px;
+            padding: 8px;
+            display: flex;
+
+            .left {
+                width: 44px;
+                height: 44px;
+                background: #DEE7FF;
+                border-radius: 4px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+
+            .right {
+                flex: 1;
+                margin-left: 8px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+
+                .kebao-name {
+                    font-size: 14px;
+                    font-weight: 400;
+                    color: #19203D;
+                }
+
+                .keshi {
+                    font-size: 12px;
+                    font-weight: 400;
+                    color: #5F626F;
+                }
+
+                .kebao-delete {
+                    width: 60px;
+                    height: 24px;
+                    background: #FFF0F0;
+                    border-radius: 2px;
+                    font-size: 14px;
+                    font-weight: 400;
+                    color: #FF6B6B;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    margin-right: 2px;
+                    cursor: pointer;
+                }
+            }
+
+            .no-kebao {
+                font-size: 14px;
+                font-weight: 400;
+                color: #FF6B6B;
+            }
+        }
+    }
 }
 
 // 备课气泡样式

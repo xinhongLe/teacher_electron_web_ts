@@ -1,10 +1,10 @@
 <template>
 	<div class="p-layout">
-		<div class="p-layout-lesson">
+		<!-- <div class="p-layout-lesson">
 			<LessonPackage :isMouseDrag="true" :lessonPackageList="lessonPackageList"
 				@addLessonPackage="$emit('addLessonPackage')" ref="LessonPackageRef"
 				@deleteLessonPackage="deleteLessonPackage" />
-		</div>
+		</div> -->
 		<div class="class-arrangement-warp">
 			<Calendar :days="days" ref="calendarRef" :isShowText="true" :isDrop="true" :isShowDetailBtn="true"
 				:isShowDelete="true" @openCourse="openCourse">
@@ -92,7 +92,7 @@ export default defineComponent({
 			default: () => [],
 		}
 	},
-	emits: ["addLessonPackage", "deleteLessonPackage"],
+	emits: ["addLessonPackage", "deleteLessonPackage","selectPackage"],
 	setup(props, { expose, emit }) {
 		const { currentSelectPackageId } = useLessonPackage();
 		const templatesVisible = ref(false);
@@ -155,10 +155,10 @@ export default defineComponent({
 		const close = () => {
 			visible.value = false;
 		};
-		const LessonPackageRef = ref();
 		const toArrange = (data: any) => {
 			nextTick(() => {
-				LessonPackageRef.value.selectPackage(data)
+				emit("selectPackage", data)
+
 			})
 		};
 		const deleteLessonPackage = (id: string) => {
@@ -183,7 +183,6 @@ export default defineComponent({
 			course,
 			source,
 			type,
-			LessonPackageRef,
 			switchClass,
 			close,
 			toArrange,
@@ -197,27 +196,27 @@ export default defineComponent({
 <style lang="scss" scoped>
 .p-layout {
 	display: flex;
+	height: calc(100vh - 160px);
+	// .p-layout-lesson {
+	// 	height: calc(100vh - 160px);
+	// 	overflow-y: auto;
+	// 	padding-left: 20px;
 
-	.p-layout-lesson {
-		height: calc(100vh - 160px);
-		overflow-y: auto;
-		padding-left: 20px;
+	// 	.package-item {
+	// 		height: 180px;
+	// 		text-align: center;
+	// 		line-height: 180px;
+	// 		width: 232px;
+	// 		background-color: #fff;
+	// 		font-size: 30px;
+	// 		cursor: pointer;
+	// 		margin-bottom: 20px;
 
-		.package-item {
-			height: 180px;
-			text-align: center;
-			line-height: 180px;
-			width: 232px;
-			background-color: #fff;
-			font-size: 30px;
-			cursor: pointer;
-			margin-bottom: 20px;
-
-			&.isActive {
-				outline: 1px solid #409eff;
-			}
-		}
-	}
+	// 		&.isActive {
+	// 			outline: 1px solid #409eff;
+	// 		}
+	// 	}
+	// }
 
 	.class-arrangement-warp {
 		flex: 1;

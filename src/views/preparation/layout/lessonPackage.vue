@@ -43,7 +43,7 @@ import {
 } from "vue";
 const currentSelectPackageId = ref("");
 const { startDrag } = useClickDrag();
-const props = defineProps({
+const props = defineProps({ 
     isMouseDrag: {
         type: Boolean,
         default: true,

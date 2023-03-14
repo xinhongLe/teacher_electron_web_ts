@@ -34,6 +34,8 @@ export const ADD_STUDENT_TEMPLATE =
 export const ADD_TEACHER_TEMPLATE =
     "https://wechat.aixueshi.top/批量注册教师模板.xlsx";
 
+export const VUE_APP_PREPARE_API = process.env.VUE_APP_PREPARE_API;
+
 // 所有的科目列表及id
 export const ALL_SUBJECT_LIST = [
     {

@@ -8,10 +8,10 @@
             <img src="@/assets/images/preparation/pic_finish_buzhi.png" alt="" />
             没有相关资源
         </div>
-        <div class="p-layout-lesson" v-if="source == 'me'">
+        <!-- <div class="p-layout-lesson" v-if="source == 'me'">
             <LessonPackage :isMouseDrag="false" :lessonPackageList="lessonPackageList" @addLessonPackage="addLessonPackage"
                 @deleteLessonPackage="deleteLessonPackage" @toMyLessonPackage="toArrangeClass" />
-        </div>
+        </div> -->
         <div class="p-layout-list" ref="resourceScroll" v-infinite-scroll="load" :style="{height:source == 'me' ? 'calc(100vh - 160px)' : 'calc(100vh - 240px)'}"
             :infinite-scroll-disabled="disabledScrollLoad">
             <ResourceItem :class="[
@@ -648,11 +648,11 @@ export default defineComponent({
     display: flex;
     position: relative;
 
-    .p-layout-lesson {
-        height: calc(100vh - 160px);
-        padding-left: 20px;
-        overflow-y: auto;
-    }
+    // .p-layout-lesson {
+    //     height: calc(100vh - 160px);
+    //     padding-left: 20px;
+    //     overflow-y: auto;
+    // }
 
     .p-layout-list {
         height: calc(100vh - 240px);

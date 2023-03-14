@@ -1,18 +1,26 @@
 <template>
     <div class="preparation" @mousedown.stop.prevent="clickOutSide($event)">
-        <LeftMenu  v-model:course="course" v-model:bookId="bookId" />
+        <LeftMenu v-model:course="course" v-model:bookId="bookId" />
         <div class="content-wrapper">
+
             <Head :course="course" v-model:source="source" v-model:type="type" ref="HeadRef" />
-            <div v-show="!showPackage && !showClassArrangement">
-                <Resources :course="course" :source="source" :type="type" :bookId="bookId"
-                    :showClassArrangement="showClassArrangement" :lessonPackageList="lessonPackageList"
-                    @addLessonPackage="addLessonPackage" @toMyLessonPackage="toMyLessonPackage"
-                    @toArrangeClass="toArrangeClass" @deleteLessonPackage="deletenPackage" />
+            <div class="content-p-layout">
+                <div class="p-layout-lesson" v-if="source == 'me'">
+                    <LessonPackage ref="LessonPackageRef" :isMouseDrag="showClassArrangement ? true : false"
+                        :lessonPackageList="lessonPackageList" @addLessonPackage="addLessonPackage"
+                        @toMyLessonPackage="toArrangeClass" @deleteLessonPackage="deletenPackage"/>
+                </div>
+                <div class="p-layout-right" v-show="!showPackage && !showClassArrangement">
+                    <Resources :course="course" :source="source" :type="type" :bookId="bookId"
+                        :showClassArrangement="showClassArrangement" :lessonPackageList="lessonPackageList"
+                        @toMyLessonPackage="toMyLessonPackage" @toArrangeClass="toArrangeClass" />
+                </div>
+                <div class="p-layout-right" v-if="showPackage && showClassArrangement">
+                    <ClassArrangement :lessonPackageList="lessonPackageList" ref="ClassArrangementRef"
+                        @selectPackage="selectPackage" />
+                </div>
             </div>
-            <div v-if="showPackage && showClassArrangement">
-                <ClassArrangement :lessonPackageList="lessonPackageList" @addLessonPackage="addLessonPackage"
-                    ref="ClassArrangementRef" />
-            </div>
+
         </div>
         <deletePackage v-model:visible="deleteVisible" @onDeletePackage="deleteLessonPackage(deleteTargetId)" />
     </div>
@@ -38,6 +46,8 @@ import { RESOURCE_TYPE } from "@/config/resource";
 import useClickDrag from "@/hooks/useClickDrag";
 import useLessonPackage from "@/hooks/useLessonPackage";
 import deletePackage from "./layout/dialog/deletePackage.vue";
+import LessonPackage from "./layout/lessonPackage.vue";
+
 export default defineComponent({
     name: "Preparation",
     setup() {
@@ -79,20 +89,25 @@ export default defineComponent({
             }
 
         };
-        watch(()=>source.value,(val)=>{
+        watch(() => source.value, (val) => {
             if (val === 'me') {
                 // showClassArrangement.value = false;
-            }else{
+            } else {
                 showClassArrangement.value = false;
                 showPackage.value = false;
             }
-            
-        },{deep:true});
+
+        }, { deep: true });
         const deleteTargetId = ref("");
         // 删除
         const deletenPackage = (id: string) => {
             deleteTargetId.value = id;
             deleteVisible.value = true
+        };
+        const LessonPackageRef = ref();
+        // 去排课
+        const selectPackage = (data: any) => {
+            LessonPackageRef.value.selectPackage(data)
         };
         return {
             course,
@@ -106,12 +121,14 @@ export default defineComponent({
             ClassArrangementRef,
             lessonPackageList,
             showPackage,
+            LessonPackageRef,
             clickOutSide,
             addLessonPackage,
             toMyLessonPackage,
             toArrangeClass,
             deleteLessonPackage,
             deletenPackage,
+            selectPackage
 
         };
     },
@@ -120,7 +137,8 @@ export default defineComponent({
         Head,
         Resources,
         ClassArrangement,
-        deletePackage
+        deletePackage,
+        LessonPackage
     },
 });
 </script>
@@ -141,6 +159,22 @@ export default defineComponent({
         min-height: 0;
         min-width: 0;
         background-color: #f5f6fa;
+
+        .content-p-layout {
+            display: flex;
+            position: relative;
+
+            .p-layout-lesson {
+                height: calc(100vh - 160px);
+                padding-left: 20px;
+                overflow-y: auto;
+            }
+
+            .p-layout-right {
+                flex: 1;
+            }
+        }
+
     }
 }
 </style>

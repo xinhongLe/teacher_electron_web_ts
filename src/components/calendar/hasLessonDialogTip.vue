@@ -1,6 +1,6 @@
 <template>
     <div class="custom-dialog">
-        <el-dialog center width="40vw" :model-value="hasLessonVisible" @close="close()">
+        <el-dialog center width="30vw" :model-value="hasLessonVisible" @close="close()">
             <template #title>
                 <div class="custom-header">
                     提示
@@ -8,7 +8,9 @@
             </template>
             <div class="tip-box">
                 <img src="@/assets/images/preparation/icon_tips_popup.png" alt="">
-                该课程已排课包，请选择您希望的操作
+                <p>
+                    该课程已排课包，请选择您希望的操作
+                </p>
             </div>
             <template #footer>
                 <div class="dialog-footer">
@@ -64,6 +66,18 @@ export default defineComponent({
             }
         }
 
+        .tip-box {
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+
+            p {
+                margin-left: 24px;
+                font-size: 18px;
+                color: #212743;
+            }
+        }
+
         .el-dialog__footer {
             padding: 0;
 
@@ -71,13 +85,13 @@ export default defineComponent({
                 background: #FFFFFF;
                 border-radius: 0px 0px 8px 8px;
                 width: 100%;
-                text-align: right;
+                text-align: center;
                 padding: 16px 24px;
                 border-bottom: 1px #F5F6FA;
 
                 .el-button {
                     background: #4B71EE;
-                    min-width: 200px;
+                    min-width: 120px;
                 }
             }
         }

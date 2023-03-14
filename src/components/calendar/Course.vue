@@ -7,15 +7,40 @@
             isActive ? 'active' : '',
             isDragging ? 'drag-event-class' : '',
         ]">
-        <el-popover :visible="currentClassId === colData.ID && !isMobile" popper-class="preparation-popper-class-adjust"
-            :append-to-body="false" v-if="colData.ClassName">
-            <div>
-                <p v-show="colData.LessonName">
+
+        <el-popover trigger="hover" popper-class="preparation-popper-class-adjust" :append-to-body="false"
+            v-if="colData.ClassName">
+            <div class="lesson-contents">
+                <div class="lesson-title">
+                    {{ colData.ClassName }}
+                </div>
+                <p class="lesson-time">
+                    {{ formTime(colData.colDate) + `（周${formWeek(colData.index + 1)}）` }} {{ colData.fontShowTime }}
+                </p>
+                <div class="lesson-packages">
+                    <div class="left">
+                        <img src="@/assets/images/preparation/icon_kebao_yellow.png" alt="" />
+                    </div>
+                    <div class="right">
+                        <div class="has-kebao">
+                            <p class="kebao-name">课包1</p>
+                            <p class="keshi">苏教 一上 1单元 课时1</p>
+                        </div>
+                        <div class="kebao-delete">
+                            <img src="@/assets/images/preparation/icon_delete_new.png" alt="" />
+                            删除
+                        </div>
+                    </div>
+                    <div v-if="false" class="no-kebao">
+                        未排课包
+                    </div>
+                </div>
+                <!-- <p v-show="colData.LessonName">
                     课程名称：{{ colData.LessonName }}
                 </p>
                 <p>上课时间：{{ colData.fontShowTime }}</p>
                 <p>科目：{{ colData.CourseName }}</p>
-                <p>班级：{{ colData.ClassName }}</p>
+                <p>班级：{{ colData.ClassName }}</p> -->
             </div>
             <template #reference>
                 <div class="course-content-warp" @mouseenter="currentClassId = colData.ID"
@@ -23,9 +48,18 @@
                     <div class="course-content" :class="{
                         'has-course': colData.LessonName,
                         end: isEnd,
-                    }" @click="goToClass(), clicKBuryPoint()">
+                    }" @click.stop.prevent="goToClass(), clicKBuryPoint()"
+                        @touchstart.stop.prevent="goToClass(), clicKBuryPoint()">
                         <div class="course-name">
                             {{ colData.LessonName }}
+                        </div>
+                        <div class="middle">
+                            <div v-if="isEnd" class="end-lesson-package">
+                                课包1
+                            </div>
+                            <div v-else class="lesson-package">
+                                课包1
+                            </div>
                         </div>
                         <div class="bottom">
                             <div class="class-name">
@@ -51,6 +85,7 @@
 </template>
 
 <script lang="ts" setup>
+import useTime from "@/hooks/useTime";
 import { ColData, Schedule } from "@/hooks/useSchedules";
 import { SchoolLesson } from "@/types/preparation";
 import { ElMessage, ElMessageBox } from "element-plus";
@@ -73,6 +108,7 @@ import { EVENT_TYPE } from "@/config/event";
 import useClickDrag from "@/hooks/useClickDrag";
 const { createBuryingPointFn } = usePageEvent("备课");
 const { clickOutSide } = useClickDrag();
+const { weekNext, weekPre, initDays, formTime, formWeek } = useTime();
 const CourseBgColor: Record<string, string> = {
     语文: "#4FCC94",
     数学: "#63D1FA",
@@ -140,32 +176,33 @@ const isEnd = computed(
 const updateSchedules = inject("updateSchedules") as () => Promise<void>;
 
 const deleteCourse = () => {
-    ElMessageBox.confirm("确定要删除这堂课吗？", "删除", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning",
-    }).then(async () => {
-        await removeSchedulePackage({
-            id: props.colData.bagId,
-        });
+    emit("openDeleteDialogTip")
+    // ElMessageBox.confirm("确定要删除这堂课吗？", "删除", {
+    //     confirmButtonText: "确定",
+    //     cancelButtonText: "取消",
+    //     type: "warning",
+    // }).then(async () => {
+    //     await removeSchedulePackage({
+    //         id: props.colData.bagId,
+    //     });
 
-        const res = await updateSchedule({
-            ID: props.colData.OriginScheduleID,
-            LessonID: props.colData.LessonID,
-            LessonName: props.colData.LessonName,
-            Type: 2,
-        });
-        if (res.resultCode === 200) {
-            ElMessage.success("删除成功");
-            updateSchedules();
-            createBuryingPointFn(
-                EVENT_TYPE.ScheduleOff,
-                "取消排课",
-                "删除",
-                props.colData
-            );
-        }
-    });
+    //     const res = await updateSchedule({
+    //         ID: props.colData.OriginScheduleID,
+    //         LessonID: props.colData.LessonID,
+    //         LessonName: props.colData.LessonName,
+    //         Type: 2,
+    //     });
+    //     if (res.resultCode === 200) {
+    //         ElMessage.success("删除成功");
+    //         updateSchedules();
+    //         createBuryingPointFn(
+    //             EVENT_TYPE.ScheduleOff,
+    //             "取消排课",
+    //             "删除",
+    //             props.colData
+    //         );
+    //     }
+    // });
 };
 
 const addSchedule = async (dragInfo: SchoolLesson) => {
@@ -225,7 +262,7 @@ const onMouseDownEnd = async (ev: MouseEvent, colData: ColData) => {
         if (props.colData.LessonID) {
             console.log('props.colData--226', props.colData);
 
-            emit("hasLessonDialogTip");
+            emit("openLessonDialogTip");
             // return ElMessageBox.confirm(
             //     "当前时间点已有排课，是否覆盖？",
             //     "覆盖提示",
@@ -310,7 +347,7 @@ const onDrop = async (ev: DragEvent, colData: ColData) => {
     }
 };
 
-const emit = defineEmits(["openCourse", "createHomePoint", "openClassDialog", "hasLessonDialogTip"]);
+const emit = defineEmits(["openCourse", "createHomePoint", "openClassDialog", "openLessonDialogTip", "openDeleteDialogTip"]);
 
 const goToClass = () => {
     if (!props.colData.LessonName) return;
@@ -366,7 +403,7 @@ const clicKBuryPoint = () => {
                 overflow: hidden;
                 text-overflow: ellipsis;
                 display: -webkit-box;
-                -webkit-line-clamp: 2;
+                -webkit-line-clamp: 1;
                 -webkit-box-orient: vertical;
                 padding: 8px 12px 0;
                 font-size: 14px;
@@ -375,6 +412,36 @@ const clicKBuryPoint = () => {
                 line-height: 16px;
                 color: #19203d;
                 margin-bottom: 6px;
+            }
+
+            .middle {
+                padding: 0 12px;
+
+                .end-lesson-package {
+                    width: 40px;
+                    height: 18px;
+                    background: rgba(77, 211, 146, 0.2);
+                    border-radius: 2px;
+                    border: 1px solid rgba(77, 211, 146, 0.3);
+                    font-size: 12px;
+                    font-weight: 600;
+                    color: #4DD392;
+                    text-align: center;
+                    line-height: 18px;
+                }
+
+                .lesson-package {
+                    width: 40px;
+                    height: 18px;
+                    background: rgba(69, 108, 237, 0.2);
+                    border-radius: 2px;
+                    border: 1px solid rgba(69, 108, 237, 0.2);
+                    font-size: 12px;
+                    font-weight: 600;
+                    color: #4B71EE;
+                    text-align: center;
+                    line-height: 18px;
+                }
             }
 
             .bottom {
