@@ -21,12 +21,13 @@
                     <Course v-for="item in col.colData" :key="item.index" :rowData="col" :colData="item" :isDrop="isDrop"
                         :isShowText="isShowText" :isShowDelete="isShowDelete" :isShowDetailBtn="isShowDetailBtn"
                         @openCourse="openCourse" @createHomePoint="createHomePoint" @openClassDialog="openClassDialog"
-                        @openLessonDialogTip="openLessonDialogTip" @openDeleteDialogTip="openDeleteDialogTip"/>
+                        @openLessonDialogTip="openLessonDialogTip" @openDeleteDialogTip="openDeleteDialogTip"
+                        :ref="'courseRef' + col.SectionName + item.index" />
                 </div>
             </div>
         </div>
     </div>
-    <selectClass v-model:classVisible="classVisible" />
+    <selectClass v-if="classVisible" v-model:classVisible="classVisible" @selectedClassList="selectedClassList" />
     <hasLessonDialogTip v-model:hasLessonVisible="hasLessonVisible" />
     <deleteLessonDialogTip v-if="deleteLessonVisible" v-model:deleteLessonVisible="deleteLessonVisible" />
 </template>
@@ -47,6 +48,7 @@ import {
     watch,
     nextTick,
     onUnmounted,
+    getCurrentInstance
 } from "vue";
 import Course from "./Course.vue";
 import usePageEvent from "@/hooks/usePageEvent";
@@ -77,6 +79,8 @@ export default defineComponent({
         },
     },
     setup(props, { expose, emit }) {
+        const proxy = getCurrentInstance();
+
         //首页上课区域点击埋点
         const { createBuryingPointFn } = usePageEvent("首页");
         const { weekNext, weekPre, initDays, formTime, formWeek } = useTime();
@@ -163,9 +167,10 @@ export default defineComponent({
                 width: `${width.value}px`,
             } : {};
         });
-
+        const currentCourseId = ref("");
         // 打开选择班级弹框
-        const openClassDialog = (val: boolean) => {
+        const openClassDialog = (id: string) => {
+            currentCourseId.value = id;
             classVisible.value = true;
         };
         // 打开已有课程弹框提示
@@ -173,10 +178,16 @@ export default defineComponent({
             hasLessonVisible.value = true;
         };
         // 打开删除课程时提示有多个课包
-        const openDeleteDialogTip = (val:boolean) => {
+        const openDeleteDialogTip = (val: boolean) => {
             deleteLessonVisible.value = true;
         };
-
+        //选择好班级后
+        const selectedClassList = (val: string) => {
+            nextTick(() => {
+                const courseRef: any = proxy?.refs['courseRef' + currentCourseId.value];
+                courseRef[0] && courseRef[0].selectedClassList(val)
+            })
+        };
         return {
             weekNext,
             weekPre,
@@ -192,6 +203,7 @@ export default defineComponent({
             openClassDialog,
             openLessonDialogTip,
             openDeleteDialogTip,
+            selectedClassList,
             calendarRef,
             contentRef,
             scale,
@@ -200,7 +212,8 @@ export default defineComponent({
             calendarStyles,
             classVisible,
             hasLessonVisible,
-            deleteLessonVisible
+            deleteLessonVisible,
+            currentCourseId
         };
     },
 

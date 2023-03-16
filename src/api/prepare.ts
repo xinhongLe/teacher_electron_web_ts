@@ -1,4 +1,4 @@
-import { VUE_APP_PREPARE_API } from "@/config";
+import { VUE_APP_PREPARE_API, YUN_API } from "@/config";
 import { IYunInfo } from "@/types/login";
 import { RequestFun } from "@/types/response";
 import request from "@/utils/request";
@@ -129,7 +129,7 @@ export interface IGetCurrentUserNewSchedule {
     /**
      * 排课结束时间
      */
-    endTime: Date;
+    endTime: string;
     /**
      * 学校Id
      */
@@ -137,7 +137,7 @@ export interface IGetCurrentUserNewSchedule {
     /**
      * 排课开始时间
      */
-    startTime: Date;
+    startTime: string;
     /**
      * 学期Code
      */
@@ -291,7 +291,7 @@ export interface INewScheduleInDto {
     /**
      * 日期(对云平台未排的空白单元格进行排课时使用)
      */
-    date: Date;
+    date: string;
     /**
      * 课包Id
      */
@@ -317,7 +317,7 @@ export interface INewScheduleInDto {
 /**
  * DelNewSchedulingInDto，删除排课计划 入参
  */
- export interface IDelNewSchedulingInDto {
+export interface IDelNewSchedulingInDto {
     /**
      * 课时包Id
      */
@@ -326,6 +326,35 @@ export interface INewScheduleInDto {
      * 排课详情表Id
      */
     schedulingNewDetailId: string;
+}
+
+/**
+ * EditClassInDto，班级编辑 入参
+ */
+export interface IEditClassInDto {
+    /**
+     * 变更的班级Id
+     */
+    classId: string;
+    /**
+     * 排课详情表Id
+     */
+    schedulingNewDetailId: string;
+}
+
+export interface ITeacherClassCodeOutDto {
+    /**
+     * 班级ID
+     */
+    Id?: null | string;
+    /**
+     * 班级名称
+     */
+    Name?: null | string;
+    /**
+     * 学期Code
+     */
+    SemesterCode?: number;
 }
 
 // 新增备课包
@@ -419,7 +448,7 @@ export const DelResourceLessonBag: RequestFun<{ id: string }, boolean> = (data) 
 };
 
 // 获取当前登陆人的排课信息
-export const GetCurrentUserSchedulingInfo: RequestFun<IGetCurrentUserNewSchedule, IGetCurrentUserNewScheduleOutDto> = (data) => {
+export const GetCurrentUserSchedulingInfo: RequestFun<IGetCurrentUserNewSchedule, IGetCurrentUserNewScheduleOutDto[]> = (data) => {
     const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
     return request({
         baseURL: VUE_APP_PREPARE_API,
@@ -490,5 +519,38 @@ export const DelCourseScheduling: RequestFun<IDelNewSchedulingInDto, null> = (da
         },
         method: "post",
         data,
+    });
+};
+
+// 删除排课计划
+export const EditClass: RequestFun<IEditClassInDto, null> = (data) => {
+    const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
+    return request({
+        baseURL: VUE_APP_PREPARE_API,
+        url: "/Api/Schedule/NewCourseScheduling/EditClass",
+        headers: {
+            "Content-Type": "application/json-patch+json",
+            UserId: yunInfo.UserId,
+        },
+        method: "post",
+        data,
+    });
+};
+
+//获取老师在当前学期下的班级列表
+export const GetCurrentCodeTeacherClass: RequestFun<{ OrgId: string, UserId: string }, ITeacherClassCodeOutDto[]> = () => {
+    const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
+    return request({
+        baseURL: YUN_API,
+        url: "/Api/Web/ClassManage/GetCurrentCodeTeacherClass",
+        headers: {
+            "Content-Type": "application/json-patch+json",
+            UserId: yunInfo.UserId,
+        },
+        method: "post",
+        data: {
+            OrgId: yunInfo.OrgId,
+            UserId: yunInfo.UserId
+        }
     });
 };

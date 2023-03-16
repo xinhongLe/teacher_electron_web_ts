@@ -16,7 +16,7 @@
                 <div class="item-footer">
                     <div class="item-button" :class="{ isPaike: item.IsSchedule }"
                         @mousedown.stop.prevent="isMouseDrag ? startDrag($event, course, item) : null"
-                        @click="toArrangeClass(item, 0)">
+                        @click.stop.prevent="!isMouseDrag ? toArrangeClass(item, 0) : null">
                         {{ item.IsSchedule ? '已排课' : '排课' }}
                     </div>
                 </div>
@@ -49,7 +49,7 @@ import emitter from "@/utils/mitt";
 import { IResourceItem } from "@/api/resource";
 const currentSelectPackageId = ref<string>("");
 const { startDrag } = useClickDrag();
-const { getMyLessonBagNew, lessonPackageList, addLessonPackage, deleteLessonPackage, addResourceLessonBag } = useLessonPackage();
+const { getMyLessonBagNew, lessonPackageList, addLessonPackage, deleteLessonPackage, addResourceLessonBag, addLessonBag } = useLessonPackage();
 
 interface ICourse {
     chapterId: string;
@@ -71,39 +71,22 @@ const emits = defineEmits(["toArrangeClass"]);
 const deleteVisible = ref(false);
 const deleteTargetId = ref("");
 
-const addLessonBag = ref<IAddLessonBag>({
-    lessonId: props.course.lessonId,
-    acaSectionName: "",
-    subjectName: "",
-    lessonName: props.course.lessonName,
-    albumId: "",
-    subjectId: null,
-    sort: 0,
-    resourceId: "",
-    publisherId: null,
-    schoolId: null,
-    name: "",
-    id: null,
-    publisherName: "",
-    chapterName: props.course.chapterName,
-    chapterId: props.course.chapterId,
-    albumName: "",
-    acaSectionId: null
-});
-
 watch(() => props.course, async (val: ICourse) => {
+    addLessonBag.value.chapterId = props.course.chapterId;
+    addLessonBag.value.chapterName = props.course.chapterName;
+    addLessonBag.value.lessonId = props.course.lessonId;
+    addLessonBag.value.lessonName = props.course.lessonName;
     await getMyLessonBagNew({ id: val.lessonId });
-    selectPackage(lessonPackageList.value[0]);
-    // if (!lessonPackageList.value.length) {
-    //     addLessonBag.value.name = "备课包1";
-    //     const res = await addLessonPackage(addLessonBag.value);
-    //     if (res) {
-    //         await getMyLessonBagNew({ id: val.lessonId })
-    //         selectPackage(lessonPackageList.value[0])
-    //     }
-    // } else {
-    //     selectPackage(lessonPackageList.value[0])
-    // }
+    if (!lessonPackageList.value.length) {
+        addLessonBag.value.name = "备课包1";
+        const res = await addLessonPackage(addLessonBag.value);
+        if (res) {
+            await getMyLessonBagNew({ id: val.lessonId })
+            selectPackage(lessonPackageList.value[0])
+        }
+    } else {
+        selectPackage(lessonPackageList.value[0])
+    }
 }, { deep: true, immediate: true })
 
 // 新增备课包

@@ -6,23 +6,22 @@
                     点击选择上课班级
                 </div>
             </template>
-            <div class="is-class" v-if="false">
-                <el-checkbox-group v-model="checkedClassList">
-                    <el-checkbox label="Option A" />
-                    <el-checkbox label="Option B" />
-                    <el-checkbox label="Option C" />
-                    <el-checkbox label="disabled" disabled />
-                    <el-checkbox label="selected and disabled" disabled />
-                </el-checkbox-group>
+            <div class="is-class" v-if="classList.length">
+                <!-- <el-checkbox-group v-model="checkedClassList">
+                    <el-checkbox :label="item.Id" v-for="item in classList">{{ item.Name }}</el-checkbox>
+                </el-checkbox-group> -->
+                <el-radio-group v-model="checkedClass">
+                    <el-radio :label="item.Id" v-for="item in classList" size="large" border>{{ item.Name }}</el-radio>
+                </el-radio-group>
             </div>
-            <div class="no-class">
+            <div class="no-class" v-else>
                 <img src="@/assets/images/preparation/pic_noclass.png" alt="">
                 <span>您还没有班级</span>
                 <div class="no-class-button">
                     <el-button type="primary" @click="sure()"> 确定 </el-button>
                 </div>
             </div>
-            <template #footer v-if="false">
+            <template #footer v-if="classList.length">
                 <div class="dialog-footer">
                     <el-button type="primary" @click="sure()"> 确定 </el-button>
                 </div>
@@ -32,7 +31,9 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from "vue";
+import { defineComponent, ref, onMounted } from "vue";
+import { GetCurrentCodeTeacherClass, ITeacherClassCodeOutDto } from "@/api/prepare";
+import { get, STORAGE_TYPES } from "@/utils/storage";
 export default defineComponent({
     props: {
         classVisible: {
@@ -40,18 +41,28 @@ export default defineComponent({
             default: false
         }
     },
-    emits: ["onDeletePackage", "update:classVisible"],
+    emits: ["selectedClassList", "update:classVisible"],
     setup(props, { emit }) {
-        const checkedClassList = ref([]);
+        const checkedClass = ref("");
+        const classList = ref<ITeacherClassCodeOutDto[]>([]);
         const close = () => {
+            checkedClass.value = "";
             emit("update:classVisible", false);
         };
         const sure = async () => {
-            emit("onDeletePackage");
+            emit("selectedClassList", checkedClass.value);
             emit("update:classVisible", false);
-        }
+        };
+        const _getTeacherClassList = async () => {
+            const res = await GetCurrentCodeTeacherClass();
+            classList.value = res.result;
+        };
+        onMounted(() => {
+            _getTeacherClassList();
+        });
         return {
-            checkedClassList,
+            checkedClass,
+            classList,
             close,
             sure
         }
@@ -76,7 +87,7 @@ export default defineComponent({
             align-items: center;
             justify-content: center;
 
-            > span {
+            >span {
                 padding: 28px 0;
                 font-size: 20px;
                 font-weight: 400;

@@ -56,7 +56,7 @@
                                         src="@/assets/images/preparation/icon_tips_popup.png" alt="">
                                     确定要删除这堂课吗？
                                 </p>
-                                <div class="btns" >
+                                <div class="btns">
                                     <el-button size="small" @click="showDeleteLesson = false">取消</el-button>
                                     <el-button size="small" type="primary" @click="confirmDel">确定</el-button>
                                 </div>
@@ -132,6 +132,7 @@ import {
     defineProps,
     defineEmits,
     onMounted,
+    defineExpose
 } from "vue";
 import { useRouter } from "vue-router";
 import { updateSchedule } from "@/api/timetable";
@@ -140,9 +141,13 @@ import { addSchedulePackage, removeSchedulePackage } from "@/api/resource";
 import usePageEvent from "@/hooks/usePageEvent";
 import { EVENT_TYPE } from "@/config/event";
 import useClickDrag from "@/hooks/useClickDrag";
+import { UserInfoState } from "@/types/store";
+import { get, STORAGE_TYPES } from "@/utils/storage";
+import { INewScheduleInDto } from "@/api/prepare";
 const { createBuryingPointFn } = usePageEvent("备课");
 const { clickOutSide } = useClickDrag();
 const { weekNext, weekPre, initDays, formTime, formWeek } = useTime();
+const currentUserInfo: UserInfoState = get(STORAGE_TYPES.CURRENT_USER_INFO);
 const CourseBgColor: Record<string, string> = {
     语文: "#4FCC94",
     数学: "#63D1FA",
@@ -288,8 +293,7 @@ const onMouseLeave = async (ev: MouseEvent) => {
 // 鼠标在课表区域按下
 const onMouseDownEnd = async (ev: MouseEvent, colData: ColData) => {
     const dom: any = document.querySelector('.dragging-click-dom-ele');//备课包虚拟dom
-    const dragInfo: SchoolLesson = currentPackageData.value;
-    if (!dragInfo) return;
+    if (!currentPackageData.value) return;
     if (isEnd.value) {
         return ElMessage.error("已经结束的课程无法重新排课");
     }
@@ -324,7 +328,7 @@ const onMouseDownEnd = async (ev: MouseEvent, colData: ColData) => {
             //     }
             // });
         } else {
-            const res = await addSchedule(dragInfo);
+            const res = await addSchedule(currentPackageData.value);
             if (res.resultCode === 200) {
                 ElMessage.success("排课成功");
                 clickOutSide(ev, dom)
@@ -335,8 +339,12 @@ const onMouseDownEnd = async (ev: MouseEvent, colData: ColData) => {
         }
 
     }
+    console.log('colData----338', colData);
+    console.log('rowData----339', props.rowData);
+    console.log('currentPackageData.value----340', currentPackageData.value);
+
     if (isDragging && !colData.ID && !isEnd.value) {
-        emit("openClassDialog", true)
+        emit("openClassDialog", props.rowData.SectionName + colData.index)
     }
 };
 
@@ -411,7 +419,23 @@ const openDelLesson = (event: MouseEvent) => {
 //确认删除这个课包
 const confirmDel = () => {
 
-}
+};
+//选择班级回调
+const selectedClassList = (val: string) => {
+    console.log('选择班级回调', val);
+    // const newScheduleInDto: INewScheduleInDto = {
+    //     schoolId: currentUserInfo.schoolId,
+    //     termCode: store.state.preparation.term.id,
+    //     packageId: currentPackageData.value.Id,
+    //     classId: val,
+    //     date:props.colData.colDate,
+    //     apmp:props.rowData.APMP,
+    //     sectionId:props.colData.,
+    // }
+
+};
+
+defineExpose({ selectedClassList })
 </script>
 
 <style lang="scss" scoped>

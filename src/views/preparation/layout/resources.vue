@@ -547,36 +547,40 @@ export default defineComponent({
 
                 const res = await fetchResourceList(params);
                 isLaoding.value = false;
+                if (res.resultCode === 200) {
+                    resourceList.value =
+                        pageNumber.value === 1
+                            ? res.result.list
+                            : resourceList.value.concat(res.result.list);
+                    disabledScrollLoad.value =
+                        res.result.list.length === 0
+                            ? true
+                            : res.result.pager.IsLastPage;
+                    // console.log('resourceList.value', resourceList.value);
 
-                resourceList.value =
-                    pageNumber.value === 1
-                        ? res.result.list
-                        : resourceList.value.concat(res.result.list);
-                disabledScrollLoad.value =
-                    res.result.list.length === 0
-                        ? true
-                        : res.result.pager.IsLastPage;
-                // console.log('resourceList.value', resourceList.value);
+                    emit("updateResourceList", resourceList.value);
 
-                emit("updateResourceList", resourceList.value);
-
-                nextTick(() => {
-                    if (resourceId.value && resourceScroll.value) {
-                        const resourceDom =
-                            resourceScroll.value.getElementsByClassName(
-                                `resource-${resourceId.value}`
-                            );
-                        if (resourceDom.length > 0) {
-                            // 找到目标dom
-                            const top = (resourceDom[0] as HTMLElement)
-                                .offsetTop;
-                            resourceScroll.value.scrollTo({
-                                top,
-                                behavior: "smooth"
-                            });
+                    nextTick(() => {
+                        if (resourceId.value && resourceScroll.value) {
+                            const resourceDom =
+                                resourceScroll.value.getElementsByClassName(
+                                    `resource-${resourceId.value}`
+                                );
+                            if (resourceDom.length > 0) {
+                                // 找到目标dom
+                                const top = (resourceDom[0] as HTMLElement)
+                                    .offsetTop;
+                                resourceScroll.value.scrollTo({
+                                    top,
+                                    behavior: "smooth"
+                                });
+                            }
                         }
-                    }
-                });
+                    });
+                } else {
+                    resourceList.value = [];
+                    emit("updateResourceList", []);
+                }
             }
         };
 
