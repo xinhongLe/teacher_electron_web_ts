@@ -1,5 +1,10 @@
 <template>
-    <div class="p-layout-list" ref="resourceScroll" v-infinite-scroll="load" :infinite-scroll-disabled="disabledScrollLoad">
+    <div
+        class="p-layout-list"
+        ref="resourceScroll"
+        v-infinite-scroll="load"
+        :infinite-scroll-disabled="disabledScrollLoad"
+    >
         <div class="tip" v-if="isLaoding && resourceList.length === 0">
             <img src="@/assets/images/preparation/pic_loading.png" alt="" />
             资源正在加载，请稍候…
@@ -8,26 +13,66 @@
             <img src="@/assets/images/preparation/pic_finish_buzhi.png" alt="" />
             没有相关资源
         </div>
-        <ResourceItem :class="[
-            `resource-${item.ResourceId}`,
-            item.ResourceId === resourceId ? 'doing' : 'custom',
-        ]" v-for="(item, index) in resourceList" :key="index" :data="item" :name="name" :lessonId="course.lessonId"
-            @eventEmit="eventEmit" />
+        <ResourceItem
+            :class="[
+                `resource-${item.ResourceId}`,
+                item.ResourceId === resourceId ? 'doing' : 'custom',
+            ]"
+            v-for="(item, index) in resourceList"
+            :key="index"
+            :data="item"
+            :name="name"
+            :lessonId="course.lessonId"
+            @eventEmit="eventEmit"
+        />
 
-        <DeleteTip :target="targetDelete" v-model:visible="deleteTipVisible" @onDeleteSuccess="onDeleteSuccess" />
+        <DeleteTip
+            :target="targetDelete"
+            v-model:visible="deleteTipVisible"
+            @onDeleteSuccess="onDeleteSuccess"
+        />
 
-        <EditTip @update="update" :resource="resource" v-model:visible="editTipVisible" />
+        <EditTip
+            @update="update"
+            :resource="resource"
+            v-model:visible="editTipVisible"
+        />
 
-        <ResourceVersion :target="target" v-model:visible="resourceVersionVisible" />
+        <ResourceVersion 
+            :target="target"
+            v-model:visible="resourceVersionVisible"
+        />
 
-        <DeleteVideoTip :target="target" :resource="resource" v-model:visible="deleteVideoTipVisible" />
+        <DeleteVideoTip
+            :target="target"
+            :resource="resource"
+            v-model:visible="deleteVideoTipVisible"
+        />
 
-        <ResourceView :name="name" :target="target" :resource="resource" :lessonId="course.lessonId"
-            v-model:visible="resourceVisible" :data="resourceData" @closeDetail="closeDetail" @eventEmit="eventEmit" />
+        <ResourceView
+            :name="name"
+            :target="target"
+            :resource="resource"
+            :lessonId="course.lessonId"
+            v-model:visible="resourceVisible"
+            :data="resourceData"
+            @closeDetail="closeDetail"
+            @eventEmit="eventEmit"
+        />
 
         <div class="download-progress-dialog">
-            <el-dialog class="custom-dialog" title="下载" center align-center destroy-on-close width="300px"
-                :show-close="true" :before-close="cancelDownload" :close-on-click-modal="false" v-model="showDownload">
+            <el-dialog
+                class="custom-dialog"
+                title="下载"
+                center
+                align-center
+                destroy-on-close
+                width="300px"
+                :show-close="true"
+                :before-close="cancelDownload"
+                :close-on-click-modal="false"
+                v-model="showDownload"
+            >
                 <div class="download-progress-bar">
                     <div class="download-progress-line" :style="{ width: downloadProgress + '%' }"></div>
                 </div>
@@ -408,7 +453,6 @@ export default defineComponent({
             }
         };
         const openResource = (data: IResourceItem) => {
-            console.log("data------", data);
             if (data.ResourceShowType === 1) {
                 store.commit(
                     MutationTypes.SET_FULLSCREEN_RESOURCE,

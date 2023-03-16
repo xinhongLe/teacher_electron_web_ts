@@ -26,6 +26,16 @@ import {
 } from "fs/promises";
 import crypto from "crypto";
 import { exportWord, IFileData } from "./exportWord";
+import ffmpegPath from "@ffmpeg-installer/ffmpeg";
+import ffmpeg from "fluent-ffmpeg";
+import { v4 as uuidv4 } from "uuid";
+// ffmpeg.setFfmpegPath(ffmpegPath.path);
+// asar打包后路径有所变化
+if (process.env.NODE_ENV !== "development") {
+    ffmpeg.setFfmpegPath(ffmpegPath.path.replace("app.asar", "app.asar.unpacked"))
+} else {
+    ffmpeg.setFfmpegPath(ffmpegPath.path)
+}
 const PATH_BINARY =
     process.platform === "darwin"
         ? join(__dirname, "../ColorPicker")
@@ -410,6 +420,24 @@ window.electron = {
         } finally {
             await rm(filePath, { recursive: true, force: true });
         }
+    },
+    convertVideoH264: (filePath: string) => {
+        return new Promise((resolve, reject) => {
+            const uuid = uuidv4();
+            const outputPath = join(app.getPath("userData"), "files", `/${uuid}.mp4`);
+            try {
+                ffmpeg(filePath)
+                    .videoCodec("libx264")
+                    .on("end", () => {
+                        const file = fs.readFileSync(outputPath);
+                        resolve(file);
+                    })
+                    .save(outputPath);
+            } catch (err) {
+                console.log("Error: " + err);
+                reject(err);
+            }
+        });
     },
     store: store,
     parsePPT,

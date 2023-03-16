@@ -283,6 +283,8 @@
                 />
             </div>
         </el-dialog>
+
+        <Loading :show="loadingShow" />
     </div>
 </template>
 
@@ -321,6 +323,7 @@ import { EVENT_TYPE } from "@/config/event";
 import { RESOURCE_TYPE } from "@/config/resource";
 import isElectron from "is-electron";
 import { exportExcel, IExcel } from "mexcel";
+import Loading from "@/components/loading/Loading.vue";
 interface IDirectoryItem {
     id: string;
     name: string;
@@ -381,7 +384,7 @@ export default defineComponent({
             required: true,
         },
     },
-    components: { Plus, Refresh, Upload, CustomSelect, Edit },
+    components: { Plus, Refresh, Upload, CustomSelect, Edit, Loading },
     emits: ["update:source", "update:type"],
     setup(props, { emit }) {
         const { createBuryingPointFn } = usePageEvent("备课"); //备课埋点
@@ -754,7 +757,7 @@ export default defineComponent({
 
         const fileList = ref<{ name: string; url: string }[]>([]);
 
-        const { uploadFile } = useUploadFile("RescourceFile");
+        const { uploadFile, loadingShow } = useUploadFile("RescourceFile");
 
         const uploadSuccess = async ({
             file,
@@ -1133,6 +1136,7 @@ export default defineComponent({
             RESOURCE_TYPE,
             openWinCard,
             output,
+            loadingShow
         };
     },
 });

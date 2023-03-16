@@ -339,7 +339,12 @@ module.exports = {
                     "node_modules/trtc-electron-sdk/build/Release/trtc_electron_sdk.node",
                 ],
             },
-            externals: ["clipboard", "@microsoft/signalr"],
+            externals: [
+                "clipboard",
+                "@microsoft/signalr",
+                "@ffmpeg-installer/ffmpeg",
+                "fluent-ffmpeg"
+            ],
         },
     },
 };
