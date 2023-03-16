@@ -105,7 +105,9 @@
                         @command="handleCommand"
                     >
                         <div class="resource-more" @click.stop="() => null">
-                            <el-icon><more-filled /></el-icon>
+                            <el-icon>
+                                <more-filled/>
+                            </el-icon>
                         </div>
                         <template #dropdown>
                             <el-dropdown-menu>
@@ -216,31 +218,32 @@
                     v-if="hover && btns && name === 'attendClass'"
                 >
                     <span>{{
-                        data.ToolInfo
-                            ? `共${data.ToolInfo.QuestionCount}题`
-                            : ""
-                    }}</span>
+                            data.ToolInfo
+                                ? `共${data.ToolInfo.QuestionCount}题`
+                                : ""
+                        }}</span>
                     <span>{{
-                        data.ToolInfo
-                            ? ` ( ${data.ToolInfo.QuestionTypeName})`
-                            : ""
-                    }}</span>
+                            data.ToolInfo
+                                ? ` ( ${data.ToolInfo.QuestionTypeName})`
+                                : ""
+                        }}</span>
                 </div>
             </div>
         </div>
-        <div
-            class="p-resource-bottom"
-            v-if="hover && btns && name !== 'attendClass' && name !== 'preview'"
-        >
+        <div class="p-resource-bottom" v-if="hover && btns && name !== 'attendClass' && name !== 'preview'">
             <div class="tool-text">
-                <span class="total">{{
-                    data.ToolInfo ? `共${data.ToolInfo.QuestionCount}题` : ""
-                }}</span>
-                <span>{{
-                    data.ToolInfo ? ` ( ${data.ToolInfo.QuestionTypeName})` : ""
-                }}</span>
+                <span class="total">
+                    {{ data.ToolInfo ? `共${data.ToolInfo.QuestionCount}题` : "" }}
+                </span>
+                <span>
+                    {{ data.ToolInfo ? ` ( ${data.ToolInfo.QuestionTypeName})` : "" }}
+                </span>
             </div>
             <div>
+                <el-button class="p-control-btn" @click.stop="handleShare(data.OldResourceId)" v-if="!data.File">
+                    <img src="@/assets/images/preparation/icon_download_white.png" alt=""/>
+                    分享
+                </el-button>
                 <el-button
                     class="p-control-btn"
                     @click.stop="handleCommand('download')"
@@ -248,10 +251,7 @@
                         canDownload && RESOURCE_TYPE.TOOL !== data.ResourceType
                     "
                 >
-                    <img
-                        src="@/assets/images/preparation/icon_download_white.png"
-                        alt=""
-                    />
+                    <img src="@/assets/images/preparation/icon_download_white.png" alt=""/>
                     下载
                 </el-button>
                 <el-button
@@ -304,6 +304,8 @@ import {
 import { IResourceItem } from "@/api/resource";
 import moment from "moment";
 import { useStore } from "@/store";
+import isElectron from "is-electron";
+
 export default defineComponent({
     components: { Refresh, MoreFilled },
     props: {
@@ -386,14 +388,23 @@ export default defineComponent({
             });
             return book
                 ? book.SubjectName +
-                      " / " +
-                      book.PublisherName +
-                      " / " +
-                      book.AlbumName +
-                      (book.ChapterName ? " / " + book.ChapterName : "") +
-                      (book.LessonName ? " / " + book.LessonName : "")
+                " / " +
+                book.PublisherName +
+                " / " +
+                book.AlbumName +
+                (book.ChapterName ? " / " + book.ChapterName : "") +
+                (book.LessonName ? " / " + book.LessonName : "")
                 : "--";
         });
+
+        const handleShare = (id: string) => {
+            const helpUrl = "https://testwincardshare.aixueshi.top/#/?id=" + id;
+            if (isElectron()) {
+                window.electron.shell.openExternal(helpUrl);
+            } else {
+                window.open(helpUrl);
+            }
+        };
 
         return {
             handleCommand,
@@ -407,6 +418,7 @@ export default defineComponent({
             canDownload,
             formatImg,
             RESOURCE_TYPE,
+            handleShare
         };
     },
 });
@@ -422,9 +434,11 @@ export default defineComponent({
     transition: 1s all;
     cursor: pointer;
     position: relative;
+
     .p-resource-top {
         display: flex;
     }
+
     .p-resource-bottom {
         border-top: 1px solid var(--app-color-border-grey);
         display: flex;
@@ -432,25 +446,31 @@ export default defineComponent({
         align-items: center;
         margin-top: 15px;
         padding-top: 15px;
+
         &.no-border {
             border: 0;
             padding-top: 0;
         }
+
         .tool-text {
             font-size: 14px;
             color: #5f626f;
             margin-left: 80px;
+
             .total {
                 font-size: 16px;
             }
         }
     }
+
     &.hover {
         margin-bottom: 10px;
     }
+
     &.hover:hover {
         box-shadow: 0px 6px 16px 0px rgba(0, 0, 0, 0.16);
     }
+
     .p-resource-mark {
         background: url(~@/assets/images/preparation/bg_tab1.png) no-repeat;
         background-size: cover;
@@ -462,6 +482,7 @@ export default defineComponent({
         color: #4b71ee;
         font-size: 12px;
     }
+
     .p-resource-school-mark {
         background: url(~@/assets/images/preparation/bg_tab2@2x.png) no-repeat;
         background-size: cover;
@@ -473,20 +494,24 @@ export default defineComponent({
         color: #f98a33;
         font-size: 12px;
     }
+
     &.resource-courseware {
         background: #e6f1ff;
         // border-left: 4px solid #4b71ee;
     }
+
     .resource-icon {
         width: 60px;
         margin-right: 15px;
         position: relative;
         top: -4px;
+
         img {
             width: 100%;
             display: block;
         }
     }
+
     .resource-content {
         display: flex;
         flex-direction: column;
@@ -494,22 +519,26 @@ export default defineComponent({
         flex: 1;
         min-width: 0;
     }
+
     .resource-title {
         font-size: 16px;
         font-weight: 600;
         display: flex;
         align-items: center;
+
         .resource-format {
             display: block;
             margin-left: 10px;
             width: 16px;
         }
     }
+
     .resource-classify {
         font-size: 12px;
         color: var(--app-color-text-default);
         display: flex;
         align-items: center;
+
         img {
             width: 12px;
             position: relative;
@@ -518,6 +547,7 @@ export default defineComponent({
             display: block;
         }
     }
+
     .resource-message {
         display: flex;
         align-items: center;
@@ -525,20 +555,24 @@ export default defineComponent({
         color: var(--app-color-text-default);
         padding: 12px 0;
     }
+
     .resource-control {
         margin-left: 20px;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
+
         .tool-text {
             color: #5f626f;
             margin-top: 10px;
         }
+
         .resource-control-up {
             display: flex;
             align-items: center;
             justify-content: flex-end;
         }
+
         .resource-degree {
             border-radius: 4px;
             padding: 4px;
@@ -549,15 +583,18 @@ export default defineComponent({
             display: flex;
             align-items: center;
             justify-content: center;
+
             &.difficult {
                 border-color: var(--app-resource-degree-difficult);
                 color: var(--app-resource-degree-difficult);
             }
+
             &.middle {
                 border-color: var(--app-resource-degree-middle);
                 color: var(--app-resource-degree-middle);
             }
         }
+
         .resource-type {
             display: flex;
             align-items: center;
@@ -567,43 +604,53 @@ export default defineComponent({
             border: 1px solid var(--app-resource-type-qita);
             font-size: 12px;
             margin: 0 10px 0 10px;
+
             &.p-r-0 {
                 color: var(--app-resource-type-jiaoan);
                 border: 1px solid var(--app-resource-type-jiaoan);
             }
+
             &.p-r-1 {
                 color: var(--app-resource-type-daoxuean);
                 border: 1px solid var(--app-resource-type-daoxuean);
             }
+
             &.p-r-2 {
                 color: var(--app-resource-type-kejian);
                 border: 1px solid var(--app-resource-type-kejian);
             }
+
             &.p-r-3 {
                 color: var(--app-resource-type-weikeshipin);
                 border: 1px solid var(--app-resource-type-weikeshipin);
             }
+
             &.p-r-4 {
                 color: var(--app-resource-type-zuoye);
                 border: 1px solid var(--app-resource-type-zuoye);
             }
+
             &.p-r-5 {
                 color: var(--app-resource-type-dianzikeben);
                 border: 1px solid var(--app-resource-type-dianzikeben);
             }
+
             &.p-r-6 {
                 color: var(--app-resource-type-jiaoju);
                 border: 1px solid var(--app-resource-type-jiaoju);
             }
+
             &.p-r-7 {
                 color: var(--app-resource-type-gongju);
                 border: 1px solid var(--app-resource-type-gongju);
             }
+
             &.p-r-8 {
                 color: var(--app-resource-type-sucai);
                 border: 1px solid var(--app-resource-type-sucai);
             }
         }
+
         .resource-more {
             transform: rotate(90deg);
             padding: 5px;
@@ -616,12 +663,15 @@ export default defineComponent({
     display: flex;
     align-items: center;
     color: #486de5;
+
     &.delete {
         color: var(--app-color-red);
+
         &.is-disabled {
             color: var(--app-color-disabled-red);
         }
     }
+
     .el-icon {
         margin-right: 4px;
     }
@@ -631,21 +681,26 @@ export default defineComponent({
     background: rgba(75, 113, 238, 0.1);
     color: #486de5;
     border: none;
+
     &:hover {
         opacity: 0.6;
     }
+
     &.p-move {
         background: rgba(241, 45, 25, 0.1);
         color: #f12d19;
     }
+
     &.p-add {
         background: #4b71ee;
         color: #fff;
     }
+
     :deep(span) {
         display: flex;
         align-items: center;
         font-size: 12px;
+
         img {
             display: block;
             margin-right: 3px;
