@@ -12,14 +12,16 @@
             <LessonPackage :isMouseDrag="false" :lessonPackageList="lessonPackageList" @addLessonPackage="addLessonPackage"
                 @deleteLessonPackage="deleteLessonPackage" @toMyLessonPackage="toArrangeClass" />
         </div> -->
-        <div class="p-layout-list" ref="resourceScroll" v-infinite-scroll="load" :style="{height:source == 'me' ? 'calc(100vh - 160px)' : 'calc(100vh - 240px)'}"
+        <div class="p-layout-list" ref="resourceScroll" v-infinite-scroll="load"
+            :style="{ height: source == 'me' ? 'calc(100vh - 160px)' : 'calc(100vh - 240px)' }"
             :infinite-scroll-disabled="disabledScrollLoad">
             <ResourceItem :class="[
                 `resource-${item.ResourceId}`,
                 item.ResourceId === resourceId ? 'doing' : 'custom',
             ]" v-for="(item, index) in resourceList" :key="index" :data="item" :name="name" :lessonId="course.lessonId"
-                :source="source" @eventEmit="eventEmit" @addLessonPackage="addLessonPackage"
-                @toArrangeClass="toArrangeClass" :lessonPackageList="lessonPackageList" />
+                :source="source" @eventEmit="eventEmit" @addLessonPackage="addNewLessonPackage"
+                @toArrangeClass="toArrangeClass" :lessonPackageList="lessonPackageList"
+                @handleSelectLessonBag="handleSelectLessonBag" @handleRemoveLessonBag="handleRemoveLessonBag" />
 
             <DeleteTip :target="targetDelete" v-model:visible="deleteTipVisible" @onDeleteSuccess="onDeleteSuccess" />
 
@@ -85,7 +87,8 @@ import { ElMessage } from "element-plus";
 import LocalCache from "@/utils/localcache";
 import isElectron from "is-electron";
 import { get, set, STORAGE_TYPES } from "@/utils/storage";
-import useLessonPackage, { IPackage } from "@/hooks/useLessonPackage";
+import { IGetLessonBagOutDto } from "@/api/prepare";
+import useLessonPackage from "@/hooks/useLessonPackage";
 interface ICourse {
     chapterId: string;
     lessonId: string;
@@ -93,7 +96,7 @@ interface ICourse {
     chapterName: string;
 }
 export default defineComponent({
- 
+
     props: {
         course: {
             type: Object as PropType<ICourse>,
@@ -115,17 +118,14 @@ export default defineComponent({
             type: String,
             default: ""
         },
-        lessonPackageList: {
-            type: Object as PropType<IPackage[]>,
-            default: () => [],
-        },
         showClassArrangement: {
             type: Boolean,
             required: true
         },
     },
-    emits: ["updateResourceList", "addLessonPackage", "toMyLessonPackage", "toArrangeClass", "deleteLessonPackage"],
+    emits: ["updateResourceList", "toMyLessonPackage", "toArrangeClass", "deleteLessonPackage"],
     setup(props, { expose, emit }) {
+        const { lessonPackageList, getMyLessonBagNew, addResourceLessonBag, delResourceLessonBag, addLessonPackage, addLessonBag } = useLessonPackage();
         const resourceList = ref<IResourceItem[]>([]);
         const deleteTipVisible = ref(false);
         const editTipVisible = ref(false);
@@ -143,6 +143,7 @@ export default defineComponent({
         const resourceData = ref<null | IViewResourceData>(null);
         const showDownload = ref(false);
         const downloadProgress = ref(0);
+        const currentSelectBagIds = ref<string[]>();//当前选择备课包id集合
 
         // 加入备课包
         const addPackage = async (data: IResourceItem) => {
@@ -486,7 +487,7 @@ export default defineComponent({
                 leftEnd.value = left + 20;
                 topEnd.value = top - 40;
             }
-            emitter.on("updateResourceList", (id: string) => {
+            emitter.on("updateResourceList", (id: any) => {
                 update(id);
             });
         });
@@ -504,23 +505,34 @@ export default defineComponent({
         const { source, type, course, bookId } = toRefs(props);
 
         watch([source, type, course, schoolId, bookId], () => {
-            console.log('source.value123123', source.value);
-            // if (source.value === 'me') return;
+            if (source.value === 'me') return;
+            if (!course.value.lessonId) return;
+            getMyLessonBagNew({ id: course.value.lessonId });
             update("");
-        },{deep:true});
+        }, { deep: true });
 
-        const update = (id: string) => {
+        const update = (id: any) => {
             resourceList.value = [];
             pageNumber.value = 1;
-            resourceId.value = id;
-            getResources();
+            resourceId.value = source.value == 'me' ? "" : id;
+            currentSelectBagIds.value = id;
+            getResources(id);
         };
         const isLaoding = ref(false);
-        const getResources = async () => {
+        const getResources = async (id?: string[]) => {
             if (course.value.chapterId && course.value.lessonId) {
                 isLaoding.value = true;
 
-                const res = await fetchResourceList({
+                // let params: any;
+                const params = source.value == 'me' ? {
+                    ids: id,
+                    typeId: type.value,
+                    pager: {
+                        pageNumber: pageNumber.value,
+                        pageSize: pageSize.value
+                    },
+                    resourceType: source.value
+                } : {
                     chapterId: course.value.chapterId,
                     lessonId: course.value.lessonId,
                     resourceTypeId: type.value,
@@ -531,7 +543,9 @@ export default defineComponent({
                         pageNumber: pageNumber.value,
                         pageSize: pageSize.value
                     }
-                });
+                }
+
+                const res = await fetchResourceList(params);
                 isLaoding.value = false;
 
                 resourceList.value =
@@ -542,8 +556,8 @@ export default defineComponent({
                     res.result.list.length === 0
                         ? true
                         : res.result.pager.IsLastPage;
-                    console.log('resourceList.value',resourceList.value);
-                    
+                // console.log('resourceList.value', resourceList.value);
+
                 emit("updateResourceList", resourceList.value);
 
                 nextTick(() => {
@@ -586,18 +600,57 @@ export default defineComponent({
             emitter.emit("updatePackageCount", null);
             if (resourceVisible.value) resourceVisible.value = false;
         };
-        const addLessonPackage = () => {
-            emit("toMyLessonPackage");
-            emit("addLessonPackage");
+        // 资源列表的备课包下拉中新增课包
+        const addNewLessonPackage = async () => {
+            addLessonBag.value.chapterId = props.course.chapterId;
+            addLessonBag.value.chapterName = props.course.chapterName;
+            addLessonBag.value.lessonId = props.course.lessonId;
+            addLessonBag.value.lessonName = props.course.lessonName;
+            addLessonBag.value.name = "备课包" + lessonPackageList.value.length;
+            const res = await addLessonPackage(addLessonBag.value);
+            if (res) {
+                getMyLessonBagNew({ id: course.value.lessonId });
+            }
         };
+        // 去排课
         const toArrangeClass = (data: any, type: number) => {
             emit("toArrangeClass", data, type);
         };
-
+        // 资源加入备课包
+        const handleSelectLessonBag = async (item: IGetLessonBagOutDto, data: IResourceItem) => {
+            const params = {
+                resourceId: data.ResourceId,
+                lessonBagId: item.Id
+            }
+            const res = await addResourceLessonBag(params);
+            if (res) {
+                emitter.emit("updatePackageCount", null);
+                // update("");
+                console.log('resourceList.value---', resourceList.value);
+                resourceList.value.forEach((resource: IResourceItem) => {
+                    if (resource.ResourceId === data.ResourceId) {
+                        resource.JoinBags.push({
+                            BagId: item.Id,
+                            BagName: item.Name,
+                            Id: ""
+                        });
+                        resource.IsBag = true;
+                    }
+                })
+            }
+        };
+        // 资源移出备课包
+        const handleRemoveLessonBag = async (data: IResourceItem) => {
+            const res = await delResourceLessonBag({ id: data.BagId });
+            if (res) {
+                update(currentSelectBagIds.value);
+            }
+        };
+        //删除
         const deleteLessonPackage = (id: string) => {
             emit("deleteLessonPackage", id);
         };
-        expose({ update, openResource, eventEmit, addLessonPackage, toArrangeClass });
+        expose({ update, openResource, eventEmit, addNewLessonPackage, toArrangeClass });
 
         return {
             resourceList,
@@ -608,7 +661,8 @@ export default defineComponent({
             editTipVisible,
             resourceVersionVisible,
             deleteVideoTipVisible,
-            addLessonPackage,
+            lessonPackageList,
+            addNewLessonPackage,
             toArrangeClass,
             eventEmit,
             resourceVisible,
@@ -621,6 +675,7 @@ export default defineComponent({
             name,
             resourceScroll,
             resourceId,
+            currentSelectBagIds,
             resourceData,
             showDownload,
             downloadProgress,
@@ -628,7 +683,9 @@ export default defineComponent({
             isLaoding,
             editWincard,
             openWinCard,
-            deleteLessonPackage
+            deleteLessonPackage,
+            handleSelectLessonBag,
+            handleRemoveLessonBag
         };
     },
     components: {

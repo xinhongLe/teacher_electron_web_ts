@@ -164,25 +164,27 @@
                     编辑
                 </el-button>
 
-                <el-popover placement="bottom" :width="150" trigger="hover" popper-class="lesson-package-popover">
+                <el-popover v-if="source !== 'me' && lessonPackageList.length > 1" placement="bottom" :width="150"
+                    trigger="hover" popper-class="lesson-package-popover">
                     <template #reference>
-                        <el-button class="p-control-btn p-move" v-if="data.IsBag" @click.stop="handleCommand('move')">
+                        <el-button class="p-control-btn p-isbag" v-if="data.IsBag" @click.stop="null">
                             <!-- <img src="@/assets/images/preparation/icon_yichu.png" alt="" /> -->
                             已加入备课包
                         </el-button>
-                        <el-button class="p-control-btn p-add" v-if="!data.IsBag"
-                            @click.stop="($event) => handleCommand('add', $event)">
+                        <el-button class="p-control-btn p-add" v-if="!data.IsBag" @click.stop="null">
                             <img src="@/assets/images/preparation/icon_add.png" alt="" />
                             加入备课包
                         </el-button>
                     </template>
                     <div class="lesson-package-select">
                         <div class="package-content">
-                            <div class="package-item" v-for="(item, index) in lessonPackageList">
+                            <div class="package-item" v-for="(item, index) in lessonPackageList"
+                                @click="handleSelectLessonBag(item, data)">
                                 <span>
                                     {{ item.Name }}
                                 </span>
-                                <img v-if="item.Status" src="@/assets/images/preparation/icon_dui.png" alt="">
+                                <img v-if="data.JoinBags.map((bag) => bag.BagId).includes(item.Id)"
+                                    src="@/assets/images/preparation/icon_dui.png" alt="">
                             </div>
                         </div>
                         <div class="deadline">
@@ -194,9 +196,21 @@
                             </span>
                         </div>
                     </div>
-
                 </el-popover>
-
+                <template v-if="lessonPackageList.length && lessonPackageList.length === 1">
+                    <el-button class="p-control-btn p-isbag" v-if="data.IsBag" @click.stop="null">
+                        已加入备课包
+                    </el-button>
+                    <el-button class="p-control-btn p-add" v-if="!data.IsBag"
+                        @click.stop="handleSelectLessonBag(lessonPackageList[0], data)">
+                        <img src="@/assets/images/preparation/icon_add.png" alt="" />
+                        加入备课包
+                    </el-button>
+                </template>
+                <el-button v-if="source === 'me'" class="p-control-btn p-move" @click.stop="handleRemoveLessonBag(data)">
+                    <img src="@/assets/images/preparation/icon_yichu.png" alt="" />
+                    移出备课包
+                </el-button>
             </div>
         </div>
     </div>
@@ -214,7 +228,8 @@ import {
 import { IResourceItem } from "@/api/resource";
 import moment from "moment";
 import { useStore } from "@/store";
-import { IPackage } from "@/hooks/useLessonPackage";
+import { IGetLessonBagOutDto } from "@/api/prepare";
+import { emit } from "process";
 export default defineComponent({
     components: { Refresh, MoreFilled },
     props: {
@@ -243,11 +258,11 @@ export default defineComponent({
             default: ""
         },
         lessonPackageList: {
-            type: Object as PropType<IPackage[]>,
+            type: Object as PropType<IGetLessonBagOutDto[]>,
             default: () => [],
         }
     },
-    emits: ["eventEmit", "addLessonPackage", "toArrangeClass"],
+    emits: ["eventEmit", "addLessonPackage", "toArrangeClass", "handleSelectLessonBag", "handleRemoveLessonBag"],
     setup(props, { emit }) {
         const store = useStore();
 
@@ -316,6 +331,12 @@ export default defineComponent({
         const addLessonPackage = () => {
             emit("addLessonPackage")
         };
+        const handleSelectLessonBag = (item: IGetLessonBagOutDto, data: IResourceItem) => {
+            emit("handleSelectLessonBag", item, data)
+        };
+        const handleRemoveLessonBag = (data: IResourceItem) => {
+            emit("handleRemoveLessonBag", data)
+        };
         const toArrangeClass = (data: any) => {
             emit("toArrangeClass", data, 1)
         };
@@ -324,6 +345,8 @@ export default defineComponent({
             dealTime,
             addLessonPackage,
             toArrangeClass,
+            handleSelectLessonBag,
+            handleRemoveLessonBag,
             iconResources,
             textResources,
             directoryName,
@@ -611,6 +634,11 @@ export default defineComponent({
         color: #fff;
     }
 
+    &.p-isbag {
+        background: #F5F6FA;
+        color: #6E6D7A;
+    }
+
     :deep(span) {
         display: flex;
         align-items: center;
@@ -653,36 +681,50 @@ export default defineComponent({
                 color: #0D0B22;
                 margin-bottom: 12px;
                 cursor: pointer;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+
+                span {
+                    display: inline-block;
+                    width: 80%;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                }
             }
 
             .package-item:hover {
-                border-color: #486CE4;
+                background-color: #d8e0fb;
+
             }
         }
 
-        .deadline {
-            width: 90px;
-            height: 1px;
-            background: #F3F4F4;
-            margin-bottom: 12px;
 
-        }
+    }
 
-        .package-add {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            display: flex;
-            align-items: center;
-            cursor: pointer;
-            padding: 0 16px;
+    .deadline {
+        width: 90px;
+        height: 1px;
+        background: #F3F4F4;
+        margin-bottom: 12px;
 
-            .add-text {
-                font-size: 14px;
-                font-family: PingFangSC-Regular, PingFang SC;
-                font-weight: 400;
-                color: #486CE4;
-            }
+    }
+
+    .package-add {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        padding: 0 16px;
+
+        .add-text {
+            font-size: 14px;
+            font-family: PingFangSC-Regular, PingFang SC;
+            font-weight: 400;
+            color: #486CE4;
         }
     }
 }

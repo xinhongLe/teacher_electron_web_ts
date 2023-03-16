@@ -13,7 +13,7 @@ type Events = {
     smallVideo: null;
     smallQuestion: null;
     updatePackageCount: null;
-    updateResourceList: string;
+    updateResourceList: any;
     openEditResource: IResourceItem;
     errorBookEmit: any;
     openErrorBookDetails: any;

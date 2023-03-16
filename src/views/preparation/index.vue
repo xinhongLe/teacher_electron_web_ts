@@ -7,22 +7,19 @@
             <div class="content-p-layout">
                 <div class="p-layout-lesson" v-if="source == 'me'">
                     <LessonPackage ref="LessonPackageRef" :isMouseDrag="showClassArrangement ? true : false"
-                        :lessonPackageList="lessonPackageList" @addLessonPackage="addLessonPackage"
-                        @toMyLessonPackage="toArrangeClass" @deleteLessonPackage="deletenPackage"/>
+                        @toArrangeClass="toArrangeClass" :course="course" />
                 </div>
                 <div class="p-layout-right" v-show="!showPackage && !showClassArrangement">
                     <Resources :course="course" :source="source" :type="type" :bookId="bookId"
-                        :showClassArrangement="showClassArrangement" :lessonPackageList="lessonPackageList"
-                        @toMyLessonPackage="toMyLessonPackage" @toArrangeClass="toArrangeClass" />
+                        :showClassArrangement="showClassArrangement" @toMyLessonPackage="toMyLessonPackage"
+                        @toArrangeClass="toArrangeClass" />
                 </div>
                 <div class="p-layout-right" v-if="showPackage && showClassArrangement">
-                    <ClassArrangement :lessonPackageList="lessonPackageList" ref="ClassArrangementRef"
-                        @selectPackage="selectPackage" />
+                    <ClassArrangement ref="ClassArrangementRef" @closeCalendar="closeCalendar"/>
                 </div>
             </div>
 
         </div>
-        <deletePackage v-model:visible="deleteVisible" @onDeletePackage="deleteLessonPackage(deleteTargetId)" />
     </div>
 </template>
 
@@ -45,13 +42,12 @@ import usePageEvent from "@/hooks/usePageEvent";
 import { RESOURCE_TYPE } from "@/config/resource";
 import useClickDrag from "@/hooks/useClickDrag";
 import useLessonPackage from "@/hooks/useLessonPackage";
-import deletePackage from "./layout/dialog/deletePackage.vue";
 import LessonPackage from "./layout/lessonPackage.vue";
-
+import { IAddLessonBag } from "@/api/prepare";
 export default defineComponent({
     name: "Preparation",
     setup() {
-        const { lessonPackageList, addLessonPackage, deleteLessonPackage } = useLessonPackage();
+        const { lessonPackageList, addLessonPackage, deleteLessonPackage, } = useLessonPackage();
         const { startDrag, clickOutSide } = useClickDrag();
         //埋点需求
         const { createBuryingPointFn } = usePageEvent("备课", true);
@@ -61,33 +57,52 @@ export default defineComponent({
             chapterId: "",
             lessonId: "",
             lessonName: "",
+            chapterName: ""
         });
         const source = ref("");
         const type = ref(RESOURCE_TYPE.COURSEWARD);
         const bookId = ref("");
         const HeadRef = ref();
-        const deleteVisible = ref(false);
         const toMyLessonPackage = () => {
             HeadRef.value && HeadRef.value.toMyLessonPackage()
         };
         const ClassArrangementRef = ref();
+
+        // 新增课包数据
+        const addLessonBag = ref<IAddLessonBag>({
+            lessonId: course.value.lessonId,
+            acaSectionName: "",
+            subjectName: "",
+            lessonName: course.value.lessonName,
+            albumId: "",
+            subjectId: null,
+            sort: 0,
+            resourceId: "",
+            publisherId: null,
+            schoolId: null,
+            name: "",
+            id: null,
+            publisherName: "",
+            chapterName: course.value.chapterName,
+            chapterId: course.value.chapterId,
+            albumName: "",
+            acaSectionId: null
+        });
+        // 监听课时变化了就赋值
+        watch(() => course.value, (val) => {
+            addLessonBag.value.chapterId = val.chapterId;
+            addLessonBag.value.chapterName = val.chapterName;
+            addLessonBag.value.lessonId = val.lessonId;
+            addLessonBag.value.lessonName = val.lessonName;
+        }, { deep: true })
         // 去排课
         const toArrangeClass = async (data: any, type: number) => {
             HeadRef.value && HeadRef.value.toMyLessonPackage();
             source.value = 'me';
             showPackage.value = true;
             showClassArrangement.value = true;
-            if (type == 1) {
-                const res = await addLessonPackage(data);
-                nextTick(() => {
-                    ClassArrangementRef.value.toArrange(res);
-                })
-            } else {
-                nextTick(() => {
-                    ClassArrangementRef.value.toArrange(data);
-                })
-            }
-
+            // const res = await addLessonPackage(addLessonBag.value);
+            toLessonBagArrange(data, type)
         };
         watch(() => source.value, (val) => {
             if (val === 'me') {
@@ -98,17 +113,18 @@ export default defineComponent({
             }
 
         }, { deep: true });
-        const deleteTargetId = ref("");
-        // 删除
-        const deletenPackage = (id: string) => {
-            deleteTargetId.value = id;
-            deleteVisible.value = true
-        };
         const LessonPackageRef = ref();
-        // 去排课
-        const selectPackage = (data: any) => {
-            LessonPackageRef.value.selectPackage(data)
+        // 去备课包排课
+        const toLessonBagArrange = (data: any, type: number) => {
+            nextTick(() => {
+                LessonPackageRef.value.toLessonBagArrange(data, type)
+            })
         };
+        //关闭课表并显示我的课包以及资源
+        const closeCalendar = () => {
+            showPackage.value = false;
+            showClassArrangement.value = false;
+        }
         return {
             course,
             showClassArrangement,
@@ -116,19 +132,18 @@ export default defineComponent({
             type,
             bookId,
             HeadRef,
-            deleteVisible,
-            deleteTargetId,
             ClassArrangementRef,
             lessonPackageList,
             showPackage,
             LessonPackageRef,
+            addLessonBag,
             clickOutSide,
             addLessonPackage,
             toMyLessonPackage,
             toArrangeClass,
             deleteLessonPackage,
-            deletenPackage,
-            selectPackage
+            toLessonBagArrange,
+            closeCalendar
 
         };
     },
@@ -137,7 +152,6 @@ export default defineComponent({
         Head,
         Resources,
         ClassArrangement,
-        deletePackage,
         LessonPackage
     },
 });

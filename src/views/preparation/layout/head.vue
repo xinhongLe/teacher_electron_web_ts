@@ -11,7 +11,7 @@
     source = 'me';
 onSourceChange();
 clicKBuryPoint('我的备课包');
-                        ">
+                            ">
                     <img src="@/assets/images/preparation/cart.png" alt="" />
                     我的备课包
                 </div>
@@ -216,6 +216,7 @@ import { EVENT_TYPE } from "@/config/event";
 import { RESOURCE_TYPE } from "@/config/resource";
 import isElectron from "is-electron";
 import { exportExcel, IExcel } from "mexcel";
+import useLessonPackage from "@/hooks/useLessonPackage";
 interface IDirectoryItem {
     id: string;
     name: string;
@@ -280,29 +281,32 @@ export default defineComponent({
     emits: ["update:source", "update:type"],
     setup(props, { emit }) {
         const { createBuryingPointFn } = usePageEvent("备课"); //备课埋点
+        const { getPrepareGetMyBagCountNew, packageCount } = useLessonPackage();
+
         const store = useStore();
         const userId = computed(() => store.state.userInfo.userCenterUserID);
         const selectedBook = computed(
             () => store.state.preparation.subjectPublisherBookValue
         );
+        const schoolId = store.state.userInfo.schoolId;
         const { course } = toRefs(props);
         let isInit = true;
         watch(course, () => {
             getMyPackageNum();
         });
-        const packageCount = ref(0);
+        // const packageCount = ref(0);
         const getMyPackageNum = async () => {
             isInit = false;
             if (!course.value.chapterId || !course.value.lessonId) {
                 packageCount.value = 0;
                 return;
             }
-            const res = await fetchMyPackageNum({
+            const res = await getPrepareGetMyBagCountNew({
                 chapterId: course.value.chapterId,
                 lessonId: course.value.lessonId,
+                schoolId:schoolId
             });
-
-            packageCount.value = res.result.BagCount;
+            // packageCount.value = res.result.BagCount;
             if (packageCount.value > 0 && isInit) {
                 source.value = "me";
                 emit("update:source", source.value);
@@ -533,7 +537,6 @@ export default defineComponent({
                 }
                 if (empty) return ElMessage.warning("请将资源目录补充完整！");
             }
-            const schoolId = store.state.userInfo.schoolId;
             const schoolName = store.state.userInfo.schoolName;
             const lessonTrees = form.directorys.map((item) => {
                 return {

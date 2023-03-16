@@ -26,10 +26,44 @@
                             <p class="kebao-name">课包1</p>
                             <p class="keshi">苏教 一上 1单元 课时1</p>
                         </div>
-                        <div class="kebao-delete">
-                            <img src="@/assets/images/preparation/icon_delete_new.png" alt="" />
-                            删除
+                        <!-- <el-popover trigger="hover" placement="top" :width="200">
+                            <div>
+                                <p style="margin: 10px 0;">
+                                    <img style="width: 14px;height: 14px;"
+                                        src="@/assets/images/preparation/icon_tips_popup.png" alt="">
+                                    确定要删除这堂课吗？
+                                </p>
+                                <div style="text-align: right; margin: 0">
+                                    <el-button size="small" type="primary" @click="">确定</el-button>
+                                </div>
+                            </div>
+
+                            <template #reference>
+                                <div class="kebao-delete" @mouseenter.stop>
+                                    <img src="@/assets/images/preparation/icon_delete_new.png" alt="" />
+                                    删除
+                                </div>
+                            </template>
+                        </el-popover> -->
+                        <div>
+                            <div class="kebao-delete" @click.stop="openDelLesson">
+                                <img src="@/assets/images/preparation/icon_delete_new.png" alt="" />
+                                删除
+                            </div>
+                            <div v-if="showDeleteLesson" :style="{ left: delLeft, top: delTop }" class="delete-btn">
+                                <p class="del-text">
+                                    <img style="width: 14px;height: 14px;"
+                                        src="@/assets/images/preparation/icon_tips_popup.png" alt="">
+                                    确定要删除这堂课吗？
+                                </p>
+                                <div class="btns" >
+                                    <el-button size="small" @click="showDeleteLesson = false">取消</el-button>
+                                    <el-button size="small" type="primary" @click="confirmDel">确定</el-button>
+                                </div>
+                            </div>
+
                         </div>
+
                     </div>
                     <div v-if="false" class="no-kebao">
                         未排课包
@@ -143,6 +177,9 @@ const props = defineProps({
         default: false,
     }
 });
+const showDeleteLesson = ref(false);
+const delLeft = ref(0);
+const delTop = ref(0);
 const currentClassId: any = ref("");
 const isMobile = ref(false);
 const getMobile = () => {
@@ -363,6 +400,18 @@ const clicKBuryPoint = () => {
     if (!props.colData.LessonName) return;
     emit("createHomePoint", props.colData);
 };
+//打开删除课得弹层
+const openDelLesson = (event: MouseEvent) => {
+    const target = event.target as HTMLDivElement;
+    const { left, top } = target.getBoundingClientRect();
+    showDeleteLesson.value = true;
+    delLeft.value = left;
+    delTop.value = top;
+};
+//确认删除这个课包
+const confirmDel = () => {
+
+}
 </script>
 
 <style lang="scss" scoped>

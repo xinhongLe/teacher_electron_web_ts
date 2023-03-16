@@ -1,37 +1,40 @@
 <template >
     <div class="p-layout-package">
         <div class="lesson-package">
-            <div class="package-item" :class="{ isActive: item.ID == currentSelectPackageId }"
-                v-for="(item, index) in lessonPackageList"
-                
-                @click.stop.prevent="currentSelectPackageId = item.ID">
+            <div class="package-item" :class="{ isActive: item.Id == currentSelectPackageId }"
+                v-for="(item, index) in lessonPackageList" @click.stop.prevent="selectPackage(item)">
                 <div class="item-name">
                     <div class="names">
-                        {{ item.Title }}
+                        {{ course.lessonName || course.chapterName || '课包一' }}
                     </div>
-                    <img @click.stop.prevent="emits('deleteLessonPackage', item.ID)"
+                    <img @click.stop.prevent="deletenPackage(item.Id)"
                         src="@/assets/images/preparation/icon_delete_beike.png" alt="">
                 </div>
                 <div class="items">
                     {{ item.Name }}
                 </div>
                 <div class="item-footer">
-                    <div class="item-button" :class="{ isPaike: item.Status }" @mousedown.stop.prevent="isMouseDrag ? startDrag($event, item) : null" @click.stop.prevent="emits('toMyLessonPackage',item,0)">
-                        {{ item.Status ? '已排课' : '排课' }}
+                    <div class="item-button" :class="{ isPaike: item.IsSchedule }"
+                        @mousedown.stop.prevent="isMouseDrag ? startDrag($event, course, item) : null"
+                        @click="toArrangeClass(item, 0)">
+                        {{ item.IsSchedule ? '已排课' : '排课' }}
                     </div>
                 </div>
             </div>
-            <div class="package-item-add" @click.stop.prevent="addLessonPackage">
+            <div class="package-item-add" @click.stop.prevent="addPackage">
                 <img src="@/assets/images/preparation/icon_add_black.png" alt="">
                 <span>新增课包</span>
             </div>
         </div>
     </div>
+    <deletePackage v-model:visible="deleteVisible" @onDeletePackage="onDeletePackage" />
 </template>
 
 <script lang="ts" setup>
-import useLessonPackage, { IPackage } from "@/hooks/useLessonPackage";
+import useLessonPackage from "@/hooks/useLessonPackage";
 import useClickDrag, { } from "@/hooks/useClickDrag";
+import { IAddLessonBag, IGetLessonBagOutDto } from "@/api/prepare";
+import deletePackage from "../layout/dialog/deletePackage.vue";
 import {
     ref,
     defineProps,
@@ -39,39 +42,150 @@ import {
     PropType,
     onMounted,
     defineExpose,
-    nextTick
+    nextTick,
+    watch
 } from "vue";
-const currentSelectPackageId = ref("");
+import emitter from "@/utils/mitt";
+import { IResourceItem } from "@/api/resource";
+const currentSelectPackageId = ref<string>("");
 const { startDrag } = useClickDrag();
-const props = defineProps({ 
+const { getMyLessonBagNew, lessonPackageList, addLessonPackage, deleteLessonPackage, addResourceLessonBag } = useLessonPackage();
+
+interface ICourse {
+    chapterId: string;
+    lessonId: string;
+    lessonName: string;
+    chapterName: string;
+}
+const props = defineProps({
+    course: {
+        type: Object as PropType<ICourse>,
+        required: true
+    },
     isMouseDrag: {
         type: Boolean,
         default: true,
     },
-    lessonPackageList: {
-        type: Object as PropType<IPackage[]>,
-        default: () => [],
-    }
 });
-const emits = defineEmits(["addLessonPackage", "deleteLessonPackage", "toMyLessonPackage"]);
+const emits = defineEmits(["toArrangeClass"]);
+const deleteVisible = ref(false);
+const deleteTargetId = ref("");
 
-const addLessonPackage = () => {
-    emits("addLessonPackage");
+const addLessonBag = ref<IAddLessonBag>({
+    lessonId: props.course.lessonId,
+    acaSectionName: "",
+    subjectName: "",
+    lessonName: props.course.lessonName,
+    albumId: "",
+    subjectId: null,
+    sort: 0,
+    resourceId: "",
+    publisherId: null,
+    schoolId: null,
+    name: "",
+    id: null,
+    publisherName: "",
+    chapterName: props.course.chapterName,
+    chapterId: props.course.chapterId,
+    albumName: "",
+    acaSectionId: null
+});
+
+watch(() => props.course, async (val: ICourse) => {
+    await getMyLessonBagNew({ id: val.lessonId });
+    selectPackage(lessonPackageList.value[0]);
+    // if (!lessonPackageList.value.length) {
+    //     addLessonBag.value.name = "备课包1";
+    //     const res = await addLessonPackage(addLessonBag.value);
+    //     if (res) {
+    //         await getMyLessonBagNew({ id: val.lessonId })
+    //         selectPackage(lessonPackageList.value[0])
+    //     }
+    // } else {
+    //     selectPackage(lessonPackageList.value[0])
+    // }
+}, { deep: true, immediate: true })
+
+// 新增备课包
+const addPackage = async () => {
+    if (lessonPackageList.value.length) {
+        addLessonBag.value.name = "备课包" + lessonPackageList.value.length;
+        const res = await addLessonPackage(addLessonBag.value);
+        if (res?.Id) {
+            await getMyLessonBagNew({ id: props.course.lessonId })
+            // emitter.emit("updatePackageCount", null);
+            return res.Id
+        }
+    }
 };
-
-const selectPackage = (data: any) => {
-    currentSelectPackageId.value = data!.ID;
+// 选择备课包
+const selectPackage = (data: any, type?: number) => {
+    currentSelectPackageId.value = data!.Id;
+    emitter.emit("updateResourceList", [currentSelectPackageId.value]);
+};
+// 去排课
+const toArrangeClass = (data: any, type: number) => {
+    emits("toArrangeClass", data, type);
+};
+// 1 从资源里列表过来备课包排课，非直接点击排课，要先新增一个课包;
+// 0 直接在我的备课包里点击排课，不用再新增备课包；
+const toLessonBagArrange = (data: any, type?: number) => {
+    console.log('data,,,type--', data, type);
+    nextTick(() => {
+        setTimeout(async () => {
+            if (type) {
+                const bagId = await addPackage();
+                if (bagId) {
+                    currentSelectPackageId.value = bagId;
+                    const params = {
+                        resourceId: data.ResourceId,
+                        lessonBagId: bagId
+                    }
+                    const res = await addResourceLessonBag(params);
+                    if (res) {
+                        openMouseDrag();
+                        emitter.emit("updatePackageCount", null);
+                        emitter.emit("updateResourceList", [currentSelectPackageId.value]);
+                    }
+                }
+            } else {
+                const bagId = data.Id;
+                currentSelectPackageId.value = bagId;
+                openMouseDrag();
+            }
+        }, 200);
+    })
+};
+// 备课包虚拟元素开始触发移动
+const openMouseDrag = () => {
     nextTick(() => {
         const dom: HTMLElement = document.querySelector('.package-item.isActive > .item-footer > .item-button') as HTMLElement;
-        if (props.isMouseDrag && dom) {
-            const event: MouseEvent = new MouseEvent('mousedown');
-            event.preventDefault();
-            dom.dispatchEvent(event);
+        if (props.isMouseDrag) {
+            if (props.isMouseDrag && dom) {
+                const event: MouseEvent = new MouseEvent('mousedown');
+                event.preventDefault();
+                dom.dispatchEvent(event);
+            }
         }
     })
 };
+// 打开删除弹框
+const deletenPackage = (id: any) => {
+    deleteTargetId.value = id;
+    deleteVisible.value = true
+};
+// 确认删除回调
+const onDeletePackage = async () => {
+    const res = await deleteLessonPackage(deleteTargetId.value);
+    if (res) {
+        await getMyLessonBagNew({ id: props.course.lessonId });
+        selectPackage(lessonPackageList.value[0]);
+        emitter.emit("updatePackageCount", null);
+    }
+}
 defineExpose({
-    selectPackage
+    selectPackage,
+    toLessonBagArrange
 });
 
 </script>
@@ -102,7 +216,7 @@ defineExpose({
         .item-name {
             display: flex;
             justify-content: space-between;
-            margin-top: 24px;
+            margin-top: 16px;
             align-items: flex-end;
 
             .names {
@@ -129,7 +243,7 @@ defineExpose({
             font-size: 20px;
             font-weight: 600;
             color: #FFFFFF;
-            margin: 8px 0 14px 0;
+            margin: 14px 0 16px 0;
         }
 
         .item-footer {
@@ -181,4 +295,5 @@ defineExpose({
         //     height: 30px;
         // }
     }
-}</style>
+}
+</style>

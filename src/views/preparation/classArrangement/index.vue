@@ -1,10 +1,5 @@
 <template>
 	<div class="p-layout">
-		<!-- <div class="p-layout-lesson">
-			<LessonPackage :isMouseDrag="true" :lessonPackageList="lessonPackageList"
-				@addLessonPackage="$emit('addLessonPackage')" ref="LessonPackageRef"
-				@deleteLessonPackage="deleteLessonPackage" />
-		</div> -->
 		<div class="class-arrangement-warp">
 			<Calendar :days="days" ref="calendarRef" :isShowText="true" :isDrop="true" :isShowDetailBtn="true"
 				:isShowDelete="true" @openCourse="openCourse">
@@ -39,7 +34,7 @@
 								<span>刷新</span>
 							</div>
 						</div>
-						<div class="close" @click="">
+						<div class="close" @click.stop="$emit('closeCalendar')">
 							<img src="@/assets/images/preparation/close.png" alt="">
 						</div>
 					</header>
@@ -83,18 +78,9 @@ import { ArrowLeftBold, ArrowRightBold } from "@element-plus/icons-vue";
 import { ColData } from "@/hooks/useSchedules";
 import Resources from "../layout/resources.vue";
 import { fetchResourceType, IResourceItem } from "@/api/resource";
-import LessonPackage from "../layout/lessonPackage.vue";
-import useLessonPackage, { IPackage } from "@/hooks/useLessonPackage";
 export default defineComponent({
-	props: {
-		lessonPackageList: {
-			type: Object as PropType<IPackage[]>,
-			default: () => [],
-		}
-	},
-	emits: ["addLessonPackage", "deleteLessonPackage","selectPackage"],
+	emits: ["addLessonPackage", "deleteLessonPackage", "closeCalendar"],
 	setup(props, { expose, emit }) {
-		const { currentSelectPackageId } = useLessonPackage();
 		const templatesVisible = ref(false);
 		const calendarRef = ref<InstanceType<typeof Calendar>>();
 		const { days, initDays, nowTime, lateTime, weekPre, weekNext } =
@@ -155,18 +141,11 @@ export default defineComponent({
 		const close = () => {
 			visible.value = false;
 		};
-		const toArrange = (data: any) => {
-			nextTick(() => {
-				emit("selectPackage", data)
-
-			})
-		};
 		const deleteLessonPackage = (id: string) => {
 			emit("deleteLessonPackage", id)
 		};
 
 		return {
-			currentSelectPackageId,
 			days,
 			nowTime,
 			lateTime,
@@ -185,11 +164,10 @@ export default defineComponent({
 			type,
 			switchClass,
 			close,
-			toArrange,
 			deleteLessonPackage
 		};
 	},
-	components: { Calendar, ArrowRightBold, ArrowLeftBold, Resources, LessonPackage }
+	components: { Calendar, ArrowRightBold, ArrowLeftBold, Resources }
 });
 </script>
 

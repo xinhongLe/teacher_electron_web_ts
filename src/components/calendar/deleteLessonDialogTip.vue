@@ -41,7 +41,7 @@ const props = defineProps({
 const emits = defineEmits(["update:deleteLessonVisible"]);
 
 const checkAll = ref(false);// 全选状态
-const checkedLesson = ref();// 选中的课程包
+const checkedLesson = ref<string[]>();// 选中的课程包
 const lessonList = ref(["《所属课时1名称》课包5", "《所属课时1名称》课包1", "《所属课时1名称》课包2", "《所属课时1名称》课包3"]);// 课包列表
 const isIndeterminate = ref(false);
 
