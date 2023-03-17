@@ -26,28 +26,20 @@ import {
 } from "fs/promises";
 import crypto from "crypto";
 import { exportWord, IFileData } from "./exportWord";
-import ffmpegPath from "@ffmpeg-installer/ffmpeg";
 import ffmpeg from "fluent-ffmpeg";
 import { v4 as uuidv4 } from "uuid";
-// ffmpeg.setFfmpegPath(ffmpegPath.path);
-// asar打包后路径有所变化
-if (process.env.NODE_ENV !== "development") {
-    ffmpeg.setFfmpegPath(ffmpegPath.path.replace("app.asar", "app.asar.unpacked"))
-} else {
-    ffmpeg.setFfmpegPath(ffmpegPath.path)
-}
-const PATH_BINARY =
-    process.platform === "darwin"
-        ? join(__dirname, "../ColorPicker")
-        : join(__dirname, "../mockingbot-color-picker-ia32.exe");
-const PATH_WhiteBoard = join(
-    __dirname,
-    "../extraResources/whiteboard/Aixueshi.Whiteboard.exe"
+
+const PATH_BINARY = process.platform === "darwin" ? join(__dirname, "../ColorPicker") : join(__dirname, "../mockingbot-color-picker-ia32.exe");
+const PATH_WhiteBoard = join(__dirname, "../extraResources/whiteboard/Aixueshi.Whiteboard.exe"
 );
 // const PATH_White4Board = join(
 //     __dirname,
 //     "../extraResources/whiteboard/4.5/Aixueshi.Whiteboard.exe"
 // );
+
+const PATH_FFMPEG = process.platform === "darwin" ? join(__dirname, "../extraResources/ffmpeg/ffmpeg-darwin-x64") : join(__dirname, "../extraResources/ffmpeg/ffmpeg-win32-ia32.exe");
+
+ffmpeg.setFfmpegPath(PATH_FFMPEG);
 
 const downloadsPath = join(app.getPath("userData"), "files", "/");
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

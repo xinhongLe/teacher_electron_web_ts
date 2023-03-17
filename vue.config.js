@@ -16,6 +16,10 @@ const extraResources =
                   from: "./extraResources/mac/ColorPicker",
                   to: "ColorPicker",
               },
+              {
+                from: "./extraResources/ffmpeg/ffmpeg-darwin-x64",
+                to: "./extraResources/ffmpeg/ffmpeg-darwin-x64",
+            }
           ]
         : [
               {
@@ -34,6 +38,10 @@ const extraResources =
                   from: "./extraResources/win/mockingbot-color-picker-ia32.exe",
                   to: "mockingbot-color-picker-ia32.exe",
               },
+              {
+                from: "./extraResources/ffmpeg/ffmpeg-win32-ia32.exe",
+                to: "./extraResources/ffmpeg/ffmpeg-win32-ia32.exe",
+            }
           ];
 
 module.exports = {
@@ -342,7 +350,6 @@ module.exports = {
             externals: [
                 "clipboard",
                 "@microsoft/signalr",
-                "@ffmpeg-installer/ffmpeg",
                 "fluent-ffmpeg"
             ],
         },
