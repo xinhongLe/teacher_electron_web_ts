@@ -183,6 +183,7 @@ import AddPageDialog from "../components/edit/addPageDialog.vue";
 import materialCenter from "../components/edit/materialCenter/index.vue";
 import { addTeachPageTemplateLinkCount, saveTemplate } from "@/api/material";
 import { computed, defineComponent, nextTick, onMounted, onUnmounted, ref } from "vue";
+import electron from "electron";
 
 export default defineComponent({
     name: "Edit",
@@ -207,6 +208,7 @@ export default defineComponent({
         );
 
         const editRef = ref();
+        const winCardViewRef = ref();
         const materialCenterRef = ref();
         const total = ref(0);
         const showCollapse = ref(true);
@@ -220,7 +222,7 @@ export default defineComponent({
         getWindowCardsData();
 
         const pptHandle = useImportPPT();
-        const previewHandle = usePreview(allPages, currentPage, editRef);
+        const previewHandle = usePreview(allPages, currentPage, editRef, winCardViewRef);
         const addHandle = useHandlePPT(windowCards, allPages, pageMap, currentPage, editRef);
 
         // win-card-edit插件保存回调
@@ -802,7 +804,12 @@ export default defineComponent({
         }
 
         onMounted(() => {
-            window.addEventListener("keydown", previewHandle.keyDown);
+            window.addEventListener("keydown", previewHandle.keyDown, true);
+            // const app = electron.app;
+            //
+            // app.on("window-all-closed", function (e: KeyboardEvent) {
+            //     previewHandle.keyDown(e);
+            // });
 
             // 监听退出全屏事件浏览器
             window.onresize = function () {
@@ -827,6 +834,7 @@ export default defineComponent({
             showCollapse,
             selectPageIds,
             addPageVisible,
+            winCardViewRef,
             materialCenterRef,
             subjectPublisherBookValue,
             importPPT,

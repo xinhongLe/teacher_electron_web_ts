@@ -160,10 +160,7 @@ export default defineComponent({
 
         let gameFun: (IGame: IGame) => void;
         let type: string;
-        const selectGame = (obj: {
-            type: string;
-            fun: (game: IGame) => void;
-        }) => {
+        const selectGame = (obj: { type: string; fun: (game: IGame) => void; }) => {
             type = obj.type;
             gameFun = obj.fun;
             if (type === "selectGame") {
@@ -280,6 +277,10 @@ export default defineComponent({
             emit("applyBackgroundAllSlide", data);
         };
 
+        const setScreening = (flag: boolean) => {
+            PPTEditRef.value.setScreening(flag);
+        };
+
         return {
             ...toRefs(state),
             saveSlide,
@@ -309,7 +310,8 @@ export default defineComponent({
             updateLesson,
             TeacherID,
             handleHelper,
-            applyBackgroundAllSlide
+            applyBackgroundAllSlide,
+            setScreening
         };
     }
 });

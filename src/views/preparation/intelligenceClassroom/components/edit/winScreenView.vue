@@ -1,33 +1,42 @@
 <template>
     <div class="view-box">
-        <ScreenView ref="screenRef" @openMenu="openMenu" @offScreen="offScreen" :keyDisabled="keyDisabled" :isInit="isInit"
-            :slide="slideView" @openCard="openCard" @pagePrev="pagePrev()" @pageNext="pageNext()" />
-
+        <ScreenView
+            ref="screenRef"
+            :isInit="isInit"
+            :slide="slideView"
+            @openCard="openCard"
+            @openMenu="openMenu"
+            @pagePrev="pagePrev()"
+            @pageNext="pageNext()"
+            @offScreen="offScreen"
+            :keyDisabled="keyDisabled"
+        />
         <div class="right-fixed" v-if="showCollapse">
             <div class="right-content">
                 <div class="text title">页列表</div>
-                <div :class="['text', index === i ? 'active' : '']" @click="handleActive(i)" v-for="(item, i) in pageList"
-                    :KEY="item.ID">{{ item.Name }}</div>
+                <div :class="['text', index === i ? 'active' : '']" @click="handleActive(i)" v-for="(item, i) in pageList" :KEY="item.ID">
+                    {{ item.Name }}
+                </div>
             </div>
         </div>
-        <!--        <div :class="['fixed-box', showCollapse ? 'showCollapseClass' : 'hideCollapseClass']" @click="showCollapse = !showCollapse">-->
-        <!--            <i class="el-icon-menu"></i>-->
-        <!--        </div>-->
-
         <!-- 弹卡-->
-        <open-card-view-dialog v-if="dialogVisible" :cardList="cardList" @closeOpenCard="closeOpenCard"
-            v-model:dialogVisible="dialogVisible"></open-card-view-dialog>
+        <open-card-view-dialog
+            v-if="dialogVisible"
+            :cardList="cardList"
+            @closeOpenCard="closeOpenCard"
+            v-model:dialogVisible="dialogVisible"
+        />
     </div>
 </template>
 
-<script>
-import { defineComponent, onMounted, ref } from "vue";
-import { getCardDetail } from "@/api/home";
-import { getWinCardDBData } from "@/utils/database";
+<script lang="ts">
 import useHome from "@/hooks/useHome";
 import { ElMessage } from "element-plus";
-import OpenCardViewDialog from "./openCardViewDialog";
-import { exitFullscreen } from "@/utils/fullscreen";
+import { getCardDetail } from "@/api/home";
+import { getWinCardDBData } from "@/utils/database";
+import { defineComponent, onMounted, ref } from "vue";
+import OpenCardViewDialog from "./openCardViewDialog.vue";
+
 export default defineComponent({
     name: "winCardViewDialog",
     components: { OpenCardViewDialog },
@@ -44,7 +53,7 @@ export default defineComponent({
     setup(props, { emit }) {
         const showCollapse = ref(false);
         const slideView = ref({});
-        const pageList = ref([]);
+        const pageList = ref<any>([]);
         const index = ref(0);
         const isInit = ref(true);
         const keyDisabled = ref(false);
@@ -73,7 +82,7 @@ export default defineComponent({
             getSlideData();
         };
 
-        const handleActive = (i) => {
+        const handleActive = (i: number) => {
             index.value = i;
             getSlideData();
         };
@@ -87,7 +96,7 @@ export default defineComponent({
             if (dbResArr.length > 0) {
                 slideView.value = JSON.parse(dbResArr[0].result);
             } else {
-                await getPageDetail(pageList.value[index.value], 1, (res) => {
+                await getPageDetail(pageList.value[index.value], 1, (res: any) => {
                     slideView.value = res;
                 });
             }
@@ -95,13 +104,13 @@ export default defineComponent({
 
         const dialogVisible = ref(false);
         const cardList = ref([]);
-        const openCard = async (wins) => {
+        const openCard = async (wins: any) => {
             if (wins[0] && wins[0].cards) {
                 const cards = wins[0].cards;
-                let pages = [];
-                const newPages = [];
-                cards.map(card => {
-                    pages = pages.concat(card.slides.map(page => {
+                let pages: any = [];
+                const newPages: any = [];
+                cards.map((card: any) => {
+                    pages = pages.concat(card.slides.map((page: any) => {
                         return {
                             ID: page.id,
                             Type: page.type,
@@ -110,12 +119,12 @@ export default defineComponent({
                     }));
                 });
                 if (pages.length > 0) {
-                    const pageIDs = pages.map(page => page.ID);
+                    const pageIDs = pages.map((page: any) => page.ID);
                     const res = await getCardDetail({ pageIDs });
                     if (res.resultCode === 200 && res.result && res.result.length > 0) {
                         // 页名称可能会修改
-                        pages.map(item => {
-                            const value = res.result.find(page => page.ID === item.ID);
+                        pages.map((item: any) => {
+                            const value = res.result.find((page: any) => page.ID === item.ID);
                             if (value) {
                                 newPages.push({ Type: item.Type, ID: item.ID, Name: value.Name });
                             } else {
@@ -150,6 +159,10 @@ export default defineComponent({
             emit("offScreen");
             // exitFullscreen();
         };
+
+        const setScreening = (flag:boolean) => {
+            screenRef.value.setScreening(flag);
+        };
         return {
             keyDisabled,
             isInit,
@@ -167,7 +180,8 @@ export default defineComponent({
             execNext,
             closeOpenCard,
             offScreen,
-            handleActive
+            handleActive,
+            setScreening
         };
     }
 });
@@ -233,8 +247,8 @@ export default defineComponent({
 
     .fixed-box {
         position: fixed;
-        left: 0px;
-        bottom: 0px;
+        left: 0;
+        bottom: 0;
         width: 40px;
         height: 40px;
         border: 1px solid #666;

@@ -4,7 +4,7 @@ import { computed, Ref, ref } from "vue";
 import { enterFullscreen } from "@/utils/fullscreen";
 import { PageProps } from "@/views/preparation/intelligenceClassroom/api/props";
 
-export default (pageList: Ref<PageProps[]>, currentPage: Ref<PageProps | null>, editRef: Ref) => {
+export default (pageList: Ref<PageProps[]>, currentPage: Ref<PageProps | null>, editRef: Ref, winCardViewRef: Ref) => {
     const previewPageList = computed(() => pageList.value.filter(item => item.State));
     const previewIndex = ref(0);
     const winScreenView = ref(false);
@@ -28,12 +28,16 @@ export default (pageList: Ref<PageProps[]>, currentPage: Ref<PageProps | null>, 
             await sleep(300);
         }
         winScreenView.value = true;
+        setTimeout(() => {
+            winCardViewRef.value.setScreening(true);
+        }, 20);
         enterFullscreen();
     };
 
     const keyDown = (e: KeyboardEvent) => {
         if (e.keyCode === 27) {
             winScreenView.value = false;
+            editRef.value.setScreening(false);
         }
     };
 
