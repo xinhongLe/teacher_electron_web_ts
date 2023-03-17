@@ -11,7 +11,6 @@
             @outElements="outElements"
             @setQuoteVideo="setQuoteVideo"
             v-model:windowName="windowName"
-            @updateQuoteVideo="updateQuoteVideo"
             @openLessonDesign="openLessonDesign"
             @applyBackgroundAllSlide="applyBackgroundAllSlide"
         />
@@ -186,39 +185,12 @@ export default defineComponent({
 
         const selectVideo = () => {
             updateVideoElement.value = null;
-            isSetQuoteVideo.value = false;
             state.dialogVisibleVideo = true;
         };
 
         const selectVideoVal = (val: any) => {
-            if (isSetQuoteVideo.value) {
-                isSetQuoteVideo.value = false;
-                if (updateVideoElement.value) {
-                    PPTEditRef.value.updateVideoElement({
-                        ...updateVideoElement.value,
-                        src: val.src,
-                        fileID: val.fileID,
-                        pauseList: val.pauseList.map((item: any) => item.time),
-                        ossSrc: "",
-                        ossPoster: "",
-                        ossIcon: ""
-                    });
-                    updateVideoElement.value = null;
-                } else {
-                    PPTEditRef.value.createQuoteVideo(
-                        val.src,
-                        val.fileID,
-                        val.pauseList.map((item: any) => item.time)
-                    );
-                }
-            } else {
-                delete val.fileID;
-                emit(
-                    "updatePageSlide",
-                    Object.assign({}, props.slide, { follow: val })
-                );
-                // state.slide = Object.assign({}, state.slide, { follow: val });
-            }
+            delete val.fileID;
+            emit("updatePageSlide", Object.assign({}, props.slide, { follow: val }));
             state.dialogVisibleVideo = false;
         };
 
@@ -247,12 +219,6 @@ export default defineComponent({
         const setQuoteVideo = () => {
             updateVideoElement.value = null;
             isSetQuoteVideo.value = true;
-            state.dialogVisibleVideo = true;
-        };
-
-        const updateQuoteVideo = (element: PPTVideoElement) => {
-            isSetQuoteVideo.value = true;
-            updateVideoElement.value = element;
             state.dialogVisibleVideo = true;
         };
 
@@ -304,7 +270,6 @@ export default defineComponent({
             outElements,
             isShowSaveAsDialog,
             windowName,
-            updateQuoteVideo,
             lessonDesignVisible,
             openLessonDesign,
             updateLesson,

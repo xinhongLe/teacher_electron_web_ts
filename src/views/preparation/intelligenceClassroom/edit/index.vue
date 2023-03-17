@@ -183,8 +183,6 @@ import AddPageDialog from "../components/edit/addPageDialog.vue";
 import materialCenter from "../components/edit/materialCenter/index.vue";
 import { addTeachPageTemplateLinkCount, saveTemplate } from "@/api/material";
 import { computed, defineComponent, nextTick, onMounted, onUnmounted, ref } from "vue";
-import isElectron from "is-electron";
-import { remote } from "electron";
 
 export default defineComponent({
     name: "Edit",

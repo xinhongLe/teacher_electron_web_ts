@@ -74,6 +74,7 @@ export default (windowCards: Ref<CardProps[]>, allPages: Ref<PageProps[]>, pageM
         const index = windowCards.value.findIndex(item => item.ID === parentId);
 
         insertWindowsCards(page, index);
+        currentPage.value = page;
         sortWindowCards();
     };
 

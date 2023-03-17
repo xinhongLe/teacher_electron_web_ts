@@ -1,5 +1,6 @@
 import { pageType } from "@/config";
 import { Slide, SlideBackground } from "wincard";
+
 // import { createRandomCode } from "@/utils/common";
 
 interface IFile {
@@ -7,7 +8,7 @@ interface IFile {
     Extention: string,
     FileName: string,
     FilePath: string,
-    Name?:string
+    Name?: string
 }
 
 interface IOldWord {
@@ -91,9 +92,9 @@ const getSlideBackground = () => {
 };
 
 /**
-   跟读页处理
+ 跟读页处理
  */
-export const dealOldDataVideo = (pageID: string, oldSlide: IOldVideo) => {
+export const dealOldDataVideo = (pageID: string, oldSlide: any) => {
     const slide: Slide = {
         id: pageID,
         type: "follow",
@@ -103,12 +104,15 @@ export const dealOldDataVideo = (pageID: string, oldSlide: IOldVideo) => {
     if (oldSlide.VideoFile) {
         slide.follow = getSlideVideo(oldSlide);
     }
+    if (oldSlide.follow) {
+        slide.follow = oldSlide.follow;
+    }
     slide.background = getSlideBackground();
     return slide;
 };
 
 const getSlideVideo = (oldSlide: IOldVideo) => {
-    const pauses = oldSlide.Pauses ? oldSlide.Pauses.map((item:string) => {
+    const pauses = oldSlide.Pauses ? oldSlide.Pauses.map((item: string) => {
         return {
             time: item.split(".")[0]
         };
@@ -125,20 +129,24 @@ const getSlideVideo = (oldSlide: IOldVideo) => {
  教具页处理
  */
 
-export const dealOldDataTeach = (pageID: string, oldSlide: IOldTeach) => {
+export const dealOldDataTeach = (pageID: string, oldSlide: any) => {
     const slide: Slide = {
         id: pageID,
         type: "teach",
         viewportRatio: 0.5625,
         elements: []
     };
-    if (oldSlide && oldSlide.ToolFileModel) {
+    const ToolFileModel = oldSlide.ToolFileModel;
+    if (ToolFileModel) {
         (slide.teach as any) = {
-            id: oldSlide.ToolFileModel.ID,
-            name: oldSlide.ToolFileModel.Name,
-            src: oldSlide.ToolFileModel.Url,
-            file: !(oldSlide.ToolFileModel as any).File ? "" : (oldSlide.ToolFileModel as any).File.FilePath + "/" + (oldSlide.ToolFileModel as any).File.FileName + "." + (oldSlide.ToolFileModel as any).File.Extention,
+            id: ToolFileModel.ID,
+            name: ToolFileModel.Name,
+            src: ToolFileModel.Url,
+            file: !ToolFileModel.File ? "" : ToolFileModel.File.FilePath + "/" + ToolFileModel.File.FileName + "." + ToolFileModel.File.Extention
         };
+    }
+    if (oldSlide && oldSlide.teach) {
+        slide.teach = oldSlide.teach;
     }
     return slide;
 };
@@ -147,7 +155,7 @@ export const dealOldDataTeach = (pageID: string, oldSlide: IOldTeach) => {
  游戏页处理
  */
 
-export const dealOldDataGame = (pageID: string, oldSlide: IOldTeach) => {
+export const dealOldDataGame = (pageID: string, oldSlide: any) => {
     const slide: Slide = {
         id: pageID,
         type: "game",
@@ -163,6 +171,9 @@ export const dealOldDataGame = (pageID: string, oldSlide: IOldTeach) => {
     }
     if (oldSlide && oldSlide.Config) {
         slide.config = oldSlide.Config;
+    }
+    if (oldSlide && oldSlide.teach) {
+        slide.game = oldSlide.game;
     }
     return slide;
 };
