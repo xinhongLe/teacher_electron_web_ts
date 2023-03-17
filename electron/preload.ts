@@ -37,7 +37,7 @@ const PATH_WhiteBoard = join(__dirname, "../extraResources/whiteboard/Aixueshi.W
 //     "../extraResources/whiteboard/4.5/Aixueshi.Whiteboard.exe"
 // );
 
-const PATH_FFMPEG = process.platform === "darwin" ? join(__dirname, "../extraResources/ffmpeg/ffmpeg-darwin-x64") : join(__dirname, "../extraResources/ffmpeg/ffmpeg-win32-ia32.exe");
+const PATH_FFMPEG = process.platform === "darwin" ? join(__dirname, "../extraResources/ffmpeg/ffmpeg") : join(__dirname, "../extraResources/ffmpeg/ffmpeg-win32-ia32.exe");
 
 ffmpeg.setFfmpegPath(PATH_FFMPEG);
 
