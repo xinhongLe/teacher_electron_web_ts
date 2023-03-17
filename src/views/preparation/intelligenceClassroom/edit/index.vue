@@ -183,7 +183,8 @@ import AddPageDialog from "../components/edit/addPageDialog.vue";
 import materialCenter from "../components/edit/materialCenter/index.vue";
 import { addTeachPageTemplateLinkCount, saveTemplate } from "@/api/material";
 import { computed, defineComponent, nextTick, onMounted, onUnmounted, ref } from "vue";
-import electron from "electron";
+import isElectron from "is-electron";
+import { remote } from "electron";
 
 export default defineComponent({
     name: "Edit",
@@ -414,7 +415,7 @@ export default defineComponent({
                 inputPattern: /\S/,
                 inputErrorMessage: "请填写模板名称"
             }).then(async ({ value }) => {
-                const list: any = page ? [page] : selectPageIds.value.map(item => allPages.value.find(it => it.ID === item));
+                const list: any = selectPageIds.value.length === 0 ? [page] : selectPageIds.value.map(item => allPages.value.find(it => it.ID === item));
 
                 const params = {
                     ID: "",
@@ -805,11 +806,6 @@ export default defineComponent({
 
         onMounted(() => {
             window.addEventListener("keydown", previewHandle.keyDown, true);
-            // const app = electron.app;
-            //
-            // app.on("window-all-closed", function (e: KeyboardEvent) {
-            //     previewHandle.keyDown(e);
-            // });
 
             // 监听退出全屏事件浏览器
             window.onresize = function () {
@@ -1090,6 +1086,7 @@ export default defineComponent({
                                         width: 32px;
                                         height: 32px;
                                         display: block;
+                                        z-index: 9999;
                                     }
                                 }
 
@@ -1101,6 +1098,7 @@ export default defineComponent({
                                         width: 15px;
                                         height: 3px;
                                         display: block;
+                                        z-index: 9999;
                                     }
                                 }
                             }

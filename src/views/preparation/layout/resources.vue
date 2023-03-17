@@ -273,11 +273,7 @@ export default defineComponent({
                     deleteTipVisible.value = true;
                     break;
                 case "edit":
-                    if (
-                        (data.ResourceShowType === 1 ||
-                            data.ResourceShowType === 0) &&
-                        data.UserId !== userId.value
-                    ) {
+                    if ((data.ResourceShowType === 1 || data.ResourceShowType === 0) && data.UserId !== userId.value) {
                         resource.value = data;
                         editTipVisible.value = true;
                     } else if (data.IsMine === 1 && data.IsSchool !== 1) {
@@ -383,16 +379,13 @@ export default defineComponent({
         };
         // 直接打开编辑窗口
         const editWincard = (data: any) => {
-            set(
-                STORAGE_TYPES.SUBJECT_BOOK_INFO,
-                store.state.preparation.subjectPublisherBookValue
-            );
+            set(STORAGE_TYPES.SUBJECT_BOOK_INFO, store.state.preparation.subjectPublisherBookValue);
             const cacheResource = data;
             const windowInfo = {
                 id: cacheResource.OldResourceId,
                 name: cacheResource.Name,
                 lessonId: store.state.preparation.selectLessonId,
-                originType: 1,
+                originType: 1
             };
             set(STORAGE_TYPES.WINDOW_INFO, windowInfo);
             openWinCard(cacheResource.Name);
@@ -401,10 +394,7 @@ export default defineComponent({
         // 直接打开编辑窗口
         const openWinCard = (name: any) => {
             if (isElectron()) {
-                return window.electron.ipcRenderer.invoke(
-                    "openWinCardWin",
-                    name
-                );
+                return window.electron.ipcRenderer.invoke("openWinCardWin", name);
             }
         };
         const openResource = (data: IResourceItem) => {

@@ -57,8 +57,7 @@ import {
     onActivated,
     onMounted,
     ref,
-    onUnmounted,
-    provide
+    onUnmounted
 } from "vue";
 import { useRoute } from "vue-router";
 import Resources from "../preparation/layout/resources.vue";
