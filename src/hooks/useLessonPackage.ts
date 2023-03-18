@@ -38,7 +38,6 @@ export default () => {
     // 查询登录用户课时下的课包成功
     const getMyLessonBagNew = async (data: { id: string }) => {
         const res = await GetMyLessonBagNew(data);
-        console.log('查询登录用户课时下的课包成功', res);
         if (res.resultCode === 200) {
             state.lessonPackageList = res.result;
         }
@@ -58,7 +57,6 @@ export default () => {
     // 获取备课包数量
     const getPrepareGetMyBagCountNew = async (data: IGetPrepareBagCount) => {
         const res = await PrepareGetMyBagCountNew(data);
-        console.log('获取备课包数量成功', res);
         if (res.resultCode === 200) {
             state.packageCount = res.result.BagCount;
         }
@@ -77,7 +75,6 @@ export default () => {
     // 资源加入备课包
     const addResourceLessonBag = async (data: IAddResourceLessonBag) => {
         const res = await AddResourceLessonBag(data);
-        console.log('资源加入备课包', res);
         if (res.resultCode === 200) {
             ElMessage({
                 type: 'success',
@@ -89,7 +86,6 @@ export default () => {
     // 资源移出备课包
     const delResourceLessonBag = async (data: { id: string }) => {
         const res = await DelResourceLessonBag(data);
-        console.log('资源移出备课包', res);
         if (res.resultCode === 200) {
             ElMessage({
                 type: 'success',

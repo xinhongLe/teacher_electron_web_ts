@@ -1,6 +1,6 @@
 import { fetchClassArrangement } from "@/api/resource";
 import { GetCurrentUserSchedulingInfo, IGetCurrentUserNewScheduleOutDto } from "@/api/prepare";
-import { fetchActiveTimetableID, fetchUserSchedules, IScheduleContent, fetchTermCodeBySchoolId, TableTime, IScheduleDetail, GetClassTimeDetail, ClassTimeDto } from "@/api/timetable";
+import { fetchActiveTimetableID, fetchUserSchedules, IScheduleContent, fetchTermCodeBySchoolId, TableTime, IScheduleDetail, GetClassTimeDetail, ClassTimeDto, ClassTimeDetailDto } from "@/api/timetable";
 import { MutationTypes, store } from "@/store";
 import { computed, nextTick, ref, Ref, watch, watchEffect } from "vue";
 
@@ -24,10 +24,20 @@ export interface Schedule extends TableTime {
     colData: ColData[]
 }
 
+export type NewColData = {
+    colDate: string,
+    index: number,
+} & Partial<IGetCurrentUserNewScheduleOutDto>
+
+export interface NewSchedule extends ClassTimeDetailDto {
+    fontShowTime: string,
+    colData: NewColData[]
+}
+
 export default (days: Ref<string[]>) => {
     // let teachClassScheduleArr: TeachClassSchedule[] = [];
     // let classTimeArr: ClassTimeDto = {};
-    const teachClassScheduleArr = ref<IGetCurrentUserNewScheduleOutDto>();
+    const teachClassScheduleArr = ref<IGetCurrentUserNewScheduleOutDto[]>();
     const classTimeArr = ref<ClassTimeDto>();
     const schedules = ref<Schedule[]>([]);
     const timetableID = ref("");
@@ -39,7 +49,6 @@ export default (days: Ref<string[]>) => {
         if (!schoolID.value) {
             return;
         }
-
         const termCodeRes = await fetchTermCodeBySchoolId({
             OrgIds: [schoolID.value]
         });
@@ -57,14 +66,12 @@ export default (days: Ref<string[]>) => {
                 schoolID: schoolID.value,
                 semesterDataID: semesterDataID.value
             });
-            if (res.resultCode === 200 && res.result.classTimes?.length) {
-                classTimeArr.value = res.result.classTimes[0];
-
+            if (res.resultCode === 200 && res.result.ClassTimes?.length) {
+                classTimeArr.value = res.result.ClassTimes[0];
                 // timetableID.value = res.result.ID;
             }
         }
     };
-
 
     const getTeachClassSchedule = async () => {
         const schoolID = store.state.userInfo.schoolId;
@@ -82,15 +89,14 @@ export default (days: Ref<string[]>) => {
         // classTimeArr = res.result.tableTimeList;
 
         const classArrangementRes = await GetCurrentUserSchedulingInfo({
-            startTime: days.value[0],
-            endTime: days.value[6],
+            // startTime: days.value[0],
+            // endTime: days.value[6],
+            startTime: '2023-09-04',
+            endTime: '2023-09-10',
             schoolId: schoolID,
             termCode: termCode.value
         });
-        console.log('classArrangementRes----', classArrangementRes);
-        console.log('classTimeArr.value----', classTimeArr.value);
-
-        // teachClassScheduleArr.value
+        teachClassScheduleArr.value = classArrangementRes.result;
         // res.result.TeacherCourseList.forEach(item => {
         //     item.ScheduleDetailData.forEach(schedule => {
         //         const obj = classArrangementRes.result.find(item => item.LessonId === schedule.LessonID);
@@ -99,36 +105,45 @@ export default (days: Ref<string[]>) => {
         //     });
         // });
         // }
+        teachClassScheduleArr.value.forEach(item => {
+            const fontShowTime = `${item.StartTime?.substring(0, 5)}~${item.EndTime?.substring(0, 5)}`;
+            item.fontShowTime = fontShowTime
+        })
     };
 
-    // const dealSchedules = () => {
-    //     schedules.value = classTimeArr.map(classTime => {
-    //         const colData: ColData[] = days.value.map((day, index) => ({
-    //             colDate: day,
-    //             timetableID: timetableID.value,
-    //             index
-    //         }));
-    //         const fontShowTime = `${classTime.BeginTime.substring(0, 5)}~${classTime.EndTime.substring(0, 5)}`;
+    const newSchedules = ref<NewSchedule[]>([]);
+    const dealSchedules = () => {
+        if (classTimeArr.value?.ClassTimeDetailDtos && classTimeArr.value?.ClassTimeDetailDtos.length) {
+            newSchedules.value = classTimeArr.value?.ClassTimeDetailDtos.map(classTime => {
+                const colData = days.value.map((day, index) => ({
+                    colDate: day,
+                    index
+                }));
+                const fontShowTime = `${classTime.BeginTime?.substring(0, 5)}~${classTime.EndTime?.substring(0, 5)}`;
 
-    //         teachClassScheduleArr.forEach(item => {
-    //             if (item.fontShowTime === fontShowTime) {
-    //                 const week = item.DateOfWeek === 0 ? 6 : item.DateOfWeek - 1;
-    //                 colData[week] = { ...item, ...colData[week] };
-    //             }
-    //         });
-    //         return {
-    //             ...classTime,
-    //             colData: colData,
-    //             fontShowTime
-    //         };
-    //     });
-    // };
+                teachClassScheduleArr.value && teachClassScheduleArr.value.forEach(item => {
+                    if (item.fontShowTime === fontShowTime) {
+                        const week = item.DateOfWeek === 0 ? 6 : item.DateOfWeek! - 1;
+                        colData[week] = { ...item, ...colData[week] };
+                    }
+                });
+                return {
+                    ...classTime,
+                    colData: colData,
+                    fontShowTime
+                };
+            });
+        }
+
+        console.log('newSchedules.value--', newSchedules.value);
+
+    };
 
     const initSchedules = async (resize?: () => void) => {
         await getTimetableID();
-        if (!timetableID.value) return;
+        if (!classTimeArr.value?.ClassTimeID) return;
         await getTeachClassSchedule();
-        // dealSchedules();
+        dealSchedules();
         resize && nextTick(resize);
     };
 
@@ -136,12 +151,12 @@ export default (days: Ref<string[]>) => {
 
     const updateSchedules = async () => {
         await getTeachClassSchedule();
-        // dealSchedules();
+        dealSchedules();
     };
 
     const updateClassSchedule = async () => {
         await getTeachClassSchedule();
-        // dealSchedules();
+        dealSchedules();
     };
 
     watchEffect(() => {
@@ -161,6 +176,7 @@ export default (days: Ref<string[]>) => {
         initSchedules,
         updateClassSchedule,
         updateSchedules,
-        schedules
+        schedules,
+        newSchedules
     };
 };

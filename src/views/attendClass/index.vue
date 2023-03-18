@@ -8,15 +8,8 @@
                 :btns="false"
                 @eventEmit="eventEmit"
             /> -->
-            <Resources
-                ref="resourceRef"
-                name="attendClass"
-                @updateResourceList="updateResourceList"
-                :course="course"
-                :source="source"
-                :type="type"
-                :bookId="bookId"
-            />
+            <Resources ref="resourcesRef" name="attendClass" @updateResourceList="updateResourceList" :course="course"
+                :source="source" :type="type" :bagType="type" :bookId="bookId" />
         </div>
         <div class="resource-filter">
             <el-radio-group
@@ -32,7 +25,7 @@
                 </el-radio-button>
             </el-radio-group>
 
-            <el-button
+            <!-- <el-button
                 class="switch-btn"
                 type="default"
                 @click="switchClass()"
@@ -42,7 +35,7 @@
                     alt=""
                 />
                 {{ isSwitch ? "全部显示" : "仅显示备课包" }}
-            </el-button>
+            </el-button> -->
         </div>
     </div>
 </template>
@@ -58,7 +51,8 @@ import {
     onMounted,
     ref,
     onUnmounted,
-    provide
+    provide,
+    nextTick
 } from "vue";
 import { useRoute } from "vue-router";
 import Resources from "../preparation/layout/resources.vue";
@@ -69,7 +63,7 @@ export default defineComponent({
         const resourceList = ref<IResourceItem[]>([]);
         const route = useRoute();
         const store = useStore();
-
+        const resourcesRef = ref();
         const course = ref({
             chapterId: "",
             lessonId: ""
@@ -108,86 +102,91 @@ export default defineComponent({
         };
 
         onActivated(() => {
-            if (
-                route.params.lessonId !== course.value.lessonId ||
-                route.params.chapterId !== course.value.chapterId ||
-                route.params.bookId !== bookId.value
-            ) {
-                isSwitch.value = true;
-                type.value = "";
-            }
+            // if (
+            //     route.params.lessonId !== course.value.lessonId ||
+            //     route.params.chapterId !== course.value.chapterId ||
+            //     route.params.bookId !== bookId.value
+            // ) {
+            //     isSwitch.value = true;
+            //     type.value = "";
+            // }
 
-            course.value = {
-                lessonId: route.params.lessonId as string,
-                chapterId: route.params.chapterId as string
-            };
-            bookId.value = route.params.bookId as string;
+            // course.value = {
+            //     lessonId: route.params.lessonId as string,
+            //     chapterId: route.params.chapterId as string
+            // };
+            // bookId.value = route.params.bookId as string;
             // sendResourceData();
+            setTimeout(() => {
+                source.value = "me";
+                const bagIds = JSON.parse(route.params.bagIds as string);
+                console.log('resourcesRef',resourcesRef.value);
+                bagIds && resourcesRef.value && resourcesRef.value.getResources(bagIds, true)
+            }, 200);
         });
-
         const onWatchAttendClass = (e: IpcRendererEvent, event: any) => {
             switch (event.type) {
-            case "sysData":
-                window.electron.ipcRenderer.send(
-                    "attendClass",
-                    "unfoldSuspension",
-                    { type: "switchClass", switch: isSwitch.value }
-                );
-                sendResourceData();
-                break;
-            case "openResource":
-                const resource: IResourceItem = JSON.parse(event.resource);
-                if (resource.ResourceShowType === 2) {
-                    // 断点视频
-                    store.commit(MutationTypes.SET_FULLSCREEN_RESOURCE, {
-                        component: "LookVideo",
-                        resource: { id: resource.OldResourceId, openMore: true }
-                    });
-                } else if (resource.ResourceShowType === 3) {
-                    // 练习卷
-                    store.commit(MutationTypes.SET_FULLSCREEN_RESOURCE, {
-                        component: "LookQuestion",
-                        resource: {
-                            id: resource.OldResourceId,
-                            courseBagId: "",
-                            deleteQuestionIds: [],
-                            type: 1,
-                            openMore: true
-                        }
-                    });
-                } else if (resource.ResourceShowType === 1) {
-                    store.commit(MutationTypes.SET_FULLSCREEN_RESOURCE, {
-                        component: "Wincard",
-                        resource: {
-                            id: resource.OldResourceId,
-                            isSystem: resource.IsSysFile === 1,
-                            openMore: true
-                        }
-                    });
-                } else if (resource.ResourceShowType === 0 || resource.ResourceShowType === 4) {
-                    store.commit(MutationTypes.SET_FULLSCREEN_RESOURCE, {
-                        component: "ScreenViewFile",
-                        resource: { ...resource, id: resource.OldResourceId, openMore: true }
-                    });
-                } else if (resource.ResourceShowType === 5) {
-                    store.commit(
-                        MutationTypes.SET_FULLSCREEN_RESOURCE,
-                        {
-                            component: "AnswerMachine",
+                case "sysData":
+                    window.electron.ipcRenderer.send(
+                        "attendClass",
+                        "unfoldSuspension",
+                        { type: "switchClass", switch: isSwitch.value }
+                    );
+                    sendResourceData();
+                    break;
+                case "openResource":
+                    const resource: IResourceItem = JSON.parse(event.resource);
+                    if (resource.ResourceShowType === 2) {
+                        // 断点视频
+                        store.commit(MutationTypes.SET_FULLSCREEN_RESOURCE, {
+                            component: "LookVideo",
+                            resource: { id: resource.OldResourceId, openMore: true }
+                        });
+                    } else if (resource.ResourceShowType === 3) {
+                        // 练习卷
+                        store.commit(MutationTypes.SET_FULLSCREEN_RESOURCE, {
+                            component: "LookQuestion",
                             resource: {
-                                ...resource,
-                                lessonId: course.value.lessonId,
-                                id: new Date().getTime(),
+                                id: resource.OldResourceId,
+                                courseBagId: "",
+                                deleteQuestionIds: [],
+                                type: 1,
                                 openMore: true
                             }
-                        }
-                    );
-                }
-                logView({ id: resource.ResourceId });
-                break;
-            case "switchClass":
-                switchClass();
-                break;
+                        });
+                    } else if (resource.ResourceShowType === 1) {
+                        store.commit(MutationTypes.SET_FULLSCREEN_RESOURCE, {
+                            component: "Wincard",
+                            resource: {
+                                id: resource.OldResourceId,
+                                isSystem: resource.IsSysFile === 1,
+                                openMore: true
+                            }
+                        });
+                    } else if (resource.ResourceShowType === 0 || resource.ResourceShowType === 4) {
+                        store.commit(MutationTypes.SET_FULLSCREEN_RESOURCE, {
+                            component: "ScreenViewFile",
+                            resource: { ...resource, id: resource.OldResourceId, openMore: true }
+                        });
+                    } else if (resource.ResourceShowType === 5) {
+                        store.commit(
+                            MutationTypes.SET_FULLSCREEN_RESOURCE,
+                            {
+                                component: "AnswerMachine",
+                                resource: {
+                                    ...resource,
+                                    lessonId: course.value.lessonId,
+                                    id: new Date().getTime(),
+                                    openMore: true
+                                }
+                            }
+                        );
+                    }
+                    logView({ id: resource.ResourceId });
+                    break;
+                case "switchClass":
+                    switchClass();
+                    break;
             }
         };
 
@@ -242,7 +241,7 @@ export default defineComponent({
             source,
             bookId,
             updateResourceList,
-            resourceRef
+            resourcesRef
         };
     }
 });
@@ -285,14 +284,17 @@ export default defineComponent({
         min-width: 80px;
         color: #4b71ee;
     }
+
     :deep(.el-radio-button__original-radio:checked + .el-radio-button__inner) {
         color: #fff;
         box-shadow: none;
         background: #4b71ee;
     }
+
     :deep(.el-radio-button--small .el-radio-button__inner) {
         font-size: 14px;
     }
+
     :deep(.el-radio-button:focus:not(.is-focus):not(:active):not(.is-disabled)) {
         box-shadow: none;
     }
@@ -303,6 +305,7 @@ export default defineComponent({
         display: flex;
         align-items: center;
     }
+
     img {
         display: block;
         margin-right: 3px;

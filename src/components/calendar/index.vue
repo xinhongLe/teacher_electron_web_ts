@@ -8,12 +8,12 @@
             </div>
         </div>
         <div class="content">
-            <div class="no-schedules" v-if="schedules.length === 0">
+            <div class="no-newSchedules" v-if="newSchedules?.length === 0">
                 <img src="@/assets/indexImages/pic_none.png" alt="" />
                 未检测到教师课表
             </div>
             <div class="content-box" ref="contentRef">
-                <div class="col" v-for="col in schedules" :key="col.ClassIndex">
+                <div class="col" v-for="col in newSchedules" :key="col.SectionIndex">
                     <div class="time cell">
                         <span>{{ col.fontShowTime }}</span>
                         <span>{{ col.SectionName }}</span>
@@ -28,12 +28,13 @@
         </div>
     </div>
     <selectClass v-if="classVisible" v-model:classVisible="classVisible" @selectedClassList="selectedClassList" />
-    <hasLessonDialogTip v-model:hasLessonVisible="hasLessonVisible" />
-    <deleteLessonDialogTip v-if="deleteLessonVisible" v-model:deleteLessonVisible="deleteLessonVisible" />
+    <hasLessonDialogTip v-model:hasLessonVisible="hasLessonVisible" @replaceOrAddPackage="replaceOrAddPackage" />
+    <deleteLessonDialogTip v-if="deleteLessonVisible" v-model:deleteLessonVisible="deleteLessonVisible"
+        :currentPackageList="currentPackageList" @sureDeletePackage="sureDeletePackage" />
 </template>
 
 <script lang="ts">
-import useSchedules, { ColData } from "@/hooks/useSchedules";
+import useSchedules, { NewColData } from "@/hooks/useSchedules";
 import useTime from "@/hooks/useTime";
 import moment from "moment";
 import selectClass from "@/components/selectClass/index.vue";
@@ -91,7 +92,7 @@ export default defineComponent({
         const deleteLessonVisible = ref(false);// 删除发现多个课程包提示
         const currentDay = new Date().getDate();
         const {
-            schedules,
+            newSchedules,
             updateSchedules,
             updateClassSchedule,
             initSchedules,
@@ -102,17 +103,17 @@ export default defineComponent({
 
         provide("updateSchedules", updateSchedules);
 
-        const openCourse = (data: ColData) => {
+        const openCourse = (data: NewColData) => {
             emit("openCourse", data);
         };
         //创建首页上课区域埋点事件
-        const createHomePoint = (data: ColData) => {
-            createBuryingPointFn(
-                EVENT_TYPE.PageClick,
-                data.LessonName,
-                "上课",
-                data
-            );
+        const createHomePoint = (data: NewColData) => {
+            // createBuryingPointFn(
+            //     EVENT_TYPE.PageClick,
+            //     data.LessonName,
+            //     "上课",
+            //     data
+            // );
         };
         const resize = () => {
             nextTick(() => {
@@ -158,7 +159,7 @@ export default defineComponent({
         const width = ref(window.innerWidth * 0.6);
         const calendarRef = ref();
         const contentRef = ref();
-        // watch(schedules, resize);
+        // watch(newSchedules, resize);
 
         const calendarStyles = computed(() => {
             return route.path === "/home" ? {
@@ -174,24 +175,42 @@ export default defineComponent({
             classVisible.value = true;
         };
         // 打开已有课程弹框提示
-        const openLessonDialogTip = (val: boolean) => {
+        const openLessonDialogTip = (id: string) => {
+            currentCourseId.value = id;
             hasLessonVisible.value = true;
         };
+        const currentPackageList: any = ref();
         // 打开删除课程时提示有多个课包
-        const openDeleteDialogTip = (val: boolean) => {
+        const openDeleteDialogTip = (val: any) => {
+            currentCourseId.value = val.id;
             deleteLessonVisible.value = true;
+            currentPackageList.value = val.packageList
         };
-        //选择好班级后
+        // 选择好班级后
         const selectedClassList = (val: string) => {
             nextTick(() => {
                 const courseRef: any = proxy?.refs['courseRef' + currentCourseId.value];
                 courseRef[0] && courseRef[0].selectedClassList(val)
             })
         };
+        // 替换还是添加备课包
+        const replaceOrAddPackage = (type: number) => {
+            nextTick(() => {
+                const courseRef: any = proxy?.refs['courseRef' + currentCourseId.value];
+                courseRef[0] && courseRef[0].replaceOrAddPackage(type)
+            })
+        };
+        //选择好要删除的课包
+        const sureDeletePackage = (val: string[]) => {
+            nextTick(() => {
+                const courseRef: any = proxy?.refs['courseRef' + currentCourseId.value];
+                courseRef[0] && courseRef[0].sureDeletePackage(val)
+            })
+        };
         return {
             weekNext,
             weekPre,
-            schedules,
+            newSchedules,
             formTime,
             updateClassSchedule,
             initSchedules,
@@ -204,6 +223,8 @@ export default defineComponent({
             openLessonDialogTip,
             openDeleteDialogTip,
             selectedClassList,
+            replaceOrAddPackage,
+            sureDeletePackage,
             calendarRef,
             contentRef,
             scale,
@@ -213,7 +234,8 @@ export default defineComponent({
             classVisible,
             hasLessonVisible,
             deleteLessonVisible,
-            currentCourseId
+            currentCourseId,
+            currentPackageList
         };
     },
 
@@ -230,7 +252,7 @@ export default defineComponent({
     border-radius: 16px;
     transform-origin: top left;
 
-    .no-schedules {
+    .no-newSchedules {
         height: 100%;
         display: flex;
         align-items: center;

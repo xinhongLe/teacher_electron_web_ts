@@ -29,14 +29,15 @@
 								<el-icon><arrow-right-bold /></el-icon></span>
 						</div>
 						<div class="right">
-							<div class="right-content-warp" @click="slotProps.initSchedules">
+							<!-- <div class="right-content-warp" @click="slotProps.initSchedules">
 								<img src="@/assets/images/preparation/icon_shuaxin_rest.svg" alt="" />
 								<span>刷新</span>
+							</div> -->
+							<div class="close" @click.stop="$emit('closeCalendar')">
+								<img src="@/assets/images/preparation/icon_close_popup_gray.png" alt="">
 							</div>
 						</div>
-						<div class="close" @click.stop="$emit('closeCalendar')">
-							<img src="@/assets/images/preparation/close.png" alt="">
-						</div>
+
 					</header>
 				</template>
 			</Calendar>
@@ -50,7 +51,8 @@
                         :btns="false"
                         @eventEmit="eventEmit"
                     /> -->
-						<Resources name="preview" :course="course" :source="source" :type="type" />
+						<Resources name="preview" :course="course" :source="source" :type="type" :bagType="type"
+							ref="resourcesRef" />
 					</div>
 					<div class="resource-filter">
 						<el-radio-group class="custom-radio-two" v-model="type">
@@ -58,11 +60,10 @@
 								{{ item.Name }}
 							</el-radio-button>
 						</el-radio-group>
-
-						<el-button class="switch-btn" type="default" @click="switchClass()">
+						<!-- <el-button class="switch-btn" type="default" @click="switchClass()">
 							<img src="@/assets/images/preparation/icon_qiehuan.png" alt="">
 							{{ isSwitch ? "全部显示" : "仅显示备课包" }}
-						</el-button>
+						</el-button> -->
 					</div>
 				</div>
 			</el-dialog>
@@ -75,7 +76,7 @@ import useTime from "@/hooks/useTime";
 import { defineComponent, ref, PropType, nextTick } from "vue";
 import Calendar from "@/components/calendar/index.vue";
 import { ArrowLeftBold, ArrowRightBold } from "@element-plus/icons-vue";
-import { ColData } from "@/hooks/useSchedules";
+import { NewColData } from "@/hooks/useSchedules";
 import Resources from "../layout/resources.vue";
 import { fetchResourceType, IResourceItem } from "@/api/resource";
 export default defineComponent({
@@ -86,35 +87,33 @@ export default defineComponent({
 		const { days, initDays, nowTime, lateTime, weekPre, weekNext } =
 			useTime();
 		initDays();
-
 		const success = () => {
-			calendarRef.value && calendarRef.value.updateClassSchedule();
+			calendarRef.value && calendarRef.value.initSchedules();
 		};
-
 		const visible = ref(false);
 		const isSwitch = ref(true);
-		const openCourse = (data: ColData) => {
+		const resourcesRef = ref();
+		const openCourse = (data: NewColData) => {
 			visible.value = true;
 			setTimeout(() => {
 				source.value = "me";
-				course.value = {
-					chapterId: data.chapterId as string,
-					lessonId: data.LessonID as string
-				}
+				// course.value = {
+				// 	chapterId: data.chapterId as string,
+				// 	lessonId: data.LessonID as string
+				// }
+				const bagIds = data.PackageList?.map(item => item.PackageId) || null;
+				bagIds && resourcesRef.value.getResources(bagIds, true);
 			}, 200);
 		};
 
 		const resourceList = ref<IResourceItem[]>([]);
-
 		const course = ref({
 			chapterId: "",
 			lessonId: ""
 		});
-
 		const source = ref("me");
 		const type = ref("");
 		const typeList = ref<{ Id: string; Name: string }[]>([]);
-
 		const getResourceType = async () => {
 			const res = await fetchResourceType();
 			if (res.success) {
@@ -125,9 +124,7 @@ export default defineComponent({
 				typeList.value = res.result.reverse();
 			}
 		};
-
 		getResourceType();
-
 		const switchClass = () => {
 			isSwitch.value = !isSwitch.value;
 
@@ -144,8 +141,10 @@ export default defineComponent({
 		const deleteLessonPackage = (id: string) => {
 			emit("deleteLessonPackage", id)
 		};
+		expose({success})
 
 		return {
+			resourcesRef,
 			days,
 			nowTime,
 			lateTime,
@@ -322,19 +321,13 @@ export default defineComponent({
 						margin-right: 0;
 					}
 				}
-			}
 
-			.close {
-				position: absolute;
-				right: -10px;
-				top: -10px;
-				cursor: pointer;
-
-				img {
-					width: 20px;
-					height: 20px;
+				.close {
+					cursor: pointer;
 				}
 			}
+
+
 		}
 
 		:deep(.resource-dialog) {

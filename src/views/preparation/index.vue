@@ -1,21 +1,22 @@
 <template>
-    <div class="preparation" @mousedown.stop.prevent="clickOutSide($event)">
+    <div class="preparation" @mousedown="clickOutSide($event)">
         <LeftMenu v-model:course="course" v-model:bookId="bookId" />
         <div class="content-wrapper">
 
-            <Head :course="course" v-model:source="source" v-model:type="type" ref="HeadRef" />
+            <Head :course="course" v-model:source="source" v-model:type="type" ref="HeadRef"
+                @updateBagList="updateBagList" />
             <div class="content-p-layout">
                 <div class="p-layout-lesson" v-if="source == 'me'">
                     <LessonPackage ref="LessonPackageRef" :isMouseDrag="showClassArrangement ? true : false"
                         @toArrangeClass="toArrangeClass" :course="course" />
                 </div>
                 <div class="p-layout-right" v-show="!showPackage && !showClassArrangement">
-                    <Resources :course="course" :source="source" :type="type" :bookId="bookId"
+                    <Resources ref="resourcesRef" :course="course" :source="source" :type="type" :bookId="bookId"
                         :showClassArrangement="showClassArrangement" @toMyLessonPackage="toMyLessonPackage"
                         @toArrangeClass="toArrangeClass" />
                 </div>
                 <div class="p-layout-right" v-if="showPackage && showClassArrangement">
-                    <ClassArrangement ref="ClassArrangementRef" @closeCalendar="closeCalendar"/>
+                    <ClassArrangement ref="ClassArrangementRef" @closeCalendar="closeCalendar" />
                 </div>
             </div>
 
@@ -104,6 +105,19 @@ export default defineComponent({
             // const res = await addLessonPackage(addLessonBag.value);
             toLessonBagArrange(data, type)
         };
+        const resourcesRef = ref();
+        //刷新备课包中的资源列表
+        const updateBagList = async () => {
+            nextTick(() => {
+                LessonPackageRef.value.getMyLessonBagNew({ id: course.value.lessonId });
+                if (showPackage.value && showClassArrangement.value) {
+                    ClassArrangementRef.value.success();
+                } else {
+                    LessonPackageRef.value.selectPackage();
+                }
+            })
+        };
+        //刷新备课包中的资源列表
         watch(() => source.value, (val) => {
             if (val === 'me') {
                 // showClassArrangement.value = false;
@@ -137,10 +151,12 @@ export default defineComponent({
             showPackage,
             LessonPackageRef,
             addLessonBag,
+            resourcesRef,
             clickOutSide,
             addLessonPackage,
             toMyLessonPackage,
             toArrangeClass,
+            updateBagList,
             deleteLessonPackage,
             toLessonBagArrange,
             closeCalendar

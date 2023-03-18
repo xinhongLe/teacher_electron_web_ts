@@ -139,7 +139,8 @@
         </div>
         <div class="p-resource-bottom" v-if="hover && btns && name !== 'attendClass' && name !== 'preview'">
             <div style="padding-left: 66px;">
-                <el-button class="p-control-btn" v-if="source != 'me'" @click.stop.prevent="toArrangeClass(data)">
+                <el-button class="p-control-btn" v-if="source != 'me'" @click.stop.prevent="toArrangeClass(data, 1)"
+                    @touchstart.stop.prevent="toArrangeClass(data, 0)">
                     <img src="@/assets/images/preparation/icon_download_white.png" alt="" />
                     排课</el-button>
                 <div class="tool-text">
@@ -337,8 +338,8 @@ export default defineComponent({
         const handleRemoveLessonBag = (data: IResourceItem) => {
             emit("handleRemoveLessonBag", data)
         };
-        const toArrangeClass = (data: any) => {
-            emit("toArrangeClass", data, 1)
+        const toArrangeClass = (data: any, type: number) => {
+            emit("toArrangeClass", data, type)
         };
         return {
             handleCommand,

@@ -31,18 +31,18 @@ export default defineComponent({
             default: false
         }
     },
-    emits: ["update:hasLessonVisible"],
+    emits: ["update:hasLessonVisible", "replaceOrAddPackage"],
     setup(props, { emit }) {
 
         const close = () => {
             emit("update:hasLessonVisible", false);
         };
         const replace = async () => {
-
+            emit("replaceOrAddPackage", 2);
             emit("update:hasLessonVisible", false);
         };
         const addTo = async () => {
-
+            emit("replaceOrAddPackage", 1);
             emit("update:hasLessonVisible", false);
         }
 

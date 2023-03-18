@@ -76,7 +76,7 @@ export interface IGetClassTimeDetailOutDto {
     /**
      * 作息表明细明细
      */
-    classTimes?: ClassTimeDto[] | null;
+     ClassTimes?: ClassTimeDto[] | null;
 }
 
 /**
@@ -86,19 +86,19 @@ export interface ClassTimeDto {
     /**
      * 作息明细
      */
-    classTimeDetailDtos?: ClassTimeDetailDto[] | null;
+    ClassTimeDetailDtos?: ClassTimeDetailDto[] | null;
     /**
      * 作息表ID
      */
-    classTimeID?: null | string;
+    ClassTimeID?: null | string;
     /**
      * 作息表名称
      */
-    classTimeName: string;
+    ClassTimeName: string;
     /**
      * 适用年级Id列表
      */
-    gradeIds?: string[] | null;
+    GradeIds?: string[] | null;
 }
 
 /**
@@ -110,37 +110,37 @@ export interface ClassTimeDetailDto {
      * 1：上午
      * 2：下午
      */
-    apmp?: number;
+    APMP?: number | undefined;
     /**
      * 开始时间
      */
-    beginTime?: string;
+    BeginTime?: string | undefined;
     /**
      * 绑定的自定义数据(Json字符串)
      * {"courseTypeID":"xxxxxxxxxxxx","courseTypeName":"正课"}
      */
-    bindData?: null | string;
+    BindData?: null | string | undefined;
     /**
      * 结束时间
      */
-    endTime?: string;
+    EndTime?: string | undefined;
     /**
      * 是否展示在课表
      */
-    isShow?: boolean;
+    IsShow?: boolean | undefined;
     /**
      * 节次ID（新建的节次可不用传）
      */
-    sectionID?: null | string;
+    SectionID?: null | string | undefined;
     /**
      * 节次
      * 1， 2， 3...
      */
-    sectionIndex?: number;
+    SectionIndex?: number | undefined;
     /**
      * 节次名
      */
-    sectionName: string;
+    SectionName: string;
 }
 
 // 根据学年学期获取正在生效状态的课表ID

@@ -326,10 +326,17 @@ html {
     width: 298px !important;
 
     .lesson-contents {
+        // max-height: 200px;
+        // overflow-y: scroll;
+
         .lesson-title {
             font-size: 18px;
             font-weight: 600;
             color: #19203D;
+
+            img {
+                padding-left: 8px;
+            }
         }
 
         .lesson-time {
@@ -346,6 +353,7 @@ html {
             border-radius: 4px;
             padding: 8px;
             display: flex;
+            margin-bottom: 10px;
 
             .left {
                 width: 44px;
@@ -364,59 +372,77 @@ html {
                 justify-content: space-between;
                 align-items: center;
 
-                .kebao-name {
-                    font-size: 14px;
-                    font-weight: 400;
-                    color: #19203D;
-                }
+                .has-kebao {
+                    margin-right: 10px;
 
-                .keshi {
-                    font-size: 12px;
-                    font-weight: 400;
-                    color: #5F626F;
-                }
-
-                .kebao-delete {
-                    width: 60px;
-                    height: 24px;
-                    background: #FFF0F0;
-                    border-radius: 2px;
-                    font-size: 14px;
-                    font-weight: 400;
-                    color: #FF6B6B;
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    margin-right: 2px;
-                    cursor: pointer;
-                }
-
-                .delete-btn {
-                    padding: 16px;
-                    border-radius: 4px;
-                    position: fixed;
-                    width: 207px;
-                    height: 90px;
-                    background: #FFFFFF;
-                    box-shadow: 0px 3px 6px -4px rgba(0, 0, 0, 0.12), 0px 6px 16px 0px rgba(0, 0, 0, 0.08), 0px 9px 28px 8px rgba(0, 0, 0, 0.05);
-
-                    .del-text {
+                    .kebao-name {
                         font-size: 14px;
                         font-weight: 400;
                         color: #19203D;
+                    }
+
+                    .keshi {
+                        font-size: 12px;
+                        font-weight: 400;
+                        color: #5F626F;
+                    }
+
+
+                }
+
+                .kebao-del-btn {
+                    position: relative;
+
+                    .kebao-delete {
+                        cursor: pointer;
+                        width: 60px;
+                        height: 24px;
+                        background: #FFF0F0;
+                        border-radius: 2px;
+                        font-size: 14px;
+                        font-weight: 400;
+                        color: #FF6B6B;
                         display: flex;
+                        justify-content: center;
                         align-items: center;
-                        img{
-                            margin-right: 4px;
+                        margin-right: 2px;
+                        cursor: pointer;
+                    }
+
+                    .delete-btn {
+                        padding: 16px;
+                        border-radius: 4px;
+                        position: absolute;
+                        left: 60px;
+                        top: 8px;
+                        width: 207px;
+                        height: 90px;
+                        background: #FFFFFF;
+                        box-shadow: 0px 3px 6px -4px rgba(0, 0, 0, 0.12), 0px 6px 16px 0px rgba(0, 0, 0, 0.08), 0px 9px 28px 8px rgba(0, 0, 0, 0.05);
+
+                        .del-text {
+                            font-size: 14px;
+                            font-weight: 400;
+                            color: #19203D;
+                            display: flex;
+                            align-items: center;
+
+                            img {
+                                margin-right: 4px;
+                            }
+                        }
+
+                        .btns {
+                            text-align: right;
+                            margin-top: 18px;
+
                         }
                     }
-
-                    .btns {
-                        text-align: right;
-                        margin-top: 18px;
-
-                    }
                 }
+
+
+
+
             }
 
             .no-kebao {
@@ -425,6 +451,8 @@ html {
                 color: #FF6B6B;
             }
         }
+
+
     }
 }
 

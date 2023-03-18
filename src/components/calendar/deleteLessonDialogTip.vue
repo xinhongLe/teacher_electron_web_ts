@@ -16,14 +16,14 @@
                 <el-checkbox size="large" v-model="checkAll" @change="handleCheckAllChange"
                     :indeterminate="isIndeterminate">全选</el-checkbox>
                 <el-checkbox-group v-model="checkedLesson" @change="handleCheckedLessonChange">
-                    <el-checkbox size="large" v-for="city in lessonList" :key="city" :label="city">{{
-                        city
+                    <el-checkbox size="large" v-for="item in currentPackageList" :label="item.PackageId">{{
+                        item.LessonName + ' ' + item.PackageName
                     }}</el-checkbox>
                 </el-checkbox-group>
             </div>
             <template #footer>
                 <div class="dialog-footer">
-                    <el-button  @click="sureDelete()"> 确认删除 </el-button>
+                    <el-button @click="sureDelete()"> 确认删除 </el-button>
                 </div>
             </template>
         </el-dialog>
@@ -31,36 +31,44 @@
 </template>
 
 <script lang="ts" setup>
-import { defineComponent, ref } from "vue";
+import { defineComponent, ref, PropType, computed } from "vue";
+import { IPackageExtDto } from "@/api/prepare"
 const props = defineProps({
     deleteLessonVisible: {
         type: Boolean,
         default: false
+    },
+    currentPackageList: {
+        type: Array as PropType<IPackageExtDto[]>,
+        default: () => ([]),
     }
 });
-const emits = defineEmits(["update:deleteLessonVisible"]);
+const currentPackageList = computed(() => props.currentPackageList)
+const emits = defineEmits(["update:deleteLessonVisible", "sureDeletePackage"]);
 
 const checkAll = ref(false);// 全选状态
-const checkedLesson = ref<string[]>();// 选中的课程包
-const lessonList = ref(["《所属课时1名称》课包5", "《所属课时1名称》课包1", "《所属课时1名称》课包2", "《所属课时1名称》课包3"]);// 课包列表
+const checkedLesson = ref<any[]>();// 选中的课程包
 const isIndeterminate = ref(false);
 
 // 全选改变
 const handleCheckAllChange = (val: boolean) => {
-    checkedLesson.value = val ? lessonList.value : []
+    checkedLesson.value = val ? currentPackageList.value.map((item) => item.PackageId) : []
     isIndeterminate.value = false
 };
 // 选中课程包改变
 const handleCheckedLessonChange = (value: string[]) => {
     const checkedCount = value.length
-    checkAll.value = checkedCount === lessonList.value.length
-    isIndeterminate.value = checkedCount > 0 && checkedCount < lessonList.value.length
+    checkAll.value = checkedCount === currentPackageList.value.length
+    isIndeterminate.value = checkedCount > 0 && checkedCount < currentPackageList.value.length
 };
 
 const close = () => {
+    checkedLesson.value = []
     emits("update:deleteLessonVisible", false);
 };
 const sureDelete = async () => {
+    if (!checkedLesson.value?.length) return;
+    emits("sureDeletePackage", checkedLesson.value);
     emits("update:deleteLessonVisible", false);
 };
 
@@ -92,9 +100,11 @@ const sureDelete = async () => {
 
         .lesson-check {
             padding: 20px 50px;
-            > .el-checkbox{
+
+            >.el-checkbox {
                 margin-bottom: 6px;
             }
+
             .el-checkbox-group {
                 .el-checkbox {
                     display: block;

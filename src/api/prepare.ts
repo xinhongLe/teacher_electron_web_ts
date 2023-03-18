@@ -153,23 +153,23 @@ export interface IGetCurrentUserNewScheduleOutDto {
      * 1：上午
      * 2：下午
      */
-    apmp?: number;
+    APMP?: number;
     /**
      * 是否可修改(时间小于当前的不可修改)
      */
-    canEdit?: boolean;
+    CanEdit?: boolean;
     /**
      * 班级ID
      */
-    classId?: null | string;
+    ClassId?: null | string;
     /**
      * 班级名称
      */
-    className?: null | string;
+    ClassName?: null | string;
     /**
      * 日期
      */
-    date?: Date;
+    Date?: Date;
     /**
      * 周次
      * 枚举：DayOfWeek
@@ -181,47 +181,49 @@ export interface IGetCurrentUserNewScheduleOutDto {
      * 星期五：5
      * 星期六：6
      */
-    dateOfWeek?: number;
+    DateOfWeek?: number;
     /**
      * 课节结束时间
      */
-    endTime?: string;
+    EndTime?: string;
     /**
      * 课包数据
      */
-    packageList?: IPackageExtDto[] | null;
+    PackageList?: IPackageExtDto[] | null;
     /**
      * 排课详情表Id
      */
-    schedulingNewDetailId?: null | string;
+    SchedulingNewDetailId?: null | string;
     /**
      * 作息节次Id
      */
-    sectionId?: null | string;
+    SectionId?: null | string;
     /**
      * 节次
      */
-    sectionIndex?: number;
+    SectionIndex?: number;
     /**
      * 课节开始时间
      */
-    startTime?: string;
+    StartTime?: string;
     /**
      * 科目Id
      */
-    subjectId?: null | string;
+    SubjectId?: null | string;
     /**
      * 科目Name
      */
-    subjectName?: null | string;
+    SubjectName?: null | string;
     /**
      * 全部课包资源数量汇总
      */
-    totalCount?: number | null;
+    TotalCount?: number | null;
     /**
      * 周属性（1 单周，2 双周）
      */
-    weekType?: number;
+    WeekType?: number;
+
+    fontShowTime?: string
 }
 
 /**
@@ -231,31 +233,31 @@ export interface IPackageExtDto {
     /**
      * 册名
      */
-    albumName?: null | string;
+    AlbumName?: null | string;
     /**
      * 章节 名
      */
-    chapterName?: null | string;
+    ChapterName?: null | string;
     /**
      * 课时名称
      */
-    lessonName?: null | string;
+    LessonName?: null | string;
     /**
      * 课包资源数量
      */
-    packageCount?: number | null;
+    PackageCount?: number | null;
     /**
      * 课包Id
      */
-    packageId?: null | string;
+    PackageId?: null | string;
     /**
      * 课包Name
      */
-    packageName?: null | string;
+    PackageName?: null | string;
     /**
      * 出版社 名
      */
-    publisherName?: null | string;
+    PublisherName?: null | string;
 }
 
 /**
@@ -269,7 +271,7 @@ export interface ISetNewScheduleInDto {
     /**
      * 排课详情表Id
      */
-    schedulingNewDetailId: string;
+    schedulingNewDetailId?: string | null;
     /**
      * 操作类型(1-添加;2-替换)
      */
@@ -283,35 +285,35 @@ export interface INewScheduleInDto {
     /**
      * 上午或下午( 1：上午;2：下午) (对云平台未排的空白单元格进行排课时使用)
      */
-    apmp: number;
+    apmp?: number;
     /**
      * 班级Id(对云平台未排的空白单元格进行排课时使用)
      */
-    classId: string;
+    classId?: string | null;
     /**
      * 日期(对云平台未排的空白单元格进行排课时使用)
      */
-    date: string;
+    date?: string;
     /**
      * 课包Id
      */
-    packageId: string;
+    packageId?: string;
     /**
      * 学校Id
      */
-    schoolId: string;
+    schoolId?: string;
     /**
      * 节次Id(对云平台未排的空白单元格进行排课时使用)
      */
-    sectionId: string;
+    sectionId?: string | null;
     /**
      * 节次Index(对云平台未排的空白单元格进行排课时使用)
      */
-    sectionIndex: number;
+    sectionIndex?: number;
     /**
      * 学期编码
      */
-    termCode: string;
+    termCode?: string;
 }
 
 /**
@@ -325,7 +327,7 @@ export interface IDelNewSchedulingInDto {
     /**
      * 排课详情表Id
      */
-    schedulingNewDetailId: string;
+    schedulingNewDetailId?: string | null;
 }
 
 /**
@@ -339,7 +341,7 @@ export interface IEditClassInDto {
     /**
      * 排课详情表Id
      */
-    schedulingNewDetailId: string;
+    schedulingNewDetailId?: string | null;
 }
 
 export interface ITeacherClassCodeOutDto {
@@ -522,7 +524,7 @@ export const DelCourseScheduling: RequestFun<IDelNewSchedulingInDto, null> = (da
     });
 };
 
-// 删除排课计划
+// 编辑班级
 export const EditClass: RequestFun<IEditClassInDto, null> = (data) => {
     const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
     return request({

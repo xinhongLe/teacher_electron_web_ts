@@ -11,7 +11,7 @@
     source = 'me';
 onSourceChange();
 clicKBuryPoint('我的备课包');
-                            ">
+                                ">
                     <img src="@/assets/images/preparation/cart.png" alt="" />
                     我的备课包
                 </div>
@@ -278,7 +278,7 @@ export default defineComponent({
         },
     },
     components: { Plus, Refresh, Upload, CustomSelect, Edit },
-    emits: ["update:source", "update:type"],
+    emits: ["update:source", "update:type", "updateBagList"],
     setup(props, { emit }) {
         const { createBuryingPointFn } = usePageEvent("备课"); //备课埋点
         const { getPrepareGetMyBagCountNew, packageCount } = useLessonPackage();
@@ -304,7 +304,7 @@ export default defineComponent({
             const res = await getPrepareGetMyBagCountNew({
                 chapterId: course.value.chapterId,
                 lessonId: course.value.lessonId,
-                schoolId:schoolId
+                schoolId: schoolId
             });
             // packageCount.value = res.result.BagCount;
             if (packageCount.value > 0 && isInit) {
@@ -618,7 +618,11 @@ export default defineComponent({
         };
 
         const refreshResourceList = () => {
-            emitter.emit("updateResourceList", "");
+            if (source.value === 'me') {
+                emit("updateBagList")
+            } else {
+                emitter.emit("updateResourceList", "");
+            }
         };
 
         const acceptList =

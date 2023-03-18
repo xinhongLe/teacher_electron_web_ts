@@ -16,7 +16,8 @@
                 <div class="item-footer">
                     <div class="item-button" :class="{ isPaike: item.IsSchedule }"
                         @mousedown.stop.prevent="isMouseDrag ? startDrag($event, course, item) : null"
-                        @click.stop.prevent="!isMouseDrag ? toArrangeClass(item, 0) : null">
+                        @click.stop.prevent="!isMouseDrag ? toArrangeClass(item, 0) : null"
+                        @touchstart.stop.prevent="!isMouseDrag ? toArrangeClass(item, 0) : touchStartDrag($event, course, item)">
                         {{ item.IsSchedule ? '已排课' : '排课' }}
                     </div>
                 </div>
@@ -48,7 +49,7 @@ import {
 import emitter from "@/utils/mitt";
 import { IResourceItem } from "@/api/resource";
 const currentSelectPackageId = ref<string>("");
-const { startDrag } = useClickDrag();
+const { startDrag, touchStartDrag } = useClickDrag();
 const { getMyLessonBagNew, lessonPackageList, addLessonPackage, deleteLessonPackage, addResourceLessonBag, addLessonBag } = useLessonPackage();
 
 interface ICourse {
@@ -92,7 +93,12 @@ watch(() => props.course, async (val: ICourse) => {
 // 新增备课包
 const addPackage = async () => {
     if (lessonPackageList.value.length) {
-        addLessonBag.value.name = "备课包" + lessonPackageList.value.length;
+        addLessonBag.value.name = "备课包" + (lessonPackageList.value.length + 1);
+        lessonPackageList.value.forEach(item => {
+            if (item.Name === addLessonBag.value.name) {
+                addLessonBag.value.name = "备课包" + (Number(item.Name?.slice(3)) + 1)
+            }
+        })
         const res = await addLessonPackage(addLessonBag.value);
         if (res?.Id) {
             await getMyLessonBagNew({ id: props.course.lessonId })
@@ -102,8 +108,8 @@ const addPackage = async () => {
     }
 };
 // 选择备课包
-const selectPackage = (data: any, type?: number) => {
-    currentSelectPackageId.value = data!.Id;
+const selectPackage = (data?: any) => {
+    currentSelectPackageId.value = data ? data!.Id : lessonPackageList.value[0]?.Id;
     emitter.emit("updateResourceList", [currentSelectPackageId.value]);
 };
 // 去排课
@@ -113,7 +119,6 @@ const toArrangeClass = (data: any, type: number) => {
 // 1 从资源里列表过来备课包排课，非直接点击排课，要先新增一个课包;
 // 0 直接在我的备课包里点击排课，不用再新增备课包；
 const toLessonBagArrange = (data: any, type?: number) => {
-    console.log('data,,,type--', data, type);
     nextTick(() => {
         setTimeout(async () => {
             if (type) {
@@ -142,12 +147,14 @@ const toLessonBagArrange = (data: any, type?: number) => {
 // 备课包虚拟元素开始触发移动
 const openMouseDrag = () => {
     nextTick(() => {
+        if (isMobile.value) return;
         const dom: HTMLElement = document.querySelector('.package-item.isActive > .item-footer > .item-button') as HTMLElement;
         if (props.isMouseDrag) {
             if (props.isMouseDrag && dom) {
                 const event: MouseEvent = new MouseEvent('mousedown');
                 event.preventDefault();
                 dom.dispatchEvent(event);
+
             }
         }
     })
@@ -165,10 +172,18 @@ const onDeletePackage = async () => {
         selectPackage(lessonPackageList.value[0]);
         emitter.emit("updatePackageCount", null);
     }
-}
+};
+const isMobile = ref(false);
+const getMobile = () => {
+    isMobile.value = navigator.maxTouchPoints ? true : false;
+};
+onMounted(() => {
+    getMobile();
+});
 defineExpose({
     selectPackage,
-    toLessonBagArrange
+    toLessonBagArrange,
+    getMyLessonBagNew
 });
 
 </script>

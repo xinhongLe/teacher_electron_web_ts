@@ -112,16 +112,16 @@ export default defineComponent({
         },
         bookId: {
             type: String,
-            required: true
+            // required: true
         },
         name: {
             type: String,
             default: ""
         },
-        showClassArrangement: {
-            type: Boolean,
-            required: true
-        },
+        bagType: {
+            type: String,
+            default: ""
+        }
     },
     emits: ["updateResourceList", "toMyLessonPackage", "toArrangeClass", "deleteLessonPackage"],
     setup(props, { expose, emit }) {
@@ -420,7 +420,6 @@ export default defineComponent({
             }
         };
         const openResource = (data: IResourceItem) => {
-            console.log("data------", data);
             if (data.ResourceShowType === 1) {
                 store.commit(
                     MutationTypes.SET_FULLSCREEN_RESOURCE,
@@ -502,7 +501,7 @@ export default defineComponent({
         const schoolId = computed(() => store.state.userInfo.schoolId);
         const userId = computed(() => store.state.userInfo.userCenterUserID);
 
-        const { source, type, course, bookId } = toRefs(props);
+        const { source, type, course, bookId, bagType } = toRefs(props);
 
         watch([source, type, course, schoolId, bookId], () => {
             if (source.value === 'me') return;
@@ -510,23 +509,26 @@ export default defineComponent({
             getMyLessonBagNew({ id: course.value.lessonId });
             update("");
         }, { deep: true });
-
+        watch(() => bagType.value, () => {
+            pageNumber.value = 1;
+            getResources(currentSelectBagIds.value, true)
+        }, { deep: true });
         const update = (id: any) => {
             resourceList.value = [];
             pageNumber.value = 1;
             resourceId.value = source.value == 'me' ? "" : id;
-            currentSelectBagIds.value = id;
             getResources(id);
         };
-        const isLaoding = ref(false);
-        const getResources = async (id?: string[]) => {
-            if (course.value.chapterId && course.value.lessonId) {
-                isLaoding.value = true;
 
+        const isLaoding = ref(false);
+        const getResources = async (id?: string[], isBag: boolean = false) => {
+            currentSelectBagIds.value = id;
+            if ((course.value.chapterId && course.value.lessonId) || isBag) {
+                isLaoding.value = true;
                 // let params: any;
                 const params = source.value == 'me' ? {
                     ids: id,
-                    typeId: type.value,
+                    typeId: isBag ? type.value : "",
                     pager: {
                         pageNumber: pageNumber.value,
                         pageSize: pageSize.value
@@ -654,7 +656,7 @@ export default defineComponent({
         const deleteLessonPackage = (id: string) => {
             emit("deleteLessonPackage", id);
         };
-        expose({ update, openResource, eventEmit, addNewLessonPackage, toArrangeClass });
+        expose({ update, openResource, eventEmit, addNewLessonPackage, toArrangeClass, getResources });
 
         return {
             resourceList,
@@ -689,7 +691,8 @@ export default defineComponent({
             openWinCard,
             deleteLessonPackage,
             handleSelectLessonBag,
-            handleRemoveLessonBag
+            handleRemoveLessonBag,
+            getResources,
         };
     },
     components: {
