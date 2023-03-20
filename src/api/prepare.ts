@@ -367,6 +367,7 @@ export const AddLessonBag: RequestFun<IAddLessonBag, IAddLessonBagOutDto> = (dat
         url: "/Api/Prepare/Prepare/AddLessonBag",
         headers: {
             "Content-Type": "application/json-patch+json",
+            noLoading: "true",
             UserId: yunInfo.UserId,
         },
         method: "post",

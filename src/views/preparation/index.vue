@@ -142,7 +142,7 @@ export default defineComponent({
         // 更新课表信息
         const updateSchedules = () => {
             nextTick(() => {
-                ClassArrangementRef.value.updateSchedules();
+                ClassArrangementRef.value &&  ClassArrangementRef.value.updateSchedules();
             })
         }
         return {
@@ -203,8 +203,9 @@ export default defineComponent({
 
             .p-layout-lesson {
                 height: calc(100vh - 160px);
-                padding-left: 20px;
+                margin-left: 20px;
                 overflow-y: auto;
+                background-color: #fff;
             }
 
             .p-layout-right {

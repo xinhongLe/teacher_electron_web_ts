@@ -503,11 +503,22 @@ export default defineComponent({
 
         const { source, type, course, bookId, bagType } = toRefs(props);
 
-        watch([source, type, course, schoolId, bookId], () => {
+        watch([source, type, course, schoolId, bookId], async () => {
             if (source.value === 'me') return;
             if (!course.value.lessonId) return;
-            getMyLessonBagNew({ id: course.value.lessonId });
             update("");
+            await getMyLessonBagNew({ id: course.value.lessonId });
+            if (!lessonPackageList.value.length) {
+                addLessonBag.value.name = "备课包1";
+                addLessonBag.value.chapterId = props.course.chapterId;
+                addLessonBag.value.chapterName = props.course.chapterName;
+                addLessonBag.value.lessonId = props.course.lessonId;
+                addLessonBag.value.lessonName = props.course.lessonName;
+                const res = await addLessonPackage(addLessonBag.value);
+                if (res) {
+                    getMyLessonBagNew({ id: course.value.lessonId });
+                }
+            }
         }, { deep: true });
         watch(() => bagType.value, () => {
             pageNumber.value = 1;

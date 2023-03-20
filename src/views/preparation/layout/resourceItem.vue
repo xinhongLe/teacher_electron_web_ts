@@ -657,7 +657,7 @@ export default defineComponent({
 .lesson-package-popover {
     width: 122px !important;
     min-width: 122px !important;
-    height: 151px;
+    max-height: 151px;
     background: #FFFFFF !important;
     box-shadow: 0px 8px 24px 0px #00000029 !important;
     border-radius: 6px !important;
@@ -665,10 +665,10 @@ export default defineComponent({
 
     .lesson-package-select {
         position: relative;
-        height: 130px;
+        max-height: 130px;
 
         .package-content {
-            height: 103px;
+            max-height: 103px;
             overflow-y: auto;
             padding: 0 16px;
 
@@ -705,7 +705,7 @@ export default defineComponent({
     }
 
     .deadline {
-        width: 90px;
+        width: 100%;
         height: 1px;
         background: #F3F4F4;
         margin-bottom: 12px;
@@ -714,7 +714,7 @@ export default defineComponent({
 
     .package-add {
         position: absolute;
-        bottom: 0;
+        bottom: -20px;
         left: 0;
         display: flex;
         align-items: center;

@@ -40,16 +40,17 @@ export default () => {
         const res = await GetMyLessonBagNew(data);
         if (res.resultCode === 200) {
             state.lessonPackageList = res.result;
+            return true
         }
     };
     // 新增备课包
     const addLessonPackage = async (data: IAddLessonBag) => {
         const res = await AddLessonBag(data);
         if (res.resultCode === 200) {
-            ElMessage({
-                type: 'success',
-                message: '新增备课包成功',
-            })
+            // ElMessage({
+            //     type: 'success',
+            //     message: '新增备课包成功',
+            // })
             return res.result;
         }
     };
