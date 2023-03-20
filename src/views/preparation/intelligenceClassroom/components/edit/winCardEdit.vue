@@ -14,12 +14,14 @@
             @openLessonDesign="openLessonDesign"
             @applyBackgroundAllSlide="applyBackgroundAllSlide"
         />
+
         <!--选择弹卡-->
         <card-select-dialog
             v-if="dialogVisible"
             v-model:dialogVisible="dialogVisible"
             @selectCard="selectCard"
         />
+
         <!--选择跟读页视频-->
         <select-video-dialog
             v-if="dialogVisibleVideo"
@@ -179,8 +181,6 @@ export default defineComponent({
                 game: state.currentGame
             });
             emit("updatePageSlide", slide);
-            emit("onSave");
-            // gameFun(state.currentGame);
         };
 
         const selectVideo = () => {

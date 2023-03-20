@@ -1084,7 +1084,7 @@ export default defineComponent({
                                         width: 32px;
                                         height: 32px;
                                         display: block;
-                                        z-index: 9999;
+                                        z-index: 99;
                                     }
                                 }
 
@@ -1096,7 +1096,7 @@ export default defineComponent({
                                         width: 15px;
                                         height: 3px;
                                         display: block;
-                                        z-index: 9999;
+                                        z-index: 99;
                                     }
                                 }
                             }
@@ -1142,7 +1142,7 @@ export default defineComponent({
             top: 50%;
             margin-top: -32px;
             right: -6px;
-            z-index: 999;
+            z-index: 99;
             cursor: pointer;
             overflow: hidden;
             background: #414E65;

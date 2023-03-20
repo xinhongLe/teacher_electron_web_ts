@@ -55,10 +55,15 @@ export default (windowCards: Ref<CardProps[]>, allPages: Ref<PageProps[]>, pageM
         const parentId = (data as PageProps).ParentID || data?.ID;
         const id = uuidv4();
         const json = initSlideData(id, pageType.value);
+        const index = windowCards.value.findIndex(item => item.ID === parentId);
+        let name = pageType.name;
+        if (pageType.value === 11) {
+            name = "页" + (windowCards.value[index].PageList.length + 2);
+        }
         const page = {
             ID: id,
             TeachPageRelationID: "",
-            Name: pageType.name,
+            Name: name,
             Height: 0,
             Width: 0,
             Type: pageType.value,
@@ -71,7 +76,6 @@ export default (windowCards: Ref<CardProps[]>, allPages: Ref<PageProps[]>, pageM
             Url: "",
             ParentID: parentId
         };
-        const index = windowCards.value.findIndex(item => item.ID === parentId);
         let subIndex;
         if ("ParentID" in data) {
             subIndex = windowCards.value[index].PageList.findIndex(item => item.ID === data.ID);

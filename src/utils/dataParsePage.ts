@@ -66,8 +66,7 @@ export const dealOldDataWord = (pageID: string, data: any) => {
         viewportRatio: 0.5625,
         elements: []
     };
-    const content = "listenWords" in data ? data.listenWords : data;
-    slide.listenWords = getSlideWord(content);
+    slide.listenWords = "listenWords" in data ? data.listenWords : getSlideWord(data);
     slide.background = getSlideBackground();
     return slide;
 };
@@ -163,6 +162,9 @@ export const dealOldDataGame = (pageID: string, oldSlide: any) => {
         viewportRatio: 0.5625,
         elements: []
     };
+    if (oldSlide.game) {
+        slide.game = oldSlide.game;
+    }
     if (oldSlide && oldSlide.ToolFileModel) {
         slide.game = {
             id: oldSlide.ToolFileModel.ID,

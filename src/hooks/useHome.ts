@@ -63,7 +63,6 @@ export default () => {
         return slide;
     };
     const dealPageDetail = async (page: IPageValue, res: any) => {
-        debugger
         // 后台返回
         if (res.resultCode) {
             // 后台请求成功回调
