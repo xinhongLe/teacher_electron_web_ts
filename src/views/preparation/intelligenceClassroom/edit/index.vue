@@ -308,7 +308,7 @@ export default defineComponent({
                         Name: name[name.length - 1] + "-" + (index + 1),
                         Type: pageType.element,
                         State: 1,
-                        Json: {},
+                        Json: item,
                         TeachPageRelationID: "",
                         Height: 0,
                         Width: 0,

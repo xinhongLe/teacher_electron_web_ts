@@ -222,6 +222,16 @@ export default (windowCards: Ref<CardProps[]>, allPages: Ref<PageProps[]>, pageM
         }
 
         windowCards.value = list;
+
+        let allPageList: PageProps[] = [];
+
+        for (let i = 0; i < list.length; i++) {
+            const item = list[i];
+
+            allPageList = allPageList.concat(item.PageList);
+        }
+
+        allPages.value = allPageList;
     };
 
     // 当前page替换
