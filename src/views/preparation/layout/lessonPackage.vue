@@ -68,7 +68,7 @@ const props = defineProps({
         default: true,
     },
 });
-const emits = defineEmits(["toArrangeClass"]);
+const emits = defineEmits(["toArrangeClass","updateSchedules"]);
 const deleteVisible = ref(false);
 const deleteTargetId = ref("");
 
@@ -171,6 +171,7 @@ const onDeletePackage = async () => {
         await getMyLessonBagNew({ id: props.course.lessonId });
         selectPackage(lessonPackageList.value[0]);
         emitter.emit("updatePackageCount", null);
+        emits("updateSchedules")
     }
 };
 const isMobile = ref(false);

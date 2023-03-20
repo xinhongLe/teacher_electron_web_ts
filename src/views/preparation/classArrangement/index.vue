@@ -90,6 +90,9 @@ export default defineComponent({
 		const success = () => {
 			calendarRef.value && calendarRef.value.initSchedules();
 		};
+		const updateSchedules = () => {
+			calendarRef.value && calendarRef.value.updateClassSchedule();
+		};
 		const visible = ref(false);
 		const isSwitch = ref(true);
 		const resourcesRef = ref();
@@ -141,7 +144,7 @@ export default defineComponent({
 		const deleteLessonPackage = (id: string) => {
 			emit("deleteLessonPackage", id)
 		};
-		expose({success})
+		expose({success,updateSchedules})
 
 		return {
 			resourcesRef,
@@ -163,7 +166,8 @@ export default defineComponent({
 			type,
 			switchClass,
 			close,
-			deleteLessonPackage
+			deleteLessonPackage,
+			updateSchedules
 		};
 	},
 	components: { Calendar, ArrowRightBold, ArrowLeftBold, Resources }

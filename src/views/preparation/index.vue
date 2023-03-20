@@ -8,7 +8,7 @@
             <div class="content-p-layout">
                 <div class="p-layout-lesson" v-if="source == 'me'">
                     <LessonPackage ref="LessonPackageRef" :isMouseDrag="showClassArrangement ? true : false"
-                        @toArrangeClass="toArrangeClass" :course="course" />
+                        @toArrangeClass="toArrangeClass" :course="course" @updateSchedules="updateSchedules" />
                 </div>
                 <div class="p-layout-right" v-show="!showPackage && !showClassArrangement">
                     <Resources ref="resourcesRef" :course="course" :source="source" :type="type" :bookId="bookId"
@@ -138,6 +138,12 @@ export default defineComponent({
         const closeCalendar = () => {
             showPackage.value = false;
             showClassArrangement.value = false;
+        };
+        // 更新课表信息
+        const updateSchedules = () => {
+            nextTick(() => {
+                ClassArrangementRef.value.updateSchedules();
+            })
         }
         return {
             course,
@@ -159,7 +165,8 @@ export default defineComponent({
             updateBagList,
             deleteLessonPackage,
             toLessonBagArrange,
-            closeCalendar
+            closeCalendar,
+            updateSchedules
 
         };
     },

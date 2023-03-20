@@ -152,7 +152,7 @@ export default defineComponent({
         //     window.removeEventListener("resize", resize);
         // });
 
-        expose({ initSchedules, resize });
+        expose({ initSchedules, resize, updateClassSchedule });
 
         const scale = ref(1);
         const height = ref(0);
