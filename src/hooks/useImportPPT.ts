@@ -39,7 +39,7 @@ export default () => {
             buttonLabel: "确定",
             filters: [{
                 name: "ppt",
-                extensions: ["pptx"] // ["ppt", "pptx"]
+                extensions: ["ppt", "pptx"]
             }],
             properties: properties
         }).then(async (file: any) => {
