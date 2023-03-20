@@ -1,5 +1,6 @@
 import { pageType } from "@/config";
 import { Slide, SlideBackground } from "wincard";
+import { PageProps } from "@/views/preparation/intelligenceClassroom/api/props";
 
 // import { createRandomCode } from "@/utils/common";
 
@@ -58,20 +59,21 @@ export const initSlideData = (pageID: string, type: number) => {
 /**
  听写页处理
  */
-export const dealOldDataWord = (pageID: string, oldWords: IOldWord[]) => {
+export const dealOldDataWord = (pageID: string, data: any) => {
     const slide: Slide = {
         id: pageID,
         type: "listen",
         viewportRatio: 0.5625,
         elements: []
     };
-    slide.listenWords = getSlideWord(oldWords);
+    const content = "listenWords" in data ? data.listenWords : data;
+    slide.listenWords = getSlideWord(content);
     slide.background = getSlideBackground();
     return slide;
 };
 
 const getSlideWord = (words: IOldWord[]) => {
-    const arr = words.map((item: IOldWord) => {
+    return words.map((item: IOldWord) => {
         return {
             id: item.WordID,
             name: item.Name,
@@ -80,7 +82,6 @@ const getSlideWord = (words: IOldWord[]) => {
             file: item.File.FilePath + "/" + item.File.FileName + "." + item.File.Extention
         };
     });
-    return arr;
 };
 
 const getSlideBackground = () => {

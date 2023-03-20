@@ -72,8 +72,12 @@ export default (windowCards: Ref<CardProps[]>, allPages: Ref<PageProps[]>, pageM
             ParentID: parentId
         };
         const index = windowCards.value.findIndex(item => item.ID === parentId);
+        let subIndex;
+        if ("ParentID" in data) {
+            subIndex = windowCards.value[index].PageList.findIndex(item => item.ID === data.ID);
+        }
 
-        insertWindowsCards(page, index);
+        insertWindowsCards(page, index, subIndex);
         currentPage.value = page;
         sortWindowCards();
     };
