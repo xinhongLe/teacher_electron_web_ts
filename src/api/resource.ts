@@ -257,6 +257,8 @@ export interface ICourseCartOption {
     ResourceTypeName: string;
     ResourceName: string;
     Lessons: ILesson[];
+    BagCatalogue:string;
+    BagName:string
 }
 
 interface ICourseCartOptionsResponse {

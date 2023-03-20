@@ -89,10 +89,10 @@ export default (days: Ref<string[]>) => {
         // classTimeArr = res.result.tableTimeList;
 
         const classArrangementRes = await GetCurrentUserSchedulingInfo({
-            // startTime: days.value[0],
-            // endTime: days.value[6],
-            startTime: '2023-09-04',
-            endTime: '2023-09-10',
+            startTime: days.value[0],
+            endTime: days.value[6],
+            // startTime: '2023-09-04',
+            // endTime: '2023-09-10',
             schoolId: schoolID,
             termCode: termCode.value
         });
