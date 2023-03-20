@@ -87,7 +87,7 @@
                             </div>
                         </div>
                         <div class="delete-icon-warp"
-                            v-if="colData.PackageList && colData.PackageList[0]?.LessonName && isShowDelete"
+                            v-if="colData.PackageList && colData.PackageList[0]?.LessonName && isShowDelete" 
                             @click.stop.prevent="deleteCourse(colData)" @touchstart.stop.prevent="deleteCourse(colData)">
                             <span class="line"></span>
                         </div>
