@@ -24,7 +24,6 @@
     },
     "dependencies": {
         "@element-plus/icons-vue": "^0.2.7",
-        "@ffmpeg-installer/ffmpeg": "^1.1.0",
         "@microsoft/signalr": "^6.0.1",
         "@types/resize-observer-browser": "^0.1.7",
         "@vueuse/core": "^7.6.2",
