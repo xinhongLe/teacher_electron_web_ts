@@ -107,10 +107,10 @@
                 </span>
             </div>
             <div>
-                <el-button class="p-control-btn" @click.stop="handleShare(data)" v-if="!data.File">
-                    <img src="@/assets/images/preparation/icon_download_white.png" alt=""/>
-                    分享
-                </el-button>
+<!--                <el-button class="p-control-btn" @click.stop="handleShare(data)" v-if="!data.File">-->
+<!--                    <img src="@/assets/images/preparation/icon_download_white.png" alt=""/>-->
+<!--                    分享-->
+<!--                </el-button>-->
                 <el-button class="p-control-btn" @click.stop="handleCommand('download')" v-if="canDownload && RESOURCE_TYPE.TOOL !== data.ResourceType ">
                     <img src="@/assets/images/preparation/icon_download_white.png" alt=""/>
                     下载
