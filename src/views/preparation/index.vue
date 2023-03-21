@@ -1,5 +1,5 @@
 <template>
-    <div class="preparation" @mousedown="clickOutSide($event)">
+    <div class="preparation" @mousedown="clickOutSide($event)" v-click-outside="clickOutSide">
         <LeftMenu v-model:course="course" v-model:bookId="bookId" />
         <div class="content-wrapper">
 
@@ -98,7 +98,7 @@ export default defineComponent({
         }, { deep: true })
         // 去排课
         const toArrangeClass = async (data: any, type: number) => {
-            // HeadRef.value && HeadRef.value.toMyLessonPackage();
+            HeadRef.value && HeadRef.value.toMyLessonPackage();
             source.value = 'me';
             showPackage.value = true;
             showClassArrangement.value = true;
@@ -131,6 +131,7 @@ export default defineComponent({
         // 去备课包排课
         const toLessonBagArrange = (data: any, type: number) => {
             nextTick(() => {
+                console.log('showClassArrangement',showClassArrangement.value);
                 LessonPackageRef.value.toLessonBagArrange(data, type)
             })
         };

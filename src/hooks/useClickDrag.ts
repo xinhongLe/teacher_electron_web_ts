@@ -78,7 +78,7 @@ export default () => {
         dragDom!.style.left = event.clientX + "px";
         dragDom!.style.top = event.clientY + "px";
     }
-    const onDragEnd = (event: MouseEvent | TouchEvent) => {
+    const onDragEnd = (event?: MouseEvent | TouchEvent) => {
         dragDom && document.body.removeChild(dragDom!);
         store.commit(MutationTypes.SET_IS_DRAGGING, false);
         store.commit(MutationTypes.SET_IS_DRAGGING_ELEMENT, false);
@@ -86,7 +86,7 @@ export default () => {
         // store.commit(MutationTypes.CURRENT_PACKAGE_DATA, null);
     };
 
-    const clickOutSide = (event: MouseEvent, dom?: any) => {
+    const clickOutSide = (event?: MouseEvent, dom?: any) => {
         dragDom = dragDom || dom || document.querySelector('.dragging-click-dom-ele');
         if (dragDom) {
             onDragEnd(event)
