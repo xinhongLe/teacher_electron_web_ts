@@ -234,10 +234,11 @@ export default defineComponent({
         );
 
         const directoryName = computed(() => {
+            console.log('props.data', props.data.TextBooks);
             if (!props.data.TextBooks) return "--";
-            const book = props.data.TextBooks.find((item) => {
+            const book = props.lessonId ? props.data.TextBooks.find((item) => {
                 return props.lessonId === item.LessonID || !item.LessonID;
-            });
+            }) : props.data.TextBooks[0];
             return book
                 ? book.SubjectName +
                 " / " +
