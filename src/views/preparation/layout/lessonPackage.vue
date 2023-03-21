@@ -177,9 +177,9 @@ const onDeletePackage = async () => {
     const res = await deleteLessonPackage(deleteTargetId.value);
     if (res) {
         await getMyLessonBagNew({ id: props.course.lessonId });
-        lessonPackageList.value[0] && selectPackage(lessonPackageList.value[0]);
+        selectPackage(lessonPackageList.value[0]);
         emitter.emit("updatePackageCount", null);
-        emits("updateSchedules")
+        emits("updateSchedules");
     }
 };
 const isMobile = ref(false);

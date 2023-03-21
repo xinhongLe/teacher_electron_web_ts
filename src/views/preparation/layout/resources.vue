@@ -533,7 +533,6 @@ export default defineComponent({
 
         const isLaoding = ref(false);
         const getResources = async (id?: string[], isBag: boolean = false) => {
-            resourceList.value = [];
             currentSelectBagIds.value = id;
             if ((course.value.chapterId && course.value.lessonId) || isBag) {
                 isLaoding.value = true;
