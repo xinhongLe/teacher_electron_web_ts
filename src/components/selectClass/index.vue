@@ -11,7 +11,7 @@
                     <el-checkbox :label="item.Id" v-for="item in classList">{{ item.Name }}</el-checkbox>
                 </el-checkbox-group> -->
                 <el-radio-group v-model="checkedClass">
-                    <el-radio :label="item.Id" v-for="item in classList" size="large" border>{{ item.Name }}</el-radio>
+                    <el-radio style="margin-bottom: 10px;" :label="item.Id" v-for="item in classList" size="large" border>{{ item.Name }}</el-radio>
                 </el-radio-group>
             </div>
             <div class="no-class" v-else>

@@ -8,7 +8,8 @@
             <div class="content-p-layout">
                 <div class="p-layout-lesson" v-if="source == 'me'">
                     <LessonPackage ref="LessonPackageRef" :isMouseDrag="showClassArrangement ? true : false"
-                        @toArrangeClass="toArrangeClass" :course="course" @updateSchedules="updateSchedules" @closeCalendar="closeCalendar"/>
+                        @toArrangeClass="toArrangeClass" :course="course" @updateSchedules="updateSchedules"
+                        @closeCalendar="closeCalendar" />
                 </div>
                 <div class="p-layout-right" v-show="!showPackage && !showClassArrangement">
                     <Resources ref="resourcesRef" :course="course" :source="source" :type="type" :bookId="bookId"
@@ -99,10 +100,8 @@ export default defineComponent({
         // 去排课
         const toArrangeClass = async (data: any, type: number) => {
             HeadRef.value && HeadRef.value.toMyLessonPackage();
-            source.value = 'me';
             showPackage.value = true;
             showClassArrangement.value = true;
-            // const res = await addLessonPackage(addLessonBag.value);
             toLessonBagArrange(data, type)
         };
         const resourcesRef = ref();
@@ -131,7 +130,7 @@ export default defineComponent({
         // 去备课包排课
         const toLessonBagArrange = (data: any, type: number) => {
             nextTick(() => {
-                console.log('showClassArrangement',showClassArrangement.value);
+                console.log('showClassArrangement', showClassArrangement.value);
                 LessonPackageRef.value.toLessonBagArrange(data, type)
             })
         };
@@ -143,7 +142,7 @@ export default defineComponent({
         // 更新课表信息
         const updateSchedules = () => {
             nextTick(() => {
-                ClassArrangementRef.value &&  ClassArrangementRef.value.updateSchedules();
+                ClassArrangementRef.value && ClassArrangementRef.value.updateSchedules();
             })
         }
         return {

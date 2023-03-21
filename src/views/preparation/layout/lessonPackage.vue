@@ -95,21 +95,21 @@ watch(() => props.course, async (val: ICourse) => {
 
 // 新增备课包
 const addPackage = async () => {
-    console.log('addPackage',addPackage);
-    
+    console.log('addPackage', addPackage);
+
     // if (lessonPackageList.value.length) {
-        addLessonBag.value.name = "备课包" + (lessonPackageList.value.length + 1);
-        lessonPackageList.value.forEach(item => {
-            if (item.Name === addLessonBag.value.name) {
-                addLessonBag.value.name = "备课包" + (Number(item.Name?.slice(3)) + 1)
-            }
-        })
-        const res = await addLessonPackage(addLessonBag.value);
-        if (res?.Id) {
-            await getMyLessonBagNew({ id: props.course.lessonId })
-            // emitter.emit("updatePackageCount", null);
-            return res.Id
+    addLessonBag.value.name = "备课包" + (lessonPackageList.value.length + 1);
+    lessonPackageList.value.forEach(item => {
+        if (item.Name === addLessonBag.value.name) {
+            addLessonBag.value.name = "备课包" + (Number(item.Name?.slice(3)) + 1)
         }
+    })
+    const res = await addLessonPackage(addLessonBag.value);
+    if (res?.Id) {
+        await getMyLessonBagNew({ id: props.course.lessonId })
+        // emitter.emit("updatePackageCount", null);
+        return res.Id
+    }
     // }
 };
 // 选择备课包
@@ -130,20 +130,22 @@ const toLessonBagArrange = (data: any, type?: number) => {
             if (type) {
                 const bagId = await addPackage();
                 if (bagId) {
-                    currentSelectPackageId.value = bagId;
                     const params = {
                         resourceId: data.ResourceId,
                         lessonBagId: bagId
                     }
                     const res = await addResourceLessonBag(params);
                     if (res) {
-                        openMouseDrag();
+                        currentSelectPackageId.value = bagId;
+                        // openMouseDrag();
                         emitter.emit("updatePackageCount", null);
-                        emitter.emit("updateResourceList", [currentSelectPackageId.value]);
+                        emits("toArrangeClass", data, 0);
+                        // emitter.emit("updateResourceList", [currentSelectPackageId.value]);
                     }
                 }
             } else {
-                const bagId = data.Id;
+                console.log('datadatadata', data);
+                const bagId = data.Id || currentSelectPackageId.value;
                 currentSelectPackageId.value = bagId;
                 openMouseDrag();
             }
@@ -304,6 +306,7 @@ defineExpose({
         color: #4B71EE;
         margin: auto;
         margin-top: 20px;
+        margin-bottom: 20px;
 
         span {
             padding-left: 8px;

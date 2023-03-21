@@ -201,7 +201,7 @@
                         </div>
                     </div>
                 </el-popover>
-                <template v-if="lessonPackageList.length && lessonPackageList.length === 1">
+                <template v-if="lessonPackageList.length && lessonPackageList.length === 1 && source !== 'me'">
                     <el-button class="p-control-btn p-isbag" v-if="data.IsBag" @click.stop="null">
                         已加入备课包
                     </el-button>
