@@ -152,7 +152,9 @@ const toLessonBagArrange = (data: any, type?: number) => {
 const openMouseDrag = () => {
     nextTick(() => {
         if (isMobile.value) return;
-        const dom: HTMLElement = document.querySelector('.package-item.isActive > .item-footer > .item-button') as HTMLElement;
+        const dom: HTMLElement = document.querySelector('.lesson-package-item.isActive > .package-item > .item-footer > .item-button') as HTMLElement;
+        console.log('dom',props.isMouseDrag,dom);
+        
         if (props.isMouseDrag) {
             if (props.isMouseDrag && dom) {
                 const event: MouseEvent = new MouseEvent('mousedown');
