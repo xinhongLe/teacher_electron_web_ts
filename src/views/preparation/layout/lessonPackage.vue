@@ -71,7 +71,7 @@ const props = defineProps({
         default: true,
     },
 });
-const emits = defineEmits(["toArrangeClass", "updateSchedules"]);
+const emits = defineEmits(["toArrangeClass", "updateSchedules", "closeCalendar"]);
 const deleteVisible = ref(false);
 const deleteTargetId = ref("");
 
@@ -114,6 +114,7 @@ const addPackage = async () => {
 const selectPackage = (data?: any) => {
     currentSelectPackageId.value = data ? data!.Id : lessonPackageList.value[0]?.Id;
     emitter.emit("updateResourceList", [currentSelectPackageId.value]);
+    emits("closeCalendar");
 };
 // 去排课
 const toArrangeClass = (data: any, type: number) => {
@@ -299,6 +300,7 @@ defineExpose({
         color: #4B71EE;
         margin: auto;
         margin-top: 20px;
+
         span {
             padding-left: 8px;
         }

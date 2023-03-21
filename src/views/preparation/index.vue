@@ -8,7 +8,7 @@
             <div class="content-p-layout">
                 <div class="p-layout-lesson" v-if="source == 'me'">
                     <LessonPackage ref="LessonPackageRef" :isMouseDrag="showClassArrangement ? true : false"
-                        @toArrangeClass="toArrangeClass" :course="course" @updateSchedules="updateSchedules" />
+                        @toArrangeClass="toArrangeClass" :course="course" @updateSchedules="updateSchedules" @closeCalendar="closeCalendar"/>
                 </div>
                 <div class="p-layout-right" v-show="!showPackage && !showClassArrangement">
                     <Resources ref="resourcesRef" :course="course" :source="source" :type="type" :bookId="bookId"
