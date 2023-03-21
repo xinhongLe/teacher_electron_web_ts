@@ -1,56 +1,25 @@
 <template>
-    <div
-        class="tree-box"
-        :class="{
-            'no-before': zIndex === 0,
-            'no-icon': !(
-                (itemData.Children && itemData.Children.length > 0) ||
-                zIndex === 0
-            ),
-        }"
-    >
+    <div class="tree-box" :class="{
+        'no-before': zIndex === 0,
+        'no-icon': !(
+            (itemData.Children && itemData.Children.length > 0) ||
+            zIndex === 0
+        ),
+    }">
         <div class="tree-item">
-            <img
-                class="tree-icon"
-                v-show="isOpen && value !== itemData.Id"
-                :class="{
-                    visible: true,
-                }"
-                src="@/assets/images/preparation/icon_shouqi.png"
-                alt
-                @click="isOpen = false"
-            />
-            <img
-                class="tree-icon"
-                v-show="isOpen && value === itemData.Id"
-                :class="{
-                    visible: true,
-                }"
-                src="@/assets/images/preparation/shouqi_blue.png"
-                alt
-                @click="isOpen = false"
-            />
-            <img
-                class="tree-icon"
-                v-show="!isOpen && value !== itemData.Id"
-                :class="{
-                    visible: true,
-                }"
-                src="@/assets/images/preparation/icon_zhankai.png"
-                alt
-                @click="isOpen = true"
-            />
-            <img
-                class="tree-icon"
-                v-show="!isOpen && value === itemData.Id"
-                :class="{
-                    visible: true,
-                }"
-                src="@/assets/images/preparation/icon_zhankai_blue.png"
-                alt
-                @click="isOpen = true"
-            />
-            <div
+            <img class="tree-icon" v-show="isOpen && value !== itemData.Id" :class="{
+                visible: true,
+            }" src="@/assets/images/preparation/icon_shouqi.png" alt @click="isOpen = false" />
+            <img class="tree-icon" v-show="isOpen && value === itemData.Id" :class="{
+                visible: true,
+            }" src="@/assets/images/preparation/shouqi_blue.png" alt @click="isOpen = false" />
+            <img class="tree-icon" v-show="!isOpen && value !== itemData.Id" :class="{
+                visible: true,
+            }" src="@/assets/images/preparation/icon_zhankai.png" alt @click="isOpen = true" />
+            <img class="tree-icon" v-show="!isOpen && value === itemData.Id" :class="{
+                visible: true,
+            }" src="@/assets/images/preparation/icon_zhankai_blue.png" alt @click="isOpen = true" />
+            <!-- <div
                 class="tip-popover"
                 v-if="
                     tipTarget === itemData.Id &&
@@ -63,18 +32,13 @@
                 <el-button type="primary" size="small" @click="know()"
                     >知道了</el-button
                 >
-            </div>
-            <div
-                ref="treeName"
-                class="tree-name"
-                @click="
-                    zIndex === 0
-                        ? (isOpen = !isOpen)
-                        : selectedTreeItem(itemData, keys)
-                "
-                :class="{ active: value === itemData.Id }"
-                :title="itemData.Name"
-                :draggable="!!candrag && showClassArrangement"
+            </div> -->
+            <div ref="treeName" class="tree-name" @click="
+                zIndex === 0
+                    ? (isOpen = !isOpen)
+                    : selectedTreeItem(itemData, keys)
+            " :class="{ active: value === itemData.Id }" :title="itemData.Name">
+                <!-- :draggable="!!candrag && showClassArrangement"
                 @dragstart="
                     onDragStart($event, {
                         ID: itemData.Id,
@@ -82,29 +46,16 @@
                     })
                 "
                 @dragend="onDragEnd($event)"
-                @drag="onDrag($event)"
-            >
+                @drag="onDrag($event)" -->
                 {{ itemData.Name }}
             </div>
-            <div
-                class="selected-bg"
-                :class="{ active: value === itemData.Id }"
-                :style="{ width: `calc(100% + ${zIndex * 20}px)` }"
-            ></div>
+            <div class="selected-bg" :class="{ active: value === itemData.Id }"
+                :style="{ width: `calc(100% + ${zIndex * 20}px)` }"></div>
         </div>
         <div class="tree-item-children" :class="{ close: !isOpen }">
-            <TreeItem
-                :zIndex="zIndex + 1"
-                v-for="item in itemData.Children"
-                :key="item.Id"
-                :itemData="item"
-                :value="value"
-                :candrag="true"
-                :selectedTreeItem="selectedTreeItem"
-                :keys="[...keys, item.Id]"
-                :showClassArrangement="showClassArrangement"
-                :tipTarget="tipTarget"
-            />
+            <TreeItem :zIndex="zIndex + 1" v-for="item in itemData.Children" :key="item.Id" :itemData="item" :value="value"
+                :candrag="true" :selectedTreeItem="selectedTreeItem" :keys="[...keys, item.Id]"
+                :showClassArrangement="showClassArrangement" :tipTarget="tipTarget" />
         </div>
     </div>
 </template>
@@ -205,6 +156,7 @@ export default defineComponent({
 <style lang="scss" scoped>
 .tree-box {
     position: relative;
+
     &:after {
         content: "";
         display: block;
@@ -214,6 +166,7 @@ export default defineComponent({
         bottom: 0;
         border-left: 1px dashed #d9d9d9;
     }
+
     &:before {
         content: "";
         display: block;
@@ -225,32 +178,39 @@ export default defineComponent({
         width: 10px;
         height: 10px;
     }
+
     &.no-before {
+
         &:before,
         &:after {
             display: none;
         }
     }
+
     &.no-icon {
         &:before {
             width: 20px;
         }
-        > .tree-item {
+
+        >.tree-item {
             .tree-icon {
                 display: none;
             }
-            > .tree-name {
+
+            >.tree-name {
                 padding-left: 15px;
             }
         }
     }
 }
+
 .tree-item {
     display: flex;
     align-items: center;
     height: 32px;
     position: relative;
     padding-left: 10px;
+
     .tree-name {
         color: var(--app-color-text-default);
         font-size: 14px;
@@ -263,10 +223,12 @@ export default defineComponent({
         white-space: nowrap;
         word-break: break-all;
         cursor: pointer;
+
         &.active {
             color: var(--app-color-primary);
         }
     }
+
     .tree-icon {
         display: block;
         margin-right: 8px;
@@ -277,10 +239,12 @@ export default defineComponent({
         -webkit-user-drag: none;
         z-index: 1;
         top: -1px;
+
         &.visible {
             visibility: visible;
         }
     }
+
     .selected-bg {
         position: absolute;
         background-color: var(--app-color-primary);
@@ -289,6 +253,7 @@ export default defineComponent({
         width: 100%;
         z-index: -1;
         right: 0;
+
         &.active {
             height: 100%;
         }
@@ -311,6 +276,7 @@ export default defineComponent({
 .tree-item-children {
     padding-left: 20px;
     display: block;
+
     //   position: relative;
     // transition: all 1s linear;
     // max-height: 1000px;
@@ -330,6 +296,7 @@ export default defineComponent({
     align-items: center;
     z-index: 1;
     left: 20px;
+
     .tip-title {
         font-weight: 600;
         white-space: nowrap;
@@ -338,6 +305,7 @@ export default defineComponent({
         align-items: center;
         font-size: 12px;
     }
+
     &:after {
         border: 1px solid var(--el-border-color-light);
         background: var(--el-color-white);

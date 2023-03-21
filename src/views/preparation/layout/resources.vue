@@ -1,5 +1,5 @@
 <template>
-    <div class="p-layout-list" ref="resourceScroll" v-infinite-scroll="load" :infinite-scroll-disabled="disabledScrollLoad">
+    <div class="p-layout">
         <div class="tip" v-if="isLaoding && resourceList.length === 0">
             <img src="@/assets/images/preparation/pic_loading.png" alt="" />
             资源正在加载，请稍候…
@@ -8,32 +8,43 @@
             <img src="@/assets/images/preparation/pic_finish_buzhi.png" alt="" />
             没有相关资源
         </div>
-        <ResourceItem :class="[
-            `resource-${item.ResourceId}`,
-            item.ResourceId === resourceId ? 'doing' : 'custom',
-        ]" v-for="(item, index) in resourceList" :key="index" :data="item" :name="name" :lessonId="course.lessonId"
-            @eventEmit="eventEmit" />
+        <!-- <div class="p-layout-lesson" v-if="source == 'me'">
+            <LessonPackage :isMouseDrag="false" :lessonPackageList="lessonPackageList" @addLessonPackage="addLessonPackage"
+                @deleteLessonPackage="deleteLessonPackage" @toMyLessonPackage="toArrangeClass" />
+        </div> -->
+        <div class="p-layout-list" ref="resourceScroll" v-infinite-scroll="load"
+            :style="{ height: source == 'me' ? 'calc(100vh - 160px)' : 'calc(100vh - 240px)' }"
+            :infinite-scroll-disabled="disabledScrollLoad">
+            <ResourceItem :class="[
+                `resource-${item.ResourceId}`,
+                item.ResourceId === resourceId ? 'doing' : 'custom',
+            ]" v-for="(item, index) in resourceList" :key="index" :data="item" :name="name" :lessonId="course.lessonId"
+                :source="source" @eventEmit="eventEmit" @addLessonPackage="addNewLessonPackage"
+                @toArrangeClass="toArrangeClass" :lessonPackageList="lessonPackageList"
+                @handleSelectLessonBag="handleSelectLessonBag" @handleRemoveLessonBag="handleRemoveLessonBag" />
 
-        <DeleteTip :target="targetDelete" v-model:visible="deleteTipVisible" @onDeleteSuccess="onDeleteSuccess" />
+            <DeleteTip :target="targetDelete" v-model:visible="deleteTipVisible" @onDeleteSuccess="onDeleteSuccess" />
 
-        <EditTip @update="update" :resource="resource" v-model:visible="editTipVisible" />
+            <EditTip @update="update" :resource="resource" v-model:visible="editTipVisible" />
 
-        <ResourceVersion :target="target" v-model:visible="resourceVersionVisible" />
+            <ResourceVersion :target="target" v-model:visible="resourceVersionVisible" />
 
-        <DeleteVideoTip :target="target" :resource="resource" v-model:visible="deleteVideoTipVisible" />
+            <DeleteVideoTip :target="target" :resource="resource" v-model:visible="deleteVideoTipVisible" />
 
-        <ResourceView :name="name" :target="target" :resource="resource" :lessonId="course.lessonId"
-            v-model:visible="resourceVisible" :data="resourceData" @closeDetail="closeDetail" @eventEmit="eventEmit" />
+            <ResourceView :name="name" :target="target" :resource="resource" :lessonId="course.lessonId"
+                v-model:visible="resourceVisible" :data="resourceData" @closeDetail="closeDetail" @eventEmit="eventEmit" />
 
-        <div class="download-progress-dialog">
-            <el-dialog class="custom-dialog" title="下载" center align-center destroy-on-close width="300px"
-                :show-close="true" :before-close="cancelDownload" :close-on-click-modal="false" v-model="showDownload">
-                <div class="download-progress-bar">
-                    <div class="download-progress-line" :style="{ width: downloadProgress + '%' }"></div>
-                </div>
-                <div class="download-progress-tip">打包下载中，请稍等...</div>
-            </el-dialog>
+            <div class="download-progress-dialog">
+                <el-dialog class="custom-dialog" title="下载" center align-center destroy-on-close width="300px"
+                    :show-close="true" :before-close="cancelDownload" :close-on-click-modal="false" v-model="showDownload">
+                    <div class="download-progress-bar">
+                        <div class="download-progress-line" :style="{ width: downloadProgress + '%' }"></div>
+                    </div>
+                    <div class="download-progress-tip">打包下载中，请稍等...</div>
+                </el-dialog>
+            </div>
         </div>
+
     </div>
 </template>
 
@@ -51,6 +62,7 @@ import {
     watch
 } from "vue";
 import ResourceItem from "./resourceItem.vue";
+import LessonPackage from "./lessonPackage.vue";
 import DeleteTip from "./dialog/deleteTip.vue";
 import EditTip from "./dialog/editTip.vue";
 import ResourceVersion from "./dialog/resourceVersion.vue";
@@ -75,6 +87,8 @@ import { ElMessage } from "element-plus";
 import LocalCache from "@/utils/localcache";
 import isElectron from "is-electron";
 import { get, set, STORAGE_TYPES } from "@/utils/storage";
+import { IGetLessonBagOutDto } from "@/api/prepare";
+import useLessonPackage from "@/hooks/useLessonPackage";
 interface ICourse {
     chapterId: string;
     lessonId: string;
@@ -82,14 +96,7 @@ interface ICourse {
     chapterName: string;
 }
 export default defineComponent({
-    components: {
-        ResourceItem,
-        DeleteTip,
-        EditTip,
-        ResourceVersion,
-        DeleteVideoTip,
-        ResourceView
-    },
+
     props: {
         course: {
             type: Object as PropType<ICourse>,
@@ -105,17 +112,21 @@ export default defineComponent({
         },
         bookId: {
             type: String,
-            required: true
+            // required: true
         },
         name: {
             type: String,
             default: ""
+        },
+        bagType: {
+            type: String,
+            default: ""
         }
     },
-    emits: ["updateResourceList"],
+    emits: ["updateResourceList", "toMyLessonPackage", "toArrangeClass", "deleteLessonPackage"],
     setup(props, { expose, emit }) {
+        const { lessonPackageList, getMyLessonBagNew, addResourceLessonBag, delResourceLessonBag, addLessonPackage, addLessonBag } = useLessonPackage();
         const resourceList = ref<IResourceItem[]>([]);
-
         const deleteTipVisible = ref(false);
         const editTipVisible = ref(false);
         const resourceVersionVisible = ref(false);
@@ -132,6 +143,7 @@ export default defineComponent({
         const resourceData = ref<null | IViewResourceData>(null);
         const showDownload = ref(false);
         const downloadProgress = ref(0);
+        const currentSelectBagIds = ref<string[]>();//当前选择备课包id集合
 
         // 加入备课包
         const addPackage = async (data: IResourceItem) => {
@@ -296,74 +308,74 @@ export default defineComponent({
                     break;
                 case "detail":
                     // if (props.name === "attendClass") {
-                        if (data.ResourceShowType === 2) {
-                            // 断点视频
-                            store.commit(
-                                MutationTypes.SET_FULLSCREEN_RESOURCE,
-                                {
-                                    component: "LookVideo",
-                                    resource: {
-                                        id: data.OldResourceId,
-                                        openMore: true,
-                                    },
-                                }
-                            );
-                        } else if (data.ResourceShowType === 3) {
-                            // 练习卷
-                            store.commit(
-                                MutationTypes.SET_FULLSCREEN_RESOURCE,
-                                {
-                                    component: "LookQuestion",
-                                    resource: {
-                                        id: data.OldResourceId,
-                                        courseBagId: "",
-                                        deleteQuestionIds: [],
-                                        type: 1,
-                                        openMore: true,
-                                    },
-                                }
-                            );
-                        } else if (data.ResourceShowType === 1) {
-                            store.commit(
-                                MutationTypes.SET_FULLSCREEN_RESOURCE,
-                                {
-                                    component: "Wincard",
-                                    resource: {
-                                        id: data.OldResourceId,
-                                        isSystem: data.IsSysFile === 1,
-                                        openMore: true,
-                                    },
-                                }
-                            );
-                        } else if (
-                            data.ResourceShowType === 0 ||
-                            data.ResourceShowType === 4
-                        ) {
-                            store.commit(
-                                MutationTypes.SET_FULLSCREEN_RESOURCE,
-                                {
-                                    component: "ScreenViewFile",
-                                    resource: {
-                                        ...data,
-                                        id: data.OldResourceId,
-                                        openMore: true,
-                                    },
-                                }
-                            );
-                        } else if (data.ResourceShowType === 5) {
-                            store.commit(
-                                MutationTypes.SET_FULLSCREEN_RESOURCE,
-                                {
-                                    component: "AnswerMachine",
-                                    resource: {
-                                        ...data,
-                                        lessonId: course.value.lessonId,
-                                        id: new Date().getTime(),
-                                        openMore: true,
-                                    },
-                                }
-                            );
-                        }
+                    if (data.ResourceShowType === 2) {
+                        // 断点视频
+                        store.commit(
+                            MutationTypes.SET_FULLSCREEN_RESOURCE,
+                            {
+                                component: "LookVideo",
+                                resource: {
+                                    id: data.OldResourceId,
+                                    openMore: true,
+                                },
+                            }
+                        );
+                    } else if (data.ResourceShowType === 3) {
+                        // 练习卷
+                        store.commit(
+                            MutationTypes.SET_FULLSCREEN_RESOURCE,
+                            {
+                                component: "LookQuestion",
+                                resource: {
+                                    id: data.OldResourceId,
+                                    courseBagId: "",
+                                    deleteQuestionIds: [],
+                                    type: 1,
+                                    openMore: true,
+                                },
+                            }
+                        );
+                    } else if (data.ResourceShowType === 1) {
+                        store.commit(
+                            MutationTypes.SET_FULLSCREEN_RESOURCE,
+                            {
+                                component: "Wincard",
+                                resource: {
+                                    id: data.OldResourceId,
+                                    isSystem: data.IsSysFile === 1,
+                                    openMore: true,
+                                },
+                            }
+                        );
+                    } else if (
+                        data.ResourceShowType === 0 ||
+                        data.ResourceShowType === 4
+                    ) {
+                        store.commit(
+                            MutationTypes.SET_FULLSCREEN_RESOURCE,
+                            {
+                                component: "ScreenViewFile",
+                                resource: {
+                                    ...data,
+                                    id: data.OldResourceId,
+                                    openMore: true,
+                                },
+                            }
+                        );
+                    } else if (data.ResourceShowType === 5) {
+                        store.commit(
+                            MutationTypes.SET_FULLSCREEN_RESOURCE,
+                            {
+                                component: "AnswerMachine",
+                                resource: {
+                                    ...data,
+                                    lessonId: course.value.lessonId,
+                                    id: new Date().getTime(),
+                                    openMore: true,
+                                },
+                            }
+                        );
+                    }
                     // } else {
                     //     openResource(data);
                     // }
@@ -398,7 +410,6 @@ export default defineComponent({
             }
         };
         const openResource = (data: IResourceItem) => {
-            console.log("data------", data);
             if (data.ResourceShowType === 1) {
                 store.commit(
                     MutationTypes.SET_FULLSCREEN_RESOURCE,
@@ -465,7 +476,7 @@ export default defineComponent({
                 leftEnd.value = left + 20;
                 topEnd.value = top - 40;
             }
-            emitter.on("updateResourceList", (id: string) => {
+            emitter.on("updateResourceList", (id: any) => {
                 update(id);
             });
         });
@@ -480,23 +491,51 @@ export default defineComponent({
         const schoolId = computed(() => store.state.userInfo.schoolId);
         const userId = computed(() => store.state.userInfo.userCenterUserID);
 
-        const { source, type, course, bookId } = toRefs(props);
-        watch([source, type, course, schoolId, bookId], () => {
-            update("");
-        });
+        const { source, type, course, bookId, bagType } = toRefs(props);
 
-        const update = (id: string) => {
+        watch([source, type, course, schoolId, bookId], async () => {
+            if (source.value === 'me') return;
+            if (!course.value.lessonId) return;
+            update("");
+            await getMyLessonBagNew({ id: course.value.lessonId });
+            if (!lessonPackageList.value.length) {
+                addLessonBag.value.name = "备课包1";
+                addLessonBag.value.chapterId = props.course.chapterId;
+                addLessonBag.value.chapterName = props.course.chapterName;
+                addLessonBag.value.lessonId = props.course.lessonId;
+                addLessonBag.value.lessonName = props.course.lessonName;
+                const res = await addLessonPackage(addLessonBag.value);
+                if (res) {
+                    getMyLessonBagNew({ id: course.value.lessonId });
+                }
+            }
+        }, { deep: true });
+        watch(() => bagType.value, () => {
+            pageNumber.value = 1;
+            getResources(currentSelectBagIds.value, true)
+        }, { deep: true });
+        const update = (id: any) => {
             resourceList.value = [];
             pageNumber.value = 1;
-            resourceId.value = id;
-            getResources();
+            resourceId.value = source.value == 'me' ? "" : id;
+            getResources(id);
         };
-        const isLaoding = ref(false);
-        const getResources = async () => {
-            if (course.value.chapterId && course.value.lessonId) {
-                isLaoding.value = true;
 
-                const res = await fetchResourceList({
+        const isLaoding = ref(false);
+        const getResources = async (id?: string[], isBag: boolean = false) => {
+            currentSelectBagIds.value = id;
+            if ((course.value.chapterId && course.value.lessonId) || isBag) {
+                isLaoding.value = true;
+                // let params: any;
+                const params = source.value == 'me' ? {
+                    ids: id,
+                    typeId: isBag ? type.value : "",
+                    pager: {
+                        pageNumber: pageNumber.value,
+                        pageSize: pageSize.value
+                    },
+                    resourceType: source.value
+                } : {
                     chapterId: course.value.chapterId,
                     lessonId: course.value.lessonId,
                     resourceTypeId: type.value,
@@ -507,37 +546,44 @@ export default defineComponent({
                         pageNumber: pageNumber.value,
                         pageSize: pageSize.value
                     }
-                });
+                }
+
+                const res = await fetchResourceList(params);
                 isLaoding.value = false;
+                if (res.resultCode === 200) {
+                    resourceList.value =
+                        pageNumber.value === 1
+                            ? res.result.list
+                            : resourceList.value.concat(res.result.list);
+                    disabledScrollLoad.value =
+                        res.result.list.length === 0
+                            ? true
+                            : res.result.pager.IsLastPage;
+                    // console.log('resourceList.value', resourceList.value);
 
-                resourceList.value =
-                    pageNumber.value === 1
-                        ? res.result.list
-                        : resourceList.value.concat(res.result.list);
-                disabledScrollLoad.value =
-                    res.result.list.length === 0
-                        ? true
-                        : res.result.pager.IsLastPage;
+                    emit("updateResourceList", resourceList.value);
 
-                emit("updateResourceList", resourceList.value);
-
-                nextTick(() => {
-                    if (resourceId.value && resourceScroll.value) {
-                        const resourceDom =
-                            resourceScroll.value.getElementsByClassName(
-                                `resource-${resourceId.value}`
-                            );
-                        if (resourceDom.length > 0) {
-                            // 找到目标dom
-                            const top = (resourceDom[0] as HTMLElement)
-                                .offsetTop;
-                            resourceScroll.value.scrollTo({
-                                top,
-                                behavior: "smooth"
-                            });
+                    nextTick(() => {
+                        if (resourceId.value && resourceScroll.value) {
+                            const resourceDom =
+                                resourceScroll.value.getElementsByClassName(
+                                    `resource-${resourceId.value}`
+                                );
+                            if (resourceDom.length > 0) {
+                                // 找到目标dom
+                                const top = (resourceDom[0] as HTMLElement)
+                                    .offsetTop;
+                                resourceScroll.value.scrollTo({
+                                    top,
+                                    behavior: "smooth"
+                                });
+                            }
                         }
-                    }
-                });
+                    });
+                } else {
+                    resourceList.value = [];
+                    emit("updateResourceList", []);
+                }
             }
         };
 
@@ -561,8 +607,57 @@ export default defineComponent({
             emitter.emit("updatePackageCount", null);
             if (resourceVisible.value) resourceVisible.value = false;
         };
-
-        expose({ update, openResource, eventEmit });
+        // 资源列表的备课包下拉中新增课包
+        const addNewLessonPackage = async () => {
+            addLessonBag.value.chapterId = props.course.chapterId;
+            addLessonBag.value.chapterName = props.course.chapterName;
+            addLessonBag.value.lessonId = props.course.lessonId;
+            addLessonBag.value.lessonName = props.course.lessonName;
+            addLessonBag.value.name = "备课包" + lessonPackageList.value.length;
+            const res = await addLessonPackage(addLessonBag.value);
+            if (res) {
+                getMyLessonBagNew({ id: course.value.lessonId });
+            }
+        };
+        // 去排课
+        const toArrangeClass = (data: any, type: number) => {
+            emit("toArrangeClass", data, type);
+        };
+        // 资源加入备课包
+        const handleSelectLessonBag = async (item: IGetLessonBagOutDto, data: IResourceItem) => {
+            const params = {
+                resourceId: data.ResourceId,
+                lessonBagId: item.Id
+            }
+            const res = await addResourceLessonBag(params);
+            if (res) {
+                emitter.emit("updatePackageCount", null);
+                // update("");
+                console.log('resourceList.value---', resourceList.value);
+                resourceList.value.forEach((resource: IResourceItem) => {
+                    if (resource.ResourceId === data.ResourceId) {
+                        resource.JoinBags.push({
+                            BagId: item.Id,
+                            BagName: item.Name,
+                            Id: ""
+                        });
+                        resource.IsBag = true;
+                    }
+                })
+            }
+        };
+        // 资源移出备课包
+        const handleRemoveLessonBag = async (data: IResourceItem) => {
+            const res = await delResourceLessonBag({ id: data.BagId });
+            if (res) {
+                update(currentSelectBagIds.value);
+            }
+        };
+        //删除
+        const deleteLessonPackage = (id: string) => {
+            emit("deleteLessonPackage", id);
+        };
+        expose({ update, openResource, eventEmit, addNewLessonPackage, toArrangeClass, getResources });
 
         return {
             resourceList,
@@ -573,6 +668,9 @@ export default defineComponent({
             editTipVisible,
             resourceVersionVisible,
             deleteVideoTipVisible,
+            lessonPackageList,
+            addNewLessonPackage,
+            toArrangeClass,
             eventEmit,
             resourceVisible,
             load,
@@ -584,31 +682,59 @@ export default defineComponent({
             name,
             resourceScroll,
             resourceId,
+            currentSelectBagIds,
             resourceData,
             showDownload,
             downloadProgress,
             cancelDownload,
             isLaoding,
             editWincard,
-            openWinCard
+            openWinCard,
+            deleteLessonPackage,
+            handleSelectLessonBag,
+            handleRemoveLessonBag,
+            getResources,
         };
+    },
+    components: {
+        ResourceItem,
+        LessonPackage,
+        DeleteTip,
+        EditTip,
+        ResourceVersion,
+        DeleteVideoTip,
+        ResourceView,
     },
 });
 </script>
 
 <style lang="scss" scoped>
-.p-layout-list {
-    flex: 1;
-    min-height: 0;
-    min-width: 0;
+.p-layout {
+    display: flex;
     position: relative;
-    padding: 0 20px;
-    overflow-y: auto;
 
-    .doing {
-        border-left: 4px solid #4b71ee;
-        box-shadow: 0px 6px 16px 0px rgba(0, 0, 0, 0.16);
+    // .p-layout-lesson {
+    //     height: calc(100vh - 160px);
+    //     padding-left: 20px;
+    //     overflow-y: auto;
+    // }
+
+    .p-layout-list {
+        height: calc(100vh - 240px);
+        flex: 1;
+        min-height: 0;
+        min-width: 0;
+        position: relative;
+        padding: 0 20px;
+        overflow-y: auto;
+        // display: flex; 
+
+        .doing {
+            border-left: 4px solid #4b71ee;
+            box-shadow: 0px 6px 16px 0px rgba(0, 0, 0, 0.16);
+        }
     }
+
 }
 
 .tip {
