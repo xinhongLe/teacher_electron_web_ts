@@ -614,8 +614,18 @@ export default defineComponent({
         };
 
         const updatePageSlide = (slide: Slide) => {
+            console.log(slide);
             if (!currentPage.value) return;
             currentPage.value.Json = slide;
+
+            const teach: any = slide.teach;
+            if (teach && teach.ossSrc) {
+                currentPage.value.Url = teach.ossSrc;
+            }
+            const game: any = slide.game;
+            if (game && game.ossSrc) {
+                currentPage.value.Url = game.ossSrc;
+            }
 
             addHandle.replaceCurrentPage(currentPage.value);
         };

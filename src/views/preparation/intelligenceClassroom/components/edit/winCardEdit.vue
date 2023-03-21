@@ -64,6 +64,7 @@ import AddGameDialog from "./addGameDialog.vue";
 import GameType from "./games/index.vue";
 import { IGameItem } from "@/types/game";
 import { store } from "@/store";
+import { getOssUrl } from "@/utils/oss";
 
 export default defineComponent({
     name: "winCardEdit",
@@ -107,7 +108,7 @@ export default defineComponent({
             dialogVisibleVideo: false,
             addGameVisible: false,
             gameTypeVisible: false,
-            currentGame: { id: "", name: "", src: "" }
+            currentGame: { id: "", name: "", src: "", ossSrc: "" }
         });
         const page = ref<IPageValue>();
         const windowInfo = computed(
@@ -171,11 +172,12 @@ export default defineComponent({
             }
         };
 
-        const addGame = (valueGame: IGameItem) => {
+        const addGame = async (valueGame: IGameItem) => {
             state.currentGame = {
                 id: valueGame.ID,
                 name: valueGame.Name,
-                src: valueGame.Url
+                src: valueGame.Url,
+                ossSrc: await formatOssUrl(valueGame.File)
             };
             const slide = Object.assign(props.slide, {
                 game: state.currentGame
@@ -183,13 +185,21 @@ export default defineComponent({
             emit("updatePageSlide", slide);
         };
 
+        const formatOssUrl = async (file: any) => {
+            const key = `${file?.FilePath}/${file?.FileMD5}.${
+                file?.FileExtention || file?.Extention
+            }`;
+            return await getOssUrl(key, "axsfile");
+        };
+
         const selectVideo = () => {
             updateVideoElement.value = null;
             state.dialogVisibleVideo = true;
         };
 
-        const selectVideoVal = (val: any) => {
+        const selectVideoVal = async (val: any) => {
             delete val.fileID;
+            val.ossSrc = await formatOssUrl(val.File);
             emit("updatePageSlide", Object.assign({}, props.slide, { follow: val }));
             state.dialogVisibleVideo = false;
         };
