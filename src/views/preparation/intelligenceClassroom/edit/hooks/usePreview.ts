@@ -16,6 +16,7 @@ export default (pageList: Ref<PageProps[]>, currentPage: Ref<PageProps | null>, 
         if (type === 1 && !currentPage.value?.State) {
             return ElMessage.warning("已下架的页, 暂不支持从当前页预览");
         }
+        console.log(currentPage.value);
         previewIndex.value = type === 1 ? (currentPage.value?.Index as number) - 1 : 0;
 
         if (previewPageList.value.length === 0) {
@@ -37,7 +38,7 @@ export default (pageList: Ref<PageProps[]>, currentPage: Ref<PageProps | null>, 
     const keyDown = (e: KeyboardEvent) => {
         if (e.keyCode === 27) {
             winScreenView.value = false;
-            editRef.value.setScreening(false);
+            editRef.value?.setScreening(false);
         }
     };
 

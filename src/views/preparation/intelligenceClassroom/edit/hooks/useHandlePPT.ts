@@ -82,8 +82,8 @@ export default (windowCards: Ref<CardProps[]>, allPages: Ref<PageProps[]>, pageM
         }
 
         insertWindowsCards(page, index, subIndex);
-        currentPage.value = page;
         sortWindowCards();
+        currentPage.value = allPages.value.find(item => item.ID === id) as PageProps;
     };
 
     // 重名名
