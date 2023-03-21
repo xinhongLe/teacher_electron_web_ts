@@ -22,7 +22,7 @@
         "lint": "vue-cli-service lint",
         "rebuild": "electron-rebuild -f"
     },
-    "dependencies": { 
+    "dependencies": {
         "@element-plus/icons-vue": "^0.2.7",
         "@microsoft/signalr": "^6.0.1",
         "@types/resize-observer-browser": "^0.1.7",
@@ -63,7 +63,7 @@
         "vue-draggable-next": "^2.1.1",
         "vue-router": "^4.0.0-0",
         "vuex": "^4.0.2",
-        "wincard": "^5.0.0",
+        "wincard": "^5.0.2",
         "xlsx": "^0.17.5"
     },
     "devDependencies": {
