@@ -212,11 +212,9 @@ export default (windowCards: Ref<CardProps[]>, allPages: Ref<PageProps[]>, pageM
             const item = list[i];
 
             for (let j = 0; j < item.PageList.length; j++) {
-                const it = item.PageList[j];
-
-                it.Index = index;
-                it.Sort = index + 1;
-                it.ParentID = item.ID;
+                item.PageList[j].Index = index;
+                item.PageList[j].Sort = index + 1;
+                item.PageList[j].ParentID = item.ID;
                 index++;
             }
         }
