@@ -95,7 +95,9 @@ watch(() => props.course, async (val: ICourse) => {
 
 // 新增备课包
 const addPackage = async () => {
-    if (lessonPackageList.value.length) {
+    console.log('addPackage',addPackage);
+    
+    // if (lessonPackageList.value.length) {
         addLessonBag.value.name = "备课包" + (lessonPackageList.value.length + 1);
         lessonPackageList.value.forEach(item => {
             if (item.Name === addLessonBag.value.name) {
@@ -108,7 +110,7 @@ const addPackage = async () => {
             // emitter.emit("updatePackageCount", null);
             return res.Id
         }
-    }
+    // }
 };
 // 选择备课包
 const selectPackage = (data?: any) => {

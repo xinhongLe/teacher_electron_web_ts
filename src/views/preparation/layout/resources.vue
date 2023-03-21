@@ -533,6 +533,7 @@ export default defineComponent({
 
         const isLaoding = ref(false);
         const getResources = async (id?: string[], isBag: boolean = false) => {
+            resourceList.value = [];
             currentSelectBagIds.value = id;
             if ((course.value.chapterId && course.value.lessonId) || isBag) {
                 isLaoding.value = true;
@@ -559,7 +560,6 @@ export default defineComponent({
                 }
 
                 const res = await fetchResourceList(params);
-                isLaoding.value = false;
                 if (res.resultCode === 200) {
                     resourceList.value =
                         pageNumber.value === 1
@@ -572,7 +572,7 @@ export default defineComponent({
                     // console.log('resourceList.value', resourceList.value);
 
                     emit("updateResourceList", resourceList.value);
-
+                    isLaoding.value = false;
                     nextTick(() => {
                         if (resourceId.value && resourceScroll.value) {
                             const resourceDom =
@@ -623,7 +623,12 @@ export default defineComponent({
             addLessonBag.value.chapterName = props.course.chapterName;
             addLessonBag.value.lessonId = props.course.lessonId;
             addLessonBag.value.lessonName = props.course.lessonName;
-            addLessonBag.value.name = "备课包" + lessonPackageList.value.length;
+            addLessonBag.value.name = "备课包" + (lessonPackageList.value.length + 1);
+            lessonPackageList.value.forEach(item => {
+                if (item.Name === addLessonBag.value.name) {
+                    addLessonBag.value.name = "备课包" + (Number(item.Name?.slice(3)) + 1)
+                }
+            })
             const res = await addLessonPackage(addLessonBag.value);
             if (res) {
                 getMyLessonBagNew({ id: course.value.lessonId });
@@ -660,6 +665,7 @@ export default defineComponent({
         const handleRemoveLessonBag = async (data: IResourceItem) => {
             const res = await delResourceLessonBag({ id: data.BagId });
             if (res) {
+                emitter.emit("updatePackageCount", null);
                 update(currentSelectBagIds.value);
             }
         };
