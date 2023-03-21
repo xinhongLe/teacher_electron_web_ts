@@ -1,29 +1,44 @@
 <template>
-    <div
-        class="p-resource-item"
-        @click="handleCommand('detail')"
-        :class="{'resource-courseware':data.ResourceType === RESOURCE_TYPE.COURSEWARD && data.IsSysFile === 1,hover: hover}"
-    >
-        <div class="p-resource-mark" v-if="data.IsMine === 1 && data.IsSchool !== 1">我的</div>
-        <div class="p-resource-school-mark" v-if="data.IsSchool === 1">校本</div>
+    <div class="p-resource-item" :class="{
+        'resource-courseware':
+            data.ResourceType === RESOURCE_TYPE.COURSEWARD &&
+            data.IsSysFile === 1,
+        hover: hover,
+    }" @click="handleCommand('detail')">
+        <div class="p-resource-mark" v-if="data.IsMine === 1 && data.IsSchool !== 1">
+            我的
+        </div>
+        <div class="p-resource-school-mark" v-if="data.IsSchool === 1">
+            校本
+        </div>
         <div class="p-resource-top">
             <div class="resource-icon">
-                <img :src="data.IsSysFile === 1? iconResources.selfStudy[data.ResourceType]: iconResources.other[data.ResourceType]" alt=""/>
+                <img :src="
+                    data.IsSysFile === 1
+                        ? iconResources.selfStudy[data.ResourceType]
+                        : iconResources.other[data.ResourceType]
+                " alt=""/>
             </div>
             <div class="resource-content">
                 <div class="resource-title">
                     {{ data.Name }}
-                    <img class="resource-format" v-if="data.File" :src="formatImg" alt=""/>
+                    <img class="resource-format" v-if="data.File" :src="formatImg"/>
                 </div>
                 <div class="resource-message">
                     <img src="@/assets/images/preparation/icon_gengxin.png" alt=""/>
-                    更新时间：{{ dealTime(data.DateTime || data.CreateTime) }}
+                    &nbsp;&nbsp;更新时间：{{
+                        dealTime(data.DateTime || data.CreateTime)
+                    }}
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     <img src="@/assets/images/preparation/icon_download.png" alt=""/>
-                    下载次数：{{ data.DownloadNum }}
+                    &nbsp;&nbsp;下载次数：{{ data.DownloadNum }}
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     <img src="@/assets/images/preparation/icon_liulan_grey.png" alt=""/>
-                    浏览：{{ data.BrowseNum }}
+                    &nbsp;&nbsp;浏览：{{ data.BrowseNum }}
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     <img src="@/assets/images/preparation/icon_zhinanzhen.png" alt=""/>
-                    来源：{{ data.Source }}
+                    &nbsp;&nbsp;来源：{{ data.Source }}
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 </div>
                 <div class="resource-classify">
                     <img src="@/assets/images/preparation/icon_mulu.png" alt=""/>
@@ -32,18 +47,23 @@
             </div>
             <div class="resource-control">
                 <div class="resource-control-up">
-                    <div class="resource-degree" v-if="RESOURCE_TYPE.TOOL !== data.ResourceType" :class="['', 'difficult', 'middle', ''][data.Degree]">
+                    <div class="resource-degree" v-if="RESOURCE_TYPE.TOOL !== data.ResourceType"
+                         :class="['', 'difficult', 'middle', ''][data.Degree]">
                         {{ ["", "高", "中", "易"][data.Degree] }}
                     </div>
-                    <div class="resource-type" :class="typeResources[data.ResourceType] < 9 &&'p-r-' + typeResources[data.ResourceType]">
+                    <div class="resource-type" :class="
+                        typeResources[data.ResourceType] < 9 &&
+                        'p-r-' + typeResources[data.ResourceType]
+                    ">
                         {{ textResources[data.ResourceType] }}
                     </div>
-                    <el-dropdown
-                        trigger="click"
-                        placement="bottom"
-                        @command="handleCommand"
-                        v-if=" btns && name !== 'attendClass' && name !== 'preview' &&(data.ResourceShowType === 0 || (data.ResourceShowType === 1 && isMySelf))"
-                    >
+                    <el-dropdown v-if="
+                        btns &&
+                        name !== 'attendClass' &&
+                        name !== 'preview' &&
+                        (data.ResourceShowType === 0 ||
+                            (data.ResourceShowType === 1 && isMySelf))
+                    " trigger="click" placement="bottom" @command="handleCommand">
                         <div class="resource-more" @click.stop="() => null">
                             <el-icon>
                                 <more-filled/>
@@ -51,7 +71,10 @@
                         </div>
                         <template #dropdown>
                             <el-dropdown-menu>
-                                <el-dropdown-item command="version" v-if="data.ResourceShowType === 0 || data.ResourceShowType === 5">
+                                <el-dropdown-item command="version" v-if="
+                                    data.ResourceShowType === 0 ||
+                                    data.ResourceShowType === 5
+                                ">
                                     <div class="dropdown-item">
                                         <img src="@/assets/images/preparation/icon_bbjl_blue.png" alt=""/>
                                         &nbsp;&nbsp;版本记录
@@ -73,12 +96,23 @@
                         </template>
                     </el-dropdown>
                 </div>
-                <div class="p-resource-bottom no-border" v-if="!hover && btns && name !== 'attendClass' && name !== 'preview'">
-                    <el-button class="p-control-btn" @click.stop="handleCommand('download')" v-if="canDownload && RESOURCE_TYPE.TOOL !== data.ResourceType ">
+                <div class="p-resource-bottom no-border" v-if="
+                    !hover &&
+                    btns &&
+                    name !== 'attendClass' &&
+                    name !== 'preview'
+                ">
+
+                    <el-button class="p-control-btn" @click.stop="handleCommand('download')" v-if="
+                        canDownload &&
+                        RESOURCE_TYPE.TOOL !== data.ResourceType
+                    ">
                         <img src="@/assets/images/preparation/icon_download_white.png" alt=""/>
                         下载
                     </el-button>
-                    <el-button class="p-control-btn" @click.stop="handleCommand('edit')" v-if="canEdit && RESOURCE_TYPE.TOOL !== data.ResourceType">
+                    <el-button class="p-control-btn" @click.stop="handleCommand('edit')" v-if="
+                        canEdit && RESOURCE_TYPE.TOOL !== data.ResourceType
+                    ">
                         <img src="@/assets/images/preparation/icon_bianji.png" alt=""/>
                         编辑
                     </el-button>
@@ -92,40 +126,94 @@
                     </el-button>
                 </div>
                 <div class="tool-text" v-if="hover && btns && name === 'attendClass'">
-                    <span>{{ data.ToolInfo ? `共${data.ToolInfo.QuestionCount}题` : "" }}</span>
-                    <span>{{ data.ToolInfo ? ` ( ${data.ToolInfo.QuestionTypeName})` : "" }}</span>
+                    <span>{{
+                            data.ToolInfo
+                                ? `共${data.ToolInfo.QuestionCount}题`
+                                : ""
+                        }}</span>
+                    <span>{{
+                            data.ToolInfo
+                                ? ` ( ${data.ToolInfo.QuestionTypeName})`
+                                : ""
+                        }}</span>
                 </div>
             </div>
         </div>
         <div class="p-resource-bottom" v-if="hover && btns && name !== 'attendClass' && name !== 'preview'">
-            <div class="tool-text">
-                <span class="total">
-                    {{ data.ToolInfo ? `共${data.ToolInfo.QuestionCount}题` : "" }}
-                </span>
-                <span>
-                    {{ data.ToolInfo ? ` ( ${data.ToolInfo.QuestionTypeName})` : "" }}
-                </span>
+            <div style="padding-left: 66px;">
+                <el-button class="p-control-btn" v-if="source != 'me'" @click.stop.prevent="toArrangeClass(data, 1)"
+                           @touchstart.stop.prevent="toArrangeClass(data, 0)">
+                    <img src="@/assets/images/preparation/icon_download_white.png" alt=""/>
+                    排课
+                </el-button>
+                <div class="tool-text">
+                    <span class="total">{{
+                            data.ToolInfo ? `共${data.ToolInfo.QuestionCount}题` : ""
+                        }}</span>
+                    <span>{{
+                            data.ToolInfo ? ` ( ${data.ToolInfo.QuestionTypeName})` : ""
+                        }}</span>
+                </div>
             </div>
             <div>
-<!--                <el-button class="p-control-btn" @click.stop="handleShare(data)" v-if="!data.File">-->
-<!--                    <img src="@/assets/images/preparation/icon_download_white.png" alt=""/>-->
-<!--                    分享-->
-<!--                </el-button>-->
-                <el-button class="p-control-btn" @click.stop="handleCommand('download')" v-if="canDownload && RESOURCE_TYPE.TOOL !== data.ResourceType ">
+                <el-button class="p-control-btn" @click.stop="handleCommand('download')" v-if="
+                    canDownload && RESOURCE_TYPE.TOOL !== data.ResourceType
+                ">
                     <img src="@/assets/images/preparation/icon_download_white.png" alt=""/>
                     下载
                 </el-button>
-                <el-button class="p-control-btn" @click.stop="handleCommand('edit')" v-if="canEdit && RESOURCE_TYPE.TOOL !== data.ResourceType">
+                <el-button class="p-control-btn" @click.stop="handleCommand('edit')"
+                           v-if="canEdit && RESOURCE_TYPE.TOOL !== data.ResourceType">
                     <img src="@/assets/images/preparation/icon_bianji.png" alt=""/>
                     编辑
                 </el-button>
-                <el-button class="p-control-btn p-move" v-if="data.IsBag" @click.stop="handleCommand('move')">
+
+                <el-popover v-if="source !== 'me' && lessonPackageList.length > 1" placement="bottom" :width="150"
+                            trigger="hover" popper-class="lesson-package-popover">
+                    <template #reference>
+                        <el-button class="p-control-btn p-isbag" v-if="data.IsBag" @click.stop="null">
+                            <!-- <img src="@/assets/images/preparation/icon_yichu.png" alt="" /> -->
+                            已加入备课包
+                        </el-button>
+                        <el-button class="p-control-btn p-add" v-if="!data.IsBag" @click.stop="null">
+                            <img src="@/assets/images/preparation/icon_add.png" alt=""/>
+                            加入备课包
+                        </el-button>
+                    </template>
+                    <div class="lesson-package-select">
+                        <div class="package-content">
+                            <div class="package-item" v-for="(item,index) in lessonPackageList"
+                                 @click="handleSelectLessonBag(item, data)" :key="index">
+                                <span>
+                                    {{ item.Name }}
+                                </span>
+                                <img v-if="data.JoinBags.map((bag) => bag.BagId).includes(item.Id)"
+                                     src="@/assets/images/preparation/icon_dui.png" alt="">
+                            </div>
+                        </div>
+                        <div class="deadline">
+                        </div>
+                        <div class="package-add">
+                            <img src="@/assets/images/preparation/icon_add_black.png" alt="">
+                            <span class="add-text" @click="addLessonPackage">
+                                新增
+                            </span>
+                        </div>
+                    </div>
+                </el-popover>
+                <template v-if="lessonPackageList.length && lessonPackageList.length === 1">
+                    <el-button class="p-control-btn p-isbag" v-if="data.IsBag" @click.stop="null">
+                        已加入备课包
+                    </el-button>
+                    <el-button class="p-control-btn p-add" v-if="!data.IsBag"
+                               @click.stop="handleSelectLessonBag(lessonPackageList[0], data)">
+                        <img src="@/assets/images/preparation/icon_add.png" alt=""/>
+                        加入备课包
+                    </el-button>
+                </template>
+                <el-button v-if="source === 'me'" class="p-control-btn p-move" @click.stop="handleRemoveLessonBag(data)">
                     <img src="@/assets/images/preparation/icon_yichu.png" alt=""/>
                     移出备课包
-                </el-button>
-                <el-button class="p-control-btn p-add" v-if="!data.IsBag" @click.stop="() => handleCommand('add', $event)">
-                    <img src="@/assets/images/preparation/icon_add.png" alt=""/>
-                    加入备课包
                 </el-button>
             </div>
         </div>
@@ -152,12 +240,19 @@
 </template>
 
 <script lang="ts">
+import { computed, defineComponent, PropType, ref } from "vue";
+import { MoreFilled } from "@element-plus/icons-vue";
+import {
+    iconResources,
+    textResources,
+    typeResources,
+    RESOURCE_TYPE
+} from "@/config/resource";
+import { IResourceItem } from "@/api/resource";
 import moment from "moment";
 import { useStore } from "@/store";
-import { IResourceItem } from "@/api/resource";
-import { MoreFilled } from "@element-plus/icons-vue";
-import { computed, defineComponent, PropType, ref } from "vue";
-import { iconResources, textResources, typeResources, RESOURCE_TYPE } from "@/config/resource";
+import { IGetLessonBagOutDto } from "@/api/prepare";
+import { emit } from "process";
 import isElectron from "is-electron";
 import { ElMessage } from "element-plus";
 
@@ -183,13 +278,24 @@ export default defineComponent({
         name: {
             type: String,
             default: ""
+        },
+        source: {
+            type: String,
+            default: ""
+        },
+        lessonPackageList: {
+            type: Object as PropType<IGetLessonBagOutDto[]>,
+            default: () => []
         }
     },
-    emits: ["eventEmit"],
+    emits: ["eventEmit", "addLessonPackage", "toArrangeClass", "handleSelectLessonBag", "handleRemoveLessonBag"],
     setup(props, { emit }) {
         const store = useStore();
 
-        const handleCommand = (command: string, event?: MouseEvent | TouchEvent) => {
+        const handleCommand = (
+            command: string,
+            event?: MouseEvent | TouchEvent
+        ) => {
             if (!props.hover && command === "detail") return;
             emit("eventEmit", command, props.data, event);
         };
@@ -234,7 +340,7 @@ export default defineComponent({
         );
 
         const directoryName = computed(() => {
-            console.log('props.data', props.data.TextBooks);
+            console.log("props.data", props.data.TextBooks);
             if (!props.data.TextBooks) return "--";
             const book = props.lessonId ? props.data.TextBooks.find((item) => {
                 return props.lessonId === item.LessonID || !item.LessonID;
@@ -249,6 +355,18 @@ export default defineComponent({
                 (book.LessonName ? " / " + book.LessonName : "")
                 : "--";
         });
+        const addLessonPackage = () => {
+            emit("addLessonPackage");
+        };
+        const handleSelectLessonBag = (item: IGetLessonBagOutDto, data: IResourceItem) => {
+            emit("handleSelectLessonBag", item, data);
+        };
+        const handleRemoveLessonBag = (data: IResourceItem) => {
+            emit("handleRemoveLessonBag", data);
+        };
+        const toArrangeClass = (data: any, type: number) => {
+            emit("toArrangeClass", data, type);
+        };
 
         const shareShow = ref(false);
         const shareData = ref();
@@ -286,6 +404,10 @@ export default defineComponent({
         return {
             handleCommand,
             dealTime,
+            addLessonPackage,
+            toArrangeClass,
+            handleSelectLessonBag,
+            handleRemoveLessonBag,
             iconResources,
             textResources,
             directoryName,
@@ -577,6 +699,11 @@ export default defineComponent({
         color: #fff;
     }
 
+    &.p-isbag {
+        background: #F5F6FA;
+        color: #6E6D7A;
+    }
+
     :deep(span) {
         display: flex;
         align-items: center;
@@ -601,5 +728,81 @@ export default defineComponent({
     box-sizing: border-box;
     margin: 15px 0;
     cursor: pointer;
+}
+</style>
+
+<style lang="scss">
+.lesson-package-popover {
+    width: 122px !important;
+    min-width: 122px !important;
+    max-height: 151px;
+    background: #FFFFFF !important;
+    box-shadow: 0px 8px 24px 0px #00000029 !important;
+    border-radius: 6px !important;
+    padding: 12px 0 !important;
+
+    .lesson-package-select {
+        position: relative;
+        max-height: 130px;
+
+        .package-content {
+            max-height: 103px;
+            overflow-y: auto;
+            padding: 0 16px;
+
+            .package-item {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                width: 100%;
+                font-size: 14px;
+                font-weight: 400;
+                color: #0D0B22;
+                margin-bottom: 12px;
+                cursor: pointer;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+
+                span {
+                    display: inline-block;
+                    width: 80%;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                }
+            }
+
+            .package-item:hover {
+                background-color: #d8e0fb;
+
+            }
+        }
+    }
+
+    .deadline {
+        width: 100%;
+        height: 1px;
+        background: #F3F4F4;
+        margin-bottom: 12px;
+
+    }
+
+    .package-add {
+        position: absolute;
+        bottom: -20px;
+        left: 0;
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        padding: 0 16px;
+
+        .add-text {
+            font-size: 14px;
+            font-family: PingFangSC-Regular, PingFang SC;
+            font-weight: 400;
+            color: #486CE4;
+        }
+    }
 }
 </style>

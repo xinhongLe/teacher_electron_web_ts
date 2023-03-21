@@ -8,15 +8,8 @@
                 :btns="false"
                 @eventEmit="eventEmit"
             /> -->
-            <Resources
-                ref="resourceRef"
-                name="attendClass"
-                @updateResourceList="updateResourceList"
-                :course="course"
-                :source="source"
-                :type="type"
-                :bookId="bookId"
-            />
+            <Resources ref="resourcesRef" name="attendClass" @updateResourceList="updateResourceList" :course="course"
+                :source="source" :type="type" :bagType="type" :bookId="bookId" />
         </div>
         <div class="resource-filter">
             <el-radio-group
@@ -248,7 +241,7 @@ export default defineComponent({
             source,
             bookId,
             updateResourceList,
-            resourceRef
+            resourcesRef
         };
     }
 });
