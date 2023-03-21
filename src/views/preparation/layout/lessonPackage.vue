@@ -153,8 +153,8 @@ const openMouseDrag = () => {
     nextTick(() => {
         if (isMobile.value) return;
         const dom: HTMLElement = document.querySelector('.lesson-package-item.isActive > .package-item > .item-footer > .item-button') as HTMLElement;
-        console.log('dom',props.isMouseDrag,dom);
-        
+        console.log('dom', props.isMouseDrag, dom);
+
         if (props.isMouseDrag) {
             if (props.isMouseDrag && dom) {
                 const event: MouseEvent = new MouseEvent('mousedown');
@@ -175,7 +175,7 @@ const onDeletePackage = async () => {
     const res = await deleteLessonPackage(deleteTargetId.value);
     if (res) {
         await getMyLessonBagNew({ id: props.course.lessonId });
-        selectPackage(lessonPackageList.value[0]);
+        lessonPackageList.value[0] && selectPackage(lessonPackageList.value[0]);
         emitter.emit("updatePackageCount", null);
         emits("updateSchedules")
     }

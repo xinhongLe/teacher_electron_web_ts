@@ -50,8 +50,10 @@ export default defineComponent({
             emit("update:classVisible", false);
         };
         const sure = async () => {
-            emit("selectedClassList", checkedClass.value);
-            emit("update:classVisible", false);
+            if (checkedClass.value) {
+                emit("selectedClassList", checkedClass.value);
+                emit("update:classVisible", false);
+            }
         };
         const _getTeacherClassList = async () => {
             const res = await GetCurrentCodeTeacherClass();
