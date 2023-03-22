@@ -106,9 +106,10 @@ export default (days: Ref<string[]>) => {
         // });
         // }
         teachClassScheduleArr.value?.forEach(item => {
-            // const fontShowTime = `${item.StartTime?.substring(0, 5)}~${item.EndTime?.substring(0, 5)}`;
-            const fontShowTime = `${item.APMP}~${item.SectionIndex}`;
+            const fontShowTime = `${item.StartTime?.substring(0, 5)}~${item.EndTime?.substring(0, 5)}`;
+            const AmpmSectionIndex = `${item.APMP}~${item.SectionIndex}`;
             item.fontShowTime = fontShowTime
+            item.AmpmSectionIndex = AmpmSectionIndex
         })
     };
 
@@ -120,10 +121,10 @@ export default (days: Ref<string[]>) => {
                     colDate: day,
                     index
                 }));
-                // const fontShowTime = `${classTime.BeginTime?.substring(0, 5)}~${classTime.EndTime?.substring(0, 5)}`;
-                const fontShowTime = `${classTime.APMP}~${classTime.SectionIndex}`;
+                const fontShowTime = `${classTime.BeginTime?.substring(0, 5)}~${classTime.EndTime?.substring(0, 5)}`;
+                const AmpmSectionIndex = `${classTime.APMP}~${classTime.SectionIndex}`;
                 teachClassScheduleArr.value && teachClassScheduleArr.value.forEach(item => {
-                    if (item.fontShowTime === fontShowTime) {
+                    if (item.AmpmSectionIndex === AmpmSectionIndex) {
                         const week = item.DateOfWeek === 0 ? 6 : item.DateOfWeek! - 1;
                         colData[week] = { ...item, ...colData[week] };
                     }

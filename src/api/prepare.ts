@@ -224,7 +224,8 @@ export interface IGetCurrentUserNewScheduleOutDto {
      */
     WeekType?: number;
 
-    fontShowTime?: string
+    fontShowTime?: string;
+    AmpmSectionIndex?: string
 }
 
 /**
