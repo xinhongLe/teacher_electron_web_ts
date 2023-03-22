@@ -41,7 +41,7 @@
                         <div
                             class="left-four"
                             @click="
-                                go('resource-center'),
+                                go('resource-center/' + platformId),
                                     clicKBuryPoint('资源中心')
                             "
                         >
@@ -167,7 +167,7 @@
                 <!-- 2022-7-25 annan -->
                 <div
                     class="item"
-                    @click="go('resource-center'), clicKBuryPoint('资源中心')"
+                    @click="go('resource-center/' + platformId), clicKBuryPoint('资源中心')"
                 >
                     <div class="item_div">
                         <img
@@ -302,6 +302,9 @@ import isElectron from "is-electron";
 import { EVENT_TYPE } from "@/config/event";
 import { nextTick } from "process";
 import { debounce } from "lodash";
+import { get, STORAGE_TYPES, storeChange } from "@/utils/storage";
+import { getPlatformByOrgId } from "@/api/home";
+import { UserInfoState } from "@/types/store";
 
 export default defineComponent({
     name: "Home",
@@ -358,6 +361,24 @@ export default defineComponent({
         onActivated(() => {
             calendar.value.initSchedules(resize);
             // nextTick(resize);
+        });
+
+        const platformId = ref("");
+        const getPlatformIdByOrgId = () => {
+            const currentUserInfo: UserInfoState = get(STORAGE_TYPES.CURRENT_USER_INFO);
+            const id = currentUserInfo.schoolId;
+
+            getPlatformByOrgId([{ id }]).then(res => {
+                platformId.value = res.result.length > 0 ? res.result[0].platformId : "";
+            });
+        }
+
+        onMounted(() => {
+            getPlatformIdByOrgId();
+            storeChange(STORAGE_TYPES.CURRENT_USER_INFO, (value) => {
+                // 组织切换 更新PlateformId
+                if (value) getPlatformIdByOrgId();
+            });
         });
 
         const leftBlock = ref();
@@ -436,6 +457,7 @@ export default defineComponent({
             leftBlock,
             classSchedule,
             layoutAdjust,
+            platformId
         };
     },
 });
