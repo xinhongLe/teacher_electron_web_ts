@@ -56,7 +56,7 @@
                                         <img src="@/assets/edit/icon_shijian.png" alt="" v-if="checkIsHandle(1,page.Json)"/>
                                     </div>
                                     <div class="page-right" :class="{active:currentPage.ID === page.ID}">
-                                        <el-image v-if="(page.Type === 20 || page.Type === 16) && page.Url" :src="page.Url" fit="cover">
+                                        <el-image v-if="(page.Type === 20 || page.Type === 16) && page.Url" :src="page.Url" fit="fill" style="width: 100%;height: 100%">
                                             <template #error>
                                                 <div class="image-slot">加载失败...</div>
                                             </template>
@@ -358,7 +358,7 @@ export default defineComponent({
             }
             if (type === 5) {
                 loading.show();
-                addHandle.paste(data as CardProps);
+                handlePaste();
             }
             if (type === 6) {
                 loading.show();
@@ -486,8 +486,53 @@ export default defineComponent({
                     handler: () => {
                         handleSaveTemplate(page);
                     }
+                },
+                {
+                    text: "复制",
+                    subText: "",
+                    handler: () => {
+                        handleCopy(page);
+                    }
                 }
             ];
+        };
+
+        // 复制
+        const handleCopy = (page: PageProps) => {
+            const index = selectPageIds.value.findIndex(item => item === page.ID);
+
+            if (index === -1) {
+                selectPageIds.value.push(page.ID);
+            }
+        };
+
+        // 粘贴
+        const handlePaste = () => {
+            if (selectPageIds.value.length === 0) {
+                ElMessage.warning("请选择要粘贴的内容");
+                return;
+            }
+            if (!currentPage.value) {
+                ElMessage.warning("请选中页");
+                return;
+            }
+            const list: PageProps[] = [];
+            for (let i = 0; i < selectPageIds.value.length; i++) {
+                const item = selectPageIds.value[i];
+                const find = allPages.value.find(it => it.ID === item) as PageProps;
+                const id = uuidv4();
+
+                list.push({
+                    ...find,
+                    ID: id
+                });
+                pageMap.value.set(id, find.Json);
+            }
+            selectPageIds.value = [];
+            const index = windowCards.value.findIndex(item => item.ID === currentPage.value?.ParentID);
+            const subIndex = windowCards.value[index].PageList.findIndex(item => item.ID === currentPage.value?.ID);
+            windowCards.value[index].PageList.splice(subIndex + 1, 0, ...list);
+            addHandle.sortWindowCards();
         };
 
         // 子窗体关闭 提示
@@ -614,7 +659,6 @@ export default defineComponent({
         };
 
         const updatePageSlide = (slide: Slide) => {
-            console.log(slide);
             if (!currentPage.value) return;
             currentPage.value.Json = slide;
 
@@ -813,7 +857,19 @@ export default defineComponent({
         }
 
         onMounted(() => {
-            window.addEventListener("keydown", previewHandle.keyDown, true);
+            window.addEventListener("keydown", function (e: KeyboardEvent) {
+                console.log(e);
+                const key = e.code;
+                if (key === "Escap") {
+                    previewHandle.keyDown();
+                }
+                if (e.ctrlKey && key === "KeyC") {
+                    handleCopy(currentPage.value as PageProps);
+                }
+                if (e.ctrlKey && key === "KeyV") {
+                    handlePaste();
+                }
+            });
 
             // 监听退出全屏事件浏览器
             window.onresize = function () {
@@ -1038,6 +1094,8 @@ export default defineComponent({
                     .page-right {
                         flex: 1;
                         position: relative;
+                        width: 228px;
+                        height: 128px;
 
                         &.active {
                             outline: 2px solid #2E95FF;
@@ -1088,7 +1146,7 @@ export default defineComponent({
                                 &.add {
                                     right: 36px;
                                     bottom: -16px;
-                                    margin-right: 10px;
+                                    margin-right: 15px;
 
                                     img {
                                         width: 32px;

@@ -34,11 +34,10 @@ export default (pageList: Ref<PageProps[]>, currentPage: Ref<PageProps | null>, 
         enterFullscreen();
     };
 
-    const keyDown = (e: KeyboardEvent) => {
-        if (e.keyCode === 27) {
-            winScreenView.value = false;
-            editRef.value?.setScreening(false);
-        }
+    const keyDown = () => {
+        winScreenView.value = false;
+        editRef.value?.setScreening(false);
+
     };
 
     const offScreen = () => {

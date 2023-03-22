@@ -313,6 +313,10 @@ head：有科目级联选择器，当在数智课堂时，会显示当前课时�
 
 注意事项：打包的时候要确保腾讯音视频的sdk是32位，确认方法：64位的包会比32位的包大将近2M。
 
+到xxx/node_modules/trtc-electron-sdk目录执行  npm run install -- arch=ia32
+
+打包正式环境 electron:build
+
 
 
 ### 其他
