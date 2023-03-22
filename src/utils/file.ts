@@ -13,7 +13,9 @@ export const cacheFile = async (key: string) => {
                     resolve(encodeURI(window.electron.getFilePath(fileName)));
                 } else {
                     getOssUrl(key, "axsfile").then(filePath => {
-                        window.electron.ipcRenderer.invoke("downloadFile", filePath, fileName).then(path => resolve(path ? "file://" + path : ""));
+                        window.electron.ipcRenderer.invoke("downloadFile", filePath, fileName).then(path => resolve(path ? "file://" + path : "")).catch(err => {
+                            resolve("");
+                        });
                     });
                 }
             });
