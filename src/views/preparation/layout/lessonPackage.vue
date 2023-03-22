@@ -51,9 +51,10 @@ import {
 } from "vue";
 import emitter from "@/utils/mitt";
 import { IResourceItem } from "@/api/resource";
+import { MutationTypes, useStore } from "@/store";
 const currentSelectPackageId = ref<string>("");
 const { startDrag, touchStartDrag } = useClickDrag();
-const { getMyLessonBagNew, lessonPackageList, addLessonPackage, deleteLessonPackage, addResourceLessonBag, addLessonBag } = useLessonPackage();
+const { getMyLessonBagNew, lessonPackageList, addLessonPackage, deleteLessonPackage, addResourceLessonBag, addLessonBag, setValueAddLessonBag } = useLessonPackage();
 
 interface ICourse {
     chapterId: string;
@@ -74,12 +75,9 @@ const props = defineProps({
 const emits = defineEmits(["toArrangeClass", "updateSchedules", "closeCalendar"]);
 const deleteVisible = ref(false);
 const deleteTargetId = ref("");
-
+const store = useStore();
 watch(() => props.course, async (val: ICourse) => {
-    addLessonBag.value.chapterId = props.course.chapterId;
-    addLessonBag.value.chapterName = props.course.chapterName;
-    addLessonBag.value.lessonId = props.course.lessonId;
-    addLessonBag.value.lessonName = props.course.lessonName;
+    setValueAddLessonBag(props.course)
     await getMyLessonBagNew({ id: val.lessonId });
     if (!lessonPackageList.value.length) {
         addLessonBag.value.name = "备课包1";

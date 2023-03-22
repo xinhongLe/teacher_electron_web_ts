@@ -1,4 +1,5 @@
 import { VUE_APP_PREPARE_API, YUN_API } from "@/config";
+import { store } from "@/store";
 import { IYunInfo } from "@/types/login";
 import { RequestFun } from "@/types/response";
 import request from "@/utils/request";
@@ -552,7 +553,7 @@ export const GetCurrentCodeTeacherClass: RequestFun<{ OrgId: string, UserId: str
         },
         method: "post",
         data: {
-            OrgId: yunInfo.OrgId,
+            OrgId: store.state.userInfo.schoolId,
             UserId: yunInfo.UserId
         }
     });

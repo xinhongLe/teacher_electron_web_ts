@@ -8,6 +8,12 @@ interface State {
     currentSelectPackageId: string,
     packageCount: number
 }
+interface ICourse {
+    chapterId: string;
+    lessonId: string;
+    lessonName: string;
+    chapterName: string;
+}
 export default () => {
     const state: State = reactive({
         lessonPackageList: [],//课包数据源
@@ -95,6 +101,21 @@ export default () => {
             return res.success
         }
     };
+    //给addLessonBag 的 章节科目目录赋值
+    const setValueAddLessonBag = (course: ICourse) => {
+        const book = store.state.preparation.subjectPublisherBookValue;
+        addLessonBag.value.subjectName = book?.SubjectName;
+        addLessonBag.value.albumId = book?.AlbumId;
+        addLessonBag.value.subjectId = book?.SubjectId;
+        addLessonBag.value.publisherId = book?.PublisherId;
+        addLessonBag.value.publisherName = book?.PublisherName;
+        addLessonBag.value.albumName = book?.AlbumName;
+        addLessonBag.value.chapterId = course.chapterId;
+        addLessonBag.value.chapterName = course.chapterName;
+        addLessonBag.value.lessonId = course.lessonId;
+        addLessonBag.value.lessonName = course.lessonName;
+        addLessonBag.value.schoolId = store.state.userInfo.schoolId;
+    }
     return {
         addLessonBag,
         ...toRefs(state),
@@ -103,6 +124,7 @@ export default () => {
         getPrepareGetMyBagCountNew,
         deleteLessonPackage,
         addResourceLessonBag,
-        delResourceLessonBag
+        delResourceLessonBag,
+        setValueAddLessonBag
     };
 };

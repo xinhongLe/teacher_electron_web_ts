@@ -125,7 +125,7 @@ export default defineComponent({
     },
     emits: ["updateResourceList", "toMyLessonPackage", "toArrangeClass", "deleteLessonPackage"],
     setup(props, { expose, emit }) {
-        const { lessonPackageList, getMyLessonBagNew, addResourceLessonBag, delResourceLessonBag, addLessonPackage, addLessonBag } = useLessonPackage();
+        const { lessonPackageList, getMyLessonBagNew, addResourceLessonBag, delResourceLessonBag, addLessonPackage, addLessonBag, setValueAddLessonBag } = useLessonPackage();
         const resourceList = ref<IResourceItem[]>([]);
         const deleteTipVisible = ref(false);
         const editTipVisible = ref(false);
@@ -509,11 +509,8 @@ export default defineComponent({
             update("");
             await getMyLessonBagNew({ id: course.value.lessonId });
             if (!lessonPackageList.value.length) {
+                setValueAddLessonBag(props.course)
                 addLessonBag.value.name = "备课包1";
-                addLessonBag.value.chapterId = props.course.chapterId;
-                addLessonBag.value.chapterName = props.course.chapterName;
-                addLessonBag.value.lessonId = props.course.lessonId;
-                addLessonBag.value.lessonName = props.course.lessonName;
                 const res = await addLessonPackage(addLessonBag.value);
                 if (res) {
                     getMyLessonBagNew({ id: course.value.lessonId });
@@ -618,10 +615,7 @@ export default defineComponent({
         };
         // 资源列表的备课包下拉中新增课包
         const addNewLessonPackage = async () => {
-            addLessonBag.value.chapterId = props.course.chapterId;
-            addLessonBag.value.chapterName = props.course.chapterName;
-            addLessonBag.value.lessonId = props.course.lessonId;
-            addLessonBag.value.lessonName = props.course.lessonName;
+            setValueAddLessonBag(props.course);
             addLessonBag.value.name = "备课包" + (lessonPackageList.value.length + 1);
             lessonPackageList.value.forEach(item => {
                 if (item.Name === addLessonBag.value.name) {
