@@ -158,7 +158,6 @@ const openMouseDrag = () => {
                 const event: MouseEvent = new MouseEvent('mousedown');
                 event.preventDefault();
                 dom.dispatchEvent(event);
-
             }
         }
     })
