@@ -22,7 +22,7 @@
                         :isShowText="isShowText" :isShowDelete="isShowDelete" :isShowDetailBtn="isShowDetailBtn"
                         @openCourse="openCourse" @createHomePoint="createHomePoint" @openClassDialog="openClassDialog"
                         @openLessonDialogTip="openLessonDialogTip" @openDeleteDialogTip="openDeleteDialogTip"
-                        :ref="'courseRef' + col.SectionName + item.index" />
+                        :ref="'courseRef' + col.APMP + col.SectionName + item.index" />
                 </div>
             </div>
         </div>

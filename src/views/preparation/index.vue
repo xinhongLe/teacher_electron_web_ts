@@ -131,13 +131,15 @@ export default defineComponent({
         const toLessonBagArrange = (data: any, type: number) => {
             nextTick(() => {
                 console.log('showClassArrangement', showClassArrangement.value);
-                LessonPackageRef.value.toLessonBagArrange(data, type)
+                LessonPackageRef.value && LessonPackageRef.value.toLessonBagArrange(data, type)
             })
         };
         //关闭课表并显示我的课包以及资源
         const closeCalendar = () => {
+            if (!showPackage.value && !showClassArrangement.value) return;
             showPackage.value = false;
             showClassArrangement.value = false;
+            LessonPackageRef.value.selectPackage()
         };
         // 更新课表信息
         const updateSchedules = () => {

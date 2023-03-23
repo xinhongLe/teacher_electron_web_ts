@@ -87,7 +87,7 @@
                             </div>
                         </div>
                         <div class="delete-icon-warp"
-                            v-if="colData.PackageList && colData.PackageList[0]?.LessonName && isShowDelete" 
+                            v-if="colData.PackageList && colData.PackageList[0]?.LessonName && isShowDelete"
                             @click.stop.prevent="deleteCourse(colData)" @touchstart.stop.prevent="deleteCourse(colData)">
                             <span class="line"></span>
                         </div>
@@ -263,7 +263,7 @@ const onMouseDownEnd = async (ev: MouseEvent, colData: NewColData) => {
         isActive.value = false;
         if (colData.PackageList && colData.PackageList[0]?.LessonName) {
             closePackageDom(ev)
-            emit("openLessonDialogTip", rowData.value.SectionName + colData.index)
+            emit("openLessonDialogTip", rowData.value.APMP + rowData.value.SectionName + colData.index)
         } else {
             let scheduleInDto: ISetNewScheduleInDto = {
                 packageId: currentPackageData.value.Id,
@@ -276,7 +276,7 @@ const onMouseDownEnd = async (ev: MouseEvent, colData: NewColData) => {
     if (isDragging.value && !colData.SchedulingNewDetailId && !isEnd.value) {
         closePackageDom(ev)
         isAddClass.value = true
-        emit("openClassDialog", rowData.value.SectionName + colData.index)
+        emit("openClassDialog", rowData.value.APMP + rowData.value.SectionName + colData.index)
     }
 
 };
@@ -288,7 +288,7 @@ const deleteCourse = (colData: NewColData) => {
         sureDeletePackage([colData.PackageList[0].PackageId])
     } else {
         const params = {
-            id: rowData.value.SectionName + colData.index,
+            id: rowData.value.APMP + rowData.value.SectionName + colData.index,
             packageList: colData.PackageList
         }
         emit("openDeleteDialogTip", params)
@@ -414,7 +414,7 @@ const openDelLesson = (event: MouseEvent, id: string) => {
 const editClass = (colData: NewColData) => {
     currentcolData.value = colData;
     isAddClass.value = false;
-    emit("openClassDialog", rowData.value.SectionName + colData.index)
+    emit("openClassDialog", rowData.value.APMP + rowData.value.SectionName + colData.index)
 }
 //确认删除这个课包
 const confirmDel = () => {

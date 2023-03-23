@@ -84,17 +84,16 @@ watch(() => props.course, async (val: ICourse) => {
         const res = await addLessonPackage(addLessonBag.value);
         if (res) {
             await getMyLessonBagNew({ id: val.lessonId })
-            selectPackage(lessonPackageList.value[0])
+            // selectPackage(lessonPackageList.value[0])
         }
     } else {
-        selectPackage(lessonPackageList.value[0])
+        emitter.emit("updateResourceList", []);
+        // selectPackage(lessonPackageList.value[0])
     }
 }, { deep: true, immediate: true })
 
 // 新增备课包
 const addPackage = async () => {
-    console.log('addPackage', addPackage);
-
     // if (lessonPackageList.value.length) {
     addLessonBag.value.name = "备课包" + (lessonPackageList.value.length + 1);
     lessonPackageList.value.forEach(item => {
@@ -112,7 +111,7 @@ const addPackage = async () => {
 };
 // 选择备课包
 const selectPackage = (data?: any) => {
-    currentSelectPackageId.value = data ? data!.Id : lessonPackageList.value[0]?.Id;
+    currentSelectPackageId.value = data ? data.Id : currentSelectPackageId.value ? currentSelectPackageId.value : lessonPackageList.value[0]?.Id;
     emitter.emit("updateResourceList", [currentSelectPackageId.value]);
     emits("closeCalendar");
 };
@@ -142,7 +141,6 @@ const toLessonBagArrange = (data: any, type?: number) => {
                     }
                 }
             } else {
-                console.log('datadatadata', data);
                 const bagId = data.Id || currentSelectPackageId.value;
                 currentSelectPackageId.value = bagId;
                 openMouseDrag();
@@ -155,8 +153,6 @@ const openMouseDrag = () => {
     nextTick(() => {
         if (isMobile.value) return;
         const dom: HTMLElement = document.querySelector('.lesson-package-item.isActive > .package-item > .item-footer > .item-button') as HTMLElement;
-        console.log('dom', props.isMouseDrag, dom);
-
         if (props.isMouseDrag) {
             if (props.isMouseDrag && dom) {
                 const event: MouseEvent = new MouseEvent('mousedown');
