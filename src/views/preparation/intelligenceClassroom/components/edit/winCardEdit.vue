@@ -5,6 +5,8 @@
             :slide="slide"
             @addCard="addCard"
             @onSave="getSlide"
+            @updateSlide="updateSlide"
+            :isShowScreen="false"
             :showThemeAllUse="true"
             @selectGame="selectGame"
             @selectVideo="selectVideo"
@@ -82,10 +84,6 @@ export default defineComponent({
         },
         winId: {
             type: String,
-            required: true
-        },
-        allPageSlideListMap: {
-            type: Object as PropType<Map<string, Slide>>,
             required: true
         },
         subjectID: {
@@ -257,6 +255,10 @@ export default defineComponent({
             PPTEditRef.value.setScreening(flag);
         };
 
+        const updateSlide = (newSlide: Slide, oldSlide: Slide) => {
+            emit("updatePageSlide", newSlide);
+        };
+
         return {
             ...toRefs(state),
             saveSlide,
@@ -286,7 +288,8 @@ export default defineComponent({
             TeacherID,
             handleHelper,
             applyBackgroundAllSlide,
-            setScreening
+            setScreening,
+            updateSlide
         };
     }
 });

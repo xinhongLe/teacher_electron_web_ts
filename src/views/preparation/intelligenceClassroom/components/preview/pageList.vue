@@ -1,23 +1,40 @@
 <template>
     <div class="pageListComponents">
         <div class="me-work">
-            <ScreenView class="me-work-screen" :inline="true" :isInit="isInitPage" ref="screenRef" :slide="currentSlide"
-                :writeBoardVisible="writeBoardVisible" :keyDisabled="keyDisabled" :useScale="false" :winList="cardList"
-                :canvasData="canvasData" @openCard="openCard" @pagePrev="pagePrev" @pageNext="pageNext"
-                @closeWriteBoard="closeWriteBoard" @closeTool="closeTool" :isShowPenTools="false"
-                v-model:isCanUndo="isCanUndo" v-model:isCanRedo="isCanRedo" v-model:currentDrawColor="currentDrawColor"
-                v-model:currentLineWidth="currentLineWidth" />
-            <open-card-view-dialog @closeOpenCard="closeOpenCard" v-if="dialogVisible" :dialog="dialog"
-                :cardList="dialogCardList" v-model:dialogVisible="dialogVisible"></open-card-view-dialog>
-            <div class="me-pager">
-                {{ currentPageNum + "/" + pageListCount.length }}
-            </div>
+            <ScreenView
+                ref="screenRef"
+                :inline="true"
+                :useScale="false"
+                :winList="cardList"
+                :isInit="isInitPage"
+                @openCard="openCard"
+                @pagePrev="pagePrev"
+                @pageNext="pageNext"
+                :slide="currentSlide"
+                @closeTool="closeTool"
+                class="me-work-screen"
+                :isShowPenTools="false"
+                :canvasData="canvasData"
+                :keyDisabled="keyDisabled"
+                v-model:isCanUndo="isCanUndo"
+                v-model:isCanRedo="isCanRedo"
+                @closeWriteBoard="closeWriteBoard"
+                :writeBoardVisible="writeBoardVisible"
+                v-model:currentDrawColor="currentDrawColor"
+                v-model:currentLineWidth="currentLineWidth"
+            />
+            <open-card-view-dialog
+                :dialog="dialog"
+                v-if="dialogVisible"
+                :cardList="dialogCardList"
+                @closeOpenCard="closeOpenCard"
+                v-model:dialogVisible="dialogVisible"
+            />
+            <div class="me-pager">{{ currentPageNum + "/" + pageListCount.length }}</div>
             <transition name="fade">
-                <div class="me-page" ref="container" :class="{
-                    hidden: isFullScreen && !isShowCardList,
-                }">
+                <div class="me-page" ref="container" :class="{hidden: isFullScreen && !isShowCardList}">
                     <div class="page-list-item">
-                        <PageItem :pageList="pageList" :selected="currentPageIndex" @selectPage="selectPage" />
+                        <PageItem :pageList="pageList" :selected="currentPageIndex" @selectPage="selectPage"/>
                     </div>
                 </div>
             </transition>
@@ -32,8 +49,7 @@ import {
     inject,
     ref,
     watch,
-    onMounted,
-    nextTick,
+    nextTick
 } from "vue";
 import TrackService, { EnumTrackEventType } from "@/utils/common";
 import useHome from "@/hooks/useHome";
@@ -46,37 +62,29 @@ import PageItem from "../pageItem.vue";
 import { windowInfoKey } from "@/hooks/useWindowInfo";
 import { SchoolWindowPageInfo } from "@/types/preparation";
 import { find } from "lodash";
-import { IElement } from "mwhiteboard";
 import { useStore } from "@/store";
 import emitter from "@/utils/mitt";
+
 export default defineComponent({
     props: {
         dialog: {
             type: Boolean,
-            default: false,
+            default: false
         },
         isShowCardList: {
             type: Boolean,
-            default: true,
+            default: true
         },
         isFullScreen: {
             type: Boolean,
-            default: false,
-        },
+            default: false
+        }
     },
     components: { OpenCardViewDialog, PageItem },
     setup(props, { emit }) {
         const store = useStore();
         const { getPageDetail, transformType } = useHome();
-        const {
-            currentCard,
-            currentWindowInfo,
-            cardList,
-            currentPageIndex,
-            currentSlide,
-            pageList,
-            currentPageInfo,
-        } = inject(windowInfoKey)!;
+        const { currentCard, currentWindowInfo, cardList, currentPageIndex, currentSlide, pageList, currentPageInfo } = inject(windowInfoKey)!;
 
         const selectPageInfo = ref(currentPageInfo.value);
         const pageListCount = computed(() => {
@@ -99,9 +107,7 @@ export default defineComponent({
         const keyDisabled = ref(false);
         const canvasData = computed(() => {
             return (
-                canvasDataMap.get(
-                    currentSlide.value ? currentSlide.value.id : ""
-                ) || []
+                canvasDataMap.get(currentSlide.value ? currentSlide.value.id : "") || []
             );
         });
         const canvasDataMap = new Map();
@@ -119,7 +125,7 @@ export default defineComponent({
             [pageList, currentCard],
             (newValues: any, prevValues: any) => {
                 const findPage: any = find(newValues[0], {
-                    ID: currentPageInfo.value?.ID,
+                    ID: currentPageInfo.value?.ID
                 });
                 selectPageInfo.value = pageList.value[currentPageIndex.value];
                 if (newValues[1]?.ID === prevValues[1]?.ID && findPage) {
@@ -128,8 +134,7 @@ export default defineComponent({
                 if (prevPageFlag.value === true) {
                     prevPageFlag.value = false;
                     currentPageIndex.value = newValues[0].length - 1;
-                    selectPageInfo.value =
-                        pageList.value[currentPageIndex.value];
+                    selectPageInfo.value = pageList.value[currentPageIndex.value];
 
                     pageNextEnd();
                 } else {
@@ -138,7 +143,7 @@ export default defineComponent({
                 }
             },
             {
-                deep: true,
+                deep: true
             }
         );
         const writeBoardVisible = ref(false);
@@ -147,7 +152,7 @@ export default defineComponent({
             currentPageIndex.value = index;
             const DataContext = {
                 Type: EnumTrackEventType.SelectPage,
-                LessonID: currentWindowInfo.LessonID,
+                LessonID: currentWindowInfo.LessonID
             };
             getDataBase(pageList.value[index].ID, pageList.value[index]);
             TrackService.setTrack(
@@ -167,7 +172,7 @@ export default defineComponent({
         const getDataBase = async (str: string, obj: SchoolWindowPageInfo) => {
             const elements = screenRef.value.whiteboard.getElements();
             currentSlide.value.id &&
-                canvasDataMap.set(currentSlide.value.id, elements);
+            canvasDataMap.set(currentSlide.value.id, elements);
             if (transformType(obj.Type) === -1) {
                 ElMessage({ type: "warning", message: "暂不支持该页面类型" });
                 currentSlide.value = {};
@@ -207,7 +212,7 @@ export default defineComponent({
         const openShape = (event: MouseEvent) => {
             screenRef.value.openShape(event);
         };
-        //橡皮擦
+        // 橡皮擦
         const openPaintTool = (event: MouseEvent, type: string) => {
             screenRef.value.openPaintTool(event, type);
         };
@@ -258,7 +263,7 @@ export default defineComponent({
                 isInitPage.value = true;
                 const DataContext = {
                     Type: EnumTrackEventType.SelectPage,
-                    LessonID: currentWindowInfo.LessonID,
+                    LessonID: currentWindowInfo.LessonID
                 };
                 TrackService.setTrack(
                     EnumTrackEventType.SelectPage,
@@ -307,7 +312,7 @@ export default defineComponent({
                                 ID: page.id,
                                 Type: page.type,
                                 Name: page.name,
-                                OriginType: card.type,
+                                OriginType: card.type
                             };
                         })
                     );
@@ -315,7 +320,7 @@ export default defineComponent({
                 if (pages.length > 0) {
                     const pageIDs = pages.map((page) => page.ID);
                     const obj = {
-                        pageIDs,
+                        pageIDs
                         // OriginType: pages[0].OriginType
                     };
                     const res = await getCardDetail(obj);
@@ -333,13 +338,13 @@ export default defineComponent({
                                 newPages.push({
                                     Type: item.Type,
                                     ID: item.ID,
-                                    Name: value.Name,
+                                    Name: value.Name
                                 });
                             } else {
                                 newPages.push({
                                     Type: item.Type,
                                     ID: item.ID,
-                                    Name: item.Name,
+                                    Name: item.Name
                                 });
                             }
                         });
@@ -403,7 +408,7 @@ export default defineComponent({
                         selectedTabLeft - containerWidth + selectedTabWidth;
                     container.value.scrollTo({
                         left: scrollLeft + scrollDistance,
-                        behavior: "smooth",
+                        behavior: "smooth"
                     });
                 }
             });
@@ -474,7 +479,7 @@ export default defineComponent({
             redo,
             undo
         };
-    },
+    }
 });
 </script>
 

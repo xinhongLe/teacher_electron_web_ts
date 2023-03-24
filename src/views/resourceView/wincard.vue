@@ -1,7 +1,7 @@
 <template>
     <div class="wincard-fixed">
         <div class="wincard-box">
-            <IntelligenceClassroom :resourceId="wincardId" :resource="resource" :isSystem="isSystem" />
+            <IntelligenceClassroom :resourceId="wincardId" :resource="resource" :isSystem="isSystem"/>
         </div>
     </div>
 </template>
@@ -10,6 +10,7 @@
 import { computed } from "vue";
 import { useStore } from "@/store";
 import IntelligenceClassroom from "@/views/preparation/intelligenceClassroom/index.vue";
+
 const store = useStore();
 const props = defineProps({
     index: {
@@ -29,7 +30,8 @@ const isSystem = computed(() => store.state.common.showResourceFullScreen[props.
     bottom: 0;
     left: 0;
     right: 0;
-    z-index: 11000;
+    z-index: 10000;
+
     .wincard-box {
         height: 100%;
         position: relative;
