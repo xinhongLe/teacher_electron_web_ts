@@ -541,7 +541,7 @@ export default defineComponent({
 
         const updatePageSlide = (slide: Slide) => {
             if (!slide || !currentPage.value) return;
-            if (currentPage.value.Json !== slide.id) return;
+            if (currentPage.value.Json.id !== slide.id) return;
 
             const newSlideStr = JSON.stringify(slide);
             const oldSlideStr = JSON.stringify(currentPage.value.Json);
