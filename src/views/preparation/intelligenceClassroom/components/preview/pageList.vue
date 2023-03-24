@@ -1,24 +1,38 @@
 <template>
     <div class="pageListComponents">
         <div class="me-work">
-            <pre style="display: none">
-                 {{ currentSlide }}
-            </pre>
-            <ScreenView class="me-work-screen" :inline="true" :isInit="isInitPage" ref="screenRef" :slide="currentSlide"
-                        :writeBoardVisible="writeBoardVisible" :keyDisabled="keyDisabled" :useScale="false" :winList="cardList"
-                        :canvasData="canvasData" @openCard="openCard" @pagePrev="pagePrev" @pageNext="pageNext"
-                        @closeWriteBoard="closeWriteBoard" @closeTool="closeTool" :isShowPenTools="false"
-                        v-model:isCanUndo="isCanUndo" v-model:isCanRedo="isCanRedo" v-model:currentDrawColor="currentDrawColor"
-                        v-model:currentLineWidth="currentLineWidth"/>
-            <open-card-view-dialog @closeOpenCard="closeOpenCard" v-if="dialogVisible" :dialog="dialog"
-                                   :cardList="dialogCardList" v-model:dialogVisible="dialogVisible"></open-card-view-dialog>
-            <div class="me-pager">
-                {{ currentPageNum + "/" + pageListCount.length }}
-            </div>
+            <ScreenView
+                ref="screenRef"
+                :inline="true"
+                :useScale="false"
+                :winList="cardList"
+                :isInit="isInitPage"
+                @openCard="openCard"
+                @pagePrev="pagePrev"
+                @pageNext="pageNext"
+                :slide="currentSlide"
+                @closeTool="closeTool"
+                class="me-work-screen"
+                :isShowPenTools="false"
+                :canvasData="canvasData"
+                :keyDisabled="keyDisabled"
+                v-model:isCanUndo="isCanUndo"
+                v-model:isCanRedo="isCanRedo"
+                @closeWriteBoard="closeWriteBoard"
+                :writeBoardVisible="writeBoardVisible"
+                v-model:currentDrawColor="currentDrawColor"
+                v-model:currentLineWidth="currentLineWidth"
+            />
+            <open-card-view-dialog
+                :dialog="dialog"
+                v-if="dialogVisible"
+                :cardList="dialogCardList"
+                @closeOpenCard="closeOpenCard"
+                v-model:dialogVisible="dialogVisible"
+            />
+            <div class="me-pager">{{ currentPageNum + "/" + pageListCount.length }}</div>
             <transition name="fade">
-                <div class="me-page" ref="container" :class="{
-                    hidden: isFullScreen && !isShowCardList,
-                }">
+                <div class="me-page" ref="container" :class="{hidden: isFullScreen && !isShowCardList}">
                     <div class="page-list-item">
                         <PageItem :pageList="pageList" :selected="currentPageIndex" @selectPage="selectPage"/>
                     </div>
@@ -70,15 +84,7 @@ export default defineComponent({
     setup(props, { emit }) {
         const store = useStore();
         const { getPageDetail, transformType } = useHome();
-        const {
-            currentCard,
-            currentWindowInfo,
-            cardList,
-            currentPageIndex,
-            currentSlide,
-            pageList,
-            currentPageInfo
-        } = inject(windowInfoKey)!;
+        const { currentCard, currentWindowInfo, cardList, currentPageIndex, currentSlide, pageList, currentPageInfo } = inject(windowInfoKey)!;
 
         const selectPageInfo = ref(currentPageInfo.value);
         const pageListCount = computed(() => {
@@ -101,9 +107,7 @@ export default defineComponent({
         const keyDisabled = ref(false);
         const canvasData = computed(() => {
             return (
-                canvasDataMap.get(
-                    currentSlide.value ? currentSlide.value.id : ""
-                ) || []
+                canvasDataMap.get(currentSlide.value ? currentSlide.value.id : "") || []
             );
         });
         const canvasDataMap = new Map();
@@ -130,8 +134,7 @@ export default defineComponent({
                 if (prevPageFlag.value === true) {
                     prevPageFlag.value = false;
                     currentPageIndex.value = newValues[0].length - 1;
-                    selectPageInfo.value =
-                        pageList.value[currentPageIndex.value];
+                    selectPageInfo.value = pageList.value[currentPageIndex.value];
 
                     pageNextEnd();
                 } else {
@@ -209,7 +212,7 @@ export default defineComponent({
         const openShape = (event: MouseEvent) => {
             screenRef.value.openShape(event);
         };
-        //橡皮擦
+        // 橡皮擦
         const openPaintTool = (event: MouseEvent, type: string) => {
             screenRef.value.openPaintTool(event, type);
         };

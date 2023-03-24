@@ -1,13 +1,27 @@
 <template>
     <div class="me-preview">
         <div class="mep-container">
-            <PageList class="preview-pagelist" ref="pageListRef" @lastPage="lastPage" @firstPage="firstPage"
-                :dialog="dialog" :isShowCardList="isShowCardList" :isFullScreen="isFullScreen" v-model:isCanUndo="isCanUndo"
-                v-model:isCanRedo="isCanRedo" v-model:currentDrawColor="currentDrawColor"
-                v-model:currentLineWidth="currentLineWidth" />
+            <PageList
+                :dialog="dialog"
+                ref="pageListRef"
+                @lastPage="lastPage"
+                @firstPage="firstPage"
+                class="preview-pagelist"
+                :isFullScreen="isFullScreen"
+                v-model:isCanUndo="isCanUndo"
+                v-model:isCanRedo="isCanRedo"
+                :isShowCardList="isShowCardList"
+                v-model:currentDrawColor="currentDrawColor"
+                v-model:currentLineWidth="currentLineWidth"
+            />
             <transition name="fade">
-                <Remark :teachProcess="teachProcess" :isSystem="isSystem" :resourceId="resourceId" :design="design"
-                    v-if="showRemark" />
+                <Remark
+                    :design="design"
+                    v-if="showRemark"
+                    :isSystem="isSystem"
+                    :resourceId="resourceId"
+                    :teachProcess="teachProcess"
+                />
             </transition>
         </div>
     </div>
@@ -20,32 +34,30 @@ import Remark from "./remark.vue";
 import PageList from "./pageList.vue";
 import { windowInfoKey } from "@/hooks/useWindowInfo";
 import { isEmpty } from "lodash";
+
 export default defineComponent({
+    components: { Remark, PageList },
     props: {
         resourceId: {
             type: String,
-            default: "",
+            default: ""
         },
         isSystem: {
             type: Boolean,
-            default: false,
+            default: false
         },
         dialog: {
             type: Boolean,
-            default: false,
+            default: false
         },
         isShowCardList: {
             type: Boolean,
-            default: true,
+            default: true
         },
         isFullScreen: {
             type: Boolean,
-            default: false,
-        },
-    },
-    components: {
-        Remark,
-        PageList,
+            default: false
+        }
     },
     setup(props, { emit }) {
         const { data, showRemark, toggleRemark } = preventRemark(props.dialog);
@@ -82,7 +94,7 @@ export default defineComponent({
             pageListRef.value.hideWriteBoard();
             pageListRef.value.openShape(event);
         };
-        //橡皮擦..
+        // 橡皮擦..
         const openPaintTool = (event: MouseEvent, type: string) => {
             pageListRef.value.openPaintTool(event, type);
         };
@@ -146,7 +158,6 @@ export default defineComponent({
             pageListRef.value && pageListRef.value.undo();
         };
 
-
         return {
             teachProcess,
             design,
@@ -174,7 +185,7 @@ export default defineComponent({
             currentDrawColor,
             currentLineWidth
         };
-    },
+    }
 });
 </script>
 
