@@ -2,17 +2,21 @@ import { ElMessage } from "element-plus";
 import { sleep } from "@/utils/common";
 import { computed, Ref, ref } from "vue";
 import { enterFullscreen } from "@/utils/fullscreen";
-import { PageProps } from "@/views/preparation/intelligenceClassroom/api/props";
+import { CardProps, PageProps } from "@/views/preparation/intelligenceClassroom/api/props";
 
-export default (pageList: Ref<PageProps[]>, currentPage: Ref<PageProps | null>, editRef: Ref, winCardViewRef: Ref) => {
-    const previewPageList = computed(() => pageList.value.filter(item => item.State));
+export default (windowCards: Ref<CardProps[]>, currentPage: Ref<PageProps | null>, editRef: Ref, winCardViewRef: Ref) => {
+    const previewPageList = computed(() => {
+        let allPages: PageProps[] = [];
+        windowCards.value.forEach(item => {
+            allPages = allPages.concat(...item.PageList);
+        });
+        return allPages;
+    });
     const previewIndex = ref(0);
     const winScreenView = ref(false);
 
     // 预览ppt (1-当前页开始，2-第一页开始)
     const handlePreview = async (type: number) => {
-        if (!editRef.value) return;
-        editRef.value.saveSlide();
         if (type === 1 && !currentPage.value?.State) {
             return ElMessage.warning("已下架的页, 暂不支持从当前页预览");
         }

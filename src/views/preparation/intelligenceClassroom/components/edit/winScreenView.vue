@@ -3,18 +3,18 @@
         <ScreenView
             ref="screenRef"
             :isInit="isInit"
-            :slide="slideView"
+            :slide="slide"
             @openCard="openCard"
-            @openMenu="openMenu"
             @pagePrev="pagePrev()"
             @pageNext="pageNext()"
             @offScreen="offScreen"
             :keyDisabled="keyDisabled"
+            @openMenu="showCollapse = !showCollapse"
         />
         <div class="right-fixed" v-if="showCollapse">
             <div class="right-content">
                 <div class="text title">页列表</div>
-                <div :class="['text', index === i ? 'active' : '']" @click="handleActive(i)" v-for="(item, i) in pageList" :KEY="item.ID">
+                <div :class="['text', index === i ? 'active' : '']" @click="index = i" v-for="(item, i) in pageList" :key="item.ID">
                     {{ item.Name }}
                 </div>
             </div>
@@ -30,19 +30,19 @@
 </template>
 
 <script lang="ts">
-import useHome from "@/hooks/useHome";
 import { ElMessage } from "element-plus";
 import { getCardDetail } from "@/api/home";
-import { getWinCardDBData } from "@/utils/database";
-import { defineComponent, onMounted, ref } from "vue";
+import { computed, defineComponent, PropType, ref } from "vue";
 import OpenCardViewDialog from "./openCardViewDialog.vue";
+import { CardProps, PageProps } from "@/views/preparation/intelligenceClassroom/api/props";
 
 export default defineComponent({
     name: "winCardViewDialog",
     components: { OpenCardViewDialog },
     props: {
-        pageList: {
-            type: Object
+        list: {
+            type: Array as PropType<CardProps[]>,
+            default: () => []
         },
         activePageIndex: {
             type: Number,
@@ -51,95 +51,78 @@ export default defineComponent({
     },
     emits: ["offScreen"],
     setup(props, { emit }) {
-        const showCollapse = ref(false);
-        const slideView = ref({});
-        const pageList = ref<any>([]);
-        const index = ref(0);
+        const index = ref(props.activePageIndex);
         const isInit = ref(true);
+        const slideView = ref({});
         const keyDisabled = ref(false);
-        const { getPageDetail } = useHome();
-        onMounted(async () => {
-            pageList.value = props.pageList;
-            index.value = props.activePageIndex;
-            getSlideData();
+        const showCollapse = ref(false);
+
+        const pageList = computed(() => {
+            let allPages: PageProps[] = [];
+            props.list.forEach(item => {
+                allPages = allPages.concat(...item.PageList);
+            });
+            return allPages;
         });
+
+        const slide = computed(() => pageList.value[index.value].Json);
 
         const pagePrev = async () => {
             if (index.value === 0) {
-                return ElMessage({ type: "warning", message: "已经是第一页" });
+                ElMessage.warning("已经是第一页");
+                return;
             }
             index.value--;
             isInit.value = false;
-            getSlideData();
         };
 
         const pageNext = async () => {
             if (index.value === pageList.value.length - 1) {
-                return ElMessage({ type: "warning", message: "已经是最后页" });
+                return ElMessage.warning("已经是最后页");
             }
             index.value++;
             isInit.value = true;
-            getSlideData();
-        };
-
-        const handleActive = (i: number) => {
-            index.value = i;
-            getSlideData();
-        };
-
-        const openMenu = () => {
-            showCollapse.value = !showCollapse.value;
-        };
-
-        const getSlideData = async () => {
-            const dbResArr = await getWinCardDBData(pageList.value[index.value].ID);
-            if (dbResArr.length > 0) {
-                slideView.value = JSON.parse(dbResArr[0].result);
-            } else {
-                await getPageDetail(pageList.value[index.value], 1, (res: any) => {
-                    slideView.value = res;
-                });
-            }
         };
 
         const dialogVisible = ref(false);
         const cardList = ref([]);
         const openCard = async (wins: any) => {
-            if (wins[0] && wins[0].cards) {
-                const cards = wins[0].cards;
-                let pages: any = [];
-                const newPages: any = [];
-                cards.map((card: any) => {
-                    pages = pages.concat(card.slides.map((page: any) => {
-                        return {
-                            ID: page.id,
-                            Type: page.type,
-                            Name: page.name
-                        };
-                    }));
-                });
-                if (pages.length > 0) {
-                    const pageIDs = pages.map((page: any) => page.ID);
-                    const res = await getCardDetail({ pageIDs });
-                    if (res.resultCode === 200 && res.result && res.result.length > 0) {
-                        // 页名称可能会修改
-                        pages.map((item: any) => {
-                            const value = res.result.find((page: any) => page.ID === item.ID);
-                            if (value) {
-                                newPages.push({ Type: item.Type, ID: item.ID, Name: value.Name });
-                            } else {
-                                newPages.push({ Type: item.Type, ID: item.ID, Name: item.Name });
-                            }
-                        });
+            if (!wins[0] || !wins[0].cards) return;
 
-                        cardList.value = newPages;
-                        dialogVisible.value = true;
-                        keyDisabled.value = true;
-                    } else {
-                        keyDisabled.value = false;
-                    }
-                }
+            const cards = wins[0].cards;
+            let pages: any = [];
+            const newPages: any = [];
+            cards.map((card: any) => {
+                pages = pages.concat(card.slides.map((page: any) => {
+                    return {
+                        ID: page.id,
+                        Type: page.type,
+                        Name: page.name
+                    };
+                }));
+            });
+            if (pages.length === 0) return;
+
+            const pageIDs = pages.map((page: any) => page.ID);
+            const res = await getCardDetail({ pageIDs });
+            if (res.resultCode !== 200 || !res.result || res.result.length === 0) {
+                keyDisabled.value = false;
+                return;
             }
+
+            // 页名称可能会修改
+            pages.map((item: any) => {
+                const value = res.result.find((page: any) => page.ID === item.ID);
+                if (value) {
+                    newPages.push({ Type: item.Type, ID: item.ID, Name: value.Name });
+                } else {
+                    newPages.push({ Type: item.Type, ID: item.ID, Name: item.Name });
+                }
+            });
+
+            cardList.value = newPages;
+            dialogVisible.value = true;
+            keyDisabled.value = true;
         };
 
         const closeOpenCard = () => {
@@ -157,13 +140,14 @@ export default defineComponent({
         };
         const offScreen = () => {
             emit("offScreen");
-            // exitFullscreen();
         };
 
-        const setScreening = (flag:boolean) => {
+        const setScreening = (flag: boolean) => {
             screenRef.value.setScreening(flag);
         };
         return {
+            pageList,
+            slide,
             keyDisabled,
             isInit,
             slideView,
@@ -171,7 +155,6 @@ export default defineComponent({
             cardList,
             showCollapse,
             index,
-            openMenu,
             pageNext,
             pagePrev,
             openCard,
@@ -180,7 +163,6 @@ export default defineComponent({
             execNext,
             closeOpenCard,
             offScreen,
-            handleActive,
             setScreening
         };
     }
