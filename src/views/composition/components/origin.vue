@@ -2,24 +2,19 @@
     <div class="origin" style="height: 100%;" v-if="dialogVisible">
         <div class="upper align-center">
             <span>检查原文</span>
-            <div class="top">查看下一篇</div>
+            <!-- <div class="top">查看下一篇</div> -->
         </div>
 
         <div class="box align-center">
             <div class="left">
                 <div class="head align-center">
-                    <div class="img-wrapper active">
-                        <img src="../../../assets/composition/banner.jpg" alt="" />
-                    </div>
-                    <div class="img-wrapper">
-                        <img src="../../../assets/composition/555.jpg" alt="" />
-                    </div>
-                    <div class="img-wrapper">
-                        <img src="../../../assets/composition/banner.jpg" alt="" />
+                    <div :class="['img-wrapper', idx === active && 'active']" v-for="(item, idx) in photoList" :key="idx"
+                        @click="switchPic(item, idx)">
+                        <img :src="item.url" alt="" />
                     </div>
                 </div>
                 <div class="img-box">
-                    <img src="../../../assets/composition/banner.jpg" alt="" />
+                    <img :src="mainPic" alt="" />
                 </div>
             </div>
             <div class="right">
@@ -27,22 +22,12 @@
                     <el-input class="title" v-model="title" />
                     <!-- <div contenteditable="true">我的母亲</div> -->
                     <div class="author align-center">
-                        <span class="name">晾凉</span>
-                        <span class="count">800字</span>
+                        <span class="name">{{ state.author }}</span>
+                        <span class="count">{{ content.length }}字</span>
                     </div>
                 </div>
-                <div class="words" contenteditable="true">
-                    熊猫不似猫是熊，那为什么要叫大熊猫呢？原来这是它本身学名，意思是像猫一样的熊，当然也符合它自身外貌特征，脸像猫，体型像熊。作为国宝，大熊猫只生长在中国，主要分布在四川、陕西、干肃，并且它们栖息在森林，那里气候潮湿且水资源丰富，最重要的是竹叶管够。
-
-                    那这货怎么就成为国宝了？原来它们已经存在至少几百万年，且数量极少，物以稀为贵嘛。但我认为关键是它真的很可爱很讨人喜欢，并且不是所有的动物都能消化竹子的。再来说说它不为人知的一面，作为国宝，大熊猫只生长在中国，主要分布在四川、陕西、干肃，并且它们栖息在欢，并且不是所有的动物都能消化竹子的。
-
-                    熊猫不似猫是熊，那为什么要叫大熊猫呢？原来这是它本身学名，意思是像猫一样的熊，当然也符合它自身外貌特征，脸像猫，体型像熊。作为国宝，大熊猫只生长在中国，主要分布在四川、陕西、干肃，并且它们栖息在森林，那里气候潮湿且水资源丰富，最重要的是竹叶管够。
-
-                    那这货怎么就成为国宝了？原来它们已经存在至少几百万年，且数量极少，物以稀为贵嘛。但我认为关键是它真的很可爱很讨人喜欢，并且不是所有的动物都能消化竹子的。再来说说它不为人知的一面，作为国宝，大熊猫只生长在中国，主要分布在四川、陕西、干肃，并且它们栖息在欢，并且不是所有的动物都能消化竹子的。
-
-                    熊猫不似猫是熊，那为什么要叫大熊猫呢？原来这是它本身学名，意思是像猫一样的熊，当然也符合它自身外貌特征，脸像猫，体型像熊。作为国宝，大熊猫只生长在中国，主要分布在四川、陕西、干肃，并且它们栖息在森林，那里气候潮湿且水资源丰富，最重要的是竹叶管够。
-
-                    那这货怎么就成为国宝了？原来它们已经存在至少几百万年，且数量极少，物以稀为贵嘛。但我认为关键是它真的很可爱很讨人喜欢，并且不是所有的动物都能消化竹子的。再来说说它不为人知的一面，作为国宝，大熊猫只生长在中国，主要分布在四川、陕西、干肃，并且它们栖息在欢，并且不是所有的动物都能消化竹子的。
+                <div class="words" contenteditable="true" @input="contentInput">
+                    {{ content }}
                 </div>
             </div>
         </div>
@@ -53,7 +38,11 @@
     </div>
 </template>
 <script setup lang="ts">
+import { store } from '@/store';
+import { getOssUrl } from '@/utils/oss';
+import { ElMessage } from 'element-plus';
 import { reactive, ref, toRefs } from 'vue';
+import { checkContent, saveContent } from '../api';
 
 const setRef = ref()
 const scanRef = ref()
@@ -64,18 +53,44 @@ const state = reactive({
         label: '全部',
         value: 0
     }],
+    active: 0,
+    mainPic: '',
     grade: null,
-    title:'我的母亲',
-    stuList: []
+    content: '',
+    title: '',
+    author: '',
+    stuList: [],
+    StudentCompositionId: '',
+    photoList: [] as any
 })
 
 const emit = defineEmits(['close', 'save']);
 
-const { gradeList, grade, stuList, title } = toRefs(state)
+const { gradeList, grade, content, photoList, mainPic, active, stuList, title } = toRefs(state)
+
+const contentInput = (e: any) => {
+    console.log('contentInput', e);
+    state.content = e.target.innerText
+}
+
+const switchPic = (item: any, idx: number) => {
+    state.active = idx
+    state.mainPic = item.url
+}
 
 // 保存
 const save = () => {
-
+    if(state.title.length===0){
+        ElMessage.error('标题不可为空')
+        return
+    }
+    let args = { StudentCompositionId: state.StudentCompositionId,Title:state.title, Content: state.content, OperatorId: store.state.userInfo?.userCenterUserID }
+    saveContent(args).then(async (res: any) => {
+        if (res.success) {
+            ElMessage.success('保存成功')
+            close()
+        }
+    })
 }
 
 // 关闭
@@ -85,7 +100,34 @@ const close = () => {
 }
 
 const openDialog = async (info?: any) => {
-    dialogVisible.value = true
+    const { StudentCompositionId } = info
+    state.StudentCompositionId = StudentCompositionId
+    getDetail(StudentCompositionId)
+}
+
+const getDetail = (id: string) => {
+    checkContent({ StudentCompositionId: id }).then(async (res: any) => {
+        if (res.success) {
+            let result = res.result
+            state.content = result.Content || ''
+            state.title = result.Title
+            state.author = result.StudentName
+            state.photoList = result.StudentCompositionFile
+            await state.photoList.forEach(async (ele: any, i: number) => {
+                const { FileExtention, FilePath, FileMD5, FileBucket } = ele;
+                const key = FileExtention
+                    ? `${FilePath}/${FileMD5}.${FileExtention}`
+                    : `${FilePath}/${FileMD5}`;
+                ele.url = await getOssUrl(key, FileBucket)
+                if (i === 0) {
+                    state.mainPic = ele.url;
+                }
+                // console.log('url:', ele.url);
+            })
+            console.log('origin-photoList:', state.photoList);
+            dialogVisible.value = true
+        }
+    })
 }
 
 defineExpose({
@@ -216,12 +258,16 @@ defineExpose({
         box-sizing: border-box;
 
         .words {
+            width: 100%;
+            height: 100%;
+            overflow: auto;
             font-size: 14px;
             font-family: PingFangSC-Regular, PingFang SC;
             font-weight: 400;
             color: #19203D;
             line-height: 22px;
-            padding: 24px 18px 0 18px;
+            padding: 24px 18px 50px 18px;
+            white-space: pre;
         }
 
         .head {
@@ -243,7 +289,8 @@ defineExpose({
                 font-family: PingFangSC-Semibold, PingFang SC;
                 font-weight: 600;
                 color: #19203D;
-                :deep(.el-input__inner){
+
+                :deep(.el-input__inner) {
                     text-align: center;
                 }
             }

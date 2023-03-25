@@ -5,37 +5,30 @@
                 <img src="../../../assets/composition/icon_back@2x.png" alt="" />
             </div>
             <!-- <el-pagination background layout="prev, pager, next" :total="1000" /> -->
-            <div class="top">查看下一篇</div>
+            <!-- <div class="top">查看下一篇</div> -->
         </div>
 
         <div class="box">
             <div class="card">
-                <div class="words">500字</div>
-                <div class="title">大熊猫不是猫</div>
-                <div class="author">梁可</div>
+                <div class="words">{{content.length}}字</div>
+                <div class="title">{{title}}</div>
+                <div class="author">{{state.author}}</div>
                 <div class="content">
-                    熊猫不似猫是熊，那为什么要叫大熊猫呢？原来这是它本身学名，意思是像猫一样的熊，当然也符合它自身外貌特征，脸像猫，体型像熊。作为国宝，大熊猫只生长在中国，主要分布在四川、陕西、干肃，并且它们栖息在森林，那里气候潮湿且水资源丰富，最重要的是竹叶管够。
-
-                    那这货怎么就成为国宝了？原来它们已经存在至少几百万年，且数量极少，物以稀为贵嘛。但我认为关键是它真的很可爱很讨人喜欢，并且不是所有的动物都能消化竹子的。再来说说它不为人知的一面，作为国宝，大熊猫只生长在中国，主要分布在四川、陕西、干肃，并且它们栖息在欢，并且不是所有的动物都能消化竹子的。
-
-                    熊猫不似猫是熊，那为什么要叫大熊猫呢？原来这是它本身学名，意思是像猫一样的熊，当然也符合它自身外貌特征，脸像猫，体型像熊。作为国宝，大熊猫只生长在中国，主要分布在四川、陕西、干肃，并且它们栖息在森林，那里气候潮湿且水资源丰富，最重要的是竹叶管够。
-
-                    那这货怎么就成为国宝了？原来它们已经存在至少几百万年，且数量极少，物以稀为贵嘛。但我认为关键是它真的很可爱很讨人喜欢，并且不是所有的动物都能消化竹子的。再来说说它不为人知的一面，作为国宝，大熊猫只生长在中国，主要分布在四川、陕西、干肃，并且它们栖息在欢，并且不是所有的动物都能消化竹子的。
-
-                    熊猫不似猫是熊，那为什么要叫大熊猫呢？原来这是它本身学名，意思是像猫一样的熊，当然也符合它自身外貌特征，脸像猫，体型像熊。作为国宝，大熊猫只生长在中国，主要分布在四川、陕西、干肃，并且它们栖息在森林，那里气候潮湿且水资源丰富，最重要的是竹叶管够。
-
-                    那这货怎么就成为国宝了？原来它们已经存在至少几百万年，且数量极少，物以稀为贵嘛。但我认为关键是它真的很可爱很讨人喜欢，并且不是所有的动物都能消化竹子的。再来说说它不为人知的一面，作为国宝，大熊猫只生长在中国，主要分布在四川、陕西、干肃，并且它们栖息在欢，并且不是所有的动物都能消化竹子的。
+                    {{content}}
                 </div>
             </div>
         </div>
         <div class="bottom align-center">
             <div class="view" @click="close">查看报告</div>
-            <div class="export" @click="save">导出为pdf</div>
+            <div class="export" @click="exportPDF">导出为pdf</div>
         </div>
     </div>
 </template>
 <script setup lang="ts">
+import { ElMessage } from 'element-plus';
+import moment from 'moment';
 import { reactive, ref, toRefs } from 'vue';
+import { downloadPDF, lookContent } from '../api';
 
 const setRef = ref()
 const scanRef = ref()
@@ -48,17 +41,33 @@ const state = reactive({
         value: 0
     }],
     grade: null,
-    title: '我的母亲',
-    stuList: []
+    title: '',
+    author:'',
+    stuList: [],
+    StudentCompositionId: '',
+    content: ''
 })
 
 const emit = defineEmits(['close', 'save']);
 
-const { gradeList, grade, stuList, title } = toRefs(state)
+const { gradeList, grade,content, stuList, title } = toRefs(state)
 
-// 保存
-const save = () => {
-
+// exportPDF
+const exportPDF = () => {
+    downloadPDF({StudentCompositonId: state.StudentCompositionId}).then((res: any) => {
+        if (res&&res.success) {
+            let blob = new Blob([res]);
+            let objectUrl = window.URL.createObjectURL(blob); //生成一个url
+            const a = document.createElement('a');
+            const filename = moment().format('YYYY-MM-DD') + '.pdf';
+            a.download = filename;
+            a.href = objectUrl;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            ElMessage({ type: 'success', message: '下载成功' });
+        }
+    })
 }
 
 // 关闭
@@ -68,7 +77,21 @@ const close = () => {
 }
 
 const openDialog = async (info?: any) => {
-    dialogVisible.value = true
+    const { StudentCompositionId } = info
+    state.StudentCompositionId = StudentCompositionId
+    getDetail(StudentCompositionId)
+}
+
+const getDetail = (id: string) => {
+    lookContent({ StudentCompositionId: id }).then(async (res: any) => {
+        if (res.success) {
+            let result = res.result
+            state.content = result.Content || ''
+            state.title = result.Title || ''
+            state.author = result.StudentName || ''
+            dialogVisible.value = true
+        }
+    })
 }
 
 defineExpose({

@@ -1,69 +1,82 @@
 <template>
     <div class="list" style="height: 100%;" v-if="dialogVisible">
         <div class="upper align-center">
-            {{ '《' + '将已知的事物陌生化，更是一种创造' + '》' }}
+            {{ '《' + Title + '》' }}
             <div class="back" @click="close">
                 <img src="../../../assets/composition/icon_back@2x.png" alt="" />
             </div>
         </div>
         <div class="tab align-center">
-            <el-tabs>
-                <el-tab-pane v-for="(item, idx) in tabList" :key="idx">
+            <el-tabs v-model="state.tabName" @tab-change="tabChange">
+                <el-tab-pane v-for="(item, idx) in tabList" :key="idx" :name="item.name">
                     <template #label>
                         <div class="custom-tab-label align-center">
-                            {{ item.name }}
-                            <span class="red">(12)</span>
+                            {{ item.StatusDisplay }}
+                            <span class="red" v-if="item.StatusCount > 0">({{ item.StatusCount }})</span>
                         </div>
                     </template>
                 </el-tab-pane>
             </el-tabs>
             <div class="btns align-center">
-                <div class="btn align-center typeIn">
+                <div class="btn align-center typeIn" @click="goTypeIn">
                     <img src="../../../assets/composition/icon_luru@2x.png" alt="" />
                     录入
                 </div>
-                <div class="btn align-center refresh">
+                <div class="btn align-center refresh" @click="refresh">
                     <img src="../../../assets/composition/icon_shuaxin_rest@2x.png" alt="" />
                     刷新
                 </div>
             </div>
         </div>
-        <div class="box">
+        <div class="box" v-if="stuList.length === 0">
+            <div class="empty">暂无数据 </div>
+        </div>
+        <div class="box" v-else>
             <div class="article-line align-center" v-for="(item, idx) of stuList" :key="idx">
                 <div class="sort">{{ idx + 1 }}</div>
-                <div class="stu-name">{{ item.Name }}</div>
-                <div class="grade">{{ item.Grade }}</div>
+                <div class="stu-name">{{ item.StudentName }}</div>
                 <div class="status align-center">
-                    <div class="dot red"></div>
-                    <!-- <img class="yes" src="../../../assets/composition/icon_complete@2x.png" alt="" /> -->
-                    已完成
+                    <div v-if="item.Status !== 3"
+                        :class="['dot', item.Status === 1 && 'gray', item.Status === 2 && 'yel', item.Status === 4 && 'blue', item.Status === 5 && 'red', item.Status === 6 && 'green']">
+                    </div>
+                    <img v-if="item.Status === 3" class="yes" src="../../../assets/composition/icon_complete@2x.png"
+                        alt="" />
+                    {{ item.StatusDisplay }}
                     <el-tooltip effect="dark" content="经检测您提交的内容不是作文，
-            若您确认为作文请点击重新批改" placement="top">
-                        <img class="ask" src="../../../assets/composition/icon_wenhao@2x.png" alt="" />
+                                                若您确认为作文请点击重新批改" placement="top">
+                        <img v-if="item.Status === 5" class="ask" src="../../../assets/composition/icon_wenhao@2x.png"
+                            alt="" />
                     </el-tooltip>
                 </div>
                 <div class="opts align-center">
-                    <div class="delete align-center">
+                    <div class="button" v-if="item.Status === 1" @click="goScan(item)">前往录入</div>
+                    <div class="delete align-center" v-if="item.Status === 2" @click="delItem(item)">
                         <img src="../../../assets/composition/icon_delete_black@2x.png" alt="" />
                     </div>
-                    <div class="button" @click="showDetail">重新批改</div>
-                    <!-- <div class="button">前往录入</div> -->
-                    <div class="button" @click="showOrigin">检查原文</div>
-                    <div class="button" @click="showArticle">查看原文</div>
+                    <div class="button" v-if="item.Status === 5" @click="reCorrection(item)">重新批改</div>
+                    <div class="button" v-if="item.Status === 2" @click="checkOrigin(item)">检查原文</div>
+                    <div class="button" v-if="item.Status === 3 || item.Status === 6" @click="showReport(item)">查看报告</div>
+                    <div class="button" v-if="item.Status === 3 || item.Status === 5 || item.Status === 6"
+                        @click="showArticle(item)">查看原文</div>
                 </div>
+            </div>
+            <div class="page">
+                <Pagination @handleSizeChange="handleSizeChange" @handleCurrentChange="handleCurrentChange"
+                    ref="PaginationRef" />
             </div>
         </div>
         <div class="bottom align-center">
             <div class="del" @click="delProject">删除项目</div>
             <div class="wrapper">
-                <span>共35篇</span>
+                <span>共{{ total }}篇</span>
                 <el-button class="report" color="#3AD393" @click="sendReport">一键发送报告</el-button>
                 <el-button color="#4B71EE" @click="correction">一键批改</el-button>
             </div>
         </div>
     </div>
     <!-- 删除 -->
-    <Delete ref="deleteRef" /> 
+    <Delete ref="deleteRef" @confirm="confirmDelProject" msg="删除后，相关的作文内容和照片以及报告都将删除！" />
+    <Delete ref="deleteItemRef" @confirm="confirmDelItem" />
     <!-- 检查原文 -->
     <Origin ref="originRef" />
     <!-- 查看原文 -->
@@ -83,127 +96,204 @@ import Detail from './detail.vue';
 import CorrectionList from './correctionList.vue';
 import ReportList from './reportList.vue'
 import Delete from './deleteDialog.vue'
+import Pagination from './pagination.vue'
+import { deleteArticle, deleteStudentEntry, getStatusCountByTeacherComId, getStudentComByTeacherComId, resubmitCorrectComposition } from '../api';
+import { ElMessage } from 'element-plus';
+import { store } from '@/store';
 
 const originRef = ref()
 const articleRef = ref()
 const deleteRef = ref()
+const deleteItemRef = ref()
 const detailRef = ref()
 const reportRef = ref()
+const PaginationRef = ref()
+
 const correctionRef = ref()
 const dialogVisible = ref(false)
 
 const state = reactive({
+    ClassId: null,
+    TeacherCompositionId: null,
+    Title: '',
+    total: 0,
+    page: {
+        PageNumber: 1,
+        PageSize: 10
+    },
     gradeList: [{
         label: '全部',
         value: 0
     }],
-    tabList: [
-        {
-            name: '全部'
-        },
-        {
-            name: '待录入'
-        },
-        {
-            name: '待批改'
-        },
-        {
-            name: '批改中'
-        },
-        {
-            name: '批改失败'
-        },
-        {
-            name: '批改完成'
-        }
-    ],
+    tabName: '0',
+    // tabList: [] as any,
     grade: null,
-    stuList: [{
-        Name: '我的中国心',
-        Grade: '三年级1班',
-        Status: 1
-    },
-    {
-        Name: '我的中国心',
-        Grade: '三年级1班',
-        Status: 1
-    },
-    {
-        Name: '我的中国心',
-        Grade: '三年级1班',
-        Status: 1
-    },
-    {
-        Name: '我的中国心',
-        Grade: '三年级1班',
-        Status: 1
-    }, {
-        Name: '我的中国心',
-        Grade: '三年级1班',
-        Status: 1
-    }, {
-        Name: '我的中国心',
-        Grade: '三年级1班',
-        Status: 1
-    },
-    {
-        Name: '我的中国心',
-        Grade: '三年级1班',
-        Status: 1
-    }, {
-        Name: '我的中国心',
-        Grade: '三年级1班',
-        Status: 1
-    },
-    {
-        Name: '我的中国心',
-        Grade: '三年级1班',
-        Status: 1
-    }]
+    stuList: [] as any
 })
 
-const emit = defineEmits(['close', 'save']);
+const emit = defineEmits(['close', 'save', 'refresh', 'typein']);
 
-const { gradeList, grade, tabList, stuList } = toRefs(state)
+const { gradeList, Title, total, grade, stuList } = toRefs(state)
+
+const tabList = ref<any>([])
+const tabChange = (name: any) => {
+    state.tabName = name
+    getComList()
+}
+
+// 录入
+const goTypeIn = () => {
+    close()
+    emit('typein', { TeacherCompositionId: state.TeacherCompositionId, Title: state.Title })
+}
+
+
+// 单个学生前往录入
+const goScan = (item: any) => {
+    close()
+    emit('typein', { ...item, TeacherCompositionId: state.TeacherCompositionId, Title: state.Title })
+}
+
+// 刷新
+const refresh = () => {
+    getTabList()
+    getComList()
+}
 
 // 删除项目
-const delProject = ()=>{
-    deleteRef.value.openDialog()
+const delProject = () => {
+    deleteRef.value.openDialog({ TeacherCompositionId: state.TeacherCompositionId })
+}
+const confirmDelProject = (e: any) => {
+    deleteArticle({ Id: state.TeacherCompositionId }).then((res: any) => {
+        if (res.success) {
+            ElMessage.success('操作成功')
+            emit('refresh')
+            close()
+        }
+    })
+}
+
+// 删除item
+const delItem = (item: any) => {
+    deleteItemRef.value.openDialog({ StudentCompositionId: item.StudentCompositionId })
+}
+const confirmDelItem = (e: any) => {
+    deleteStudentEntry({ StudentCompositionId: e.StudentCompositionId, OperatorId: store.state.userInfo?.userCenterUserID }).then((res: any) => {
+        if (res.success) {
+            ElMessage.success('操作成功')
+            getTabList(() => {
+                getComList()
+            })
+        }
+    })
 }
 
 // 检查原文
-const showOrigin = () => {
-    originRef.value.openDialog()
+const checkOrigin = (item: any) => {
+    originRef.value.openDialog({ StudentCompositionId: item.StudentCompositionId })
 }
 
 // 查看原文
-const showArticle = () => {
-    articleRef.value.openDialog()
+const showArticle = (item: any) => {
+    articleRef.value.openDialog({ StudentCompositionId: item.StudentCompositionId })
 }
 
-// 报告详情
-const showDetail = () => {
-    detailRef.value.openDialog()
+// 查看报告
+const showReport = (item: any) => {
+    detailRef.value.openDialog({ StudentCompositionId: item.StudentCompositionId })
+}
+
+// 重新批改
+const reCorrection = (item: any) => {
+    resubmitCorrectComposition({ StudentCompositonId: item.StudentCompositonId }).then((res: any) => {
+        if (res.success) {
+            ElMessage.success('提交成功')
+        }
+    })
 }
 
 // 关闭
 const close = () => {
     dialogVisible.value = false
+    state.tabName = '0'
     emit('close')
 }
 
 // 一键发送报告
 const sendReport = () => {
-    reportRef.value.openDialog()
+    reportRef.value.openDialog({ TeacherCompositionId: state.TeacherCompositionId })
 }
 
 // 一键批改
 const correction = () => {
-    correctionRef.value.openDialog()
+    correctionRef.value.openDialog({ TeacherCompositionId: state.TeacherCompositionId })
 }
 
 const openDialog = async (info?: any) => {
-    dialogVisible.value = true
+    const { TeacherCompositionId, ClassId, Title } = info
+    state.TeacherCompositionId = TeacherCompositionId
+    state.ClassId = ClassId
+    state.Title = Title
+
+    getTabList(() => {
+        getComList()
+    })
+}
+
+/**
+ * 获取列表
+ */
+const getComList = () => {
+    let status = Number(state.tabName)
+    getStudentComByTeacherComId({ TeacherCompositionId: state.TeacherCompositionId, Status: status, ClassId: state.ClassId, Pager: state.page }).then((res: any) => {
+        if (res.success) {
+            let { list = [], pager } = res.result
+            // if (list.length > 0) {
+            //     list.forEach((ele: any) => {
+            //         ele.StartTime = moment(ele.StartTime).format('YYYY-MM-DD HH:mm:ss')
+            //     });
+            // }
+            state.stuList = list
+            // PaginationRef.value.total = pager.Total
+            state.total = pager.Total
+            dialogVisible.value = true
+        }
+    })
+}
+
+/**
+ * 获取状态栏
+ */
+const getTabList = (cb?: any) => {
+    getStatusCountByTeacherComId({ TeacherCompositionId: state.TeacherCompositionId, ClassId: state.ClassId, Pager: state.page }).then((res: any) => {
+        if (res.success) {
+            let list = res.result || []
+            if (list.length > 0) {
+                list = list.map((v: any) => {
+                    return {
+                        ...v,
+                        name: JSON.stringify(v.Status)
+                    }
+                })
+            }
+            tabList.value = []
+            tabList.value = list
+            if (cb) {
+                cb()
+            }
+        }
+    })
+}
+
+const handleSizeChange = (val: number) => {
+    state.page.PageSize = val;
+    getComList()
+}
+
+const handleCurrentChange = (val: number) => {
+    state.page.PageNumber = val;
+    getComList()
 }
 
 defineExpose({
@@ -211,6 +301,13 @@ defineExpose({
 })
 </script>
 <style lang="scss" scoped>
+.empty {
+    text-align: center;
+    color: #5F626F;
+    margin-top: 60px;
+    font-size: 13px;
+}
+
 :deep(.el-tabs__header) {
     margin: 0;
 }
@@ -252,6 +349,12 @@ defineExpose({
 .align-center {
     display: flex;
     align-items: center;
+}
+
+.page {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 10px;
 }
 
 .upper {
@@ -395,6 +498,10 @@ defineExpose({
 
                 &.yel {
                     background-color: #FBC54D;
+                }
+
+                &.blue {
+                    background-color: #4B71EE;
                 }
 
                 &.green {

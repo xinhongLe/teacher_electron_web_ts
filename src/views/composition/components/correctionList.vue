@@ -9,12 +9,13 @@
         </template>
         <div class="table">
             <el-table :data="tableData" stripe style="width: 100%">
-                <el-table-column type="index" label="序号" width="180" />
-                <el-table-column prop="name" label="学生姓名" />
+                <el-table-column type="index" label="序号" width="100" />
+                <el-table-column prop="StudentName" label="学生姓名" />
+                <el-table-column prop="Phone" label="手机号(乐写作账号)" />
             </el-table>
         </div>
         <div class="page">
-            <span class="count">共38篇</span>
+            <span class="count">共{{ total }}篇</span>
             <Pagination @handleSizeChange="handleSizeChange" @handleCurrentChange="handleCurrentChange"
                 ref="PaginationRef" />
         </div>
@@ -34,98 +35,98 @@
 import { ElMessage } from 'element-plus';
 import Pagination from './pagination.vue'
 import { reactive, ref, toRefs, watch, nextTick } from 'vue';
+import { correctWithOneKey, searchStudentListForCorrect } from '../api';
 //
-const formRef = ref();
 const PaginationRef = ref();
 
 const loading = ref(false);
 const dialogVisible = ref(false);
 const state = reactive({
-    tableData: [
-        {
-            date: '2016-05-03',
-            name: '纳咏龙'
-        },
-        {
-            date: '2016-05-03',
-            name: '纳咏龙'
-        },
-        {
-            date: '2016-05-03',
-            name: '纳咏龙'
-        },
-        {
-            date: '2016-05-03',
-            name: '纳咏龙'
-        },
-        {
-            date: '2016-05-03',
-            name: '纳咏龙'
-        }],
+    tableData: [],
+    total: 0,
+    flag: '',
+    TeacherCompositionId: null,
     formLabelWidth: 70,
-    form: {
-        Title: '',
-        Chapter: null
-    },
     page: {
         PageNumber: 1,
         PageSize: 10
-    },
-    chapterList: [{
-        Value: '全部',
-        Id: 1
-    }] as any[]
+    }
 });
-const { form, tableData, chapterList } = toRefs(state);
+const { tableData, total } = toRefs(state);
 
 const emit = defineEmits(['cancel', 'save']);
 
 const close = () => {
+    state.flag = ''
+    state.TeacherCompositionId = null
     dialogVisible.value = false
     emit('cancel')
 };
 
 const confirm = () => {
-    close()
+    if (state.tableData.length === 0) {
+        ElMessage.warning('没有可提交内容')
+        return
+    }
+    correctWithOneKey({
+        TeacherCompositionId: state.TeacherCompositionId,
+        FlagForBatch: state.flag
+    }).then((res: any) => {
+        if (res.success) {
+            // 1-已开始批改;2-批次信息已过期，请重新请求获取学生列表;3-批次信息已变更，请重新请求获取学生列表
+            let result = res.result;
+            if (result.Status === 1) {
+                ElMessage.success(`提交成功，预计${result.Minute}分钟内完成批改`)
+                close()
+            } else if (result.Status === 2) {
+                ElMessage.error('批次信息已过期，请重新请求获取学生列表')
+            } else {
+                ElMessage.error('批次信息已变更，请重新请求获取学生列表')
+            }
+        }
+    })
 };
 
 const openDialog = async (info?: any) => {
-    dialogVisible.value = true
+    let { TeacherCompositionId } = info
+    state.TeacherCompositionId = TeacherCompositionId
+    queryData(() => {
+        dialogVisible.value = true
+    })
 };
 
-const queryData = () => {
-    loading.value = true
-    // let [start, end] = props.form.SubmitDate || [null,null]
-    // getAppealLogList({
-    //     Phone: props.form.Phone,
-    //     StartDate: start ? moment(start).format('YYYY-MM-DD') : null,
-    //     EndDate: end ? moment(end).format('YYYY-MM-DD'): null,
-    //     Pager: state.page
-    // }).then((res: any) => {
-    //     loading.value = false
-    //     if (res.success) {
-    //         const { list = [], pager } = res.result
-    //         if (list.length > 0) {
-    //             list.forEach((ele:any, i:number) => {
-    //                 ele.NickName = ele.NickName || '--'
-    //             })
-    //         }
-    //         state.tableData = list
-    //         PaginationRef.value.total = pager.Total;
-    //     }
-    // })
+const queryData = (cb?: any) => {
+    let flag = new Date().getTime() + '-' + state.TeacherCompositionId
+    state.flag = flag
+    searchStudentListForCorrect({
+        TeacherCompositionId: state.TeacherCompositionId,
+        FlagForBatch: flag,
+        Pager: state.page
+    }).then((res: any) => {
+        if (res.success) {
+            let { list = [], pager } = res.result
+            if(list.length>0){
+                list.forEach((ele:any)=>{
+                    ele.Phone = ele.Phone || '--'
+                })
+            }
+            state.tableData = list
+            state.total = pager.Total
+            if (cb) {
+                cb()
+            }
+        }
+    })
 }
 
 const handleSizeChange = (val: number) => {
-    // page.value.pageSize = val
     state.page.PageSize = val;
-    // queryData()
+    queryData()
 }
 
 const handleCurrentChange = (val: number) => {
-    // page.value.pageNumber = val
     state.page.PageNumber = val;
-    // queryData()
+    queryData()
 }
 defineExpose({
     openDialog,

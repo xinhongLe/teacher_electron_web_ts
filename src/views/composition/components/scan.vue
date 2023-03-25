@@ -5,15 +5,15 @@
             <div class="left align-center">
                 <img src="../../../assets/composition/icon_sxt@2x.png" alt="" />
                 <span>高拍仪：</span>
-                <el-select v-model="device" placeholder="请选择班级">
-                    <el-option v-for="item in deviceList" :key="item.value" :label="item.label" :value="item.value">
+                <el-select v-model="device" placeholder="请选择" @change="deviceChange">
+                    <el-option v-for="item in deviceList" :key="item.deviceId" :label="item.label" :value="item.deviceId">
                     </el-option>
                 </el-select>
             </div>
             <div class="right align-center">
                 <div class="count">
                     <span class="label">班级已录入：</span>
-                    <span class="num">0/50人</span>
+                    <span class="num">{{ state.hasRecordCount }}/{{ state.allStuList.length }}人</span>
                 </div>
                 <div class="close align-center" @click="close">
                     <img src="../../../assets/composition/icon_js@2x.png" alt="" />
@@ -24,7 +24,8 @@
         <div class="box">
             <!-- 选择学生 -->
             <div class="nav" v-if="isScanByHand">
-                <chooseStu ref="chooseRef" @back="backScan" @after-choose="afterChoose" />
+                <chooseStu :current="state.currentStudent" :stu-list="state.waitRecordList" ref="chooseRef" @back="backScan"
+                    @after-choose="afterChoose" />
             </div>
             <div class="nav" v-else>
                 <div class="opts align-center">
@@ -33,99 +34,320 @@
                 </div>
                 <div class="card">
                     <div class="card-tit">当前学生</div>
-                <!-- <div class="empty-set">
-                        待扫描
-                        识别中...
-                                                                                </div> -->
-                    <div class="stu-set">
-                        <div class="stu">周某某</div>
-                        <div class="grade">三年级1班</div>
-                        <div class="recog">重新识别</div>
+                    <!-- 识别中... -->
+                    <div class="empty-set" v-if="!currentStudent">
+                        {{ boxMessage }}
+                    </div>
+                    <div class="stu-set" v-else>
+                        <div class="stu">{{ state.currentStudentObj.StudentName }}</div>
+                        <div class="grade">{{ state.currentStudentObj.ClassName }}</div>
+                        <div class="recog" @click="clearStuInfo">重新识别</div>
                     </div>
                 </div>
-                <div class="photos">
+                <div class="photos" v-if="photoList.length > 0">
                     <div class="tit">
                         已拍照片：
                     </div>
                     <div class="photo-box">
-                        <div class="photo-item" v-for="(item,idx) in 4" :key="idx">
-                            <img class="del" src="../../../assets/composition/icon_delete_red@2x.png" alt="" />
-                            <div class="tag">{{idx+1}}</div>
-                            <img @click="previewImg(item,idx)" class="main" src="../../../assets/composition/icon_paizhao@2x.png" alt="" />
+                        <div class="photo-item" v-for="(item, idx) in photoList" :key="idx">
+                            <img @click="removePreview(idx)" class="del"
+                                src="../../../assets/composition/icon_delete_red@2x.png" alt="" />
+                            <div class="tag">{{ idx + 1 }}</div>
+                            <img @click="previewImg(idx)" class="main" :src="item.url" alt="" />
                         </div>
                     </div>
                 </div>
             </div>
 
             <div class="content">
-            <!-- <div class="start-scan">
+
+
+                <div class="start-scan" v-if="!isOpenScan">
                     <img src="../../../assets/composition/pic@2x.png" alt="" />
                     <el-button style="width: 146px;" color="#4B71EE" @click="startScan">
                         开始扫描
                     </el-button>
-                                                                                     </div> -->
-                <div class="scan">
-                    <div>
+                </div>
+                <div class="scan" v-else>
+                    <div v-if="!currentStudent">
+                        <QrStream class="qrcode" v-show="state.qrcode" :camera="state.camera" :torch="state.torchActive"
+                            @decode="onDecode" @init="onInit"></QrStream>
                         <img class="line" src="../../../assets/composition/pic_saomiao@2x.png" alt="" />
-                        <span class="down-tip toast">请对准作文开始拍摄</span>
+                        <span class="down-tip toast">请先扫描学生二维码/信息栏</span>
+                    </div>
+
+                    <div id="takeAPic" v-else>
+                        <video id="video" ref="videoRef" class="video"></video>
+                        <img class="line" src="../../../assets/composition/pic_saomiao@2x.png" alt="" />
+                        <span class="down-tip toast" v-if="!currentStudent">请先扫描学生二维码/信息栏</span>
+                        <span class="down-tip toast" v-else>请对准作文开始拍摄</span>
                     </div>
                 </div>
-                <div class="takes">
-                    <div class="take-item">
+                <div class="takes" v-if="isOpenScan && currentStudent">
+                    <div class="take-item" @click="capture">
                         <img src="../../../assets/composition/icon_paizhao@2x.png" alt="" />
                         <span>拍照</span>
                     </div>
-                    <div class="take-item">
+                    <div class="take-item" @click="switchToNextStu">
                         <img src="../../../assets/composition/icon_next@2x.png" alt="" />
-                        <span>下一个学生</span>
+                        <span>{{ isSupply ? '完成' : '下一个学生' }}</span>
                     </div>
                 </div>
             </div>
         </div>
     </view>
     <!-- 预览 -->
-    <Preview ref="previewRef" />
+    <Preview ref="previewRef" :img-list="photoList" />
     <!-- 文件导入 -->
-    <ImportVue ref="importRef" />
+    <ImportVue ref="importRef" @open-list="close" :teacher-composition-id="state.TeacherCompositionId" />
+    <!-- 重名选择 -->
+    <Repeat ref="repeatRef" :repeat-list="state.repeatList" @select="selectRepeat" />
 </template>
 <script setup lang="ts">
 import { ElMessage } from 'element-plus';
-import { reactive, ref, toRefs, watch, nextTick } from 'vue';
+import { reactive, ref, toRefs, watch, nextTick, onMounted } from 'vue';
 import chooseStu from './chooseStu.vue';
 import Preview from './preview.vue';
+import Repeat from './repeat.vue';
 import ImportVue from './import.vue';
+import { cooOss, getOssUrl } from '@/utils/oss';
+import { get, STORAGE_TYPES } from '@/utils/storage';
+import moment from 'moment';
+import { QrStream, QrCapture } from 'vue3-qr-reader';
+import { getClassStuCountByTeacher, getStudentByClass, getStudentByHasEntry, getStudentByUserInfo, oneStudentEntry } from '../api';
+import { store } from '@/store';
 //
+onMounted(() => {
+    getDevices()
+})
+//
+const videoRef = ref();
+const canvasRef = ref();
 const chooseRef = ref();
+const repeatRef = ref();
 const previewRef = ref();
 const importRef = ref();
 //
+const props = defineProps({
+    classId: {
+        type: String,
+        default: ''
+    }
+})
+//
 const dialogVisible = ref(false);
 const state = reactive({
-    isScanByHand: false,
-    device: null,
-    deviceList: [{
-        value: 1,
-        label: '全部'
-    }]
-});
-const { device, deviceList, isScanByHand } = toRefs(state);
+    qrcode: true,
+    torchActive: false,
+    camera: 'auto',
 
-const emit = defineEmits(['cancel', 'save','openList']);
+    TeacherCompositionId: null,
+    Title: '',
+    isSupply: false,// 是否补录
+    isScanByHand: false,
+    isOpenScan: false,// 是否开启扫描
+    isTakePhoto: false, // 未拍照
+    isRecognizing: false,// 是否识别中
+    boxMessage: '待扫描', // 识别中...
+    showVideo: true, // 展示视频
+    currentStudent: '', // 当前学生
+    currentStudentObj: {} as any,
+    device: null,
+    hasRecordCount: 0,
+    photoList: [] as any,
+    allStuList: [] as any,
+    waitRecordList: [] as any,
+    repeatList: [] as any,
+    // classCount: 0,
+    deviceList: [] as any
+});
+const { device, isSupply, currentStudent, photoList, deviceList, showVideo, isOpenScan, isTakePhoto, isRecognizing, boxMessage, isScanByHand } = toRefs(state);
+
+const emit = defineEmits(['cancel', 'save', 'openList']);
+
+/**
+ * 二维码识别
+ */
+const onDecode = (result: any) => {
+    // alert(result)
+    console.log('--------识别结果--------', result);
+    searchRepeat(result)
+
+    if (result) {
+        // 处理显示到左侧
+    } else {
+        // 调用图片识别接口
+    }
+}
+
+/**
+ * 处理模糊/重名
+ */
+const searchRepeat = (info: any) => {
+    let cid = localStorage.getItem('compositionClassId')
+    getStudentByUserInfo({ UserInfo: info, ClassId: cid }).then(async (res: any) => {
+        if (res.success) {
+            let list = res.result || []
+            repeatRef.value.openDialog()
+
+            if (list.length > 0) {
+                // 选择重名弹窗
+            }
+        }
+    })
+}
+
+const selectRepeat = (e: any) => {
+    state.currentStudent = e.StudentId
+    state.currentStudentObj = {
+        StudentName: e.StudentName,
+        StudentId: e.StudentName,
+        ClassName: e.ClassName
+    }
+}
+
+const onInit = async (promise: any) => {
+    const { capabilities } = await promise;
+
+    const TORCH_IS_SUPPORTED = !!capabilities.torch;
+    try {
+        await promise;
+    } catch (error) {
+        if (error.name === 'NotAllowedError') {
+            ElMessage.warning('您需要授予相机访问权限');
+        } else if (error.name === 'NotFoundError') {
+            ElMessage.warning('这个设备上没有摄像头')
+        } else if (error.name === 'NotSupportedError') {
+            ElMessage.warning('所需的安全上下文(HTT)PS、本地主机')
+        } else if (error.name === 'NotReadableError') {
+            ElMessage.warning('相机被占用')
+        } else if (error.name === 'OverconstrainedError') {
+            ElMessage.warning('安装摄像头不合适')
+        } else if (error.name === 'StreamApiNotSupportedError') {
+            ElMessage.warning('此浏览器不支持流API');
+        }
+    }
+}
+
+// 获取设备
+const getDevices = (e?: string) => {
+    navigator.mediaDevices.enumerateDevices().then(deviceList => {
+        state.deviceList = deviceList.filter(v => v.kind === 'videoinput')
+        console.log('------devicesList', state.deviceList)
+        if (!e) {
+            state.device = state.deviceList[0]?.deviceId || null
+            if (state.device) {
+                navigator.mediaDevices.getUserMedia({ video: { deviceId: state.device } })
+            }
+        } else {
+            navigator.mediaDevices.getUserMedia({ video: { deviceId: e } })
+        }
+
+    })
+}
+
+// 设备切换
+const deviceChange = (e: string) => {
+    console.log('设备切换:', e);
+    getDevices(e)
+}
+
+// 清空当前信息
+const clearStuInfo = () => {
+    state.isSupply = false;
+    state.currentStudent = '';
+    state.currentStudentObj = null;
+    state.boxMessage = '待扫描';
+    state.photoList = [];
+}
+// 下一个学生
+const switchToNextStu = () => {
+    if (state.photoList.length === 0) {
+        // 直接切换下一个学生
+        // 补录需要提示
+        if (state.isSupply) {
+            ElMessage.warning('请拍摄作文照片')
+            return
+        }
+        clearStuInfo()
+        chooseRef.value.switchNext()
+    } else {
+        // 请求接口
+        oneStudentEntry({
+            TeacherCompositionId: state.TeacherCompositionId,
+            StudentId: state.currentStudent,
+            ClassId: props.classId,
+            OperatorId: store.state.userInfo?.userCenterUserID,
+            Title: state.Title,
+            StudentCompositionFile: state.photoList
+        }).then((res: any) => {
+            if (res.success) {
+                if (state.isSupply) {
+                    // 跳走到列表
+                    close()
+                    emit('openList', { TeacherCompositionId: state.TeacherCompositionId, Title: state.Title })
+                    return
+                }
+                // 到学生列表页选择学生
+                ElMessage.success('录入成功');
+                getWaitRecordStudents(() => {
+                    clearStuInfo()
+                })
+
+            }
+        })
+    }
+
+}
+
+/**
+ * 获取待录入学生
+ */
+const getWaitRecordStudents = (cb?: any) => {
+    getStudentByHasEntry({
+        TeacherCompositionId: state.TeacherCompositionId,
+        ClassId: props.classId
+    }).then((res: any) => {
+        if (res.success) {
+            state.waitRecordList = res.result || []
+            state.hasRecordCount = state.allStuList.length - state.waitRecordList.length
+            if (cb) {
+                cb()
+            }
+        }
+    })
+}
+
 
 // 关闭
-const close = ()=>{
+const close = () => {
+    state.isOpenScan = false
+    state.boxMessage = '待扫描'
+    state.isRecognizing = false
+    state.isTakePhoto = false
+    state.showVideo = true
+    clearStuInfo()
+    //
     dialogVisible.value = false
-    emit('openList')
+    emit('openList', { TeacherCompositionId: state.TeacherCompositionId, Title: state.Title })
 }
 
 // 图片预览
-const previewImg = (item:any,idx:number)=>{
-    previewRef.value.openDialog()
+const previewImg = (idx: number) => {
+    previewRef.value.openDialog(idx)
+}
+
+// 删除图片
+const removePreview = (idx: number) => {
+    state.photoList.splice(idx, 1)
 }
 
 // 选中学生
 const afterChoose = (e: any) => {
     console.log('after:', e);
+    state.currentStudent = e.StudentId
+    state.currentStudentObj = e
+    state.isScanByHand = false
 }
 
 // 返回扫码
@@ -139,28 +361,191 @@ const scanByHand = () => {
 }
 
 // 导入文件
-const importFile = ()=>{
+const importFile = () => {
     importRef.value.openDialog()
 }
 
 // 开始扫码
 const startScan = () => {
-
+    if (state.deviceList.length === 0) {
+        ElMessage.warning('当前无可用视频设备')
+        return
+    }
+    state.isOpenScan = true;
+    if (!state.currentStudent) {
+        state.boxMessage = '识别中...';
+    }
+    // state.isRecognizing = true;
+    getUserMedia()
 }
 
-const confirm = () => {
+const getUserMedia = () => {
+    /* 可同时开启video(摄像头)和audio(麦克风) 这里只请求摄像头，所以只设置video为true */
+    navigator.mediaDevices.getUserMedia({ video: true })
+        .then(function (stream) {
+            /* 使用这个 stream 传递到成功回调中 */
+            success(stream)
+        })
+        .catch(function (err) {
+            /* 处理 error 信息 */
+            console.log('getUserMedia-----error', err);
+            // error(error)
+        });
+}
 
-};
+const success = (stream: any) => {
+    // console.log('成功', stream);
+    /* 将stream 分配给video标签 */
+    if (videoRef.value) {
+        videoRef.value.srcObject = stream;
+        videoRef.value.play();
+    }
+}
+
+/* 拍照按钮点击 */
+const capture = () => {
+    if (state.photoList.length === 10) {
+        ElMessage.warning('最多可拍摄10张照片')
+        return
+    }
+    state.showVideo = false;
+    nextTick(() => {
+        const canvas: HTMLCanvasElement = document.createElement('canvas')
+        // canvas.style.width = 884
+        // canvas.height = 648
+        //
+        const dpr = window.devicePixelRatio;
+        canvas.width = 884 * dpr;
+        canvas.height = 648 * dpr;
+        const context = canvas.getContext("2d", { willReadFrequently: true })!;
+        context.scale(dpr, dpr);
+
+        let video = document.getElementById('video');
+
+        const img = new Image()
+        context.drawImage(video, 0, 0, 884, 648)
+        img.src = canvas.toDataURL('image/png')
+        // img.width = 884
+        // img.height = 648
+
+        const takeAPic: any = document.getElementById('takeAPic')
+        // takeAPic.appendChild(img)
+        //
+        let name = moment(new Date()).format('MMDDHHssmm-') + new Date().getTime() + '.png';
+        let blob = dataURLtoBlob(img.src);
+        let file = blobToFile(blob, name);
+        uploadImgToOss(file, () => {
+            // // 隐藏视频
+            // video.style.display = 'none'
+            // canvas.style.display = 'none'
+            state.isScanByHand = false
+        });
+    })
+}
+
+//将base64转换为blob
+const dataURLtoBlob = (dataurl: any) => {
+    var arr = dataurl.split(','),
+        mime = arr[0].match(/:(.*?);/)[1],
+        bstr = atob(arr[1]),
+        n = bstr.length,
+        u8arr = new Uint8Array(n);
+    while (n--) {
+        u8arr[n] = bstr.charCodeAt(n);
+    }
+    return new Blob([u8arr], { type: mime });
+}
+
+//将blob转换为file
+const blobToFile = (theBlob: any, fileName: any) => {
+    theBlob.lastModifiedDate = new Date();
+    theBlob.name = fileName;
+    return theBlob;
+}
+
+const uploadImgToOss = async (data: any, cb: any) => {
+    const bucketObj = {
+        Bucket: "compositionevaluation",
+        Path: "pic",
+        Extention: "",
+        Explain: "作文文件"
+    };
+    const res = await cooOss(data, bucketObj)
+    console.log('res:', res);
+    if (res?.code === 200) {
+        let url = await getOssUrl(res.objectKey, bucketObj.Bucket);
+        state.photoList.push({ Name: res.name, FileMD5: res.md5, FileExtention: res.fileExtension, FileBucket: 'compositionevaluation', FilePath: 'pic', url });
+    }
+    cb()
+}
+
+/**
+ * 全部学生
+ */
+const getAllStudents = (cb?: any) => {
+    getStudentByClass({
+        ClassId: props.classId
+    }).then((res: any) => {
+        if (res.success) {
+            state.allStuList = res.result || []
+            if (cb) {
+                cb()
+            }
+        }
+    })
+}
 
 const openDialog = async (info?: any) => {
+    console.log('scan-open-info:', info);
+    const { TeacherCompositionId, Title, classCount } = info
+    state.TeacherCompositionId = TeacherCompositionId
+    state.Title = Title
+    // state.classCount = classCount
+    //
+    getDevices()
+    getAllStudents(() => {
+        getWaitRecordStudents()
+    })
     dialogVisible.value = true
+    if (info.StudentId) {
+        // 补录
+        state.isSupply = true
+        state.currentStudent = info.StudentId
+        getClasslist()
+        state.currentStudentObj = {
+            StudentName: info.StudentName,
+            StudentId: info.StudentName,
+            ClassName: info.ClassName
+        }
+    }
 };
+
+/**
+ * 获取班级
+ */
+const getClasslist = () => {
+    getClassStuCountByTeacher({
+        OrgId: store.state.userInfo?.schoolId,
+        UserId: store.state.userInfo?.userCenterUserID
+    }).then((res: any) => {
+        if (res.success) {
+            let cid = localStorage.getItem('compositionClassId')
+            let list = res.result || []
+            state.currentStudentObj.ClassName = list.filter((v: any) => v.Id === cid)[0].Name
+        }
+    })
+}
 
 defineExpose({
     openDialog,
 });
 </script>
 <style lang="scss" scoped>
+.qrcode {
+    width: 100%;
+    height: 100%;
+}
+
 .toast {
     padding: 11px 24px;
     height: 40px;
@@ -328,7 +713,7 @@ defineExpose({
 
                         .main {
                             width: 100%;
-                            height: 100%;
+                            height: 111px;
                             border-radius: 5px;
                             cursor: pointer;
                         }
@@ -433,6 +818,19 @@ defineExpose({
                     border-radius: 12px;
                     background-color: #fff;
 
+                    .video {
+                        width: 100%;
+                        height: 100%;
+                    }
+
+                    .capture-pic {
+                        position: absolute;
+                        left: 0;
+                        top: 0;
+                        width: 100%;
+                        height: 100%;
+                    }
+
                     .line {
                         width: 100%;
                         height: 58px;
@@ -500,6 +898,7 @@ defineExpose({
                 display: flex;
                 flex-direction: column;
                 justify-content: center;
+                align-items: center;
 
                 &>img {
                     width: 240px;

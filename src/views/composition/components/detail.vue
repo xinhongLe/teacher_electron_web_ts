@@ -4,44 +4,39 @@
             <div class="back" @click="close">
                 <img src="../../../assets/composition/icon_back@2x.png" alt="" />
             </div>
-            <el-pagination background layout="prev, pager, next" :total="1000" />
-            <div class="top">查看下一篇</div>
+            <!-- <el-pagination background layout="prev, pager, next" :total="1000" />
+            <div class="top">查看下一篇</div> -->
         </div>
 
         <div class="box align-center">
             <div class="left">
                 <div class="head align-center">
-                    <div class="img-wrapper active">
-                        <img src="../../../assets/composition/banner.jpg" alt="" />
-                    </div>
-                    <div class="img-wrapper">
-                        <img src="../../../assets/composition/555.jpg" alt="" />
-                    </div>
-                    <div class="img-wrapper">
-                        <img src="../../../assets/composition/banner.jpg" alt="" />
+                    <div :class="['img-wrapper', idx === active && 'active']" v-for="(item, idx) in photoList" :key="idx"
+                        @click="switchPic(item, idx)">
+                        <img :src="item.url" alt="" />
                     </div>
                 </div>
                 <div class="img-box">
-                    <img src="../../../assets/composition/banner.jpg" alt="" />
+                    <img :src="mainPic" alt="" />
                 </div>
             </div>
             <div class="right">
                 <div class="head align-center">
-                    <span>梁可的评价报告</span>
+                    <span>{{ state.author }}的评价报告</span>
                     <div class="round">
                         <!-- const value = 43
                         const angle = -135 + (value / 100) * 180
                         progress.style.transform = `rotate(${angle}deg)` -->
-                        <div class="block" style="transform: rotate(-135 + (80 / 100) * 180);"></div>
+                        <div class="block" style="transform: rotate(-135 + ({{score}} / 100) * 180);"></div>
                         <p>
-                            <span class="score">80</span>
-                            <span class="tip">良好</span>
+                            <span class="score">{{ score }}</span>
+                            <span class="tip">{{ state.assessment }}</span>
                         </p>
                     </div>
                     <!-- 编辑 -->
                     <el-popover :visible="popoverVisible" placement="top" :width="160">
                         <div class="align-center">
-                            <el-input v-model="score" />
+                            <el-input v-model="state.inputScore" />
                             <el-select v-model="assess" style="margin-left: 8px;">
                                 <el-option v-for="item in assessList" :key="item.value" :label="item.name"
                                     :value="item.value">
@@ -53,7 +48,7 @@
                             <el-button size="small" color="#4B71EE" type="primary" @click="saveScore">保存</el-button>
                         </div>
                         <template #reference>
-                            <img class="edit" @click="state.popoverVisible = true"
+                            <img class="edit" @click="state.inputScore = score, state.popoverVisible = true"
                                 src="../../../assets/composition/icon_deit_cebianlan@2x.png" alt="" />
                         </template>
                     </el-popover>
@@ -78,14 +73,18 @@
         </div>
         <div class="bottom align-center">
             <div class="view" @click="viewArticle">查看原文</div>
-            <div class="export" @click="save">导出为pdf</div>
+            <div class="export" @click="exportPDF">导出为pdf</div>
         </div>
     </div>
     <!-- 查看原文 -->
     <Article ref="articleRef" />
 </template>
 <script setup lang="ts">
+import { getOssUrl } from '@/utils/oss';
+import { ElMessage } from 'element-plus';
+import moment from 'moment';
 import { reactive, ref, toRefs } from 'vue';
+import { downloadPDF, editReportDetail, searchReportDetail } from '../api';
 import Article from './article.vue';
 
 const articleRef = ref()
@@ -93,74 +92,128 @@ const articleRef = ref()
 const dialogVisible = ref(false);
 
 const state = reactive({
+    assessment: '',
     popoverVisible: false,
     gradeList: [{
         label: '全部',
         value: 0
     }],
-    assess: 1,
-    score: 60,
+    assess: 2,
+    score: 0,
+    inputScore: 0,
+    StudentCompositionId: '',
     assessList: [
         {
-            name: '良好',
+            name: '一般',
             value: 1
+        },
+        {
+            name: '良好',
+            value: 2
+        },
+        {
+            name: '优秀',
+            value: 3
         }
     ],
+    photoList: [] as any,
+    mainPic: '',
+    active: 0,
     lineList: [
         {
             title: '综合点评',
             status: 0,
-            content: '文章很有趣，你观察到了大熊猫的特征，并且用有趣的方式将它们描述出来。你还提到了它们之所以被称之为国宝，以及它们被人们喜爱的原因，这很有价值。'
+            key: 'Evaluation',
+            content: ''
         },
         {
             title: '优点',
+            key: 'Advantage',
             status: 0,
-            content: '文章很有趣，你观察到了大熊猫的特征，并且用有趣的方式将它们描述出来。你还提到了它们之所以被称之为国宝，以及它们被人们喜爱的原因，这很有价值。'
+            content: ''
         }, {
             title: '不足',
+            key: 'ShortComing',
             status: 0,
-            content: '文章很有趣，你观察到了大熊猫的特征，并且用有趣的方式将它们描述出来。你还提到了它们之所以被称之为国宝，以及它们被人们喜爱的原因，这很有价值。'
+            content: ''
         }, {
             title: '改进建议',
+            key: 'Suggestions',
             status: 0,
-            content: '文章很有趣，你观察到了大熊猫的特征，并且用有趣的方式将它们描述出来。你还提到了它们之所以被称之为国宝，以及它们被人们喜爱的原因，这很有价值。'
+            content: ''
         }
     ],
     grade: null,
-    title: '我的母亲',
+    title: '',
+    author: '',
     stuList: []
 })
 
 const emit = defineEmits(['close', 'save']);
 
-const { gradeList, score, grade, stuList, title, lineList, assessList, assess, popoverVisible } = toRefs(state)
+const { gradeList, photoList, mainPic, active, score, grade, stuList, title, lineList, assessList, assess, popoverVisible } = toRefs(state)
+
+const switchPic = (item: any, idx: number) => {
+    state.active = idx
+    state.mainPic = item.url
+}
+
+// exportPDF
+const exportPDF = () => {
+    downloadPDF({ StudentCompositonId: state.StudentCompositionId }).then((res: any) => {
+        if (res && res.success) {
+            let blob = new Blob([res]);
+            let objectUrl = window.URL.createObjectURL(blob); //生成一个url
+            const a = document.createElement('a');
+            const filename = moment().format('YYYY-MM-DD') + '.pdf';
+            a.download = filename;
+            a.href = objectUrl;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            ElMessage({ type: 'success', message: '下载成功' });
+        }
+    })
+}
 
 // 查看原文
-const viewArticle = ()=>{
-    articleRef.value.openDialog()
+const viewArticle = () => {
+    articleRef.value.openDialog({ StudentCompositionId: state.StudentCompositionId })
 }
 
 // 保存分数
 const saveScore = () => {
-    state.popoverVisible = false
+    exeSave(1, state.inputScore, () => {
+        state.score = state.inputScore
+        state.assessment = judgeScore(state.score)
+        state.assess = state.assessList.findIndex(v => v.name == state.assessment) + 1
+        state.popoverVisible = false
+    })
 }
 
 // 失去焦点
 const inputBlur = (idx: number) => {
     console.log('idx:', idx);
+    let num = idx + 3
+    exeSave(num, state.lineList[idx]['content'], () => {
+        state.lineList[idx]['status'] = 0
+    })
+}
 
-    state.lineList[idx]['status'] = 0
-
+const exeSave = (type: number, info: any, cb?: any) => {
+    editReportDetail({ StudentCompositonId: state.StudentCompositionId, SaveType: type, SaveInfo: info }).then(async (res: any) => {
+        if (res.success) {
+            ElMessage.success('保存成功')
+            if (cb) {
+                cb()
+            }
+        }
+    })
 }
 
 // 编辑行
 const editLine = (item: any, idx: number) => {
     state.lineList[idx]['status'] = 1
-}
-
-// 保存
-const save = () => {
-
 }
 
 // 关闭
@@ -170,7 +223,50 @@ const close = () => {
 }
 
 const openDialog = async (info?: any) => {
-    dialogVisible.value = true
+    const { StudentCompositionId } = info
+    state.StudentCompositionId = StudentCompositionId
+    getDetail(StudentCompositionId)
+}
+
+const getDetail = (id: string) => {
+    searchReportDetail({ StudentCompositonId: id }).then(async (res: any) => {
+        if (res.success) {
+            //FileList
+            let result = res.result
+            state.score = result.Score
+            state.assessment = judgeScore(state.score)
+            state.assess = state.assessList.findIndex(v => v.name == state.assessment)
+            state.author = result.StudentName || ''
+            state.lineList.forEach((ele: any) => {
+                ele.content = result[ele.key]
+            })
+            state.photoList = result.FileList
+            await state.photoList.forEach(async (ele: any, i: number) => {
+                const { FileExtention, FilePath, FileMD5, FileBucket } = ele;
+                const key = FileExtention
+                    ? `${FilePath}/${FileMD5}.${FileExtention}`
+                    : `${FilePath}/${FileMD5}`;
+                ele.url = await getOssUrl(key, FileBucket)
+                if (i === 0) {
+                    state.mainPic = ele.url;
+                }
+            })
+            dialogVisible.value = true
+        }
+    })
+}
+
+const judgeScore = (score: number) => {
+    // 0-59   一般60-89 良好90-100 优秀
+    let str
+    if (score < 59) {
+        str = '一般'
+    } else if (score < 89) {
+        str = '良好'
+    } else {
+        str = '优秀'
+    }
+    return str
 }
 
 defineExpose({
@@ -322,6 +418,10 @@ defineExpose({
 
         .img-box {
             padding-top: 24px;
+            padding-bottom: 30px;
+            box-sizing: border-box;
+            height: 100%;
+            overflow-y: auto;
 
             img {
                 width: 100%;
@@ -334,6 +434,7 @@ defineExpose({
     .right {
         padding: 16px 24px;
         box-sizing: border-box;
+        overflow-y: auto;
 
         .round {
             position: relative;
@@ -390,6 +491,9 @@ defineExpose({
             color: #19203D;
             line-height: 22px;
             padding: 24px 18px 0 18px;
+            height: 100%;
+            width: 100%;
+            overflow-y: auto;
         }
 
         .head {

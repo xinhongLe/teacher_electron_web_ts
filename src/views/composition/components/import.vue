@@ -24,7 +24,7 @@
                 </div>
                 <div class="title">第二步</div>
                 <div class="desc">
-                    将照片文件按顺序命名好，放入到学生姓名+学号命名的文件夹中，最终将全部学生文件夹放入同一个文件夹中。
+                    将照片文件按顺序命名好，放入到学生姓名&账号命名的文件夹中，最终将全部学生文件夹放入同一个文件夹中，并压缩为ZIP或RAR。
                 </div>
                 <img class="pic step2" src="../../../assets/composition/pic_step2@2x.png" alt="" />
             </div>
@@ -36,7 +36,7 @@
                 <div class="desc">
                     选择导入该文件夹。
                 </div>
-                <div class="download">
+                <div class="download" @click="download">
                     <img src="../../../assets/composition/icon_download@2x.png" alt="" />
                     下载导入模版
                 </div>
@@ -45,10 +45,14 @@
         <template #footer>
             <div class="dialog-footer mt20">
                 <div>
-                    <el-button class="btn" color="#4B71EE" v-loading.fullscreen.lock="loading" @click="confirm">
-                        <img src="../../../assets/composition/icon_daoru@2x.png" alt="" />
-                        导入
-                    </el-button>
+                    <el-upload class="upload-demo" ref="uploadRef" action="" accept=".zip,.rar" :show-file-list="false"
+                        :limit="1" :before-upload="handleFile" :http-request="uploadRequest">
+                        <el-button class="btn" color="#4B71EE" v-loading.fullscreen.lock="loading" @click="confirm">
+                            <img src="../../../assets/composition/icon_daoru@2x.png" alt="" />
+                            导入
+                        </el-button>
+                    </el-upload>
+
                 </div>
             </div>
         </template>
@@ -56,9 +60,19 @@
 </template>
 <script setup lang="ts">
 import { ElMessage } from 'element-plus';
+import moment from 'moment';
 import { reactive, ref, toRefs, watch, nextTick } from 'vue';
+import { compositionBatchImport, downLoadBatchImportModel } from '../api';
 //
-const formRef = ref();
+const uploadRef = ref();
+//
+const props = defineProps({
+    teacherCompositionId: {
+        type: String,
+        default: ''
+    }
+})
+
 const loading = ref(false);
 const dialogVisible = ref(false);
 const state = reactive({
@@ -74,17 +88,52 @@ const state = reactive({
 });
 const { form, chapterList } = toRefs(state);
 
-const emit = defineEmits(['cancel', 'openScan', 'save']);
+const emit = defineEmits(['cancel', 'openScan','openList', 'save']);
 
-const tagByAi = () => {
+const handleFile = (file: any) => {
 
+};
+
+// 下载模板
+const download = () => {
+    downLoadBatchImportModel({}).then((res: any) => {
+        if (res) {
+            let blob = new Blob([res]);
+            let objectUrl = window.URL.createObjectURL(blob); //生成一个url
+            const a = document.createElement('a');
+            const filename = '批量导入模板.zip';
+            a.download = filename;
+            a.href = objectUrl;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            ElMessage({ type: 'success', message: '下载成功' });
+        }
+    })
 }
+
+const uploadRequest = ({ file }: any) => {
+    const formData = new FormData();
+    formData.append('File', file);
+    formData.append('TeacherCompositionId', props.teacherCompositionId);
+
+    compositionBatchImport(formData)
+        .then((res: any) => {
+            if (res.resultCode === 200) {
+                loading.value = false
+                ElMessage.success('批量导入成功！');
+                close();
+                emit('openList');
+            } else {
+                uploadRef.value.clearFiles();
+            }
+        })
+        .catch((error: Error) => {
+            uploadRef.value.clearFiles();
+        });
+};
+
 const close = () => {
-    state.form = {
-        Title: '',
-        Chapter: null
-    };
-    formRef.value && formRef.value.resetFields();
     dialogVisible.value = false;
     emit('cancel');
 };

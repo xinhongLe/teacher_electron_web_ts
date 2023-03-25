@@ -6,20 +6,14 @@
             <img @click="prev" v-if="active > 0" class="prev" src="../../../assets/composition/icon_arrow_left@2x.png"
                 alt="" />
             <!-- v-if="active>0" -->
-            <img @click="next" class="next" src="../../../assets/composition/icon_arrow_right@2x.png" alt="" />
+            <img v-if="Number(active)!==imgList.length-1" @click="next" class="next" src="../../../assets/composition/icon_arrow_right@2x.png" alt="" />
             <div class="img-box">
-                <img src="../../../assets/composition/555.jpg" alt="" />
+                <img :src="current" alt="" />
             </div>
         </div>
         <div class="bottom">
-            <div class="img-wrapper active">
-                <img src="../../../assets/composition/icon_paizhao@2x.png" alt="" />
-            </div>
-            <div class="img-wrapper">
-                <img src="../../../assets/composition/555.jpg" alt="" />
-            </div>
-            <div class="img-wrapper">
-                <img src="../../../assets/composition/banner.jpg" alt="" />
+            <div :class="['img-wrapper',Number(active)===Number(idx)&&'active']" v-for="(item,idx) in imgList" :key="idx" @click="changeCurrent(item,idx)">
+                <img :src="item.url" alt="" />
             </div>
         </div>
     </div>
@@ -28,29 +22,49 @@
 import { ElMessage } from 'element-plus';
 import { reactive, ref, toRefs, watch, nextTick } from 'vue';
 
+//
+const props = defineProps({
+    imgList: {
+        type: Object,
+        default: () => {
+            return []
+        }
+    }
+})
+const {imgList} = toRefs(props)
+//
 const state = reactive({
     active: 0,
-    dialogVisible: false,
-    imgList: []
+    current:'',
+    dialogVisible: false
 });
-const { active,dialogVisible,imgList } = toRefs(state);
+const { active,dialogVisible,current } = toRefs(state);
 
 const emit = defineEmits(['cancel', 'back', 'afterChoose']);
+
+const changeCurrent = (item:any,idx: number | string) => {
+    state.active = Number(idx)
+    state.current = props.imgList[idx].url
+}
 
 const close = () => {
     state.dialogVisible = false
 }
 
-const openDialog = ()=>{
+const openDialog = (idx:number)=>{
+    state.active = idx
     state.dialogVisible = true
+    state.current = props.imgList[idx].url
 }
 
 const prev = () => {
     state.active--
+    state.current = props.imgList[state.active].url
 }
 
 const next = () => {
     state.active++
+    state.current = props.imgList[state.active].url
 }
 
 const backScan = () => {

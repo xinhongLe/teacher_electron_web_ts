@@ -4,9 +4,9 @@
     <div class="card">
         <div class="card-tit">请选择学生</div>
         <div class="stu-box">
-            <div :class="['stu-item', idx === active && 'active']" v-for="(item, idx) in 16" :key="idx"
-                @click="selectStu(item, idx)">
-                汤哲 (60015)
+            <div :class="['stu-item', Number(idx) === active && 'active']" v-for="(item, idx) in props.stuList" :key="idx"
+                @click="selectStu(item, Number(idx))">
+                {{ item.StudentName }} ({{ item.Account }})
             </div>
         </div>
     </div>
@@ -14,9 +14,22 @@
 <script setup lang="ts">
 import { ElMessage } from 'element-plus';
 import { reactive, ref, toRefs, watch, nextTick } from 'vue';
-
+//
+const props = defineProps({
+    stuList: {
+        type: Object,
+        default: () => {
+            return []
+        }
+    },
+    current: {
+        type: String,
+        default: ''
+    }
+})
+//
 const state = reactive({
-    active: 0,
+    active: null as any, // 没有默认选中
     formLabelWidth: 70,
     form: {
         Title: '',
@@ -31,14 +44,37 @@ const { form, chapterList, active } = toRefs(state);
 
 const emit = defineEmits(['cancel', 'back', 'afterChoose']);
 
+watch(()=>props.current,(val)=>{
+    if(val){
+        state.active = props.stuList.findIndex((v:any)=>v.StudentId===props.current)
+        console.log('-----active:',state.active);
+    }
+},{
+    immediate:true,
+    deep:true
+})
+
 const selectStu = (item: any, idx: number) => {
     state.active = idx
-    emit('afterChoose',{...item,idx})
+    emit('afterChoose', { ...item, idx })
+}
+
+// const chooseActive = () => {
+//     state.active = props.stuList.findIndex((v:any)=>v.StudentId===props.current)
+// }
+
+const switchNext = () => {
+    state.active++
+    emit('afterChoose', { ...props.stuList[state.active], idx: state.active })
 }
 
 const backScan = () => {
     emit('back')
 }
+
+defineExpose({
+    switchNext
+})
 </script>
 <style lang="scss" scoped>
 .btn {
@@ -91,6 +127,9 @@ const backScan = () => {
             color: #19203D;
             text-align: left;
             border-bottom: 1px solid fade-out($color: #E0E2E7, $amount: 0.5);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
 
             &:nth-last-of-type(1) {
                 border-bottom: none;
@@ -102,4 +141,5 @@ const backScan = () => {
         }
     }
 
-}</style>
+}
+</style>
