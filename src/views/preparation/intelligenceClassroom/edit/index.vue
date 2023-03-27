@@ -609,20 +609,21 @@ export default defineComponent({
         };
 
         const updatePageSlide = (slide: Slide) => {
-            console.log(slide);
             if (!currentPage.value) return;
-            currentPage.value.Json = slide;
+            const index = windowCards.value.findIndex(item => item.ID === currentPage.value?.ParentID);
+            const page = windowCards.value[index].PageList.find(item => item.ID === currentPage.value?.ID) as PageProps;
+            page.Json = slide;
 
             const teach: any = slide.teach;
             if (teach && teach.ossSrc) {
-                currentPage.value.Url = teach.ossSrc;
+                page.Url = teach.ossSrc;
             }
             const game: any = slide.game;
             if (game && game.ossSrc) {
-                currentPage.value.Url = game.ossSrc;
+                page.Url = game.ossSrc;
             }
 
-            addHandle.replaceCurrentPage(currentPage.value);
+            addHandle.replaceCurrentPage(page);
         };
 
         const applyBackgroundAllSlide = (data: any) => {
@@ -790,6 +791,7 @@ export default defineComponent({
                     Fold: true
                 });
             }
+            console.log(list)
             windowCards.value = list;
             total.value = index;
             currentPage.value = list[0].PageList[0];

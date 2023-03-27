@@ -196,12 +196,12 @@ export default (windowCards: Ref<CardProps[]>, currentPage: Ref<PageProps | null
 
             for (let j = 0; j < item.PageList.length; j++) {
                 item.PageList[j].Index = index;
-                item.PageList[j].Sort = index + 1;
+                item.PageList[j].Sort = j + 1;
                 item.PageList[j].ParentID = item.ID;
                 index++;
             }
         }
-
+        console.log(list)
         windowCards.value = list;
     };
 
