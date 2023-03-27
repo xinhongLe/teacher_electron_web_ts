@@ -794,7 +794,6 @@ export default defineComponent({
                     Fold: true
                 });
             }
-            console.log(list)
             windowCards.value = list;
             total.value = index;
             currentPage.value = list[0].PageList[0];
@@ -1108,6 +1107,7 @@ export default defineComponent({
                             border: 1px solid #ebeff1;
                             display: flex;
                             align-items: flex-end;
+                            background: url("../../../../assets/edit/pic_defaulted.png") 100% 100% no-repeat;
                         }
 
                         .name {
