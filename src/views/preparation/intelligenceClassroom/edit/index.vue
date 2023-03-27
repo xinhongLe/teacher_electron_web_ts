@@ -1025,6 +1025,8 @@ export default defineComponent({
                     .page-right {
                         flex: 1;
                         position: relative;
+                        width: 228px;
+                        height: 128px;
 
                         &.active {
                             outline: 2px solid #2E95FF;
@@ -1075,7 +1077,7 @@ export default defineComponent({
                                 &.add {
                                     right: 36px;
                                     bottom: -16px;
-                                    margin-right: 10px;
+                                    margin-right: 15px;
 
                                     img {
                                         width: 32px;
