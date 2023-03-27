@@ -56,11 +56,7 @@
                                         <img src="@/assets/edit/icon_shijian.png" alt="" v-if="checkIsHandle(1,page.Json)"/>
                                     </div>
                                     <div class="page-right" :class="{active:currentPage.ID === page.ID}">
-                                        <el-image v-if="(page.Type === 20 || page.Type === 16) && page.Url" :src="page.Url" fit="cover">
-                                            <template #error>
-                                                <div class="image-slot">加载失败...</div>
-                                            </template>
-                                        </el-image>
+                                        <img class="cover" v-if="(page.Type === 20 || page.Type === 16) && page.Url" :src="page.Url"/>
                                         <template v-else>
                                             <thumbnail-slide
                                                 :size="228"
@@ -1026,6 +1022,11 @@ export default defineComponent({
                         position: relative;
                         width: 228px;
                         height: 128px;
+
+                        .cover {
+                            width: 100%;
+                            height: 100%;
+                        }
 
                         &.active {
                             outline: 2px solid #2E95FF;
