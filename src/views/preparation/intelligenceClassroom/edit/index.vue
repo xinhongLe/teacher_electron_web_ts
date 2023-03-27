@@ -105,6 +105,7 @@
             <div class="right" :class="{collapse:!showCollapse}">
                 <win-card-edit
                     ref="editRef"
+                    @onSave="winCardSave"
                     :winId="windowInfo?.id"
                     @updateMaterial="updateMaterial"
                     @updatePageSlide="updatePageSlide"
@@ -181,6 +182,7 @@ import AddPageDialog from "../components/edit/addPageDialog.vue";
 import materialCenter from "../components/edit/materialCenter/index.vue";
 import { addTeachPageTemplateLinkCount, saveTemplate } from "@/api/material";
 import { computed, defineComponent, nextTick, onMounted, onUnmounted, ref } from "vue";
+import { dealAnimationData } from "@/utils/dataParse";
 
 export default defineComponent({
     name: "Edit",
@@ -219,6 +221,77 @@ export default defineComponent({
         const pptHandle = useImportPPT();
         const previewHandle = usePreview(windowCards, currentPage, editRef, winCardViewRef);
         const addHandle = useHandlePPT(windowCards, currentPage, editRef);
+
+        // win-card-edit插件保存回调
+        const winCardSave = async () => {
+            const list = [];
+            for (let i = 0; i < windowCards.value.length; i++) {
+                const item = windowCards.value[i];
+
+                const obj: any = {
+                    cardID: item.ID,
+                    sort: item.Sort,
+                    cardName: item.Name,
+                    pageData: []
+                };
+
+                for (let j = 0; j < item.PageList.length; j++) {
+                    const it = item.PageList[j];
+                    const slide: Slide = it.Json;
+
+                    let json = "";
+                    if (slide?.type === "element") {
+                        json = JSON.stringify(slide);
+                    }
+                    if (slide?.type === "listen") {
+                        const words = slide.listenWords?.map((word: any, index: number) => {
+                            return {
+                                sort: index + 1,
+                                WordID: word.id,
+                                PageWordID: word.pageWordID ? null : word.pageWordID,
+                                WordInterval: 2
+                            };
+                        });
+                        json = JSON.stringify(words);
+                    }
+                    if (slide?.type === "follow") {
+                        json = slide.follow?.id || "";
+                    }
+                    if (slide?.type === "teach") {
+                        json = slide.teach?.id || "";
+                    }
+                    if (slide?.type === "game") {
+                        json = slide.game?.id || "";
+                    }
+
+                    obj.pageData.push({
+                        pageID: it.ID,
+                        pageName: it.Name,
+                        type: it.Type,
+                        academicPresupposition: slide?.remark,
+                        designIntent: slide?.design,
+                        sort: it.Sort,
+                        state: it.State,
+                        json
+                    });
+                }
+
+                list.push(obj);
+            }
+
+            const res = await saveWindows({
+                originType: 1,
+                cardData: list,
+                windowID: windowInfo.value.id,
+                windowName: windowInfo.value.name,
+                teacherID: store.state.userInfo.id,
+                franchiseeID: store.state.userInfo.schoolId
+            });
+            if (res.resultCode !== 200) return false;
+
+            ElMessage.success("保存成功");
+            return true;
+        };
 
         // 导入PPT
         const importPPT = () => {
@@ -429,7 +502,7 @@ export default defineComponent({
                 if (windowInfo.value.originType === 0) {
                     return false;
                 } else {
-                    return (await handleSave()) ? "save" : false;
+                    return (await winCardSave()) ? "save" : false;
                 }
             }
         };
@@ -540,14 +613,10 @@ export default defineComponent({
         };
 
         const updatePageSlide = (slide: Slide) => {
-            if (!slide || !currentPage.value) return;
-            if (currentPage.value.Json.id !== slide.id) return;
-
-            const newSlideStr = JSON.stringify(slide);
-            const oldSlideStr = JSON.stringify(currentPage.value.Json);
-            if (newSlideStr === oldSlideStr) return;
-
+            console.log(slide);
+            if (!currentPage.value) return;
             currentPage.value.Json = slide;
+
             const teach: any = slide.teach;
             if (teach && teach.ossSrc) {
                 currentPage.value.Url = teach.ossSrc;
@@ -578,74 +647,13 @@ export default defineComponent({
         };
 
         // 整体保存
-        const handleSave = async () => {
-            const list = [];
-            for (let i = 0; i < windowCards.value.length; i++) {
-                const item = windowCards.value[i];
+        const handleSave = () => {
+            if (!editRef.value) return;
+            editRef.value.saveSlide();
 
-                const obj: any = {
-                    cardID: item.ID,
-                    sort: item.Sort,
-                    cardName: item.Name,
-                    pageData: []
-                };
-
-                for (let j = 0; j < item.PageList.length; j++) {
-                    const it = item.PageList[j];
-                    const slide: Slide = it.Json;
-
-                    let json = "";
-                    if (slide?.type === "element") {
-                        json = JSON.stringify(slide);
-                    }
-                    if (slide?.type === "listen") {
-                        const words = slide.listenWords?.map((word: any, index: number) => {
-                            return {
-                                sort: index + 1,
-                                WordID: word.id,
-                                PageWordID: word.pageWordID ? null : word.pageWordID,
-                                WordInterval: 2
-                            };
-                        });
-                        json = JSON.stringify(words);
-                    }
-                    if (slide?.type === "follow") {
-                        json = slide.follow?.id || "";
-                    }
-                    if (slide?.type === "teach") {
-                        json = slide.teach?.id || "";
-                    }
-                    if (slide?.type === "game") {
-                        json = slide.game?.id || "";
-                    }
-
-                    obj.pageData.push({
-                        pageID: it.ID,
-                        pageName: it.Name,
-                        type: it.Type,
-                        academicPresupposition: slide?.remark,
-                        designIntent: slide?.design,
-                        sort: it.Sort,
-                        state: it.State,
-                        json
-                    });
-                }
-
-                list.push(obj);
-            }
-
-            const res = await saveWindows({
-                originType: 1,
-                cardData: list,
-                windowID: windowInfo.value.id,
-                windowName: windowInfo.value.name,
-                teacherID: store.state.userInfo.id,
-                franchiseeID: store.state.userInfo.schoolId
-            });
-            if (res.resultCode !== 200) return false;
-
-            ElMessage.success("保存成功");
-            return true;
+            setTimeout(() => {
+                winCardSave();
+            }, 500);
         };
 
         // 判断该PPT有无事件，动画，超链接素材（1-事件，2-动画，3-超链接素材）
@@ -768,7 +776,7 @@ export default defineComponent({
                         State: it.State,
                         AcademicPresupposition: it.AcademicPresupposition,
                         DesignIntent: it.DesignIntent,
-                        Json: slide,
+                        Json: dealAnimationData(slide),
                         Index: index,
                         Url: url,
                         ParentID: item.ID
@@ -786,6 +794,7 @@ export default defineComponent({
                     Fold: true
                 });
             }
+            console.log(list)
             windowCards.value = list;
             total.value = index;
             currentPage.value = list[0].PageList[0];
@@ -820,6 +829,7 @@ export default defineComponent({
             materialCenterRef,
             subjectPublisherBookValue,
             importPPT,
+            winCardSave,
             handleSave,
             handleSelect,
             contextMenus,
@@ -1211,10 +1221,10 @@ export default defineComponent({
 
 <style lang="scss">
 .canvas-tool .left-handler {
-    position: fixed;
-    left: 26px;
-    height: 56px;
-    display: flex;
-    align-items: center;
+    position: fixed !important;
+    left: 26px !important;;
+    height: 56px !important;;
+    display: flex !important;;
+    align-items: center !important;;
 }
 </style>

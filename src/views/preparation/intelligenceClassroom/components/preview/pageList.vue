@@ -43,14 +43,7 @@
 </template>
 
 <script lang="ts">
-import {
-    computed,
-    defineComponent,
-    inject,
-    ref,
-    watch,
-    nextTick
-} from "vue";
+import { computed, defineComponent, inject, ref, watch, nextTick } from "vue";
 import TrackService, { EnumTrackEventType } from "@/utils/common";
 import useHome from "@/hooks/useHome";
 import OpenCardViewDialog from "../edit/openCardViewDialog.vue";
@@ -64,6 +57,7 @@ import { SchoolWindowPageInfo } from "@/types/preparation";
 import { find } from "lodash";
 import { useStore } from "@/store";
 import emitter from "@/utils/mitt";
+import { dealAnimationData } from "@/utils/dataParse";
 
 export default defineComponent({
     props: {
@@ -180,11 +174,11 @@ export default defineComponent({
             }
             const dbResArr = await getWinCardDBData(str);
             if (dbResArr.length > 0) {
-                currentSlide.value = JSON.parse(dbResArr[0].result);
+                currentSlide.value = dealAnimationData(JSON.parse(dbResArr[0].result));
             } else {
                 await getPageDetail(obj, obj.OriginType, (res: any) => {
                     if (res && res.id) {
-                        currentSlide.value = res;
+                        currentSlide.value = dealAnimationData(res);
                     }
                 });
             }

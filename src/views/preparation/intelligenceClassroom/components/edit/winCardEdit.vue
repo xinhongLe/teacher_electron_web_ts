@@ -5,7 +5,6 @@
             :slide="slide"
             @addCard="addCard"
             @onSave="getSlide"
-            @updateSlide="updateSlide"
             :isShowScreen="false"
             :showThemeAllUse="true"
             @selectGame="selectGame"

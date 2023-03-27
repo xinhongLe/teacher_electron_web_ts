@@ -17,6 +17,8 @@ export default (windowCards: Ref<CardProps[]>, currentPage: Ref<PageProps | null
 
     // 预览ppt (1-当前页开始，2-第一页开始)
     const handlePreview = async (type: number) => {
+        if (!editRef.value) return;
+        editRef.value.saveSlide();
         if (type === 1 && !currentPage.value?.State) {
             return ElMessage.warning("已下架的页, 暂不支持从当前页预览");
         }

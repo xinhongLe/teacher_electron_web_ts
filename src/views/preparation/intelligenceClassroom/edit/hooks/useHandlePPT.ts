@@ -1,7 +1,6 @@
 import { Ref } from "vue";
 import { cloneDeep } from "lodash";
 import { v4 as uuidv4 } from "uuid";
-import useHome from "@/hooks/useHome";
 import { pageTypeList } from "@/config";
 import messageBox from "@/utils/messageBox";
 import { initSlideData } from "@/utils/dataParsePage";
@@ -15,6 +14,9 @@ export default (windowCards: Ref<CardProps[]>, currentPage: Ref<PageProps | null
     const handlePageClick = (data: PageProps, e?: KeyboardEvent) => {
         if (e?.shiftKey || e?.ctrlKey) return;
         if (data.ID === currentPage.value?.ID) return;
+
+        if (!editRef.value) return;
+        editRef.value.saveSlide();
 
         currentPage.value = data;
     };
