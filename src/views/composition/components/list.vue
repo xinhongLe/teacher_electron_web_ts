@@ -85,7 +85,7 @@
     <!-- 批改列表 -->
     <CorrectionList ref="correctionRef" @success="refresh" />
     <!-- 报告列表 -->
-    <ReportList ref="reportRef" />
+    <ReportList ref="reportRef" @success="refresh" />
 </template>
 <script setup lang="ts">
 import { reactive, ref, toRefs } from 'vue';

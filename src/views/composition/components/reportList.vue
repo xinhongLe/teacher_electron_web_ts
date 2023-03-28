@@ -59,7 +59,7 @@ const state = reactive({
 });
 const { tableData,total } = toRefs(state);
 
-const emit = defineEmits(['cancel', 'save']);
+const emit = defineEmits(['cancel', 'save','success']);
 
 const close = () => {
     state.flag = ''
@@ -79,6 +79,7 @@ const confirm = () => {
     }).then((res: any) => {
         if (res.success) {
             ElMessage.success('操作成功')
+            emit('success')
             close()
         }
     })
