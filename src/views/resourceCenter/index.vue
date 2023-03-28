@@ -17,6 +17,7 @@ import { RESOURCE_WEB, systemId } from "@/config";
 import { IYunInfo } from "@/types/login";
 import usePageEvent from "@/hooks/usePageEvent";
 import isElectron from "is-electron";
+import { useRoute } from "vue-router";
 
 // ts
 export default defineComponent({
@@ -55,8 +56,12 @@ export default defineComponent({
         const schoolName = userInfo.Schools[0].Name;
         //platType 平台码
         const platType = systemId;
+
+        const route = useRoute();
+        const platformId = route.params.platformId;
+
         //webview地址
-        const url = `${RESOURCE_WEB}/#/resource?TOKEN=${token}&USERID=${userId}&ORGID=${orgID}&SECRETKEY=${secretKey}&USERTYPE=${userType}&SCHOOLID=${schoolId}&SCHOOLNAME=${schoolName}&PLATTYPE=${platType}`;
+        const url = `${RESOURCE_WEB}/#/resource?TOKEN=${token}&USERID=${userId}&ORGID=${orgID}&SECRETKEY=${secretKey}&USERTYPE=${userType}&SCHOOLID=${schoolId}&SCHOOLNAME=${schoolName}&PLATTYPE=${platType}&platformId=${platformId}`;
         // console.log('url----', url);
         return {
             url,

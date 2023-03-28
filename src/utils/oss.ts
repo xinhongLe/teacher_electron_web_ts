@@ -9,7 +9,8 @@ import { IOssPaths, IOssUploadRes } from "@/types/oss";
 // 上传
 export const cooOss = function (
     file: File & Blob,
-    OssPaths: IOssPaths
+    OssPaths: IOssPaths,
+    buffer?: ArrayBuffer
 ): Promise<IOssUploadRes | null> {
     return new Promise((resolve) => {
         fileMd5(file, async (md5) => {
@@ -31,7 +32,7 @@ export const cooOss = function (
                 bucket: bucket,
             });
             return client
-                .multipartUpload(objectKey, file, {})
+                .multipartUpload(objectKey, buffer || file, {})
                 .then(() => {
                     return resolve({
                         code: 200,

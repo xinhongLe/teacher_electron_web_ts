@@ -8,33 +8,41 @@ const moment = require("moment");
 const extraResources =
     process.platform === "darwin"
         ? [
-              {
-                  from: "./extraResources/ball/",
-                  to: "extraResources/ball/",
-              },
-              {
-                  from: "./extraResources/mac/ColorPicker",
-                  to: "ColorPicker",
-              },
-          ]
+            {
+                from: "./extraResources/ball/",
+                to: "extraResources/ball/",
+            },
+            {
+                from: "./extraResources/mac/ColorPicker",
+                to: "ColorPicker",
+            },
+            {
+                from: "./extraResources/ffmpeg/ffmpeg",
+                to: "./extraResources/ffmpeg/ffmpeg",
+            }
+        ]
         : [
-              {
-                  from: "./extraResources/ball/",
-                  to: "extraResources/ball/",
-              },
-              {
-                  from: "./extraResources/whiteboard/",
-                  to: "extraResources/whiteboard/",
-              },
-              {
-                  from: "./extraResources/exportWord/",
-                  to: "extraResources/exportWord/",
-              },
-              {
-                  from: "./extraResources/win/mockingbot-color-picker-ia32.exe",
-                  to: "mockingbot-color-picker-ia32.exe",
-              },
-          ];
+            {
+                from: "./extraResources/ball/",
+                to: "extraResources/ball/",
+            },
+            {
+                from: "./extraResources/whiteboard/",
+                to: "extraResources/whiteboard/",
+            },
+            {
+                from: "./extraResources/exportWord/",
+                to: "extraResources/exportWord/",
+            },
+            {
+                from: "./extraResources/win/mockingbot-color-picker-ia32.exe",
+                to: "mockingbot-color-picker-ia32.exe",
+            },
+            {
+                from: "./extraResources/ffmpeg/ffmpeg-win32-ia32.exe",
+                to: "./extraResources/ffmpeg/ffmpeg-win32-ia32.exe",
+            }
+        ];
 
 module.exports = {
     productionSourceMap: false,
@@ -339,7 +347,11 @@ module.exports = {
                     "node_modules/trtc-electron-sdk/build/Release/trtc_electron_sdk.node",
                 ],
             },
-            externals: ["clipboard", "@microsoft/signalr"],
+            externals: [
+                "clipboard",
+                "@microsoft/signalr",
+                "fluent-ffmpeg"
+            ],
         },
     },
 };

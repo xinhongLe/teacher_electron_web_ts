@@ -76,6 +76,7 @@ type Electron = typeof electron & {
     remote: Remote;
     store: Store;
     log: LogFunctions;
+    convertVideoH264: (filePath: string) => Promise<Buffer>;
 };
 
 declare global {

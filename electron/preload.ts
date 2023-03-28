@@ -26,18 +26,20 @@ import {
 } from "fs/promises";
 import crypto from "crypto";
 import { exportWord, IFileData } from "./exportWord";
-const PATH_BINARY =
-    process.platform === "darwin"
-        ? join(__dirname, "../ColorPicker")
-        : join(__dirname, "../mockingbot-color-picker-ia32.exe");
-const PATH_WhiteBoard = join(
-    __dirname,
-    "../extraResources/whiteboard/Aixueshi.Whiteboard.exe"
+import ffmpeg from "fluent-ffmpeg";
+import { v4 as uuidv4 } from "uuid";
+
+const PATH_BINARY = process.platform === "darwin" ? join(__dirname, "../ColorPicker") : join(__dirname, "../mockingbot-color-picker-ia32.exe");
+const PATH_WhiteBoard = join(__dirname, "../extraResources/whiteboard/Aixueshi.Whiteboard.exe"
 );
 // const PATH_White4Board = join(
 //     __dirname,
 //     "../extraResources/whiteboard/4.5/Aixueshi.Whiteboard.exe"
 // );
+
+const PATH_FFMPEG = process.platform === "darwin" ? join(__dirname, "../extraResources/ffmpeg/ffmpeg") : join(__dirname, "../extraResources/ffmpeg/ffmpeg-win32-ia32.exe");
+
+ffmpeg.setFfmpegPath(PATH_FFMPEG);
 
 const downloadsPath = join(app.getPath("userData"), "files", "/");
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -410,6 +412,24 @@ window.electron = {
         } finally {
             await rm(filePath, { recursive: true, force: true });
         }
+    },
+    convertVideoH264: (filePath: string) => {
+        return new Promise((resolve, reject) => {
+            const uuid = uuidv4();
+            const outputPath = join(app.getPath("userData"), "files", `/${uuid}.mp4`);
+            try {
+                ffmpeg(filePath)
+                    .videoCodec("libx264")
+                    .on("end", () => {
+                        const file = fs.readFileSync(outputPath);
+                        resolve(file);
+                    })
+                    .save(outputPath);
+            } catch (err) {
+                console.log("Error: " + err);
+                reject(err);
+            }
+        });
     },
     store: store,
     parsePPT,
