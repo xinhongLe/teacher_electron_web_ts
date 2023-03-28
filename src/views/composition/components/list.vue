@@ -42,8 +42,7 @@
                     <img v-if="item.Status === 3" class="yes" src="../../../assets/composition/icon_complete@2x.png"
                         alt="" />
                     {{ item.StatusDisplay }}
-                    <el-tooltip effect="dark" content="经检测您提交的内容不是作文，
-                                                若您确认为作文请点击重新批改" placement="top">
+                    <el-tooltip effect="dark" :content="item.NotComposition" placement="top">
                         <img v-if="item.Status === 5" class="ask" src="../../../assets/composition/icon_wenhao@2x.png"
                             alt="" />
                     </el-tooltip>
@@ -84,7 +83,7 @@
     <!-- 报告详情 -->
     <Detail ref="detailRef" />
     <!-- 批改列表 -->
-    <CorrectionList ref="correctionRef" />
+    <CorrectionList ref="correctionRef" @success="refresh" />
     <!-- 报告列表 -->
     <ReportList ref="reportRef" />
 </template>
@@ -206,9 +205,10 @@ const showReport = (item: any) => {
 
 // 重新批改
 const reCorrection = (item: any) => {
-    resubmitCorrectComposition({ StudentCompositonId: item.StudentCompositonId }).then((res: any) => {
+    resubmitCorrectComposition({ StudentCompositionId: item.StudentCompositionId }).then((res: any) => {
         if (res.success) {
             ElMessage.success('提交成功')
+            refresh()
         }
     })
 }
@@ -278,7 +278,9 @@ const getTabList = (cb?: any) => {
                 })
             }
             tabList.value = []
-            tabList.value = list
+            setTimeout(() => {
+                tabList.value = list
+            }, 50);
             if (cb) {
                 cb()
             }

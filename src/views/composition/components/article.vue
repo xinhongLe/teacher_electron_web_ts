@@ -54,8 +54,8 @@ const { gradeList, grade,content, stuList, title } = toRefs(state)
 
 // exportPDF
 const exportPDF = () => {
-    downloadPDF({StudentCompositonId: state.StudentCompositionId}).then((res: any) => {
-        if (res&&res.success) {
+    downloadPDF({StudentCompositionId: state.StudentCompositionId}).then((res: any) => {
+        if (res) {
             let blob = new Blob([res]);
             let objectUrl = window.URL.createObjectURL(blob); //生成一个url
             const a = document.createElement('a');
@@ -202,6 +202,9 @@ defineExpose({
             font-weight: 400;
             color: #19203D;
             line-height: 22px;
+            white-space: pre-wrap;
+            display: flex;
+            justify-content: center;
         }
 
         .words {

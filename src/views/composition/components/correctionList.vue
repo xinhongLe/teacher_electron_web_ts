@@ -54,7 +54,7 @@ const state = reactive({
 });
 const { tableData, total } = toRefs(state);
 
-const emit = defineEmits(['cancel', 'save']);
+const emit = defineEmits(['cancel', 'success']);
 
 const close = () => {
     state.flag = ''
@@ -77,6 +77,7 @@ const confirm = () => {
             let result = res.result;
             if (result.Status === 1) {
                 ElMessage.success(`提交成功，预计${result.Minute}分钟内完成批改`)
+                emit('success')
                 close()
             } else if (result.Status === 2) {
                 ElMessage.error('批次信息已过期，请重新请求获取学生列表')

@@ -114,7 +114,7 @@ import { cooOss, getOssUrl } from '@/utils/oss';
 import { get, STORAGE_TYPES } from '@/utils/storage';
 import moment from 'moment';
 import { QrStream, QrCapture } from 'vue3-qr-reader';
-import { getClassStuCountByTeacher, getStudentByClass, getStudentByHasEntry, getStudentByUserInfo, oneStudentEntry } from '../api';
+import { getClassStuCountByTeacher, getStudentByClass, getStudentByHasEntry, getStudentByUserInfo, oneStudentEntry, picToWordByName } from '../api';
 import { store } from '@/store';
 //
 onMounted(() => {
@@ -171,13 +171,35 @@ const emit = defineEmits(['cancel', 'save', 'openList']);
 const onDecode = (result: any) => {
     // alert(result)
     console.log('--------识别结果--------', result);
-    searchRepeat(result)
-
     if (result) {
         // 处理显示到左侧
+        searchRepeat(result)
     } else {
         // 调用图片识别接口
+        let elements = document.getElementsByClassName('qr-stream-camera');
+        console.log('elements:', elements);
+        let file = videoCapture(elements[0])
+        uploadImgToOss(file, 2, (file: any) => {
+            picRecognize(file)
+        });
+
     }
+}
+
+/**
+ * 图片识别
+ */
+const picRecognize = (file: any) => {
+    picToWordByName(file).then(async (res: any) => {
+        if (res.success) {
+            let result = res.result.Content || ''
+            if (result) {
+                searchRepeat(result)
+            } else {
+                ElMessage.warning('图片未识别出学生信息')
+            }
+        }
+    })
 }
 
 /**
@@ -188,10 +210,12 @@ const searchRepeat = (info: any) => {
     getStudentByUserInfo({ UserInfo: info, ClassId: cid }).then(async (res: any) => {
         if (res.success) {
             let list = res.result || []
-            repeatRef.value.openDialog()
-
             if (list.length > 0) {
                 // 选择重名弹窗
+                state.repeatList = list
+                repeatRef.value.openDialog()
+            } else {
+                ElMessage.warning('当前班级未查询到该学生')
             }
         }
     })
@@ -204,6 +228,7 @@ const selectRepeat = (e: any) => {
         StudentId: e.StudentName,
         ClassName: e.ClassName
     }
+    getUserMedia()
 }
 
 const onInit = async (promise: any) => {
@@ -237,10 +262,20 @@ const getDevices = (e?: string) => {
         if (!e) {
             state.device = state.deviceList[0]?.deviceId || null
             if (state.device) {
-                navigator.mediaDevices.getUserMedia({ video: { deviceId: state.device } })
+                navigator.mediaDevices.getUserMedia({ video: { deviceId: state.device } }).then(function (stream) {
+                    success(stream)
+                })
+                    .catch(function (err) {
+                        console.log('默认getUserMedia-----error', err)
+                    });
             }
         } else {
-            navigator.mediaDevices.getUserMedia({ video: { deviceId: e } })
+            navigator.mediaDevices.getUserMedia({ video: { deviceId: e } }).then(function (stream) {
+                success(stream)
+            })
+                .catch(function (err) {
+                    console.log('设备切换getUserMedia-----error', err)
+                });
         }
 
     })
@@ -396,10 +431,34 @@ const getUserMedia = () => {
 const success = (stream: any) => {
     // console.log('成功', stream);
     /* 将stream 分配给video标签 */
+    let finds = document.getElementsByTagName('video')
+    console.log('finds:',finds);
+    finds[0].srcObject = stream;
+    finds[0].play;
     if (videoRef.value) {
         videoRef.value.srcObject = stream;
         videoRef.value.play();
     }
+}
+
+/**
+ * video截图生成file
+ */
+const videoCapture = (element: any) => {
+    const canvas: HTMLCanvasElement = document.createElement('canvas')
+    const dpr = window.devicePixelRatio;
+    canvas.width = 884 * dpr;
+    canvas.height = 648 * dpr;
+    const context = canvas.getContext("2d", { willReadFrequently: true })!;
+    context.scale(dpr, dpr);
+    // let video = document.getElementById('video');
+    const img = new Image()
+    context.drawImage(element, 0, 0, 884, 648)
+    img.src = canvas.toDataURL('image/png')
+    let name = moment(new Date()).format('MMDDHHssmm-') + new Date().getTime() + '.png';
+    let blob = dataURLtoBlob(img.src);
+    let file = blobToFile(blob, name);
+    return file
 }
 
 /* 拍照按钮点击 */
@@ -410,34 +469,10 @@ const capture = () => {
     }
     state.showVideo = false;
     nextTick(() => {
-        const canvas: HTMLCanvasElement = document.createElement('canvas')
-        // canvas.style.width = 884
-        // canvas.height = 648
-        //
-        const dpr = window.devicePixelRatio;
-        canvas.width = 884 * dpr;
-        canvas.height = 648 * dpr;
-        const context = canvas.getContext("2d", { willReadFrequently: true })!;
-        context.scale(dpr, dpr);
-
         let video = document.getElementById('video');
-
-        const img = new Image()
-        context.drawImage(video, 0, 0, 884, 648)
-        img.src = canvas.toDataURL('image/png')
-        // img.width = 884
-        // img.height = 648
-
-        const takeAPic: any = document.getElementById('takeAPic')
-        // takeAPic.appendChild(img)
-        //
-        let name = moment(new Date()).format('MMDDHHssmm-') + new Date().getTime() + '.png';
-        let blob = dataURLtoBlob(img.src);
-        let file = blobToFile(blob, name);
-        uploadImgToOss(file, () => {
+        let file = videoCapture(video)
+        uploadImgToOss(file, 1, () => {
             // // 隐藏视频
-            // video.style.display = 'none'
-            // canvas.style.display = 'none'
             state.isScanByHand = false
         });
     })
@@ -463,7 +498,7 @@ const blobToFile = (theBlob: any, fileName: any) => {
     return theBlob;
 }
 
-const uploadImgToOss = async (data: any, cb: any) => {
+const uploadImgToOss = async (data: any, type = 1, cb: any) => {
     const bucketObj = {
         Bucket: "compositionevaluation",
         Path: "pic",
@@ -471,12 +506,14 @@ const uploadImgToOss = async (data: any, cb: any) => {
         Explain: "作文文件"
     };
     const res = await cooOss(data, bucketObj)
-    console.log('res:', res);
     if (res?.code === 200) {
         let url = await getOssUrl(res.objectKey, bucketObj.Bucket);
-        state.photoList.push({ Name: res.name, FileMD5: res.md5, FileExtention: res.fileExtension, FileBucket: 'compositionevaluation', FilePath: 'pic', url });
+        let newFile = { Name: res.name, FileMD5: res.md5, FileExtention: res.fileExtension, FileBucket: 'compositionevaluation', FilePath: 'pic', url }
+        if (type === 1) {
+            state.photoList.push(newFile);
+        }
+        cb(newFile)
     }
-    cb()
 }
 
 /**
@@ -496,7 +533,7 @@ const getAllStudents = (cb?: any) => {
 }
 
 const openDialog = async (info?: any) => {
-    console.log('scan-open-info:', info);
+    // console.log('scan-open-info:', info);
     const { TeacherCompositionId, Title, classCount } = info
     state.TeacherCompositionId = TeacherCompositionId
     state.Title = Title

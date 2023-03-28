@@ -122,9 +122,7 @@ const getDetail = (id: string) => {
                 if (i === 0) {
                     state.mainPic = ele.url;
                 }
-                // console.log('url:', ele.url);
             })
-            console.log('origin-photoList:', state.photoList);
             dialogVisible.value = true
         }
     })

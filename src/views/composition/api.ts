@@ -1,7 +1,21 @@
 import request from "@/utils/request";
 import { AI_XUE_SHI_API, YUN_API_COMPOSITION } from "@/config";
 import { RequestFun } from "@/types/response";
-import { FetchAllPassage, getClassStuCount, IAddArticle, IcompositionBatchImport, IcorrectWithOneKey, IdeleteArticle, IdeleteStudentEntry, IdownLoadBatchImportModel, IdownloadPDF, IeditReportDetail, IgetStatusCountByTeacherComId, IgetStudentByClass, IgetStudentByHasEntry, IgetStudentByUserInfo, IgetStudentComByTeacherComId, IlookContent, IoneStudentEntry, IsaveContent, IsearchReportDetail, IsearchStudentListForCorrect, IsearchStudentListForReport, IsendReportWithOneKey, IshareReportUrl } from "@/types/composition";
+import { FetchAllPassage, getClassStuCount, IAddArticle, IcompositionBatchImport, IcorrectWithOneKey, IdeleteArticle, IdeleteStudentEntry, IdownLoadBatchImportModel, IdownloadPDF, IeditReportDetail, IgetStatusCountByTeacherComId, IgetStudentByClass, IgetStudentByHasEntry, IgetStudentByUserInfo, IgetStudentComByTeacherComId, IlookContent, IoneStudentEntry, IresubmitCorrectComposition, IsaveContent, IsearchReportDetail, IsearchStudentListForCorrect, IsearchStudentListForReport, IsendReportWithOneKey, IshareReportUrl } from "@/types/composition";
+
+// 图像识别文字（针对于识别姓名
+export const picToWordByName: RequestFun<
+any,
+    any
+> = (data) => {
+    return request({
+        baseURL: YUN_API_COMPOSITION,
+        url: "/Api/App/CompositionEntry/PicToWordByName",
+        method: "post",
+        data
+    });
+};
+
 
 // 获取所有文章
 export const fetchAllPassage: RequestFun<
@@ -108,7 +122,7 @@ IdownLoadBatchImportModel,
 
 // 重新提交
 export const resubmitCorrectComposition: RequestFun<
-any,
+IresubmitCorrectComposition,
     any
 > = (data) => {
     return request({
@@ -232,6 +246,7 @@ IdownloadPDF,
         baseURL: YUN_API_COMPOSITION,
         url: "/Api/TeacherPlat/CompositionHandle/DownloadPDF",
         method: "post",
+        responseType:'blob',
         data
     });
 };

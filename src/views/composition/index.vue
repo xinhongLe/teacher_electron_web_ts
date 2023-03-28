@@ -155,7 +155,7 @@ const openList = (id: string, title?: string) => {
     listRef.value.openDialog({ TeacherCompositionId: id, ClassId: state.classId, Title: title })
 }
 const scanOpenList = (e: any) => {
-    console.log('scanOpenList ', e);
+    // console.log('scanOpenList ', e);
     openList(e.TeacherCompositionId, e.Title)
 }
 

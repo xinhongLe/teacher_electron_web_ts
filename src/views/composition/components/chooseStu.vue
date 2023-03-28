@@ -47,7 +47,6 @@ const emit = defineEmits(['cancel', 'back', 'afterChoose']);
 watch(()=>props.current,(val)=>{
     if(val){
         state.active = props.stuList.findIndex((v:any)=>v.StudentId===props.current)
-        console.log('-----active:',state.active);
     }
 },{
     immediate:true,

@@ -84,6 +84,7 @@ import { getOssUrl } from '@/utils/oss';
 import { ElMessage } from 'element-plus';
 import moment from 'moment';
 import { reactive, ref, toRefs } from 'vue';
+import {saveAs as FileSaver} from 'file-saver'
 import { downloadPDF, editReportDetail, searchReportDetail } from '../api';
 import Article from './article.vue';
 
@@ -160,18 +161,21 @@ const switchPic = (item: any, idx: number) => {
 
 // exportPDF
 const exportPDF = () => {
-    downloadPDF({ StudentCompositonId: state.StudentCompositionId }).then((res: any) => {
-        if (res && res.success) {
-            let blob = new Blob([res]);
-            let objectUrl = window.URL.createObjectURL(blob); //生成一个url
-            const a = document.createElement('a');
+    downloadPDF({ StudentCompositionId: state.StudentCompositionId }).then((res: any) => {
+        // if(!res.success) return;
+        if (res) {
+            let blob = new Blob([res], { type: "application/pdf" });
+            // let objectUrl = window.URL.createObjectURL(blob); //生成一个url
+            // const a = document.createElement('a');
             const filename = moment().format('YYYY-MM-DD') + '.pdf';
-            a.download = filename;
-            a.href = objectUrl;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            ElMessage({ type: 'success', message: '下载成功' });
+            //直接下载而不预览
+            FileSaver.saveAs(blob, filename)
+            // a.download = filename;
+            // a.href = objectUrl;
+            // document.body.appendChild(a);
+            // a.click();
+            // document.body.removeChild(a);
+            // ElMessage({ type: 'success', message: '下载成功' });
         }
     })
 }
@@ -193,7 +197,6 @@ const saveScore = () => {
 
 // 失去焦点
 const inputBlur = (idx: number) => {
-    console.log('idx:', idx);
     let num = idx + 3
     exeSave(num, state.lineList[idx]['content'], () => {
         state.lineList[idx]['status'] = 0
@@ -201,7 +204,7 @@ const inputBlur = (idx: number) => {
 }
 
 const exeSave = (type: number, info: any, cb?: any) => {
-    editReportDetail({ StudentCompositonId: state.StudentCompositionId, SaveType: type, SaveInfo: info }).then(async (res: any) => {
+    editReportDetail({ StudentCompositionId: state.StudentCompositionId, SaveType: type, SaveInfo: info }).then(async (res: any) => {
         if (res.success) {
             ElMessage.success('保存成功')
             if (cb) {
@@ -229,7 +232,7 @@ const openDialog = async (info?: any) => {
 }
 
 const getDetail = (id: string) => {
-    searchReportDetail({ StudentCompositonId: id }).then(async (res: any) => {
+    searchReportDetail({ StudentCompositionId: id }).then(async (res: any) => {
         if (res.success) {
             //FileList
             let result = res.result
