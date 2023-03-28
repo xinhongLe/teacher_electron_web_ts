@@ -110,7 +110,7 @@ import chooseStu from './chooseStu.vue';
 import Preview from './preview.vue';
 import Repeat from './repeat.vue';
 import ImportVue from './import.vue';
-import { cooOss, getOssUrl } from '@/utils/oss';
+import { cooOssv2, getOssUrl } from '@/utils/oss';
 import { get, STORAGE_TYPES } from '@/utils/storage';
 import moment from 'moment';
 import { QrStream, QrCapture } from 'vue3-qr-reader';
@@ -383,6 +383,7 @@ const afterChoose = (e: any) => {
     state.currentStudent = e.StudentId
     state.currentStudentObj = e
     state.isScanByHand = false
+    getDevices()
 }
 
 // 返回扫码
@@ -505,7 +506,7 @@ const uploadImgToOss = async (data: any, type = 1, cb: any) => {
         Extention: "",
         Explain: "作文文件"
     };
-    const res = await cooOss(data, bucketObj)
+    const res = await cooOssv2(data, bucketObj)
     if (res?.code === 200) {
         let url = await getOssUrl(res.objectKey, bucketObj.Bucket);
         let newFile = { Name: res.name, FileMD5: res.md5, FileExtention: res.fileExtension, FileBucket: 'compositionevaluation', FilePath: 'pic', url }
