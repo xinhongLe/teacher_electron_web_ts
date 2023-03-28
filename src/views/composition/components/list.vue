@@ -88,7 +88,7 @@
     <ReportList ref="reportRef" @success="refresh" />
 </template>
 <script setup lang="ts">
-import { reactive, ref, toRefs } from 'vue';
+import { nextTick, reactive, ref, toRefs } from 'vue';
 import Origin from './origin.vue';
 import Article from './article.vue';
 import Detail from './detail.vue';
@@ -255,9 +255,14 @@ const getComList = () => {
             //     });
             // }
             state.stuList = list
-            // PaginationRef.value.total = pager.Total
-            state.total = pager.Total
             dialogVisible.value = true
+            nextTick(() => {
+                if (PaginationRef.value) {
+                    PaginationRef.value.total = pager.Total
+                }
+            })
+
+            state.total = pager.Total
         }
     })
 }

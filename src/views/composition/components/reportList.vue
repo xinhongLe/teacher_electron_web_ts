@@ -102,9 +102,7 @@ const sendShare = () => {
 const openDialog = async (info?: any) => {
     let {TeacherCompositionId} = info
     state.TeacherCompositionId = TeacherCompositionId
-    queryData(()=>{
-        dialogVisible.value = true
-    })
+    queryData()
     // 获取分享链接
     getShareUrl()
 };
@@ -128,6 +126,12 @@ const queryData = (cb?:any) => {
         if (res.success) {
             let {list = [],pager} = res.result
             state.tableData = list
+            dialogVisible.value = true
+            nextTick(() => {
+                if (PaginationRef.value) {
+                    PaginationRef.value.total = pager.Total
+                }
+            })
             state.total = pager.Total
             if(cb){
                 cb()

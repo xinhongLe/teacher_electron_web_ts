@@ -79,14 +79,14 @@ const { classList, classId, articleList, chapterList } = toRefs(state)
 onMounted(() => {
     // console.log('userinfo:', store.state.userInfo);
     // getArticleList()
-    getClassStuCount(() => {
+    getClassStuCount(true, () => {
         getArticleList()
     })
     getGradeList()
 })
 
 const refresh = () => {
-    getClassStuCount(() => {
+    getClassStuCount(false, () => {
         getArticleList()
     })
 }
@@ -99,6 +99,7 @@ const listToScan = (e: any) => {
 // 班级变更
 const classChange = (e: any) => {
     let filt = state.classList.filter((v: any) => v.Id === e)[0]
+    state.classId = e
     state.className = filt?.Name
     state.classCount = filt?.StuTotal
     // set('compositionClassId', state.classId)
@@ -112,7 +113,7 @@ const classChange = (e: any) => {
 /**
  * 获取班级
  */
-const getClassStuCount = (cb?: any) => {
+const getClassStuCount = (isinit = false, cb?: any) => {
     getClassStuCountByTeacher({
         OrgId: store.state.userInfo?.schoolId,
         UserId: store.state.userInfo?.userCenterUserID
@@ -120,14 +121,16 @@ const getClassStuCount = (cb?: any) => {
         if (res.success) {
             state.classList = res.result || []
             if (state.classList.length > 0) {
-                state.classId = state.classList[0].Id
+                state.classId = isinit ? state.classList[0].Id : state.classId
+                state.className = isinit ? state.classList[0].Name : state.className
                 localStorage.setItem(
                     "compositionClassId",
                     state.classId
                 );
-                state.className = state.classList[0].Name
             }
-            cb()
+            if (cb) {
+                cb()
+            }
         }
     })
 }
@@ -175,6 +178,9 @@ const getArticleList = () => {
                 });
             }
             state.articleList = list
+            if (PaginationRef.value) {
+                PaginationRef.value.total = pager.Total
+            }
         }
     })
 }
