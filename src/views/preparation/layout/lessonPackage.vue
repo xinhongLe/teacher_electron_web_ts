@@ -1,24 +1,24 @@
-<template >
+<template>
     <div class="p-layout-package">
         <div class="lesson-package">
             <div class="lesson-package-item" :class="{ isActive: item.Id == currentSelectPackageId }"
-                v-for="(item, index) in lessonPackageList" @click.stop.prevent="selectPackage(item)">
+                 v-for="(item, index) in lessonPackageList" @click.stop.prevent="selectPackage(item)">
                 <div class="package-item">
                     <div class="item-name">
                         <div class="names">
                             {{ course.lessonName || course.chapterName || '课包一' }}
                         </div>
                         <img @click.stop.prevent="deletenPackage(item.Id)"
-                            src="@/assets/images/preparation/icon_delete_beike.png" alt="">
+                             src="@/assets/images/preparation/icon_delete_beike.png" alt="">
                     </div>
                     <div class="items">
                         {{ item.Name }}
                     </div>
                     <div class="item-footer">
                         <div class="item-button" :class="{ isPaike: item.IsSchedule }"
-                            @mousedown.stop.prevent="isMouseDrag ? startDrag($event, course, item) : null"
-                            @click.stop.prevent="!isMouseDrag ? toArrangeClass(item, 0) : null"
-                            @touchstart.stop.prevent="!isMouseDrag ? toArrangeClass(item, 0, $event) : touchStartDrag($event, course, item)">
+                             @mousedown.stop.prevent="isMouseDrag ? startDrag($event, course, item) : null"
+                             @click.stop.prevent="!isMouseDrag ? toArrangeClass(item, 0) : null"
+                             @touchstart.stop.prevent="!isMouseDrag ? toArrangeClass(item, 0, $event) : touchStartDrag($event, course, item)">
                             {{ item.IsSchedule ? '已排课' : '排课' }}
                         </div>
                     </div>
@@ -31,13 +31,13 @@
             </div>
         </div>
     </div>
-    <deletePackage v-model:visible="deleteVisible" @onDeletePackage="onDeletePackage" />
+    <deletePackage v-model:visible="deleteVisible" @onDeletePackage="onDeletePackage"/>
 </template>
 
 <script lang="ts" setup>
 import useLessonPackage from "@/hooks/useLessonPackage";
-import useClickDrag, { } from "@/hooks/useClickDrag";
-import { IAddLessonBag, IGetLessonBagOutDto } from "@/api/prepare";
+import useClickDrag, {} from "@/hooks/useClickDrag";
+import {IAddLessonBag, IGetLessonBagOutDto} from "@/api/prepare";
 import deletePackage from "../layout/dialog/deletePackage.vue";
 import {
     ref,
@@ -50,11 +50,20 @@ import {
     watch
 } from "vue";
 import emitter from "@/utils/mitt";
-import { IResourceItem } from "@/api/resource";
-import { MutationTypes, useStore } from "@/store";
+import {IResourceItem} from "@/api/resource";
+import {MutationTypes, useStore} from "@/store";
+
 const currentSelectPackageId = ref<string>("");
-const { startDrag, touchStartDrag } = useClickDrag();
-const { getMyLessonBagNew, lessonPackageList, addLessonPackage, deleteLessonPackage, addResourceLessonBag, addLessonBag, setValueAddLessonBag } = useLessonPackage();
+const {startDrag, touchStartDrag} = useClickDrag();
+const {
+    getMyLessonBagNew,
+    lessonPackageList,
+    addLessonPackage,
+    deleteLessonPackage,
+    addResourceLessonBag,
+    addLessonBag,
+    setValueAddLessonBag
+} = useLessonPackage();
 
 interface ICourse {
     chapterId: string;
@@ -62,6 +71,7 @@ interface ICourse {
     lessonName: string;
     chapterName: string;
 }
+
 const props = defineProps({
     course: {
         type: Object as PropType<ICourse>,
@@ -79,19 +89,19 @@ const currentTouchEvent = ref<TouchEvent>();
 const store = useStore();
 watch(() => props.course, async (val: ICourse) => {
     setValueAddLessonBag(props.course)
-    await getMyLessonBagNew({ id: val.lessonId });
+    await getMyLessonBagNew({id: val.lessonId});
     if (!lessonPackageList.value.length) {
         addLessonBag.value.name = "备课包1";
         const res = await addLessonPackage(addLessonBag.value);
         if (res) {
-            await getMyLessonBagNew({ id: val.lessonId })
+            await getMyLessonBagNew({id: val.lessonId})
             // selectPackage(lessonPackageList.value[0])
         }
     } else {
         emitter.emit("updateResourceList", []);
         // selectPackage(lessonPackageList.value[0])
     }
-}, { deep: true, immediate: true })
+}, {deep: true, immediate: true})
 
 // 新增备课包
 const addPackage = async () => {
@@ -104,7 +114,7 @@ const addPackage = async () => {
     })
     const res = await addLessonPackage(addLessonBag.value);
     if (res?.Id) {
-        await getMyLessonBagNew({ id: props.course.lessonId })
+        await getMyLessonBagNew({id: props.course.lessonId})
         // emitter.emit("updatePackageCount", null);
         return res.Id
     }
@@ -139,6 +149,8 @@ const toLessonBagArrange = (data: any, type?: number, ev?: TouchEvent) => {
                         currentSelectPackageId.value = bagId;
                         // openMouseDrag();
                         emitter.emit("updatePackageCount", null);
+                        // const item = lessonPackageList.value.find(item => item.Id === bagId)
+                        // console.log('itemitem', item)
                         emits("toArrangeClass", data, 0, ev);
                         // emitter.emit("updateResourceList", [currentSelectPackageId.value]);
                     }
@@ -156,7 +168,7 @@ const toLessonBagArrange = (data: any, type?: number, ev?: TouchEvent) => {
 const openMouseDrag = (data?: any) => {
     nextTick(() => {
         // if (isMobile.value) return;
-        const dom: HTMLElement = document.querySelector('.lesson-package-item > .package-item > .item-footer > .item-button') as HTMLElement;
+        const dom: HTMLElement = document.querySelector('.lesson-package-item.isActive > .package-item > .item-footer > .item-button') as HTMLElement;
         if (dom) {
             if (!isMobile.value) {
                 const event: MouseEvent = new MouseEvent('mousedown');
@@ -177,7 +189,7 @@ const deletenPackage = (id: any) => {
 const onDeletePackage = async () => {
     const res = await deleteLessonPackage(deleteTargetId.value);
     if (res) {
-        await getMyLessonBagNew({ id: props.course.lessonId });
+        await getMyLessonBagNew({id: props.course.lessonId});
         selectPackage(lessonPackageList.value[0]);
         emitter.emit("updatePackageCount", null);
         emits("updateSchedules");
@@ -198,7 +210,7 @@ defineExpose({
 
 </script>
 
-<style lang="scss" scoped >
+<style lang="scss" scoped>
 .p-layout-package {
     background-color: #fff;
     width: 248px;
@@ -222,7 +234,6 @@ defineExpose({
             display: flex;
             flex-direction: column;
             // justify-content: space-between;
-
 
 
             .item-name {
