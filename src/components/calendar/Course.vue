@@ -1,6 +1,6 @@
 <template>
-    <div @mouseenter="onMouseEnter" @mouseleave="onMouseLeave" @mousedown.stop.prevent="onMouseDownEnd($event, colData)"
-        class="course cell" :class="[
+    <div @mouseenter="onMouseEnter"  @mouseleave="onMouseLeave"
+        @mousedown.stop.prevent="onMouseDownEnd($event, colData)" class="course cell" :class="[
             isActive ? 'active' : '',
             isDragging ? 'drag-event-class' : '',
         ]">
@@ -55,7 +55,7 @@
             </div>
             <template #reference>
                 <div class="course-content-warp" @mouseenter="currentClassId = colData.SchedulingNewDetailId"
-                    @mouseleave="currentClassId = ''">
+                    @mouseleave="currentClassId = ''" >
                     <div class="course-content" :class="{
                         'has-course': colData.PackageList && colData.PackageList[0]?.LessonName,
                         end: isEnd,
@@ -229,7 +229,9 @@ const updateSchedules = inject("updateSchedules") as () => Promise<void>;
 //     return res;
 // };
 
-const onMouseEnter = async (ev: MouseEvent) => {
+const onMouseEnter = async (ev: MouseEvent | TouchEvent) => {
+    console.log('1111111111');
+    
     if (isDragging.value && !isEnd.value) {
         isActive.value = true;
     } else {

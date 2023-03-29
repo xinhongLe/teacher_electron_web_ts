@@ -18,7 +18,7 @@
                         <div class="item-button" :class="{ isPaike: item.IsSchedule }"
                             @mousedown.stop.prevent="isMouseDrag ? startDrag($event, course, item) : null"
                             @click.stop.prevent="!isMouseDrag ? toArrangeClass(item, 0) : null"
-                            @touchstart.stop.prevent="!isMouseDrag ? toArrangeClass(item, 0) : touchStartDrag($event, course, item)">
+                            @touchstart.stop.prevent="!isMouseDrag ? toArrangeClass(item, 0, $event) : touchStartDrag($event, course, item)">
                             {{ item.IsSchedule ? '已排课' : '排课' }}
                         </div>
                     </div>
@@ -75,6 +75,7 @@ const props = defineProps({
 const emits = defineEmits(["toArrangeClass", "updateSchedules", "closeCalendar"]);
 const deleteVisible = ref(false);
 const deleteTargetId = ref("");
+const currentTouchEvent = ref<TouchEvent>();
 const store = useStore();
 watch(() => props.course, async (val: ICourse) => {
     setValueAddLessonBag(props.course)
@@ -116,12 +117,14 @@ const selectPackage = (data?: any) => {
     emits("closeCalendar");
 };
 // 去排课
-const toArrangeClass = (data: any, type: number) => {
-    emits("toArrangeClass", data, type);
+const toArrangeClass = (data: any, type: number, ev?: TouchEvent) => {
+    currentTouchEvent.value = ev;
+    emits("toArrangeClass", data, type, ev);
 };
 // 1 从资源里列表过来备课包排课，非直接点击排课，要先新增一个课包;
 // 0 直接在我的备课包里点击排课，不用再新增备课包；
-const toLessonBagArrange = (data: any, type?: number) => {
+const toLessonBagArrange = (data: any, type?: number, ev?: TouchEvent) => {
+    currentTouchEvent.value = currentTouchEvent.value || ev;
     nextTick(() => {
         setTimeout(async () => {
             if (type) {
@@ -136,28 +139,31 @@ const toLessonBagArrange = (data: any, type?: number) => {
                         currentSelectPackageId.value = bagId;
                         // openMouseDrag();
                         emitter.emit("updatePackageCount", null);
-                        emits("toArrangeClass", data, 0);
+                        emits("toArrangeClass", data, 0, ev);
                         // emitter.emit("updateResourceList", [currentSelectPackageId.value]);
                     }
                 }
             } else {
                 const bagId = data.Id || currentSelectPackageId.value;
                 currentSelectPackageId.value = bagId;
-                openMouseDrag();
+                const item = lessonPackageList.value.find(item => item.Id === bagId)
+                openMouseDrag(item);
             }
         }, 200);
     })
 };
 // 备课包虚拟元素开始触发移动
-const openMouseDrag = () => {
+const openMouseDrag = (data?: any) => {
     nextTick(() => {
-        if (isMobile.value) return;
-        const dom: HTMLElement = document.querySelector('.lesson-package-item.isActive > .package-item > .item-footer > .item-button') as HTMLElement;
-        if (props.isMouseDrag) {
-            if (props.isMouseDrag && dom) {
+        // if (isMobile.value) return;
+        const dom: HTMLElement = document.querySelector('.lesson-package-item > .package-item > .item-footer > .item-button') as HTMLElement;
+        if (dom) {
+            if (!isMobile.value) {
                 const event: MouseEvent = new MouseEvent('mousedown');
                 event.preventDefault();
                 dom.dispatchEvent(event);
+            } else {
+                currentTouchEvent.value && touchStartDrag(currentTouchEvent.value, props.course, data)
             }
         }
     })
