@@ -169,6 +169,7 @@ import { pageType, pageTypeList } from "@/config";
 import { CardProps, PageProps } from "../api/props";
 import { get, STORAGE_TYPES } from "@/utils/storage";
 import { VueDraggableNext } from "vue-draggable-next";
+import { dealAnimationData } from "@/utils/dataParse";
 import { ElMessage, ElMessageBox } from "element-plus";
 import exitDialog, { ExitType } from "../edit/exitDialog";
 import WinCardEdit from "../components/edit/winCardEdit.vue";
@@ -178,7 +179,6 @@ import AddPageDialog from "../components/edit/addPageDialog.vue";
 import materialCenter from "../components/edit/materialCenter/index.vue";
 import { addTeachPageTemplateLinkCount, saveTemplate } from "@/api/material";
 import { computed, defineComponent, nextTick, onMounted, onUnmounted, ref } from "vue";
-import { dealAnimationData } from "@/utils/dataParse";
 
 export default defineComponent({
     name: "Edit",

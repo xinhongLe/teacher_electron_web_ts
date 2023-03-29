@@ -666,7 +666,7 @@ const getAnimations = (actions: PPTElementAction[]) => {
             id: createRandomCode(),
             elId: item.target,
             ani: (type === "in" ? item.inAni : item.outAni) || "",
-            type,
+            type: item.type === "show" ? type : "out",
             path: type === "in" ? item.inPath : item.outPath,
             duration: item.duration || 0,
             trigger: index === 0 ? "click" : "meantime"
