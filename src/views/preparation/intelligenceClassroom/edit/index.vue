@@ -1110,7 +1110,9 @@ export default defineComponent({
                             border: 1px solid #ebeff1;
                             display: flex;
                             align-items: flex-end;
-                            background: url("../../../../assets/edit/pic_defaulted.png") 100% 100% no-repeat;
+                            background-image: url("../../../../assets/edit/pic_defaulted.png");
+                            background-size: cover;
+                            background-repeat: no-repeat;
                         }
 
                         .name {
