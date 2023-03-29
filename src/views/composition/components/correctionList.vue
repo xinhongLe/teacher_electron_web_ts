@@ -91,9 +91,7 @@ const confirm = () => {
 const openDialog = async (info?: any) => {
     let { TeacherCompositionId } = info
     state.TeacherCompositionId = TeacherCompositionId
-    queryData(() => {
-        dialogVisible.value = true
-    })
+    queryData()
 };
 
 const queryData = (cb?: any) => {
@@ -106,12 +104,18 @@ const queryData = (cb?: any) => {
     }).then((res: any) => {
         if (res.success) {
             let { list = [], pager } = res.result
-            if(list.length>0){
-                list.forEach((ele:any)=>{
+            if (list.length > 0) {
+                list.forEach((ele: any) => {
                     ele.Phone = ele.Phone || '--'
                 })
             }
             state.tableData = list
+            dialogVisible.value = true
+            nextTick(() => {
+                if (PaginationRef.value) {
+                    PaginationRef.value.total = pager.Total
+                }
+            })
             state.total = pager.Total
             if (cb) {
                 cb()
