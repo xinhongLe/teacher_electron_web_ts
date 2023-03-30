@@ -619,6 +619,9 @@ interface IPlatformResponse {
 export function getPlatformByOrgId(data: IOrgId[]) : Promise<IResponse<IPlatformResponse[]>> {
     return request({
         baseURL: API_CENTER_USER_MANAGE,
+        headers:{
+            noLoading: "true"
+        },
         url: "/platform-org-relation/getByOrgIds",
         method: "post",
         data

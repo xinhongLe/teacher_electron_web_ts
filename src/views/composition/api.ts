@@ -116,6 +116,7 @@ IdownLoadBatchImportModel,
         baseURL: YUN_API_COMPOSITION,
         url: "/Api/TeacherPlat/CompositionHandle/DownLoadBatchImportModel",
         method: "post",
+        responseType:'blob',
         data
     });
 };
@@ -378,6 +379,19 @@ IsaveContent,
     return request({
         baseURL: YUN_API_COMPOSITION,
         url: "/Api/App/CompositionEntry/SaveContent",
+        method: "post",
+        data
+    });
+};
+
+// 查看下一篇
+export const lookNextContent: RequestFun<
+IlookContent,
+    any
+> = (data) => {
+    return request({
+        baseURL: YUN_API_COMPOSITION,
+        url: "/Api/App/CompositionEntry/LookNextContent",
         method: "post",
         data
     });

@@ -47,6 +47,7 @@ const emit = defineEmits(['cancel', 'back', 'afterChoose']);
 watch(()=>props.current,(val)=>{
     if(val){
         state.active = props.stuList.findIndex((v:any)=>v.StudentId===props.current)
+        console.log('watch:',state.active);
     }
 },{
     immediate:true,
@@ -63,8 +64,14 @@ const selectStu = (item: any, idx: number) => {
 // }
 
 const switchNext = () => {
-    state.active++
-    emit('afterChoose', { ...props.stuList[state.active], idx: state.active })
+    // console.log('====================',state.active,props.stuList.length-1);
+    
+    // if(state.active===props.stuList.length-1){
+    //     ElMessage.warning('当前已经是最后一个学生')
+    //     return
+    // }
+    // state.active = state.active + 1
+    // emit('afterChoose', { ...props.stuList[state.active], idx: state.active })
 }
 
 const backScan = () => {

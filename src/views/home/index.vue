@@ -18,8 +18,13 @@
                         <div class="left-one" @click="go('preparation'), clicKBuryPoint('备课')">
                             <span>备课</span>
                         </div>
-                        <div class="left-two" @click="go('homework'), clicKBuryPoint('作业')">
-                            <span>作业</span>
+                        <div class="left-two">
+                            <div class="work" @click="go('homework'), clicKBuryPoint('作业')">
+                                <span>作业</span>
+                            </div>
+                            <div class="composition" @click="go('composition'), clicKBuryPoint('AI作文批改')">
+                                <span>AI作文批改</span>
+                            </div>
                         </div>
                         <div class="left-three" @click="
                             go('report-center'), clicKBuryPoint('报表中心')

@@ -2,7 +2,7 @@
     <div class="origin" style="height: 100%;" v-if="dialogVisible">
         <div class="upper align-center">
             <span>检查原文</span>
-            <!-- <div class="top">查看下一篇</div> -->
+            <div class="top" @click="viewNext">查看下一篇</div>
         </div>
 
         <div class="box align-center">
@@ -42,7 +42,7 @@ import { store } from '@/store';
 import { getOssUrl } from '@/utils/oss';
 import { ElMessage } from 'element-plus';
 import { reactive, ref, toRefs } from 'vue';
-import { checkContent, saveContent } from '../api';
+import { checkContent, lookNextContent, saveContent } from '../api';
 
 const setRef = ref()
 const scanRef = ref()
@@ -76,6 +76,33 @@ const contentInput = (e: any) => {
 const switchPic = (item: any, idx: number) => {
     state.active = idx
     state.mainPic = item.url
+}
+
+/**
+ * 查看下一篇
+ */
+const viewNext = ()=>{
+    lookNextContent({ StudentCompositionId: state.StudentCompositionId }).then(async (res: any) => {
+        if (res.success) {
+            let result = res.result
+            state.StudentCompositionId = result.StudentCompositionId
+            state.content = result.Content || ''
+            state.title = result.Title
+            state.author = result.StudentName
+            state.photoList = result.StudentCompositionFile
+            await state.photoList.forEach(async (ele: any, i: number) => {
+                const { FileExtention, FilePath, FileMD5, FileBucket } = ele;
+                const key = FileExtention
+                    ? `${FilePath}/${FileMD5}.${FileExtention}`
+                    : `${FilePath}/${FileMD5}`;
+                ele.url = await getOssUrl(key, FileBucket)
+                if (i === 0) {
+                    state.mainPic = ele.url;
+                }
+            })
+            // dialogVisible.value = true
+        }
+    })
 }
 
 // 保存

@@ -380,13 +380,13 @@ defineExpose({
     .back {
         position: absolute;
         left: 0;
-        top: 0;
-        padding: 16px;
+        top: 2px;
+        padding: 9px;
         cursor: pointer;
 
         &>img {
-            width: 24px;
-            height: 24px;
+            width: 35px;
+            height: 35px;
         }
     }
 }

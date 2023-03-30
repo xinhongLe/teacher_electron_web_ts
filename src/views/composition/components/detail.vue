@@ -4,8 +4,8 @@
             <div class="back" @click="close">
                 <img src="../../../assets/composition/icon_back@2x.png" alt="" />
             </div>
-            <!-- <el-pagination background layout="prev, pager, next" :total="1000" />
-            <div class="top">查看下一篇</div> -->
+            <!-- <el-pagination background layout="prev, pager, next" :total="1000" /> -->
+            <div class="top" @click="viewNext">查看下一篇</div>
         </div>
 
         <div class="box align-center">
@@ -85,7 +85,7 @@ import { ElMessage } from 'element-plus';
 import moment from 'moment';
 import { reactive, ref, toRefs } from 'vue';
 import {saveAs as FileSaver} from 'file-saver'
-import { downloadPDF, editReportDetail, searchReportDetail } from '../api';
+import { downloadPDF, editReportDetail, lookNextContent, searchReportDetail } from '../api';
 import Article from './article.vue';
 
 const articleRef = ref()
@@ -147,7 +147,9 @@ const state = reactive({
     grade: null,
     title: '',
     author: '',
-    stuList: []
+    stuList: [],
+    IsHaveNext:false,
+    NextStudentCompositionId:''
 })
 
 const emit = defineEmits(['close', 'save']);
@@ -159,6 +161,17 @@ const switchPic = (item: any, idx: number) => {
     state.mainPic = item.url
 }
 
+/**
+ * 查看下一篇
+ */
+ const viewNext = ()=>{
+    if(state.IsHaveNext){
+        getDetail(state.NextStudentCompositionId)
+    }else{
+        ElMessage.error('当前为最后一篇')
+    }
+}
+
 // exportPDF
 const exportPDF = () => {
     downloadPDF({ StudentCompositionId: state.StudentCompositionId }).then((res: any) => {
@@ -167,7 +180,8 @@ const exportPDF = () => {
             let blob = new Blob([res], { type: "application/pdf" });
             // let objectUrl = window.URL.createObjectURL(blob); //生成一个url
             // const a = document.createElement('a');
-            const filename = moment().format('YYYY-MM-DD') + '.pdf';
+            // const fileName = res.getResponseHeader('Content-Disposition').split(';')[1].split('filename=')[1];
+            const filename = state.author + '的评价报告.pdf';
             //直接下载而不预览
             FileSaver.saveAs(blob, filename)
             // a.download = filename;
@@ -244,6 +258,8 @@ const getDetail = (id: string) => {
                 ele.content = result[ele.key]
             })
             state.photoList = result.FileList
+            state.IsHaveNext = result.IsHaveNext
+            state.NextStudentCompositionId = result.NextStudentCompositionId
             await state.photoList.forEach(async (ele: any, i: number) => {
                 const { FileExtention, FilePath, FileMD5, FileBucket } = ele;
                 const key = FileExtention
@@ -329,13 +345,13 @@ defineExpose({
     .back {
         position: absolute;
         left: 0;
-        top: 0;
-        padding: 16px;
+        top: 2px;
+        padding: 9px;
         cursor: pointer;
 
         &>img {
-            width: 24px;
-            height: 24px;
+            width: 35px;
+            height: 35px;
         }
     }
 

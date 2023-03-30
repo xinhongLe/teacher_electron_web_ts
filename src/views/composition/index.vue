@@ -55,6 +55,8 @@ import Pagination from './components/pagination.vue'
 import { store } from '@/store';
 import { fetchAllPassage, fetchAllPassageByPage, getClassStuCountByTeacher, getGradeChapterTree } from './api';
 import moment from 'moment';
+import { IYunInfo } from '@/types/login';
+import { get, STORAGE_TYPES } from '@/utils/storage';
 
 const setRef = ref()
 const scanRef = ref()
@@ -114,9 +116,12 @@ const classChange = (e: any) => {
  * 获取班级
  */
 const getClassStuCount = (isinit = false, cb?: any) => {
+    const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
+
     getClassStuCountByTeacher({
         OrgId: store.state.userInfo?.schoolId,
-        UserId: store.state.userInfo?.userCenterUserID
+        UserId: store.state.userInfo?.userCenterUserID,
+        SemesterCode: yunInfo.TermCode
     }).then((res: any) => {
         if (res.success) {
             state.classList = res.result || []

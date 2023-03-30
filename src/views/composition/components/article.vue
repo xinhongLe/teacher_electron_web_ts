@@ -28,6 +28,7 @@
 import { ElMessage } from 'element-plus';
 import moment from 'moment';
 import { reactive, ref, toRefs } from 'vue';
+import {saveAs as FileSaver} from 'file-saver'
 import { downloadPDF, lookContent } from '../api';
 
 const setRef = ref()
@@ -56,16 +57,10 @@ const { gradeList, grade,content, stuList, title } = toRefs(state)
 const exportPDF = () => {
     downloadPDF({StudentCompositionId: state.StudentCompositionId}).then((res: any) => {
         if (res) {
-            let blob = new Blob([res]);
-            let objectUrl = window.URL.createObjectURL(blob); //生成一个url
-            const a = document.createElement('a');
-            const filename = moment().format('YYYY-MM-DD') + '.pdf';
-            a.download = filename;
-            a.href = objectUrl;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            ElMessage({ type: 'success', message: '下载成功' });
+            let blob = new Blob([res], { type: "application/pdf" });
+            const filename = state.author + '的评价报告.pdf';
+            //直接下载而不预览
+            FileSaver.saveAs(blob, filename)
         }
     })
 }
@@ -134,13 +129,13 @@ defineExpose({
     .back {
         position: absolute;
         left: 0;
-        top: 0;
-        padding: 16px;
+        top: 2px;
+        padding: 9px;
         cursor: pointer;
 
         &>img {
-            width: 24px;
-            height: 24px;
+            width: 35px;
+            height: 35px;
         }
     }
 
