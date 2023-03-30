@@ -142,7 +142,7 @@
         <div class="p-resource-bottom" v-if="hover && btns && name !== 'attendClass' && name !== 'preview'">
             <div style="padding-left: 66px;">
                 <el-button class="p-control-btn" v-if="source != 'me'" @click.stop.prevent="toArrangeClass(data, 1)"
-                           @touchstart.stop.prevent="toArrangeClass(data, 0)">
+                           @touchstart.stop.prevent="toArrangeClass(data, 1, $event)">
                     <img src="@/assets/images/preparation/icon_download_white.png" alt=""/>
                     排课
                 </el-button>
@@ -182,7 +182,7 @@
                     </template>
                     <div class="lesson-package-select">
                         <div class="package-content">
-                            <div class="package-item" v-for="(item,index) in lessonPackageList"
+                            <div class="package-item" v-for="(item, index) in lessonPackageList"
                                  @click="handleSelectLessonBag(item, data)" :key="index">
                                 <span>
                                     {{ item.Name }}
@@ -211,23 +211,16 @@
                         加入备课包
                     </el-button>
                 </template>
-                <el-button v-if="source === 'me'" class="p-control-btn p-move" @click.stop="handleRemoveLessonBag(data)">
+                <el-button v-if="source === 'me'" class="p-control-btn p-move"
+                           @click.stop="handleRemoveLessonBag(data)">
                     <img src="@/assets/images/preparation/icon_yichu.png" alt=""/>
                     移出备课包
                 </el-button>
             </div>
         </div>
 
-        <el-dialog
-            draggable
-            title="课件分享"
-            width="365"
-            v-model="shareShow"
-            :align-center="true"
-            :append-to-body="true"
-            :destroy-on-close="true"
-            :close-on-click-modal="false"
-        >
+        <el-dialog draggable title="课件分享" width="365" v-model="shareShow" :align-center="true" :append-to-body="true"
+                   :destroy-on-close="true" :close-on-click-modal="false">
             <div class="share-title">{{ shareData?.Name }}</div>
 
             <div class="share-link">
@@ -240,24 +233,24 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, PropType, ref } from "vue";
-import { MoreFilled } from "@element-plus/icons-vue";
+import {computed, defineComponent, PropType, ref} from "vue";
+import {MoreFilled} from "@element-plus/icons-vue";
 import {
     iconResources,
     textResources,
     typeResources,
     RESOURCE_TYPE
 } from "@/config/resource";
-import { IResourceItem } from "@/api/resource";
+import {IResourceItem} from "@/api/resource";
 import moment from "moment";
-import { useStore } from "@/store";
-import { IGetLessonBagOutDto } from "@/api/prepare";
-import { emit } from "process";
+import {useStore} from "@/store";
+import {IGetLessonBagOutDto} from "@/api/prepare";
+import {emit} from "process";
 import isElectron from "is-electron";
-import { ElMessage } from "element-plus";
+import {ElMessage} from "element-plus";
 
 export default defineComponent({
-    components: { MoreFilled },
+    components: {MoreFilled},
     props: {
         data: {
             type: Object as PropType<IResourceItem>,
@@ -289,7 +282,7 @@ export default defineComponent({
         }
     },
     emits: ["eventEmit", "addLessonPackage", "toArrangeClass", "handleSelectLessonBag", "handleRemoveLessonBag"],
-    setup(props, { emit }) {
+    setup(props, {emit}) {
         const store = useStore();
 
         const handleCommand = (
@@ -363,8 +356,8 @@ export default defineComponent({
         const handleRemoveLessonBag = (data: IResourceItem) => {
             emit("handleRemoveLessonBag", data);
         };
-        const toArrangeClass = (data: any, type: number) => {
-            emit("toArrangeClass", data, type);
+        const toArrangeClass = (data: any, type: number, ev?: TouchEvent) => {
+            emit("toArrangeClass", data, type, ev);
         };
 
         const shareShow = ref(false);

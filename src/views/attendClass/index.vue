@@ -12,15 +12,8 @@
                 :source="source" :type="type" :bagType="type" :bookId="bookId" />
         </div>
         <div class="resource-filter">
-            <el-radio-group
-                class="custom-radio-two"
-                v-model="type"
-            >
-                <el-radio-button
-                    v-for="item in typeList"
-                    :key="item.Id"
-                    :label="item.Id"
-                >
+            <el-radio-group class="custom-radio-two" v-model="type">
+                <el-radio-button v-for="item in typeList" :key="item.Id" :label="item.Id">
                     {{ item.Name }}
                 </el-radio-button>
             </el-radio-group>
@@ -120,7 +113,7 @@ export default defineComponent({
             setTimeout(() => {
                 source.value = "me";
                 const bagIds = JSON.parse(route.params.bagIds as string);
-                console.log('resourcesRef',resourcesRef.value);
+                console.log('resourcesRef', resourcesRef.value);
                 bagIds && resourcesRef.value && resourcesRef.value.getResources(bagIds, true)
             }, 200);
         });
@@ -264,6 +257,12 @@ export default defineComponent({
     min-height: 0;
     display: flex;
     flex-direction: column;
+
+    .p-layout {
+        .p-layout-list {
+            height: calc(100vh - 130px) !important;
+        }
+    }
 }
 
 .resource-filter {
@@ -284,14 +283,17 @@ export default defineComponent({
         min-width: 80px;
         color: #4b71ee;
     }
+
     :deep(.el-radio-button__original-radio:checked + .el-radio-button__inner) {
         color: #fff;
         box-shadow: none;
         background: #4b71ee;
     }
+
     :deep(.el-radio-button--small .el-radio-button__inner) {
         font-size: 14px;
     }
+
     :deep(.el-radio-button:focus:not(.is-focus):not(:active):not(.is-disabled)) {
         box-shadow: none;
     }
@@ -302,6 +304,7 @@ export default defineComponent({
         display: flex;
         align-items: center;
     }
+
     img {
         display: block;
         margin-right: 3px;

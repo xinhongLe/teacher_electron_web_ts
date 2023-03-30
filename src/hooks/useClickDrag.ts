@@ -17,7 +17,7 @@ export default () => {
 
     // const dragStartIndex = ref();
 
-    const startDrag = (event: MouseEvent , course: ICourse, info: IGetLessonBagOutDto) => {
+    const startDrag = (event: MouseEvent, course: ICourse, info: IGetLessonBagOutDto) => {
         document.body.contains(dragDom) && onDragEnd(event);
         dragDom = null;
         store.commit(MutationTypes.SET_IS_DRAGGING, true);
@@ -62,15 +62,19 @@ export default () => {
                 ${info.Name}
             </div>
             `
-        nextTick(() => {
-            document.body.appendChild(dragDom!);
-            console.log('event.touches[0]',event.touches[0]);
-            dragDom!.style.position = "fixed";
-            dragDom!.style.left = event.touches[0].clientX + "px";
-            dragDom!.style.top = event.touches[0].clientY + "px";
-            // document.addEventListener("mousemove", dragElement);
-            store.commit(MutationTypes.CURRENT_PACKAGE_DATA, info);
-        })
+        dragDom!.style.position = "fixed";
+        dragDom!.style.left = event.touches[0].clientX + "px";
+        dragDom!.style.top = event.touches[0].clientY + "px";
+        document.body.appendChild(dragDom);
+        store.commit(MutationTypes.CURRENT_PACKAGE_DATA, info);
+        document.addEventListener("touchmove", (e: TouchEvent) => {
+            if (!dragDom) return;
+            const clientX = e.touches[0].clientX;
+            const clientY = e.touches[0].clientY;
+            if (clientX === 0 && clientY === 0) return;
+            dragDom!.style.left = clientX + "px";
+            dragDom!.style.top = clientY + "px";
+        });
     }
     const dragElement = (event: MouseEvent) => {
         if (!dragDom) return;

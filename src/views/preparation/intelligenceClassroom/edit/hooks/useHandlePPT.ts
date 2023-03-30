@@ -1,16 +1,13 @@
 import { Ref } from "vue";
-import { Slide } from "wincard";
 import { cloneDeep } from "lodash";
 import { v4 as uuidv4 } from "uuid";
-import useHome from "@/hooks/useHome";
 import { pageTypeList } from "@/config";
 import messageBox from "@/utils/messageBox";
 import { initSlideData } from "@/utils/dataParsePage";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { CardProps, PageProps } from "../../api/props";
 
-export default (windowCards: Ref<CardProps[]>, allPages: Ref<PageProps[]>, pageMap: Ref<Map<string, Slide>>, currentPage: Ref<PageProps | null>, editRef: Ref) => {
-    const { transformPageDetail } = useHome();
+export default (windowCards: Ref<CardProps[]>, currentPage: Ref<PageProps | null>, editRef: Ref) => {
     let backupPage: PageProps | null = null;
 
     // 切换ppt页面
@@ -83,7 +80,7 @@ export default (windowCards: Ref<CardProps[]>, allPages: Ref<PageProps[]>, pageM
 
         insertWindowsCards(page, index, subIndex);
         sortWindowCards();
-        currentPage.value = allPages.value.find(item => item.ID === id) as PageProps;
+        currentPage.value = getPageById(id);
     };
 
     // 重名名
@@ -131,21 +128,10 @@ export default (windowCards: Ref<CardProps[]>, allPages: Ref<PageProps[]>, pageM
                     if (index === index1) {
                         currentPage.value = cardsList[1].PageList[0];
                     }
-                    let cloneAllPage = cloneDeep(allPages.value);
-                    for (let i = 0; i < cardsList[index].PageList.length; i++) {
-                        const item = cardsList[index].PageList[i];
-
-                        pageMap.value.delete(item.ID);
-
-                        cloneAllPage = cloneAllPage.filter(it => it.ID !== item.ID);
-                    }
                     windowCards.value.splice(index, 1);
-                    allPages.value = cloneAllPage;
                     sortWindowCards();
                 } else {
                     windowCards.value = [];
-                    allPages.value = [];
-                    pageMap.value.clear();
                     await createFolder("文件夹一");
                     currentPage.value = windowCards.value[0].PageList[0];
                 }
@@ -184,9 +170,8 @@ export default (windowCards: Ref<CardProps[]>, allPages: Ref<PageProps[]>, pageM
                 currentPage.value = page;
             }
 
-            if (allPages.value.length !== 1) {
-                pageMap.value.delete(pageList[idx].ID);
-                allPages.value = allPages.value.filter(it => it.ID !== pageList[idx].ID);
+            const flag = windowCards.value.length > 0 && windowCards.value[0].PageList.length > 1;
+            if (flag) {
                 if (pageList.length === 1) {
                     cardsList.splice(index, 1);
                 } else {
@@ -194,9 +179,7 @@ export default (windowCards: Ref<CardProps[]>, allPages: Ref<PageProps[]>, pageM
                 }
                 sortWindowCards();
             } else {
-                allPages.value = [];
                 windowCards.value = [];
-                pageMap.value.clear();
                 await createFolder("文件夹一");
                 currentPage.value = windowCards.value[0].PageList[0];
             }
@@ -213,23 +196,13 @@ export default (windowCards: Ref<CardProps[]>, allPages: Ref<PageProps[]>, pageM
 
             for (let j = 0; j < item.PageList.length; j++) {
                 item.PageList[j].Index = index;
-                item.PageList[j].Sort = index + 1;
+                item.PageList[j].Sort = j + 1;
                 item.PageList[j].ParentID = item.ID;
                 index++;
             }
         }
-
+        console.log(list)
         windowCards.value = list;
-
-        let allPageList: PageProps[] = [];
-
-        for (let i = 0; i < list.length; i++) {
-            const item = list[i];
-
-            allPageList = allPageList.concat(item.PageList);
-        }
-
-        allPages.value = allPageList;
     };
 
     // 当前page替换
@@ -238,12 +211,6 @@ export default (windowCards: Ref<CardProps[]>, allPages: Ref<PageProps[]>, pageM
         const subIndex = windowCards.value[index].PageList.findIndex(item => item.ID === page.ID);
 
         windowCards.value[index].PageList.splice(subIndex, 1, page);
-
-        const slide = await transformPageDetail(page, page.Json);
-        pageMap.value.set(page?.ID, slide);
-
-        const idx = allPages.value.findIndex(item => item.ID === page?.ID);
-        allPages.value[idx] = page;
     };
 
     // 往windowsCard插入或删除page数据
@@ -253,10 +220,14 @@ export default (windowCards: Ref<CardProps[]>, allPages: Ref<PageProps[]>, pageM
         } else {
             windowCards.value[index].PageList.push(page);
         }
+    };
 
-        const slide = await transformPageDetail(page, page.Json);
-        pageMap.value.set(page.ID, slide);
-        allPages.value.push(page);
+    const getPageById = (id: string): PageProps => {
+        let allPages: PageProps[] = [];
+        windowCards.value.forEach(item => {
+            allPages = allPages.concat(...item.PageList);
+        });
+        return allPages.find(item => item.ID === id) as PageProps;
     };
 
     return {

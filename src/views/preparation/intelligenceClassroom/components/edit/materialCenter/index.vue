@@ -12,7 +12,7 @@
                 </p>
             </div>
         </div>
-        <div class="content-box">
+        <div class="content-box" v-if="isOpen">
             <el-tabs v-model="activeName" class="demo-tabs" @tab-change="handleClick">
                 <el-tab-pane v-for="(item, i) in tabList" :key="i" :label="item.label" :name="item.name"/>
             </el-tabs>

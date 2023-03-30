@@ -628,8 +628,8 @@ export default defineComponent({
             }
         };
         // 去排课
-        const toArrangeClass = (data: any, type: number) => {
-            emit("toArrangeClass", data, type);
+        const toArrangeClass = (data: any, type: number, ev?: TouchEvent) => {
+            emit("toArrangeClass", data, type, ev);
         };
         // 资源加入备课包
         const handleSelectLessonBag = async (item: IGetLessonBagOutDto, data: IResourceItem) => {

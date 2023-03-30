@@ -1,6 +1,6 @@
 <template>
-    <div @mouseenter="onMouseEnter" @mouseleave="onMouseLeave" @mousedown.stop.prevent="onMouseDownEnd($event, colData)"
-        class="course cell" :class="[
+    <div @mouseenter="onMouseEnter" @mouseleave="onMouseLeave"
+         @mousedown.stop.prevent="onMouseDownEnd($event, colData)" class="course cell" :class="[
             isActive ? 'active' : '',
             isDragging ? 'drag-event-class' : '',
         ]">
@@ -9,36 +9,37 @@
         @dragenter="isDrop && colData.ID ? (isActive = true) : null"
         @dragleave="isDrop && colData.ID ? (isActive = false) : null" -->
         <el-popover trigger="hover" popper-class="preparation-popper-class-adjust" :append-to-body="false"
-            @hide="currentWillDelPackageId = ''" v-if="colData.ClassName">
+                    @hide="currentWillDelPackageId = ''" v-if="colData.ClassName">
             <div class="lesson-contents">
                 <div class="lesson-title">
                     {{ colData.ClassName }}
                     <img style="cursor: pointer;" @click="editClass(colData)"
-                        src="@/assets/images/preparation/icon_deit_cebianlan.png" alt="" />
+                         src="@/assets/images/preparation/icon_deit_cebianlan.png" alt=""/>
                 </div>
                 <p class="lesson-time">
                     {{ formTime(colData.colDate) + `（周${formWeek(colData.index + 1)}）` }} {{ colData.fontShowTime }}
                 </p>
                 <div class="lesson-packages" v-if="colData.PackageList && colData.PackageList.length"
-                    v-for="item in colData.PackageList">
+                     v-for="item in colData.PackageList">
                     <div class="left">
-                        <img src="@/assets/images/preparation/icon_kebao_yellow.png" alt="" />
+                        <img src="@/assets/images/preparation/icon_kebao_yellow.png" alt=""/>
                     </div>
                     <div class="right">
                         <div class="has-kebao">
                             <p class="kebao-name">{{ item.PackageName }}</p>
                             <p class="keshi">{{ item.PublisherName }} {{ item.AlbumName }} {{ item.ChapterName }} {{
-                                item.LessonName }}</p>
+                                    item.LessonName
+                                }}</p>
                         </div>
                         <div class="kebao-del-btn">
                             <div class="kebao-delete" @click="openDelLesson($event, item.PackageId as string)">
-                                <img src="@/assets/images/preparation/icon_delete_new.png" alt="" />
+                                <img src="@/assets/images/preparation/icon_delete_new.png" alt=""/>
                                 删除
                             </div>
                             <div class="delete-btn" v-if="currentWillDelPackageId === item.PackageId">
                                 <p class="del-text">
                                     <img style="width: 14px;height: 14px;"
-                                        src="@/assets/images/preparation/icon_tips_popup.png" alt="">
+                                         src="@/assets/images/preparation/icon_tips_popup.png" alt="">
                                     确定要删除这堂课吗？
                                 </p>
                                 <div class="btns">
@@ -55,19 +56,19 @@
             </div>
             <template #reference>
                 <div class="course-content-warp" @mouseenter="currentClassId = colData.SchedulingNewDetailId"
-                    @mouseleave="currentClassId = ''">
+                     @mouseleave="currentClassId = ''">
                     <div class="course-content" :class="{
                         'has-course': colData.PackageList && colData.PackageList[0]?.LessonName,
                         end: isEnd,
                     }" @click.stop.prevent="goToClass(), clicKBuryPoint()"
-                        @touchstart.stop.prevent="goToClass(), clicKBuryPoint()">
+                         @touchstart.stop.prevent="goToClass(), clicKBuryPoint()">
                         <div class="course-name">
                             {{ colData.PackageList && colData.PackageList[0]?.LessonName }}
                         </div>
                         <div class="middle">
                             <div v-if="colData.PackageList && colData.PackageList.length"
-                                v-for="item in computedPackagelist"
-                                :class="isEnd ? 'end-lesson-package' : 'lesson-package'">
+                                 v-for="item in computedPackagelist"
+                                 :class="isEnd ? 'end-lesson-package' : 'lesson-package'">
                                 {{ item.PackageName }}
                             </div>
                             <span v-if="colData.PackageList && colData.PackageList.length > 1">...</span>
@@ -77,8 +78,8 @@
                                 {{ colData.ClassName }}
                             </div>
                             <div v-if="colData.TotalCount && colData.TotalCount > 0" class="my-course-cart"
-                                :num="colData.TotalCount">
-                                <img src="@/assets/images/preparation/cart.png" alt="" />
+                                 :num="colData.TotalCount">
+                                <img src="@/assets/images/preparation/cart.png" alt=""/>
                             </div>
                             <div v-if="colData.SubjectName" class="content-class" :style="{
                                 backgroundColor: bgColor,
@@ -87,8 +88,9 @@
                             </div>
                         </div>
                         <div class="delete-icon-warp"
-                            v-if="colData.PackageList && colData.PackageList[0]?.LessonName && isShowDelete" 
-                            @click.stop.prevent="deleteCourse(colData)" @touchstart.stop.prevent="deleteCourse(colData)">
+                             v-if="colData.PackageList && colData.PackageList[0]?.LessonName && isShowDelete"
+                             @click.stop.prevent="deleteCourse(colData)"
+                             @touchstart.stop.prevent="deleteCourse(colData)">
                             <span class="line"></span>
                         </div>
                     </div>
@@ -101,9 +103,9 @@
 
 <script lang="ts" setup>
 import useTime from "@/hooks/useTime";
-import { NewColData, NewSchedule } from "@/hooks/useSchedules";
-import { SchoolLesson } from "@/types/preparation";
-import { ElMessage, ElMessageBox } from "element-plus";
+import {NewColData, NewSchedule} from "@/hooks/useSchedules";
+import {SchoolLesson} from "@/types/preparation";
+import {ElMessage, ElMessageBox} from "element-plus";
 import moment from "moment";
 import {
     computed,
@@ -114,19 +116,29 @@ import {
     defineExpose,
     nextTick
 } from "vue";
-import { useRouter } from "vue-router";
-import { updateSchedule } from "@/api/timetable";
-import { store } from "@/store";
-import { addSchedulePackage, removeSchedulePackage } from "@/api/resource";
+import {useRouter} from "vue-router";
+import {updateSchedule} from "@/api/timetable";
+import {store} from "@/store";
+import {addSchedulePackage, removeSchedulePackage} from "@/api/resource";
 import usePageEvent from "@/hooks/usePageEvent";
-import { EVENT_TYPE } from "@/config/event";
+import {EVENT_TYPE} from "@/config/event";
 import useClickDrag from "@/hooks/useClickDrag";
-import { UserInfoState } from "@/types/store";
-import { get, STORAGE_TYPES } from "@/utils/storage";
-import { INewScheduleInDto, NewCourseScheduling, SetCourseScheduling, ISetNewScheduleInDto, IDelNewSchedulingInDto, DelCourseScheduling, EditClass, IEditClassInDto } from "@/api/prepare";
-const { createBuryingPointFn } = usePageEvent("备课");
-const { clickOutSide } = useClickDrag();
-const { weekNext, weekPre, initDays, formTime, formWeek } = useTime();
+import {UserInfoState} from "@/types/store";
+import {get, STORAGE_TYPES} from "@/utils/storage";
+import {
+    INewScheduleInDto,
+    NewCourseScheduling,
+    SetCourseScheduling,
+    ISetNewScheduleInDto,
+    IDelNewSchedulingInDto,
+    DelCourseScheduling,
+    EditClass,
+    IEditClassInDto
+} from "@/api/prepare";
+
+const {createBuryingPointFn} = usePageEvent("备课");
+const {clickOutSide} = useClickDrag();
+const {weekNext, weekPre, initDays, formTime, formWeek} = useTime();
 const currentUserInfo: UserInfoState = get(STORAGE_TYPES.CURRENT_USER_INFO);
 const CourseBgColor: Record<string, string> = {
     语文: "#4FCC94",
@@ -206,7 +218,6 @@ const isEnd = computed(
 const updateSchedules = inject("updateSchedules") as () => Promise<void>;
 
 
-
 // const addSchedule = async (dragInfo: SchoolLesson) => {
 //     const schoolID = store.state.userInfo.schoolId;
 //     if (!colData.LessonID) {
@@ -229,7 +240,9 @@ const updateSchedules = inject("updateSchedules") as () => Promise<void>;
 //     return res;
 // };
 
-const onMouseEnter = async (ev: MouseEvent) => {
+const onMouseEnter = async (ev: MouseEvent | TouchEvent) => {
+    console.log('1111111111');
+
     if (isDragging.value && !isEnd.value) {
         isActive.value = true;
     } else {
@@ -238,7 +251,6 @@ const onMouseEnter = async (ev: MouseEvent) => {
         const notDom: HTMLElement = document.createElement('div');
         notDom!.classList.add("not-allowed");
         dom && dom.appendChild(notDom)
-
     }
 };
 const onMouseLeave = async (ev: MouseEvent) => {
@@ -263,7 +275,7 @@ const onMouseDownEnd = async (ev: MouseEvent, colData: NewColData) => {
         isActive.value = false;
         if (colData.PackageList && colData.PackageList[0]?.LessonName) {
             closePackageDom(ev)
-            emit("openLessonDialogTip", rowData.value.SectionName + colData.index)
+            emit("openLessonDialogTip", rowData.value.APMP + rowData.value.SectionName + colData.index)
         } else {
             let scheduleInDto: ISetNewScheduleInDto = {
                 packageId: currentPackageData.value.Id,
@@ -276,7 +288,7 @@ const onMouseDownEnd = async (ev: MouseEvent, colData: NewColData) => {
     if (isDragging.value && !colData.SchedulingNewDetailId && !isEnd.value) {
         closePackageDom(ev)
         isAddClass.value = true
-        emit("openClassDialog", rowData.value.SectionName + colData.index)
+        emit("openClassDialog", rowData.value.APMP + rowData.value.SectionName + colData.index)
     }
 
 };
@@ -288,7 +300,7 @@ const deleteCourse = (colData: NewColData) => {
         sureDeletePackage([colData.PackageList[0].PackageId])
     } else {
         const params = {
-            id: rowData.value.SectionName + colData.index,
+            id: rowData.value.APMP + rowData.value.SectionName + colData.index,
             packageList: colData.PackageList
         }
         emit("openDeleteDialogTip", params)
@@ -414,7 +426,7 @@ const openDelLesson = (event: MouseEvent, id: string) => {
 const editClass = (colData: NewColData) => {
     currentcolData.value = colData;
     isAddClass.value = false;
-    emit("openClassDialog", rowData.value.SectionName + colData.index)
+    emit("openClassDialog", rowData.value.APMP + rowData.value.SectionName + colData.index)
 }
 //确认删除这个课包
 const confirmDel = () => {
@@ -472,7 +484,7 @@ const sureDeletePackage = async (data: any) => {
     updateSchedules();
 };
 
-defineExpose({ selectedClassList, replaceOrAddPackage, sureDeletePackage })
+defineExpose({selectedClassList, replaceOrAddPackage, sureDeletePackage})
 </script>
 
 <style lang="scss" scoped>

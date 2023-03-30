@@ -98,11 +98,11 @@ export default defineComponent({
             addLessonBag.value.lessonName = val.lessonName;
         }, { deep: true })
         // 去排课
-        const toArrangeClass = async (data: any, type: number) => {
+        const toArrangeClass = async (data: any, type: number, ev?: TouchEvent) => {
             HeadRef.value && HeadRef.value.toMyLessonPackage();
             showPackage.value = true;
             showClassArrangement.value = true;
-            toLessonBagArrange(data, type)
+            toLessonBagArrange(data, type, ev)
         };
         const resourcesRef = ref();
         //刷新备课包中的资源列表
@@ -128,16 +128,18 @@ export default defineComponent({
         }, { deep: true });
         const LessonPackageRef = ref();
         // 去备课包排课
-        const toLessonBagArrange = (data: any, type: number) => {
+        const toLessonBagArrange = (data: any, type: number, ev?: TouchEvent) => {
             nextTick(() => {
-                console.log('showClassArrangement', showClassArrangement.value);
-                LessonPackageRef.value.toLessonBagArrange(data, type)
+                console.log('showClassArrangement', data, type, ev);
+                LessonPackageRef.value && LessonPackageRef.value.toLessonBagArrange(data, type, ev)
             })
         };
         //关闭课表并显示我的课包以及资源
         const closeCalendar = () => {
+            if (!showPackage.value && !showClassArrangement.value) return;
             showPackage.value = false;
             showClassArrangement.value = false;
+            LessonPackageRef.value.selectPackage()
         };
         // 更新课表信息
         const updateSchedules = () => {
