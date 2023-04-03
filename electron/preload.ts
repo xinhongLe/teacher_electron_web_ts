@@ -440,13 +440,14 @@ window.electron = {
                         zip.addLocalFolderAsync(outputPath + `/${name}`, (success, err) => {
                             if (success) {
                                 ElectronLog.info("压缩" + name + "成功");
+                                const zipBuffer = zip.toBuffer();
+                                resolve(zipBuffer);
                             } else {
                                 ElectronLog.error("压缩失败: ", err);
                             }
                         })
-                        const zipBuffer = zip.toBuffer();
+
                         // zip.writeZip(outputPath + `/${name}.zip`);
-                        resolve(zipBuffer);
 
                         // fs.readdir(outputPath + `/${name}`, (err, files) => {
                         //     console.log(err, files);
@@ -469,7 +470,8 @@ window.electron = {
     },
     unZip: (path: string) => {
         const zip = new AdmZip(path);
-        zip.extractAllToAsync(downloadsPath, true);
+        const dirName = path.replace(/(.*[\/\\])*([^.]+)/i, "$2").replace(".zip", "");
+        zip.extractAllToAsync(downloadsPath + dirName, true);
     },
     store: store,
     parsePPT,
