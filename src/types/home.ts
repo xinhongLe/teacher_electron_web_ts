@@ -20,7 +20,11 @@ export interface IPageValue {
     isAdd?: boolean;
     State: boolean;
     Json?: string;
+    PageID?: string;
     url?: string;
+    ParentNum?: number;
+    ParentID?: string;
+    count?: number;
 }
 
 export interface ICardList {
@@ -31,6 +35,7 @@ export interface ICardList {
     PageList: IPageValue[];
     isAdd?: boolean;
     State?: boolean;
+    ParentID?: string
 }
 
 export interface ISlides {

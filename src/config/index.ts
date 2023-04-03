@@ -34,28 +34,35 @@ export const ADD_STUDENT_TEMPLATE =
 export const ADD_TEACHER_TEMPLATE =
     "https://wechat.aixueshi.top/批量注册教师模板.xlsx";
 
+// 备课包、排课变量
+export const VUE_APP_PREPARE_API = process.env.VUE_APP_PREPARE_API;
+
+//校历作息
+export const VUE_APP_CLASS_TIME_API = process.env.VUE_APP_CLASS_TIME_API;
+
 // 所有的科目列表及id
 export const ALL_SUBJECT_LIST = [
     {
         subjectName: "语文",
-        subjectId: "39F766472E16384149030DFA4E9863B5",
+        subjectId: "39F766472E16384149030DFA4E9863B5"
     },
     {
         subjectName: "数学",
-        subjectId: "39F766472E16F43AE0EAE334481AF7BA",
+        subjectId: "39F766472E16F43AE0EAE334481AF7BA"
     },
     {
         subjectName: "英语",
-        subjectId: "39F766472E161EEFD06F825352362179",
-    },
+        subjectId: "39F766472E161EEFD06F825352362179"
+    }
 ];
 export const pageTypeList = [
-    { name: "素材页", value: 11, type: "element" },
-    { name: "听写页", value: 12, type: "listen" },
-    { name: "跟读页", value: 13, type: "follow" },
-    { name: "教具页", value: 16, type: "teach" },
-    { name: "游戏页", value: 20, type: "game" },
+    { name: "素材页", value: 11, type: "element", note: "" },
+    { name: "听写页", value: 12, type: "listen", note: "编辑要听写的词汇，系统自动播报；支持设置播报次数与播报速度等" },
+    { name: "跟读页", value: 13, type: "follow", note: "选择跟读素材，轻松实现课堂标准跟读；支持设置播报模式" },
+    { name: "教具页", value: 16, type: "teach", note: "选择课程相关的学科教具插入页面，快速进行模拟实验" },
+    { name: "游戏页", value: 20, type: "game", note: "选择喜欢的游戏插入页面，可在课堂进行有趣的师生互动" }
 ];
+
 export enum pageType {
     element = 11,
     listen = 12,
@@ -63,6 +70,7 @@ export enum pageType {
     teach = 16,
     game = 20,
 }
+
 export const originType = 1;
 
 export const fileTypeMap: Record<string, number> = {
@@ -86,7 +94,7 @@ export const fileTypeMap: Record<string, number> = {
     zip: 11,
     excel: 12,
     xls: 12,
-    xlsx: 12,
+    xlsx: 12
 };
 
 // 乐易学云平台下备教systemId

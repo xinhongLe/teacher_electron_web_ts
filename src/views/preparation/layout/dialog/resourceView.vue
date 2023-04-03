@@ -23,12 +23,12 @@
                 class="resource-content"
                 :class="{ 'full-screen': isFullScreen }"
             >
-                <div class="full-screen-set" @click="setFullScreen()">
+                <!-- <div class="full-screen-set" @click="setFullScreen()">
                     <img
                         src="@/assets/images/preparation/icon_quanping.png"
                         alt=""
                     />
-                </div>
+                </div> -->
                 <ResourceViewList
                     :type="resource?.ResourceShowType"
                     :resource="resource"
@@ -37,7 +37,8 @@
                     :lessonId="lessonId"
                     v-if="visible"
                     :close="close"
-                    :isFullScreen="!isFullScreen"
+                    :isFullScreen="isFullScreen"
+                    @setFullScreen="setFullScreen"
                 />
             </div>
         </el-dialog>
@@ -99,7 +100,7 @@ export default defineComponent({
             }
         };
 
-        const setFullScreen = async () => {
+        const setFullScreen = async () => { 
             isFullScreen.value = !isFullScreen.value;
             if (isFullScreen.value) {
                 if (
@@ -199,7 +200,7 @@ export default defineComponent({
         position: absolute;
         top: 10px;
         right: 10px;
-        z-index: 99999;
+        z-index: 99;
         cursor: pointer;
     }
 }

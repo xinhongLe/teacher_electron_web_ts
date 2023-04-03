@@ -12,27 +12,34 @@
                 <div
                     ref="contentRef"
                     class="view-box"
-                     :style="{
-                        transform: `translate(${translateX + viewWidth / 2 * (scale - 1)}px, ${translateY + viewHeight / 2 * (scale - 1)}px) scale(${scale}) rotate(${rotate}deg)`,
+                    @mousewheel="$event => handleMousewheelScreen($event)"
+                    @mousedown="onMove"
+                    :style="{
+                        transform: `translate(${translateX}px, ${translateY}px) scale(${scale}) rotate(${rotate}deg)`,
                     }"
                 >
-                    <img
-                        
-                        @mousewheel="$event => handleMousewheelScreen($event)"
+                    <!-- <img
                         :src="imgList[currentIndex]"
-                        @mousedown="onMove"
                         class="img"
                         @load="imgOnLoad"
-                    />
-                    <Brush
-                        v-if="showBrush"
-                        :isBrush="isBrush"
-                        ref="brushRef"
-                        :colorName="colorName"
-                        :penSize="penSize"
-                    />
+                    /> -->
+                    <div class="layout-block-box" :class="layoutType.type">
+                        <div class="layout-num-box view-layout-box" :class="viewImageIndex === index && 'view-image-dialog'" v-for="(num, index) in layoutType.num" :key="num">
+                            <img
+                                :src="layoutImages[index]"
+                                class="img"
+                                @click="viewImage(index)"
+                            />
+                        </div>
+                    </div>
                 </div>
             </div>
+            <Brush
+                :isBrush="isBrush"
+                ref="brushRef"
+                :colorName="colorName"
+                :penSize="penSize"
+            />
             <div
                 class="reset-btn"
                 v-show="isShowResetBtn"
@@ -43,6 +50,14 @@
                     class="reset-img"
                 />
                 <span>归位</span>
+            </div>
+
+            <div
+                class="close-btn"
+                v-show="viewImageIndex > -1"
+                @click="closeViewImage()"
+            >
+                <span>关闭</span>
             </div>
         </div>
 
@@ -192,9 +207,7 @@
                         上一页
                     </div>
                     <div class="page-num">
-                        <span
-                            >{{ currentIndex + 1 }} / {{ imgList.length }}</span
-                        >
+                        <span>{{ currentIndex + 1 }} / {{ imgList.length }}</span>
                         <span>页码</span>
                     </div>
                     <div class="box" @click="nextPage">
@@ -211,6 +224,33 @@
                         下一页
                     </div>
                 </div>
+                <el-popover
+                    trigger="click"
+                    v-model:visible="isLayoutPopover"
+                    :teleported="false"
+                    placement="top"
+                    :style="{ background: 'rgb(40, 40, 40)' }"
+                    popper-class="brushPopup"
+                    width="480px"
+                    tooltipEffect="dark"
+                >
+                    <div class="layout-box">
+                        <div class="layout-block" :class="item.type === layoutType.type && 'active'" v-for="item in layoutTypes" :key="item.type" @click="setLayoutType(item)">
+                            <div class="layout-block-box" :class="item.type">
+                                <div class="layout-num-box" v-for="num in item.num" :key="num">
+                                    {{ num }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <template #reference>
+                        <div class="box" :class="isLayoutPopover && 'active'">
+                            <img v-if="!isLayoutPopover" style="width: 24px;margin-top: 8px;" src="@/assets/projection/icon_bj@2x.png" />
+                            <img v-else style="width: 24px;margin-top: 8px;" src="@/assets/projection/icon_bj_green@2x.png" />
+                            布局
+                        </div>
+                    </template>
+                </el-popover>
             </div>
             <el-button type="danger" @click="$emit('update:isShow', false)">
                 关闭投屏
@@ -221,6 +261,7 @@
 
 <script lang="ts">
 import useTransform from "@/hooks/useTransform";
+import { nextTick } from "process";
 import { computed, defineComponent, PropType, ref, toRefs, watch } from "vue";
 import Brush from "../brush/index.vue";
 export default defineComponent({
@@ -247,6 +288,66 @@ export default defineComponent({
         const showBrush = ref(false);
         const viewWidth = ref(0);
         const viewHeight = ref(0);
+        const isLayoutPopover = ref(false);
+
+        const layoutTypes = ref([
+            {
+                type: "layout-default",
+                num: 1
+            },
+            {
+                type: "layout-two-one",
+                num: 2
+            },
+            {
+                type: "layout-two-two",
+                num: 2
+            },
+            {
+                type: "layout-three-one",
+                num: 3
+            },
+            {
+                type: "layout-three-two",
+                num: 3
+            },
+            {
+                type: "layout-three-three",
+                num: 3
+            },
+            {
+                type: "layout-three-four",
+                num: 3
+            },
+            {
+                type: "layout-four-one",
+                num: 4
+            },
+            {
+                type: "layout-four-two",
+                num: 4
+            }
+        ]);
+
+        const layoutType = ref({
+            type: "layout-default",
+            num: 1
+        });
+
+        const layoutIndex = ref(0);
+
+        const layoutImages = ref<string[]>(imgList.value.slice(layoutIndex.value, layoutType.value.num * (layoutIndex.value + 1)));
+        watch(imgList, () => {
+            layoutImages.value = imgList.value.slice(layoutIndex.value, layoutType.value.num * (layoutIndex.value + 1));
+        });
+
+        const setLayoutType = (type: { type: string, num: number }) => {
+            layoutType.value = type;
+            currentIndex.value = 0;
+            layoutIndex.value = 0;
+            isLayoutPopover.value = false;
+            switchLayoutPage();
+        };
 
         watch(() => props.index, () => {
             currentIndex.value = props.index;
@@ -265,17 +366,31 @@ export default defineComponent({
             touchEndListener,
             touchMoveListener
         } = useTransform(contentRef);
+
+        const switchLayoutPage = () => {
+            if (currentIndex.value % layoutType.value.num === 0) {
+                layoutIndex.value = currentIndex.value / layoutType.value.num;
+                // 处于边缘值，切换
+                layoutImages.value = imgList.value.slice(layoutType.value.num * layoutIndex.value, layoutType.value.num * (layoutIndex.value + 1));
+            }
+
+            viewImageIndex.value = -1;
+            resetTransform();
+        }
+
         const lastPage = () => {
             if (currentIndex.value === 0) {
                 return;
             }
             currentIndex.value = currentIndex.value - 1;
+            switchLayoutPage();
         };
         const nextPage = () => {
             if (currentIndex.value === imgList.value.length - 1) {
                 return;
             }
             currentIndex.value = currentIndex.value + 1;
+            switchLayoutPage();
         };
         const brushHandle = () => {
             activeIndex.value = 2;
@@ -306,6 +421,17 @@ export default defineComponent({
             viewWidth.value = contentRef.value.clientWidth;
             viewHeight.value = contentRef.value.clientHeight;
         };
+
+        const viewImageIndex = ref(-1);
+        const viewImage = (index: number) => {
+            if (layoutType.value.num === 1) return;
+            viewImageIndex.value = index;
+        };
+
+        const closeViewImage = () => {
+            viewImageIndex.value = -1;
+            resetTransform();
+        }
 
         return {
             imgList,
@@ -340,6 +466,14 @@ export default defineComponent({
             viewHeight,
             viewWidth,
             imgOnLoad,
+            isLayoutPopover,
+            layoutTypes,
+            layoutType,
+            layoutImages,
+            setLayoutType,
+            viewImage,
+            viewImageIndex,
+            closeViewImage,
             ...toRefs(transform)
         };
     },
@@ -369,12 +503,15 @@ export default defineComponent({
                 position: relative;
                 transform-origin: center center;
                 height: 100%;
+                width: 100%;
             }
             .img {
-                height: 100%;
+                max-width: 96%;
+                max-height: 96%;
+                display: block;
             }
         }
-        .reset-btn {
+        .close-btn, .reset-btn {
             cursor: pointer;
             position: absolute;
             left: 50%;
@@ -391,6 +528,10 @@ export default defineComponent({
             .reset-img {
                 margin-right: 14px;
             }
+        }
+
+        .close-btn {
+            bottom: 80px;
         }
     }
     .footer {
@@ -428,6 +569,9 @@ export default defineComponent({
                     margin-top: 8px;
                 }
             }
+            &.active {
+                color: #4BEEE4;
+            }
         }
         .page {
             display: flex;
@@ -436,9 +580,105 @@ export default defineComponent({
                 flex-direction: column;
                 align-items: center;
                 justify-content: center;
+                min-width: 50px;
             }
         }
     }
 }
+}
+
+.set-layout {
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    cursor: pointer;
+}
+
+.layout-box {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.layout-block {
+    width: 33.33%;
+    height: 120px;
+    padding: 10px;
+    &.active .layout-block-box {
+        outline: 1px solid #4BEEE4;
+    }
+}
+
+.layout-block-box {
+    height: 100%;
+    display: flex;
+    cursor: pointer;
+}
+
+.layout-num-box {
+    background: #4F4F4F;
+    flex: 1;
+    outline: 1px solid #949494;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    min-width: 0;
+    min-height: 0;
+}
+
+.layout-two-two, .layout-three-two {
+    flex-direction: column;
+}
+
+.layout-three-three {
+    flex-wrap: wrap;
+    .layout-num-box {
+        flex: auto;
+        height: 50%;
+        width: 50%;
+    }
+    .layout-num-box:first-child {
+        width: 100%;
+    }
+}
+
+.layout-three-four {
+    flex-direction: column;
+    flex-wrap: wrap;
+    .layout-num-box {
+        flex: auto;
+        width: 66.66%;
+        height: 50%;
+    }
+    .layout-num-box:first-child {
+        height: 100%;
+        width: 33.33%;
+    }
+}
+
+.layout-four-one {
+    flex-wrap: wrap;
+    .layout-num-box {
+        flex: 50%;
+        height: 50%;
+    }
+}
+
+.view-layout-box {
+    background-color: transparent;
+    outline: 0;
+    padding: 20px;
+}
+
+.view-image-dialog {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    background: #eef4ff;
+    width: 100% !important;
+    height: 100% !important;
 }
 </style>

@@ -23,9 +23,7 @@
 import {
     computed,
     ref,
-    defineEmits,
     onMounted,
-    defineProps,
     watch,
     nextTick,
 } from "vue";
@@ -89,11 +87,15 @@ const canRedo = computed(() => whiteboard.value && whiteboard.value.canRedo);
 
 const resize = () => {
     // 窗口发生变化重新计算距离
-    const { x, y } = whiteboardBox.value.getBoundingClientRect();
-    options.value = {
-        offsetX: x,
-        offsetY: y,
-    };
+    setTimeout(() => {
+        if (whiteboardBox.value) {
+            const { x, y } = whiteboardBox.value.getBoundingClientRect();
+            options.value = {
+                offsetX: x,
+                offsetY: y,
+            };
+        }
+    }, 100);
 };
 
 watch(
@@ -107,11 +109,13 @@ watch(
 
 onMounted(() => {
     nextTick(() => {
-        const { x, y } = whiteboardBox.value.getBoundingClientRect();
-        options.value = {
-            offsetX: x,
-            offsetY: x == 0 && y == 0 ? y : y + 20, //初始化加载画笔偏移 + 20
-        };
+        if (whiteboardBox.value) {
+            const { x, y } = whiteboardBox.value.getBoundingClientRect();
+            options.value = {
+                offsetX: x,
+                offsetY: x == 0 && y == 0 ? y : y + 20, //初始化加载画笔偏移 + 20
+            };
+        }
         window.addEventListener("resize", resize);
     });
 });

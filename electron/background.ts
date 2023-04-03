@@ -4,8 +4,14 @@ import { app, protocol, BrowserWindow, ipcMain, Menu } from "electron";
 // import installExtension, { VUEJS3_DEVTOOLS } from "electron-devtools-installer";
 import { createProtocol } from "vue-cli-plugin-electron-builder/lib";
 import { initialize } from "@electron/remote/main";
-import { createSuspensionWindow, createLocalPreviewWindow, registerEvent, unfoldSuspensionWinSendMessage } from "./suspension";
+import {
+    createSuspensionWindow,
+    createLocalPreviewWindow,
+    registerEvent,
+    unfoldSuspensionWinSendMessage,
+} from "./suspension";
 import autoUpdater from "./autoUpdater";
+import { createWinCardWindow, registerWinCardEvent } from "./wincard";
 import SingalRHelper from "./singalr";
 import ElectronLog from "electron-log";
 import os from "os";
@@ -52,8 +58,8 @@ async function createWindow() {
             nodeIntegration: true,
             contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
             preload: path.join(__dirname, "preload.js"),
-            devTools: !!process.env.WEBPACK_DEV_SERVER_URL
-        }
+            devTools: !!process.env.WEBPACK_DEV_SERVER_URL,
+        },
     });
     // mainWindow.setContentProtection(true);
     downloadFile();
@@ -64,6 +70,7 @@ async function createWindow() {
     }
 
     registerEvent();
+    registerWinCardEvent();
 
     if (process.env.WEBPACK_DEV_SERVER_URL) {
         require("@electron/remote/main").enable(mainWindow.webContents);
@@ -202,6 +209,13 @@ async function createWindow() {
         // mainWindow!.maximize();
         mainWindow!.webContents.send("suspensionClick");
     });
+
+    // ipcMain.handle("openWinCardWin", () => {
+    //     openWinCardWin();
+    // });
+    // ipcMain.on("closeWinCard", () => {
+    //     mainWindow!.webContents.send("closeVideoWin");
+    // });
 }
 
 app.on("window-all-closed", () => {
@@ -220,7 +234,7 @@ app.on("activate", () => {
 
 function createLocalPreview(args: Array<string>) {
     let fileName = "";
-    args.forEach(arg => {
+    args.forEach((arg) => {
         if (arg.endsWith(".lyxpkg")) {
             fileName = arg;
         }
@@ -261,12 +275,13 @@ app.on("ready", async () => {
     if (!result && !isOpenFile) {
         createWindow();
     }
-    // createLocalPreview(["/Users/moneyinto/Desktop/《守株待兔》第一课时.lyxpkg"])
+    // createLocalPreview(["/Users/admin/Desktop/识字1《春夏秋冬》第一课时(副本).lyxpkg"])
 });
 
 app.on("render-process-gone", (event, webContents, details) => {
     ElectronLog.error(
-        `render-process-gone, webContents title: ${webContents.getTitle()}, reason: ${details.reason
+        `render-process-gone, webContents title: ${webContents.getTitle()}, reason: ${
+            details.reason
         }, exitCode: ${details.exitCode}`
     );
 });

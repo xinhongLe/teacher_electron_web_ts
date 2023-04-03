@@ -13,7 +13,7 @@
 </template>
 
 <script lang="ts" setup>
-import { defineEmits, inject, defineExpose } from "vue";
+import { inject } from "vue";
 import { ElMessage } from "element-plus";
 import { SchoolWindowCardInfo } from "@/types/preparation";
 import { debounce } from "lodash";

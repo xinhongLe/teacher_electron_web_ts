@@ -43,12 +43,9 @@
 import {
     reactive,
     ref,
-    defineProps,
     onMounted,
     watch,
-    provide,
-    defineEmits,
-    nextTick,
+    provide
 } from "vue";
 import Tree from "./tree/index.vue";
 import { Search } from "@element-plus/icons-vue";

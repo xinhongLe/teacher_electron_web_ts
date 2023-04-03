@@ -150,7 +150,7 @@
     </el-dialog>
 </template>
 <script lang="ts" setup>
-import { ref, watch, defineEmits, defineProps, computed } from "vue";
+import { ref, computed } from "vue";
 import { MutationTypes, store, ActionTypes } from "@/store";
 import useWrongBook from "../hooks/useWrongBook";
 import { AddPaperForPaperBasket } from "@/api/errorbook";

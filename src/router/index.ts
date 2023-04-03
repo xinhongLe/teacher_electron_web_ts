@@ -18,6 +18,9 @@ const routes: Array<RouteRecordRaw> = [
                 path: "home",
                 name: "首页",
                 component: () => import("@/views/home/index.vue"),
+                meta: {
+                    keepAlive: true,
+                },
             },
             {
                 path: "preparation",
@@ -72,7 +75,8 @@ const routes: Array<RouteRecordRaw> = [
                 },
             },
             {
-                path: "attend-class/:chapterId/:lessonId/:bookId",
+                // path: "attend-class/:chapterId/:lessonId/:bookId",
+                path: "attend-class/:bagIds",
                 name: "上课",
                 component: () => import("@/views/attendClass/index.vue"),
             },

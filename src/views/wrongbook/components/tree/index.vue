@@ -19,7 +19,6 @@ import {
     watch,
     onMounted,
     ref,
-    defineExpose,
     nextTick,
 } from "vue";
 import TreeItem from "./treeItem.vue";

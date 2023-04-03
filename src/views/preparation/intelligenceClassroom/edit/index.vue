@@ -1,299 +1,127 @@
 <template>
-    <div class="home">
-        <div
-            class="left"
-            :style="{
-                width: showCollapse ? '280px' : '0px',
-                padding: showCollapse ? '0px' : '0px 9px',
-            }"
-        >
-            <div class="left-content">
-                <div>
-                    <el-row :gutter="20" v-if="windowInfo.id.length > 0">
-                        <el-col :span="8">
-                            <el-button
-                                class="add-card"
-                                @click="dialogVisibleCard = true"
-                                size="default"
-                                type="primary"
-                                plain
-                                >新增卡</el-button
-                            >
-                        </el-col>
-                        <el-col :span="8">
-                            <el-button
-                                class="add-card"
-                                @click="importPPT()"
-                                size="default"
-                                type="primary"
-                                plain
-                                >导入</el-button
-                            >
-                        </el-col>
-                        <el-col :span="8">
-                            <el-popover
-                                placement="bottom-start"
-                                :width="50"
-                                trigger="focus"
-                            >
-                                <template #reference>
-                                    <el-button
-                                        class="add-card"
-                                        @click.stop
-                                        size="default"
-                                        type="primary"
-                                        plain
-                                        >预览窗</el-button
-                                    >
-                                </template>
-                                <div class="operation-box">
-                                    <div
-                                        @click="
-                                            handleView(allPageList, 'first')
-                                        "
-                                    >
-                                        首页预览
-                                    </div>
-                                    <div
-                                        @click="
-                                            handleView(allPageList, 'active')
-                                        "
-                                    >
-                                        当前页预览
-                                    </div>
-                                </div>
-                            </el-popover>
-                        </el-col>
-                    </el-row>
+    <div class="container">
+        <div class="top">
+            <div class="handles">
+                <div class="btn" @click="handleSave">
+                    <img src="@/assets/edit/icon_save.png" alt=""/>
+                    保存
                 </div>
-                <div class="card-list" ref="cardListRef">
-                    <el-tree
-                        :class="viewTree ? 'view-tree-box' : 'tree-box'"
-                        default-expand-all
-                        node-key="ID"
-                        draggable
-                        :allow-drop="allowDrop"
-                        :expand-on-click-node="false"
-                        :highlight-current="false"
-                        :data="newWindowCards"
-                        :props="defaultProps"
-                        @node-click="handleNodeClick"
-                    >
-                        <template #default="{ node, data }">
-                            <div
-                                :class="[
-                                    'custom-tree-node',
-                                    pageValue.ID === data.ID
-                                        ? 'active-text'
-                                        : '',
-                                ]"
-                            >
-                                <div
-                                    class="label-class"
-                                    @mouseenter="mouseenter($event, node.label)"
-                                    @mouseleave="mouseleave"
-                                >
-                                    <span
-                                        v-if="!viewTree"
-                                        :style="{
-                                            color:
-                                                !data.State && node.level === 2
-                                                    ? '#c0c4cc'
-                                                    : pageValue.ID === data.ID
-                                                    ? '#409Eff'
-                                                    : '#333',
-                                        }"
-                                    >
-                                        {{ node.label }}
-                                    </span>
-
-                                    <div v-else>
-                                        <span v-if="node.level === 1">{{
-                                            node.label
-                                        }}</span>
-                                        <div
-                                            v-else
-                                            v-contextmenu="(el: any) => contextmenus(el, data)"
-                                        >
-                                            <div
-                                                @click.stop="
-                                                    handleSelectPages(data)
-                                                "
-                                                :style="{ backgroundColor: (selectPageData.map(((item: any) => item.ID)).includes(data.ID) ? 'var(--el-color-primary)' : '#fff') }"
-                                                class="select-page"
-                                            >
-                                                <el-icon color="#fff">
-                                                    <Check />
-                                                </el-icon>
-                                            </div>
-                                            <div
-                                                class="status"
-                                                :style="{
-                                                    background: data.State
-                                                        ? '#5CD494'
-                                                        : '#90949E',
-                                                }"
-                                            ></div>
-                                            <!-- 游戏页或者教具页显示封面图 -->
-                                            <el-image
-                                                v-if="
-                                                    (data.Type === 20 ||
-                                                        data.Type === 16) &&
-                                                    data.url
-                                                "
-                                                :src="data.url"
-                                                fit="cover"
-                                            >
-                                                <template #error>
-                                                    <div class="image-slot">
-                                                        加载失败...
-                                                    </div>
-                                                </template>
-                                            </el-image>
-                                            <template v-else>
-                                                <ThumbnailSlide
-                                                    v-if="
-                                                        data.Type ===
-                                                            pageType.element ||
-                                                        data.Type ===
-                                                            pageType.listen
-                                                    "
-                                                    :slide="
-                                                        allPageListMap.get(
-                                                            data.ID
-                                                        ) || {}
-                                                    "
-                                                    :size="190"
-                                                    style="
-                                                        border: 1px solid
-                                                            #ebeff1;
-                                                    "
-                                                ></ThumbnailSlide>
-                                                <div class="view-empty" v-else>
-                                                    {{ data.Name }}
-                                                </div>
-                                            </template>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="icon-box">
-                                    <el-popover
-                                        placement="right-start"
-                                        :width="50"
-                                        trigger="focus"
-                                    >
-                                        <template #reference>
-                                            <el-button size="small" @click.stop>
-                                                <el-icon :size="18"
-                                                    ><more-filled
-                                                /></el-icon>
-                                            </el-button>
-                                        </template>
-                                        <div class="operation-box">
-                                            <div
-                                                v-show="node.level === 1"
-                                                @click.stop="
-                                                    handleView(
-                                                        data.PageList,
-                                                        'first'
-                                                    )
-                                                "
-                                            >
-                                                预览
-                                            </div>
-                                            <div
-                                                v-show="node.level === 1"
-                                                @click.stop="
-                                                    handleAdd(node, data)
-                                                "
-                                            >
-                                                新增页
-                                            </div>
-                                            <div
-                                                @click.stop="
-                                                    handleUpdateName(node, data)
-                                                "
-                                            >
-                                                修改名称
-                                            </div>
-                                            <div
-                                                v-show="node.level === 2"
-                                                @click.stop="
-                                                    handleUpdateState(
-                                                        node,
-                                                        data
-                                                    )
-                                                "
-                                            >
-                                                {{
-                                                    data.State ? "下架" : "上架"
-                                                }}
-                                            </div>
-                                            <div
-                                                v-show="node.level === 1"
-                                                @click.stop="handlePaste(data)"
-                                            >
-                                                粘贴页
-                                            </div>
-                                            <!--游戏页暂不支持复制-->
-                                            <div
-                                                v-show="
-                                                    node.level === 2 &&
-                                                    data.Type !== 20
-                                                "
-                                                @click.stop="
-                                                    handleCopy(node, data)
-                                                "
-                                            >
-                                                复制页
-                                            </div>
-                                            <div
-                                                @click.stop="
-                                                    handleDel(node, data)
-                                                "
-                                            >
-                                                删除
-                                            </div>
-                                        </div>
-                                    </el-popover>
-                                </div>
-                            </div>
-                        </template>
-                    </el-tree>
+                <div class="btn preview" @click="handlePreview(1)">
+                    <img src="@/assets/edit/icon_start1.png" alt=""/>
+                    从当前开始
+                </div>
+                <div class="btn" @click="handlePreview(2)">
+                    <img src="@/assets/edit/icon_start2.png" alt=""/>
+                    从头开始
+                </div>
+                <div class="btn" @click="importPPT">
+                    <img src="@/assets/edit/icon_export.png" alt=""/>
+                    导入ppt
+                </div>
+                <div class="btn" @click="handleOpenLessonDesign">
+                    <img src="@/assets/edit/icon_design.png" alt=""/>
+                    教案设计
                 </div>
             </div>
-            <div class="shrink" ref="shrinkRef">
-                <div @click="showCollapse = !showCollapse">
-                    <el-icon
-                        :style="{
-                            transform:
-                                'rotate(' + (showCollapse ? 0 : 180) + 'deg)',
-                        }"
-                    >
-                        <ArrowLeft />
+            <div class="help" @click="handleHelper">
+                <img src="@/assets/edit/icon_help.png" alt=""/>
+                帮助
+            </div>
+        </div>
+        <div class="wrapper">
+            <div class="left" :class="{collapse:!showCollapse}">
+                <div class="placeholder"/>
+                <div class="card" ref="cardListRef">
+                    <div class="folder" v-for="folder in windowCards" :key="folder.ID">
+                        <div class="title" @click="folder.Fold = !folder.Fold">
+                            <i class="triangle" :class="{rotate:!folder.Fold}"></i>
+                            <img class="file-icon" src="@/assets/edit/icon_file.png" alt=""/>
+                            <span>{{ folder.Name }}</span>
+                            <card-popover :data="folder" @handle="handleCartItem" class="more">
+                                <img src="@/assets/edit/icon_file_more.png" alt="" :id="`popover-${folder.ID}`" @click.stop/>
+                            </card-popover>
+                        </div>
+                        <vue-draggable-next v-model="folder.PageList" group="site" tag="div" class="pages" v-show="folder.Fold" @end="sortWindowCards">
+                            <transition-group>
+                                <div
+                                    class="page"
+                                    @click="handlePageClick(page, $event)"
+                                    v-contextmenu="() => contextMenus(page)"
+                                    @mousedown="handleSelect($event,page.ID)"
+                                    v-for="page in folder.PageList" :key="page.ID"
+                                >
+                                    <div class="page-left">
+                                        <p class="index">{{ page.Index }}</p>
+                                        <img src="@/assets/edit/icon_donghua.png" alt="" v-if="checkIsHandle(2,page.Json)"/>
+                                        <img src="@/assets/edit/icon_shijian.png" alt="" v-if="checkIsHandle(1,page.Json)"/>
+                                    </div>
+                                    <div class="page-right" :class="{active:currentPage.ID === page.ID}">
+                                        <img class="cover" v-if="(page.Type === 20 || page.Type === 16) && page.Url" :src="page.Url"/>
+                                        <template v-else>
+                                            <thumbnail-slide
+                                                :size="228"
+                                                :slide="page.Json"
+                                                v-if="[pageType.listen,pageType.element].includes(page.Type)"
+                                            />
+                                            <div class="view-empty" v-else>{{ page.Name }}</div>
+                                        </template>
+
+                                        <template v-if="!page.State">
+                                            <img class="down" src="@/assets/edit/icon_yc1.png" alt=""/>
+                                            <div class="masks"></div>
+                                        </template>
+
+                                        <div class="handle">
+                                            <div class="name" v-if="[pageType.listen,pageType.element].includes(page.Type)">{{ page.Name }}</div>
+                                            <card-popover :data="page" add @handle="handleCartItem" class="handler-item add">
+                                                <img :id="`popover-add-${page.ID}`" src="@/assets/edit/icon_add_hover.png" alt=""/>
+                                            </card-popover>
+
+                                            <card-popover :data="page" @handle="handleCartItem" class="handler-item more">
+                                                <img :id="`popover-more-${page.ID}`" src="@/assets/edit/icon_more_big.png" alt=""/>
+                                            </card-popover>
+                                        </div>
+                                    </div>
+
+                                    <img v-if="selectPageIds.length > 0" class="select-icon" :src="require(`@/assets/edit/icon_${selectPageIds.includes(page.ID) ? 'clicked' : 'unclick'}.png`)" alt=""/>
+                                </div>
+                            </transition-group>
+                        </vue-draggable-next>
+                    </div>
+                </div>
+                <div class="pagination">
+                    当前页{{ currentPage?.Index || 1 }}/{{ total }}
+                </div>
+                <div class="shrink" @click="showCollapse = !showCollapse">
+                    <el-icon :style="{ transform:'rotate(' + (showCollapse ? 0 : 180) + 'deg)'}">
+                        <ArrowLeft/>
                     </el-icon>
                 </div>
             </div>
-        </div>
-        <div class="right">
-            <win-card-edit
-                ref="editRef"
-                :slide="{ ...currentSlide }"
-                :allPageSlideListMap="allPageListMap"
-                @onSave="onSave"
-                @updatePageSlide="updatePageSlide"
-                @updateAllPageSlideListMap="updateAllPageSlideListMap"
-                :subjectID="subjectPublisherBookValue?.SubjectId || ''"
-                :winId="windowInfo?.id"
-                @updateMaterial="updateMaterial"
-            ></win-card-edit>
-            <!--            <div-->
-            <!--                v-show="!pageValue.ID"-->
-            <!--                class="mask-right"-->
-            <!--                @click.stop="handleMask"-->
-            <!--            ></div>-->
+            <div class="right" :class="{collapse:!showCollapse}">
+                <win-card-edit
+                    ref="editRef"
+                    @onSave="winCardSave"
+                    :winId="windowInfo?.id"
+                    @updateMaterial="updateMaterial"
+                    @updatePageSlide="updatePageSlide"
+                    :slide="currentPage?.Json || {}"
+                    @applyBackgroundAllSlide="applyBackgroundAllSlide"
+                    :subjectID="subjectPublisherBookValue?.SubjectId || ''"
+                />
+            </div>
         </div>
     </div>
+
+    <!--预览界面-->
+    <win-card-view
+        ref="winCardViewRef"
+        v-if="winScreenView"
+        :list="windowCards"
+        :active-page-index="previewIndex"
+        @offScreen="offScreen"
+    />
+
     <!--上传ppt遮罩-->
     <div class="mask-ppt" v-if="loading">
         <div class="ppt-content">
@@ -308,1020 +136,1034 @@
             </div>
         </div>
     </div>
-    <!--预览界面-->
-    <win-card-view
-        ref="winCardViewRef"
-        @offScreen="offScreen"
-        v-if="winScreenView"
-        :pageList="previewPageList"
-        :activePageIndex="activePreviewPageIndex"
-    ></win-card-view>
-
-    <!-- 新增卡弹框-->
-    <add-card-dialog
-        v-model:dialogVisible="dialogVisibleCard"
-        @handleAddCard="handleAddCard"
-    ></add-card-dialog>
 
     <!-- 新增页弹框-->
-    <add-page-dialog
-        v-if="dialogVisible"
-        v-model:dialogVisible="dialogVisible"
-        @addPage="addPage"
-    ></add-page-dialog>
+    <add-page-dialog v-if="addPageVisible" v-model:dialogVisible="addPageVisible" @addPage="addInteractionPage"/>
 
-    <!-- 修改名称弹框-->
-    <update-name-card-or-page
-        v-model:dialogVisible="dialogVisibleName"
-        :currentValue="currentValue"
-        @updateName="updateName"
-    ></update-name-card-or-page>
-
-    <!-- 保存模板弹框-->
-    <save-template-dialog
-        v-if="dialogVisibleTemplate"
-        v-model:dialogVisible="dialogVisibleTemplate"
-        :showTemplateType="showTemplateType"
-        @handleAddTemplate="handleAddTemplate"
-        :subjectID="subjectPublisherBookValue?.SubjectId || ''"
-        :lessonId="windowInfo?.lessonId || ''"
-        @cacleTemplateDialog="cacleTemplateDialog"
-        :dialogStatus="dialogStatus"
-        :selectPageData="selectPageData"
-    >
-    </save-template-dialog>
     <!-- 资源库 -->
-    <materialCenter
+    <material-center
         ref="materialCenterRef"
         @insertData="handleInsertData"
         @insertTools="handleInsertTool"
-        @editTemplate="editTemplate"
-        :subjectID="subjectPublisherBookValue?.SubjectId || ''"
         :lessonId="windowInfo?.lessonId || ''"
-    ></materialCenter>
-    <!-- 查看我的模板：老师才有，教研没有 -->
-    <div v-if="isshowCusTooltip" class="cus-open-tooltip">
-        前往<span @click="gotoMyTemplate">「我的」</span>查看已保存模板
-    </div>
+        :subjectID="subjectPublisherBookValue?.SubjectId || ''"
+    />
 </template>
 
 <script lang="ts">
-import {
-    onMounted,
-    onUnmounted,
-    defineComponent,
-    toRefs,
-    ref,
-    watch,
-    toRef,
-    computed,
-    nextTick,
-} from "vue";
-import WinCardEdit from "../components/edit/winCardEdit.vue";
-import { IPageValue, ICardList } from "@/types/home";
-import Node from "element-plus/es/components/tree/src/model/node";
-import useSelectBookInfo from "@/hooks/useSelectBookInfo";
-import { isFullscreen } from "@/utils/fullscreen";
-import { MoreFilled } from "@element-plus/icons-vue";
-import { ElMessage, ElMessageBox } from "element-plus";
-import AddPageDialog from "../components/edit/addPageDialog.vue";
-import UpdateNameCardOrPage from "../components/edit/updateNameCardOrPage.vue";
-import WinCardView from "../components/edit/winScreenView.vue";
-import AddCardDialog from "../components/edit/addCardDialog.vue";
-import { onBeforeRouteLeave, useRoute, useRouter } from "vue-router";
-import usePreview from "./hooks/usePreview";
-import useCopyPage from "./hooks/useCopyPage";
-import useSelectPage from "./hooks/useSelectPage";
-import useDragPage from "./hooks/useDragPage";
-import useAddCard from "./hooks/useAddCard";
-import useAddPage from "./hooks/useAddPage";
-import useUpdateName from "./hooks/useUpdateName";
-import useSaveTemplate from "./hooks/useSaveTemplate";
-// import useGetPageSlide from "./hooks/useGetPageSlide";
-import isElectron from "is-electron";
+import { store } from "@/store";
 import { Slide } from "wincard";
-import { saveWindows, saveAsWindows } from "../api";
-import { find, isEqual, pullAllBy, cloneDeep } from "lodash";
-import emitter from "@/utils/mitt";
-import exitDialog, { ExitType } from "./exitDialog";
-import TrackService, { EnumTrackEventType } from "@/utils/common";
-import useImportPPT from "@/hooks/useImportPPT";
-import useTooltipShow from "./hooks/useTooltipShow";
+import { cloneDeep } from "lodash";
 import { v4 as uuidv4 } from "uuid";
-import { pageType } from "@/config";
-import { MutationTypes, store } from "@/store";
-import SaveDialog from "../components/edit/saveDialog/saveDialog.vue";
-import SaveAsDialog from "../components/edit/saveDialog/saveAsDialog.vue";
+import { saveWindows } from "../api";
+import useHome from "@/hooks/useHome";
+import { getOssUrl } from "@/utils/oss";
+import loading from "@/components/loading";
+import usePreview from "./hooks/usePreview";
+import { getImageSize } from "@/utils/image";
+import { getWindowStruct } from "@/api/home";
+import useImportPPT from "@/hooks/useImportPPT";
+import useHandlePPT from "./hooks/useHandlePPT";
+import { isFullscreen } from "@/utils/fullscreen";
+import { pageType, pageTypeList } from "@/config";
+import { CardProps, PageProps } from "../api/props";
+import { get, STORAGE_TYPES } from "@/utils/storage";
+import { VueDraggableNext } from "vue-draggable-next";
+import { dealAnimationData } from "@/utils/dataParse";
+import { ElMessage, ElMessageBox } from "element-plus";
+import exitDialog, { ExitType } from "../edit/exitDialog";
+import WinCardEdit from "../components/edit/winCardEdit.vue";
+import CardPopover from "../components/edit/CardPopover.vue";
+import WinCardView from "../components/edit/winScreenView.vue";
+import AddPageDialog from "../components/edit/addPageDialog.vue";
 import materialCenter from "../components/edit/materialCenter/index.vue";
-import SaveTemplateDialog from "../components/edit/saveTemplateDialog.vue";
+import { addTeachPageTemplateLinkCount, saveTemplate } from "@/api/material";
+import { computed, defineComponent, nextTick, onMounted, onUnmounted, ref } from "vue";
 
 export default defineComponent({
-    components: {
-        AddCardDialog,
-        WinCardView,
-        UpdateNameCardOrPage,
-        AddPageDialog,
-        WinCardEdit,
-        MoreFilled,
-        materialCenter,
-        SaveTemplateDialog,
-    },
     name: "Edit",
+    components: {
+        CardPopover,
+        WinCardEdit,
+        WinCardView,
+        VueDraggableNext,
+        AddPageDialog,
+        materialCenter
+    },
     setup() {
-        const newWindowCards = ref([]);
-        const materialCenterRef = ref(); //资源库组件实例
-        const isshowCusTooltip = ref(false); //展示查看已保存模板提示框
+        const { transformPageDetail } = useHome();
+        const windowInfo = computed(() =>
+            store.state.preparation.editWindowInfo.id
+                ? store.state.preparation.editWindowInfo
+                : get(STORAGE_TYPES.WINDOW_INFO));
+        const subjectPublisherBookValue = computed(() =>
+            store.state.preparation.editWindowInfo.id
+                ? store.state.preparation.subjectPublisherBookValue
+                : get(STORAGE_TYPES.SUBJECT_BOOK_INFO)
+        );
 
+        const editRef = ref();
+        const winCardViewRef = ref();
+        const materialCenterRef = ref();
+        const total = ref(0);
         const showCollapse = ref(true);
-        const shrinkRef = ref();
-        const viewTree = ref(true);
+        const addPageVisible = ref(false);
+        const currentPage = ref<PageProps | null>(null);
+        const selectPageIds = ref<string[]>([]);
+        const windowCards = ref<CardProps[]>([]);
 
-        const { tooltipShow, mouseenter, mouseleave } = useTooltipShow();
-        const { state, defaultProps, pageValue, _getWindowCards, insertData } =
-            useSelectBookInfo();
+        getWindowCardsData();
 
-        const windowCards = toRef(state, "windowCards");
+        const pptHandle = useImportPPT();
+        const previewHandle = usePreview(windowCards, currentPage, editRef, winCardViewRef);
+        const addHandle = useHandlePPT(windowCards, currentPage, editRef);
 
-        const oldWindowCards = toRef(state, "oldWindowCards");
+        // win-card-edit插件保存回调
+        const winCardSave = async () => {
+            const list = [];
+            for (let i = 0; i < windowCards.value.length; i++) {
+                const item = windowCards.value[i];
 
-        const allPageListMap = toRef(state, "allPageListMap");
-        const oldAllPageListMap = toRef(state, "oldAllPageListMap");
+                const obj: any = {
+                    cardID: item.ID,
+                    sort: item.Sort,
+                    cardName: item.Name,
+                    pageData: []
+                };
 
-        // const {
-        // fetchAllPageSlide,
-        // allPageSlideListMap,
-        // oldAllPageSlideListMap,
-        // isLoadEnd,
-        // resetPageSlide
-        // } = useGetPageSlide(pageValue);
+                for (let j = 0; j < item.PageList.length; j++) {
+                    const it = item.PageList[j];
+                    const slide: Slide = it.Json;
 
-        const {
-            selectPageData,
-            handleSelectPages,
-            dialogVisibleTemplate,
-            showTemplateType,
-            handleSaveTemplate,
-            saveTemplateFrom,
-            editTemplate,
-            dialogStatus,
-            templateFormData,
-            formateOssUrl,
-        } = useSaveTemplate(allPageListMap);
-
-        const {
-            previewPageList,
-            handleView,
-            winScreenView,
-            keyDown,
-            offScreen,
-            activePreviewPageIndex,
-        } = usePreview(pageValue);
-
-        const { handleCopy, handlePaste, pastePage } = useCopyPage(
-            windowCards,
-            allPageListMap
-        );
-
-        const {
-            handleNodeClick,
-            selectPageValue,
-            editRef,
-            activeAllPageListIndex,
-            allPageList,
-            isWatchChange,
-            cardListRef,
-        } = useSelectPage(pageValue, allPageListMap);
-
-        const { allowDrop } = useDragPage();
-
-        const { handleAdd, addPageCallback, dialogVisible } = useAddPage(
-            shrinkRef,
-            windowCards,
-            allPageListMap
-        );
-
-        const {
-            dialogVisibleName,
-            currentValue,
-            handleUpdateName,
-            updateName,
-        } = useUpdateName(shrinkRef);
-
-        const route = useRoute();
-        const router = useRouter();
-        const windowInfo = computed(
-            () => store.state.preparation.editWindowInfo
-        );
-        const subjectPublisherBookValue = computed(
-            () => store.state.preparation.subjectPublisherBookValue
-        );
-        // console.log(
-        //     "windowInfo===================>",
-        //     windowInfo,
-        //     store.state.preparation.subjectPublisherBookValue
-        // );
-
-        const { handleAddCard, dialogVisibleCard } = useAddCard(
-            windowCards,
-            windowInfo
-        );
-
-        const handleDel = (node: Node, data: ICardList) => {
-            ElMessageBox.confirm("此操作将删除该数据, 是否继续?", "提示", {
-                confirmButtonText: "确认",
-                cancelButtonText: "取消",
-                type: "warning",
-            })
-                .then(() => {
-                    // 删除的是卡 判断当前页是否在删除卡下
-                    if (node.level === 1) {
-                        const flag = data.PageList.find(
-                            (item) => item.ID === pageValue.value?.ID
-                        );
-                        pullAllBy(windowCards.value, [{ ID: data.ID }], "ID");
-                        if (flag) {
-                            pageValue.value = {
-                                ...pageValue.value!,
-                                ID: "",
-                                Type: 11,
-                            };
-                        }
-                    } else {
-                        const cardId = node.parent.data.ID;
-                        const pageList =
-                            find(windowCards.value, { ID: cardId })?.PageList ||
-                            [];
-                        pullAllBy(pageList, [{ ID: data.ID }], "ID");
-                        if (pageValue.value.ID === data.ID) {
-                            pageValue.value = {
-                                ...pageValue.value!,
-                                ID: "",
-                                Type: 11,
-                            };
-                        }
-                        windowCards.value = [...windowCards.value];
-                    }
-                    TrackService.setTrack(
-                        EnumTrackEventType.DeleteCard,
-                        "",
-                        "",
-                        "",
-                        "",
-                        "",
-                        "",
-                        "删除卡或页",
-                        "",
-                        "",
-                        store.state.userInfo.schoolId
-                    );
-                })
-                .catch((err) => {
-                    return err;
-                });
-        };
-
-        const handleUpdateState = (node: Node, data: IPageValue) => {
-            data.State = !data.State;
-        };
-
-        const onSave = async () => {
-            // if (!isLoadEnd.value) {
-            //     return ElMessage.warning("资源正在加载，请稍后再试...");
-            // }
-            const cardData = windowCards.value.map((card, index) => {
-                const cardID = card.isAdd ? "" : card.ID;
-                const cardName = card.Name;
-                const sort = index + 1;
-                const pageList = card.PageList;
-                const pageData = pageList.map((page, pageIndex) => {
-                    const { ID, Name, Type, State, isAdd } = page;
-                    const slide = allPageListMap.value.get(ID);
                     let json = "";
-                    const academicPresupposition = slide?.remark || "";
-                    const designIntent = slide?.design || "";
-                    if (slide) {
-                        if (slide.type === "element") {
-                            json = JSON.stringify(slide);
-                        } else if (slide.type === "listen") {
-                            const Words = slide.listenWords?.map(
-                                (word, index) => {
-                                    return {
-                                        sort: index + 1,
-                                        WordID: word.id,
-                                        PageWordID: word.pageWordID
-                                            ? null
-                                            : word.pageWordID,
-                                        WordInterval: 2,
-                                    };
-                                }
-                            );
-                            json = JSON.stringify(Words);
-                        } else if (slide.type === "follow") {
-                            json = slide.follow?.id || "";
-                        } else if (slide.type === "teach") {
-                            json = slide.teach?.id || "";
-                        } else if (slide.type === "game") {
-                            json = slide.game?.id || "";
-                        }
+                    if (slide?.type === "element") {
+                        json = JSON.stringify(slide);
                     }
+                    if (slide?.type === "listen") {
+                        const words = slide.listenWords?.map((word: any, index: number) => {
+                            return {
+                                sort: index + 1,
+                                WordID: word.id,
+                                PageWordID: word.pageWordID ? null : word.pageWordID,
+                                WordInterval: 2
+                            };
+                        });
+                        json = JSON.stringify(words);
+                    }
+                    if (slide?.type === "follow") {
+                        json = slide.follow?.id || "";
+                    }
+                    if (slide?.type === "teach") {
+                        json = slide.teach?.id || "";
+                    }
+                    if (slide?.type === "game") {
+                        json = slide.game?.id || "";
+                    }
+
+                    obj.pageData.push({
+                        pageID: it.ID,
+                        pageName: it.Name,
+                        type: it.Type,
+                        academicPresupposition: slide?.remark,
+                        designIntent: slide?.design,
+                        sort: it.Sort,
+                        state: it.State,
+                        json
+                    });
+                }
+
+                list.push(obj);
+            }
+
+            const res = await saveWindows({
+                originType: 1,
+                cardData: list,
+                windowID: windowInfo.value.id,
+                windowName: windowInfo.value.name,
+                teacherID: store.state.userInfo.id,
+                franchiseeID: store.state.userInfo.schoolId
+            });
+            if (res.resultCode !== 200) return false;
+
+            ElMessage.success("保存成功");
+            return true;
+        };
+
+        // 导入PPT
+        const importPPT = () => {
+            pptHandle.importByElectron(result => {
+                const name = pptHandle.uploadFileName.value.split("\\");
+                const parentId = uuidv4();
+                const pageList = result.slides.map((item, index) => {
+                    const id = uuidv4();
                     return {
-                        pageID: isAdd ? "" : ID,
-                        pageName: Name || "",
-                        type: Type,
-                        academicPresupposition,
-                        designIntent,
-                        sort: pageIndex + 1,
-                        json,
-                        state: Number(State),
+                        ID: id,
+                        Name: name[name.length - 1] + "-" + (index + 1),
+                        Type: pageType.element,
+                        State: 1,
+                        Json: item,
+                        TeachPageRelationID: "",
+                        Height: 0,
+                        Width: 0,
+                        Sort: index + 1,
+                        AcademicPresupposition: "",
+                        DesignIntent: "",
+                        Index: windowCards.value.length + index + 1,
+                        Url: "",
+                        ParentID: parentId
                     };
                 });
-
-                return {
-                    cardID,
-                    sort,
-                    pageData,
-                    cardName,
+                const card = {
+                    Name: name[name.length - 1],
+                    ID: parentId,
+                    Sort: windowCards.value.length,
+                    isAdd: true,
+                    PageList: pageList,
+                    TeachPageRelationID: "",
+                    Fold: true
                 };
+                windowCards.value.push(card);
             });
+        };
 
-            const data = {
-                franchiseeID: store.state.userInfo.schoolId,
-                teacherID: store.state.userInfo.id,
-                cardData,
-                originType: 1,
-                windowName: windowInfo.value.name,
-                windowID: windowInfo.value.id,
-            };
+        let selectPage: PageProps | null = null;
+        // PPT悬浮操作（1-新增文件夹，2-新增空白页，3-重命名，4-隐藏/显示，5-粘贴页，6-复制页，7-保存模板，8-删除，9-新增互动页）
+        const handleCartItem = (type: number, data: PageProps | CardProps) => {
+            if (type === 1) {
+                ElMessageBox.prompt("", "新建文件夹", {
+                    inputPattern: /\S/,
+                    inputErrorMessage: "请填写文件夹名称"
+                }).then(async ({ value }) => {
+                    addHandle.createFolder(value);
+                });
+            }
+            if (type === 2) {
+                loading.show();
+                addHandle.createCardPage(pageTypeList[0], data);
+            }
+            if (type === 3) {
+                addHandle.rename(data);
+            }
+            if (type === 4) {
+                (data as PageProps).State = (data as PageProps).State ? 0 : 1;
+            }
+            if (type === 5) {
+                loading.show();
+                addHandle.paste(data as CardProps);
+            }
+            if (type === 6) {
+                loading.show();
+                addHandle.copy(data as PageProps);
+            }
+            if (type === 7) {
+                handleSaveTemplate(data as PageProps);
+            }
+            if (type === 8) {
+                addHandle.remove(data);
+            }
+            if (type === 9) {
+                selectPage = cloneDeep<PageProps>(data as PageProps);
+                addPageVisible.value = true;
+            }
 
-            const lessonId = (windowInfo.value.lessonId as string) || "";
-            const message = "保存成功";
+            setTimeout(() => {
+                loading.hide();
+            }, 500);
+        };
 
-            const res = await saveWindows(data);
-            if (res.resultCode === 200) {
-                ElMessage.success({
-                    message,
-                    duration: 2000,
-                });
-                store.commit(MutationTypes.SET_EDIT_WINDOW_INFO, {
-                    ...windowInfo.value,
-                });
-                allPageListMap.value.forEach((item, key) => {
-                    oldAllPageListMap.value.set(key, cloneDeep(item));
-                });
-                oldWindowCards.value = cloneDeep(windowCards.value);
+        // 新增互动页
+        const addInteractionPage = (pageType: any) => {
+            loading.show();
+            addHandle.createCardPage(pageType, selectPage as PageProps);
+            addPageVisible.value = false;
+            selectPage = null;
+            loading.hide();
+        };
+
+        // 按住shift和ctrl选中
+        const handleSelect = (e: KeyboardEvent, id: string) => {
+            if (e.shiftKey && e.ctrlKey) return;
+            if (!(e.shiftKey || e.ctrlKey)) return;
+
+            const index = selectPageIds.value.findIndex(item => item === id);
+
+            if (index > 0) {
+                selectPageIds.value.splice(index, 1);
+            } else {
+                selectPageIds.value.push(id);
             }
         };
 
-        watch(
-            () => state.windowCards,
-            async () => {
-                allPageList.value = getAllPageList();
-                if (state.windowCards.length > 0) {
-                    //过滤教具页和游戏页的封面
-                    await formataWindowCards(
-                        state.windowCards,
-                        allPageList.value
-                    );
-                    // 先判断是否是粘贴/新增的卡 如果是粘贴/新增卡先选中粘贴/新增卡
-                    if (pastePage.value && pastePage.value.ID) {
-                        selectPageValue(pastePage.value, false);
-                        activeAllPageListIndex.value =
-                            allPageList.value.findIndex(
-                                (item) => item.ID === pastePage.value!.ID
-                            );
-                        pastePage.value = undefined;
-                        return;
-                    }
+        // 保存模板
+        const handleSaveTemplate = (page?: PageProps) => {
+            if (!page && selectPageIds.value.length === 0) {
+                ElMessage.warning("请先选中需要保存的模板");
+                return;
+            }
+            ElMessageBox.prompt("", "保存模板", {
+                inputPattern: /\S/,
+                inputErrorMessage: "请填写模板名称"
+            }).then(async ({ value }) => {
+                let allPages: PageProps[] = [];
+                windowCards.value.forEach(item => {
+                    allPages = allPages.concat(...item.PageList);
+                });
+                const list: any = selectPageIds.value.length === 0 ? [page] : selectPageIds.value.map(item => allPages.find(it => it.ID === item));
 
-                    // 拖拽排序选中当前页
-                    if (pageValue.value?.ID) {
-                        // 需要更新当前选中页的上下架状态等
-                        const newPageValue = allPageList.value.find(
-                            (item) => item.ID === pageValue.value?.ID
-                        );
-                        if (newPageValue) {
-                            pageValue.value = newPageValue;
-                        }
-                        const obj = {
-                            ...pageValue.value,
-                        };
-                        selectPageValue(obj, true);
-                    } else {
-                        const winCard = selectFirstPage(state.windowCards);
-                        if (winCard) {
-                            selectPageValue(winCard.PageList[0], true);
-                        }
+                const params = {
+                    ID: "",
+                    Status: 1,
+                    Name: value,
+                    HavingAudio: 0,
+                    HavingVideo: 0,
+                    EstimatedDuration: 0,
+                    TeachPageClassroomLink: null,
+                    LessonID: windowInfo.value.lessonId,
+                    SubjectID: subjectPublisherBookValue.value?.SubjectId || "",
+                    TeacherID: store.state.userInfo.id ? store.state.userInfo.id : get(STORAGE_TYPES.USER_INFO).ID
+                };
+
+                for (let i = 0; i < list.length; i++) {
+                    const item = list[i];
+
+                    if (!item.ID) continue;
+
+                    const temPage: Slide | undefined = allPages.find(it => it.ID === item.ID)?.Json;
+
+                    if (!temPage) continue;
+
+                    params.HavingAudio = temPage.elements.some(item => item.type === "audio") ? 1 : 0;
+                    params.HavingVideo = temPage.elements.some(item => item.type === "video") ? 1 : 0;
+                    item.AcademicPresupposition = temPage.remark;
+                    item.DesignIntent = temPage.design;
+
+                    if (temPage.type === "element") {
+                        item.Json = JSON.stringify(temPage);
+                    }
+                    if (temPage.type === "listen") {
+                        const words = temPage.listenWords?.map((word: any, index: number) => {
+                            return {
+                                sort: index + 1,
+                                WordID: word.id,
+                                PageWordID: word.pageWordID ? null : word.pageWordID,
+                                WordInterval: 2
+                            };
+                        });
+                        item.Json = JSON.stringify(words);
+                    }
+                    if (temPage.type === "follow") {
+                        item.Json = temPage.follow?.id || "";
+                    }
+                    if (temPage.type === "teach") {
+                        item.Json = temPage.teach?.id || "";
+                    }
+                    if (temPage.type === "game") {
+                        item.Json = temPage.game?.id || "";
                     }
                 }
-            },
-            {
-                deep: true,
-            }
-        );
-        //过滤教具页和游戏页的封面
-        const formataWindowCards = async (arr: any, mapList?: any) => {
-            newWindowCards.value = JSON.parse(JSON.stringify(arr));
-            newWindowCards.value.forEach((item: any) => {
-                item.PageList?.forEach(async (page: IPageValue) => {
-                    if (page) {
-                        page.Json =
-                            page.Json && typeof page.Json === "string"
-                                ? JSON.parse(page.Json)
-                                : page.Json;
-                        // const newSlide: Slide = await transformPageDetail(page, page.Json);
-                        if (page.Type === 20 || page.Type === 16) {
-                            const temJson: any = page.Json;
-                            if (page.url) return;
-                            page.url = temJson?.ToolFileModel
-                                ? await formateOssUrl(
-                                      temJson?.ToolFileModel?.File
-                                  )
-                                : "";
-                        }
-                    }
+
+                const res = await saveTemplate({ ...params, PageData: list });
+
+                if (res.resultCode !== 200) return;
+                ElMessage.success("保存成功，请前往「我的」查看已保存模板");
+                selectPageIds.value = [];
+                await nextTick(() => {
+                    materialCenterRef.value.queryTemplateList();
                 });
             });
-            newWindowCards.value = [...newWindowCards.value];
         };
-        const getAllPageList = () => {
-            let data: IPageValue[] = [];
-            state.windowCards.map((card) => {
-                data = data.concat(card.PageList);
-            });
-            return data;
+
+        const contextMenus = (page: PageProps) => {
+            return [
+                {
+                    text: "保存模板",
+                    subText: "",
+                    handler: () => {
+                        handleSaveTemplate(page);
+                    }
+                }
+            ];
         };
-        const selectFirstPage = (list: ICardList[]) => {
-            return list.find((item) => item.PageList.length > 0);
+
+        // 子窗体关闭 提示
+        const closeCurrentWinCard = async () => {
+            const res = await exitDialog();
+            if (res === ExitType.Cancel) {
+                return "cancel";
+            }
+            if (res === ExitType.Exit) {
+                return "exit";
+            }
+            if (res === ExitType.Save) {
+                if (windowInfo.value.originType === 0) {
+                    return false;
+                } else {
+                    return (await winCardSave()) ? "save" : false;
+                }
+            }
         };
-        const handleMask = () => {
-            ElMessage({ type: "warning", message: "请先选择页，在进行编辑" });
+
+        // 插入左侧窗卡页 资源库-模板素材操作
+        const handleInsertData = async (obj: { type: "elements" | "page", data: any, teachPageTemplateID?: string }) => {
+            if (!currentPage.value) {
+                ElMessage.warning("请先选择页，再进行插入");
+                return;
+            }
+            const page = currentPage.value;
+            const index = windowCards.value.findIndex(item => item.ID === page?.ParentID);
+            const subIndex = windowCards.value[index].PageList.findIndex(item => item.ID === page?.ID);
+
+            if (obj.type === "page") {
+                windowCards.value[index].PageList.splice(subIndex + 1, 0, ...obj.data);
+                addHandle.sortWindowCards();
+
+                // 插入成功后调用一下增加次数的接口
+                await addTeachPageTemplateLinkCount({
+                    TeacherID: "",
+                    TeachPageTemplateID: obj.teachPageTemplateID || ""
+                });
+                await nextTick(() => {
+                    materialCenterRef.value.addLinkCount(
+                        obj.teachPageTemplateID || ""
+                    );
+                });
+            }
+            if (obj.type === "elements") {
+                if (page?.Type === pageType.game || page?.Type === pageType.teach || page?.Type === pageType.listen || page?.Type === pageType.follow) {
+                    ElMessage.warning("当前页无法添加素材，请先切换到素材页哦！");
+                    return;
+                }
+                const data = obj.data;
+                if (!(page.Json.elements instanceof Array)) {
+                    page.Json.elements = [];
+                }
+
+                if ([2, 3].includes(data.Type)) {
+                    const element = await getImageData(data);
+                    page.Json.elements.push(element);
+                }
+
+                if (data.Type === 4) {
+                    const file = data.Files?.length ? data.Files.find((item: any) => item.Type === 0) : null;
+                    if (!file) return;
+
+                    const element = JSON.parse(file.Json);
+                    element.offSetElements.forEach((item: any) => (item.id = uuidv4()));
+
+                    page.Json.elements.push(...element.offSetElements);
+                }
+
+                if ([5, 6].includes(data.Type)) {
+                    const element = getAudioVideoData(data, data.Type === 5 ? "video" : "audio");
+                    page.Json.elements.push(element);
+                }
+
+                await addHandle.replaceCurrentPage(page);
+            }
         };
-        //保存完组件后刷新素材列表
+
+        // 插入教具内容以及教具页
+        const handleInsertTool = async (obj: any) => {
+            if (!currentPage.value) {
+                ElMessage.warning("请先选择页，再进行插入");
+                return;
+            }
+            const id = uuidv4();
+            const page = {
+                ID: id,
+                TeachPageRelationID: "",
+                Name: "教具页",
+                Height: 0,
+                Width: 0,
+                Type: pageType.teach,
+                Sort: 0,
+                State: 1,
+                AcademicPresupposition: "",
+                DesignIntent: "",
+                Index: 0,
+                Url: obj.data.url,
+                ParentID: currentPage.value?.ID,
+                Json: {
+                    TeachPageID: id,
+                    TeachingMiniToolID: obj.data.ID,
+                    ToolFileModel: {
+                        ID: obj.data.ID,
+                        Name: obj.data.Name,
+                        File: obj.data.File,
+                        Url: obj.data.Url
+                    }
+                }
+            };
+            const index = windowCards.value.findIndex(item => item.ID === currentPage.value?.ParentID);
+            const subIndex = windowCards.value[index].PageList.findIndex(item => item.ID === currentPage.value?.ID);
+
+            addHandle.insertWindowsCards(page, index, subIndex);
+            addHandle.sortWindowCards();
+        };
+
+        // 保存完组件后刷新素材列表
         const updateMaterial = () => {
             nextTick(() => {
                 materialCenterRef.value.updateMaterialList();
             });
         };
 
-        const {
-            importByElectron,
-            uploadFileName,
-            loading,
-            parsePptPage,
-            pptPages,
-            percentage,
-        } = useImportPPT();
-
-        const importPPT = () => {
-            importByElectron((result) => {
-                const name = uploadFileName.value.split("\\");
-                const pageList = result.slides.map((item, index) => {
-                    const id = uuidv4();
-                    allPageListMap.value.set(id, item);
-                    return {
-                        ID: id,
-                        Name: name[name.length - 1] + "-" + (index + 1),
-                        Type: pageType.element,
-                        isAdd: true,
-                        State: true,
-                    };
-                });
-                const card = {
-                    Name: name[name.length - 1],
-                    ID: uuidv4(),
-                    Sort: windowCards.value.length,
-                    isAdd: true,
-                    PageList: pageList,
-                };
-                windowCards.value.push(card);
-            });
-        };
-
         const updatePageSlide = (slide: Slide) => {
-            if (!pageValue.value.ID) return;
-            allPageListMap.value.set(pageValue.value.ID, slide);
+            if (!currentPage.value) return;
+            const index = windowCards.value.findIndex(item => item.ID === currentPage.value?.ParentID);
+            const page = windowCards.value[index].PageList.find(item => item.ID === currentPage.value?.ID) as PageProps;
+            page.Json = slide;
+
+            const teach: any = slide.teach;
+            if (teach && teach.ossSrc) {
+                page.Url = teach.ossSrc;
+            }
+            const game: any = slide.game;
+            if (game && game.ossSrc) {
+                page.Url = game.ossSrc;
+            }
+
+            addHandle.replaceCurrentPage(page);
         };
 
-        // 同步教案的数据
-        const updateAllPageSlideListMap = (newAllPageList: any[]) => {
-            newAllPageList.forEach((item: any) => {
-                const value = allPageListMap.value.get(item.TeachPageID);
-                const newValue = {
-                    ...value,
-                    remark: item.AcademicPresupposition || "",
-                    design: item.DesignIntent || "",
-                };
-                allPageListMap.value.set(item.TeachPageID, newValue as Slide);
-                oldAllPageListMap.value.set(
-                    item.TeachPageID,
-                    cloneDeep(newValue as Slide)
-                );
+        const applyBackgroundAllSlide = (data: any) => {
+            const list = cloneDeep<CardProps[]>(windowCards.value);
+            for (let i = 0; i < list.length; i++) {
+                const item = list[i];
+
+                for (let j = 0; j < item.PageList.length; j++) {
+                    const it = item.PageList[j];
+
+                    if (!it.Json.background) continue;
+
+                    it.Json.background = data;
+                }
+            }
+
+            windowCards.value = list;
+        };
+
+        // 整体保存
+        const handleSave = () => {
+            if (!editRef.value) return;
+            editRef.value.saveSlide();
+
+            setTimeout(() => {
+                winCardSave();
+            }, 500);
+        };
+
+        // 判断该PPT有无事件，动画，超链接素材（1-事件，2-动画，3-超链接素材）
+        const checkIsHandle = (type: 1 | 2 | 3, json: any) => {
+            if (!json) return false;
+            if (type === 1) {
+                return (json.elements || []).filter((item: any) => item.actions && item.actions.length > 0).length > 0;
+            }
+            if (type === 2) {
+                return json.animations && json.animations.length > 0;
+            }
+            return false;
+        };
+
+        const VIEWPORT_RATIO = 0.5625;
+        const VIEWPORT_SIZE = 1280;
+
+        function getImageData(data: any) {
+            return new Promise(resolve => {
+                getImageSize(data.url).then(({ width, height }) => {
+                    const scale = height / width;
+                    if (scale < VIEWPORT_RATIO && width > VIEWPORT_SIZE) {
+                        width = VIEWPORT_SIZE;
+                        height = width * scale;
+                    } else if (height > VIEWPORT_SIZE * VIEWPORT_RATIO) {
+                        height = VIEWPORT_SIZE * VIEWPORT_RATIO;
+                        width = height / scale;
+                    }
+
+                    const file = data.Files?.length ? data.Files.find((item: any) => item.Type === 0) : data.SourceMaterialMainID ? data : null;
+
+                    if (!file) return resolve(null);
+
+                    return resolve({
+                        id: uuidv4(),
+                        fixedRatio: true,
+                        name: data.name,
+                        rotate: 0,
+                        src: `${file.FilePath}/${file.FileMD5}.${file.FileExtention}`,
+                        stretch: 1,
+                        eft: (VIEWPORT_SIZE - width) / 2,
+                        top: (VIEWPORT_SIZE * VIEWPORT_RATIO - height) / 2,
+                        type: "image",
+                        width,
+                        height
+                    });
+                });
             });
-        };
+        }
 
-        const winCardViewRef = ref();
-        onMounted(() => {
-            _getWindowCards({
+        function getAudioVideoData(data: any, type: "video" | "audio") {
+            const file = data.Files?.length ? data.Files.find((item: any) => item.Type === 1) : null;
+            const width = data.showType === 0 ? 500 : 100;
+            const height = data.showType === 0 ? 300 : 100;
+
+            return {
+                name: data.Name,
+                type: type,
+                id: uuidv4(),
+                width,
+                height,
+                rotate: 0,
+                left: (VIEWPORT_SIZE - width) / 2,
+                top: (VIEWPORT_SIZE * VIEWPORT_RATIO - height) / 2,
+                src: `${file.FilePath}/${file.FileMD5}.${file.FileExtention}`,
+                showType: data.showType,
+                clip: data.clip ? data.clip : undefined
+            };
+        }
+
+        function getWindowCardsData() {
+            getWindowStruct({
                 WindowID: windowInfo.value.id,
-                OriginType: windowInfo.value.originType,
-            }).then(() => {
-                // fetchAllPageSlide(getAllPageList());
+                OriginType: windowInfo.value.originType
+            }).then(res => {
+                if (res.resultCode !== 200) return;
+
+                const list = res.result.CardData;
+                if (!list || list.length === 0) return;
+                assembleCardData(list);
             });
-            window.addEventListener("keydown", keyDown);
+        }
+
+        const formatOssUrl = async (file: any) => {
+            const key = `${file?.FilePath}/${file?.FileMD5}.${
+                file?.FileExtention || file?.Extention
+            }`;
+            return await getOssUrl(key, "axsfile");
+        };
+
+        // 组装ppt列表数据
+        async function assembleCardData(arr: CardProps[]) {
+            const list = [];
+            let index = 1;
+
+            for (let i = 0; i < arr.length; i++) {
+                const item = arr[i];
+                const pageList: PageProps[] = [];
+
+                for (let j = 0; j < item.PageList.length; j++) {
+                    const it = item.PageList[j];
+                    if (!it) continue;
+
+                    const json = JSON.parse(it.Json || "{}");
+                    let url = it.Url || "";
+                    if (!url && (it.Type === 20 || it.Type === 16)) {
+                        url = json?.ToolFileModel ? await formatOssUrl(json?.ToolFileModel?.File) : "";
+                    }
+
+                    const slide: Slide = await transformPageDetail(it, json);
+
+                    const obj = {
+                        ID: it.ID,
+                        TeachPageRelationID: it.TeachPageRelationID,
+                        Name: it.Name,
+                        Height: it.Height,
+                        Width: it.Width,
+                        Type: it.Type,
+                        Sort: it.Sort,
+                        State: it.State,
+                        AcademicPresupposition: it.AcademicPresupposition,
+                        DesignIntent: it.DesignIntent,
+                        Json: dealAnimationData(slide),
+                        Index: index,
+                        Url: url,
+                        ParentID: item.ID
+                    };
+
+                    pageList.push(obj);
+                    index++;
+                }
+                list.push({
+                    ID: item.ID,
+                    TeachPageRelationID: item.TeachPageRelationID,
+                    Name: item.Name,
+                    Sort: item.Sort,
+                    PageList: pageList,
+                    Fold: true
+                });
+            }
+            console.log(list)
+            windowCards.value = list;
+            total.value = index;
+            currentPage.value = list[0].PageList[0];
+        }
+
+        onMounted(() => {
+            window.addEventListener("keydown", previewHandle.keyDown, true);
 
             // 监听退出全屏事件浏览器
             window.onresize = function () {
                 if (!isFullscreen()) {
-                    winScreenView.value = false;
+                    previewHandle.winScreenView.value = false;
                 }
             };
         });
+
         onUnmounted(() => {
-            window.removeEventListener("keydown", keyDown);
-            // if (isElectron()) {
-            //     (window as any).electron.unRegisterEscKeyUp();
-            // }
+            window.removeEventListener("keydown", previewHandle.keyDown);
         });
-
-        onBeforeRouteLeave(async () => {
-            // 先更新一下当前页
-            const slide = editRef.value.getCurrentSlide();
-            allPageListMap.value.set(pageValue.value.ID, slide);
-            if (
-                isEqual(allPageListMap.value, oldAllPageListMap.value) &&
-                isEqual(windowCards.value, oldWindowCards.value)
-            )
-                return true;
-            const res = await exitDialog();
-            if (res === ExitType.Cancel) {
-                return false;
-            }
-            if (res === ExitType.Save) {
-                if (windowInfo.value.originType === 0) {
-                    return false;
-                } else {
-                    await onSave();
-                }
-            }
-        });
-
-        //资源库-模板素材操作
-        //插入左侧窗卡页
-        const handleInsertData = async (data: any) => {
-            const jsonData = JSON.parse(JSON.stringify(data));
-            if (editRef.value.getDataIsChange() && data.type === "elements") {
-                const slide = editRef.value.getCurrentSlide();
-                // console.log('slde', slide);
-                state.allPageListMap.set(pageValue.value.ID, slide);
-            }
-            const res: any = await insertData(jsonData);
-            if (jsonData.type === "elements") return;
-            // if (res[0]) {
-            //     pageValue.value = res[1][0];
-            //     selectPageValue(pageValue.value, false);
-            nextTick(() => {
-                materialCenterRef.value.addLinkCount(
-                    jsonData.teachPageTemplateID || ""
-                );
-            });
-            // }
-        };
-        //插入教具内容以及教具页
-        const handleInsertTool = async (data: any) => {
-            if (pageValue.value.ID) {
-                const params = {
-                    name: "教具页",
-                    type: "teach",
-                    value: 16,
-                    url: data.data?.url,
-                };
-                state.windowCards.forEach((item: any, windex: number) => {
-                    item.PageList.forEach((page: any, index: number) => {
-                        if (page.ID === pageValue.value.ID) {
-                            currentValue.value = item;
-                        }
-                    });
-                });
-                await addPageCallback(params, currentValue.value);
-                pageValue.value =
-                    currentValue.value.PageList[
-                        currentValue.value.PageList?.length - 1
-                    ];
-                const res: any = await insertData(data);
-            } else {
-                ElMessage.warning("请先选择页，再进行插入");
-                return;
-            }
-        };
-        //保存模板
-        const handleAddTemplate = async (formData: any) => {
-            // onSave();
-            const res: any = await saveTemplateFrom(formData);
-            if (res) {
-                dialogVisibleTemplate.value = false;
-                isshowCusTooltip.value = true;
-                setTimeout(() => {
-                    isshowCusTooltip.value = false;
-                }, 5000);
-                //弹窗关闭，页面中间跳出提示：前往 我的 查看已保存模板保留三秒消失
-                nextTick(() => {
-                    materialCenterRef.value.queryTemplateList();
-                });
-            }
-        };
-        //去我的模板
-        const gotoMyTemplate = () => {
-            nextTick(() => {
-                materialCenterRef.value.gotoMyTemplate();
-            });
-        };
-        //取消保存-清空已选中的页
-        const cacleTemplateDialog = () => {
-            selectPageData.value = [];
-        };
-        const addPage = async (data: any) => {
-            const res = await addPageCallback(data);
-            console.log("resresres--", res);
-            if (res) {
-                // pageValue.value = res;
-                selectPageValue(res, false);
-            }
-        };
-        const rightClick = () => {
-            const slide = editRef.value.getCurrentSlide();
-            // console.log('slde', slide);
-            state.allPageListMap.set(pageValue.value.ID, slide);
-        };
-        //窗卡页 右键-menu菜单
-        const contextmenus = (el: any, data: any) => {
-            return [
-                {
-                    text: "保存模板",
-                    subText: "",
-                    handler: () => {
-                        rightClick();
-                        handleSaveTemplate(1, data);
-                    },
-                },
-                // {
-                //     text: "保存题目",
-                //     subText: "",
-                //     handler: () => handleSaveTemplate(2)
-                // }
-            ];
-        };
 
         return {
-            newWindowCards,
-            viewTree,
+            total,
             editRef,
-            shrinkRef,
-            winCardViewRef,
-            cardListRef,
-            ...toRefs(state),
-            allPageList,
-            // isSetCache,
-            defaultProps,
-            pageValue,
             pageType,
-            currentValue,
-            previewPageList,
-            activePreviewPageIndex,
-            showCollapse,
-            dialogVisible,
-            dialogVisibleCard,
-            dialogVisibleName,
-            winScreenView,
-            isWatchChange,
-            tooltipShow,
-            mouseenter,
-            mouseleave,
-            handleNodeClick,
-            allowDrop,
-            handleAddCard,
-            handleAdd,
-            handleCopy,
-            handlePaste,
-            handleDel,
-            handleView,
-            handleUpdateName,
-            handleUpdateState,
-            addPageCallback,
-            onSave,
-            updateName,
-            loading,
-            percentage,
-            parsePptPage,
-            pptPages,
-            updatePageSlide,
-            updateAllPageSlideListMap,
-            // allPageSlideListMap,
-            // oldAllPageSlideListMap,
-            _getWindowCards,
-            offScreen,
-            handleMask,
-            currentSlide: computed(
-                () => allPageListMap.value.get(pageValue.value.ID) || {}
-            ),
             windowInfo,
-            importPPT,
-            selectPageData,
-            contextmenus,
-            handleSelectPages,
-            handleInsertData,
-            dialogVisibleTemplate,
-            showTemplateType,
-            handleSaveTemplate,
-            saveTemplateFrom,
+            currentPage,
+            windowCards,
+            showCollapse,
+            selectPageIds,
+            addPageVisible,
+            winCardViewRef,
             materialCenterRef,
-            editTemplate,
-            dialogStatus,
-            templateFormData,
-            handleAddTemplate,
-            cacleTemplateDialog,
             subjectPublisherBookValue,
-            isshowCusTooltip,
-            gotoMyTemplate,
-            handleInsertTool,
+            importPPT,
+            winCardSave,
+            handleSave,
+            handleSelect,
+            contextMenus,
+            checkIsHandle,
+            handleCartItem,
             updateMaterial,
-            addPage,
-            rightClick,
+            handleInsertData,
+            updatePageSlide,
+            handleInsertTool,
+            addInteractionPage,
+            closeCurrentWinCard,
+            applyBackgroundAllSlide,
+            ...addHandle,
+            ...pptHandle,
+            ...previewHandle
         };
-    },
+    }
 });
 </script>
 
 <style lang="scss" scoped>
-.cus-open-tooltip {
-    z-index: 9999;
-    position: absolute;
-    width: 15%;
-    padding: 10px;
-    top: 20%;
-    left: 50%;
-    transform: translateX(-50%);
-    text-align: center;
-    color: rgb(255, 255, 255);
-    border-radius: 4px;
-    font-size: 14px;
-    background: rgba(77, 77, 77, 0.67);
+.container {
+    height: 100%;
+    width: 100%;
+    background-color: #FFFFFF;
+}
 
-    span {
-        cursor: pointer;
+.top {
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    .handles {
+        margin-left: 24px;
+        display: flex;
+
+        .btn {
+            margin-right: 49px;
+            display: flex;
+            align-items: center;
+            position: relative;
+            cursor: pointer;
+            font-size: 14px;
+
+            &.preview {
+                margin-right: 24px !important;
+
+                &:after {
+                    display: none;
+                }
+            }
+
+            &:last-child:after {
+                display: none;
+            }
+
+            &:after {
+                position: absolute;
+                content: '';
+                display: block;
+                width: 1px;
+                height: 16px;
+                background: #EBEFF1;
+                right: -24px;
+            }
+        }
     }
 
-    span:hover {
-        color: #409eff;
+    .help {
+        margin-right: 24px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+    }
+
+    img {
+        height: 16px;
+        margin-right: 4px;
     }
 }
 
-.home {
+.wrapper {
+    height: calc(100% - 56px);
     display: flex;
-    width: 100%;
-    height: 100%;
-    background-color: #f5f6fa;
-    padding: 10px;
 
     .left {
-        position: relative;
+        width: 280px;
         height: 100%;
-        margin-right: 10px;
-        box-sizing: border-box;
-        background-color: #fff;
-        overflow: hidden;
+        position: relative;
         transition: all 0.5s;
 
-        .left-content {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            width: 280px;
-            padding: 10px 28px 10px 10px;
+        &.collapse {
+            width: 0;
+        }
 
-            :deep(.el-cascader),
-            :deep(.el-select) {
-                width: 100%;
-                margin-bottom: 10px;
+        .placeholder {
+            height: 56px;
+            box-shadow: inset 0px -1px 0px 0px #EBEFF1;
+        }
+
+        .card {
+            height: calc(100% - 96px);
+            overflow-y: auto;
+
+            .folder {
+                margin: 0 16px 0 12px;
+                width: calc(100% - 28px);
             }
 
-            .add-card {
+            .title {
+                height: 44px;
+                display: flex;
+                align-items: center;
+                cursor: pointer;
+                position: relative;
                 width: 100%;
-                margin-bottom: 10px;
-            }
 
-            .card-list {
-                flex: 1;
-                overflow-y: auto;
-                overflow-x: hidden;
+                .triangle {
+                    width: 0;
+                    height: 0;
+                    border-style: solid;
+                    border-width: 5px 3px 0 3px;
+                    border-color: #414E65 transparent transparent transparent;
+                    border-radius: 1px;
+                    transition: 0.5s;
+                    transform-origin: center;
 
-                :deep(.el-tree-node:focus > .el-tree-node__content) {
-                    background-color: #fff;
-                }
-
-                .el-tree {
-                    :deep(.el-tree-node__label) {
-                        width: 100%;
+                    &.rotate {
+                        transform: rotate(-90deg);
                     }
                 }
 
-                .view-tree-box {
-                    :deep(.el-tree-node__children) {
-                        .el-tree-node__content {
-                            height: auto;
-                            padding: 10px 0 !important;
-                            margin-bottom: 10px;
-                        }
+                .file-icon {
+                    height: 14px;
+                    width: 14px;
+                    margin: 0 8px 0 5px;
+                }
 
-                        .icon-box {
-                            position: absolute;
-                            bottom: 0;
-                            right: 0;
-                        }
+                .more {
+                    position: absolute;
+                    right: 0;
+                    width: 15px;
+                    height: 30px;
+                    display: flex;
+                    align-items: center;
+
+                    img {
+                        width: 15px;
+                        height: 3px;
                     }
+                }
+            }
 
-                    .select-page {
+            .pages {
+                transition: 0.5s;
+
+                & .page:last-child {
+                    margin-bottom: 0;
+                }
+
+                .page {
+                    display: flex;
+                    margin-bottom: 16px;
+                    position: relative;
+                    cursor: pointer;
+
+                    .select-icon {
                         position: absolute;
-                        left: -12px;
-                        top: -8px;
                         width: 16px;
                         height: 16px;
-                        border: 1px solid var(--el-color-primary);
-                        border-radius: 50%;
-                        cursor: pointer;
-                        z-index: 2;
-                        //background-color: var(--el-color-primary);
+                        left: 20px;
+                        z-index: 9999;
                     }
 
-                    .status {
-                        position: absolute;
-                        right: -12px;
-                        top: -4px;
-                        width: 10px;
-                        height: 10px;
-                        border-radius: 50%;
-                        z-index: 2;
+                    .page-left {
+                        width: 24px;
+
+                        .index {
+                            color: #5D5D5D;
+                            font-size: 12px;
+                        }
+
+                        img {
+                            width: 14px;
+                            height: 14px;
+                            margin-top: 8px;
+                            margin-left: -3px;
+                            display: block;
+                        }
                     }
-                    :deep(.el-image) {
-                        height: 106px;
-                        width: 100%;
-                        .image-slot {
-                            display: flex;
-                            justify-content: center;
-                            align-items: center;
+
+                    .page-right {
+                        flex: 1;
+                        position: relative;
+                        width: 228px;
+                        height: 128px;
+
+                        .cover {
                             width: 100%;
                             height: 100%;
-                            background: var(--el-fill-color-light);
-                            color: var(--el-text-color-secondary);
-                            font-size: 20px;
                         }
-                    }
 
-                    .view-empty {
-                        width: 190px;
-                        height: 106px;
-                        padding: 10px;
-                        border: 1px solid #ebeff1;
-                    }
+                        &.active {
+                            outline: 2px solid #2E95FF;
 
-                    .custom-tree-node {
-                        display: flex;
-                        justify-content: space-between;
-                        align-items: center;
-                        width: 86%;
-                        position: relative;
-                    }
-
-                    .icon-box {
-                        .el-button {
-                            border: none !important;
-                            padding: 6px;
-                            background-color: transparent;
-
-                            &:hover {
-                                background-color: transparent;
+                            .handler-item {
+                                display: flex !important;
                             }
                         }
 
-                        .el-icon {
-                            svg {
-                                width: 18px;
-                                height: 18px;
-                            }
+                        &:hover .handler-item {
+                            display: flex !important;
                         }
-                    }
-                }
 
-                .tree-box {
-                    :deep(.el-tree-node__content) {
-                        height: 46px;
-                    }
+                        .down {
+                            position: absolute;
+                            width: 16px;
+                            height: 16px;
+                            top: 8px;
+                            right: 10px;
+                        }
 
-                    .custom-tree-node {
-                        display: flex;
-                        justify-content: space-between;
-                        align-items: center;
-                        width: 80%;
-                        position: relative;
-
-                        .label-class {
+                        .masks {
                             width: 100%;
-                            text-overflow: ellipsis;
-                            white-space: nowrap;
-                            overflow: hidden;
+                            height: 100%;
+                            position: absolute;
+                            top: 0;
+                            left: 0;
+                            background-color: rgba(255, 255, 255, 0.5);
+                            z-index: 99;
                         }
 
-                        .icon-box {
-                            .el-button {
-                                border: none !important;
-                                padding: 6px;
-                                background-color: transparent;
+                        .handle {
+                            position: absolute;
+                            bottom: 0;
+                            left: 0;
+                            right: 0;
+                            height: 40px;
+                            background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.5) 100%);
 
-                                &:hover {
-                                    background-color: transparent;
+                            .handler-item {
+                                position: absolute;
+                                align-items: center;
+                                justify-content: center;
+                                width: 32px;
+                                height: 32px;
+                                display: none;
+
+                                &.add {
+                                    right: 36px;
+                                    bottom: -16px;
+                                    margin-right: 15px;
+
+                                    img {
+                                        width: 32px;
+                                        height: 32px;
+                                        display: block;
+                                        z-index: 99;
+                                    }
+                                }
+
+                                &.more {
+                                    right: 0;
+                                    bottom: 0;
+
+                                    img {
+                                        width: 15px;
+                                        height: 3px;
+                                        display: block;
+                                        z-index: 99;
+                                    }
                                 }
                             }
+                        }
 
-                            .el-icon {
-                                svg {
-                                    width: 18px;
-                                    height: 18px;
-                                }
-                            }
+                        .view-empty {
+                            width: 100%;
+                            height: 128px;
+                            padding: 10px;
+                            border: 1px solid #ebeff1;
+                            display: flex;
+                            align-items: flex-end;
+                            background-image: url("../../../../assets/edit/pic_defaulted.png");
+                            background-size: cover;
+                            background-repeat: no-repeat;
+                        }
+
+                        .name {
+                            color: #FFFFFF;
+                            font-size: 12px;
+                            position: absolute;
+                            left: 10px;
+                            bottom: 10px;
                         }
                     }
                 }
             }
+        }
+
+        .pagination {
+            width: 100%;
+            height: 40px;
+            line-height: 40px;
+            font-size: 13px;
+            padding-right: 12px;
+            box-sizing: border-box;
+            color: #333;
+            text-align: right;
         }
 
         .shrink {
-            background: #dde1f1;
-            width: 18px;
-            height: 100%;
             position: absolute;
-            right: 0;
-            top: 0;
-
-            > div {
-                display: flex;
-                align-items: center;
-                background: #ccd1e3;
-                width: 100%;
-                position: absolute;
-                top: 30%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                margin: auto;
-                height: 100px;
-                text-align: center;
-                cursor: pointer;
-
-                .el-icon {
-                    line-height: 100px;
-                    color: #fff;
-                    font-size: 14px;
-                    transition: all 0.2s;
-                }
-            }
-        }
-
-        .active-text {
-            .label-class {
-                > span {
-                    color: var(--el-color-primary);
-                }
-            }
-        }
-
-        :deep(#activeBackground) {
-            background-color: #ecf5ff;
+            width: 12px;
+            height: 64px;
+            border-radius: 6px;
+            top: 50%;
+            margin-top: -32px;
+            right: -6px;
+            z-index: 99;
+            cursor: pointer;
+            overflow: hidden;
+            background: #414E65;
+            color: #FFFFFF;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
     }
 
     .right {
-        flex: 1;
-        padding: 0px 10px;
-        height: 100%;
-        background-color: #fff;
-        position: relative;
+        width: calc(100% - 280px);
+        transition: all 0.5s;
 
-        .mask-right {
+        &.collapse {
             width: 100%;
-            height: 100%;
-            cursor: pointer;
-            position: absolute;
-            left: 0;
-            top: 0;
-            background: transparent;
         }
-    }
-}
-
-.operation-box {
-    text-align: center;
-
-    div {
-        cursor: pointer;
-        padding: 4px 0;
     }
 }
 
@@ -1347,5 +1189,49 @@ export default defineComponent({
             font-weight: 600;
         }
     }
+}
+
+.cus-open-tooltip {
+    z-index: 9999;
+    position: absolute;
+    width: 15%;
+    padding: 10px;
+    top: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    color: rgb(255, 255, 255);
+    border-radius: 4px;
+    font-size: 14px;
+    background: rgba(77, 77, 77, 0.67);
+
+    span {
+        cursor: pointer;
+    }
+
+    span:hover {
+        color: #409eff;
+    }
+}
+
+.no-border {
+    border: none !important;
+    background-color: transparent;
+    margin: 0 7px 0 0 !important;
+    padding: 8px;
+
+    &:hover, &:active, &:focus {
+        background-color: transparent;
+    }
+}
+</style>
+
+<style lang="scss">
+.canvas-tool .left-handler {
+    position: fixed !important;
+    left: 26px !important;;
+    height: 56px !important;;
+    display: flex !important;;
+    align-items: center !important;;
 }
 </style>

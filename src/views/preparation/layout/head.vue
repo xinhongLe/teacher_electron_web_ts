@@ -2,123 +2,73 @@
     <div class="p-layout-head">
         <div class="p-head-filter">
             <div class="p-filter-content">
-                <div
-                    class="my-course-cart"
-                    :class="{
-                        active: source === 'me',
-                        hide: packageCount === 0,
-                    }"
-                    :style="
-                        'font-size:' + (packageCount > 99 ? '12px' : '14px')
-                    "
-                    id="myCourseCart"
-                    :num="packageCount > 99 ? '99+' : packageCount"
-                    @click="
-                        source = 'me';
-                        onSourceChange();
-                        clicKBuryPoint('我的备课包');
-                    "
-                >
+                <div class="my-course-cart" :class="{
+                    active: source === 'me',
+                    hide: packageCount === 0,
+                }" :style="
+    'font-size:' + (packageCount > 99 ? '12px' : '14px')
+" id="myCourseCart" :num="packageCount > 99 ? '99+' : packageCount" @click="
+    source = 'me';
+onSourceChange();
+clicKBuryPoint('我的备课包');
+                                        ">
                     <img src="@/assets/images/preparation/cart.png" alt="" />
                     我的备课包
                 </div>
-                <el-radio-group
-                    class="custom-radio"
-                    v-model="source"
-                    @change="onSourceChange"
-                >
-                    <el-radio-button
-                        v-for="item in sourceList"
-                        :key="item.value"
-                        :label="item.value"
-                        >{{ item.label }}</el-radio-button
-                    >
+                <el-radio-group class="custom-radio" v-model="source" @change="onSourceChange">
+                    <el-radio-button v-for="item in sourceList" :key="item.value" :label="item.value">{{ item.label
+                    }}</el-radio-button>
                 </el-radio-group>
             </div>
-            <div
-                class="p-course-cart-options"
-                @click="
-                    openCourseCartOptions(), clicKBuryPoint('备课包操作记录')
-                "
-            >
-                <img
-                    src="@/assets/images/preparation/icon_chakan@2x.png"
-                    alt=""
-                />
+            <div class="p-course-cart-options" @click="
+                openCourseCartOptions(), clicKBuryPoint('备课包操作记录')
+            ">
+                <img src="@/assets/images/preparation/icon_chakan@2x.png" alt="" />
                 备课包操作记录
             </div>
             <div class="p-control-btns">
-                <el-button
-                    type="primary"
-                    @click="openUpload(), clicKBuryPoint('上传')"
-                >
+                <el-button type="primary" @click="openUpload(), clicKBuryPoint('上传')">
                     &nbsp;&nbsp;&nbsp;
-                    <el-icon :size="12"><plus /></el-icon>
+                    <el-icon :size="12">
+                        <plus />
+                    </el-icon>
                     &nbsp;上&nbsp;传&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 </el-button>
-                <img
-                    class="refresh-btn"
-                    @click="refreshResourceList(), clicKBuryPoint('刷新')"
-                    src="@/assets/images/preparation/icon_shuaxin_rest.svg"
-                    alt=""
-                />
+                <img class="refresh-btn" @click="refreshResourceList(), clicKBuryPoint('刷新')"
+                    src="@/assets/images/preparation/icon_shuaxin_rest.svg" alt="" />
             </div>
         </div>
-        <div class="p-head-filter">
+        <div class="p-head-filter" v-if="source !== 'me'">
             <div class="p-filter-content">
-                <el-radio-group
-                    class="custom-radio-two"
-                    v-model="type"
-                    @change="onTypeChange"
-                >
-                    <el-radio-button
-                        v-for="item in typeList"
-                        :key="item.Id"
-                        :label="item.Id"
-                        >{{ item.Name }}</el-radio-button
-                    >
+                <el-radio-group class="custom-radio-two" v-model="type" @change="onTypeChange">
+                    <el-radio-button v-for="item in typeList" :key="item.Id" :label="item.Id">{{ item.Name
+                    }}</el-radio-button>
                 </el-radio-group>
             </div>
         </div>
 
-        <el-dialog
-            class="custom-dialog"
-            v-model="uploadResourceOpen"
-            center
-            :title="currentEditType === 'edit' ? '编辑资源' : '上传资源'"
-            width="550px"
-            :destroy-on-close="true"
-        >
+        <el-dialog class="custom-dialog" v-model="uploadResourceOpen" center
+            :title="currentEditType === 'edit' ? '编辑资源' : '上传资源'" width="550px" :destroy-on-close="true">
             <el-form class="custom-form" :model="form" label-width="100px">
-                <el-form-item
-                    label="资源："
-                    required
-                    v-if="!isWincard || currentEditType === 'add'"
-                >
-                    <el-upload
-                        ref="upload"
-                        action=""
-                        :accept="acceptList"
-                        :show-file-list="true"
-                        :before-remove="beforeRemove"
-                        :before-upload="beforeUpload"
+                <el-form-item label="资源：" required v-if="!isWincard || currentEditType === 'add'">
+                    <el-upload ref="upload" action="" :accept="acceptList" :show-file-list="true"
+                        :before-remove="beforeRemove" :before-upload="beforeUpload"
                         :http-request="(e: { file: File & Blob & { uid: number; }; }) => uploadSuccess(e, index)"
-                        :file-list="fileList"
-                        :limit="
+                        :file-list="fileList" :limit="
                             currentEditType === 'edit' && form.files.length > 0
                                 ? 1
                                 : 5
-                        "
-                        :on-exceed="onExceed"
-                    >
+                        " :on-exceed="onExceed">
                         <el-button type="primary" style="font-size: 13px">
                             &nbsp;&nbsp;&nbsp;
-                            <el-icon :size="14"><upload /></el-icon>
+                            <el-icon :size="14">
+                                <upload />
+                            </el-icon>
                             &nbsp;上&nbsp;传&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                         </el-button>
                     </el-upload>
                 </el-form-item>
-                <el-form-item label="资源文件：" v-else>
+                <!-- <el-form-item label="资源文件：" v-else>
                     <el-button
                         type="primary"
                         style="font-size: 13px"
@@ -128,67 +78,37 @@
                         <el-icon :size="14"><Edit /></el-icon>
                         &nbsp;编&nbsp;辑&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     </el-button>
-                </el-form-item>
-                <el-form-item
-                    label="资源名称："
-                    required
-                    v-if="form.files.length < 2"
-                >
+                </el-form-item> -->
+                <el-form-item label="资源名称：" required v-if="form.files.length < 2">
                     <el-input v-model="form.name" size="large" />
                 </el-form-item>
                 <el-form-item label="类型：" required>
                     <el-radio-group class="custom-radio" v-model="form.type">
-                        <el-radio-button
-                            v-for="item in typeList.slice(1)"
-                            :disabled="
-                                [
-                                    RESOURCE_TYPE.TEACHING_AIDS,
-                                    RESOURCE_TYPE.TOOL,
-                                ].indexOf(item.Id) > -1
-                            "
-                            :key="item.Id"
-                            :label="item"
-                        >
+                        <el-radio-button v-for="item in typeList.slice(1)" :disabled="
+                            [
+                                RESOURCE_TYPE.TEACHING_AIDS,
+                                RESOURCE_TYPE.TOOL,
+                            ].indexOf(item.Id) > -1
+                        " :key="item.Id" :label="item">
                             {{ item.Name }}
                         </el-radio-button>
                     </el-radio-group>
                 </el-form-item>
                 <el-form-item label="目录：" required>
-                    <div
-                        class="select-box"
-                        v-for="(item, index) in form.directorys"
-                        :key="index"
-                    >
-                        <CustomSelect
-                            v-model:directory="form.directorys[index]"
-                        />
+                    <div class="select-box" v-for="(item, index) in form.directorys" :key="index">
+                        <CustomSelect v-model:directory="form.directorys[index]" />
 
                         <div class="delete-icon-box">
-                            <img
-                                class="delete-icon"
-                                v-if="index > 0"
-                                src="@/assets/images/preparation/btn_delete_red.png"
-                                alt=""
-                                @click="deleteDirectory(index)"
-                            />
+                            <img class="delete-icon" v-if="index > 0" src="@/assets/images/preparation/btn_delete_red.png"
+                                alt="" @click="deleteDirectory(index)" />
                         </div>
                     </div>
-                    <el-button
-                        class="add-btn"
-                        size="large"
-                        type="default"
-                        @click="addDirectory(), clicKBuryPoint('新增目录')"
-                    >
+                    <el-button class="add-btn" size="large" type="default" @click="addDirectory(), clicKBuryPoint('新增目录')">
                         新增目录
                     </el-button>
                 </el-form-item>
                 <el-form-item label="难易程度：">
-                    <el-select
-                        size="large"
-                        v-model="form.degree"
-                        placeholder="请选择"
-                        class="select-block"
-                    >
+                    <el-select size="large" v-model="form.degree" placeholder="请选择" class="select-block">
                         <el-option label="高" value="1" />
                         <el-option label="中" value="2" />
                         <el-option label="易" value="3" />
@@ -209,10 +129,7 @@
 					</el-select>
 				</el-form-item> -->
                 <el-form-item>
-                    <el-checkbox
-                        v-model="form.isSchool"
-                        label="是否保存为校本资源"
-                    />
+                    <el-checkbox v-model="form.isSchool" label="是否保存为校本资源" />
 
                     <!-- <el-checkbox
 						v-if="form.isSchool"
@@ -223,64 +140,42 @@
             </el-form>
             <template #footer>
                 <span class="dialog-footer">
-                    <el-button @click="uploadResourceOpen = false"
-                        >取消</el-button
-                    >
-                    <el-button
-                        type="primary"
-                        @click="sureUpload(), clicKBuryPoint('保存')"
-                    >
+                    <el-button @click="uploadResourceOpen = false">取消</el-button>
+                    <el-button type="primary" @click="sureUpload(), clicKBuryPoint('保存')">
                         确认
                     </el-button>
                 </span>
             </template>
         </el-dialog>
 
-        <el-dialog
-            class="custom-dialog"
-            v-model="courseCartOpen"
-            center
-            title="备课包操作记录"
-            width="1200px"
-            :destroy-on-close="true"
-        >
+        <el-dialog class="custom-dialog" v-model="courseCartOpen" center title="备课包操作记录" width="1200px"
+            :destroy-on-close="true">
             <div class="p-log-header">
                 <div>
-                    <el-date-picker
-                        size="large"
-                        v-model="dateRange"
-                        type="daterange"
-                        start-placeholder="请选择开始时间"
-                        end-placeholder="请选择结束时间"
-                        @change="dateRangeChange"
-                    />
+                    <el-date-picker size="large" v-model="dateRange" type="daterange" start-placeholder="请选择开始时间"
+                        end-placeholder="请选择结束时间" @change="dateRangeChange" />
                 </div>
 
                 <el-button type="primary" @click="output()">
-                    <el-icon><Upload /></el-icon>
+                    <el-icon>
+                        <Upload />
+                    </el-icon>
                     &nbsp;导出
                 </el-button>
             </div>
             <el-table class="custom-table" :data="tableData" stripe>
                 <el-table-column width="140px" prop="time" label="操作时间" />
                 <el-table-column width="120px" prop="name" label="动作" />
+                <el-table-column width="120px" prop="bagName" label="课包" />
+                <el-table-column width="140px" prop="bagCatalogue" label="课包目录" />
                 <el-table-column width="120px" prop="type" label="资源类型" />
                 <el-table-column prop="resource" label="资源名称" />
-                <el-table-column
-                    prop="directory"
-                    label="资源目录"
-                ></el-table-column>
+                <el-table-column prop="directory" label="资源目录"></el-table-column>
             </el-table>
 
             <div class="p-pagination" v-if="total > 10">
-                <el-pagination
-                    small
-                    background
-                    layout="prev, pager, next"
-                    :total="total"
-                    v-model="pageNumber"
-                    @current-change="pageChange"
-                />
+                <el-pagination small background layout="prev, pager, next" :total="total" v-model="pageNumber"
+                    @current-change="pageChange" />
             </div>
         </el-dialog>
     </div>
@@ -296,6 +191,7 @@ import {
     ref,
     toRefs,
     watch,
+    nextTick,
 } from "vue";
 import { Plus, Refresh, Upload, Edit } from "@element-plus/icons-vue";
 import {
@@ -318,7 +214,9 @@ import moment from "moment";
 import usePageEvent from "@/hooks/usePageEvent"; //埋点事件hooks
 import { EVENT_TYPE } from "@/config/event";
 import { RESOURCE_TYPE } from "@/config/resource";
+import isElectron from "is-electron";
 import { exportExcel, IExcel } from "mexcel";
+import useLessonPackage from "@/hooks/useLessonPackage";
 interface IDirectoryItem {
     id: string;
     name: string;
@@ -370,6 +268,8 @@ interface ICourseCartOption {
     type: string;
     resource: string;
     directory: string;
+    bagName: string;
+    bagCatalogue: string
 }
 
 export default defineComponent({
@@ -380,32 +280,35 @@ export default defineComponent({
         },
     },
     components: { Plus, Refresh, Upload, CustomSelect, Edit },
-    emits: ["update:source", "update:type"],
+    emits: ["update:source", "update:type", "updateBagList"],
     setup(props, { emit }) {
         const { createBuryingPointFn } = usePageEvent("备课"); //备课埋点
+        const { getPrepareGetMyBagCountNew, packageCount } = useLessonPackage();
+
         const store = useStore();
         const userId = computed(() => store.state.userInfo.userCenterUserID);
         const selectedBook = computed(
             () => store.state.preparation.subjectPublisherBookValue
         );
+        const schoolId = store.state.userInfo.schoolId;
         const { course } = toRefs(props);
         let isInit = true;
         watch(course, () => {
             getMyPackageNum();
         });
-        const packageCount = ref(0);
+        // const packageCount = ref(0);
         const getMyPackageNum = async () => {
             isInit = false;
             if (!course.value.chapterId || !course.value.lessonId) {
                 packageCount.value = 0;
                 return;
             }
-            const res = await fetchMyPackageNum({
+            const res = await getPrepareGetMyBagCountNew({
                 chapterId: course.value.chapterId,
                 lessonId: course.value.lessonId,
+                schoolId: schoolId
             });
-
-            packageCount.value = res.result.BagCount;
+            // packageCount.value = res.result.BagCount;
             if (packageCount.value > 0 && isInit) {
                 source.value = "me";
                 emit("update:source", source.value);
@@ -491,9 +394,17 @@ export default defineComponent({
             uploadResourceOpen.value = true;
         });
 
+        emitter.on("toMyResource", () => {
+            nextTick(() => {
+                source.value = "4";
+                onSourceChange();
+            });
+        });
+
         onUnmounted(() => {
             emitter.off("updatePackageCount");
             emitter.off("openEditResource");
+            emitter.off("toMyResource");
         });
 
         const source = ref("");
@@ -628,7 +539,6 @@ export default defineComponent({
                 }
                 if (empty) return ElMessage.warning("请将资源目录补充完整！");
             }
-            const schoolId = store.state.userInfo.schoolId;
             const schoolName = store.state.userInfo.schoolName;
             const lessonTrees = form.directorys.map((item) => {
                 return {
@@ -710,7 +620,11 @@ export default defineComponent({
         };
 
         const refreshResourceList = () => {
-            emitter.emit("updateResourceList", "");
+            if (source.value === 'me') {
+                emit("updateBagList")
+            } else {
+                emitter.emit("updateResourceList", "");
+            }
         };
 
         const acceptList =
@@ -811,16 +725,36 @@ export default defineComponent({
         };
 
         const router = useRouter();
+
+        // const Store = require("electron-store");
+        // const electron_store = new Store();
         const editWincard = () => {
-            store.commit(MutationTypes.SET_EDIT_WINDOW_INFO, {
+            // store.commit(MutationTypes.SET_EDIT_WINDOW_INFO, {
+            //     id: cacheResource.OldResourceId,
+            //     name: cacheResource.Name,
+            //     lessonId: store.state.preparation.selectLessonId,
+            //     originType: 1,
+            // });
+
+            const windowInfo = {
                 id: cacheResource.OldResourceId,
                 name: cacheResource.Name,
                 lessonId: store.state.preparation.selectLessonId,
                 originType: 1,
-            });
-            router.push("/windowcard-edit");
+            };
+            window.electron.store.set("windowInfo", windowInfo);
+            openWinCard(cacheResource.Name);
+            // router.push("/windowcard-edit");
         };
-
+        //打开窗卡页编辑子窗
+        const openWinCard = (name: any) => {
+            if (isElectron()) {
+                return window.electron.ipcRenderer.invoke(
+                    "openWinCardWin",
+                    name
+                );
+            }
+        };
         const courseCartOpen = ref(false);
         const tableData = ref<ICourseCartOption[]>([]);
         const pageNumber = ref(0);
@@ -848,13 +782,13 @@ export default defineComponent({
 
             return book
                 ? book.SubjectName +
-                      " / " +
-                      book.PublisherName +
-                      " / " +
-                      book.AlbumName +
-                      " / " +
-                      book.ChapterName +
-                      (book.LessonName ? " / " + book.LessonName : "")
+                " / " +
+                book.PublisherName +
+                " / " +
+                book.AlbumName +
+                " / " +
+                book.ChapterName +
+                (book.LessonName ? " / " + book.LessonName : "")
                 : "--";
         };
         const getCourseCartOption = () => {
@@ -880,6 +814,8 @@ export default defineComponent({
                         type: item.ResourceTypeName,
                         resource: item.ResourceName,
                         directory: directoryName(item.Lessons),
+                        bagName: item.BagName,
+                        bagCatalogue: item.BagCatalogue
                     };
                 });
                 total.value = res.result.pager.Total;
@@ -905,131 +841,172 @@ export default defineComponent({
             if (!dateRange.value[1] || !dateRange.value[0]) {
                 return ElMessage.warning("请选择小于31天的日期区间！");
             }
-            if (moment(dateRange.value[1]).unix() - moment(dateRange.value[0]).unix() > 31 * 24 *  60 * 60) {
+            if (
+                moment(dateRange.value[1]).unix() -
+                moment(dateRange.value[0]).unix() >
+                31 * 24 * 60 * 60
+            ) {
                 return ElMessage.warning("仅支持导出31天以内的数据！");
             }
-            const fileName = "备课包信操作记录表";
-            window.electron.showSaveDialog({
-                defaultPath: fileName + ".xlsx",
-                filters: [
-                    {
-                        name: "xlsx文件",
-                        extensions: ["xlsx"]
-                    }
-                ]
-            }).then(({ filePath, canceled }) => {
-                if (canceled) return;
-                getCartOptionList({
-                    lessonId: course.value.lessonId,
-                    startTime: dateRange.value[0]
-                        ? moment(dateRange.value[0]).format("YYYY-MM-DD 00:00:00")
-                        : "",
-                    endTime: dateRange.value[1]
-                        ? moment(dateRange.value[1]).format("YYYY-MM-DD 23:59:59")
-                        : "",
-                    paper: {
-                        pageNumber: 1,
-                        pageSize: 10000,
-                    },
-                }).then((res) => {
-                    const data = res.result.list.map((item) => {
-                        return {
-                            time: moment(item.CreateTime).format(
-                                "YYYY-MM-DD HH:mm"
-                            ),
-                            name: item.OprateName,
-                            type: item.ResourceTypeName,
-                            resource: item.ResourceName,
-                            directory: directoryName(item.Lessons),
-                        };
-                    });
-                    
-                    const excelData: IExcel = {
-                    sheets: [
+            const fileName = "备课包操作记录表";
+            window.electron
+                .showSaveDialog({
+                    defaultPath: fileName + ".xlsx",
+                    filters: [
                         {
-                            title: "备课包信操作记录表",
-                            tHeaders: [["操作时间", "动作", "资源类型", "资源名称", "资源目录"]],
-                            table: data,
-                            cols: [
-                                {
-                                    width: 30
-                                },
-                                {
-                                    width: 20
-                                },
-                                {
-                                    width: 20
-                                },
-                                {
-                                    width: 50
-                                },
-                                {
-                                    width: 75
-                                }
-                            ],
-                            titleRow: {
-                                hpx: 60
-                            },
-                            headerRows: [
-                                {
-                                    hpx: 40
-                                }
-                            ],
-                            row: {
-                                hpx: 30
-                            },
-                            keys: ["time", "name", "type", "resource", "directory"],
-                            sheetName: "备课包信操作记录表",
-                            globalStyle: {
-                                font: {
-                                    sz: 12
-                                },
-                                alignment: {
-                                    horizontal: "center",
-                                    vertical: "center",
-                                    wrapText: true
-                                },
-                                border: {
-                                    top: { style: "thin", color: {} },
-                                    right: { style: "thin", color: {} },
-                                    bottom: { style: "thin", color: {} },
-                                    left: { style: "thin", color: {} }
-                                }
-                            },
-                            titleStyle: {
-                                font: {
-                                    sz: 18,
-                                    color: {
-                                        rgb: "f60000"
-                                    }
-                                },
-                                alignment: {
-                                    horizontal: "center",
-                                    vertical: "center",
-                                    wrapText: true
-                                },
-                                border: {
-                                    top: { style: "thin", color: {} },
-                                    right: { style: "thin", color: {} },
-                                    bottom: { style: "thin", color: {} },
-                                    left: { style: "thin", color: {} }
-                                }
-                            }
-                        }
+                            name: "xlsx文件",
+                            extensions: ["xlsx"],
+                        },
                     ],
-                    fileName: "备课包信操作记录表"
-                };
+                })
+                .then(({ filePath, canceled }) => {
+                    if (canceled) return;
+                    getCartOptionList({
+                        lessonId: course.value.lessonId,
+                        startTime: dateRange.value[0]
+                            ? moment(dateRange.value[0]).format(
+                                "YYYY-MM-DD 00:00:00"
+                            )
+                            : "",
+                        endTime: dateRange.value[1]
+                            ? moment(dateRange.value[1]).format(
+                                "YYYY-MM-DD 23:59:59"
+                            )
+                            : "",
+                        paper: {
+                            pageNumber: 1,
+                            pageSize: 10000,
+                        },
+                    }).then((res) => {
+                        const data = res.result.list.map((item) => {
+                            return {
+                                time: moment(item.CreateTime).format(
+                                    "YYYY-MM-DD HH:mm"
+                                ),
+                                name: item.OprateName,
+                                type: item.ResourceTypeName,
+                                resource: item.ResourceName,
+                                directory: directoryName(item.Lessons),
+                            };
+                        });
 
-                exportExcel(excelData, filePath, () => {
-                    ElMessage.success(fileName + "下载成功");
-                }, (err: any) => {
-                    console.log("fail", err);
+                        const excelData: IExcel = {
+                            sheets: [
+                                {
+                                    title: "备课包操作记录表",
+                                    tHeaders: [
+                                        [
+                                            "操作时间",
+                                            "动作",
+                                            "资源类型",
+                                            "资源名称",
+                                            "资源目录",
+                                        ],
+                                    ],
+                                    table: data,
+                                    cols: [
+                                        {
+                                            width: 30,
+                                        },
+                                        {
+                                            width: 20,
+                                        },
+                                        {
+                                            width: 20,
+                                        },
+                                        {
+                                            width: 50,
+                                        },
+                                        {
+                                            width: 75,
+                                        },
+                                    ],
+                                    titleRow: {
+                                        hpx: 60,
+                                    },
+                                    headerRows: [
+                                        {
+                                            hpx: 40,
+                                        },
+                                    ],
+                                    row: {
+                                        hpx: 30,
+                                    },
+                                    keys: [
+                                        "time",
+                                        "name",
+                                        "type",
+                                        "resource",
+                                        "directory",
+                                    ],
+                                    sheetName: "备课包操作记录表",
+                                    globalStyle: {
+                                        font: {
+                                            sz: 12,
+                                        },
+                                        alignment: {
+                                            horizontal: "center",
+                                            vertical: "center",
+                                            wrapText: true,
+                                        },
+                                        border: {
+                                            top: { style: "thin", color: {} },
+                                            right: { style: "thin", color: {} },
+                                            bottom: {
+                                                style: "thin",
+                                                color: {},
+                                            },
+                                            left: { style: "thin", color: {} },
+                                        },
+                                    },
+                                    titleStyle: {
+                                        font: {
+                                            sz: 18,
+                                            color: {
+                                                rgb: "f60000",
+                                            },
+                                        },
+                                        alignment: {
+                                            horizontal: "center",
+                                            vertical: "center",
+                                            wrapText: true,
+                                        },
+                                        border: {
+                                            top: { style: "thin", color: {} },
+                                            right: { style: "thin", color: {} },
+                                            bottom: {
+                                                style: "thin",
+                                                color: {},
+                                            },
+                                            left: { style: "thin", color: {} },
+                                        },
+                                    },
+                                },
+                            ],
+                            fileName: "备课包操作记录表",
+                        };
+
+                        exportExcel(
+                            excelData,
+                            filePath,
+                            () => {
+                                ElMessage.success(fileName + "下载成功");
+                            },
+                            (err: any) => {
+                                console.log("fail", err);
+                            }
+                        );
+                    });
+                })
+                .catch((err) => {
+                    console.log(err);
                 });
-                });
-            }).catch((err) => {
-                console.log(err);
-            });
         };
+
+        const toMyLessonPackage = () => {
+            source.value = "me";
+            onSourceChange();
+        }
 
         return {
             source,
@@ -1065,7 +1042,9 @@ export default defineComponent({
             openCourseCartOptions,
             clicKBuryPoint,
             RESOURCE_TYPE,
-            output
+            openWinCard,
+            output,
+            toMyLessonPackage
         };
     },
 });
@@ -1082,7 +1061,8 @@ export default defineComponent({
     padding: 15px;
     border-radius: 5px;
     background-color: #fff;
-    & + .p-head-filter {
+
+    &+.p-head-filter {
         margin-top: 15px;
     }
 }
@@ -1101,6 +1081,7 @@ export default defineComponent({
     display: flex;
     align-items: center;
     cursor: pointer;
+
     img {
         width: 16px;
         display: block;
@@ -1113,10 +1094,12 @@ export default defineComponent({
 .p-control-btns {
     display: flex;
     align-items: center;
+
     :deep(.el-icon) {
         position: relative;
         // top: 1px;
     }
+
     .refresh-btn {
         display: block;
         width: 16px;
@@ -1134,15 +1117,18 @@ export default defineComponent({
     padding: 9px 15px 9px 60px;
     position: relative;
     cursor: pointer;
+
     &.active {
         background-color: #272c42;
         color: #fff;
     }
+
     &.hide {
         &:before {
             display: none;
         }
     }
+
     &:before {
         content: attr(num);
         display: block;
@@ -1158,6 +1144,7 @@ export default defineComponent({
         min-width: 18px;
         text-align: center;
     }
+
     img {
         position: absolute;
         top: -16px;
@@ -1174,11 +1161,13 @@ export default defineComponent({
         border: 0;
         background: #f5f6fa;
     }
+
     :deep(.el-radio-button__original-radio:checked + .el-radio-button__inner) {
         color: #fff;
         box-shadow: none;
         background: #272c42;
     }
+
     :deep(.el-radio-button--small .el-radio-button__inner) {
         font-size: 14px;
     }
@@ -1191,12 +1180,14 @@ export default defineComponent({
         border: 0;
         background: #fff;
     }
+
     :deep(.el-radio-button__original-radio:checked + .el-radio-button__inner) {
         color: #fff;
         box-shadow: none;
         background: #eef2ff;
         color: #4b71ee;
     }
+
     :deep(.el-radio-button--small .el-radio-button__inner) {
         font-size: 14px;
     }
@@ -1206,6 +1197,7 @@ export default defineComponent({
     :deep(.el-form-item) {
         margin-bottom: 15px;
     }
+
     :deep(.el-icon) {
         position: relative;
         top: 1px;
@@ -1243,14 +1235,17 @@ export default defineComponent({
 .custom-table {
     margin-top: 15px;
     width: 100%;
+
     &:before {
         display: none;
     }
+
     :deep(.el-table__header-wrapper .el-table__cell) {
         padding: 12px 0;
         font-weight: 600;
         background-color: #fafafa;
     }
+
     :deep(.el-table__cell) {
         padding: 12px 0;
         border-bottom: 0 !important;

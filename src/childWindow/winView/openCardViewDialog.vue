@@ -1,39 +1,31 @@
 <template>
-    <div class="card-dialog"
-    >
-        <ScreenView
-            ref="screenRef"
-            :inline="true"
-            :isInit="isInit"
-            :writeBoardVisible="writeBoardVisible"
-            @pagePrev="execPrev"
-            @pageNext="execNext"
-            @closeWriteBoard="closeWriteBoard"
-            :slide="slideView"
-        />
+    <div class="card-dialog">
+        <ScreenView ref="screenRef" :inline="true" :isInit="isInit" :writeBoardVisible="writeBoardVisible"
+            @pagePrev="execPrev" @pageNext="execNext" @closeWriteBoard="closeWriteBoard" :slide="slideView"
+            v-model:isCanUndo="isCanUndo" v-model:isCanRedo="isCanRedo" v-model:currentDrawColor="currentDrawColor"
+            v-model:currentLineWidth="currentLineWidth" :isShowPenTools="false" />
         <div class="cardLis-class">
-                <div
-                    class="me-page-item"
-                    :class="selected === index && 'active'"
-                    v-for="(item, index) in cardList"
-                    @click="checkPage(index)"
-                    :key="(item as any).ID"
-                >
-                    {{ (item as any).Name }}
-                </div>
+            <div class="me-page-item" :class="selected === index && 'active'" v-for="(item, index) in cardList"
+                @click="checkPage(index)" :key="(item as any).ID">
+                {{ (item as any).Name }}
             </div>
-            <Tools
-                @prevStep="prevCard"
-                @nextStep="nextCard"
-                @showWriteBoard="showWriteBoard"
-                @hideWriteBoard="hideWriteBoard"
-                @close="close"
-                :dialog="true"
-                @openShape="openShape"
-                :isShowFullscreen="false"
-                :isShowRemarkBtn="false"
-                :isShowClose="true"
-            />
+        </div>
+        <Tools @prevStep="prevCard" @nextStep="nextCard" @showWriteBoard="showWriteBoard" @hideWriteBoard="hideWriteBoard"
+            @close="close" :dialog="true" @openShape="openShape" :isShowFullscreen="false" :isShowRemarkBtn="false"
+            :isShowClose="true" :isCanUndo="isCanUndo" :isCanRedo="isCanRedo" @openPaintTool="openPaintTool"
+            @whiteboardOption="whiteboardOption" @redo="redo" @undo="undo" :isFullScreenStatus="true"
+            :currentDrawColor="currentDrawColor" :currentLineWidth="currentLineWidth" />
+        <!-- <Tools
+            @prevStep="prevCard"
+            @nextStep="nextCard"
+            @showWriteBoard="showWriteBoard"
+            @openShape="openShape"
+            @openPaintTool="openPaintTool"
+            @hideWriteBoard="hideWriteBoard"
+            :isCanUndo="isCanUndo"
+            :isCanRedo="isCanRedo"
+            :isFullScreenStatus="isFullScreenStatus"
+        />  -->
     </div>
 </template>
 
@@ -46,15 +38,17 @@ export default defineComponent({
     props: {
         dialogVisible: {
             type: Boolean,
-            require: true
+            require: true,
         },
         cardList: {
             type: Array,
-            default: () => []
-        }
+            default: () => [],
+        },
     },
     emits: ["closeOpenCard"],
     setup(props, { emit }) {
+        const isCanUndo = ref(false);
+        const isCanRedo = ref(false);
         const visible = computed(() => props.dialogVisible);
         const slideView = ref({});
         const cardList = ref<any[]>([]);
@@ -79,7 +73,7 @@ export default defineComponent({
             if (selected.value === cardList.value.length - 1) {
                 return ElMessage({
                     type: "warning",
-                    message: "已经是最后一页"
+                    message: "已经是最后一页",
                 });
             }
             selected.value++;
@@ -104,7 +98,9 @@ export default defineComponent({
             _getPageDetail(selected.value);
         };
         const _getPageDetail = async (index: number) => {
-            slideView.value = appjson.value.slides.find((p:any) => p.id === cardList.value[index].ID);
+            slideView.value = appjson.value.slides.find(
+                (p: any) => p.id === cardList.value[index].ID
+            );
         };
         const showWriteBoard = () => {
             writeBoardVisible.value = true;
@@ -112,11 +108,29 @@ export default defineComponent({
         const hideWriteBoard = () => {
             writeBoardVisible.value = false;
         };
+        //工具栏-画笔
+        const openPaintTool = (event: MouseEvent, type: string) => {
+            screenRef.value.openPaintTool(event, type);
+        };
         const closeWriteBoard = () => {
             writeBoardVisible.value = false;
         };
         const close = () => {
             emit("closeOpenCard");
+        };
+
+        const whiteboardOption = (option: string, value?: number) => {
+            screenRef.value.whiteboardOption(option, value);
+        };
+        const currentDrawColor = ref("#f60000");
+        const currentLineWidth = ref(2);
+        // 退回
+        const redo = () => {
+            screenRef.value.redo();
+        };
+        // 撤回
+        const undo = () => {
+            screenRef.value.undo();
         };
         return {
             visible,
@@ -134,10 +148,18 @@ export default defineComponent({
             prevCard,
             openShape,
             closeWriteBoard,
-            close
+            close,
+            openPaintTool,
+            isCanUndo,
+            isCanRedo,
+            currentDrawColor,
+            currentLineWidth,
+            whiteboardOption,
+            redo,
+            undo
         };
     },
-    components: { Tools }
+    components: { Tools },
 });
 </script>
 
@@ -152,18 +174,22 @@ export default defineComponent({
     display: flex;
     flex-direction: column;
     background: #fff;
+
     :deep(.me-tools-set) {
         transform: none;
     }
+
     :deep(.me-tools-steps) {
         flex: 0.5;
     }
 }
+
 .cardLis-class {
     display: flex;
     justify-content: flex-start;
-    overflow-y: auto;
+    overflow-y: hidden;
     padding: 10px 20px;
+
     .me-page-item {
         background-color: #f0f3ff;
         color: #444;

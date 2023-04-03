@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from "uuid";
 import { Ref, ref } from "vue";
 import { addCard } from "@/api/home";
 import { useStore } from "@/store";
+import { pageTypeList } from "@/config";
 
 export default (windowCards:Ref<ICardList[]>, windowInfo:any) => {
     const dialogVisibleCard = ref(false);

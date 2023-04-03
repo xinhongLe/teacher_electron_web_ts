@@ -544,22 +544,20 @@
 <script lang="ts">
 import {
     defineComponent,
-    nextTick,
     onMounted,
     reactive,
     toRefs,
     watch,
     computed,
     getCurrentInstance,
-    ref,
+    ref
 } from "vue";
 import TemplateView from "./templateView.vue";
-// import { elements } from '@/mocks/slides';
 import { formatSeconds, debounce, debounceT, throttle } from "@/utils/common";
 import { Search, VideoPause, VideoPlay, Close } from "@element-plus/icons-vue";
 import useSaveElements from "../hooks/useSaveElements";
 import useSaveTemplate from "@/views/preparation/intelligenceClassroom/edit/hooks/useSaveTemplate";
-import { ElMessage, ElMessageBox } from "element-plus";
+import { ElMessageBox } from "element-plus";
 export default defineComponent({
     name: "materialResource",
     props: {

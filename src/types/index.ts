@@ -3,19 +3,14 @@ import electron, {
     SaveDialogOptions,
     OpenDialogOptions,
     OpenDialogReturnValue,
-    BrowserWindow,
-    Remote,
+    Remote
 } from "electron";
 import { LogFunctions } from "electron-log";
 import Store from "electron-store";
 import { IFileData } from "../../electron/exportWord";
 
 type Electron = typeof electron & {
-    exportWord: (
-        filePath: string,
-        fileData: IFileData,
-        styleType: number
-    ) => void;
+    exportWord: (filePath: string, fileData: IFileData, styleType: number) => void;
     exit: () => void;
     maximizeWindow: () => void;
     unmaximizeWindow: () => void;
@@ -37,37 +32,16 @@ type Electron = typeof electron & {
     setCenter: () => void;
     getCachePath: (path: string) => string;
     setPath: (name: string, path: string) => Promise<void>;
-    getPath: (
-        name:
-            | "home"
-            | "appData"
-            | "userData"
-            | "cache"
-            | "temp"
-            | "exe"
-            | "module"
-            | "desktop"
-            | "documents"
-            | "downloads"
-            | "music"
-            | "pictures"
-            | "videos"
-            | "recent"
-            | "logs"
-            | "crashDumps"
-    ) => string;
+    getPath: (name: | "home" | "appData" | "userData" | "cache" | "temp" | "exe" | "module" | "desktop" | "documents" | "downloads" | "music" | "pictures" | "videos" | "recent" | "logs" | "crashDumps") => string;
     readFile: (path: string, callback: (buffer: ArrayBuffer) => void) => void;
     savePutFile: (path: string, buffer: NodeJS.ArrayBufferView) => void;
     deleteFile: (path: string) => void;
     setPositionWin: (x: number, y: number) => void;
+    getPositionWin: () => number[];
     getColorHexRGB: () => Promise<unknown>;
     getWhiteBoard: () => Promise<unknown>;
-    showSaveDialog: (
-        option: SaveDialogOptions
-    ) => Promise<SaveDialogReturnValue>;
-    showOpenDialog: (
-        option: OpenDialogOptions
-    ) => Promise<OpenDialogReturnValue>;
+    showSaveDialog: (option: SaveDialogOptions) => Promise<SaveDialogReturnValue>;
+    showOpenDialog: (option: OpenDialogOptions) => Promise<OpenDialogReturnValue>;
     getPPTPath: (path: string) => string;
     checkWindowSupportNet: (version: string) => Promise<boolean>;
     unpackCacheFile: (zipFileName: string, newpath?: string) => Promise<any>;

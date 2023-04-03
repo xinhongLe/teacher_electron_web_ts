@@ -6,15 +6,35 @@
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <link rel="icon" href="<%= BASE_URL %>favicon.ico">
     <title>爱学仕校园教师端</title>
+    <style>
+       #app {
+        position: relative;
+        z-index: 1;
+      }
+      .launch {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+      }
+      .launch-loading {
+        font-size: 50px;
+        font-weight: 600;
+        margin-top: 20px;
+      }
+    </style>
   </head>
   <body>
-
-    <div id="app"></div>
+    <div class="launch">
+      <img src="./logo.png" alt="">
+      <div class="launch-loading">资源加载中...</div>
+    </div>
+    <div id="app">
+    </div>
     <!-- built files will be auto injected -->
     <script type="text/javascript">
    
   </script>
   </body>
-
-
 </html>

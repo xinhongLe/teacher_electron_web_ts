@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import { Close } from "@element-plus/icons-vue";
 import { ElIcon } from "element-plus";
-import { defineProps } from "vue";
 
 defineProps(["onSave", "onCancel", "onExit"]);
 </script>

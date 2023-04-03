@@ -16,6 +16,11 @@
                 @pagePrev="pagePrev"
                 @pageNext="pageNext"
                 @closeWriteBoard="closeWriteBoard"
+                :isShowPenTools="false"
+                v-model:isCanUndo="isCanUndo"
+                v-model:isCanRedo="isCanRedo"
+                v-model:currentDrawColor="currentDrawColor"
+                v-model:currentLineWidth="currentLineWidth"
             />
             <open-card-view-dialog
                 @closeOpenCard="closeOpenCard"
@@ -31,7 +36,11 @@
                         hidden: isFullScreen && !isShowCardList,
                     }"
                 >
-                    <PageItem :pageList="pageList" :selected="currentPageIndex" @selectPage="selectPage"/>
+                    <PageItem
+                        :pageList="pageList"
+                        :selected="currentPageIndex"
+                        @selectPage="selectPage"
+                    />
                 </div>
             </transition>
         </div>
@@ -40,46 +49,52 @@
 
 <script lang="ts">
 import { computed, defineComponent, inject, ref, watch } from "vue";
-import TrackService, { EnumTrackEventType } from "@/utils/common";
 import useHome from "@/hooks/useHome";
 import OpenCardViewDialog from "./openCardViewDialog.vue";
-import { getCardDetail } from "@/views/preparation/intelligenceClassroom/api";
-import { getWinCardDBData } from "@/utils/database";
 import { ElMessage } from "element-plus";
-import { useRoute } from "vue-router";
 import PageItem from "@/views/preparation/intelligenceClassroom/components/pageItem.vue";
 import { windowInfoKey } from "@/hooks/useWindowInfo";
 import { SchoolWindowPageInfo } from "@/types/preparation";
 import { find } from "lodash";
-import { IElement } from "mwhiteboard";
 import { useStore } from "@/store";
 export default defineComponent({
     props: {
         dialog: {
             type: Boolean,
-            default: false
+            default: false,
         },
         isShowCardList: {
             type: Boolean,
-            default: true
+            default: true,
         },
         isFullScreen: {
             type: Boolean,
-            default: false
-        }
+            default: false,
+        },
     },
     components: { OpenCardViewDialog, PageItem },
     setup(props, { emit }) {
         const store = useStore();
-        const { getPageDetail, transformType } = useHome();
-        const { currentCard, currentWindowInfo, cardList, currentPageIndex, currentSlide, pageList, currentPageInfo } = inject(windowInfoKey)!;
-        
+        const { transformType } = useHome();
+        const {
+            currentCard,
+            cardList,
+            currentPageIndex,
+            currentSlide,
+            pageList,
+            currentPageInfo,
+        } = inject(windowInfoKey)!;
+
         const dialogVisible = ref(false);
         const prevPageFlag = ref(false);
         const keyDisabled = ref(false);
         const appjson = inject("appjson") as any;
         const canvasData = computed(() => {
-            return canvasDataMap.get(currentSlide.value ? currentSlide.value.id : "") || [];
+            return (
+                canvasDataMap.get(
+                    currentSlide.value ? currentSlide.value.id : ""
+                ) || []
+            );
         });
         const canvasDataMap = new Map();
 
@@ -92,30 +107,37 @@ export default defineComponent({
             }
         );
 
-        watch([pageList, currentCard], (newValues, prevValues) => {
-            const findPage = find(newValues[0], { ID: currentPageInfo.value?.ID });
-            if (newValues[1]?.ID === prevValues[1]?.ID && findPage) {
-                return;
+        watch(
+            [pageList, currentCard],
+            (newValues, prevValues) => {
+                const findPage = find(newValues[0], {
+                    ID: currentPageInfo.value?.ID,
+                });
+                if (newValues[1]?.ID === prevValues[1]?.ID && findPage) {
+                    return;
+                }
+                if (prevPageFlag.value === true) {
+                    prevPageFlag.value = false;
+                    currentPageIndex.value = newValues[0].length - 1;
+                    pageNextEnd();
+                } else {
+                    currentPageIndex.value = -1;
+                    pageNext();
+                }
+            },
+            {
+                deep: true,
             }
-            if (prevPageFlag.value === true) {
-                prevPageFlag.value = false;
-                currentPageIndex.value = newValues[0].length - 1;
-                pageNextEnd();
-            } else {
-                currentPageIndex.value = -1;
-                pageNext();
-            }
-        }, {
-            deep: true
-        });
+        );
         const writeBoardVisible = ref(false);
         const selectPage = (index: number, item: SchoolWindowPageInfo) => {
             currentPageIndex.value = index;
             getDataBase(pageList.value[index].ID, pageList.value[index]);
         };
-        const getDataBase = async (str: string, obj:SchoolWindowPageInfo) => {
+        const getDataBase = async (str: string, obj: SchoolWindowPageInfo) => {
             const elements = screenRef.value.whiteboard.getElements();
-            currentSlide.value.id && canvasDataMap.set(currentSlide.value.id, elements);
+            currentSlide.value.id &&
+                canvasDataMap.set(currentSlide.value.id, elements);
             if (transformType(obj.Type) === -1) {
                 ElMessage({ type: "warning", message: "暂不支持该页面类型" });
                 currentSlide.value = {};
@@ -132,7 +154,9 @@ export default defineComponent({
             //     });
             // }
             if (appjson.value.slides) {
-                currentSlide.value = appjson.value.slides.find((p: any) => p.id === str);
+                currentSlide.value = appjson.value.slides.find(
+                    (p: any) => p.id === str
+                );
             }
         };
         const screenRef = ref();
@@ -158,7 +182,10 @@ export default defineComponent({
             if (currentPageIndex.value > 0) {
                 currentPageIndex.value--;
                 isInitPage.value = false;
-                getDataBase(pageList.value[currentPageIndex.value].ID, pageList.value[currentPageIndex.value]);
+                getDataBase(
+                    pageList.value[currentPageIndex.value].ID,
+                    pageList.value[currentPageIndex.value]
+                );
                 return;
             }
             if (currentPageIndex.value === 0 || currentPageIndex.value === -1) {
@@ -183,7 +210,10 @@ export default defineComponent({
             } else {
                 currentPageIndex.value++;
                 isInitPage.value = true;
-                getDataBase(pageList.value[currentPageIndex.value].ID, pageList.value[currentPageIndex.value]);
+                getDataBase(
+                    pageList.value[currentPageIndex.value].ID,
+                    pageList.value[currentPageIndex.value]
+                );
             }
         };
         const updateFlags = () => {
@@ -191,7 +221,10 @@ export default defineComponent({
         };
         const pageNextEnd = async () => {
             if (pageList.value.length > 0) {
-                getDataBase(pageList.value[currentPageIndex.value].ID, pageList.value[currentPageIndex.value]);
+                getDataBase(
+                    pageList.value[currentPageIndex.value].ID,
+                    pageList.value[currentPageIndex.value]
+                );
             } else {
                 currentSlide.value = {};
             }
@@ -203,14 +236,16 @@ export default defineComponent({
                 const cards = wins[0].cards;
                 let pages: Array<any> = [];
                 cards.map((card: any) => {
-                    pages = pages.concat(card.slides.map((page: any) => {
-                        return {
-                            ID: page.id,
-                            Type: page.type,
-                            Name: page.name,
-                            OriginType: card.type
-                        };
-                    }));
+                    pages = pages.concat(
+                        card.slides.map((page: any) => {
+                            return {
+                                ID: page.id,
+                                Type: page.type,
+                                Name: page.name,
+                                OriginType: card.type,
+                            };
+                        })
+                    );
                 });
                 if (pages.length > 0) {
                     dialogCardList.value = pages;
@@ -221,6 +256,52 @@ export default defineComponent({
         const closeOpenCard = () => {
             dialogVisible.value = false;
             keyDisabled.value = false;
+        };
+        //橡皮擦
+        const openPaintTool = (event: MouseEvent, type: string) => {
+            screenRef.value.openPaintTool(event, type);
+        };
+        const isCanUndo = ref(false);
+        const isCanRedo = ref(false);
+        watch(
+            () => isCanUndo.value,
+            (val) => {
+                emit("update:isCanUndo", val);
+            }
+        );
+        watch(
+            () => isCanRedo.value,
+            (val) => {
+                emit("update:isCanRedo", val);
+            }
+        );
+
+        const currentDrawColor = ref("#f60000");
+        const currentLineWidth = ref(2);
+        watch(
+            () => currentDrawColor.value,
+            (val) => {
+                emit("update:currentDrawColor", val);
+            }
+        );
+        watch(
+            () => currentLineWidth.value,
+            (val) => {
+                console.log("currentLineWidth.value", currentLineWidth.value);
+
+                emit("update:currentLineWidth", val);
+            }
+        );
+        const whiteboardOption = (option: string, value?: number) => {
+            screenRef.value && screenRef.value.whiteboardOption(option, value);
+        };
+        // 退回
+        const redo = () => {
+            screenRef.value.redo();
+        };
+        // 撤回
+        const undo = () => {
+            screenRef.value.undo();
         };
 
         return {
@@ -246,18 +327,27 @@ export default defineComponent({
             hideWriteBoard,
             openShape,
             closeWriteBoard,
-            canvasData
+            canvasData,
+            openPaintTool,
+            isCanUndo,
+            isCanRedo,
+            currentDrawColor,
+            currentLineWidth,
+            redo,
+            undo,
+            whiteboardOption,
         };
-    }
+    },
 });
 </script>
 
 <style lang="scss" scoped>
-.pageListComponents{
-    :deep(.el-overlay){
+.pageListComponents {
+    :deep(.el-overlay) {
         z-index: 9999 !important;
     }
-    :deep(.el-dialog.is-fullscreen){
+
+    :deep(.el-dialog.is-fullscreen) {
         --el-dialog-width: 94%;
         --el-dialog-margin-top: 0;
         margin-bottom: 0;
@@ -268,7 +358,8 @@ export default defineComponent({
         flex-direction: column;
         flex: 1;
     }
-    :deep(.el-dialog__body){
+
+    :deep(.el-dialog__body) {
         width: 100%;
         display: flex;
         flex: 1;
@@ -277,16 +368,18 @@ export default defineComponent({
         overflow-y: auto;
     }
 }
-.pageListComponents{
+
+.pageListComponents {
     display: flex;
     flex: 1;
     min-width: 0;
     margin-right: 8px !important;
-    ::v-deep .slide-list{
+    :deep .slide-list {
         background-color: #fff;
     }
 }
-.fullscreen{
+
+.fullscreen {
     position: fixed;
     top: 0;
     left: 0;
@@ -295,12 +388,14 @@ export default defineComponent({
     transition-property: left, width;
     transition-duration: 0.3s;
 }
+
 .me-work {
     flex: 1;
     min-width: 0;
     display: flex;
     flex-direction: column;
     overflow: hidden;
+
     .fold-btn {
         display: flex;
         align-items: center;
@@ -312,19 +407,22 @@ export default defineComponent({
         height: 104px;
         width: 18px;
         border-radius: 0px 8px 8px 0px;
-        background: #F5F6FA;
+        background: #f5f6fa;
         cursor: pointer;
+
         i {
-            color: #7E7F83;
+            color: #7e7f83;
             font-size: 18px;
             font-weight: 700;
         }
     }
 }
+
 .me-work-screen {
     width: 100%;
     height: 100%;
 }
+
 .me-page {
     min-width: 0;
     background-color: #fff;
@@ -334,8 +432,9 @@ export default defineComponent({
     background-color: #fff;
     overflow-y: hidden;
     overflow-x: auto;
-    border-top: 1px solid #E9ECF0;
+    border-top: 1px solid #e9ecf0;
     transition: height 0.3s;
+
     &.hidden {
         height: 0;
         padding: 0;
@@ -343,7 +442,7 @@ export default defineComponent({
 }
 
 .me-page-item {
-    background-color: #F0F4FF;
+    background-color: #f0f4ff;
     color: var(--app-color-primary);
     padding: 0px 20px;
     height: 36px;

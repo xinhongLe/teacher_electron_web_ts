@@ -55,6 +55,12 @@ export default defineComponent({
         const schoolName = userInfo.Schools[0].Name;
         //platType 平台码
         const platType = systemId;
+
+        
+        console.log('userId',userId);
+        console.log('platType',platType);
+        console.log('orgID',orgID);
+        
         //webview地址
         const url = `${RESOURCE_WEB}/#/resource?TOKEN=${token}&USERID=${userId}&ORGID=${orgID}&SECRETKEY=${secretKey}&USERTYPE=${userType}&SCHOOLID=${schoolId}&SCHOOLNAME=${schoolName}&PLATTYPE=${platType}`;
         // console.log('url----', url);

@@ -1,78 +1,71 @@
 <template>
-    <div class="intelligence" :class="{'full-screen': isFullScreen}">
+    <div class="intelligence" :class="{ 'full-screen': isFullScreen }">
         <div class="top">
             <transition name="fade">
-                <div
-                    class="card-box-left"
-                    :class="{
-                        hidden: isFullScreen && !isShowCardList,
-                    }"
-                >
+                <div class="card-box-left" :class="{  hidden: isFullScreen && !isShowCardList}">
                     <div class="card-box-lefts">
-                        <CardList
-                            ref="cardListComponents"
-                            @updateFlag="updateFlag"
-                        />
+                        <CardList ref="cardListComponents" @updateFlag="updateFlag"/>
                     </div>
                     <div class="fold-btn" v-show="isFullScreen" @click="isShowCardList = !isShowCardList">
-                        <i :class="isShowCardList ? 'el-icon-arrow-left': 'el-icon-arrow-right'"></i>
+                        <i :class="isShowCardList ? 'el-icon-arrow-left'  : 'el-icon-arrow-right' "></i>
                     </div>
                 </div>
             </transition>
             <div class="card-detail">
                 <div class="card-detail-content">
                     <PreviewSection
-                        ref="previewSection"
                         :dialog="dialog"
                         :isSystem="isSystem"
-                        :resourceId="resourceId"
-                        :isShowCardList="isShowCardList"
-                        :isFullScreen="isFullScreen"
+                        ref="previewSection"
                         @lastPage="lastPage"
                         @firstPage="firstPage"
+                        :resourceId="resourceId"
+                        :isFullScreen="isFullScreen"
+                        v-model:isCanUndo="isCanUndo"
+                        v-model:isCanRedo="isCanRedo"
                         @changeWinSize="changeWinSize"
+                        :isShowCardList="isShowCardList"
+                        v-model:currentDrawColor="currentDrawColor"
+                        v-model:currentLineWidth="currentLineWidth"
                     />
                 </div>
             </div>
         </div>
         <Tools
-            :id="resourceId"
+            @redo="redo"
+            @undo="undo"
             :dialog="dialog"
-            :showRemark="previewSection?.showRemark"
-            @toggleRemark="toggleRemark"
+            :id="resourceId"
             @prevStep="prevStep"
             @nextStep="nextStep"
-            @fullScreen="fullScreen"
-            @clockFullScreen="clockFullScreen"
-            @showWriteBoard="showWriteBoard"
             @openShape="openShape"
+            :isCanUndo="isCanUndo"
+            :isCanRedo="isCanRedo"
+            @fullScreen="fullScreen"
+            cardClass="intelligence"
+            @toggleRemark="toggleRemark"
+            @openPaintTool="openPaintTool"
             @hideWriteBoard="hideWriteBoard"
+            @showWriteBoard="showWriteBoard"
+            @clockFullScreen="clockFullScreen"
+            :currentDrawColor="currentDrawColor"
+            @whiteboardOption="whiteboardOption"
+            :currentLineWidth="currentLineWidth"
+            :showRemark="previewSection?.showRemark"
+            :isFullScreenStatus="isFullScreenStatus"
         />
     </div>
 </template>
 
 <script lang="ts" setup>
-import {
-    inject,
-    onActivated,
-    onDeactivated,
-    onMounted,
-    provide,
-    ref,
-    defineProps,
-    watchEffect,
-    defineEmits,
-    toRef,
-    onUnmounted
-} from "vue";
-import CardList from "./cardList/index.vue";
-import PreviewSection from "./components/preview/previewSection.vue";
-import Tools from "./components/preview/tools.vue";
 import emitter from "@/utils/mitt";
+import CardList from "./cardList/index.vue";
+import { IResourceItem } from "@/api/resource";
+import Tools from "./components/preview/tools.vue";
 import useWindowInfo, { windowInfoKey } from "@/hooks/useWindowInfo";
-const isFullScreen = ref(false);
-const isShowCardList = ref(true);
-const cardListComponents = ref<InstanceType<typeof CardList>>();
+import PreviewSection from "./components/preview/previewSection.vue";
+import { onActivated, onDeactivated, onMounted, provide, ref, watchEffect, PropType, toRef, onUnmounted } from "vue";
+
 const props = defineProps({
     resourceId: {
         type: String,
@@ -87,15 +80,28 @@ const props = defineProps({
         default: false
     },
     resource: {
-        type: Object as PropType<IResourceItem | undefined>,
+        type: Object as PropType<IResourceItem>,
         required: true
+    },
+    isFullScreenStatus: {
+        type: Boolean,
+        default: false
     }
 });
+
+const isFullScreen = ref(false);
+const isShowCardList = ref(true);
+const cardListComponents = ref<InstanceType<typeof CardList>>();
+
+const isCanUndo = ref(false);
+const isCanRedo = ref(false);
+const currentDrawColor = ref("#f60000");
+const currentLineWidth = ref(2);
 const resourceId = toRef(props, "resourceId");
 provide("isShowCardList", isShowCardList);
-const windowInfo = useWindowInfo(true, props.resource);
+const windowInfo = useWindowInfo(true);
 provide(windowInfoKey, windowInfo);
-const {cardList, refreshWindow, getCardList } = windowInfo;
+const { cardList, getCardList } = windowInfo;
 
 watchEffect(() => {
     if (resourceId.value) {
@@ -153,6 +159,23 @@ const showWriteBoard = () => {
 const openShape = (event: MouseEvent) => {
     previewSection.value && previewSection.value.openShape(event);
 };
+// 工具栏-画笔
+const openPaintTool = (event: MouseEvent, type: string) => {
+    // console.log("previewSection.value", event, type);
+    previewSection.value && previewSection.value.openPaintTool(event, type);
+};
+// 工具栏 画笔配置
+const whiteboardOption = (option: string, value?: number) => {
+    previewSection.value && previewSection.value.whiteboardOption(option, value);
+};
+// 退回
+const redo = () => {
+    previewSection.value && previewSection.value.redo();
+};
+// 撤回
+const undo = () => {
+    previewSection.value && previewSection.value.undo();
+};
 
 const hideWriteBoard = () => {
     previewSection.value && previewSection.value.hideWriteBoard();
@@ -162,7 +185,6 @@ onActivated(() => {
     document.onkeydown = (event) => {
         event.preventDefault();
     };
-    // selectLessonId.value && refreshWindow(selectLessonId.value);
 });
 onDeactivated(() => {
     document.onkeydown = null;
@@ -175,6 +197,7 @@ onUnmounted(() => {
 
 <style lang="scss" scoped>
 $border-color: #f5f6fa;
+
 .intelligence {
     display: flex;
     flex-direction: column;
@@ -182,6 +205,7 @@ $border-color: #f5f6fa;
     min-height: 0;
     min-width: 0;
     background-color: $border-color;
+
     &.full-screen {
         position: fixed;
         top: 0;
@@ -190,11 +214,13 @@ $border-color: #f5f6fa;
         right: 0;
         z-index: 1;
     }
+
     .top {
         display: flex;
         flex: 1;
         min-width: 0;
         min-height: 0;
+
         .card-box-away {
             position: absolute;
             top: calc(50% - 60px);
@@ -206,6 +232,7 @@ $border-color: #f5f6fa;
             align-items: center;
             font-size: 20px;
         }
+
         .card-box-left {
             width: 200px;
             text-align: center;
@@ -219,9 +246,11 @@ $border-color: #f5f6fa;
             margin-right: 8px;
             transition: width 0.3s;
             position: relative;
+
             &.hidden {
                 width: 0;
             }
+
             .fold-btn {
                 display: flex;
                 align-items: center;
@@ -233,16 +262,18 @@ $border-color: #f5f6fa;
                 height: 104px;
                 width: 18px;
                 border-radius: 0px 8px 8px 0px;
-                background: #F5F6FA;
+                background: #f5f6fa;
                 cursor: pointer;
                 z-index: 1;
+
                 i {
-                    color: #7E7F83;
+                    color: #7e7f83;
                     font-size: 18px;
                     font-weight: 700;
                 }
             }
         }
+
         .card-box-lefts {
             display: flex;
             flex: 1;
@@ -256,6 +287,7 @@ $border-color: #f5f6fa;
             min-width: 0;
             display: flex;
             justify-content: space-between;
+
             .card-detail-content {
                 height: 100%;
                 display: flex;
@@ -271,6 +303,7 @@ $border-color: #f5f6fa;
                 padding: 15px;
                 background-color: #fff;
                 border-top: 1px solid #ccc;
+
                 .me-page-item {
                     background-color: #f0f3ff;
                     color: #444;
@@ -292,6 +325,7 @@ $border-color: #f5f6fa;
             }
         }
     }
+
     .bottom {
         height: 88px;
     }

@@ -10,7 +10,8 @@ export default (pageValue: Ref<IPageValue>, allPageSlideListMap: Ref<Map<string,
     const isWatchChange = ref(true); // 是否是监听改变的pageValue
     const editRef = ref();
     const cardListRef = ref<HTMLDivElement>();
-
+    //
+    const currentActivePage = ref(1); // 当前选中页码
     const setDomClass = () => {
         nextTick(() => {
             const parentID = document.getElementById("activeBackground");
@@ -27,6 +28,7 @@ export default (pageValue: Ref<IPageValue>, allPageSlideListMap: Ref<Map<string,
     const selectPageValue = (data: IPageValue, flag: boolean) => {
         isWatchChange.value = flag;
         pageValue.value = data;
+        currentActivePage.value = data.count || 1;
         setDomClass();
     };
 
@@ -98,6 +100,7 @@ export default (pageValue: Ref<IPageValue>, allPageSlideListMap: Ref<Map<string,
 
     return {
         handleNodeClick,
+        currentActivePage,
         selectPageValue,
         editRef,
         allPageList,

@@ -5,7 +5,7 @@ import {
     PPTVideoElement,
     Slide,
     SlideBackground,
-    PPTCard, PPTRelation
+    PPTCard, PPTRelation, PPTAnimation
 } from "wincard";
 import { createRandomCode } from "@/utils/common";
 import { getVideoQuoteInfo } from "@/api/home";
@@ -22,13 +22,13 @@ interface IAction {
     TargetID: string;
 }
 
-interface IOldPages{
+interface IOldPages {
     CardID: string,
     CardName: string,
     Type: number,
 }
 
-interface IOldCards{
+interface IOldCards {
     CardID: string,
     CardName: string,
     Pages: IOldPages[]
@@ -172,7 +172,7 @@ const getSlideStepData = (oldSteps: string[]) => {
 
 // 根据 ZIndex 进行排序
 const sortElementsByZIndex = (oldElements: string[] | string) => {
-    return (typeof oldElements === "string" ? JSON.parse(oldElements) : oldElements).sort((a: string | Object, b: string | Object) => {
+    return (typeof oldElements === "string" ? JSON.parse(oldElements) : oldElements).sort((a: any, b: any) => {
         return (typeof a === "string" ? JSON.parse(a) : a).ZIndex - (typeof b === "string" ? JSON.parse(b) : b).ZIndex;
     });
 };
@@ -180,36 +180,36 @@ const sortElementsByZIndex = (oldElements: string[] | string) => {
 // 处理获取元素集合
 const getElementsData = async (oldElements: string[], oldActions: string[], originType: number) => {
     const events: IEvent[] = getSlideEventData(oldActions);
-    const elements: PPTElement[] = [];
+    const elements: any = [];
     for (const item of oldElements) {
         const oldElement = typeof item === "string" ? JSON.parse(item) : item;
         const actions: PPTElementAction[] = getElementActionsById(events, oldElement.UUID);
         const wins: IWin[] = getElementCustomById(events, oldElement.UUID, originType);
         switch (oldElement.Type) {
-        case 1:
-            elements.push({ ...dealText(oldElement), actions, wins });
-            break;
-        case 2:
-            elements.push({ ...dealRect(oldElement), actions, wins });
-            break;
-        case 3:
-            elements.push({ ...dealCircle(oldElement), actions, wins });
-            break;
-        case 4:
-            elements.push({ ...dealLine(oldElement), actions, wins });
-            break;
-        case 5:
-            elements.push({ ...dealImage(oldElement), actions, wins });
-            break;
-        case 6:
-            elements.push({ ...dealAudio(oldElement), actions, wins });
-            break;
-        case 7:
-        case 8:
-        case 10:
-        case 13:
-            elements.push({ ...await dealVideo(oldElement), actions, wins });
-            break;
+            case 1:
+                elements.push({ ...dealText(oldElement), actions, wins });
+                break;
+            case 2:
+                elements.push({ ...dealRect(oldElement), actions, wins });
+                break;
+            case 3:
+                elements.push({ ...dealCircle(oldElement), actions, wins });
+                break;
+            case 4:
+                elements.push({ ...dealLine(oldElement), actions, wins });
+                break;
+            case 5:
+                elements.push({ ...dealImage(oldElement), actions, wins });
+                break;
+            case 6:
+                elements.push({ ...dealAudio(oldElement), actions, wins });
+                break;
+            case 7:
+            case 8:
+            case 10:
+            case 13:
+                elements.push({ ...await dealVideo(oldElement), actions, wins });
+                break;
         }
     }
     return elements;
@@ -634,4 +634,43 @@ const dealVideo = async (oldVideo: IOldVideo) => {
 // 颜色处理转化
 const converColor = (color: string) => {
     return "#" + color.substr(3, 8) + color.substr(1, 2);
+};
+
+export const dealAnimationData = (slide: Slide) => {
+    if (slide.steps) {
+        const steps = slide.steps;
+        delete slide.steps;
+
+        let animations: PPTAnimation[] = [];
+        // 当步骤中存在进入与退出动画时，只管进入动画，舍弃退出动画
+        steps.forEach(actions => {
+            const _animation = getAnimations(actions || []);
+            animations = animations.concat(_animation);
+        });
+
+        slide.animations = animations;
+    }
+
+    slide.elements.forEach(element => {
+        element.actions = getAnimations((element.actions as unknown || []) as PPTElementAction[]);
+    });
+    slide.version = "";
+    return slide;
+};
+
+const getAnimations = (actions: PPTElementAction[]) => {
+    const animations: PPTAnimation[] = [];
+    actions.forEach((item, index) => {
+        const type = item.inAni ? "in" : item.outAni ? "out" : "in";
+        animations.push({
+            id: createRandomCode(),
+            elId: item.target,
+            ani: (type === "in" ? item.inAni : item.outAni) || "",
+            type: item.type === "show" ? type : "out",
+            path: type === "in" ? item.inPath : item.outPath,
+            duration: item.duration || 0,
+            trigger: index === 0 ? "click" : "meantime"
+        });
+    });
+    return animations;
 };

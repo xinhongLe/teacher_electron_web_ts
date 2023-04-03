@@ -102,14 +102,15 @@ export default (contentRef: Ref<HTMLElement>) => {
                 if (transform.scale <= 0.5) return;
                 // 缩小
                 transform.scale -= unit;
-                transform.translateX = offset.offsetX * unit + transform.translateX;
-                transform.translateY = offset.offsetY * unit + transform.translateY;
+                // transform.translateX = offset.offsetX * unit + transform.translateX;
+                // transform.translateY = offset.offsetY * unit + transform.translateY;
             } else {
                 // 放大
                 transform.scale += unit;
-                transform.translateX = -offset.offsetX * unit + transform.translateX;
-                transform.translateY = -offset.offsetY * unit + transform.translateY;
+                // transform.translateX = -offset.offsetX * unit + transform.translateX;
+                // transform.translateY = -offset.offsetY * unit + transform.translateY;
             }
+            isShowResetBtn.value = transform.scale !== 1;
         }
     };
 

@@ -1,43 +1,18 @@
 import { getCurrentWindow, app, dialog } from "@electron/remote";
-import electron, {
-    OpenDialogOptions,
-    remote,
-    SaveDialogOptions,
-} from "electron";
+import electron, { OpenDialogOptions, remote, SaveDialogOptions } from "electron";
 import { isExistFile, mkdirs, store } from "./downloadFile";
 import path, { resolve, join } from "path";
 import ElectronLog from "electron-log";
 import fs from "fs";
 import { parsePPT, pptParsePath } from "./parsePPT";
 import { execFile as execFileFromAsar, spawn } from "child_process";
-import {
-    darwinGetScreenPermissionGranted,
-    darwinRequestScreenPermissionPopup,
-} from "./darwin";
+import { darwinGetScreenPermissionGranted, darwinRequestScreenPermissionPopup, } from "./darwin";
 import { checkWindowSupportNet } from "./util";
-import {
-    access,
-    copyFile,
-    mkdir,
-    readFile,
-    rm,
-    stat,
-    writeFile
-} from "fs/promises";
+import { access, copyFile, mkdir, readFile, rm, stat, writeFile } from "fs/promises";
 import crypto from "crypto";
 import { exportWord, IFileData } from "./exportWord";
-const PATH_BINARY =
-    process.platform === "darwin"
-        ? join(__dirname, "../ColorPicker")
-        : join(__dirname, "../mockingbot-color-picker-ia32.exe");
-const PATH_WhiteBoard = join(
-    __dirname,
-     "../extraResources/whiteboard/Aixueshi.Whiteboard.exe"
-);
-// const PATH_White4Board = join(
-//     __dirname,
-//     "../extraResources/whiteboard/4.5/Aixueshi.Whiteboard.exe"
-// );
+const PATH_BINARY = process.platform === "darwin" ? join(__dirname, "../ColorPicker") : join(__dirname, "../mockingbot-color-picker-ia32.exe");
+const PATH_WhiteBoard = join(__dirname, "../extraResources/whiteboard/Aixueshi.Whiteboard.exe");
 
 const downloadsPath = join(app.getPath("userData"), "files", "/");
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -95,6 +70,10 @@ window.electron = {
     setContentSize: (width: number, height: number) => {
         const currentWindow = getCurrentWindow();
         currentWindow.setContentSize(width, height);
+    },
+    getPositionWin: () => {
+        const currentWindow = getCurrentWindow();
+        return currentWindow.getPosition();
     },
     setPositionWin: (x, y) => {
         const currentWindow = getCurrentWindow();
@@ -199,12 +178,12 @@ window.electron = {
             return false;
         }
         return new Promise((resolve, reject) =>
-            checkWindowSupportNet("v4.0").then(isOk => {
+            checkWindowSupportNet("v4.0").then((isOk) => {
                 if (isOk) {
                     spawn(PATH_WhiteBoard);
                     return resolve(true);
                 }
-                checkWindowSupportNet("v3.5").then(isOk => {
+                checkWindowSupportNet("v3.5").then((isOk) => {
                     if (isOk) {
                         spawn(PATH_WhiteBoard);
                         return resolve(true);
@@ -341,6 +320,7 @@ window.electron = {
             await mkdirs(filePath);
             let uuid = guid().replaceAll("-", "");
             const jsonFileName = filePath + `/${uuid}app.json`;
+            console.log("jsonFileName-------", jsonFileName);
 
             // 生成JSON文件
             await writeFile(
@@ -357,6 +337,7 @@ window.electron = {
                     "lyxpkg"
                 )
             );
+            console.log("cacheFiles-------", cacheFiles);
 
             for (let cacheFile of cacheFiles) {
                 cacheFile = cacheFile.replace("file:///", "");
@@ -392,14 +373,11 @@ window.electron = {
                 return _fileName;
             };
 
-            let customZipFile = await customZipFolder([
-                ...cacheFiles,
-                jsonFileName,
-            ]);
+            let customZipFile = await customZipFolder([...cacheFiles, jsonFileName]);
 
             return customZipFile;
         } catch (e) {
-            console.error(e);
+            console.error("报错--", e);
             return "";
         } finally {
             await rm(filePath, { recursive: true, force: true });

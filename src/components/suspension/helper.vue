@@ -58,13 +58,13 @@
                                 <img src="@/assets/images/suspension/icon_sk.png" alt=""/>
                                 上课
                             </div>
-                            <div
+                            <!-- <div
                                 class="attend-class-view"
                                 @click.stop="switchClass(),clicKBuryPoint(isSwitch
                                                 ? '全部显示' : '仅显示备课篮')">
                                 <img src="@/assets/images/preparation/icon_qiehuan_1.png" alt=""/>
                                 {{ isSwitch ? "全部显示" : "仅显示备课包" }}
-                            </div>
+                            </div> -->
                         </div>
                     </template>
                     <div class="resource-list">
@@ -216,6 +216,18 @@
                                 alt=""
                             />
                             <div class="blackboard-text">小组比拼</div>
+                        </div>
+                        <div
+                            class="blackboard-box"
+                            @click.stop="
+                                clicKBuryPoint('小组比拼2'), openTeamCompetition2()
+                            "
+                        >
+                            <img
+                                src="@/assets/images/suspension/pic_xzbp2@2x.png"
+                                alt=""
+                            />
+                            <div class="blackboard-text">小组比拼2</div>
                         </div>
                     </div>
                 </el-collapse-item>
@@ -472,6 +484,11 @@ export default defineComponent({
             if (isElectron()) window.electron.ipcRenderer.invoke("openTeamCompetition");
         }
 
+        // 打开小组比拼
+        const openTeamCompetition2 = () => {
+            if (isElectron()) window.electron.ipcRenderer.invoke("openTeamCompetition2");
+        }
+
         const close = () => {
             if (isElectron()) {
                 window.electron.ipcRenderer.invoke("hideUnfoldSuspensionWin");
@@ -637,7 +654,8 @@ export default defineComponent({
             handleChange,
             currentClickCol,
             openPainting,
-            openTeamCompetition
+            openTeamCompetition,
+            openTeamCompetition2
         };
     }
 });

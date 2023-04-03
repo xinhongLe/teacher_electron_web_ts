@@ -45,6 +45,25 @@ interface IResourceRequest {
     };
 }
 
+/**
+ * GetLessonBagResourceDto，获取备课包下的资源
+ */
+export interface IResourceBag {
+    /**
+     * IDs
+     */
+    ids?: string[] | null;
+    pager?: {
+        pageNumber: number;
+        pageSize: number;
+    };
+    /**
+     * 资源类型
+     */
+    typeId?: null | string;
+    resourceType?:string
+}
+
 export interface ILesson {
     AcaSectionId: string;
     AcaSectionName: string;
@@ -60,6 +79,24 @@ export interface ILesson {
     ResourceId: string;
     SubjectID: string;
     SubjectName: string;
+}
+
+/**
+ * LessonBagResourceDto，资源已加入课时包
+ */
+ export interface ILessonBagResourceDto {
+    /**
+     * 备课包ID
+     */
+    BagId?: null | string;
+    /**
+     * 备课包名称
+     */
+     BagName?: null | string;
+    /**
+     * ID
+     */
+    Id?: null | string;
 }
 
 export interface IResourceItem {
@@ -91,6 +128,7 @@ export interface IResourceItem {
     BagId: string;
     ResourceToolUrl: string;
     IsSysFile: number;
+    IsMine: number;
     File: {
         Id: string;
         Name: string;
@@ -102,6 +140,7 @@ export interface IResourceItem {
         FileMD5: string;
     };
     UserId: string;
+    JoinBags:ILessonBagResourceDto[]
 }
 
 export interface IResourceResponse {
@@ -218,6 +257,8 @@ export interface ICourseCartOption {
     ResourceTypeName: string;
     ResourceName: string;
     Lessons: ILesson[];
+    BagCatalogue:string;
+    BagName:string
 }
 
 interface ICourseCartOptionsResponse {
@@ -345,7 +386,7 @@ export const fetchResourceType: RequestFun<{}, { Id: string; Name: string }[]> =
 
 // 获取资源列表
 export const fetchResourceList: RequestFun<
-    IResourceRequest,
+    IResourceRequest | IResourceBag,
     IResourceResponse
 > = (data) => {
     const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
@@ -355,8 +396,8 @@ export const fetchResourceList: RequestFun<
             data?.resourceType === "4"
                 ? "Api/Resouce/TeacherResource/GetMyResList"
                 : data?.resourceType === "me"
-                ? "Api/Prepare/Prepare/GetMyLessonBag"
-                : "Api/Resouce/TeacherResource/GetResourceList",
+                    ? "/Api/Prepare/Prepare/GetLessonBagResource"
+                    : "Api/Resouce/TeacherResource/GetResourceList",
         headers: {
             "Content-Type": "application/json-patch+json",
             noLoading: "true",
@@ -366,12 +407,13 @@ export const fetchResourceList: RequestFun<
             SecretKey: yunInfo.SecretKey,
         },
         method: "post",
-        data: {
-            ...data,
-            ...(data?.resourceType === "me"
-                ? { typeId: data.resourceTypeId }
-                : {}),
-        },
+        // data:  {
+        //     ...data,
+        //     ...(data?.resourceType === "me"
+        //         ? { typeId: data.resourceTypeId }
+        //         : {}),
+        // },
+        data 
     });
 };
 

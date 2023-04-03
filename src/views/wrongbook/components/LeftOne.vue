@@ -78,10 +78,10 @@
     </div>
 </template>
 <script lang="ts" setup>
-import { reactive, ref, defineProps, watch, onMounted, nextTick } from "vue";
+import { reactive, ref, watch, onMounted, nextTick } from "vue";
 import { Search } from "@element-plus/icons-vue";
 import { searchLeftMenuByHomeWork, LeftMenuParams } from "@/api/errorbook";
-import emitter from "@/utils/mitt"; //全局事件总线
+import emitter from "@/utils/mitt"; // 全局事件总线
 import useBookList from "@/views/assignHomework/hooks/useBookList";
 // import { subjectPublisherBookList } from "@/hooks/useSubjectPublisherBookList";
 import useWrongBook from "@/views/wrongbook/hooks/useWrongBook";

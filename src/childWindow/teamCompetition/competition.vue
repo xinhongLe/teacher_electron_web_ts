@@ -1,6 +1,9 @@
 <template>
     <div class="star-container">
         <div class="star-header">
+            <div class="icon" @click="hideWindow" v-if="!isExpand && !isHide">
+                <DoubleRight />
+            </div>
             小组比拼
             <span v-if="!isExpand" class="expand-btn" @click="expand()">展开</span>
         </div>
@@ -39,6 +42,9 @@
                     <img src="./images/icon_add@2x.png" alt="" />
                 </div>
             </div>
+        </div>
+        <div class="open" v-if="isHide" @click.stop="showWindow">
+            <DoubleLeft />
         </div>
         <div class="star-footer" v-if="isExpand">
             <el-button class="star-btn" type="danger" @click="close()"
@@ -82,6 +88,7 @@ import { computed, defineComponent, watch, ref } from "vue";
 import { animationData } from "./animation/data";
 import lottie, { AnimationItem } from "lottie-web";
 import { awardAudio } from "./award";
+import { DoubleLeft, DoubleRight } from "@icon-park/vue-next";
 
 export default defineComponent({
     props: {
@@ -90,6 +97,7 @@ export default defineComponent({
             default: 4
         }
     },
+    components: { DoubleLeft, DoubleRight },
     emits: ["expand"],
     setup(props, { emit }) {
         const teamNum = computed(() => props.teamNum);
@@ -118,9 +126,10 @@ export default defineComponent({
             const size =
                 window.electron.remote.screen.getPrimaryDisplay().workAreaSize;
             window.electron.setContentSize(300, 244);
+            const top = size.height - 100 - 244 - 260;
             window.electron.setPositionWin(
                 size.width - 20 - 300,
-                size.height - 300 - 244 - 260
+                top > 0 ? top : 20
             );
         };
 
@@ -203,6 +212,21 @@ export default defineComponent({
             "#4B71EE"
         ];
 
+        const isHide = ref(false);
+        const hideWindow = () => {
+            isHide.value = true;
+            const size = window.electron.remote.screen.getPrimaryDisplay().workAreaSize;
+            const position = window.electron.getPositionWin();
+            window.electron.setPositionWin(size.width - 30, position[1]);
+        };
+
+        const showWindow = () => {
+            isHide.value = false;
+            const size = window.electron.remote.screen.getPrimaryDisplay().workAreaSize;
+            const position = window.electron.getPositionWin();
+            window.electron.setPositionWin(size.width - 20 - 300, position[1]);
+        };
+
         return {
             teamArr,
             teamNum,
@@ -219,7 +243,10 @@ export default defineComponent({
             awardShow,
             awardTeam,
             awardTeamShow,
-            audioRef
+            audioRef,
+            isHide,
+            hideWindow,
+            showWindow
         };
     }
 });
@@ -244,6 +271,31 @@ export default defineComponent({
     position: relative;
 }
 
+.star-header .icon {
+    -webkit-app-region: no-drag;
+    position: absolute;
+    left: 15px;
+    font-size: 16px;
+    color: #888888;
+    cursor: pointer;
+    top: 16px;
+    z-index: 1;
+}
+
+.open {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 30px;
+    left: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    font-size: 16px;
+    color: #888;
+    z-index: 10;
+}
 .expand-btn {
     -webkit-app-region: no-drag;
     position: absolute;

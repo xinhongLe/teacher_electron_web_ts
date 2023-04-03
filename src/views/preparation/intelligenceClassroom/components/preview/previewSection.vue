@@ -2,29 +2,41 @@
     <div class="me-preview">
         <div class="mep-container">
             <PageList
-                class="preview-pagelist"
+                :dialog="dialog"
                 ref="pageListRef"
                 @lastPage="lastPage"
                 @firstPage="firstPage"
-                :dialog="dialog"
-                :isShowCardList="isShowCardList"
+                class="preview-pagelist"
                 :isFullScreen="isFullScreen"
+                v-model:isCanUndo="isCanUndo"
+                v-model:isCanRedo="isCanRedo"
+                :isShowCardList="isShowCardList"
+                v-model:currentDrawColor="currentDrawColor"
+                v-model:currentLineWidth="currentLineWidth"
             />
             <transition name="fade">
-                <Remark :teachProcess="teachProcess" :isSystem="isSystem" :resourceId="resourceId" :design="design" v-if="showRemark" />
+                <Remark
+                    :design="design"
+                    v-if="showRemark"
+                    :isSystem="isSystem"
+                    :resourceId="resourceId"
+                    :teachProcess="teachProcess"
+                />
             </transition>
         </div>
     </div>
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, inject, ref, toRefs } from "vue";
+import { computed, defineComponent, inject, ref, toRefs, watch } from "vue";
 import preventRemark from "../../hooks/previewRemark";
 import Remark from "./remark.vue";
 import PageList from "./pageList.vue";
 import { windowInfoKey } from "@/hooks/useWindowInfo";
 import { isEmpty } from "lodash";
+
 export default defineComponent({
+    components: { Remark, PageList },
     props: {
         resourceId: {
             type: String,
@@ -47,15 +59,21 @@ export default defineComponent({
             default: false
         }
     },
-    components: {
-        Remark,
-        PageList
-    },
     setup(props, { emit }) {
         const { data, showRemark, toggleRemark } = preventRemark(props.dialog);
         const { currentPageIndex, currentCard } = inject(windowInfoKey)!;
-        const teachProcess = computed(() => !isEmpty(currentCard.value?.PageList) && currentCard.value?.PageList[currentPageIndex.value]?.AcademicPresupposition);
-        const design = computed(() => !isEmpty(currentCard.value?.PageList) && currentCard.value?.PageList[currentPageIndex.value]?.DesignIntent);
+        const teachProcess = computed(
+            () =>
+                !isEmpty(currentCard.value?.PageList) &&
+                currentCard.value?.PageList[currentPageIndex.value]
+                    ?.AcademicPresupposition
+        );
+        const design = computed(
+            () =>
+                !isEmpty(currentCard.value?.PageList) &&
+                currentCard.value?.PageList[currentPageIndex.value]
+                    ?.DesignIntent
+        );
         const pageListRef = ref();
         const changeWinSize = () => {
             emit("changeWinSize"); // 切换窗口大小，清除缓存的笔记列表
@@ -76,6 +94,11 @@ export default defineComponent({
             pageListRef.value.hideWriteBoard();
             pageListRef.value.openShape(event);
         };
+        // 橡皮擦..
+        const openPaintTool = (event: MouseEvent, type: string) => {
+            pageListRef.value.openPaintTool(event, type);
+        };
+
         const lastPage = () => {
             emit("lastPage");
         };
@@ -92,6 +115,47 @@ export default defineComponent({
         };
         const updateFlag = () => {
             pageListRef.value.updateFlags();
+        };
+        const currentDrawColor = ref("#f60000");
+        const currentLineWidth = ref(2);
+        watch(
+            () => currentDrawColor.value,
+            (val) => {
+                emit("update:currentDrawColor", val);
+            }
+        );
+        watch(
+            () => currentLineWidth.value,
+            (val) => {
+                emit("update:currentLineWidth", val);
+            }
+        );
+        const isCanUndo = ref(false);
+        const isCanRedo = ref(false);
+        watch(
+            () => isCanUndo.value,
+            (val) => {
+                emit("update:isCanUndo", val);
+            }
+        );
+        watch(
+            () => isCanRedo.value,
+            (val) => {
+                emit("update:isCanRedo", val);
+            }
+        );
+        const whiteboardOption = (option: string, value?: number) => {
+            // console.log("previewSection.value", event, type);
+            pageListRef.value && pageListRef.value.whiteboardOption(option, value);
+        };
+
+        // 退回
+        const redo = () => {
+            pageListRef.value && pageListRef.value.redo();
+        };
+        // 撤回
+        const undo = () => {
+            pageListRef.value && pageListRef.value.undo();
         };
 
         return {
@@ -111,20 +175,29 @@ export default defineComponent({
             showWriteBoard,
             hideWriteBoard,
             openShape,
-            changeWinSize
+            changeWinSize,
+            openPaintTool,
+            whiteboardOption,
+            redo,
+            undo,
+            isCanUndo,
+            isCanRedo,
+            currentDrawColor,
+            currentLineWidth
         };
     }
 });
 </script>
 
 <style lang="scss" scoped>
-.remark-fullSrceen{
+.remark-fullSrceen {
     position: fixed;
     width: 220px;
     height: calc(100% - 86px);
     top: 0;
     right: 0;
 }
+
 .me-preview {
     flex: 1;
     display: flex;
@@ -132,6 +205,7 @@ export default defineComponent({
     overflow: hidden;
     background-color: #f5f6fb;
 }
+
 .mep-container {
     min-width: 0;
     flex: 1;
@@ -139,11 +213,13 @@ export default defineComponent({
     min-height: 0;
     margin: 0;
     justify-content: space-between;
+
     div {
         margin: 0;
         padding: 0;
     }
 }
+
 .fade-enter-active,
 .fade-leave-active {
     transition-property: width, padding;

@@ -16,7 +16,7 @@ interface Slides {
 
 export default () => {
     const showImport = ref(isElectron());
-    const uploadFileName:any = ref("");
+    const uploadFileName: any = ref("");
     const loading = ref(false);
     const pptPages = ref(0); // 上传ppt总的页数
     const parsePptPage = ref(0); // 解析完成的页数
@@ -39,7 +39,7 @@ export default () => {
             buttonLabel: "确定",
             filters: [{
                 name: "ppt",
-                extensions: ["pptx"] // ["ppt", "pptx"]
+                extensions: ["ppt", "pptx"]
             }],
             properties: properties
         }).then(async (file: any) => {

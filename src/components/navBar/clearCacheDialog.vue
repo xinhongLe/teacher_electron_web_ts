@@ -84,7 +84,7 @@
 
 <script lang="ts" setup>
 import Dialog from "../dialog/index.vue";
-import { defineEmits, ref, watchEffect } from "vue";
+import { ref, watchEffect } from "vue";
 import moment from "moment";
 import { ElMessage } from "element-plus";
 import ClearCacheSuccess from "./clearCacheSuccess.vue";

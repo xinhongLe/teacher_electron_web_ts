@@ -206,6 +206,7 @@ import useSaveTemplate from "@/views/preparation/intelligenceClassroom/edit/hook
 import { ElMessage, ElMessageBox } from "element-plus";
 import { IGAssembly } from "@/types/material";
 import { ActionTypes, store } from "@/store";
+import { get, STORAGE_TYPES } from "@/utils/storage";
 export default defineComponent({
     name: "myMaterial",
     components: { TemplateView },
@@ -217,7 +218,10 @@ export default defineComponent({
     },
     emits: ["insertData"],
     setup(props, { emit }) {
-        const TeacherID = computed(() => store.state.userInfo.id);
+        const winUserInfo = get(STORAGE_TYPES.CURRENT_USER_INFO);
+        const TeacherID = computed(
+            () => store.state.userInfo.id || winUserInfo.id
+        );
         const noMore = computed(() => pager.value.IsLastPage); //不在显示更多
         const state = reactive({
             visibleView: false,
@@ -334,6 +338,10 @@ export default defineComponent({
                     };
                     const res: any = await deleteTemplate(params);
                     if (res) {
+                        state.serchForm.Pager.PageSize =
+                            state.serchForm.Pager.PageNumber *
+                            state.serchForm.Pager.PageSize;
+                        state.serchForm.Pager.PageNumber = 1;
                         quertMyTemplate();
                     }
                 })

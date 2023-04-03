@@ -1,6 +1,6 @@
 <template>
     <div>
-        <el-dialog v-if="visible" v-model="visible" title="自定义字段管理"  width="1100px"  center @close="close">
+        <el-dialog v-if="visible" v-model="visible" title="自定义字段管理" width="1100px" center @close="close">
             <div>
                 <div class="header">
                     <span>*最多可以配置<span style="color: #2E95FF">10</span>个自定义字段</span>
@@ -9,16 +9,16 @@
                     </div>
                 </div>
                 <el-table :data="tableData" style="width: 100%; height:500px; overflow-y: auto" :header-cell-style="{ background: '#FAFBFC', color: '#242B3A'}">
-                    <el-table-column prop="Name" label="字段名称"  />
+                    <el-table-column prop="Name" label="字段名称"/>
                     <el-table-column label="字段类型">
                         <template #default="{ row }">
-                            <span>{{fieldTypeList.find(item => item.value === row.SelectType)?.label}}</span>
+                            <span>{{ fieldTypeList.find(item => item.value === row.SelectType)?.label }}</span>
                         </template>
                     </el-table-column>
                     <el-table-column label="操作">
                         <template #default="{ row }">
                             <el-button type="text" size="small" @click="editFiled(row)">编辑</el-button>
-                            <el-button type="text" size="small"  @click="delFiled(row)">删除</el-button>
+                            <el-button type="text" size="small" @click="delFiled(row)">删除</el-button>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -39,26 +39,24 @@
                         <span>*最多30字符，且不能与系统字段、其他自定义字段重名</span>
                     </el-form-item>
                     <el-form-item label="字段类型：">
-                        <el-select style="width: 100%" v-model="form.SelectType"  placeholder="请选择课型" >
+                        <el-select style="width: 100%" v-model="form.SelectType" placeholder="请选择课型">
                             <el-option v-for="item in fieldTypeList" :key="item.value" :label="item.label" :value="item.value"/>
                         </el-select>
                         <span>*字段类型会对配置字段产生影响</span>
                     </el-form-item>
-                    <el-form-item v-if="showOptionType.includes(form.SelectType)" label="字段值选项：" >
-                        <draggable v-model="fieldList"  @start="drag = true" @end="drag = false" item-key="index">
-                            <template #item="{element, index}">
-                                <div class="sort-input">
-                                    <img class="drag" src="@/assets/indexImages/icon_yidong@2x.png" alt="">
-                                    <el-input v-model="element.Name" placeholder="请输入字段名称" size="small"></el-input>
-                                    <img class="option-btn" src="@/assets/indexImages/icon_add@2x.png" alt="" @click="addTarget(index)" />
-                                    <img class="option-btn" src="@/assets/indexImages/icon_del@2x.png" v-if="fieldList.length > 1" alt="" @click="reduceTarget(index)" />
-                                </div>
-                            </template>
-                        </draggable>
+                    <el-form-item v-if="showOptionType.includes(form.SelectType)" label="字段值选项：">
+                        <vue-draggable-next v-model="fieldList" @start="drag = true" @end="drag = false" handle=".drag">
+                            <div class="sort-input" v-for="(element, index) in fieldList" :key="index">
+                                <img class="drag" src="@/assets/indexImages/icon_yidong@2x.png" alt="">
+                                <el-input v-model="element.Name" placeholder="请输入字段名称" size="small"></el-input>
+                                <img class="option-btn" src="@/assets/indexImages/icon_add@2x.png" alt="" @click="addTarget(index)"/>
+                                <img class="option-btn" src="@/assets/indexImages/icon_del@2x.png" v-if="fieldList.length > 1" alt="" @click="reduceTarget(index)"/>
+                            </div>
+                        </vue-draggable-next>
                     </el-form-item>
 
                     <el-form-item prop="name" v-if="form.SelectType === 7">
-                        <el-checkbox v-model="form.havingTime" :true-label="1" :false-label="0" label="包含时分" size="large" />
+                        <el-checkbox v-model="form.havingTime" :true-label="1" :false-label="0" label="包含时分" size="large"/>
                         <div>*带时分的日期型字段将会展示如：2014-10-13 13:00</div>
                     </el-form-item>
                 </el-form>
@@ -76,14 +74,15 @@
 
 <script lang="ts">
 import { defineComponent, reactive, toRefs, ref, watch, PropType } from "vue";
-import draggable from "vuedraggable";
 import { getLessonPlanTemplateDetail, addTemplateField, editTemplateField, delTemplateField } from "@/api/home.ts";
 import { ITemplateList } from "@/types/lessonDesign.ts";
 import { ElMessage } from "element-plus";
 import { store } from "@/store";
+import { VueDraggableNext } from "vue-draggable-next";
+
 export default defineComponent({
     name: "lessonFieldMange",
-    components: { draggable },
+    components: { VueDraggableNext },
     props: {
         dialogVisible: {
             type: Boolean,
@@ -129,7 +128,7 @@ export default defineComponent({
             fieldList: [{ Name: "", ID: "" }]
         });
 
-        watch(() => props.dialogVisible, (val:boolean) => {
+        watch(() => props.dialogVisible, (val: boolean) => {
             state.visible = val;
             if (val) {
                 _getLessonPlanTemplateDetail();
@@ -138,7 +137,7 @@ export default defineComponent({
 
         const ruleForm = ref();
         const handleConfirm = () => {
-            ruleForm.value.validate((valid:boolean) => {
+            ruleForm.value.validate((valid: boolean) => {
                 if (valid) {
                     const Options = state.fieldList.map((item, index) => {
                         return {
@@ -185,7 +184,7 @@ export default defineComponent({
             state.filedVisible = true;
         };
 
-        const editFiled = (row:any) => {
+        const editFiled = (row: any) => {
             state.openFieldType = "edit";
             state.form = {
                 Name: row.Name,
@@ -197,7 +196,7 @@ export default defineComponent({
             state.filedVisible = true;
         };
 
-        const delFiled = (row:any) => {
+        const delFiled = (row: any) => {
             delTemplateField({ ID: row.ID }).then(res => {
                 if (res.resultCode === 200) {
                     _getLessonPlanTemplateDetail();
@@ -217,11 +216,11 @@ export default defineComponent({
             state.filedVisible = false;
         };
 
-        const addTarget = (index:number) => {
+        const addTarget = (index: number) => {
             state.fieldList.splice(index + 1, 0, { Name: "", ID: "" });
         };
 
-        const reduceTarget = (index:number) => {
+        const reduceTarget = (index: number) => {
             state.fieldList.splice(index, 1);
         };
 
@@ -250,10 +249,11 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-.header{
+.header {
     display: flex;
     justify-content: space-between;
     margin-bottom: 20px;
+
     .add-btn {
         cursor: pointer;
         border-radius: 4px;
@@ -270,9 +270,11 @@ export default defineComponent({
     display: flex;
     align-items: center;
     margin-bottom: 12px;
+
     &:last-child {
         margin-bottom: 0;
     }
+
     .drag {
         width: 12px;
         height: 12px;
@@ -282,6 +284,7 @@ export default defineComponent({
         margin-right: 12px;
         margin-left: 6px;
     }
+
     .option-btn {
         width: 18px;
         height: 18px;

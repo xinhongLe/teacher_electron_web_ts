@@ -1,36 +1,40 @@
-const { NormalModuleReplacementPlugin } = require("webpack");
+const {NormalModuleReplacementPlugin} = require("webpack");
 
-const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
+const BundleAnalyzerPlugin =
+    require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 
 const moment = require("moment");
 
-const extraResources = process.platform === "darwin" ? [
-    {
-        from: "./extraResources/ball/",
-        to: "extraResources/ball/"
-    },
-    {
-        from: "./extraResources/mac/ColorPicker",
-        to: "ColorPicker"
-    }
-] : [
-    {
-        from: "./extraResources/ball/",
-        to: "extraResources/ball/"
-    },
-    {
-        from: "./extraResources/whiteboard/",
-        to: "extraResources/whiteboard/"
-    },
-    {
-        from: "./extraResources/exportWord/",
-        to: "extraResources/exportWord/"
-    },
-    {
-        from: "./extraResources/win/mockingbot-color-picker-ia32.exe",
-        to: "mockingbot-color-picker-ia32.exe"
-    }
-];
+const extraResources =
+    process.platform === "darwin"
+        ? [
+            {
+                from: "./extraResources/ball/",
+                to: "extraResources/ball/",
+            },
+            {
+                from: "./extraResources/mac/ColorPicker",
+                to: "ColorPicker",
+            },
+        ]
+        : [
+            {
+                from: "./extraResources/ball/",
+                to: "extraResources/ball/",
+            },
+            {
+                from: "./extraResources/whiteboard/",
+                to: "extraResources/whiteboard/",
+            },
+            {
+                from: "./extraResources/exportWord/",
+                to: "extraResources/exportWord/",
+            },
+            {
+                from: "./extraResources/win/mockingbot-color-picker-ia32.exe",
+                to: "mockingbot-color-picker-ia32.exe",
+            },
+        ];
 
 module.exports = {
     productionSourceMap: false,
@@ -38,85 +42,99 @@ module.exports = {
     pages: {
         index: {
             entry: "src/main.ts",
-            template: "public/index.html"
+            template: "public/index.html",
         },
         suspension: {
             entry: "src/childWindow/suspension/main.ts",
             template: "public/index.html",
             filename: "suspension.html",
-            chunks: ["suspension"]
+            chunks: ["suspension"],
         },
         unfoldSuspension: {
             entry: "src/childWindow/unfoldSuspension/main.ts",
             template: "public/index.html",
             filename: "unfoldSuspension.html",
-            chunks: ["unfoldSuspension"]
+            chunks: ["unfoldSuspension"],
         },
         timer: {
             entry: "src/childWindow/timer/main.ts",
             template: "public/index.html",
             filename: "timer.html",
             title: "计时器",
-            chunks: ["timer"]
+            chunks: ["timer"],
         },
         projection: {
             entry: "src/childWindow/projection/main.ts",
             template: "public/index.html",
             filename: "projection.html",
             title: "投影",
-            chunks: ["projection"]
+            chunks: ["projection"],
         },
         rollCall: {
             entry: "src/childWindow/rollCall/main.ts",
             template: "public/rollCall.html",
             filename: "rollCall.html",
             title: "点名",
-            chunks: ["rollCall"]
+            chunks: ["rollCall"],
         },
         quickAnswer: {
             entry: "src/childWindow/quickAnswer/main.ts",
             template: "public/quickAnswer.html",
             filename: "quickAnswer.html",
             title: "抢答",
-            chunks: ["quickAnswer"]
+            chunks: ["quickAnswer"],
         },
         answerMachine: {
             entry: "src/childWindow/answerMachine/main.ts",
             template: "public/index.html",
             filename: "answerMachine.html",
             title: "",
-            chunks: ["answerMachine"]
+            chunks: ["answerMachine"],
         },
         blackboard: {
             entry: "src/childWindow/blackboard/main.ts",
             template: "public/index.html",
             filename: "blackboard.html",
             title: "教学黑板",
-            chunks: ["blackboard"]
+            chunks: ["blackboard"],
         },
         winView: {
             entry: "src/childWindow/winView/main.ts",
             template: "public/index.html",
             filename: "winView.html",
             title: "",
-            chunks: ["winView"]
+            chunks: ["winView"],
         },
         teamCompetition: {
             entry: "src/childWindow/teamCompetition/main.ts",
             template: "public/index.html",
             filename: "teamCompetition.html",
             title: "小组比拼",
-            chunks: ["teamCompetition"]
-        }
+            chunks: ["teamCompetition"],
+        },
+        teamCompetition2: {
+            entry: "src/childWindow/teamCompetition2/main.ts",
+            template: "public/index.html",
+            filename: "teamCompetition2.html",
+            title: "小组比拼2",
+            chunks: ["teamCompetition2"],
+        },
+        editWinCard: {
+            entry: "src/childWindow/editWinCard/main.ts",
+            template: "public/template.html",
+            filename: "editWinCard.html",
+            title: "编辑",
+            chunks: ["editWinCard"],
+        },
     },
     css: {
         loaderOptions: {
             scss: {
                 prependData: `
                     @import "~@/styles/mixin.scss";
-                `
-            }
-        }
+                `,
+            },
+        },
     },
     configureWebpack: {
         devtool: "source-map",
@@ -126,15 +144,20 @@ module.exports = {
                     test: /\.node$/,
                     loader: "native-ext-loader",
                     options: {
-                        rewritePath: process.env.NODE_ENV === "production" ? process.platform === "win32" ? "./resources" : "../Resources" : "./node_modules/trtc-electron-sdk/build/Release" // 打包腾讯实时音视频sdk
-                    }
+                        rewritePath:
+                            process.env.NODE_ENV === "production"
+                                ? process.platform === "win32"
+                                    ? "./resources"
+                                    : "../Resources"
+                                : "./node_modules/trtc-electron-sdk/build/Release", // 打包腾讯实时音视频sdk
+                    },
                 },
                 {
                     test: /\.mjs$/,
                     include: /node_modules/,
-                    type: "javascript/auto"
-                }
-            ]
+                    type: "javascript/auto",
+                },
+            ],
         },
         plugins: [
             /**
@@ -144,8 +167,8 @@ module.exports = {
             new NormalModuleReplacementPlugin(
                 /element-plus[\\/\\]lib[\\/\\]locale[\\/\\]lang[\\/\\]en/,
                 "element-plus/lib/locale/lang/zh-cn"
-            )
-        ]
+            ),
+        ],
     },
     chainWebpack(config) {
         config.optimization.splitChunks({
@@ -153,44 +176,49 @@ module.exports = {
                 suspension: {
                     name: "suspension",
                     priority: 10,
-                    test: "src/childWindow/suspension/main.ts"
+                    test: "src/childWindow/suspension/main.ts",
                 },
                 unfoldSuspension: {
                     name: "unfoldSuspension",
                     priority: 10,
-                    test: "src/childWindow/unfoldSuspension/main.ts"
+                    test: "src/childWindow/unfoldSuspension/main.ts",
                 },
                 projection: {
                     name: "projection",
                     priority: 10,
-                    test: "src/childWindow/projection/main.ts"
+                    test: "src/childWindow/projection/main.ts",
                 },
                 rollCall: {
                     name: "rollCall",
                     priority: 10,
-                    test: "src/childWindow/rollCall/main.ts"
+                    test: "src/childWindow/rollCall/main.ts",
                 },
                 answerMachine: {
                     name: "answerMachine",
                     priority: 10,
-                    test: "src/childWindow/answerMachine/main.ts"
+                    test: "src/childWindow/answerMachine/main.ts",
                 },
                 blackboard: {
                     name: "blackboard",
                     priority: 10,
-                    test: "src/childWindow/blackboard/main.ts"
+                    test: "src/childWindow/blackboard/main.ts",
                 },
                 timer: {
                     name: "timer",
                     priority: 10,
-                    test: "src/childWindow/timer/main.ts"
+                    test: "src/childWindow/timer/main.ts",
                 },
                 winView: {
                     name: "winView",
                     priority: 10,
-                    test: "src/childWindow/winView/main.ts"
-                }
-            }
+                    test: "src/childWindow/winView/main.ts",
+                },
+                editWinCard: {
+                    name: "editWinCard",
+                    priority: 10,
+                    test: "src/childWindow/editWinCard/main.ts",
+                },
+            },
         });
         config.module
             .rule("url-loader")
@@ -205,31 +233,32 @@ module.exports = {
             favicon16: "favicon.ico",
             appleTouchIcon: "favicon.ico",
             maskIcon: "favicon.ico",
-            msTileImage: "favicon.ico"
-        }
+            msTileImage: "favicon.ico",
+        },
     },
     pluginOptions: {
         electronBuilder: {
             nodeIntegration: true,
             mainProcessFile: "electron/background.ts",
-            preload: { preload: "electron/preload.ts" },
+            preload: {preload: "electron/preload.ts"},
             mainProcessWatch: ["electron/**/*"],
             files: ["dist_electron/**/*"],
             builderOptions: {
                 appId: process.env.VUE_APP_ID,
                 productName: process.env.VUE_APP_PRODUCT_NAME, // 项目名
-                copyright: "COPYRIGHT © 2022 江苏乐易智慧科技有限公司 ALL RIGHTS RESERVED", // 版权信息
+                copyright:
+                    "COPYRIGHT © 2022 江苏乐易智慧科技有限公司 ALL RIGHTS RESERVED", // 版权信息
                 artifactName: "${productName}-${version}" + ".${ext}",
                 directories: {
-                    output: "./dist_electron" // 输出文件路径
+                    output: "./dist_electron", // 输出文件路径
                 },
                 asar: true,
                 files: ["**/*", "public/*"],
                 publish: [
                     {
                         provider: "generic",
-                        url: "" // 更新服务器地址,可为空
-                    }
+                        url: "", // 更新服务器地址,可为空
+                    },
                 ],
                 afterPack: "./build/afterPack.js",
                 extraResources: extraResources, // 拷贝静态文件到指定位置
@@ -239,17 +268,17 @@ module.exports = {
                             x: 410,
                             y: 150,
                             type: "link",
-                            path: "/Applications"
+                            path: "/Applications",
                         },
                         {
                             x: 130,
                             y: 150,
-                            type: "file"
-                        }
-                    ]
+                            type: "file",
+                        },
+                    ],
                 },
                 extraMetadata: {
-                    name: process.env.APP_NAME || 'Aixueshi'
+                    name: process.env.APP_NAME || "Aixueshi",
                 },
                 nsis: {
                     oneClick: false, // 是否一键安装
@@ -261,7 +290,7 @@ module.exports = {
                     installerHeaderIcon: "./public/icon.ico", // 安装时头部图标
                     createDesktopShortcut: true, // 创建桌面图标
                     createStartMenuShortcut: true, // 创建开始菜单图标
-                    shortcutName: process.env.VUE_APP_PRODUCT_NAME // 图标名称
+                    shortcutName: process.env.VUE_APP_PRODUCT_NAME, // 图标名称
                 },
                 win: {
                     // win相关配置
@@ -269,25 +298,25 @@ module.exports = {
                     fileAssociations: [
                         {
                             ext: "lyxpkg",
-                            icon: "./public/lyxpkg.ico"
-                        }
+                            icon: "./public/lyxpkg.ico",
+                        },
                     ],
                     target: [
                         {
                             target: "nsis", // 利用nsis制作安装程序
                             arch: [
                                 // "x64", // 64位
-                                "ia32" // 32位
-                            ]
-                        }
+                                "ia32", // 32位
+                            ],
+                        },
                     ],
                     extraFiles: [
                         {
                             from: "node_modules/trtc-electron-sdk/build/Release/",
                             to: "./resources",
-                            filter: ["**/*"]
-                        }
-                    ]
+                            filter: ["**/*"],
+                        },
+                    ],
                 },
                 mac: {
                     icon: "./public/icon.icns",
@@ -296,21 +325,21 @@ module.exports = {
                         {
                             from: "node_modules/trtc-electron-sdk/build/Release/",
                             to: "./Resources",
-                            filter: ["**/*"]
-                        }
+                            filter: ["**/*"],
+                        },
                     ],
                     fileAssociations: [
                         {
                             ext: "lyxpkg",
-                            icon: "./public/lyxpkg.icns"
-                        }
-                    ]
+                            icon: "./public/lyxpkg.icns",
+                        },
+                    ],
                 },
                 extraFiles: [
-                    "node_modules/trtc-electron-sdk/build/Release/trtc_electron_sdk.node"
-                ]
+                    "node_modules/trtc-electron-sdk/build/Release/trtc_electron_sdk.node",
+                ],
             },
-            externals: ["clipboard", "@microsoft/signalr"]
-        }
-    }
+            externals: ["clipboard", "@microsoft/signalr"],
+        },
+    },
 };

@@ -127,6 +127,7 @@ import useSaveTemplate from "@/views/preparation/intelligenceClassroom/edit/hook
 //   import { downloadFile } from '@/utils/oss';
 import { store } from "@/store";
 import { Close } from "@element-plus/icons-vue";
+import { get, set, STORAGE_TYPES } from "@/utils/storage";
 export default defineComponent({
     name: "saveTemplateDialog",
     props: {
@@ -158,10 +159,16 @@ export default defineComponent({
     emits: ["update:dialogVisible", "handleAddTemplate", "cacleTemplateDialog"],
     setup(props, { emit }) {
         // console.log(store);
-        const windowInfo = computed(
-            () => store.state.preparation.editWindowInfo
+        const windowInfo: any = computed(() =>
+            store.state.preparation.editWindowInfo.id
+                ? store.state.preparation.editWindowInfo
+                : get(STORAGE_TYPES.WINDOW_INFO)
         );
-        const TeacherID = computed(() => store.state.userInfo.id);
+        const winUserInfo: any = get(STORAGE_TYPES.USER_INFO);
+        // console.log("winUserInfo", winUserInfo);
+        const TeacherID = computed(() =>
+            store.state.userInfo.id ? store.state.userInfo.id : winUserInfo.ID
+        );
 
         const { queryClassroomLinkList, classroomLinkList } = useSaveTemplate();
         const state = reactive({
