@@ -4,35 +4,35 @@
             <div class="left">
                 <div class="left-content">
                     <div :class="[currentTemplate.ID === item.ID ? 'active' : '']" @click="handleTemplate(item)" v-for="(item,index) in leftList" :key="index">
-                        <span class="text">{{item.Name}}</span>
+                        <span class="text">{{ item.Name }}</span>
                         <span class="del-btn" v-if="item.IsSystem !== 1" @click.stop="openDelTemplate(item)">
                             <img src="@/assets/indexImages/icon_delete.png" alt="">
                         </span>
                     </div>
                 </div>
-                <div class="left-add"  @click="handleAddTemplate">
+                <div class="left-add" @click="handleAddTemplate">
                     <span>+ 创建新模板</span>
                 </div>
             </div>
             <div class="center">
-               <div>
-                   <div class="title">模板名称</div>
-                   <el-input maxlength="100" v-model="currentTemplate.Name" size="small"></el-input>
-               </div>
+                <div>
+                    <div class="title">模板名称</div>
+                    <el-input maxlength="100" v-model="currentTemplate.Name" size="small"></el-input>
+                </div>
                 <div>
                     <div>
                         <div class="title">基础字段</div>
-                        <el-checkbox v-for="(item,i) in form.basicValueList" @change="changeCheckbox" :key="i" :true-label="1" :false-label="0" v-model="item.Status" :label="item.Name" size="large" />
+                        <el-checkbox v-for="(item,i) in form.basicValueList" @change="changeCheckbox" :key="i" :true-label="1" :false-label="0" v-model="item.Status" :label="item.Name" size="large"/>
                     </div>
 
                     <div>
                         <div class="title">概要字段</div>
-                        <el-checkbox v-for="(item,i) in form.synopsisValueList" @change="changeCheckbox" :key="i" :true-label="1" :false-label="0" v-model="item.Status" :label="item.Name" size="large" />
+                        <el-checkbox v-for="(item,i) in form.synopsisValueList" @change="changeCheckbox" :key="i" :true-label="1" :false-label="0" v-model="item.Status" :label="item.Name" size="large"/>
                     </div>
 
                     <div>
                         <div class="title">教学过程字段</div>
-                        <el-checkbox v-for="(item,i) in form.processValueList" :disabled="true" :key="i" :true-label="1" :false-label="0" v-model="item.Status" :label="item.Name" size="large" />
+                        <el-checkbox v-for="(item,i) in form.processValueList" :disabled="true" :key="i" :true-label="1" :false-label="0" v-model="item.Status" :label="item.Name" size="large"/>
                     </div>
 
                     <div v-if="currentTemplate.ID && currentTemplate.IsSystem !== 1">
@@ -40,24 +40,22 @@
                             <span>自定义字段</span>
                             <span class="manage" @click="fieldManage">管理</span>
                         </div>
-                        <el-checkbox v-for="(item,i) in form.customValueList" @change="changeCheckbox" :key="i" :true-label="1" :false-label="0" v-model="item.Status" :label="item.Name" size="large" />
+                        <el-checkbox v-for="(item,i) in form.customValueList" @change="changeCheckbox" :key="i" :true-label="1" :false-label="0" v-model="item.Status" :label="item.Name" size="large"/>
                     </div>
                 </div>
             </div>
             <div class="right">
-               <div class="title">已选字段</div>
+                <div class="title">已选字段</div>
                 <div>
-                    <draggable v-model="rightList"  @start="drag = true" @end="drag = false" item-key="index">
-                        <template #item="{ element }">
-                            <div class="row">
-                                <div>
-                                    <img class="drag" src="@/assets/indexImages/icon_yidong@2x.png" alt="">
-                                    <span>{{element.Name}}</span>
-                                </div>
-                                <img v-if="element.Name !== '教学过程'" @click="delCheckbox(element)" class="drag" src="@/assets/indexImages/icon_close_small.png" alt="">
+                    <vue-draggable-next v-model="rightList" @start="drag = true" @end="drag = false" handle=".drag">
+                        <div class="row" v-for="(element,index) in rightList" :key="index">
+                            <div>
+                                <img class="drag" src="@/assets/indexImages/icon_yidong@2x.png" alt="">
+                                <span>{{ element.Name }}</span>
                             </div>
-                        </template>
-                    </draggable>
+                            <img v-if="element.Name !== '教学过程'" @click="delCheckbox(element)" class="drag" src="@/assets/indexImages/icon_close_small.png" alt="">
+                        </div>
+                    </vue-draggable-next>
                 </div>
             </div>
         </div>
@@ -71,10 +69,10 @@
         <lesson-field-mange :currentTemplate="currentTemplate" @updateTemplateList="updateTemplateList" v-model:dialogVisible="fieldManageVisible"></lesson-field-mange>
 
         <el-dialog v-model="delDialogVisible" title="提示" width="476px" center>
-                <div class="del-content">
-                    <img src="@/assets/indexImages/icon_tips_popup.png" alt="">
-                    <div>是否删除该模板？</div>
-                </div>
+            <div class="del-content">
+                <img src="@/assets/indexImages/icon_tips_popup.png" alt="">
+                <div>是否删除该模板？</div>
+            </div>
             <template #footer>
               <span class="dialog-footer">
                 <el-button @click="delDialogVisible = false">取消</el-button>
@@ -87,13 +85,14 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, reactive, toRefs, ref, watch, PropType, nextTick } from "vue";
-import draggable from "vuedraggable";
+import { computed, defineComponent, reactive, toRefs, watch, PropType, nextTick } from "vue";
 import { ITemplateList, ITemplateItem } from "@/types/lessonDesign.ts";
 import LessonFieldMange from "@/views/preparation/intelligenceClassroom/components/edit/lessonFieldMange.vue";
 import { updateLessonPlanTemplate, delLessonPlanTemplate, addLessonPlanTemplate } from "@/api/home.ts";
-import { ElMessage, ElMessageBox } from "element-plus";
+import { ElMessage } from "element-plus";
 import { store } from "@/store";
+import { VueDraggableNext } from "vue-draggable-next";
+
 interface State {
     fieldManageVisible: boolean,
     delDialogVisible: boolean,
@@ -109,9 +108,10 @@ interface State {
     currentTemplate: ITemplateList,
     rightList: ITemplateItem[]
 }
+
 export default defineComponent({
     name: "lessonTemplateSet",
-    components: { draggable, LessonFieldMange },
+    components: { VueDraggableNext, LessonFieldMange },
     props: {
         dialogVisible: {
             type: Boolean,
@@ -145,11 +145,11 @@ export default defineComponent({
         });
         const visible = computed(() => props.dialogVisible);
 
-        watch(() => props.templateList, (val:ITemplateList[]) => {
+        watch(() => props.templateList, (val: ITemplateList[]) => {
             nextTick(() => {
                 state.leftList = val;
                 if (state.currentTemplate.ID) {
-                    state.currentTemplate = val.find((item:ITemplateList) => item.ID === state.currentTemplate.ID) || { Name: "", ID: "", Sort: 0, IsSystem: 0, Detail: [] };
+                    state.currentTemplate = val.find((item: ITemplateList) => item.ID === state.currentTemplate.ID) || { Name: "", ID: "", Sort: 0, IsSystem: 0, Detail: [] };
                 } else {
                     state.currentTemplate = val?.length > 0 ? val[0] : { Name: "", ID: "", Sort: 0, IsSystem: 0, Detail: [] };
                 }
@@ -158,23 +158,23 @@ export default defineComponent({
             });
         }, { immediate: true });
 
-        const transformData = (templateList:any[]) => {
-            state.form.basicValueList = templateList.filter((item:any) => item.GroupName === "基础字段");
-            state.form.synopsisValueList = templateList.filter((item:any) => item.GroupName === "概要字段");
-            state.form.teachProcess = templateList.filter((item:any) => item.GroupName === "教学过程");
-            state.form.customValueList = templateList.filter((item:any) => item.GroupName === "自定义字段");
+        const transformData = (templateList: any[]) => {
+            state.form.basicValueList = templateList.filter((item: any) => item.GroupName === "基础字段");
+            state.form.synopsisValueList = templateList.filter((item: any) => item.GroupName === "概要字段");
+            state.form.teachProcess = templateList.filter((item: any) => item.GroupName === "教学过程");
+            state.form.customValueList = templateList.filter((item: any) => item.GroupName === "自定义字段");
             changeCheckbox();
         };
 
         const changeCheckbox = () => {
             // const list = [...state.form.basicValueList, ...state.form.synopsisValueList, ...state.form.teachProcess, ...state.form.customValueList];
-            const list = state.currentTemplate!.Detail.filter((item:ITemplateItem) => item.Status && item.GroupName !== "模板名称");
-            state.rightList = list.sort(function (a:any, b:any) {
+            const list = state.currentTemplate!.Detail.filter((item: ITemplateItem) => item.Status && item.GroupName !== "模板名称");
+            state.rightList = list.sort(function (a: any, b: any) {
                 return a.Sort - b.Sort;
             });
         };
 
-        const delCheckbox = (item:ITemplateItem) => {
+        const delCheckbox = (item: ITemplateItem) => {
             item.Status = 0;
             changeCheckbox();
         };
@@ -218,7 +218,7 @@ export default defineComponent({
             });
         };
 
-        const openDelTemplate = (item:ITemplateList) => {
+        const openDelTemplate = (item: ITemplateList) => {
             state.delTemplateId = item.ID;
             state.delDialogVisible = true;
         };
@@ -237,7 +237,7 @@ export default defineComponent({
             });
         };
 
-        const handleTemplate = (item:ITemplateList) => {
+        const handleTemplate = (item: ITemplateList) => {
             state.currentTemplate = item;
             transformData(state.currentTemplate?.Detail);
         };
@@ -274,15 +274,17 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-.content{
+.content {
     display: flex;
-    .title{
+
+    .title {
         font-size: 16px;
         font-weight: 600;
         color: #212121;
         margin: 20px 0 10px;
     }
-    .left{
+
+    .left {
         display: flex;
         flex-direction: column;
         position: relative;
@@ -290,10 +292,12 @@ export default defineComponent({
         padding: 0px 0 70px;
         background: #F6F7F8;
         margin-right: 15px;
+
         .left-content {
             flex: 1;
             overflow-y: auto;
             padding-top: 20px;
+
             > div {
                 position: relative;
                 display: flex;
@@ -306,13 +310,16 @@ export default defineComponent({
                 font-size: 14px;
                 color: #212121;
                 margin: 0 10px 16px;
+
                 &:hover {
                     background-color: rgba(0, 87, 254, 0.1);
-                    .del-btn{
+
+                    .del-btn {
                         display: block;
                     }
                 }
-                .del-btn{
+
+                .del-btn {
                     position: absolute;
                     right: 0px;
                     top: -12px;
@@ -323,17 +330,20 @@ export default defineComponent({
                     font-size: 12px;
                     display: none;
                 }
-                .text{
+
+                .text {
                     overflow: hidden;
                     text-overflow: ellipsis;
                     white-space: nowrap;
                 }
             }
+
             .active {
                 background-color: rgba(0, 87, 254, 0.1);
                 color: #0057FE;
             }
         }
+
         .left-add {
             position: absolute;
             left: 10px;
@@ -348,23 +358,28 @@ export default defineComponent({
             cursor: pointer;
         }
     }
-    .center{
+
+    .center {
         flex: 1;
-        .manage{
+
+        .manage {
             cursor: pointer;
             margin-left: 20px;
             font-size: 14px;
             color: #2E95FF;
         }
     }
-    .right{
+
+    .right {
         width: 240px;
         margin-left: 20px;
-        .row{
+
+        .row {
             display: flex;
             justify-content: space-between;
             padding: 10px 0;
-            img{
+
+            img {
                 width: 10px;
                 height: 10px;
                 margin-right: 10px;
@@ -374,11 +389,12 @@ export default defineComponent({
     }
 }
 
-.del-content{
+.del-content {
     display: flex;
     justify-content: center;
     align-items: center;
-    img{
+
+    img {
         width: 60px;
         height: 60px;
         margin-right: 20px;

@@ -10,7 +10,7 @@ if (!isElectron()) {
             verbose: () => {},
             debug: () => {},
             silly: () => {},
-            log: () => {},
+            log: () => {}
         },
         exit: () => {},
         maximizeWindow: () => {},
@@ -44,8 +44,8 @@ if (!isElectron()) {
             on: () => {},
             send: () => {},
             off: () => {},
-            removeAllListeners: () => {},
+            removeAllListeners: () => {}
         },
-        getPPTPath: () => {},
+        getPPTPath: () => {}
     } as any;
 }

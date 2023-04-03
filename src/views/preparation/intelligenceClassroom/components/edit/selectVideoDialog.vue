@@ -54,7 +54,7 @@ interface IChaptersList {
 }
 
 interface IVideoList {
-    ID:string,
+    ID: string,
     isChecked?: boolean,
     ElementName: string,
     LessonName: string
@@ -94,7 +94,7 @@ export default defineComponent({
 
         const visible = computed(() => props.dialogVisible);
 
-        const check = (v:any, row: IVideoList) => {
+        const check = (v: any, row: IVideoList) => {
             if (v) {
                 state.videoList.map((item) => {
                     if (item.ID !== row.ID) {
@@ -135,7 +135,7 @@ export default defineComponent({
             });
         };
 
-        const _getChaptersVideo = (data: { bookID:string }) => {
+        const _getChaptersVideo = (data: { bookID: string }) => {
             getChaptersVideo(data).then(res => {
                 if (res.resultCode === 200) {
                     state.chaptersList = res.result;
@@ -171,7 +171,8 @@ export default defineComponent({
                 id: row.ElementFile.ID,
                 src: row.ElementFile.FilePath + "/" + row.ElementFile.FileName + "." + row.ElementFile.Extention,
                 pauseList: pauses,
-                fileID: row.ElementID
+                fileID: row.ElementID,
+                File: row.ElementFile
             };
             emit("selectVideoVal", follow);
         };
@@ -200,7 +201,7 @@ export default defineComponent({
     }
 }
 
-.dia-card-list{
+.dia-card-list {
     margin-top: 20px;
     height: 400px;
     overflow-y: auto;

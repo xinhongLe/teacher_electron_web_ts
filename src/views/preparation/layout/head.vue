@@ -53,7 +53,9 @@
                     @click="openUpload(), clicKBuryPoint('上传')"
                 >
                     &nbsp;&nbsp;&nbsp;
-                    <el-icon :size="12"><plus /></el-icon>
+                    <el-icon :size="12">
+                        <plus />
+                    </el-icon>
                     &nbsp;上&nbsp;传&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 </el-button>
                 <img
@@ -64,7 +66,7 @@
                 />
             </div>
         </div>
-        <div class="p-head-filter">
+        <div class="p-head-filter" v-if="source !== 'me'">
             <div class="p-filter-content">
                 <el-radio-group
                     class="custom-radio-two"
@@ -113,7 +115,9 @@
                     >
                         <el-button type="primary" style="font-size: 13px">
                             &nbsp;&nbsp;&nbsp;
-                            <el-icon :size="14"><upload /></el-icon>
+                            <el-icon :size="14">
+                                <upload />
+                            </el-icon>
                             &nbsp;上&nbsp;传&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                         </el-button>
                     </el-upload>
@@ -257,13 +261,21 @@
                 </div>
 
                 <el-button type="primary" @click="output()">
-                    <el-icon><Upload /></el-icon>
+                    <el-icon>
+                        <Upload />
+                    </el-icon>
                     &nbsp;导出
                 </el-button>
             </div>
             <el-table class="custom-table" :data="tableData" stripe>
                 <el-table-column width="140px" prop="time" label="操作时间" />
                 <el-table-column width="120px" prop="name" label="动作" />
+                <el-table-column width="120px" prop="bagName" label="课包" />
+                <el-table-column
+                    width="140px"
+                    prop="bagCatalogue"
+                    label="课包目录"
+                />
                 <el-table-column width="120px" prop="type" label="资源类型" />
                 <el-table-column prop="resource" label="资源名称" />
                 <el-table-column
@@ -324,6 +336,7 @@ import { RESOURCE_TYPE } from "@/config/resource";
 import isElectron from "is-electron";
 import { exportExcel, IExcel } from "mexcel";
 import Loading from "@/components/loading/Loading.vue";
+import useLessonPackage from "@/hooks/useLessonPackage";
 interface IDirectoryItem {
     id: string;
     name: string;
@@ -375,6 +388,8 @@ interface ICourseCartOption {
     type: string;
     resource: string;
     directory: string;
+    bagName: string;
+    bagCatalogue: string;
 }
 
 export default defineComponent({
@@ -385,32 +400,35 @@ export default defineComponent({
         },
     },
     components: { Plus, Refresh, Upload, CustomSelect, Edit, Loading },
-    emits: ["update:source", "update:type"],
+    emits: ["update:source", "update:type", "updateBagList"],
     setup(props, { emit }) {
         const { createBuryingPointFn } = usePageEvent("备课"); //备课埋点
+        const { getPrepareGetMyBagCountNew, packageCount } = useLessonPackage();
+
         const store = useStore();
         const userId = computed(() => store.state.userInfo.userCenterUserID);
         const selectedBook = computed(
             () => store.state.preparation.subjectPublisherBookValue
         );
+        const schoolId = store.state.userInfo.schoolId;
         const { course } = toRefs(props);
         let isInit = true;
         watch(course, () => {
             getMyPackageNum();
         });
-        const packageCount = ref(0);
+        // const packageCount = ref(0);
         const getMyPackageNum = async () => {
             isInit = false;
             if (!course.value.chapterId || !course.value.lessonId) {
                 packageCount.value = 0;
                 return;
             }
-            const res = await fetchMyPackageNum({
+            const res = await getPrepareGetMyBagCountNew({
                 chapterId: course.value.chapterId,
                 lessonId: course.value.lessonId,
+                schoolId: schoolId,
             });
-
-            packageCount.value = res.result.BagCount;
+            // packageCount.value = res.result.BagCount;
             if (packageCount.value > 0 && isInit) {
                 source.value = "me";
                 emit("update:source", source.value);
@@ -641,7 +659,6 @@ export default defineComponent({
                 }
                 if (empty) return ElMessage.warning("请将资源目录补充完整！");
             }
-            const schoolId = store.state.userInfo.schoolId;
             const schoolName = store.state.userInfo.schoolName;
             const lessonTrees = form.directorys.map((item) => {
                 return {
@@ -723,7 +740,11 @@ export default defineComponent({
         };
 
         const refreshResourceList = () => {
-            emitter.emit("updateResourceList", "");
+            if (source.value === "me") {
+                emit("updateBagList");
+            } else {
+                emitter.emit("updateResourceList", "");
+            }
         };
 
         const acceptList =
@@ -913,6 +934,8 @@ export default defineComponent({
                         type: item.ResourceTypeName,
                         resource: item.ResourceName,
                         directory: directoryName(item.Lessons),
+                        bagName: item.BagName,
+                        bagCatalogue: item.BagCatalogue,
                     };
                 });
                 total.value = res.result.pager.Total;
@@ -1100,6 +1123,11 @@ export default defineComponent({
                 });
         };
 
+        const toMyLessonPackage = () => {
+            source.value = "me";
+            onSourceChange();
+        };
+
         return {
             source,
             sourceList,
@@ -1136,7 +1164,8 @@ export default defineComponent({
             RESOURCE_TYPE,
             openWinCard,
             output,
-            loadingShow
+            loadingShow,
+            toMyLessonPackage,
         };
     },
 });
@@ -1153,6 +1182,7 @@ export default defineComponent({
     padding: 15px;
     border-radius: 5px;
     background-color: #fff;
+
     & + .p-head-filter {
         margin-top: 15px;
     }
@@ -1172,6 +1202,7 @@ export default defineComponent({
     display: flex;
     align-items: center;
     cursor: pointer;
+
     img {
         width: 16px;
         display: block;
@@ -1184,10 +1215,12 @@ export default defineComponent({
 .p-control-btns {
     display: flex;
     align-items: center;
+
     :deep(.el-icon) {
         position: relative;
         // top: 1px;
     }
+
     .refresh-btn {
         display: block;
         width: 16px;
@@ -1205,15 +1238,18 @@ export default defineComponent({
     padding: 9px 15px 9px 60px;
     position: relative;
     cursor: pointer;
+
     &.active {
         background-color: #272c42;
         color: #fff;
     }
+
     &.hide {
         &:before {
             display: none;
         }
     }
+
     &:before {
         content: attr(num);
         display: block;
@@ -1229,6 +1265,7 @@ export default defineComponent({
         min-width: 18px;
         text-align: center;
     }
+
     img {
         position: absolute;
         top: -16px;
@@ -1245,11 +1282,13 @@ export default defineComponent({
         border: 0;
         background: #f5f6fa;
     }
+
     :deep(.el-radio-button__original-radio:checked + .el-radio-button__inner) {
         color: #fff;
         box-shadow: none;
         background: #272c42;
     }
+
     :deep(.el-radio-button--small .el-radio-button__inner) {
         font-size: 14px;
     }
@@ -1262,12 +1301,14 @@ export default defineComponent({
         border: 0;
         background: #fff;
     }
+
     :deep(.el-radio-button__original-radio:checked + .el-radio-button__inner) {
         color: #fff;
         box-shadow: none;
         background: #eef2ff;
         color: #4b71ee;
     }
+
     :deep(.el-radio-button--small .el-radio-button__inner) {
         font-size: 14px;
     }
@@ -1277,6 +1318,7 @@ export default defineComponent({
     :deep(.el-form-item) {
         margin-bottom: 15px;
     }
+
     :deep(.el-icon) {
         position: relative;
         top: 1px;
@@ -1314,14 +1356,17 @@ export default defineComponent({
 .custom-table {
     margin-top: 15px;
     width: 100%;
+
     &:before {
         display: none;
     }
+
     :deep(.el-table__header-wrapper .el-table__cell) {
         padding: 12px 0;
         font-weight: 600;
         background-color: #fafafa;
     }
+
     :deep(.el-table__cell) {
         padding: 12px 0;
         border-bottom: 0 !important;

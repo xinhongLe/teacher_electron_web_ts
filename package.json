@@ -62,10 +62,10 @@
         "trtc-electron-sdk": "^8.9.102",
         "uuid": "^8.3.2",
         "vue": "^3.2.40",
+        "vue-draggable-next": "^2.1.1",
         "vue-router": "^4.0.0-0",
-        "vuedraggable": "^4.1.0",
         "vuex": "^4.0.2",
-        "wincard": "^4.2.5",
+        "wincard": "^5.0.3",
         "xlsx": "^0.17.5"
     },
     "devDependencies": {
@@ -116,6 +116,11 @@
         "root": true,
         "env": {
             "node": true
+        },
+        "globals": {
+            "defineProps": "readonly",
+            "defineEmits": "readonly",
+            "defineExpose": "readonly"
         },
         "extends": [
             "plugin:vue/vue3-essential",

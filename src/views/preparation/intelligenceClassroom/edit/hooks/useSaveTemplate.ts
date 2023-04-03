@@ -361,7 +361,6 @@ export default (pageListMap?: any) => {
                 materialList.value.forEach(async (item: any) => {
                     await formatMaterial(item);
                 });
-                console.log(materialList.value);
             }
         } else {
             materialList.value = [];

@@ -12,7 +12,6 @@
 </template>
 <script lang="ts" setup>
 import { Close } from "@element-plus/icons-vue";
-import { defineProps, PropType } from "vue";
 
 defineProps({
     close: {

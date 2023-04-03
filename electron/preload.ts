@@ -1,29 +1,14 @@
 import { getCurrentWindow, app, dialog } from "@electron/remote";
-import electron, {
-    OpenDialogOptions,
-    remote,
-    SaveDialogOptions,
-} from "electron";
+import electron, { OpenDialogOptions, remote, SaveDialogOptions } from "electron";
 import { isExistFile, mkdirs, store } from "./downloadFile";
 import path, { resolve, join } from "path";
 import ElectronLog from "electron-log";
 import fs from "fs";
 import { parsePPT, pptParsePath } from "./parsePPT";
 import { execFile as execFileFromAsar, spawn } from "child_process";
-import {
-    darwinGetScreenPermissionGranted,
-    darwinRequestScreenPermissionPopup,
-} from "./darwin";
+import { darwinGetScreenPermissionGranted, darwinRequestScreenPermissionPopup, } from "./darwin";
 import { checkWindowSupportNet } from "./util";
-import {
-    access,
-    copyFile,
-    mkdir,
-    readFile,
-    rm,
-    stat,
-    writeFile,
-} from "fs/promises";
+import { access, copyFile, mkdir, readFile, rm, stat, writeFile } from "fs/promises";
 import crypto from "crypto";
 import { exportWord, IFileData } from "./exportWord";
 import ffmpeg from "fluent-ffmpeg";
@@ -32,10 +17,6 @@ import { v4 as uuidv4 } from "uuid";
 const PATH_BINARY = process.platform === "darwin" ? join(__dirname, "../ColorPicker") : join(__dirname, "../mockingbot-color-picker-ia32.exe");
 const PATH_WhiteBoard = join(__dirname, "../extraResources/whiteboard/Aixueshi.Whiteboard.exe"
 );
-// const PATH_White4Board = join(
-//     __dirname,
-//     "../extraResources/whiteboard/4.5/Aixueshi.Whiteboard.exe"
-// );
 
 const PATH_FFMPEG = process.platform === "darwin" ? join(__dirname, "../extraResources/ffmpeg/ffmpeg") : join(__dirname, "../extraResources/ffmpeg/ffmpeg-win32-ia32.exe");
 
@@ -400,10 +381,7 @@ window.electron = {
                 return _fileName;
             };
 
-            let customZipFile = await customZipFolder([
-                ...cacheFiles,
-                jsonFileName,
-            ]);
+            let customZipFile = await customZipFolder([...cacheFiles, jsonFileName]);
 
             return customZipFile;
         } catch (e) {

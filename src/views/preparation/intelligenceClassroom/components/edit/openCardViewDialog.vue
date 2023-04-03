@@ -1,11 +1,11 @@
 <template>
     <div class="card-dialog">
         <ScreenView ref="screenRef" :inline="true" :isInit="isInit" :writeBoardVisible="writeBoardVisible"
-            @pagePrev="execPrev" @pageNext="execNext" @closeWriteBoard="closeWriteBoard" :slide="slideView"
-            :isShowPenTools="false" v-model:isCanUndo="isCanUndo" v-model:isCanRedo="isCanRedo"
-            v-model:currentDrawColor="currentDrawColor" v-model:currentLineWidth="currentLineWidth" />
+                    @pagePrev="execPrev" @pageNext="execNext" @closeWriteBoard="closeWriteBoard" :slide="slideView"
+                    :isShowPenTools="false" v-model:isCanUndo="isCanUndo" v-model:isCanRedo="isCanRedo"
+                    v-model:currentDrawColor="currentDrawColor" v-model:currentLineWidth="currentLineWidth"/>
         <div class="cardLis-class">
-            <PageItem :pageList="cardList" :selected="selected" @selectPage="checkPage" />
+            <PageItem :pageList="cardList" :selected="selected" @selectPage="checkPage"/>
             <!-- <div
                 class="me-page-item"
                 :class="selected === index && 'active'"
@@ -17,11 +17,11 @@
             </div> -->
         </div>
         <Tools :cardClass="'card-dialog'" :isTKdialog="true" @prevStep="prevCard" @nextStep="nextCard"
-            @showWriteBoard="showWriteBoard" @hideWriteBoard="hideWriteBoard" @close="close" :dialog="true"
-            @openShape="openShape" :isShowFullscreen="false" :isFullScreenStatus="true" :isShowRemarkBtn="false"
-            :isShowClose="true" @openPaintTool="openPaintTool" @whiteboardOption="whiteboardOption" @redo="redo"
-            @undo="undo" :isCanUndo="isCanUndo" :isCanRedo="isCanRedo" :currentDrawColor="currentDrawColor"
-            :currentLineWidth="currentLineWidth" />
+               @showWriteBoard="showWriteBoard" @hideWriteBoard="hideWriteBoard" @close="close" :dialog="true"
+               @openShape="openShape" :isShowFullscreen="false" :isFullScreenStatus="true" :isShowRemarkBtn="false"
+               :isShowClose="true" @openPaintTool="openPaintTool" @whiteboardOption="whiteboardOption" @redo="redo"
+               @undo="undo" :isCanUndo="isCanUndo" :isCanRedo="isCanRedo" :currentDrawColor="currentDrawColor"
+               :currentLineWidth="currentLineWidth"/>
     </div>
 </template>
 
@@ -32,23 +32,25 @@ import { getWinCardDBData } from "@/utils/database";
 import { ElMessage } from "element-plus";
 import Tools from "../preview/tools.vue";
 import PageItem from "../pageItem.vue";
+
 export default defineComponent({
     name: "openCardViewDia",
+    emits: ["closeOpenCard"],
+    components: { Tools, PageItem },
     props: {
         dialogVisible: {
             type: Boolean,
-            require: true,
+            require: true
         },
         cardList: {
             type: Array,
-            default: () => [],
+            default: () => []
         },
         dialog: {
             type: Boolean,
-            default: false,
-        },
+            default: false
+        }
     },
-    emits: ["closeOpenCard"],
     setup(props, { emit }) {
         const isCanUndo = ref(false);
         const isCanRedo = ref(false);
@@ -76,7 +78,7 @@ export default defineComponent({
             if (selected.value === cardList.value.length - 1) {
                 return ElMessage({
                     type: "warning",
-                    message: "已经是最后一页",
+                    message: "已经是最后一页"
                 });
             }
             selected.value++;
@@ -113,8 +115,9 @@ export default defineComponent({
                             if (!res.from) {
                                 // 线上返回
                                 cardList.value[index].update = true; // 标识弹卡已经更新过
-                                if (dbResArr[0].result !== JSON.stringify(res))
+                                if (dbResArr[0].result !== JSON.stringify(res)) {
                                     slideView.value = res; // 本地缓存和线上不一致 重新赋值
+                                }
                             }
                         }
                     );
@@ -137,7 +140,7 @@ export default defineComponent({
         const close = () => {
             emit("closeOpenCard");
         };
-        //工具栏-画笔
+        // 工具栏-画笔
         const openPaintTool = (event: MouseEvent, type: string) => {
             // console.log("previewSection.value", event, type);
             screenRef.value && screenRef.value.openPaintTool(event, type);
@@ -182,8 +185,7 @@ export default defineComponent({
             redo,
             undo
         };
-    },
-    components: { Tools, PageItem },
+    }
 });
 </script>
 
@@ -194,10 +196,10 @@ export default defineComponent({
     bottom: 0;
     left: 0;
     right: 0;
-    z-index: 9999;
     display: flex;
     flex-direction: column;
     background: #fff;
+    z-index: 10000;
 
     :deep(.me-tools-set) {
         transform: none;

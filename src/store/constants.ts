@@ -6,6 +6,10 @@ export const enum MutationTypes {
      */
     SET_IS_DRAGGING = "SET_IS_DRAGGING",
     /**
+     * 当前拖拽的框的数据
+     */
+    CURRENT_PACKAGE_DATA = "CURRENT_PACKAGE_DATA",
+    /**
      * 设置显示或隐藏查看题目弹框
      */
     SET_IS_SHOW_QUESTION = "SET_IS_SHOW_QUESTION",

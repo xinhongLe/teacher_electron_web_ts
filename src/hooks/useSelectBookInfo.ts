@@ -3,20 +3,17 @@ import {
     getChapters,
     getWindowStruct,
     IGetChapters,
-    IGetWindowCards,
+    IGetWindowCards
 } from "@/api/home";
 import { ITreeList, ICardList, IPageValue } from "@/types/home";
-import { reactive, ref, toRefs } from "vue";
+import { reactive, ref } from "vue";
 import { useRoute } from "vue-router";
 import { Slide } from "wincard";
 import useHome from "@/hooks/useHome";
-import { ElMessageBox, ElMessage } from "element-plus";
+import { ElMessage } from "element-plus";
 import { getImageSize } from "@/utils/image";
 import { createRandomCode } from "@/utils/common";
-import {
-    addTeachPageTemplateLinkCount,
-    AddSourceMaterialCall,
-} from "@/api/material";
+import { addTeachPageTemplateLinkCount, AddSourceMaterialCall } from "@/api/material";
 interface State {
     subjectPublisherBookList: ITreeList[];
     subjectPublisherBookValue: string[];
@@ -32,17 +29,16 @@ interface State {
 }
 
 export default () => {
-    const route = useRoute();
     const defaultProps = ref({
         children: "PageList",
         label: "Name",
-        value: "ID",
+        value: "ID"
     });
     const pageValue = ref<IPageValue>({
         ID: "",
         Type: 11,
         TeachPageRelationID: "",
-        State: false,
+        State: false
     });
     const cardsValue = ref({ ID: "" });
     // const isSetCache = ref(false); // 是否需要更新窗下的数据
@@ -57,7 +53,7 @@ export default () => {
         oldWindowCards: [],
         allPageListMap: new Map(),
         oldAllPageListMap: new Map(),
-        pastePage: null, // 粘贴卡
+        pastePage: null // 粘贴卡
     });
 
     const { transformPageDetail } = useHome();
@@ -162,8 +158,8 @@ export default () => {
         console.log(state.allPageListMap, "state.allPageListMap====");
     };
 
-    //下面是窗卡页移进来的资源库操作
-    //往左侧窗卡页 插入页
+    // 下面是窗卡页移进来的资源库操作
+    // 往左侧窗卡页 插入页
     const insertData = async (obj: any) => {
         if (pageValue.value.ID) {
             const jsonData = obj.data;
@@ -218,7 +214,7 @@ export default () => {
                 );
                 // return [res, jsonData];
             } else if (obj.type === "elements") {
-                //深拷贝 获取当前的页的数据
+                // 深拷贝 获取当前的页的数据
                 const currentPageData: any = JSON.parse(
                     JSON.stringify(state.allPageListMap.get(pageValue.value.ID))
                 );
@@ -340,9 +336,7 @@ export default () => {
     };
     //插入组件/标题框
     const insertComponentEl = (elData: any, currentPageData: any) => {
-        const file = elData.Files?.length
-            ? elData.Files.find((item: any) => item.Type == 0)
-            : null;
+        const file = elData.Files?.length ? elData.Files.find((item: any) => item.Type == 0) : null;
         if (file && file.Json) {
             const jsonData = JSON.parse(file.Json);
             if (!jsonData) return;

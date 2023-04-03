@@ -117,12 +117,12 @@
                                         :options="state.options"
                                         :props="{ multiple: true }"
                                         collapse-tags
-                                        
+
                                         clearable
                                     />
                                 </div>
                                 <img
-                                    @click="selectStudent" 
+                                    @click="selectStudent"
                                     src="~@/assets/images/wrongbook/icon_edit_two.png"
                                     alt=""
                                 /> -->
@@ -308,7 +308,7 @@
     </div>
 </template>
 <script lang="ts" setup>
-import { defineEmits, defineProps, watch, ref, reactive, computed } from "vue";
+import { watch, ref, reactive, computed } from "vue";
 import { getOssUrl } from "@/utils/oss";
 import { useRouter } from "vue-router";
 import SelectLabel from "@/views/assignHomework/SelectLabel.vue";

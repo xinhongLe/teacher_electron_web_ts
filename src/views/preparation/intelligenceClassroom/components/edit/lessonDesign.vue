@@ -1,22 +1,22 @@
 <template>
     <div>
         <el-dialog
-            class="custom-dialog resource1-dialog"
-            v-model="visible"
+            center
             title="教案设计"
             width="1100px"
-            center
+            v-model="visible"
+            :before-close="close"
             :close-on-click-modal="false"
             :close-on-press-escape="false"
-            :before-close="close"
+            class="custom-dialog resource1-dialog"
         >
             <div class="template-select">
                 <el-select
+                    size="small"
                     v-model="form.templateType"
                     @change="changeTemplate"
                     style="width: 100%"
                     placeholder="请选择课型"
-                    size="small"
                 >
                     <el-option
                         v-for="item in templateList"
@@ -24,85 +24,53 @@
                         :label="item.Name"
                         :value="item.ID"
                     />
-                    <div
-                        v-if="showSetBtn"
-                        @click="templateSet"
-                        style="
+                    <div v-if="showSetBtn" @click="templateSet" style="
                             cursor: pointer;
                             padding: 10px 20px;
                             border-top: 1px solid #ebeff1;
                             display: flex;
                             align-items: center;
-                        "
-                    >
-                        <el-icon
-                            style="vertical-align: bottom; margin-right: 6px"
-                            ><Setting
-                        /></el-icon>
+                        ">
+                        <el-icon style="vertical-align: bottom; margin-right: 6px">
+                            <Setting/>
+                        </el-icon>
                         <span>设置</span>
                     </div>
                 </el-select>
             </div>
 
-            <div
-                class="lesson-design-form"
-                v-for="(item, i) in form.lessonBasicInfoList"
-                :key="i"
-            >
+            <div class="lesson-design-form" v-for="(item, i) in form.lessonBasicInfoList" :key="i">
                 <div v-if="item.Status === 1">
                     <div class="lesson-design-label">
                         <span v-if="item.FieldType === 1">*</span>
                         {{ item.Name }}
                     </div>
-                    <div
-                        class="lesson-design-content"
-                        v-if="item.Name === '教学过程'"
-                    >
-                        <table
-                            class="lesson-design-table"
-                            border="1"
-                            v-for="(item, index) in item.LessonPlanDetailPages"
-                            :key="index"
-                        >
+                    <div class="lesson-design-content" v-if="item.Name === '教学过程'">
+                        <table class="lesson-design-table" border="1" v-for="(item, index) in item.LessonPlanDetailPages" :key="index">
                             <tr>
                                 <td colspan="3">
                                     <div class="lesson-design-table-header">
-                                        {{
-                                            "环节" +
-                                            toChinesNum(index + 1) +
-                                            "：" +
-                                            item.Name
-                                        }}
+                                        {{ "环节" + toChinesNum(index + 1) + "：" + item.Name }}
                                     </div>
                                 </td>
                             </tr>
                             <tr>
                                 <td>
-                                    <div class="lesson-design-table-title">
-                                        步骤
-                                    </div>
+                                    <div class="lesson-design-table-title">步骤</div>
                                 </td>
                                 <td>
-                                    <div class="lesson-design-table-title">
-                                        教学过程
-                                    </div>
+                                    <div class="lesson-design-table-title">教学过程</div>
                                 </td>
                                 <td>
-                                    <div class="lesson-design-table-title">
-                                        设计意图
-                                    </div>
+                                    <div class="lesson-design-table-title">设计意图</div>
                                 </td>
                             </tr>
                             <tr v-for="(content, i) in item.Childrens" :key="i">
                                 <td class="lesson-page-title-box">
-                                    <div class="lesson-page-title">
-                                        {{ content.Name }}
-                                    </div>
+                                    <div class="lesson-page-title">{{ content.Name }}</div>
                                 </td>
                                 <td>
-                                    <div
-                                        class="lesson-design-table-content grey"
-                                    >
+                                    <div class="lesson-design-table-content grey">
                                         <el-input
                                             type="textarea"
                                             placeholder="点击输入教学回顾"
@@ -111,10 +79,8 @@
                                             resize="none"
                                             autosize
                                             @input="textareaInput"
-                                            v-model="
-                                                content.AcademicPresupposition
-                                            "
-                                        ></el-input>
+                                            v-model="  content.AcademicPresupposition "
+                                        />
                                     </div>
                                 </td>
                                 <td>
@@ -128,7 +94,7 @@
                                             autosize
                                             @input="textareaInput"
                                             v-model="content.DesignIntent"
-                                        ></el-input>
+                                        />
                                     </div>
                                 </td>
                             </tr>
@@ -136,63 +102,34 @@
                     </div>
                     <div class="lesson-design-content" v-else>
                         <el-input
-                            v-if="
-                                item.SelectType === 0 || item.SelectType === 1
-                            "
+                            v-if="item.SelectType === 0 || item.SelectType === 1 "
                             maxlength="100"
                             show-word-limit
                             @input="textareaInput"
-                            :disabled="item.SelectType === 1 ? true : false"
+                            :disabled="item.SelectType === 1"
                             placeholder="请输入"
                             v-model="item.Value"
                             size="small"
-                        ></el-input>
-                        <draggable
-                            v-if="item.SelectType === 2"
-                            @end="textareaInput"
-                            v-model="item.LessonPlanDetailOptions"
-                            :animation="300"
-                            @start="drag = true"
-                            itemKey="index"
-                        >
-                            <template #item="{ element, index }">
-                                <div class="sort-input">
-                                    <img
-                                        class="drag"
-                                        src="@/assets/indexImages/icon_yidong@2x.png"
-                                        alt=""
-                                    />
-                                    <el-input
-                                        v-model="element.Value"
-                                        placeholder="请输入"
-                                        class="textarea-right"
-                                        resize="none"
-                                        type="textarea"
-                                        maxlength="500"
-                                        show-word-limit
-                                        autosize
-                                        @input="textareaInput"
-                                        size="small"
-                                    ></el-input>
-                                    <img
-                                        class="option-btn"
-                                        src="@/assets/indexImages/icon_add@2x.png"
-                                        alt=""
-                                        @click="addTarget(index, item)"
-                                    />
-                                    <img
-                                        class="option-btn"
-                                        src="@/assets/indexImages/icon_del@2x.png"
-                                        v-if="
-                                            item.LessonPlanDetailOptions
-                                                .length > 1
-                                        "
-                                        alt=""
-                                        @click="reduceTarget(index, item)"
-                                    />
-                                </div>
-                            </template>
-                        </draggable>
+                        />
+                        <vue-draggable-next v-model="item.LessonPlanDetailOptions" tag="div" v-if="item.SelectType === 2" @end="textareaInput" :animation="300" @start="drag = true" handle=".drag">
+                            <div class="sort-input" v-for="(element,index) in item.LessonPlanDetailOptions" :key="index">
+                                <img class="drag" src="@/assets/indexImages/icon_yidong@2x.png" alt=""/>
+                                <el-input
+                                    v-model="element.Value"
+                                    placeholder="请输入"
+                                    class="textarea-right"
+                                    resize="none"
+                                    type="textarea"
+                                    maxlength="500"
+                                    show-word-limit
+                                    autosize
+                                    @input="textareaInput"
+                                    size="small"
+                                />
+                                <img class="option-btn" src="@/assets/indexImages/icon_add@2x.png" alt="" @click="addTarget(index, item)"/>
+                                <img class="option-btn" src="@/assets/indexImages/icon_del@2x.png" v-if=" item.LessonPlanDetailOptions.length > 1" alt="" @click="reduceTarget(index, item)"/>
+                            </div>
+                        </vue-draggable-next>
                         <el-input
                             v-if="item.SelectType === 3"
                             class="textarea-right"
@@ -205,7 +142,7 @@
                             v-model="item.Value"
                             placeholder="请输入"
                             size="small"
-                        ></el-input>
+                        />
                         <el-select
                             v-if="item.SelectType === 4"
                             v-model="item.isSelectId"
@@ -222,30 +159,16 @@
                             />
                         </el-select>
 
-                        <el-checkbox-group
-                            v-if="item.SelectType === 5"
-                            v-model="item.isSelectId"
-                            @changge="textareaInput"
-                        >
-                            <el-checkbox
-                                v-for="i in item.LessonPlanDetailOptions"
-                                :key="i.ID"
-                                :label="i.ID"
-                                >{{ i.Name }}</el-checkbox
-                            >
+                        <el-checkbox-group v-if="item.SelectType === 5" v-model="item.isSelectId" @changge="textareaInput">
+                            <el-checkbox v-for="i in item.LessonPlanDetailOptions" :key="i.ID" :label="i.ID">
+                                {{ i.Name }}
+                            </el-checkbox>
                         </el-checkbox-group>
 
-                        <el-radio-group
-                            v-if="item.SelectType === 6"
-                            v-model="item.isSelectId"
-                            @changge="textareaInput"
-                        >
-                            <el-radio
-                                v-for="i in item.LessonPlanDetailOptions"
-                                :key="i.ID"
-                                :label="i.ID"
-                                >{{ i.Name }}</el-radio
-                            >
+                        <el-radio-group v-if="item.SelectType === 6" v-model="item.isSelectId" @changge="textareaInput">
+                            <el-radio v-for="i in item.LessonPlanDetailOptions" :key="i.ID" :label="i.ID">
+                                {{ i.Name }}
+                            </el-radio>
                         </el-radio-group>
 
                         <el-date-picker
@@ -273,16 +196,8 @@
 
             <template #footer>
                 <div class="lesson-design-footer">
-                    <el-button
-                        type="primary"
-                        plain
-                        size="small"
-                        @click="preview()"
-                        >预览</el-button
-                    >
-                    <el-button type="primary" size="small" @click="save()"
-                        >完成</el-button
-                    >
+                    <el-button type="primary" plain size="small" @click="preview()">预览</el-button>
+                    <el-button type="primary" size="small" @click="save()">完成</el-button>
                 </div>
             </template>
         </el-dialog>
@@ -297,7 +212,7 @@
             @close="tipVisible = false"
         >
             <div class="tip-content">
-                <img src="@/assets/indexImages/tip.png" alt="" />
+                <img src="@/assets/indexImages/tip.png" alt=""/>
                 <div class="tip-title">是否保存本页面的修改？</div>
                 <div class="tip-btns">
                     <el-button @click="closeTip()">不保存</el-button>
@@ -310,27 +225,20 @@
             v-model:dialogVisible="dialogVisible"
             @updateLessonPlanTemplateList="updateLessonPlanTemplateList"
             :templateList="templateList"
-        ></lesson-template-set>
+        />
 
         <lesson-preview
             v-model:previewDialog="previewDialog"
             :wordName="saveData.TeachPageName"
             :form="form"
-        ></lesson-preview>
+        />
     </div>
 </template>
 
 <script lang="ts">
-import {
-    getLessonPlan,
-    getLessonPlanTemplate,
-    changeLessonPlanTemplate,
-    ISaveLessonPlan,
-    saveLessonPlan,
-} from "@/api/home";
+import { getLessonPlan, getLessonPlanTemplate, changeLessonPlanTemplate, ISaveLessonPlan, saveLessonPlan } from "@/api/home";
 import { ElMessage } from "element-plus";
 import { defineComponent, reactive, ref, watch } from "vue";
-import draggable from "vuedraggable";
 import { Setting } from "@element-plus/icons-vue";
 import { toChinesNum } from "@/utils/common";
 import LessonTemplateSet from "@/views/preparation/intelligenceClassroom/components/edit/lessonTemplateSet.vue";
@@ -339,17 +247,19 @@ import LessonPreview from "@/views/preparation/intelligenceClassroom/components/
 import { store } from "@/store";
 import { IYunInfo } from "@/types/login";
 import { get, STORAGE_TYPES } from "@/utils/storage";
+import { VueDraggableNext } from "vue-draggable-next";
+
 export default defineComponent({
-    components: { LessonPreview, LessonTemplateSet, draggable, Setting },
+    components: { LessonPreview, LessonTemplateSet, VueDraggableNext, Setting },
     props: {
         lessonDesignVisible: {
             type: Boolean,
-            required: true,
+            required: true
         },
         winId: {
             type: String,
-            required: true,
-        },
+            required: true
+        }
     },
     emits: ["update:lessonDesignVisible", "updateLesson"],
     setup(props, { emit }) {
@@ -378,7 +288,7 @@ export default defineComponent({
                 isEditChange.value = false;
                 if (visible.value) {
                     handleShowSetBtn();
-                    await _getLessonPlanTemplate();
+                    await getLessonPlanTemplateData();
                     await _getLessonPlan();
                 }
             }
@@ -471,7 +381,7 @@ export default defineComponent({
         };
 
         const updateLessonPlanTemplateList = async () => {
-            await _getLessonPlanTemplate();
+            await getLessonPlanTemplateData();
             await _getLessonPlan();
         };
 
@@ -542,7 +452,7 @@ export default defineComponent({
             });
         };
 
-        const _getLessonPlanTemplate = () => {
+        const getLessonPlanTemplateData = () => {
             return getLessonPlanTemplate({
                 FranchiseeID:
                     store.state.userInfo.schoolId || winUserInfo.schoolId,
@@ -574,7 +484,7 @@ export default defineComponent({
             tipVisible,
             toChinesNum,
             updateLessonPlanTemplateList,
-            _getLessonPlanTemplate,
+            getLessonPlanTemplateData,
             changeTemplate,
             templateSet,
             close,
@@ -596,6 +506,7 @@ export default defineComponent({
     display: flex;
     flex-direction: column;
     min-height: 0;
+
     .el-dialog__body {
         flex: 1;
         min-height: 0;
@@ -604,17 +515,21 @@ export default defineComponent({
         border-bottom-right-radius: 6px;
         padding: var(--el-dialog-padding-primary);
     }
+
     .el-input__inner {
         padding-right: 60px;
     }
+
     .textarea-right {
         .el-textarea {
             height: 100%;
         }
+
         .el-textarea__inner {
             padding: 10px 10px 15px;
         }
     }
+
     .el-date-editor {
         width: 260px;
     }
@@ -624,6 +539,7 @@ export default defineComponent({
     width: 200px;
     position: absolute;
     top: 10px;
+
     .template-set {
         padding: 10px 20px;
         border-top: 1px solid #ebeff1;
@@ -632,11 +548,13 @@ export default defineComponent({
 
 .lesson-design-form {
     margin-bottom: 24px;
+
     .lesson-design-label {
         color: #212121;
         font-size: 15px;
         font-weight: bold;
         margin-bottom: 12px;
+
         span {
             color: red;
         }
@@ -646,9 +564,11 @@ export default defineComponent({
         display: flex;
         align-items: center;
         margin-bottom: 12px;
+
         &:last-child {
             margin-bottom: 0;
         }
+
         .drag {
             width: 12px;
             height: 12px;
@@ -658,6 +578,7 @@ export default defineComponent({
             margin-right: 12px;
             margin-left: 6px;
         }
+
         .option-btn {
             width: 18px;
             height: 18px;
@@ -671,6 +592,7 @@ export default defineComponent({
     .lesson-design-table {
         width: 100%;
         margin-bottom: 12px;
+
         .lesson-design-table-header {
             padding: 12px 24px;
             height: 46px;
@@ -684,6 +606,7 @@ export default defineComponent({
 
         .lesson-page-title-box {
             vertical-align: top;
+
             .lesson-page-title {
                 font-size: 16px;
                 font-weight: 500;
@@ -712,16 +635,20 @@ export default defineComponent({
             padding: 24px;
             font-size: 12px;
             color: #212121;
+
             .grey {
                 color: rgba(33, 33, 33, 0.79);
             }
-            ::v-deep(.el-textarea) {
+
+            :deep(.el-textarea) {
                 height: 100%;
+
                 .el-input__count {
                     bottom: -12px;
                 }
             }
-            ::v-deep(.el-textarea__inner) {
+
+            :deep(.el-textarea__inner) {
                 border: 0;
                 resize: none;
                 box-shadow: none;
@@ -741,16 +668,19 @@ export default defineComponent({
     justify-content: flex-end;
     border-top: 1px solid #ebeff1;
     padding-top: 20px;
-    ::v-deep(.el-button) {
+
+    :deep(.el-button) {
         width: 120px;
     }
 }
 
 .lesson-design-flex {
     display: flex;
+
     .lesson-design-form {
         flex: 1;
         margin-right: 24px;
+
         &:last-child {
             margin-right: 0;
         }
@@ -761,16 +691,19 @@ export default defineComponent({
     display: flex;
     flex-direction: column;
     align-items: center;
+
     img {
         display: block;
         width: 140px;
         margin-bottom: 30px;
     }
+
     .tip-title {
         font-weight: 500;
         font-size: 18px;
         color: #333;
     }
+
     .tip-btns {
         margin-top: 30px;
     }

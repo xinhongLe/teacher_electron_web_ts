@@ -1,63 +1,112 @@
 <template>
     <div style="height: 100%; width: 100%" v-loading="isLoading">
-        <el-input v-model="serchForm.QueryText" @input="nameInput" placeholder="输入关键字搜索" :prefix-icon="Search" />
-        <div class="materialtemplate" v-if="templateList.length" v-infinite-scroll="loadMore" style="overflow: auto"
-            :infinite-scroll-disabled="disabled" infinite-scroll-distance="1" :infinite-scroll-immediate="false"
-            ref="templateScollRef">
-            <draggable :list="templateList" ghost-class="ghost" chosen-class="chosenClass" animation="300" @start="onStart"
-                @end="onEnd" handle=".draggimg" touchStartThreshold="10px">
-                <!-- <div class="row" v-for="(row, i) in (templateList as any)" :key="i"> -->
-                <template #item="{ element }">
-                    <div class="row item" v-if="element.TeachPageTemplate?.length">
+        <el-input
+            v-model="serchForm.QueryText"
+            @input="nameInput"
+            placeholder="输入关键字搜索"
+            :prefix-icon="Search"
+        />
+        <div
+            class="materialtemplate"
+            v-if="templateList.length"
+            v-infinite-scroll="loadMore"
+            style="overflow: auto"
+            :infinite-scroll-disabled="disabled"
+            infinite-scroll-distance="1"
+            :infinite-scroll-immediate="false"
+            ref="templateScollRef"
+        >
+            <vue-draggable-next
+                handle=".draggimg"
+                :list="templateList"
+                ghost-class="ghost"
+                chosen-class="chosenClass"
+                animation="300"
+                @start="onStart"
+                @end="onEnd"
+                touchStartThreshold="10px"
+            >
+                <template v-for="(element, i) in templateList" :key="i">
+                    <div
+                        class="row item"
+                        v-if="element.TeachPageTemplate?.length"
+                    >
                         <div>
                             <div v-if="!isAllList" class="row-header">
                                 <div class="title-icon">
-                                    <img class="draggimg" src="@/assets/images/material/icon_td.png" alt="" />
+                                    <img
+                                        class="draggimg"
+                                        src="@/assets/images/material/icon_td.png"
+                                        alt=""
+                                    />
                                     <span class="title">{{
                                         element.Name
                                     }}</span>
                                 </div>
-                                <span v-if="element.TeachPageTemplateCount > 2" class="icon-box"
-                                    @click="getAllList(element.ID)">更多<el-icon>
-                                        <ArrowRight />
-                                    </el-icon></span>
+                                <span
+                                    v-if="element.TeachPageTemplateCount > 2"
+                                    class="icon-box"
+                                    @click="getAllList(element.ID)"
+                                >
+                                    更多
+                                    <el-icon><ArrowRight /></el-icon>
+                                </span>
                             </div>
                             <div v-else class="row-header">
-                                <span @click="goBackAllList" class="title back-text"><el-icon>
-                                        <ArrowLeft />
-                                    </el-icon>{{ element.Name }}</span>
+                                <span
+                                    @click="goBackAllList"
+                                    class="title back-text"
+                                >
+                                    <el-icon><ArrowLeft /></el-icon>
+                                    {{ element.Name }}
+                                </span>
                             </div>
                         </div>
                         <div class="row-content">
-                            <div v-for="(item, i) in element.TeachPageTemplate" :key="i" @click="handleView(item)">
+                            <div
+                                v-for="(item, i) in element.TeachPageTemplate"
+                                :key="i"
+                                @click="handleView(item)"
+                            >
                                 <div class="jpzy-bg">
-                                    <img class="jpzy" src="@/assets/images/material/icon_jpzy.png" alt="" />
+                                    <img
+                                        class="jpzy"
+                                        src="@/assets/images/material/icon_jpzy.png"
+                                        alt=""
+                                    />
                                 </div>
-                                <!-- <div class="cardname" v-if="item.CardData[0]?.PageList[0]?.Name">
-                  {{ item.CardData[0]?.PageList[0]?.Name }}
-                </div> -->
-                                <div class="status" :style="{
-                                    background:
-                                        item.Status === 1
-                                            ? '#5CD494'
-                                            : '#90949E',
-                                }"></div>
+                                <div
+                                    class="status"
+                                    :style="{
+                                        background:
+                                            item.Status === 1
+                                                ? '#5CD494'
+                                                : '#90949E',
+                                    }"
+                                ></div>
                                 <!-- 游戏页或者教具页 显示大图 -->
-                                <el-tooltip :disabled="
-                                    item.CardData[0]?.PageList[0]?.Name
-                                        ? false
-                                        : true
-                                " :content="
-    item.CardData[0]?.PageList[0]?.Name
-" placement="bottom" effect="dark">
-                                    <el-image v-if="
-                                        item.CardData[0]?.PageList[0]
-                                            ?.Type === 20 ||
-                                        item.CardData[0]?.PageList[0]
-                                            ?.Type === 16
-                                    " :src="
-    item.CardData[0]?.PageList[0]?.url
-" fit="cover">
+                                <el-tooltip
+                                    :disabled="
+                                        !!item.CardData[0]?.PageList[0]?.Name
+                                    "
+                                    :content="
+                                        item.CardData[0]?.PageList[0]?.Name
+                                    "
+                                    placement="bottom"
+                                    effect="dark"
+                                >
+                                    <el-image
+                                        v-if="
+                                            item.CardData[0]?.PageList[0]
+                                                ?.Type === 20 ||
+                                            item.CardData[0]?.PageList[0]
+                                                ?.Type === 16
+                                        "
+                                        :src="
+                                            item.CardData[0]?.PageList[0]?.url
+                                        "
+                                        fit="cover"
+                                    >
                                         <template #error>
                                             <div class="image-slot">
                                                 加载失败...
@@ -65,45 +114,72 @@
                                         </template>
                                     </el-image>
                                     <!-- 其它页显示源资源 -->
-                                    <ThumbnailSlide v-else :slide="
-                                        allPageListMap.get(
-                                            item.CardData[0]?.PageList[0]
-                                                ?.ID
-                                        ) || {}
-                                    " :size="225"></ThumbnailSlide>
+                                    <ThumbnailSlide
+                                        v-else
+                                        :slide="
+                                            allPageListMap.get(
+                                                item.CardData[0]?.PageList[0]
+                                                    ?.ID
+                                            ) || {}
+                                        "
+                                        :size="225"
+                                    />
                                 </el-tooltip>
 
                                 <div class="info flex-between-center">
                                     <span class="text">{{ item.Name }}</span>
-                                    <span class="page">{{ item.PageCount }}页</span>
-                                    <el-popover placement="right-start" :width="24" trigger="hover">
+                                    <span class="page"
+                                        >{{ item.PageCount }}页</span
+                                    >
+                                    <el-popover
+                                        placement="right-start"
+                                        :width="24"
+                                        trigger="hover"
+                                    >
                                         <template #reference>
                                             <el-button size="small" @click.stop>
-                                                <el-icon :size="18"><more-filled /></el-icon>
+                                                <el-icon :size="18">
+                                                    <more-filled />
+                                                </el-icon>
                                             </el-button>
                                         </template>
-                                        <div class="operation-box-temp" style="text-align: left">
+                                        <div
+                                            class="operation-box-temp"
+                                            style="text-align: left"
+                                        >
                                             <!-- <div v-show="node.level === 1" @click.stop="handleView(data.PageList, 'first')">预览</div> -->
-                                            <div class="operation-item" @click.stop="
-                                                handleUpdateTemplateSort(
-                                                    element.ID,
-                                                    item.TeachPageTemplateID,
-                                                    item.TeachPageClassroomLinkID
-                                                )
-                                            ">
+                                            <div
+                                                class="operation-item"
+                                                @click.stop="
+                                                    handleUpdateTemplateSort(
+                                                        element.ID,
+                                                        item.TeachPageTemplateID,
+                                                        item.TeachPageClassroomLinkID
+                                                    )
+                                                "
+                                            >
                                                 置于最前
                                             </div>
                                             <!-- <div class="operation-item" @click.stop="editTemplate(item)">编辑</div> -->
-                                            <div class="operation-item" @click.stop="">
+                                            <div
+                                                class="operation-item"
+                                                @click.stop=""
+                                            >
                                                 上架
-                                                <el-switch style="margin-left: 20px" @change="
-                                                    changeStatus(
-                                                        element.ID,
-                                                        item.TeachPageTemplateID,
-                                                        item.Status
-                                                    )
-                                                " :active-value="1" :inactive-value="0" v-model="item.Status"
-                                                    size="small" />
+                                                <el-switch
+                                                    style="margin-left: 20px"
+                                                    @change="
+                                                        changeStatus(
+                                                            element.ID,
+                                                            item.TeachPageTemplateID,
+                                                            item.Status
+                                                        )
+                                                    "
+                                                    :active-value="1"
+                                                    :inactive-value="0"
+                                                    v-model="item.Status"
+                                                    size="small"
+                                                />
                                             </div>
                                             <!-- <div
                                                 class="operation-item"
@@ -117,10 +193,21 @@
                                 <div class="footer">
                                     <span>已引用 {{ item.LinkCount }}次</span>
                                     <div>
-                                        <img v-if="item.HavingVideo" src="@/assets/images/material/icon_sp.png" alt="" />
-                                        <img v-if="item.HavingAudio" src="@/assets/images/material/icon_yp.png" alt="" />
+                                        <img
+                                            v-if="item.HavingVideo"
+                                            src="@/assets/images/material/icon_sp.png"
+                                            alt=""
+                                        />
+                                        <img
+                                            v-if="item.HavingAudio"
+                                            src="@/assets/images/material/icon_yp.png"
+                                            alt=""
+                                        />
                                     </div>
-                                    <div v-if="item.Source" style="margin-left: 5px;">
+                                    <div
+                                        v-if="item.Source"
+                                        style="margin-left: 5px"
+                                    >
                                         {{ item.Source }}
                                     </div>
                                 </div>
@@ -128,46 +215,48 @@
                         </div>
                     </div>
                 </template>
-
-                <!-- </div> -->
-            </draggable>
-            <p v-if="!noMore" class="loadmore" style="color: #409eff" @click="loadMore">
+            </vue-draggable-next>
+            <p
+                v-if="!noMore"
+                class="loadmore"
+                style="color: #409eff"
+                @click="loadMore"
+            >
                 {{ loading ? "加载中..." : "加载更多" }}
             </p>
             <p v-if="noMore" class="nomore">没有更多了</p>
         </div>
         <div v-else>
-            <el-empty :image="require('@/assets/images/material/pic_nothing_big.png')" description="这里空空如也..." />
+            <el-empty
+                :image="require('@/assets/images/material/pic_nothing_big.png')"
+                description="这里空空如也..."
+            />
         </div>
     </div>
 
-    <template-view v-if="visibleView" v-model:dialogVisible="visibleView" @insertData="insertData"
-        :currentSelectTemplate="currentSelectTemplate" :allPageListMap="allPageListMap"></template-view>
+    <template-view
+        v-if="visibleView"
+        v-model:dialogVisible="visibleView"
+        @insertData="insertData"
+        :currentSelectTemplate="currentSelectTemplate"
+        :allPageListMap="allPageListMap"
+    ></template-view>
 </template>
 
 <script lang="ts">
-import {
-    defineComponent,
-    reactive,
-    ref,
-    toRefs,
-    computed,
-    onMounted,
-    watch,
-    nextTick,
-} from "vue";
+import { defineComponent, reactive, ref, toRefs, computed, watch } from "vue";
 import { Search } from "@element-plus/icons-vue";
 import TemplateView from "./templateView.vue";
 import { ITemplateSave } from "@/types/home";
 import { IRecordSort } from "@/types/material";
 import useSaveTemplate from "@/views/preparation/intelligenceClassroom/edit/hooks/useSaveTemplate";
-import { ElMessage, ElMessageBox } from "element-plus";
+import { ElMessageBox } from "element-plus";
 import { debounce, throttle } from "@/utils/common";
 
-import draggable from "vuedraggable";
+import { VueDraggableNext } from "vue-draggable-next";
 
 export default defineComponent({
-    components: { TemplateView, draggable },
+    components: { TemplateView, VueDraggableNext },
     emits: ["insertData", "editTemplate", "checkoutTab"],
     props: {
         subjectID: {
@@ -274,7 +363,7 @@ export default defineComponent({
             await queryTemplateList();
         };
         //处理窗卡页显示数据
-        const formatSlide = (data: any) => { };
+        const formatSlide = (data: any) => {};
         watch(
             () => props.subjectID,
             async (curVal) => {
@@ -429,7 +518,7 @@ export default defineComponent({
                         await querySaveTemplateList();
                     }
                 })
-                .catch(() => { });
+                .catch(() => {});
         };
         //静态使用次数 加1
         const addLinkCount = (id: string) => {
@@ -525,7 +614,7 @@ export default defineComponent({
             flex-wrap: wrap;
             margin-top: 20px;
 
-            >div {
+            > div {
                 position: relative;
                 width: 49%;
                 box-shadow: 0px 3px 7px 0px rgba(0, 0, 0, 0.1);
@@ -544,7 +633,8 @@ export default defineComponent({
                     top: 4px;
                     z-index: 2;
 
-                    .jpzy {}
+                    .jpzy {
+                    }
                 }
 
                 .status {

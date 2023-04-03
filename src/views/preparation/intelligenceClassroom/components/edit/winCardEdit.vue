@@ -3,28 +3,32 @@
         <PPTEditor
             ref="PPTEditRef"
             :slide="slide"
-            v-model:windowName="windowName"
-            @onSave="onSave"
-            @selectGame="selectGame"
             @addCard="addCard"
+            @onSave="getSlide"
+            :isShowScreen="false"
+            :showThemeAllUse="true"
+            @selectGame="selectGame"
             @selectVideo="selectVideo"
-            @setQuoteVideo="setQuoteVideo"
-            @updateQuoteVideo="updateQuoteVideo"
             @outElements="outElements"
+            @setQuoteVideo="setQuoteVideo"
+            v-model:windowName="windowName"
             @openLessonDesign="openLessonDesign"
+            @applyBackgroundAllSlide="applyBackgroundAllSlide"
         />
+
         <!--选择弹卡-->
         <card-select-dialog
             v-if="dialogVisible"
             v-model:dialogVisible="dialogVisible"
             @selectCard="selectCard"
-        ></card-select-dialog>
+        />
+
         <!--选择跟读页视频-->
         <select-video-dialog
             v-if="dialogVisibleVideo"
             v-model:dialogVisible="dialogVisibleVideo"
             @selectVideoVal="selectVideoVal"
-        ></select-video-dialog>
+        />
 
         <!--教案设计-->
         <lesson-design
@@ -38,7 +42,7 @@
             v-if="addGameVisible"
             v-model="addGameVisible"
             @addGame="addGame"
-        ></add-game-dialog>
+        />
 
         <!--游戏配置-->
         <game-type
@@ -46,37 +50,23 @@
             :slide="slide"
             @addGame="addGame"
             v-model="gameTypeVisible"
-        ></game-type>
+        />
     </div>
 </template>
 <script lang="ts">
-import {
-    defineComponent,
-    reactive,
-    toRefs,
-    ref,
-    watch,
-    computed,
-    PropType,
-} from "vue";
-import {
-    Slide,
-    IWin,
-    IGame,
-    PPTVideoElement,
-    SaveType,
-    PPTElement,
-} from "wincard";
+import { defineComponent, reactive, toRefs, ref, computed, PropType } from "vue";
+import { Slide, IWin, IGame, PPTVideoElement, PPTElement } from "wincard";
 import useSaveElements from "../edit/materialCenter/hooks/useSaveElements";
 import CardSelectDialog from "./cardSelectDialog.vue";
 import { IPageValue, ICards } from "@/types/home";
 import SelectVideoDialog from "./selectVideoDialog.vue";
 import LessonDesign from "./lessonDesign.vue";
-import { useRoute } from "vue-router";
 import AddGameDialog from "./addGameDialog.vue";
 import GameType from "./games/index.vue";
 import { IGameItem } from "@/types/game";
 import { store } from "@/store";
+import { getOssUrl } from "@/utils/oss";
+
 export default defineComponent({
     name: "winCardEdit",
     components: {
@@ -84,31 +74,28 @@ export default defineComponent({
         AddGameDialog,
         SelectVideoDialog,
         CardSelectDialog,
-        LessonDesign,
+        LessonDesign
     },
     props: {
         slide: {
             type: Object as PropType<Slide>,
-            default: () => ({}),
+            default: () => ({})
         },
         winId: {
             type: String,
-            required: true,
-        },
-        allPageSlideListMap: {
-            type: Object as PropType<Map<string, Slide>>,
-            required: true,
+            required: true
         },
         subjectID: {
             type: String,
-            required: true,
-        },
+            required: true
+        }
     },
     emits: [
         "onSave",
         "updatePageSlide",
-        "updateAllPageSlideListMap",
         "updateMaterial",
+        "applyBackgroundAllSlide",
+        "updateAllPageSlideListMap"
     ],
     setup(props, { emit }) {
         const { saveElements } = useSaveElements();
@@ -118,8 +105,7 @@ export default defineComponent({
             dialogVisibleVideo: false,
             addGameVisible: false,
             gameTypeVisible: false,
-            currentGame: { id: "", name: "", src: "" },
-            // slide: {}
+            currentGame: { id: "", name: "", src: "", ossSrc: "" }
         });
         const page = ref<IPageValue>();
         const windowInfo = computed(
@@ -127,7 +113,6 @@ export default defineComponent({
         );
         const updateVideoElement = ref<PPTVideoElement | null>(null);
         const windowName = ref(windowInfo.value.name);
-        const route = useRoute();
 
         const PPTEditRef = ref();
 
@@ -152,10 +137,9 @@ export default defineComponent({
         const isShowSaveDialog = ref(false);
         const isShowSaveAsDialog = ref(false);
 
-        const onSave = async (slide: Slide) => {
+        const getSlide = async (slide: Slide) => {
             // 保存时更新slide
             emit("updatePageSlide", slide);
-            emit("onSave");
         };
 
         let fun: (win: IWin[]) => void;
@@ -168,17 +152,14 @@ export default defineComponent({
             state.dialogVisible = false;
             const newCards = {
                 id: page.value?.ID || "",
-                cards: cards,
+                cards: cards
             };
             fun([newCards]);
         };
 
         let gameFun: (IGame: IGame) => void;
         let type: string;
-        const selectGame = (obj: {
-            type: string;
-            fun: (game: IGame) => void;
-        }) => {
+        const selectGame = (obj: { type: string; fun: (game: IGame) => void; }) => {
             type = obj.type;
             gameFun = obj.fun;
             if (type === "selectGame") {
@@ -188,55 +169,35 @@ export default defineComponent({
             }
         };
 
-        const addGame = (valueGame: IGameItem) => {
+        const addGame = async (valueGame: IGameItem) => {
             state.currentGame = {
                 id: valueGame.ID,
                 name: valueGame.Name,
                 src: valueGame.Url,
+                ossSrc: await formatOssUrl(valueGame.File)
             };
             const slide = Object.assign(props.slide, {
-                game: state.currentGame,
+                game: state.currentGame
             });
             emit("updatePageSlide", slide);
-            emit("onSave");
-            // gameFun(state.currentGame);
+        };
+
+        const formatOssUrl = async (file: any) => {
+            const key = `${file?.FilePath}/${file?.FileMD5}.${
+                file?.FileExtention || file?.Extention
+            }`;
+            return await getOssUrl(key, "axsfile");
         };
 
         const selectVideo = () => {
             updateVideoElement.value = null;
-            isSetQuoteVideo.value = false;
             state.dialogVisibleVideo = true;
         };
 
-        const selectVideoVal = (val: any) => {
-            if (isSetQuoteVideo.value) {
-                isSetQuoteVideo.value = false;
-                if (updateVideoElement.value) {
-                    PPTEditRef.value.updateVideoElement({
-                        ...updateVideoElement.value,
-                        src: val.src,
-                        fileID: val.fileID,
-                        pauseList: val.pauseList.map((item: any) => item.time),
-                        ossSrc: "",
-                        ossPoster: "",
-                        ossIcon: "",
-                    });
-                    updateVideoElement.value = null;
-                } else {
-                    PPTEditRef.value.createQuoteVideo(
-                        val.src,
-                        val.fileID,
-                        val.pauseList.map((item: any) => item.time)
-                    );
-                }
-            } else {
-                delete val.fileID;
-                emit(
-                    "updatePageSlide",
-                    Object.assign({}, props.slide, { follow: val })
-                );
-                // state.slide = Object.assign({}, state.slide, { follow: val });
-            }
+        const selectVideoVal = async (val: any) => {
+            delete val.fileID;
+            val.ossSrc = await formatOssUrl(val.File);
+            emit("updatePageSlide", Object.assign({}, props.slide, { follow: val }));
             state.dialogVisibleVideo = false;
         };
 
@@ -268,20 +229,39 @@ export default defineComponent({
             state.dialogVisibleVideo = true;
         };
 
-        const updateQuoteVideo = (element: PPTVideoElement) => {
-            isSetQuoteVideo.value = true;
-            updateVideoElement.value = element;
-            state.dialogVisibleVideo = true;
-        };
-
         const lessonDesignVisible = ref(false);
         const openLessonDesign = () => {
             lessonDesignVisible.value = true;
         };
 
+        const saveSlide = () => {
+            if (!PPTEditRef.value) return;
+
+            PPTEditRef.value.onSave();
+        };
+
+        const handleHelper = () => {
+            if (!PPTEditRef.value) return;
+
+            PPTEditRef.value.handleHelper();
+        };
+
+        const applyBackgroundAllSlide = (data: any) => {
+            emit("applyBackgroundAllSlide", data);
+        };
+
+        const setScreening = (flag: boolean) => {
+            PPTEditRef.value.setScreening(flag);
+        };
+
+        const updateSlide = (newSlide: Slide, oldSlide: Slide) => {
+            emit("updatePageSlide", newSlide);
+        };
+
         return {
             ...toRefs(state),
-            onSave,
+            saveSlide,
+            getSlide,
             addCard,
             addGame,
             selectGame,
@@ -301,19 +281,22 @@ export default defineComponent({
             outElements,
             isShowSaveAsDialog,
             windowName,
-            updateQuoteVideo,
             lessonDesignVisible,
             openLessonDesign,
             updateLesson,
             TeacherID,
+            handleHelper,
+            applyBackgroundAllSlide,
+            setScreening,
+            updateSlide
         };
-    },
+    }
 });
 </script>
 
 <style scoped lang="scss">
 .ppt-container {
-    padding: 0px !important;
+    padding: 0 !important;
     height: 100%;
 }
 

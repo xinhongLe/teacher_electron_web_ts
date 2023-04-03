@@ -386,16 +386,12 @@
 <script lang="ts" setup>
 import {
     ref,
-    defineEmits,
-    defineProps,
     watch,
     reactive,
     onMounted,
-    nextTick,
     onBeforeUnmount,
     computed,
     provide,
-    PropType,
 } from "vue";
 import PureQuestionDialog from "@/components/lookQuestion/PureQuestionDialog.vue";
 import emitter from "@/utils/mitt"; //全局事件总线

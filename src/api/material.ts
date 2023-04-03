@@ -52,7 +52,7 @@ export function saveSourceAssembly(data: ISaveAssembly): Promise<IResult> {
     });
 }
 //保存模板
-export function saveTemplate(data: ISaveTemplate): Promise<IResult> {
+export function saveTemplate(data: any): Promise<IResult> {
     return request({
         baseURL: AI_XUE_SHI_API,
         url: "/Api/WCP/TeachPageTemplate/SaveWindowsTemplate",

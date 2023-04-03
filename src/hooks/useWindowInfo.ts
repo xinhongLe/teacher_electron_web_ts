@@ -1,16 +1,14 @@
-import { SchoolWindowInfo, SchoolWindowCardInfo, SchoolWindowPageInfo } from "@/types/preparation";
-import { find, isEmpty, filter, findIndex } from "lodash";
-import { computed, InjectionKey, onDeactivated, onMounted, onUnmounted, reactive, Ref, ref, watch } from "vue";
-import TrackService, { EnumTrackEventType } from "@/utils/common";
-import useHome from "@/hooks/useHome";
-import emitter from "@/utils/mitt";
-import isElectron from "is-electron";
-import { getWindowCards } from "@/views/preparation/intelligenceClassroom/api";
 import { Slide } from "wincard";
 import { useStore } from "@/store";
-import { IResourceItem } from "@/api/resource";
-import { IViewResourceData } from "@/types/store";
-const dealCardData = (card:SchoolWindowCardInfo) => {
+import isElectron from "is-electron";
+import useHome from "@/hooks/useHome";
+import TrackService, { EnumTrackEventType } from "@/utils/common";
+import { getWindowCards } from "@/views/preparation/intelligenceClassroom/api";
+import { computed, InjectionKey, onDeactivated, reactive, ref, watch } from "vue";
+import { SchoolWindowInfo, SchoolWindowCardInfo, SchoolWindowPageInfo } from "@/types/preparation";
+import { pageTypeList } from "@/config";
+
+const dealCardData = (card: SchoolWindowCardInfo) => {
     const pages = card.PageList.map(page => {
         return {
             ...page,
@@ -38,7 +36,7 @@ const useWindowInfo = (isUseNetwork = true) => {
     const currentCard = ref<SchoolWindowCardInfo>();
     const currentPageIndex = ref(0);
     const currentCardIndex = ref(0);
-    const currentSlide = ref<Slide | {id?: string}>({});
+    const currentSlide = ref<Slide | { id?: string }>({});
     const cardList = ref<SchoolWindowCardInfo[]>([]);
     const allPageList = computed(() => {
         return cardList.value.flatMap((item) => [...item.PageList]);
@@ -90,7 +88,7 @@ const useWindowInfo = (isUseNetwork = true) => {
     };
 
     let isExecuting = false;
-    let executePageList:SchoolWindowPageInfo[] = [];
+    let executePageList: SchoolWindowPageInfo[] = [];
 
     watch(allPageList, () => {
         if (!isUseNetwork) return;
@@ -101,15 +99,17 @@ const useWindowInfo = (isUseNetwork = true) => {
     }, {
         deep: true
     });
+    const { transformPageDetail } = useHome();
 
     const _getPageDetail: any = async () => {
         if (executePageList.length !== 0) {
             isExecuting = true;
             const [elem] = executePageList.splice(0, 1);
             if (transformType(elem.Type) !== -1) {
-                await getPageDetail(elem, elem.OriginType, (res:any) => {
+                await getPageDetail(elem, elem.OriginType, async (res: any) => {
                     if (res && res.id && elem.ID === currentPageInfo.value?.ID) {
-                        currentSlide.value = res;
+                        const type = pageTypeList.find(item => item.type === res.type)?.value;
+                        currentSlide.value = await transformPageDetail({ Type: type }, res);
                     }
                 });
             }

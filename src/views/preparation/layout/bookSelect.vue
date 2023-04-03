@@ -23,10 +23,10 @@
                 }"
                 :style="{
                     width: `${
-                        bookList.length < 10
-                            ? bookList.length === 0
+                        bookList?.length < 10
+                            ? bookList?.length === 0
                                 ? 112
-                                : bookList.length * 92 + 112
+                                : bookList?.length * 92 + 112
                             : 940
                     }px`,
                 }"
@@ -172,7 +172,7 @@ export default defineComponent({
         // 科目列表
         const subjectList = computed(() => {
             return (
-                allBookList.value.find(
+                allBookList.value?.find(
                     (item) => item.Id === schoolSection.value
                 )?.Children || []
             );
@@ -220,7 +220,7 @@ export default defineComponent({
         const getAllBookList = async () => {
             const res = await fetchAllBookList();
             allBookList.value = res.result;
-            if (allBookList.value.length > 0) {
+            if (allBookList.value?.length > 0) {
                 schoolSection.value = allBookList.value[0].Id;
             }
 
@@ -238,7 +238,7 @@ export default defineComponent({
             bookList.value = res.result;
             // 选中的被删除了 置空选中的id
             if (needSwitch) selectedBook.value.Id = "";
-            if (bookList.value.length === 0) {
+            if (bookList.value?.length === 0) {
                 // 一本书都没有
                 selectBook({
                     AlbumId: "",
@@ -256,7 +256,7 @@ export default defineComponent({
                 // 弹出书册选择
                 setbookSelectOpen.value = true;
             }
-            if (bookList.value.length > 0 && !selectedBook.value.Id) {
+            if (bookList.value?.length > 0 && !selectedBook.value.Id) {
                 const book: ICustomBookItem | null = get(
                     STORAGE_TYPES.SELECT_BOOK_ID
                 );
@@ -325,7 +325,7 @@ export default defineComponent({
                 bookId: grade.value,
             });
             await getCustomBookList();
-            const book = bookList.value.find(
+            const book = bookList.value?.find(
                 (item) => item.BookId === grade.value
             );
             if (book) selectBook(book);

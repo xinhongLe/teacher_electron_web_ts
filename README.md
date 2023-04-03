@@ -322,3 +322,4 @@ head：有科目级联选择器，当在数智课堂时，会显示当前课时�
 开发分支：voice为语音识别奖惩需求、preparation为备课融合需求
 
 
+npm install --global --production windows-build-tools
