@@ -28,6 +28,7 @@
         "@types/resize-observer-browser": "^0.1.7",
         "@vueuse/core": "^7.6.2",
         "@zxing/library": "^0.18.4",
+        "adm-zip": "^0.5.10",
         "ali-oss": "^6.15.2",
         "axios": "^0.24.0",
         "chartist": "^0.11.4",
@@ -70,6 +71,7 @@
     },
     "devDependencies": {
         "@electron/remote": "^2.0.1",
+        "@types/adm-zip": "^0.5.0",
         "@types/ali-oss": "^6.16.1",
         "@types/chartist": "^0.11.1",
         "@types/crypto-js": "^4.0.2",
