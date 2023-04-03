@@ -76,16 +76,19 @@
             </div>
         </div>
     </div>
+    <div class="keyboard"></div>
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, onUnmounted, reactive, ref } from "vue";
+import {defineComponent, onMounted, onUnmounted, reactive, ref, watch} from "vue";
 import useLogin from "@/hooks/useLogin";
-import { useRouter, useRoute } from "vue-router";
-import { ILoginData } from "@/types/login";
-import { STORAGE_TYPES, get, set, clear } from "@/utils/storage";
+import {useRouter, useRoute} from "vue-router";
+import {ILoginData} from "@/types/login";
+import {STORAGE_TYPES, get, set, clear} from "@/utils/storage";
 import isElectron from "is-electron";
-import { sendMsg } from "./api";
+import {sendMsg} from "./api";
+import Keyboard from 'simple-keyboard';
+import 'simple-keyboard/build/css/index.css'; // 导入simple-keyboard的CSS样式
 
 export default defineComponent({
     setup() {
@@ -105,14 +108,14 @@ export default defineComponent({
         let timer: any;
         recordAccountList.value = get(STORAGE_TYPES.RECORD_LOGIN_LIST, true) || [];
 
-        const { userLogin } = useLogin();
+        const {userLogin} = useLogin();
 
         const login = async () => {
-            const { account, password, code } = form;
+            const {account, password, code} = form;
             if ((isPassWordLogin.value && (account.length === 0 || password.length === 0)) || (!isPassWordLogin.value && (account.length === 0 || code.length === 0))) return false;
             clear();
             loading.value = true;
-            const loginSuccess = await userLogin({ account, password, code, isPassWordLogin: isPassWordLogin.value });
+            const loginSuccess = await userLogin({account, password, code, isPassWordLogin: isPassWordLogin.value});
             loading.value = false;
             if (!loginSuccess) return;
             const redirect: any = route.redirectedFrom;
@@ -147,11 +150,11 @@ export default defineComponent({
         const close = () => {
             window.electron.exit();
         };
-
         const openVirtualKeyBoard = () => {
-            window.electron.ipcRenderer.invoke("openVirtualKeyBoard");
+            window.electron.ipcRenderer.invoke("openVirtualKeyBoardWin");
+            // window.electron.ipcRenderer.invoke("openVirtualKeyBoard");
+            // showKeyboard()
         };
-
         const getCode = async () => {
             if (!form.account) return;
             const res = await sendMsg({
@@ -170,8 +173,13 @@ export default defineComponent({
 
         const version = ref(require("../../../package.json").version);
 
+
         onMounted(() => {
-            document.addEventListener("keyup", onEnter);
+            window.electron.ipcRenderer.on("data-to-password", (event, data) => {
+                // 在这里处理数据
+                console.log('111111111----', data);
+            });
+            document.addEventListener("keyup", onEnter)
         });
 
         onUnmounted(() => {
@@ -198,13 +206,28 @@ export default defineComponent({
             getCode,
             codeTime,
             isPassWordLogin,
-            isElectron: isElectron()
+            isElectron: isElectron(),
         };
     }
 });
 </script>
 
 <style scoped lang="scss">
+.keyboard {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 300px;
+    background: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    display: none;
+}
+
+.keyboard.show {
+    display: block;
+}
+
 $btn_color: #4b71ee;
 .login-content {
     display: flex;

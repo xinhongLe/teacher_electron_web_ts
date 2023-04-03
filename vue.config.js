@@ -126,6 +126,13 @@ module.exports = {
             title: "编辑",
             chunks: ["editWinCard"],
         },
+        virtualKeyBoard: {
+            entry: "src/childWindow/virtualKeyBoard/main.ts",
+            template: "public/board.html",
+            filename: "virtualKeyBoard.html",
+            title: "键盘",
+            chunks: ["virtualKeyBoard"],
+        },
     },
     css: {
         loaderOptions: {
@@ -218,6 +225,11 @@ module.exports = {
                     priority: 10,
                     test: "src/childWindow/editWinCard/main.ts",
                 },
+                virtualKeyBoard: {
+                    name: "virtualKeyBoard",
+                    priority: 10,
+                    test: "src/childWindow/virtualKeyBoard/main.ts",
+                }
             },
         });
         config.module
