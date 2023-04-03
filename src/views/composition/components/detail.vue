@@ -84,7 +84,7 @@ import { getOssUrl } from '@/utils/oss';
 import { ElMessage } from 'element-plus';
 import moment from 'moment';
 import { reactive, ref, toRefs } from 'vue';
-import {saveAs as FileSaver} from 'file-saver'
+import { saveAs as FileSaver } from 'file-saver'
 import { downloadPDF, editReportDetail, lookNextContent, searchReportDetail } from '../api';
 import Article from './article.vue';
 
@@ -148,8 +148,8 @@ const state = reactive({
     title: '',
     author: '',
     stuList: [],
-    IsHaveNext:false,
-    NextStudentCompositionId:''
+    IsHaveNext: false,
+    NextStudentCompositionId: ''
 })
 
 const emit = defineEmits(['close', 'save']);
@@ -164,10 +164,10 @@ const switchPic = (item: any, idx: number) => {
 /**
  * 查看下一篇
  */
- const viewNext = ()=>{
-    if(state.IsHaveNext){
+const viewNext = () => {
+    if (state.IsHaveNext) {
         getDetail(state.NextStudentCompositionId)
-    }else{
+    } else {
         ElMessage.error('当前为最后一篇')
     }
 }
@@ -199,13 +199,16 @@ const viewArticle = () => {
     articleRef.value.openDialog({ StudentCompositionId: state.StudentCompositionId })
 }
 
-// 保存分数
+// 保存分数---等级
 const saveScore = () => {
     exeSave(1, state.inputScore, () => {
         state.score = state.inputScore
-        state.assessment = judgeScore(state.score)
-        state.assess = state.assessList.findIndex(v => v.name == state.assessment) + 1
-        state.popoverVisible = false
+        exeSave(2, state.assess, () => {
+            ElMessage.success('保存成功')
+            state.assessment = state.assessList.find(v => v.value == state.assess)?.name
+            state.popoverVisible = false
+        })
+        // state.assessment = judgeScore(state.score)
     })
 }
 
@@ -213,6 +216,7 @@ const saveScore = () => {
 const inputBlur = (idx: number) => {
     let num = idx + 3
     exeSave(num, state.lineList[idx]['content'], () => {
+        ElMessage.success('保存成功')
         state.lineList[idx]['status'] = 0
     })
 }
@@ -220,7 +224,6 @@ const inputBlur = (idx: number) => {
 const exeSave = (type: number, info: any, cb?: any) => {
     editReportDetail({ StudentCompositionId: state.StudentCompositionId, SaveType: type, SaveInfo: info }).then(async (res: any) => {
         if (res.success) {
-            ElMessage.success('保存成功')
             if (cb) {
                 cb()
             }
@@ -251,8 +254,8 @@ const getDetail = (id: string) => {
             //FileList
             let result = res.result
             state.score = result.Score
-            state.assessment = judgeScore(state.score)
-            state.assess = state.assessList.findIndex(v => v.name == state.assessment)
+            state.assessment = result.AppraiseLevelDisplay
+            state.assess = result.AppraiseLevel//state.assessList.findIndex(v => v.name == state.assessment)
             state.author = result.StudentName || ''
             state.lineList.forEach((ele: any) => {
                 ele.content = result[ele.key]
@@ -608,6 +611,7 @@ defineExpose({
                     font-weight: 400;
                     color: #19203D;
                     line-height: 22px;
+                    word-break: break-all;
                 }
 
                 .input {

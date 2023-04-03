@@ -19,7 +19,7 @@
             </div>
             <div class="right">
                 <div class="head align-center">
-                    <el-input class="title" v-model="title" />
+                    <el-input class="title" maxlength="15" v-model="title" />
                     <!-- <div contenteditable="true">我的母亲</div> -->
                     <div class="author align-center">
                         <span class="name">{{ state.author }}</span>
@@ -109,6 +109,10 @@ const viewNext = ()=>{
 const save = () => {
     if(state.title.length===0){
         ElMessage.error('标题不可为空')
+        return
+    }
+    if(state.title.length>15){
+        ElMessage.error('标题限制15字')
         return
     }
     let args = { StudentCompositionId: state.StudentCompositionId,Title:state.title, Content: state.content, OperatorId: store.state.userInfo?.userCenterUserID }
@@ -219,6 +223,7 @@ defineExpose({
         width: calc(50% - 8px);
         height: 100%;
         border-radius: 4px;
+        overflow: hidden;
     }
 
     .left {
@@ -292,7 +297,7 @@ defineExpose({
             color: #19203D;
             line-height: 22px;
             padding: 24px 18px 50px 18px;
-            white-space: pre;
+            white-space: pre-wrap;
         }
 
         .head {

@@ -64,38 +64,50 @@
 
                 <div class="start-scan" v-if="!isOpenScan">
                     <img src="../../../assets/composition/pic@2x.png" alt="" />
-                    <el-button v-if="currentStudent" style="width: 146px;" color="#4B71EE" @click="startScan">
+                    <!-- v-if="currentStudent" -->
+                    <el-button style="width: 146px;" color="#4B71EE" @click="startScan">
                         开始扫描
                     </el-button>
-                    <div class="opt align-center" v-else>
+                <!-- <div class="opt align-center" v-else>
                         <el-button color="#4B71EE" @click="scanCode">
                             扫描二维码
                         </el-button>
                         <el-button color="#4B71EE" @click="scanName">
                             扫描姓名
                         </el-button>
-                    </div>
-
+                                            </div> -->
                 </div>
                 <div class="scan" id="scan" v-else>
                     <div v-if="!currentStudent">
                         <QrStream class="qrcode" v-show="state.qrcode" :camera="state.camera" :torch="state.torchActive"
                             @decode="onDecode" @init="onInit"></QrStream>
                         <img class="line" src="../../../assets/composition/pic_saomiao@2x.png" alt="" />
-                        <span class="down-tip toast">请先扫描学生{{ isCodeMode ? '二维码' : '信息栏' }}</span>
+                        <span class="down-tip toast" v-if="!isCodeMode">请对着学生名字，点击识别</span>
+                        <span class="down-tip toast" v-else>请先扫描学生二维码</span>
+                        <div class="switch-box align-center">
+                            <div class="switch-item align-center">
+                                <span>识别二维码</span>
+                                <el-switch @change="codeSwitchChange" v-model="isCodeMode"
+                                    style="--el-switch-on-color: #4B71EE;" />
+                            </div>
+                            <div class="switch-item align-center">
+                                <span>识别名字</span>
+                                <el-switch @change="nameSwitchChange" v-model="isNameMode"
+                                    style="--el-switch-on-color: #4B71EE;" />
+                            </div>
+                        </div>
                     </div>
 
                     <div id="takeAPic" v-else>
                         <video id="video" ref="videoRef" class="video"></video>
                         <img class="line" src="../../../assets/composition/pic_saomiao@2x.png" alt="" />
-                        <span class="down-tip toast" v-if="!currentStudent">请先扫描学生{{ isCodeMode ? '二维码' : '信息栏' }}</span>
-                        <span class="down-tip toast" v-else>请对准作文开始拍摄</span>
+                        <span class="down-tip toast">请对准作文开始拍摄</span>
                     </div>
                 </div>
                 <div class="takes" v-if="isOpenScan">
                     <div class="take-item" v-if="!isCodeMode && !currentStudent" @click="capturePicToWords">
                         <img src="../../../assets/composition/icon_paizhao@2x.png" alt="" />
-                        <span>拍照</span>
+                        <span>识别</span>
                     </div>
                     <template v-if="currentStudent">
                         <div class="take-item" @click="capture">
@@ -176,7 +188,8 @@ const state = reactive({
     isScanByHand: false,
     isOpenScan: false,// 是否开启扫描
     boxMessage: '待扫描', // 识别中...
-    isCodeMode: true,// 扫描二维码/文字
+    isCodeMode: true,// 扫描二维码
+    isNameMode: false,// 文字
     showVideo: true, // 展示视频
     currentStudent: '', // 当前学生
     currentStudentObj: {} as any,
@@ -189,9 +202,22 @@ const state = reactive({
     // classCount: 0,
     deviceList: [] as any
 });
-const { device, isSupply, currentStudent, isCodeMode, photoList, deviceList, isOpenScan, boxMessage, isScanByHand } = toRefs(state);
+const { device, isSupply, currentStudent, isCodeMode, isNameMode, photoList, deviceList, isOpenScan, boxMessage, isScanByHand } = toRefs(state);
 
 const emit = defineEmits(['cancel', 'save', 'openList']);
+
+// 互斥switch
+const codeSwitchChange = (e: any) => {
+    console.log(111, e);
+    state.isNameMode = !e
+    localStorage.setItem('isNameMode',e?'0':'1')
+}
+
+const nameSwitchChange = (e: any) => {
+    console.log(222, e);
+    state.isCodeMode = !e
+    localStorage.setItem('isNameMode',e?'1':'0')
+}
 
 /**
  * 二维码识别
@@ -238,7 +264,7 @@ const picRecognize = (file: any) => {
  */
 const searchRepeat = (info: any) => {
     let cid = localStorage.getItem('compositionClassId')
-    getStudentByUserInfo({ UserInfo: info, ClassId: cid,TeacherCompositionId: state.TeacherCompositionId }).then(async (res: any) => {
+    getStudentByUserInfo({ UserInfo: info, ClassId: cid, TeacherCompositionId: state.TeacherCompositionId }).then(async (res: any) => {
         if (res.success) {
             let list = res.result || []
             if (list.length > 0) {
@@ -455,20 +481,24 @@ const startScan = () => {
         state.boxMessage = '识别中...';
     }
     // state.isRecognizing = true;
+    //
+    let flag = localStorage.getItem('isNameMode')
+    state.isCodeMode = flag=='1' ? false : true
+    state.isNameMode = !state.isCodeMode
     getUserMedia()
 }
 
-// 开始扫二维码
-const scanCode = () => {
-    startScan()
-    state.isCodeMode = true
-}
+// // 开始扫二维码
+// const scanCode = () => {
+//     startScan()
+//     state.isCodeMode = true
+// }
 
-// 开始扫描姓名
-const scanName = () => {
-    startScan()
-    state.isCodeMode = false
-}
+// // 开始扫描姓名
+// const scanName = () => {
+//     startScan()
+//     state.isCodeMode = false
+// }
 
 const getUserMedia = () => {
     /* 可同时开启video(摄像头)和audio(麦克风) 这里只请求摄像头，所以只设置video为true */
@@ -939,6 +969,24 @@ defineExpose({
                         left: 0;
                         top: 0;
                         animation: scan infinite 3s linear;
+                    }
+
+                    .switch-box {
+                        position: absolute;
+                        left: 12px;
+                        bottom: 12px;
+
+                        .switch-item {
+                            margin-right: 24px;
+
+                            span {
+                                font-size: 14px;
+                                font-family: HarmonyOS_Sans_SC_Medium;
+                                color: #FDF7F9;
+                                margin-right: 8px;
+                                text-shadow: 1px .5px #000;
+                            }
+                        }
                     }
 
                     .down-tip {
