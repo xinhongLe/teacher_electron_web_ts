@@ -2,23 +2,49 @@ import isElectron from "is-electron";
 import { Slide } from "wincard";
 import { getOssUrl } from "./oss";
 
-export const cacheFile = async (key: string) => {
-    if (!key) return;
-    return new Promise((resolve) => {
-        if (isElectron()) {
-            const fileName = key.replace(/(.*[\/\\])*([^.]+)/i, "$2");
-            if (fileName === "ElementFile/" || fileName === "null") return resolve("");
-            return window.electron.isExistFile(fileName).then((isExist) => {
-                if (isExist) {
-                    resolve(encodeURI(window.electron.getFilePath(fileName)));
-                } else {
-                    getOssUrl(key, "axsfile").then(filePath => {
-                        window.electron.ipcRenderer.invoke("downloadFile", filePath, fileName).then(path => resolve(path ? "file://" + path : "")).catch(err => {
-                            resolve("");
-                        });
-                    });
-                }
+const getFilePath = (key: string, resolve: (path: string) => void) => {
+    const fileName = key.replace(/(.*[\/\\])*([^.]+)/i, "$2");
+    if (fileName === "ElementFile/" || fileName === "null") return resolve("");
+    return window.electron.isExistFile(fileName).then((isExist) => {
+        if (isExist) {
+            resolve(encodeURI(window.electron.getFilePath(fileName)));
+        } else {
+            getOssUrl(key, "axsfile").then(filePath => {
+                window.electron.ipcRenderer.invoke("downloadFile", filePath, fileName).then(path => resolve(encodeURI(path ? "file://" + path : "")));
             });
+        }
+    });
+};
+
+export const cacheFile = (key: string) => {
+    return new Promise((resolve) => {
+        if (!key) return resolve("");
+        if (isElectron()) {
+            if (key.indexOf(".mp4") > -1) {
+                const dirName = key.replace(/(.*[\/\\])*([^.]+)/i, "$2").replace(".mp4", "");
+                const fileName = dirName + ".zip";
+
+                // 判断是否存在切片文件夹
+                window.electron.isExistM3U8(dirName + "/video.m3u8").then(isExist => {
+                    if (isExist) {
+                        resolve(encodeURI(window.electron.getFilePath(dirName + "/video.m3u8")));
+                    } else {
+                        getOssUrl(key.replace(".mp4", ".zip"), "axsfile").then(filePath => {
+                            window.electron.ipcRenderer.invoke("downloadFile", filePath, fileName).then(path => {
+                                if (path) {
+                                    // 解压
+                                    window.electron.unZip(path);
+                                    resolve(encodeURI(window.electron.getFilePath(dirName + "/video.m3u8")));
+                                } else {
+                                    getFilePath(key, resolve);
+                                }
+                            });
+                        });
+                    }
+                });
+            } else {
+                getFilePath(key, resolve);
+            }
         } else {
             resolve("");
         }

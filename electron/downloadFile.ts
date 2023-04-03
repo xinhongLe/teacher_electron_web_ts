@@ -72,42 +72,53 @@ export const downloadFileAxios = async (url: string, fileName: string) => {
     if (!dirname) {
         return dealCallback(fileName, "");
     }
-    const writer = createWriteStream(filePath);
-    ElectronLog.info("start downloadFile fileName:", fileName);
-    const response = await Axios({
-        url,
-        method: "GET",
-        responseType: "stream",
-    });
-    ElectronLog.info(
-        "downloadFileAxios status: ",
-        response.status,
-        "fileName:",
-        fileName
-    );
-    if (response.status === 200) {
-        response.data.pipe(writer);
-    } else {
-        writer.destroy();
-    }
 
-    const state = await new Promise((resolve) => {
-        writer.on("finish", () => {
-            ElectronLog.info("finish fileName:", fileName);
-            resolve(true);
-        });
-        writer.on("error", (err) => {
-            ElectronLog.info("error fileName", fileName, err.message);
-            resolve(false);
-        });
-        writer.on("close", () => {
-            ElectronLog.info("close fileName", fileName);
-            resolve(false);
-        });
+    return new Promise(async (resolve, reject) => {
+        try {
+            ElectronLog.info("start downloadFile fileName:", fileName);
+    
+            const response = await Axios({
+                url,
+                method: "GET",
+                responseType: "stream",
+            });
+    
+            const writer = createWriteStream(filePath);
+    
+            ElectronLog.info(
+                "downloadFileAxios status: ",
+                response.status,
+                "fileName:",
+                fileName
+            );
+            if (response.status === 200) {
+                response.data.pipe(writer);
+            } else {
+                writer.destroy();
+            }
+        
+            const state = await new Promise((resolve) => {
+                writer.on("finish", () => {
+                    ElectronLog.info("finish fileName:", fileName);
+                    resolve(true);
+                });
+                writer.on("error", (err) => {
+                    ElectronLog.info("error fileName", fileName, err.message);
+                    resolve(false);
+                });
+                writer.on("close", () => {
+                    ElectronLog.info("close fileName", fileName);
+                    resolve(false);
+                });
+            });
+            const index = downloadingFileList.indexOf(fileName);
+            downloadingFileList.splice(index, 1);
+            dealCallback(fileName, state ? filePath : "");
+        } catch {
+            ElectronLog.info("start downloadFile fileName error:", fileName);
+            reject();
+        }
     });
-    const index = downloadingFileList.indexOf(fileName);
-    downloadingFileList.splice(index, 1);
-    dealCallback(fileName, state ? filePath : "");
 };
 
 export const downloadFileToPath = async (
@@ -144,7 +155,7 @@ export const downloadFileToPath = async (
 };
 
 export default () => {
-    const downloadFile = async (url: string, fileName: string) => {
+    const downloadFile = async (url: string, fileName: string, reject: (path: string) => void) => {
         const downloadsPath = resolve(app.getPath("userData"), "files");
         const filePath = resolve(downloadsPath, fileName);
         await mkdirs(downloadsPath);
@@ -155,16 +166,20 @@ export default () => {
             if (downloadingFileList.includes(fileName)) return;
             if (!downloadingFileList.includes(fileName)) {
                 downloadingFileList.push(fileName);
-                downloadFileAxios(url, fileName);
+                downloadFileAxios(url, fileName).catch(() => {
+                    downloadSuccessCallbackMap.delete(fileName);
+                    const index = downloadingFileList.indexOf(fileName);
+                    downloadingFileList.splice(index, 1);
+                    reject("");
+                });
             }
         }
     };
 
     ipcMain.handle("downloadFile", (_, url, fileName) => {
-        return new Promise((resolve) => {
+        return new Promise(resolve => {
             if (downloadSuccessCallbackMap.has(fileName)) {
-                const callbackList =
-                    downloadSuccessCallbackMap.get(fileName) || [];
+                const callbackList = downloadSuccessCallbackMap.get(fileName) || [];
                 downloadSuccessCallbackMap.set(fileName, [
                     ...callbackList,
                     resolve,
@@ -172,7 +187,7 @@ export default () => {
             } else {
                 downloadSuccessCallbackMap.set(fileName, [resolve]);
             }
-            downloadFile(url, fileName);
+            downloadFile(url, fileName, resolve);
         });
     });
 
