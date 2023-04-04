@@ -117,6 +117,7 @@ export default defineComponent({
             loading.value = true;
             const loginSuccess = await userLogin({account, password, code, isPassWordLogin: isPassWordLogin.value});
             loading.value = false;
+            window.electron.ipcRenderer.invoke("closeKeyBoard");
             if (!loginSuccess) return;
             const redirect: any = route.redirectedFrom;
             if (redirect && redirect.path !== "/" && !isElectron()) {
