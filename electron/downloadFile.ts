@@ -49,6 +49,7 @@ const dealCallback = (fileName: string, filePath: string) => {
         callbackList.forEach((callback) =>
             callback(filePath.replaceAll("\\", "/"))
         );
+        ElectronLog.info(callbackList.length, fileName);
         downloadSuccessCallbackMap.delete(fileName);
     }
 };
@@ -73,52 +74,52 @@ export const downloadFileAxios = async (url: string, fileName: string) => {
         return dealCallback(fileName, "");
     }
 
-    return new Promise(async (resolve, reject) => {
-        try {
-            ElectronLog.info("start downloadFile fileName:", fileName);
-    
-            const response = await Axios({
-                url,
-                method: "GET",
-                responseType: "stream",
-            });
-    
-            const writer = createWriteStream(filePath);
-    
-            ElectronLog.info(
-                "downloadFileAxios status: ",
-                response.status,
-                "fileName:",
-                fileName
-            );
-            if (response.status === 200) {
-                response.data.pipe(writer);
-            } else {
-                writer.destroy();
-            }
-        
-            const state = await new Promise((resolve) => {
-                writer.on("finish", () => {
-                    ElectronLog.info("finish fileName:", fileName);
-                    resolve(true);
-                });
-                writer.on("error", (err) => {
-                    ElectronLog.info("error fileName", fileName, err.message);
-                    resolve(false);
-                });
-                writer.on("close", () => {
-                    ElectronLog.info("close fileName", fileName);
-                    resolve(false);
-                });
-            });
-            const index = downloadingFileList.indexOf(fileName);
-            downloadingFileList.splice(index, 1);
-            dealCallback(fileName, state ? filePath : "");
-        } catch {
-            ElectronLog.info("start downloadFile fileName error:", fileName);
-            reject();
+    try {
+        ElectronLog.info("start downloadFile fileName:", fileName);
+
+        const response = await Axios({
+            url,
+            method: "GET",
+            responseType: "stream",
+        });
+
+        const writer = createWriteStream(filePath);
+
+        ElectronLog.info(
+            "downloadFileAxios status: ",
+            response.status,
+            "fileName:",
+            fileName
+        );
+        if (response.status === 200) {
+            response.data.pipe(writer);
+        } else {
+            writer.destroy();
         }
-    });
+    
+        const state = await new Promise((resolve) => {
+            writer.on("finish", () => {
+                ElectronLog.info("finish fileName:", fileName);
+                resolve(true);
+            });
+            writer.on("error", (err) => {
+                ElectronLog.info("error fileName", fileName, err.message);
+                resolve(false);
+            });
+            writer.on("close", () => {
+                ElectronLog.info("close fileName", fileName);
+                resolve(false);
+            });
+        });
+        const index = downloadingFileList.indexOf(fileName);
+        downloadingFileList.splice(index, 1);
+        dealCallback(fileName, state ? filePath : "");
+    } catch {
+        ElectronLog.info("start downloadFile fileName error:", fileName);
+        dealCallback(fileName, "");
+        const index = downloadingFileList.indexOf(fileName);
+        if (index > -1) downloadingFileList.splice(index, 1);
+    }
 };
 
 export const downloadFileToPath = async (
@@ -155,7 +156,7 @@ export const downloadFileToPath = async (
 };
 
 export default () => {
-    const downloadFile = async (url: string, fileName: string, reject: (path: string) => void) => {
+    const downloadFile = async (url: string, fileName: string) => {
         const downloadsPath = resolve(app.getPath("userData"), "files");
         const filePath = resolve(downloadsPath, fileName);
         await mkdirs(downloadsPath);
@@ -163,15 +164,9 @@ export default () => {
         if (isExist) {
             dealCallback(fileName, filePath);
         } else {
-            if (downloadingFileList.includes(fileName)) return;
             if (!downloadingFileList.includes(fileName)) {
                 downloadingFileList.push(fileName);
-                downloadFileAxios(url, fileName).catch(() => {
-                    downloadSuccessCallbackMap.delete(fileName);
-                    const index = downloadingFileList.indexOf(fileName);
-                    downloadingFileList.splice(index, 1);
-                    reject("");
-                });
+                downloadFileAxios(url, fileName);
             }
         }
     };
@@ -186,8 +181,8 @@ export default () => {
                 ]);
             } else {
                 downloadSuccessCallbackMap.set(fileName, [resolve]);
+                downloadFile(url, fileName);
             }
-            downloadFile(url, fileName, resolve);
         });
     });
 
