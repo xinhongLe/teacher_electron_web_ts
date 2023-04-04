@@ -25,7 +25,7 @@
                 @click="openList(item.Id, item.Title)">
                 <img src="../../assets/composition/pic_zw@2x.png" alt="" />
                 <div class="title">{{ '《' + item.Title + '》' }}</div>
-                <div class="grade">{{ item.GradeName }}</div>
+                <div class="grade">{{ item.Name }}</div>
                 <div class="count">
                     已完成/已录入：<span class="num">{{ item.CompletedCount }}</span> / {{ item.RecordCount }}
                 </div>
@@ -57,6 +57,7 @@ import { fetchAllPassage, fetchAllPassageByPage, getClassStuCountByTeacher, getG
 import moment from 'moment';
 import { IYunInfo } from '@/types/login';
 import { get, STORAGE_TYPES } from '@/utils/storage';
+import { ElMessage } from 'element-plus';
 
 const setRef = ref()
 const scanRef = ref()
@@ -132,6 +133,11 @@ const getClassStuCount = (isinit = false, cb?: any) => {
                     "compositionClassId",
                     state.classId
                 );
+            }else{
+                // 没有班级 清空
+                state.classId = ''
+                state.className = ''
+                localStorage.removeItem('compositionClassId')
             }
             if (cb) {
                 cb()
@@ -168,6 +174,10 @@ const scanOpenList = (e: any) => {
 }
 
 const addComposition = () => {
+    if(!state.classId){
+        ElMessage.warning('当前没有班级，无法新建')
+        return
+    }
     setRef.value.openDialog({ classCount: state.classCount })
 }
 
@@ -180,6 +190,7 @@ const getArticleList = () => {
             if (list.length > 0) {
                 list.forEach((ele: any) => {
                     ele.StartTime = moment(ele.StartTime).format('YYYY-MM-DD HH:mm:ss')
+                    ele.Name = (ele.ClassName || '') + (ele.GradeName || '')
                 });
             }
             state.articleList = list

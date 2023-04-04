@@ -77,7 +77,7 @@
         </div>
     </div>
     <!-- 查看原文 -->
-    <Article ref="articleRef" />
+    <Article ref="articleRef" @view-report="closeArticle" />
 </template>
 <script setup lang="ts">
 import { getOssUrl } from '@/utils/oss';
@@ -166,7 +166,7 @@ const switchPic = (item: any, idx: number) => {
  */
 const viewNext = () => {
     if (state.IsHaveNext) {
-        getDetail(state.NextStudentCompositionId)
+        getDetail(state.NextStudentCompositionId,true)
     } else {
         ElMessage.error('当前为最后一篇')
     }
@@ -192,6 +192,11 @@ const exportPDF = () => {
             // ElMessage({ type: 'success', message: '下载成功' });
         }
     })
+}
+
+// 
+const closeArticle = ()=>{
+    articleRef.value.close()
 }
 
 // 查看原文
@@ -245,10 +250,13 @@ const close = () => {
 const openDialog = async (info?: any) => {
     const { StudentCompositionId } = info
     state.StudentCompositionId = StudentCompositionId
-    getDetail(StudentCompositionId)
+    getDetail(StudentCompositionId,false)
 }
 
-const getDetail = (id: string) => {
+const getDetail = (id: string,isRequestNext?:boolean) => {
+    if(isRequestNext){
+        state.StudentCompositionId = id
+    }
     searchReportDetail({ StudentCompositionId: id }).then(async (res: any) => {
         if (res.success) {
             //FileList

@@ -75,7 +75,7 @@
                         <el-button color="#4B71EE" @click="scanName">
                             扫描姓名
                         </el-button>
-                                            </div> -->
+                                                        </div> -->
                 </div>
                 <div class="scan" id="scan" v-else>
                     <div v-if="!currentStudent">
@@ -179,6 +179,7 @@ const props = defineProps({
 //
 const dialogVisible = ref(false);
 const state = reactive({
+    isUploading: false,
     qrcode: true,
     torchActive: false,
     camera: 'auto',
@@ -210,13 +211,13 @@ const emit = defineEmits(['cancel', 'save', 'openList']);
 const codeSwitchChange = (e: any) => {
     console.log(111, e);
     state.isNameMode = !e
-    localStorage.setItem('isNameMode',e?'0':'1')
+    localStorage.setItem('isNameMode', e ? '0' : '1')
 }
 
 const nameSwitchChange = (e: any) => {
     console.log(222, e);
     state.isCodeMode = !e
-    localStorage.setItem('isNameMode',e?'1':'0')
+    localStorage.setItem('isNameMode', e ? '1' : '0')
 }
 
 /**
@@ -483,7 +484,7 @@ const startScan = () => {
     // state.isRecognizing = true;
     //
     let flag = localStorage.getItem('isNameMode')
-    state.isCodeMode = flag=='1' ? false : true
+    state.isCodeMode = flag == '1' ? false : true
     state.isNameMode = !state.isCodeMode
     getUserMedia()
 }
@@ -553,6 +554,10 @@ const videoCapture = (element: any) => {
 
 /* 拍照按钮点击 */
 const capture = () => {
+    if (state.isUploading) {
+        ElMessage.warning('拍摄上传中，请勿频繁点击')
+        return
+    }
     if (state.photoList.length === 10) {
         ElMessage.warning('最多可拍摄10张照片')
         return
@@ -589,6 +594,7 @@ const blobToFile = (theBlob: any, fileName: any) => {
 }
 
 const uploadImgToOss = async (data: any, type = 1, cb: any) => {
+    state.isUploading = true
     const bucketObj = {
         Bucket: "compositionevaluation",
         Path: "pic",
@@ -602,6 +608,7 @@ const uploadImgToOss = async (data: any, type = 1, cb: any) => {
         if (type === 1) {
             state.photoList.push(newFile);
         }
+        state.isUploading = false
         cb(newFile)
     }
 }
