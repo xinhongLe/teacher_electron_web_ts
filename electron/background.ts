@@ -12,7 +12,7 @@ import {
 } from "./suspension";
 import autoUpdater from "./autoUpdater";
 import {registerWinCardEvent} from "./wincard";
-import {registerVirtualKeyBoard} from "./virtualKeyBoard";
+import {registerVirtualKeyBoard, closeKeyBoard} from "./virtualKeyBoard";
 import SingalRHelper from "./singalr";
 import ElectronLog from "electron-log";
 import os from "os";
@@ -217,6 +217,11 @@ async function createWindow() {
         // 在这里处理数据
         mainWindow!.webContents.send("dataToPassword", data);
     });
+    ipcMain.handle("closeKeyBoard", () => {
+        console.log("sssss", 123123);
+        closeKeyBoard();
+    });
+
     // ipcMain.handle("openWinCardWin", () => {
     //     openWinCardWin();
     // });

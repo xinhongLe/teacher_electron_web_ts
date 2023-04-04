@@ -35,7 +35,7 @@ export function createWinCardWindow() {
     //         contextIsolation: false,
     //     },
     // });
-    virtualKeyBoardWin && virtualKeyBoardWin.webContents.openDevTools(); // 打开调试器
+    // virtualKeyBoardWin && virtualKeyBoardWin.webContents.openDevTools(); // 打开调试器
     virtualKeyBoardWin.on("closed", () => {
         virtualKeyBoardWin = null;
     });
@@ -49,13 +49,13 @@ export function registerVirtualKeyBoard() {
     ipcMain.handle("openVirtualKeyBoardWin", (_, data) => {
         !virtualKeyBoardWin && createWinCardWindow();
     });
-    ipcMain.handle("closeKeyBoard", () => {
-        console.log("sssss", 123123);
-        virtualKeyBoardWin && virtualKeyBoardWin.close();
-
-    });
 }
 
 export function openWinCardWin() {
     virtualKeyBoardWin && virtualKeyBoardWin.show();
 }
+
+export function closeKeyBoard() {
+    virtualKeyBoardWin && virtualKeyBoardWin.destroy();
+}
+
