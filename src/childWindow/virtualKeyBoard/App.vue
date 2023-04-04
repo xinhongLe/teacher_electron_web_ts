@@ -41,7 +41,7 @@ watch(
 
 function onChange(input: any) {
     keyboard.value.setInput(input)
-    emit('onChange', input)
+    window.electron.ipcRenderer.send("data-to-password", input);
 }
 
 function handleShift() {
@@ -80,14 +80,14 @@ function onKeyPress(button: any, $event: any) {
         //     }
     // }
     else if (button === '{clear}') {
-        keyboard.value.clearInput()
+        keyboard.value.clearInput();
+        window.electron.ipcRenderer.send("data-to-password", '');
     } else if (button === '{enter}') {
-        // keyboard.value.setInput('')
+        keyboard.value.setInput('')
         // emit('onKeyPress', button)
     } else {
         let value = $event.target.offsetParent.parentElement.children[0].children[0].value
-        console.log('value---$event-', button)
-        window.electron.ipcRenderer.send("data-to-password", button);
+        // window.electron.ipcRenderer.send("data-to-password", button);
         // 输入框有默认值时，覆写
         if (value) {
             keyboard.value.setInput(value);

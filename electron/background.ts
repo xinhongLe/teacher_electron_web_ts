@@ -215,7 +215,7 @@ async function createWindow() {
     });
     ipcMain.on("data-to-password", (event, data) => {
         // 在这里处理数据
-        console.log('111111111----sss', data);
+        mainWindow!.webContents.send("dataToPassword", data);
     });
     // ipcMain.handle("openWinCardWin", () => {
     //     openWinCardWin();

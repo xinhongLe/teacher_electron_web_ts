@@ -173,11 +173,10 @@ export default defineComponent({
 
         const version = ref(require("../../../package.json").version);
 
-
         onMounted(() => {
-            window.electron.ipcRenderer.on("data-to-password", (event, data) => {
+            window.electron.ipcRenderer.on("dataToPassword", (event, data) => {
                 // 在这里处理数据
-                console.log('111111111----', data);
+                form.password = data;
             });
             document.addEventListener("keyup", onEnter)
         });
