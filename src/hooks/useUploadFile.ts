@@ -71,6 +71,7 @@ export default (ossPathKey: OssName) => {
             fileInfo.fileSize = getFileSize(file.size);
             fileInfo.fileType = getFileType(file.name);
         }
+        
         loadingShow.value = false;
         return { ...fileInfo };
     };

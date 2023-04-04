@@ -23,9 +23,7 @@
 import {
     computed,
     ref,
-    defineEmits,
     onMounted,
-    defineProps,
     watch,
     nextTick,
 } from "vue";

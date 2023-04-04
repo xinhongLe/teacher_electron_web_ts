@@ -8,8 +8,9 @@ import zhCn from "element-plus/es/locale/lang/zh-cn";
 import "element-plus/dist/index.css";
 import Icon from "./plugins/icon";
 import Directive from "./directive/index";
-import Drag from "./directive/drag"; 
+import Drag from "./directive/drag";
 import DragLine from "./directive/dragLine";
+import MouseFollow from "./directive/mouseFollow";
 // import "@/utils/flexible";
 import "./permission";
 import "./styles/index.scss";
@@ -23,18 +24,16 @@ import { cacheFile } from "./utils/file";
 TrackService.useTrackPoint();
 
 const app = createApp(App);
-app.use(
-    WinCard,
-    process.env.VUE_APP_AI_XUE_SHI_API,
-    "https://wincard.lyx-edu.com/swf2canvas.html",
-    cacheFile
-)
+
+// @ts-ignore
+app.use(WinCard, process.env.VUE_APP_AI_XUE_SHI_API, "https://wincard.lyx-edu.com/swf2canvas.html", cacheFile)
     .use(ElementPlus, { locale: zhCn })
     .use(Icon)
     .use(store, key)
     .use(router)
     .use(Directive)
     .use(DragLine)
+    .use(MouseFollow)
     .use(Drag)
     .mount("#app");
 app.config.globalProperties.mittBus = mitt();

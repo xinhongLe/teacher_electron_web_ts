@@ -7,16 +7,11 @@
                 全部资源
             </div>
             <div class="tree-content">
-                <Tree
-                    @onTreeItemChange="selectedCourse"
-                    v-model:value="selectedID"
-                    :treeData="treeData"
-                    :tipTarget="tipTarget"
-                    :showClassArrangement="showClassArrangement"
-                />
+                <Tree @onTreeItemChange="selectedCourse" v-model:value="selectedID" :treeData="treeData"
+                    :tipTarget="tipTarget" :showClassArrangement="showClassArrangement" />
             </div>
         </div>
-        <el-button
+        <!-- <el-button
             class="p-work-schedule"
             :class="showClassArrangement && 'out'"
             @click="
@@ -31,7 +26,7 @@
             <div class="work-schedule-text" v-else>
                 <img src="@/assets/images/preparation/icon_paike.svg" /> 去排课
             </div>
-        </el-button>
+        </el-button> -->
     </div>
 </template>
 
@@ -234,13 +229,16 @@ export default defineComponent({
     justify-content: center;
     margin: 15px;
     height: 42px;
+
     .work-schedule-text {
         display: flex;
         align-items: center;
+
         img {
             margin-right: 5px;
         }
     }
+
     &.out {
         background-color: var(--app-color-red);
     }
@@ -254,6 +252,7 @@ export default defineComponent({
     font-size: 18px;
     font-weight: 600;
     margin-bottom: 10px;
+
     img {
         display: block;
         width: 20px;

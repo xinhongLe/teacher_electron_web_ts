@@ -8,12 +8,16 @@ const initState = (): CommonState => ({
     resource: null,
     showResourceFullScreen: [],
     singleResourceFullScreen: {},
-    activeWindow: "LookVideo"
+    activeWindow: "LookVideo",
+    currentPackageData:null
 });
 
 const mutations:MutationTree<CommonState> = {
     [MutationTypes.SET_IS_DRAGGING](state, flag) {
         state.isDragging = flag;
+    },
+    [MutationTypes.CURRENT_PACKAGE_DATA](state, flag) {
+        state.currentPackageData = flag;
     },
     [MutationTypes.COMMON_RESET_STATE](state) {
         Object.assign(state, initState());

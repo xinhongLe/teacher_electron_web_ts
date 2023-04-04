@@ -1,4 +1,4 @@
-const { NormalModuleReplacementPlugin } = require("webpack");
+const {NormalModuleReplacementPlugin} = require("webpack");
 
 const BundleAnalyzerPlugin =
     require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
@@ -248,7 +248,7 @@ module.exports = {
         electronBuilder: {
             nodeIntegration: true,
             mainProcessFile: "electron/background.ts",
-            preload: { preload: "electron/preload.ts" },
+            preload: {preload: "electron/preload.ts"},
             mainProcessWatch: ["electron/**/*"],
             files: ["dist_electron/**/*"],
             builderOptions: {

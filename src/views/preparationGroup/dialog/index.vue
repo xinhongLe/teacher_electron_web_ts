@@ -89,7 +89,7 @@ export default defineComponent({
 
 <style scoped lang="scss">
 .dialog-box {
-    ::v-deep(.el-dialog) {
+    :deep(.el-dialog) {
         box-shadow: 0px 8px 24px 0px rgba(0, 0, 0, 0.5);
         border-radius: 8px;
         width: 500px;

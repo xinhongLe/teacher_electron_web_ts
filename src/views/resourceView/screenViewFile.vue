@@ -159,7 +159,7 @@ export default defineComponent({
     bottom: 0;
     left: 0;
     right: 0;
-    z-index: 10000;
+    z-index: 20000;
     background: #fff;
     overflow: hidden;
 

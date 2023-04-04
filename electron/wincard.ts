@@ -1,11 +1,7 @@
-import { BrowserWindow, ipcMain, app } from "electron";
+import { BrowserWindow, ipcMain } from "electron";
 import { createWindow } from "./createWindow";
-import ElectronLog from "electron-log";
 let editWin: BrowserWindow | null;
-const wincardURL =
-    process.env.NODE_ENV === "development"
-        ? `${process.env.WEBPACK_DEV_SERVER_URL}editWinCard.html`
-        : `file://${__dirname}/editWinCard.html`;
+const wincardURL = process.env.NODE_ENV === "development" ? `${process.env.WEBPACK_DEV_SERVER_URL}editWinCard.html` : `file://${__dirname}/editWinCard.html`;
 
 export function createWinCardWindow(title: string) {
     editWin = createWindow(wincardURL + "?" + title, {
@@ -13,7 +9,7 @@ export function createWinCardWindow(title: string) {
         alwaysOnTop: false,
         title: title,
         frame: false, // 要创建无边框窗口
-        resizable: true, // 禁止窗口大小缩放
+        resizable: true // 禁止窗口大小缩放
         // useContentSize: true,
     });
 
@@ -30,14 +26,14 @@ export function createWinCardWindow(title: string) {
     //         contextIsolation: false,
     //     },
     // });
-    editWin && editWin.webContents.openDevTools(); //打开调试器
+    editWin && editWin.webContents.openDevTools(); // 打开调试器
     // require("@electron/remote/main").enable(editWin.webContents);
     // editWin.loadURL(wincardURL);
     editWin.maximize();
 }
+
 export function registerWinCardEvent() {
     ipcMain.handle("openWinCardWin", (_, data) => {
-        // console.log("_, data", _, data);
         createWinCardWindow(data);
     });
     // ipcMain.handle("closeWinCard", () => {

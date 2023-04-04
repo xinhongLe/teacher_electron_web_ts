@@ -370,7 +370,6 @@
 import {
     reactive,
     ref,
-    defineExpose,
     watch,
     onMounted,
     nextTick,

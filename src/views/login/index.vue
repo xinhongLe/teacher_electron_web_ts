@@ -5,7 +5,7 @@
         </div>
         <div class="right-content">
             <div class="login-logo">
-                <img src="@/assets/images/login/logo.png" alt="" />
+                <img src="@/assets/images/login/logo.png" alt=""/>
                 <p>爱学仕校园</p>
             </div>
             <el-form :model="form" label-width="0px" size="large">
@@ -24,7 +24,7 @@
                         >
                             <span style="float: left">{{ item.account }}</span>
                             <span style="float: right; color: #8492a6; font-size: 13px;">
-                                <el-icon @click.stop="delAccount(index)"><Close /></el-icon>
+                                <el-icon @click.stop="delAccount(index)"><Close/></el-icon>
                             </span>
                         </el-option>
                     </el-select>
@@ -36,7 +36,7 @@
                         </template>
                         <template #suffix v-if="isElectron">
                             <img src="@/assets/images/login/icon_keyboard.png" alt=""
-                                class="key-board-img" @click="openVirtualKeyBoard"/>
+                                 class="key-board-img" @click="openVirtualKeyBoard"/>
                         </template>
                     </el-input>
                 </el-form-item>
@@ -47,7 +47,7 @@
                         </template>
                         <template #suffix>
                             <span class="get-code-btn" @click="getCode" v-if="codeTime === 0">获取验证码</span>
-                            <span class="get-code-btn" v-else>{{`${codeTime}秒后重发`}}</span>
+                            <span class="get-code-btn" v-else>{{ `${codeTime}秒后重发` }}</span>
                         </template>
                     </el-input>
                 </el-form-item>
@@ -61,12 +61,14 @@
                     <span @click="isPassWordLogin = false" class="text">验证码登录</span>
                 </template>
                 <template v-else>
-                    <img src="@/assets/images/login/icon_mima.png" alt=""  :width="12">
+                    <img src="@/assets/images/login/icon_mima.png" alt="" :width="12">
                     <span @click="isPassWordLogin = true" class="text">密码登录</span>
                 </template>
             </div>
             <div class="close-icon" v-if="isElectron" @click="close">
-                <el-icon :size="16"><Close /></el-icon>
+                <el-icon :size="16">
+                    <Close/>
+                </el-icon>
             </div>
             <div class="prompt-text">
                 <p>违法和不良信息举报电话：0512-65520773</p>
@@ -84,6 +86,7 @@ import { ILoginData } from "@/types/login";
 import { STORAGE_TYPES, get, set, clear } from "@/utils/storage";
 import isElectron from "is-electron";
 import { sendMsg } from "./api";
+
 export default defineComponent({
     setup() {
         const router = useRouter();
@@ -207,17 +210,21 @@ $btn_color: #4b71ee;
     display: flex;
     width: 100%;
     height: 100%;
+
     &.web {
         .right-content {
             :deep(.el-form) {
                 width: initial;
+
                 .el-input__inner {
                     width: 528px;
                     height: 70px;
                 }
+
                 .zh-class {
                     width: 480px;
                     z-index: 1;
+
                     .el-input__inner {
                         width: 100%;
                     }
@@ -226,13 +233,14 @@ $btn_color: #4b71ee;
 
         }
     }
+
     .left-content {
         width: 50%;
-        background: url("../../assets/images/login/bg_login.png") no-repeat
-            center center;
+        background: url("../../assets/images/login/bg_login.png") no-repeat center center;
         background-size: cover;
         -webkit-app-region: drag;
         position: relative;
+
         .version-text {
             position: absolute;
             color: #b0c0fa;
@@ -241,6 +249,7 @@ $btn_color: #4b71ee;
             font-size: 16px;
         }
     }
+
     .right-content {
         position: relative;
         display: flex;
@@ -249,13 +258,16 @@ $btn_color: #4b71ee;
         align-items: center;
         width: 50%;
         padding: 0 40px;
+
         .login-logo {
             text-align: center;
             margin-bottom: 15px;
+
             img {
                 width: 95px;
                 height: 95px;
             }
+
             p {
                 font-size: 26px;
                 font-weight: 600;
@@ -263,74 +275,90 @@ $btn_color: #4b71ee;
                 line-height: 45px;
             }
         }
+
         .login-method {
             color: #4b71ee;
             display: flex;
             align-items: center;
             height: 16px;
+
             .text {
                 margin-left: 10px;
                 cursor: pointer;
             }
         }
+
         .close-icon {
             position: absolute;
             top: 20px;
             right: 20px;
             cursor: pointer;
             -webkit-app-region: no-drag;
+
             .el-icon-close {
                 font-size: 30px;
             }
         }
+
         :deep(.el-form) {
             width: 100%;
+
             .el-form-item {
                 position: relative;
                 margin-bottom: 20px;
                 -webkit-app-region: no-drag;
+
                 .key-board-img {
                     width: 21px;
                     height: 16px;
                     cursor: pointer;
                 }
+
                 .get-code-btn {
                     color: #4b71ee;
                     font-size: 16px;
                     cursor: pointer;
                 }
+
                 img {
                     width: 16px;
                     height: 18px;
                     z-index: 2;
                 }
-                .el-input__wrapper{
+
+                .el-input__wrapper {
                     background: #f5f6fa !important;
                     box-shadow: none !important;
                 }
+
                 .el-input__inner {
                     font-size: 16px;
                     color: #000;
                     padding-left: 10px;
                 }
+
                 .el-input__prefix, .el-input__suffix-inner {
                     display: flex;
                     justify-content: center;
                     align-items: center;
                 }
+
                 .el-input__prefix {
                     left: 12px;
                 }
+
                 .el-input__suffix {
                     display: flex;
                     align-items: center;
                     right: 12px;
                 }
+
                 .zh-class {
                     width: calc(100% - 40px);
                     z-index: 1;
                     // padding-right: 40px;
                 }
+
                 .el-select {
                     position: absolute;
                     right: 0;
@@ -339,6 +367,7 @@ $btn_color: #4b71ee;
                 }
             }
         }
+
         :deep(.el-button--primary) {
             height: 50px;
             font-size: 16px;
@@ -348,12 +377,14 @@ $btn_color: #4b71ee;
             border: $btn_color;
             -webkit-app-region: no-drag;
         }
+
         .prompt-text {
             position: absolute;
             bottom: 5px;
             text-align: center;
             color: #ccc;
             font-size: 12px;
+
             p {
                 margin-bottom: 5px;
             }

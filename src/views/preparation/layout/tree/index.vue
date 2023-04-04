@@ -1,16 +1,7 @@
 <template>
     <div class="tree-body">
-        <TreeItem
-            :selectedTreeItem="selectedTreeItem"
-            :value="value"
-            v-for="item in treeData"
-            :zIndex="0"
-            :key="item.Id"
-            :itemData="item"
-            :keys="[item.Id]"
-            :tipTarget="tipTarget"
-            :showClassArrangement="showClassArrangement"
-        />
+        <TreeItem :selectedTreeItem="selectedTreeItem" :value="value" v-for="item in treeData" :zIndex="0" :key="item.Id"
+            :itemData="item" :keys="[item.Id]" :tipTarget="tipTarget" :showClassArrangement="showClassArrangement" />
     </div>
 </template>
 
@@ -37,6 +28,8 @@ export default defineComponent({
     emits: ["onTreeItemChange", "update:value"],
     setup(props, { emit }) {
         const selectedTreeItem = (treeItem: ITreeItem, keys: string[]) => {
+            console.log('treeItem',treeItem);
+
             emit("update:value", treeItem.Id);
             emit("onTreeItemChange", treeItem, keys);
         };
@@ -51,6 +44,7 @@ export default defineComponent({
 .tree-body {
     position: relative;
     z-index: 1;
+
     :deep(.tree-box:last-of-type) {
         &::after {
             border: none;

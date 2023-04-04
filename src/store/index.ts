@@ -15,8 +15,8 @@ export const store = createStore<RootState>({
         userInfo,
         common,
         preparation,
-        wrongbook,
-    },
+        wrongbook
+    }
 });
 
 export const initAllState = () => {

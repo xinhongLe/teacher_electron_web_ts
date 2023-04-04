@@ -1,44 +1,49 @@
 import { ElMessage } from "element-plus";
 import { sleep } from "@/utils/common";
-import { IPageValue } from "@/types/home";
-import { Ref, ref } from "vue";
+import { computed, Ref, ref } from "vue";
 import { enterFullscreen } from "@/utils/fullscreen";
+import { CardProps, PageProps } from "@/views/preparation/intelligenceClassroom/api/props";
 
-export default (pageValue: Ref<IPageValue>) => {
-    const previewPageList = ref<IPageValue[]>([]);
-    const activePreviewPageIndex = ref(0);
+export default (windowCards: Ref<CardProps[]>, currentPage: Ref<PageProps | null>, editRef: Ref, winCardViewRef: Ref) => {
+    const previewPageList = computed(() => {
+        let allPages: PageProps[] = [];
+        windowCards.value.forEach(item => {
+            allPages = allPages.concat(...item.PageList);
+        });
+        return allPages;
+    });
+    const previewIndex = ref(0);
     const winScreenView = ref(false);
-    const handleView = async (data: IPageValue[], flag: string) => { // flag first 首页预览  active 当前页预览
-        const activePageData: any = pageValue.value;
-        if (flag === "active" && !activePageData.State) {
-            return ElMessage({ type: "warning", message: "已下架的页, 暂不支持从当前页预览" });
+
+    // 预览ppt (1-当前页开始，2-第一页开始)
+    const handlePreview = async (type: number) => {
+        if (!editRef.value) return;
+        editRef.value.saveSlide();
+        if (type === 1 && !currentPage.value?.State) {
+            return ElMessage.warning("已下架的页, 暂不支持从当前页预览");
+        }
+        previewIndex.value = type === 1 ? (currentPage.value?.Index as number) - 1 : 0;
+
+        if (previewPageList.value.length === 0) {
+            ElMessage.warning("请先添加页，在进行预览");
+            return;
         }
 
-        // 预览只支持 已上架数据
-        previewPageList.value = data.filter((item: IPageValue) => item.State);
-        flag === "first" ? activePreviewPageIndex.value = 0 : activePreviewPageIndex.value = previewPageList.value.findIndex((item : IPageValue) => item.ID === pageValue.value.ID);
-        if (previewPageList.value.length > 0) {
-            if (
-                (window as any).electron &&
-                !(window as any).electron.isFullScreen() &&
-                !(window as any).electron.isMac()
-            ) {
-                (window as any).electron.setFullScreen();
-                await sleep(300);
-            }
-            winScreenView.value = true;
-            enterFullscreen();
-        } else {
-            ElMessage({
-                type: "warning",
-                message: "请先添加页，在进行预览"
-            });
+        if (window.electron && !window.electron.isFullScreen() && !window.electron.isMac()) {
+            window.electron.setFullScreen();
+            await sleep(300);
         }
+        winScreenView.value = true;
+        setTimeout(() => {
+            winCardViewRef.value.setScreening(true);
+        }, 20);
+        enterFullscreen();
     };
 
-    const keyDown = (e:any) => {
+    const keyDown = (e: KeyboardEvent) => {
         if (e.keyCode === 27) {
             winScreenView.value = false;
+            editRef.value?.setScreening(false);
         }
     };
 
@@ -47,11 +52,11 @@ export default (pageValue: Ref<IPageValue>) => {
     };
 
     return {
-        previewPageList,
-        handleView,
         keyDown,
         offScreen,
-        activePreviewPageIndex,
-        winScreenView
+        previewIndex,
+        handlePreview,
+        winScreenView,
+        previewPageList
     };
 };

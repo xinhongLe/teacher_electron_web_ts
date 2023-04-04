@@ -75,7 +75,8 @@ const routes: Array<RouteRecordRaw> = [
                 },
             },
             {
-                path: "attend-class/:chapterId/:lessonId/:bookId",
+                // path: "attend-class/:chapterId/:lessonId/:bookId",
+                path: "attend-class/:bagIds",
                 name: "上课",
                 component: () => import("@/views/attendClass/index.vue"),
             },

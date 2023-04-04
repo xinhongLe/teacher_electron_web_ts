@@ -49,6 +49,7 @@ const dealCallback = (fileName: string, filePath: string) => {
         callbackList.forEach((callback) =>
             callback(filePath.replaceAll("\\", "/"))
         );
+        ElectronLog.info(callbackList.length, fileName);
         downloadSuccessCallbackMap.delete(fileName);
     }
 };
@@ -72,42 +73,53 @@ export const downloadFileAxios = async (url: string, fileName: string) => {
     if (!dirname) {
         return dealCallback(fileName, "");
     }
-    const writer = createWriteStream(filePath);
-    ElectronLog.info("start downloadFile fileName:", fileName);
-    const response = await Axios({
-        url,
-        method: "GET",
-        responseType: "stream",
-    });
-    ElectronLog.info(
-        "downloadFileAxios status: ",
-        response.status,
-        "fileName:",
-        fileName
-    );
-    if (response.status === 200) {
-        response.data.pipe(writer);
-    } else {
-        writer.destroy();
-    }
 
-    const state = await new Promise((resolve) => {
-        writer.on("finish", () => {
-            ElectronLog.info("finish fileName:", fileName);
-            resolve(true);
+    try {
+        ElectronLog.info("start downloadFile fileName:", fileName);
+
+        const response = await Axios({
+            url,
+            method: "GET",
+            responseType: "stream",
         });
-        writer.on("error", (err) => {
-            ElectronLog.info("error fileName", fileName, err.message);
-            resolve(false);
+
+        const writer = createWriteStream(filePath);
+
+        ElectronLog.info(
+            "downloadFileAxios status: ",
+            response.status,
+            "fileName:",
+            fileName
+        );
+        if (response.status === 200) {
+            response.data.pipe(writer);
+        } else {
+            writer.destroy();
+        }
+    
+        const state = await new Promise((resolve) => {
+            writer.on("finish", () => {
+                ElectronLog.info("finish fileName:", fileName);
+                resolve(true);
+            });
+            writer.on("error", (err) => {
+                ElectronLog.info("error fileName", fileName, err.message);
+                resolve(false);
+            });
+            writer.on("close", () => {
+                ElectronLog.info("close fileName", fileName);
+                resolve(false);
+            });
         });
-        writer.on("close", () => {
-            ElectronLog.info("close fileName", fileName);
-            resolve(false);
-        });
-    });
-    const index = downloadingFileList.indexOf(fileName);
-    downloadingFileList.splice(index, 1);
-    dealCallback(fileName, state ? filePath : "");
+        const index = downloadingFileList.indexOf(fileName);
+        downloadingFileList.splice(index, 1);
+        dealCallback(fileName, state ? filePath : "");
+    } catch {
+        ElectronLog.info("start downloadFile fileName error:", fileName);
+        dealCallback(fileName, "");
+        const index = downloadingFileList.indexOf(fileName);
+        if (index > -1) downloadingFileList.splice(index, 1);
+    }
 };
 
 export const downloadFileToPath = async (
@@ -152,7 +164,6 @@ export default () => {
         if (isExist) {
             dealCallback(fileName, filePath);
         } else {
-            if (downloadingFileList.includes(fileName)) return;
             if (!downloadingFileList.includes(fileName)) {
                 downloadingFileList.push(fileName);
                 downloadFileAxios(url, fileName);
@@ -161,18 +172,17 @@ export default () => {
     };
 
     ipcMain.handle("downloadFile", (_, url, fileName) => {
-        return new Promise((resolve) => {
+        return new Promise(resolve => {
             if (downloadSuccessCallbackMap.has(fileName)) {
-                const callbackList =
-                    downloadSuccessCallbackMap.get(fileName) || [];
+                const callbackList = downloadSuccessCallbackMap.get(fileName) || [];
                 downloadSuccessCallbackMap.set(fileName, [
                     ...callbackList,
                     resolve,
                 ]);
             } else {
                 downloadSuccessCallbackMap.set(fileName, [resolve]);
+                downloadFile(url, fileName);
             }
-            downloadFile(url, fileName);
         });
     });
 

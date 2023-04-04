@@ -122,6 +122,10 @@ export interface CommonState {
      * 单开资源活跃窗口
      */
     activeWindow: string;
+    /**
+     * 当前选中的备课包数据
+     */
+    currentPackageData: any
 }
 export interface WrongBookState {
     questionBasket?: any[];

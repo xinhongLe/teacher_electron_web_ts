@@ -188,7 +188,7 @@ export default (
 
     const lastPage = () => {
         isNextBtn.value = false;
-        // debugger;
+
         if (number.value > 1) {
             isLastBtn.value = false;
             if (nextIndex.value < imageUrl.value.length) {

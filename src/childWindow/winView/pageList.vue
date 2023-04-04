@@ -1,19 +1,46 @@
 <template>
     <div class="pageListComponents">
         <div class="me-work">
-            <ScreenView class="me-work-screen" :inline="true" :isInit="isInitPage" ref="screenRef" :slide="currentSlide"
-                :writeBoardVisible="writeBoardVisible" :keyDisabled="keyDisabled" :useScale="false" :winList="cardList"
-                :canvasData="canvasData" @openCard="openCard" @pagePrev="pagePrev" @pageNext="pageNext"
-                @closeWriteBoard="closeWriteBoard" :isShowPenTools="false" v-model:isCanUndo="isCanUndo"
-                v-model:isCanRedo="isCanRedo" v-model:currentDrawColor="currentDrawColor"
-                v-model:currentLineWidth="currentLineWidth" />
-            <open-card-view-dialog @closeOpenCard="closeOpenCard" v-if="dialogVisible" :dialog="dialog"
-                :cardList="dialogCardList" v-model:dialogVisible="dialogVisible"></open-card-view-dialog>
+            <ScreenView
+                class="me-work-screen"
+                :inline="true"
+                :isInit="isInitPage"
+                ref="screenRef"
+                :slide="currentSlide"
+                :writeBoardVisible="writeBoardVisible"
+                :keyDisabled="keyDisabled"
+                :useScale="false"
+                :winList="cardList"
+                :canvasData="canvasData"
+                @openCard="openCard"
+                @pagePrev="pagePrev"
+                @pageNext="pageNext"
+                @closeWriteBoard="closeWriteBoard"
+                :isShowPenTools="false"
+                v-model:isCanUndo="isCanUndo"
+                v-model:isCanRedo="isCanRedo"
+                v-model:currentDrawColor="currentDrawColor"
+                v-model:currentLineWidth="currentLineWidth"
+            />
+            <open-card-view-dialog
+                @closeOpenCard="closeOpenCard"
+                v-if="dialogVisible"
+                :dialog="dialog"
+                :cardList="dialogCardList"
+                v-model:dialogVisible="dialogVisible"
+            ></open-card-view-dialog>
             <transition name="fade">
-                <div class="me-page" :class="{
-                    hidden: isFullScreen && !isShowCardList,
-                }">
-                    <PageItem :pageList="pageList" :selected="currentPageIndex" @selectPage="selectPage" />
+                <div
+                    class="me-page"
+                    :class="{
+                        hidden: isFullScreen && !isShowCardList,
+                    }"
+                >
+                    <PageItem
+                        :pageList="pageList"
+                        :selected="currentPageIndex"
+                        @selectPage="selectPage"
+                    />
                 </div>
             </transition>
         </div>
@@ -22,18 +49,13 @@
 
 <script lang="ts">
 import { computed, defineComponent, inject, ref, watch } from "vue";
-import TrackService, { EnumTrackEventType } from "@/utils/common";
 import useHome from "@/hooks/useHome";
 import OpenCardViewDialog from "./openCardViewDialog.vue";
-import { getCardDetail } from "@/views/preparation/intelligenceClassroom/api";
-import { getWinCardDBData } from "@/utils/database";
 import { ElMessage } from "element-plus";
-import { useRoute } from "vue-router";
 import PageItem from "@/views/preparation/intelligenceClassroom/components/pageItem.vue";
 import { windowInfoKey } from "@/hooks/useWindowInfo";
 import { SchoolWindowPageInfo } from "@/types/preparation";
 import { find } from "lodash";
-import { IElement } from "mwhiteboard";
 import { useStore } from "@/store";
 export default defineComponent({
     props: {
@@ -53,10 +75,9 @@ export default defineComponent({
     components: { OpenCardViewDialog, PageItem },
     setup(props, { emit }) {
         const store = useStore();
-        const { getPageDetail, transformType } = useHome();
+        const { transformType } = useHome();
         const {
             currentCard,
-            currentWindowInfo,
             cardList,
             currentPageIndex,
             currentSlide,
@@ -266,8 +287,8 @@ export default defineComponent({
         watch(
             () => currentLineWidth.value,
             (val) => {
-                console.log('currentLineWidth.value',currentLineWidth.value);
-                
+                console.log("currentLineWidth.value", currentLineWidth.value);
+
                 emit("update:currentLineWidth", val);
             }
         );
@@ -314,7 +335,7 @@ export default defineComponent({
             currentLineWidth,
             redo,
             undo,
-            whiteboardOption
+            whiteboardOption,
         };
     },
 });
@@ -353,8 +374,7 @@ export default defineComponent({
     flex: 1;
     min-width: 0;
     margin-right: 8px !important;
-
-    ::v-deep .slide-list {
+    :deep .slide-list {
         background-color: #fff;
     }
 }
