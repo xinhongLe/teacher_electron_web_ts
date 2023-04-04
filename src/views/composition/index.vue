@@ -47,7 +47,7 @@
     <List ref="listRef" @typein="listToScan" @refresh="getArticleList" />
 </template>
 <script setup lang="ts">
-import { onMounted, reactive, ref, toRefs } from 'vue';
+import { nextTick, onMounted, reactive, ref, toRefs } from 'vue';
 import NewSetup from './components/newSetup.vue'
 import Scan from './components/scan.vue'
 import List from './components/list.vue'
@@ -190,13 +190,13 @@ const getArticleList = () => {
             if (list.length > 0) {
                 list.forEach((ele: any) => {
                     ele.StartTime = moment(ele.StartTime).format('YYYY-MM-DD HH:mm:ss')
-                    ele.Name = (ele.ClassName || '') + (ele.GradeName || '')
+                    ele.Name = (state.className || '') + (ele.GradeName || '')
                 });
             }
             state.articleList = list
-            if (PaginationRef.value) {
+            nextTick(()=>{
                 PaginationRef.value.total = pager.Total
-            }
+            })
         }
     })
 }
