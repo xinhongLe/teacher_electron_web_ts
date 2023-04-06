@@ -10,7 +10,7 @@ export function createWinCardWindow() {
     let display = screen.getPrimaryDisplay();
     let x = display.bounds.x + (display.bounds.width - 1200) / 2;
     virtualKeyBoardWin = createWindow(wincardURL + "?" + '键盘', {
-        height: 300,
+        height: 278,
         useContentSize: true,
         width: 1200,
         autoHideMenuBar: true,
@@ -20,6 +20,9 @@ export function createWinCardWindow() {
         resizable: true, // 禁止窗口大小缩放
         x: x,
         y: 50,
+        maxHeight: 280,
+        minHeight: 280,
+        maxWidth: 1200
     });
 
     // editWin = new BrowserWindow({
@@ -35,7 +38,7 @@ export function createWinCardWindow() {
     //         contextIsolation: false,
     //     },
     // });
-    // virtualKeyBoardWin && virtualKeyBoardWin.webContents.openDevTools(); // 打开调试器
+    virtualKeyBoardWin && virtualKeyBoardWin.webContents.openDevTools(); // 打开调试器
     virtualKeyBoardWin.on("closed", () => {
         virtualKeyBoardWin = null;
     });

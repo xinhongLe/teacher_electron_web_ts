@@ -101,6 +101,7 @@ onMounted(() => {
     keyboard.value = new Keyboard('.keyboardClass', {
         onChange: onChange,
         onKeyPress: onKeyPress,
+        theme: "hg-theme-default myTheme1",
         layout: {
             // 默认布局
             default: [
@@ -138,23 +139,32 @@ onMounted(() => {
 })
 </script>
 
-<style lang="scss" scoped>
-:deep(.hg-theme-default) {
-    width: 70%;
+<style lang="scss">
+/*
+  Theme: myTheme1
+*/
+.keyboardClass.myTheme1 {
+    background-color: rgba(0, 0, 0, 0.8);
+    border-radius: 0;
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+}
 
-    .hg-button {
-        &.hg-red {
-            background: #db3e5d;
-            color: white;
+.keyboardClass.myTheme1 .hg-button {
+    height: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+}
 
-            &.close {
-                max-width: 200px;
-            }
-        }
+.keyboardClass.myTheme1 .hg-button:active {
+    background: #1c4995;
+    color: white;
+}
 
-        &.change {
-            max-width: 200px;
-        }
-    }
+#root .keyboardClass.myTheme1 + .keyboardClass-preview {
+    background: #1c4995;
 }
 </style>
