@@ -94,6 +94,10 @@ const handleFile = (file: any) => {
 
 };
 
+const handleChange = (file:any, fileList:any)=>{
+    
+}
+
 // 下载模板
 const download = () => {
     downLoadBatchImportModel({}).then((res: any) => {
@@ -113,6 +117,11 @@ const download = () => {
 }
 
 const uploadRequest = ({ file }: any) => {
+    const isLt1G = file.size / 1024 / 1024 > 1024
+    if(isLt1G){
+        ElMessage.warning('单次上传文件不能超1G')
+        return
+    }
     const formData = new FormData();
     formData.append('File', file);
     formData.append('TeacherCompositionId', props.teacherCompositionId);
