@@ -46,8 +46,8 @@
                                 <div
                                     class="page"
                                     @click="handlePageClick(page, $event)"
-                                    @mousedown="handleSelect($event,page.ID)"
                                     v-contextmenu="() => contextMenus(page)"
+                                    @mousedown="handleSelect($event,page.ID)"
                                     v-for="page in folder.PageList" :key="page.ID"
                                 >
                                     <div class="page-left">
@@ -60,7 +60,7 @@
                                         <template v-else>
                                             <thumbnail-slide
                                                 :size="228"
-                                                :slide="pageMap.get(page.ID) || {}"
+                                                :slide="page.Json"
                                                 v-if="[pageType.listen,pageType.element].includes(page.Type)"
                                             />
                                             <div class="view-empty" v-else>{{ page.Name }}</div>
@@ -103,10 +103,9 @@
                     ref="editRef"
                     @onSave="winCardSave"
                     :winId="windowInfo?.id"
-                    :allPageSlideListMap="pageMap"
                     @updateMaterial="updateMaterial"
                     @updatePageSlide="updatePageSlide"
-                    :slide="{ ...pageMap.get(currentPage?.ID ) }"
+                    :slide="currentPage?.Json || {}"
                     @applyBackgroundAllSlide="applyBackgroundAllSlide"
                     :subjectID="subjectPublisherBookValue?.SubjectId || ''"
                 />
@@ -118,9 +117,9 @@
     <win-card-view
         ref="winCardViewRef"
         v-if="winScreenView"
+        :list="windowCards"
+        :active-page-index="previewIndex"
         @offScreen="offScreen"
-        :pageList="previewPageList"
-        :activePageIndex="previewIndex"
     />
 
     <!--上传ppt遮罩-->
@@ -170,6 +169,7 @@ import { pageType, pageTypeList } from "@/config";
 import { CardProps, PageProps } from "../api/props";
 import { get, STORAGE_TYPES } from "@/utils/storage";
 import { VueDraggableNext } from "vue-draggable-next";
+import { dealAnimationData } from "@/utils/dataParse";
 import { ElMessage, ElMessageBox } from "element-plus";
 import exitDialog, { ExitType } from "../edit/exitDialog";
 import WinCardEdit from "../components/edit/winCardEdit.vue";
@@ -209,16 +209,14 @@ export default defineComponent({
         const showCollapse = ref(true);
         const addPageVisible = ref(false);
         const currentPage = ref<PageProps | null>(null);
-        const allPages = ref<PageProps[]>([]);
-        const pageMap = ref(new Map<string, Slide>());
         const selectPageIds = ref<string[]>([]);
         const windowCards = ref<CardProps[]>([]);
 
         getWindowCardsData();
 
         const pptHandle = useImportPPT();
-        const previewHandle = usePreview(allPages, currentPage, editRef, winCardViewRef);
-        const addHandle = useHandlePPT(windowCards, allPages, pageMap, currentPage, editRef);
+        const previewHandle = usePreview(windowCards, currentPage, editRef, winCardViewRef);
+        const addHandle = useHandlePPT(windowCards, currentPage, editRef);
 
         // win-card-edit插件保存回调
         const winCardSave = async () => {
@@ -235,7 +233,7 @@ export default defineComponent({
 
                 for (let j = 0; j < item.PageList.length; j++) {
                     const it = item.PageList[j];
-                    const slide: Slide | undefined = pageMap.value.get(it.ID);
+                    const slide: Slide = it.Json;
 
                     let json = "";
                     if (slide?.type === "element") {
@@ -298,8 +296,7 @@ export default defineComponent({
                 const parentId = uuidv4();
                 const pageList = result.slides.map((item, index) => {
                     const id = uuidv4();
-                    pageMap.value.set(id, item);
-                    const page = {
+                    return {
                         ID: id,
                         Name: name[name.length - 1] + "-" + (index + 1),
                         Type: pageType.element,
@@ -315,8 +312,6 @@ export default defineComponent({
                         Url: "",
                         ParentID: parentId
                     };
-                    allPages.value.push(page);
-                    return page;
                 });
                 const card = {
                     Name: name[name.length - 1],
@@ -409,7 +404,11 @@ export default defineComponent({
                 inputPattern: /\S/,
                 inputErrorMessage: "请填写模板名称"
             }).then(async ({ value }) => {
-                const list: any = selectPageIds.value.length === 0 ? [page] : selectPageIds.value.map(item => allPages.value.find(it => it.ID === item));
+                let allPages: PageProps[] = [];
+                windowCards.value.forEach(item => {
+                    allPages = allPages.concat(...item.PageList);
+                });
+                const list: any = selectPageIds.value.length === 0 ? [page] : selectPageIds.value.map(item => allPages.find(it => it.ID === item));
 
                 const params = {
                     ID: "",
@@ -429,7 +428,7 @@ export default defineComponent({
 
                     if (!item.ID) continue;
 
-                    const temPage: Slide | undefined = pageMap.value.get(item.ID);
+                    const temPage: Slide | undefined = allPages.find(it => it.ID === item.ID)?.Json;
 
                     if (!temPage) continue;
 
@@ -610,20 +609,21 @@ export default defineComponent({
         };
 
         const updatePageSlide = (slide: Slide) => {
-            console.log(slide);
             if (!currentPage.value) return;
-            currentPage.value.Json = slide;
+            const index = windowCards.value.findIndex(item => item.ID === currentPage.value?.ParentID);
+            const page = windowCards.value[index].PageList.find(item => item.ID === currentPage.value?.ID) as PageProps;
+            page.Json = slide;
 
             const teach: any = slide.teach;
             if (teach && teach.ossSrc) {
-                currentPage.value.Url = teach.ossSrc;
+                page.Url = teach.ossSrc;
             }
             const game: any = slide.game;
             if (game && game.ossSrc) {
-                currentPage.value.Url = game.ossSrc;
+                page.Url = game.ossSrc;
             }
 
-            addHandle.replaceCurrentPage(currentPage.value);
+            addHandle.replaceCurrentPage(page);
         };
 
         const applyBackgroundAllSlide = (data: any) => {
@@ -635,20 +635,12 @@ export default defineComponent({
                     const it = item.PageList[j];
 
                     if (!it.Json.background) continue;
-                    pageMap.value.set(it.ID, it.Json);
 
                     it.Json.background = data;
                 }
             }
 
             windowCards.value = list;
-
-            for (let i = 0; i < allPages.value.length; i++) {
-                const item = allPages.value[i];
-
-                if (!item.Json.background) continue;
-                item.Json.background = data;
-            }
         };
 
         // 整体保存
@@ -752,7 +744,6 @@ export default defineComponent({
         // 组装ppt列表数据
         async function assembleCardData(arr: CardProps[]) {
             const list = [];
-            const backupPages = [];
             let index = 1;
 
             for (let i = 0; i < arr.length; i++) {
@@ -770,7 +761,6 @@ export default defineComponent({
                     }
 
                     const slide: Slide = await transformPageDetail(it, json);
-                    pageMap.value.set(it.ID, slide);
 
                     const obj = {
                         ID: it.ID,
@@ -783,14 +773,13 @@ export default defineComponent({
                         State: it.State,
                         AcademicPresupposition: it.AcademicPresupposition,
                         DesignIntent: it.DesignIntent,
-                        Json: json,
+                        Json: dealAnimationData(slide),
                         Index: index,
                         Url: url,
                         ParentID: item.ID
                     };
 
                     pageList.push(obj);
-                    backupPages.push(obj);
                     index++;
                 }
                 list.push({
@@ -802,9 +791,9 @@ export default defineComponent({
                     Fold: true
                 });
             }
+            console.log(list)
             windowCards.value = list;
-            allPages.value = backupPages;
-            total.value = pageMap.value.size;
+            total.value = index;
             currentPage.value = list[0].PageList[0];
         }
 
@@ -826,7 +815,6 @@ export default defineComponent({
         return {
             total,
             editRef,
-            pageMap,
             pageType,
             windowInfo,
             currentPage,
@@ -838,8 +826,8 @@ export default defineComponent({
             materialCenterRef,
             subjectPublisherBookValue,
             importPPT,
-            handleSave,
             winCardSave,
+            handleSave,
             handleSelect,
             contextMenus,
             checkIsHandle,
@@ -1091,7 +1079,7 @@ export default defineComponent({
                                 &.add {
                                     right: 36px;
                                     bottom: -16px;
-                                    margin-right: 10px;
+                                    margin-right: 15px;
 
                                     img {
                                         width: 32px;
@@ -1122,6 +1110,9 @@ export default defineComponent({
                             border: 1px solid #ebeff1;
                             display: flex;
                             align-items: flex-end;
+                            background-image: url("../../../../assets/edit/pic_defaulted.png");
+                            background-size: cover;
+                            background-repeat: no-repeat;
                         }
 
                         .name {
@@ -1237,10 +1228,10 @@ export default defineComponent({
 
 <style lang="scss">
 .canvas-tool .left-handler {
-    position: fixed;
-    left: 26px;
-    height: 56px;
-    display: flex;
-    align-items: center;
+    position: fixed !important;
+    left: 26px !important;;
+    height: 56px !important;;
+    display: flex !important;;
+    align-items: center !important;;
 }
 </style>
