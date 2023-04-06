@@ -18,7 +18,7 @@
                 </div>
             </div>
         </div>
-        <div class="bottom align-center">
+        <div class="bottom align-center" v-if="status!==4 && status!==5">
             <div class="view" @click="viewReport">查看报告</div>
             <div class="export" @click="exportPDF">导出为pdf</div>
         </div>
@@ -36,6 +36,7 @@ const scanRef = ref()
 const dialogVisible = ref(false)
 
 const state = reactive({
+    status:0,
     popoverVisible: false,
     gradeList: [{
         label: '全部',
@@ -51,7 +52,7 @@ const state = reactive({
 
 const emit = defineEmits(['close', 'save', 'viewReport']);
 
-const { gradeList, grade, content, stuList, title } = toRefs(state)
+const { gradeList, grade, content,status, stuList, title } = toRefs(state)
 
 // exportPDF
 const exportPDF = () => {
@@ -89,6 +90,7 @@ const getDetail = (id: string) => {
             state.content = result.Content || ''
             state.title = result.Title || ''
             state.author = result.StudentName || ''
+            state.status = result.Status
             dialogVisible.value = true
         }
     })

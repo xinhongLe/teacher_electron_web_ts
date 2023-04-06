@@ -230,7 +230,9 @@ const onDecode = (result: any) => {
         // 处理显示到左侧
         searchRepeat(result)
     } else {
-        ElMessage.warning('未识别出二维码信息')
+        if(state.isCodeMode){
+            ElMessage.warning('未识别出二维码信息')
+        }
     }
 }
 
