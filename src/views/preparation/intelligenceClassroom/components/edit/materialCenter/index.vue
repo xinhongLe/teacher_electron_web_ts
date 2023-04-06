@@ -28,13 +28,13 @@
                     ref="componentRef"
                 />
             </div>
-            <div class="toresourse">
-                <div class="text">
-                    前往
-                    <span @click="router.push('/resource-center')">【资源中心】</span>
-                    搜索更多
-                </div>
-            </div>
+<!--            <div class="toresourse">-->
+<!--                <div class="text">-->
+<!--                    前往-->
+<!--                    <span @click="router.push('/resource-center')">【资源中心】</span>-->
+<!--                    搜索更多-->
+<!--                </div>-->
+<!--            </div>-->
         </div>
     </div>
 </template>
