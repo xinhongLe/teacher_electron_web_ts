@@ -152,7 +152,7 @@ export default defineComponent({
             window.electron.exit();
         };
         const openVirtualKeyBoard = () => {
-            window.electron.ipcRenderer.invoke("openVirtualKeyBoardWin");
+            window.electron.ipcRenderer.invoke("openVirtualKeyBoardWin", form.password);
             // window.electron.ipcRenderer.invoke("openVirtualKeyBoard");
             // showKeyboard()
         };

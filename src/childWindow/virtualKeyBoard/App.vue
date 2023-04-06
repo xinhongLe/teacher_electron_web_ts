@@ -13,9 +13,7 @@ const props = defineProps({
         default: 'simple-keyboard',
         type: String
     },
-    input: {
-        default: ''
-    },
+
     maxLength: {default: ''}
 })
 const keyboard = ref<any>(null)
@@ -31,13 +29,6 @@ const displayDefault = reactive({
     '{clear}': '清空',
     '{close}': '关闭'
 })
-
-watch(
-    () => unref(props).input,
-    (input) => {
-        keyboard.value.setInput(input)
-    }
-)
 
 function onChange(input: any) {
     keyboard.value.setInput(input)
@@ -98,6 +89,11 @@ function onKeyPress(button: any, $event: any) {
 }
 
 onMounted(() => {
+    window.electron.ipcRenderer.on("setInputValue", (e, data) => {
+        if (data) {
+            keyboard.value.setInput(data)
+        }
+    });
     keyboard.value = new Keyboard('.keyboardClass', {
         onChange: onChange,
         onKeyPress: onKeyPress,

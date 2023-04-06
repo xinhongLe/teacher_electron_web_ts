@@ -4,6 +4,7 @@ import ElectronLog from "electron-log";
 
 let virtualKeyBoardWin: BrowserWindow | null;
 const wincardURL = process.env.NODE_ENV === "development" ? `${process.env.WEBPACK_DEV_SERVER_URL}virtualKeyBoard.html` : `file://${__dirname}/virtualKeyBoard.html`;
+let currentInput = "";
 
 export function createWinCardWindow() {
     const {screen} = require('electron');
@@ -38,10 +39,14 @@ export function createWinCardWindow() {
     //         contextIsolation: false,
     //     },
     // });
-    virtualKeyBoardWin && virtualKeyBoardWin.webContents.openDevTools(); // 打开调试器
+    // virtualKeyBoardWin && virtualKeyBoardWin.webContents.openDevTools(); // 打开调试器
     virtualKeyBoardWin.on("closed", () => {
         virtualKeyBoardWin = null;
     });
+
+    virtualKeyBoardWin.on("ready-to-show", () => {
+        virtualKeyBoardWin && virtualKeyBoardWin.webContents.send("setInputValue", currentInput);
+    })
 
     // require("@electron/remote/main").enable(editWin.webContents);
     // editWin.loadURL(wincardURL);
@@ -50,6 +55,7 @@ export function createWinCardWindow() {
 
 export function registerVirtualKeyBoard() {
     ipcMain.handle("openVirtualKeyBoardWin", (_, data) => {
+        currentInput = data;
         !virtualKeyBoardWin && createWinCardWindow();
     });
 }
