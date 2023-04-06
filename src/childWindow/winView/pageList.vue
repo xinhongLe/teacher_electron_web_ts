@@ -57,20 +57,22 @@ import { windowInfoKey } from "@/hooks/useWindowInfo";
 import { SchoolWindowPageInfo } from "@/types/preparation";
 import { find } from "lodash";
 import { useStore } from "@/store";
+import { dealAnimationData } from "@/utils/dataParse";
+
 export default defineComponent({
     props: {
         dialog: {
             type: Boolean,
-            default: false,
+            default: false
         },
         isShowCardList: {
             type: Boolean,
-            default: true,
+            default: true
         },
         isFullScreen: {
             type: Boolean,
-            default: false,
-        },
+            default: false
+        }
     },
     components: { OpenCardViewDialog, PageItem },
     setup(props, { emit }) {
@@ -82,7 +84,7 @@ export default defineComponent({
             currentPageIndex,
             currentSlide,
             pageList,
-            currentPageInfo,
+            currentPageInfo
         } = inject(windowInfoKey)!;
 
         const dialogVisible = ref(false);
@@ -111,7 +113,7 @@ export default defineComponent({
             [pageList, currentCard],
             (newValues, prevValues) => {
                 const findPage = find(newValues[0], {
-                    ID: currentPageInfo.value?.ID,
+                    ID: currentPageInfo.value?.ID
                 });
                 if (newValues[1]?.ID === prevValues[1]?.ID && findPage) {
                     return;
@@ -126,7 +128,7 @@ export default defineComponent({
                 }
             },
             {
-                deep: true,
+                deep: true
             }
         );
         const writeBoardVisible = ref(false);
@@ -137,7 +139,7 @@ export default defineComponent({
         const getDataBase = async (str: string, obj: SchoolWindowPageInfo) => {
             const elements = screenRef.value.whiteboard.getElements();
             currentSlide.value.id &&
-                canvasDataMap.set(currentSlide.value.id, elements);
+            canvasDataMap.set(currentSlide.value.id, elements);
             if (transformType(obj.Type) === -1) {
                 ElMessage({ type: "warning", message: "暂不支持该页面类型" });
                 currentSlide.value = {};
@@ -154,9 +156,8 @@ export default defineComponent({
             //     });
             // }
             if (appjson.value.slides) {
-                currentSlide.value = appjson.value.slides.find(
-                    (p: any) => p.id === str
-                );
+                const slide = appjson.value.slides.find((p: any) => p.id === str);
+                currentSlide.value = dealAnimationData(slide);
             }
         };
         const screenRef = ref();
@@ -242,7 +243,7 @@ export default defineComponent({
                                 ID: page.id,
                                 Type: page.type,
                                 Name: page.name,
-                                OriginType: card.type,
+                                OriginType: card.type
                             };
                         })
                     );
@@ -335,9 +336,9 @@ export default defineComponent({
             currentLineWidth,
             redo,
             undo,
-            whiteboardOption,
+            whiteboardOption
         };
-    },
+    }
 });
 </script>
 
@@ -374,6 +375,7 @@ export default defineComponent({
     flex: 1;
     min-width: 0;
     margin-right: 8px !important;
+
     :deep .slide-list {
         background-color: #fff;
     }
