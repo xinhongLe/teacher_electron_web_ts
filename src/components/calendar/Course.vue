@@ -241,8 +241,6 @@ const updateSchedules = inject("updateSchedules") as () => Promise<void>;
 // };
 
 const onMouseEnter = async (ev: MouseEvent | TouchEvent) => {
-    console.log('1111111111');
-
     if (isDragging.value && !isEnd.value) {
         isActive.value = true;
     } else {

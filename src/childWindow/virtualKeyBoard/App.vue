@@ -90,9 +90,7 @@ function onKeyPress(button: any, $event: any) {
 
 onMounted(() => {
     window.electron.ipcRenderer.on("setInputValue", (e, data) => {
-        if (data) {
-            keyboard.value.setInput(data)
-        }
+        keyboard.value.setInput(data)
     });
     keyboard.value = new Keyboard('.keyboardClass', {
         onChange: onChange,

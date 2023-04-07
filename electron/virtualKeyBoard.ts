@@ -39,7 +39,7 @@ export function createWinCardWindow() {
     //         contextIsolation: false,
     //     },
     // });
-    // virtualKeyBoardWin && virtualKeyBoardWin.webContents.openDevTools(); // 打开调试器
+    virtualKeyBoardWin && virtualKeyBoardWin.webContents.openDevTools(); // 打开调试器
     virtualKeyBoardWin.on("closed", () => {
         virtualKeyBoardWin = null;
     });
@@ -68,3 +68,6 @@ export function closeKeyBoard() {
     virtualKeyBoardWin && virtualKeyBoardWin.destroy();
 }
 
+export function setInput(data: any) {
+    virtualKeyBoardWin && virtualKeyBoardWin.webContents.send("setInputValue", data);
+}

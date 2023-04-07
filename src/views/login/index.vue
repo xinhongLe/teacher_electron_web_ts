@@ -10,7 +10,8 @@
             </div>
             <el-form :model="form" label-width="0px" size="large">
                 <el-form-item>
-                    <el-input class="zh-class" v-model.trim="form.account" placeholder="请输入手机号码" maxlength="11">
+                    <el-input class="zh-class" v-model.trim="form.account" placeholder="请输入手机号码" maxlength="11"
+                              @focus="focusInput(0)">
                         <template #prefix>
                             <img src="@/assets/images/login/icon_zhanghao.png" alt=""/>
                         </template>
@@ -30,7 +31,7 @@
                     </el-select>
                 </el-form-item>
                 <el-form-item v-if="isPassWordLogin">
-                    <el-input type="password" v-model="form.password" placeholder="请输入密码">
+                    <el-input type="password" v-model="form.password" placeholder="请输入密码" @focus="focusInput(1)">
                         <template #prefix>
                             <img src="@/assets/images/login/icon_password.png" alt=""/>
                         </template>
@@ -94,7 +95,7 @@ export default defineComponent({
     setup() {
         const router = useRouter();
         const route = useRoute();
-
+        const isAccount = ref(false);
         const form = reactive({
             account: "",
             code: "",
@@ -152,7 +153,7 @@ export default defineComponent({
             window.electron.exit();
         };
         const openVirtualKeyBoard = () => {
-            window.electron.ipcRenderer.invoke("openVirtualKeyBoardWin", form.password);
+            window.electron.ipcRenderer.invoke("openVirtualKeyBoardWin", "");
             // window.electron.ipcRenderer.invoke("openVirtualKeyBoard");
             // showKeyboard()
         };
@@ -177,7 +178,11 @@ export default defineComponent({
         onMounted(() => {
             window.electron.ipcRenderer.on("dataToPassword", (event, data) => {
                 // 在这里处理数据
-                form.password = data;
+                if (isAccount.value) {
+                    form.account = data;
+                } else {
+                    form.password = data;
+                }
             });
             document.addEventListener("keyup", onEnter)
         });
@@ -192,8 +197,18 @@ export default defineComponent({
             window.electron.unmaximizeWindow();
             window.electron.setCenter();
         }
+        const focusInput = (type: number) => {
+            if (type) {
+                isAccount.value = false;
+                window.electron.ipcRenderer.invoke("setInput", form.password ? form.password : "");
+            } else {
+                isAccount.value = true;
+                window.electron.ipcRenderer.invoke("setInput", form.account ? form.account : "");
+            }
+        };
 
         return {
+            isAccount,
             form,
             recordAccountList,
             loading,
@@ -207,6 +222,7 @@ export default defineComponent({
             codeTime,
             isPassWordLogin,
             isElectron: isElectron(),
+            focusInput
         };
     }
 });
