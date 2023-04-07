@@ -195,7 +195,9 @@ const getArticleList = () => {
             }
             state.articleList = list
             nextTick(()=>{
-                PaginationRef.value.total = pager.Total
+                if(PaginationRef.value){
+                    PaginationRef.value.total = pager.Total
+                }
             })
         }
     })

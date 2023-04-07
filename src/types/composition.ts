@@ -30,7 +30,7 @@ export interface IdeleteArticle{
 /************************************* */
 
 export interface IdownLoadBatchImportModel{
-    
+    ClassId?: string | null;
 }
 
 export interface IresubmitCorrectComposition{
