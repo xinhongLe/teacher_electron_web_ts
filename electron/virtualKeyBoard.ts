@@ -24,7 +24,6 @@ export function createWinCardWindow() {
         maxHeight: 280,
         minHeight: 280,
         maxWidth: 1200,
-        focusable: false
     });
 
     // editWin = new BrowserWindow({
@@ -40,7 +39,7 @@ export function createWinCardWindow() {
     //         contextIsolation: false,
     //     },
     // });
-    virtualKeyBoardWin && virtualKeyBoardWin.webContents.openDevTools(); // 打开调试器
+    // virtualKeyBoardWin && virtualKeyBoardWin.webContents.openDevTools(); // 打开调试器
     virtualKeyBoardWin.on("closed", () => {
         virtualKeyBoardWin = null;
     });
