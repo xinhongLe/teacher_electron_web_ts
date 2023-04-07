@@ -583,7 +583,7 @@ export default defineComponent({
                 Index: 0,
                 Url: obj.data.url,
                 ParentID: currentPage.value?.ID,
-                Json: {
+                Json: await transformPageDetail({ Type: pageType.teach }, {
                     TeachPageID: id,
                     TeachingMiniToolID: obj.data.ID,
                     ToolFileModel: {
@@ -592,13 +592,14 @@ export default defineComponent({
                         File: obj.data.File,
                         Url: obj.data.Url
                     }
-                }
+                })
             };
             const index = windowCards.value.findIndex(item => item.ID === currentPage.value?.ParentID);
             const subIndex = windowCards.value[index].PageList.findIndex(item => item.ID === currentPage.value?.ID);
 
             addHandle.insertWindowsCards(page, index, subIndex);
             addHandle.sortWindowCards();
+            currentPage.value = addHandle.getPageById(id);
         };
 
         // 保存完组件后刷新素材列表
