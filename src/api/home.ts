@@ -4,6 +4,7 @@ import { ICardList, ITreeList } from "@/types/home";
 import { Slide } from "wincard";
 import { WINDOW_CRAD_API, originType, API_CENTER_USER_MANAGE } from "@/config/index";
 import { getWinCardDBData, WinCardData } from "@/utils/database";
+import { CardProps } from "@/views/preparation/intelligenceClassroom/api/props";
 type BookListResponse = IResponse<ITreeList[]>
 export interface IGetChapters {
     id: string
@@ -37,7 +38,8 @@ interface Remark {
 
 type GetWindowCardsResponse = IResponse<ICardList[]>
 
-type GetWindowStructResponse = IResponse<{ WindowID: string, CardData: ICardList[]}>
+
+type GetWindowStructResponse = IResponse<{ WindowID: string, CardData: any}>
 
 type GetPageResponse = IResponse<any>
 
@@ -619,6 +621,9 @@ interface IPlatformResponse {
 export function getPlatformByOrgId(data: IOrgId[]) : Promise<IResponse<IPlatformResponse[]>> {
     return request({
         baseURL: API_CENTER_USER_MANAGE,
+        headers:{
+            noLoading: "true"
+        },
         url: "/platform-org-relation/getByOrgIds",
         method: "post",
         data

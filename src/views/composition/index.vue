@@ -25,7 +25,7 @@
                 @click="openList(item.Id, item.Title)">
                 <img src="../../assets/composition/pic_zw@2x.png" alt="" />
                 <div class="title">{{ '《' + item.Title + '》' }}</div>
-                <div class="grade">{{ item.GradeName }}</div>
+                <div class="grade">{{ item.Name }}</div>
                 <div class="count">
                     已完成/已录入：<span class="num">{{ item.CompletedCount }}</span> / {{ item.RecordCount }}
                 </div>
@@ -47,7 +47,7 @@
     <List ref="listRef" @typein="listToScan" @refresh="getArticleList" />
 </template>
 <script setup lang="ts">
-import { onMounted, reactive, ref, toRefs } from 'vue';
+import { nextTick, onMounted, reactive, ref, toRefs } from 'vue';
 import NewSetup from './components/newSetup.vue'
 import Scan from './components/scan.vue'
 import List from './components/list.vue'
@@ -55,6 +55,9 @@ import Pagination from './components/pagination.vue'
 import { store } from '@/store';
 import { fetchAllPassage, fetchAllPassageByPage, getClassStuCountByTeacher, getGradeChapterTree } from './api';
 import moment from 'moment';
+import { IYunInfo } from '@/types/login';
+import { get, STORAGE_TYPES } from '@/utils/storage';
+import { ElMessage } from 'element-plus';
 
 const setRef = ref()
 const scanRef = ref()
@@ -114,9 +117,12 @@ const classChange = (e: any) => {
  * 获取班级
  */
 const getClassStuCount = (isinit = false, cb?: any) => {
+    const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
+
     getClassStuCountByTeacher({
         OrgId: store.state.userInfo?.schoolId,
-        UserId: store.state.userInfo?.userCenterUserID
+        UserId: store.state.userInfo?.userCenterUserID,
+        SemesterCode: yunInfo.TermCode
     }).then((res: any) => {
         if (res.success) {
             state.classList = res.result || []
@@ -127,6 +133,11 @@ const getClassStuCount = (isinit = false, cb?: any) => {
                     "compositionClassId",
                     state.classId
                 );
+            }else{
+                // 没有班级 清空
+                state.classId = ''
+                state.className = ''
+                localStorage.removeItem('compositionClassId')
             }
             if (cb) {
                 cb()
@@ -163,6 +174,10 @@ const scanOpenList = (e: any) => {
 }
 
 const addComposition = () => {
+    if(!state.classId){
+        ElMessage.warning('当前没有班级，无法新建')
+        return
+    }
     setRef.value.openDialog({ classCount: state.classCount })
 }
 
@@ -175,12 +190,15 @@ const getArticleList = () => {
             if (list.length > 0) {
                 list.forEach((ele: any) => {
                     ele.StartTime = moment(ele.StartTime).format('YYYY-MM-DD HH:mm:ss')
+                    ele.Name = (state.className || '') + (ele.GradeName || '')
                 });
             }
             state.articleList = list
-            if (PaginationRef.value) {
-                PaginationRef.value.total = pager.Total
-            }
+            nextTick(()=>{
+                if(PaginationRef.value){
+                    PaginationRef.value.total = pager.Total
+                }
+            })
         }
     })
 }

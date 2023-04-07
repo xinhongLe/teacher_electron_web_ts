@@ -2,7 +2,7 @@
     <div class="origin" style="height: 100%;" v-if="dialogVisible">
         <div class="upper align-center">
             <span>检查原文</span>
-            <!-- <div class="top">查看下一篇</div> -->
+            <div class="top" @click="viewNext">查看下一篇</div>
         </div>
 
         <div class="box align-center">
@@ -19,7 +19,7 @@
             </div>
             <div class="right">
                 <div class="head align-center">
-                    <el-input class="title" v-model="title" />
+                    <el-input class="title" maxlength="15" v-model="title" />
                     <!-- <div contenteditable="true">我的母亲</div> -->
                     <div class="author align-center">
                         <span class="name">{{ state.author }}</span>
@@ -42,7 +42,7 @@ import { store } from '@/store';
 import { getOssUrl } from '@/utils/oss';
 import { ElMessage } from 'element-plus';
 import { reactive, ref, toRefs } from 'vue';
-import { checkContent, saveContent } from '../api';
+import { checkContent, lookNextContent, saveContent } from '../api';
 
 const setRef = ref()
 const scanRef = ref()
@@ -78,10 +78,41 @@ const switchPic = (item: any, idx: number) => {
     state.mainPic = item.url
 }
 
+/**
+ * 查看下一篇
+ */
+const viewNext = ()=>{
+    lookNextContent({ StudentCompositionId: state.StudentCompositionId }).then(async (res: any) => {
+        if (res.success) {
+            let result = res.result
+            state.StudentCompositionId = result.StudentCompositionId
+            state.content = result.Content || ''
+            state.title = result.Title
+            state.author = result.StudentName
+            state.photoList = result.StudentCompositionFile
+            await state.photoList.forEach(async (ele: any, i: number) => {
+                const { FileExtention, FilePath, FileMD5, FileBucket } = ele;
+                const key = FileExtention
+                    ? `${FilePath}/${FileMD5}.${FileExtention}`
+                    : `${FilePath}/${FileMD5}`;
+                ele.url = await getOssUrl(key, FileBucket)
+                if (i === 0) {
+                    state.mainPic = ele.url;
+                }
+            })
+            // dialogVisible.value = true
+        }
+    })
+}
+
 // 保存
 const save = () => {
     if(state.title.length===0){
         ElMessage.error('标题不可为空')
+        return
+    }
+    if(state.title.length>15){
+        ElMessage.error('标题限制15字')
         return
     }
     let args = { StudentCompositionId: state.StudentCompositionId,Title:state.title, Content: state.content, OperatorId: store.state.userInfo?.userCenterUserID }
@@ -192,6 +223,7 @@ defineExpose({
         width: calc(50% - 8px);
         height: 100%;
         border-radius: 4px;
+        overflow: hidden;
     }
 
     .left {
@@ -265,7 +297,7 @@ defineExpose({
             color: #19203D;
             line-height: 22px;
             padding: 24px 18px 50px 18px;
-            white-space: pre;
+            white-space: pre-wrap;
         }
 
         .head {

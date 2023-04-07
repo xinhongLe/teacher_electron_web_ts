@@ -10,6 +10,7 @@ export interface FetchAllPassage {
 export interface getClassStuCount {
     OrgId?: string;
     UserId?: string;
+    SemesterCode?:string|number|null;
 }
 
 export interface IAddArticle {
@@ -29,7 +30,7 @@ export interface IdeleteArticle{
 /************************************* */
 
 export interface IdownLoadBatchImportModel{
-    
+    ClassId?: string | null;
 }
 
 export interface IresubmitCorrectComposition{
@@ -94,6 +95,7 @@ export interface IgetStudentByHasEntry{
 export interface IgetStudentByUserInfo{
     UserInfo?: string | null;
     ClassId?: string | null;
+    TeacherCompositionId?: string | null;
 }
 
 export interface IoneStudentEntry{

@@ -63,6 +63,7 @@ import { ElMessage } from 'element-plus';
 import moment from 'moment';
 import { reactive, ref, toRefs, watch, nextTick } from 'vue';
 import { compositionBatchImport, downLoadBatchImportModel } from '../api';
+import { getOssUrl } from '@/utils/oss';
 //
 const uploadRef = ref();
 //
@@ -94,14 +95,25 @@ const handleFile = (file: any) => {
 
 };
 
+const handleChange = (file:any, fileList:any)=>{
+    
+}
+
 // 下载模板
 const download = () => {
-    downLoadBatchImportModel({}).then((res: any) => {
-        if (res) {
-            let blob = new Blob([res]);
-            let objectUrl = window.URL.createObjectURL(blob); //生成一个url
+    // downLoadBatchImportModel({})
+    downLoadBatchImportModel({ClassId: localStorage.getItem('compositionClassId')}).then(async (res: any) => {
+        if (res.success) {
+            // let blob = new Blob([res]);
+            // let objectUrl = window.URL.createObjectURL(blob); //生成一个url
+            let result = res.result
+            const { FileExtention, FilePath, FileMD5, FileBucket,Name } = result;
+                const key = FileExtention
+                    ? `${FilePath}/${FileMD5}.${FileExtention}`
+                    : `${FilePath}/${FileMD5}`;
+            let objectUrl = await getOssUrl(key, FileBucket);
             const a = document.createElement('a');
-            const filename = '批量导入模板.zip';
+            const filename = Name + '.zip';
             a.download = filename;
             a.href = objectUrl;
             document.body.appendChild(a);
@@ -113,6 +125,11 @@ const download = () => {
 }
 
 const uploadRequest = ({ file }: any) => {
+    const isLt1G = file.size / 1024 / 1024 > 1024
+    if(isLt1G){
+        ElMessage.warning('单次上传文件不能超1G')
+        return
+    }
     const formData = new FormData();
     formData.append('File', file);
     formData.append('TeacherCompositionId', props.teacherCompositionId);

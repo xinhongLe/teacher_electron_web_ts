@@ -4,8 +4,8 @@
             <div class="back" @click="close">
                 <img src="../../../assets/composition/icon_back@2x.png" alt="" />
             </div>
-            <!-- <el-pagination background layout="prev, pager, next" :total="1000" />
-            <div class="top">查看下一篇</div> -->
+            <!-- <el-pagination background layout="prev, pager, next" :total="1000" /> -->
+            <div class="top" @click="viewNext">查看下一篇</div>
         </div>
 
         <div class="box align-center">
@@ -77,15 +77,15 @@
         </div>
     </div>
     <!-- 查看原文 -->
-    <Article ref="articleRef" />
+    <Article ref="articleRef" @view-report="closeArticle" />
 </template>
 <script setup lang="ts">
 import { getOssUrl } from '@/utils/oss';
 import { ElMessage } from 'element-plus';
 import moment from 'moment';
 import { reactive, ref, toRefs } from 'vue';
-import {saveAs as FileSaver} from 'file-saver'
-import { downloadPDF, editReportDetail, searchReportDetail } from '../api';
+import { saveAs as FileSaver } from 'file-saver'
+import { downloadPDF, editReportDetail, lookNextContent, searchReportDetail } from '../api';
 import Article from './article.vue';
 
 const articleRef = ref()
@@ -147,7 +147,9 @@ const state = reactive({
     grade: null,
     title: '',
     author: '',
-    stuList: []
+    stuList: [],
+    IsHaveNext: false,
+    NextStudentCompositionId: ''
 })
 
 const emit = defineEmits(['close', 'save']);
@@ -159,6 +161,17 @@ const switchPic = (item: any, idx: number) => {
     state.mainPic = item.url
 }
 
+/**
+ * 查看下一篇
+ */
+const viewNext = () => {
+    if (state.IsHaveNext) {
+        getDetail(state.NextStudentCompositionId,true)
+    } else {
+        ElMessage.error('当前为最后一篇')
+    }
+}
+
 // exportPDF
 const exportPDF = () => {
     downloadPDF({ StudentCompositionId: state.StudentCompositionId }).then((res: any) => {
@@ -167,7 +180,8 @@ const exportPDF = () => {
             let blob = new Blob([res], { type: "application/pdf" });
             // let objectUrl = window.URL.createObjectURL(blob); //生成一个url
             // const a = document.createElement('a');
-            const filename = moment().format('YYYY-MM-DD') + '.pdf';
+            // const fileName = res.getResponseHeader('Content-Disposition').split(';')[1].split('filename=')[1];
+            const filename = state.author + '的评价报告.pdf';
             //直接下载而不预览
             FileSaver.saveAs(blob, filename)
             // a.download = filename;
@@ -180,18 +194,26 @@ const exportPDF = () => {
     })
 }
 
+// 
+const closeArticle = ()=>{
+    articleRef.value.close()
+}
+
 // 查看原文
 const viewArticle = () => {
     articleRef.value.openDialog({ StudentCompositionId: state.StudentCompositionId })
 }
 
-// 保存分数
+// 保存分数---等级
 const saveScore = () => {
     exeSave(1, state.inputScore, () => {
         state.score = state.inputScore
-        state.assessment = judgeScore(state.score)
-        state.assess = state.assessList.findIndex(v => v.name == state.assessment) + 1
-        state.popoverVisible = false
+        exeSave(2, state.assess, () => {
+            ElMessage.success('保存成功')
+            state.assessment = state.assessList.find(v => v.value == state.assess)?.name
+            state.popoverVisible = false
+        })
+        // state.assessment = judgeScore(state.score)
     })
 }
 
@@ -199,6 +221,7 @@ const saveScore = () => {
 const inputBlur = (idx: number) => {
     let num = idx + 3
     exeSave(num, state.lineList[idx]['content'], () => {
+        ElMessage.success('保存成功')
         state.lineList[idx]['status'] = 0
     })
 }
@@ -206,7 +229,6 @@ const inputBlur = (idx: number) => {
 const exeSave = (type: number, info: any, cb?: any) => {
     editReportDetail({ StudentCompositionId: state.StudentCompositionId, SaveType: type, SaveInfo: info }).then(async (res: any) => {
         if (res.success) {
-            ElMessage.success('保存成功')
             if (cb) {
                 cb()
             }
@@ -228,22 +250,27 @@ const close = () => {
 const openDialog = async (info?: any) => {
     const { StudentCompositionId } = info
     state.StudentCompositionId = StudentCompositionId
-    getDetail(StudentCompositionId)
+    getDetail(StudentCompositionId,false)
 }
 
-const getDetail = (id: string) => {
+const getDetail = (id: string,isRequestNext?:boolean) => {
+    if(isRequestNext){
+        state.StudentCompositionId = id
+    }
     searchReportDetail({ StudentCompositionId: id }).then(async (res: any) => {
         if (res.success) {
             //FileList
             let result = res.result
             state.score = result.Score
-            state.assessment = judgeScore(state.score)
-            state.assess = state.assessList.findIndex(v => v.name == state.assessment)
+            state.assessment = result.AppraiseLevelDisplay
+            state.assess = result.AppraiseLevel//state.assessList.findIndex(v => v.name == state.assessment)
             state.author = result.StudentName || ''
             state.lineList.forEach((ele: any) => {
                 ele.content = result[ele.key]
             })
             state.photoList = result.FileList
+            state.IsHaveNext = result.IsHaveNext
+            state.NextStudentCompositionId = result.NextStudentCompositionId
             await state.photoList.forEach(async (ele: any, i: number) => {
                 const { FileExtention, FilePath, FileMD5, FileBucket } = ele;
                 const key = FileExtention
@@ -329,13 +356,13 @@ defineExpose({
     .back {
         position: absolute;
         left: 0;
-        top: 0;
-        padding: 16px;
+        top: 2px;
+        padding: 9px;
         cursor: pointer;
 
         &>img {
-            width: 24px;
-            height: 24px;
+            width: 35px;
+            height: 35px;
         }
     }
 
@@ -592,6 +619,7 @@ defineExpose({
                     font-weight: 400;
                     color: #19203D;
                     line-height: 22px;
+                    word-break: break-all;
                 }
 
                 .input {

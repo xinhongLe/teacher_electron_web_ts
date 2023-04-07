@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { defineProps, PropType, defineEmits } from "vue";
+import { PropType } from "vue";
 
 defineProps({
     selected: {

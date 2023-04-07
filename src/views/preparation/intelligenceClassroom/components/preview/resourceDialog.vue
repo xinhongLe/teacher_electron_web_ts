@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { onClickOutside } from "@vueuse/core";
-import { computed, defineEmits, ref } from "vue";
+import { computed, ref } from "vue";
 import ScheduleManagement from "@/views/preparation/scheduleManagement/index.vue";
 import { store } from "@/store";
 

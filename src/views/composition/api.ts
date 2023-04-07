@@ -107,6 +107,20 @@ IdeleteArticle,
 
 /*********************************************** */
 
+// // 下载批量导入模板
+// export const downLoadBatchImportModel: RequestFun<
+// IdownLoadBatchImportModel,
+//     any
+// > = (data) => {
+//     return request({
+//         baseURL: YUN_API_COMPOSITION,
+//         url: "/Api/TeacherPlat/CompositionHandle/DownLoadBatchImportModel",
+//         method: "post",
+//         responseType:'blob',
+//         data
+//     });
+// };
+
 // 下载批量导入模板
 export const downLoadBatchImportModel: RequestFun<
 IdownLoadBatchImportModel,
@@ -114,7 +128,7 @@ IdownLoadBatchImportModel,
 > = (data) => {
     return request({
         baseURL: YUN_API_COMPOSITION,
-        url: "/Api/TeacherPlat/CompositionHandle/DownLoadBatchImportModel",
+        url: "/Api/App/CompositionEntry/GetClassTemplate",
         method: "post",
         data
     });
@@ -378,6 +392,19 @@ IsaveContent,
     return request({
         baseURL: YUN_API_COMPOSITION,
         url: "/Api/App/CompositionEntry/SaveContent",
+        method: "post",
+        data
+    });
+};
+
+// 查看下一篇
+export const lookNextContent: RequestFun<
+IlookContent,
+    any
+> = (data) => {
+    return request({
+        baseURL: YUN_API_COMPOSITION,
+        url: "/Api/App/CompositionEntry/LookNextContent",
         method: "post",
         data
     });

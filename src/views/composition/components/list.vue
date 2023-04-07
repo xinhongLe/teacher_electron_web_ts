@@ -55,7 +55,8 @@
                     <div class="button" v-if="item.Status === 5" @click="reCorrection(item)">重新批改</div>
                     <div class="button" v-if="item.Status === 2" @click="checkOrigin(item)">检查原文</div>
                     <div class="button" v-if="item.Status === 3 || item.Status === 6" @click="showReport(item)">查看报告</div>
-                    <div class="button" v-if="item.Status === 3 || item.Status === 5 || item.Status === 6"
+                    <div class="button"
+                        v-if="item.Status === 3 || item.Status === 4 || item.Status === 5 || item.Status === 6"
                         @click="showArticle(item)">查看原文</div>
                 </div>
             </div>
@@ -79,7 +80,7 @@
     <!-- 检查原文 -->
     <Origin ref="originRef" />
     <!-- 查看原文 -->
-    <Article ref="articleRef" />
+    <Article ref="articleRef" @view-report="showReport" />
     <!-- 报告详情 -->
     <Detail ref="detailRef" />
     <!-- 批改列表 -->
@@ -136,7 +137,13 @@ const { gradeList, Title, total, grade, stuList } = toRefs(state)
 
 const tabList = ref<any>([])
 const tabChange = (name: any) => {
+    state.page.PageNumber = 1
     state.tabName = name
+    nextTick(() => {
+        if(PaginationRef.value){
+            PaginationRef.value.page = 1
+        }
+    })
     getComList()
 }
 
@@ -380,13 +387,13 @@ defineExpose({
     .back {
         position: absolute;
         left: 0;
-        top: 0;
-        padding: 16px;
+        top: 2px;
+        padding: 9px;
         cursor: pointer;
 
         &>img {
-            width: 24px;
-            height: 24px;
+            width: 35px;
+            height: 35px;
         }
     }
 }

@@ -1,19 +1,46 @@
 <template>
     <div class="pageListComponents">
         <div class="me-work">
-            <ScreenView class="me-work-screen" :inline="true" :isInit="isInitPage" ref="screenRef" :slide="currentSlide"
-                :writeBoardVisible="writeBoardVisible" :keyDisabled="keyDisabled" :useScale="false" :winList="cardList"
-                :canvasData="canvasData" @openCard="openCard" @pagePrev="pagePrev" @pageNext="pageNext"
-                @closeWriteBoard="closeWriteBoard" :isShowPenTools="false" v-model:isCanUndo="isCanUndo"
-                v-model:isCanRedo="isCanRedo" v-model:currentDrawColor="currentDrawColor"
-                v-model:currentLineWidth="currentLineWidth" />
-            <open-card-view-dialog @closeOpenCard="closeOpenCard" v-if="dialogVisible" :dialog="dialog"
-                :cardList="dialogCardList" v-model:dialogVisible="dialogVisible"></open-card-view-dialog>
+            <ScreenView
+                class="me-work-screen"
+                :inline="true"
+                :isInit="isInitPage"
+                ref="screenRef"
+                :slide="currentSlide"
+                :writeBoardVisible="writeBoardVisible"
+                :keyDisabled="keyDisabled"
+                :useScale="false"
+                :winList="cardList"
+                :canvasData="canvasData"
+                @openCard="openCard"
+                @pagePrev="pagePrev"
+                @pageNext="pageNext"
+                @closeWriteBoard="closeWriteBoard"
+                :isShowPenTools="false"
+                v-model:isCanUndo="isCanUndo"
+                v-model:isCanRedo="isCanRedo"
+                v-model:currentDrawColor="currentDrawColor"
+                v-model:currentLineWidth="currentLineWidth"
+            />
+            <open-card-view-dialog
+                @closeOpenCard="closeOpenCard"
+                v-if="dialogVisible"
+                :dialog="dialog"
+                :cardList="dialogCardList"
+                v-model:dialogVisible="dialogVisible"
+            ></open-card-view-dialog>
             <transition name="fade">
-                <div class="me-page" :class="{
-                    hidden: isFullScreen && !isShowCardList,
-                }">
-                    <PageItem :pageList="pageList" :selected="currentPageIndex" @selectPage="selectPage" />
+                <div
+                    class="me-page"
+                    :class="{
+                        hidden: isFullScreen && !isShowCardList,
+                    }"
+                >
+                    <PageItem
+                        :pageList="pageList"
+                        :selected="currentPageIndex"
+                        @selectPage="selectPage"
+                    />
                 </div>
             </transition>
         </div>
@@ -22,46 +49,42 @@
 
 <script lang="ts">
 import { computed, defineComponent, inject, ref, watch } from "vue";
-import TrackService, { EnumTrackEventType } from "@/utils/common";
 import useHome from "@/hooks/useHome";
 import OpenCardViewDialog from "./openCardViewDialog.vue";
-import { getCardDetail } from "@/views/preparation/intelligenceClassroom/api";
-import { getWinCardDBData } from "@/utils/database";
 import { ElMessage } from "element-plus";
-import { useRoute } from "vue-router";
 import PageItem from "@/views/preparation/intelligenceClassroom/components/pageItem.vue";
 import { windowInfoKey } from "@/hooks/useWindowInfo";
 import { SchoolWindowPageInfo } from "@/types/preparation";
 import { find } from "lodash";
-import { IElement } from "mwhiteboard";
 import { useStore } from "@/store";
+import { dealAnimationData } from "@/utils/dataParse";
+
 export default defineComponent({
     props: {
         dialog: {
             type: Boolean,
-            default: false,
+            default: false
         },
         isShowCardList: {
             type: Boolean,
-            default: true,
+            default: true
         },
         isFullScreen: {
             type: Boolean,
-            default: false,
-        },
+            default: false
+        }
     },
     components: { OpenCardViewDialog, PageItem },
     setup(props, { emit }) {
         const store = useStore();
-        const { getPageDetail, transformType } = useHome();
+        const { transformType } = useHome();
         const {
             currentCard,
-            currentWindowInfo,
             cardList,
             currentPageIndex,
             currentSlide,
             pageList,
-            currentPageInfo,
+            currentPageInfo
         } = inject(windowInfoKey)!;
 
         const dialogVisible = ref(false);
@@ -90,7 +113,7 @@ export default defineComponent({
             [pageList, currentCard],
             (newValues, prevValues) => {
                 const findPage = find(newValues[0], {
-                    ID: currentPageInfo.value?.ID,
+                    ID: currentPageInfo.value?.ID
                 });
                 if (newValues[1]?.ID === prevValues[1]?.ID && findPage) {
                     return;
@@ -105,7 +128,7 @@ export default defineComponent({
                 }
             },
             {
-                deep: true,
+                deep: true
             }
         );
         const writeBoardVisible = ref(false);
@@ -116,7 +139,7 @@ export default defineComponent({
         const getDataBase = async (str: string, obj: SchoolWindowPageInfo) => {
             const elements = screenRef.value.whiteboard.getElements();
             currentSlide.value.id &&
-                canvasDataMap.set(currentSlide.value.id, elements);
+            canvasDataMap.set(currentSlide.value.id, elements);
             if (transformType(obj.Type) === -1) {
                 ElMessage({ type: "warning", message: "暂不支持该页面类型" });
                 currentSlide.value = {};
@@ -133,9 +156,8 @@ export default defineComponent({
             //     });
             // }
             if (appjson.value.slides) {
-                currentSlide.value = appjson.value.slides.find(
-                    (p: any) => p.id === str
-                );
+                const slide = appjson.value.slides.find((p: any) => p.id === str);
+                currentSlide.value = dealAnimationData(slide);
             }
         };
         const screenRef = ref();
@@ -221,7 +243,7 @@ export default defineComponent({
                                 ID: page.id,
                                 Type: page.type,
                                 Name: page.name,
-                                OriginType: card.type,
+                                OriginType: card.type
                             };
                         })
                     );
@@ -266,8 +288,8 @@ export default defineComponent({
         watch(
             () => currentLineWidth.value,
             (val) => {
-                console.log('currentLineWidth.value',currentLineWidth.value);
-                
+                console.log("currentLineWidth.value", currentLineWidth.value);
+
                 emit("update:currentLineWidth", val);
             }
         );
@@ -316,7 +338,7 @@ export default defineComponent({
             undo,
             whiteboardOption
         };
-    },
+    }
 });
 </script>
 
@@ -354,7 +376,7 @@ export default defineComponent({
     min-width: 0;
     margin-right: 8px !important;
 
-    ::v-deep .slide-list {
+    :deep .slide-list {
         background-color: #fff;
     }
 }

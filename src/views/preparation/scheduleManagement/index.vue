@@ -8,7 +8,7 @@ import { bagKey } from "@/hooks/useBag";
 import emitter from "@/utils/mitt";
 import { get } from "@/utils/storage";
 import { findIndex, isEmpty } from "lodash";
-import { defineProps, inject, onMounted, provide, watchEffect, defineEmits, onUnmounted } from "vue";
+import {inject, onMounted, provide, watchEffect, onUnmounted } from "vue";
 import ClassContent from "./ClassContent.vue";
 import QuestionBank from "./questionBank/index.vue";
 

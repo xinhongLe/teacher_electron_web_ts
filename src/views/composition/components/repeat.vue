@@ -9,7 +9,7 @@
         </template>
         <div class="list">
             <div class="stu-item" v-for="(item, idx) in props.repeatList" :key="idx" @click="selectStu(item)">
-                {{ item.StudentName }}
+                {{ item.StudentName + '(' + item.Account + ')' }}
             </div>
         </div>
         <template #footer>

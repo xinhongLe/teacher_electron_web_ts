@@ -8,6 +8,8 @@ import { dealSaveDataWord, dealSaveDataVideo, dealSaveDataTeach, dealSaveDataGam
 import { getWinCardDBData, setWinCardDBData, updateWinCardDBData } from "@/utils/database";
 import { originType, pageType } from "@/config";
 import { cacheSildeFiles } from "@/utils/file";
+import { PageProps } from "@/views/preparation/intelligenceClassroom/api/props";
+
 interface PageData {
     pageID: string,
     OriginType: any
@@ -16,23 +18,23 @@ interface PageData {
 export default () => {
     const transformType = (type: number | string) => {
         switch (type) {
-        case 11:
-        case "element":
-            return 0;
-        case 12:
-        case "listen":
-            return 1;
-        case 13:
-        case "follow":
-            return 2;
-        case 16:
-        case "teach":
-            return 3;
-        case 20:
-        case "game":
-            return 4;
-        default:
-            return -1;
+            case 11:
+            case "element":
+                return 0;
+            case 12:
+            case "listen":
+                return 1;
+            case 13:
+            case "follow":
+                return 2;
+            case 16:
+            case "teach":
+                return 3;
+            case 20:
+            case "game":
+                return 4;
+            default:
+                return -1;
         }
     };
     const getPageDetail = async (page: IPageValue, originType: any, callback: any) => {
@@ -43,7 +45,7 @@ export default () => {
             const res = {}; // 不支持页面返回空对象
             return callback(res);
         }
-        await getPageDetailRes(data, type, async(res:any) => {
+        await getPageDetailRes(data, type, async (res: any) => {
             const pageDetail = await dealPageDetail(page, res);
             callback(pageDetail);
         });
@@ -65,7 +67,7 @@ export default () => {
         if (res.resultCode) {
             // 后台请求成功回调
             if (res.resultCode === 200) {
-                let newSlide:any = {};
+                let newSlide: any = {};
                 if (page.Type === pageType.element) {
                     const slideString = res.result.Json || "{}";
                     const oldSlide = JSON.parse(slideString);
@@ -95,8 +97,8 @@ export default () => {
         }
     };
 
-    const transformPageDetail = async (page: IPageValue, pageDetail: any) => {
-        let newSlide:any = {};
+    const transformPageDetail = async (page: any, pageDetail: any) => {
+        let newSlide: any = {};
         if (page.Type === pageType.element) {
             const oldSlide = pageDetail || {};
             // 素材页如果是新数据直接赋值(更新id是为了避免复制卡过后id不统一问题)，旧数据dealOldData处理
@@ -112,7 +114,7 @@ export default () => {
             newSlide = dealOldDataGame(page.ID, pageDetail);
         }
         const pageSlide = Object.assign(newSlide, { remark: page.AcademicPresupposition || "", design: page.DesignIntent || "" });
-        await saveDBdata(pageSlide);
+        saveDBdata(pageSlide);
         return pageSlide;
     };
 
@@ -131,8 +133,8 @@ export default () => {
 
     const savePage = async (slide: Slide) => {
         const type: number = transformType(slide.type);
-        let newSlide:any = {};
-        const updateRemark:any = {};
+        let newSlide: any = {};
+        const updateRemark: any = {};
         let updateProcessAndDesign: ISaveProcessAndDesignData = {
             ID: "",
             DesignIntent: "",
@@ -165,11 +167,19 @@ export default () => {
         }
     };
 
+    // 组装PPT中slide数据
+    const assemblePageSlide = (page: PageProps, json: any) => {
+        if (json.Type === pageType.element) {
+
+        }
+    };
+
     return {
-        getPageDetail,
-        dealPageDetail,
         savePage,
+        getPageDetail,
         transformType,
+        dealPageDetail,
+        assemblePageSlide,
         transformPageDetail
     };
 };

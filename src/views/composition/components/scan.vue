@@ -64,34 +64,62 @@
 
                 <div class="start-scan" v-if="!isOpenScan">
                     <img src="../../../assets/composition/pic@2x.png" alt="" />
+                    <!-- v-if="currentStudent" -->
                     <el-button style="width: 146px;" color="#4B71EE" @click="startScan">
                         开始扫描
                     </el-button>
+                <!-- <div class="opt align-center" v-else>
+                        <el-button color="#4B71EE" @click="scanCode">
+                            扫描二维码
+                        </el-button>
+                        <el-button color="#4B71EE" @click="scanName">
+                            扫描姓名
+                        </el-button>
+                                                        </div> -->
                 </div>
-                <div class="scan" v-else>
+                <div class="scan" id="scan" v-else>
                     <div v-if="!currentStudent">
                         <QrStream class="qrcode" v-show="state.qrcode" :camera="state.camera" :torch="state.torchActive"
                             @decode="onDecode" @init="onInit"></QrStream>
                         <img class="line" src="../../../assets/composition/pic_saomiao@2x.png" alt="" />
-                        <span class="down-tip toast">请先扫描学生二维码/信息栏</span>
+                        <span class="down-tip toast" v-if="!isCodeMode">请对着学生名字，点击识别</span>
+                        <span class="down-tip toast" v-else>请先扫描学生二维码</span>
+                        <div class="switch-box align-center">
+                            <div class="switch-item align-center">
+                                <span>识别二维码</span>
+                                <el-switch @change="codeSwitchChange" v-model="isCodeMode"
+                                    style="--el-switch-on-color: #4B71EE;" />
+                            </div>
+                            <div class="switch-item align-center">
+                                <span>识别名字</span>
+                                <el-switch @change="nameSwitchChange" v-model="isNameMode"
+                                    style="--el-switch-on-color: #4B71EE;" />
+                            </div>
+                        </div>
                     </div>
 
                     <div id="takeAPic" v-else>
                         <video id="video" ref="videoRef" class="video"></video>
                         <img class="line" src="../../../assets/composition/pic_saomiao@2x.png" alt="" />
-                        <span class="down-tip toast" v-if="!currentStudent">请先扫描学生二维码/信息栏</span>
-                        <span class="down-tip toast" v-else>请对准作文开始拍摄</span>
+                        <span class="down-tip toast">请对准作文开始拍摄</span>
                     </div>
                 </div>
-                <div class="takes" v-if="isOpenScan && currentStudent">
-                    <div class="take-item" @click="capture">
+                <div class="takes" v-if="isOpenScan">
+                    <div class="take-item" v-if="!isCodeMode && !currentStudent" @click="capturePicToWords">
                         <img src="../../../assets/composition/icon_paizhao@2x.png" alt="" />
-                        <span>拍照</span>
+                        <span>识别</span>
                     </div>
-                    <div class="take-item" @click="switchToNextStu">
-                        <img src="../../../assets/composition/icon_next@2x.png" alt="" />
-                        <span>{{ isSupply ? '完成' : '下一个学生' }}</span>
-                    </div>
+                    <template v-if="currentStudent">
+                        <div class="take-item" @click="capture">
+                            <img src="../../../assets/composition/icon_paizhao@2x.png" alt="" />
+                            <span>拍照</span>
+                        </div>
+                        <div class="take-item" @click="switchToNextStu">
+                            <img src="../../../assets/composition/icon_next@2x.png" alt="" />
+                            <span>{{ isSupply ? '完成' : '下一个学生' }}</span>
+                        </div>
+                    </template>
+
                 </div>
             </div>
         </div>
@@ -105,7 +133,7 @@
 </template>
 <script setup lang="ts">
 import { ElMessage } from 'element-plus';
-import { reactive, ref, toRefs, watch, nextTick, onMounted } from 'vue';
+import { reactive, ref, toRefs, watch, nextTick, onMounted, onBeforeUnmount } from 'vue';
 import chooseStu from './chooseStu.vue';
 import Preview from './preview.vue';
 import Repeat from './repeat.vue';
@@ -116,10 +144,24 @@ import moment from 'moment';
 import { QrStream, QrCapture } from 'vue3-qr-reader';
 import { getClassStuCountByTeacher, getStudentByClass, getStudentByHasEntry, getStudentByUserInfo, oneStudentEntry, picToWordByName } from '../api';
 import { store } from '@/store';
+import { linkSync } from 'fs';
 //
 onMounted(() => {
+    window.addEventListener('resize', listenResizeFn);
     getDevices()
 })
+
+onBeforeUnmount(() => {
+    window.removeEventListener('resize', listenResizeFn);
+})
+
+const listenResizeFn = () => {
+    let el = document.getElementById('scan')
+    // console.log('resize--------', el?.clientWidth, el?.clientHeight)
+    // if (state.isOpenScan && el) {
+
+    // }
+}
 //
 const videoRef = ref();
 const canvasRef = ref();
@@ -137,18 +179,18 @@ const props = defineProps({
 //
 const dialogVisible = ref(false);
 const state = reactive({
+    isUploading: false,
     qrcode: true,
     torchActive: false,
     camera: 'auto',
-
     TeacherCompositionId: null,
     Title: '',
     isSupply: false,// 是否补录
     isScanByHand: false,
     isOpenScan: false,// 是否开启扫描
-    isTakePhoto: false, // 未拍照
-    isRecognizing: false,// 是否识别中
     boxMessage: '待扫描', // 识别中...
+    isCodeMode: true,// 扫描二维码
+    isNameMode: false,// 文字
     showVideo: true, // 展示视频
     currentStudent: '', // 当前学生
     currentStudentObj: {} as any,
@@ -161,9 +203,22 @@ const state = reactive({
     // classCount: 0,
     deviceList: [] as any
 });
-const { device, isSupply, currentStudent, photoList, deviceList, showVideo, isOpenScan, isTakePhoto, isRecognizing, boxMessage, isScanByHand } = toRefs(state);
+const { device, isSupply, currentStudent, isCodeMode, isNameMode, photoList, deviceList, isOpenScan, boxMessage, isScanByHand } = toRefs(state);
 
 const emit = defineEmits(['cancel', 'save', 'openList']);
+
+// 互斥switch
+const codeSwitchChange = (e: any) => {
+    console.log(111, e);
+    state.isNameMode = !e
+    localStorage.setItem('isNameMode', e ? '0' : '1')
+}
+
+const nameSwitchChange = (e: any) => {
+    console.log(222, e);
+    state.isCodeMode = !e
+    localStorage.setItem('isNameMode', e ? '1' : '0')
+}
 
 /**
  * 二维码识别
@@ -175,15 +230,20 @@ const onDecode = (result: any) => {
         // 处理显示到左侧
         searchRepeat(result)
     } else {
-        // 调用图片识别接口
-        let elements = document.getElementsByClassName('qr-stream-camera');
-        console.log('elements:', elements);
-        let file = videoCapture(elements[0])
-        uploadImgToOss(file, 2, (file: any) => {
-            picRecognize(file)
-        });
-
+        if(state.isCodeMode){
+            ElMessage.warning('未识别出二维码信息')
+        }
     }
+}
+
+const capturePicToWords = () => {
+    // 调用图片识别接口
+    let elements = document.getElementsByClassName('qr-stream-camera');
+    console.log('elements:', elements);
+    let file = videoCapture(elements[0])
+    uploadImgToOss(file, 2, (file: any) => {
+        picRecognize(file)
+    });
 }
 
 /**
@@ -207,13 +267,21 @@ const picRecognize = (file: any) => {
  */
 const searchRepeat = (info: any) => {
     let cid = localStorage.getItem('compositionClassId')
-    getStudentByUserInfo({ UserInfo: info, ClassId: cid }).then(async (res: any) => {
+    getStudentByUserInfo({ UserInfo: info, ClassId: cid, TeacherCompositionId: state.TeacherCompositionId }).then(async (res: any) => {
         if (res.success) {
             let list = res.result || []
             if (list.length > 0) {
-                // 选择重名弹窗
-                state.repeatList = list
-                repeatRef.value.openDialog()
+                if (list.length > 1) {
+                    // 选择重名弹窗
+                    state.repeatList = list
+                    repeatRef.value.openDialog()
+                } else {
+                    //直接识别到左侧
+                    let theone = list[0]
+                    selectRepeat(theone)
+                    ElMessage.success('识别成功，请拍摄作文')
+                }
+
             } else {
                 ElMessage.warning('当前班级未查询到该学生')
             }
@@ -305,7 +373,10 @@ const switchToNextStu = () => {
             return
         }
         clearStuInfo()
-        chooseRef.value.switchNext()
+        state.isScanByHand = true
+        // nextTick(() => {
+        //     chooseRef.value.switchNext()
+        // })
     } else {
         // 请求接口
         oneStudentEntry({
@@ -327,6 +398,7 @@ const switchToNextStu = () => {
                 ElMessage.success('录入成功');
                 getWaitRecordStudents(() => {
                     clearStuInfo()
+                    // state.isScanByHand = true
                 })
 
             }
@@ -358,8 +430,6 @@ const getWaitRecordStudents = (cb?: any) => {
 const close = () => {
     state.isOpenScan = false
     state.boxMessage = '待扫描'
-    state.isRecognizing = false
-    state.isTakePhoto = false
     state.showVideo = true
     clearStuInfo()
     //
@@ -382,7 +452,9 @@ const afterChoose = (e: any) => {
     console.log('after:', e);
     state.currentStudent = e.StudentId
     state.currentStudentObj = e
-    state.isScanByHand = false
+    setTimeout(() => {
+        state.isScanByHand = false
+    }, 500);
     getDevices()
 }
 
@@ -412,8 +484,24 @@ const startScan = () => {
         state.boxMessage = '识别中...';
     }
     // state.isRecognizing = true;
+    //
+    let flag = localStorage.getItem('isNameMode')
+    state.isCodeMode = flag == '1' ? false : true
+    state.isNameMode = !state.isCodeMode
     getUserMedia()
 }
+
+// // 开始扫二维码
+// const scanCode = () => {
+//     startScan()
+//     state.isCodeMode = true
+// }
+
+// // 开始扫描姓名
+// const scanName = () => {
+//     startScan()
+//     state.isCodeMode = false
+// }
 
 const getUserMedia = () => {
     /* 可同时开启video(摄像头)和audio(麦克风) 这里只请求摄像头，所以只设置video为true */
@@ -433,7 +521,7 @@ const success = (stream: any) => {
     // console.log('成功', stream);
     /* 将stream 分配给video标签 */
     let finds = document.getElementsByTagName('video')
-    console.log('finds:',finds);
+    console.log('finds:', finds);
     finds[0].srcObject = stream;
     finds[0].play;
     if (videoRef.value) {
@@ -448,22 +536,30 @@ const success = (stream: any) => {
 const videoCapture = (element: any) => {
     const canvas: HTMLCanvasElement = document.createElement('canvas')
     const dpr = window.devicePixelRatio;
-    canvas.width = 884 * dpr;
-    canvas.height = 648 * dpr;
-    const context = canvas.getContext("2d", { willReadFrequently: true })!;
-    context.scale(dpr, dpr);
-    // let video = document.getElementById('video');
-    const img = new Image()
-    context.drawImage(element, 0, 0, 884, 648)
-    img.src = canvas.toDataURL('image/png')
-    let name = moment(new Date()).format('MMDDHHssmm-') + new Date().getTime() + '.png';
-    let blob = dataURLtoBlob(img.src);
-    let file = blobToFile(blob, name);
-    return file
+    let el = document.getElementById('scan')
+    if (el) {
+        canvas.width = (el?.clientWidth) * dpr; // 884
+        canvas.height = (el?.clientHeight) * dpr; // 648
+        const context = canvas.getContext("2d", { willReadFrequently: true })!;
+        context.scale(dpr, dpr);
+        // let video = document.getElementById('video');
+        const img = new Image()
+        context.drawImage(element, 0, 0, el.clientWidth, el.clientHeight)
+        img.src = canvas.toDataURL('image/png')
+        let name = moment(new Date()).format('MMDDHHssmm-') + new Date().getTime() + '.png';
+        let blob = dataURLtoBlob(img.src);
+        let file = blobToFile(blob, name);
+        return file
+    }
+
 }
 
 /* 拍照按钮点击 */
 const capture = () => {
+    if (state.isUploading) {
+        ElMessage.warning('拍摄上传中，请勿频繁点击')
+        return
+    }
     if (state.photoList.length === 10) {
         ElMessage.warning('最多可拍摄10张照片')
         return
@@ -500,6 +596,7 @@ const blobToFile = (theBlob: any, fileName: any) => {
 }
 
 const uploadImgToOss = async (data: any, type = 1, cb: any) => {
+    state.isUploading = true
     const bucketObj = {
         Bucket: "compositionevaluation",
         Path: "pic",
@@ -513,6 +610,7 @@ const uploadImgToOss = async (data: any, type = 1, cb: any) => {
         if (type === 1) {
             state.photoList.push(newFile);
         }
+        state.isUploading = false
         cb(newFile)
     }
 }
@@ -840,8 +938,10 @@ defineExpose({
             // #D6DDF4 12px 
             // radius 12px
             .scan {
-                width: 908px;
-                height: 672px;
+                min-width: 775px; //908px
+                flex: 1;
+                height: 100%;
+                min-height: 672px; //672px
                 background-color: #D6DDF4;
                 border-radius: 12px;
                 padding: 8px;
@@ -859,6 +959,7 @@ defineExpose({
                     .video {
                         width: 100%;
                         height: 100%;
+                        object-fit: fill;
                     }
 
                     .capture-pic {
@@ -879,6 +980,24 @@ defineExpose({
                         animation: scan infinite 3s linear;
                     }
 
+                    .switch-box {
+                        position: absolute;
+                        left: 12px;
+                        bottom: 12px;
+
+                        .switch-item {
+                            margin-right: 24px;
+
+                            span {
+                                font-size: 14px;
+                                font-family: HarmonyOS_Sans_SC_Medium;
+                                color: #FDF7F9;
+                                margin-right: 8px;
+                                text-shadow: 1px .5px #000;
+                            }
+                        }
+                    }
+
                     .down-tip {
                         position: absolute;
                         z-index: 820;
@@ -897,6 +1016,7 @@ defineExpose({
                 flex-direction: column;
                 justify-content: flex-end;
                 margin-left: 50px;
+                margin-right: 30px;
 
                 .take-item {
                     width: 100%;

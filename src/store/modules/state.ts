@@ -25,12 +25,12 @@ export const state: State = {
         element: 11,
         listen: 12,
         follow: 13,
-        teach: 16,
+        teach: 16
     },
     pageTypeList: [
         { name: "素材页", value: 11, type: "element" },
         { name: "听写页", value: 12, type: "listen" },
         { name: "跟读页", value: 13, type: "follow" },
-        { name: "教具页", value: 16, type: "teach" },
-    ],
+        { name: "教具页", value: 16, type: "teach" }
+    ]
 };

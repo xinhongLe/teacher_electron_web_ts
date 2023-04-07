@@ -1,10 +1,7 @@
 import { BrowserWindow, BrowserWindowConstructorOptions } from "electron";
 const path = require("path");
 
-export const createWindow = (
-    url: string,
-    option: BrowserWindowConstructorOptions
-) => {
+export const createWindow = (url: string, option: BrowserWindowConstructorOptions) => {
     const win = new BrowserWindow({
         ...option,
         webPreferences: {
@@ -15,8 +12,8 @@ export const createWindow = (
             nodeIntegrationInWorker: true,
             contextIsolation: false,
             devTools: !!process.env.WEBPACK_DEV_SERVER_URL,
-            ...option.webPreferences,
-        },
+            ...option.webPreferences
+        }
     });
 
     require("@electron/remote/main").enable(win.webContents);

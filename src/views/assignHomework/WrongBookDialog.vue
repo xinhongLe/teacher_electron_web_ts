@@ -19,7 +19,6 @@
     </div>
 </template>
 <script lang="ts" setup>
-import { defineProps } from "vue";
 import WrongBook from "@/views/wrongbook/index.vue";
 const props = defineProps({
     dialogVisible: {
