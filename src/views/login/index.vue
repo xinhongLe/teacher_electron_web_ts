@@ -200,10 +200,10 @@ export default defineComponent({
         const focusInput = (type: number) => {
             if (type) {
                 isAccount.value = false;
-                window.electron.ipcRenderer.invoke("setInput", form.password ? form.password : "");
+                window.electron.ipcRenderer.invoke("setInput", form.password);
             } else {
                 isAccount.value = true;
-                window.electron.ipcRenderer.invoke("setInput", form.account ? form.account : "");
+                window.electron.ipcRenderer.invoke("setInput", form.account);
             }
         };
 

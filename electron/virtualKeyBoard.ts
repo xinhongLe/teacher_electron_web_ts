@@ -23,7 +23,8 @@ export function createWinCardWindow() {
         y: 50,
         maxHeight: 280,
         minHeight: 280,
-        maxWidth: 1200
+        maxWidth: 1200,
+        focusable: false
     });
 
     // editWin = new BrowserWindow({

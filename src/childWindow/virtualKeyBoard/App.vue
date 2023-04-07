@@ -31,7 +31,7 @@ const displayDefault = reactive({
 })
 
 function onChange(input: any) {
-    keyboard.value.setInput(input)
+    // keyboard.value.setInput(input)
     window.electron.ipcRenderer.send("data-to-password", input);
 }
 
@@ -81,7 +81,7 @@ function onKeyPress(button: any, $event: any) {
         // window.electron.ipcRenderer.send("data-to-password", button);
         // 输入框有默认值时，覆写
         if (value) {
-            keyboard.value.setInput(value);
+            // keyboard.value.setInput(value);
         }
 
     }
