@@ -662,6 +662,7 @@ const getAnimations = (actions: PPTElementAction[]) => {
     const animations: PPTAnimation[] = [];
     actions.forEach((item, index) => {
         const type = item.inAni ? "in" : item.outAni ? "out" : "in";
+        item.type = item.type === "toggle" ? "show" : item.type;
         animations.push({
             id: createRandomCode(),
             elId: item.target,
