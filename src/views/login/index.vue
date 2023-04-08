@@ -10,7 +10,8 @@
             </div>
             <el-form :model="form" label-width="0px" size="large">
                 <el-form-item>
-                    <el-input class="zh-class" v-model.trim="form.account" placeholder="请输入手机号码" maxlength="11">
+                    <el-input class="zh-class" v-model.trim="form.account" placeholder="请输入手机号码" maxlength="11"
+                              @focus="focusInput(0)">
                         <template #prefix>
                             <img src="@/assets/images/login/icon_zhanghao.png" alt=""/>
                         </template>
@@ -30,7 +31,7 @@
                     </el-select>
                 </el-form-item>
                 <el-form-item v-if="isPassWordLogin">
-                    <el-input type="password" v-model="form.password" placeholder="请输入密码">
+                    <el-input type="password" v-model="form.password" placeholder="请输入密码" @focus="focusInput(1)">
                         <template #prefix>
                             <img src="@/assets/images/login/icon_password.png" alt=""/>
                         </template>
@@ -76,22 +77,25 @@
             </div>
         </div>
     </div>
+    <div class="keyboard"></div>
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, onUnmounted, reactive, ref } from "vue";
+import {defineComponent, onMounted, onUnmounted, reactive, ref, watch} from "vue";
 import useLogin from "@/hooks/useLogin";
-import { useRouter, useRoute } from "vue-router";
-import { ILoginData } from "@/types/login";
-import { STORAGE_TYPES, get, set, clear } from "@/utils/storage";
+import {useRouter, useRoute} from "vue-router";
+import {ILoginData} from "@/types/login";
+import {STORAGE_TYPES, get, set, clear} from "@/utils/storage";
 import isElectron from "is-electron";
-import { sendMsg } from "./api";
+import {sendMsg} from "./api";
+import Keyboard from 'simple-keyboard';
+import 'simple-keyboard/build/css/index.css'; // 导入simple-keyboard的CSS样式
 
 export default defineComponent({
     setup() {
         const router = useRouter();
         const route = useRoute();
-
+        const isAccount = ref(false);
         const form = reactive({
             account: "",
             code: "",
@@ -105,15 +109,16 @@ export default defineComponent({
         let timer: any;
         recordAccountList.value = get(STORAGE_TYPES.RECORD_LOGIN_LIST, true) || [];
 
-        const { userLogin } = useLogin();
+        const {userLogin} = useLogin();
 
         const login = async () => {
-            const { account, password, code } = form;
+            const {account, password, code} = form;
             if ((isPassWordLogin.value && (account.length === 0 || password.length === 0)) || (!isPassWordLogin.value && (account.length === 0 || code.length === 0))) return false;
             clear();
             loading.value = true;
-            const loginSuccess = await userLogin({ account, password, code, isPassWordLogin: isPassWordLogin.value });
+            const loginSuccess = await userLogin({account, password, code, isPassWordLogin: isPassWordLogin.value});
             loading.value = false;
+            window.electron.ipcRenderer.invoke("closeKeyBoard");
             if (!loginSuccess) return;
             const redirect: any = route.redirectedFrom;
             if (redirect && redirect.path !== "/" && !isElectron()) {
@@ -147,11 +152,11 @@ export default defineComponent({
         const close = () => {
             window.electron.exit();
         };
-
         const openVirtualKeyBoard = () => {
-            window.electron.ipcRenderer.invoke("openVirtualKeyBoard");
+            window.electron.ipcRenderer.invoke("openVirtualKeyBoardWin", "");
+            // window.electron.ipcRenderer.invoke("openVirtualKeyBoard");
+            // showKeyboard()
         };
-
         const getCode = async () => {
             if (!form.account) return;
             const res = await sendMsg({
@@ -171,7 +176,15 @@ export default defineComponent({
         const version = ref(require("../../../package.json").version);
 
         onMounted(() => {
-            document.addEventListener("keyup", onEnter);
+            window.electron.ipcRenderer.on("dataToPassword", (event, data) => {
+                // 在这里处理数据
+                if (isAccount.value) {
+                    form.account = data;
+                } else {
+                    form.password = data;
+                }
+            });
+            document.addEventListener("keyup", onEnter)
         });
 
         onUnmounted(() => {
@@ -184,8 +197,18 @@ export default defineComponent({
             window.electron.unmaximizeWindow();
             window.electron.setCenter();
         }
+        const focusInput = (type: number) => {
+            if (type) {
+                isAccount.value = false;
+                window.electron.ipcRenderer.invoke("setInput", form.password ? form.password : "");
+            } else {
+                isAccount.value = true;
+                window.electron.ipcRenderer.invoke("setInput", form.account ? form.account : "");
+            }
+        };
 
         return {
+            isAccount,
             form,
             recordAccountList,
             loading,
@@ -198,13 +221,29 @@ export default defineComponent({
             getCode,
             codeTime,
             isPassWordLogin,
-            isElectron: isElectron()
+            isElectron: isElectron(),
+            focusInput
         };
     }
 });
 </script>
 
 <style scoped lang="scss">
+.keyboard {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 300px;
+    background: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    display: none;
+}
+
+.keyboard.show {
+    display: block;
+}
+
 $btn_color: #4b71ee;
 .login-content {
     display: flex;
