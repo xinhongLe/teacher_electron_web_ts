@@ -1,14 +1,13 @@
 "use strict";
 
-import {app, protocol, BrowserWindow, ipcMain, Menu} from "electron";
-// import installExtension, { VUEJS3_DEVTOOLS } from "electron-devtools-installer";
+import { app, protocol, BrowserWindow, ipcMain, Menu} from "electron";
 import {createProtocol} from "vue-cli-plugin-electron-builder/lib";
 import {initialize} from "@electron/remote/main";
 import {
     createSuspensionWindow,
     createLocalPreviewWindow,
     registerEvent,
-    unfoldSuspensionWinSendMessage,
+    unfoldSuspensionWinSendMessage
 } from "./suspension";
 import autoUpdater from "./autoUpdater";
 import {registerWinCardEvent} from "./wincard";
@@ -32,9 +31,9 @@ protocol.registerSchemesAsPrivileged([
             bypassCSP: true,
             secure: true,
             supportFetchAPI: true,
-            corsEnabled: true,
-        },
-    },
+            corsEnabled: true
+        }
+    }
 ]);
 
 let mainWindow: BrowserWindow | null;
@@ -61,8 +60,8 @@ async function createWindow() {
             nodeIntegration: true,
             contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
             preload: path.join(__dirname, "preload.js"),
-            devTools: !!process.env.WEBPACK_DEV_SERVER_URL,
-        },
+            devTools: !!process.env.WEBPACK_DEV_SERVER_URL
+        }
     });
     // mainWindow.setContentProtection(true);
     downloadFile();
@@ -200,14 +199,14 @@ async function createWindow() {
         if (to === "main") mainWindow!.webContents.send("attendClass", data);
     });
 
-    //悬浮球点击消息通知事件
+    // 悬浮球点击消息通知事件
     ipcMain.on("suspensionClick", () => {
         // mainWindow!.show();
         // mainWindow!.maximize();
         mainWindow!.webContents.send("suspensionClick");
     });
 
-    //悬浮球点击事件
+    // 悬浮球点击事件
     ipcMain.handle("suspensionClick", () => {
         // mainWindow!.show();
         // mainWindow!.maximize();

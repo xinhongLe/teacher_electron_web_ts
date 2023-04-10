@@ -38,10 +38,12 @@
                             <img class="file-icon" src="@/assets/edit/icon_file.png" alt=""/>
                             <span>{{ folder.Name }}</span>
                             <card-popover :data="folder" @handle="handleCartItem" class="more">
-                                <img src="@/assets/edit/icon_file_more.png" alt="" :id="`popover-${folder.ID}`" @click.stop/>
+                                <img src="@/assets/edit/icon_file_more.png" alt="" :id="`popover-${folder.ID}`"
+                                     @click.stop/>
                             </card-popover>
                         </div>
-                        <vue-draggable-next v-model="folder.PageList" group="site" tag="div" class="pages" v-show="folder.Fold" @end="sortWindowCards">
+                        <vue-draggable-next v-model="folder.PageList" group="site" tag="div" class="pages"
+                                            v-show="folder.Fold" @end="sortWindowCards">
                             <transition-group>
                                 <div
                                     class="page"
@@ -52,11 +54,14 @@
                                 >
                                     <div class="page-left">
                                         <p class="index">{{ page.Index }}</p>
-                                        <img src="@/assets/edit/icon_donghua.png" alt="" v-if="checkIsHandle(2,page.Json)"/>
-                                        <img src="@/assets/edit/icon_shijian.png" alt="" v-if="checkIsHandle(1,page.Json)"/>
+                                        <img src="@/assets/edit/icon_donghua.png" alt=""
+                                             v-if="checkIsHandle(2,page.Json)"/>
+                                        <img src="@/assets/edit/icon_shijian.png" alt=""
+                                             v-if="checkIsHandle(1,page.Json)"/>
                                     </div>
                                     <div class="page-right" :class="{active:currentPage.ID === page.ID}">
-                                        <img class="cover" v-if="(page.Type === 20 || page.Type === 16) && page.Url" :src="page.Url"/>
+                                        <img class="cover" v-if="(page.Type === 20 || page.Type === 16) && page.Url"
+                                             :src="page.Url"/>
                                         <template v-else>
                                             <thumbnail-slide
                                                 :size="228"
@@ -72,18 +77,27 @@
                                         </template>
 
                                         <div class="handle">
-                                            <div class="name" v-if="[pageType.listen,pageType.element].includes(page.Type)">{{ page.Name }}</div>
-                                            <card-popover :data="page" add @handle="handleCartItem" class="handler-item add">
-                                                <img :id="`popover-add-${page.ID}`" src="@/assets/edit/icon_add_hover.png" alt=""/>
+                                            <div class="name"
+                                                 v-if="[pageType.listen,pageType.element].includes(page.Type)">
+                                                {{ page.Name }}
+                                            </div>
+                                            <card-popover :data="page" add @handle="handleCartItem"
+                                                          class="handler-item add">
+                                                <img :id="`popover-add-${page.ID}`"
+                                                     src="@/assets/edit/icon_add_hover.png" alt=""/>
                                             </card-popover>
 
-                                            <card-popover :data="page" @handle="handleCartItem" class="handler-item more">
-                                                <img :id="`popover-more-${page.ID}`" src="@/assets/edit/icon_more_big.png" alt=""/>
+                                            <card-popover :data="page" @handle="handleCartItem"
+                                                          class="handler-item more">
+                                                <img :id="`popover-more-${page.ID}`"
+                                                     src="@/assets/edit/icon_more_big.png" alt=""/>
                                             </card-popover>
                                         </div>
                                     </div>
 
-                                    <img v-if="selectPageIds.length > 0" class="select-icon" :src="require(`@/assets/edit/icon_${selectPageIds.includes(page.ID) ? 'clicked' : 'unclick'}.png`)" alt=""/>
+                                    <img v-if="selectPageIds.length > 0" class="select-icon"
+                                         :src="require(`@/assets/edit/icon_${selectPageIds.includes(page.ID) ? 'clicked' : 'unclick'}.png`)"
+                                         alt=""/>
                                 </div>
                             </transition-group>
                         </vue-draggable-next>
@@ -151,34 +165,34 @@
 </template>
 
 <script lang="ts">
-import { store } from "@/store";
-import { Slide } from "wincard";
-import { cloneDeep } from "lodash";
-import { v4 as uuidv4 } from "uuid";
-import { saveWindows } from "../api";
+import {store} from "@/store";
+import {Slide} from "wincard";
+import {cloneDeep} from "lodash";
+import {v4 as uuidv4} from "uuid";
+import {saveWindows} from "../api";
 import useHome from "@/hooks/useHome";
-import { getOssUrl } from "@/utils/oss";
+import {getOssUrl} from "@/utils/oss";
 import loading from "@/components/loading";
 import usePreview from "./hooks/usePreview";
-import { getImageSize } from "@/utils/image";
-import { getWindowStruct } from "@/api/home";
+import {getImageSize} from "@/utils/image";
+import {getWindowStruct} from "@/api/home";
 import useImportPPT from "@/hooks/useImportPPT";
 import useHandlePPT from "./hooks/useHandlePPT";
-import { isFullscreen } from "@/utils/fullscreen";
-import { pageType, pageTypeList } from "@/config";
-import { CardProps, PageProps } from "../api/props";
-import { get, STORAGE_TYPES } from "@/utils/storage";
-import { VueDraggableNext } from "vue-draggable-next";
-import { dealAnimationData } from "@/utils/dataParse";
-import { ElMessage, ElMessageBox } from "element-plus";
-import exitDialog, { ExitType } from "../edit/exitDialog";
+import {isFullscreen} from "@/utils/fullscreen";
+import {pageType, pageTypeList} from "@/config";
+import {CardProps, PageProps} from "../api/props";
+import {get, STORAGE_TYPES} from "@/utils/storage";
+import {VueDraggableNext} from "vue-draggable-next";
+import {dealAnimationData} from "@/utils/dataParse";
+import {ElMessage, ElMessageBox} from "element-plus";
+import exitDialog, {ExitType} from "../edit/exitDialog";
 import WinCardEdit from "../components/edit/winCardEdit.vue";
 import CardPopover from "../components/edit/CardPopover.vue";
 import WinCardView from "../components/edit/winScreenView.vue";
 import AddPageDialog from "../components/edit/addPageDialog.vue";
 import materialCenter from "../components/edit/materialCenter/index.vue";
-import { addTeachPageTemplateLinkCount, saveTemplate } from "@/api/material";
-import { computed, defineComponent, nextTick, onMounted, onUnmounted, ref } from "vue";
+import {addTeachPageTemplateLinkCount, saveTemplate} from "@/api/material";
+import {computed, defineComponent, nextTick, onMounted, onUnmounted, ref} from "vue";
 
 export default defineComponent({
     name: "Edit",
@@ -191,7 +205,7 @@ export default defineComponent({
         materialCenter
     },
     setup() {
-        const { transformPageDetail } = useHome();
+        const {transformPageDetail} = useHome();
         const windowInfo = computed(() =>
             store.state.preparation.editWindowInfo.id
                 ? store.state.preparation.editWindowInfo
@@ -333,7 +347,7 @@ export default defineComponent({
                 ElMessageBox.prompt("", "新建文件夹", {
                     inputPattern: /\S/,
                     inputErrorMessage: "请填写文件夹名称"
-                }).then(async ({ value }) => {
+                }).then(async ({value}) => {
                     addHandle.createFolder(value);
                 });
             }
@@ -349,6 +363,7 @@ export default defineComponent({
             }
             if (type === 5) {
                 loading.show();
+                window.electron.ipcRenderer.send("replicated");
                 addHandle.paste(data as CardProps);
             }
             if (type === 6) {
@@ -403,7 +418,7 @@ export default defineComponent({
             ElMessageBox.prompt("", "保存模板", {
                 inputPattern: /\S/,
                 inputErrorMessage: "请填写模板名称"
-            }).then(async ({ value }) => {
+            }).then(async ({value}) => {
                 let allPages: PageProps[] = [];
                 windowCards.value.forEach(item => {
                     allPages = allPages.concat(...item.PageList);
@@ -462,7 +477,7 @@ export default defineComponent({
                     }
                 }
 
-                const res = await saveTemplate({ ...params, PageData: list });
+                const res = await saveTemplate({...params, PageData: list});
 
                 if (res.resultCode !== 200) return;
                 ElMessage.success("保存成功，请前往「我的」查看已保存模板");
@@ -583,7 +598,7 @@ export default defineComponent({
                 Index: 0,
                 Url: obj.data.url,
                 ParentID: currentPage.value?.ID,
-                Json: await transformPageDetail({ Type: pageType.teach }, {
+                Json: await transformPageDetail({Type: pageType.teach}, {
                     TeachPageID: id,
                     TeachingMiniToolID: obj.data.ID,
                     ToolFileModel: {
@@ -671,7 +686,7 @@ export default defineComponent({
 
         function getImageData(data: any) {
             return new Promise(resolve => {
-                getImageSize(data.url).then(({ width, height }) => {
+                getImageSize(data.url).then(({width, height}) => {
                     const scale = height / width;
                     if (scale < VIEWPORT_RATIO && width > VIEWPORT_SIZE) {
                         width = VIEWPORT_SIZE;
@@ -792,7 +807,7 @@ export default defineComponent({
                     Fold: true
                 });
             }
-            console.log(list)
+            console.log(list);
             windowCards.value = list;
             total.value = index;
             currentPage.value = list[0].PageList[0];
@@ -800,6 +815,10 @@ export default defineComponent({
 
         onMounted(() => {
             window.addEventListener("keydown", previewHandle.keyDown, true);
+
+            window.electron.ipcRenderer.on("copy-end", () => {
+                console.log(1);
+            });
 
             // 监听退出全屏事件浏览器
             window.onresize = function () {

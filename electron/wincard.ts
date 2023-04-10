@@ -39,6 +39,10 @@ export function registerWinCardEvent() {
     // ipcMain.handle("closeWinCard", () => {
     //     console.log("sssss", 123123);
     // });
+    ipcMain.on("replicated", () => {
+        console.log(1111);
+        editWin && editWin.webContents.send("copy-end");
+    });
 }
 export function openWinCardWin() {
     editWin && editWin.show();
