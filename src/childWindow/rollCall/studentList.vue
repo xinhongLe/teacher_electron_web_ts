@@ -306,7 +306,7 @@ export default defineComponent({
                 })
                 .then(({ filePath, canceled }) => {
                     if (canceled) return;
-                    getCurrentSemesterRollCallLog({ TermCode: schoolTerm.code }).then((res) => {
+                    getCurrentSemesterRollCallLog({ TermCode: schoolTerm.code, TeacherId: currentUserInfo.userCenterUserID }).then((res) => {
                         const data = res.result;
 
                         const excelData: IExcel = {

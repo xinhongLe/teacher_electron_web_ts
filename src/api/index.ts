@@ -53,7 +53,7 @@ export const getUserSig: RequestFun<{sdkAppID: number, userID: string}, Promise<
     });
 };
 
-export const getCurrentSemesterRollCallLog: RequestFun<{ ClassId?: string, TermCode: string }, []> = (data) => {
+export const getCurrentSemesterRollCallLog: RequestFun<{ ClassId?: string, TermCode: string, TeacherId: string }, []> = (data) => {
     return request({
         baseURL: AI_XUE_SHI_API,
         url: "/API/W4/RollCall/DownLoadStudentRollCallRecord",
