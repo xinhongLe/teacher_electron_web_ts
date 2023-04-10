@@ -75,7 +75,7 @@
                         <el-button color="#4B71EE" @click="scanName">
                             扫描姓名
                         </el-button>
-                                                        </div> -->
+                                                            </div> -->
                 </div>
                 <div class="scan" id="scan" v-else>
                     <div v-if="!currentStudent">
@@ -230,7 +230,7 @@ const onDecode = (result: any) => {
         // 处理显示到左侧
         searchRepeat(result)
     } else {
-        if(state.isCodeMode){
+        if (state.isCodeMode) {
             ElMessage.warning('未识别出二维码信息')
         }
     }
@@ -433,6 +433,14 @@ const close = () => {
     state.showVideo = true
     clearStuInfo()
     //
+    getUserMedia((stream: any) => {
+        let tracks = stream.getTracks()
+        for (const ele of tracks) {
+            ele.stop()
+        }
+    })
+
+    //
     dialogVisible.value = false
     emit('openList', { TeacherCompositionId: state.TeacherCompositionId, Title: state.Title })
 }
@@ -503,12 +511,16 @@ const startScan = () => {
 //     state.isCodeMode = false
 // }
 
-const getUserMedia = () => {
+const getUserMedia = (cb?: any) => {
     /* 可同时开启video(摄像头)和audio(麦克风) 这里只请求摄像头，所以只设置video为true */
     navigator.mediaDevices.getUserMedia({ video: true })
         .then(function (stream) {
             /* 使用这个 stream 传递到成功回调中 */
-            success(stream)
+            if (cb) {
+                cb(stream)
+            }else{
+                success(stream)
+            }
         })
         .catch(function (err) {
             /* 处理 error 信息 */

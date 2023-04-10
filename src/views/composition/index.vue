@@ -46,6 +46,12 @@
     <!-- 列表 -->
     <List ref="listRef" @typein="listToScan" @refresh="getArticleList" />
 </template>
+<script lang="ts">
+import { defineComponent } from 'vue';
+export default defineComponent({
+    name:'Composition'
+})
+</script>
 <script setup lang="ts">
 import { nextTick, onMounted, reactive, ref, toRefs } from 'vue';
 import NewSetup from './components/newSetup.vue'
