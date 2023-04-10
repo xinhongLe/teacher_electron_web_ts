@@ -201,7 +201,6 @@ export default (windowCards: Ref<CardProps[]>, currentPage: Ref<PageProps | null
                 index++;
             }
         }
-        console.log(list)
         windowCards.value = list;
     };
 
@@ -235,6 +234,7 @@ export default (windowCards: Ref<CardProps[]>, currentPage: Ref<PageProps | null
         paste,
         remove,
         rename,
+        getPageById,
         createFolder,
         handleHelper,
         createCardPage,
