@@ -16,6 +16,10 @@ const extraResources =
                 from: "./extraResources/mac/ColorPicker",
                 to: "ColorPicker",
             },
+            {
+                from: "./extraResources/ffmpeg/ffmpeg",
+                to: "./extraResources/ffmpeg/ffmpeg",
+            }
         ]
         : [
             {
@@ -34,6 +38,10 @@ const extraResources =
                 from: "./extraResources/win/mockingbot-color-picker-ia32.exe",
                 to: "mockingbot-color-picker-ia32.exe",
             },
+            {
+                from: "./extraResources/ffmpeg/ffmpeg-win32-ia32.exe",
+                to: "./extraResources/ffmpeg/ffmpeg-win32-ia32.exe",
+            }
         ];
 
 module.exports = {
@@ -125,6 +133,13 @@ module.exports = {
             filename: "editWinCard.html",
             title: "编辑",
             chunks: ["editWinCard"],
+        },
+        virtualKeyBoard: {
+            entry: "src/childWindow/virtualKeyBoard/main.ts",
+            template: "public/board.html",
+            filename: "virtualKeyBoard.html",
+            title: "键盘",
+            chunks: ["virtualKeyBoard"],
         },
     },
     css: {
@@ -218,6 +233,11 @@ module.exports = {
                     priority: 10,
                     test: "src/childWindow/editWinCard/main.ts",
                 },
+                virtualKeyBoard: {
+                    name: "virtualKeyBoard",
+                    priority: 10,
+                    test: "src/childWindow/virtualKeyBoard/main.ts",
+                }
             },
         });
         config.module
@@ -339,7 +359,11 @@ module.exports = {
                     "node_modules/trtc-electron-sdk/build/Release/trtc_electron_sdk.node",
                 ],
             },
-            externals: ["clipboard", "@microsoft/signalr"],
+            externals: [
+                "clipboard",
+                "@microsoft/signalr",
+                "fluent-ffmpeg"
+            ],
         },
     },
 };

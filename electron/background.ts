@@ -1,9 +1,9 @@
 "use strict";
 
-import { app, protocol, BrowserWindow, ipcMain, Menu } from "electron";
+import {app, protocol, BrowserWindow, ipcMain, Menu} from "electron";
 // import installExtension, { VUEJS3_DEVTOOLS } from "electron-devtools-installer";
-import { createProtocol } from "vue-cli-plugin-electron-builder/lib";
-import { initialize } from "@electron/remote/main";
+import {createProtocol} from "vue-cli-plugin-electron-builder/lib";
+import {initialize} from "@electron/remote/main";
 import {
     createSuspensionWindow,
     createLocalPreviewWindow,
@@ -11,18 +11,21 @@ import {
     unfoldSuspensionWinSendMessage,
 } from "./suspension";
 import autoUpdater from "./autoUpdater";
-import { createWinCardWindow, registerWinCardEvent } from "./wincard";
+import {registerWinCardEvent} from "./wincard";
+import {registerVirtualKeyBoard, closeKeyBoard, setInput} from "./virtualKeyBoard";
 import SingalRHelper from "./singalr";
 import ElectronLog from "electron-log";
 import os from "os";
-import { exec, spawn } from "child_process";
+import {exec, spawn} from "child_process";
+
 const isDevelopment = process.env.NODE_ENV !== "production";
 import path from "path";
 import downloadFile from "./downloadFile";
+
 initialize();
 
 protocol.registerSchemesAsPrivileged([
-    { scheme: "app", privileges: { secure: true, standard: true } },
+    {scheme: "app", privileges: {secure: true, standard: true}},
     {
         scheme: "http",
         privileges: {
@@ -71,6 +74,7 @@ async function createWindow() {
 
     registerEvent();
     registerWinCardEvent();
+    registerVirtualKeyBoard();
 
     if (process.env.WEBPACK_DEV_SERVER_URL) {
         require("@electron/remote/main").enable(mainWindow.webContents);
@@ -209,12 +213,18 @@ async function createWindow() {
         // mainWindow!.maximize();
         mainWindow!.webContents.send("suspensionClick");
     });
-
+    ipcMain.on("data-to-password", (event, data) => {
+        // 在这里处理数据
+        mainWindow!.webContents.send("dataToPassword", data);
+    });
+    ipcMain.handle("closeKeyBoard", () => {
+        closeKeyBoard();
+    });
+    ipcMain.handle("setInput", (event, data) => {
+        setInput(data);
+    });
     // ipcMain.handle("openWinCardWin", () => {
     //     openWinCardWin();
-    // });
-    // ipcMain.on("closeWinCard", () => {
-    //     mainWindow!.webContents.send("closeVideoWin");
     // });
 }
 
@@ -287,7 +297,7 @@ app.on("render-process-gone", (event, webContents, details) => {
 });
 
 app.on("child-process-gone", (event, details) => {
-    const { type, reason, exitCode, serviceName, name } = details;
+    const {type, reason, exitCode, serviceName, name} = details;
     ElectronLog.error(
         `child-process-gone, reason: ${reason}, exitCode: ${exitCode}, type:${type}, serviceName: ${serviceName}, name: ${name}`
     );

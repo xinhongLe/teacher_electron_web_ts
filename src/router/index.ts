@@ -140,7 +140,7 @@ const routes: Array<RouteRecordRaw> = [
                     import("@/views/preparationGroup/annotation/index.vue"),
             },
             {
-                path: "resource-center",
+                path: "resource-center/:platformId",
                 name: "资源中心",
                 component: () => import("@/views/resourceCenter/index.vue"),
             },

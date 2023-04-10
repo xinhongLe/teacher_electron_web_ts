@@ -26,6 +26,7 @@ type Electron = typeof electron & {
     getCacheFile: (fileName: string) => Promise<string>;
     getFilePath: (fileName: string) => string;
     isExistFile: (fileName: string) => Promise<boolean>;
+    isExistM3U8: (fileName: string) => Promise<boolean>;
     destroyWindow: () => void;
     showWindow: (isMaximize?: boolean) => void;
     parsePPT: (pptPath: string) => Promise<any>;
@@ -49,6 +50,9 @@ type Electron = typeof electron & {
     remote: Remote;
     store: Store;
     log: LogFunctions;
+    convertVideoH264: (filePath: string) => Promise<Buffer>;
+    sliceVideoZip: (filePath: string, name: string) => Promise<Buffer>;
+    unZip: (path: string) => void;
 };
 
 declare global {

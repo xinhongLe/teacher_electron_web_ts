@@ -7,14 +7,14 @@ import { IOssPaths, IOssUploadRes } from "@/types/oss";
 // 上传
 export const cooOss = function (
     file: File & Blob,
-    OssPaths: IOssPaths
+    OssPaths: IOssPaths,
+    buffer?: ArrayBuffer,
+    fileName?: string,
+    fileExtension?: string
 ): Promise<IOssUploadRes | null> {
-    return new Promise((resolve) => {
-        fileMd5(file, async (md5) => {
-            const fileExtension =
-                file.name.split(".")[file.name.split(".").length - 1];
-            const name = md5;
-            const objectKey = OssPaths.Path + "/" + name + "." + fileExtension;
+    return new Promise(async (resolve) => {
+        if (fileName && fileExtension) {
+            const objectKey = OssPaths.Path + "/" + fileName + "." + fileExtension;
             const ossToken = await getToken();
             const region = "oss-cn-shanghai";
             const accessKeyId = ossToken && ossToken.AccessKeyId;
@@ -29,21 +29,55 @@ export const cooOss = function (
                 bucket: bucket,
             });
             return client
-                .multipartUpload(objectKey, file, {})
+                .multipartUpload(objectKey, buffer || file, {})
                 .then(() => {
                     return resolve({
                         code: 200,
                         objectKey: objectKey,
-                        name: name,
+                        name: fileName,
                         fileExtension: fileExtension,
                         msg: "ok",
-                        md5,
+                        md5: fileName,
                     });
                 })
                 .catch((err: Error) => {
                     console.error("上传出错了", err);
                 });
-        });
+        } else {
+            fileMd5(file, async (md5) => {
+                const fileExtension = file.name.split(".")[file.name.split(".").length - 1];
+                const name = md5;
+                const objectKey = OssPaths.Path + "/" + name + "." + fileExtension;
+                const ossToken = await getToken();
+                const region = "oss-cn-shanghai";
+                const accessKeyId = ossToken && ossToken.AccessKeyId;
+                const accessKeySecret = ossToken && ossToken.AccessKeySecret;
+                const securityToken = ossToken && ossToken.SecurityToken;
+                const bucket = OssPaths.Bucket;
+                const client = new OSS({
+                    region: region,
+                    accessKeyId: accessKeyId,
+                    accessKeySecret: accessKeySecret,
+                    stsToken: securityToken,
+                    bucket: bucket,
+                });
+                return client
+                    .multipartUpload(objectKey, buffer || file, {})
+                    .then(() => {
+                        return resolve({
+                            code: 200,
+                            objectKey: objectKey,
+                            name: name,
+                            fileExtension: fileExtension,
+                            msg: "ok",
+                            md5,
+                        });
+                    })
+                    .catch((err: Error) => {
+                        console.error("上传出错了", err);
+                    });
+            });
+        }
     });
 };
 

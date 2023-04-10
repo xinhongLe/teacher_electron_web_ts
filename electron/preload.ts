@@ -11,8 +11,16 @@ import { checkWindowSupportNet } from "./util";
 import { access, copyFile, mkdir, readFile, rm, stat, writeFile } from "fs/promises";
 import crypto from "crypto";
 import { exportWord, IFileData } from "./exportWord";
+import ffmpeg from "fluent-ffmpeg";
+import { v4 as uuidv4 } from "uuid";
+import AdmZip from "adm-zip";
+
 const PATH_BINARY = process.platform === "darwin" ? join(__dirname, "../ColorPicker") : join(__dirname, "../mockingbot-color-picker-ia32.exe");
-const PATH_WhiteBoard = join(__dirname, "../extraResources/whiteboard/Aixueshi.Whiteboard.exe");
+const PATH_WhiteBoard = join(__dirname, "../extraResources/whiteboard/Aixueshi.Whiteboard.exe"
+);
+
+const PATH_FFMPEG = process.platform === "darwin" ? join(__dirname, "../extraResources/ffmpeg/ffmpeg") : join(__dirname, "../extraResources/ffmpeg/ffmpeg-win32-ia32.exe");
+ffmpeg.setFfmpegPath(PATH_FFMPEG);
 
 const downloadsPath = join(app.getPath("userData"), "files", "/");
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -102,6 +110,12 @@ window.electron = {
     isExistFile: async (fileName: string) => {
         const filePath = resolve(downloadsPath, fileName);
         return isExistFile(filePath);
+    },
+    isExistM3U8: (fileName: string) => {
+        const filePath = resolve(downloadsPath, fileName);
+        return new Promise(resolve => {
+            access(filePath).then(() => resolve(true)).catch(() => resolve(false));
+        })
     },
     getFilePath: (fileName: string) => {
         const filePath = resolve(downloadsPath, fileName);
@@ -382,6 +396,82 @@ window.electron = {
         } finally {
             await rm(filePath, { recursive: true, force: true });
         }
+    },
+    convertVideoH264: (filePath: string) => {
+        return new Promise((resolve, reject) => {
+            const uuid = uuidv4();
+            const outputPath = join(app.getPath("userData"), "files", `/${uuid}.mp4`);
+            try {
+                ffmpeg(filePath)
+                    .videoCodec("libx264")
+                    .on("end", () => {
+                        const file = fs.readFileSync(outputPath);
+                        resolve(file);
+                    })
+                    .save(outputPath);
+            } catch (err) {
+                console.log("Error: " + err);
+                reject(err);
+            }
+        });
+    },
+    sliceVideoZip: (filePath: string, name: string) => {
+        return new Promise((resolve, reject) => {
+            const outputPath = join(app.getPath("userData"), "files");
+            if (!fs.existsSync(outputPath + `/${name}`)) {
+                fs.mkdirSync(outputPath + `/${name}`);
+            }
+            try {
+                ffmpeg(filePath)
+                    .videoCodec("libx264")
+                    .format("hls") // 输出视频格式
+                    .outputOptions("-hls_list_size 0") //  -hls_list_size n:设置播放列表保存的最多条目，设置为0会保存有所片信息，默认值为5
+                    .outputOption("-hls_time 15") // -hls_time n: 设置每片的长度，默认值为2。单位为秒
+                    .output(outputPath + `/${name}/video.m3u8`) // 输出文件
+                    .on("progress", (progress) => {
+                        // 监听切片进度
+                        ElectronLog.info(name + ": Processing: " + progress.percent + "% done");
+                    })
+                    .on("end", () => {
+                        // 监听结束
+                        ElectronLog.info(name + ": 视频切片完成");
+                        const zip = new AdmZip();
+
+                        zip.addLocalFolderAsync(outputPath + `/${name}`, (success, err) => {
+                            if (success) {
+                                ElectronLog.info("压缩" + name + "成功");
+                                const zipBuffer = zip.toBuffer();
+                                resolve(zipBuffer);
+                            } else {
+                                ElectronLog.error("压缩失败: ", err);
+                            }
+                        })
+
+                        // zip.writeZip(outputPath + `/${name}.zip`);
+
+                        // fs.readdir(outputPath + `/${name}`, (err, files) => {
+                        //     console.log(err, files);
+                        //     if (!err) {
+                        //         for (let file of files) {
+                        //             zip.addLocalFile(outputPath + `/${name}/${file}`);
+                        //         }
+                        //         const zipBuffer = zip.toBuffer();
+                        //         // zip.writeZip(outputPath + `/${name}.zip`);
+                        //         resolve(zipBuffer);
+                        //     }
+                        // });
+                    })
+                    .run();
+            } catch (err) {
+                console.log("Error: " + err);
+                reject(err);
+            }
+        });
+    },
+    unZip: (path: string) => {
+        const zip = new AdmZip(path);
+        const dirName = path.replace(/(.*[\/\\])*([^.]+)/i, "$2").replace(".zip", "");
+        zip.extractAllToAsync(downloadsPath + dirName, true);
     },
     store: store,
     parsePPT,

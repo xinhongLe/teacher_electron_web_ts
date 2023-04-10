@@ -2,6 +2,7 @@ import { IOssFileInfo, OssName } from "@/types/oss";
 import { cooOss } from "@/utils/oss";
 import { get, STORAGE_TYPES } from "@/utils/storage";
 import { ref, reactive } from "vue";
+import MP4Box from "mp4box";
 
 export default (ossPathKey: OssName) => {
     const loadingShow = ref(false);
@@ -20,11 +21,42 @@ export default (ossPathKey: OssName) => {
         fileType: ""
     });
 
+    const checkFileConvert = (file: File & Blob) => {
+        return new Promise(resolve => {
+            if (file.type.indexOf("mp4") > -1) {
+                const mp4boxFile = MP4Box.createFile();
+
+                mp4boxFile.onReady = (info: any) => {
+                    const mime = info.mime;
+                    const codecs = mime.match(/codecs="(\S*),/);
+                    if (codecs && codecs[1].indexOf("avc") === -1) {
+                        resolve(true);
+                    } else {
+                        resolve(false);
+                    }
+                };
+
+                const reader = new FileReader();
+                reader.readAsArrayBuffer(file);
+                reader.onload = (e) => {
+                    const arrayBuffer = e.target?.result;
+                    if (arrayBuffer) {
+                        (arrayBuffer as any).fileStart = 0;
+                        mp4boxFile.appendBuffer(arrayBuffer);
+                    }
+                };
+            } else {
+                resolve(false);
+            }
+        });
+    };
+
     const uploadFile = async ({ file }: {file: File & Blob}) => {
         const ossPath = get(STORAGE_TYPES.OSS_PATHS)?.[ossPathKey];
-
         loadingShow.value = true;
-        const res = await cooOss(file, ossPath);
+        const isConvert = await checkFileConvert(file);
+        const buffer = isConvert ? await window.electron.convertVideoH264(file.path) : undefined;
+        const res = await cooOss(file, ossPath, buffer);
         if (res?.code === 200) {
             const { objectKey, name, md5, fileExtension } = res;
             fileInfo.bucket = ossPath.Bucket;
@@ -39,6 +71,7 @@ export default (ossPathKey: OssName) => {
             fileInfo.fileSize = getFileSize(file.size);
             fileInfo.fileType = getFileType(file.name);
         }
+        
         loadingShow.value = false;
         return { ...fileInfo };
     };

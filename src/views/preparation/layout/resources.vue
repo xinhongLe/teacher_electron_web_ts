@@ -5,46 +5,106 @@
             资源正在加载，请稍候…
         </div>
         <div class="tip" v-if="!isLaoding && resourceList.length === 0">
-            <img src="@/assets/images/preparation/pic_finish_buzhi.png" alt="" />
+            <img
+                src="@/assets/images/preparation/pic_finish_buzhi.png"
+                alt=""
+            />
             没有相关资源
         </div>
         <!-- <div class="p-layout-lesson" v-if="source == 'me'">
             <LessonPackage :isMouseDrag="false" :lessonPackageList="lessonPackageList" @addLessonPackage="addLessonPackage"
                 @deleteLessonPackage="deleteLessonPackage" @toMyLessonPackage="toArrangeClass" />
         </div> -->
-        <div class="p-layout-list" ref="resourceScroll" v-infinite-scroll="load"
-            :style="{ height: source == 'me' ? 'calc(100vh - 160px)' : 'calc(100vh - 240px)' }"
-            :infinite-scroll-disabled="disabledScrollLoad">
-            <ResourceItem :class="[
-                `resource-${item.ResourceId}`,
-                item.ResourceId === resourceId ? 'doing' : 'custom',
-            ]" v-for="(item, index) in resourceList" :key="index" :data="item" :name="name" :lessonId="course.lessonId"
-                :source="source" @eventEmit="eventEmit" @addLessonPackage="addNewLessonPackage"
-                @toArrangeClass="toArrangeClass" :lessonPackageList="lessonPackageList"
-                @handleSelectLessonBag="handleSelectLessonBag" @handleRemoveLessonBag="handleRemoveLessonBag" />
+        <div
+            class="p-layout-list"
+            ref="resourceScroll"
+            v-infinite-scroll="load"
+            :style="{
+                height:
+                    source == 'me'
+                        ? 'calc(100vh - 160px)'
+                        : 'calc(100vh - 240px)',
+            }"
+            :infinite-scroll-disabled="disabledScrollLoad"
+        >
+            <ResourceItem
+                :class="[
+                    `resource-${item.ResourceId}`,
+                    item.ResourceId === resourceId ? 'doing' : 'custom',
+                ]"
+                v-for="(item, index) in resourceList"
+                :key="index"
+                :data="item"
+                :name="name"
+                :lessonId="course.lessonId"
+                :source="source"
+                @eventEmit="eventEmit"
+                @addLessonPackage="addNewLessonPackage"
+                @toArrangeClass="toArrangeClass"
+                :lessonPackageList="lessonPackageList"
+                @handleSelectLessonBag="handleSelectLessonBag"
+                @handleRemoveLessonBag="handleRemoveLessonBag"
+            />
 
-            <DeleteTip :target="targetDelete" v-model:visible="deleteTipVisible" @onDeleteSuccess="onDeleteSuccess" />
+            <DeleteTip
+                :target="targetDelete"
+                v-model:visible="deleteTipVisible"
+                @onDeleteSuccess="onDeleteSuccess"
+            />
 
-            <EditTip @update="update" :resource="resource" v-model:visible="editTipVisible" />
+            <EditTip
+                @update="update"
+                :resource="resource"
+                v-model:visible="editTipVisible"
+            />
 
-            <ResourceVersion :target="target" v-model:visible="resourceVersionVisible" />
+            <ResourceVersion
+                :target="target"
+                v-model:visible="resourceVersionVisible"
+            />
 
-            <DeleteVideoTip :target="target" :resource="resource" v-model:visible="deleteVideoTipVisible" />
+            <DeleteVideoTip
+                :target="target"
+                :resource="resource"
+                v-model:visible="deleteVideoTipVisible"
+            />
 
-            <ResourceView :name="name" :target="target" :resource="resource" :lessonId="course.lessonId"
-                v-model:visible="resourceVisible" :data="resourceData" @closeDetail="closeDetail" @eventEmit="eventEmit" />
+            <ResourceView
+                :name="name"
+                :target="target"
+                :resource="resource"
+                :lessonId="course.lessonId"
+                v-model:visible="resourceVisible"
+                :data="resourceData"
+                @closeDetail="closeDetail"
+                @eventEmit="eventEmit"
+            />
 
             <div class="download-progress-dialog">
-                <el-dialog class="custom-dialog" title="下载" center align-center destroy-on-close width="300px"
-                    :show-close="true" :before-close="cancelDownload" :close-on-click-modal="false" v-model="showDownload">
+                <el-dialog
+                    class="custom-dialog"
+                    title="下载"
+                    center
+                    align-center
+                    destroy-on-close
+                    width="300px"
+                    :show-close="true"
+                    :before-close="cancelDownload"
+                    :close-on-click-modal="false"
+                    v-model="showDownload"
+                >
                     <div class="download-progress-bar">
-                        <div class="download-progress-line" :style="{ width: downloadProgress + '%' }"></div>
+                        <div
+                            class="download-progress-line"
+                            :style="{ width: downloadProgress + '%' }"
+                        ></div>
                     </div>
-                    <div class="download-progress-tip">打包下载中，请稍等...</div>
+                    <div class="download-progress-tip">
+                        打包下载中，请稍等...
+                    </div>
                 </el-dialog>
             </div>
         </div>
-
     </div>
 </template>
 
@@ -59,7 +119,7 @@ import {
     PropType,
     ref,
     toRefs,
-    watch
+    watch,
 } from "vue";
 import ResourceItem from "./resourceItem.vue";
 import LessonPackage from "./lessonPackage.vue";
@@ -77,7 +137,7 @@ import {
     IResourceItem,
     logDownload,
     logView,
-    removePreparationPackage
+    removePreparationPackage,
 } from "@/api/resource";
 import { MutationTypes, useStore } from "@/store";
 import emitter from "@/utils/mitt";
@@ -96,19 +156,18 @@ interface ICourse {
     chapterName: string;
 }
 export default defineComponent({
-
     props: {
         course: {
             type: Object as PropType<ICourse>,
-            required: true
+            required: true,
         },
         source: {
             type: String,
-            required: true
+            required: true,
         },
         type: {
             type: String,
-            required: true
+            required: true,
         },
         bookId: {
             type: String,
@@ -116,16 +175,29 @@ export default defineComponent({
         },
         name: {
             type: String,
-            default: ""
+            default: "",
         },
         bagType: {
             type: String,
-            default: ""
-        }
+            default: "",
+        },
     },
-    emits: ["updateResourceList", "toMyLessonPackage", "toArrangeClass", "deleteLessonPackage"],
+    emits: [
+        "updateResourceList",
+        "toMyLessonPackage",
+        "toArrangeClass",
+        "deleteLessonPackage",
+    ],
     setup(props, { expose, emit }) {
-        const { lessonPackageList, getMyLessonBagNew, addResourceLessonBag, delResourceLessonBag, addLessonPackage, addLessonBag, setValueAddLessonBag } = useLessonPackage();
+        const {
+            lessonPackageList,
+            getMyLessonBagNew,
+            addResourceLessonBag,
+            delResourceLessonBag,
+            addLessonPackage,
+            addLessonBag,
+            setValueAddLessonBag,
+        } = useLessonPackage();
         const resourceList = ref<IResourceItem[]>([]);
         const deleteTipVisible = ref(false);
         const editTipVisible = ref(false);
@@ -143,7 +215,7 @@ export default defineComponent({
         const resourceData = ref<null | IViewResourceData>(null);
         const showDownload = ref(false);
         const downloadProgress = ref(0);
-        const currentSelectBagIds = ref<string[]>();//当前选择备课包id集合
+        const currentSelectBagIds = ref<string[]>(); //当前选择备课包id集合
 
         // 加入备课包
         const addPackage = async (data: IResourceItem) => {
@@ -174,7 +246,7 @@ export default defineComponent({
                     (book && book.ChapterName) || course.value.chapterName,
                 lessonId: (book && book.LessonID) || course.value.lessonId,
                 lessonName:
-                    (book && book.LessonName) || course.value.lessonName
+                    (book && book.LessonName) || course.value.lessonName,
             });
 
             if (res.success) {
@@ -314,71 +386,56 @@ export default defineComponent({
                     // if (props.name === "attendClass") {
                     if (data.ResourceShowType === 2) {
                         // 断点视频
-                        store.commit(
-                            MutationTypes.SET_FULLSCREEN_RESOURCE,
-                            {
-                                component: "LookVideo",
-                                resource: {
-                                    id: data.OldResourceId,
-                                    openMore: true,
-                                },
-                            }
-                        );
+                        store.commit(MutationTypes.SET_FULLSCREEN_RESOURCE, {
+                            component: "LookVideo",
+                            resource: {
+                                id: data.OldResourceId,
+                                openMore: true,
+                            },
+                        });
                     } else if (data.ResourceShowType === 3) {
                         // 练习卷
-                        store.commit(
-                            MutationTypes.SET_FULLSCREEN_RESOURCE,
-                            {
-                                component: "LookQuestion",
-                                resource: {
-                                    id: data.OldResourceId,
-                                    courseBagId: "",
-                                    deleteQuestionIds: [],
-                                    type: 1,
-                                    openMore: true,
-                                },
-                            }
-                        );
+                        store.commit(MutationTypes.SET_FULLSCREEN_RESOURCE, {
+                            component: "LookQuestion",
+                            resource: {
+                                id: data.OldResourceId,
+                                courseBagId: "",
+                                deleteQuestionIds: [],
+                                type: 1,
+                                openMore: true,
+                            },
+                        });
                     } else if (data.ResourceShowType === 1) {
-                        store.commit(
-                            MutationTypes.SET_FULLSCREEN_RESOURCE,
-                            {
-                                component: "Wincard",
-                                resource: {
-                                    id: data.OldResourceId,
-                                    isSystem: data.IsSysFile === 1,
-                                    openMore: true,
-                                },
-                            }
-                        );
+                        store.commit(MutationTypes.SET_FULLSCREEN_RESOURCE, {
+                            component: "Wincard",
+                            resource: {
+                                id: data.OldResourceId,
+                                isSystem: data.IsSysFile === 1,
+                                openMore: true,
+                            },
+                        });
                     } else if (
                         data.ResourceShowType === 0 ||
                         data.ResourceShowType === 4
                     ) {
-                        store.commit(
-                            MutationTypes.SET_FULLSCREEN_RESOURCE,
-                            {
-                                component: "ScreenViewFile",
-                                resource: {
-                                    ...data,
-                                    id: data.OldResourceId,
-                                    openMore: true,
-                                },
-                            }
-                        );
+                        store.commit(MutationTypes.SET_FULLSCREEN_RESOURCE, {
+                            component: "ScreenViewFile",
+                            resource: {
+                                ...data,
+                                id: data.OldResourceId,
+                                openMore: true,
+                            },
+                        });
                     } else if (data.ResourceShowType === 5) {
-                        store.commit(
-                            MutationTypes.SET_FULLSCREEN_RESOURCE,
-                            {
-                                component: "AnswerMachine",
-                                resource: {
-                                    ...data,
-                                    lessonId: course.value.lessonId,
-                                    id: new Date().getTime(),
-                                    openMore: true,
-                                },
-                            }
-                        );
+                        store.commit(MutationTypes.SET_FULLSCREEN_RESOURCE, {
+                            component: "AnswerMachine",
+                            resource: {
+                                ...data,
+                                lessonId: course.value.lessonId,
+                                id: new Date().getTime(),
+                                openMore: true,
+                            },
+                        });
                     }
                     // } else {
                     //     openResource(data);
@@ -404,7 +461,7 @@ export default defineComponent({
                 id: cacheResource.OldResourceId,
                 name: cacheResource.Name,
                 lessonId: store.state.preparation.selectLessonId,
-                originType: 1
+                originType: 1,
             };
             set(STORAGE_TYPES.WINDOW_INFO, windowInfo);
             openWinCard(cacheResource.Name);
@@ -421,17 +478,14 @@ export default defineComponent({
         };
         const openResource = (data: IResourceItem) => {
             if (data.ResourceShowType === 1) {
-                store.commit(
-                    MutationTypes.SET_FULLSCREEN_RESOURCE,
-                    {
-                        component: "Wincard",
-                        resource: {
-                            id: data.OldResourceId,
-                            isSystem: data.IsSysFile === 1,
-                            openMore: true
-                        }
-                    }
-                );
+                store.commit(MutationTypes.SET_FULLSCREEN_RESOURCE, {
+                    component: "Wincard",
+                    resource: {
+                        id: data.OldResourceId,
+                        isSystem: data.IsSysFile === 1,
+                        openMore: true,
+                    },
+                });
             } else {
                 if (data.ResourceShowType === 2) {
                     resourceData.value = { id: data.OldResourceId };
@@ -440,7 +494,7 @@ export default defineComponent({
                         id: data.OldResourceId,
                         courseBagId: "",
                         deleteQuestionIds: [],
-                        type: 1
+                        type: 1,
                     };
                 }
                 resource.value = data;
@@ -503,28 +557,36 @@ export default defineComponent({
 
         const { source, type, course, bookId, bagType } = toRefs(props);
 
-        watch([source, type, course, schoolId, bookId], async () => {
-            if (source.value === 'me') return;
-            if (!course.value.lessonId) return;
-            update("");
-            await getMyLessonBagNew({ id: course.value.lessonId });
-            if (!lessonPackageList.value.length) {
-                setValueAddLessonBag(props.course)
-                addLessonBag.value.name = "备课包1";
-                const res = await addLessonPackage(addLessonBag.value);
-                if (res) {
-                    getMyLessonBagNew({ id: course.value.lessonId });
+        watch(
+            [source, type, course, schoolId, bookId],
+            async () => {
+                if (source.value === "me") return;
+                if (!course.value.lessonId) return;
+                update("");
+                await getMyLessonBagNew({ id: course.value.lessonId });
+                if (!lessonPackageList.value.length) {
+                    setValueAddLessonBag(props.course);
+                    addLessonBag.value.name = "备课包1";
+                    const res = await addLessonPackage(addLessonBag.value);
+                    if (res) {
+                        getMyLessonBagNew({ id: course.value.lessonId });
+                    }
                 }
-            }
-        }, { deep: true });
-        watch(() => bagType.value, () => {
-            pageNumber.value = 1;
-            getResources(currentSelectBagIds.value, true)
-        }, { deep: true });
+            },
+            { deep: true }
+        );
+        watch(
+            () => bagType.value,
+            () => {
+                pageNumber.value = 1;
+                getResources(currentSelectBagIds.value, true);
+            },
+            { deep: true }
+        );
         const update = (id: any) => {
             resourceList.value = [];
             pageNumber.value = 1;
-            resourceId.value = source.value == 'me' ? "" : id;
+            resourceId.value = source.value == "me" ? "" : id;
             getResources(id);
         };
 
@@ -534,26 +596,29 @@ export default defineComponent({
             if ((course.value.chapterId && course.value.lessonId) || isBag) {
                 isLaoding.value = true;
                 // let params: any;
-                const params = source.value == 'me' ? {
-                    ids: id,
-                    typeId: isBag ? type.value : "",
-                    pager: {
-                        pageNumber: pageNumber.value,
-                        pageSize: pageSize.value
-                    },
-                    resourceType: source.value
-                } : {
-                    chapterId: course.value.chapterId,
-                    lessonId: course.value.lessonId,
-                    resourceTypeId: type.value,
-                    resourceType: source.value,
-                    schoolId: schoolId.value,
-                    bookId: bookId.value,
-                    pager: {
-                        pageNumber: pageNumber.value,
-                        pageSize: pageSize.value
-                    }
-                }
+                const params =
+                    source.value == "me"
+                        ? {
+                              ids: id,
+                              typeId: isBag ? type.value : "",
+                              pager: {
+                                  pageNumber: pageNumber.value,
+                                  pageSize: pageSize.value,
+                              },
+                              resourceType: source.value,
+                          }
+                        : {
+                              chapterId: course.value.chapterId,
+                              lessonId: course.value.lessonId,
+                              resourceTypeId: type.value,
+                              resourceType: source.value,
+                              schoolId: schoolId.value,
+                              bookId: bookId.value,
+                              pager: {
+                                  pageNumber: pageNumber.value,
+                                  pageSize: pageSize.value,
+                              },
+                          };
 
                 const res = await fetchResourceList(params);
                 if (res.resultCode === 200) {
@@ -581,7 +646,7 @@ export default defineComponent({
                                     .offsetTop;
                                 resourceScroll.value.scrollTo({
                                     top,
-                                    behavior: "smooth"
+                                    behavior: "smooth",
                                 });
                             }
                         }
@@ -616,12 +681,14 @@ export default defineComponent({
         // 资源列表的备课包下拉中新增课包
         const addNewLessonPackage = async () => {
             setValueAddLessonBag(props.course);
-            addLessonBag.value.name = "备课包" + (lessonPackageList.value.length + 1);
-            lessonPackageList.value.forEach(item => {
+            addLessonBag.value.name =
+                "备课包" + (lessonPackageList.value.length + 1);
+            lessonPackageList.value.forEach((item) => {
                 if (item.Name === addLessonBag.value.name) {
-                    addLessonBag.value.name = "备课包" + (Number(item.Name?.slice(3)) + 1)
+                    addLessonBag.value.name =
+                        "备课包" + (Number(item.Name?.slice(3)) + 1);
                 }
-            })
+            });
             const res = await addLessonPackage(addLessonBag.value);
             if (res) {
                 getMyLessonBagNew({ id: course.value.lessonId });
@@ -632,26 +699,29 @@ export default defineComponent({
             emit("toArrangeClass", data, type, ev);
         };
         // 资源加入备课包
-        const handleSelectLessonBag = async (item: IGetLessonBagOutDto, data: IResourceItem) => {
+        const handleSelectLessonBag = async (
+            item: IGetLessonBagOutDto,
+            data: IResourceItem
+        ) => {
             const params = {
                 resourceId: data.ResourceId,
-                lessonBagId: item.Id
-            }
+                lessonBagId: item.Id,
+            };
             const res = await addResourceLessonBag(params);
             if (res) {
                 emitter.emit("updatePackageCount", null);
                 // update("");
-                console.log('resourceList.value---', resourceList.value);
+                console.log("resourceList.value---", resourceList.value);
                 resourceList.value.forEach((resource: IResourceItem) => {
                     if (resource.ResourceId === data.ResourceId) {
                         resource.JoinBags.push({
                             BagId: item.Id,
                             BagName: item.Name,
-                            Id: ""
+                            Id: "",
                         });
                         resource.IsBag = true;
                     }
-                })
+                });
             }
         };
         // 资源移出备课包
@@ -666,7 +736,14 @@ export default defineComponent({
         const deleteLessonPackage = (id: string) => {
             emit("deleteLessonPackage", id);
         };
-        expose({ update, openResource, eventEmit, addNewLessonPackage, toArrangeClass, getResources });
+        expose({
+            update,
+            openResource,
+            eventEmit,
+            addNewLessonPackage,
+            toArrangeClass,
+            getResources,
+        });
 
         return {
             resourceList,
@@ -743,7 +820,6 @@ export default defineComponent({
             box-shadow: 0px 6px 16px 0px rgba(0, 0, 0, 0.16);
         }
     }
-
 }
 
 .tip {

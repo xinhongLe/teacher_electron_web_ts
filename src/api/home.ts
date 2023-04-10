@@ -2,7 +2,7 @@ import request from "@/utils/request";
 import { IResponse } from "@/types/response";
 import { ICardList, ITreeList } from "@/types/home";
 import { Slide } from "wincard";
-import { WINDOW_CRAD_API, originType } from "@/config/index";
+import { WINDOW_CRAD_API, originType, API_CENTER_USER_MANAGE } from "@/config/index";
 import { getWinCardDBData, WinCardData } from "@/utils/database";
 import { CardProps } from "@/views/preparation/intelligenceClassroom/api/props";
 type BookListResponse = IResponse<ITreeList[]>
@@ -602,6 +602,26 @@ export function saveLessonProcessAndDesign(data: ISaveProcessAndDesignData) : Pr
     return request({
         baseURL: WINDOW_CRAD_API,
         url: "/Api/WCP/LessonPlan/SaveTeachPageDesignIntent",
+        method: "post",
+        data
+    });
+}
+
+interface IOrgId {
+    id: string;
+}
+
+interface IPlatformResponse {
+    id: string;
+    orgId: string;
+    platformId: string;
+}
+
+// 根据组织id批量查询
+export function getPlatformByOrgId(data: IOrgId[]) : Promise<IResponse<IPlatformResponse[]>> {
+    return request({
+        baseURL: API_CENTER_USER_MANAGE,
+        url: "/platform-org-relation/getByOrgIds",
         method: "post",
         data
     });

@@ -28,28 +28,28 @@
                     ref="componentRef"
                 />
             </div>
-            <div class="toresourse">
-                <div class="text">
-                    前往
-                    <span @click="router.push('/resource-center')">【资源中心】</span>
-                    搜索更多
-                </div>
-            </div>
+<!--            <div class="toresourse">-->
+<!--                <div class="text">-->
+<!--                    前往-->
+<!--                    <span @click="router.push('/resource-center')">【资源中心】</span>-->
+<!--                    搜索更多-->
+<!--                </div>-->
+<!--            </div>-->
         </div>
     </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, markRaw, reactive, ref, toRefs, computed, watch, nextTick } from "vue";
+import {defineComponent, markRaw, reactive, ref, toRefs, computed, watch, nextTick} from "vue";
 import materialTemplate from "./components/materialTemplate.vue";
 import myMaterial from "./components/myMaterial.vue";
 import materialResource from "./components/materialResource.vue";
-import { ITemplateSave } from "@/types/home";
-import { useRouter } from "vue-router";
-import { Rank } from "@element-plus/icons-vue";
+import {ITemplateSave} from "@/types/home";
+import {useRouter} from "vue-router";
+import {Rank} from "@element-plus/icons-vue";
 
 export default defineComponent({
-    components: { materialTemplate, myMaterial, materialResource, Rank },
+    components: {materialTemplate, myMaterial, materialResource, Rank},
     props: {
         subjectID: {
             type: String,
@@ -61,7 +61,7 @@ export default defineComponent({
         },
     },
     emits: ["insertData", "editTemplate", "insertTools"],
-    setup(props, { emit }) {
+    setup(props, {emit}) {
         const router = useRouter();
         const componentRef = ref();
         const state = reactive({
@@ -69,9 +69,9 @@ export default defineComponent({
             activeName: 1,
             // currentComponent: materialTemplate,
             tabList: [
-                { label: "模版", name: 1 },
-                { label: "素材", name: 2 },
-                { label: "我的", name: 3 }
+                {label: "模版", name: 1},
+                {label: "素材", name: 2},
+                {label: "我的", name: 3}
             ],
             subjectID: computed(() => props.subjectID),
             lessonId: computed(() => props.lessonId)
@@ -83,7 +83,7 @@ export default defineComponent({
                 // state.subjectID = curVal;
                 // console.log("state.subjectID", state.subjectID);
             },
-            { deep: true }
+            {deep: true}
         );
 
         const currentComponent = ref<any>(markRaw(materialTemplate));

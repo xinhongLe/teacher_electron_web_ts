@@ -1,18 +1,26 @@
 import { OSS_PATH } from "@/config/filePath";
 import {
-    PPTAudioElement, PPTElement, PPTElementAction, IWin, PPTImageElement, PPTLineElement, PPTShapeElement,
+    PPTAudioElement,
+    PPTElement,
+    PPTElementAction,
+    IWin,
+    PPTImageElement,
+    PPTLineElement,
+    PPTShapeElement,
     PPTTextElement,
     PPTVideoElement,
     Slide,
     SlideBackground,
-    PPTCard, PPTRelation, PPTAnimation
+    PPTCard,
+    PPTRelation,
+    PPTAnimation,
 } from "wincard";
 import { createRandomCode } from "@/utils/common";
 import { getVideoQuoteInfo } from "@/api/home";
 
 interface IOldSlide {
     Elements: string[];
-    Events: string[],
+    Events: string[];
     PageSetting: string;
     Steps: string[];
 }
@@ -23,26 +31,26 @@ interface IAction {
 }
 
 interface IOldPages {
-    CardID: string,
-    CardName: string,
-    Type: number,
+    CardID: string;
+    CardName: string;
+    Type: number;
 }
 
 interface IOldCards {
-    CardID: string,
-    CardName: string,
-    Pages: IOldPages[]
+    CardID: string;
+    CardName: string;
+    Pages: IOldPages[];
 }
 
 interface IOldActionData {
-    WindowID: string,
-    WindowName: string,
-    Cards: IOldCards[]
+    WindowID: string;
+    WindowName: string;
+    Cards: IOldCards[];
 }
 
 interface ICustomActions {
-    ActionData: IOldActionData,
-    CustomActionType: number
+    ActionData: IOldActionData;
+    CustomActionType: number;
 }
 
 interface IEvent {
@@ -57,12 +65,16 @@ interface IOldAction {
     TargetID: string;
 }
 
-export const dealOldData = async (pageID: string, originType: any, oldSlide: IOldSlide) => {
+export const dealOldData = async (
+    pageID: string,
+    originType: any,
+    oldSlide: IOldSlide
+) => {
     const slide: Slide = {
         id: pageID,
         type: "element",
         viewportRatio: 0.5625,
-        elements: []
+        elements: [],
     };
 
     slide.background = getSlideData(oldSlide.PageSetting || "{}");
@@ -75,7 +87,11 @@ export const dealOldData = async (pageID: string, originType: any, oldSlide: IOl
         (window as any).electron && (window as any).electron.log.error(err);
     }
 
-    slide.elements = await getElementsData(sortOldElenents, oldSlide.Events || [], originType);
+    slide.elements = await getElementsData(
+        sortOldElenents,
+        oldSlide.Events || [],
+        originType
+    );
     return slide;
 };
 
@@ -84,7 +100,7 @@ const getSlideData = (slideBackgroundString: string) => {
     const setting = JSON.parse(slideBackgroundString);
     const background: SlideBackground = {
         type: "solid",
-        color: "#F6FFFB"
+        color: "#F6FFFB",
     };
     if (setting.BackColor) {
         // 纯色背景填充
@@ -102,7 +118,7 @@ const getSlideData = (slideBackgroundString: string) => {
 
 // 处理事件
 const getSlideEventData = (oldEvents: string[]) => {
-    return oldEvents.map(item => {
+    return oldEvents.map((item) => {
         const event: IEvent = JSON.parse(item);
         return event;
     });
@@ -113,17 +129,28 @@ const getElementActionsById = (events: IEvent[], id: string) => {
     const event = events.find((event: IEvent) => {
         return event.SourceID === id;
     });
-    const actions: PPTElementAction[] = (event?.Actions || []).map(item => {
+    const actions: PPTElementAction[] = (event?.Actions || []).map((item) => {
         return {
-            type: item.ActionType === 1 ? "show" : item.ActionType === 2 ? "hide" : item.ActionType === 3 ? "toggle" : "none",
-            target: item.TargetID
+            type:
+                item.ActionType === 1
+                    ? "show"
+                    : item.ActionType === 2
+                    ? "hide"
+                    : item.ActionType === 3
+                    ? "toggle"
+                    : "none",
+            target: item.TargetID,
         };
     });
     return actions;
 };
 
 // 获取对应元素的特殊事件（弹出卡）
-const getElementCustomById = (events: IEvent[], id: string, originType: number) => {
+const getElementCustomById = (
+    events: IEvent[],
+    id: string,
+    originType: number
+) => {
     const event = events.find((event: IEvent) => {
         return event.SourceID === id;
     });
@@ -135,20 +162,20 @@ const getElementCustomById = (events: IEvent[], id: string, originType: number) 
                 return {
                     id: page.CardID,
                     name: page.CardName,
-                    type: page.Type
+                    type: page.Type,
                 };
             });
             return {
                 id: card.CardID,
                 name: card.CardName,
                 type: originType,
-                slides
+                slides,
             };
         });
 
         return {
             id: item.WindowID,
-            cards
+            cards,
         };
     });
     return win;
@@ -159,12 +186,14 @@ const getSlideStepData = (oldSteps: string[]) => {
     const steps: PPTElementAction[][] = [];
     oldSteps.forEach((item: string) => {
         const oldStep = JSON.parse(item);
-        const actions: PPTElementAction[] = oldStep.Actions.map((action: IOldAction) => {
-            return {
-                type: ["none", "show", "hide", "toggle"][action.ActionType],
-                target: action.TargetID
-            };
-        });
+        const actions: PPTElementAction[] = oldStep.Actions.map(
+            (action: IOldAction) => {
+                return {
+                    type: ["none", "show", "hide", "toggle"][action.ActionType],
+                    target: action.TargetID,
+                };
+            }
+        );
         steps.push(actions);
     });
     return steps;
@@ -172,19 +201,35 @@ const getSlideStepData = (oldSteps: string[]) => {
 
 // 根据 ZIndex 进行排序
 const sortElementsByZIndex = (oldElements: string[] | string) => {
-    return (typeof oldElements === "string" ? JSON.parse(oldElements) : oldElements).sort((a: any, b: any) => {
-        return (typeof a === "string" ? JSON.parse(a) : a).ZIndex - (typeof b === "string" ? JSON.parse(b) : b).ZIndex;
+    return (
+        typeof oldElements === "string" ? JSON.parse(oldElements) : oldElements
+    ).sort((a: any, b: any) => {
+        return (
+            (typeof a === "string" ? JSON.parse(a) : a).ZIndex -
+            (typeof b === "string" ? JSON.parse(b) : b).ZIndex
+        );
     });
 };
 
 // 处理获取元素集合
-const getElementsData = async (oldElements: string[], oldActions: string[], originType: number) => {
+const getElementsData = async (
+    oldElements: string[],
+    oldActions: string[],
+    originType: number
+) => {
     const events: IEvent[] = getSlideEventData(oldActions);
     const elements: any = [];
     for (const item of oldElements) {
         const oldElement = typeof item === "string" ? JSON.parse(item) : item;
-        const actions: PPTElementAction[] = getElementActionsById(events, oldElement.UUID);
-        const wins: IWin[] = getElementCustomById(events, oldElement.UUID, originType);
+        const actions: PPTElementAction[] = getElementActionsById(
+            events,
+            oldElement.UUID
+        );
+        const wins: IWin[] = getElementCustomById(
+            events,
+            oldElement.UUID,
+            originType
+        );
         switch (oldElement.Type) {
             case 1:
                 elements.push({ ...dealText(oldElement), actions, wins });
@@ -208,7 +253,11 @@ const getElementsData = async (oldElements: string[], oldActions: string[], orig
             case 8:
             case 10:
             case 13:
-                elements.push({ ...await dealVideo(oldElement), actions, wins });
+                elements.push({
+                    ...(await dealVideo(oldElement)),
+                    actions,
+                    wins,
+                });
                 break;
         }
     }
@@ -254,15 +303,22 @@ const dealText = (oldText: IOldTextElement) => {
         rotate: 0,
         defaultFontName: "",
         defaultColor: "",
-        defaultFontSize: ""
+        defaultFontSize: "",
     };
     // LineHeight 不存在的情况
     oldText.LineHeight = oldText.LineHeight || 22;
-    oldText.LineHeight = oldText.LineHeight < oldText.FontSize ? oldText.FontSize : oldText.LineHeight;
+    oldText.LineHeight =
+        oldText.LineHeight < oldText.FontSize
+            ? oldText.FontSize
+            : oldText.LineHeight;
     // 文本有为null的情况出来
     oldText.Text = oldText.Text || "";
     // 由于旧数据文本在行内是居上显示的，所以这类计算上下的偏移量
-    const realTextHeight = getTextHeight(oldText.FontSize, oldText.FontFamily, oldText.Text);
+    const realTextHeight = getTextHeight(
+        oldText.FontSize,
+        oldText.FontFamily,
+        oldText.Text
+    );
     const offsetTop = (oldText.LineHeight - realTextHeight) / 2;
     element.id = oldText.UUID;
     element.name = oldText.Name;
@@ -351,7 +407,7 @@ const dealImage = (oldImage: IOldImageElement) => {
         rotate: 0,
         fixedRatio: true,
         stretch: 1,
-        src: ""
+        src: "",
     };
     element.id = oldImage.UUID;
     element.name = oldImage.Name;
@@ -399,7 +455,7 @@ const dealCircle = (oldCircle: IOldCircleElement) => {
         left: 0,
         top: 0,
         width: 0,
-        height: 0
+        height: 0,
     };
     element.id = oldCircle.UUID;
     element.name = oldCircle.Name;
@@ -449,7 +505,7 @@ const dealRect = (oldRect: IOldRectElement) => {
         left: 0,
         top: 0,
         width: 0,
-        height: 0
+        height: 0,
     };
     element.id = oldRect.UUID;
     element.name = oldRect.Name;
@@ -498,7 +554,7 @@ const dealLine = (oldLine: IOldLineElement) => {
         end: [0, 0],
         style: "solid",
         color: "",
-        points: ["", ""]
+        points: ["", ""],
     };
     oldLine.Angle = oldLine.Angle % 360;
     if (oldLine.Angle < 0) oldLine.Angle = 360 + oldLine.Angle;
@@ -510,8 +566,14 @@ const dealLine = (oldLine: IOldLineElement) => {
     element.style = oldLine.LineType === 0 ? "dashed" : "solid";
     element.color = converColor(oldLine.LineBrush);
     element.display = oldLine.IsVisibility;
-    element.start = [oldLine.Width / 2 * (1 - Math.cos(oldLine.Angle * Math.PI / 180)), -oldLine.Width / 2 * Math.sin(oldLine.Angle * Math.PI / 180)];
-    element.end = [oldLine.Width / 2 * (1 + Math.cos(oldLine.Angle * Math.PI / 180)), oldLine.Width / 2 * Math.sin(oldLine.Angle * Math.PI / 180)];
+    element.start = [
+        (oldLine.Width / 2) * (1 - Math.cos((oldLine.Angle * Math.PI) / 180)),
+        (-oldLine.Width / 2) * Math.sin((oldLine.Angle * Math.PI) / 180),
+    ];
+    element.end = [
+        (oldLine.Width / 2) * (1 + Math.cos((oldLine.Angle * Math.PI) / 180)),
+        (oldLine.Width / 2) * Math.sin((oldLine.Angle * Math.PI) / 180),
+    ];
     return element;
 };
 
@@ -542,7 +604,7 @@ const dealAudio = (oldAudio: IOldAudio) => {
         width: 0,
         height: 0,
         src: "",
-        rotate: 0
+        rotate: 0,
     };
 
     element.id = oldAudio.UUID;
@@ -599,19 +661,24 @@ const dealVideo = async (oldVideo: IOldVideo) => {
         poster: "",
         icon: "",
         pauseList: [],
-        fileID: ""
+        fileID: "",
     };
 
     if (oldVideo.Type === 10 || oldVideo.Type === 13) {
         if (oldVideo.FileID) {
-            await getVideoQuoteInfo({ FileIDs: [oldVideo.FileID] }).then(res => {
-                if (res.resultCode === 200 && res.result.length > 0) {
-                    oldVideo.OssFileName = res.result[0].File.FileName + "." + res.result[0].File.Extention;
-                    element.pauseList = res.result[0].Pauses;
-                } else {
-                    oldVideo.OssFileName = "";
+            await getVideoQuoteInfo({ FileIDs: [oldVideo.FileID] }).then(
+                (res) => {
+                    if (res.resultCode === 200 && res.result.length > 0) {
+                        oldVideo.OssFileName =
+                            res.result[0].File.FileName +
+                            "." +
+                            res.result[0].File.Extention;
+                        element.pauseList = res.result[0].Pauses;
+                    } else {
+                        oldVideo.OssFileName = "";
+                    }
                 }
-            });
+            );
         }
     }
 
@@ -621,12 +688,27 @@ const dealVideo = async (oldVideo: IOldVideo) => {
     element.top = oldVideo.Top;
     element.width = oldVideo.Width;
     element.height = oldVideo.Height;
-    element.src = oldVideo.OssFileName ? OSS_PATH + "/" + oldVideo.OssFileName : "";
-    element.showType = oldVideo.Type === 13 ? ((oldVideo.EnumVideoPlayStyle === 1 || oldVideo.VideoPlayStyle === 1) ? 0 : 1) : oldVideo.Type === 7 ? 1 : 0;
+    element.src = oldVideo.OssFileName
+        ? OSS_PATH + "/" + oldVideo.OssFileName
+        : "";
+    element.showType =
+        oldVideo.Type === 13
+            ? oldVideo.EnumVideoPlayStyle === 1 || oldVideo.VideoPlayStyle === 1
+                ? 0
+                : 1
+            : oldVideo.Type === 7
+            ? 1
+            : 0;
     element.display = oldVideo.IsVisibility;
     element.autoPlay = oldVideo.IsAutoPlay;
-    element.poster = oldVideo.OssCoverFileName ? OSS_PATH + "/" + oldVideo.OssCoverFileName : "";
-    element.icon = oldVideo.OssImageFileName ? OSS_PATH + "/" + oldVideo.OssImageFileName : (oldVideo.OssDisplayCoverFileNmae ? OSS_PATH + "/" + oldVideo.OssDisplayCoverFileNmae : "");
+    element.poster = oldVideo.OssCoverFileName
+        ? OSS_PATH + "/" + oldVideo.OssCoverFileName
+        : "";
+    element.icon = oldVideo.OssImageFileName
+        ? OSS_PATH + "/" + oldVideo.OssImageFileName
+        : oldVideo.OssDisplayCoverFileNmae
+        ? OSS_PATH + "/" + oldVideo.OssDisplayCoverFileNmae
+        : "";
     element.fileID = oldVideo.FileID ? oldVideo.FileID : "";
     return element;
 };
@@ -643,7 +725,7 @@ export const dealAnimationData = (slide: Slide) => {
 
         let animations: PPTAnimation[] = [];
         // 当步骤中存在进入与退出动画时，只管进入动画，舍弃退出动画
-        steps.forEach(actions => {
+        steps.forEach((actions) => {
             const _animation = getAnimations(actions || []);
             animations = animations.concat(_animation);
         });
@@ -651,8 +733,10 @@ export const dealAnimationData = (slide: Slide) => {
         slide.animations = animations;
     }
 
-    slide.elements.forEach(element => {
-        element.actions = getAnimations((element.actions as unknown || []) as PPTElementAction[]);
+    slide.elements.forEach((element) => {
+        element.actions = getAnimations(
+            ((element.actions as unknown) || []) as PPTElementAction[]
+        );
     });
     slide.version = "";
     return slide;
@@ -670,7 +754,7 @@ const getAnimations = (actions: PPTElementAction[]) => {
             type: item.type === "show" ? type : "out",
             path: type === "in" ? item.inPath : item.outPath,
             duration: item.duration || 0,
-            trigger: index === 0 ? "click" : "meantime"
+            trigger: index === 0 ? "click" : "meantime",
         });
     });
     return animations;

@@ -27,36 +27,84 @@
                 touchStartThreshold="10px"
             >
                 <template v-for="(element, i) in templateList" :key="i">
-                    <div class="row item" v-if="element.TeachPageTemplate?.length">
+                    <div
+                        class="row item"
+                        v-if="element.TeachPageTemplate?.length"
+                    >
                         <div>
                             <div v-if="!isAllList" class="row-header">
                                 <div class="title-icon">
-                                    <img class="draggimg" src="@/assets/images/material/icon_td.png" alt=""/>
-                                    <span class="title">{{ element.Name }}</span>
+                                    <img
+                                        class="draggimg"
+                                        src="@/assets/images/material/icon_td.png"
+                                        alt=""
+                                    />
+                                    <span class="title">{{
+                                        element.Name
+                                    }}</span>
                                 </div>
-                                <span v-if="element.TeachPageTemplateCount > 2" class="icon-box" @click="getAllList(element.ID)">
+                                <span
+                                    v-if="element.TeachPageTemplateCount > 2"
+                                    class="icon-box"
+                                    @click="getAllList(element.ID)"
+                                >
                                     更多
-                                    <el-icon><ArrowRight/></el-icon>
+                                    <el-icon><ArrowRight /></el-icon>
                                 </span>
                             </div>
                             <div v-else class="row-header">
-                                <span @click="goBackAllList" class="title back-text">
-                                    <el-icon><ArrowLeft/></el-icon>
+                                <span
+                                    @click="goBackAllList"
+                                    class="title back-text"
+                                >
+                                    <el-icon><ArrowLeft /></el-icon>
                                     {{ element.Name }}
                                 </span>
                             </div>
                         </div>
                         <div class="row-content">
-                            <div v-for="(item, i) in element.TeachPageTemplate" :key="i" @click="handleView(item)">
+                            <div
+                                v-for="(item, i) in element.TeachPageTemplate"
+                                :key="i"
+                                @click="handleView(item)"
+                            >
                                 <div class="jpzy-bg">
-                                    <img class="jpzy" src="@/assets/images/material/icon_jpzy.png" alt=""/>
+                                    <img
+                                        class="jpzy"
+                                        src="@/assets/images/material/icon_jpzy.png"
+                                        alt=""
+                                    />
                                 </div>
-                                <div class="status" :style="{  background: item.Status === 1  ? '#5CD494' : '#90949E' }"></div>
+                                <div
+                                    class="status"
+                                    :style="{
+                                        background:
+                                            item.Status === 1
+                                                ? '#5CD494'
+                                                : '#90949E',
+                                    }"
+                                ></div>
                                 <!-- 游戏页或者教具页 显示大图 -->
-                                <el-tooltip :disabled="!!(item.CardData[0]?.PageList[0]?.Name)" :content="item.CardData[0]?.PageList[0]?.Name" placement="bottom" effect="dark">
+                                <el-tooltip
+                                    :disabled="
+                                        !!item.CardData[0]?.PageList[0]?.Name
+                                    "
+                                    :content="
+                                        item.CardData[0]?.PageList[0]?.Name
+                                    "
+                                    placement="bottom"
+                                    effect="dark"
+                                >
                                     <el-image
-                                        v-if="item.CardData[0]?.PageList[0] ?.Type === 20 ||item.CardData[0]?.PageList[0] ?.Type === 16"
-                                        :src="item.CardData[0]?.PageList[0]?.url"
+                                        v-if="
+                                            item.CardData[0]?.PageList[0]
+                                                ?.Type === 20 ||
+                                            item.CardData[0]?.PageList[0]
+                                                ?.Type === 16
+                                        "
+                                        :src="
+                                            item.CardData[0]?.PageList[0]?.url
+                                        "
                                         fit="cover"
                                     >
                                         <template #error>
@@ -66,30 +114,67 @@
                                         </template>
                                     </el-image>
                                     <!-- 其它页显示源资源 -->
-                                    <ThumbnailSlide v-else :slide="allPageListMap.get(item.CardData[0]?.PageList[0]?.ID  ) || {} " :size="225"/>
+                                    <ThumbnailSlide
+                                        v-else
+                                        :slide="
+                                            allPageListMap.get(
+                                                item.CardData[0]?.PageList[0]
+                                                    ?.ID
+                                            ) || {}
+                                        "
+                                        :size="225"
+                                    />
                                 </el-tooltip>
 
                                 <div class="info flex-between-center">
                                     <span class="text">{{ item.Name }}</span>
-                                    <span class="page">{{ item.PageCount }}页</span>
-                                    <el-popover placement="right-start" :width="24" trigger="hover">
+                                    <span class="page"
+                                        >{{ item.PageCount }}页</span
+                                    >
+                                    <el-popover
+                                        placement="right-start"
+                                        :width="24"
+                                        trigger="hover"
+                                    >
                                         <template #reference>
                                             <el-button size="small" @click.stop>
                                                 <el-icon :size="18">
-                                                    <more-filled/>
+                                                    <more-filled />
                                                 </el-icon>
                                             </el-button>
                                         </template>
-                                        <div class="operation-box-temp" style="text-align: left">
+                                        <div
+                                            class="operation-box-temp"
+                                            style="text-align: left"
+                                        >
                                             <!-- <div v-show="node.level === 1" @click.stop="handleView(data.PageList, 'first')">预览</div> -->
-                                            <div class="operation-item" @click.stop="handleUpdateTemplateSort( element.ID, item.TeachPageTemplateID,item.TeachPageClassroomLinkID    )    ">
+                                            <div
+                                                class="operation-item"
+                                                @click.stop="
+                                                    handleUpdateTemplateSort(
+                                                        element.ID,
+                                                        item.TeachPageTemplateID,
+                                                        item.TeachPageClassroomLinkID
+                                                    )
+                                                "
+                                            >
                                                 置于最前
                                             </div>
                                             <!-- <div class="operation-item" @click.stop="editTemplate(item)">编辑</div> -->
-                                            <div class="operation-item" @click.stop="">
+                                            <div
+                                                class="operation-item"
+                                                @click.stop=""
+                                            >
                                                 上架
                                                 <el-switch
-                                                    style="margin-left: 20px" @change=" changeStatus(element.ID,item.TeachPageTemplateID,item.Status   ) "
+                                                    style="margin-left: 20px"
+                                                    @change="
+                                                        changeStatus(
+                                                            element.ID,
+                                                            item.TeachPageTemplateID,
+                                                            item.Status
+                                                        )
+                                                    "
                                                     :active-value="1"
                                                     :inactive-value="0"
                                                     v-model="item.Status"
@@ -118,6 +203,12 @@
                                             src="@/assets/images/material/icon_yp.png"
                                             alt=""
                                         />
+                                    </div>
+                                    <div
+                                        v-if="item.Source"
+                                        style="margin-left: 5px"
+                                    >
+                                        {{ item.Source }}
                                     </div>
                                 </div>
                             </div>
@@ -153,14 +244,7 @@
 </template>
 
 <script lang="ts">
-import {
-    defineComponent,
-    reactive,
-    ref,
-    toRefs,
-    computed,
-    watch
-} from "vue";
+import { defineComponent, reactive, ref, toRefs, computed, watch } from "vue";
 import { Search } from "@element-plus/icons-vue";
 import TemplateView from "./templateView.vue";
 import { ITemplateSave } from "@/types/home";
@@ -172,7 +256,7 @@ import { debounce, throttle } from "@/utils/common";
 import { VueDraggableNext } from "vue-draggable-next";
 
 export default defineComponent({
-    components: {  TemplateView, VueDraggableNext },
+    components: { TemplateView, VueDraggableNext },
     emits: ["insertData", "editTemplate", "checkoutTab"],
     props: {
         subjectID: {
@@ -279,8 +363,7 @@ export default defineComponent({
             await queryTemplateList();
         };
         //处理窗卡页显示数据
-        const formatSlide = (data: any) => {
-        };
+        const formatSlide = (data: any) => {};
         watch(
             () => props.subjectID,
             async (curVal) => {
@@ -435,8 +518,7 @@ export default defineComponent({
                         await querySaveTemplateList();
                     }
                 })
-                .catch(() => {
-                });
+                .catch(() => {});
         };
         //静态使用次数 加1
         const addLinkCount = (id: string) => {
@@ -584,9 +666,12 @@ export default defineComponent({
                         margin-right: 6px;
                         font-size: 16px;
                         color: #212121;
-                        overflow: hidden; /* 超出一行文字自动隐藏 */
-                        text-overflow: ellipsis; /* 文字隐藏后添加省略号 */
-                        white-space: nowrap; /* 强制文本不换行 */
+                        overflow: hidden;
+                        /* 超出一行文字自动隐藏 */
+                        text-overflow: ellipsis;
+                        /* 文字隐藏后添加省略号 */
+                        white-space: nowrap;
+                        /* 强制文本不换行 */
                     }
 
                     .page {

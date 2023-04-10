@@ -26,6 +26,8 @@ export const VUE_APP_TRACK_LOG = process.env.VUE_APP_TRACK_LOG;
 // export const WINDOW_CRAD_API = "http://apitest.aixueshi.top:5002";
 export const UPLOAD_CRAD_API = "https://api.aixueshi.top:5015";
 
+export const API_CENTER_USER_MANAGE = process.env.VUE_APP_API_CENTER_USER_MANAGE;
+
 // 注册学生模板下载地址
 export const ADD_STUDENT_TEMPLATE =
     "https://wechat.aixueshi.top/学生信息表2.2.xlsx";

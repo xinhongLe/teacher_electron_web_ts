@@ -535,16 +535,17 @@ export default defineComponent({
         }
     }
     .footer {
-    height: 90px;
-    background: #000000;
-    flex-shrink: 0;
-    display: flex;
-    color: #ffffff;
-    font-size: 16px;
-    align-items: center;
-    justify-content: flex-end;
-    padding-right: 40px;
-    position: relative;
+        height: 90px;
+        background: #000000;
+        flex-shrink: 0;
+        display: flex;
+        color: #ffffff;
+        font-size: 16px;
+        align-items: center;
+        justify-content: flex-end;
+        padding-right: 40px;
+        position: relative;
+        z-index: 10;
     .left {
         display: flex;
         position: absolute;
