@@ -2,7 +2,7 @@
     <div class="list" style="height: 100%;" v-if="dialogVisible">
         <div class="upper align-center">
             {{ '《' + Title + '》' }}
-            <div class="back" @click="close">
+            <div class="back" @click="close(true)">
                 <img src="../../../assets/composition/icon_back@2x.png" alt="" />
             </div>
         </div>
@@ -221,10 +221,13 @@ const reCorrection = (item: any) => {
 }
 
 // 关闭
-const close = () => {
+const close = (needRefresh?:any) => {
     dialogVisible.value = false
     state.tabName = '0'
     emit('close')
+    if(needRefresh){
+        emit('refresh')
+    }
 }
 
 // 一键发送报告

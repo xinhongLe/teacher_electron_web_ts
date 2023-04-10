@@ -44,7 +44,7 @@
     <!-- 录入 -->
     <Scan ref="scanRef" :class-id="state.classId" @open-list="scanOpenList" />
     <!-- 列表 -->
-    <List ref="listRef" @typein="listToScan" @refresh="getArticleList" />
+    <List ref="listRef" @typein="listToScan" @close="getArticleList" @refresh="getArticleList" />
 </template>
 <script lang="ts">
 import { defineComponent } from 'vue';
