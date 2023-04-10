@@ -76,7 +76,7 @@ export default defineComponent({
                 lastCheckKeys = treeRef.value!.getCheckedKeys(false);
             } else {
                 // 选中不同的年级,和上一次选中的比对
-                const arr: unknown[] = [];
+                const arr: any = [];
                 node.checkedKeys.forEach((key: string) => {
                     if (!lastCheckKeys.includes(key)) {
                         arr.push(key);
