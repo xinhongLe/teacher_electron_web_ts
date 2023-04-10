@@ -43,7 +43,6 @@ export default (windowCards: Ref<CardProps[]>, currentPage: Ref<PageProps | null
     const keyDown = () => {
         winScreenView.value = false;
         editRef.value?.setScreening(false);
-
     };
 
     const offScreen = () => {

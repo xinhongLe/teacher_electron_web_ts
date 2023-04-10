@@ -15,14 +15,16 @@
                             v-if="isElectron()"
                             @click="close"
                         >
-                            <el-icon><CloseBold /></el-icon>
+                            <el-icon>
+                                <CloseBold/>
+                            </el-icon>
                         </div>
                     </div>
                 </div>
                 <!-- <ExitDialog v-model:visible="visible" /> -->
             </div>
             <div style="height: calc(100% - 48px)">
-                <editWinCard ref="editWinCardRef" />
+                <editWinCard ref="editWinCardRef"/>
             </div>
         </div>
     </div>
@@ -39,7 +41,7 @@ import isElectron from "is-electron";
 //     });
 // });
 const editWinCardRef = ref();
-//获取url中"?"符后的字串
+// 获取url中"?"符后的字串
 const name: string = window.location.search;
 console.log("window.location.search", decodeURIComponent(name.substring(1)));
 const currentTitle = ref(decodeURIComponent(name.substring(1)));
@@ -48,7 +50,9 @@ document.title = currentTitle.value;
 const close = () => {
     nextTick(async () => {
         const res = await editWinCardRef.value.closeCurrentWinCard();
-        if (res == "exit" || res == "save" || res == "nosave") {
+        if (res === "exit" || res === "save" || res === "nosave") {
+            const win = window.electron.remote.getCurrentWebContents();
+            window.electron.ipcRenderer.send("closeWinCard", win.id);
             window.electron.destroyWindow();
         }
     });
@@ -86,12 +90,14 @@ const maximizeWindow = () => {
     display: flex;
     flex-direction: column;
     -webkit-app-region: no-drag;
+
     .main-body {
         display: flex;
         flex: 1;
         overflow-y: hidden;
         -webkit-app-region: no-drag;
         flex-direction: column;
+
         .c-header {
             height: 48px;
             background-color: var(--app-color-dark);
@@ -101,6 +107,7 @@ const maximizeWindow = () => {
             -webkit-app-region: drag;
             overflow: hidden;
             align-items: center;
+
             .tab-list {
                 // display: flex;
                 // align-items: flex-end;
@@ -109,9 +116,11 @@ const maximizeWindow = () => {
                 font-size: 20px;
                 color: #ccc;
             }
+
             .header-right {
                 display: flex;
                 flex-shrink: 0;
+
                 .help-warp {
                     display: flex;
                     align-items: center;
@@ -120,10 +129,12 @@ const maximizeWindow = () => {
                     margin-right: 40px;
                     cursor: pointer;
                     -webkit-app-region: no-drag;
+
                     .help-icon {
                         margin-right: 6px;
                     }
                 }
+
                 .line {
                     align-self: center;
                     width: 1px;
@@ -135,6 +146,7 @@ const maximizeWindow = () => {
         }
     }
 }
+
 .header-window-control {
     display: flex;
     align-items: center;

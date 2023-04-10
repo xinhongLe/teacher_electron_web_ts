@@ -1,8 +1,8 @@
 "use strict";
 
-import { app, protocol, BrowserWindow, ipcMain, Menu} from "electron";
-import {createProtocol} from "vue-cli-plugin-electron-builder/lib";
-import {initialize} from "@electron/remote/main";
+import { app, protocol, BrowserWindow, ipcMain, Menu } from "electron";
+import { createProtocol } from "vue-cli-plugin-electron-builder/lib";
+import { initialize } from "@electron/remote/main";
 import {
     createSuspensionWindow,
     createLocalPreviewWindow,
@@ -10,21 +10,23 @@ import {
     unfoldSuspensionWinSendMessage
 } from "./suspension";
 import autoUpdater from "./autoUpdater";
-import {registerWinCardEvent} from "./wincard";
-import {registerVirtualKeyBoard, closeKeyBoard, setInput} from "./virtualKeyBoard";
+import { createWinCardWindow } from "./wincard";
+import { registerVirtualKeyBoard, closeKeyBoard, setInput } from "./virtualKeyBoard";
 import SingalRHelper from "./singalr";
 import ElectronLog from "electron-log";
 import os from "os";
-import {exec, spawn} from "child_process";
-
-const isDevelopment = process.env.NODE_ENV !== "production";
+import { exec, spawn } from "child_process";
 import path from "path";
 import downloadFile from "./downloadFile";
+
+const isDevelopment = process.env.NODE_ENV !== "production";
+
+const editWinList = new Map<number, any>();
 
 initialize();
 
 protocol.registerSchemesAsPrivileged([
-    {scheme: "app", privileges: {secure: true, standard: true}},
+    { scheme: "app", privileges: { secure: true, standard: true } },
     {
         scheme: "http",
         privileges: {
@@ -72,7 +74,6 @@ async function createWindow() {
     }
 
     registerEvent();
-    registerWinCardEvent();
     registerVirtualKeyBoard();
 
     if (process.env.WEBPACK_DEV_SERVER_URL) {
@@ -222,9 +223,20 @@ async function createWindow() {
     ipcMain.handle("setInput", (event, data) => {
         setInput(data);
     });
-    // ipcMain.handle("openWinCardWin", () => {
-    //     openWinCardWin();
-    // });
+    ipcMain.on("closeWinCard", (event, data) => {
+        editWinList.delete(data);
+    });
+
+    ipcMain.handle("openWinCardWin", (_, data) => {
+        const editWin = createWinCardWindow(data);
+        editWinList.set(editWin.webContents.id, editWin);
+    });
+
+    ipcMain.on("replicated", () => {
+        for (const editWin of editWinList.values()) {
+            editWin.webContents.send("copy-end");
+        }
+    });
 }
 
 app.on("window-all-closed", () => {
@@ -296,7 +308,7 @@ app.on("render-process-gone", (event, webContents, details) => {
 });
 
 app.on("child-process-gone", (event, details) => {
-    const {type, reason, exitCode, serviceName, name} = details;
+    const { type, reason, exitCode, serviceName, name } = details;
     ElectronLog.error(
         `child-process-gone, reason: ${reason}, exitCode: ${exitCode}, type:${type}, serviceName: ${serviceName}, name: ${name}`
     );

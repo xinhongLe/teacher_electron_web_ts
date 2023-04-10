@@ -165,34 +165,34 @@
 </template>
 
 <script lang="ts">
-import {store} from "@/store";
-import {Slide} from "wincard";
-import {cloneDeep} from "lodash";
-import {v4 as uuidv4} from "uuid";
-import {saveWindows} from "../api";
+import { store } from "@/store";
+import { Slide } from "wincard";
+import { cloneDeep } from "lodash";
+import { v4 as uuidv4 } from "uuid";
+import { saveWindows } from "../api";
 import useHome from "@/hooks/useHome";
-import {getOssUrl} from "@/utils/oss";
+import { getOssUrl } from "@/utils/oss";
 import loading from "@/components/loading";
 import usePreview from "./hooks/usePreview";
-import {getImageSize} from "@/utils/image";
-import {getWindowStruct} from "@/api/home";
+import { getImageSize } from "@/utils/image";
+import { getWindowStruct } from "@/api/home";
 import useImportPPT from "@/hooks/useImportPPT";
 import useHandlePPT from "./hooks/useHandlePPT";
-import {isFullscreen} from "@/utils/fullscreen";
-import {pageType, pageTypeList} from "@/config";
-import {CardProps, PageProps} from "../api/props";
-import {get, STORAGE_TYPES} from "@/utils/storage";
-import {VueDraggableNext} from "vue-draggable-next";
-import {dealAnimationData} from "@/utils/dataParse";
-import {ElMessage, ElMessageBox} from "element-plus";
-import exitDialog, {ExitType} from "../edit/exitDialog";
+import { isFullscreen } from "@/utils/fullscreen";
+import { pageType, pageTypeList } from "@/config";
+import { CardProps, PageProps } from "../api/props";
+import { get, set, STORAGE_TYPES } from "@/utils/storage";
+import { VueDraggableNext } from "vue-draggable-next";
+import { dealAnimationData } from "@/utils/dataParse";
+import { ElMessage, ElMessageBox } from "element-plus";
+import exitDialog, { ExitType } from "../edit/exitDialog";
 import WinCardEdit from "../components/edit/winCardEdit.vue";
 import CardPopover from "../components/edit/CardPopover.vue";
 import WinCardView from "../components/edit/winScreenView.vue";
 import AddPageDialog from "../components/edit/addPageDialog.vue";
 import materialCenter from "../components/edit/materialCenter/index.vue";
-import {addTeachPageTemplateLinkCount, saveTemplate} from "@/api/material";
-import {computed, defineComponent, nextTick, onMounted, onUnmounted, ref} from "vue";
+import { addTeachPageTemplateLinkCount, saveTemplate } from "@/api/material";
+import { computed, defineComponent, nextTick, onMounted, onUnmounted, ref } from "vue";
 
 export default defineComponent({
     name: "Edit",
@@ -205,7 +205,7 @@ export default defineComponent({
         materialCenter
     },
     setup() {
-        const {transformPageDetail} = useHome();
+        const { transformPageDetail } = useHome();
         const windowInfo = computed(() =>
             store.state.preparation.editWindowInfo.id
                 ? store.state.preparation.editWindowInfo
@@ -347,7 +347,7 @@ export default defineComponent({
                 ElMessageBox.prompt("", "新建文件夹", {
                     inputPattern: /\S/,
                     inputErrorMessage: "请填写文件夹名称"
-                }).then(async ({value}) => {
+                }).then(async ({ value }) => {
                     addHandle.createFolder(value);
                 });
             }
@@ -362,9 +362,7 @@ export default defineComponent({
                 (data as PageProps).State = (data as PageProps).State ? 0 : 1;
             }
             if (type === 5) {
-                loading.show();
-                window.electron.ipcRenderer.send("replicated");
-                addHandle.paste(data as CardProps);
+                handlePaste();
             }
             if (type === 6) {
                 loading.show();
@@ -407,6 +405,7 @@ export default defineComponent({
             } else {
                 selectPageIds.value.push(id);
             }
+            storageCopyData();
         };
 
         // 保存模板
@@ -418,7 +417,7 @@ export default defineComponent({
             ElMessageBox.prompt("", "保存模板", {
                 inputPattern: /\S/,
                 inputErrorMessage: "请填写模板名称"
-            }).then(async ({value}) => {
+            }).then(async ({ value }) => {
                 let allPages: PageProps[] = [];
                 windowCards.value.forEach(item => {
                     allPages = allPages.concat(...item.PageList);
@@ -477,7 +476,7 @@ export default defineComponent({
                     }
                 }
 
-                const res = await saveTemplate({...params, PageData: list});
+                const res = await saveTemplate({ ...params, PageData: list });
 
                 if (res.resultCode !== 200) return;
                 ElMessage.success("保存成功，请前往「我的」查看已保存模板");
@@ -496,8 +495,56 @@ export default defineComponent({
                     handler: () => {
                         handleSaveTemplate(page);
                     }
+                },
+                {
+                    text: "复制",
+                    subText: "",
+                    handler: () => {
+                        handleCopy(page);
+                    }
                 }
             ];
+        };
+
+        // 复制
+        const handleCopy = (page: PageProps) => {
+            const index = selectPageIds.value.findIndex(item => item === page.ID);
+
+            if (index === -1) {
+                selectPageIds.value.push(page.ID);
+            }
+            storageCopyData();
+        };
+
+        // 存储拷贝内容
+        const storageCopyData = () => {
+            const pages = selectPageIds.value.map(item => {
+                return addHandle.getPageById(item);
+            });
+
+            set("WIN_COPY_VALUE", pages);
+        };
+
+        // 粘贴
+        const handlePaste = () => {
+            const pages: PageProps[] = get("WIN_COPY_VALUE") || [];
+            if (pages.length === 0) {
+                ElMessage.warning("请选择要粘贴的内容");
+                return;
+            }
+            if (!currentPage.value) {
+                ElMessage.warning("请选中页");
+                return;
+            }
+            for (let i = 0; i < pages.length; i++) {
+                const item = pages[i];
+                item.ID = uuidv4();
+            }
+            const index = windowCards.value.findIndex(item => item.ID === currentPage.value?.ParentID);
+            const subIndex = windowCards.value[index].PageList.findIndex(item => item.ID === currentPage.value?.ID);
+            windowCards.value[index].PageList.splice(subIndex + 1, 0, ...pages);
+            addHandle.sortWindowCards();
+            window.electron.ipcRenderer.send("replicated");
         };
 
         // 子窗体关闭 提示
@@ -598,7 +645,7 @@ export default defineComponent({
                 Index: 0,
                 Url: obj.data.url,
                 ParentID: currentPage.value?.ID,
-                Json: await transformPageDetail({Type: pageType.teach}, {
+                Json: await transformPageDetail({ Type: pageType.teach }, {
                     TeachPageID: id,
                     TeachingMiniToolID: obj.data.ID,
                     ToolFileModel: {
@@ -686,7 +733,7 @@ export default defineComponent({
 
         function getImageData(data: any) {
             return new Promise(resolve => {
-                getImageSize(data.url).then(({width, height}) => {
+                getImageSize(data.url).then(({ width, height }) => {
                     const scale = height / width;
                     if (scale < VIEWPORT_RATIO && width > VIEWPORT_SIZE) {
                         width = VIEWPORT_SIZE;
@@ -814,18 +861,23 @@ export default defineComponent({
         }
 
         onMounted(() => {
-            window.addEventListener("keydown", previewHandle.keyDown, true);
-
-            window.electron.ipcRenderer.on("copy-end", () => {
-                console.log(1);
+            window.addEventListener("keydown", function (e: KeyboardEvent) {
+                const key = e.code;
+                if (key === "Escap") {
+                    previewHandle.keyDown();
+                }
+                if (e.ctrlKey && key === "KeyC") {
+                    handleCopy(currentPage.value as PageProps);
+                }
+                if (e.ctrlKey && key === "KeyV") {
+                    handlePaste();
+                }
             });
 
-            // 监听退出全屏事件浏览器
-            window.onresize = function () {
-                if (!isFullscreen()) {
-                    previewHandle.winScreenView.value = false;
-                }
-            };
+            window.electron.ipcRenderer.on("copy-end", () => {
+                selectPageIds.value = [];
+                set("WIN_COPY_VALUE", []);
+            });
         });
 
         onUnmounted(() => {
