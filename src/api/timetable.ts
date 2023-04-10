@@ -229,7 +229,8 @@ export const fetchTermCodeBySchoolId: RequestFun<
     },
     {
         SemesterDataCode: string,
-        SemesterDataId: string
+        SemesterDataId: string,
+        Name: string
     }[]
 > = (data) => {
     return request({

@@ -16,6 +16,9 @@ export enum STORAGE_TYPES {
     // 用户信息存储
     USER_INFO = "USER_INFO",
 
+    // 学年学期
+    SCHOOL_TERM = "SCHOOL_TERM",
+
     // 当前用户信息存储
     CURRENT_USER_INFO = "CURRENT_USER_INFO",
 

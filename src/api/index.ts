@@ -52,3 +52,22 @@ export const getUserSig: RequestFun<{sdkAppID: number, userID: string}, Promise<
         data
     });
 };
+
+export const getCurrentSemesterRollCallLog: RequestFun<{ ClassId?: string, TermCode: string }, []> = (data) => {
+    return request({
+        baseURL: AI_XUE_SHI_API,
+        url: "/API/W4/RollCall/DownLoadStudentRollCallRecord",
+        method: "post",
+        data
+    });
+}
+
+export const rollCallLog: RequestFun<{ SchoolId: string, TermCode: string, StudentId: string, ClassId: string, TeacherId: string }, string> = (data) => {
+    return request({
+        baseURL: AI_XUE_SHI_API,
+        url: "/API/W4/RollCall/AddRollCallRecord",
+        headers: { noLoading: "true" },
+        method: "post",
+        data
+    });
+}

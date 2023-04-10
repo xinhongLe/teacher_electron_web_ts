@@ -17,6 +17,7 @@
         "electron:build:staging": "vue-cli-service electron:build --mode staging",
         "electron:build:pre": "vue-cli-service electron:build --mode pre",
         "build:win": "vue-cli-service electron:build --mode production --win --ia32",
+        "build:win:staging": "vue-cli-service electron:build --mode staging --win --ia32",
         "serve:pro": "cross-env NODE_ENV=production vue-cli-service serve --mode production",
         "build:pro": "cross-env NODE_ENV=production vue-cli-service build --mode production",
         "lint": "vue-cli-service lint",

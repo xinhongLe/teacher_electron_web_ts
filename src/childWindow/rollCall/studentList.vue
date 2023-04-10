@@ -1,7 +1,11 @@
 <template>
     <div class="container">
         <div class="content">
-            <div class="select-student-list" :class="isPackUp && 'pack-up'" @click="expand">
+            <div
+                class="select-student-list"
+                :class="isPackUp && 'pack-up'"
+                @click="expand"
+            >
                 <div class="title" @click.stop="">
                     <div class="drag-area">
                         <Drag />
@@ -12,7 +16,11 @@
                     </div>
                 </div>
                 <div class="list">
-                    <div class="student-selected-item" v-for="student in selectStudent" :key="student.StudentID">
+                    <div
+                        class="student-selected-item"
+                        v-for="student in selectStudent"
+                        :key="student.StudentID"
+                    >
                         {{ student?.Name }}
                     </div>
                 </div>
@@ -22,25 +30,67 @@
             </div>
 
             <div class="student-list-content" v-show="!isPackUp">
-                <div class="student-box" :style="{
-                    transform: `rotateX(${rotateX}deg) rotateY(${randomDeg}deg)`,
-                    transition: `all ${animationTime}ms ease-in-out`,
-                }">
-                    <div class="student-item" v-for="(student, i) in unselectedStudent" :key="i" :style="{
-                        transform: `translateX(-102px) rotateY(${(360 / unselectedStudent.length) * i
-                            }deg) translateZ(2000px) scale(${!isStart && currentIndex === i ? 2 : 1
+                <div
+                    class="student-box"
+                    :style="{
+                        transform: `rotateX(${rotateX}deg) rotateY(${randomDeg}deg)`,
+                        transition: `all ${animationTime}ms ease-in-out`,
+                    }"
+                >
+                    <div
+                        class="student-item"
+                        v-for="(student, i) in unselectedStudent"
+                        :key="i"
+                        :style="{
+                            transform: `translateX(-102px) rotateY(${
+                                (360 / unselectedStudent.length) * i
+                            }deg) translateZ(2000px) scale(${
+                                !isStart && currentIndex === i ? 2 : 1
                             })`,
-                    }">
-                        <Avatar :file="student?.HeadPortrait" :size="20" :alt="student.Name"
-                            style="transform: scale(4.5)" />
+                        }"
+                    >
+                        <Avatar
+                            :file="student?.HeadPortrait"
+                            :size="20"
+                            :alt="student.Name"
+                            style="transform: scale(4.5)"
+                        />
                         <div class="student-name">{{ student.Name }}</div>
                     </div>
                 </div>
             </div>
-            <el-button v-show="!isPackUp" type="default" round plain class="min-btn" @click="packUp"
-                :disabled="isStart">最小化</el-button>
-            <el-button v-show="!isPackUp" type="danger" round plain class="close-btn" @click="close"
-                :disabled="isStart">关闭</el-button>
+            <el-button
+                v-show="!isPackUp"
+                type="default"
+                round
+                plain
+                class="download-btn"
+                @click="download"
+            >
+                下载
+            </el-button>
+            <el-button
+                v-show="!isPackUp"
+                type="default"
+                round
+                plain
+                class="min-btn"
+                @click="packUp"
+                :disabled="isStart"
+            >
+                最小化
+            </el-button>
+            <el-button
+                v-show="!isPackUp"
+                type="danger"
+                round
+                plain
+                class="close-btn"
+                @click="close"
+                :disabled="isStart"
+            >
+                关闭
+            </el-button>
             <div class="cotrol-btn" v-show="!isPackUp">
                 <div class="custom-reset-btn" :class="isStart && 'disabled'">
                     <el-button type="primary" @click="reset" :disabled="isStart">重置</el-button>
@@ -56,19 +106,29 @@
 
 <script lang="ts">
 import { Student } from "@/types/labelManage";
-import { ElMessageBox } from "element-plus";
-import { clearInterval, setInterval } from "timers";
-import { computed, defineComponent, onMounted, PropType, ref, watch } from "vue";
+import { ElMessage, ElMessageBox } from "element-plus";
+import {
+    computed,
+    defineComponent,
+    onMounted,
+    PropType,
+    ref,
+    watch,
+} from "vue";
 import Avatar from "../../components/avatar/index.vue";
 import { DoubleLeft, Drag, DoubleRight } from "@icon-park/vue-next";
 import { startAudio } from "./startaudio";
+import { UserInfoState } from "@/types/store";
+import { get, STORAGE_TYPES } from "@/utils/storage";
+import { exportExcel, IExcel } from "mexcel";
+import { getCurrentSemesterRollCallLog, rollCallLog } from "@/api";
 
 export default defineComponent({
     components: {
         Drag,
         Avatar,
         DoubleRight,
-        DoubleLeft
+        DoubleLeft,
     },
     props: {
         studentList: {
@@ -87,7 +147,10 @@ export default defineComponent({
         const animationTime = ref(1500);
         const rotateX = ref(-90);
         const randomDeg = ref(180);
-        const currentAudio = startAudio;//音效标签
+        const currentAudio = startAudio; //音效标签
+        const currentUserInfo: UserInfoState = get(STORAGE_TYPES.CURRENT_USER_INFO);
+        const schoolTerm = get(STORAGE_TYPES.SCHOOL_TERM);
+
         // 播放点名动画时的音效
         const playAudio = (src: any) => {
             const audio = new Audio();
@@ -97,9 +160,8 @@ export default defineComponent({
                 audio.play();
             };
             audio.onended = () => {
-               audio.remove();
-            }
-
+                audio.remove();
+            };
         };
         const start = () => {
             if (unselectedStudent.value.length === 0) return;
@@ -126,14 +188,21 @@ export default defineComponent({
             randomDeg.value = 0;
             setTimeout(() => {
                 animationTime.value = duration;
-                randomDeg.value =
-                    -(360 / unselectedStudent.value.length) *
-                    currentIndex.value +
-                    360 * 5;
+                randomDeg.value = -(360 / unselectedStudent.value.length) * currentIndex.value + 360 * 5;
                 setTimeout(() => {
-                    selectStudent.value.unshift(
-                        unselectedStudent.value[currentIndex.value]
-                    );
+                    const student = unselectedStudent.value[currentIndex.value];
+                    selectStudent.value.unshift(student);
+                    if (!schoolTerm || !schoolTerm.code) {
+                        ElMessage.warning("学年学期不存在");
+                    } else {
+                        rollCallLog({
+                            SchoolId: currentUserInfo.schoolId,
+                            TermCode: schoolTerm.code,
+                            StudentId: student.StudentID,
+                            ClassId: student.ClassID,
+                            TeacherId: currentUserInfo.userCenterUserID
+                        });
+                    }
                     isStart.value = false;
                 }, duration);
             }, 100);
@@ -147,7 +216,6 @@ export default defineComponent({
 
         const randomStudents = (len: number) => {
             const randomArray: Student[] = [];
-            console.log(storeStudent.value.length);
             if (storeStudent.value.length < len) {
                 return storeStudent.value;
             }
@@ -209,23 +277,146 @@ export default defineComponent({
 
         const expand = () => {
             if (isPackUp.value) {
-                const size =
-                    window.electron.remote.screen.getPrimaryDisplay()
-                        .workAreaSize;
+                const size = window.electron.remote.screen.getPrimaryDisplay().workAreaSize;
                 const width = size.width > 1200 ? 1200 : size.width;
                 const height = size.height > 800 ? 800 : size.height;
 
-                setTimeout(() => {
-                    window.electron.setContentSize(width, height);
-                    window.electron.setPositionWin(
-                        (size.width - width) / 2,
-                        (size.height - height) / 2
-                    );
-
-                    isPackUp.value = false;
-                }, 200);
+                isPackUp.value = false;
+                window.electron.setContentSize(width, height);
+                window.electron.setPositionWin(
+                    (size.width - width) / 2,
+                    (size.height - height) / 2,
+                    true
+                );
             }
         };
+
+        const download = () => {
+            if (!schoolTerm || !schoolTerm.code) return ElMessage.warning("学年学期不存在");
+            const fileName = "点名记录表";
+            window.electron
+                .showSaveDialog({
+                    defaultPath: schoolTerm.name + fileName + ".xlsx",
+                    filters: [
+                        {
+                            name: "xlsx文件",
+                            extensions: ["xlsx"],
+                        },
+                    ],
+                })
+                .then(({ filePath, canceled }) => {
+                    if (canceled) return;
+                    getCurrentSemesterRollCallLog({ TermCode: schoolTerm.code }).then((res) => {
+                        const data = res.result;
+
+                        const excelData: IExcel = {
+                            sheets: [
+                                {
+                                    title: "点名记录表",
+                                    tHeaders: [
+                                        [
+                                            "班级",
+                                            "科目",
+                                            "学生名",
+                                            "点名次数"
+                                        ]
+                                    ],
+                                    table: data,
+                                    cols: [
+                                        {
+                                            width: 30,
+                                        },
+                                        {
+                                            width: 30,
+                                        },
+                                        {
+                                            width: 30,
+                                        },
+                                        {
+                                            width: 30
+                                        }
+                                    ],
+                                    titleRow: {
+                                        hpx: 60
+                                    },
+                                    headerRows: [
+                                        {
+                                            hpx: 40
+                                        },
+                                    ],
+                                    row: {
+                                        hpx: 30,
+                                    },
+                                    keys: [
+                                        "ClassName",
+                                        "SubjectName",
+                                        "StudentName",
+                                        "Count"
+                                    ],
+                                    sheetName: "点名记录表",
+                                    globalStyle: {
+                                        font: {
+                                            sz: 12,
+                                        },
+                                        alignment: {
+                                            horizontal: "center",
+                                            vertical: "center",
+                                            wrapText: true,
+                                        },
+                                        border: {
+                                            top: { style: "thin", color: {} },
+                                            right: { style: "thin", color: {} },
+                                            bottom: {
+                                                style: "thin",
+                                                color: {},
+                                            },
+                                            left: { style: "thin", color: {} },
+                                        },
+                                    },
+                                    titleStyle: {
+                                        font: {
+                                            sz: 18,
+                                            color: {
+                                                rgb: "f60000",
+                                            },
+                                        },
+                                        alignment: {
+                                            horizontal: "center",
+                                            vertical: "center",
+                                            wrapText: true,
+                                        },
+                                        border: {
+                                            top: { style: "thin", color: {} },
+                                            right: { style: "thin", color: {} },
+                                            bottom: {
+                                                style: "thin",
+                                                color: {},
+                                            },
+                                            left: { style: "thin", color: {} },
+                                        },
+                                    },
+                                },
+                            ],
+                            fileName: "点名记录表",
+                        };
+
+                        exportExcel(
+                            excelData,
+                            filePath,
+                            () => {
+                                ElMessage.success(fileName + "下载成功");
+                            },
+                            (err: any) => {
+                                console.log("fail", err);
+                            }
+                        );
+                    });
+                })
+                .catch((err: Error) => {
+                    console.log(err);
+                });
+        }
+
         return {
             start,
             isStart,
@@ -243,6 +434,7 @@ export default defineComponent({
             expand,
             hideWindow,
             showWindow,
+            download
         };
     },
 });
@@ -285,9 +477,11 @@ export default defineComponent({
                 padding: 10px 0;
                 font-weight: 600;
                 color: #848891;
-                background: linear-gradient(270deg,
-                        rgba(237, 244, 246, 0) 0%,
-                        #edf4f6 100%);
+                background: linear-gradient(
+                    270deg,
+                    rgba(237, 244, 246, 0) 0%,
+                    #edf4f6 100%
+                );
                 position: relative;
 
                 .drag-area {
@@ -475,6 +669,13 @@ export default defineComponent({
         background-color: transparent !important;
         box-shadow: none;
     }
+}
+
+.download-btn {
+    position: absolute;
+    left: 20px;
+    bottom: 98px;
+    -webkit-app-region: no-drag;
 }
 
 .min-btn {

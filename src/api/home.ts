@@ -622,6 +622,7 @@ export function getPlatformByOrgId(data: IOrgId[]) : Promise<IResponse<IPlatform
     return request({
         baseURL: API_CENTER_USER_MANAGE,
         url: "/platform-org-relation/getByOrgIds",
+        headers: { noLoading: "true" },
         method: "post",
         data
     });

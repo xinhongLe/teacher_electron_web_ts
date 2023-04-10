@@ -217,8 +217,7 @@ function createRollcall(allStudentList: []) {
     });
 
     rollCallWin.on("ready-to-show", () => {
-        rollCallWin &&
-            rollCallWin.webContents.send("sendAllStudentList", allStudentList);
+        rollCallWin && rollCallWin.webContents.send("sendAllStudentList", allStudentList);
         // rollCallWin && rollCallWin.webContents.openDevTools();
     });
 
@@ -304,11 +303,7 @@ function createAnswerMachineWindow(allStudentList: []) {
     answerMachineWin.on("ready-to-show", () => {
         answerMachineWin && answerMachineWin.show();
         answerMachineWin && answerMachineWin.focus();
-        answerMachineWin &&
-            answerMachineWin.webContents.send(
-                "sendAllStudentList",
-                allStudentList
-            );
+        answerMachineWin && answerMachineWin.webContents.send("sendAllStudentList", allStudentList);
     });
 
     answerMachineWin.once("ready-to-show", () => {

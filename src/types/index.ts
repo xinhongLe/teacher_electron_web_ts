@@ -37,7 +37,7 @@ type Electron = typeof electron & {
     readFile: (path: string, callback: (buffer: ArrayBuffer) => void) => void;
     savePutFile: (path: string, buffer: NodeJS.ArrayBufferView) => void;
     deleteFile: (path: string) => void;
-    setPositionWin: (x: number, y: number) => void;
+    setPositionWin: (x: number, y: number, ani?: boolean) => void;
     getPositionWin: () => number[];
     getColorHexRGB: () => Promise<unknown>;
     getWhiteBoard: () => Promise<unknown>;

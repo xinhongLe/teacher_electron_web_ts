@@ -3,6 +3,8 @@ import { GetCurrentUserSchedulingInfo, IGetCurrentUserNewScheduleOutDto } from "
 import { fetchActiveTimetableID, fetchUserSchedules, IScheduleContent, fetchTermCodeBySchoolId, TableTime, IScheduleDetail, GetClassTimeDetail, ClassTimeDto, ClassTimeDetailDto } from "@/api/timetable";
 import { MutationTypes, store } from "@/store";
 import { computed, nextTick, ref, Ref, watch, watchEffect } from "vue";
+import { set } from "@/utils/storage";
+import { STORAGE_TYPES } from "@/utils/storage";
 
 interface TeachClassSchedule extends IScheduleDetail {
     DateOfWeek: number;
@@ -59,7 +61,7 @@ export default (days: Ref<string[]>) => {
         termCode.value = termCodeRes.result[0].SemesterDataCode;
 
         store.commit(MutationTypes.SET_TERM, { id: semesterDataID.value, code: termCode.value });
-
+        set(STORAGE_TYPES.SCHOOL_TERM, { id: semesterDataID.value, code: termCode.value, name: termCodeRes.result[0].Name });
 
         if (termCodeRes.resultCode === 200 && semesterDataID.value) {
             const res = await GetClassTimeDetail({

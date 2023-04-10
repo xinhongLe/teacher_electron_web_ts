@@ -83,9 +83,9 @@ window.electron = {
         const currentWindow = getCurrentWindow();
         return currentWindow.getPosition();
     },
-    setPositionWin: (x, y) => {
+    setPositionWin: (x, y, ani?: boolean) => {
         const currentWindow = getCurrentWindow();
-        currentWindow.setPosition(x, y);
+        currentWindow.setPosition(x, y, ani);
     },
     setCenter: () => {
         getCurrentWindow().center();
