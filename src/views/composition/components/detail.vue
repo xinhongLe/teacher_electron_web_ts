@@ -27,7 +27,7 @@
                         <!-- const value = 43
                         const angle = -135 + (value / 100) * 180
                         progress.style.transform = `rotate(${angle}deg)` -->
-                        <div class="block" style="transform: rotate(-135 + ({{score}} / 100) * 180);"></div>
+                        <div class="block" :style="`transform: rotate(${state.deg}deg);transition:all 1.5s`"></div>
                         <p>
                             <span class="score">{{ score }}</span>
                             <span class="tip">{{ state.assessment }}</span>
@@ -101,6 +101,7 @@ const state = reactive({
     }],
     assess: 2,
     score: 0,
+    deg:0,
     inputScore: 0,
     StudentCompositionId: '',
     assessList: [
@@ -208,6 +209,7 @@ const viewArticle = () => {
 const saveScore = () => {
     exeSave(1, state.inputScore, () => {
         state.score = state.inputScore
+        state.deg = -135 + (state.score / 100) * 180
         exeSave(2, state.assess, () => {
             ElMessage.success('保存成功')
             state.assessment = state.assessList.find(v => v.value == state.assess)?.name
@@ -262,6 +264,7 @@ const getDetail = (id: string,isRequestNext?:boolean) => {
             //FileList
             let result = res.result
             state.score = result.Score
+            state.deg = -135 + (state.score / 100) * 180
             state.assessment = result.AppraiseLevelDisplay
             state.assess = result.AppraiseLevel//state.assessList.findIndex(v => v.name == state.assessment)
             state.author = result.StudentName || ''
@@ -450,7 +453,7 @@ defineExpose({
             padding-top: 24px;
             padding-bottom: 30px;
             box-sizing: border-box;
-            height: 100%;
+            height: calc(100% - 81px);
             overflow-y: auto;
 
             img {

@@ -81,7 +81,7 @@ const switchPic = (item: any, idx: number) => {
 /**
  * 查看下一篇
  */
-const viewNext = ()=>{
+const viewNext = () => {
     lookNextContent({ StudentCompositionId: state.StudentCompositionId }).then(async (res: any) => {
         if (res.success) {
             let result = res.result
@@ -107,15 +107,15 @@ const viewNext = ()=>{
 
 // 保存
 const save = () => {
-    if(state.title.length===0){
+    if (state.title.length === 0) {
         ElMessage.error('标题不可为空')
         return
     }
-    if(state.title.length>15){
+    if (state.title.length > 15) {
         ElMessage.error('标题限制15字')
         return
     }
-    let args = { StudentCompositionId: state.StudentCompositionId,Title:state.title, Content: state.content, OperatorId: store.state.userInfo?.userCenterUserID }
+    let args = { StudentCompositionId: state.StudentCompositionId, Title: state.title, Content: state.content, OperatorId: store.state.userInfo?.userCenterUserID }
     saveContent(args).then(async (res: any) => {
         if (res.success) {
             ElMessage.success('保存成功')
@@ -274,6 +274,9 @@ defineExpose({
 
         .img-box {
             padding-top: 24px;
+            box-sizing: border-box;
+            height: calc(100% - 81px);
+            overflow-y: auto;
 
             img {
                 width: 100%;
@@ -289,7 +292,7 @@ defineExpose({
 
         .words {
             width: 100%;
-            height: 100%;
+            height: calc(100% - 60px);
             overflow: auto;
             font-size: 14px;
             font-family: PingFangSC-Regular, PingFang SC;
