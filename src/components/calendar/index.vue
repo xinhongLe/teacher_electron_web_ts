@@ -129,13 +129,15 @@ export default defineComponent({
                         height.value = height.value / scale.value;
                     }
 
-                    if (calendarRef.value.parentElement.clientHeight !== height.value * scale.value) {
-                        // 内容高度小，需要重新计算
-                        calendarRef.value.parentElement.style.width = calendarRef.value.parentElement.clientHeight / height.value / scale.value * calendarRef.value.parentElement.clientWidth;
-                        // resize();
-                    } else {
-                        calendarRef.value.parentElement.style.width = width.value * (scale.value > 1 ? 1 : scale.value) + "px";
-                    }
+                    // if (calendarRef.value.parentElement.clientHeight !== height.value * scale.value) {
+                    //     // 内容高度小，需要重新计算
+                    //     calendarRef.value.parentElement.style.width = calendarRef.value.parentElement.clientHeight / height.value / scale.value * calendarRef.value.parentElement.clientWidth;
+                    //     // resize();
+                    // } else {
+                    calendarRef.value.parentElement.style.width = width.value * (scale.value > 1 ? 1 : scale.value) + "px";
+                    // }
+
+                    // window.electron.log.info("====== 就算元素大小 ====", width.value, scale.value, width.value * scale.value, calendarRef.value.parentElement.style.width, calendarRef.value.parentElement.clientWidth);
                 }
             });
         };

@@ -414,7 +414,7 @@ export default defineComponent({
                     }, 2000);
                 });
             }
-        }, 100);
+        }, 200);
         const resizeObserver = new ResizeObserver(resize);
         onMounted(() => {
             if (leftBlock.value) {
