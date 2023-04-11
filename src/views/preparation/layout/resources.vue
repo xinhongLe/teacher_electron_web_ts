@@ -595,7 +595,10 @@ export default defineComponent({
             currentSelectBagIds.value = id;
             if ((course.value.chapterId && course.value.lessonId) || isBag) {
                 isLaoding.value = true;
-                // let params: any;
+                const backSource = source.value;
+                const backType = type.value;
+                const backCourseChapterId = course.value.chapterId;
+                const backCourseLessonId = course.value.lessonId;
                 const params =
                     source.value == "me"
                         ? {
@@ -622,14 +625,11 @@ export default defineComponent({
 
                 const res = await fetchResourceList(params);
                 if (res.resultCode === 200) {
-                    resourceList.value =
-                        pageNumber.value === 1
-                            ? res.result.list
-                            : resourceList.value.concat(res.result.list);
-                    disabledScrollLoad.value =
-                        res.result.list.length === 0
-                            ? true
-                            : res.result.pager.IsLastPage;
+                    // 判断丢弃部分数据
+                    if (backSource !== source.value || backType !== type.value || backCourseChapterId !== course.value.chapterId || backCourseLessonId !== course.value.lessonId) return;
+
+                    resourceList.value = pageNumber.value === 1 ? res.result.list : resourceList.value.concat(res.result.list);
+                    disabledScrollLoad.value = res.result.list.length === 0 ? true : res.result.pager.IsLastPage;
                     // console.log('resourceList.value', resourceList.value);
 
                     emit("updateResourceList", resourceList.value);

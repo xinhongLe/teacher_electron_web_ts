@@ -386,6 +386,7 @@ export const GetMyLessonBagNew: RequestFun<{ id: string }, IGetLessonBagOutDto[]
         headers: {
             "Content-Type": "application/json-patch+json",
             UserId: yunInfo.UserId,
+            noLoading: "true"
         },
         method: "post",
         data,
