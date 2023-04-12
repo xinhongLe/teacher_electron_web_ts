@@ -7,9 +7,9 @@
                 </div>
             </template>
             <div class="is-class">
-                <el-form :model="form" label-width="120px">
+                <el-form :model="form" label-width="120px" size="large">
                     <el-form-item label="选择班级：">
-                        <el-select v-model="form.checkedClass" placeholder="选择班级">
+                        <el-select v-model="form.checkedClass" placeholder="选择班级" style="width:100%">
                             <el-option
                                 v-for="item in classList"
                                 :key="item.ClassId"
@@ -78,6 +78,10 @@ export default defineComponent({
             username: "u001",
             password: "p001",
             keepalive: 30
+        });
+        console.log('client', client)
+        client && client.on("connect", function (err) {
+            window.electron.log.info("client connect sharestudent", err);
         });
         client && client.on("message", function (topic: any, message: any) {
             // message is Buffer

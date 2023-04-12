@@ -473,11 +473,9 @@ export default defineComponent({
         watch(
             () => currentSlide.value,
             (val: any) => {
-                console.log('当前的slide', val)
                 const dom: HTMLElement = document.querySelector('.me-tools-set') as HTMLElement;
                 const dom2: HTMLElement = document.querySelector('.draw-content') as HTMLElement;
                 const dom3: HTMLElement = document.querySelector('.me-tools') as HTMLElement;
-                console.log('dom---', dom)
                 if (val.type === "teach") {
                     isTeach.value = true;
                     if (isOpen.value) {
@@ -496,9 +494,17 @@ export default defineComponent({
                         dom2.style.width = "352px";
                         dom3.style.width = "730px";
                     } else {
-                        dom.style.width = "0px";
-                        dom2.style.width = "0px";
-                        dom3.style.width = "378px";
+                        if (dom) {
+                            dom.style.width = "0px";
+                        }
+                        ;
+                        if (dom2) {
+                            dom2.style.width = "0px";
+                        }
+                        ;
+                        if (dom3) {
+                            dom3.style.width = "378px";
+                        }
                     }
                 }
             }, {deep: true, immediate: true}
