@@ -89,36 +89,62 @@ const state = reactive({
 });
 const { form, chapterList } = toRefs(state);
 
-const emit = defineEmits(['cancel', 'openScan','openList', 'save']);
+const emit = defineEmits(['cancel', 'openScan', 'openList', 'save']);
 
 const handleFile = (file: any) => {
 
 };
 
-const handleChange = (file:any, fileList:any)=>{
-    
+const handleChange = (file: any, fileList: any) => {
+
+}
+
+const getBlob = (url: string) => {
+    return new Promise(resolve => {
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', url, true);
+        xhr.responseType = 'blob';
+        xhr.onload = () => {
+            if (xhr.status === 200) {
+                resolve(xhr.response);
+            }
+        };
+        xhr.send();
+    });
+}
+
+const saveAs = (blob:any, filename:string) => {
+  var link = document.createElement('a');
+  link.href = window.URL.createObjectURL(blob);
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 }
 
 // 下载模板
 const download = () => {
     // downLoadBatchImportModel({})
-    downLoadBatchImportModel({ClassId: localStorage.getItem('compositionClassId')}).then(async (res: any) => {
+    downLoadBatchImportModel({ ClassId: localStorage.getItem('compositionClassId') }).then(async (res: any) => {
         if (res.success) {
             // let blob = new Blob([res]);
             // let objectUrl = window.URL.createObjectURL(blob); //生成一个url
             let result = res.result
-            const { FileExtention, FilePath, FileMD5, FileBucket,Name } = result;
-                const key = FileExtention
-                    ? `${FilePath}/${FileMD5}.${FileExtention}`
-                    : `${FilePath}/${FileMD5}`;
+            const { FileExtention, FilePath, FileMD5, FileBucket, Name } = result;
+            const key = FileExtention
+                ? `${FilePath}/${FileMD5}.${FileExtention}`
+                : `${FilePath}/${FileMD5}`;
             let objectUrl = await getOssUrl(key, FileBucket);
-            const a = document.createElement('a');
-            const filename = Name + '.zip';
-            a.download = filename;
-            a.href = objectUrl;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
+            getBlob(objectUrl).then((blob:any)=>{
+                saveAs(blob,`${Name}.zip`)
+            })
+            // const a = document.createElement('a');
+            // const filename = 'Name' + '.zip';
+            // a.href = objectUrl;
+            // a.download = filename;
+            // document.body.appendChild(a);
+            // a.click();
+            // document.body.removeChild(a);
             ElMessage({ type: 'success', message: '下载成功' });
         }
     })
@@ -126,7 +152,7 @@ const download = () => {
 
 const uploadRequest = ({ file }: any) => {
     const isLt1G = file.size / 1024 / 1024 > 1024
-    if(isLt1G){
+    if (isLt1G) {
         ElMessage.warning('单次上传文件不能超1G')
         return
     }
