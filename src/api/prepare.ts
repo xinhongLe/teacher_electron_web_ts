@@ -1,9 +1,9 @@
-import { VUE_APP_PREPARE_API, YUN_API } from "@/config";
-import { store } from "@/store";
-import { IYunInfo } from "@/types/login";
-import { RequestFun } from "@/types/response";
+import {VUE_APP_PREPARE_API, YUN_API, AI_XUE_SHI_API} from "@/config";
+import {store} from "@/store";
+import {IYunInfo} from "@/types/login";
+import {RequestFun} from "@/types/response";
 import request from "@/utils/request";
-import { get, STORAGE_TYPES } from "@/utils/storage";
+import {get, STORAGE_TYPES} from "@/utils/storage";
 
 /**
  * IAddLessonBag，新增备课包入参
@@ -60,6 +60,7 @@ export interface IAddLessonBag {
     subjectId?: null | string;
     subjectName?: null | string;
 }
+
 /**
  * IAddLessonBagOutDto，新增备课包出参
  */
@@ -73,6 +74,7 @@ export interface IAddLessonBagOutDto {
      */
     Name?: null | string;
 }
+
 /**
  * GetLessonBagOutDto，获取备课包出参
  */
@@ -361,6 +363,35 @@ export interface ITeacherClassCodeOutDto {
     SemesterCode?: number;
 }
 
+export interface ITeachShare {
+    /**
+     * 时间戳
+     */
+    timeStr?: null | string;
+    /**
+     * 元素id
+     */
+    ElementId?: null | string;
+    /**
+     * 问题id
+     */
+    QuestionId?: null | string;
+    S3: null | string;
+    OssName: null | string;
+    Name: null | string;
+    FileType: null | number;
+    ChooseType: null | number;
+    OssExtention: null | string;
+    OssPath: null | string;
+    OssBucket: null | string;
+    ClassID: null | string;
+    DeleteFlag: null | number;
+    TeacherID: null | string;
+    IsEnd: null | boolean;
+    Type: null | number;
+    Topic: null | string;
+}
+
 // 新增备课包
 export const AddLessonBag: RequestFun<IAddLessonBag, IAddLessonBagOutDto> = (data) => {
     const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
@@ -519,6 +550,8 @@ export const DelCourseScheduling: RequestFun<IDelNewSchedulingInDto, null> = (da
         baseURL: VUE_APP_PREPARE_API,
         url: "/Api/Schedule/NewCourseScheduling/DelCourseScheduling",
         headers: {
+
+
             "Content-Type": "application/json-patch+json",
             UserId: yunInfo.UserId,
         },
@@ -559,3 +592,33 @@ export const GetCurrentCodeTeacherClass: RequestFun<{ OrgId: string, UserId: str
         }
     });
 };
+// 获取班级
+export const GetGradeClass: RequestFun<null, any[]> = () => {
+    const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
+    return request({
+        baseURL: AI_XUE_SHI_API,
+        url: "/Api/W4/Teach/GetGradeClass",
+        headers: {
+            "Content-Type": "application/json-patch+json",
+            UserId: yunInfo.UserId,
+            noLoading: "true"
+        },
+        method: "post",
+    });
+};
+// 备教端发送分享内容到服务端
+export const QuestionShare: RequestFun<ITeachShare, null> = (data) => {
+    const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
+    return request({
+        baseURL: AI_XUE_SHI_API,
+        url: "/Api/W4/Teach/QuestionShare",
+        headers: {
+            "Content-Type": "application/json-patch+json",
+            UserId: yunInfo.UserId,
+            noLoading: "true"
+        },
+        method: "post",
+        data
+    });
+};
+

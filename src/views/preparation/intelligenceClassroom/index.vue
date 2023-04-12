@@ -53,18 +53,22 @@
             :currentLineWidth="currentLineWidth"
             :showRemark="previewSection?.showRemark"
             :isFullScreenStatus="isFullScreenStatus"
+            @openClassDialog="openClassDialog"
         />
+        <SelectClassDialog v-if="selectClassVisible" v-model:class-visible="selectClassVisible"
+                           :currentSlide="currentSlide"/>
     </div>
 </template>
 
 <script lang="ts" setup>
 import emitter from "@/utils/mitt";
 import CardList from "./cardList/index.vue";
-import { IResourceItem } from "@/api/resource";
+import {IResourceItem} from "@/api/resource";
 import Tools from "./components/preview/tools.vue";
-import useWindowInfo, { windowInfoKey } from "@/hooks/useWindowInfo";
+import useWindowInfo, {windowInfoKey} from "@/hooks/useWindowInfo";
 import PreviewSection from "./components/preview/previewSection.vue";
-import { onActivated, onDeactivated, onMounted, provide, ref, watchEffect, PropType, toRef, onUnmounted } from "vue";
+import {onActivated, onDeactivated, onMounted, provide, ref, watchEffect, PropType, toRef, onUnmounted} from "vue";
+import SelectClassDialog from "@/views/preparation/intelligenceClassroom/components/preview/selectClassDialog.vue";
 
 const props = defineProps({
     resourceId: {
@@ -101,8 +105,9 @@ const resourceId = toRef(props, "resourceId");
 provide("isShowCardList", isShowCardList);
 const windowInfo = useWindowInfo(true);
 provide(windowInfoKey, windowInfo);
-const { cardList, getCardList } = windowInfo;
-
+const {cardList, getCardList, currentSlide} = windowInfo;
+// 教具页分享-选择班级
+const selectClassVisible = ref(false);
 watchEffect(() => {
     if (resourceId.value) {
         getCardList(resourceId.value, props.isSystem ? 0 : 1);
@@ -193,6 +198,11 @@ onDeactivated(() => {
 onUnmounted(() => {
     emitter.off("preparationReLoad", preparationReLoad);
 });
+
+//打开选择班级弹框
+const openClassDialog = () => {
+    selectClassVisible.value = true;
+}
 </script>
 
 <style lang="scss" scoped>
