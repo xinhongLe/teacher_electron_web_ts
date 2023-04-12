@@ -1,43 +1,44 @@
 <template>
-    <el-dialog v-if="visible" align-center class="custom-dialog" v-model="visible" title="提示" width="362px" center @close="close">
-            <div class="content" v-if="status === 0">
-                <img class="img_class" src="@/assets/images/homeworkNew/pic_ctsj.png" alt="">
-                <div class="content-text" v-if="status === 0">
-                    <div class="text">请学生准备好一卡通</div>
-                    <div class="text">进入【错题收集】应用开始点选错题</div>
+    <el-dialog v-if="visible" align-center class="custom-dialog" v-model="visible" title="提示" width="362px" center
+               @close="close">
+        <div class="content" v-if="status === 0">
+            <img class="img_class" src="@/assets/images/homeworkNew/pic_ctsj.png" alt="">
+            <div class="content-text" v-if="status === 0">
+                <div class="text">请学生准备好一卡通</div>
+                <div class="text">进入【错题收集】应用开始点选错题</div>
+            </div>
+        </div>
+
+        <div v-if="status === 1">
+            <div class="content" v-if="isFinish === 0">
+                <div class="bg-img">
+                    <img class="search_class" src="@/assets/images/homeworkNew/ctsj_zhuti.png" alt="">
+                </div>
+                <div class="content-text">
+                    <div class="text">
+                        <span>正在收集…</span>
+                        <span>{{ finishCount }}/{{ studentsList.length }}</span>
+                    </div>
+                    <div class="text-gary">请学生进入一卡通的【错题收集】应用</div>
                 </div>
             </div>
 
-          <div  v-if="status === 1">
-              <div class="content" v-if="isFinish === 0">
-                  <div class="bg-img">
-                      <img class="search_class" src="@/assets/images/homeworkNew/ctsj_zhuti.png" alt="">
-                  </div>
-                  <div class="content-text">
-                      <div class="text">
-                          <span>正在收集…</span>
-                          <span>{{finishCount}}/{{studentsList.length}}</span>
-                      </div>
-                      <div class="text-gary">请学生进入一卡通的【错题收集】应用</div>
-                  </div>
-              </div>
+            <div class="content" v-if="isFinish === 1">
+                <img class="img_class" src="@/assets/images/homeworkNew/pic_done.png" alt="">
+                <div class="content-text">
+                    <div class="text">已收集过，是否要再次发起？</div>
+                </div>
+            </div>
 
-              <div class="content" v-if="isFinish === 1">
-                  <img class="img_class" src="@/assets/images/homeworkNew/pic_done.png" alt="">
-                  <div class="content-text">
-                      <div class="text">已收集过，是否要再次发起？</div>
-                  </div>
-              </div>
-
-          </div>
+        </div>
 
         <template #footer>
           <span class="dialog-footer">
             <el-button v-if="status === 0" type="primary" @click="handleComfirm">开始</el-button>
             <div v-if="status === 1">
-                 <el-button v-if="isFinish === 0" type="danger"  plain @click="stopWrongTopicCollection">结束收集</el-button>
-                 <el-button v-if="isFinish === 1"  @click="close">取消</el-button>
-                 <el-button v-if="isFinish === 1" type="primary"  @click="handleComfirm">确定</el-button>
+                 <el-button v-if="isFinish === 0" type="danger" plain @click="stopWrongTopicCollection">结束收集</el-button>
+                 <el-button v-if="isFinish === 1" @click="close">取消</el-button>
+                 <el-button v-if="isFinish === 1" type="primary" @click="handleComfirm">确定</el-button>
             </div>
           </span>
         </template>
@@ -45,12 +46,13 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, reactive, toRefs, PropType, watch, onUnmounted } from "vue";
-import { Homework, StudentMission } from "@/types/homework";
-import { sendWrongTopicDetail, GetStudentMissionList, overWrongTopicCollection } from "../api";
+import {computed, defineComponent, reactive, toRefs, PropType, watch, onUnmounted} from "vue";
+import {Homework, StudentMission} from "@/types/homework";
+import {sendWrongTopicDetail, GetStudentMissionList, overWrongTopicCollection} from "../api";
 import mqtt from "mqtt";
-import { YUN_API_ONECARD_MQTT } from "@/config";
-interface State{
+import {YUN_API_ONECARD_MQTT} from "@/config";
+
+interface State {
     status: number,
     isFinish: number,
     studentsList: StudentMission[],
@@ -87,7 +89,7 @@ export default defineComponent({
         }
     },
     emits: ["update:dialogVisible", "updateTaskList"],
-    setup(props, { emit }) {
+    setup(props, {emit}) {
         const state = reactive<State>({
             status: 0,
             isFinish: 0,
@@ -108,7 +110,7 @@ export default defineComponent({
             return `ErrorBack_${id}`;
         };
 
-        watch(() => props.dialogVisible, async(val) => {
+        watch(() => props.dialogVisible, async (val) => {
             if (val) {
                 state.status = props.mistakesCollectState;
                 state.isFinish = props.isFinishState;
@@ -128,7 +130,7 @@ export default defineComponent({
             window.electron.log.info("client error mistakes", err);
         });
 
-        client && client.on("message", function (topic:any, message:any) {
+        client && client.on("message", function (topic: any, message: any) {
             // message is Buffer
             const messageInfo = JSON.parse(message.toString());
             state.finishCount = messageInfo.ReplyCout || 0;
@@ -140,7 +142,7 @@ export default defineComponent({
             await _sendWrongTopicDetail();
         };
         const _GetStudentMissionList = () => {
-            return GetStudentMissionList({ ID: props.info.ClassHomeworkPaperID || props.info.classHomeworkPaperID }).then(res => {
+            return GetStudentMissionList({ID: props.info.ClassHomeworkPaperID || props.info.classHomeworkPaperID}).then(res => {
                 if (res.resultCode === 200) {
                     state.studentsList = res.result || [];
                 }
@@ -149,13 +151,13 @@ export default defineComponent({
 
         const _sendWrongTopicDetail = () => {
             const data = {
-                ClassHomeworkPaperID: props.info?.ClassHomeworkPaperID || props.info?.classHomeworkPaperID ,
+                ClassHomeworkPaperID: props.info?.ClassHomeworkPaperID || props.info?.classHomeworkPaperID,
                 SubjectId: props.info?.SubjectID || props.info?.subjectID,
                 SubjectName: props.info?.SubjectName || props.info?.subjectName,
                 ClassId: props.info?.ClassID || props.info?.classID,
                 ClassName: props.info?.ClassName || props.info?.className,
                 TotalCount: props.info?.AllStudentCount || props.info?.allStudentCount,
-                StudentIds: state.studentsList.map((item:StudentMission) => item.StudentID)
+                StudentIds: state.studentsList.map((item: StudentMission) => item.StudentID)
             };
             sendWrongTopicDetail(data).then(res => {
                 if (res.resultCode === 200) {
@@ -168,7 +170,7 @@ export default defineComponent({
         };
 
         const stopWrongTopicCollection = () => {
-            overWrongTopicCollection({ Id: state.collectionId }).then(res => {
+            overWrongTopicCollection({Id: state.collectionId}).then(res => {
                 if (res.resultCode === 200) {
                     close();
                 }
@@ -199,27 +201,31 @@ export default defineComponent({
 });
 </script>
 <style lang="scss" scoped>
-.content{
+.content {
     display: flex;
     align-items: center;
     justify-content: center;
     flex-direction: column;
-    .content-text{
+
+    .content-text {
         text-align: center;
     }
-    .img_class{
+
+    .img_class {
         width: 72px;
         height: 72px;
         margin-bottom: 20px;
     }
-    .bg-img{
+
+    .bg-img {
         position: relative;
         width: 72px;
         height: 72px;
         background-image: url("../../../assets/images/homeworkNew/ctsj_bg.png");
         background-size: 100% 100%;
         margin-bottom: 20px;
-        .search_class{
+
+        .search_class {
             position: absolute;
             left: 15px;
             top: 15px;
@@ -228,13 +234,15 @@ export default defineComponent({
             animation: mySearch 3s linear infinite;
         }
     }
-    .text{
+
+    .text {
         font-size: 14px;
         color: #19203D;
         margin-bottom: 10px;
         font-weight: 600;
     }
-    .text-gary{
+
+    .text-gary {
         font-size: 12px;
         color: #5F626F;
         margin-bottom: 10px;

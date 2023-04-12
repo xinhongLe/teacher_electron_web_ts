@@ -69,6 +69,8 @@ import useWindowInfo, {windowInfoKey} from "@/hooks/useWindowInfo";
 import PreviewSection from "./components/preview/previewSection.vue";
 import {onActivated, onDeactivated, onMounted, provide, ref, watchEffect, PropType, toRef, onUnmounted} from "vue";
 import SelectClassDialog from "@/views/preparation/intelligenceClassroom/components/preview/selectClassDialog.vue";
+import mqtt from "mqtt";
+import {YUN_API_ONECARD_MQTT} from "@/config";
 
 const props = defineProps({
     resourceId: {
@@ -194,15 +196,28 @@ onActivated(() => {
 onDeactivated(() => {
     document.onkeydown = null;
 });
-
-onUnmounted(() => {
-    emitter.off("preparationReLoad", preparationReLoad);
-});
-
 //打开选择班级弹框
 const openClassDialog = () => {
     selectClassVisible.value = true;
 }
+const client = mqtt.connect(YUN_API_ONECARD_MQTT || "", {
+    port: 1883,
+    username: "u001",
+    password: "p001",
+    keepalive: 30
+});
+client && client.on("connect", function (err) {
+    window.electron.log.info("client connect sharestudent", err);
+});
+client && client.on("message", function (topic: any, message: any) {
+    // message is Buffer
+    const infoString = JSON.parse(message.toString());
+    console.log("infoString", infoString);
+});
+onUnmounted(() => {
+    emitter.off("preparationReLoad", preparationReLoad);
+    client.end();
+});
 </script>
 
 <style lang="scss" scoped>
