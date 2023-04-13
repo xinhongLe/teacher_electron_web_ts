@@ -55,8 +55,12 @@
             :isFullScreenStatus="isFullScreenStatus"
             @openClassDialog="openClassDialog"
         />
+        <!--        页发送至 学生端-->
         <SelectClassDialog v-if="selectClassVisible" v-model:class-visible="selectClassVisible"
-                           :currentSlide="currentSlide"/>
+                           :currentSlide="currentSlide" v-model:send-success="sharePageVisible"/>
+        <!--        正在分享该页-->
+        <!--        暂时注释！！！！！-->
+        <!--        <ShareCurrentPage v-if="sharePageVisible" v-model:share-visible="sharePageVisible"></ShareCurrentPage>-->
     </div>
 </template>
 
@@ -69,6 +73,7 @@ import useWindowInfo, {windowInfoKey} from "@/hooks/useWindowInfo";
 import PreviewSection from "./components/preview/previewSection.vue";
 import {onActivated, onDeactivated, onMounted, provide, ref, watchEffect, PropType, toRef, onUnmounted} from "vue";
 import SelectClassDialog from "@/views/preparation/intelligenceClassroom/components/preview/selectClassDialog.vue";
+import ShareCurrentPage from "@/views/preparation/intelligenceClassroom/components/preview/ShareCurrentPage.vue";
 import mqtt from "mqtt";
 import {YUN_API_ONECARD_MQTT} from "@/config";
 
@@ -110,6 +115,8 @@ provide(windowInfoKey, windowInfo);
 const {cardList, getCardList, currentSlide} = windowInfo;
 // 教具页分享-选择班级
 const selectClassVisible = ref(false);
+// 正在分享该页
+const sharePageVisible = ref(false);
 watchEffect(() => {
     if (resourceId.value) {
         getCardList(resourceId.value, props.isSystem ? 0 : 1);

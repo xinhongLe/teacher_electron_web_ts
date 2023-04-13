@@ -18,6 +18,7 @@
                             />
                         </el-select>
                     </el-form-item>
+                    <!--                    暂时注释！！！！！-->
                     <!--                    <el-form-item label="请选择类型：">-->
                     <!--                        <div class="btn-class" v-for="item in typeList" @click="currentType = item.QuestionId"-->
                     <!--                             :class="{isActive:currentType === item.QuestionId}">-->
@@ -31,7 +32,7 @@
                     <!--                            {{ item.QuestionName }}-->
                     <!--                        </div>-->
                     <!--                    </el-form-item>-->
-                    <!--                    <el-form-item label="选项个数：" v-if="currentAnswerType === 1">-->
+                    <!--                    <el-form-item label="选项个数：" v-if="currentType === 6 && currentAnswerType === 1">-->
                     <!--                        <el-select v-model="form.selectNum" placeholder="选项个数" style="width:100%">-->
                     <!--                            <el-option label="1" :value="1"/>-->
                     <!--                            <el-option label="2" :value="2"/>-->
@@ -40,7 +41,7 @@
                     <!--                            <el-option label="5" :value="5"/>-->
                     <!--                        </el-select>-->
                     <!--                    </el-form-item>-->
-                    <!--                    <div v-if="currentAnswerType === 1 && form.selectNum">-->
+                    <!--                    <div v-if="currentType === 6 &&  currentAnswerType === 1 && form.selectNum">-->
                     <!--                        <el-form-item label="">-->
                     <!--                            <div class="num-calss" @click="curSelNumType = 1" :class="{isActive:curSelNumType === 1}">-->
                     <!--                                <div class="num-calss-left">-->
@@ -88,9 +89,13 @@ export default defineComponent({
         },
         currentSlide: {
             type: Object,
+        },
+        sendSuccess: {
+            type: Boolean,
+            default: false
         }
     },
-    emits: ["selectedClassList", "update:classVisible"],
+    emits: ["selectedClassList", "update:classVisible", "update:sendSuccess"],
     setup(props, {emit}) {
 
         const checkedClass = ref("");
@@ -216,6 +221,7 @@ export default defineComponent({
                 const res = await QuestionShare(teachShareParams.value)
                 if (res.success) {
                     ElMessage.success("发送成功");
+                    emit("update:sendSuccess", true);
                     emit("update:classVisible", false);
                     // const timeStamp = new Date().getTime();
                     // mqttParams.value.TimeStamp = String(timeStamp);
