@@ -11,7 +11,7 @@
         <div class="me-tools-steps-new">
             <div class="me-tool-btn-new" :disabled="isFirst" @click="prevStep">
                 <div class="icon-text">
-                    <img src="../../images/slices/arrow_left.png" alt="" />
+                    <img src="../../images/slices/arrow_left.png" alt=""/>
                     <span class="text">上一页</span>
                 </div>
                 <!-- <img v-if="!isFirst" src="../../images/shangyiye_rest.png" alt="" />
@@ -46,7 +46,7 @@
                             <span @click.stop="isShowSubMenu = true" class="setting-item">【下一步】位置设置 ></span>
                             <div class="setting-sub-menu" v-show="isShowSubMenu">
                                 <div v-for="item in nextSettingTypeList" :key="item.text" class="menu"
-                                    @click="changeNextType(item.type)">
+                                     @click="changeNextType(item.type)">
                                     {{ item.text }}
                                 </div>
                             </div>
@@ -55,7 +55,7 @@
                         <div class="me-tool-btn-new" @click.stop="moreSet($event)">
                             <!-- <img src="../../images/btn_more.png" /> -->
                             <div class="icon-text">
-                                <img src="../../images/slices/icon_gdsz.png" alt="" />
+                                <img src="../../images/slices/icon_gdsz.png" alt=""/>
                                 <span class="text">更多设置</span>
                             </div>
                         </div>
@@ -63,9 +63,16 @@
                         <!-- 隐藏显示教案 -->
                         <div class="me-tool-btn-new" @click="toggleRemark()" v-if="isShowRemarkBtn">
                             <div class="icon-text">
-                                <img v-if="!showremark" src="../../images/slices/icon_pbja.png" alt="" />
-                                <img v-if="showremark" src="../../images/slices/icon_xsja.png" alt="" />
+                                <img v-if="!showremark" src="../../images/slices/icon_pbja.png" alt=""/>
+                                <img v-if="showremark" src="../../images/slices/icon_xsja.png" alt=""/>
                                 <span class="text">{{ showremark ? '隐藏教案' : '显示教案' }}</span>
+                            </div>
+                        </div>
+                        <!-- 教具页发送-->
+                        <div v-if="isTeach" class="me-tool-btn-new issend" @click="sendTeachTool">
+                            <div class="icon-text">
+                                <img src="../../images/slices/pic_send.png" alt=""/>
+                                <span class="text">发送给学生</span>
                             </div>
                         </div>
                     </div>
@@ -91,8 +98,8 @@
                             (type = 'mouse')
                         ">
                             <div class="icon-text">
-                                <img v-if="type !== 'mouse'" src="../../images/slices/icon_shubiao.png" alt="" />
-                                <img v-if="type === 'mouse'" src="../../images/slices/icon_shubiao_white.png" alt="" />
+                                <img v-if="type !== 'mouse'" src="../../images/slices/icon_shubiao.png" alt=""/>
+                                <img v-if="type === 'mouse'" src="../../images/slices/icon_shubiao_white.png" alt=""/>
                                 <span class="text">鼠标</span>
                             </div>
                         </div>
@@ -111,8 +118,8 @@
                             (type = 'eraser')
                         ">
                             <div class="icon-text">
-                                <img v-if="type !== 'eraser'" src="../../images/slices/icon_xp.png" alt="" />
-                                <img v-if="type === 'eraser'" src="../../images/slices/icon_xp_white.png" alt="" />
+                                <img v-if="type !== 'eraser'" src="../../images/slices/icon_xp.png" alt=""/>
+                                <img v-if="type === 'eraser'" src="../../images/slices/icon_xp_white.png" alt=""/>
                                 <span class="text">橡皮</span>
                             </div>
                         </div>
@@ -126,8 +133,8 @@
                             (type = 'rulers')
                         ">
                             <div class="icon-text">
-                                <img v-if="type !== 'rulers'" src="../../images/slices/icon_cg.png" alt="" />
-                                <img v-if="type === 'rulers'" src="../../images/slices/icon_cg_white.png" alt="" />
+                                <img v-if="type !== 'rulers'" src="../../images/slices/icon_cg.png" alt=""/>
+                                <img v-if="type === 'rulers'" src="../../images/slices/icon_cg_white.png" alt=""/>
                                 <span class="text">尺规</span>
                             </div>
                         </div>
@@ -139,13 +146,12 @@
                         ">
                             <!-- <img src="../../images/icon_rest_xz_big.png" alt="" /> -->
                             <div class="icon-text">
-                                <img src="../../images/slices/icon_xz.png" alt="" />
+                                <img src="../../images/slices/icon_xz.png" alt=""/>
                                 <span class="text">形状</span>
                             </div>
                         </div>
+
                     </div>
-
-
                     <!-- <div class="me-tools-system">
                         <div class="me-tool-btn" @click="toggleRemark" v-if="isShowRemarkBtn">
                             <img v-if="!showremark" src="../../images/xianshibeizhu_rest.png" alt="" />
@@ -182,8 +188,8 @@
                     <el-icon v-else>
                         <ArrowRightBold />
                     </el-icon> -->
-                    <img v-if="!isOpen" src="../../images/slices/icon_zhankai.png" alt="" />
-                    <img v-else src="../../images/slices/icon_shouqi.png" alt="" />
+                    <img v-if="!isOpen" src="../../images/slices/icon_zhankai.png" alt=""/>
+                    <img v-else src="../../images/slices/icon_shouqi.png" alt=""/>
                     <span class="text" v-if="!isOpen">展开</span>
                     <span class="text" v-else>收起</span>
                 </div>
@@ -196,8 +202,8 @@
                     (type = 'pen')
                 ">
                     <div class="icon-text">
-                        <img v-if="type !== 'pen'" src="../../images/slices/icon_hb.png" alt="" />
-                        <img v-if="type === 'pen'" src="../../images/slices/icon_hb_white.png" alt="" />
+                        <img v-if="type !== 'pen'" src="../../images/slices/icon_hb.png" alt=""/>
+                        <img v-if="type === 'pen'" src="../../images/slices/icon_hb_white.png" alt=""/>
                         <span class="text">画笔</span>
                     </div>
                     <!-- <img v-if="type !== 'pen'" src="../../images/huabi_rest.png" alt="" />
@@ -206,14 +212,15 @@
                 <!-- 上一页 -->
                 <div class="me-tool-btn-new" :disabled="isFirst" @click="prevStep">
                     <div class="icon-text">
-                        <img src="../../images/slices/arrow_left.png" alt="" />
+                        <img src="../../images/slices/arrow_left.png" alt=""/>
                         <span class="text">上一页</span>
                     </div>
                     <!-- <img v-if="!isFirst" src="../../images/shangyiye_rest.png" alt="" />
                 <img v-if="isFirst" src="../../images/shangyiye_disabled.png" alt="" /> -->
                 </div>
                 <!-- 下一页 -->
-                <div class="me-tool-btn-new next-step" style="width: 90px;" :disabled="isLast" @click="nextStep" v-show="
+                <div class="me-tool-btn-new next-step" style="width: 90px;" :disabled="isLast" @click="nextStep"
+                     v-show="
                     selectNextType === NextSettingType.Right ||
                     selectNextType === NextSettingType.All
                 ">
@@ -230,13 +237,13 @@
                 <template v-if="isShowFullscreen && !dialog">
                     <div class="me-tool-btn-new" @click="fullScreen" v-if="!activeFlag">
                         <div class="icon-text">
-                            <img src="../../images/slices/icon_qp.png" alt="" />
+                            <img src="../../images/slices/icon_qp.png" alt=""/>
                             <span class="text">全屏</span>
                         </div>
                     </div>
                     <div class="me-tool-btn-new" @click="fillScreen" v-else>
                         <div class="icon-text">
-                            <img src="../../images/slices/icon_suoxiao.png" alt="" />
+                            <img src="../../images/slices/icon_suoxiao.png" alt=""/>
                             <span class="text">退出全屏</span>
                         </div>
                     </div>
@@ -244,26 +251,26 @@
                 <!-- 关闭 -->
                 <div class="me-tool-btn-new" v-if="isShowClose" @click="$emit('close')">
                     <div class="icon-text">
-                        <img src="../../images/slices/close.png" />
+                        <img src="../../images/slices/close.png"/>
                         <span class="text">关闭</span>
                     </div>
                 </div>
                 <div @click.stop="closeWincard" v-if="showClose && !dialog" class="me-tool-btn-new">
                     <div class="icon-text">
-                        <img src="../../images/slices/close.png" alt="" />
+                        <img src="../../images/slices/close.png" alt=""/>
                         <span class="text">关闭</span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <ResourceDialog v-if="showResourceDialog" v-model="showResourceDialog" />
+        <ResourceDialog v-if="showResourceDialog" v-model="showResourceDialog"/>
 
         <PenTool v-if="isShowPen" v-model:isShowPen="isShowPen" :penTop="penTop" :penLeft="penLeft"
-            :currentDrawColor="currentDrawColor" :currentLineWidth="currentLineWidth" @undo="undo()" @redo="redo()"
-            @setEraser="whiteboardOption('setEraser')" @clear="whiteboardOption('clear')" :canUndo="isCanUndo"
-            :canRedo="isCanRedo" @setPenSize="(value) => whiteboardOption('setPenSize', value)"
-            @setPenColor="(value) => whiteboardOption('setPenColor', value)"></PenTool>
+                 :currentDrawColor="currentDrawColor" :currentLineWidth="currentLineWidth" @undo="undo()" @redo="redo()"
+                 @setEraser="whiteboardOption('setEraser')" @clear="whiteboardOption('clear')" :canUndo="isCanUndo"
+                 :canRedo="isCanRedo" @setPenSize="(value) => whiteboardOption('setPenSize', value)"
+                 @setPenColor="(value) => whiteboardOption('setPenColor', value)"></PenTool>
 
         <!-- <RulersTool v-if="isShowRulers" v-model:isShowRulers="isShowRulers" :rulersTop="rulersTop" :rulersLeft="rulersLeft"
             @setRulersTool="setRulersTool"></RulersTool> -->
@@ -279,23 +286,24 @@ import {
     onUnmounted,
     computed,
     onActivated,
-    onDeactivated,
+    onDeactivated, inject,
 } from "vue";
-import { ArrowLeftBold, ArrowRightBold } from "@element-plus/icons-vue";
+import {ArrowLeftBold, ArrowRightBold} from "@element-plus/icons-vue";
 import {
     enterFullscreen,
     exitFullscreen,
     isFullscreen,
 } from "@/utils/fullscreen";
-import { useRouter } from "vue-router";
+import {useRouter} from "vue-router";
 import isElectron from "is-electron";
-import { sleep } from "@/utils/common";
-import { STORAGE_TYPES, set, get } from "@/utils/storage";
-import { MutationTypes, store } from "@/store";
-import { NextSettingType } from "@/types/preparation";
+import {sleep} from "@/utils/common";
+import {STORAGE_TYPES, set, get} from "@/utils/storage";
+import {MutationTypes, store} from "@/store";
+import {NextSettingType} from "@/types/preparation";
 import ResourceDialog from "./resourceDialog.vue";
 import emitter from "@/utils/mitt";
 import PenTool from "./PenTool.vue";
+import {windowInfoKey} from "@/hooks/useWindowInfo";
 
 export default defineComponent({
     props: {
@@ -356,7 +364,10 @@ export default defineComponent({
             default: "intelligence",
         },
     },
-    setup(props, { emit }) {
+    setup(props, {emit}) {
+        const {
+            currentSlide
+        } = inject(windowInfoKey)!;
         const isShowPen = ref(false);
         const isShowRulers = ref(false);
         const penLeft = ref(0);
@@ -369,6 +380,7 @@ export default defineComponent({
         const showDrawToos = () => {
             const dom: any = document.querySelector(".draw-content");
             const outdom: any = document.querySelector(".me-tools");
+            const dominner: HTMLElement = document.querySelector('.me-tools-set') as HTMLElement;
 
             // const btn_class =
             //     "." + props.cardClass + " " + ".me-tools-drag .me-tool-btn";
@@ -377,19 +389,38 @@ export default defineComponent({
             // if(props.isShowClose){
 
             // }
-            if (outdom.style.width == "730px") {
-                isOpen.value = false;
-                outdom.style.width = "378px";
+            if (isTeach.value) {
+                if (outdom.style.width == "786px") {
+                    isOpen.value = false;
+                    outdom.style.width = "378px";
+                } else {
+                    isOpen.value = true;
+                    outdom.style.width = "786px";
+                }
+                const width2 = 786 - 378;
+                if (dom.style.width == width2 + "px") {
+                    dom.style.width = 0;
+                } else {
+                    dom.style.width = width2 + "px";
+                }
+                dominner.style.width = "174px";
             } else {
-                isOpen.value = true;
-                outdom.style.width = "730px";
+                if (outdom.style.width == "730px") {
+                    isOpen.value = false;
+                    outdom.style.width = "378px";
+                } else {
+                    isOpen.value = true;
+                    outdom.style.width = "730px";
+                }
+                const width2 = 730 - 378;
+                if (dom.style.width == width2 + "px") {
+                    dom.style.width = 0;
+                } else {
+                    dom.style.width = width2 + "px";
+                }
+                dominner.style.width = "118px";
             }
-            const width2 = 730 - 378;
-            if (dom.style.width == width2 + "px") {
-                dom.style.width = 0;
-            } else {
-                dom.style.width = width2 + "px";
-            }
+
         };
         const router = useRouter();
         const type = ref("mouse");
@@ -436,7 +467,47 @@ export default defineComponent({
                 //     props.isFullScreenStatus
                 // );
             },
-            { deep: true }
+            {deep: true}
+        );
+        const isTeach = ref(false);
+        watch(
+            () => currentSlide.value,
+            (val: any) => {
+                const dom: HTMLElement = document.querySelector('.me-tools-set') as HTMLElement;
+                const dom2: HTMLElement = document.querySelector('.draw-content') as HTMLElement;
+                const dom3: HTMLElement = document.querySelector('.me-tools') as HTMLElement;
+                if (val.type === "teach") {
+                    isTeach.value = true;
+                    if (isOpen.value) {
+                        dom.style.width = "174px";
+                        dom2.style.width = "406px";
+                        dom3.style.width = "786px";
+                    } else {
+                        dom.style.width = "118px";
+                        dom2.style.width = "352px";
+                        dom3.style.width = "378px";
+                    }
+                } else {
+                    isTeach.value = false
+                    if (isOpen.value) {
+                        dom.style.width = "118px";
+                        dom2.style.width = "352px";
+                        dom3.style.width = "730px";
+                    } else {
+                        if (dom) {
+                            dom.style.width = "0px";
+                        }
+                        ;
+                        if (dom2) {
+                            dom2.style.width = "0px";
+                        }
+                        ;
+                        if (dom3) {
+                            dom3.style.width = "378px";
+                        }
+                    }
+                }
+            }, {deep: true, immediate: true}
         );
         const changeNextType = (type: NextSettingType) => {
             store.commit(MutationTypes.SET_SELECT_NEXT_TYPE, type);
@@ -546,22 +617,30 @@ export default defineComponent({
 
             if (type === 'paint') {
                 const target = event.target as HTMLDivElement;
-                const { left, top } = target.getBoundingClientRect();
+                const {left, top} = target.getBoundingClientRect();
                 isShowPen.value = true;
                 penLeft.value = left;
                 penTop.value = top;
             }
             emit("openPaintTool", event, type);
         };
+
+        //教具页发送
+        const sendTeachTool = () => {
+            console.log("sendTeachTool-----", currentSlide.value)
+            emit("openClassDialog", currentSlide.value)
+        };
         const hideWriteBoard = () => {
             emit("hideWriteBoard");
         };
+
         function getLocalNextType() {
             const type = get(
                 STORAGE_TYPES.NEXT_SETTING + store.state.userInfo.id
             );
             changeNextType(type || NextSettingType.All);
         }
+
         getLocalNextType();
 
         const closeWincard = () => {
@@ -607,6 +686,7 @@ export default defineComponent({
             isShowRulers,
             rulersLeft,
             rulersTop,
+            isTeach,
             goback,
             toggleRemark,
             showResourceDialog,
@@ -629,10 +709,11 @@ export default defineComponent({
             moreSet,
             whiteboardOption,
             undo,
-            redo
+            redo,
+            sendTeachTool
         };
     },
-    components: { ResourceDialog, ArrowLeftBold, ArrowRightBold, PenTool },
+    components: {ResourceDialog, ArrowLeftBold, ArrowRightBold, PenTool},
 });
 </script>
 
@@ -680,6 +761,16 @@ export default defineComponent({
             color: #414E65;
         }
     }
+
+    &.issend {
+        width: 56px;
+    }
+}
+
+.me-tool-btn-img {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
 }
 
 .me-tool-btn-line {
@@ -734,6 +825,11 @@ export default defineComponent({
     }
 }
 
+.me-tool-btn-img:active {
+    top: 2px;
+    box-shadow: 0 0 0 !important;
+}
+
 .me-tools {
     // background: rgba(15, 39, 91, 0.15);
     border-radius: 12px;
@@ -763,7 +859,7 @@ export default defineComponent({
             position: absolute;
             width: 0;
             overflow: hidden;
-            right: 376px;
+            right: 378px;
             height: 100%;
             transition: width 0.5s, transform 0.5s;
         }

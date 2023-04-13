@@ -53,18 +53,29 @@
             :currentLineWidth="currentLineWidth"
             :showRemark="previewSection?.showRemark"
             :isFullScreenStatus="isFullScreenStatus"
+            @openClassDialog="openClassDialog"
         />
+        <!--        页发送至 学生端-->
+        <SelectClassDialog v-if="selectClassVisible" v-model:class-visible="selectClassVisible"
+                           :currentSlide="currentSlide" v-model:send-success="sharePageVisible"/>
+        <!--        正在分享该页-->
+        <!--        暂时注释！！！！！-->
+        <!--        <ShareCurrentPage v-if="sharePageVisible" v-model:share-visible="sharePageVisible"></ShareCurrentPage>-->
     </div>
 </template>
 
 <script lang="ts" setup>
 import emitter from "@/utils/mitt";
 import CardList from "./cardList/index.vue";
-import { IResourceItem } from "@/api/resource";
+import {IResourceItem} from "@/api/resource";
 import Tools from "./components/preview/tools.vue";
-import useWindowInfo, { windowInfoKey } from "@/hooks/useWindowInfo";
+import useWindowInfo, {windowInfoKey} from "@/hooks/useWindowInfo";
 import PreviewSection from "./components/preview/previewSection.vue";
-import { onActivated, onDeactivated, onMounted, provide, ref, watchEffect, PropType, toRef, onUnmounted } from "vue";
+import {onActivated, onDeactivated, onMounted, provide, ref, watchEffect, PropType, toRef, onUnmounted} from "vue";
+import SelectClassDialog from "@/views/preparation/intelligenceClassroom/components/preview/selectClassDialog.vue";
+import ShareCurrentPage from "@/views/preparation/intelligenceClassroom/components/preview/ShareCurrentPage.vue";
+import mqtt from "mqtt";
+import {YUN_API_ONECARD_MQTT} from "@/config";
 
 const props = defineProps({
     resourceId: {
@@ -101,8 +112,11 @@ const resourceId = toRef(props, "resourceId");
 provide("isShowCardList", isShowCardList);
 const windowInfo = useWindowInfo(true);
 provide(windowInfoKey, windowInfo);
-const { cardList, getCardList } = windowInfo;
-
+const {cardList, getCardList, currentSlide} = windowInfo;
+// 教具页分享-选择班级
+const selectClassVisible = ref(false);
+// 正在分享该页
+const sharePageVisible = ref(false);
 watchEffect(() => {
     if (resourceId.value) {
         getCardList(resourceId.value, props.isSystem ? 0 : 1);
@@ -189,9 +203,27 @@ onActivated(() => {
 onDeactivated(() => {
     document.onkeydown = null;
 });
-
+//打开选择班级弹框
+const openClassDialog = () => {
+    selectClassVisible.value = true;
+}
+const client = mqtt.connect(YUN_API_ONECARD_MQTT || "", {
+    port: 1883,
+    username: "u001",
+    password: "p001",
+    keepalive: 30
+});
+client && client.on("connect", function (err) {
+    window.electron.log.info("client connect sharestudent", err);
+});
+client && client.on("message", function (topic: any, message: any) {
+    // message is Buffer
+    const infoString = JSON.parse(message.toString());
+    console.log("infoString", infoString);
+});
 onUnmounted(() => {
     emitter.off("preparationReLoad", preparationReLoad);
+    client.end();
 });
 </script>
 

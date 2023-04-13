@@ -1,6 +1,6 @@
 <template>
     <div class="intelligence">
-        <NavBar :resourceName="WindowName" />
+        <NavBar :resourceName="WindowName"/>
         <div class="right">
             <div class="right-bottom">
                 <div class="card-box-left" :class="{
@@ -8,7 +8,7 @@
                 }">
                     <div class="card-box-lefts">
                         <CardList ref="cardListComponents" :winActiveId="winActiveId" :WindowName="WindowName"
-                            :cardList="cardList" @updatePageList="updatePageList" @updateFlag="updateFlag" />
+                                  :cardList="cardList" @updatePageList="updatePageList" @updateFlag="updateFlag"/>
                     </div>
                     <div class="card-box-outbottom" v-show="!isFullScreen || isShowCardList"></div>
 
@@ -23,33 +23,39 @@
                 <div class="card-detail">
                     <div class="card-detail-content">
                         <PreviewSection ref="previewSectionRef" :options="previewOptions" :winActiveId="winActiveId"
-                            :WindowName="WindowName" :winList="cardList" :isPreview="true" :isShowCardList="isShowCardList"
-                            :isFullScreen="isFullScreen" @lastPage="lastPage" @firstPage="firstPage"
-                            @changeWinSize="changeWinSize" @fullScreen="fullScreen" @clockFullScreen="clockFullScreen"
-                            v-model:isCanUndo="isCanUndo" v-model:isCanRedo="isCanRedo"
-                            v-model:currentDrawColor="currentDrawColor" v-model:currentLineWidth="currentLineWidth" />
+                                        :WindowName="WindowName" :winList="cardList" :isPreview="true"
+                                        :isShowCardList="isShowCardList"
+                                        :isFullScreen="isFullScreen" @lastPage="lastPage" @firstPage="firstPage"
+                                        @changeWinSize="changeWinSize" @fullScreen="fullScreen"
+                                        @clockFullScreen="clockFullScreen"
+                                        v-model:isCanUndo="isCanUndo" v-model:isCanRedo="isCanRedo"
+                                        v-model:currentDrawColor="currentDrawColor"
+                                        v-model:currentLineWidth="currentLineWidth"/>
                     </div>
                 </div>
             </div>
         </div>
         <Tools :cardClass="'intelligence'" :id="winActiveId" :dialog="false" :showClose="true"
-            :showRemark="previewSectionRef?.showRemark" @toggleRemark="toggleRemark" @prevStep="prevStep"
-            @nextStep="nextStep" @fullScreen="fullScreen" @clockFullScreen="clockFullScreen"
-            @showWriteBoard="showWriteBoard" @openShape="openShape" @hideWriteBoard="hideWriteBoard" @closeWincard="close"
-            :isCanUndo="isCanUndo" :isCanRedo="isCanRedo" :isFullScreenStatus="true" @openPaintTool="openPaintTool"
-            :currentDrawColor="currentDrawColor" :currentLineWidth="currentLineWidth" @whiteboardOption="whiteboardOption"
-            @redo="redo" @undo="undo" />
+               :showRemark="previewSectionRef?.showRemark" @toggleRemark="toggleRemark" @prevStep="prevStep"
+               @nextStep="nextStep" @fullScreen="fullScreen" @clockFullScreen="clockFullScreen"
+               @showWriteBoard="showWriteBoard" @openShape="openShape" @hideWriteBoard="hideWriteBoard"
+               @closeWincard="close"
+               :isCanUndo="isCanUndo" :isCanRedo="isCanRedo" :isFullScreenStatus="true" @openPaintTool="openPaintTool"
+               :currentDrawColor="currentDrawColor" :currentLineWidth="currentLineWidth"
+               @whiteboardOption="whiteboardOption"
+               @redo="redo" @undo="undo"/>
     </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, nextTick, onMounted, provide, ref } from "vue";
+import {defineComponent, nextTick, onMounted, provide, ref} from "vue";
 import CardList from "./CardList.vue";
 import PreviewSection from "./previewSection.vue";
 import NavBar from "./NavBar.vue";
 import Tools from "@/views/preparation/intelligenceClassroom/components/preview/tools.vue";
-import { set, STORAGE_TYPES } from "@/utils/storage";
-import useWindowInfo, { windowInfoKey } from "@/hooks/useWindowInfo";
+import {set, STORAGE_TYPES} from "@/utils/storage";
+import useWindowInfo, {windowInfoKey} from "@/hooks/useWindowInfo";
+
 export default defineComponent({
     components: {
         CardList,
@@ -71,7 +77,7 @@ export default defineComponent({
         provide("isShowCardList", isShowCardList);
         const windowInfo = useWindowInfo(false);
         provide(windowInfoKey, windowInfo);
-        const { cardList } = windowInfo;
+        const {cardList} = windowInfo;
         const appjson = ref<{
             cards?: any;
             pages?: any;
@@ -84,7 +90,8 @@ export default defineComponent({
             previewOptions.value = card;
         };
 
-        const changeWinSize = () => { };
+        const changeWinSize = () => {
+        };
 
         const lastPage = () => {
             cardListComponents.value.changeReducePage();
@@ -106,7 +113,7 @@ export default defineComponent({
             isFullScreen.value = false;
             isShowCardList.value = true;
             previewSectionRef.value &&
-                previewSectionRef.value.clockFullScreen();
+            previewSectionRef.value.clockFullScreen();
         };
 
         const toggleRemark = () => {
@@ -163,7 +170,7 @@ export default defineComponent({
         const openPaintTool = (event: MouseEvent, type: string) => {
             // console.log("previewSection.value", event, type);
             previewSectionRef.value &&
-                previewSectionRef.value.openPaintTool(event, type);
+            previewSectionRef.value.openPaintTool(event, type);
         };
         const currentDrawColor = ref("#f60000");
         const currentLineWidth = ref(2);
@@ -245,11 +252,11 @@ $border-color: #f5f6fa;
             text-align: center;
             padding: 0 20px;
 
-            >p {
+            > p {
                 float: left;
             }
 
-            >div {
+            > div {
                 cursor: pointer;
             }
         }
