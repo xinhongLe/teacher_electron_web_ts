@@ -11,6 +11,7 @@ import "@/styles/index.scss";
 
 const app = createApp(App);
 
+// @ts-ignore
 app.use(WinCard, process.env.VUE_APP_AI_XUE_SHI_API, "https://wincard.lyx-edu.com/swf2canvas.html", cacheFile)
     .use(ElementPlus, { locale: zhCn })
     .use(Drag)
