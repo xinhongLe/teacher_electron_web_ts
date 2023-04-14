@@ -5,9 +5,11 @@ import { Slide } from "wincard";
 import { WINDOW_CRAD_API, originType, API_CENTER_USER_MANAGE } from "@/config/index";
 import { getWinCardDBData, WinCardData } from "@/utils/database";
 import { CardProps } from "@/views/preparation/intelligenceClassroom/api/props";
+
 type BookListResponse = IResponse<ITreeList[]>
+
 export interface IGetChapters {
-    id: string
+    id: string;
 }
 
 type ChaptersResponse = IResponse<ITreeList[]>
@@ -24,13 +26,14 @@ interface IGetPageData {
 }
 
 interface IGetChaptersVideo {
-    bookID: string
+    bookID: string;
 }
 
 interface IElementsVideo {
     chapterID: string,
     fileType: number
 }
+
 interface Remark {
     pageID: string,
     remark: string
@@ -39,26 +42,28 @@ interface Remark {
 type GetWindowCardsResponse = IResponse<ICardList[]>
 
 
-type GetWindowStructResponse = IResponse<{ WindowID: string, CardData: any}>
+type GetWindowStructResponse = IResponse<{ WindowID: string, CardData: any }>
 
 type GetPageResponse = IResponse<any>
 
 export interface IDelCardOrPage {
-    TeachPageRelationID: string
+    TeachPageRelationID: string;
 }
-export interface IAddCard{
+
+export interface IAddCard {
     WindowID: string,
     Sort: number,
     Name: string
 }
 
-export interface IAddPage{
+export interface IAddPage {
     CardID: string,
     Sort: number,
     Type: number,
     Name: string
 }
-export interface ICopyPage{
+
+export interface ICopyPage {
     CardID: string,
     OldCardID: string,
     PageID: string,
@@ -71,26 +76,26 @@ export interface IRenameCardOrPage {
 }
 
 interface IVideoQuoteInfo {
-    FileIDs: string[]
+    FileIDs: string[];
 }
 
-interface ICardSort{
+interface ICardSort {
     TeachPageRelationID: string,
     Sort: number,
     CardID?: string
 }
 
-export interface ICardSortRes{
-    Sort: ICardSort[]
+export interface ICardSortRes {
+    Sort: ICardSort[];
 }
 
-export interface IMovePage extends ICardSort{
-    CardID: string
+export interface IMovePage extends ICardSort {
+    CardID: string;
 }
 
-export interface ICardOrPageState{
-    ID:string,
-    State:number
+export interface ICardOrPageState {
+    ID: string,
+    State: number
 }
 
 interface IGetLessonPlan {
@@ -111,7 +116,7 @@ interface ILessonPlanProcess {
     Sort: number;
     AcademicPresupposition: string;
     DesignIntent: string;
-    Childrens: ILessonPlanProcess[]
+    Childrens: ILessonPlanProcess[];
 }
 
 interface ILessonPlanClassType {
@@ -162,7 +167,7 @@ interface ISaveLessonPlanProcess {
     Sort?: number;
     AcademicPresupposition?: string;
     DesignIntent?: string;
-    Childrens?: ISaveLessonPlanProcess[]
+    Childrens?: ISaveLessonPlanProcess[];
 }
 
 interface ISaveLessonPlanClassType {
@@ -191,14 +196,14 @@ export interface ISaveLessonPlan {
     TeachPageName: string;
     Sort: number;
     Status: number;
-    LessonPlanDetails: ISaveLessonPlanDetail[]
+    LessonPlanDetails: ISaveLessonPlanDetail[];
 }
 
 export interface IAddTemplateFieldRes {
     LessonPlanTemplateMainID: string,
     Name: string,
     SelectType: number,
-    Options?: {ID: string, Name: string, Sort: number}[]
+    Options?: { ID: string, Name: string, Sort: number }[]
 }
 
 export interface ISaveProcessAndDesignData {
@@ -208,8 +213,8 @@ export interface ISaveProcessAndDesignData {
 }
 
 export interface ILessonCommonData {
-    TeacherID:string,
-    FranchiseeID:string
+    TeacherID: string,
+    FranchiseeID: string
 }
 
 // 获取书本信息
@@ -268,6 +273,7 @@ export function getElementsVideo(data: IElementsVideo): Promise<GetPageResponse>
         data: Object.assign(data, { OriginType: originType })
     });
 }
+
 // 获取窗下的卡、页(树形结构)
 export function getWindowCards(data: IGetWindowCards): Promise<GetWindowCardsResponse> {
     return request({
@@ -295,7 +301,7 @@ export function getWindowStruct(data: IGetWindowCards): Promise<GetWindowStructR
 }
 
 // 获取页面的详情 (新)
-export async function getPageDetailRes(data:IGetPageData, type: number, callback: any, needLocal = true): Promise<GetPageResponse> {
+export async function getPageDetailRes(data: IGetPageData, type: number, callback: any, needLocal = true): Promise<GetPageResponse> {
     const urlList: string[] = [
         "/API/WCP/Window/GetPageElements", // 素材页
         "/Api/WCP/Listen/GetPageWords", // 听写页
@@ -340,7 +346,7 @@ export async function getPageDetailRes(data:IGetPageData, type: number, callback
 //     });
 // }
 // 保存/更新页面
-export function updatePageRes(data: Slide, type:number) : Promise<GetPageResponse> {
+export function updatePageRes(data: Slide, type: number): Promise<GetPageResponse> {
     const urlList = [
         "/Api/WCP/Window/SavePageElements",
         "/Api/WCP/Listen/PageSaveWord",
@@ -358,7 +364,7 @@ export function updatePageRes(data: Slide, type:number) : Promise<GetPageRespons
 }
 
 // 保存 更新备注
-export function UpdatePageRemark(data: Remark) : Promise<GetPageResponse> {
+export function UpdatePageRemark(data: Remark): Promise<GetPageResponse> {
     return request({
         url: "/Api/WCP/Window/UpdatePageRemark",
         headers: { DeviceID: "Franchisee" },
@@ -367,8 +373,9 @@ export function UpdatePageRemark(data: Remark) : Promise<GetPageResponse> {
         data: Object.assign(data, { OriginType: originType })
     });
 }
+
 // 删除卡或页
-export function deleteCardOrPage(data:IDelCardOrPage): Promise<GetPageResponse> {
+export function deleteCardOrPage(data: IDelCardOrPage): Promise<GetPageResponse> {
     return request({
         url: "/Api/WCP/Window/DelCardOrPage",
         headers: { DeviceID: "Franchisee" },
@@ -379,7 +386,7 @@ export function deleteCardOrPage(data:IDelCardOrPage): Promise<GetPageResponse> 
 }
 
 // 新增卡
-export function addCard(data: IAddCard) : Promise<GetPageResponse> {
+export function addCard(data: IAddCard): Promise<GetPageResponse> {
     return request({
         url: "/Api/WCP/Window/AddCard",
         headers: { DeviceID: "Franchisee" },
@@ -390,7 +397,7 @@ export function addCard(data: IAddCard) : Promise<GetPageResponse> {
 }
 
 // 新增页
-export function addPage(data: IAddPage) : Promise<GetPageResponse> {
+export function addPage(data: IAddPage): Promise<GetPageResponse> {
     return request({
         url: "/Api/WCP/Window/AddPage",
         headers: { DeviceID: "Franchisee" },
@@ -401,7 +408,7 @@ export function addPage(data: IAddPage) : Promise<GetPageResponse> {
 }
 
 // 复制页
-export function copyPage(data: ICopyPage) : Promise<GetPageResponse> {
+export function copyPage(data: ICopyPage): Promise<GetPageResponse> {
     return request({
         url: "/Api/WCP/Window/CopyPage",
         headers: { DeviceID: "Franchisee" },
@@ -412,7 +419,7 @@ export function copyPage(data: ICopyPage) : Promise<GetPageResponse> {
 }
 
 // 修改卡页名称
-export function renameCardOrPage(data : IRenameCardOrPage) : Promise<GetPageResponse> {
+export function renameCardOrPage(data: IRenameCardOrPage): Promise<GetPageResponse> {
     return request({
         url: "/Api/WCP/Window/EditCardOrPageName",
         headers: { DeviceID: "Franchisee" },
@@ -423,7 +430,7 @@ export function renameCardOrPage(data : IRenameCardOrPage) : Promise<GetPageResp
 }
 
 // 获取引用视频信息
-export function getVideoQuoteInfo(data : IVideoQuoteInfo) : Promise<GetPageResponse> {
+export function getVideoQuoteInfo(data: IVideoQuoteInfo): Promise<GetPageResponse> {
     return request({
         url: "Api/WCP/Window/GetVideoQuoteInfo",
         headers: { DeviceID: "Franchisee", noLoading: "true" },
@@ -434,7 +441,7 @@ export function getVideoQuoteInfo(data : IVideoQuoteInfo) : Promise<GetPageRespo
 }
 
 // 卡排序
-export function updateCardSort(data : ICardSortRes) : Promise<GetPageResponse> {
+export function updateCardSort(data: ICardSortRes): Promise<GetPageResponse> {
     return request({
         url: "Api/WCP/Window/UpdateCardSort",
         headers: { DeviceID: "Franchisee" },
@@ -445,7 +452,7 @@ export function updateCardSort(data : ICardSortRes) : Promise<GetPageResponse> {
 }
 
 // 移动页
-export function movePage(data : IMovePage) : Promise<GetPageResponse> {
+export function movePage(data: IMovePage): Promise<GetPageResponse> {
     return request({
         url: "/Api/WCP/Window/MovePage",
         headers: { DeviceID: "Franchisee" },
@@ -467,7 +474,7 @@ export function getCardDetail(data: { pageIDs: string[] }, noLoading = false): P
 }
 
 // 页上架/下架
-export function setCardOrPageState(data: ICardOrPageState) : Promise<GetPageResponse> {
+export function setCardOrPageState(data: ICardOrPageState): Promise<GetPageResponse> {
     return request({
         url: "/Api/WCP/Window/SetCardOrPageState",
         method: "post",
@@ -477,7 +484,7 @@ export function setCardOrPageState(data: ICardOrPageState) : Promise<GetPageResp
 }
 
 // 获取教案数据
-export function getLessonPlan(data: IGetLessonPlan) : Promise<GetPageResponse> {
+export function getLessonPlan(data: IGetLessonPlan): Promise<GetPageResponse> {
     return request({
         url: "/Api/WCP/LessonPlan/GetLessonPlanMain",
         headers: { DeviceID: "Franchisee" },
@@ -488,7 +495,7 @@ export function getLessonPlan(data: IGetLessonPlan) : Promise<GetPageResponse> {
 }
 
 // 保存教案数据
-export function saveLessonPlan(data: ISaveLessonPlan) : Promise<IResponse<unknown>> {
+export function saveLessonPlan(data: ISaveLessonPlan): Promise<IResponse<unknown>> {
     return request({
         url: "/Api/WCP/LessonPlan/SaveLessonPlanMain",
         headers: { DeviceID: "Franchisee" },
@@ -499,7 +506,7 @@ export function saveLessonPlan(data: ISaveLessonPlan) : Promise<IResponse<unknow
 }
 
 // 获取模板列表
-export function getLessonPlanTemplate(data: {FranchiseeID:string}) : Promise<GetPageResponse> {
+export function getLessonPlanTemplate(data: { FranchiseeID: string }): Promise<GetPageResponse> {
     return request({
         url: "/Api/WCP/LessonPlan/GetLessonPlanTemplate",
         headers: { DeviceID: "Franchisee" },
@@ -510,7 +517,7 @@ export function getLessonPlanTemplate(data: {FranchiseeID:string}) : Promise<Get
 }
 
 // 新增模板
-export function addLessonPlanTemplate(data: ILessonCommonData) : Promise<GetPageResponse> {
+export function addLessonPlanTemplate(data: ILessonCommonData): Promise<GetPageResponse> {
     return request({
         url: "/Api/WCP/LessonPlan/AddLessonPlanTemplate",
         headers: { DeviceID: "Franchisee" },
@@ -521,7 +528,7 @@ export function addLessonPlanTemplate(data: ILessonCommonData) : Promise<GetPage
 }
 
 // 更新模板
-export function updateLessonPlanTemplate(data:any) : Promise<GetPageResponse> {
+export function updateLessonPlanTemplate(data: any): Promise<GetPageResponse> {
     return request({
         url: "/Api/WCP/LessonPlan/UpdateLessonPlanTemplate",
         headers: { DeviceID: "Franchisee" },
@@ -532,7 +539,7 @@ export function updateLessonPlanTemplate(data:any) : Promise<GetPageResponse> {
 }
 
 // 删除模板
-export function delLessonPlanTemplate(data:{ ID: string, TeacherID:string }) : Promise<GetPageResponse> {
+export function delLessonPlanTemplate(data: { ID: string, TeacherID: string }): Promise<GetPageResponse> {
     return request({
         url: "/Api/WCP/LessonPlan/DeleteLessonPlanTemplate",
         headers: { DeviceID: "Franchisee" },
@@ -543,7 +550,7 @@ export function delLessonPlanTemplate(data:{ ID: string, TeacherID:string }) : P
 }
 
 // 切换模板
-export function changeLessonPlanTemplate(data:{ LessonPlanTemplateMainID: string, TeachPageID: string, TeacherID:string, FranchiseeID:string }) : Promise<GetPageResponse> {
+export function changeLessonPlanTemplate(data: { LessonPlanTemplateMainID: string, TeachPageID: string, TeacherID: string, FranchiseeID: string }): Promise<GetPageResponse> {
     return request({
         url: "/Api/WCP/LessonPlan/ChangeTeachPageTemplate",
         headers: { DeviceID: "Franchisee" },
@@ -554,7 +561,7 @@ export function changeLessonPlanTemplate(data:{ LessonPlanTemplateMainID: string
 }
 
 // 获取模板自定义字段列表
-export function getLessonPlanTemplateDetail(data:{ LessonPlanTemplateID: string }) : Promise<GetPageResponse> {
+export function getLessonPlanTemplateDetail(data: { LessonPlanTemplateID: string }): Promise<GetPageResponse> {
     return request({
         url: "/Api/WCP/LessonPlan/GetLessonPlanTemplateDetail",
         headers: { DeviceID: "Franchisee" },
@@ -565,7 +572,7 @@ export function getLessonPlanTemplateDetail(data:{ LessonPlanTemplateID: string 
 }
 
 // 新增字段
-export function addTemplateField(data:IAddTemplateFieldRes) : Promise<IResponse<GetPageResponse>> {
+export function addTemplateField(data: IAddTemplateFieldRes): Promise<IResponse<GetPageResponse>> {
     return request({
         url: "/Api/WCP/LessonPlan/AddLessonPlanTemplateField",
         headers: { DeviceID: "Franchisee" },
@@ -576,7 +583,7 @@ export function addTemplateField(data:IAddTemplateFieldRes) : Promise<IResponse<
 }
 
 // 编辑字段
-export function editTemplateField(data:any) : Promise<IResponse<unknown>> {
+export function editTemplateField(data: any): Promise<IResponse<unknown>> {
     return request({
         url: "/Api/WCP/LessonPlan/UpdateLessonPlanTemplateField",
         headers: { DeviceID: "Franchisee" },
@@ -587,7 +594,7 @@ export function editTemplateField(data:any) : Promise<IResponse<unknown>> {
 }
 
 // 删除字段
-export function delTemplateField(data:{ID: string}) : Promise<IResponse<unknown>> {
+export function delTemplateField(data: { ID: string }): Promise<IResponse<unknown>> {
     return request({
         url: "/Api/WCP/LessonPlan/DeleteLessonPlanTemplateField",
         headers: { DeviceID: "Franchisee" },
@@ -598,7 +605,7 @@ export function delTemplateField(data:{ID: string}) : Promise<IResponse<unknown>
 }
 
 // 保存教学过程设计意图
-export function saveLessonProcessAndDesign(data: ISaveProcessAndDesignData) : Promise<IResponse<unknown>> {
+export function saveLessonProcessAndDesign(data: ISaveProcessAndDesignData): Promise<IResponse<unknown>> {
     return request({
         baseURL: WINDOW_CRAD_API,
         url: "/Api/WCP/LessonPlan/SaveTeachPageDesignIntent",
@@ -618,14 +625,13 @@ interface IPlatformResponse {
 }
 
 // 根据组织id批量查询
-export function getPlatformByOrgId(data: IOrgId[]) : Promise<IResponse<IPlatformResponse[]>> {
+export function getPlatformByOrgId(data: IOrgId[]): Promise<IResponse<IPlatformResponse[]>> {
     return request({
         baseURL: API_CENTER_USER_MANAGE,
-        headers:{
+        headers: {
             noLoading: "true"
         },
         url: "/platform-org-relation/getByOrgIds",
-        headers: { noLoading: "true" },
         method: "post",
         data
     });
