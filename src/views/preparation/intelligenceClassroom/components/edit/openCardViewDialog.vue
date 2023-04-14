@@ -32,6 +32,7 @@ import { getWinCardDBData } from "@/utils/database";
 import { ElMessage } from "element-plus";
 import Tools from "../preview/tools.vue";
 import PageItem from "../pageItem.vue";
+import { dealAnimationData } from "@/utils/dataParse";
 
 export default defineComponent({
     name: "openCardViewDia",
@@ -105,7 +106,7 @@ export default defineComponent({
         const _getPageDetail = async (index: number) => {
             const dbResArr = await getWinCardDBData(cardList.value[index].ID);
             if (dbResArr.length > 0) {
-                slideView.value = JSON.parse(dbResArr[0].result);
+                slideView.value = dealAnimationData(JSON.parse(dbResArr[0].result));
                 if (!cardList.value[index].update) {
                     // 更新本地缓存弹卡信息
                     await getPageDetail(
@@ -116,7 +117,7 @@ export default defineComponent({
                                 // 线上返回
                                 cardList.value[index].update = true; // 标识弹卡已经更新过
                                 if (dbResArr[0].result !== JSON.stringify(res)) {
-                                    slideView.value = res; // 本地缓存和线上不一致 重新赋值
+                                    slideView.value = dealAnimationData(res); // 本地缓存和线上不一致 重新赋值
                                 }
                             }
                         }
@@ -124,7 +125,7 @@ export default defineComponent({
                 }
             } else {
                 await getPageDetail(cardList.value[index], 0, (res: any) => {
-                    slideView.value = res;
+                    slideView.value = dealAnimationData(res);
                 });
             }
         };
