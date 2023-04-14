@@ -9,7 +9,7 @@ import moment from "moment";
 
 const http = axios.create({
     baseURL: "/",
-    timeout: 150000,
+    timeout: 300000,
 });
 
 let errMessageInstance: MessageHandler | undefined;
