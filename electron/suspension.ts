@@ -482,7 +482,6 @@ class CustomCallBack implements CallBack {
     OnConnected(): void {
         isFirstTime = false;
         openTimes = (new Date().getTime() - lastOpenTime) / 1000;
-        ElectronLog.log("isShowSuspension", isShowSuspension);
         if (isShowSuspension) {
             showSuspension();
         }
@@ -727,7 +726,6 @@ export function registerEvent() {
 
     ipcMain.handle("openSuspension", () => {
         isShowSuspension = true;
-        console.log("open-isShowSuspension", isShowSuspension);
         if (socketHelper) {
             socketHelper.sendMessage(new Action("SMALLMENUSHOW", ""));
         } else {
@@ -737,7 +735,6 @@ export function registerEvent() {
 
     ipcMain.handle("closeSuspension", () => {
         isShowSuspension = false;
-        console.log("close-isShowSuspension", isShowSuspension);
         if (socketHelper) {
             socketHelper.sendMessage(new Action("SMALLMENUHIDE", ""));
         } else {
