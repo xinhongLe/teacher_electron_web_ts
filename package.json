@@ -71,7 +71,7 @@
         "vuedraggable": "^4.1.0",
         "vue-draggable-next": "^2.1.1",
         "vuex": "^4.0.2",
-        "wincard": "^5.0.6",
+        "wincard": "^5.0.9",
         "xlsx": "^0.17.5"
     },
     "devDependencies": {
