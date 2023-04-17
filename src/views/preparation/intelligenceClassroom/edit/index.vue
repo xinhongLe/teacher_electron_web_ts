@@ -95,8 +95,8 @@
                                         </div>
                                     </div>
 
-                                    <img v-if="selectPageIds.length > 0" class="select-icon"
-                                         :src="require(`@/assets/edit/icon_${selectPageIds.includes(page.ID) ? 'clicked' : 'unclick'}.png`)"
+                                    <img v-if="selectPageIds.includes(page.ID)" class="select-icon"
+                                         src="@/assets/edit/icon_clicked.png"
                                          alt=""/>
                                 </div>
                             </transition-group>
