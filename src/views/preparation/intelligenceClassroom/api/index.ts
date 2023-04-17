@@ -3,6 +3,7 @@ import { IResponse, RequestFun } from "@/types/response";
 import { ICopyWindowRes, ITreeList } from "@/types/intelligence";
 import { AI_XUE_SHI_API, WINDOW_CRAD_API, originType } from "@/config";
 import { SchoolWindowCardInfo } from "@/types/preparation";
+import { CardProps } from "@/views/preparation/intelligenceClassroom/preview/props";
 type BookListResponse = IResponse<ITreeList[]>
 
 export interface IGetChapters {
@@ -130,6 +131,18 @@ export function getWindowCards(data: IGetWindowCards): Promise<GetWindowCardsRes
     return request({
         baseURL: AI_XUE_SHI_API,
         url: "API/W4/Card/GetWindowCards",
+        headers: {
+            "Content-Type": "application/json-patch+json"
+        },
+        method: "post",
+        data
+    });
+}
+// 获取窗下的卡、页
+export function getWindowsElements(data: IGetWindowCards): Promise<IResponse<CardProps[]>> {
+    return request({
+        baseURL: AI_XUE_SHI_API,
+        url: "/Api/WCP/Window/GetWindowsElements",
         headers: {
             "Content-Type": "application/json-patch+json"
         },

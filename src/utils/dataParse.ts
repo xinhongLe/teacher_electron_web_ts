@@ -733,12 +733,12 @@ export const dealAnimationData = (slide: Slide) => {
         slide.animations = animations;
     }
 
-    slide.elements.forEach((element) => {
+    (slide.elements || []).forEach((element) => {
         element.actions = getAnimations(
             ((element.actions as unknown) || []) as PPTElementAction[]
         );
     });
-    slide.version = "";
+    slide.version = "2.0.0";
     return slide;
 };
 

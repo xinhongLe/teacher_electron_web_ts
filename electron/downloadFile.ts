@@ -17,7 +17,7 @@ export const isExistFile = (filePath: string): Promise<boolean> => {
     return new Promise((resolve) => {
         access(filePath)
             .then(() => {
-                ElectronLog.info("filePath", filePath);
+                // ElectronLog.info("filePath", filePath);
                 // resolve(true);
                 // const fileName = filePath.substring(filePath.lastIndexOf("\\") + 1, filePath.lastIndexOf("."));
                 const fileName = filePath.replaceAll("\\", "/").replace(/(.*\/)*([^.]+).*/gi, "$2");
@@ -75,39 +75,38 @@ export const downloadFileAxios = async (url: string, fileName: string) => {
     }
 
     try {
-        ElectronLog.info("start downloadFile fileName:", fileName);
-
+        // ElectronLog.info("start downloadFile fileName:", fileName);
         const response = await Axios({
             url,
             method: "GET",
-            responseType: "stream",
+            responseType: "stream"
         });
 
         const writer = createWriteStream(filePath);
 
-        ElectronLog.info(
-            "downloadFileAxios status: ",
-            response.status,
-            "fileName:",
-            fileName
-        );
+        // ElectronLog.info(
+        //     "downloadFileAxios status: ",
+        //     response.status,
+        //     "fileName:",
+        //     fileName
+        // );
         if (response.status === 200) {
             response.data.pipe(writer);
         } else {
             writer.destroy();
         }
-    
+
         const state = await new Promise((resolve) => {
             writer.on("finish", () => {
-                ElectronLog.info("finish fileName:", fileName);
+                // ElectronLog.info("finish fileName:", fileName);
                 resolve(true);
             });
             writer.on("error", (err) => {
-                ElectronLog.info("error fileName", fileName, err.message);
+                // ElectronLog.info("error fileName", fileName, err.message);
                 resolve(false);
             });
             writer.on("close", () => {
-                ElectronLog.info("close fileName", fileName);
+                // ElectronLog.info("close fileName", fileName);
                 resolve(false);
             });
         });
@@ -115,7 +114,7 @@ export const downloadFileAxios = async (url: string, fileName: string) => {
         downloadingFileList.splice(index, 1);
         dealCallback(fileName, state ? filePath : "");
     } catch {
-        ElectronLog.info("start downloadFile fileName error:", fileName);
+        // ElectronLog.info("start downloadFile fileName error:", fileName);
         dealCallback(fileName, "");
         const index = downloadingFileList.indexOf(fileName);
         if (index > -1) downloadingFileList.splice(index, 1);

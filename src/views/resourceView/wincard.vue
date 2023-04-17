@@ -1,8 +1,6 @@
 <template>
-    <div class="wincard-fixed">
-        <div class="wincard-box">
-            <IntelligenceClassroom :resourceId="wincardId" :resource="resource" :isSystem="isSystem"/>
-        </div>
+    <div class="win-card-fixed">
+        <intelligence-classroom :resourceId="winCardId" :resource="resource" :isSystem="isSystem"/>
     </div>
 </template>
 
@@ -19,24 +17,19 @@ const props = defineProps({
     }
 });
 const resource = computed(() => store.state.common.showResourceFullScreen[props.index].resource);
-const wincardId = computed(() => store.state.common.showResourceFullScreen[props.index].resource.id);
-const isSystem = computed(() => store.state.common.showResourceFullScreen[props.index].resource.isSystem);
+const winCardId = computed(() => resource.value.id);
+const isSystem = computed(() => resource.value.isSystem);
 </script>
 
 <style lang="scss" scoped>
-.wincard-fixed {
+.win-card-fixed {
     position: fixed;
     top: 0;
     bottom: 0;
     left: 0;
     right: 0;
     z-index: 10000;
-
-    .wincard-box {
-        height: 100%;
-        position: relative;
-        display: flex;
-        flex-direction: column;
-    }
+    display: flex;
+    flex-direction: column;
 }
 </style>

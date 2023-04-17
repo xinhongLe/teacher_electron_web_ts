@@ -2,9 +2,7 @@
     <div class="class-dialog">
         <el-dialog center width="710px" :model-value="classVisible" @close="close()">
             <template #title>
-                <div class="class-header">
-                    将本页发送至学生端
-                </div>
+                <div class="class-header">将本页发送至学生端</div>
             </template>
             <div class="is-class">
                 <el-form :model="form" label-width="120px" size="large">

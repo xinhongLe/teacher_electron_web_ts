@@ -1,12 +1,24 @@
-import { getPageDetailRes, updatePageRes, UpdatePageRemark, getVideoQuoteInfo, saveLessonProcessAndDesign, ISaveProcessAndDesignData } from "@/api/home";
+import {
+    getPageDetailRes,
+    getVideoQuoteInfo,
+    ISaveProcessAndDesignData,
+    saveLessonProcessAndDesign,
+    updatePageRes
+} from "@/api/home";
 import { dealOldData } from "@/utils/dataParse";
-import { dealOldDataVideo, dealOldDataWord, dealOldDataTeach, dealOldDataGame } from "@/utils/dataParsePage";
+import { dealOldDataGame, dealOldDataTeach, dealOldDataVideo, dealOldDataWord } from "@/utils/dataParsePage";
 import { IPageValue } from "@/types/home";
 import { Slide } from "wincard";
 import { ElMessage } from "element-plus";
-import { dealSaveDataWord, dealSaveDataVideo, dealSaveDataTeach, dealSaveDataGame, dealSaveDataElement } from "@/utils/savePageDataParse";
+import {
+    dealSaveDataElement,
+    dealSaveDataGame,
+    dealSaveDataTeach,
+    dealSaveDataVideo,
+    dealSaveDataWord
+} from "@/utils/savePageDataParse";
 import { getWinCardDBData, setWinCardDBData, updateWinCardDBData } from "@/utils/database";
-import { originType, pageType } from "@/config";
+import { pageType } from "@/config";
 import { cacheSildeFiles } from "@/utils/file";
 import { PageProps } from "@/views/preparation/intelligenceClassroom/api/props";
 
@@ -72,7 +84,10 @@ export default () => {
                     const slideString = res.result.Json || "{}";
                     const oldSlide = JSON.parse(slideString);
                     // 素材页如果是新数据直接赋值(更新id是为了避免复制卡过后id不统一问题)，旧数据dealOldData处理
-                    newSlide = oldSlide.type ? { ...await dealPauseVideo(oldSlide as Slide), id: page.ID } : await dealOldData(page.ID, page.originType, oldSlide);
+                    newSlide = oldSlide.type ? {
+                        ...await dealPauseVideo(oldSlide as Slide),
+                        id: page.ID
+                    } : await dealOldData(page.ID, page.originType, oldSlide);
                     cacheSildeFiles(newSlide);
                 } else if (page.Type === pageType.listen) {
                     newSlide = dealOldDataWord(page.ID, res.result);
@@ -83,7 +98,10 @@ export default () => {
                 } else if (page.Type === pageType.game) {
                     newSlide = dealOldDataGame(page.ID, res.result);
                 }
-                const pageSlide = Object.assign(newSlide, { remark: page.AcademicPresupposition || "", design: page.DesignIntent || "" });
+                const pageSlide = Object.assign(newSlide, {
+                    remark: page.AcademicPresupposition || "",
+                    design: page.DesignIntent || ""
+                });
                 saveDBdata(pageSlide);
                 return pageSlide;
             } else {
@@ -102,20 +120,30 @@ export default () => {
         if (page.Type === pageType.element) {
             const oldSlide = pageDetail || {};
             // 素材页如果是新数据直接赋值(更新id是为了避免复制卡过后id不统一问题)，旧数据dealOldData处理
-            newSlide = oldSlide.type ? { ...await dealPauseVideo(oldSlide as Slide), id: page.ID } : await dealOldData(page.ID, page.originType, oldSlide);
-            cacheSildeFiles(newSlide); // 素材页存缓存
-        } else if (page.Type === pageType.listen) {
+            if (oldSlide.type) {
+                newSlide = {
+                    ...await dealPauseVideo(oldSlide as Slide),
+                    id: page.ID
+                };
+            } else {
+                newSlide = await dealOldData(page.ID, page.originType, oldSlide);
+            }
+            // 素材页存缓存
+            cacheSildeFiles(newSlide);
+        }
+        if (page.Type === pageType.listen) {
             newSlide = dealOldDataWord(page.ID, pageDetail);
-        } else if (page.Type === pageType.follow) {
+        }
+        if (page.Type === pageType.follow) {
             newSlide = dealOldDataVideo(page.ID, pageDetail);
-        } else if (page.Type === pageType.teach) {
+        }
+        if (page.Type === pageType.teach) {
             newSlide = dealOldDataTeach(page.ID, pageDetail);
-        } else if (page.Type === pageType.game) {
+        }
+        if (page.Type === pageType.game) {
             newSlide = dealOldDataGame(page.ID, pageDetail);
         }
-        const pageSlide = Object.assign(newSlide, { remark: page.AcademicPresupposition || "", design: page.DesignIntent || "" });
-        saveDBdata(pageSlide);
-        return pageSlide;
+        return Object.assign(newSlide, { remark: page.AcademicPresupposition || "", design: page.DesignIntent || "" });
     };
 
     // 处理好的数据直接保存在本地数据库
@@ -142,19 +170,39 @@ export default () => {
         };
         if (slide.type === "element") {
             newSlide = dealSaveDataElement(slide);
-            updateProcessAndDesign = { ID: newSlide.PageID, AcademicPresupposition: JSON.parse(newSlide.Json).remark || "", DesignIntent: JSON.parse(newSlide.Json).design || "" };
+            updateProcessAndDesign = {
+                ID: newSlide.PageID,
+                AcademicPresupposition: JSON.parse(newSlide.Json).remark || "",
+                DesignIntent: JSON.parse(newSlide.Json).design || ""
+            };
         } else if (slide.type === "listen") {
             newSlide = dealSaveDataWord(slide);
-            updateProcessAndDesign = { ID: newSlide.PageID, AcademicPresupposition: slide.remark || "", DesignIntent: slide.design || "" };
+            updateProcessAndDesign = {
+                ID: newSlide.PageID,
+                AcademicPresupposition: slide.remark || "",
+                DesignIntent: slide.design || ""
+            };
         } else if (slide.type === "follow") {
             newSlide = dealSaveDataVideo(slide);
-            updateProcessAndDesign = { ID: newSlide.PageID, AcademicPresupposition: slide.remark || "", DesignIntent: slide.design || "" };
+            updateProcessAndDesign = {
+                ID: newSlide.PageID,
+                AcademicPresupposition: slide.remark || "",
+                DesignIntent: slide.design || ""
+            };
         } else if (slide.type === "teach") {
             newSlide = dealSaveDataTeach(slide);
-            updateProcessAndDesign = { ID: newSlide.teacherPageID, AcademicPresupposition: slide.remark || "", DesignIntent: slide.design || "" };
+            updateProcessAndDesign = {
+                ID: newSlide.teacherPageID,
+                AcademicPresupposition: slide.remark || "",
+                DesignIntent: slide.design || ""
+            };
         } else if (slide.type === "game") {
             newSlide = dealSaveDataGame(slide);
-            updateProcessAndDesign = { ID: newSlide.PageID, AcademicPresupposition: slide.remark || "", DesignIntent: slide.design || "" };
+            updateProcessAndDesign = {
+                ID: newSlide.PageID,
+                AcademicPresupposition: slide.remark || "",
+                DesignIntent: slide.design || ""
+            };
         }
         // 更新，修改建议
         // await UpdatePageRemark(updateRemark);

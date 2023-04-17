@@ -1,36 +1,6 @@
 <template>
     <div class="intelligence" :class="{ 'full-screen': isFullScreen }">
-        <div class="top">
-            <transition name="fade">
-                <div class="card-box-left" :class="{  hidden: isFullScreen && !isShowCardList}">
-                    <div class="card-box-lefts">
-                        <CardList ref="cardListComponents" @updateFlag="updateFlag"/>
-                    </div>
-                    <div class="fold-btn" v-show="isFullScreen" @click="isShowCardList = !isShowCardList">
-                        <i :class="isShowCardList ? 'el-icon-arrow-left'  : 'el-icon-arrow-right' "></i>
-                    </div>
-                </div>
-            </transition>
-            <div class="card-detail">
-                <div class="card-detail-content">
-                    <PreviewSection
-                        :dialog="dialog"
-                        :isSystem="isSystem"
-                        ref="previewSection"
-                        @lastPage="lastPage"
-                        @firstPage="firstPage"
-                        :resourceId="resourceId"
-                        :isFullScreen="isFullScreen"
-                        v-model:isCanUndo="isCanUndo"
-                        v-model:isCanRedo="isCanRedo"
-                        @changeWinSize="changeWinSize"
-                        :isShowCardList="isShowCardList"
-                        v-model:currentDrawColor="currentDrawColor"
-                        v-model:currentLineWidth="currentLineWidth"
-                    />
-                </div>
-            </div>
-        </div>
+        <win-preview ref="previewSection" :pages="pages" :cards="winCards" v-model:index="index"/>
         <Tools
             @redo="redo"
             @undo="undo"
@@ -55,26 +25,35 @@
             :isFullScreenStatus="isFullScreenStatus"
             @openClassDialog="openClassDialog"
         />
-        <!--        页发送至 学生端-->
-        <SelectClassDialog v-if="selectClassVisible" v-model:class-visible="selectClassVisible"
-                           :currentSlide="currentSlide" v-model:send-success="sharePageVisible"/>
-        <!--        正在分享该页-->
-        <ShareCurrentPage v-if="sharePageVisible" v-model:share-visible="sharePageVisible"></ShareCurrentPage>
+        <!--页发送至 学生端-->
+        <select-class-dialog
+            v-if="selectClassVisible"
+            :currentSlide="currentSlide"
+            v-model:send-success="sharePageVisible"
+            v-model:class-visible="selectClassVisible"
+        />
+        <!--正在分享该页-->
+        <share-current-page v-if="sharePageVisible" v-model:share-visible="sharePageVisible"/>
     </div>
 </template>
 
 <script lang="ts" setup>
-import emitter from "@/utils/mitt";
+import mqtt from "mqtt";
 import CardList from "./cardList/index.vue";
-import {IResourceItem} from "@/api/resource";
+import { IResourceItem } from "@/api/resource";
+import { YUN_API_ONECARD_MQTT } from "@/config";
 import Tools from "./components/preview/tools.vue";
-import useWindowInfo, {windowInfoKey} from "@/hooks/useWindowInfo";
+import useWindowInfo, { windowInfoKey } from "@/hooks/useWindowInfo";
 import PreviewSection from "./components/preview/previewSection.vue";
-import {onActivated, onDeactivated, onMounted, provide, ref, watchEffect, PropType, toRef, onUnmounted} from "vue";
 import SelectClassDialog from "@/views/preparation/intelligenceClassroom/components/preview/selectClassDialog.vue";
 import ShareCurrentPage from "@/views/preparation/intelligenceClassroom/components/preview/ShareCurrentPage.vue";
-import mqtt from "mqtt";
-import {YUN_API_ONECARD_MQTT} from "@/config";
+import { onActivated, onDeactivated, provide, ref, watchEffect, PropType, toRef, onUnmounted, computed } from "vue";
+import { getWindowsElements } from "@/views/preparation/intelligenceClassroom/api";
+import { CardProps, PageProps } from "@/views/preparation/intelligenceClassroom/preview/props";
+import { Slide } from "wincard";
+import useHome from "@/hooks/useHome";
+import { dealAnimationData } from "@/utils/dataParse";
+import WinPreview from "@/views/preparation/intelligenceClassroom/preview/index.vue";
 
 const props = defineProps({
     resourceId: {
@@ -102,16 +81,28 @@ const props = defineProps({
 const isFullScreen = ref(false);
 const isShowCardList = ref(true);
 const cardListComponents = ref<InstanceType<typeof CardList>>();
-
 const isCanUndo = ref(false);
 const isCanRedo = ref(false);
 const currentDrawColor = ref("#f60000");
 const currentLineWidth = ref(2);
 const resourceId = toRef(props, "resourceId");
-provide("isShowCardList", isShowCardList);
 const windowInfo = useWindowInfo(true);
+const winCards = ref<CardProps[]>([]);
+const index = ref(0);
+
+const pages = computed(() => {
+    let allPages: PageProps[] = [];
+    winCards.value.forEach(item => {
+        allPages = allPages.concat(...item.Pages);
+    });
+    return allPages;
+});
+
 provide(windowInfoKey, windowInfo);
-const {cardList, getCardList, currentSlide} = windowInfo;
+provide("isShowCardList", isShowCardList);
+
+const { cardList, getCardList, currentSlide } = windowInfo;
+const { transformPageDetail } = useHome();
 // 教具页分享-选择班级
 const selectClassVisible = ref(false);
 // 正在分享该页
@@ -119,19 +110,14 @@ const sharePageVisible = ref(false);
 watchEffect(() => {
     if (resourceId.value) {
         getCardList(resourceId.value, props.isSystem ? 0 : 1);
+        getWinCardData();
     }
 });
 const changeWinSize = () => {
-    cardList.value = [...cardList.value]; // 切换窗口大小，清除缓存的笔记列表
+    // 切换窗口大小，清除缓存的笔记列表
+    cardList.value = [...cardList.value];
 };
 
-const preparationReLoad = () => {
-    // refreshWindow(selectLessonId.value);
-};
-
-onMounted(() => {
-    emitter.on("preparationReLoad", preparationReLoad);
-});
 const lastPage = () => {
     cardListComponents.value && cardListComponents.value.changeReducePage();
 };
@@ -194,6 +180,34 @@ const hideWriteBoard = () => {
     previewSection.value && previewSection.value.hideWriteBoard();
 };
 
+function getWinCardData() {
+    getWindowsElements({
+        WindowID: resourceId.value,
+        OriginType: props.isSystem ? 0 : 1
+    }).then(async res => {
+        if (res.resultCode !== 200) return;
+
+        const cardList = res.result;
+
+        let index = 1;
+        for (let i = 0; i < cardList.length; i++) {
+            const item = cardList[i];
+            item.Fold = true;
+
+            for (let j = 0; j < item.Pages.length; j++) {
+                const page = item.Pages[j];
+                const json = JSON.parse(page.Json || "{}");
+                const slide: Slide = await transformPageDetail({ ID: page.PageID, Type: page.PageType }, json);
+
+                page.Json = dealAnimationData(slide);
+                page.Index = index;
+                index++;
+            }
+        }
+        winCards.value = cardList;
+    });
+}
+
 onActivated(() => {
     document.onkeydown = (event) => {
         event.preventDefault();
@@ -202,10 +216,10 @@ onActivated(() => {
 onDeactivated(() => {
     document.onkeydown = null;
 });
-//打开选择班级弹框
+// 打开选择班级弹框
 const openClassDialog = () => {
     selectClassVisible.value = true;
-}
+};
 const client = mqtt.connect(YUN_API_ONECARD_MQTT || "", {
     port: 1883,
     username: "u001",
@@ -216,12 +230,9 @@ client && client.on("connect", function (err) {
     window.electron.log.info("client connect sharestudent", err);
 });
 client && client.on("message", function (topic: any, message: any) {
-    // message is Buffer
     const infoString = JSON.parse(message.toString());
-    console.log("infoString", infoString);
 });
 onUnmounted(() => {
-    emitter.off("preparationReLoad", preparationReLoad);
     client.end();
 });
 </script>
