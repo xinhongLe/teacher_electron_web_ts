@@ -16,6 +16,8 @@ export const YUN_API_ONECARD_MQTT = process.env.VUE_APP_YUN_API_ONECARD_MQTT;
 export const RESOURCE_API = process.env.VUE_APP_RESOURCE_API;
 export const RESOURCE_WEB = process.env.VUE_APP_RESOURCE_WEB;
 
+export const PBL_WEB = process.env.VUE_APP_PBL_WEB;
+
 export const TRACK_API = process.env.VUE_APP_TRACK;
 
 //素材中心api
@@ -60,11 +62,11 @@ export const ALL_SUBJECT_LIST = [
     }
 ];
 export const pageTypeList = [
-    { name: "素材页", value: 11, type: "element", note: "" },
-    { name: "听写页", value: 12, type: "listen", note: "编辑要听写的词汇，系统自动播报；支持设置播报次数与播报速度等" },
-    { name: "跟读页", value: 13, type: "follow", note: "选择跟读素材，轻松实现课堂标准跟读；支持设置播报模式" },
-    { name: "教具页", value: 16, type: "teach", note: "选择课程相关的学科教具插入页面，快速进行模拟实验" },
-    { name: "游戏页", value: 20, type: "game", note: "选择喜欢的游戏插入页面，可在课堂进行有趣的师生互动" }
+    {name: "素材页", value: 11, type: "element", note: ""},
+    {name: "听写页", value: 12, type: "listen", note: "编辑要听写的词汇，系统自动播报；支持设置播报次数与播报速度等"},
+    {name: "跟读页", value: 13, type: "follow", note: "选择跟读素材，轻松实现课堂标准跟读；支持设置播报模式"},
+    {name: "教具页", value: 16, type: "teach", note: "选择课程相关的学科教具插入页面，快速进行模拟实验"},
+    {name: "游戏页", value: 20, type: "game", note: "选择喜欢的游戏插入页面，可在课堂进行有趣的师生互动"}
 ];
 
 export enum pageType {

@@ -15,7 +15,7 @@
                             <div class="composition" @click="go('composition'), clicKBuryPoint('AI作文批改')">
                                 <span>AI作文批改</span>
                             </div>
-                            <div class="pbl" @click="go('pbl'), clicKBuryPoint('PBL项目式学习')">
+                            <div class="pbl" @click="go('pblstudy'), clicKBuryPoint('PBL项目式学习')">
                                 <span>PBL项目式学习</span>
                             </div>
                         </div>
@@ -142,7 +142,6 @@
                         <span>报表中心</span>
                     </div>
                 </div>
-                <!-- 2022-7-25 annan -->
                 <div
                     class="item"
                     @click="go('resource-center/' + platformId), clicKBuryPoint('资源中心')"

@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
+import {createRouter, createWebHistory, RouteRecordRaw} from "vue-router";
 
 const routes: Array<RouteRecordRaw> = [
     {
@@ -69,7 +69,7 @@ const routes: Array<RouteRecordRaw> = [
                 component: () =>
                     import(
                         "@/views/preparation/intelligenceClassroom/edit/index.vue"
-                    ),
+                        ),
                 meta: {
                     keepAlive: true,
                 },
@@ -148,7 +148,13 @@ const routes: Array<RouteRecordRaw> = [
                 path: "composition",
                 name: "AI作文批改",
                 component: () => import("@/views/composition/index.vue"),
-            }
+            },
+            {
+                path: "pblstudy",
+                name: "PBL项目式学习",
+                component: () => import("@/views/pblStudy/index.vue"),
+            },
+
         ],
     },
 ];
