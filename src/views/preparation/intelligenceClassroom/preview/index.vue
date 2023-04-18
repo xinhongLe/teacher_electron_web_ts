@@ -1,5 +1,10 @@
 <template>
     <div class="win-preview">
+        <div class="shrink" @click="handleIsHideL" :style="{left:lVisit ? '280px':0}">
+            <el-icon :style="{ transform:'rotate(' + (lVisit ? 0 : 180) + 'deg)'}">
+                <ArrowLeft/>
+            </el-icon>
+        </div>
         <div class="left" v-if="lVisit">
             <div class="folder" v-for="folder in cards" :key="folder.CardID">
                 <div class="title" @click="folder.Fold = !folder.Fold">
@@ -7,7 +12,7 @@
                     <img class="file-icon" src="@/assets/edit/icon_file.png" alt=""/>
                     <span>{{ folder.CardName }}</span>
                 </div>
-                <div class="pages">
+                <div class="pages" v-if="folder.Fold">
                     <div class="page" v-for="page in folder.Pages" :key="page.PageID" @click="handlePage(page.Index)">
                         <div class="page-left">{{ page.Index }}</div>
                         <div class="page-right" :class="{active: page.Index === index+1}">
@@ -32,13 +37,16 @@
         <div class="center" :style="{width:centerW}">
             <screen-view
                 ref="screenRef"
-                :slide="currentSlide"
                 :inline="true"
                 @pagePrev="pagePrev"
                 @pageNext="pageNext"
+                :slide="currentSlide"
+                :is-show-pen-tools="false"
             />
         </div>
-        <div class="right" v-if="rVisit"></div>
+        <div class="right" v-if="rVisit">
+
+        </div>
     </div>
 </template>
 
@@ -62,13 +70,18 @@ export default defineComponent({
         index: {
             type: Number,
             default: 0
+        },
+        lVisit: {
+            type: Boolean,
+            default: true
+        },
+        rVisit: {
+            type: Boolean,
+            default: false
         }
     },
-    emits: ["update:index"],
+    emits: ["update:index", "update:l-visit"],
     setup(props, { emit }) {
-        const lVisit = ref(true);
-        const rVisit = ref(false);
-
         const currentSlide = computed(() => {
             const page = props.pages[props.index];
             return page ? page.Json : {};
@@ -76,10 +89,10 @@ export default defineComponent({
 
         const centerW = computed(() => {
             let w = 0;
-            if (lVisit.value) {
+            if (props.lVisit) {
                 w += 280;
             }
-            if (rVisit.value) {
+            if (props.rVisit) {
                 w += 279;
             }
 
@@ -116,9 +129,26 @@ export default defineComponent({
             emit("update:index", index);
         };
 
+        const previewHandle = (data: { type: 1 | 2 | 3, e?: MouseEvent, option?: string, value?: number }) => {
+            // 工具栏-形状
+            if (data.type === 1) {
+                screenRef.value.openShape(data.e);
+            }
+            // 工具栏-画笔
+            if (data.type === 2) {
+                screenRef.value.openPaintTool(data.e, data.option);
+            }
+            // 工具栏 画笔配置
+            if (data.type === 3) {
+                screenRef.value.whiteboardOption(data.option, data.value);
+            }
+        };
+
+        const handleIsHideL = () => {
+            emit("update:l-visit", !props.lVisit);
+        };
+
         return {
-            lVisit,
-            rVisit,
             centerW,
             prevStep,
             nextStep,
@@ -127,7 +157,9 @@ export default defineComponent({
             pageType,
             screenRef,
             handlePage,
-            currentSlide
+            currentSlide,
+            handleIsHideL,
+            previewHandle
         };
     }
 });
@@ -138,10 +170,28 @@ export default defineComponent({
     width: 100%;
     height: 100%;
     display: flex;
+    position: relative;
 
     & > div {
         height: 100%;
         background: #FFFFFF;
+    }
+
+    .shrink {
+        position: absolute;
+        width: 12px;
+        height: 64px;
+        border-radius: 6px;
+        top: 50%;
+        margin-top: -32px;
+        z-index: 99;
+        cursor: pointer;
+        overflow: hidden;
+        background: #414E65;
+        color: #FFFFFF;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .left {
@@ -194,7 +244,7 @@ export default defineComponent({
 }
 
 .pages {
-    transition: 0.5s;
+    transition: all 0.5s;
 
     & .page:last-child {
         margin-bottom: 0;
@@ -252,5 +302,17 @@ export default defineComponent({
 
 ::v-deep(.slide-list) {
     background-color: #F6F7F8;
+}
+
+.collapse-enter-from, .collapse-leave-from {
+    width: 280px;
+}
+
+.collapse-enter-active, .collapse-leave-active {
+    transition: width 10s;
+}
+
+.collapse-enter-to, .collapse-leave-to {
+    width: 0;
 }
 </style>

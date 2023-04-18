@@ -919,6 +919,7 @@ export default defineComponent({
         height: 100%;
         position: relative;
         transition: all 0.5s;
+        padding-bottom: 20px;
 
         &.collapse {
             width: 0;
