@@ -5,11 +5,12 @@ import Axios from "Axios";
 import { createWriteStream, createReadStream } from "fs";
 import ElectronLog from "electron-log";
 import Store from "electron-store";
+
 const crypto = require("crypto");
 type func = (value: unknown) => void;
 
 export const store = new Store({
-    watch: true,
+    watch: true
 });
 const downloadingFileList: string[] = []; // 下载中的文件列表
 const downloadSuccessCallbackMap = new Map<string, func[]>();
@@ -130,7 +131,7 @@ export const downloadFileToPath = async (
     const response = await Axios({
         url,
         method: "GET",
-        responseType: "stream",
+        responseType: "stream"
     });
     if (response.status === 200) {
         response.data.pipe(writer);
@@ -176,7 +177,7 @@ export default () => {
                 const callbackList = downloadSuccessCallbackMap.get(fileName) || [];
                 downloadSuccessCallbackMap.set(fileName, [
                     ...callbackList,
-                    resolve,
+                    resolve
                 ]);
             } else {
                 downloadSuccessCallbackMap.set(fileName, [resolve]);

@@ -116,7 +116,6 @@ interface IRequest<T> {
     url: string;
     method: Method;
     headers?: AxiosRequestHeaders;
-    responseType?: any;
     data?: T;
 }
 

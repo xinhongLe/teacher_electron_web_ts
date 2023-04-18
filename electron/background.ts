@@ -10,7 +10,7 @@ import {
     unfoldSuspensionWinSendMessage
 } from "./suspension";
 import autoUpdater from "./autoUpdater";
-import { registerWinCardEvent } from "./wincard";
+import { createWinCardWindow, registerWinCardEvent } from "./wincard";
 import { registerVirtualKeyBoard, closeKeyBoard, setInput } from "./virtualKeyBoard";
 import SingalRHelper from "./singalr";
 import ElectronLog from "electron-log";
@@ -20,6 +20,7 @@ import path from "path";
 import downloadFile from "./downloadFile";
 
 const isDevelopment = process.env.NODE_ENV !== "production";
+const editWinList = new Map<number, any>();
 
 initialize();
 
@@ -199,14 +200,14 @@ async function createWindow() {
         if (to === "main") mainWindow!.webContents.send("attendClass", data);
     });
 
-    //悬浮球点击消息通知事件
+    // 悬浮球点击消息通知事件
     ipcMain.on("suspensionClick", () => {
         // mainWindow!.show();
         // mainWindow!.maximize();
         mainWindow!.webContents.send("suspensionClick");
     });
 
-    //悬浮球点击事件
+    // 悬浮球点击事件
     ipcMain.handle("suspensionClick", () => {
         // mainWindow!.show();
         // mainWindow!.maximize();
@@ -222,9 +223,20 @@ async function createWindow() {
     ipcMain.handle("setInput", (event, data) => {
         setInput(data);
     });
-    // ipcMain.handle("openWinCardWin", () => {
-    //     openWinCardWin();
-    // });
+    ipcMain.on("closeWinCard", (event, data) => {
+        editWinList.delete(data);
+    });
+
+    ipcMain.handle("openWinCardWin", (_, data) => {
+        const editWin = createWinCardWindow(data);
+        editWinList.set(editWin.webContents.id, editWin);
+    });
+
+    ipcMain.on("replicated", () => {
+        for (const editWin of editWinList.values()) {
+            editWin.webContents.send("copy-end");
+        }
+    });
 }
 
 app.on("window-all-closed", () => {

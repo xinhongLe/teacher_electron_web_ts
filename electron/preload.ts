@@ -6,7 +6,7 @@ import ElectronLog from "electron-log";
 import fs from "fs";
 import { parsePPT, pptParsePath } from "./parsePPT";
 import { execFile as execFileFromAsar, spawn } from "child_process";
-import { darwinGetScreenPermissionGranted, darwinRequestScreenPermissionPopup, } from "./darwin";
+import { darwinGetScreenPermissionGranted, darwinRequestScreenPermissionPopup } from "./darwin";
 import { checkWindowSupportNet } from "./util";
 import { access, copyFile, mkdir, readFile, rm, stat, writeFile } from "fs/promises";
 import crypto from "crypto";
@@ -115,7 +115,7 @@ window.electron = {
         const filePath = resolve(downloadsPath, fileName);
         return new Promise(resolve => {
             access(filePath).then(() => resolve(true)).catch(() => resolve(false));
-        })
+        });
     },
     getFilePath: (fileName: string) => {
         const filePath = resolve(downloadsPath, fileName);
@@ -280,7 +280,7 @@ window.electron = {
         try {
             await customUnZipFolder(zipFileName, newpath);
             let jsonFile = await readFile(newpath + `/${jsonFileName}`, {
-                encoding: "utf-8",
+                encoding: "utf-8"
             });
             jsonFile = aesDecrypt(jsonFile, "lyxpkg");
             return JSON.parse(jsonFile);
@@ -297,7 +297,7 @@ window.electron = {
             cards,
             pages,
             slides,
-            cacheFiles,
+            cacheFiles
         } = cacheData;
         const filePath = resolve(app.getPath("userData"), "files", windowName);
         const guid = () => {
@@ -346,7 +346,7 @@ window.electron = {
                         userId,
                         cards,
                         pages,
-                        slides,
+                        slides
                     }),
                     "lyxpkg"
                 )
@@ -445,7 +445,7 @@ window.electron = {
                             } else {
                                 ElectronLog.error("压缩失败: ", err);
                             }
-                        })
+                        });
 
                         // zip.writeZip(outputPath + `/${name}.zip`);
 
@@ -475,5 +475,5 @@ window.electron = {
     },
     store: store,
     parsePPT,
-    ...electron,
+    ...electron
 };
