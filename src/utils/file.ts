@@ -12,9 +12,18 @@ const getFilePath = (key: string, resolve: (path: string) => void) => {
         if (isExist) {
             resolve(encodeURI(window.electron.getFilePath(fileName)));
         } else {
-            getOssUrl(key, "axsfile").then(filePath => {
-                window.electron.ipcRenderer.invoke("downloadFile", filePath, fileName).then(path => resolve(encodeURI(path ? "file://" + path : "")));
-            });
+            if (window.localWincard) {
+                // 本地加载
+                resolve(encodeURI(""));
+            } else {
+                getOssUrl(key, "axsfile").then(filePath => {
+                    window.electron.ipcRenderer.invoke("downloadFile", filePath, fileName).then(path => {
+                        resolve(encodeURI(path ? "file://" + path : ""))
+                    }).catch(() => {
+                        resolve(encodeURI(""));
+                    });
+                });
+            }
         }
     });
 };
@@ -36,19 +45,26 @@ export const cacheFile = (key: string) => {
                         if (isExist) {
                             resolve(encodeURI(window.electron.getFilePath(dirName + "/video.m3u8")));
                         } else {
-                            getOssUrl(key.replace(".mp4", ".zip"), "axsfile").then(filePath => {
-                                window.electron.ipcRenderer.invoke("downloadFile", filePath, fileName).then(path => {
-                                    if (path) {
-                                        // 解压
-                                        window.electron.unZip(path);
-                                        resolve(encodeURI(window.electron.getFilePath(dirName + "/video.m3u8")));
-                                    } else {
-                                        // 没有zip
-                                        noZipCache.push(dirName);
+                            if (window.localWincard) {
+                                // 本地加载
+                                getFilePath(key, resolve);
+                            } else {
+                                getOssUrl(key.replace(".mp4", ".zip"), "axsfile").then(filePath => {
+                                    window.electron.ipcRenderer.invoke("downloadFile", filePath, fileName).then(path => {
+                                        if (path) {
+                                            // 解压
+                                            window.electron.unZip(path);
+                                            resolve(encodeURI(window.electron.getFilePath(dirName + "/video.m3u8")));
+                                        } else {
+                                            // 没有zip
+                                            noZipCache.push(dirName);
+                                            getFilePath(key, resolve);
+                                        }
+                                    }).catch(() => {
                                         getFilePath(key, resolve);
-                                    }
+                                    });;
                                 });
-                            });
+                            }                            
                         }
                     });
                 }

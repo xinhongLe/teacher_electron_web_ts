@@ -59,6 +59,7 @@ declare global {
     interface Window {
         electron: Electron;
         fabric: any;
+        localWincard: boolean;
     }
 }
 
