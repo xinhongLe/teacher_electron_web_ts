@@ -3,85 +3,113 @@
         <div class="main">
             <div class="top">
                 <div class="left" ref="leftBlock">
-                    <div v-if="!layoutAdjust" class="left-one" @click="go('preparation'), clicKBuryPoint('备课')">
+                    <div class="left-one" @click="go('preparation'), clicKBuryPoint('备课')"
+                         :style="!layoutAdjust ? 'flex:1' : ''">
                         <span>备课</span>
                     </div>
-                    <div v-if="!layoutAdjust" class="left-two">
+                    <div class="left-two" :style="!layoutAdjust ? 'flex:1' : ''">
                         <div class="work" @click="go('homework'), clicKBuryPoint('作业')">
                             <span>作业</span>
                         </div>
-                        <div class="composition" @click="go('composition'), clicKBuryPoint('AI作文批改')">
-                            <span>AI作文批改</span>
-                        </div>
-                    </div>
-                    <div class="left-row" v-if="layoutAdjust">
-                        <div class="left-one" @click="go('preparation'), clicKBuryPoint('备课')">
-                            <span>备课</span>
-                        </div>
-                        <div class="left-two">
-                            <div class="work" @click="go('homework'), clicKBuryPoint('作业')">
-                                <span>作业</span>
-                            </div>
+                        <div class="composition-pbl">
                             <div class="composition" @click="go('composition'), clicKBuryPoint('AI作文批改')">
                                 <span>AI作文批改</span>
                             </div>
-                        </div>
-                        <div class="left-three" @click="
-                            go('report-center'), clicKBuryPoint('报表中心')
-                        ">
-                            <span>报表中心</span>
-                        </div>
-                        <div
-                            class="left-four"
-                            @click="
-                                go('resource-center/' + platformId),
-                                    clicKBuryPoint('资源中心')
-                            "
-                        >
-                            <span>资源中心</span>
+                            <div class="pbl" @click="go('pbl'), clicKBuryPoint('PBL项目式学习')">
+                                <span>PBL项目式学习</span>
+                            </div>
                         </div>
                     </div>
-                    <div class="bottom" v-if="layoutAdjust">
-                        <div class="item" @click="
+                    <!--                    <div class="left-row" v-if="layoutAdjust">-->
+                    <!--                        <div class="left-one" @click="go('preparation'), clicKBuryPoint('备课')">-->
+                    <!--                            <span>备课</span>-->
+                    <!--                        </div>-->
+                    <!--                        <div class="left-two">-->
+                    <!--                            <div class="work" @click="go('homework'), clicKBuryPoint('作业')">-->
+                    <!--                                <span>作业</span>-->
+                    <!--                            </div>-->
+                    <!--                            <div class="composition" @click="go('composition'), clicKBuryPoint('AI作文批改')">-->
+                    <!--                                <span>AI作文批改</span>-->
+                    <!--                            </div>-->
+                    <!--                        </div>-->
+                    <!--                        <div class="left-three" @click="-->
+                    <!--                            go('report-center'), clicKBuryPoint('报表中心')-->
+                    <!--                        ">-->
+                    <!--                            <span>报表中心</span>-->
+                    <!--                        </div>-->
+                    <!--                        <div-->
+                    <!--                            class="left-four"-->
+                    <!--                            @click="-->
+                    <!--                                go('resource-center/' + platformId),-->
+                    <!--                                    clicKBuryPoint('资源中心')-->
+                    <!--                            "-->
+                    <!--                        >-->
+                    <!--                            <span>资源中心</span>-->
+                    <!--                        </div>-->
+                    <!--                    </div>-->
+                    <div class="bottom-left" v-if="layoutAdjust">
+                        <div class="bottom-item">
+                            <div class="item" @click="
+                            go('report-center'), clicKBuryPoint('报表中心')
+                        ">
+                                <div class="item_div">
+                                    <img src="../../assets/indexImages/pic_baobiao_new.png" alt=""/>
+                                    <span>报表中心</span>
+                                </div>
+                            </div>
+                            <div class="item" @click="
+                            go('resource-center/' + platformId), clicKBuryPoint('资源中心')
+                        ">
+                                <div class="item_div">
+                                    <img src="../../assets/indexImages/pic_zyzx.png" alt=""/>
+                                    <span>资源中心</span>
+                                </div>
+                            </div>
+                            <div class="item" @click="
                             go('assessment-center'),
                             clicKBuryPoint('评测中心')
                         ">
-                            <div class="item_div">
-                                <img src="../../assets/indexImages/pic_kaoshi_new.png" alt="" />
-                                <span>测评中心</span>
+                                <div class="item_div">
+                                    <img src="../../assets/indexImages/pic_kaoshi_new.png" alt=""/>
+                                    <span>测评中心</span>
+                                </div>
                             </div>
                         </div>
-                        <div class="item" @click="
+                        <div class="bottom-item">
+                            <div class="item" @click="
                             go('wrongbook'), clicKBuryPoint('班级错题本')
                         ">
-                            <div class="item_div">
-                                <img src="../../assets/indexImages/card_cuotiben.png" alt="" />
-                                <span>班级错题本</span>
+                                <div class="item_div">
+                                    <img src="../../assets/indexImages/card_cuotiben.png" alt=""/>
+                                    <span>班级错题本</span>
+                                </div>
                             </div>
-                        </div>
-                        <div class="item" @click="
+                            <div class="item" @click="
                             go('class-manage'), clicKBuryPoint('班级管理')
                         ">
-                            <div class="item_div">
-                                <img src="../../assets/indexImages/icon_xuesheng.png" alt="" />
-                                <span>班级管理</span>
+                                <div class="item_div">
+                                    <img src="../../assets/indexImages/icon_xuesheng.png" alt=""/>
+                                    <span>班级管理</span>
+                                </div>
+                            </div>
+                            <div class="item" @click="go('more-content'), clicKBuryPoint('更多')">
+                                <div class="item_div">
+                                    <img src="../../assets/indexImages/icon_more.png" alt=""/>
+                                    <span>更多</span>
+                                </div>
                             </div>
                         </div>
-                        <div class="item" @click="go('more-content'), clicKBuryPoint('更多')">
-                            <div class="item_div">
-                                <img src="../../assets/indexImages/icon_more.png" alt="" />
-                                <span>更多</span>
-                            </div>
-                        </div>
+
+
                     </div>
                 </div>
-                <div class="right" ref="classSchedule">
-                    <Calendar ref="calendar" :days="days" :isShowDetailBtn="true">
+                <div class="right" ref="classSchedule" style="flex: 1;">
+                    <Calendar ref="calendar" :days="days" :isShowDetailBtn="true" @reLoadLayout="reLayout">
                         <template v-slot:default="slotProps">
                             <header class="header">
                                 <div @click="weekPre(), clicKBuryPoint('上周')" class="week flex-align-items">
                                     <el-icon :size="16">
-                                        <ArrowLeft />
+                                        <ArrowLeft/>
                                     </el-icon>
                                     上周
                                 </div>
@@ -89,7 +117,7 @@
                                 <div class="header-right">
                                     <div class="refresh flex-align-items" @click="slotProps.initSchedules">
                                         <el-icon :size="16" :style="{ marginRight: '4px' }">
-                                            <RefreshRight />
+                                            <RefreshRight/>
                                         </el-icon>
                                         刷新课表
                                     </div>
@@ -98,7 +126,7 @@
                                     " class="week flex-align-items">
                                         下周
                                         <el-icon :size="16">
-                                            <ArrowRight />
+                                            <ArrowRight/>
                                         </el-icon>
                                     </div>
                                 </div>
@@ -107,10 +135,10 @@
                     </Calendar>
                 </div>
             </div>
-            <div class="bottom" v-if="!layoutAdjust">
+            <div class="bottom-bto" v-if="!layoutAdjust">
                 <div class="item" @click="go('report-center'), clicKBuryPoint('报表中心')">
                     <div class="item_div">
-                        <img src="../../assets/indexImages/pic_baobiao_new.png" alt="" />
+                        <img src="../../assets/indexImages/pic_baobiao_new.png" alt=""/>
                         <span>报表中心</span>
                     </div>
                 </div>
@@ -120,83 +148,53 @@
                     @click="go('resource-center/' + platformId), clicKBuryPoint('资源中心')"
                 >
                     <div class="item_div">
-                        <img src="../../assets/indexImages/pic_zyzx.png" alt="" />
+                        <img src="../../assets/indexImages/pic_zyzx.png" alt=""/>
                         <span>资源中心</span>
                     </div>
                 </div>
                 <div class="item" @click="go('assessment-center'), clicKBuryPoint('评测中心')">
                     <div class="item_div">
-                        <img src="../../assets/indexImages/pic_kaoshi_new.png" alt="" />
+                        <img src="../../assets/indexImages/pic_kaoshi_new.png" alt=""/>
                         <span>测评中心</span>
                     </div>
                 </div>
                 <div class="item" @click="go('wrongbook'), clicKBuryPoint('班级错题本')">
                     <div class="item_div">
-                        <img src="../../assets/indexImages/card_cuotiben.png" alt="" />
+                        <img src="../../assets/indexImages/card_cuotiben.png" alt=""/>
                         <span>班级错题本</span>
                     </div>
                 </div>
                 <div class="item" @click="go('class-manage'), clicKBuryPoint('班级管理')">
                     <div class="item_div">
-                        <img src="../../assets/indexImages/icon_xuesheng.png" alt="" />
+                        <img src="../../assets/indexImages/icon_xuesheng.png" alt=""/>
                         <span>班级管理</span>
                     </div>
                 </div>
                 <div class="item" @click="go('more-content'), clicKBuryPoint('更多')">
                     <div class="item_div">
-                        <img src="../../assets/indexImages/icon_more.png" alt="" />
+                        <img src="../../assets/indexImages/icon_more.png" alt=""/>
                         <span>更多</span>
                     </div>
                 </div>
-                <!-- <div
-                    class="item"
-                    @click="go('course-time'), clicKBuryPoint('课后延时')"
-                >
-                    <div class="item_div">
-                        <img
-                            src="../../assets/indexImages/icon_kehou_new.png"
-                            alt=""
-                        />
-                        <span>课后延时</span>
-                    </div>
-                </div> -->
-                <!-- <div class="item" @click="go('preparation-group')">
-                    <div class="item_div">
-                        <img
-                            src="../../assets/indexImages/pic_jitibeike.png"
-                            alt=""
-                        />
-                        <span>集体备课</span>
-                    </div>
-                </div> -->
-                <!-- <div class="item" @click="go(''), clicKBuryPoint('直播课堂')">
-                    <div class="item_div">
-                        <img
-                            src="../../assets/indexImages/icon_zhibo_new.png"
-                            alt=""
-                        />
-                        <span>直播课堂</span>
-                    </div>
-                </div>-->
             </div>
         </div>
     </div>
     <el-dialog v-model="moreVisible" width="30%" center :show-close="false" :close-on-click-modal="false"
-        class="home-cus-dialog" top="37vh">
+               class="home-cus-dialog" top="37vh">
         <div class="middle-con">
             <!-- <div class="con-card">
                 <img src="../../assets/indexImages/pci_jtbk.png" alt="" />
                 <p>集体备课</p>
             </div> -->
             <div class="con-card" @click="go(''), clicKBuryPoint('直播课堂')">
-                <img src="../../assets/indexImages/pic_zbkt.png" alt="" />
+                <img src="../../assets/indexImages/pic_zbkt.png" alt=""/>
                 <p>直播课堂</p>
             </div>
         </div>
         <template #footer>
             <span class="dialog-footer">
                 <div class="close-btn" @click="moreVisible = false">
-                    <img src="../../assets/indexImages/icon_close_white.png" alt="" />
+                    <img src="../../assets/indexImages/icon_close_white.png" alt=""/>
                     <span>关闭</span>
                 </div>
             </span>
@@ -206,18 +204,19 @@
 
 <script lang="ts">
 import useTime from "@/hooks/useTime";
-import { ElMessage } from "element-plus";
-import { defineComponent, onActivated, ref, onMounted, onUnmounted } from "vue";
-import { useRouter, useRoute } from "vue-router";
+import {ElMessage} from "element-plus";
+import {defineComponent, onActivated, ref, onMounted, onUnmounted} from "vue";
+import {useRouter, useRoute} from "vue-router";
 import Calendar from "../../components/calendar/index.vue";
 import usePageEvent from "@/hooks/usePageEvent";
 import isElectron from "is-electron";
-import { EVENT_TYPE } from "@/config/event";
-import { nextTick } from "process";
-import { debounce } from "lodash";
-import { get, STORAGE_TYPES, storeChange } from "@/utils/storage";
-import { getPlatformByOrgId } from "@/api/home";
-import { UserInfoState } from "@/types/store";
+import {EVENT_TYPE} from "@/config/event";
+import {nextTick} from "process";
+import {debounce} from "lodash";
+import {get, STORAGE_TYPES, storeChange} from "@/utils/storage";
+import {getPlatformByOrgId} from "@/api/home";
+import {UserInfoState} from "@/types/store";
+import useMaximizeWindow from "@/hooks/useMaximizeWindow";
 
 export default defineComponent({
     name: "Home",
@@ -225,10 +224,10 @@ export default defineComponent({
         Calendar,
     },
     setup() {
-        const { createBuryingPointFn } = usePageEvent("首页");
+        const {createBuryingPointFn} = usePageEvent("首页");
         const router = useRouter();
         const route = useRoute();
-        const { weekNext, weekPre, initDays, days } = useTime();
+        const {weekNext, weekPre, initDays, days} = useTime();
         initDays();
         const moreVisible = ref(false); //点击更多的弹框
         const go = (val: string) => {
@@ -273,7 +272,6 @@ export default defineComponent({
         const calendar = ref();
         onActivated(() => {
             calendar.value.initSchedules(resize);
-            // nextTick(resize);
         });
 
         const platformId = ref("");
@@ -281,7 +279,7 @@ export default defineComponent({
             const currentUserInfo: UserInfoState = get(STORAGE_TYPES.CURRENT_USER_INFO);
             const id = currentUserInfo.schoolId;
 
-            getPlatformByOrgId([{ id }]).then(res => {
+            getPlatformByOrgId([{id}]).then(res => {
                 platformId.value = res.result.length > 0 ? res.result[0].platformId : "";
             });
         }
@@ -296,7 +294,7 @@ export default defineComponent({
 
         const leftBlock = ref();
         const classSchedule = ref();
-        const layoutAdjust = ref(false);
+        const layoutAdjust = ref(true);
         let timer: any = null;
         const resize = debounce(() => {
             if (classSchedule.value && route.path === "/home") {
@@ -305,27 +303,27 @@ export default defineComponent({
                 //     layoutAdjust.value = true;
                 // }
 
-                if (layoutAdjust.value) {
-                    if (leftBlock.value.clientWidth < window.innerWidth * 0.4) {
-                        layoutAdjust.value = false;
-                    }
-                } else {
-                    if (leftBlock.value.clientWidth > window.innerWidth * 0.6) {
-                        layoutAdjust.value = true;
-                    }
-                }
-
-                nextTick(() => {
-                    calendar.value.resize();
-
-                    // 2s后再次重新计算，降低误差出现
-                    if (timer) clearTimeout(timer);
-                    timer = setTimeout(() => {
-                        clearTimeout(timer);
-                        timer = null;
-                        calendar.value.resize();
-                    }, 2000);
-                });
+                // if (layoutAdjust.value) {
+                //     if (leftBlock.value.clientWidth < window.innerWidth * 0.4) {
+                //         layoutAdjust.value = false;
+                //     }
+                // } else {
+                //     if (leftBlock.value.clientWidth > window.innerWidth * 0.6) {
+                //         layoutAdjust.value = true;
+                //     }
+                // }
+                //
+                // nextTick(() => {
+                //     calendar.value.resize();
+                //
+                //     // 2s后再次重新计算，降低误差出现
+                //     if (timer) clearTimeout(timer);
+                //     timer = setTimeout(() => {
+                //         clearTimeout(timer);
+                //         timer = null;
+                //         calendar.value.resize();
+                //     }, 2000);
+                // });
             }
         }, 200);
         const resizeObserver = new ResizeObserver(resize);
@@ -334,11 +332,28 @@ export default defineComponent({
                 resizeObserver.observe(leftBlock.value);
             }
             window.addEventListener("resize", resize);
+            window.addEventListener("resize", reLayout);
         });
+        const reLayout = () => {
+            if (classSchedule.value && route.path === "/home") {
+                const content_dom: HTMLElement = document.querySelector('.main .top .right .calendar .content .content-box') as HTMLElement;
+                const col_doms: any = content_dom.children;
+                if (col_doms.length) {
+                    const colHeight = col_doms.length * col_doms[0].offsetHeight;
+                    const contentHeight = content_dom.offsetHeight;
+                    if (colHeight > contentHeight + 1) {
+                        layoutAdjust.value = true
+                    } else {
+                        layoutAdjust.value = false
+                    }
+                }
 
+            }
+        };
         onUnmounted(() => {
             window.removeEventListener("resize", resize);
             if (leftBlock.value) resizeObserver.unobserve(leftBlock.value);
+            window.removeEventListener("resize", reLayout);
         });
 
         onMounted(() => {
@@ -363,9 +378,11 @@ export default defineComponent({
             go,
             weekNext,
             weekPre,
+            useMaximizeWindow,
             days,
             calendar,
             clicKBuryPoint,
+            reLayout,
             moreVisible,
             leftBlock,
             classSchedule,
@@ -446,63 +463,13 @@ export default defineComponent({
 
             .left {
                 height: 100%;
-                flex: 1;
+                //flex: 1;
+                width: 38%;
                 padding-right: 28px;
                 display: flex;
                 flex-direction: column;
                 justify-content: space-between;
 
-                .left-row {
-                    display: flex;
-                    flex-wrap: wrap;
-                    flex: 1;
-
-                    .left-one,
-                    .left-two,
-                    .left-three,
-                    .left-four {
-                        flex: auto;
-                        width: calc(50% - 14px);
-                    }
-
-                    .left-two,
-                    .left-four {
-                        margin-bottom: 28px;
-                        margin-left: 28px;
-                    }
-
-                    &:hover {
-                        box-shadow: none;
-                    }
-                }
-
-                .bottom {
-                    .item {
-                        padding: 14px;
-                        padding-top: 0;
-                        padding-bottom: 0;
-
-                        &:last-child {
-                            padding-right: 0;
-                        }
-
-                        &:first-child {
-                            padding-left: 0;
-                        }
-
-                        &:hover {
-                            box-shadow: none;
-                        }
-
-                        .item_div {
-                            border-radius: 15px;
-                        }
-                    }
-
-                    &:hover {
-                        box-shadow: none;
-                    }
-                }
 
                 div:hover {
                     margin-top: 0px;
@@ -514,12 +481,13 @@ export default defineComponent({
                 }
 
                 .left-one {
+                    height: 40%;
                     position: relative;
-                    flex: 1;
+                    //flex: 1;
                     box-sizing: border-box;
-                    margin-bottom: 28px;
+                    margin-bottom: 16px;
                     cursor: pointer;
-                    background: url("./../../assets/indexImages/card_beike.png") no-repeat;
+                    background: url("./../../assets/indexImages/card_beike备份.png") no-repeat;
                     background-position: center center;
                     background-size: cover;
                     border-radius: 15px;
@@ -528,7 +496,8 @@ export default defineComponent({
                         position: absolute;
                         top: 10%;
                         left: 6%;
-                        font-size: 46px;
+                        //font-size: 46px;
+                        font-size: 3.4vw;
                         font-family: PingFang-SC-Heavy, PingFang-SC;
                         font-weight: 800;
                         color: #ffffff;
@@ -536,8 +505,9 @@ export default defineComponent({
                 }
 
                 .left-two {
+                    height: 36%;
                     // margin-bottom: 28px;
-                    flex: 1;
+                    //flex: 1;
                     display: flex;
                     align-items: center;
                     justify-content: space-between;
@@ -554,7 +524,7 @@ export default defineComponent({
                         box-sizing: border-box;
                         cursor: pointer;
                         border-radius: 15px;
-                        width: calc(50% - 14px);
+                        width: calc(50% - 2px);
                         height: 100%;
                         background: url("./../../assets/indexImages/card_zuoye_half.png") no-repeat;
                         background-position: center center;
@@ -564,34 +534,59 @@ export default defineComponent({
                             position: absolute;
                             top: 10%;
                             left: 6%;
-                            font-size: 36px;
+                            //font-size: 36px;
+                            font-size: 2.4vw;
                             font-family: PingFang-SC-Heavy, PingFang-SC;
                             font-weight: 800;
                             color: #ffffff;
                         }
                     }
 
-                    .composition {
+                    .composition-pbl {
+                        display: flex;
+                        flex-direction: column;
+                        justify-content: center;
+                        align-items: center;
                         position: relative;
                         box-sizing: border-box;
-                        cursor: pointer;
-                        border-radius: 15px;
                         width: calc(50% - 14px);
                         height: 100%;
-                        background: url("./../../assets/indexImages/card_zuowen_half.png") no-repeat;
-                        background-position: center center;
-                        background-size: cover;
 
-                        span {
-                            position: absolute;
-                            top: 10%;
-                            left: 6%;
-                            font-size: 36px;
-                            font-family: PingFang-SC-Heavy, PingFang-SC;
-                            font-weight: 800;
-                            color: #ffffff;
+                        &:hover {
+                            box-shadow: none !important;
+                        }
+
+                        .composition, .pbl {
+                            width: 100%;
+                            height: 100%;
+                            position: relative;
+                            cursor: pointer;
+                            border-radius: 15px;
+                            background: url("./../../assets/indexImages/card_zuowen.png") no-repeat;
+                            background-position: center center;
+                            background-size: cover;
+                            margin-bottom: 8px;
+
+                            span {
+                                position: absolute;
+                                top: 10%;
+                                left: 6%;
+                                //font-size: 36px;
+                                font-size: 1.4vw;
+                                font-family: PingFang-SC-Heavy, PingFang-SC;
+                                font-weight: 800;
+                                color: #ffffff;
+                            }
+                        }
+
+                        .pbl {
+                            margin-bottom: 0;
+                            margin-top: 8px;
+                            background: url("./../../assets/indexImages/card_pbl.png") no-repeat;
+                            background-size: cover;
                         }
                     }
+
 
                     img {
                         // width: 100%;
@@ -599,6 +594,88 @@ export default defineComponent({
                         border-radius: 15px;
                     }
 
+
+                }
+
+                .bottom-left {
+                    width: 100%;
+                    flex: 1;
+                    padding-top: 16px;
+                    box-shadow: none !important;
+
+
+                    .bottom-item {
+                        display: flex;
+
+                        &:hover {
+                            box-shadow: none !important;
+                        }
+
+                        &:nth-child(2) {
+                            padding-top: 16px;
+                        }
+
+                        .item {
+                            padding: 16px;
+                            flex: 1;
+                            box-shadow: none !important;
+                            padding-top: 0;
+                            padding-bottom: 0;
+
+                            &:last-child {
+                                padding-right: 0;
+                            }
+
+                            &:nth-child(2) {
+                                padding: 0;
+                            }
+
+                            &:first-child {
+                                padding-left: 0;
+                            }
+
+                            &:hover {
+                                box-shadow: none;
+                            }
+
+                            .item_div {
+                                cursor: pointer;
+                                position: relative;
+                                width: 100%;
+                                display: flex;
+                                justify-content: space-around;
+                                align-items: center;
+                                border-radius: 16px;
+
+                                img {
+                                    width: 100%;
+                                }
+
+                                span {
+                                    position: absolute;
+                                    top: 18%;
+                                    left: 10%;
+                                    z-index: 10;
+                                    font-size: 1.4vw;
+                                    font-family: PingFang-SC-Heavy, PingFang-SC;
+                                    font-weight: 800;
+                                    color: #ffffff;
+                                }
+                            }
+
+                            &:first-child {
+                                .item_div span {
+                                    left: 15%;
+                                }
+                            }
+                        }
+
+                        .item:hover {
+                            img {
+                                filter: drop-shadow(0 0 15px #928c8c);
+                            }
+                        }
+                    }
 
                 }
 
@@ -660,14 +737,14 @@ export default defineComponent({
 
             .right {
                 // flex: 2;
-                min-width: 300px;
+                //min-width: 300px;
                 // overflow-y: auto;
                 // height: 100%;
+                //width: 62%;
             }
         }
 
-        .bottom {
-            width: 100%;
+        .bottom-bto {
             display: flex;
 
             .item {
@@ -681,6 +758,7 @@ export default defineComponent({
                     display: flex;
                     justify-content: space-around;
                     align-items: center;
+                    border-radius: 22px;
 
                     img {
                         width: 100%;
@@ -696,6 +774,12 @@ export default defineComponent({
                         font-weight: 800;
                         color: #ffffff;
                     }
+
+                    &:hover {
+                        margin-top: 0px;
+                        box-shadow: 0 0 25px 4px #918f8f;
+                        transition: all 0.5s;
+                    }
                 }
 
                 &:first-child {
@@ -703,13 +787,11 @@ export default defineComponent({
                         left: 15%;
                     }
                 }
+
+
             }
 
-            .item:hover {
-                img {
-                    filter: drop-shadow(0 0 15px #928c8c);
-                }
-            }
+
         }
     }
 }
