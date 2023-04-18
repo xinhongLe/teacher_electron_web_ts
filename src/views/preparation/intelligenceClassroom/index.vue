@@ -5,6 +5,7 @@
             ref="previewRef"
             :r-visit="rVisit"
             :cards="winCards"
+            :resource="resource"
             v-model:index="index"
             v-model:l-visit="lVisit"
             v-model:isCanUndo="isCanUndo"

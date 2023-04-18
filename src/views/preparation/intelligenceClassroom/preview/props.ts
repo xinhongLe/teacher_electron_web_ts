@@ -4,6 +4,7 @@ export interface PageProps {
     PageName: string;
     PageType: number;
     Index: number;
+    AcademicPresupposition: string;
 }
 
 export interface CardProps {

@@ -47,7 +47,12 @@
             />
         </div>
         <div class="right" v-if="rVisit">
-
+            <remark
+                :resourceId="resource.id"
+                :teachProcess="teachProcess"
+                :design="currentSlide.design"
+                :isSystem="resource.isSystem"
+            />
         </div>
     </div>
 </template>
@@ -57,9 +62,12 @@ import { computed, defineComponent, PropType, ref, watch } from "vue";
 import { CardProps, PageProps } from "./props";
 import { ElMessage } from "element-plus";
 import { pageType } from "@/config";
+import Remark from "@/views/preparation/intelligenceClassroom/components/preview/remark.vue";
+import { IViewResourceData } from "@/types/store";
 
 export default defineComponent({
     name: "WinPreview",
+    components: { Remark },
     props: {
         cards: {
             type: Array as PropType<CardProps[]>,
@@ -80,6 +88,10 @@ export default defineComponent({
         rVisit: {
             type: Boolean,
             default: false
+        },
+        resource: {
+            type: Object as PropType<IViewResourceData>,
+            required: true
         }
     },
     emits: ["update:index", "update:l-visit", "update:is-can-undo", "update:is-can-redo"],
@@ -87,6 +99,11 @@ export default defineComponent({
         const currentSlide = computed(() => {
             const page = props.pages[props.index];
             return page ? page.Json : {};
+        });
+        const teachProcess = computed(() => {
+            const page = props.pages[props.index];
+
+            return page?.AcademicPresupposition || "";
         });
 
         const isCanUndo = ref(false);
@@ -179,6 +196,7 @@ export default defineComponent({
             isCanUndo,
             isCanRedo,
             handlePage,
+            teachProcess,
             currentSlide,
             handleIsHideL,
             previewHandle
@@ -324,17 +342,5 @@ export default defineComponent({
 
 ::v-deep(.slide-list) {
     background-color: #F6F7F8;
-}
-
-.collapse-enter-from, .collapse-leave-from {
-    width: 280px;
-}
-
-.collapse-enter-active, .collapse-leave-active {
-    transition: width 10s;
-}
-
-.collapse-enter-to, .collapse-leave-to {
-    width: 0;
 }
 </style>
