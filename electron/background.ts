@@ -1,40 +1,39 @@
 "use strict";
 
-import {app, protocol, BrowserWindow, ipcMain, Menu} from "electron";
-// import installExtension, { VUEJS3_DEVTOOLS } from "electron-devtools-installer";
-import {createProtocol} from "vue-cli-plugin-electron-builder/lib";
-import {initialize} from "@electron/remote/main";
+import { app, protocol, BrowserWindow, ipcMain, Menu } from "electron";
+import { createProtocol } from "vue-cli-plugin-electron-builder/lib";
+import { initialize } from "@electron/remote/main";
 import {
     createSuspensionWindow,
     createLocalPreviewWindow,
     registerEvent,
-    unfoldSuspensionWinSendMessage,
+    unfoldSuspensionWinSendMessage
 } from "./suspension";
 import autoUpdater from "./autoUpdater";
-import {registerWinCardEvent} from "./wincard";
-import {registerVirtualKeyBoard, closeKeyBoard, setInput} from "./virtualKeyBoard";
+import { registerWinCardEvent } from "./wincard";
+import { registerVirtualKeyBoard, closeKeyBoard, setInput } from "./virtualKeyBoard";
 import SingalRHelper from "./singalr";
 import ElectronLog from "electron-log";
 import os from "os";
-import {exec, spawn} from "child_process";
-
-const isDevelopment = process.env.NODE_ENV !== "production";
+import { exec } from "child_process";
 import path from "path";
 import downloadFile from "./downloadFile";
+
+const isDevelopment = process.env.NODE_ENV !== "production";
 
 initialize();
 
 protocol.registerSchemesAsPrivileged([
-    {scheme: "app", privileges: {secure: true, standard: true}},
+    { scheme: "app", privileges: { secure: true, standard: true } },
     {
         scheme: "http",
         privileges: {
             bypassCSP: true,
             secure: true,
             supportFetchAPI: true,
-            corsEnabled: true,
-        },
-    },
+            corsEnabled: true
+        }
+    }
 ]);
 
 let mainWindow: BrowserWindow | null;
@@ -61,8 +60,8 @@ async function createWindow() {
             nodeIntegration: true,
             contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
             preload: path.join(__dirname, "preload.js"),
-            devTools: !!process.env.WEBPACK_DEV_SERVER_URL,
-        },
+            devTools: !!process.env.WEBPACK_DEV_SERVER_URL
+        }
     });
     // mainWindow.setContentProtection(true);
     downloadFile();
@@ -297,7 +296,7 @@ app.on("render-process-gone", (event, webContents, details) => {
 });
 
 app.on("child-process-gone", (event, details) => {
-    const {type, reason, exitCode, serviceName, name} = details;
+    const { type, reason, exitCode, serviceName, name } = details;
     ElectronLog.error(
         `child-process-gone, reason: ${reason}, exitCode: ${exitCode}, type:${type}, serviceName: ${serviceName}, name: ${name}`
     );

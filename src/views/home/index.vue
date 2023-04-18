@@ -3,39 +3,32 @@
         <div class="main">
             <div class="top">
                 <div class="left" ref="leftBlock">
-                    <div
-                        v-if="!layoutAdjust"
-                        class="left-one"
-                        @click="go('preparation'), clicKBuryPoint('备课')"
-                    >
+                    <div v-if="!layoutAdjust" class="left-one" @click="go('preparation'), clicKBuryPoint('备课')">
                         <span>备课</span>
                     </div>
-                    <div
-                        v-if="!layoutAdjust"
-                        class="left-two"
-                        @click="go('homework'), clicKBuryPoint('作业')"
-                    >
-                        <span>作业</span>
-                    </div>
-                    <div class="left-row" v-if="layoutAdjust">
-                        <div
-                            class="left-one"
-                            @click="go('preparation'), clicKBuryPoint('备课')"
-                        >
-                            <span>备课</span>
-                        </div>
-                        <div
-                            class="left-two"
-                            @click="go('homework'), clicKBuryPoint('作业')"
-                        >
+                    <div v-if="!layoutAdjust" class="left-two">
+                        <div class="work" @click="go('homework'), clicKBuryPoint('作业')">
                             <span>作业</span>
                         </div>
-                        <div
-                            class="left-three"
-                            @click="
-                                go('report-center'), clicKBuryPoint('报表中心')
-                            "
-                        >
+                        <div class="composition" @click="go('composition'), clicKBuryPoint('AI作文批改')">
+                            <span>AI作文批改</span>
+                        </div>
+                    </div>
+                    <div class="left-row" v-if="layoutAdjust">
+                        <div class="left-one" @click="go('preparation'), clicKBuryPoint('备课')">
+                            <span>备课</span>
+                        </div>
+                        <div class="left-two">
+                            <div class="work" @click="go('homework'), clicKBuryPoint('作业')">
+                                <span>作业</span>
+                            </div>
+                            <div class="composition" @click="go('composition'), clicKBuryPoint('AI作文批改')">
+                                <span>AI作文批改</span>
+                            </div>
+                        </div>
+                        <div class="left-three" @click="
+                            go('report-center'), clicKBuryPoint('报表中心')
+                        ">
                             <span>报表中心</span>
                         </div>
                         <div
@@ -49,101 +42,64 @@
                         </div>
                     </div>
                     <div class="bottom" v-if="layoutAdjust">
-                        <div
-                            class="item"
-                            @click="
-                                go('assessment-center'),
-                                    clicKBuryPoint('评测中心')
-                            "
-                        >
+                        <div class="item" @click="
+                            go('assessment-center'),
+                            clicKBuryPoint('评测中心')
+                        ">
                             <div class="item_div">
-                                <img
-                                    src="../../assets/indexImages/pic_kaoshi_new.png"
-                                    alt=""
-                                />
+                                <img src="../../assets/indexImages/pic_kaoshi_new.png" alt="" />
                                 <span>测评中心</span>
                             </div>
                         </div>
-                        <div
-                            class="item"
-                            @click="
-                                go('wrongbook'), clicKBuryPoint('班级错题本')
-                            "
-                        >
+                        <div class="item" @click="
+                            go('wrongbook'), clicKBuryPoint('班级错题本')
+                        ">
                             <div class="item_div">
-                                <img
-                                    src="../../assets/indexImages/card_cuotiben.png"
-                                    alt=""
-                                />
+                                <img src="../../assets/indexImages/card_cuotiben.png" alt="" />
                                 <span>班级错题本</span>
                             </div>
                         </div>
-                        <div
-                            class="item"
-                            @click="
-                                go('class-manage'), clicKBuryPoint('班级管理')
-                            "
-                        >
+                        <div class="item" @click="
+                            go('class-manage'), clicKBuryPoint('班级管理')
+                        ">
                             <div class="item_div">
-                                <img
-                                    src="../../assets/indexImages/icon_xuesheng.png"
-                                    alt=""
-                                />
+                                <img src="../../assets/indexImages/icon_xuesheng.png" alt="" />
                                 <span>班级管理</span>
                             </div>
                         </div>
-                        <div
-                            class="item"
-                            @click="go('more-content'), clicKBuryPoint('更多')"
-                        >
+                        <div class="item" @click="go('more-content'), clicKBuryPoint('更多')">
                             <div class="item_div">
-                                <img
-                                    src="../../assets/indexImages/icon_more.png"
-                                    alt=""
-                                />
+                                <img src="../../assets/indexImages/icon_more.png" alt="" />
                                 <span>更多</span>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="right" ref="classSchedule">
-                    <Calendar
-                        ref="calendar"
-                        :days="days"
-                        :isShowDetailBtn="true"
-                    >
+                    <Calendar ref="calendar" :days="days" :isShowDetailBtn="true">
                         <template v-slot:default="slotProps">
                             <header class="header">
-                                <div
-                                    @click="weekPre(), clicKBuryPoint('上周')"
-                                    class="week flex-align-items"
-                                >
-                                    <el-icon :size="16"><ArrowLeft /></el-icon>
+                                <div @click="weekPre(), clicKBuryPoint('上周')" class="week flex-align-items">
+                                    <el-icon :size="16">
+                                        <ArrowLeft />
+                                    </el-icon>
                                     上周
                                 </div>
                                 <div class="title">上课</div>
                                 <div class="header-right">
-                                    <div
-                                        class="refresh flex-align-items"
-                                        @click="slotProps.initSchedules"
-                                    >
-                                        <el-icon
-                                            :size="16"
-                                            :style="{ marginRight: '4px' }"
-                                            ><RefreshRight
-                                        /></el-icon>
+                                    <div class="refresh flex-align-items" @click="slotProps.initSchedules">
+                                        <el-icon :size="16" :style="{ marginRight: '4px' }">
+                                            <RefreshRight />
+                                        </el-icon>
                                         刷新课表
                                     </div>
-                                    <div
-                                        @click="
-                                            weekNext(), clicKBuryPoint('下周')
-                                        "
-                                        class="week flex-align-items"
-                                    >
+                                    <div @click="
+                                        weekNext(), clicKBuryPoint('下周')
+                                    " class="week flex-align-items">
                                         下周
-                                        <el-icon :size="16"
-                                            ><ArrowRight
-                                        /></el-icon>
+                                        <el-icon :size="16">
+                                            <ArrowRight />
+                                        </el-icon>
                                     </div>
                                 </div>
                             </header>
@@ -152,15 +108,9 @@
                 </div>
             </div>
             <div class="bottom" v-if="!layoutAdjust">
-                <div
-                    class="item"
-                    @click="go('report-center'), clicKBuryPoint('报表中心')"
-                >
+                <div class="item" @click="go('report-center'), clicKBuryPoint('报表中心')">
                     <div class="item_div">
-                        <img
-                            src="../../assets/indexImages/pic_baobiao_new.png"
-                            alt=""
-                        />
+                        <img src="../../assets/indexImages/pic_baobiao_new.png" alt="" />
                         <span>报表中心</span>
                     </div>
                 </div>
@@ -170,58 +120,31 @@
                     @click="go('resource-center/' + platformId), clicKBuryPoint('资源中心')"
                 >
                     <div class="item_div">
-                        <img
-                            src="../../assets/indexImages/pic_zyzx.png"
-                            alt=""
-                        />
+                        <img src="../../assets/indexImages/pic_zyzx.png" alt="" />
                         <span>资源中心</span>
                     </div>
                 </div>
-                <div
-                    class="item"
-                    @click="go('assessment-center'), clicKBuryPoint('评测中心')"
-                >
+                <div class="item" @click="go('assessment-center'), clicKBuryPoint('评测中心')">
                     <div class="item_div">
-                        <img
-                            src="../../assets/indexImages/pic_kaoshi_new.png"
-                            alt=""
-                        />
+                        <img src="../../assets/indexImages/pic_kaoshi_new.png" alt="" />
                         <span>测评中心</span>
                     </div>
                 </div>
-                <div
-                    class="item"
-                    @click="go('wrongbook'), clicKBuryPoint('班级错题本')"
-                >
+                <div class="item" @click="go('wrongbook'), clicKBuryPoint('班级错题本')">
                     <div class="item_div">
-                        <img
-                            src="../../assets/indexImages/card_cuotiben.png"
-                            alt=""
-                        />
+                        <img src="../../assets/indexImages/card_cuotiben.png" alt="" />
                         <span>班级错题本</span>
                     </div>
                 </div>
-                <div
-                    class="item"
-                    @click="go('class-manage'), clicKBuryPoint('班级管理')"
-                >
+                <div class="item" @click="go('class-manage'), clicKBuryPoint('班级管理')">
                     <div class="item_div">
-                        <img
-                            src="../../assets/indexImages/icon_xuesheng.png"
-                            alt=""
-                        />
+                        <img src="../../assets/indexImages/icon_xuesheng.png" alt="" />
                         <span>班级管理</span>
                     </div>
                 </div>
-                <div
-                    class="item"
-                    @click="go('more-content'), clicKBuryPoint('更多')"
-                >
+                <div class="item" @click="go('more-content'), clicKBuryPoint('更多')">
                     <div class="item_div">
-                        <img
-                            src="../../assets/indexImages/icon_more.png"
-                            alt=""
-                        />
+                        <img src="../../assets/indexImages/icon_more.png" alt="" />
                         <span>更多</span>
                     </div>
                 </div>
@@ -258,15 +181,8 @@
             </div>
         </div>
     </div>
-    <el-dialog
-        v-model="moreVisible"
-        width="30%"
-        center
-        :show-close="false"
-        :close-on-click-modal="false"
-        class="home-cus-dialog"
-        top="37vh"
-    >
+    <el-dialog v-model="moreVisible" width="30%" center :show-close="false" :close-on-click-modal="false"
+        class="home-cus-dialog" top="37vh">
         <div class="middle-con">
             <!-- <div class="con-card">
                 <img src="../../assets/indexImages/pci_jtbk.png" alt="" />
@@ -280,10 +196,7 @@
         <template #footer>
             <span class="dialog-footer">
                 <div class="close-btn" @click="moreVisible = false">
-                    <img
-                        src="../../assets/indexImages/icon_close_white.png"
-                        alt=""
-                    />
+                    <img src="../../assets/indexImages/icon_close_white.png" alt="" />
                     <span>关闭</span>
                 </div>
             </span>
@@ -543,6 +456,7 @@ export default defineComponent({
                     display: flex;
                     flex-wrap: wrap;
                     flex: 1;
+
                     .left-one,
                     .left-two,
                     .left-three,
@@ -567,19 +481,24 @@ export default defineComponent({
                         padding: 14px;
                         padding-top: 0;
                         padding-bottom: 0;
+
                         &:last-child {
                             padding-right: 0;
                         }
+
                         &:first-child {
                             padding-left: 0;
                         }
+
                         &:hover {
                             box-shadow: none;
                         }
+
                         .item_div {
                             border-radius: 15px;
                         }
                     }
+
                     &:hover {
                         box-shadow: none;
                     }
@@ -600,8 +519,7 @@ export default defineComponent({
                     box-sizing: border-box;
                     margin-bottom: 28px;
                     cursor: pointer;
-                    background: url("./../../assets/indexImages/card_beike.png")
-                        no-repeat;
+                    background: url("./../../assets/indexImages/card_beike.png") no-repeat;
                     background-position: center center;
                     background-size: cover;
                     border-radius: 15px;
@@ -618,16 +536,62 @@ export default defineComponent({
                 }
 
                 .left-two {
-                    box-sizing: border-box;
                     // margin-bottom: 28px;
-                    position: relative;
-                    cursor: pointer;
                     flex: 1;
-                    background: url("./../../assets/indexImages/card_zuoye.png")
-                        no-repeat;
-                    background-position: center center;
-                    background-size: cover;
-                    border-radius: 15px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+
+                    &:hover {
+                        box-shadow: none !important;
+                    }
+
+                    // background: url("./../../assets/indexImages/card_zuoye.png") no-repeat;
+                    // background-position: center center;
+                    // background-size: cover;
+                    .work {
+                        position: relative;
+                        box-sizing: border-box;
+                        cursor: pointer;
+                        border-radius: 15px;
+                        width: calc(50% - 14px);
+                        height: 100%;
+                        background: url("./../../assets/indexImages/card_zuoye_half.png") no-repeat;
+                        background-position: center center;
+                        background-size: cover;
+
+                        span {
+                            position: absolute;
+                            top: 10%;
+                            left: 6%;
+                            font-size: 36px;
+                            font-family: PingFang-SC-Heavy, PingFang-SC;
+                            font-weight: 800;
+                            color: #ffffff;
+                        }
+                    }
+
+                    .composition {
+                        position: relative;
+                        box-sizing: border-box;
+                        cursor: pointer;
+                        border-radius: 15px;
+                        width: calc(50% - 14px);
+                        height: 100%;
+                        background: url("./../../assets/indexImages/card_zuowen_half.png") no-repeat;
+                        background-position: center center;
+                        background-size: cover;
+
+                        span {
+                            position: absolute;
+                            top: 10%;
+                            left: 6%;
+                            font-size: 36px;
+                            font-family: PingFang-SC-Heavy, PingFang-SC;
+                            font-weight: 800;
+                            color: #ffffff;
+                        }
+                    }
 
                     img {
                         // width: 100%;
@@ -635,24 +599,16 @@ export default defineComponent({
                         border-radius: 15px;
                     }
 
-                    span {
-                        position: absolute;
-                        top: 10%;
-                        left: 6%;
-                        font-size: 46px;
-                        font-family: PingFang-SC-Heavy, PingFang-SC;
-                        font-weight: 800;
-                        color: #ffffff;
-                    }
+
                 }
+
                 .left-three {
                     box-sizing: border-box;
                     position: relative;
                     margin-bottom: 28px;
                     cursor: pointer;
                     flex: 1;
-                    background: url("./../../assets/indexImages/pic_baobiao_new.png")
-                        no-repeat;
+                    background: url("./../../assets/indexImages/pic_baobiao_new.png") no-repeat;
                     background-position: center center;
                     background-size: cover;
                     border-radius: 15px;
@@ -673,13 +629,13 @@ export default defineComponent({
                         color: #ffffff;
                     }
                 }
+
                 .left-four {
                     box-sizing: border-box;
                     position: relative;
                     cursor: pointer;
                     flex: 1;
-                    background: url("./../../assets/indexImages/pic_zyzx.png")
-                        no-repeat;
+                    background: url("./../../assets/indexImages/pic_zyzx.png") no-repeat;
                     background-position: center center;
                     background-size: cover;
                     border-radius: 15px;
@@ -762,20 +718,25 @@ export default defineComponent({
 .home-cus-dialog {
     position: relative;
     border-radius: 16px;
+
     .el-dialog__header {
         display: none;
     }
+
     .el-dialog__body {
         padding: 70px 0;
+
         .middle-con {
             display: flex;
             justify-content: space-around;
             align-items: center;
+
             .con-card {
                 cursor: pointer;
                 display: flex;
                 flex-direction: column;
                 align-items: center;
+
                 p {
                     margin-top: 13px;
                     font-size: 20px;
@@ -796,6 +757,7 @@ export default defineComponent({
             left: 50%;
             transform: translateX(-50%);
             top: 3.5rem;
+
             .close-btn {
                 cursor: pointer;
                 display: flex;
@@ -807,6 +769,7 @@ export default defineComponent({
                 border-radius: 25px;
                 border: 2px solid #ffffff;
                 margin: auto;
+
                 span {
                     font-size: 17px;
                     font-family: HarmonyOS_Sans_SC_Bold;

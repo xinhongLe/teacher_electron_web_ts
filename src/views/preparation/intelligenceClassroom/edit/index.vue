@@ -792,7 +792,7 @@ export default defineComponent({
                     Fold: true
                 });
             }
-            console.log(list)
+            console.log(list);
             windowCards.value = list;
             total.value = index;
             currentPage.value = list[0].PageList[0];
