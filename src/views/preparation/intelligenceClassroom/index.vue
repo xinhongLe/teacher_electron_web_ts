@@ -7,13 +7,19 @@
             :cards="winCards"
             v-model:index="index"
             v-model:l-visit="lVisit"
+            v-model:isCanUndo="isCanUndo"
+            v-model:isCanRedo="isCanRedo"
         />
         <Tools
+            @redo="redo"
+            @undo="undo"
             :dialog="dialog"
             :id="resource.id"
             :showRemark="rVisit"
             @prevStep="prevStep"
             @nextStep="nextStep"
+            :isCanUndo="isCanUndo"
+            :isCanRedo="isCanRedo"
             @openShape="openShape"
             @fullScreen="fullScreen"
             @toggleRemark="toggleRemark"
@@ -94,6 +100,8 @@ watchEffect(() => {
     }
 });
 const previewRef = ref();
+const isCanUndo = ref(false);
+const isCanRedo = ref(false);
 const fullScreen = () => {
     lVisit.value = false;
     rVisit.value = false;
@@ -146,6 +154,20 @@ const whiteboardOption = (option: string, value?: number) => {
         type: 3,
         option,
         value
+    });
+};
+
+// 退回
+const redo = () => {
+    previewRef.value.previewHandle({
+        type: 4
+    });
+};
+
+// 撤回
+const undo = () => {
+    previewRef.value.previewHandle({
+        type: 5
     });
 };
 

@@ -42,6 +42,8 @@
                 @pageNext="pageNext"
                 :slide="currentSlide"
                 :is-show-pen-tools="false"
+                v-model:isCanUndo="isCanUndo"
+                v-model:isCanRedo="isCanRedo"
             />
         </div>
         <div class="right" v-if="rVisit">
@@ -51,7 +53,7 @@
 </template>
 
 <script lang=ts>
-import { computed, defineComponent, PropType, ref } from "vue";
+import { computed, defineComponent, PropType, ref, watch } from "vue";
 import { CardProps, PageProps } from "./props";
 import { ElMessage } from "element-plus";
 import { pageType } from "@/config";
@@ -80,11 +82,21 @@ export default defineComponent({
             default: false
         }
     },
-    emits: ["update:index", "update:l-visit"],
+    emits: ["update:index", "update:l-visit", "update:is-can-undo", "update:is-can-redo"],
     setup(props, { emit }) {
         const currentSlide = computed(() => {
             const page = props.pages[props.index];
             return page ? page.Json : {};
+        });
+
+        const isCanUndo = ref(false);
+        const isCanRedo = ref(false);
+
+        watch(() => isCanUndo.value, val => {
+            emit("update:is-can-undo", val);
+        });
+        watch(() => isCanRedo.value, val => {
+            emit("update:is-can-redo", val);
         });
 
         const centerW = computed(() => {
@@ -129,7 +141,7 @@ export default defineComponent({
             emit("update:index", index);
         };
 
-        const previewHandle = (data: { type: 1 | 2 | 3, e?: MouseEvent, option?: string, value?: number }) => {
+        const previewHandle = (data: { type: 1 | 2 | 3 | 4 | 5, e?: MouseEvent, option?: string, value?: number }) => {
             // 工具栏-形状
             if (data.type === 1) {
                 screenRef.value.openShape(data.e);
@@ -141,6 +153,14 @@ export default defineComponent({
             // 工具栏 画笔配置
             if (data.type === 3) {
                 screenRef.value.whiteboardOption(data.option, data.value);
+            }
+            // 退回
+            if (data.type === 4) {
+                screenRef.value.redo();
+            }
+            // 撤销
+            if (data.type === 5) {
+                screenRef.value.undo();
             }
         };
 
@@ -156,6 +176,8 @@ export default defineComponent({
             pageNext,
             pageType,
             screenRef,
+            isCanUndo,
+            isCanRedo,
             handlePage,
             currentSlide,
             handleIsHideL,
@@ -187,8 +209,8 @@ export default defineComponent({
         z-index: 99;
         cursor: pointer;
         overflow: hidden;
-        background: #414E65;
-        color: #FFFFFF;
+        background: #BEC4CC;
+        color: #7B8086;
         display: flex;
         align-items: center;
         justify-content: center;

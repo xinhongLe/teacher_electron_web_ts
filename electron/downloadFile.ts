@@ -49,7 +49,7 @@ const dealCallback = (fileName: string, filePath: string) => {
         callbackList.forEach((callback) =>
             callback(filePath.replaceAll("\\", "/"))
         );
-        ElectronLog.info(callbackList.length, fileName);
+        // ElectronLog.info(callbackList.length, fileName);
         downloadSuccessCallbackMap.delete(fileName);
     }
 };
@@ -140,15 +140,15 @@ export const downloadFileToPath = async (
 
     return new Promise((resolve) => {
         writer.on("finish", () => {
-            ElectronLog.info("finish fileName:", fileName);
+            // ElectronLog.info("finish fileName:", fileName);
             resolve(true);
         });
         writer.on("error", (err) => {
-            ElectronLog.info("error fileName", fileName, err.message);
+            // ElectronLog.info("error fileName", fileName, err.message);
             resolve(false);
         });
         writer.on("close", () => {
-            ElectronLog.info("close fileName", fileName);
+            // ElectronLog.info("close fileName", fileName);
             resolve(false);
         });
     });

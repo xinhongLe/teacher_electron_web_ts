@@ -283,6 +283,8 @@ export default defineComponent({
         }
     },
     emits: [
+        "undo",
+        "redo",
         "prevStep",
         "nextStep",
         "openShape",
@@ -546,10 +548,10 @@ export default defineComponent({
             emit("whiteboardOption", option, value);
         };
         const undo = () => {
-            // emit("undo");
+            emit("undo");
         };
         const redo = () => {
-            // emit("redo");
+            emit("redo");
         };
 
         return {
