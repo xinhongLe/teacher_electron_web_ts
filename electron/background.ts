@@ -10,7 +10,7 @@ import {
     unfoldSuspensionWinSendMessage
 } from "./suspension";
 import autoUpdater from "./autoUpdater";
-import { createWinCardWindow, registerWinCardEvent } from "./wincard";
+import { createWinCardWindow } from "./wincard";
 import { registerVirtualKeyBoard, closeKeyBoard, setInput } from "./virtualKeyBoard";
 import SingalRHelper from "./singalr";
 import ElectronLog from "electron-log";
@@ -73,7 +73,6 @@ async function createWindow() {
     }
 
     registerEvent();
-    registerWinCardEvent();
     registerVirtualKeyBoard();
 
     if (process.env.WEBPACK_DEV_SERVER_URL) {
