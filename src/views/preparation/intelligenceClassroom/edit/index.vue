@@ -38,10 +38,12 @@
                             <img class="file-icon" src="@/assets/edit/icon_file.png" alt=""/>
                             <span>{{ folder.Name }}</span>
                             <card-popover :data="folder" @handle="handleCartItem" class="more">
-                                <img src="@/assets/edit/icon_file_more.png" alt="" :id="`popover-${folder.ID}`" @click.stop/>
+                                <img src="@/assets/edit/icon_file_more.png" alt="" :id="`popover-${folder.ID}`"
+                                     @click.stop/>
                             </card-popover>
                         </div>
-                        <vue-draggable-next v-model="folder.PageList" group="site" tag="div" class="pages" v-show="folder.Fold" @end="sortWindowCards">
+                        <vue-draggable-next v-model="folder.PageList" group="site" tag="div" class="pages"
+                                            v-show="folder.Fold" @end="sortWindowCards">
                             <transition-group>
                                 <div
                                     class="page"
@@ -52,11 +54,14 @@
                                 >
                                     <div class="page-left">
                                         <p class="index">{{ page.Index }}</p>
-                                        <img src="@/assets/edit/icon_donghua.png" alt="" v-if="checkIsHandle(2,page.Json)"/>
-                                        <img src="@/assets/edit/icon_shijian.png" alt="" v-if="checkIsHandle(1,page.Json)"/>
+                                        <img src="@/assets/edit/icon_donghua.png" alt=""
+                                             v-if="checkIsHandle(2,page.Json)"/>
+                                        <img src="@/assets/edit/icon_shijian.png" alt=""
+                                             v-if="checkIsHandle(1,page.Json)"/>
                                     </div>
                                     <div class="page-right" :class="{active:currentPage.ID === page.ID}">
-                                        <img class="cover" v-if="(page.Type === 20 || page.Type === 16) && page.Url" :src="page.Url"/>
+                                        <img class="cover" v-if="(page.Type === 20 || page.Type === 16) && page.Url"
+                                             :src="page.Url"/>
                                         <template v-else>
                                             <thumbnail-slide
                                                 :size="228"
@@ -72,18 +77,27 @@
                                         </template>
 
                                         <div class="handle">
-                                            <div class="name" v-if="[pageType.listen,pageType.element].includes(page.Type)">{{ page.Name }}</div>
-                                            <card-popover :data="page" add @handle="handleCartItem" class="handler-item add">
-                                                <img :id="`popover-add-${page.ID}`" src="@/assets/edit/icon_add_hover.png" alt=""/>
+                                            <div class="name"
+                                                 v-if="[pageType.listen,pageType.element].includes(page.Type)">
+                                                {{ page.Name }}
+                                            </div>
+                                            <card-popover :data="page" add @handle="handleCartItem"
+                                                          class="handler-item add">
+                                                <img :id="`popover-add-${page.ID}`"
+                                                     src="@/assets/edit/icon_add_hover.png" alt=""/>
                                             </card-popover>
 
-                                            <card-popover :data="page" @handle="handleCartItem" class="handler-item more">
-                                                <img :id="`popover-more-${page.ID}`" src="@/assets/edit/icon_more_big.png" alt=""/>
+                                            <card-popover :data="page" @handle="handleCartItem"
+                                                          class="handler-item more">
+                                                <img :id="`popover-more-${page.ID}`"
+                                                     src="@/assets/edit/icon_more_big.png" alt=""/>
                                             </card-popover>
                                         </div>
                                     </div>
 
-                                    <img v-if="selectPageIds.length > 0" class="select-icon" :src="require(`@/assets/edit/icon_${selectPageIds.includes(page.ID) ? 'clicked' : 'unclick'}.png`)" alt=""/>
+                                    <img v-if="selectPageIds.length > 0" class="select-icon"
+                                         :src="require(`@/assets/edit/icon_${selectPageIds.includes(page.ID) ? 'clicked' : 'unclick'}.png`)"
+                                         alt=""/>
                                 </div>
                             </transition-group>
                         </vue-draggable-next>
@@ -103,6 +117,7 @@
                     ref="editRef"
                     @onSave="winCardSave"
                     :winId="windowInfo?.id"
+                    @syncLesson="syncLesson"
                     @updateMaterial="updateMaterial"
                     @updatePageSlide="updatePageSlide"
                     :slide="currentPage?.Json || {}"
@@ -666,6 +681,30 @@ export default defineComponent({
             return false;
         };
 
+        // 同步教案的数据
+        const syncLesson = (slides: { id: string, AcademicPresupposition: string, DesignIntent: string }[]) => {
+            const winCards = cloneDeep<CardProps[]>(windowCards.value);
+
+            for (let i = 0; i < winCards.length; i++) {
+                const item = winCards[i];
+
+                for (let j = 0; j < item.PageList.length; j++) {
+                    const page = item.PageList[j];
+                    const find = slides.find(it => it.id === page.ID);
+                    if (!find) continue;
+
+                    if (currentPage.value?.ID === find.id) {
+                        currentPage.value.Json.remark = find.AcademicPresupposition || "";
+                        currentPage.value.Json.design = find.DesignIntent || "";
+                    }
+
+                    page.Json.remark = find.AcademicPresupposition || "";
+                    page.Json.design = find.DesignIntent || "";
+                }
+            }
+            windowCards.value = winCards;
+        };
+
         const VIEWPORT_RATIO = 0.5625;
         const VIEWPORT_SIZE = 1280;
 
@@ -827,6 +866,7 @@ export default defineComponent({
             materialCenterRef,
             subjectPublisherBookValue,
             importPPT,
+            syncLesson,
             winCardSave,
             handleSave,
             handleSelect,
