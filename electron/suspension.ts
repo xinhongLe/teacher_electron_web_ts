@@ -6,13 +6,14 @@ import {
     remote,
     powerMonitor,
 } from "electron";
-import { createWindow } from "./createWindow";
+import {createWindow} from "./createWindow";
 import ElectronLog from "electron-log";
-import { checkWindowSupportNet } from "./util";
-import { spawn, exec, ChildProcessWithoutNullStreams } from "child_process";
-import path, { join } from "path";
+import {checkWindowSupportNet} from "./util";
+import {spawn, exec, ChildProcessWithoutNullStreams} from "child_process";
+import path, {join} from "path";
 import detect from "detect-port";
-import { Action, CallBack, SocketHelper } from "./socketHelper";
+import {Action, CallBack, SocketHelper} from "./socketHelper";
+
 const WIN_PATH_BALL = join(__dirname, "../extraResources/ball/");
 let suspensionWin: BrowserWindow | null;
 let unfoldSuspensionWin: BrowserWindow | null;
@@ -102,7 +103,8 @@ powerMonitor.on("resume", () => {
             lastSpwan.kill();
             lastSpwan.pid && process.kill(lastSpwan.pid);
         }
-    } catch (e) {}
+    } catch (e) {
+    }
 });
 
 app.on("will-quit", () => {
@@ -111,7 +113,8 @@ app.on("will-quit", () => {
             lastSpwan.kill();
             lastSpwan.pid && process.kill(lastSpwan.pid);
         }
-    } catch (e) {}
+    } catch (e) {
+    }
 });
 
 function setSuspensionSize(isResetPosition = true, isCloseWelt = false) {
@@ -225,6 +228,7 @@ function createRollcall(allStudentList: []) {
         rollCallWin = null;
     });
 }
+
 function createUnfoldSuspensionWindow() {
     const size = screen.getPrimaryDisplay().workAreaSize; // 获取显示器的宽高
     const width = size.width > 545 ? 545 : size.width - 80;
@@ -250,7 +254,7 @@ function createUnfoldSuspensionWindow() {
     // unfoldSuspensionWin.webContents.openDevTools(); //这是打开智课助手悬浮球打开窗口的的调试器
     unfoldSuspensionWin.once("ready-to-show", () => {
         unfoldSuspensionWin &&
-            unfoldSuspensionWin.setAlwaysOnTop(true, "pop-up-menu");
+        unfoldSuspensionWin.setAlwaysOnTop(true, "pop-up-menu");
     });
 
     unfoldSuspensionWin.on("closed", () => {
@@ -279,7 +283,7 @@ function createBlackboardWindow() {
         blackboardWin = null;
         isShowBlackboard = false;
         suspensionWin &&
-            suspensionWin.webContents.send("hideSuspensionBlackboard");
+        suspensionWin.webContents.send("hideSuspensionBlackboard");
         setSuspensionSize();
     });
 }
@@ -308,7 +312,7 @@ function createAnswerMachineWindow(allStudentList: []) {
 
     answerMachineWin.once("ready-to-show", () => {
         answerMachineWin &&
-            answerMachineWin.setAlwaysOnTop(true, "pop-up-menu");
+        answerMachineWin.setAlwaysOnTop(true, "pop-up-menu");
     });
 
     answerMachineWin.on("closed", () => {
@@ -335,11 +339,11 @@ function createQuickAnswerWindow(allStudentList: [], isAnswer = false) {
         quickAnswerWin && quickAnswerWin.show();
         quickAnswerWin && quickAnswerWin.focus();
         quickAnswerWin &&
-            quickAnswerWin.webContents.send(
-                "sendAllStudentList",
-                allStudentList,
-                isAnswer
-            );
+        quickAnswerWin.webContents.send(
+            "sendAllStudentList",
+            allStudentList,
+            isAnswer
+        );
     });
 
     quickAnswerWin.once("ready-to-show", () => {
@@ -441,7 +445,8 @@ function createBall(forcec = false) {
                     lastSpwan.kill();
                     lastSpwan.pid && process.kill(lastSpwan.pid);
                 }
-            } catch (e) {}
+            } catch (e) {
+            }
             try {
                 lastSpwan = spawn(
                     join(WIN_PATH_BALL, forcec ? cballname : ballname),
@@ -458,7 +463,8 @@ function createBall(forcec = false) {
                 lastSpwan.on("close", (code) => {
                     console.log(`child process exited with code ${code}`);
                 });
-            } catch (e) {}
+            } catch (e) {
+            }
             setTimeout(() => {
                 resolve(true);
             }, 3000);
@@ -616,7 +622,8 @@ export function createSuspensionWindow() {
                 lastSpwan.kill();
                 lastSpwan.pid && process.kill(lastSpwan.pid);
             }
-        } catch (e) {}
+        } catch (e) {
+        }
         detect(lastPort)
             .then((_port) => {
                 if (lastPort == _port) {
@@ -684,15 +691,15 @@ function showSuspension() {
 }
 
 export function registerEvent() {
-    let winStartPosition = { x: 0, y: 0 };
-    let mouseStartPosition = { x: 0, y: 0 };
+    let winStartPosition = {x: 0, y: 0};
+    let mouseStartPosition = {x: 0, y: 0};
     let movingInterval: any = null;
     ipcMain.handle("window-move-open", (events, canMoving) => {
         if (canMoving) {
             if (!suspensionWin) return;
             // 读取原位置
             const winPosition = suspensionWin.getPosition();
-            winStartPosition = { x: winPosition[0], y: winPosition[1] };
+            winStartPosition = {x: winPosition[0], y: winPosition[1]};
             mouseStartPosition = screen.getCursorScreenPoint();
             // 清除
             if (movingInterval) {
@@ -767,7 +774,7 @@ export function registerEvent() {
     ipcMain.handle("openBlackboard", () => {
         isShowBlackboard = false;
         suspensionWin &&
-            suspensionWin.webContents.send("hideSuspensionBlackboard");
+        suspensionWin.webContents.send("hideSuspensionBlackboard");
         showSuspension();
         setSuspensionSize();
         if (blackboardWin) {
@@ -796,7 +803,7 @@ export function registerEvent() {
             socketHelper.sendMessage(new Action("BLACKBOARDHIDE", ""));
         } else {
             suspensionWin &&
-                suspensionWin.webContents.send("blackboardMinimized");
+            suspensionWin.webContents.send("blackboardMinimized");
         }
         if (process.platform === "darwin") {
             blackboardWin && blackboardWin.setFullScreen(false);
@@ -871,7 +878,7 @@ export function registerEvent() {
             socketHelper.sendMessage(new Action("QUICKTIMEHIDE", time));
         } else {
             suspensionWin &&
-                suspensionWin.webContents.send("timerWinHide", time);
+            suspensionWin.webContents.send("timerWinHide", time);
         }
     });
 
@@ -899,7 +906,7 @@ export function registerEvent() {
             socketHelper.sendMessage(new Action("VIDEOSHOW", ""));
         } else {
             suspensionWin &&
-                suspensionWin.webContents.send("hideSuspensionVideo");
+            suspensionWin.webContents.send("hideSuspensionVideo");
         }
         setSuspensionSize();
     });
@@ -910,7 +917,7 @@ export function registerEvent() {
             socketHelper.sendMessage(new Action("QUESTIONHIDE", ""));
         } else {
             suspensionWin &&
-                suspensionWin.webContents.send("questionMinimized");
+            suspensionWin.webContents.send("questionMinimized");
         }
         setSuspensionSize();
     });
@@ -921,7 +928,7 @@ export function registerEvent() {
             socketHelper.sendMessage(new Action("QUESTIONSHOW", ""));
         } else {
             suspensionWin &&
-                suspensionWin.webContents.send("hideSuspensionQuestion");
+            suspensionWin.webContents.send("hideSuspensionQuestion");
         }
         setSuspensionSize();
     });
@@ -949,16 +956,16 @@ export function registerEvent() {
 
     ipcMain.handle("answer-jection", (_, data) => {
         answerMachineWin &&
-            answerMachineWin.webContents.send("answer-jection", data);
+        answerMachineWin.webContents.send("answer-jection", data);
     });
 
     ipcMain.handle("getWindowList", (_, data) => {
         unfoldSuspensionWin &&
-            unfoldSuspensionWin.webContents.send("getWindowList", data);
+        unfoldSuspensionWin.webContents.send("getWindowList", data);
     });
     ipcMain.handle("getCourseWares", (_, data) => {
         unfoldSuspensionWin &&
-            unfoldSuspensionWin.webContents.send("getCourseWares", data);
+        unfoldSuspensionWin.webContents.send("getCourseWares", data);
     });
 }
 
