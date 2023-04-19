@@ -2,7 +2,7 @@
 <template>
     <el-dialog :z-index="1000" width="370" v-model="dialogVisible" :close-on-click-modal="false" destroy-on-close center
         :before-close="close">
-        <template #title>
+        <template #header>
             <div class="title pl20">
                 {{ '选择学生' }}
             </div>

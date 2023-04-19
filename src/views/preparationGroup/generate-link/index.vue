@@ -6,7 +6,7 @@
         :before-close="handleClose"
         center
     >
-        <template #title>
+        <template #header>
             <span class="dialog-header">集体备课小组邀请</span>
         </template>
         <div class="dialog-classinfo auto">{{ currentItem.PreTitle }}</div>

@@ -1,7 +1,7 @@
 <template>
     <div class="class-dialog">
         <el-dialog center width="40vw" :model-value="classVisible" @close="close()">
-            <template #title>
+            <template #header>
                 <div class="class-header">
                     点击选择上课班级
                 </div>
