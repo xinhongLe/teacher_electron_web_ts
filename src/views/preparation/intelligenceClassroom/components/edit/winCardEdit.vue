@@ -92,10 +92,10 @@ export default defineComponent({
     },
     emits: [
         "onSave",
+        "syncLesson",
         "updatePageSlide",
         "updateMaterial",
-        "applyBackgroundAllSlide",
-        "updateAllPageSlideListMap"
+        "applyBackgroundAllSlide"
     ],
     setup(props, { emit }) {
         const { saveElements } = useSaveElements();
@@ -117,11 +117,18 @@ export default defineComponent({
         const PPTEditRef = ref();
 
         const updateLesson = (lessonProcessList: any) => {
-            let allPageList: any[] = [];
+            let list: any = [];
             lessonProcessList.LessonPlanDetailPages.forEach((item: any) => {
-                allPageList = allPageList.concat(item.Childrens);
+                list = list.concat(item.Childrens);
             });
-            emit("updateAllPageSlideListMap", allPageList);
+            list = list.map((item: any) => {
+                return {
+                    id: item.TeachPageID,
+                    DesignIntent: item.DesignIntent,
+                    AcademicPresupposition: item.AcademicPresupposition
+                };
+            });
+            emit("syncLesson", list);
         };
 
         const outElements = async (elements: PPTElement[]) => {

@@ -181,7 +181,7 @@ import useHandlePPT from "./hooks/useHandlePPT";
 import { isFullscreen } from "@/utils/fullscreen";
 import { pageType, pageTypeList } from "@/config";
 import { CardProps, PageProps } from "../api/props";
-import { get, set, STORAGE_TYPES } from "@/utils/storage";
+import { get, STORAGE_TYPES } from "@/utils/storage";
 import { VueDraggableNext } from "vue-draggable-next";
 import { dealAnimationData } from "@/utils/dataParse";
 import { ElMessage, ElMessageBox } from "element-plus";
@@ -362,7 +362,8 @@ export default defineComponent({
                 (data as PageProps).State = (data as PageProps).State ? 0 : 1;
             }
             if (type === 5) {
-                handlePaste();
+                loading.show();
+                addHandle.paste(data as CardProps);
             }
             if (type === 6) {
                 loading.show();
@@ -405,7 +406,6 @@ export default defineComponent({
             } else {
                 selectPageIds.value.push(id);
             }
-            storageCopyData();
         };
 
         // 保存模板
@@ -728,6 +728,30 @@ export default defineComponent({
             return false;
         };
 
+        // 同步教案的数据
+        const syncLesson = (slides: { id: string, AcademicPresupposition: string, DesignIntent: string }[]) => {
+            const winCards = cloneDeep<CardProps[]>(windowCards.value);
+
+            for (let i = 0; i < winCards.length; i++) {
+                const item = winCards[i];
+
+                for (let j = 0; j < item.PageList.length; j++) {
+                    const page = item.PageList[j];
+                    const find = slides.find(it => it.id === page.ID);
+                    if (!find) continue;
+
+                    if (currentPage.value?.ID === find.id) {
+                        currentPage.value.Json.remark = find.AcademicPresupposition || "";
+                        currentPage.value.Json.design = find.DesignIntent || "";
+                    }
+
+                    page.Json.remark = find.AcademicPresupposition || "";
+                    page.Json.design = find.DesignIntent || "";
+                }
+            }
+            windowCards.value = winCards;
+        };
+
         const VIEWPORT_RATIO = 0.5625;
         const VIEWPORT_SIZE = 1280;
 
@@ -898,6 +922,7 @@ export default defineComponent({
             materialCenterRef,
             subjectPublisherBookValue,
             importPPT,
+            syncLesson,
             winCardSave,
             handleSave,
             handleSelect,
@@ -990,7 +1015,6 @@ export default defineComponent({
         height: 100%;
         position: relative;
         transition: all 0.5s;
-        padding-bottom: 20px;
 
         &.collapse {
             width: 0;
