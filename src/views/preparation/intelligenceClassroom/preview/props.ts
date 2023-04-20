@@ -5,6 +5,7 @@ export interface PageProps {
     PageType: number;
     Index: number;
     AcademicPresupposition: string;
+    PageState: 0 | 1;
 }
 
 export interface CardProps {

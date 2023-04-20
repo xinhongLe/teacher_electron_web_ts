@@ -6,7 +6,7 @@
             </el-icon>
         </div>
         <div class="left" v-if="lVisit">
-            <div class="folder" v-for="folder in cards" :key="folder.CardID">
+            <div class="folder" v-for="folder in windowCards" :key="folder.CardID">
                 <div class="title" @click="folder.Fold = !folder.Fold">
                     <i class="triangle" :class="{rotate:!folder.Fold}"></i>
                     <img class="file-icon" src="@/assets/edit/icon_file.png" alt=""/>
@@ -40,6 +40,7 @@
                 :inline="true"
                 @pagePrev="pagePrev"
                 @pageNext="pageNext"
+                @openCard="openCard"
                 :slide="currentSlide"
                 :is-show-pen-tools="false"
                 v-model:isCanUndo="isCanUndo"
@@ -64,6 +65,8 @@ import { ElMessage } from "element-plus";
 import { pageType } from "@/config";
 import Remark from "@/views/preparation/intelligenceClassroom/components/preview/remark.vue";
 import { IViewResourceData } from "@/types/store";
+import { getCardDetail } from "@/views/preparation/intelligenceClassroom/api";
+import { cloneDeep } from "lodash";
 
 export default defineComponent({
     name: "WinPreview",
@@ -96,8 +99,19 @@ export default defineComponent({
     },
     emits: ["update:index", "update:l-visit", "update:is-can-undo", "update:is-can-redo"],
     setup(props, { emit }) {
+        const windowCards = computed(() => {
+            const list = cloneDeep<CardProps[]>(props.cards);
+
+            for (let i = 0; i < list.length; i++) {
+                const pages = cloneDeep(list[i].Pages);
+
+                list[i].Pages = pages.filter(item => item.PageState);
+            }
+
+            return list;
+        });
         const currentSlide = computed(() => {
-            const page = props.pages[props.index];
+            const page = props.pages?.filter(item => item.PageState)[props.index];
             return page ? page.Json : {};
         });
         const teachProcess = computed(() => {
@@ -150,7 +164,8 @@ export default defineComponent({
         };
 
         const pageNext = () => {
-            if (props.index === props.pages?.length - 1) {
+            const list = props.pages.filter(item => item.PageState);
+            if (props.index === list.length - 1) {
                 ElMessage.warning("已经最后一页了");
                 return;
             }
@@ -158,7 +173,7 @@ export default defineComponent({
             emit("update:index", index);
         };
 
-        const previewHandle = (data: { type: 1 | 2 | 3 | 4 | 5, e?: MouseEvent, option?: string, value?: number }) => {
+        const previewHandle = (data: { type: number, e?: MouseEvent, option?: string, value?: number }) => {
             // 工具栏-形状
             if (data.type === 1) {
                 screenRef.value.openShape(data.e);
@@ -179,10 +194,39 @@ export default defineComponent({
             if (data.type === 5) {
                 screenRef.value.undo();
             }
+            // 下一页
+            if (data.type === 6) {
+                screenRef.value.execNext();
+            }
+            // 上一页
+            if (data.type === 7) {
+                screenRef.value.execPrev();
+            }
         };
 
         const handleIsHideL = () => {
             emit("update:l-visit", !props.lVisit);
+        };
+
+        const openCard = (data: any) => {
+            if (!data[0] || !data[0].cards) return;
+
+            const cards = [...data[0].cards];
+            let pageList: any = [];
+
+            cards.forEach(item => {
+                pageList = pageList.concat(item.slides);
+            });
+
+            const pages: PageProps[] = [];
+            for (let i = 0; i < pageList.length; i++) {
+                const find = props.pages.find(item => item.Json.id === pageList[i].id);
+                if (find) {
+                    pages.push(find);
+                }
+            }
+
+            console.log(pages);
         };
 
         return {
@@ -192,10 +236,12 @@ export default defineComponent({
             pagePrev,
             pageNext,
             pageType,
+            openCard,
             screenRef,
             isCanUndo,
             isCanRedo,
             handlePage,
+            windowCards,
             teachProcess,
             currentSlide,
             handleIsHideL,

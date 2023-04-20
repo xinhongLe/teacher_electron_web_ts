@@ -49,14 +49,13 @@ import useHome from "@/hooks/useHome";
 import { getWindowsElements } from "./api";
 import WinPreview from "./preview/index.vue";
 import { YUN_API_ONECARD_MQTT } from "@/config";
+import { IViewResourceData } from "@/types/store";
 import Tools from "./components/preview/tools.vue";
 import { dealAnimationData } from "@/utils/dataParse";
 import { CardProps, PageProps } from "./preview/props";
 import SelectClassDialog from "./components/preview/selectClassDialog.vue";
 import ShareCurrentPage from "./components/preview/ShareCurrentPage.vue";
 import { onActivated, onDeactivated, ref, watchEffect, PropType, onUnmounted, computed } from "vue";
-import { IViewResourceData } from "@/types/store";
-import { ElMessage } from "element-plus";
 
 const props = defineProps({
     dialog: {
@@ -117,19 +116,15 @@ const toggleRemark = () => {
 };
 
 const prevStep = () => {
-    if (index.value === 0) {
-        ElMessage.warning("已经第一页了");
-        return;
-    }
-    index.value--;
+    previewRef.value.previewHandle({
+        type: 7
+    });
 };
 
 const nextStep = () => {
-    if (index.value === pages.value.length - 1) {
-        ElMessage.warning("已经最后一页了");
-        return;
-    }
-    index.value++;
+    previewRef.value.previewHandle({
+        type: 6
+    });
 };
 
 // 工具栏-形状
@@ -197,8 +192,10 @@ function getWinCardData() {
                 const slide: Slide = await transformPageDetail({ ID: page.PageID, Type: page.PageType }, json);
 
                 page.Json = dealAnimationData(slide);
-                page.Index = index;
-                index++;
+                if (page.PageState) {
+                    page.Index = index;
+                    index++;
+                }
             }
         }
         winCards.value = cardList;
