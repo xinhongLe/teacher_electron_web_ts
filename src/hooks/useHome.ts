@@ -123,7 +123,7 @@ export default () => {
             if (oldSlide.type) {
                 newSlide = {
                     ...await dealPauseVideo(oldSlide as Slide),
-                    id: page.ID
+                    id: pageDetail.id
                 };
             } else {
                 newSlide = await dealOldData(page.ID, page.originType, oldSlide);

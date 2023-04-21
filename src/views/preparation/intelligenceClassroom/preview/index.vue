@@ -209,6 +209,7 @@ export default defineComponent({
         };
 
         const openCard = (data: any) => {
+            debugger
             if (!data[0] || !data[0].cards) return;
 
             const cards = [...data[0].cards];

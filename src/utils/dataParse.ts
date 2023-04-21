@@ -65,11 +65,7 @@ interface IOldAction {
     TargetID: string;
 }
 
-export const dealOldData = async (
-    pageID: string,
-    originType: any,
-    oldSlide: IOldSlide
-) => {
+export const dealOldData = async (pageID: string, originType: any, oldSlide: IOldSlide) => {
     const slide: Slide = {
         id: pageID,
         type: "element",

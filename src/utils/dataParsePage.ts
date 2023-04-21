@@ -66,7 +66,7 @@ export const dealOldDataWord = (pageID: string, data: any) => {
         viewportRatio: 0.5625,
         elements: []
     };
-    slide.listenWords = "listenWords" in data ? data.listenWords : getSlideWord(data);
+    slide.listenWords = "listenWords" in data ? data.listenWords : getSlideWord(data instanceof Array ? data : []);
     slide.background = getSlideBackground();
     return slide;
 };
