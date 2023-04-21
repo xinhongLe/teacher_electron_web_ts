@@ -1,5 +1,6 @@
-import { BrowserWindow, ipcMain } from "electron";
-import { autoUpdater } from "electron-updater";
+import {BrowserWindow, ipcMain} from "electron";
+import {autoUpdater} from "electron-updater";
+
 export default (win: BrowserWindow) => {
     function sendUpdateMessage(text: string) {
         win.webContents.send("updateMessage", text);
@@ -26,12 +27,12 @@ export default (win: BrowserWindow) => {
         });
 
         // 当开始检查更新的时候触发
-        autoUpdater.on("checking-for-update", function() {
+        autoUpdater.on("checking-for-update", function () {
             sendUpdateMessage(message.checking);
         });
 
         // 当有可用更新的时候触发
-        autoUpdater.on("update-available", function(info) {
+        autoUpdater.on("update-available", function (info) {
             sendUpdateMessage(message.updateAva);
             ipcMain.handle("isUpdateNow", (e, arg) => {
                 // some code here to handle event
@@ -41,17 +42,17 @@ export default (win: BrowserWindow) => {
         });
 
         // 当没有可用更新的时候触发
-        autoUpdater.on("update-not-available", function() {
+        autoUpdater.on("update-not-available", function () {
             sendUpdateMessage(message.updateNotAva);
         });
 
         // 更新下载进度事件
-        autoUpdater.on("download-progress", function(progressObj) {
+        autoUpdater.on("download-progress", function (progressObj) {
             win.webContents.send("downloadProgress", progressObj);
         });
 
         // 在更新下载完成的时候触发
-        autoUpdater.on("update-downloaded", function(
+        autoUpdater.on("update-downloaded", function (
             event,
             releaseNotes,
             releaseName,

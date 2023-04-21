@@ -36,7 +36,8 @@
     <!--    </el-dialog>-->
     <UpdateDialog v-model:updateVisible="updateVisible" v-model:newVersionView="newVersionView"
                   :showUpdateInfo="showUpdateInfo"
-                  :downloadPercent="downloadPercent" :ifShowCancelButton="ifShowCancelButton"></UpdateDialog>
+                  :downloadPercent="downloadPercent" :ifShowCancelButton="ifShowCancelButton"
+                  @downloadUpdate="downloadUpdate"></UpdateDialog>
 </template>
 
 <script lang="ts">
@@ -57,7 +58,8 @@ export default defineComponent({
             newVersionView,
             ifShowCancelButton,
             showUpdateInfo,
-            getUpdateJson
+            getUpdateJson,
+            downloadUpdate
         } = useUpdate();
 
         // const handleUpdate = () => {
@@ -123,6 +125,7 @@ export default defineComponent({
             ifShowCancelButton,
             showUpdateInfo,
             getUpdateJson,
+            downloadUpdate,
             // handleUpdate,
             downloadPercent
         };

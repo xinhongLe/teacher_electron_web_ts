@@ -10,7 +10,7 @@
                 :text-inside="true"
                 :show-text="false"
                 :stroke-width="20"
-                :percentage="downloadPercent"
+                :percentage="downloadPercentDio"
             ></el-progress>
         </div>
     </el-dialog>
@@ -63,15 +63,19 @@ export default defineComponent({
             default: false
         },
     },
+    emits: ["downloadUpdate", "update:updateVisible", "update:newVersionView"],
     setup(props, {emit}) {
+
         const updateVisibleDio = computed(() => props.updateVisible);
         console.log('updateVisibleDio', updateVisibleDio);
         const newVersionViewDio = computed(() => props.newVersionView);
+        const downloadPercentDio = computed(() => props.downloadPercent);
         //更新
         const handleUpdate = () => {
             emit("update:newVersionView", false)
             emit("update:updateVisible", true)
-            window.electron.ipcRenderer.invoke("isUpdateNow");
+            emit("downloadUpdate")
+            // window.electron.ipcRenderer.invoke("isUpdateNow");
         };
         //取消更新
         const cancleUpdate = () => {
@@ -80,6 +84,7 @@ export default defineComponent({
         return {
             updateVisibleDio,
             newVersionViewDio,
+            downloadPercentDio,
             handleUpdate,
             cancleUpdate
         }
