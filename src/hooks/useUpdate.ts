@@ -108,85 +108,39 @@ export default () => {
     // }
 
     //下载文件
-    const downloadUpdate = (): Promise<string> => {
+    const downloadUpdate = () => {
         const fileName = process.env["VUE_APP_PRODUCT_NAME "] || "爱学仕校园教师端" + "-" + newVersionNum.value + ".exe";
         const updataUrl = "https://app-v.oss-cn-shanghai.aliyuncs.com/teacherElectron/build/" + fileName
         const request = https.request(updataUrl);
         // request.setHeader("Range", `bytes=${0}-${updateInfo.files[0].size - 1}`);
         const filePath = path.join(remote.app.getPath("temp"), fileName);
         const fileStream = fs.createWriteStream(filePath);
-        return new Promise((resolve, reject) => {
-            request.on("response", (response: any) => {
-                const totalBytes = parseInt(response.headers["content-length"], 10);
-                let downloadedBytes = 0;
-                response.on("data", (chunk: any) => {
-                    downloadedBytes += chunk.length;
-                    // 更新下载进度
-                    downloadPercent.value = Math.round((downloadedBytes / totalBytes) * 100);
-                });
-                response.pipe(fileStream, fileName);
-
-                fileStream.on("finish", () => {
-                    fileStream.close();
-                    // 下载完成，返回文件路径
-                    resolve(filePath);
-                    console.log()
-                    installUpdate(filePath, process.env["VUE_APP_PRODUCT_NAME "] || "爱学仕校园教师端" + '.exe');
-                });
-
-                fileStream.on("error", (error: any) => {
-                    console.error(`Failed to save downloaded file: ${error}`);
-                });
+        request.on("response", (response: any) => {
+            const totalBytes = parseInt(response.headers["content-length"], 10);
+            let downloadedBytes = 0;
+            response.on("data", (chunk: any) => {
+                downloadedBytes += chunk.length;
+                // 更新下载进度
+                downloadPercent.value = Math.round((downloadedBytes / totalBytes) * 100);
             });
-            request.on("error", error => {
-                reject(error);
+            response.pipe(fileStream, fileName);
+            fileStream.on("finish", () => {
+                fileStream.close();
+                // 启动安装程序
+                spawn(path.resolve(filePath), ['/interactive'], {detached: true, shell: true});
+                remote.app.quit(); // 退出旧的程序
+                fileStream.destroy(); // 添加该行代码
             });
-            request.end();
+
+            fileStream.on("error", (error: any) => {
+                console.error(`Failed to save downloaded file: ${error}`);
+            });
         });
+        request.on("error", error => {
+            fileStream.destroy(); // 添加该行代码
+        });
+        request.end();
     };
-
-    const installUpdate = (filePath: string, fileName: string) => {
-        const appPath = remote.app.getAppPath();
-        const updateExe = path.resolve(path.dirname(appPath), "..", fileName);
-        const updateProcess = spawn(updateExe, [`--applyUpdate=${filePath}`, "--waitForExit"]);
-        updateProcess.on("error", (error: any) => {
-            console.error(`Failed to start update installer: ${error}`);
-        });
-        console.log('appPath', appPath);
-        console.log('updateExe', updateExe);
-        console.log('filePath', filePath);
-        updateProcess.on("close", code => {
-            if (code === 0) {
-                // 清空Electron缓存
-                remote.app.removeAllListeners('window-all-closed');
-                const mainWindow = remote.getCurrentWindow();
-                mainWindow.removeAllListeners('close');
-                // 安装完成后重启当前应用
-                remote.app.relaunch();
-                remote.app.exit(0);
-            } else {
-                console.error(`安装更新失败，错误代码：${code}`);
-            }
-        });
-    };
-
-
-    // // 安装更新程序
-    // exec(`${updateExe} --applyUpdate=${filePath} --waitForExit`, err => {
-    //     if (err) {
-    //         console.error(err);
-    //         return;
-    //     }
-    //     // 清空Electron缓存
-    //     remote.app.removeAllListeners('window-all-closed');
-    //     const mainWindow = remote.getCurrentWindow();
-    //     mainWindow.removeAllListeners('close');
-    //     // 安装完成后重启当前应用
-    //     remote.app.relaunch();
-    //     remote.app.exit(0);
-    //
-    // });
-
     if (isElectron()) {
         window.electron.registerEscKeyUp(() => {
             if (!window.electron.isFullScreen()) return;
@@ -200,7 +154,6 @@ export default () => {
         ifShowCancelButton,
         showUpdateInfo,
         newVersionNum,
-        installUpdate,
         getUpdateJson,
         downloadUpdate
     };
