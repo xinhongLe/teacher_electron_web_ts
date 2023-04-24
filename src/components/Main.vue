@@ -67,6 +67,7 @@ export default defineComponent({
             "preparationGroup",
             "preparationEdit",
             "AttendClass",
+            "Composition"
         ];
 
         watch(

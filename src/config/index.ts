@@ -9,6 +9,8 @@ export const TIMETABLE_API = process.env.VUE_APP_TIMETABLE_API;
 export const SCHEDULE_API = process.env.VUE_APP_SCHEDULE_API;
 export const YUN_API = process.env.VUE_APP_YUN_API;
 export const YUN_API_ONECARD = process.env.VUE_APP_YUN_API_ONECARD;
+export const YUN_API_COMPOSITION = process.env.VUE_APP_YUN_API_COMPOSITION;
+
 export const YUN_API_PORTRAIT = process.env.VUE_APP_YUN_API_PORTRAIT;
 export const YUN_API_ONECARD_MQTT = process.env.VUE_APP_YUN_API_ONECARD_MQTT;
 export const RESOURCE_API = process.env.VUE_APP_RESOURCE_API;

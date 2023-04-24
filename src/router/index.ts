@@ -144,6 +144,11 @@ const routes: Array<RouteRecordRaw> = [
                 name: "资源中心",
                 component: () => import("@/views/resourceCenter/index.vue"),
             },
+            {
+                path: "composition",
+                name: "AI作文批改",
+                component: () => import("@/views/composition/index.vue"),
+            }
         ],
     },
 ];
