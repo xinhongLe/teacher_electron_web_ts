@@ -60,7 +60,7 @@ async function createWindow() {
             nodeIntegration: true,
             contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
             preload: path.join(__dirname, "preload.js"),
-            // devTools: !!process.env.WEBPACK_DEV_SERVER_URL
+            devTools: !!process.env.WEBPACK_DEV_SERVER_URL
         }
     });
     // mainWindow.setContentProtection(true);
@@ -74,7 +74,7 @@ async function createWindow() {
     registerEvent();
     registerWinCardEvent();
     registerVirtualKeyBoard();
-    mainWindow.webContents.openDevTools();
+    // mainWindow.webContents.openDevTools();
     if (process.env.WEBPACK_DEV_SERVER_URL) {
         require("@electron/remote/main").enable(mainWindow.webContents);
         mainWindow.loadURL(process.env.WEBPACK_DEV_SERVER_URL);
