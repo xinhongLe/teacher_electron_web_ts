@@ -129,7 +129,7 @@ export default () => {
                 // 启动安装程序
                 spawn(path.resolve(filePath), ['/interactive'], {detached: true, shell: true});
                 remote.app.quit(); // 退出旧的程序
-                fileStream.destroy(); // 添加该行代码
+                fileStream.destroy();
             });
 
             fileStream.on("error", (error: any) => {
@@ -137,7 +137,7 @@ export default () => {
             });
         });
         request.on("error", error => {
-            fileStream.destroy(); // 添加该行代码
+            fileStream.destroy();
         });
         request.end();
     };
