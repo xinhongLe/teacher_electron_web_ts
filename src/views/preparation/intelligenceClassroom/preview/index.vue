@@ -36,13 +36,15 @@
         </div>
         <div class="center" :style="{width:centerW}">
             <screen-view
-                ref="screenRef"
                 :inline="true"
+                ref="screenRef"
                 @pagePrev="pagePrev"
                 @pageNext="pageNext"
                 @openCard="openCard"
+                :isInit="index === 0"
                 :slide="currentSlide"
                 :is-show-pen-tools="false"
+                :keyDisabled="!openCardShow"
                 v-model:isCanUndo="isCanUndo"
                 v-model:isCanRedo="isCanRedo"
             />
@@ -56,21 +58,23 @@
             />
         </div>
     </div>
+
+    <open-card-view-dialog v-if="openCardShow"/>
 </template>
 
 <script lang=ts>
-import { computed, defineComponent, PropType, ref, watch } from "vue";
-import { CardProps, PageProps } from "./props";
-import { ElMessage } from "element-plus";
-import { pageType } from "@/config";
-import Remark from "@/views/preparation/intelligenceClassroom/components/preview/remark.vue";
-import { IViewResourceData } from "@/types/store";
-import { getCardDetail } from "@/views/preparation/intelligenceClassroom/api";
 import { cloneDeep } from "lodash";
+import { pageType } from "@/config";
+import { ElMessage } from "element-plus";
+import { CardProps, PageProps } from "./props";
+import { IViewResourceData } from "@/types/store";
+import Remark from "../components/preview/remark.vue";
+import { computed, defineComponent, PropType, ref, watch } from "vue";
+import OpenCardViewDialog from "../components/edit/openCardViewDialog.vue";
 
 export default defineComponent({
     name: "WinPreview",
-    components: { Remark },
+    components: { OpenCardViewDialog, Remark },
     props: {
         cards: {
             type: Array as PropType<CardProps[]>,
@@ -208,8 +212,8 @@ export default defineComponent({
             emit("update:l-visit", !props.lVisit);
         };
 
+        const openCardShow = ref(false);
         const openCard = (data: any) => {
-            debugger
             if (!data[0] || !data[0].cards) return;
 
             const cards = [...data[0].cards];
@@ -244,6 +248,7 @@ export default defineComponent({
             handlePage,
             windowCards,
             teachProcess,
+            openCardShow,
             currentSlide,
             handleIsHideL,
             previewHandle

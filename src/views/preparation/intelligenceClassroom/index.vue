@@ -198,7 +198,6 @@ function getWinCardData() {
                 }
             }
         }
-        console.log(cardList);
         winCards.value = cardList;
     });
 }

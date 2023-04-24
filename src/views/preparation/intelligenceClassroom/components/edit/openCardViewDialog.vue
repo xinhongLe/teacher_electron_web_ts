@@ -1,27 +1,42 @@
 <template>
     <div class="card-dialog">
-        <ScreenView ref="screenRef" :inline="true" :isInit="isInit" :writeBoardVisible="writeBoardVisible"
-                    @pagePrev="execPrev" @pageNext="execNext" @closeWriteBoard="closeWriteBoard" :slide="slideView"
-                    :isShowPenTools="false" v-model:isCanUndo="isCanUndo" v-model:isCanRedo="isCanRedo"
-                    v-model:currentDrawColor="currentDrawColor" v-model:currentLineWidth="currentLineWidth"/>
+        <ScreenView
+            ref="screenRef"
+            :inline="true"
+            :isInit="isInit"
+            @pagePrev="execPrev"
+            @pageNext="execNext"
+            :slide="slideView"
+            :isShowPenTools="false"
+            v-model:isCanUndo="isCanUndo"
+            v-model:isCanRedo="isCanRedo"
+        />
         <div class="cardLis-class">
             <PageItem :pageList="cardList" :selected="selected" @selectPage="checkPage"/>
-            <!-- <div
-                class="me-page-item"
-                :class="selected === index && 'active'"
-                v-for="(item, index) in cardList"
-                @click="checkPage(index)"
-                :key="item.ID"
-            >
-                {{ item.Name }}
-            </div> -->
         </div>
-        <Tools :cardClass="'card-dialog'" :isTKdialog="true" @prevStep="prevCard" @nextStep="nextCard"
-               @showWriteBoard="showWriteBoard" @hideWriteBoard="hideWriteBoard" @close="close" :dialog="true"
-               @openShape="openShape" :isShowFullscreen="false" :isFullScreenStatus="true" :isShowRemarkBtn="false"
-               :isShowClose="true" @openPaintTool="openPaintTool" @whiteboardOption="whiteboardOption" @redo="redo"
-               @undo="undo" :isCanUndo="isCanUndo" :isCanRedo="isCanRedo" :currentDrawColor="currentDrawColor"
-               :currentLineWidth="currentLineWidth"/>
+        <Tools
+            :cardClass="'card-dialog'"
+            :isTKdialog="true"
+            @prevStep="prevCard"
+            @nextStep="nextCard"
+            @showWriteBoard="showWriteBoard"
+            @hideWriteBoard="hideWriteBoard"
+            @close="close"
+            :dialog="true"
+            @openShape="openShape"
+            :isShowFullscreen="false"
+            :isFullScreenStatus="true"
+            :isShowRemarkBtn="false"
+            :isShowClose="true"
+            @openPaintTool="openPaintTool"
+            @whiteboardOption="whiteboardOption"
+            @redo="redo"
+            @undo="undo"
+            :isCanUndo="isCanUndo"
+            :isCanRedo="isCanRedo"
+            :currentDrawColor="currentDrawColor"
+            :currentLineWidth="currentLineWidth"
+        />
     </div>
 </template>
 
@@ -35,7 +50,7 @@ import PageItem from "../pageItem.vue";
 import { dealAnimationData } from "@/utils/dataParse";
 
 export default defineComponent({
-    name: "openCardViewDia",
+    name: "openCardViewDialog",
     emits: ["closeOpenCard"],
     components: { Tools, PageItem },
     props: {
