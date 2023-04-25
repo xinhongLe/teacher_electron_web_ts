@@ -11,7 +11,6 @@ const { queryUserInfo } = useUserInfo();
 const whiteList = ["Login", "wpf班级管理", "wpf管理标签", "wpf学习记录"];
 
 router.beforeEach(async(to, from, next) => {
-    window.electron.log.info(`router to fullPath: ${to.fullPath}, router from fullPath: ${from.fullPath}`);
     // 判断有没有登录,登录的话跳到系统，未登录的话不让跳到系统
     if (to.query.account && to.query.password) {
         const { userLogin } = useLogin();

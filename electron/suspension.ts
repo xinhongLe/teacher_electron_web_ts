@@ -255,7 +255,6 @@ function createUnfoldSuspensionWindow() {
 
     unfoldSuspensionWin.on("closed", () => {
         unfoldSuspensionWin = null;
-        ElectronLog.info("unfoldSuspensionWin closed");
     });
 }
 
@@ -477,7 +476,6 @@ class CustomCallBack implements CallBack {
     OnConnected(): void {
         isFirstTime = false;
         openTimes = (new Date().getTime() - lastOpenTime) / 1000;
-        ElectronLog.log("isShowSuspension", isShowSuspension);
         if (isShowSuspension) {
             showSuspension();
         }
@@ -592,7 +590,6 @@ function createLocalSuspensionWindow() {
     });
     suspensionWin.on("closed", () => {
         suspensionWin = null;
-        ElectronLog.info("suspensionWin closed");
     });
 
     suspensionWin.on("moved", () => {
@@ -722,7 +719,6 @@ export function registerEvent() {
 
     ipcMain.handle("openSuspension", () => {
         isShowSuspension = true;
-        console.log("open-isShowSuspension", isShowSuspension);
         if (socketHelper) {
             socketHelper.sendMessage(new Action("SMALLMENUSHOW", ""));
         } else {
@@ -732,7 +728,6 @@ export function registerEvent() {
 
     ipcMain.handle("closeSuspension", () => {
         isShowSuspension = false;
-        console.log("close-isShowSuspension", isShowSuspension);
         if (socketHelper) {
             socketHelper.sendMessage(new Action("SMALLMENUHIDE", ""));
         } else {

@@ -5,11 +5,12 @@ import Axios from "Axios";
 import { createWriteStream, createReadStream } from "fs";
 import ElectronLog from "electron-log";
 import Store from "electron-store";
+
 const crypto = require("crypto");
 type func = (value: unknown) => void;
 
 export const store = new Store({
-    watch: true,
+    watch: true
 });
 const downloadingFileList: string[] = []; // 下载中的文件列表
 const downloadSuccessCallbackMap = new Map<string, func[]>();
@@ -17,9 +18,6 @@ export const isExistFile = (filePath: string): Promise<boolean> => {
     return new Promise((resolve) => {
         access(filePath)
             .then(() => {
-                ElectronLog.info("filePath", filePath);
-                // resolve(true);
-                // const fileName = filePath.substring(filePath.lastIndexOf("\\") + 1, filePath.lastIndexOf("."));
                 const fileName = filePath.replaceAll("\\", "/").replace(/(.*\/)*([^.]+).*/gi, "$2");
                 const hash = crypto.createHash("md5");
                 createReadStream(filePath)
@@ -49,7 +47,6 @@ const dealCallback = (fileName: string, filePath: string) => {
         callbackList.forEach((callback) =>
             callback(filePath.replaceAll("\\", "/"))
         );
-        ElectronLog.info(callbackList.length, fileName);
         downloadSuccessCallbackMap.delete(fileName);
     }
 };
@@ -75,39 +72,27 @@ export const downloadFileAxios = async (url: string, fileName: string) => {
     }
 
     try {
-        ElectronLog.info("start downloadFile fileName:", fileName);
-
         const response = await Axios({
             url,
             method: "GET",
-            responseType: "stream",
+            responseType: "stream"
         });
 
         const writer = createWriteStream(filePath);
-
-        ElectronLog.info(
-            "downloadFileAxios status: ",
-            response.status,
-            "fileName:",
-            fileName
-        );
         if (response.status === 200) {
             response.data.pipe(writer);
         } else {
             writer.destroy();
         }
-    
+
         const state = await new Promise((resolve) => {
             writer.on("finish", () => {
-                ElectronLog.info("finish fileName:", fileName);
                 resolve(true);
             });
             writer.on("error", (err) => {
-                ElectronLog.info("error fileName", fileName, err.message);
                 resolve(false);
             });
             writer.on("close", () => {
-                ElectronLog.info("close fileName", fileName);
                 resolve(false);
             });
         });
@@ -115,7 +100,6 @@ export const downloadFileAxios = async (url: string, fileName: string) => {
         downloadingFileList.splice(index, 1);
         dealCallback(fileName, state ? filePath : "");
     } catch {
-        ElectronLog.info("start downloadFile fileName error:", fileName);
         dealCallback(fileName, "");
         const index = downloadingFileList.indexOf(fileName);
         if (index > -1) downloadingFileList.splice(index, 1);
@@ -131,7 +115,7 @@ export const downloadFileToPath = async (
     const response = await Axios({
         url,
         method: "GET",
-        responseType: "stream",
+        responseType: "stream"
     });
     if (response.status === 200) {
         response.data.pipe(writer);
@@ -141,15 +125,12 @@ export const downloadFileToPath = async (
 
     return new Promise((resolve) => {
         writer.on("finish", () => {
-            ElectronLog.info("finish fileName:", fileName);
             resolve(true);
         });
-        writer.on("error", (err) => {
-            ElectronLog.info("error fileName", fileName, err.message);
+        writer.on("error", () => {
             resolve(false);
         });
         writer.on("close", () => {
-            ElectronLog.info("close fileName", fileName);
             resolve(false);
         });
     });
@@ -177,7 +158,7 @@ export default () => {
                 const callbackList = downloadSuccessCallbackMap.get(fileName) || [];
                 downloadSuccessCallbackMap.set(fileName, [
                     ...callbackList,
-                    resolve,
+                    resolve
                 ]);
             } else {
                 downloadSuccessCallbackMap.set(fileName, [resolve]);

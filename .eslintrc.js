@@ -19,11 +19,11 @@ module.exports = {
     rules: {
         "no-console": process.env.NODE_ENV === "production" ? "warn" : "off",
         "no-debugger": process.env.NODE_ENV === "production" ? "warn" : "off",
-        indent: ["error", 4],
+        indent: ["error", 4, { "SwitchCase": 1 }],
         semi: ["error", "always"],
         quotes: [2, "double"],
         "space-before-function-paren": 0,
-        "dot-notation": [0, {allowKeywords: false, allowPattern: ""}],
+        "dot-notation": [0, { allowKeywords: false, allowPattern: "" }],
         "@typescript-eslint/explicit-module-boundary-types": "off",
         "@typescript-eslint/no-non-null-assertion": "off",
         "@typescript-eslint/no-var-requires": "off",

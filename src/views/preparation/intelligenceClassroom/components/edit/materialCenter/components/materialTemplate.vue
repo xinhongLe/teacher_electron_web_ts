@@ -39,9 +39,7 @@
                                         src="@/assets/images/material/icon_td.png"
                                         alt=""
                                     />
-                                    <span class="title">{{
-                                        element.Name
-                                    }}</span>
+                                    <span class="title">{{ element.Name }}</span>
                                 </div>
                                 <span
                                     v-if="element.TeachPageTemplateCount > 2"
@@ -49,7 +47,7 @@
                                     @click="getAllList(element.ID)"
                                 >
                                     更多
-                                    <el-icon><ArrowRight /></el-icon>
+                                    <el-icon><ArrowRight/></el-icon>
                                 </span>
                             </div>
                             <div v-else class="row-header">
@@ -57,7 +55,7 @@
                                     @click="goBackAllList"
                                     class="title back-text"
                                 >
-                                    <el-icon><ArrowLeft /></el-icon>
+                                    <el-icon><ArrowLeft/></el-icon>
                                     {{ element.Name }}
                                 </span>
                             </div>
@@ -129,7 +127,7 @@
                                 <div class="info flex-between-center">
                                     <span class="text">{{ item.Name }}</span>
                                     <span class="page"
-                                        >{{ item.PageCount }}页</span
+                                    >{{ item.PageCount }}页</span
                                     >
                                     <el-popover
                                         placement="right-start"
@@ -139,7 +137,7 @@
                                         <template #reference>
                                             <el-button size="small" @click.stop>
                                                 <el-icon :size="18">
-                                                    <more-filled />
+                                                    <more-filled/>
                                                 </el-icon>
                                             </el-button>
                                         </template>
@@ -261,12 +259,12 @@ export default defineComponent({
     props: {
         subjectID: {
             type: String,
-            required: true,
+            required: true
         },
         lessonId: {
             type: String,
-            required: true,
-        },
+            required: true
+        }
     },
     setup(props, { emit }) {
         const {
@@ -278,10 +276,10 @@ export default defineComponent({
             updateTemplateStatus,
             updateTemplateSort,
             reorderTemplate,
-            isLoading,
+            isLoading
         } = useSaveTemplate();
-        const noMore = computed(() => pager.value.IsLastPage); //不在显示更多
-        const templateScollRef = ref(); //滚动区域
+        const noMore = computed(() => pager.value.IsLastPage); // 不在显示更多
+        const templateScollRef = ref(); // 滚动区域
         const state = reactive({
             visibleView: false,
             searchName: "",
@@ -295,13 +293,13 @@ export default defineComponent({
                     PageSize: 10,
                     SortField: "",
                     SortType: "",
-                    Total: 0,
-                },
+                    Total: 0
+                }
             },
             isAllList: false,
             currentSelectTemplate: [],
             disabled: false, //是否终止滚动加载
-            loading: false,
+            loading: false
             //   templateList: [
             //     //模板数据
             //     {
@@ -363,7 +361,8 @@ export default defineComponent({
             await queryTemplateList();
         };
         //处理窗卡页显示数据
-        const formatSlide = (data: any) => {};
+        const formatSlide = (data: any) => {
+        };
         watch(
             () => props.subjectID,
             async (curVal) => {
@@ -405,7 +404,7 @@ export default defineComponent({
         ) => {
             const params: any = {
                 TeachPageTemplateID: id || "",
-                Status: status,
+                Status: status
             };
             const res: any = await updateTemplateStatus(params);
             if (res) {
@@ -432,7 +431,7 @@ export default defineComponent({
         ) => {
             const params: any = {
                 TeachPageTemplateID: id || "",
-                TeachPageClassroomLinkID: linkId || "",
+                TeachPageClassroomLinkID: linkId || ""
             };
             const res: any = await updateTemplateSort(params);
             if (res) {
@@ -488,14 +487,14 @@ export default defineComponent({
                 (item: any, index: number) => {
                     return {
                         Sort: index,
-                        ID: item.ID,
+                        ID: item.ID
                     };
                 }
             );
             //排序接口参数
             const params: IRecordSort = {
                 TeacherID: "",
-                Detail: endTemplateList,
+                Detail: endTemplateList
             };
             //课堂环节拖拽完成排序
             reorderTemplate(params);
@@ -506,19 +505,20 @@ export default defineComponent({
             ElMessageBox.confirm("确定要删除当前选择的模板吗？", "提示", {
                 confirmButtonText: "确定",
                 cancelButtonText: "取消",
-                type: "warning",
+                type: "warning"
             })
                 .then(async () => {
                     const params: any = {
                         TeacherID: "",
-                        ID: item.TeachPageTemplateID || "",
+                        ID: item.TeachPageTemplateID || ""
                     };
                     const res: any = await deleteTemplate(params);
                     if (res) {
                         await querySaveTemplateList();
                     }
                 })
-                .catch(() => {});
+                .catch(() => {
+                });
         };
         //静态使用次数 加1
         const addLinkCount = (id: string) => {
@@ -555,9 +555,9 @@ export default defineComponent({
             nameInput,
             loadMore,
             querySaveTemplateList,
-            addLinkCount,
+            addLinkCount
         };
-    },
+    }
 });
 </script>
 

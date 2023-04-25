@@ -29,89 +29,13 @@
             </div>
         </div>
         <div class="wrapper">
-            <div class="left" :class="{collapse:!showCollapse}">
-                <div class="placeholder"/>
-                <div class="card" ref="cardListRef">
-                    <div class="folder" v-for="folder in windowCards" :key="folder.ID">
-                        <div class="title" @click="folder.Fold = !folder.Fold">
-                            <i class="triangle" :class="{rotate:!folder.Fold}"></i>
-                            <img class="file-icon" src="@/assets/edit/icon_file.png" alt=""/>
-                            <span>{{ folder.Name }}</span>
-                            <card-popover :data="folder" @handle="handleCartItem" class="more">
-                                <img src="@/assets/edit/icon_file_more.png" alt="" :id="`popover-${folder.ID}`"
-                                     @click.stop/>
-                            </card-popover>
-                        </div>
-                        <vue-draggable-next v-model="folder.PageList" group="site" tag="div" class="pages"
-                                            v-show="folder.Fold" @end="sortWindowCards">
-                            <transition-group>
-                                <div
-                                    class="page"
-                                    @click="handlePageClick(page, $event)"
-                                    v-contextmenu="() => contextMenus(page)"
-                                    @mousedown="handleSelect($event,page.ID)"
-                                    v-for="page in folder.PageList" :key="page.ID"
-                                >
-                                    <div class="page-left">
-                                        <p class="index">{{ page.Index }}</p>
-                                        <img src="@/assets/edit/icon_donghua.png" alt=""
-                                             v-if="checkIsHandle(2,page.Json)"/>
-                                        <img src="@/assets/edit/icon_shijian.png" alt=""
-                                             v-if="checkIsHandle(1,page.Json)"/>
-                                    </div>
-                                    <div class="page-right" :class="{active:currentPage.ID === page.ID}">
-                                        <img class="cover" v-if="(page.Type === 20 || page.Type === 16) && page.Url"
-                                             :src="page.Url"/>
-                                        <template v-else>
-                                            <thumbnail-slide
-                                                :size="228"
-                                                :slide="page.Json"
-                                                v-if="[pageType.listen,pageType.element].includes(page.Type)"
-                                            />
-                                            <div class="view-empty" v-else>{{ page.Name }}</div>
-                                        </template>
-
-                                        <template v-if="!page.State">
-                                            <img class="down" src="@/assets/edit/icon_yc1.png" alt=""/>
-                                            <div class="masks"></div>
-                                        </template>
-
-                                        <div class="handle">
-                                            <div class="name"
-                                                 v-if="[pageType.listen,pageType.element].includes(page.Type)">
-                                                {{ page.Name }}
-                                            </div>
-                                            <card-popover :data="page" add @handle="handleCartItem"
-                                                          class="handler-item add">
-                                                <img :id="`popover-add-${page.ID}`"
-                                                     src="@/assets/edit/icon_add_hover.png" alt=""/>
-                                            </card-popover>
-
-                                            <card-popover :data="page" @handle="handleCartItem"
-                                                          class="handler-item more">
-                                                <img :id="`popover-more-${page.ID}`"
-                                                     src="@/assets/edit/icon_more_big.png" alt=""/>
-                                            </card-popover>
-                                        </div>
-                                    </div>
-
-                                    <img v-if="selectPageIds.length > 0" class="select-icon"
-                                         :src="require(`@/assets/edit/icon_${selectPageIds.includes(page.ID) ? 'clicked' : 'unclick'}.png`)"
-                                         alt=""/>
-                                </div>
-                            </transition-group>
-                        </vue-draggable-next>
-                    </div>
-                </div>
-                <div class="pagination">
-                    当前页{{ currentPage?.Index || 1 }}/{{ total }}
-                </div>
-                <div class="shrink" @click="showCollapse = !showCollapse">
-                    <el-icon :style="{ transform:'rotate(' + (showCollapse ? 0 : 180) + 'deg)'}">
-                        <ArrowLeft/>
-                    </el-icon>
-                </div>
-            </div>
+            <card-preview
+                :cards="windowCards"
+                :collapse="showCollapse"
+                :page-id="currentPage?.ID"
+                @handle="cardPreviewHandle"
+                :select-page-ids="selectPageIds"
+            />
             <div class="right" :class="{collapse:!showCollapse}">
                 <win-card-edit
                     ref="editRef"
@@ -122,7 +46,7 @@
                     @updatePageSlide="updatePageSlide"
                     :slide="currentPage?.Json || {}"
                     @applyBackgroundAllSlide="applyBackgroundAllSlide"
-                    :subjectID="subjectPublisherBookValue?.SubjectId || ''"
+                    :subjectID="publication?.SubjectId || ''"
                 />
             </div>
         </div>
@@ -153,7 +77,11 @@
     </div>
 
     <!-- 新增页弹框-->
-    <add-page-dialog v-if="addPageVisible" v-model:dialogVisible="addPageVisible" @addPage="addInteractionPage"/>
+    <add-page-dialog
+        v-if="addPageVisible"
+        @addPage="addInteractionPage"
+        v-model:dialogVisible="addPageVisible"
+    />
 
     <!-- 资源库 -->
     <material-center
@@ -161,18 +89,17 @@
         @insertData="handleInsertData"
         @insertTools="handleInsertTool"
         :lessonId="windowInfo?.lessonId || ''"
-        :subjectID="subjectPublisherBookValue?.SubjectId || ''"
+        :subjectID="publication?.SubjectId || ''"
     />
 </template>
 
 <script lang="ts">
-import { store } from "@/store";
+import { useStore } from "@/store";
 import { Slide } from "wincard";
 import { cloneDeep } from "lodash";
 import { v4 as uuidv4 } from "uuid";
 import { saveWindows } from "../api";
 import useHome from "@/hooks/useHome";
-import { getOssUrl } from "@/utils/oss";
 import loading from "@/components/loading";
 import usePreview from "./hooks/usePreview";
 import { getImageSize } from "@/utils/image";
@@ -183,55 +110,85 @@ import { isFullscreen } from "@/utils/fullscreen";
 import { pageType, pageTypeList } from "@/config";
 import { CardProps, PageProps } from "../api/props";
 import { get, STORAGE_TYPES } from "@/utils/storage";
-import { VueDraggableNext } from "vue-draggable-next";
-import { dealAnimationData } from "@/utils/dataParse";
 import { ElMessage, ElMessageBox } from "element-plus";
 import exitDialog, { ExitType } from "../edit/exitDialog";
 import WinCardEdit from "../components/edit/winCardEdit.vue";
-import CardPopover from "../components/edit/CardPopover.vue";
 import WinCardView from "../components/edit/winScreenView.vue";
 import AddPageDialog from "../components/edit/addPageDialog.vue";
 import materialCenter from "../components/edit/materialCenter/index.vue";
-import { addTeachPageTemplateLinkCount, saveTemplate } from "@/api/material";
+import { addTeachPageTemplateLinkCount } from "@/api/material";
 import { computed, defineComponent, nextTick, onMounted, onUnmounted, ref } from "vue";
+import CardPreview from "@/views/preparation/intelligenceClassroom/components/edit/CardPreview.vue";
+import useSaveTemplate from "@/views/preparation/intelligenceClassroom/edit/hooks/useSaveTemplate";
 
 export default defineComponent({
-    name: "Edit",
+    name: "EditWinCard",
     components: {
-        CardPopover,
+        CardPreview,
         WinCardEdit,
         WinCardView,
-        VueDraggableNext,
         AddPageDialog,
         materialCenter
     },
     setup() {
-        const { transformPageDetail } = useHome();
-        const windowInfo = computed(() =>
-            store.state.preparation.editWindowInfo.id
-                ? store.state.preparation.editWindowInfo
-                : get(STORAGE_TYPES.WINDOW_INFO));
-        const subjectPublisherBookValue = computed(() =>
-            store.state.preparation.editWindowInfo.id
-                ? store.state.preparation.subjectPublisherBookValue
-                : get(STORAGE_TYPES.SUBJECT_BOOK_INFO)
-        );
+        const store = useStore();
+
+        const windowInfo = computed(() => get(STORAGE_TYPES.WINDOW_INFO));
+        const publication = computed(() => get(STORAGE_TYPES.SUBJECT_BOOK_INFO));
 
         const editRef = ref();
         const winCardViewRef = ref();
-        const materialCenterRef = ref();
-        const total = ref(0);
         const showCollapse = ref(true);
         const addPageVisible = ref(false);
-        const currentPage = ref<PageProps | null>(null);
+        const currentPageId = ref<string>("");
         const selectPageIds = ref<string[]>([]);
         const windowCards = ref<CardProps[]>([]);
 
         getWindowCardsData();
 
-        const pptHandle = useImportPPT();
+        const handleImport = useImportPPT();
+        const { transformPageDetail } = useHome();
+        const handlePPT = useHandlePPT(windowCards, currentPageId);
+        const { materialCenterRef, saveWindowTemplate } = useSaveTemplate();
+
+        const currentPage = computed(() => handlePPT.getPageById(currentPageId.value));
+
         const previewHandle = usePreview(windowCards, currentPage, editRef, winCardViewRef);
-        const addHandle = useHandlePPT(windowCards, currentPage, editRef);
+
+        // 左侧预览窗操作
+        const cardPreviewHandle = (obj: { type: number, params: any }) => {
+            // 关闭预览窗
+            if (obj.type === 1) {
+                showCollapse.value = !showCollapse.value;
+            }
+            // 重新排序
+            if (obj.type === 2) {
+                windowCards.value = obj.params;
+                handlePPT.sortWindowCards();
+            }
+            // 悬浮框操作
+            if (obj.type === 3) {
+                handleCartItem(obj.params.type, obj.params.data);
+            }
+            // 切换页
+            if (obj.type === 4) {
+                currentPageId.value = obj.params;
+            }
+            // 按住shift和ctrl选中
+            if (obj.type === 5) {
+                const index = selectPageIds.value.findIndex(item => item === obj.params);
+
+                if (index >= 0) {
+                    selectPageIds.value.splice(index, 1);
+                } else {
+                    selectPageIds.value.push(obj.params);
+                }
+            }
+            // 保存模板
+            if (obj.type === 6) {
+                saveTemplate(obj.params);
+            }
+        };
 
         // win-card-edit插件保存回调
         const winCardSave = async () => {
@@ -306,8 +263,8 @@ export default defineComponent({
 
         // 导入PPT
         const importPPT = () => {
-            pptHandle.importByElectron(result => {
-                const name = pptHandle.uploadFileName.value.split("\\");
+            handleImport.importByElectron(result => {
+                const name = handleImport.uploadFileName.value.split("\\");
                 const parentId = uuidv4();
                 const pageList = result.slides.map((item, index) => {
                     const id = uuidv4();
@@ -349,32 +306,35 @@ export default defineComponent({
                     inputPattern: /\S/,
                     inputErrorMessage: "请填写文件夹名称"
                 }).then(async ({ value }) => {
-                    addHandle.createFolder(value);
+                    const card = handlePPT.createFolder(value);
+                    const page = await handlePPT.createCardPage(pageTypeList[0], card);
+                    handlePPT.sortWindowCards();
+                    currentPageId.value = page.ID;
                 });
             }
             if (type === 2) {
                 loading.show();
-                addHandle.createCardPage(pageTypeList[0], data);
+                handlePPT.createCardPage(pageTypeList[0], data);
             }
             if (type === 3) {
-                addHandle.rename(data);
+                handlePPT.rename(data);
             }
             if (type === 4) {
                 (data as PageProps).State = (data as PageProps).State ? 0 : 1;
             }
             if (type === 5) {
                 loading.show();
-                addHandle.paste(data as CardProps);
+                handlePPT.paste(data as CardProps);
             }
             if (type === 6) {
                 loading.show();
-                addHandle.copy(data as PageProps);
+                handlePPT.copy(data as PageProps);
             }
             if (type === 7) {
-                handleSaveTemplate(data as PageProps);
+                saveTemplate(data as PageProps);
             }
             if (type === 8) {
-                addHandle.remove(data);
+                handlePPT.remove(data);
             }
             if (type === 9) {
                 selectPage = cloneDeep<PageProps>(data as PageProps);
@@ -389,115 +349,10 @@ export default defineComponent({
         // 新增互动页
         const addInteractionPage = (pageType: any) => {
             loading.show();
-            addHandle.createCardPage(pageType, selectPage as PageProps);
+            handlePPT.createCardPage(pageType, selectPage as PageProps);
             addPageVisible.value = false;
             selectPage = null;
             loading.hide();
-        };
-
-        // 按住shift和ctrl选中
-        const handleSelect = (e: KeyboardEvent, id: string) => {
-            if (e.shiftKey && e.ctrlKey) return;
-            if (!(e.shiftKey || e.ctrlKey)) return;
-
-            const index = selectPageIds.value.findIndex(item => item === id);
-
-            if (index > 0) {
-                selectPageIds.value.splice(index, 1);
-            } else {
-                selectPageIds.value.push(id);
-            }
-        };
-
-        // 保存模板
-        const handleSaveTemplate = (page?: PageProps) => {
-            if (!page && selectPageIds.value.length === 0) {
-                ElMessage.warning("请先选中需要保存的模板");
-                return;
-            }
-            ElMessageBox.prompt("", "保存模板", {
-                inputPattern: /\S/,
-                inputErrorMessage: "请填写模板名称"
-            }).then(async ({ value }) => {
-                let allPages: PageProps[] = [];
-                windowCards.value.forEach(item => {
-                    allPages = allPages.concat(...item.PageList);
-                });
-                const list: any = selectPageIds.value.length === 0 ? [page] : selectPageIds.value.map(item => allPages.find(it => it.ID === item));
-
-                const params = {
-                    ID: "",
-                    Status: 1,
-                    Name: value,
-                    HavingAudio: 0,
-                    HavingVideo: 0,
-                    EstimatedDuration: 0,
-                    TeachPageClassroomLink: null,
-                    LessonID: windowInfo.value.lessonId,
-                    SubjectID: subjectPublisherBookValue.value?.SubjectId || "",
-                    TeacherID: store.state.userInfo.id ? store.state.userInfo.id : get(STORAGE_TYPES.USER_INFO).ID
-                };
-
-                for (let i = 0; i < list.length; i++) {
-                    const item = list[i];
-
-                    if (!item.ID) continue;
-
-                    const temPage: Slide | undefined = allPages.find(it => it.ID === item.ID)?.Json;
-
-                    if (!temPage) continue;
-
-                    params.HavingAudio = temPage.elements.some(item => item.type === "audio") ? 1 : 0;
-                    params.HavingVideo = temPage.elements.some(item => item.type === "video") ? 1 : 0;
-                    item.AcademicPresupposition = temPage.remark;
-                    item.DesignIntent = temPage.design;
-
-                    if (temPage.type === "element") {
-                        item.Json = JSON.stringify(temPage);
-                    }
-                    if (temPage.type === "listen") {
-                        const words = temPage.listenWords?.map((word: any, index: number) => {
-                            return {
-                                sort: index + 1,
-                                WordID: word.id,
-                                PageWordID: word.pageWordID ? null : word.pageWordID,
-                                WordInterval: 2
-                            };
-                        });
-                        item.Json = JSON.stringify(words);
-                    }
-                    if (temPage.type === "follow") {
-                        item.Json = temPage.follow?.id || "";
-                    }
-                    if (temPage.type === "teach") {
-                        item.Json = temPage.teach?.id || "";
-                    }
-                    if (temPage.type === "game") {
-                        item.Json = temPage.game?.id || "";
-                    }
-                }
-
-                const res = await saveTemplate({ ...params, PageData: list });
-
-                if (res.resultCode !== 200) return;
-                ElMessage.success("保存成功，请前往「我的」查看已保存模板");
-                selectPageIds.value = [];
-                await nextTick(() => {
-                    materialCenterRef.value.queryTemplateList();
-                });
-            });
-        };
-
-        const contextMenus = (page: PageProps) => {
-            return [
-                {
-                    text: "保存模板",
-                    subText: "",
-                    handler: () => {
-                        handleSaveTemplate(page);
-                    }
-                }
-            ];
         };
 
         // 子窗体关闭 提示
@@ -530,7 +385,7 @@ export default defineComponent({
 
             if (obj.type === "page") {
                 windowCards.value[index].PageList.splice(subIndex + 1, 0, ...obj.data);
-                addHandle.sortWindowCards();
+                handlePPT.sortWindowCards();
 
                 // 插入成功后调用一下增加次数的接口
                 await addTeachPageTemplateLinkCount({
@@ -573,7 +428,7 @@ export default defineComponent({
                     page.Json.elements.push(element);
                 }
 
-                await addHandle.replaceCurrentPage(page);
+                await handlePPT.replaceCurrentPage(page);
             }
         };
 
@@ -612,9 +467,8 @@ export default defineComponent({
             const index = windowCards.value.findIndex(item => item.ID === currentPage.value?.ParentID);
             const subIndex = windowCards.value[index].PageList.findIndex(item => item.ID === currentPage.value?.ID);
 
-            addHandle.insertWindowsCards(page, index, subIndex);
-            addHandle.sortWindowCards();
-            currentPage.value = addHandle.getPageById(id);
+            handlePPT.insertWindowsCards(page, index, subIndex);
+            handlePPT.sortWindowCards();
         };
 
         // 保存完组件后刷新素材列表
@@ -639,7 +493,7 @@ export default defineComponent({
                 page.Url = game.ossSrc;
             }
 
-            addHandle.replaceCurrentPage(page);
+            handlePPT.replaceCurrentPage(page);
         };
 
         const applyBackgroundAllSlide = (data: any) => {
@@ -669,18 +523,6 @@ export default defineComponent({
             }, 500);
         };
 
-        // 判断该PPT有无事件，动画，超链接素材（1-事件，2-动画，3-超链接素材）
-        const checkIsHandle = (type: 1 | 2 | 3, json: any) => {
-            if (!json) return false;
-            if (type === 1) {
-                return (json.elements || []).filter((item: any) => item.actions && item.actions.length > 0).length > 0;
-            }
-            if (type === 2) {
-                return json.animations && json.animations.length > 0;
-            }
-            return false;
-        };
-
         // 同步教案的数据
         const syncLesson = (slides: { id: string, AcademicPresupposition: string, DesignIntent: string }[]) => {
             const winCards = cloneDeep<CardProps[]>(windowCards.value);
@@ -704,6 +546,31 @@ export default defineComponent({
             }
             windowCards.value = winCards;
         };
+
+        function saveTemplate(page: PageProps) {
+            let allPages: PageProps[] = [];
+            windowCards.value.forEach(item => {
+                allPages = allPages.concat(...item.PageList);
+            });
+            const list: PageProps[] = selectPageIds.value.length === 0 ? [page] : selectPageIds.value.map(item => allPages.find(it => it.ID === item) as PageProps);
+            if (list.length === 0) {
+                ElMessage.warning("请先选中需要保存的模板");
+                return;
+            }
+            ElMessageBox.prompt("", "保存模板", {
+                inputPattern: /\S/,
+                inputErrorMessage: "请填写模板名称"
+            }).then(async ({ value }) => {
+                await saveWindowTemplate(
+                    value,
+                    cloneDeep(list),
+                    windowInfo.value.lessonId,
+                    publication.value?.SubjectId,
+                    get(STORAGE_TYPES.USER_INFO).ID
+                );
+                selectPageIds.value = [];
+            });
+        }
 
         const VIEWPORT_RATIO = 0.5625;
         const VIEWPORT_SIZE = 1280;
@@ -769,72 +636,12 @@ export default defineComponent({
                 if (res.resultCode !== 200) return;
 
                 const list = res.result.CardData;
-                if (!list || list.length === 0) return;
-                assembleCardData(list);
-            });
-        }
-
-        const formatOssUrl = async (file: any) => {
-            const key = `${file?.FilePath}/${file?.FileMD5}.${
-                file?.FileExtention || file?.Extention
-            }`;
-            return await getOssUrl(key, "axsfile");
-        };
-
-        // 组装ppt列表数据
-        async function assembleCardData(arr: CardProps[]) {
-            const list = [];
-            let index = 1;
-
-            for (let i = 0; i < arr.length; i++) {
-                const item = arr[i];
-                const pageList: PageProps[] = [];
-
-                for (let j = 0; j < item.PageList.length; j++) {
-                    const it = item.PageList[j];
-                    if (!it) continue;
-
-                    const json = JSON.parse(it.Json || "{}");
-                    let url = it.Url || "";
-                    if (!url && (it.Type === 20 || it.Type === 16)) {
-                        url = json?.ToolFileModel ? await formatOssUrl(json?.ToolFileModel?.File) : "";
-                    }
-
-                    const slide: Slide = await transformPageDetail(it, json);
-
-                    const obj = {
-                        ID: it.ID,
-                        TeachPageRelationID: it.TeachPageRelationID,
-                        Name: it.Name,
-                        Height: it.Height,
-                        Width: it.Width,
-                        Type: it.Type,
-                        Sort: it.Sort,
-                        State: it.State,
-                        AcademicPresupposition: it.AcademicPresupposition,
-                        DesignIntent: it.DesignIntent,
-                        Json: dealAnimationData(slide),
-                        Index: index,
-                        Url: url,
-                        ParentID: item.ID
-                    };
-
-                    pageList.push(obj);
-                    index++;
+                if (!list || list.length === 0) {
+                    windowCards.value = [];
+                    return;
                 }
-                list.push({
-                    ID: item.ID,
-                    TeachPageRelationID: item.TeachPageRelationID,
-                    Name: item.Name,
-                    Sort: item.Sort,
-                    PageList: pageList,
-                    Fold: true
-                });
-            }
-            console.log(list);
-            windowCards.value = list;
-            total.value = index;
-            currentPage.value = list[0].PageList[0];
+                handlePPT.assembleCardData(list);
+            });
         }
 
         onMounted(() => {
@@ -853,7 +660,7 @@ export default defineComponent({
         });
 
         return {
-            total,
+            cardPreviewHandle,
             editRef,
             pageType,
             windowInfo,
@@ -864,15 +671,11 @@ export default defineComponent({
             addPageVisible,
             winCardViewRef,
             materialCenterRef,
-            subjectPublisherBookValue,
+            publication,
             importPPT,
             syncLesson,
             winCardSave,
             handleSave,
-            handleSelect,
-            contextMenus,
-            checkIsHandle,
-            handleCartItem,
             updateMaterial,
             handleInsertData,
             updatePageSlide,
@@ -880,8 +683,8 @@ export default defineComponent({
             addInteractionPage,
             closeCurrentWinCard,
             applyBackgroundAllSlide,
-            ...addHandle,
-            ...pptHandle,
+            ...handlePPT,
+            ...handleImport,
             ...previewHandle
         };
     }
@@ -953,250 +756,6 @@ export default defineComponent({
 .wrapper {
     height: calc(100% - 56px);
     display: flex;
-
-    .left {
-        width: 280px;
-        height: 100%;
-        position: relative;
-        transition: all 0.5s;
-
-        &.collapse {
-            width: 0;
-        }
-
-        .placeholder {
-            height: 56px;
-            box-shadow: inset 0px -1px 0px 0px #EBEFF1;
-        }
-
-        .card {
-            height: calc(100% - 96px);
-            overflow-y: auto;
-
-            .folder {
-                margin: 0 16px 0 12px;
-                width: calc(100% - 28px);
-            }
-
-            .title {
-                height: 44px;
-                display: flex;
-                align-items: center;
-                cursor: pointer;
-                position: relative;
-                width: 100%;
-
-                .triangle {
-                    width: 0;
-                    height: 0;
-                    border-style: solid;
-                    border-width: 5px 3px 0 3px;
-                    border-color: #414E65 transparent transparent transparent;
-                    border-radius: 1px;
-                    transition: 0.5s;
-                    transform-origin: center;
-
-                    &.rotate {
-                        transform: rotate(-90deg);
-                    }
-                }
-
-                .file-icon {
-                    height: 14px;
-                    width: 14px;
-                    margin: 0 8px 0 5px;
-                }
-
-                .more {
-                    position: absolute;
-                    right: 0;
-                    width: 15px;
-                    height: 30px;
-                    display: flex;
-                    align-items: center;
-
-                    img {
-                        width: 15px;
-                        height: 3px;
-                    }
-                }
-            }
-
-            .pages {
-                transition: 0.5s;
-
-                & .page:last-child {
-                    margin-bottom: 0;
-                }
-
-                .page {
-                    display: flex;
-                    margin-bottom: 16px;
-                    position: relative;
-                    cursor: pointer;
-
-                    .select-icon {
-                        position: absolute;
-                        width: 16px;
-                        height: 16px;
-                        left: 20px;
-                        z-index: 9999;
-                    }
-
-                    .page-left {
-                        width: 24px;
-
-                        .index {
-                            color: #5D5D5D;
-                            font-size: 12px;
-                        }
-
-                        img {
-                            width: 14px;
-                            height: 14px;
-                            margin-top: 8px;
-                            margin-left: -3px;
-                            display: block;
-                        }
-                    }
-
-                    .page-right {
-                        flex: 1;
-                        position: relative;
-                        width: 228px;
-                        height: 128px;
-
-                        .cover {
-                            width: 100%;
-                            height: 100%;
-                        }
-
-                        &.active {
-                            outline: 2px solid #2E95FF;
-
-                            .handler-item {
-                                display: flex !important;
-                            }
-                        }
-
-                        &:hover .handler-item {
-                            display: flex !important;
-                        }
-
-                        .down {
-                            position: absolute;
-                            width: 16px;
-                            height: 16px;
-                            top: 8px;
-                            right: 10px;
-                        }
-
-                        .masks {
-                            width: 100%;
-                            height: 100%;
-                            position: absolute;
-                            top: 0;
-                            left: 0;
-                            background-color: rgba(255, 255, 255, 0.5);
-                            z-index: 99;
-                        }
-
-                        .handle {
-                            position: absolute;
-                            bottom: 0;
-                            left: 0;
-                            right: 0;
-                            height: 40px;
-                            background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.5) 100%);
-
-                            .handler-item {
-                                position: absolute;
-                                align-items: center;
-                                justify-content: center;
-                                width: 32px;
-                                height: 32px;
-                                display: none;
-
-                                &.add {
-                                    right: 36px;
-                                    bottom: -16px;
-                                    margin-right: 15px;
-
-                                    img {
-                                        width: 32px;
-                                        height: 32px;
-                                        display: block;
-                                        z-index: 99;
-                                    }
-                                }
-
-                                &.more {
-                                    right: 0;
-                                    bottom: 0;
-
-                                    img {
-                                        width: 15px;
-                                        height: 3px;
-                                        display: block;
-                                        z-index: 99;
-                                    }
-                                }
-                            }
-                        }
-
-                        .view-empty {
-                            width: 100%;
-                            height: 128px;
-                            padding: 10px;
-                            border: 1px solid #ebeff1;
-                            display: flex;
-                            align-items: flex-end;
-                            background-image: url("../../../../assets/edit/pic_defaulted.png");
-                            background-size: cover;
-                            background-repeat: no-repeat;
-                        }
-
-                        .name {
-                            color: #FFFFFF;
-                            font-size: 12px;
-                            position: absolute;
-                            left: 10px;
-                            bottom: 10px;
-                        }
-                    }
-                }
-            }
-        }
-
-        .pagination {
-            width: 100%;
-            height: 40px;
-            line-height: 40px;
-            font-size: 13px;
-            padding-right: 12px;
-            box-sizing: border-box;
-            color: #333;
-            text-align: right;
-        }
-
-        .shrink {
-            position: absolute;
-            width: 12px;
-            height: 64px;
-            border-radius: 6px;
-            top: 50%;
-            margin-top: -32px;
-            right: -6px;
-            z-index: 99;
-            cursor: pointer;
-            overflow: hidden;
-            background: #414E65;
-            color: #FFFFFF;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-    }
 
     .right {
         width: calc(100% - 280px);

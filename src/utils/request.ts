@@ -45,9 +45,6 @@ http.interceptors.response.use(
     (response) => {
         if (!response.config.headers?.noLoading) loading.hide();
         const res = response.data;
-        window.electron.log.info(
-            `request url:${response.config.url}, request resultCode: ${res.resultCode}, request resultDesc: ${res.resultDesc}, request startTime:${response?.config?.headers?.startTime}`
-        );
         if (res.resultCode === 103) {
             if (!messageInterface) {
                 messageInterface = ElMessage({

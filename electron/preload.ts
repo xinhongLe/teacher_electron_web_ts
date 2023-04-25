@@ -430,23 +430,19 @@ window.electron = {
                     .output(outputPath + `/${name}/video.m3u8`) // 输出文件
                     .on("progress", (progress) => {
                         // 监听切片进度
-                        ElectronLog.info(name + ": Processing: " + progress.percent + "% done");
                     })
                     .on("end", () => {
                         // 监听结束
-                        ElectronLog.info(name + ": 视频切片完成");
                         const zip = new AdmZip();
 
                         zip.addLocalFolderAsync(outputPath + `/${name}`, (success, err) => {
                             if (success) {
-                                ElectronLog.info("压缩" + name + "成功");
                                 const zipBuffer = zip.toBuffer();
                                 resolve(zipBuffer);
                             } else {
                                 ElectronLog.error("压缩失败: ", err);
                             }
-                        })
-
+                        });
                         // zip.writeZip(outputPath + `/${name}.zip`);
 
                         // fs.readdir(outputPath + `/${name}`, (err, files) => {

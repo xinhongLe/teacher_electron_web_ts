@@ -1,12 +1,12 @@
-import { getPageDetailRes, updatePageRes, UpdatePageRemark, getVideoQuoteInfo, saveLessonProcessAndDesign, ISaveProcessAndDesignData } from "@/api/home";
+import { getPageDetailRes, getVideoQuoteInfo, ISaveProcessAndDesignData, saveLessonProcessAndDesign, updatePageRes } from "@/api/home";
 import { dealOldData } from "@/utils/dataParse";
-import { dealOldDataVideo, dealOldDataWord, dealOldDataTeach, dealOldDataGame } from "@/utils/dataParsePage";
+import { dealOldDataGame, dealOldDataTeach, dealOldDataVideo, dealOldDataWord } from "@/utils/dataParsePage";
 import { IPageValue } from "@/types/home";
 import { Slide } from "wincard";
 import { ElMessage } from "element-plus";
-import { dealSaveDataWord, dealSaveDataVideo, dealSaveDataTeach, dealSaveDataGame, dealSaveDataElement } from "@/utils/savePageDataParse";
+import { dealSaveDataElement, dealSaveDataGame, dealSaveDataTeach, dealSaveDataVideo, dealSaveDataWord } from "@/utils/savePageDataParse";
 import { getWinCardDBData, setWinCardDBData, updateWinCardDBData } from "@/utils/database";
-import { originType, pageType } from "@/config";
+import { pageType } from "@/config";
 import { cacheSildeFiles } from "@/utils/file";
 import { PageProps } from "@/views/preparation/intelligenceClassroom/api/props";
 
@@ -113,9 +113,7 @@ export default () => {
         } else if (page.Type === pageType.game) {
             newSlide = dealOldDataGame(page.ID, pageDetail);
         }
-        const pageSlide = Object.assign(newSlide, { remark: page.AcademicPresupposition || "", design: page.DesignIntent || "" });
-        saveDBdata(pageSlide);
-        return pageSlide;
+        return Object.assign(newSlide, { remark: page.AcademicPresupposition || "", design: page.DesignIntent || "" });
     };
 
     // 处理好的数据直接保存在本地数据库
