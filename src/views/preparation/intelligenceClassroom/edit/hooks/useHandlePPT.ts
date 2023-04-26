@@ -260,6 +260,7 @@ export default (windowCards: Ref<CardProps[]>, currentPageId: Ref<string>) => {
             });
         }
         windowCards.value = list;
+        return JSON.stringify(list);
     }
 
     return {

@@ -37,7 +37,7 @@ document.title = currentTitle.value;
 const close = () => {
     nextTick(async () => {
         const res = await editWinCardRef.value.closeCurrentWinCard();
-        if (res === "exit" || res === "save" || res === "nosave") {
+        if (res) {
             const win = window.electron.remote.getCurrentWebContents();
             window.electron.ipcRenderer.send("closeWinCard", win.id);
             window.electron.destroyWindow();
