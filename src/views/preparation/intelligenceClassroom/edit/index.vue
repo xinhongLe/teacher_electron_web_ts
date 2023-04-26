@@ -123,6 +123,7 @@ export default defineComponent({
         materialCenter
     },
     setup() {
+        let cardStr = "";
         const store = useStore();
 
         const windowInfo = computed(() => get(STORAGE_TYPES.WINDOW_INFO));
@@ -280,24 +281,6 @@ export default defineComponent({
             selectPage = null;
         };
 
-        // 子窗体关闭 提示
-        const closeCurrentWinCard = async () => {
-            const res = await exitDialog();
-            if (res === ExitType.Cancel) {
-                return "cancel";
-            }
-            if (res === ExitType.Exit) {
-                return "exit";
-            }
-            if (res === ExitType.Save) {
-                if (windowInfo.value.originType === 0) {
-                    return false;
-                } else {
-                    return (await handleSave()) ? "save" : false;
-                }
-            }
-        };
-
         // 插入左侧窗卡页 资源库-模板素材操作
         const handleInsertData = async (data: MaterialProp) => {
             if (!currentPageId.value) {
@@ -412,12 +395,28 @@ export default defineComponent({
             if (res.resultCode !== 200) return false;
 
             ElMessage.success("保存成功");
+            cardStr = JSON.stringify(windowCards.value);
             return true;
         };
 
         // 同步教案的数据
         const handleSyncLesson = (slides: { id: string, AcademicPresupposition: string, DesignIntent: string }[]) => {
             windowCards.value = syncLesson(windowCards.value, slides);
+        };
+
+        // 子窗体关闭 提示
+        const closeCurrentWinCard = async () => {
+            const page = handlePPT.getPageById(currentPageId.value);
+            page.Json = editRef.value.getCurrentSlide();
+
+            if (cardStr === JSON.stringify(windowCards.value)) return false;
+
+            const res = await exitDialog();
+            if (res === ExitType.Cancel) return false;
+            if (res === ExitType.Save) {
+                await handleSave();
+            }
+            return true;
         };
 
         // 保存模板
@@ -450,7 +449,7 @@ export default defineComponent({
             getWindowStruct({
                 WindowID: windowInfo.value.id,
                 OriginType: windowInfo.value.originType
-            }).then(res => {
+            }).then(async res => {
                 if (res.resultCode !== 200) return;
 
                 const list = res.result.CardData;
@@ -458,7 +457,7 @@ export default defineComponent({
                     windowCards.value = [];
                     return;
                 }
-                handlePPT.assembleCardData(list);
+                cardStr = await handlePPT.assembleCardData(list);
             });
         }
 
