@@ -31,6 +31,5 @@ module.exports = {
         "no-tabs": "off",
         "@typescript-eslint/no-explicit-any": "off",
         "no-unused-expressions": "off"
-
     }
 };

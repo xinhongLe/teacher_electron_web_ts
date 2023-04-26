@@ -1,29 +1,28 @@
-import {BrowserWindow, ipcMain} from "electron";
-import {createWindow} from "./createWindow";
-import ElectronLog from "electron-log";
+import { BrowserWindow, ipcMain } from "electron";
+import { createWindow } from "./createWindow";
 
 let virtualKeyBoardWin: BrowserWindow | null;
 const wincardURL = process.env.NODE_ENV === "development" ? `${process.env.WEBPACK_DEV_SERVER_URL}virtualKeyBoard.html` : `file://${__dirname}/virtualKeyBoard.html`;
 let currentInput = "";
 
 export function createWinCardWindow() {
-    const {screen} = require('electron');
-    let display = screen.getPrimaryDisplay();
-    let x = display.bounds.x + (display.bounds.width - 1200) / 2;
-    virtualKeyBoardWin = createWindow(wincardURL + "?" + '键盘', {
+    const { screen } = require("electron");
+    const display = screen.getPrimaryDisplay();
+    const x = display.bounds.x + (display.bounds.width - 1200) / 2;
+    virtualKeyBoardWin = createWindow(wincardURL + "?" + "键盘", {
         height: 278,
         useContentSize: true,
         width: 1200,
         autoHideMenuBar: true,
         alwaysOnTop: false,
-        title: '键盘',
+        title: "键盘",
         // frame: false, // 要创建无边框窗口
         resizable: true, // 禁止窗口大小缩放
         x: x,
         y: 50,
         maxHeight: 280,
         minHeight: 280,
-        maxWidth: 1200,
+        maxWidth: 1200
     });
 
     // editWin = new BrowserWindow({
@@ -46,7 +45,7 @@ export function createWinCardWindow() {
 
     virtualKeyBoardWin.on("ready-to-show", () => {
         virtualKeyBoardWin && virtualKeyBoardWin.webContents.send("setInputValue", currentInput);
-    })
+    });
 
     // require("@electron/remote/main").enable(editWin.webContents);
     // editWin.loadURL(wincardURL);

@@ -750,8 +750,10 @@ const getAnimations = (actions: PPTElementAction[]) => {
             type: item.type === "show" ? type : "out",
             path: type === "in" ? item.inPath : item.outPath,
             duration: item.duration || 0,
-            aniDirection: (type === "in" ? item.inDuration : item.outDuration),
+            aniDirection: (type === "in" ? item.inDuration : item.outDuration) || 0,
             trigger: index === 0 ? "click" : "meantime",
+            audioName: item.audioName,
+            audioSrc: item.audioSrc
         });
     });
     return animations;

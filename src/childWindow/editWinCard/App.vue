@@ -2,48 +2,35 @@
     <div class="main-container">
         <div class="main-body">
             <div class="c-header">
-                <div class="tab-list">
-                    {{ currentTitle }}
-                </div>
+                <div class="tab-list">{{ currentTitle }}</div>
                 <div class="header-right">
-                    <!-- <UserInfo /> -->
                     <div class="header-window-control">
                         <div class="hwc-minimize" @click="minimizeWindow"></div>
                         <div class="hwc-maximize" @click="maximizeWindow"></div>
-                        <div
-                            class="hwc-close"
-                            v-if="isElectron()"
-                            @click="close"
-                        >
+                        <div class="hwc-close" v-if="isElectron()" @click="close">
                             <el-icon>
                                 <CloseBold/>
                             </el-icon>
                         </div>
                     </div>
                 </div>
-                <!-- <ExitDialog v-model:visible="visible" /> -->
             </div>
             <div style="height: calc(100% - 48px)">
-                <editWinCard ref="editWinCardRef"/>
+                <edit-win-card ref="editWinCardRef"/>
             </div>
         </div>
     </div>
 </template>
 
 <script lang="ts" setup>
-import { onMounted, ref, nextTick } from "vue";
-import { CloseBold } from "@element-plus/icons-vue";
-import editWinCard from "../../views/preparation/intelligenceClassroom/edit/index.vue";
+import { ref, nextTick } from "vue";
 import isElectron from "is-electron";
-// onMounted(() => {
-//     window.electron.ipcRenderer.on("setTitle", (_, title) => {
-//         console.log("titles", title);
-//     });
-// });
+import { CloseBold } from "@element-plus/icons-vue";
+import EditWinCard from "../../views/preparation/intelligenceClassroom/edit/index.vue";
+
 const editWinCardRef = ref();
 // 获取url中"?"符后的字串
 const name: string = window.location.search;
-console.log("window.location.search", decodeURIComponent(name.substring(1)));
 const currentTitle = ref(decodeURIComponent(name.substring(1)));
 document.title = currentTitle.value;
 
@@ -58,27 +45,9 @@ const close = () => {
     });
 };
 const minimizeWindow = () => {
-    // if (isElectron()) {
-    //     const currentWindow = getCurrentWindow();
-    //     if (currentWindow.isFullScreen()) {
-    //         currentWindow.setFullScreen(false);
-    //     } else {
-    //         currentWindow.minimize();
-    //     }
-    // }
     window.electron.minimizeWindow();
 };
 const maximizeWindow = () => {
-    // if (isElectron()) {
-    //     const currentWindow = getCurrentWindow();
-    //     if (currentWindow.isFullScreen()) {
-    //         currentWindow.setFullScreen(false);
-    //     } else if (currentWindow.isMaximized()) {
-    //         currentWindow.setFullScreen(true);
-    //     } else {
-    //         currentWindow.maximize();
-    //     }
-    // }
     window.electron.maximizeWindow();
 };
 </script>
@@ -109,9 +78,6 @@ const maximizeWindow = () => {
             align-items: center;
 
             .tab-list {
-                // display: flex;
-                // align-items: flex-end;
-                // overflow-x: overlay;
                 -webkit-app-region: no-drag;
                 font-size: 20px;
                 color: #ccc;

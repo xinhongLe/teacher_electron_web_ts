@@ -86,7 +86,6 @@ async function createWindow() {
 
     mainWindow.on("ready-to-show", () => {
         mainWindow!.show();
-        ElectronLog.info("app show");
     });
 
     mainWindow.on("closed", () => {
@@ -194,8 +193,9 @@ async function createWindow() {
 
     // 上课消息通知
     ipcMain.on("attendClass", (e, to, data) => {
-        if (to === "unfoldSuspension")
+        if (to === "unfoldSuspension") {
             unfoldSuspensionWinSendMessage("attendClass", data);
+        }
         if (to === "main") mainWindow!.webContents.send("attendClass", data);
     });
 
@@ -244,10 +244,6 @@ app.on("window-all-closed", () => {
     }
 });
 
-app.on("will-quit", () => {
-    ElectronLog.info("app quit");
-});
-
 app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
 });
@@ -271,7 +267,6 @@ let isOpenFile = false;
 app.on("will-finish-launching", () => {
     app.on("open-file", (event, path) => {
         isOpenFile = true;
-        ElectronLog.info(path);
         event.preventDefault();
         if (app.isReady()) {
             createLocalPreviewWindow(path);
@@ -286,7 +281,6 @@ app.on("will-finish-launching", () => {
 });
 
 app.on("ready", async () => {
-    ElectronLog.info("app ready", process.argv);
     createProtocol("app");
     let result = false;
     if (app.isPackaged) {
@@ -319,7 +313,6 @@ if (!gotTheLock) {
 } else {
     app.on("second-instance", (event, argv, workingDirectory) => {
         // 当运行第二个实例时,将会聚焦到mainWindow这个窗口
-        ElectronLog.info("second-args", argv);
         let result = false;
         if (app.isPackaged) {
             result = createLocalPreview(argv);

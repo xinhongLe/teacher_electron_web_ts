@@ -131,10 +131,11 @@ window.electron = {
     getCachePath: (path: string) => {
         return resolve(downloadsPath, path);
     },
-    readFile: (path: string, callback: (buffer: ArrayBuffer) => void) => {
+    readFile: (path: string, callback: (buffer: ArrayBuffer | string) => void) => {
         fs.readFile(path, (err, buffer) => {
             if (err) {
                 ElectronLog.error("读取资源文件失败：", err);
+                callback(err.message);
             } else {
                 callback(buffer);
             }
@@ -226,12 +227,12 @@ window.electron = {
 
         const aesDecrypt = (encrypted: string, key: string) => {
             const decipher = crypto.createDecipher("aes-128-ecb", key);
-            var decrypted = decipher.update(encrypted, "hex", "utf8");
+            let decrypted = decipher.update(encrypted, "hex", "utf8");
             decrypted += decipher.final("utf8");
             return decrypted;
         };
 
-        let downloadFiles = join(app.getPath("userData"), "files", "/");
+        const downloadFiles = join(app.getPath("userData"), "files", "/");
         await mkdirs(downloadFiles);
 
         if (!newpath) {
@@ -244,24 +245,24 @@ window.electron = {
             zipFileName: string,
             newpath: string
         ) => {
-            let zipPack = await readFile(zipFileName);
+            const zipPack = await readFile(zipFileName);
             let fileOffset = 0;
 
             const readFilesBuffer = async (zipFile: Buffer) => {
                 if (fileOffset > zipFile.length - 1) {
                     return;
                 }
-                let filenameLength = zipFile.readUInt8(fileOffset);
+                const filenameLength = zipFile.readUInt8(fileOffset);
                 fileOffset++;
-                let filename = zipFile.toString(
+                const filename = zipFile.toString(
                     "utf8",
                     fileOffset,
                     fileOffset + filenameLength
                 );
                 fileOffset += filenameLength;
-                let contentLength = zipFile.readUInt32BE(fileOffset);
+                const contentLength = zipFile.readUInt32BE(fileOffset);
                 fileOffset += 4;
-                let fileBuffer = zipFile.slice(
+                const fileBuffer = zipFile.slice(
                     fileOffset,
                     fileOffset + contentLength
                 );
@@ -304,8 +305,8 @@ window.electron = {
             return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
                 /[xy]/g,
                 function (c) {
-                    var r = (Math.random() * 16) | 0,
-                        v = c == "x" ? r : (r & 0x3) | 0x8;
+                    const r = (Math.random() * 16) | 0;
+                    const v = c == "x" ? r : (r & 0x3) | 0x8;
                     return v.toString(16);
                 }
             );
@@ -325,14 +326,14 @@ window.electron = {
 
         const aesEncrypt = (data: string, key: string) => {
             const cipher = crypto.createCipher("aes-128-ecb", key);
-            var crypted = cipher.update(data, "utf8", "hex");
+            let crypted = cipher.update(data, "utf8", "hex");
             crypted += cipher.final("hex");
             return crypted;
         };
 
         try {
             await mkdirs(filePath);
-            let uuid = guid().replaceAll("-", "");
+            const uuid = guid().replaceAll("-", "");
             const jsonFileName = filePath + `/${uuid}app.json`;
             console.log("jsonFileName-------", jsonFileName);
 
@@ -362,19 +363,19 @@ window.electron = {
             }
 
             const customZipFolder = async (cacheFiles: Array<string>) => {
-                let fileArray = [];
-                for (let cacheFile of cacheFiles) {
-                    let fileName = cacheFile.replace("file:///", "");
-                    let item = await stat(fileName);
+                const fileArray = [];
+                for (const cacheFile of cacheFiles) {
+                    const fileName = cacheFile.replace("file:///", "");
+                    const item = await stat(fileName);
                     if (item.isFile()) {
-                        let nameLen = Buffer.alloc(1);
+                        const nameLen = Buffer.alloc(1);
                         nameLen.writeUInt8(path.basename(fileName).length);
-                        let name = Buffer.alloc(
+                        const name = Buffer.alloc(
                             path.basename(fileName).length,
                             path.basename(fileName)
                         );
-                        let content = fs.readFileSync(fileName);
-                        let contentLen = Buffer.alloc(4);
+                        const content = fs.readFileSync(fileName);
+                        const contentLen = Buffer.alloc(4);
                         contentLen.writeUInt32BE(content.length);
                         fileArray.push(nameLen);
                         fileArray.push(name);
@@ -387,9 +388,7 @@ window.electron = {
                 return _fileName;
             };
 
-            let customZipFile = await customZipFolder([...cacheFiles, jsonFileName]);
-
-            return customZipFile;
+            return await customZipFolder([...cacheFiles, jsonFileName]);
         } catch (e) {
             console.error("报错--", e);
             return "";
@@ -430,23 +429,19 @@ window.electron = {
                     .output(outputPath + `/${name}/video.m3u8`) // 输出文件
                     .on("progress", (progress) => {
                         // 监听切片进度
-                        ElectronLog.info(name + ": Processing: " + progress.percent + "% done");
                     })
                     .on("end", () => {
                         // 监听结束
-                        ElectronLog.info(name + ": 视频切片完成");
                         const zip = new AdmZip();
 
                         zip.addLocalFolderAsync(outputPath + `/${name}`, (success, err) => {
                             if (success) {
-                                ElectronLog.info("压缩" + name + "成功");
                                 const zipBuffer = zip.toBuffer();
                                 resolve(zipBuffer);
                             } else {
                                 ElectronLog.error("压缩失败: ", err);
                             }
                         });
-
                         // zip.writeZip(outputPath + `/${name}.zip`);
 
                         // fs.readdir(outputPath + `/${name}`, (err, files) => {

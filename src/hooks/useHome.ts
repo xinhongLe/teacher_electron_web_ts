@@ -1,22 +1,10 @@
-import {
-    getPageDetailRes,
-    getVideoQuoteInfo,
-    ISaveProcessAndDesignData,
-    saveLessonProcessAndDesign,
-    updatePageRes
-} from "@/api/home";
+import { getPageDetailRes, getVideoQuoteInfo, ISaveProcessAndDesignData, saveLessonProcessAndDesign, updatePageRes } from "@/api/home";
 import { dealOldData } from "@/utils/dataParse";
 import { dealOldDataGame, dealOldDataTeach, dealOldDataVideo, dealOldDataWord } from "@/utils/dataParsePage";
 import { IPageValue } from "@/types/home";
 import { Slide } from "wincard";
 import { ElMessage } from "element-plus";
-import {
-    dealSaveDataElement,
-    dealSaveDataGame,
-    dealSaveDataTeach,
-    dealSaveDataVideo,
-    dealSaveDataWord
-} from "@/utils/savePageDataParse";
+import { dealSaveDataElement, dealSaveDataGame, dealSaveDataTeach, dealSaveDataVideo, dealSaveDataWord } from "@/utils/savePageDataParse";
 import { getWinCardDBData, setWinCardDBData, updateWinCardDBData } from "@/utils/database";
 import { pageType } from "@/config";
 import { cacheSildeFiles } from "@/utils/file";
@@ -84,10 +72,7 @@ export default () => {
                     const slideString = res.result.Json || "{}";
                     const oldSlide = JSON.parse(slideString);
                     // 素材页如果是新数据直接赋值(更新id是为了避免复制卡过后id不统一问题)，旧数据dealOldData处理
-                    newSlide = oldSlide.type ? {
-                        ...await dealPauseVideo(oldSlide as Slide),
-                        id: page.ID
-                    } : await dealOldData(page.ID, page.originType, oldSlide);
+                    newSlide = oldSlide.type ? { ...await dealPauseVideo(oldSlide as Slide), id: page.ID } : await dealOldData(page.ID, page.originType, oldSlide);
                     cacheSildeFiles(newSlide);
                 } else if (page.Type === pageType.listen) {
                     newSlide = dealOldDataWord(page.ID, res.result);
@@ -98,10 +83,7 @@ export default () => {
                 } else if (page.Type === pageType.game) {
                     newSlide = dealOldDataGame(page.ID, res.result);
                 }
-                const pageSlide = Object.assign(newSlide, {
-                    remark: page.AcademicPresupposition || "",
-                    design: page.DesignIntent || ""
-                });
+                const pageSlide = Object.assign(newSlide, { remark: page.AcademicPresupposition || "", design: page.DesignIntent || "" });
                 saveDBdata(pageSlide);
                 return pageSlide;
             } else {

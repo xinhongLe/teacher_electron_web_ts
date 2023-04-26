@@ -2,8 +2,8 @@
     <div class="view-box">
         <ScreenView
             ref="screenRef"
-            :isInit="isInit"
             :slide="slide"
+            :isInit="isInit"
             @openCard="openCard"
             @pagePrev="pagePrev()"
             @pageNext="pageNext()"
@@ -32,8 +32,8 @@
 <script lang="ts">
 import { ElMessage } from "element-plus";
 import { getCardDetail } from "@/api/home";
-import { computed, defineComponent, PropType, ref } from "vue";
 import OpenCardViewDialog from "./openCardViewDialog.vue";
+import { computed, defineComponent, PropType, ref } from "vue";
 import { CardProps, PageProps } from "@/views/preparation/intelligenceClassroom/api/props";
 
 export default defineComponent({
@@ -62,7 +62,7 @@ export default defineComponent({
             props.list.forEach(item => {
                 allPages = allPages.concat(...item.PageList);
             });
-            return allPages;
+            return allPages.filter(item => item.State);
         });
 
         const slide = computed(() => pageList.value[index.value].Json);
