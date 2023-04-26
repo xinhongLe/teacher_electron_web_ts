@@ -3,7 +3,6 @@ import { resolve } from "path";
 import { access, mkdir } from "fs/promises";
 import Axios from "Axios";
 import { createWriteStream, createReadStream } from "fs";
-import ElectronLog from "electron-log";
 import Store from "electron-store";
 
 const crypto = require("crypto");

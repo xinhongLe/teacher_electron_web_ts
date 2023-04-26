@@ -13,7 +13,9 @@ export class Action {
 
 export interface CallBack {
     OnDataReceive(data: Action): void;
+
     OnConnected(): void;
+
     OnDisconnect(): void;
 }
 
@@ -34,52 +36,52 @@ export class SocketHelper {
             this.client = new net.Socket();
         }
 
-        this.client.on('data', data => {
+        this.client.on("data", data => {
             // console.log(data.toString());
             this.quene.push(data);
-        })
+        });
 
-        this.client.on('close', hadError => {
+        this.client.on("close", hadError => {
             if (hadError) {
-                ElectronLog.log('hadError: ', hadError);
+                ElectronLog.log("hadError: ", hadError);
             }
             if (!this.closeSocket) {
                 this.callback.OnDisconnect();
                 this.sleep(1000).then(() => {
                     this.init(port, hostname);
-                })
+                });
             }
-        })
+        });
 
-        this.client.on('end', () => {
+        this.client.on("end", () => {
             this.client.destroy();
-        })
+        });
 
-        this.client.on('error', err => {
+        this.client.on("error", err => {
             if (err) {
                 ElectronLog.log(err);
             }
             this.client.destroy();
-        })
+        });
 
         this.client.connect(port, hostname, () => {
             console.log("connected the server");
             this.callback.OnConnected();
             this.processData();
-        })
+        });
     }
 
     async processData() {
-        let lastStr = '';
+        let lastStr = "";
         while (!this.closeSocket) {
             let data = this.quene.shift();
             if (data) {
                 lastStr += data.toString();
-                while (lastStr.indexOf('\n') !== -1) {
-                    let callData = lastStr.substring(0, lastStr.indexOf('\n') + 1).replace(/\s/g, '').replace(/\\n/g, '');
-                    let action: Action = JSON.parse(callData);
+                while (lastStr.indexOf("\n") !== -1) {
+                    const callData = lastStr.substring(0, lastStr.indexOf("\n") + 1).replace(/\s/g, "").replace(/\\n/g, "");
+                    const action: Action = JSON.parse(callData);
                     this.callback && this.callback.OnDataReceive(action);
-                    lastStr = lastStr.substring(lastStr.indexOf('\n') + 1);
+                    lastStr = lastStr.substring(lastStr.indexOf("\n") + 1);
                 }
             }
             await this.sleep(2);
@@ -88,7 +90,7 @@ export class SocketHelper {
 
     sendMessage(action: Action) {
         return new Promise((resolve, reject) => {
-            this.client.writable && this.client.write(JSON.stringify(action) + '\n', err => {
+            this.client.writable && this.client.write(JSON.stringify(action) + "\n", err => {
                 if (err) {
                     console.error(err);
                     return reject("false");
@@ -106,7 +108,7 @@ export class SocketHelper {
 
     sleep(timeout: number) {
         return new Promise(resolve => {
-            setTimeout(resolve, timeout)
-        })
+            setTimeout(resolve, timeout);
+        });
     }
 }

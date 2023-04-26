@@ -11,6 +11,5 @@ export const pptParsePath =
 
 export const parsePPT = async (pptPath: string) => {
     // deleteDir(pptParsePath);
-    const result = await sdk.parse(pptPath, pptParsePath);
-    return result;
+    return await sdk.parse(pptPath, pptParsePath);
 };

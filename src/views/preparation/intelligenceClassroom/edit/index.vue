@@ -105,7 +105,7 @@ import { get, STORAGE_TYPES } from "@/utils/storage";
 import useSaveTemplate from "./hooks/useSaveTemplate";
 import { ElMessage, ElMessageBox } from "element-plus";
 import exitDialog, { ExitType } from "../edit/exitDialog";
-import CardPreview from "./components/edit/CardPreview.vue";
+import CardPreview from "../components/edit/CardPreview.vue";
 import WinCardEdit from "../components/edit/winCardEdit.vue";
 import { computed, defineComponent, nextTick, ref } from "vue";
 import WinCardView from "../components/edit/winScreenView.vue";
