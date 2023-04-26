@@ -74,7 +74,6 @@ export default defineComponent({
 
         const switchMenu = () => {
             state.isOpen = !state.isOpen;
-            console.log(state.isOpen, "state.isOpen");
         };
 
         const handleClick = (value: number) => {

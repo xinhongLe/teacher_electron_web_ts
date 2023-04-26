@@ -9,6 +9,7 @@ import { ElMessage } from "element-plus";
 import messageBox from "@/utils/messageBox";
 import { CardProps, PageProps } from "../../api/props";
 import { dealAnimationData } from "@/utils/dataParse";
+import { enterFullscreen, exitFullscreen, isFullscreen } from "@/utils/fullscreen";
 
 export default (windowCards: Ref<CardProps[]>, currentPageId: Ref<string>) => {
     const { transformPageDetail } = useHome();
@@ -163,6 +164,7 @@ export default (windowCards: Ref<CardProps[]>, currentPageId: Ref<string>) => {
         currentPage.Json = editRef.getCurrentSlide();
 
         winScreenView.value = true;
+        enterFullscreen();
         setTimeout(() => {
             winCardViewRef.value.setScreening(true);
         }, 20);
@@ -170,8 +172,10 @@ export default (windowCards: Ref<CardProps[]>, currentPageId: Ref<string>) => {
 
     // 关闭全屏预览
     const offPreview = () => {
+        if (!isFullscreen()) return;
         winScreenView.value = false;
         previewIndex.value = -1;
+        exitFullscreen();
     };
 
     const applyBackgroundAllSlide = (data: any) => {

@@ -107,7 +107,7 @@ import { ElMessage, ElMessageBox } from "element-plus";
 import exitDialog, { ExitType } from "../edit/exitDialog";
 import CardPreview from "../components/edit/CardPreview.vue";
 import WinCardEdit from "../components/edit/winCardEdit.vue";
-import { computed, defineComponent, nextTick, ref } from "vue";
+import { computed, defineComponent, nextTick, ref, onMounted } from "vue";
 import WinCardView from "../components/edit/winScreenView.vue";
 import AddPageDialog from "../components/edit/addPageDialog.vue";
 import { CardProps, MaterialProp, PageProps } from "../api/props";
@@ -462,13 +462,26 @@ export default defineComponent({
             });
         }
 
+        onMounted(() => {
+            document.addEventListener("keydown", (e: KeyboardEvent) => {
+                const key = e.code;
+
+                if (key === "Escape") {
+                    handlePPT.offPreview();
+                }
+                if (e.ctrlKey && key === "KeyF") {
+                    handlePPT.preview(1, editRef.value);
+                }
+            });
+        });
+
         return {
-            pageAction,
             editRef,
             pageType,
             importPPT,
             windowInfo,
             handleSave,
+            pageAction,
             currentPage,
             windowCards,
             publication,
