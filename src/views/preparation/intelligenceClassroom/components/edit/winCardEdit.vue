@@ -5,7 +5,6 @@
             :slide="slide"
             @addCard="addCard"
             @onSave="getSlide"
-            :isShowScreen="false"
             :showThemeAllUse="true"
             @selectGame="selectGame"
             @selectVideo="selectVideo"
@@ -100,19 +99,22 @@ export default defineComponent({
     setup(props, { emit }) {
         const { saveElements } = useSaveElements();
         const TeacherID = computed(() => store.state.userInfo.id);
-        const state = reactive({
-            dialogVisible: false,
-            dialogVisibleVideo: false,
-            addGameVisible: false,
-            gameTypeVisible: false,
-            currentGame: { id: "", name: "", src: "", ossSrc: "" }
-        });
+        const windowInfo = computed(() => store.state.preparation.editWindowInfo);
+
         const page = ref<IPageValue>();
-        const windowInfo = computed(
-            () => store.state.preparation.editWindowInfo
-        );
-        const updateVideoElement = ref<PPTVideoElement | null>(null);
+        const dialogVisible = ref(false);
+        const addGameVisible = ref(false);
+        const gameTypeVisible = ref(false);
+        const dialogVisibleVideo = ref(false);
         const windowName = ref(windowInfo.value.name);
+        const updateVideoElement = ref<PPTVideoElement | null>(null);
+
+        const currentGame = reactive({
+            id: "",
+            name: "",
+            src: "",
+            ossSrc: ""
+        });
 
         const PPTEditRef = ref();
 
@@ -151,12 +153,12 @@ export default defineComponent({
 
         let fun: (win: IWin[]) => void;
         const addCard = (callback: (win: IWin[]) => void) => {
-            state.dialogVisible = true;
+            dialogVisible.value = true;
             fun = callback;
         };
 
         const selectCard = (cards: ICards[]) => {
-            state.dialogVisible = false;
+            dialogVisible.value = false;
             const newCards = {
                 id: page.value?.ID || "",
                 cards: cards
@@ -170,21 +172,19 @@ export default defineComponent({
             type = obj.type;
             gameFun = obj.fun;
             if (type === "selectGame") {
-                state.addGameVisible = true;
+                addGameVisible.value = true;
             } else {
-                state.gameTypeVisible = true;
+                gameTypeVisible.value = true;
             }
         };
 
         const addGame = async (valueGame: IGameItem) => {
-            state.currentGame = {
-                id: valueGame.ID,
-                name: valueGame.Name,
-                src: valueGame.Url,
-                ossSrc: await formatOssUrl(valueGame.File)
-            };
+            currentGame.id = valueGame.ID;
+            currentGame.name = valueGame.Name;
+            currentGame.src = valueGame.Url;
+            currentGame.ossSrc = await formatOssUrl(valueGame.File);
             const slide = Object.assign(props.slide, {
-                game: state.currentGame
+                game: currentGame
             });
             emit("updatePageSlide", slide);
         };
@@ -198,14 +198,14 @@ export default defineComponent({
 
         const selectVideo = () => {
             updateVideoElement.value = null;
-            state.dialogVisibleVideo = true;
+            dialogVisibleVideo.value = true;
         };
 
         const selectVideoVal = async (val: any) => {
             delete val.fileID;
             val.ossSrc = await formatOssUrl(val.File);
             emit("updatePageSlide", Object.assign({}, props.slide, { follow: val }));
-            state.dialogVisibleVideo = false;
+            dialogVisibleVideo.value = false;
         };
 
         const closeScreen = () => {
@@ -233,7 +233,7 @@ export default defineComponent({
         const setQuoteVideo = () => {
             updateVideoElement.value = null;
             isSetQuoteVideo.value = true;
-            state.dialogVisibleVideo = true;
+            dialogVisibleVideo.value = true;
         };
 
         const lessonDesignVisible = ref(false);
@@ -266,7 +266,10 @@ export default defineComponent({
         };
 
         return {
-            ...toRefs(state),
+            dialogVisible,
+            addGameVisible,
+            dialogVisibleVideo,
+            gameTypeVisible,
             saveSlide,
             getSlide,
             addCard,
@@ -295,7 +298,8 @@ export default defineComponent({
             handleHelper,
             applyBackgroundAllSlide,
             setScreening,
-            updateSlide
+            updateSlide,
+            currentGame
         };
     }
 });

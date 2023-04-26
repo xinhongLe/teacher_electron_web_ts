@@ -149,7 +149,6 @@ export default defineComponent({
             const filePath = window.electron.getCachePath("");
             window.electron.exportWord(filePath + fileName || "", fileData, state.styleType);
             setTimeout(() => {
-                debugger;
                 (window as any).electron.readFile(filePath + fileName, async (buffer: ArrayBuffer) => {
                     const newFile = new File([buffer], fileName);
                     const ossPath = get(STORAGE_TYPES.OSS_PATHS)?.["ElementFile"];

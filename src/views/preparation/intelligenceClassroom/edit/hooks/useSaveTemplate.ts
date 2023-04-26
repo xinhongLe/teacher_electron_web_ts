@@ -1,6 +1,8 @@
 import { nextTick, ref } from "vue";
 import { IPageValue } from "@/types/home";
 import {
+    AddSourceMaterialCall,
+    addTeachPageTemplateLinkCount,
     DeleteSourceAssembly,
     deleteWindowsTemplateList,
     GetAdviceCollection,
@@ -10,17 +12,24 @@ import {
     GetSourceAssemblyList,
     GetSourceMaterials,
     getWindowsTemplateList,
-    reorderWindowsTemplate, saveTemplate,
+    reorderWindowsTemplate,
+    saveTemplate,
     updateWindowsTemplateSort,
     updateWindowsTemplateStatus
 } from "@/api/material";
 import { getToolList } from "@/api";
-import { IAdviceCol, ICategory, IClassRoom, IDAssembly, IDelTem, IGAssembly, IGetList, IGetMyList, IMaterialParams, IRecordSort, ISaveTemplate, IUpdateSort, IUpdateStatus } from "@/types/material";
+import { IAdviceCol, ICategory, IClassRoom, IDAssembly, IDelTem, IGAssembly, IGetList, IGetMyList, IMaterialParams, IRecordSort, IUpdateSort, IUpdateStatus } from "@/types/material";
 import { ElMessage } from "element-plus";
 import useHome from "@/hooks/useHome";
 import { Slide } from "wincard";
 import { getOssUrl } from "@/utils/oss";
-import { PageProps } from "@/views/preparation/intelligenceClassroom/api/props";
+import { CardProps, MaterialProp, PageProps } from "@/views/preparation/intelligenceClassroom/api/props";
+import { cloneDeep } from "lodash-es";
+import { dealAnimationData } from "@/utils/dataParse";
+import { v4 as uuidv4 } from "uuid";
+import { pageType } from "@/config";
+import { getImageSize } from "@/utils/image";
+import { getWindowStruct } from "@/api/home";
 
 export default () => {
     const { transformPageDetail } = useHome();
@@ -95,14 +104,10 @@ export default () => {
                 item2.CardData[0]?.PageList.forEach(
                     async (page: IPageValue) => {
                         if (page) {
-                            page.Json =
-                                page.Json && typeof page.Json === "string"
-                                    ? JSON.parse(page.Json)
-                                    : page.Json;
-                            const newSlide: Slide = await transformPageDetail(
-                                page,
-                                page.Json
-                            );
+                            const json = page.Json && typeof page.Json === "string" ? JSON.parse(page.Json) : page.Json;
+                            let newSlide: Slide = await transformPageDetail(page, json);
+                            newSlide = dealAnimationData(newSlide);
+                            (page.Json as any) = newSlide;
                             mapList.set(page.ID, newSlide);
                             if (page.Type === 20 || page.Type === 16) {
                                 const temJson: any = page.Json;
@@ -160,8 +165,7 @@ export default () => {
             await formataSlideMap(temdata, allPageListMap.value);
             setTimeout(() => {
                 if (type) {
-                    const concatData: any = templateList.value.concat(temdata);
-                    templateList.value = concatData;
+                    templateList.value = templateList.value.concat(temdata);
                 } else {
                     templateList.value = temdata;
                 }
@@ -169,8 +173,8 @@ export default () => {
             }, 100);
             return true;
         } else {
-            return false;
             isLoading.value = false;
+            return false;
         }
     };
 
@@ -397,6 +401,169 @@ export default () => {
         });
     };
 
+    // 同步教案设计
+    const syncLesson = (windowCards: CardProps[], slides: { id: string, AcademicPresupposition: string, DesignIntent: string }[]) => {
+        const winCards = cloneDeep<CardProps[]>(windowCards);
+
+        for (let i = 0; i < winCards.length; i++) {
+            const item = winCards[i];
+
+            for (let j = 0; j < item.PageList.length; j++) {
+                const page = item.PageList[j];
+                const find = slides.find(it => it.id === page.ID);
+                if (!find) continue;
+
+                page.Json.remark = find.AcademicPresupposition || "";
+                page.Json.design = find.DesignIntent || "";
+            }
+        }
+        return winCards;
+    };
+
+    const insertTemplateOrMaterial = async (data: MaterialProp, page: PageProps) => {
+        if (data.type === "page") {
+            const list = data.data as PageProps[];
+            for (let i = 0; i < list.length; i++) {
+                const item = list[i];
+                const id = uuidv4();
+                item.ID = id;
+                item.TeachPageRelationID = "";
+                item.Json.id = id;
+            }
+
+            // 插入成功后调用一下增加次数的接口
+            addTeachPageTemplateLinkCount({
+                TeacherID: "",
+                TeachPageTemplateID: data.teachPageTemplateID || ""
+            });
+            nextTick(() => {
+                materialCenterRef.value.addLinkCount(data.teachPageTemplateID);
+            });
+            return list;
+        }
+        if (data.type === "elements") {
+            if ([pageType.game, pageType.teach, pageType.listen, pageType.follow].includes(page.Type)) {
+                ElMessage.warning("当前页无法添加素材，请先切换到素材页哦！");
+                return;
+            }
+            if (!(page.Json.elements instanceof Array)) {
+                page.Json.elements = [];
+            }
+            const obj = data.data;
+            if ([2, 3].includes(obj.Type)) {
+                const element = await getImageData(obj);
+                page.Json.elements.push(element);
+            }
+            if (obj.Type === 4) {
+                const file = obj.Files?.length ? obj.Files.find((item: any) => item.Type === 0) : null;
+                if (!file) return;
+
+                const element = JSON.parse(file.Json);
+                element.offSetElements.forEach((item: any) => (item.id = uuidv4()));
+
+                page.Json.elements.push(...element.offSetElements);
+            }
+
+            if ([5, 6].includes(obj.Type)) {
+                const element = getAudioVideoData(obj, obj.Type === 5 ? "video" : "audio");
+                page.Json.elements.push(element);
+            }
+            AddSourceMaterialCall({
+                UserID: obj.TeacherID,
+                SourceMaterialMainID: obj.Id,
+                PageID: page.ID
+            });
+
+            return page;
+        }
+    };
+
+    const insertTool = async (data: any) => {
+        const id = uuidv4();
+        const json = await transformPageDetail({ Type: pageType.teach }, {
+            TeachPageID: id,
+            TeachingMiniToolID: data.ID,
+            ToolFileModel: {
+                ID: data.ID,
+                Name: data.Name,
+                File: data.File,
+                Url: data.Url
+            }
+        });
+        return {
+            ID: id,
+            TeachPageRelationID: "",
+            Name: "教具页",
+            Height: 0,
+            Width: 0,
+            Type: pageType.teach,
+            Sort: 0,
+            State: 1,
+            AcademicPresupposition: "",
+            DesignIntent: "",
+            Index: 0,
+            Url: data.url,
+            ParentID: "",
+            Json: json
+        };
+    };
+
+    const VIEWPORT_RATIO = 0.5625;
+    const VIEWPORT_SIZE = 1280;
+
+    function getImageData(data: any) {
+        return new Promise(resolve => {
+            getImageSize(data.url).then(({ width, height }) => {
+                const scale = height / width;
+                if (scale < VIEWPORT_RATIO && width > VIEWPORT_SIZE) {
+                    width = VIEWPORT_SIZE;
+                    height = width * scale;
+                } else if (height > VIEWPORT_SIZE * VIEWPORT_RATIO) {
+                    height = VIEWPORT_SIZE * VIEWPORT_RATIO;
+                    width = height / scale;
+                }
+
+                const file = data.Files?.length ? data.Files.find((item: any) => item.Type === 0) : data.SourceMaterialMainID ? data : null;
+
+                if (!file) return resolve(null);
+
+                return resolve({
+                    id: uuidv4(),
+                    fixedRatio: true,
+                    name: data.name,
+                    rotate: 0,
+                    src: `${file.FilePath}/${file.FileMD5}.${file.FileExtention}`,
+                    stretch: 1,
+                    eft: (VIEWPORT_SIZE - width) / 2,
+                    top: (VIEWPORT_SIZE * VIEWPORT_RATIO - height) / 2,
+                    type: "image",
+                    width,
+                    height
+                });
+            });
+        });
+    }
+
+    function getAudioVideoData(data: any, type: "video" | "audio") {
+        const file = data.Files?.length ? data.Files.find((item: any) => item.Type === 1) : null;
+        const width = data.showType === 0 ? 500 : 100;
+        const height = data.showType === 0 ? 300 : 100;
+
+        return {
+            name: data.Name,
+            type: type,
+            id: uuidv4(),
+            width,
+            height,
+            rotate: 0,
+            left: (VIEWPORT_SIZE - width) / 2,
+            top: (VIEWPORT_SIZE * VIEWPORT_RATIO - height) / 2,
+            src: `${file.FilePath}/${file.FileMD5}.${file.FileExtention}`,
+            showType: data.showType,
+            clip: data.clip ? data.clip : undefined
+        };
+    }
+
     return {
         pager,
         selectPageData,
@@ -430,6 +597,9 @@ export default () => {
         getSourceAssemblyList,
         queryToolList,
         saveWindowTemplate,
-        materialCenterRef
+        materialCenterRef,
+        syncLesson,
+        insertTemplateOrMaterial,
+        insertTool
     };
 };

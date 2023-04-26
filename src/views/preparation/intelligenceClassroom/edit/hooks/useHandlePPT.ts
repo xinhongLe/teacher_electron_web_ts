@@ -1,34 +1,25 @@
-import { Ref } from "vue";
+import { Ref, ref } from "vue";
 import { cloneDeep } from "lodash";
 import { v4 as uuidv4 } from "uuid";
 import messageBox from "@/utils/messageBox";
-import { ElMessage, ElMessageBox } from "element-plus";
 import { CardProps, PageProps } from "../../api/props";
 import { Slide } from "wincard";
 import { dealAnimationData } from "@/utils/dataParse";
 import { getOssUrl } from "@/utils/oss";
 import useHome from "@/hooks/useHome";
 import { pageTypeList } from "@/config";
+import { ElMessage } from "element-plus";
 
 export default (windowCards: Ref<CardProps[]>, currentPageId: Ref<string>) => {
-    let backupPage: PageProps | null = null;
     const { transformPageDetail } = useHome();
 
-    // 教研设计
-    const handleOpenLessonDesign = () => {
-        // if (!editRef.value) return;
-        // editRef.value.openLessonDesign();
-    };
-
-    // 帮助按钮
-    const handleHelper = () => {
-        // if (!editRef.value) return;
-        // editRef.value.handleHelper();
-    };
+    const previewIndex = ref(0);
+    const winCardViewRef = ref();
+    const winScreenView = ref(false);
 
     // 创建文件夹
     const createFolder = (name: string) => {
-        const card = {
+        const card: CardProps = {
             ID: uuidv4(),
             TeachPageRelationID: "",
             Name: name,
@@ -41,7 +32,7 @@ export default (windowCards: Ref<CardProps[]>, currentPageId: Ref<string>) => {
     };
 
     // 新增空白页/互动页
-    const createCardPage = async (pageType: any, data: CardProps | PageProps) => {
+    const createPage = async (pageType: any, data: CardProps | PageProps) => {
         const parentId = ("ParentID" in data) ? data.ParentID : data.ID;
         const id = uuidv4();
         const json = await transformPageDetail({ Type: pageType.value, ID: id }, {});
@@ -91,7 +82,7 @@ export default (windowCards: Ref<CardProps[]>, currentPageId: Ref<string>) => {
                 } else {
                     windowCards.value = [];
                     const card = createFolder("文件夹一");
-                    const page = await createCardPage(pageTypeList[0], card);
+                    const page = await createPage(pageTypeList[0], card);
                     currentPageId.value = page.ID;
                 }
                 sortWindowCards();
@@ -109,7 +100,7 @@ export default (windowCards: Ref<CardProps[]>, currentPageId: Ref<string>) => {
             if (cardsList.length === 1 && pageList.length === 1) {
                 windowCards.value = [];
                 const card = createFolder("文件夹一");
-                const page = await createCardPage(pageTypeList[0], card);
+                const page = await createPage(pageTypeList[0], card);
                 currentPageId.value = page.ID;
             }
 
@@ -158,13 +149,46 @@ export default (windowCards: Ref<CardProps[]>, currentPageId: Ref<string>) => {
         windowCards.value[index].PageList.splice(subIndex, 1, page);
     };
 
-    // 往windowsCard插入或删除page数据
-    const insertWindowsCards = async (page: PageProps, index: number, subIndex?: number) => {
-        if (typeof subIndex === "number") {
-            windowCards.value[index].PageList.splice(subIndex + 1, 0, page);
-        } else {
-            windowCards.value[index].PageList.push(page);
+    // 预览(1-当前页开始，2-第一页开始)
+    const preview = (type: 1 | 2, editRef: any) => {
+        if (!editRef) return;
+
+        const currentPage = getPageById(currentPageId.value);
+        if (type === 1 && !currentPage.State) {
+            ElMessage.warning("已下架的页, 暂不支持预览");
+            return;
         }
+        previewIndex.value = type === 1 ? currentPage.Index - 1 : 0;
+
+        currentPage.Json = editRef.getCurrentSlide();
+
+        winScreenView.value = true;
+        setTimeout(() => {
+            winCardViewRef.value.setScreening(true);
+        }, 20);
+    };
+
+    // 关闭全屏预览
+    const offPreview = () => {
+        winScreenView.value = false;
+        previewIndex.value = -1;
+    };
+
+    const applyBackgroundAllSlide = (data: any) => {
+        const list = cloneDeep<CardProps[]>(windowCards.value);
+        for (let i = 0; i < list.length; i++) {
+            const item = list[i];
+
+            for (let j = 0; j < item.PageList.length; j++) {
+                const it = item.PageList[j];
+
+                if (!it.Json.background) continue;
+
+                it.Json.background = data;
+            }
+        }
+
+        windowCards.value = list;
     };
 
     const getPageById = (id: string): PageProps => {
@@ -236,14 +260,17 @@ export default (windowCards: Ref<CardProps[]>, currentPageId: Ref<string>) => {
 
     return {
         remove,
+        preview,
+        createPage,
+        offPreview,
         getPageById,
         createFolder,
-        handleHelper,
-        createCardPage,
+        previewIndex,
+        winScreenView,
+        winCardViewRef,
         sortWindowCards,
-        insertWindowsCards,
+        assembleCardData,
         replaceCurrentPage,
-        handleOpenLessonDesign,
-        assembleCardData
+        applyBackgroundAllSlide
     };
 };
