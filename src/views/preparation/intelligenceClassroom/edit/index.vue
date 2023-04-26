@@ -300,7 +300,8 @@ export default defineComponent({
 
         let selectPage: PageProps | null = null;
         // PPT悬浮操作（1-新增文件夹，2-新增空白页，3-重命名，4-隐藏/显示，5-粘贴页，6-复制页，7-保存模板，8-删除，9-新增互动页）
-        const handleCartItem = (type: number, data: PageProps | CardProps) => {
+        const handleCartItem = async (type: number, data: PageProps | CardProps) => {
+            // 新增文件夹
             if (type === 1) {
                 ElMessageBox.prompt("", "新建文件夹", {
                     inputPattern: /\S/,
@@ -312,47 +313,67 @@ export default defineComponent({
                     currentPageId.value = page.ID;
                 });
             }
+            // 新增空白页
             if (type === 2) {
-                loading.show();
-                handlePPT.createCardPage(pageTypeList[0], data);
+                const page = await handlePPT.createCardPage(pageTypeList[0], data);
+                handlePPT.sortWindowCards();
+                currentPageId.value = page.ID;
             }
+            // 重命名
             if (type === 3) {
-                handlePPT.rename(data);
+                ElMessageBox.prompt("", "重命名", {
+                    inputPattern: /\S/,
+                    inputValue: data.Name,
+                    inputErrorMessage: "请填写名称！"
+                }).then(async ({ value }) => {
+                    data.Name = value;
+                });
             }
-            if (type === 4) {
-                (data as PageProps).State = (data as PageProps).State ? 0 : 1;
+            // 隐藏/显示
+            if (type === 4 && "ParentID" in data) {
+                data.State = data.State ? 0 : 1;
             }
+            // 粘贴页
             if (type === 5) {
-                loading.show();
-                handlePPT.paste(data as CardProps);
+                if (!selectPage) {
+                    ElMessage.warning("您还未复制素材");
+                    return;
+                }
+                selectPage.ID = uuidv4();
+                selectPage.Name = selectPage.Name + "（新）";
+                const index = windowCards.value.findIndex(item => item.ID === data.ID);
+                windowCards.value[index].PageList.push(selectPage);
+                handlePPT.sortWindowCards();
+                currentPageId.value = selectPage.ID;
+                selectPage = null;
             }
+            // 复制页
             if (type === 6) {
-                loading.show();
-                handlePPT.copy(data as PageProps);
+                selectPage = cloneDeep<PageProps>(data as PageProps);
+                ElMessage.success("复制成功");
             }
+            // 保存模板
             if (type === 7) {
                 saveTemplate(data as PageProps);
             }
+            // 删除
             if (type === 8) {
                 handlePPT.remove(data);
             }
+            // 新增互动页
             if (type === 9) {
                 selectPage = cloneDeep<PageProps>(data as PageProps);
                 addPageVisible.value = true;
             }
-
-            setTimeout(() => {
-                loading.hide();
-            }, 500);
         };
 
         // 新增互动页
-        const addInteractionPage = (pageType: any) => {
-            loading.show();
-            handlePPT.createCardPage(pageType, selectPage as PageProps);
+        const addInteractionPage = async (pageType: any) => {
+            const page = await handlePPT.createCardPage(pageType, selectPage as PageProps);
+            handlePPT.sortWindowCards();
+            currentPageId.value = page.ID;
             addPageVisible.value = false;
             selectPage = null;
-            loading.hide();
         };
 
         // 子窗体关闭 提示

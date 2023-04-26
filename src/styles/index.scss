@@ -616,8 +616,8 @@ html {
 
 
 .el-message-box__status {
-  top: 0;
-  transform: none;
+  top: 0 !important;
+  transform: none !important;
 }
 
 .messageBox-title {

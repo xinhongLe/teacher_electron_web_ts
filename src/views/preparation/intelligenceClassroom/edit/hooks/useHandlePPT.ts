@@ -1,16 +1,14 @@
 import { Ref } from "vue";
 import { cloneDeep } from "lodash";
 import { v4 as uuidv4 } from "uuid";
-import { pageTypeList } from "@/config";
 import messageBox from "@/utils/messageBox";
-import { initSlideData } from "@/utils/dataParsePage";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { CardProps, PageProps } from "../../api/props";
 import { Slide } from "wincard";
 import { dealAnimationData } from "@/utils/dataParse";
 import { getOssUrl } from "@/utils/oss";
 import useHome from "@/hooks/useHome";
-import { json } from "stream/consumers";
+import { pageTypeList } from "@/config";
 
 export default (windowCards: Ref<CardProps[]>, currentPageId: Ref<string>) => {
     let backupPage: PageProps | null = null;
@@ -52,7 +50,6 @@ export default (windowCards: Ref<CardProps[]>, currentPageId: Ref<string>) => {
         const name = pageType.value !== 11 ? pageType.name : "页" + (windowCards.value[index].PageList.length + 1);
         const page = {
             ID: id,
-            TeachPageRelationID: "",
             Name: name,
             Height: 0,
             Width: 0,
@@ -64,48 +61,16 @@ export default (windowCards: Ref<CardProps[]>, currentPageId: Ref<string>) => {
             DesignIntent: "",
             ParentID: parentId,
             Type: pageType.value,
+            TeachPageRelationID: "",
             AcademicPresupposition: ""
         };
         if ("ParentID" in data) {
             const subIndex = windowCards.value[index].PageList.findIndex(item => item.ID === data.ID);
-            windowCards.value[index].PageList.splice(subIndex, 0, page);
+            windowCards.value[index].PageList.splice(subIndex + 1, 0, page);
         } else {
             windowCards.value[index].PageList.push(page);
         }
-
         return page;
-    };
-
-    // 重名名
-    const rename = (data: CardProps | PageProps) => {
-        ElMessageBox.prompt("", "重命名", {
-            inputPattern: /\S/,
-            inputValue: data.Name,
-            inputErrorMessage: "请填写名称！"
-        }).then(async ({ value }) => {
-            data.Name = value;
-        });
-    };
-
-    // 复制页
-    const copy = (data: PageProps) => {
-        backupPage = cloneDeep(data);
-        ElMessage.success("复制成功！");
-    };
-
-    // 粘贴页
-    const paste = async (data: CardProps) => {
-        if (!backupPage) {
-            ElMessage.warning("您还未复制素材");
-            return;
-        }
-        backupPage.ID = uuidv4();
-        backupPage.Name = backupPage.Name + "（新）";
-        const index = windowCards.value.findIndex(item => item.ID === data.ID);
-
-        insertWindowsCards(backupPage, index);
-
-        sortWindowCards();
     };
 
     // 删除
@@ -113,69 +78,57 @@ export default (windowCards: Ref<CardProps[]>, currentPageId: Ref<string>) => {
         messageBox({
             content: "此操作将删除该数据, 是否继续?"
         }).then(async () => {
-            // const cardsList = windowCards.value;
-            // if (!("ParentID" in data)) {
-            //     const index = cardsList.findIndex(item => item.ID === data.ID);
-            //     const index1 = cardsList.findIndex(item => item.ID === currentPage.value?.ParentID);
-            //     if (cardsList.length !== 1) {
-            //         if (index === index1) {
-            //             currentPage.value = cardsList[1].PageList[0];
-            //         }
-            //         windowCards.value.splice(index, 1);
-            //         sortWindowCards();
-            //     } else {
-            //         windowCards.value = [];
-            //         await createFolder("文件夹一");
-            //         currentPage.value = windowCards.value[0].PageList[0];
-            //     }
-            //     return;
-            // }
-            // const index = cardsList.findIndex(item => item.ID === data.ParentID);
-            // if (index === -1) return;
-            //
-            // let page: PageProps | null = null;
-            // const pageList = cardsList[index].PageList;
-            // const idx = pageList.findIndex(item => item.ID === data.ID);
-            // if (currentPage.value?.ID === data.ID) {
-            //     if (pageList.length === 1) {
-            //         const selectPageList = cardsList[length - 1]?.PageList;
-            //         page = selectPageList ? selectPageList[selectPageList.length - 1] : null;
-            //     }
-            //
-            //     if (pageList.length > 1 && idx === pageList.length - 1) {
-            //         page = pageList[idx - 1];
-            //     }
-            //     if (pageList.length > 1 && idx !== pageList.length - 1) {
-            //         page = pageList[idx + 1];
-            //     }
-            //     if (pageList.length === 1) {
-            //         const selectPageList = cardsList[index + 1]?.PageList;
-            //         page = selectPageList ? selectPageList[0] : null;
-            //     }
-            //     if (index === 0 && pageList.length === 1) {
-            //         const selectPageList = cardsList[index + 1]?.PageList;
-            //         page = selectPageList ? selectPageList[0] : null;
-            //     }
-            //     if (index === cardsList.length - 1 && pageList.length === 1) {
-            //         const selectPageList = cardsList[cardsList.length - 1]?.PageList;
-            //         page = selectPageList ? selectPageList[selectPageList.length - 1] : null;
-            //     }
-            //     currentPage.value = page;
-            // }
-            //
-            // const flag = windowCards.value.length > 0 && windowCards.value[0].PageList.length > 1;
-            // if (flag) {
-            //     if (pageList.length === 1) {
-            //         cardsList.splice(index, 1);
-            //     } else {
-            //         pageList.splice(idx, 1);
-            //     }
-            //     sortWindowCards();
-            // } else {
-            //     windowCards.value = [];
-            //     await createFolder("文件夹一");
-            //     currentPage.value = windowCards.value[0].PageList[0];
-            // }
+            const cardsList = windowCards.value;
+            const currentPage = getPageById(currentPageId.value);
+            if (!("ParentID" in data)) {
+                const index = cardsList.findIndex(item => item.ID === data.ID);
+                const index1 = cardsList.findIndex(item => item.ID === currentPage.ParentID);
+                if (cardsList.length !== 1) {
+                    if (index === index1) {
+                        currentPageId.value = cardsList[1].PageList[0].ID;
+                    }
+                    windowCards.value.splice(index, 1);
+                } else {
+                    windowCards.value = [];
+                    const card = createFolder("文件夹一");
+                    const page = await createCardPage(pageTypeList[0], card);
+                    currentPageId.value = page.ID;
+                }
+                sortWindowCards();
+                return;
+            }
+            const index = cardsList.findIndex(item => item.ID === data.ParentID);
+            const pageList = cardsList[index].PageList;
+            const subIndex = pageList.findIndex(item => item.ID === data.ID);
+
+            if (currentPageId.value !== data.ID) {
+                windowCards.value[index].PageList.splice(subIndex, 1);
+                sortWindowCards();
+                return;
+            }
+            if (cardsList.length === 1 && pageList.length === 1) {
+                windowCards.value = [];
+                const card = createFolder("文件夹一");
+                const page = await createCardPage(pageTypeList[0], card);
+                currentPageId.value = page.ID;
+            }
+
+            if (cardsList.length > 1 && pageList.length === 1) {
+                if (index === cardsList.length - 1) {
+                    currentPageId.value = cardsList[index - 1].PageList[pageList.length - 1].ID;
+                } else {
+                    currentPageId.value = cardsList[index + 1].PageList[0].ID;
+                }
+                windowCards.value.splice(index, 1);
+            }
+
+            if (subIndex === pageList.length - 1) {
+                currentPageId.value = pageList[subIndex - 1].ID;
+            } else {
+                currentPageId.value = pageList[subIndex + 1].ID;
+            }
+            windowCards.value[index].PageList.splice(subIndex, 1);
+            sortWindowCards();
         });
     };
 
@@ -282,10 +235,7 @@ export default (windowCards: Ref<CardProps[]>, currentPageId: Ref<string>) => {
     }
 
     return {
-        copy,
-        paste,
         remove,
-        rename,
         getPageById,
         createFolder,
         handleHelper,

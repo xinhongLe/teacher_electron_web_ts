@@ -71,7 +71,8 @@ export const dealOldDataWord = (pageID: string, data: any) => {
     return slide;
 };
 
-const getSlideWord = (words: IOldWord[]) => {
+const getSlideWord = (words: any) => {
+    if (!words || !(words instanceof Array)) return [];
     return words.map((item: IOldWord) => {
         return {
             id: item.WordID,
