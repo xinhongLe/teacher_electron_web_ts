@@ -39,11 +39,9 @@
             <div class="right" :class="{collapse:!showCollapse}">
                 <win-card-edit
                     ref="editRef"
-                    @onSave="winCardSave"
                     :winId="windowInfo?.id"
                     @syncLesson="handleSyncLesson"
                     @updateMaterial="updateMaterial"
-                    @updatePageSlide="updatePageSlide"
                     :slide="currentPage?.Json || {}"
                     :subjectID="publication?.SubjectId || ''"
                     @applyBackgroundAllSlide="applyBackgroundAllSlide"
@@ -103,17 +101,17 @@ import { getWindowStruct } from "@/api/home";
 import useImportPPT from "@/hooks/useImportPPT";
 import useHandlePPT from "./hooks/useHandlePPT";
 import { pageType, pageTypeList } from "@/config";
-import { CardProps, MaterialProp, PageProps } from "../api/props";
 import { get, STORAGE_TYPES } from "@/utils/storage";
+import useSaveTemplate from "./hooks/useSaveTemplate";
 import { ElMessage, ElMessageBox } from "element-plus";
 import exitDialog, { ExitType } from "../edit/exitDialog";
+import CardPreview from "./components/edit/CardPreview.vue";
 import WinCardEdit from "../components/edit/winCardEdit.vue";
+import { computed, defineComponent, nextTick, ref } from "vue";
 import WinCardView from "../components/edit/winScreenView.vue";
 import AddPageDialog from "../components/edit/addPageDialog.vue";
+import { CardProps, MaterialProp, PageProps } from "../api/props";
 import materialCenter from "../components/edit/materialCenter/index.vue";
-import { computed, defineComponent, nextTick, onMounted, onUnmounted, ref } from "vue";
-import CardPreview from "@/views/preparation/intelligenceClassroom/components/edit/CardPreview.vue";
-import useSaveTemplate from "@/views/preparation/intelligenceClassroom/edit/hooks/useSaveTemplate";
 
 export default defineComponent({
     name: "EditWinCard",
@@ -342,24 +340,6 @@ export default defineComponent({
             });
         };
 
-        const updatePageSlide = (slide: Slide) => {
-            if (!currentPage.value) return;
-            const index = windowCards.value.findIndex(item => item.ID === currentPage.value?.ParentID);
-            const page = windowCards.value[index].PageList.find(item => item.ID === currentPage.value?.ID) as PageProps;
-            page.Json = slide;
-
-            const teach: any = slide.teach;
-            if (teach && teach.ossSrc) {
-                page.Url = teach.ossSrc;
-            }
-            const game: any = slide.game;
-            if (game && game.ossSrc) {
-                page.Url = game.ossSrc;
-            }
-
-            handlePPT.replaceCurrentPage(page);
-        };
-
         // 整体保存
         const handleSave = async () => {
             if (!editRef.value) return;
@@ -482,12 +462,6 @@ export default defineComponent({
             });
         }
 
-        onMounted(() => {
-        });
-
-        onUnmounted(() => {
-        });
-
         return {
             pageAction,
             editRef,
@@ -495,7 +469,6 @@ export default defineComponent({
             importPPT,
             windowInfo,
             handleSave,
-            handleSyncLesson,
             currentPage,
             windowCards,
             publication,
@@ -503,8 +476,8 @@ export default defineComponent({
             selectPageIds,
             addPageVisible,
             updateMaterial,
-            updatePageSlide,
             handleInsertData,
+            handleSyncLesson,
             handleInsertTool,
             materialCenterRef,
             cardPreviewHandle,

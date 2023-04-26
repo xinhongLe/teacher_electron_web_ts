@@ -1,14 +1,14 @@
 import { Ref, ref } from "vue";
+import { Slide } from "wincard";
 import { cloneDeep } from "lodash";
 import { v4 as uuidv4 } from "uuid";
-import messageBox from "@/utils/messageBox";
-import { CardProps, PageProps } from "../../api/props";
-import { Slide } from "wincard";
-import { dealAnimationData } from "@/utils/dataParse";
-import { getOssUrl } from "@/utils/oss";
 import useHome from "@/hooks/useHome";
+import { getOssUrl } from "@/utils/oss";
 import { pageTypeList } from "@/config";
 import { ElMessage } from "element-plus";
+import messageBox from "@/utils/messageBox";
+import { CardProps, PageProps } from "../../api/props";
+import { dealAnimationData } from "@/utils/dataParse";
 
 export default (windowCards: Ref<CardProps[]>, currentPageId: Ref<string>) => {
     const { transformPageDetail } = useHome();

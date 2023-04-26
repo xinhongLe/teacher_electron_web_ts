@@ -122,7 +122,7 @@ export default () => {
         });
     };
     // 获取模板列表
-    const queryWindowsTemplateList = async (data: IGetList, type: number = 0) => {
+    const queryWindowsTemplateList = async (data: IGetList, type = 0) => {
         isLoading.value = true;
         const res: any = await getWindowsTemplateList(data);
         if (res.resultCode === 200) {

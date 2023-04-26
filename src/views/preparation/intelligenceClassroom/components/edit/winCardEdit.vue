@@ -53,7 +53,7 @@
     </div>
 </template>
 <script lang="ts">
-import { defineComponent, reactive, toRefs, ref, computed, PropType } from "vue";
+import { defineComponent, reactive, ref, computed, PropType } from "vue";
 import { Slide, IWin, IGame, PPTVideoElement, PPTElement } from "wincard";
 import useSaveElements from "../edit/materialCenter/hooks/useSaveElements";
 import CardSelectDialog from "./cardSelectDialog.vue";
@@ -207,13 +207,6 @@ export default defineComponent({
             emit("updatePageSlide", Object.assign({}, props.slide, { follow: val }));
             dialogVisibleVideo.value = false;
         };
-
-        const closeScreen = () => {
-            PPTEditRef.value.closeScreen();
-        };
-        const getIsScreening = () => {
-            return PPTEditRef.value.getIsScreening();
-        };
         const getCurrentSlide = () => {
             return PPTEditRef.value.getCurrentSlide();
         };
@@ -222,10 +215,6 @@ export default defineComponent({
         };
         const execNext = () => {
             PPTEditRef.value.execNext();
-        };
-
-        const getDataIsChange = () => {
-            return PPTEditRef.value.getDataIsChange();
         };
 
         // 插入引用视频
@@ -239,12 +228,6 @@ export default defineComponent({
         const lessonDesignVisible = ref(false);
         const openLessonDesign = () => {
             lessonDesignVisible.value = true;
-        };
-
-        const saveSlide = () => {
-            if (!PPTEditRef.value) return;
-
-            PPTEditRef.value.onSave();
         };
 
         const handleHelper = () => {
@@ -261,16 +244,11 @@ export default defineComponent({
             PPTEditRef.value.setScreening(flag);
         };
 
-        const updateSlide = (newSlide: Slide, oldSlide: Slide) => {
-            emit("updatePageSlide", newSlide);
-        };
-
         return {
             dialogVisible,
             addGameVisible,
             dialogVisibleVideo,
             gameTypeVisible,
-            saveSlide,
             getSlide,
             addCard,
             addGame,
@@ -279,11 +257,8 @@ export default defineComponent({
             selectVideo,
             selectVideoVal,
             PPTEditRef,
-            closeScreen,
-            getIsScreening,
             execPrev,
             execNext,
-            getDataIsChange,
             getCurrentSlide,
             setQuoteVideo,
             windowInfo,
@@ -298,7 +273,6 @@ export default defineComponent({
             handleHelper,
             applyBackgroundAllSlide,
             setScreening,
-            updateSlide,
             currentGame
         };
     }
