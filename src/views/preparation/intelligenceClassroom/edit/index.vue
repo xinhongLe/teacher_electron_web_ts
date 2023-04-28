@@ -107,11 +107,12 @@ import { ElMessage, ElMessageBox } from "element-plus";
 import exitDialog, { ExitType } from "../edit/exitDialog";
 import CardPreview from "../components/edit/CardPreview.vue";
 import WinCardEdit from "../components/edit/winCardEdit.vue";
-import { computed, defineComponent, nextTick, ref, onMounted } from "vue";
 import WinCardView from "../components/edit/winScreenView.vue";
 import AddPageDialog from "../components/edit/addPageDialog.vue";
 import { CardProps, MaterialProp, PageProps } from "../api/props";
 import materialCenter from "../components/edit/materialCenter/index.vue";
+import { computed, defineComponent, nextTick, ref, onMounted } from "vue";
+import { arrIsEqual } from "@/utils/dataParse";
 
 export default defineComponent({
     name: "EditWinCard",
@@ -123,7 +124,7 @@ export default defineComponent({
         materialCenter
     },
     setup() {
-        let cardStr = "";
+        let cardSource: CardProps[] = [];
         const store = useStore();
 
         const windowInfo = computed(() => get(STORAGE_TYPES.WINDOW_INFO));
@@ -395,7 +396,7 @@ export default defineComponent({
             if (res.resultCode !== 200) return false;
 
             ElMessage.success("保存成功");
-            cardStr = JSON.stringify(windowCards.value);
+            cardSource = cloneDeep(windowCards.value);
             return true;
         };
 
@@ -409,7 +410,8 @@ export default defineComponent({
             const page = handlePPT.getPageById(currentPageId.value);
             page.Json = editRef.value.getCurrentSlide();
 
-            if (cardStr === JSON.stringify(windowCards.value)) return false;
+            const flag = arrIsEqual(cardSource, windowCards.value);
+            if (flag) return true;
 
             const res = await exitDialog();
             if (res === ExitType.Cancel) return false;
@@ -457,12 +459,13 @@ export default defineComponent({
                     windowCards.value = [];
                     return;
                 }
-                cardStr = await handlePPT.assembleCardData(list);
+                cardSource = await handlePPT.assembleCardData(list);
             });
         }
 
         onMounted(() => {
             document.addEventListener("keydown", (e: KeyboardEvent) => {
+                e.stopPropagation();
                 const key = e.code;
 
                 if (key === "Escape") {
