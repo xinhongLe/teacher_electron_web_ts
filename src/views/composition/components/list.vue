@@ -32,6 +32,15 @@
             <div class="empty">暂无数据 </div>
         </div>
         <div class="box" v-else>
+            <div class="article-line thead align-center">
+                <div class="sort">序号</div>
+                <div class="stu-name">姓名</div>
+                <div class="status align-center">
+                    状态
+                </div>
+                <div class="time">最近修改时间</div>
+                <div class="opts"></div>
+            </div>
             <div class="article-line align-center" v-for="(item, idx) of stuList" :key="idx">
                 <div class="sort">{{ idx + 1 }}</div>
                 <div class="stu-name">{{ item.StudentName }}</div>
@@ -47,12 +56,14 @@
                             alt="" />
                     </el-tooltip>
                 </div>
+                <div class="time">2023/4/14 19:00:00</div>
                 <div class="opts align-center">
                     <div class="button" v-if="item.Status === 1" @click="goScan(item)">前往录入</div>
                     <div class="delete align-center" v-if="item.Status === 2" @click="delItem(item)">
                         <img src="../../../assets/composition/icon_delete_black@2x.png" alt="" />
                     </div>
                     <div class="button" v-if="item.Status === 5" @click="reCorrection(item)">重新批改</div>
+                    <div class="button" v-if="item.Status === 2" @click="handOperate(item)">手动批改</div>
                     <div class="button" v-if="item.Status === 2" @click="checkOrigin(item)">检查原文</div>
                     <div class="button" v-if="item.Status === 3 || item.Status === 6" @click="showReport(item)">查看报告</div>
                     <div class="button"
@@ -79,6 +90,8 @@
     <Delete ref="deleteItemRef" @confirm="confirmDelItem" />
     <!-- 检查原文 -->
     <Origin ref="originRef" />
+    <!-- 手动批改 -->
+    <Assessment ref="assessmentRef" />
     <!-- 查看原文 -->
     <Article ref="articleRef" @view-report="showReport" />
     <!-- 报告详情 -->
@@ -91,6 +104,7 @@
 <script setup lang="ts">
 import { nextTick, reactive, ref, toRefs } from 'vue';
 import Origin from './origin.vue';
+import Assessment from './assessment.vue';
 import Article from './article.vue';
 import Detail from './detail.vue';
 import CorrectionList from './correctionList.vue';
@@ -102,6 +116,7 @@ import { ElMessage } from 'element-plus';
 import { store } from '@/store';
 
 const originRef = ref()
+const assessmentRef = ref()
 const articleRef = ref()
 const deleteRef = ref()
 const deleteItemRef = ref()
@@ -140,7 +155,7 @@ const tabChange = (name: any) => {
     state.page.PageNumber = 1
     state.tabName = name
     nextTick(() => {
-        if(PaginationRef.value){
+        if (PaginationRef.value) {
             PaginationRef.value.page = 1
         }
     })
@@ -195,6 +210,11 @@ const confirmDelItem = (e: any) => {
     })
 }
 
+// 手动批改
+const handOperate = (item: any) => {
+    assessmentRef.value.openDialog({ StudentCompositionId: item.StudentCompositionId })
+}
+
 // 检查原文
 const checkOrigin = (item: any) => {
     originRef.value.openDialog({ StudentCompositionId: item.StudentCompositionId })
@@ -221,11 +241,11 @@ const reCorrection = (item: any) => {
 }
 
 // 关闭
-const close = (needRefresh?:any) => {
+const close = (needRefresh?: any) => {
     dialogVisible.value = false
     state.tabName = '0'
     emit('close')
-    if(needRefresh){
+    if (needRefresh) {
         emit('refresh')
     }
 }
@@ -461,6 +481,8 @@ defineExpose({
         box-sizing: border-box;
         margin-bottom: 8px;
 
+
+
         .sort {
             width: 80px;
             font-size: 16px;
@@ -488,6 +510,13 @@ defineExpose({
             font-family: PingFangSC-Semibold, PingFang SC;
             // font-weight: 600;
             color: #A7AAB4;
+        }
+
+        .time {
+            width: 20%;
+            color: #A7AAB4;
+            font-size: 14px;
+            font-family: PingFangSC-Semibold, PingFang SC;
         }
 
         .status {
@@ -570,6 +599,14 @@ defineExpose({
                 margin-left: 12px;
                 cursor: pointer;
             }
+        }
+    }
+
+    .thead {
+        &>div {
+            font-size: 14px !important;
+            font-weight: 500 !important;
+            color: #A7AAB4 !important;
         }
     }
 }

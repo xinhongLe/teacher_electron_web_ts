@@ -5,7 +5,6 @@
                 <img src="../../../assets/composition/icon_back@2x.png" alt="" />
             </div>
             <el-pagination background layout="prev, pager, next" :total="1000" />
-            <div class="top" @click="viewNext">查看下一篇</div>
         </div>
 
         <div class="box align-center">
@@ -66,60 +65,57 @@
                 </div>
             </div>
             <div class="right">
-                <div class="head align-center">
-                    <span>{{ state.author }}的评价报告</span>
-                    <div class="round">
-                        <div class="block" :style="`transform: rotate(${state.deg}deg);transition:all 1.5s`"></div>
-                        <p>
-                            <span class="score">{{ score }}</span>
-                            <span class="tip">{{ state.assessment }}</span>
-                        </p>
-                    </div>
-                    <!-- 编辑 -->
-                    <el-popover :visible="popoverVisible" placement="top" :width="160">
-                        <div class="align-center">
-                            <el-input v-model="state.inputScore" />
-                            <el-select v-model="assess" style="margin-left: 8px;">
-                                <el-option v-for="item in assessList" :key="item.value" :label="item.name"
-                                    :value="item.value">
-                                </el-option>
-                            </el-select>
-                        </div>
-                        <div style="text-align: right; margin-top: 20px;">
-                            <el-button size="small" @click="state.popoverVisible = false">取消</el-button>
-                            <el-button size="small" color="#4B71EE" type="primary" @click="saveScore">保存</el-button>
-                        </div>
-                        <template #reference>
-                            <img class="edit" @click="state.inputScore = score, state.popoverVisible = true"
-                                src="../../../assets/composition/icon_deit_cebianlan@2x.png" alt="" />
-                        </template>
-                    </el-popover>
-
+                <div class="head">
+                    <div class="tit">评价量规</div>
+                    <div class="tip">您选择的标签将帮助AI评价的更加精准。若未选择标签，AI将自主判断。</div>
                 </div>
-                <div class="lines">
-                    <div class="line-item" v-for="(item, idx) in lineList" :key="idx">
-                        <img class="edit" @click="editLine(item, idx)" v-if="item.status === 0"
-                            src="../../../assets/composition/icon_deit_cebianlan@2x.png" alt="" />
-                        <div class="tit align-center">
-                            <div class="dot"></div>
-                            {{ item.title }}
+                <div class="wrapper">
+
+                    <div class="wrapper-tag">常用</div>
+                    <div class="wrapper-item">
+                        <div class="wrapper-head align-center">
+                            <img src="../../../assets/composition/icon_yuan@2x.png" alt="" />
+                            <span>明确的中心</span>
+                            <el-tooltip effect="dark" content="由句法上有关连的一组词构成，表达一种主张、疑问、命令、愿望或感叹等。" placement="bottom">
+                                <img src="../../../assets/composition/icon_wenhao@2x.png" alt="" />
+                            </el-tooltip>
                         </div>
-                        <div class="content" v-if="item.status === 0">
-                            {{ item.content }}
+                        <div class="wrapper-box">
+                            <div v-for="(item, idx) of 4" class="square">
+                                没有明确的主题，缺乏重点
+                                <img :src='require(`../../../assets/composition/square${idx}.png`)' alt="" />
+                            </div>
                         </div>
-                        <el-input class="input" autofocus v-else v-model="item.content" :rows="3" type="textarea"
-                            @blur="inputBlur(idx)" />
+                    </div>
+
+                    <div class="wrapper-item">
+                        <div class="wrapper-head align-center">
+                            <img src="../../../assets/composition/icon_yuan@2x.png" alt="" />
+                            <span>明确的中心</span>
+                            <el-tooltip effect="dark" content="由句法上有关连的一组词构成，表达一种主张、疑问、命令、愿望或感叹等。" placement="bottom">
+                                <img src="../../../assets/composition/icon_wenhao@2x.png" alt="" />
+                            </el-tooltip>
+                        </div>
+                        <div class="wrapper-box">
+                            <div v-for="(item, idx) of 4" class="square active">
+                                没有明确的主题，缺乏重点
+                                <img :src='require(`../../../assets/composition/square${idx}-active.png`)' alt="" />
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
         <div class="bottom align-center">
-            <div class="view" @click="viewArticle">查看原文</div>
-            <div class="export" @click="exportPDF">导出为pdf</div>
+            <div class="continue align-center" @click="selectContinue">
+                <img v-if="!state.isContinue" src="../../../assets/composition/icon_unchecked@2x.png" alt="" />
+                <img v-else src="../../../assets/composition/icon_checked@2x.png" alt="" />
+                继续评价下一篇
+            </div>
+            <el-button class="view" @click="viewArticle">取消</el-button>
+            <el-button color="#4B71EE" @click="exportPDF">生成新报告</el-button>
         </div>
     </div>
-    <!-- 查看原文 -->
-    <Article ref="articleRef" @view-report="closeArticle" />
 </template>
 <script setup lang="ts">
 import { getOssUrl } from '@/utils/oss';
@@ -128,66 +124,17 @@ import moment from 'moment';
 import { reactive, ref, toRefs } from 'vue';
 import { saveAs as FileSaver } from 'file-saver'
 import { downloadPDF, editReportDetail, lookNextContent, searchReportDetail } from '../api';
-import Article from './article.vue';
 
 const articleRef = ref()
 
 const dialogVisible = ref(false);
 
 const state = reactive({
-    assessment: '',
-    popoverVisible: false,
-    gradeList: [{
-        label: '全部',
-        value: 0
-    }],
-    assess: 2,
-    score: 0,
-    deg: 0,
-    inputScore: 0,
+    isContinue: false,
     StudentCompositionId: '',
-    assessList: [
-        {
-            name: '一般',
-            value: 1
-        },
-        {
-            name: '良好',
-            value: 2
-        },
-        {
-            name: '优秀',
-            value: 3
-        }
-    ],
     photoList: [] as any,
     mainPic: '',
     active: 0,
-    lineList: [
-        {
-            title: '综合点评',
-            status: 0,
-            key: 'Evaluation',
-            content: ''
-        },
-        {
-            title: '优点',
-            key: 'Advantage',
-            status: 0,
-            content: ''
-        }, {
-            title: '不足',
-            key: 'ShortComing',
-            status: 0,
-            content: ''
-        }, {
-            title: '改进建议',
-            key: 'Suggestions',
-            status: 0,
-            content: ''
-        }
-    ],
-    grade: null,
     title: '',
     tabName: '照片',
     author: '',
@@ -198,7 +145,11 @@ const state = reactive({
 
 const emit = defineEmits(['close', 'save']);
 
-const { gradeList, photoList, mainPic, active, score, grade, stuList, title, lineList, assessList, assess, popoverVisible } = toRefs(state)
+const { photoList, mainPic, active } = toRefs(state)
+
+const selectContinue = ()=>{
+    state.isContinue = !state.isContinue
+}
 
 const tabChange = (name: any) => {
     state.tabName = name
@@ -209,35 +160,14 @@ const switchPic = (item: any, idx: number) => {
     state.mainPic = item.url
 }
 
-/**
- * 查看下一篇
- */
-const viewNext = () => {
-    if (state.IsHaveNext) {
-        getDetail(state.NextStudentCompositionId, true)
-    } else {
-        ElMessage.error('当前为最后一篇')
-    }
-}
-
 // exportPDF
 const exportPDF = () => {
     downloadPDF({ StudentCompositionId: state.StudentCompositionId }).then((res: any) => {
-        // if(!res.success) return;
         if (res) {
             let blob = new Blob([res], { type: "application/pdf" });
-            // let objectUrl = window.URL.createObjectURL(blob); //生成一个url
-            // const a = document.createElement('a');
-            // const fileName = res.getResponseHeader('Content-Disposition').split(';')[1].split('filename=')[1];
             const filename = state.author + '的评价报告.pdf';
             //直接下载而不预览
             FileSaver.saveAs(blob, filename)
-            // a.download = filename;
-            // a.href = objectUrl;
-            // document.body.appendChild(a);
-            // a.click();
-            // document.body.removeChild(a);
-            // ElMessage({ type: 'success', message: '下载成功' });
         }
     })
 }
@@ -252,29 +182,6 @@ const viewArticle = () => {
     articleRef.value.openDialog({ StudentCompositionId: state.StudentCompositionId })
 }
 
-// 保存分数---等级
-const saveScore = () => {
-    exeSave(1, state.inputScore, () => {
-        state.score = state.inputScore
-        state.deg = -135 + (state.score / 100) * 180
-        exeSave(2, state.assess, () => {
-            ElMessage.success('保存成功')
-            state.assessment = state.assessList.find(v => v.value == state.assess)?.name
-            state.popoverVisible = false
-        })
-        // state.assessment = judgeScore(state.score)
-    })
-}
-
-// 失去焦点
-const inputBlur = (idx: number) => {
-    let num = idx + 3
-    exeSave(num, state.lineList[idx]['content'], () => {
-        ElMessage.success('保存成功')
-        state.lineList[idx]['status'] = 0
-    })
-}
-
 const exeSave = (type: number, info: any, cb?: any) => {
     editReportDetail({ StudentCompositionId: state.StudentCompositionId, SaveType: type, SaveInfo: info }).then(async (res: any) => {
         if (res.success) {
@@ -283,11 +190,6 @@ const exeSave = (type: number, info: any, cb?: any) => {
             }
         }
     })
-}
-
-// 编辑行
-const editLine = (item: any, idx: number) => {
-    state.lineList[idx]['status'] = 1
 }
 
 // 关闭
@@ -309,45 +211,9 @@ const getDetail = (id: string, isRequestNext?: boolean) => {
     }
     searchReportDetail({ StudentCompositionId: id }).then(async (res: any) => {
         if (res.success) {
-            //FileList
-            let result = res.result
-            state.score = result.Score
-            state.deg = -135 + (state.score / 100) * 180
-            state.assessment = result.AppraiseLevelDisplay
-            state.assess = result.AppraiseLevel//state.assessList.findIndex(v => v.name == state.assessment)
-            state.author = result.StudentName || ''
-            state.lineList.forEach((ele: any) => {
-                ele.content = result[ele.key]
-            })
-            state.photoList = result.FileList
-            state.IsHaveNext = result.IsHaveNext
-            state.NextStudentCompositionId = result.NextStudentCompositionId
-            await state.photoList.forEach(async (ele: any, i: number) => {
-                const { FileExtention, FilePath, FileMD5, FileBucket } = ele;
-                const key = FileExtention
-                    ? `${FilePath}/${FileMD5}.${FileExtention}`
-                    : `${FilePath}/${FileMD5}`;
-                ele.url = await getOssUrl(key, FileBucket)
-                if (i === 0) {
-                    state.mainPic = ele.url;
-                }
-            })
             dialogVisible.value = true
         }
     })
-}
-
-const judgeScore = (score: number) => {
-    // 0-59   一般60-89 良好90-100 优秀
-    let str
-    if (score < 59) {
-        str = '一般'
-    } else if (score < 89) {
-        str = '良好'
-    } else {
-        str = '优秀'
-    }
-    return str
 }
 
 defineExpose({
@@ -638,175 +504,144 @@ defineExpose({
         box-sizing: border-box;
         overflow-y: auto;
 
-        .round {
-            position: relative;
-            width: 120px;
-            height: 60px;
-            overflow: hidden;
-            border-bottom-left-radius: 4px;
-            border-bottom-right-radius: 4px;
-
-            .block {
-                position: absolute;
-                width: 120px;
-                height: 120px;
-                border-left: 8px solid #3AD393;
-                border-top: 8px solid #3AD393;
-                border-right: 8px solid #EEEEF0;
-                border-bottom: 8px solid #EEEEF0;
-                border-radius: 50%;
-                transform-origin: 50%;
-                box-sizing: border-box;
-            }
-
-            &>p {
-                position: absolute;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
-
-                .score {
-                    font-size: 20px;
-                    font-family: HarmonyOS_Sans_SC_Bold;
-                    color: #3AD393;
-                    line-height: 24px;
-                    font-weight: 600;
-                }
-
-                .tip {
-                    font-size: 12px;
-                    font-family: HarmonyOS_Sans_SC;
-                    color: #A7AAB4;
-                    line-height: 16px;
-                }
-            }
-        }
-
-        .words {
-            font-size: 14px;
-            font-family: PingFangSC-Regular, PingFang SC;
-            font-weight: 400;
-            color: #19203D;
-            line-height: 22px;
-            padding: 24px 18px 0 18px;
-            height: 100%;
-            width: 100%;
-            overflow-y: auto;
-        }
-
         .head {
             padding-bottom: 16px;
-            position: relative;
-            justify-content: space-between;
+            border-bottom: 1px solid fade-out($color: #E0E2E7, $amount: 0.5);
+            margin-bottom: 15px;
 
-            &>span {
+            .tit {
                 font-size: 20px;
                 font-family: PingFangSC-Semibold, PingFang SC;
                 font-weight: 600;
                 color: #19203D;
             }
 
-            .edit {
-                position: absolute;
-                right: -16px;
-                top: 0;
-                width: 16px;
-                height: 16px;
-                cursor: pointer;
+            .tip {
+                font-size: 14px;
+                font-family: PingFangSC-Regular, PingFang SC;
+                font-weight: 400;
+                color: #A7AAB4;
+                margin-top: 8px;
             }
         }
 
-        .lines {
-            .line-item {
-                width: 100%;
-                position: relative;
-                padding: 16px;
+        .wrapper {
+            .wrapper-tag {
+                width: 183px;
+                height: 28px;
+                line-height: 28px;
+                padding-left: 20px;
                 box-sizing: border-box;
-                margin-bottom: 12px;
-                border-radius: 4px;
+                background-image: url('../../../assets/composition/pic_title@2x.png');
+                background-repeat: no-repeat;
+                background-size: 100% 100%;
+                font-size: 16px;
+                font-family: PingFangSC-Semibold, PingFang SC;
+                font-weight: 600;
+                color: #3AD393;
+            }
 
-                .tit {
-                    font-size: 16px;
-                    font-family: PingFangSC-Semibold, PingFang SC;
-                    font-weight: 600;
-                    color: #19203D;
+            .wrapper-item {
+                margin-bottom: 20px;
+
+
+
+                .wrapper-box {
+                    width: 100%;
+                    display: flex;
+                    justify-content: space-around;
+
+                    .square {
+                        position: relative;
+                        width: calc((100% - 51px) / 4);
+                        height: 140px;
+                        border-radius: 8px;
+                        font-size: 12px;
+                        font-family: PingFangSC-Regular, PingFang SC;
+                        font-weight: 400;
+                        color: #19203D;
+                        line-height: 20px;
+                        display: flex;
+                        align-items: center;
+                        text-align: center;
+                        margin-right: 17px;
+                        padding: 13px;
+                        box-sizing: border-box;
+                        overflow: hidden;
+
+                        &>img {
+                            position: absolute;
+                            bottom: -12px;
+                            right: -5px;
+                            width: 59px;
+                            height: 59px;
+                        }
+
+                        &.active {
+                            color: #FFFFFF;
+                        }
+
+                        &:nth-of-type(1) {
+                            background-color: #F9FAFC;
+
+                            &.active {
+                                background-color: #858B9E;
+                            }
+                        }
+
+                        &:nth-of-type(2) {
+                            background-color: #FFF7EE;
+
+                            &.active {
+                                background-color: #FFBC68;
+                            }
+                        }
+
+                        &:nth-of-type(3) {
+                            background-color: #F1F4FE;
+
+                            &.active {
+                                background-color: #4B71EE;
+                            }
+                        }
+
+                        &:nth-of-type(4) {
+                            background-color: #F0FCF7;
+
+                            &.active {
+                                background-color: #3AD393;
+                            }
+                        }
+                    }
+                }
+
+                .wrapper-head {
+                    margin-top: 16px;
                     margin-bottom: 12px;
 
-                    .dot {
-                        width: 6px;
-                        height: 6px;
-                        background: #4B71EE;
-                        margin-right: 8px;
-                        transform: rotate(45deg);
+                    &>img {
+                        &:nth-of-type(1) {
+                            width: 8px;
+                            height: 8px;
+                            margin-right: 8px;
+                        }
+
+                        &:nth-of-type(2) {
+                            width: 14px;
+                            height: 14px;
+                            margin-left: 8px;
+                        }
                     }
-                }
 
-                .edit {
-                    position: absolute;
-                    right: 11px;
-                    top: 11px;
-                    width: 16px;
-                    height: 16px;
-                    cursor: pointer;
-                }
-
-                &:nth-of-type(1) {
-                    background-color: fade-out($color: #4B71EE, $amount: 0.92);
-
-
-
-                }
-
-                &:nth-of-type(2) {
-                    background-color: fade-out($color: #3AD393, $amount: 0.92);
-
-                    .dot {
-                        background-color: #3AD393;
+                    &>span {
+                        font-size: 16px;
+                        font-family: PingFangSC-Semibold, PingFang SC;
+                        font-weight: 600;
+                        color: #19203D;
                     }
-                }
-
-                &:nth-of-type(3) {
-                    background-color: fade-out($color: #FF6B6B, $amount: 0.92);
-
-                    .dot {
-                        background-color: #FF6B6B;
-                    }
-                }
-
-                &:nth-of-type(4) {
-                    background-color: #F9FAFC;
-
-                    .dot {
-                        background-color: #4B71EE;
-                    }
-                }
-
-                .content {
-                    font-size: 14px;
-                    font-family: PingFangSC-Regular, PingFang SC;
-                    font-weight: 400;
-                    color: #19203D;
-                    line-height: 22px;
-                    word-break: break-all;
-                }
-
-                .input {
-                    width: 100%;
-                    background: #FFFFFF;
-                    border-radius: 4px;
-                    border: 1px solid #E0E2E7;
-                    font-size: 14px;
-                    font-family: PingFangSC-Regular, PingFang SC;
-                    font-weight: 400;
-                    color: #19203D;
                 }
             }
         }
-
     }
 
 
@@ -823,19 +658,39 @@ defineExpose({
     padding: 0 16px;
     box-sizing: border-box;
 
+    .continue {
+        font-size: 14px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: #19203D;
+        margin-right: 32px;
+        cursor: pointer;
+
+        &>img {
+            width: 16px;
+            height: 16px;
+            margin-right: 8px;
+        }
+    }
+
     .view {
-        width: 100px;
+        // width: 100px;
         height: 32px;
         line-height: 32px;
         text-align: center;
         background: #FFFFFF;
         border-radius: 4px;
         border: 1px solid #E0E2E7;
-        font-size: 12px;
+        // font-size: 12px;
         font-family: PingFangSC-Regular, PingFang SC;
         font-weight: 400;
         color: #19203D;
-        cursor: pointer;
+        // cursor: pointer;
+
+        &:hover {
+            background: #FFFFFF !important;
+            color: #19203D !important;
+        }
     }
 
     .export {

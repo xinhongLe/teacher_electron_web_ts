@@ -18,7 +18,18 @@
             </div>
         </div>
         <div class="box" v-if="articleList.length === 0">
-            <div class="empty">暂无数据 </div>
+            <div class="empty-wrapper">
+                <img src="../../assets/composition/pic_no@2x.png" alt="">
+                <div class="empty">暂无内容</div>
+                <div class="empty-tip">开始创建一篇作文批改吧！</div>
+                <el-select style="width: 216px;" v-model="classId" @change="classChange" placeholder="请选择班级">
+                    <el-option v-for="item in classList" :key="item.Id" :label="item.Name" :value="item.Id">
+                    </el-option>
+                </el-select>
+                <el-button style="width: 146px;margin-top: 16px;" color="#4B71EE" @click="addComposition">
+                    立即创建
+                </el-button>
+            </div>
         </div>
         <div class="box" v-else>
             <div class="article-line align-center" v-for="(item, idx) of articleList" :key="idx"
@@ -48,12 +59,13 @@
 </template>
 <script lang="ts">
 import { defineComponent } from 'vue';
+import { YUN_API_ONECARD_MQTT } from '@/config';
 export default defineComponent({
-    name:'Composition'
+    name: 'Composition'
 })
 </script>
 <script setup lang="ts">
-import { nextTick, onMounted, reactive, ref, toRefs } from 'vue';
+import { nextTick, onMounted, reactive, ref, toRefs, watch } from 'vue';
 import NewSetup from './components/newSetup.vue'
 import Scan from './components/scan.vue'
 import List from './components/list.vue'
@@ -64,6 +76,7 @@ import moment from 'moment';
 import { IYunInfo } from '@/types/login';
 import { get, STORAGE_TYPES } from '@/utils/storage';
 import { ElMessage } from 'element-plus';
+import mqtt from "mqtt";
 
 const setRef = ref()
 const scanRef = ref()
@@ -85,6 +98,13 @@ const state = reactive({
 
 const { classList, classId, articleList, chapterList } = toRefs(state)
 
+const client = mqtt.connect(YUN_API_ONECARD_MQTT || "", {
+    port: 1883,
+    username: "u001",
+    password: "p001",
+    keepalive: 30
+});
+
 onMounted(() => {
     // console.log('userinfo:', store.state.userInfo);
     // getArticleList()
@@ -92,7 +112,33 @@ onMounted(() => {
         getArticleList()
     })
     getGradeList()
+
+    //
+    client && client.on("connect", function (err: any) {
+        window.electron.log.info("client connect answer", err);
+    });
+
+    client && client.on("error", (err: any) => {
+        window.electron.log.info("client error answer", err);
+    });
+
+    client && client.on("message", function (topic: any, message: any) {
+        // message is Buffer
+        const infoString = JSON.parse(message.toString());
+        console.log("====message=====", infoString);
+    });
+
 })
+const getPublish = (id: string) => {
+    return `answer_studentcommitcount_${id}`;
+};
+watch(() => state.classCount, (val) => {
+    // client.subscribe(getPublish("C696DA084848C9E8B2D0A2CB00853504"));
+    console.log('订阅');
+
+    client.subscribe(getPublish('C696DA084848C9E8B2D0A2CB00853504'));
+}, { immediate: true });
+
 
 const refresh = () => {
     getClassStuCount(false, () => {
@@ -111,6 +157,7 @@ const classChange = (e: any) => {
     state.classId = e
     state.className = filt?.Name
     state.classCount = filt?.StuTotal
+    state.page.PageNumber = 1
     // set('compositionClassId', state.classId)
     localStorage.setItem(
         "compositionClassId",
@@ -139,7 +186,7 @@ const getClassStuCount = (isinit = false, cb?: any) => {
                     "compositionClassId",
                     state.classId
                 );
-            }else{
+            } else {
                 // 没有班级 清空
                 state.classId = ''
                 state.className = ''
@@ -180,7 +227,7 @@ const scanOpenList = (e: any) => {
 }
 
 const addComposition = () => {
-    if(!state.classId){
+    if (!state.classId) {
         ElMessage.warning('当前没有班级，无法新建')
         return
     }
@@ -200,8 +247,8 @@ const getArticleList = () => {
                 });
             }
             state.articleList = list
-            nextTick(()=>{
-                if(PaginationRef.value){
+            nextTick(() => {
+                if (PaginationRef.value) {
                     PaginationRef.value.total = pager.Total
                 }
             })
@@ -226,12 +273,38 @@ const handleCurrentChange = (val: number) => {
     margin-top: 10px;
 }
 
-.empty {
-    text-align: center;
-    color: #5F626F;
-    margin-top: 60px;
-    font-size: 13px;
+.empty-wrapper {
+    padding-top: 120px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: auto;
+
+    &>img {
+        width: 205px;
+        height: 139px;
+        display: block;
+        margin-bottom: 30px;
+    }
+
+    .empty {
+        text-align: center;
+        font-size: 18px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: #19203D;
+    }
+
+    .empty-tip {
+        font-size: 14px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: #5F626F;
+        margin-top: 12px;
+        margin-bottom: 32px;
+    }
 }
+
 
 .composition {
     display: flex;

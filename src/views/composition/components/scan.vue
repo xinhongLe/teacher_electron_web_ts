@@ -60,14 +60,28 @@
             </div>
 
             <div class="content">
-
-
                 <div class="start-scan" v-if="!isOpenScan">
-                    <img src="../../../assets/composition/pic@2x.png" alt="" />
-                    <!-- v-if="currentStudent" -->
-                    <el-button style="width: 146px;" color="#4B71EE" @click="startScan">
-                        开始扫描
-                    </el-button>
+                    <template v-if="deviceList.length > 0">
+                        <img src="../../../assets/composition/pic@2x.png" alt="" />
+                        <el-button style="width: 146px;" color="#4B71EE" @click="startScan">
+                            开始扫描
+                        </el-button>
+                    </template>
+                    <div class="none-device" v-else>
+                        <img src="../../../assets/composition/pic_nolive_2@2x.png" alt="" />
+                        <div class="none-tip align-center">
+                            <img src="../../../assets/composition/icon_zhuyi@2x.png" alt="" />
+                            当前未检测到高拍仪设备
+                        </div>
+                        <div class="opt align-center">
+                            <el-button color="#4B71EE" style="width:146px;" @click="getDevices">
+                                重新识别
+                            </el-button>
+                            <el-button color="#4B71EE" style="width:146px;" @click="importFile">
+                                文件夹导入
+                            </el-button>
+                        </div>
+                    </div>
                 <!-- <div class="opt align-center" v-else>
                         <el-button color="#4B71EE" @click="scanCode">
                             扫描二维码
@@ -75,7 +89,7 @@
                         <el-button color="#4B71EE" @click="scanName">
                             扫描姓名
                         </el-button>
-                                                            </div> -->
+                                        </div> -->
                 </div>
                 <div class="scan" id="scan" v-else>
                     <div v-if="!currentStudent">
@@ -83,7 +97,17 @@
                             @decode="onDecode" @init="onInit"></QrStream>
                         <img class="line" src="../../../assets/composition/pic_saomiao@2x.png" alt="" />
                         <span class="down-tip toast" v-if="!isCodeMode">请对着学生名字，点击识别</span>
-                        <span class="down-tip toast" v-else>请先扫描学生二维码</span>
+                        <span class="down-tip toast align-center" v-else>
+                            请先扫描学生二维码
+                            <img @mouseenter.native="mouseenterEvent"
+                                src="../../../assets/composition/icon_wenhao@2x.png" alt="">
+                            <div class="code-jump" @mouseenter.native="mouseenterEvent"
+                                @mouseleave.native="state.showCodeJump = false" v-if="showCodeJump">
+                                <div class="bac" @click="jumpToGetCode">获取二维码</div>
+                                <img src="../../../assets/composition/arrow_down_black@2x.png" alt="">
+                            </div>
+                        </span>
+
                         <div class="switch-box align-center">
                             <div class="switch-item align-center">
                                 <span>识别二维码</span>
@@ -116,7 +140,7 @@
                         </div>
                         <div class="take-item" @click="switchToNextStu">
                             <img src="../../../assets/composition/icon_next@2x.png" alt="" />
-                            <span>{{ isSupply ? '完成' : '下一个学生' }}</span>
+                            <span>{{ isSupply ? '完成' : '提交并继续' }}</span>
                         </div>
                     </template>
 
@@ -155,6 +179,13 @@ onBeforeUnmount(() => {
     window.removeEventListener('resize', listenResizeFn);
 })
 
+const mouseenterEvent = () => {
+    state.showCodeJump = true
+}
+const jumpToGetCode = ()=>{
+
+}
+
 const listenResizeFn = () => {
     let el = document.getElementById('scan')
     // console.log('resize--------', el?.clientWidth, el?.clientHeight)
@@ -180,6 +211,7 @@ const props = defineProps({
 const dialogVisible = ref(false);
 const state = reactive({
     isUploading: false,
+    showCodeJump: false,
     qrcode: true,
     torchActive: false,
     camera: 'auto',
@@ -203,19 +235,17 @@ const state = reactive({
     // classCount: 0,
     deviceList: [] as any
 });
-const { device, isSupply, currentStudent, isCodeMode, isNameMode, photoList, deviceList, isOpenScan, boxMessage, isScanByHand } = toRefs(state);
+const { device, isSupply, showCodeJump, currentStudent, isCodeMode, isNameMode, photoList, deviceList, isOpenScan, boxMessage, isScanByHand } = toRefs(state);
 
 const emit = defineEmits(['cancel', 'save', 'openList']);
 
 // 互斥switch
 const codeSwitchChange = (e: any) => {
-    console.log(111, e);
     state.isNameMode = !e
     localStorage.setItem('isNameMode', e ? '0' : '1')
 }
 
 const nameSwitchChange = (e: any) => {
-    console.log(222, e);
     state.isCodeMode = !e
     localStorage.setItem('isNameMode', e ? '1' : '0')
 }
@@ -432,6 +462,7 @@ const close = () => {
     state.boxMessage = '待扫描'
     state.showVideo = true
     clearStuInfo()
+    state.isScanByHand = false
     //
     getUserMedia((stream: any) => {
         let tracks = stream.getTracks()
@@ -518,13 +549,14 @@ const getUserMedia = (cb?: any) => {
             /* 使用这个 stream 传递到成功回调中 */
             if (cb) {
                 cb(stream)
-            }else{
+            } else {
                 success(stream)
             }
         })
         .catch(function (err) {
             /* 处理 error 信息 */
             console.log('getUserMedia-----error', err);
+            ElMessage.warning('无法启动视频源')
             // error(error)
         });
 }
@@ -695,15 +727,24 @@ defineExpose({
 }
 
 .toast {
+    position: relative;
     padding: 11px 24px;
     height: 40px;
-    background: #000000;
+    background: fade-out($color: #000000, $amount: 0.6);
     border-radius: 27px;
-    opacity: 0.4;
+    // opacity: 0.4;
     font-size: 14px;
     font-family: PingFangSC-Semibold, PingFang SC;
     font-weight: 600;
-    color: #FFFFFF;
+    color: fade-out($color: #FFFFFF, $amount: 0.6);
+
+    &>img {
+        width: 14px;
+        height: 14px;
+        margin-left: 4px;
+        cursor: pointer;
+        opacity: 0.6;
+    }
 }
 
 .align-center {
@@ -1017,6 +1058,35 @@ defineExpose({
                         left: 50%;
                         transform: translateX(-50%);
                     }
+
+                    .code-jump {
+                        position: absolute;
+                        z-index: 820;
+                        top: -38px;
+                        left: 50%;
+                        transform: translateX(4px);
+                        cursor: pointer;
+
+                        &>div {
+                            width: 120px;
+                            height: 36px;
+                            background-color: #fff;
+                            border-radius: 5px;
+                            text-align: center;
+                            line-height: 36px;
+                            font-size: 14px;
+                            font-family: PingFangSC-Regular, PingFang SC;
+                            font-weight: 400;
+                            color: #4B71EE;
+                        }
+
+                        &>img {
+                            width: 11px;
+                            height: 6px;
+                            display: block;
+                            margin: auto;
+                        }
+                    }
                 }
             }
 
@@ -1075,6 +1145,37 @@ defineExpose({
                     height: 157px;
                     display: block;
                     margin-bottom: 24px;
+                }
+
+                .none-device {
+                    width: fit-content;
+                    height: fit-content;
+                    margin: auto;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    align-items: center;
+
+                    &>img {
+                        width: 206px;
+                        height: 158px;
+                        display: block;
+                        margin-bottom: 16px;
+                    }
+
+                    .none-tip {
+                        font-size: 18px;
+                        font-family: PingFangSC-Regular, PingFang SC;
+                        font-weight: 400;
+                        color: #19203D;
+                        margin-bottom: 29px;
+
+                        &>img {
+                            width: 16px;
+                            height: 16px;
+                            margin-right: 4px;
+                        }
+                    }
                 }
             }
         }
