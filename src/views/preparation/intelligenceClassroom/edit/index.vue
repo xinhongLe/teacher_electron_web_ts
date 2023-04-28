@@ -98,10 +98,11 @@ import { cloneDeep } from "lodash";
 import { v4 as uuidv4 } from "uuid";
 import { saveWindows } from "../api";
 import { getWindowStruct } from "@/api/home";
+import { arrIsEqual } from "@/utils/dataParse";
 import useImportPPT from "@/hooks/useImportPPT";
 import useHandlePPT from "./hooks/useHandlePPT";
 import { pageType, pageTypeList } from "@/config";
-import { get, STORAGE_TYPES } from "@/utils/storage";
+import { get, set, STORAGE_TYPES } from "@/utils/storage";
 import useSaveTemplate from "./hooks/useSaveTemplate";
 import { ElMessage, ElMessageBox } from "element-plus";
 import exitDialog, { ExitType } from "../edit/exitDialog";
@@ -112,7 +113,6 @@ import AddPageDialog from "../components/edit/addPageDialog.vue";
 import { CardProps, MaterialProp, PageProps } from "../api/props";
 import materialCenter from "../components/edit/materialCenter/index.vue";
 import { computed, defineComponent, nextTick, ref, onMounted } from "vue";
-import { arrIsEqual } from "@/utils/dataParse";
 
 export default defineComponent({
     name: "EditWinCard",
@@ -188,6 +188,7 @@ export default defineComponent({
                 } else {
                     selectPageIds.value.push(obj.params);
                 }
+                storageCopyData();
             }
             // 保存模板
             if (obj.type === 6) {
@@ -241,21 +242,33 @@ export default defineComponent({
             }
             // 粘贴页
             if (type === 5) {
-                if (!selectPage) {
-                    ElMessage.warning("您还未复制素材");
+                const pages: PageProps[] = get("WIN_COPY_VALUE") || [];
+                if (pages.length === 0) {
+                    ElMessage.warning("请选择要粘贴的内容");
                     return;
                 }
-                selectPage.ID = uuidv4();
-                selectPage.Name = selectPage.Name + "（新）";
-                const index = windowCards.value.findIndex(item => item.ID === data.ID);
-                windowCards.value[index].PageList.push(selectPage);
+                if (!currentPageId.value) {
+                    ElMessage.warning("请选中页");
+                    return;
+                }
+                for (let i = 0; i < pages.length; i++) {
+                    const item = pages[i];
+                    item.ID = uuidv4();
+                    item.TeachPageRelationID = "";
+                }
+                const index = windowCards.value.findIndex(item => item.ID === (data as PageProps).ParentID);
+                const subIndex = windowCards.value[index].PageList.findIndex(item => item.ID === data.ID);
+                windowCards.value[index].PageList.splice(subIndex + 1, 0, ...pages);
                 handlePPT.sortWindowCards();
-                currentPageId.value = selectPage.ID;
-                selectPage = null;
+                window.electron.ipcRenderer.send("replicated");
             }
             // 复制页
             if (type === 6) {
-                selectPage = cloneDeep<PageProps>(data as PageProps);
+                const index = selectPageIds.value.findIndex(item => item === data.ID);
+                if (index === -1) {
+                    selectPageIds.value.push(data.ID);
+                }
+                storageCopyData();
                 ElMessage.success("复制成功");
             }
             // 保存模板
@@ -271,6 +284,15 @@ export default defineComponent({
                 selectPage = cloneDeep<PageProps>(data as PageProps);
                 addPageVisible.value = true;
             }
+        };
+
+        // 存储拷贝内容
+        const storageCopyData = () => {
+            const pages = selectPageIds.value.map(item => {
+                return handlePPT.getPageById(item);
+            });
+
+            set("WIN_COPY_VALUE", pages);
         };
 
         // 新增互动页
@@ -464,6 +486,10 @@ export default defineComponent({
         }
 
         onMounted(() => {
+            window.electron.ipcRenderer.on("copy-end", () => {
+                selectPageIds.value = [];
+                set("WIN_COPY_VALUE", []);
+            });
             document.addEventListener("keydown", (e: KeyboardEvent) => {
                 e.stopPropagation();
                 const key = e.code;

@@ -72,9 +72,7 @@
                                     </div>
                                 </div>
 
-                                <img v-if="selectPageIds.length > 0" class="select-icon"
-                                     :src="require(`@/assets/edit/icon_${selectPageIds.includes(page.ID) ? 'clicked' : 'unclick'}.png`)"
-                                     alt=""/>
+                                <img v-if="selectPageIds.includes(page.ID)" class="select-icon" src="@/assets/edit/icon_clicked.png" alt=""/>
                             </div>
                         </transition-group>
                     </vue-draggable-next>
@@ -162,6 +160,13 @@ export default defineComponent({
                     subText: "",
                     handler: () => {
                         emit("handle", { type: 6, params: page });
+                    }
+                },
+                {
+                    text: "复制",
+                    subText: "",
+                    handler: () => {
+                        emit("handle", { type: 3, params: { type: 6, data: page } });
                     }
                 }
             ];
@@ -378,9 +383,8 @@ export default defineComponent({
                             display: none;
 
                             &.add {
-                                right: 36px;
+                                right: 75px;
                                 bottom: -16px;
-                                margin-right: 15px;
 
                                 img {
                                     width: 32px;
