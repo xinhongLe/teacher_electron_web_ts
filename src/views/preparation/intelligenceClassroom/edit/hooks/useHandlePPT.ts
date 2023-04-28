@@ -253,7 +253,7 @@ export default (windowCards: Ref<CardProps[]>, currentPageId: Ref<string>) => {
             });
         }
         windowCards.value = list;
-        return list
+        return cloneDeep(list);
     }
 
     return {

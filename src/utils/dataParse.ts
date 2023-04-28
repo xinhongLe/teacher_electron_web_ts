@@ -765,6 +765,7 @@ const objIsEqual = (source: any, target: any) => {
             continue;
         }
         if (Object.prototype.toString.call(source[key]) === "[object Array]") {
+            if (source[key].length !== target[key].length) return false;
             const flag = arrIsEqual(source[key], target[key]);
             if (!flag) return false;
         }
@@ -781,6 +782,7 @@ const objIsEqual = (source: any, target: any) => {
 
 // 判断两个对象是否相等
 export const arrIsEqual = (source: any, target: any) => {
+    if (source.length !== target.length) return false;
     for (let i = 0; i < source.length; i++) {
         const item = source[i];
         if (Object.prototype.toString.call(item) === "[object Array]") {

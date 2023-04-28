@@ -44,9 +44,9 @@
                 :isInit="index === 0"
                 :slide="currentSlide"
                 :is-show-pen-tools="false"
-                :keyDisabled="!openCardShow"
-                v-model:isCanUndo="isCanUndo"
-                v-model:isCanRedo="isCanRedo"
+                :keyDisabled="openCardShow"
+                v-model:isCanUndo="canUndo"
+                v-model:isCanRedo="canRedo"
             />
         </div>
         <div class="right" v-if="rVisit">
@@ -94,6 +94,14 @@ export default defineComponent({
         },
         rVisit: {
             type: Boolean,
+            default: true
+        },
+        isCanUndo: {
+            type: Boolean,
+            default: false
+        },
+        isCanRedo: {
+            type: Boolean,
             default: false
         },
         resource: {
@@ -124,13 +132,13 @@ export default defineComponent({
             return page?.AcademicPresupposition || "";
         });
 
-        const isCanUndo = ref(false);
-        const isCanRedo = ref(false);
+        const canUndo = ref(false);
+        const canRedo = ref(false);
 
-        watch(() => isCanUndo.value, val => {
+        watch(() => canUndo.value, val => {
             emit("update:is-can-undo", val);
         });
-        watch(() => isCanRedo.value, val => {
+        watch(() => canRedo.value, val => {
             emit("update:is-can-redo", val);
         });
 
@@ -243,8 +251,8 @@ export default defineComponent({
             pageType,
             openCard,
             screenRef,
-            isCanUndo,
-            isCanRedo,
+            canUndo,
+            canRedo,
             handlePage,
             windowCards,
             teachProcess,
