@@ -760,7 +760,7 @@ const getAnimations = (actions: PPTElementAction[]) => {
 
 const objIsEqual = (source: any, target: any) => {
     for (const key in source) {
-        if (["pauseList", "clip", "points", "start", "end"].includes(key)) {
+        if (["pauseList", "clip", "points", "start", "end", "rowHeights"].includes(key)) {
             if (JSON.stringify(source[key]) !== JSON.stringify(target[key])) return false;
             continue;
         }
@@ -783,6 +783,11 @@ const objIsEqual = (source: any, target: any) => {
 export const arrIsEqual = (source: any, target: any) => {
     for (let i = 0; i < source.length; i++) {
         const item = source[i];
+        if (Object.prototype.toString.call(item) === "[object Array]") {
+            const flag = arrIsEqual(item, target[i]);
+            if (!flag) return false;
+            continue;
+        }
         const find = target.find((it: any) => {
             if (it.ID) {
                 return item.ID === it.ID;
@@ -799,10 +804,6 @@ export const arrIsEqual = (source: any, target: any) => {
             const flag = objIsEqual(item, find);
             if (!flag) return false;
         }
-
-        const flag = objIsEqual(item, find);
-        if (!flag) return false;
     }
-
     return true;
 };
