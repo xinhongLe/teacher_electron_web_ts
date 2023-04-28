@@ -244,6 +244,10 @@ export default defineComponent({
             PPTEditRef.value.setScreening(flag);
         };
 
+        const collapse = () => {
+            PPTEditRef.value.collapse();
+        };
+
         return {
             dialogVisible,
             addGameVisible,
@@ -273,7 +277,8 @@ export default defineComponent({
             handleHelper,
             applyBackgroundAllSlide,
             setScreening,
-            currentGame
+            currentGame,
+            collapse
         };
     }
 });
