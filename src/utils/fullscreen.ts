@@ -2,6 +2,10 @@ import isElectron from "is-electron";
 
 // 进入全屏
 export const enterFullscreen = () => {
+    if (isElectron()) {
+        window.electron.setFullScreen();
+        return;
+    }
     const docElm: any = document.documentElement;
     if (docElm.requestFullscreen) {
         docElm.requestFullscreen();
@@ -14,6 +18,9 @@ export const enterFullscreen = () => {
 
 // 判断是否全屏
 export const isFullscreen = () => {
+    if (isElectron()) {
+        return window.electron.isFullScreen();
+    }
     const dom: any = document;
     return dom.mozFullScreen || dom.webkitIsFullScreen || dom.webkitFullScreen;
 };
@@ -21,7 +28,8 @@ export const isFullscreen = () => {
 // 退出全屏
 export const exitFullscreen = () => {
     if (isElectron()) {
-        return (window as any).electron.minimizeWindow();
+        window.electron.minimizeWindow();
+        return;
     }
     const dom: any = document;
     if (dom.exitFullscreen) dom.exitFullscreen();

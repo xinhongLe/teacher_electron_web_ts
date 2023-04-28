@@ -142,14 +142,6 @@ export default (windowCards: Ref<CardProps[]>, currentPageId: Ref<string>) => {
         windowCards.value = list;
     };
 
-    // 当前page替换
-    const replaceCurrentPage = async (page: PageProps) => {
-        const index = windowCards.value.findIndex(item => item.ID === page.ParentID);
-        const subIndex = windowCards.value[index].PageList.findIndex(item => item.ID === page.ID);
-
-        windowCards.value[index].PageList.splice(subIndex, 1, page);
-    };
-
     // 预览(1-当前页开始，2-第一页开始)
     const preview = (type: 1 | 2, editRef: any) => {
         if (!editRef) return;
@@ -175,6 +167,7 @@ export default (windowCards: Ref<CardProps[]>, currentPageId: Ref<string>) => {
         if (!isFullscreen()) return;
         winScreenView.value = false;
         previewIndex.value = -1;
+
         exitFullscreen();
     };
 
@@ -260,7 +253,7 @@ export default (windowCards: Ref<CardProps[]>, currentPageId: Ref<string>) => {
             });
         }
         windowCards.value = list;
-        return JSON.stringify(list);
+        return list
     }
 
     return {
@@ -275,7 +268,6 @@ export default (windowCards: Ref<CardProps[]>, currentPageId: Ref<string>) => {
         winCardViewRef,
         sortWindowCards,
         assembleCardData,
-        replaceCurrentPage,
         applyBackgroundAllSlide
     };
 };
