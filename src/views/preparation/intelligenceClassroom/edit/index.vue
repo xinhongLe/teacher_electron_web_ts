@@ -163,6 +163,7 @@ export default defineComponent({
             // 关闭预览窗
             if (obj.type === 1) {
                 showCollapse.value = !showCollapse.value;
+                editRef.value.collapse();
             }
             // 重新排序
             if (obj.type === 2) {
