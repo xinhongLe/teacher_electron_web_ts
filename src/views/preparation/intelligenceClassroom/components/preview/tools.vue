@@ -51,7 +51,7 @@
                         <!-- 隐藏显示教案 -->
                         <div class="me-tool-btn-new" @click="toggleRemark()" v-if="isShowRemarkBtn">
                             <div class="icon-text">
-                                <img v-if="!showRemark" src="../../images/slices/icon_pbja.png" alt=""/>
+                                <img v-if="showRemark" src="../../images/slices/icon_pbja.png" alt=""/>
                                 <img v-else src="../../images/slices/icon_xsja.png" alt=""/>
                                 <span class="text">{{ showRemark ? "隐藏教案" : "显示教案" }}</span>
                             </div>
