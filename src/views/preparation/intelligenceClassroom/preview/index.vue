@@ -59,7 +59,7 @@
         </div>
     </div>
 
-    <open-card-view-dialog v-if="openCardShow"/>
+    <open-card-view-dialog v-if="openCardShow" :list="openCardList" @close="openCardShow = false"/>
 </template>
 
 <script lang=ts>
@@ -221,6 +221,7 @@ export default defineComponent({
         };
 
         const openCardShow = ref(false);
+        const openCardList = ref<PageProps[]>([]);
         const openCard = (data: any) => {
             if (!data[0] || !data[0].cards) return;
 
@@ -238,8 +239,8 @@ export default defineComponent({
                     pages.push(find);
                 }
             }
-
-            console.log(pages);
+            openCardShow.value = true;
+            openCardList.value = pages;
         };
 
         return {
@@ -258,6 +259,7 @@ export default defineComponent({
             teachProcess,
             openCardShow,
             currentSlide,
+            openCardList,
             handleIsHideL,
             previewHandle
         };

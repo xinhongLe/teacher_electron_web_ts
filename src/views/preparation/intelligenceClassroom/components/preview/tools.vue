@@ -174,13 +174,13 @@
                     </div>
                 </template>
                 <!-- 关闭 -->
-                <div class="me-tool-btn-new" v-if="isShowClose" @click="$emit('close')">
+                <div class="me-tool-btn-new" v-if="isShowClose" @click="handleClose">
                     <div class="icon-text">
                         <img src="../../images/slices/close.png" alt=""/>
                         <span class="text">关闭</span>
                     </div>
                 </div>
-                <div @click.stop="closeWinCard" v-if="showClose && !dialog" class="me-tool-btn-new">
+                <div @click.stop="closeWinCard" v-if="!isShowClose && !dialog" class="me-tool-btn-new">
                     <div class="icon-text">
                         <img src="../../images/slices/close.png" alt=""/>
                         <span class="text">关闭</span>
@@ -285,6 +285,7 @@ export default defineComponent({
     emits: [
         "undo",
         "redo",
+        "close",
         "prevStep",
         "nextStep",
         "openShape",
@@ -554,6 +555,10 @@ export default defineComponent({
             emit("redo");
         };
 
+        const handleClose = () => {
+            emit("close");
+        };
+
         return {
             isOpen,
             scale,
@@ -589,6 +594,7 @@ export default defineComponent({
             whiteboardOption,
             undo,
             redo,
+            handleClose,
             sendTeachTool
         };
     }
@@ -795,7 +801,6 @@ export default defineComponent({
     }
 
     .me-tools-set {
-        width: fit-content;
         position: relative;
         width: 118px;
         justify-content: space-evenly;
