@@ -758,7 +758,7 @@ const getAnimations = (actions: PPTElementAction[]) => {
     return animations;
 };
 
-const objIsEqual = (source: any, target: any) => {
+export const objIsEqual = (source: any, target: any) => {
     for (const key in source) {
         if (["pauseList", "clip", "points", "start", "end", "rowHeights"].includes(key)) {
             if (JSON.stringify(source[key]) !== JSON.stringify(target[key])) return false;
