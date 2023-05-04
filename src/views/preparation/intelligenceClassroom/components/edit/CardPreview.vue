@@ -1,5 +1,5 @@
 <template>
-    <div class="left" :class="{collapse:!collapse}">
+    <div class="left" tabindex="0" :class="{collapse:!collapse}" ref="cardRef">
         <div class="placeholder"/>
         <vue-draggable-next
             tag="div"
@@ -94,7 +94,7 @@
 import { pageType } from "@/config";
 import CardPopover from "./CardPopover.vue";
 import { VueDraggableNext } from "vue-draggable-next";
-import { computed, defineComponent, PropType, ref, watch } from "vue";
+import { computed, defineComponent, onMounted, PropType, ref, watch } from "vue";
 import { CardProps, PageProps } from "@/views/preparation/intelligenceClassroom/api/props";
 
 export default defineComponent({
@@ -200,8 +200,26 @@ export default defineComponent({
             emit("handle", { type: 5, params: id });
         };
 
+        const cardRef = ref();
+        onMounted(() => {
+            if (!cardRef.value) return;
+
+            cardRef.value.addEventListener("keydown", (e: KeyboardEvent) => {
+                e.stopPropagation();
+                const key = e.code;
+
+                if (e.ctrlKey && key === "KeyC") {
+                    emit("handle", { type: 3, params: { type: 6, data: currentPage.value } });
+                }
+                if (e.ctrlKey && key === "KeyV") {
+                    emit("handle", { type: 3, params: { type: 5, data: currentPage.value } });
+                }
+            });
+        });
+
         return {
             total,
+            cardRef,
             pageType,
             handleSort,
             currentPage,
