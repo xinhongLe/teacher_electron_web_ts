@@ -53,9 +53,9 @@ import { IViewResourceData } from "@/types/store";
 import Tools from "./components/preview/tools.vue";
 import { dealAnimationData } from "@/utils/dataParse";
 import { CardProps, PageProps } from "./preview/props";
-import SelectClassDialog from "./components/preview/selectClassDialog.vue";
 import ShareCurrentPage from "./components/preview/ShareCurrentPage.vue";
-import { onActivated, onDeactivated, ref, watchEffect, PropType, onUnmounted, computed, defineComponent } from "vue";
+import SelectClassDialog from "./components/preview/selectClassDialog.vue";
+import { ref, watchEffect, PropType, onUnmounted, computed, defineComponent } from "vue";
 
 export default defineComponent({
     name: "IntelligenceClassroom",
@@ -219,16 +219,6 @@ export default defineComponent({
         client && client.on("message", function (topic: any, message: any) {
             const infoString = JSON.parse(message.toString());
             console.log(infoString);
-        });
-
-        onActivated(() => {
-            document.onkeydown = (event) => {
-                event.preventDefault();
-            };
-        });
-
-        onDeactivated(() => {
-            document.onkeydown = null;
         });
 
         onUnmounted(() => {

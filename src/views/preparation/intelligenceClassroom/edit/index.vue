@@ -43,6 +43,7 @@
                     @syncLesson="handleSyncLesson"
                     @updateMaterial="updateMaterial"
                     :slide="currentPage?.Json || {}"
+                    @updatePageSlide="updatePageSlide"
                     :subjectID="publication?.SubjectId || ''"
                     @applyBackgroundAllSlide="applyBackgroundAllSlide"
                 />
@@ -428,6 +429,22 @@ export default defineComponent({
             windowCards.value = syncLesson(windowCards.value, slides);
         };
 
+        const updatePageSlide = (slide: Slide) => {
+            debugger
+            if (!currentPageId.value) return;
+            const currentPage = handlePPT.getPageById(currentPageId.value)
+            currentPage.Json = slide;
+
+            const teach: any = slide.teach;
+            if (teach && teach.ossSrc) {
+                currentPage.Url = teach.ossSrc;
+            }
+            const game: any = slide.game;
+            if (game && game.ossSrc) {
+                currentPage.Url = game.ossSrc;
+            }
+        };
+
         // 子窗体关闭 提示
         const closeCurrentWinCard = async () => {
             const page = handlePPT.getPageById(currentPageId.value);
@@ -518,6 +535,7 @@ export default defineComponent({
             selectPageIds,
             addPageVisible,
             updateMaterial,
+            updatePageSlide,
             handleInsertData,
             handleSyncLesson,
             handleInsertTool,

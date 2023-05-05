@@ -98,6 +98,7 @@ export default () => {
     };
 
     const transformPageDetail = async (page: any, pageDetail: any) => {
+        debugger
         let newSlide: any = {};
         if (page.Type === pageType.element) {
             const oldSlide = pageDetail || {};
