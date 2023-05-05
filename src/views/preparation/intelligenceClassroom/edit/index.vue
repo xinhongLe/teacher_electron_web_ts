@@ -430,9 +430,8 @@ export default defineComponent({
         };
 
         const updatePageSlide = (slide: Slide) => {
-            debugger
             if (!currentPageId.value) return;
-            const currentPage = handlePPT.getPageById(currentPageId.value)
+            const currentPage = handlePPT.getPageById(currentPageId.value);
             currentPage.Json = slide;
 
             const teach: any = slide.teach;

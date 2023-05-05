@@ -1,39 +1,43 @@
 <template>
     <div class="resource-view">
-        <IntelligenceClassroom v-if="type === 1" :resourceId="target" :isShowClose="false" :dialog="true"
-            :resource="resource" :isSystem="isSystem" :isFullScreenStatus="isFullScreen" />
-        <LookVideo :resource="data" v-if="type === 2" :dialog="true" :close="close" />
-        <LookQuestion :resource="data" v-if="type === 3" :dialog="true" :close="close" />
+        <IntelligenceClassroom
+            :dialog="true"
+            v-if="type === 1"
+            :resourceId="target"
+            :isShowClose="false"
+            :resource="resource"
+            :isSystem="isSystem"
+            :isFullScreenStatus="isFullScreen"
+        />
+        <LookVideo :resource="data" v-if="type === 2" :dialog="true" :close="close"/>
+        <LookQuestion :resource="data" v-if="type === 3" :dialog="true" :close="close"/>
         <div class="iframe-teach-box" v-if="type === 4 || type === 0">
             <iframe v-if="type === 4" :src="url"></iframe>
             <iframe class="office-iframe" sandbox="allow-same-origin allow-scripts" v-if="isOffice" :src="url"></iframe>
             <div class="iframe-image" v-if="isImage">
-                <img :src="url" />
+                <img :src="url"/>
             </div>
             <div class="iframe-audio" v-if="isAudio">
-                <audio :src="url" controls controlsList="nodownload" />
+                <audio :src="url" controls controlsList="nodownload"/>
             </div>
             <div class="iframe-video" v-if="isVideo">
-                <video :src="url" controls />
+                <video :src="url" controls/>
             </div>
-
-            <div class="not-preview" v-if="
-                !isVideo && !isAudio && !isImage && !isOffice && type !== 4
-            ">
+            <div class="not-preview" v-if="!isVideo && !isAudio && !isImage && !isOffice && type !== 4 ">
                 暂不支持预览，请下载查看
             </div>
         </div>
-        <answer-machine v-if="type === 5" :lessonId="lessonId"></answer-machine>
+        <answer-machine v-if="type === 5" :lessonId="lessonId"/>
 
-        <!-- ppt、word、excel底部工具栏 --> 
+        <!-- ppt、word、excel底部工具栏 -->
         <div class="dialog-footer" v-if="type === 4 || type === 0">
             <div class="pen" @click="drawingShow = true">
                 <p>画笔</p>
             </div>
             <div class="full-screen-set" @click="setFullScreen()">
                 <img v-if="isFullScreen" src="@/views/preparation/intelligenceClassroom/images/tuichuquanping_rest.png"
-                    alt="" />
-                <img v-else src="@/views/preparation/intelligenceClassroom/images/quanping_rest.png" alt="" />
+                     alt=""/>
+                <img v-else src="@/views/preparation/intelligenceClassroom/images/quanping_rest.png" alt=""/>
 
             </div>
             <div class="close" @click="close">
@@ -41,73 +45,63 @@
             </div>
         </div>
     </div>
-    <drawing-board :show="drawingShow" @closeWriteBoard="drawingShow = false" />
+    <drawing-board :show="drawingShow" @closeWriteBoard="drawingShow = false"/>
 </template>
 
 <script lang="ts">
-import {
-    computed,
-    defineComponent,
-    PropType,
-    provide,
-    ref,
-    watchEffect,
-    watch,
-} from "vue";
+import { computed, defineComponent, PropType, ref, watchEffect } from "vue";
 import IntelligenceClassroom from "../preparation/intelligenceClassroom/index.vue";
 import LookVideo from "@/components/lookVideo/index.vue";
 import LookQuestion from "@/components/lookQuestion/index.vue";
 import { IResourceItem } from "@/api/resource";
 import { getOssUrl } from "@/utils/oss";
-import { useStore } from "@/store";
 import { IViewResourceData } from "@/types/store";
 import AnswerMachine from "@/components/answerMachine/index.vue";
 import DrawingBoard from "@/components/drawingBoard/index.vue";
+
 export default defineComponent({
     components: {
         AnswerMachine,
         DrawingBoard,
         IntelligenceClassroom,
         LookVideo,
-        LookQuestion,
+        LookQuestion
     },
     props: {
         target: {
             type: String,
-            default: "",
+            default: ""
         },
         resource: {
             type: Object as PropType<IResourceItem | undefined>,
-            required: true,
+            default: undefined
         },
         type: {
-            type: Number,
+            type: Number
         },
         visible: {
             type: Boolean,
-            default: false,
+            default: false
         },
         close: {
             type: Function,
-            default: () => { },
+            default: () => ({})
         },
         data: {
             type: Object as PropType<IViewResourceData>,
-            required: true,
+            default: () => ({})
         },
         lessonId: {
             type: String,
-            required: true,
+            default: ""
         },
         isFullScreen: {
             type: Boolean,
-            default: false,
-        },
+            default: false
+        }
     },
     setup(props, { emit }) {
-
         const drawingShow = ref(false);
-        const store = useStore();
         const url = ref("");
         const initIframeSrc = async () => {
             if (!props.resource) return;
@@ -153,7 +147,7 @@ export default defineComponent({
                 ) > -1
         );
         const setFullScreen = async () => {
-            emit("setFullScreen")
+            emit("setFullScreen");
         };
 
         watchEffect(initIframeSrc);
@@ -167,7 +161,7 @@ export default defineComponent({
             drawingShow,
             setFullScreen
         };
-    },
+    }
 });
 </script>
 
@@ -239,7 +233,7 @@ export default defineComponent({
         align-items: center;
         justify-content: center;
 
-        >div {
+        > div {
             width: 50px;
             height: 50px;
             cursor: pointer;
@@ -255,12 +249,12 @@ export default defineComponent({
             }
         }
 
-        >div.pen {
+        > div.pen {
             background: url("./../../assets/look/btn_huabi@2x.png");
             background-size: 100% 100%;
         }
 
-        >div.close {
+        > div.close {
             background: url("./../../assets/look/btn_guanbi@2x.png");
             background-size: 100% 100%;
 
@@ -269,7 +263,7 @@ export default defineComponent({
             }
         }
 
-        >div.full-screen-set {
+        > div.full-screen-set {
             img {
                 width: 100%;
                 height: 100%;

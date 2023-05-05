@@ -26,9 +26,7 @@
                 </div>
                 <div class="resource-message">
                     <img src="@/assets/images/preparation/icon_gengxin.png" alt=""/>
-                    &nbsp;&nbsp;更新时间：{{
-                        dealTime(data.DateTime || data.CreateTime)
-                    }}
+                    &nbsp;&nbsp;更新时间：{{dealTime(data.DateTime || data.CreateTime)}}
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     <img src="@/assets/images/preparation/icon_download.png" alt=""/>
                     &nbsp;&nbsp;下载次数：{{ data.DownloadNum }}
