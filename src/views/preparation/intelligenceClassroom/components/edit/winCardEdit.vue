@@ -202,9 +202,30 @@ export default defineComponent({
         };
 
         const selectVideoVal = async (val: any) => {
-            delete val.fileID;
-            val.ossSrc = await formatOssUrl(val.File);
-            emit("updatePageSlide", Object.assign({}, props.slide, { follow: val }));
+            if (!isSetQuoteVideo.value) {
+                delete val.fileID;
+                val.ossSrc = await formatOssUrl(val.File);
+                emit("updatePageSlide", Object.assign({}, props.slide, { follow: val }));
+            } else {
+                if (updateVideoElement.value) {
+                    PPTEditRef.value.updateVideoElement({
+                        ...updateVideoElement.value,
+                        src: val.src,
+                        fileID: val.fileID,
+                        pauseList: val.pauseList.map((item: any) => item.time),
+                        ossSrc: "",
+                        ossPoster: "",
+                        ossIcon: ""
+                    });
+                    updateVideoElement.value = null;
+                } else {
+                    PPTEditRef.value.createQuoteVideo(
+                        val.src,
+                        val.fileID,
+                        val.pauseList.map((item: any) => item.time)
+                    );
+                }
+            }
             dialogVisibleVideo.value = false;
         };
         const getCurrentSlide = () => {
