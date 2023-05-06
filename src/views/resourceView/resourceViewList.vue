@@ -1,14 +1,7 @@
 <template>
     <div class="resource-view">
-        <IntelligenceClassroom
-            :dialog="true"
-            v-if="type === 1"
-            :resourceId="target"
-            :isShowClose="false"
-            :resource="resource"
-            :isSystem="isSystem"
-            :isFullScreenStatus="isFullScreen"
-        />
+        <IntelligenceClassroom v-if="type === 1" :resourceId="target" :isShowClose="false" :dialog="true"
+                               :resource="resource" :isSystem="isSystem" :isFullScreenStatus="isFullScreen"/>
         <LookVideo :resource="data" v-if="type === 2" :dialog="true" :close="close"/>
         <LookQuestion :resource="data" v-if="type === 3" :dialog="true" :close="close"/>
         <div class="iframe-teach-box" v-if="type === 4 || type === 0">
@@ -23,11 +16,14 @@
             <div class="iframe-video" v-if="isVideo">
                 <video :src="url" controls/>
             </div>
-            <div class="not-preview" v-if="!isVideo && !isAudio && !isImage && !isOffice && type !== 4 ">
+
+            <div class="not-preview" v-if="
+                !isVideo && !isAudio && !isImage && !isOffice && type !== 4
+            ">
                 暂不支持预览，请下载查看
             </div>
         </div>
-        <answer-machine v-if="type === 5" :lessonId="lessonId"/>
+        <answer-machine v-if="type === 5" :lessonId="lessonId"></answer-machine>
 
         <!-- ppt、word、excel底部工具栏 -->
         <div class="dialog-footer" v-if="type === 4 || type === 0">
@@ -49,7 +45,13 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, PropType, ref, watchEffect } from "vue";
+import {
+    computed,
+    defineComponent,
+    PropType,
+    ref,
+    watchEffect
+} from "vue";
 import IntelligenceClassroom from "../preparation/intelligenceClassroom/index.vue";
 import LookVideo from "@/components/lookVideo/index.vue";
 import LookQuestion from "@/components/lookQuestion/index.vue";
@@ -74,7 +76,7 @@ export default defineComponent({
         },
         resource: {
             type: Object as PropType<IResourceItem | undefined>,
-            default: undefined
+            required: true
         },
         type: {
             type: Number
@@ -89,11 +91,11 @@ export default defineComponent({
         },
         data: {
             type: Object as PropType<IViewResourceData>,
-            default: () => ({})
+            required: true
         },
         lessonId: {
             type: String,
-            default: ""
+            required: true
         },
         isFullScreen: {
             type: Boolean,

@@ -1,42 +1,32 @@
 <template>
-    <div class="p-resource-item" :class="{
-        'resource-courseware':
-            data.ResourceType === RESOURCE_TYPE.COURSEWARD &&
-            data.IsSysFile === 1,
-        hover: hover,
-    }" @click="handleCommand('detail')">
-        <div class="p-resource-mark" v-if="data.IsMine === 1 && data.IsSchool !== 1">
-            我的
-        </div>
-        <div class="p-resource-school-mark" v-if="data.IsSchool === 1">
-            校本
-        </div>
+    <div
+        class="p-resource-item"
+        @click="handleCommand('detail')"
+        :class="{'resource-courseware':data.ResourceType === RESOURCE_TYPE.COURSEWARD && data.IsSysFile === 1,hover: hover}"
+    >
+        <div class="p-resource-mark" v-if="data.IsMine === 1 && data.IsSchool !== 1">我的</div>
+        <div class="p-resource-school-mark" v-if="data.IsSchool === 1">校本</div>
         <div class="p-resource-top">
             <div class="resource-icon">
-                <img :src="
-                    data.IsSysFile === 1
-                        ? iconResources.selfStudy[data.ResourceType]
-                        : iconResources.other[data.ResourceType]
-                " alt=""/>
+                <img
+                    alt=""
+                    :src="data.IsSysFile === 1? iconResources.selfStudy[data.ResourceType] : iconResources.other[data.ResourceType]"
+                />
             </div>
             <div class="resource-content">
                 <div class="resource-title">
                     {{ data.Name }}
-                    <img class="resource-format" v-if="data.File" :src="formatImg"/>
+                    <img class="resource-format" v-if="data.File" :src="formatImg" alt=""/>
                 </div>
                 <div class="resource-message">
                     <img src="@/assets/images/preparation/icon_gengxin.png" alt=""/>
-                    &nbsp;&nbsp;更新时间：{{dealTime(data.DateTime || data.CreateTime)}}
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    更新时间：{{ dealTime(data.DateTime || data.CreateTime) }}
                     <img src="@/assets/images/preparation/icon_download.png" alt=""/>
-                    &nbsp;&nbsp;下载次数：{{ data.DownloadNum }}
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    下载次数：{{ data.DownloadNum }}
                     <img src="@/assets/images/preparation/icon_liulan_grey.png" alt=""/>
-                    &nbsp;&nbsp;浏览：{{ data.BrowseNum }}
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    浏览：{{ data.BrowseNum }}
                     <img src="@/assets/images/preparation/icon_zhinanzhen.png" alt=""/>
-                    &nbsp;&nbsp;来源：{{ data.Source }}
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    来源：{{ data.Source }}
                 </div>
                 <div class="resource-classify">
                     <img src="@/assets/images/preparation/icon_mulu.png" alt=""/>
@@ -45,14 +35,17 @@
             </div>
             <div class="resource-control">
                 <div class="resource-control-up">
-                    <div class="resource-degree" v-if="RESOURCE_TYPE.TOOL !== data.ResourceType"
-                         :class="['', 'difficult', 'middle', ''][data.Degree]">
+                    <div
+                        class="resource-degree"
+                        v-if="RESOURCE_TYPE.TOOL !== data.ResourceType"
+                        :class="['', 'difficult', 'middle', ''][data.Degree]"
+                    >
                         {{ ["", "高", "中", "易"][data.Degree] }}
                     </div>
-                    <div class="resource-type" :class="
-                        typeResources[data.ResourceType] < 9 &&
-                        'p-r-' + typeResources[data.ResourceType]
-                    ">
+                    <div
+                        class="resource-type"
+                        :class="typeResources[data.ResourceType] < 9 &&'p-r-' + typeResources[data.ResourceType]"
+                    >
                         {{ textResources[data.ResourceType] }}
                     </div>
                     <el-dropdown v-if="
@@ -69,25 +62,25 @@
                         </div>
                         <template #dropdown>
                             <el-dropdown-menu>
-                                <el-dropdown-item command="version" v-if="
-                                    data.ResourceShowType === 0 ||
-                                    data.ResourceShowType === 5
-                                ">
+                                <el-dropdown-item
+                                    command="version"
+                                    v-if="data.ResourceShowType === 0 ||data.ResourceShowType === 5"
+                                >
                                     <div class="dropdown-item">
                                         <img src="@/assets/images/preparation/icon_bbjl_blue.png" alt=""/>
-                                        &nbsp;&nbsp;版本记录
+                                        版本记录
                                     </div>
                                 </el-dropdown-item>
                                 <el-dropdown-item command="property" v-if="isMySelf">
                                     <div class="dropdown-item">
                                         <img src="@/assets/images/preparation/icon_bjsx_hover.png" alt=""/>
-                                        &nbsp;&nbsp;编辑属性
+                                        编辑属性
                                     </div>
                                 </el-dropdown-item>
                                 <el-dropdown-item command="delete" v-if="isMySelf">
                                     <div class="dropdown-item delete">
                                         <img src="@/assets/images/preparation/icon_delete.png" alt=""/>
-                                        &nbsp;&nbsp;删除
+                                        删除
                                     </div>
                                 </el-dropdown-item>
                             </el-dropdown-menu>
@@ -100,7 +93,10 @@
                     name !== 'attendClass' &&
                     name !== 'preview'
                 ">
-
+                    <el-button class="p-control-btn" @click.stop="handleShare(data)" v-if="!data.File">
+                        <img src="@/assets/images/preparation/icon_download_white.png" alt=""/>
+                        分享
+                    </el-button>
                     <el-button class="p-control-btn" @click.stop="handleCommand('download')" v-if="
                         canDownload &&
                         RESOURCE_TYPE.TOOL !== data.ResourceType
@@ -124,36 +120,28 @@
                     </el-button>
                 </div>
                 <div class="tool-text" v-if="hover && btns && name === 'attendClass'">
-                    <span>{{
-                            data.ToolInfo
-                                ? `共${data.ToolInfo.QuestionCount}题`
-                                : ""
-                        }}</span>
-                    <span>{{
-                            data.ToolInfo
-                                ? ` ( ${data.ToolInfo.QuestionTypeName})`
-                                : ""
-                        }}</span>
+                    <span>{{data.ToolInfo? `共${data.ToolInfo.QuestionCount}题`: "" }}</span>
+                    <span>{{data.ToolInfo? ` ( ${data.ToolInfo.QuestionTypeName})`: ""}}</span>
                 </div>
             </div>
         </div>
         <div class="p-resource-bottom" v-if="hover && btns && name !== 'attendClass' && name !== 'preview'">
             <div style="padding-left: 66px;">
-                <el-button class="p-control-btn" v-if="source != 'me'" @click.stop.prevent="toArrangeClass(data, 1)"
+                <el-button class="p-control-btn" v-if="source !== 'me'" @click.stop.prevent="toArrangeClass(data, 1)"
                            @touchstart.stop.prevent="toArrangeClass(data, 1, $event)">
                     <img src="@/assets/images/preparation/icon_download_white.png" alt=""/>
                     排课
                 </el-button>
                 <div class="tool-text">
-                    <span class="total">{{
-                            data.ToolInfo ? `共${data.ToolInfo.QuestionCount}题` : ""
-                        }}</span>
-                    <span>{{
-                            data.ToolInfo ? ` ( ${data.ToolInfo.QuestionTypeName})` : ""
-                        }}</span>
+                    <span class="total">{{ data.ToolInfo ? `共${data.ToolInfo.QuestionCount}题` : "" }}</span>
+                    <span>{{  data.ToolInfo ? ` ( ${data.ToolInfo.QuestionTypeName})` : ""  }}</span>
                 </div>
             </div>
             <div>
+                <el-button class="p-control-btn" @click.stop="handleShare(data)" v-if="!data.File">
+                    <img src="@/assets/images/preparation/icon_download_white.png" alt=""/>
+                    分享
+                </el-button>
                 <el-button class="p-control-btn" @click.stop="handleCommand('download')" v-if="
                     canDownload && RESOURCE_TYPE.TOOL !== data.ResourceType
                 ">
@@ -231,24 +219,18 @@
 </template>
 
 <script lang="ts">
-import {computed, defineComponent, PropType, ref} from "vue";
-import {MoreFilled} from "@element-plus/icons-vue";
-import {
-    iconResources,
-    textResources,
-    typeResources,
-    RESOURCE_TYPE
-} from "@/config/resource";
-import {IResourceItem} from "@/api/resource";
+import { computed, defineComponent, PropType, ref } from "vue";
+import { MoreFilled } from "@element-plus/icons-vue";
+import { iconResources, textResources, typeResources, RESOURCE_TYPE } from "@/config/resource";
+import { IResourceItem } from "@/api/resource";
 import moment from "moment";
-import {useStore} from "@/store";
-import {IGetLessonBagOutDto} from "@/api/prepare";
-import {emit} from "process";
+import { useStore } from "@/store";
+import { IGetLessonBagOutDto } from "@/api/prepare";
 import isElectron from "is-electron";
-import {ElMessage} from "element-plus";
+import { ElMessage } from "element-plus";
 
 export default defineComponent({
-    components: {MoreFilled},
+    components: { MoreFilled },
     props: {
         data: {
             type: Object as PropType<IResourceItem>,
@@ -275,12 +257,12 @@ export default defineComponent({
             default: ""
         },
         lessonPackageList: {
-            type: Object as PropType<IGetLessonBagOutDto[]>,
+            type: Array as PropType<IGetLessonBagOutDto[]>,
             default: () => []
         }
     },
     emits: ["eventEmit", "addLessonPackage", "toArrangeClass", "handleSelectLessonBag", "handleRemoveLessonBag"],
-    setup(props, {emit}) {
+    setup(props, { emit }) {
         const store = useStore();
 
         const handleCommand = (
