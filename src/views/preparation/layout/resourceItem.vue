@@ -120,8 +120,8 @@
                     </el-button>
                 </div>
                 <div class="tool-text" v-if="hover && btns && name === 'attendClass'">
-                    <span>{{data.ToolInfo? `共${data.ToolInfo.QuestionCount}题`: "" }}</span>
-                    <span>{{data.ToolInfo? ` ( ${data.ToolInfo.QuestionTypeName})`: ""}}</span>
+                    <span>{{ data.ToolInfo ? `共${data.ToolInfo.QuestionCount}题` : "" }}</span>
+                    <span>{{ data.ToolInfo ? ` ( ${data.ToolInfo.QuestionTypeName})` : "" }}</span>
                 </div>
             </div>
         </div>
@@ -134,7 +134,7 @@
                 </el-button>
                 <div class="tool-text">
                     <span class="total">{{ data.ToolInfo ? `共${data.ToolInfo.QuestionCount}题` : "" }}</span>
-                    <span>{{  data.ToolInfo ? ` ( ${data.ToolInfo.QuestionTypeName})` : ""  }}</span>
+                    <span>{{ data.ToolInfo ? ` ( ${data.ToolInfo.QuestionTypeName})` : "" }}</span>
                 </div>
             </div>
             <div>
@@ -343,9 +343,10 @@ export default defineComponent({
         const shareShow = ref(false);
         const shareData = ref();
         const handleShare = (data: IResourceItem) => {
+            console.log(data);
             shareData.value = {
                 ...data,
-                url: process.env.VUE_APP_SHARE_URL + data.OldResourceId,
+                url: process.env.VUE_APP_SHARE_URL + data.OldResourceId + "&" + (data.IsSysFile === 1 ? 0 : 1),
                 link: process.env.VUE_APP_SHARE_URL
             };
             shareShow.value = true;
