@@ -1,123 +1,21 @@
 <template>
     <div class="content-detail">
         <div class="top">
-            <p @click="addPairing">添加配对 9/9</p>
+            <p @click="addPairing">添加题目 2/3</p>
         </div>
         <div class="middle">
-            <div class="middle-left">
-                <div class="btn">
-                    <el-button round>左边</el-button>
+            <div class="question-item">
+                <div class="item-left">
+                    填空1
                 </div>
-                <div class="content">
-                    <div class="types">
-                        <span>
-                            类型：
-                        </span>
-                        <el-radio-group v-model="leftType">
-                            <el-radio :label="1">文字</el-radio>
-                            <el-radio :label="2">图片</el-radio>
-                        </el-radio-group>
-                    </div>
-                    <div class="content-text" v-if="leftType == 1">
-                        <div class="content-item" v-for="(item,index) in form.leftData">
-                            <span>{{ index + 1 }}</span>
-                            <el-input v-model="item.Data"></el-input>
-                            <div class="del-icon" @click="deleteLeftCon(index)">
-                                <el-icon v-if="index > 1">
-                                    <Delete/>
-                                </el-icon>
-                            </div>
-
-                        </div>
-                    </div>
-                    <div class="content-img" v-if="leftType == 2">
-                        <div class="content-item" v-for="(item,index) in form.leftData">
-                            <el-upload
-                                ref="uploadRef"
-                                class="avatar-uploader"
-                                action=""
-                                accept=".jpg,.jpeg,.gif,.png"
-                                :auto-upload="false"
-                                :on-change="(file) => onChange(file, index,1)"
-                                :show-file-list="false"
-                            >
-                                <img
-                                    v-if="item.File.url"
-                                    :src="item.File.url"
-                                    class="avatar"
-                                />
-                                <el-icon v-else class="avatar-uploader-icon"
-                                >
-                                    <Plus/>
-                                    上传图片
-                                </el-icon
-                                >
-                            </el-upload>
-                            <div class="del-icon" @click="deleteLeftCon(index)">
-                                <el-icon v-if="index > 1">
-                                    <Delete/>
-                                </el-icon>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="middle-right">
-                <div class="btn">
-                    <el-button round>右边</el-button>
-                </div>
-                <div class="content">
-                    <div class="types">
-                        <span>
-                            类型：
-                        </span>
-                        <el-radio-group v-model="rightType">
-                            <el-radio :label="1">文字</el-radio>
-                            <el-radio :label="2">图片</el-radio>
-                        </el-radio-group>
-                    </div>
-                    <div class="content-text" v-if="rightType == 1">
-                        <div class="content-item" v-for="(item,index) in form.rightData">
-                            <span>{{ index + 1 }}</span>
-                            <el-input v-model="item.Data"></el-input>
-                            <div class="del-icon" @click="deleteLeftCon(index)">
-                                <el-icon v-if="index > 1">
-                                    <Delete/>
-                                </el-icon>
-                            </div>
-
-                        </div>
-                    </div>
-                    <div class="content-img" v-if="rightType == 2">
-                        <div class="content-item" v-for="(item,index) in form.rightData">
-                            <el-upload
-                                ref="uploadRef"
-                                class="avatar-uploader"
-                                action=""
-                                accept=".jpg,.jpeg,.gif,.png"
-                                :auto-upload="false"
-                                :on-change="(file) => onChange(file, index,2)"
-                                :show-file-list="false"
-                            >
-                                <img
-                                    v-if="item.File.url"
-                                    :src="item.File.url"
-                                    class="avatar"
-                                />
-                                <el-icon v-else class="avatar-uploader-icon"
-                                >
-                                    <Plus/>
-                                    上传图片
-                                </el-icon
-                                >
-                            </el-upload>
-                            <div class="del-icon" @click="deleteLeftCon(index)">
-                                <el-icon v-if="index > 1">
-                                    <Delete/>
-                                </el-icon>
-                            </div>
-                        </div>
-                    </div>
+                <div class="item-right">
+                    <el-input
+                        v-model="textarea"
+                        maxlength="30"
+                        placeholder="请输入"
+                        show-word-limit
+                        type="textarea"
+                    />
                 </div>
             </div>
         </div>
@@ -376,84 +274,18 @@ export default defineComponent({
     }
 
     .middle {
-        display: flex;
-        border-bottom: 2px solid #90949e;
 
-        .middle-left, .middle-right {
-            width: 50%;
+        //border-bottom: 2px solid #90949e;
+        .question-item {
+            display: flex;
+            padding: 20px;
+            border-top: 2px dashed #e1e1e1;
+            border-bottom: 2px dashed #e1e1e1;
+            margin: 20px 0;
+            align-items: center;
 
-            .btn {
-                border-bottom: 1px solid #90949e;
-                width: 100%;
-                padding: 10px;
-                display: flex;
-                justify-content: center;
-                align-content: center;
-            }
+            .item-left {
 
-            .content {
-                padding: 10px;
-
-                .types {
-                    text-align: center;
-                }
-
-                .content-text {
-                    margin-top: 12px;
-
-                    :deep(.content-item) {
-                        margin-bottom: 14px;
-                        display: flex;
-                        align-items: center;
-
-                        span {
-                            font-size: 16px;
-                        }
-
-                        .el-input {
-                            margin: 0 10px;
-                        }
-
-                        .del-icon {
-                            width: 18px;
-
-                            .el-icon {
-                                font-size: 18px;
-                                color: #ff5151;
-                                cursor: pointer;
-                            }
-                        }
-                    }
-                }
-
-                .content-img {
-                    margin-top: 12px;
-                    display: flex;
-                    flex-wrap: wrap;
-
-                    .content-item {
-                        margin-right: 10px;
-                        margin-bottom: 10px;
-
-                        .del-icon {
-                            padding-top: 6px;
-                            width: 16px;
-                            margin: 0 auto;
-
-                            .el-icon {
-                                font-size: 18px;
-                                color: #ff5151;
-                                cursor: pointer;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        .middle-left {
-            .content {
-                border-right: 2px dashed #90949e;
             }
         }
     }
@@ -464,32 +296,4 @@ export default defineComponent({
     }
 }
 
-.avatar-uploader {
-    line-height: 20px !important;
-
-    .avatar {
-        display: block;
-        border-radius: 6px;
-        width: 94px;
-        height: 94px;
-    }
-
-    .el-upload {
-        border-radius: 6px;
-        cursor: pointer;
-        position: relative;
-        overflow: hidden;
-        transition: var(--el-transition-duration-fast);
-    }
-
-    .el-icon.avatar-uploader-icon {
-        border: 1px solid var(--el-border-color);
-        font-size: 14px;
-        color: #8c939d;
-        width: 94px;
-        height: 94px;
-        line-height: 96px;
-        text-align: center;
-    }
-}
 </style>

@@ -6,6 +6,7 @@ import TugOfWarGame from "../tugOfWarGame.vue";
 import ClassGame from "../classGame/index.vue";
 import RunningGame from "../RunningGame.vue";
 import PicTextGame from "../PicTextGame/index.vue";
+import FillBlank from "../FillBlank/index.vue";
 
 export default () => {
     const state = reactive({
@@ -16,6 +17,7 @@ export default () => {
             {type: 3, com: markRaw(ClassGame)},
             {type: 4, com: markRaw(CarGame)},
             {type: 7, com: markRaw(PicTextGame)},
+            {type: 9, com: markRaw(FillBlank)},
             {type: 11, com: markRaw(RunningGame)}
         ]
     });
