@@ -292,17 +292,17 @@ function createAnswerMachineWindow(allStudentList: []) {
     answerMachineWin = createWindow(answerMachineURL, {
         // width: 620,
         // height: 422,
-        fullscreen: true,
-        center: true,
         show: false,
-        useContentSize: true,
-        transparent: true,
-        backgroundColor: "#00000000",
-        type: "toolbar", // 创建的窗口类型为工具栏窗口
+        // transparent: true,
+        // backgroundColor: "#00000000",
+        width: 620,
         frame: false, // 要创建无边框窗口
+        resizable: false, // 是否允许窗口大小缩放
+        height: 550,
         alwaysOnTop: true,
-        resizable: false,
+        maximizable: false,
     });
+    // answerMachineWin.webContents.openDevTools();
 
     answerMachineWin.on("ready-to-show", () => {
         answerMachineWin && answerMachineWin.show();
@@ -324,14 +324,23 @@ function createQuickAnswerWindow(allStudentList: [], isAnswer = false) {
     quickAnswerWin = createWindow(quickAnswerURL, {
         // width: 620,
         // height: 420,
-        fullscreen: true,
-        center: true,
-        show: false,
-        useContentSize: true,
-        transparent: true,
-        type: "toolbar", // 创建的窗口类型为工具栏窗口
+        // // fullscreen: true,
+        // center: true,
+        // show: false,
+        // useContentSize: true,
+        // transparent: true,
+        // type: "toolbar", // 创建的窗口类型为工具栏窗口
+        // frame: false, // 要创建无边框窗口
+        // alwaysOnTop: true,
+
+        // transparent: true,
+        width: 620,
         frame: false, // 要创建无边框窗口
+        resizable: false, // 是否允许窗口大小缩放
+        height: 420,
         alwaysOnTop: true,
+        useContentSize: true,
+        maximizable: false,
     });
     // quickAnswerWin.webContents.openDevTools(); //打开的抢答器调试器
 
