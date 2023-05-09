@@ -1,21 +1,48 @@
 <template>
     <div class="content-detail">
         <div class="top">
-            <p @click="addPairing">添加题目 2/3</p>
+            <p @click="addQuestion">添加题目 {{ form.questionData.length }}/3</p>
         </div>
-        <div class="middle">
-            <div class="question-item">
+        <div class="middle-quesion">
+            <div class="question-item" v-for="(item,index) in form.questionData">
                 <div class="item-left">
-                    填空1
+                    <div class="text">
+                        填空{{ index + 1 }}
+                    </div>
+                    <div class="del-icon" @click="deleteQuestion(index)">
+                        <el-icon v-if="index > 0">
+                            <Delete/>
+                        </el-icon>
+                    </div>
                 </div>
                 <div class="item-right">
                     <el-input
-                        v-model="textarea"
+                        v-model="item.Data"
                         maxlength="30"
                         placeholder="请输入"
                         show-word-limit
                         type="textarea"
                     />
+                </div>
+            </div>
+        </div>
+        <div class="top items">
+            <p @click="addQuestion">添加选项 {{ form.itemData.length }}/5</p>
+        </div>
+        <div class="middle-items">
+            <div class="items-item">
+                <div class="num">
+                    <div class="text">
+                        序号1
+                    </div>
+                    <div class="del-icon" @click="deleteItem(index)">
+                        <el-icon v-if="index > 0">
+                            <Delete/>
+                        </el-icon>
+                    </div>
+                </div>
+                <div class="item">
+                    龙飞凤舞
                 </div>
             </div>
         </div>
@@ -41,36 +68,16 @@ export default defineComponent({
             type: Object,
             require: true,
             default: () => ({
-                leftData: [
+                questionData: [
                     {
-                        Type: 1,
                         Data: "",
-                        File: {
-                            url: "",
-                            Bucket: "",
-                            Name: "",
-                            FileName: "",
-                            FilePath: "",
-                            Extention: "",
-                            Type: 2,
-                        },
-                        Position: {x: 200, y: 200},
-                        Size: {Width: 240, Height: 100},
+                        // Position: {x: 200, y: 200},
+                        // Size: {Width: 240, Height: 100},
                     },
                 ],
-                rightData: [
+                itemData: [
                     {
-                        Type: 1,
                         Data: "",
-                        File: {
-                            url: "",
-                            Bucket: "",
-                            Name: "",
-                            FileName: "",
-                            FilePath: "",
-                            Extention: "",
-                            Type: 2,
-                        },
                         Position: {x: 600, y: 200},
                         Size: {Width: 240, Height: 100},
                     },
@@ -80,185 +87,35 @@ export default defineComponent({
     },
     setup(props, {emit}) {
         const form: any = computed(() => props.newForm);
-
-        const leftType = ref(1);
-        const rightType = ref(1);
-
-        //添加配对
-        const addPairing = () => {
-            form.value.leftData.push({
-                Type: 1,
-                Data: "",
-                File: {
-                    url: "",
-                    Bucket: "",
-                    Name: "",
-                    FileName: "",
-                    FilePath: "",
-                    Extention: "",
-                    Type: 2,
-                },
-                Position: {x: 200, y: form.value.leftData[form.value.leftData.length - 1].Position.y + 150},
-                Size: {Width: 240, Height: 100},
-            })
-            form.value.rightData.push({
-                Type: 1,
-                Data: "",
-                File: {
-                    url: "",
-                    Bucket: "",
-                    Name: "",
-                    FileName: "",
-                    FilePath: "",
-                    Extention: "",
-                    Type: 2,
-                },
-                Position: {x: 600, y: form.value.rightData[form.value.rightData.length - 1].Position.y + 150},
-                Size: {Width: 240, Height: 100},
+        //添加题目
+        const addQuestion = () => {
+            if (form.value.questionData.length == 3) return;
+            form.value.questionData.push({
+                Data: ""
             })
         };
-        watch(() => leftType.value, val => {
-            if (val === 1) {
-                form.value.leftData.forEach((item: any) => {
-                    item.Type = 1
-                })
-            } else {
-                form.value.leftData.forEach((item: any) => {
-                    item.Type = 0
-                })
-            }
-        });
-        watch(() => rightType.value, val => {
-            if (val === 1) {
-                form.value.rightData.forEach((item: any) => {
-                    item.Type = 1
-                })
-            } else {
-                form.value.rightData.forEach((item: any) => {
-                    item.Type = 0
-                })
-            }
-        });
-        //删除左边
-        const deleteLeftCon = (index: number) => {
-            form.value.leftData.splice(index, 1)
-            form.value.rightData.splice(index, 1)
+        //添加选项
+        const addItem = () => {
+            form.value.itemData.push({
+                Data: "",
+                Position: {x: form.value.itemData[form.value.itemData.length - 1].Position.x + 150, y: 200},
+                Size: {Width: 240, Height: 100},
+            },)
         };
-        //上传图片
-        const onChange = (file: any, index: number, type: number) => {
-            if (file) {
-                var reader = new FileReader();
-                reader.onload = function (event: any) {
-                    var base64 = event.target.result;
-                    var img = document.createElement("img");
-                    img.src = base64;
-                    img.onload = function () {
-                        // 注意只有onload以后才可以拿到图片信息
-                        const imgWidth = img.width;
-                        const imgHeight = img.height;
-                        if (
-                            imgWidth > 240 ||
-                            imgHeight > 100 ||
-                            file.raw.size / 1024 > 1024
-                        ) {
-                            return ElMessage.warning(
-                                "图片像素不超过240 * 100，且文件大小不超过1M"
-                            );
-                        }
-                        upload(file.raw, index, imgWidth, imgHeight, type);
-                    };
-                };
-                reader.readAsDataURL(file.raw);
-            }
+        //删除题目
+        const deleteQuestion = (index: number) => {
+            form.value.questionData.splice(index, 1)
         };
-        const upload = async (
-            file: any,
-            index: number,
-            imgWidth: number,
-            imgHeight: number,
-            type: number
-        ) => {
-            const filePath = await cooOss(
-                file,
-                get(STORAGE_TYPES.OSS_PATHS)?.["ElementFile"]
-            );
-            const fileInfo = await getOssUrl(
-                filePath?.objectKey as string,
-                get(STORAGE_TYPES.OSS_PATHS)?.["ElementFile"].Bucket
-            );
-            if (type === 1) {
-                form.value.leftData[index].File = {
-                    url: fileInfo,
-                    Bucket: "axsfile",
-                    FilePath:
-                        filePath?.objectKey.split("/")[0] || "ElementFile",
-                    FileName: filePath?.name || "",
-                    Name: filePath?.name || "",
-                    Extention: filePath?.fileExtension || "",
-                    Type: 2,
-                };
-                form.value.leftData[index].Size = {
-                    Width: imgWidth,
-                    Height: imgHeight,
-                };
-
-            } else {
-                form.value.rightData[index].File = {
-                    url: fileInfo,
-                    Bucket: "axsfile",
-                    FilePath:
-                        filePath?.objectKey.split("/")[0] || "ElementFile",
-                    FileName: filePath?.name || "",
-                    Name: filePath?.name || "",
-                    Extention: filePath?.fileExtension || "",
-                    Type: 2,
-                };
-                form.value.rightData[index].Size = {
-                    Width: imgWidth,
-                    Height: imgHeight,
-                };
-            }
-
-            // if (typeof i === "number") {
-            //     form.value.classData[index].Item[i].File = {
-            //         url: fileInfo,
-            //         Bucket: "axsfile",
-            //         FilePath:
-            //             filePath?.objectKey.split("/")[0] || "ElementFile",
-            //         FileName: filePath?.name || "",
-            //         Name: filePath?.name || "",
-            //         Extention: filePath?.fileExtension || "",
-            //         Type: 2,
-            //     };
-            //     form.value.classData[index].Item[i].Size = {
-            //         Width: imgWidth,
-            //         Height: imgHeight,
-            //     };
-            // } else {
-            //     form.value.classData[index].File = {
-            //         url: fileInfo,
-            //         Bucket: "axsfile",
-            //         FilePath:
-            //             filePath?.objectKey.split("/")[0] || "ElementFile",
-            //         FileName: filePath?.name || "",
-            //         Name: filePath?.name || "",
-            //         Extention: filePath?.fileExtension || "",
-            //         Type: 2,
-            //     };
-            //     form.value.classData[index].Size = {
-            //         Width: imgWidth,
-            //         Height: imgHeight,
-            //     };
-            //     console.log(form.value.classData, "form.value.classData");
-            // }
+        //删除选项
+        const deleteItem = (index: number) => {
+            form.value.itemData.splice(index, 1)
         };
         return {
             form,
-            leftType,
-            rightType,
-            addPairing,
-            deleteLeftCon,
-            onChange
+            addQuestion,
+            addItem,
+            deleteQuestion,
+            deleteItem
         }
     }
 })
@@ -273,20 +130,77 @@ export default defineComponent({
         }
     }
 
-    .middle {
+    .items {
+        margin: 10px 0;
+    }
 
+    .middle-quesion {
+        border-top: 2px dashed #e1e1e1;
+        border-bottom: 2px dashed #e1e1e1;
+        margin-top: 10px;
         //border-bottom: 2px solid #90949e;
         .question-item {
             display: flex;
             padding: 20px;
-            border-top: 2px dashed #e1e1e1;
-            border-bottom: 2px dashed #e1e1e1;
-            margin: 20px 0;
+            //border-top: 2px dashed #e1e1e1;
+            //border-bottom: 2px dashed #e1e1e1;
+            //margin: 20px 0;
             align-items: center;
 
             .item-left {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
 
+                .text {
+                    padding-bottom: 2px;
+                    border-bottom: 1px solid #000000;
+                }
+
+                .del-icon {
+                    width: 16px;
+                    padding-top: 2px;
+
+                    .el-icon {
+                        font-size: 16px;
+                        color: #ff5151;
+                        cursor: pointer;
+                    }
+                }
             }
+
+            .item-right {
+                margin-left: 20px;
+                width: 92%;
+            }
+        }
+    }
+
+    .middle-items {
+        display: flex;
+
+        .items-item {
+            .num {
+                display: flex;
+
+                .text {
+                    padding-bottom: 2px;
+                    border-bottom: 1px solid #000000;
+                }
+
+                .del-icon {
+                    width: 16px;
+                    padding-top: 2px;
+
+                    .el-icon {
+                        font-size: 16px;
+                        color: #ff5151;
+                        cursor: pointer;
+                    }
+                }
+            }
+
+
         }
     }
 

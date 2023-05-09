@@ -12,7 +12,6 @@
         <div class="content">
             <component :is="currentComponent" :newForm="form" @save="save"></component>
         </div>
-
         <!--        <el-button type="primary" @click="save">保存</el-button>-->
     </div>
 </template>
@@ -23,7 +22,7 @@ import SetContent from "./components/setContent.vue";
 import setLayout from "./components/setLayout.vue";
 import {classSet, getTeacherPageGameConfig} from "@/api/game";
 import {Slide} from "wincard";
-import {getOssUrl} from "@/utils/oss";
+import {Delete} from '@element-plus/icons-vue';
 
 export default defineComponent({
     name: "classGame",
@@ -43,36 +42,16 @@ export default defineComponent({
                 {name: "调整布局", value: 2}
             ],
             form: {
-                leftData: [
+                questionData: [
                     {
-                        Type: 1,
                         Data: "",
-                        File: {
-                            url: "",
-                            Bucket: "",
-                            Name: "",
-                            FileName: "",
-                            FilePath: "",
-                            Extention: "",
-                            Type: 2,
-                        },
-                        Position: {x: 200, y: 200},
-                        Size: {Width: 240, Height: 100},
+                        // Position: {x: 200, y: 200},
+                        // Size: {Width: 240, Height: 100},
                     },
                 ],
-                rightData: [
+                itemData: [
                     {
-                        Type: 1,
                         Data: "",
-                        File: {
-                            url: "",
-                            Bucket: "",
-                            Name: "",
-                            FileName: "",
-                            FilePath: "",
-                            Extention: "",
-                            Type: 2,
-                        },
                         Position: {x: 600, y: 200},
                         Size: {Width: 240, Height: 100},
                     },
