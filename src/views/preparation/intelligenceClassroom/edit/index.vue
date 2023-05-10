@@ -190,7 +190,6 @@ export default defineComponent({
                 } else {
                     selectPageIds.value.push(obj.params);
                 }
-                storageCopyData();
             }
             // 保存模板
             if (obj.type === 6) {
