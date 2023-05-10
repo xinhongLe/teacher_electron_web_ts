@@ -1,7 +1,7 @@
 import request from "@/utils/request";
 import { AI_XUE_SHI_API, YUN_API_COMPOSITION } from "@/config";
 import { RequestFun } from "@/types/response";
-import { FetchAllPassage, getClassStuCount, IAddArticle, IcompositionBatchImport, IcorrectWithOneKey, IdeleteArticle, IdeleteStudentEntry, IdownLoadBatchImportModel, IdownloadPDF, IeditReportDetail, IgetStatusCountByTeacherComId, IgetStudentByClass, IgetStudentByHasEntry, IgetStudentByUserInfo, IgetStudentComByTeacherComId, IlookContent, IoneStudentEntry, IresubmitCorrectComposition, IsaveContent, IsearchReportDetail, IsearchStudentListForCorrect, IsearchStudentListForReport, IsendReportWithOneKey, IshareReportUrl } from "@/types/composition";
+import { FetchAllPassage, getClassStuCount, IAddArticle, IcompositionBatchImport, IcorrectWithOneKey, IdeleteArticle, IdeleteStudentEntry, IdownLoadBatchImportModel, IdownloadPDF, IeditReportDetail, IgetAssessDetail, IgetStatusCountByTeacherComId, IgetStudentByClass, IgetStudentByHasEntry, IgetStudentByUserInfo, IgetStudentComByTeacherComId, IlookContent, IoneStudentEntry, IresubmitCorrectComposition, IsaveAssessment, IsaveContent, IsearchReportDetail, IsearchStudentListForCorrect, IsearchStudentListForReport, IsendReportWithOneKey, IshareReportUrl } from "@/types/composition";
 
 // 图像识别文字（针对于识别姓名
 export const picToWordByName: RequestFun<
@@ -307,6 +307,10 @@ IoneStudentEntry,
 > = (data) => {
     return request({
         baseURL: YUN_API_COMPOSITION,
+        headers: {
+            // "Content-Type": "application/json-patch+json",
+            noLoading: "true"
+        },
         url: "/Api/App/CompositionEntry/OneStudentEntry",
         method: "post",
         data
@@ -399,6 +403,73 @@ IlookContent,
     return request({
         baseURL: YUN_API_COMPOSITION,
         url: "/Api/App/CompositionEntry/LookNextContent",
+        method: "post",
+        data
+    });
+};
+
+
+
+// 获取评价量规
+export const getAssessDetail: RequestFun<
+IgetAssessDetail,
+    any
+> = (data) => {
+    return request({
+        baseURL: YUN_API_COMPOSITION,
+        url: "/Api/App/EvaluateGauges/GetEvaluateGauges",
+        method: "post",
+        data
+    });
+};
+
+// 保存老师使用的量规
+export const saveAssessment: RequestFun<
+IsaveAssessment,
+    any
+> = (data) => {
+    return request({
+        baseURL: YUN_API_COMPOSITION,
+        url: "/Api/App/EvaluateGauges/SaveGaugesAndCorrect",
+        method: "post",
+        data
+    });
+};
+
+// 评价下一篇
+export const assessNextGauges: RequestFun<
+IgetAssessDetail,
+    any
+> = (data) => {
+    return request({
+        baseURL: YUN_API_COMPOSITION,
+        url: "/Api/App/EvaluateGauges/EvaluateNextGauges",
+        method: "post",
+        data
+    });
+};
+
+// 获取切页栏
+export const getColumnPages: RequestFun<
+IsearchReportDetail,
+    any
+> = (data) => {
+    return request({
+        baseURL: YUN_API_COMPOSITION,
+        url: "/Api/App/CompositionEntry/GetPageCuttingColumn",
+        method: "post",
+        data
+    });
+};
+
+// 获取作文识别结果（全部识别完返回，否则阻塞）
+export const getFinishResult: RequestFun<
+any,
+    any
+> = (data) => {
+    return request({
+        baseURL: YUN_API_COMPOSITION,
+        url: "/Api/App/CompositionEntry/GetRecogiteStatus",
         method: "post",
         data
     });
