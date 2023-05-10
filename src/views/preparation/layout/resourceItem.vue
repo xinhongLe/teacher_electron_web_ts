@@ -19,14 +19,22 @@
                     <img class="resource-format" v-if="data.File" :src="formatImg" alt=""/>
                 </div>
                 <div class="resource-message">
-                    <img src="@/assets/images/preparation/icon_gengxin.png" alt=""/>
-                    更新时间：{{ dealTime(data.DateTime || data.CreateTime) }}
-                    <img src="@/assets/images/preparation/icon_download.png" alt=""/>
-                    下载次数：{{ data.DownloadNum }}
-                    <img src="@/assets/images/preparation/icon_liulan_grey.png" alt=""/>
-                    浏览：{{ data.BrowseNum }}
-                    <img src="@/assets/images/preparation/icon_zhinanzhen.png" alt=""/>
-                    来源：{{ data.Source }}
+                    <p>
+                        <img src="@/assets/images/preparation/icon_gengxin.png" alt=""/>
+                        更新时间：{{ dealTime(data.DateTime || data.CreateTime) }}
+                    </p>
+                    <p>
+                        <img src="@/assets/images/preparation/icon_download.png" alt=""/>
+                        下载次数：{{ data.DownloadNum }}
+                    </p>
+                    <p>
+                        <img src="@/assets/images/preparation/icon_liulan_grey.png" alt=""/>
+                        浏览：{{ data.BrowseNum }}
+                    </p>
+                    <p>
+                        <img src="@/assets/images/preparation/icon_zhinanzhen.png" alt=""/>
+                        来源：{{ data.Source }}
+                    </p>
                 </div>
                 <div class="resource-classify">
                     <img src="@/assets/images/preparation/icon_mulu.png" alt=""/>
@@ -526,6 +534,12 @@ export default defineComponent({
         font-size: 12px;
         color: var(--app-color-text-default);
         padding: 12px 0;
+
+        p {
+            margin-left: 20px;
+            display: flex;
+            align-items: center;
+        }
     }
 
     .resource-control {
