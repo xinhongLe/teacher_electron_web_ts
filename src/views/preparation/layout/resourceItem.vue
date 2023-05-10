@@ -265,10 +265,7 @@ export default defineComponent({
     setup(props, { emit }) {
         const store = useStore();
 
-        const handleCommand = (
-            command: string,
-            event?: MouseEvent | TouchEvent
-        ) => {
+        const handleCommand = (command: string, event?: MouseEvent | TouchEvent) => {
             if (!props.hover && command === "detail") return;
             emit("eventEmit", command, props.data, event);
         };
@@ -343,7 +340,6 @@ export default defineComponent({
         const shareShow = ref(false);
         const shareData = ref();
         const handleShare = (data: IResourceItem) => {
-            console.log(data);
             shareData.value = {
                 ...data,
                 url: process.env.VUE_APP_SHARE_URL + data.OldResourceId + "&" + (data.IsSysFile === 1 ? 0 : 1),

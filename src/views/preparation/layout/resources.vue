@@ -395,7 +395,7 @@ export default defineComponent({
                             component: "WinCard",
                             resource: {
                                 id: data.OldResourceId,
-                                isSystem: data.IsSysFile === 1,
+                                isSystem: data.IsSysFile,
                                 openMore: true
                             }
                         });

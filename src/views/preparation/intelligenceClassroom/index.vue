@@ -57,6 +57,7 @@ import SelectClassDialog from "./components/preview/selectClassDialog.vue";
 import { ref, watchEffect, PropType, onUnmounted, computed, defineComponent } from "vue";
 import { CardProps, PageProps } from "@/views/preparation/intelligenceClassroom/api/props";
 import { getOssUrl } from "@/utils/oss";
+import { getWindowStruct } from "@/api/home";
 
 export default defineComponent({
     name: "IntelligenceClassroom",
@@ -177,13 +178,14 @@ export default defineComponent({
         };
 
         function getWinCardData() {
-            getWindowsElements({
+            const OriginType = (props.resource.isSystem as number) === 1 ? 0 : 1;
+            getWindowStruct({
                 WindowID: props.resource.id,
-                OriginType: props.resource.isSystem ? 0 : 1
+                OriginType
             }).then(async res => {
                 if (res.resultCode !== 200) return;
 
-                const cardList = res.result;
+                const cardList = res.result.CardData;
 
                 let index = 1;
                 for (let i = 0; i < cardList.length; i++) {
