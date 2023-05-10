@@ -400,6 +400,9 @@ window.electron = {
         return new Promise((resolve, reject) => {
             const uuid = uuidv4();
             const outputPath = join(app.getPath("userData"), "files", `/${uuid}.mp4`);
+            if (!fs.existsSync(outputPath)) {
+                fs.mkdirSync(outputPath);
+            }
             try {
                 ffmpeg(filePath)
                     .videoCodec("libx264")
