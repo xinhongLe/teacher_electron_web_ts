@@ -54,11 +54,11 @@ window.electron = {
     },
     isFullScreen: () => {
         const currentWindow = getCurrentWindow();
-        return currentWindow.isFullScreen();
+        return currentWindow.fullScreen;
     },
-    setFullScreen: () => {
+    setFullScreen: (flag: boolean) => {
         const currentWindow = getCurrentWindow();
-        currentWindow.setFullScreen(true);
+        currentWindow.setFullScreen(flag);
     },
     hideWindow: () => {
         const currentWindow = getCurrentWindow();

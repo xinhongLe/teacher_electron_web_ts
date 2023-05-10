@@ -479,7 +479,7 @@ export default defineComponent({
         // 点击全屏
         const fullScreen = async () => {
             if (window.electron && !window.electron.isFullScreen() && !window.electron.isMac()) {
-                window.electron.setFullScreen();
+                window.electron.setFullScreen(true);
                 await sleep(300);
             }
             activeFlag.value = true;

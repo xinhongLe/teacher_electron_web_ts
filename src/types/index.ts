@@ -16,7 +16,7 @@ type Electron = typeof electron & {
     unmaximizeWindow: () => void;
     minimizeWindow: () => void;
     isFullScreen: () => boolean;
-    setFullScreen: () => void;
+    setFullScreen: (flag: boolean) => void;
     getVersion: () => string;
     isMac: () => boolean;
     registerEscKeyUp: (callback: () => void) => void;

@@ -3,7 +3,7 @@ import isElectron from "is-electron";
 // 进入全屏
 export const enterFullscreen = () => {
     if (isElectron()) {
-        window.electron.setFullScreen();
+        window.electron.setFullScreen(true);
         return;
     }
     const docElm: any = document.documentElement;
@@ -27,8 +27,8 @@ export const isFullscreen = () => {
 
 // 退出全屏
 export const exitFullscreen = () => {
-    if (isElectron()) {
-        window.electron.minimizeWindow();
+    if (isElectron() && isFullscreen()) {
+        window.electron.setFullScreen(false);
         return;
     }
     const dom: any = document;
