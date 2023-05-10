@@ -31,8 +31,8 @@
 <script lang="ts">
 import { defineComponent, ref, PropType, computed } from "vue";
 import Tools from "../preview/tools.vue";
-import { PageProps } from "@/views/preparation/intelligenceClassroom/preview/props";
 import { ElMessage } from "element-plus";
+import { PageProps } from "@/views/preparation/intelligenceClassroom/api/props";
 
 export default defineComponent({
     name: "OpenCardViewDialog",

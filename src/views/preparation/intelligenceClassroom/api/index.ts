@@ -1,9 +1,9 @@
 import request from "@/utils/request";
 import { IResponse, RequestFun } from "@/types/response";
 import { ICopyWindowRes, ITreeList } from "@/types/intelligence";
-import { AI_XUE_SHI_API, WINDOW_CRAD_API, originType } from "@/config";
+import { AI_XUE_SHI_API, WINDOW_CRAD_API } from "@/config";
 import { SchoolWindowCardInfo } from "@/types/preparation";
-import { CardProps } from "@/views/preparation/intelligenceClassroom/preview/props";
+import { CardProps } from "@/views/preparation/intelligenceClassroom/api/props";
 type BookListResponse = IResponse<ITreeList[]>
 
 export interface IGetChapters {

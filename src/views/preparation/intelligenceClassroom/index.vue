@@ -52,10 +52,11 @@ import { YUN_API_ONECARD_MQTT } from "@/config";
 import { IViewResourceData } from "@/types/store";
 import Tools from "./components/preview/tools.vue";
 import { dealAnimationData } from "@/utils/dataParse";
-import { CardProps, PageProps } from "./preview/props";
 import ShareCurrentPage from "./components/preview/ShareCurrentPage.vue";
 import SelectClassDialog from "./components/preview/selectClassDialog.vue";
 import { ref, watchEffect, PropType, onUnmounted, computed, defineComponent } from "vue";
+import { CardProps, PageProps } from "@/views/preparation/intelligenceClassroom/api/props";
+import { getOssUrl } from "@/utils/oss";
 
 export default defineComponent({
     name: "IntelligenceClassroom",
@@ -84,7 +85,7 @@ export default defineComponent({
         const pages = computed(() => {
             let allPages: PageProps[] = [];
             winCards.value.forEach(item => {
-                allPages = allPages.concat(...item.Pages);
+                allPages = allPages.concat(...item.PageList);
             });
             return allPages;
         });
@@ -189,18 +190,26 @@ export default defineComponent({
                     const item = cardList[i];
                     item.Fold = true;
 
-                    for (let j = 0; j < item.Pages.length; j++) {
-                        const page = item.Pages[j];
+                    for (let j = 0; j < item.PageList.length; j++) {
+                        const page = item.PageList[j];
                         const json = JSON.parse(page.Json || "{}");
-                        const slide: Slide = await transformPageDetail({ ID: page.PageID, Type: page.PageType }, json);
+                        let url = page.Url || "";
+                        if (!url && (page.Type === 20 || page.Type === 16)) {
+                            const file = json?.ToolFileModel?.File;
+                            const key = `${file?.FilePath}/${file?.FileMD5}.${file?.FileExtention || file?.Extention}`;
+                            url = json?.ToolFileModel ? await getOssUrl(key, "axsfile") : "";
+                        }
+                        const slide: Slide = await transformPageDetail({ ID: page.ID, Type: page.Type }, json);
+                        page.Url = url;
 
                         page.Json = dealAnimationData(slide);
-                        if (page.PageState) {
+                        if (page.State) {
                             page.Index = index;
                             index++;
                         }
                     }
                 }
+                console.log(cardList);
                 winCards.value = cardList;
             });
         }

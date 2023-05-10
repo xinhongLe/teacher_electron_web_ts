@@ -10,10 +10,10 @@
                 <div class="title" @click="folder.Fold = !folder.Fold">
                     <i class="triangle" :class="{rotate:!folder.Fold}"></i>
                     <img class="file-icon" src="@/assets/edit/icon_file.png" alt=""/>
-                    <span>{{ folder.CardName }}</span>
+                    <span>{{ folder.Name }}</span>
                 </div>
                 <div class="pages" v-if="folder.Fold">
-                    <div class="page" v-for="page in folder.Pages" :key="page.PageID" @click="handlePage(page.Index)">
+                    <div class="page" v-for="page in folder.PageList" :key="page.PageID" @click="handlePage(page.Index)">
                         <div class="page-left">{{ page.Index }}</div>
                         <div class="page-right" :class="{active: page.Index === index+1}">
                             <img
@@ -25,9 +25,9 @@
                                 <thumbnail-slide
                                     :size="228"
                                     :slide="page.Json"
-                                    v-if="[pageType.listen,pageType.element].includes(page.PageType)"
+                                    v-if="[pageType.listen,pageType.element].includes(page.Type)"
                                 />
-                                <div class="view-empty" v-else>{{ page.PageName }}</div>
+                                <div class="view-empty" v-else>{{ page.Name }}</div>
                             </template>
                         </div>
                     </div>
@@ -66,11 +66,11 @@
 import { cloneDeep } from "lodash";
 import { pageType } from "@/config";
 import { ElMessage } from "element-plus";
-import { CardProps, PageProps } from "./props";
 import { IViewResourceData } from "@/types/store";
 import Remark from "../components/preview/remark.vue";
 import { computed, defineComponent, PropType, ref, watch } from "vue";
 import OpenCardViewDialog from "../components/edit/openCardViewDialog.vue";
+import { CardProps, PageProps } from "@/views/preparation/intelligenceClassroom/api/props";
 
 export default defineComponent({
     name: "WinPreview",
@@ -111,19 +111,19 @@ export default defineComponent({
     },
     emits: ["update:index", "update:l-visit", "update:is-can-undo", "update:is-can-redo"],
     setup(props, { emit }) {
-        const windowCards = computed(() => {
+        const windowCards = computed<CardProps[]>(() => {
             const list = cloneDeep<CardProps[]>(props.cards);
 
             for (let i = 0; i < list.length; i++) {
-                const pages = cloneDeep(list[i].Pages);
+                const pages = cloneDeep(list[i].PageList);
 
-                list[i].Pages = pages.filter(item => item.PageState);
+                list[i].PageList = pages.filter(item => item.State);
             }
 
             return list;
         });
         const currentSlide = computed(() => {
-            const page = props.pages?.filter(item => item.PageState)[props.index];
+            const page = props.pages?.filter(item => item.State)[props.index];
             return page ? page.Json : {};
         });
         const teachProcess = computed(() => {
@@ -176,7 +176,7 @@ export default defineComponent({
         };
 
         const pageNext = () => {
-            const list = props.pages.filter(item => item.PageState);
+            const list = props.pages.filter(item => item.State);
             if (props.index === list.length - 1) {
                 ElMessage.warning("已经最后一页了");
                 return;
