@@ -69,6 +69,21 @@ export interface IsearchReportDetail{
     StudentCompositionId: string | null;
 }
 
+export interface IgetAssessDetail{
+    StudentCompositionId: string | null;
+    TeacherId: string | null;
+}
+
+export interface IVernier{
+    VernierCaliperId: string | null;
+    VernierCaliperConfigId: string | null;
+}
+export interface IsaveAssessment{
+    TeacherId: string | null;
+    StudentCompositionId: string | null;
+    GaugesDetails: IVernier[]
+}
+
 export interface IeditReportDetail{
     StudentCompositionId: string | null;
     SaveType?: number; // 保存信息类型(1-分数;2-评价等级;3-综合点评;4-优点;5-缺点;6-改进建议;)

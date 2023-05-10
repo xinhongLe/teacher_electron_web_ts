@@ -4,7 +4,9 @@
             <div class="back" @click="close">
                 <img src="../../../assets/composition/icon_back@2x.png" alt="" />
             </div>
-            <el-pagination background layout="prev, pager, next" :total="1000" />
+            <el-pagination class="pagers" background layout="prev, pager, next" :total="columnPager.total"
+                v-model:current-page="columnPager.current" v-model:page-size="columnPager.size"
+                @current-change="handleCurrentChange" />
         </div>
 
         <div class="box align-center">
@@ -41,26 +43,16 @@
                 <div class="article-box" v-else>
                     <div class="article-box-head align-center">
                         <div class="title-box">
-                            <div class="title">《我的母亲》</div>
-                            <div class="time">最近修改：2023/4/14 19:00:00</div>
+                            <div class="title">《{{ compositionInfo.Title }}》</div>
+                            <div class="time" v-if="compositionInfo.UpdateTime">最近修改：{{ compositionInfo.UpdateTime }}</div>
                         </div>
                         <div class="author align-center">
-                            <span class="name">{{ '梁可' }}</span>
-                            <span class="count">{{ '50' }}字</span>
+                            <span class="name">{{ compositionInfo.StudentName }}</span>
+                            <span class="count">{{ compositionInfo.Content.length }}字</span>
                         </div>
                     </div>
                     <div class="article-box-words">
-                        熊猫不似猫是熊，那为什么要叫大熊猫呢？原来这是它本身学名，意思是像猫一样的熊，当然也符合它自身外貌特征，脸像猫，体型像熊。作为国宝，大熊猫只生长在中国，主要分布在四川、陕西、干肃，并且它们栖息在森林，那里气候潮湿且水资源丰富，最重要的是竹叶管够。
-
-                        那这货怎么就成为国宝了？原来它们已经存在至少几百万年，且数量极少，物以稀为贵嘛。但我认为关键是它真的很可爱很讨人喜欢，并且不是所有的动物都能消化竹子的。再来说说它不为人知的一面，作为国宝，大熊猫只生长在中国，主要分布在四川、陕西、干肃，并且它们栖息在欢，并且不是所有的动物都能消化竹子的。
-
-                        熊猫不似猫是熊，那为什么要叫大熊猫呢？原来这是它本身学名，意思是像猫一样的熊，当然也符合它自身外貌特征，脸像猫，体型像熊。作为国宝，大熊猫只生长在中国，主要分布在四川、陕西、干肃，并且它们栖息在森林，那里气候潮湿且水资源丰富，最重要的是竹叶管够。
-
-                        那这货怎么就成为国宝了？原来它们已经存在至少几百万年，且数量极少，物以稀为贵嘛。但我认为关键是它真的很可爱很讨人喜欢，并且不是所有的动物都能消化竹子的。再来说说它不为人知的一面，作为国宝，大熊猫只生长在中国，主要分布在四川、陕西、干肃，并且它们栖息在欢，并且不是所有的动物都能消化竹子的。
-
-                        熊猫不似猫是熊，那为什么要叫大熊猫呢？原来这是它本身学名，意思是像猫一样的熊，当然也符合它自身外貌特征，脸像猫，体型像熊。作为国宝，大熊猫只生长在中国，主要分布在四川、陕西、干肃，并且它们栖息在森林，那里气候潮湿且水资源丰富，最重要的是竹叶管够。
-
-                        那这货怎么就成为国宝了？原来它们已经存在至少几百万年，且数量极少，物以稀为贵嘛。但我认为关键是它真的很可爱很讨人喜欢，并且不是所有的动物都能消化竹子的。再来说说它不为人知的一面，作为国宝，大熊猫只生长在中国，主要分布在四川、陕西、干肃，并且它们栖息在欢，并且不是所有的动物都能消化竹子的。
+                        {{ compositionInfo.Content }}
                     </div>
                 </div>
             </div>
@@ -70,39 +62,32 @@
                     <div class="tip">您选择的标签将帮助AI评价的更加精准。若未选择标签，AI将自主判断。</div>
                 </div>
                 <div class="wrapper">
-
-                    <div class="wrapper-tag">常用</div>
-                    <div class="wrapper-item">
-                        <div class="wrapper-head align-center">
-                            <img src="../../../assets/composition/icon_yuan@2x.png" alt="" />
-                            <span>明确的中心</span>
-                            <el-tooltip effect="dark" content="由句法上有关连的一组词构成，表达一种主张、疑问、命令、愿望或感叹等。" placement="bottom">
-                                <img src="../../../assets/composition/icon_wenhao@2x.png" alt="" />
-                            </el-tooltip>
-                        </div>
-                        <div class="wrapper-box">
-                            <div v-for="(item, idx) of 4" class="square">
-                                没有明确的主题，缺乏重点
-                                <img :src='require(`../../../assets/composition/square${idx}.png`)' alt="" />
+                    <template v-for="(item, idx) in assessList" :key="idx">
+                        <template v-if="item.GaugesDetails && item.GaugesDetails.length > 0">
+                            <div class="wrapper-tag">{{ item.Name }}</div>
+                            <div class="wrapper-item" v-for="(citem, cidx) in item.GaugesDetails" :key="cidx">
+                                <div class="wrapper-head align-center">
+                                    <img src="../../../assets/composition/icon_yuan@2x.png" alt="" />
+                                    <span>{{ citem.Name }}</span>
+                                    <el-tooltip effect="dark" :content="citem.Content" placement="bottom">
+                                        <img v-if="citem.Content" src="../../../assets/composition/icon_wenhao@2x.png"
+                                            alt="" />
+                                    </el-tooltip>
+                                </div>
+                                <div class="wrapper-box">
+                                    <div v-for="(ele, eidx) of citem.GaugesConfigs"
+                                        :class="['square', ele.active && 'active']" @click="squareClick(citem, ele)"
+                                        :key="eidx">
+                                        {{ ele.Explain }}
+                                        <img v-if="ele.active"
+                                            :src='require(`../../../assets/composition/square${eidx}-active.png`)' alt="" />
+                                        <img v-else :src='require(`../../../assets/composition/square${eidx}.png`)'
+                                            alt="" />
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    </div>
-
-                    <div class="wrapper-item">
-                        <div class="wrapper-head align-center">
-                            <img src="../../../assets/composition/icon_yuan@2x.png" alt="" />
-                            <span>明确的中心</span>
-                            <el-tooltip effect="dark" content="由句法上有关连的一组词构成，表达一种主张、疑问、命令、愿望或感叹等。" placement="bottom">
-                                <img src="../../../assets/composition/icon_wenhao@2x.png" alt="" />
-                            </el-tooltip>
-                        </div>
-                        <div class="wrapper-box">
-                            <div v-for="(item, idx) of 4" class="square active">
-                                没有明确的主题，缺乏重点
-                                <img :src='require(`../../../assets/composition/square${idx}-active.png`)' alt="" />
-                            </div>
-                        </div>
-                    </div>
+                        </template>
+                    </template>
                 </div>
             </div>
         </div>
@@ -112,8 +97,8 @@
                 <img v-else src="../../../assets/composition/icon_checked@2x.png" alt="" />
                 继续评价下一篇
             </div>
-            <el-button class="view" @click="viewArticle">取消</el-button>
-            <el-button color="#4B71EE" @click="exportPDF">生成新报告</el-button>
+            <el-button class="view" @click="close">取消</el-button>
+            <el-button color="#4B71EE" @click="createNewReport">生成新报告</el-button>
         </div>
     </div>
 </template>
@@ -123,7 +108,8 @@ import { ElMessage } from 'element-plus';
 import moment from 'moment';
 import { reactive, ref, toRefs } from 'vue';
 import { saveAs as FileSaver } from 'file-saver'
-import { downloadPDF, editReportDetail, lookNextContent, searchReportDetail } from '../api';
+import { assessNextGauges, downloadPDF, editReportDetail, getAssessDetail, getColumnPages, saveAssessment } from '../api';
+import { store } from '@/store';
 
 const articleRef = ref()
 
@@ -135,19 +121,60 @@ const state = reactive({
     photoList: [] as any,
     mainPic: '',
     active: 0,
+    compositionInfo: {} as any,
+    assessList: [] as any[],
     title: '',
     tabName: '照片',
     author: '',
     stuList: [],
     IsHaveNext: false,
-    NextStudentCompositionId: ''
+    isChange: false,
+    NextStudentCompositionId: '',
+    columnPageList: [],
+    columnPager: {
+        total: 0,
+        current: 1,
+        size: 1
+    }
 })
 
-const emit = defineEmits(['close', 'save']);
+const emit = defineEmits(['close', 'save','success']);
 
-const { photoList, mainPic, active } = toRefs(state)
+const { photoList, mainPic, columnPager, active, compositionInfo, assessList } = toRefs(state)
+const handleCurrentChange = (val: number) => {
+    getDetail(state.columnPageList[val-1], true)
+}
+// 获取分页
+const loadAllPages = () => {
+    getColumnPages({ StudentCompositionId: state.StudentCompositionId }).then((res: any) => {
+        if (res.success) {
+            let result = res.result
+            state.columnPageList = result.CompositionIds
+            state.columnPager.total = result.CompositionIds.length
+            state.columnPager.current = result.CompositionIds.findIndex((v: any) => v === result.CurrentCompositionId) + 1
+        }
+    })
+}
+const squareClick = (squareParent: any, squareItem: any) => {
+    if (state.assessList.length < 1) return
+    state.assessList.forEach((item: any) => {
+        if (item.GaugesDetails && item.GaugesDetails.length > 0) {
+            for (const citem of item.GaugesDetails) {
+                if (citem.VernierCaliperId === squareParent.VernierCaliperId) {
+                    citem.GaugesConfigs.forEach((ele: any) => {
+                        if (squareItem.VernierCaliperConfigId === ele.VernierCaliperConfigId && !ele.active) {
+                            ele.active = true
+                        } else {
+                            ele.active = false
+                        }
+                    });
+                }
+            }
+        }
+    })
+}
 
-const selectContinue = ()=>{
+const selectContinue = () => {
     state.isContinue = !state.isContinue
 }
 
@@ -160,36 +187,42 @@ const switchPic = (item: any, idx: number) => {
     state.mainPic = item.url
 }
 
-// exportPDF
-const exportPDF = () => {
-    downloadPDF({ StudentCompositionId: state.StudentCompositionId }).then((res: any) => {
-        if (res) {
-            let blob = new Blob([res], { type: "application/pdf" });
-            const filename = state.author + '的评价报告.pdf';
-            //直接下载而不预览
-            FileSaver.saveAs(blob, filename)
-        }
-    })
-}
-
-// 
-const closeArticle = () => {
-    articleRef.value.close()
-}
-
-// 查看原文
-const viewArticle = () => {
-    articleRef.value.openDialog({ StudentCompositionId: state.StudentCompositionId })
-}
-
-const exeSave = (type: number, info: any, cb?: any) => {
-    editReportDetail({ StudentCompositionId: state.StudentCompositionId, SaveType: type, SaveInfo: info }).then(async (res: any) => {
+//生成新报告
+const createNewReport = () => {
+    let params = {
+        StudentCompositionId: state.StudentCompositionId,
+        TeacherId: store.state.userInfo?.userCenterUserID,
+        GaugesDetails: buildArr()
+    }
+    saveAssessment(params).then(async (res: any) => {
         if (res.success) {
-            if (cb) {
-                cb()
+            ElMessage.success('提交成功')
+            if (state.isContinue) {
+                // 下一个
+                viewNext()
+            } else {
+                close()
+                emit('success')
             }
         }
     })
+}
+
+// 构造参数数组
+const buildArr = () => {
+    let list = [] as any
+    for (const item of state.assessList) {
+        if (item.GaugesDetails && item.GaugesDetails.length > 0) {
+            for (const citem of item.GaugesDetails) {
+                for (const ele of citem.GaugesConfigs) {
+                    if (ele.active) {
+                        list.push({ VernierCaliperConfigId: ele.VernierCaliperConfigId, VernierCaliperId: citem.VernierCaliperId })
+                    }
+                }
+            }
+        }
+    }
+    return list
 }
 
 // 关闭
@@ -197,21 +230,56 @@ const close = () => {
     state.tabName = '照片'
     dialogVisible.value = false
     emit('close')
+    if(state.isChange){
+        emit('success')
+    }
 }
 
 const openDialog = async (info?: any) => {
     const { StudentCompositionId } = info
     state.StudentCompositionId = StudentCompositionId
+    loadAllPages()
     getDetail(StudentCompositionId, false)
 }
 
+// 详情
 const getDetail = (id: string, isRequestNext?: boolean) => {
     if (isRequestNext) {
         state.StudentCompositionId = id
     }
-    searchReportDetail({ StudentCompositionId: id }).then(async (res: any) => {
+    getAssessDetail({ StudentCompositionId: id, TeacherId: store.state.userInfo?.userCenterUserID, }).then(async (res: any) => {
         if (res.success) {
+            let result = res.result
+            afterFuc(result)
             dialogVisible.value = true
+        }
+    })
+}
+
+// 查询下一个
+const viewNext = () => {
+    state.isChange = true
+    assessNextGauges({ StudentCompositionId: state.StudentCompositionId, TeacherId: store.state.userInfo?.userCenterUserID }).then(async (res: any) => {
+        if (res.success) {
+            let result = res.result
+            state.StudentCompositionId = result.Composition.StudentCompositionId
+            afterFuc(result)
+        }
+    })
+}
+
+const afterFuc = async (result:any) => {
+    state.compositionInfo = result.Composition || {}
+    state.assessList = result.GaugesInfos
+    state.photoList = result.Composition.StudentCompositionFile
+    await state.photoList.forEach(async (ele: any, i: number) => {
+        const { FileExtention, FilePath, FileMD5, FileBucket } = ele;
+        const key = FileExtention
+            ? `${FilePath}/${FileMD5}.${FileExtention}`
+            : `${FilePath}/${FileMD5}`;
+        ele.url = await getOssUrl(key, FileBucket)
+        if (i === 0) {
+            state.mainPic = ele.url;
         }
     })
 }
@@ -352,7 +420,7 @@ defineExpose({
     font-weight: 600;
     color: #FFFFFF;
     position: relative;
-
+    -webkit-app-region: no-drag;
     .back {
         position: absolute;
         left: 0;
@@ -568,6 +636,7 @@ defineExpose({
                         padding: 13px;
                         box-sizing: border-box;
                         overflow: hidden;
+                        cursor: pointer;
 
                         &>img {
                             position: absolute;

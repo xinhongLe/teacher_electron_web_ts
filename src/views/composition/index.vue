@@ -98,13 +98,6 @@ const state = reactive({
 
 const { classList, classId, articleList, chapterList } = toRefs(state)
 
-const client = mqtt.connect(YUN_API_ONECARD_MQTT || "", {
-    port: 1883,
-    username: "u001",
-    password: "p001",
-    keepalive: 30
-});
-
 onMounted(() => {
     // console.log('userinfo:', store.state.userInfo);
     // getArticleList()
@@ -113,32 +106,7 @@ onMounted(() => {
     })
     getGradeList()
 
-    //
-    client && client.on("connect", function (err: any) {
-        window.electron.log.info("client connect answer", err);
-    });
-
-    client && client.on("error", (err: any) => {
-        window.electron.log.info("client error answer", err);
-    });
-
-    client && client.on("message", function (topic: any, message: any) {
-        // message is Buffer
-        const infoString = JSON.parse(message.toString());
-        console.log("====message=====", infoString);
-    });
-
 })
-const getPublish = (id: string) => {
-    return `answer_studentcommitcount_${id}`;
-};
-watch(() => state.classCount, (val) => {
-    // client.subscribe(getPublish("C696DA084848C9E8B2D0A2CB00853504"));
-    console.log('订阅');
-
-    client.subscribe(getPublish('C696DA084848C9E8B2D0A2CB00853504'));
-}, { immediate: true });
-
 
 const refresh = () => {
     getClassStuCount(false, () => {
@@ -218,12 +186,12 @@ const openScan = (e?: any) => {
     scanRef.value.openDialog(e)
 }
 
-const openList = (id: string, title?: string) => {
-    listRef.value.openDialog({ TeacherCompositionId: id, ClassId: state.classId, Title: title })
+const openList = (id: string, title?: string,isTurnToWait?:boolean) => {
+    listRef.value.openDialog({ TeacherCompositionId: id, ClassId: state.classId, Title: title,isTurnToWait })
 }
 const scanOpenList = (e: any) => {
     // console.log('scanOpenList ', e);
-    openList(e.TeacherCompositionId, e.Title)
+    openList(e.TeacherCompositionId, e.Title,e.isTurnToWait)
 }
 
 const addComposition = () => {

@@ -56,7 +56,7 @@
                             alt="" />
                     </el-tooltip>
                 </div>
-                <div class="time">2023/4/14 19:00:00</div>
+                <div class="time">{{ item.UpdateTime }}</div>
                 <div class="opts align-center">
                     <div class="button" v-if="item.Status === 1" @click="goScan(item)">前往录入</div>
                     <div class="delete align-center" v-if="item.Status === 2" @click="delItem(item)">
@@ -91,11 +91,11 @@
     <!-- 检查原文 -->
     <Origin ref="originRef" />
     <!-- 手动批改 -->
-    <Assessment ref="assessmentRef" />
+    <Assessment ref="assessmentRef" @success="refresh" />
     <!-- 查看原文 -->
     <Article ref="articleRef" @view-report="showReport" />
     <!-- 报告详情 -->
-    <Detail ref="detailRef" />
+    <Detail ref="detailRef" @re-assess="handOperate" />
     <!-- 批改列表 -->
     <CorrectionList ref="correctionRef" @success="refresh" />
     <!-- 报告列表 -->
@@ -261,12 +261,20 @@ const correction = () => {
 }
 
 const openDialog = async (info?: any) => {
-    const { TeacherCompositionId, ClassId, Title } = info
+    console.log('-----info:',info);
+    
+    const { TeacherCompositionId, ClassId, Title, isTurnToWait } = info
+
     state.TeacherCompositionId = TeacherCompositionId
     state.ClassId = ClassId
     state.Title = Title
 
     getTabList(() => {
+        if (isTurnToWait) {
+            console.log('待批改');
+            
+            state.tabName = '2' // 待批改
+        }
         getComList()
     })
 }
@@ -279,11 +287,11 @@ const getComList = () => {
     getStudentComByTeacherComId({ TeacherCompositionId: state.TeacherCompositionId, Status: status, ClassId: state.ClassId, Pager: state.page }).then((res: any) => {
         if (res.success) {
             let { list = [], pager } = res.result
-            // if (list.length > 0) {
-            //     list.forEach((ele: any) => {
-            //         ele.StartTime = moment(ele.StartTime).format('YYYY-MM-DD HH:mm:ss')
-            //     });
-            // }
+            if (list.length > 0) {
+                list.forEach((ele: any) => {
+                    ele.UpdateTime = ele.UpdateTime || '--'
+                });
+            }
             state.stuList = list
             dialogVisible.value = true
             nextTick(() => {

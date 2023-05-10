@@ -2,7 +2,9 @@
     <div class="origin" style="height: 100%;" v-if="dialogVisible">
         <div class="upper align-center">
             <span>检查原文</span>
-            <el-pagination background layout="prev, pager, next" :total="1000" />
+            <el-pagination class="pagers" background layout="prev, pager, next" :total="columnPager.total"
+                v-model:current-page="columnPager.current" v-model:page-size="columnPager.size"
+                @current-change="handleCurrentChange" />
             <div class="top" @click="viewNext">查看下一篇</div>
         </div>
 
@@ -23,7 +25,7 @@
                 <div class="head align-center">
                     <div class="title-box">
                         <el-input class="title" maxlength="15" v-model="title" />
-                        <div class="time">最近修改：2023/4/14 19:00:00</div>
+                        <div class="time" v-if="state.updateTime">最近修改：{{state.updateTime}}</div>
                     </div>
                     <!-- <div contenteditable="true">我的母亲</div> -->
                     <div class="author align-center">
@@ -47,7 +49,7 @@ import { store } from '@/store';
 import { getOssUrl } from '@/utils/oss';
 import { ElMessage } from 'element-plus';
 import { reactive, ref, toRefs } from 'vue';
-import { checkContent, lookNextContent, saveContent } from '../api';
+import { checkContent, getColumnPages, lookNextContent, saveContent } from '../api';
 
 const setRef = ref()
 const scanRef = ref()
@@ -66,13 +68,34 @@ const state = reactive({
     author: '',
     stuList: [],
     StudentCompositionId: '',
+    updateTime: null,
+    columnPageList: [],
+    columnPager: {
+        total: 0,
+        current: 1,
+        size: 1
+    },
     photoList: [] as any
 })
 
 const emit = defineEmits(['close', 'save']);
 
-const { gradeList, grade, content, photoList, mainPic, active, stuList, title } = toRefs(state)
+const { gradeList, grade,columnPager, content, photoList, mainPic, active, stuList, title } = toRefs(state)
 
+const handleCurrentChange = (val: number) => {
+    getDetail(state.columnPageList[val-1], true)
+}
+// 获取分页
+const loadAllPages = () => {
+    getColumnPages({ StudentCompositionId: state.StudentCompositionId }).then((res: any) => {
+        if (res.success) {
+            let result = res.result
+            state.columnPageList = result.CompositionIds
+            state.columnPager.total = result.CompositionIds.length
+            state.columnPager.current = result.CompositionIds.findIndex((v: any) => v === result.CurrentCompositionId) + 1
+        }
+    })
+}
 const contentInput = (e: any) => {
     console.log('contentInput', e);
     state.content = e.target.innerText
@@ -95,6 +118,7 @@ const viewNext = () => {
             state.title = result.Title
             state.author = result.StudentName
             state.photoList = result.StudentCompositionFile
+            state.updateTime = result.UpdateTime || null
             await state.photoList.forEach(async (ele: any, i: number) => {
                 const { FileExtention, FilePath, FileMD5, FileBucket } = ele;
                 const key = FileExtention
@@ -138,10 +162,15 @@ const close = () => {
 const openDialog = async (info?: any) => {
     const { StudentCompositionId } = info
     state.StudentCompositionId = StudentCompositionId
+    //
+    loadAllPages()
     getDetail(StudentCompositionId)
 }
 
-const getDetail = (id: string) => {
+const getDetail = (id: string, isRequestNext?: boolean) => {
+    if (isRequestNext) {
+        state.StudentCompositionId = id
+    }
     checkContent({ StudentCompositionId: id }).then(async (res: any) => {
         if (res.success) {
             let result = res.result
@@ -149,6 +178,7 @@ const getDetail = (id: string) => {
             state.title = result.Title
             state.author = result.StudentName
             state.photoList = result.StudentCompositionFile
+            state.updateTime = result.UpdateTime || null
             await state.photoList.forEach(async (ele: any, i: number) => {
                 const { FileExtention, FilePath, FileMD5, FileBucket } = ele;
                 const key = FileExtention
@@ -217,6 +247,7 @@ defineExpose({
     font-family: PingFangSC-Semibold, PingFang SC;
     font-weight: 600;
     color: #FFFFFF;
+    -webkit-app-region: no-drag;
 
     &>span {
         position: absolute;

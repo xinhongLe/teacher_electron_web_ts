@@ -1,13 +1,16 @@
 <template>
-    <div class="detail" style="height: 100%;" v-if="dialogVisible">
+    <!-- <el-dialog class="custom-fullscreen-dialog" :top="'0vh'" :append-to-body="true" v-model="dialogVisible" title=""
+        width="100%" center :close-on-click-modal="false" :show-close="false"> -->
+        <div class="detail" style="height: 100%;" v-if="dialogVisible">
         <div class="upper align-center">
             <div class="back" @click="close">
                 <img src="../../../assets/composition/icon_back@2x.png" alt="" />
             </div>
-            <el-pagination background layout="prev, pager, next" :total="1000" />
+            <el-pagination class="pagers" background layout="prev, pager, next" :total="columnPager.total"
+                v-model:current-page="columnPager.current" v-model:page-size="columnPager.size"
+                @current-change="handleCurrentChange" />
             <div class="top" @click="viewNext">查看下一篇</div>
         </div>
-
         <div class="box align-center">
             <div class="left">
                 <div class="tab align-center">
@@ -42,26 +45,16 @@
                 <div class="article-box" v-else>
                     <div class="article-box-head align-center">
                         <div class="title-box">
-                            <div class="title">《我的母亲》</div>
-                            <div class="time">最近修改：2023/4/14 19:00:00</div>
+                            <div class="title">《{{ state.title }}》</div>
+                            <div class="time" v-if="state.updateTime">最近修改：{{ state.updateTime }}</div>
                         </div>
                         <div class="author align-center">
-                            <span class="name">{{ '梁可' }}</span>
-                            <span class="count">{{ '50' }}字</span>
+                            <span class="name">{{ state.author }}</span>
+                            <span class="count">{{ state.content.length }}字</span>
                         </div>
                     </div>
                     <div class="article-box-words">
-                        熊猫不似猫是熊，那为什么要叫大熊猫呢？原来这是它本身学名，意思是像猫一样的熊，当然也符合它自身外貌特征，脸像猫，体型像熊。作为国宝，大熊猫只生长在中国，主要分布在四川、陕西、干肃，并且它们栖息在森林，那里气候潮湿且水资源丰富，最重要的是竹叶管够。
-
-                        那这货怎么就成为国宝了？原来它们已经存在至少几百万年，且数量极少，物以稀为贵嘛。但我认为关键是它真的很可爱很讨人喜欢，并且不是所有的动物都能消化竹子的。再来说说它不为人知的一面，作为国宝，大熊猫只生长在中国，主要分布在四川、陕西、干肃，并且它们栖息在欢，并且不是所有的动物都能消化竹子的。
-
-                        熊猫不似猫是熊，那为什么要叫大熊猫呢？原来这是它本身学名，意思是像猫一样的熊，当然也符合它自身外貌特征，脸像猫，体型像熊。作为国宝，大熊猫只生长在中国，主要分布在四川、陕西、干肃，并且它们栖息在森林，那里气候潮湿且水资源丰富，最重要的是竹叶管够。
-
-                        那这货怎么就成为国宝了？原来它们已经存在至少几百万年，且数量极少，物以稀为贵嘛。但我认为关键是它真的很可爱很讨人喜欢，并且不是所有的动物都能消化竹子的。再来说说它不为人知的一面，作为国宝，大熊猫只生长在中国，主要分布在四川、陕西、干肃，并且它们栖息在欢，并且不是所有的动物都能消化竹子的。
-
-                        熊猫不似猫是熊，那为什么要叫大熊猫呢？原来这是它本身学名，意思是像猫一样的熊，当然也符合它自身外貌特征，脸像猫，体型像熊。作为国宝，大熊猫只生长在中国，主要分布在四川、陕西、干肃，并且它们栖息在森林，那里气候潮湿且水资源丰富，最重要的是竹叶管够。
-
-                        那这货怎么就成为国宝了？原来它们已经存在至少几百万年，且数量极少，物以稀为贵嘛。但我认为关键是它真的很可爱很讨人喜欢，并且不是所有的动物都能消化竹子的。再来说说它不为人知的一面，作为国宝，大熊猫只生长在中国，主要分布在四川、陕西、干肃，并且它们栖息在欢，并且不是所有的动物都能消化竹子的。
+                        {{ state.content }}
                     </div>
                 </div>
             </div>
@@ -115,11 +108,13 @@
         </div>
         <div class="bottom align-center">
             <div class="view" @click="viewArticle">查看原文</div>
+            <div class="export" @click="reAssess">重新生成</div>
             <div class="export" @click="exportPDF">导出为pdf</div>
         </div>
-    </div>
-    <!-- 查看原文 -->
-    <Article ref="articleRef" @view-report="closeArticle" />
+        </div>
+        <!-- 查看原文 -->
+        <Article ref="articleRef" @view-report="closeArticle" />
+    <!-- </el-dialog> -->
 </template>
 <script setup lang="ts">
 import { getOssUrl } from '@/utils/oss';
@@ -127,7 +122,7 @@ import { ElMessage } from 'element-plus';
 import moment from 'moment';
 import { reactive, ref, toRefs } from 'vue';
 import { saveAs as FileSaver } from 'file-saver'
-import { downloadPDF, editReportDetail, lookNextContent, searchReportDetail } from '../api';
+import { downloadPDF, editReportDetail, getColumnPages, lookNextContent, searchReportDetail } from '../api';
 import Article from './article.vue';
 
 const articleRef = ref()
@@ -141,6 +136,12 @@ const state = reactive({
         label: '全部',
         value: 0
     }],
+    columnPageList: [],
+    columnPager: {
+        total: 0,
+        current: 1,
+        size: 1
+    },
     assess: 2,
     score: 0,
     deg: 0,
@@ -189,6 +190,8 @@ const state = reactive({
     ],
     grade: null,
     title: '',
+    content: '',
+    updateTime: null,
     tabName: '照片',
     author: '',
     stuList: [],
@@ -196,9 +199,24 @@ const state = reactive({
     NextStudentCompositionId: ''
 })
 
-const emit = defineEmits(['close', 'save']);
+const emit = defineEmits(['close', 'save', 'reAssess']);
 
-const { gradeList, photoList, mainPic, active, score, grade, stuList, title, lineList, assessList, assess, popoverVisible } = toRefs(state)
+const { gradeList, photoList, columnPager, mainPic, active, score, grade, stuList, title, lineList, assessList, assess, popoverVisible } = toRefs(state)
+
+const handleCurrentChange = (val: number) => {
+    getDetail(state.columnPageList[val-1], true)
+}
+// 获取分页
+const loadAllPages = () => {
+    getColumnPages({ StudentCompositionId: state.StudentCompositionId }).then((res: any) => {
+        if (res.success) {
+            let result = res.result
+            state.columnPageList = result.CompositionIds
+            state.columnPager.total = result.CompositionIds.length
+            state.columnPager.current = result.CompositionIds.findIndex((v: any) => v === result.CurrentCompositionId) + 1
+        }
+    })
+}
 
 const tabChange = (name: any) => {
     state.tabName = name
@@ -207,6 +225,11 @@ const tabChange = (name: any) => {
 const switchPic = (item: any, idx: number) => {
     state.active = idx
     state.mainPic = item.url
+}
+
+const reAssess = () => {
+    emit('reAssess', { StudentCompositionId: state.StudentCompositionId })
+    close()
 }
 
 /**
@@ -300,6 +323,8 @@ const close = () => {
 const openDialog = async (info?: any) => {
     const { StudentCompositionId } = info
     state.StudentCompositionId = StudentCompositionId
+    //
+    loadAllPages()
     getDetail(StudentCompositionId, false)
 }
 
@@ -316,6 +341,10 @@ const getDetail = (id: string, isRequestNext?: boolean) => {
             state.assessment = result.AppraiseLevelDisplay
             state.assess = result.AppraiseLevel//state.assessList.findIndex(v => v.name == state.assessment)
             state.author = result.StudentName || ''
+            //
+            state.title = result.Title
+            state.content = result.Content
+            state.updateTime = result.UpdateTime || null
             state.lineList.forEach((ele: any) => {
                 ele.content = result[ele.key]
             })
@@ -354,6 +383,20 @@ defineExpose({
     openDialog,
 })
 </script>
+<style lang="scss">
+.custom-fullscreen-dialog {
+    width: 100%;
+    height: 100%;
+
+    .el-dialog__body {
+        padding: 0 !important;
+    }
+
+    .el-dialog__header {
+        display: none;
+    }
+}
+</style>
 <style lang="scss" scoped>
 :deep(.el-pagination.is-background .el-pager li:not(.is-disabled).is-active) {
     background-color: #fff !important;
@@ -485,7 +528,9 @@ defineExpose({
     font-family: PingFangSC-Semibold, PingFang SC;
     font-weight: 600;
     color: #FFFFFF;
-    position: relative;
+    -webkit-app-region: no-drag;
+    // position: fixed;
+    // z-index: 88;
 
     .back {
         position: absolute;
@@ -555,6 +600,7 @@ defineExpose({
     background-color: #F5F6FA;
     padding: 16px 16px 72px 16px;
     box-sizing: border-box;
+    align-items: flex-start !important;
 
     &>div {
         background-color: #fff;

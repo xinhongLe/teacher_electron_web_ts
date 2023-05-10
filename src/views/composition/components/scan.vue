@@ -15,7 +15,7 @@
                     <span class="label">班级已录入：</span>
                     <span class="num">{{ state.hasRecordCount }}/{{ state.allStuList.length }}人</span>
                 </div>
-                <div class="close align-center" @click="close">
+                <div class="close align-center" @click="judgeClose">
                     <img src="../../../assets/composition/icon_js@2x.png" alt="" />
                     结束
                 </div>
@@ -89,7 +89,7 @@
                         <el-button color="#4B71EE" @click="scanName">
                             扫描姓名
                         </el-button>
-                                        </div> -->
+                                                        </div> -->
                 </div>
                 <div class="scan" id="scan" v-else>
                     <div v-if="!currentStudent">
@@ -99,11 +99,11 @@
                         <span class="down-tip toast" v-if="!isCodeMode">请对着学生名字，点击识别</span>
                         <span class="down-tip toast align-center" v-else>
                             请先扫描学生二维码
-                            <img @mouseenter.native="mouseenterEvent"
-                                src="../../../assets/composition/icon_wenhao@2x.png" alt="">
+                            <img @mouseenter.native="mouseenterEvent" src="../../../assets/composition/icon_wenhao@2x.png"
+                                alt="">
                             <div class="code-jump" @mouseenter.native="mouseenterEvent"
                                 @mouseleave.native="state.showCodeJump = false" v-if="showCodeJump">
-                                <div class="bac" @click="jumpToGetCode">获取二维码</div>
+                                <div class="bac">二维码打印地址：智慧云平台—工作台—班级管理</div>
                                 <img src="../../../assets/composition/arrow_down_black@2x.png" alt="">
                             </div>
                         </span>
@@ -166,11 +166,16 @@ import { cooOssv2, getOssUrl } from '@/utils/oss';
 import { get, STORAGE_TYPES } from '@/utils/storage';
 import moment from 'moment';
 import { QrStream, QrCapture } from 'vue3-qr-reader';
-import { getClassStuCountByTeacher, getStudentByClass, getStudentByHasEntry, getStudentByUserInfo, oneStudentEntry, picToWordByName } from '../api';
+import { getClassStuCountByTeacher, getFinishResult, getStudentByClass, getStudentByHasEntry, getStudentByUserInfo, oneStudentEntry, picToWordByName } from '../api';
+import { VUE_APP_YUN_API_COMPOSITION_MQTT, VUE_APP_YUN_PLATFORM } from "@/config";
 import { store } from '@/store';
 import { linkSync } from 'fs';
+import mqtt from "mqtt";
+
 //
 onMounted(() => {
+    // const yun_url = (VUE_APP_YUN_PLATFORM+'?appId=16546797131467015899014120925136')
+    // state.yunUrl = yun_url
     window.addEventListener('resize', listenResizeFn);
     getDevices()
 })
@@ -182,8 +187,10 @@ onBeforeUnmount(() => {
 const mouseenterEvent = () => {
     state.showCodeJump = true
 }
-const jumpToGetCode = ()=>{
 
+// 获取二维码
+const jumpToGetCode = () => {
+    // window.electron.wakeUpWebPage(state.yunUrl);
 }
 
 const listenResizeFn = () => {
@@ -210,6 +217,8 @@ const props = defineProps({
 //
 const dialogVisible = ref(false);
 const state = reactive({
+    yunUrl: '',
+    isModified: false,//是否有修改，无跳主列表页
     isUploading: false,
     showCodeJump: false,
     qrcode: true,
@@ -232,7 +241,7 @@ const state = reactive({
     allStuList: [] as any,
     waitRecordList: [] as any,
     repeatList: [] as any,
-    // classCount: 0,
+    calcCount: 0,
     deviceList: [] as any
 });
 const { device, isSupply, showCodeJump, currentStudent, isCodeMode, isNameMode, photoList, deviceList, isOpenScan, boxMessage, isScanByHand } = toRefs(state);
@@ -354,7 +363,7 @@ const onInit = async (promise: any) => {
 
 // 获取设备
 const getDevices = (e?: string) => {
-    navigator.mediaDevices.enumerateDevices().then(deviceList => {
+    navigator.mediaDevices?.enumerateDevices().then(deviceList => {
         state.deviceList = deviceList.filter(v => v.kind === 'videoinput')
         console.log('------devicesList', state.deviceList)
         if (!e) {
@@ -418,10 +427,13 @@ const switchToNextStu = () => {
             StudentCompositionFile: state.photoList
         }).then((res: any) => {
             if (res.success) {
+                //
+                state.isModified = true
+                //
                 if (state.isSupply) {
                     // 跳走到列表
-                    close()
-                    emit('openList', { TeacherCompositionId: state.TeacherCompositionId, Title: state.Title })
+                    judgeClose()
+                    emit('openList', { TeacherCompositionId: state.TeacherCompositionId, Title: state.Title, isTurnToWait: true })
                     return
                 }
                 // 到学生列表页选择学生
@@ -458,6 +470,10 @@ const getWaitRecordStudents = (cb?: any) => {
 
 // 关闭
 const close = () => {
+    console.log('是否修改：', state.isModified);
+
+    // console.log('-------------订阅-------');
+    // client.subscribe(getPublish(state.TeacherCompositionId || 'nothing'));
     state.isOpenScan = false
     state.boxMessage = '待扫描'
     state.showVideo = true
@@ -473,7 +489,31 @@ const close = () => {
 
     //
     dialogVisible.value = false
-    emit('openList', { TeacherCompositionId: state.TeacherCompositionId, Title: state.Title })
+    // 点击结束后如果有新增的录入，自动跳转至列表的[待批改]分页，若无新增则回到作文功能首页。
+    if (state.isModified) {
+        emit('openList', { TeacherCompositionId: state.TeacherCompositionId, Title: state.Title, isTurnToWait: true })
+    }
+}
+
+const judgeClose = () => {
+    if (state.isModified) {
+        checkFinishStatus(() => {
+            close()
+        })
+    } else {
+        close()
+    }
+}
+
+// 结束检查录入识别--队列中是否还有进行中
+const checkFinishStatus = (cb?: any) => {
+    getFinishResult({ Id: state.TeacherCompositionId }).then((res: any) => {
+        if (res.success) {
+            if (cb) {
+                cb()
+            }
+        }
+    })
 }
 
 // 图片预览
@@ -675,12 +715,42 @@ const getAllStudents = (cb?: any) => {
     })
 }
 
+const client = mqtt.connect(VUE_APP_YUN_API_COMPOSITION_MQTT || "", {
+    port: 1883,
+    username: "u001",
+    password: "p001",
+    keepalive: 30
+});
+
+const connectClient = () => {
+    //
+    client && client.on("connect", function (err: any) {
+        window.electron.log.info("client connect answer", err);
+    });
+
+    client && client.on("error", (err: any) => {
+        window.electron.log.info("client error answer", err);
+    });
+
+    client && client.on("message", function (topic: any, message: any) {
+        // message is Buffer
+        const infoString = JSON.parse(message.toString());
+        console.log("====message=====", infoString);
+    });
+}
+
+const getPublish = (id: string) => {
+    return `CompositionEvaluation_Recognition_${id}`;
+};
+
 const openDialog = async (info?: any) => {
+    // 置空修改
+    state.isModified = false
     // console.log('scan-open-info:', info);
-    const { TeacherCompositionId, Title, classCount } = info
+    connectClient()
+    const { TeacherCompositionId, Title } = info
     state.TeacherCompositionId = TeacherCompositionId
     state.Title = Title
-    // state.classCount = classCount
     //
     getDevices()
     getAllStudents(() => {
@@ -743,7 +813,7 @@ defineExpose({
         height: 14px;
         margin-left: 4px;
         cursor: pointer;
-        opacity: 0.6;
+        opacity: 0.9;
     }
 }
 
@@ -1057,27 +1127,32 @@ defineExpose({
                         bottom: 32px;
                         left: 50%;
                         transform: translateX(-50%);
+                        color: #fff;
                     }
 
                     .code-jump {
                         position: absolute;
                         z-index: 820;
                         top: -38px;
-                        left: 50%;
+                        left: 0;
                         transform: translateX(4px);
-                        cursor: pointer;
+                        // cursor: pointer;
 
-                        &>div {
-                            width: 120px;
+                        .bac {
+                            display: block;
+                            width: fit-content;
+                            padding: 0 12px;
+                            white-space: nowrap;
                             height: 36px;
                             background-color: #fff;
                             border-radius: 5px;
                             text-align: center;
                             line-height: 36px;
-                            font-size: 14px;
+                            font-size: 13px;
                             font-family: PingFangSC-Regular, PingFang SC;
                             font-weight: 400;
                             color: #4B71EE;
+                            text-decoration: none;
                         }
 
                         &>img {
