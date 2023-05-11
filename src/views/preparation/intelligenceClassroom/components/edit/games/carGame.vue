@@ -101,17 +101,18 @@
                               @click="addOprion(item.DuoxuanData.Options)">
                             添加选项
                         </span>
-                        <el-form-item :label="'选项'+ (index + 1)" v-for="(data,index) in item.DuoxuanData.Options"
-                                      style="margin-bottom: 0">
+                        <el-form-item :label="'选项'+ (index2 + 1)" v-for="(data,index2) in item.DuoxuanData.Options"
+                                      :prop="`Data[${index}].DuoxuanData.Options[${index2}].Text`"
+                                      :rules="rules.Text">
                             <div style="display: flex;align-items: center;">
                                 <el-input v-model="data.Text" maxlength="15" show-word-limit/>
                                 <el-checkbox style="padding: 0 10px" v-model="data.RightKey" :true-label="1"
                                              :false-label="0" label="正确答案"
                                              size="large"/>
                                 <img
-                                    v-if="index > 0"
+                                    v-if="index2 > 1"
                                     class="del_img"
-                                    @click="delOption(item.DuoxuanData.Options,index)"
+                                    @click="delOption(item.DuoxuanData.Options,index2)"
                                     src="@/assets/projection/icon_delete.png"
                                     alt=""
                                 />
@@ -155,7 +156,8 @@ export default defineComponent({
                     {max: 60, message: "最多60字符", trigger: "blur"}
                 ],
                 Select: [{required: true, message: "请选择答案", trigger: "blur"}],
-                File: [{required: true, message: "请上传图片", trigger: ["change", "blur"]}]
+                File: [{required: true, message: "请上传图片", trigger: ["change", "blur"]}],
+                Text: [{required: true, message: "请输入选项", trigger: "blur"}],
             },
             form: {
                 Time: "",
@@ -192,7 +194,7 @@ export default defineComponent({
                                     {
                                         Sort: 1,
                                         Text: "",//选项文本
-                                        RightKey: "",//0 错误答案 1 正确答案
+                                        RightKey: 0,//0 错误答案 1 正确答案
                                     }
                                 ]
                             }
@@ -227,7 +229,12 @@ export default defineComponent({
                                     {
                                         Sort: 1,
                                         Text: "",//选项文本
-                                        RightKey: "",//0 错误答案 1 正确答案
+                                        RightKey: 0,//0 错误答案 1 正确答案
+                                    },
+                                    {
+                                        Sort: 2,
+                                        Text: "",//选项文本
+                                        RightKey: 0,//0 错误答案 1 正确答案
                                     }
                                 ]
                             }
@@ -272,7 +279,7 @@ export default defineComponent({
                                 {
                                     Sort: 1,
                                     Text: "",//选项文本
-                                    RightKey: "",//0 错误答案 1 正确答案
+                                    RightKey: 0,//0 错误答案 1 正确答案
                                 }
                             ]
                         }
@@ -329,7 +336,7 @@ export default defineComponent({
             data.push({
                 Sort: 1,
                 Text: "",//选项文本
-                RightKey: "",//0 错误答案 1 正确答案
+                RightKey: 0,//0 错误答案 1 正确答案
             });
             data.length && data.forEach((item: any, index: number) => {
                 item.Sort = index + 1
@@ -340,6 +347,22 @@ export default defineComponent({
         const handleComfirm = () => {
             formRef.value.validate((valid: boolean) => {
                 if (valid) {
+                    let flag;
+                    state.form.Data.forEach((item, index) => {
+                        if (item.QuestionType == 1) {
+                            const datas: any = item.DuoxuanData.Options.map(option => option.RightKey)
+                            console.log('datasdatas', datas)
+
+                            flag = datas.every((val: number) => {
+                                return val == 0
+                            })
+                            console.log('flag', flag)
+                        }
+                    })
+                    if (flag) {
+                        ElMessage.warning("选项中至少要有一个正确答案");
+                        return false;
+                    }
                     const list = state.form.Data.map((item: any, index: number) => {
                         item.sort = index + 1;
                         return item;
