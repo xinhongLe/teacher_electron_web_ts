@@ -1,7 +1,7 @@
 <template>
     <div class="class-dialog">
         <el-dialog center width="710px" :model-value="classVisible" @close="close()">
-            <template #title>
+            <template #header>
                 <div class="class-header">
                     将本页发送至学生端
                 </div>

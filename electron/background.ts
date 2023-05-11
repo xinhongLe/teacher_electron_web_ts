@@ -338,3 +338,7 @@ if (isDevelopment) {
         });
     }
 }
+
+process.on("uncaughtException", function (error) {
+    ElectronLog.error(error)
+});

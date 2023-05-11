@@ -19,8 +19,8 @@
                             message === 0
                                 ? "还未开始抢答"
                                 : message === 1
-                                ? "抢答中…"
-                                : "抢答成功学生"
+                                    ? "抢答中…"
+                                    : "抢答成功学生"
                         }}
                     </div>
                     <img
@@ -70,15 +70,17 @@
                         message === 0
                             ? "开始抢答"
                             : message === 1
-                            ? "取消抢答"
-                            : "再抢一次"
+                                ? "取消抢答"
+                                : "再抢一次"
                     }}
                 </div>
             </div>
         </div>
         <div class="close-row">
             <div class="close-btn" @click="close">
-                <el-icon :size="14" color="#FFFFFF"><close /></el-icon>
+                <el-icon :size="14" color="#4370f5">
+                    <close/>
+                </el-icon>
                 <span>关闭</span>
             </div>
         </div>
@@ -94,13 +96,14 @@ import {
     toRefs,
     onUnmounted,
 } from "vue";
-import { sendRushToAnswer, praiseStudent, addRewardrecode } from "./api";
-import { UserInfoState } from "@/types/store";
+import {sendRushToAnswer, praiseStudent, addRewardrecode} from "./api";
+import {UserInfoState} from "@/types/store";
 import mqtt from "mqtt";
-import { IClassItem } from "@/types/quickAnswer";
-import { YUN_API_ONECARD_MQTT } from "@/config";
-import { getOssUrl } from "@/utils/oss";
-import { finishAnswerMachineQuestion } from "@/childWindow/answerMachine/api";
+import {IClassItem} from "@/types/quickAnswer";
+import {YUN_API_ONECARD_MQTT} from "@/config";
+import {getOssUrl} from "@/utils/oss";
+import {finishAnswerMachineQuestion} from "@/childWindow/answerMachine/api";
+
 export default defineComponent({
     name: "quickAnswerDetail",
     props: {
@@ -131,7 +134,7 @@ export default defineComponent({
                     state.currentClass = val[0].ClassId;
                 }
             },
-            { immediate: true }
+            {immediate: true}
         );
 
         const client = mqtt.connect(YUN_API_ONECARD_MQTT || "", {
@@ -146,32 +149,32 @@ export default defineComponent({
         };
 
         client &&
-            client.on("connect", function (err) {
-                window.electron.log.info("client connect quickAnswer", err);
-            });
+        client.on("connect", function (err) {
+            window.electron.log.info("client connect quickAnswer", err);
+        });
 
         client &&
-            client.on("error", (err) => {
-                window.electron.log.info("client error quickAnswer", err);
-            });
+        client.on("error", (err) => {
+            window.electron.log.info("client error quickAnswer", err);
+        });
 
         client &&
-            client.on("message", function (topic: any, message: any) {
-                const messageInfo = JSON.parse(message.toString()); // {"ReceiveTime":"2022-09-15 03:54:50","StudentId":"16625405853534467275379851772585","StudentName":"张国庆"}
-                state.studentInfo.name = messageInfo.StudentName;
-                state.studentInfo.id = messageInfo.StudentId;
-                const file = messageInfo.HeadPortrait;
-                if (file) {
-                    const key = file.Extention
-                        ? `${file.FilePath}/${file.FileName}.${file.Extention}`
-                        : `${file.FilePath}/${file.FileName}`;
-                    getOssUrl(key, file.Bucket).then((res) => {
-                        state.imgSrc = res;
-                    });
-                }
-                state.message = 2;
-                client.unsubscribe(getPublish(state.answerMachineID));
-            });
+        client.on("message", function (topic: any, message: any) {
+            const messageInfo = JSON.parse(message.toString()); // {"ReceiveTime":"2022-09-15 03:54:50","StudentId":"16625405853534467275379851772585","StudentName":"张国庆"}
+            state.studentInfo.name = messageInfo.StudentName;
+            state.studentInfo.id = messageInfo.StudentId;
+            const file = messageInfo.HeadPortrait;
+            if (file) {
+                const key = file.Extention
+                    ? `${file.FilePath}/${file.FileName}.${file.Extention}`
+                    : `${file.FilePath}/${file.FileName}`;
+                getOssUrl(key, file.Bucket).then((res) => {
+                    state.imgSrc = res;
+                });
+            }
+            state.message = 2;
+            client.unsubscribe(getPublish(state.answerMachineID));
+        });
 
         const handlePraiseStudent = async () => {
             const data = {
@@ -283,6 +286,7 @@ export default defineComponent({
     border-radius: 12px;
     background-color: #fff;
 }
+
 .content {
     display: flex;
     align-items: center;
@@ -295,43 +299,52 @@ export default defineComponent({
     background-position: center center;
     background-size: 100% 100%;
     background-repeat: no-repeat;
+
     .header {
         position: absolute;
         left: 20px;
         top: 10px;
         font-size: 14px;
         color: #fff;
+
         :deep(.el-select) {
             width: 120px;
+
             .el-input__wrapper {
                 background: transparent;
                 box-shadow: none !important;
             }
+
             .el-input__inner {
                 color: #fff;
             }
         }
     }
+
     .process {
         .title {
             font-size: 20px;
             color: #ffffff;
             margin: 40px 0 20px;
         }
+
         .photo {
             width: 88px;
             height: 88px;
         }
+
         .quick-success {
             display: flex;
             align-items: center;
             justify-content: center;
             position: relative;
+
             .name {
                 font-size: 16px;
                 color: #ffffff;
                 margin-top: 10px;
             }
+
             .zan {
                 cursor: pointer;
                 position: absolute;
@@ -342,6 +355,7 @@ export default defineComponent({
         }
     }
 }
+
 .footer {
     background-color: #fff;
     display: flex;
@@ -351,6 +365,7 @@ export default defineComponent({
     width: 100%;
     padding: 2rem 0 10px;
     border-radius: 12px;
+
     .custom-btn {
         cursor: pointer;
         width: 196px;
@@ -359,13 +374,12 @@ export default defineComponent({
         text-align: center;
         font-size: 16px;
         color: #ffffff;
-        background: url("../../assets/images/suspension/btn_qd.png") no-repeat
-            center center;
+        background: url("../../assets/images/suspension/btn_qd.png") no-repeat center center;
         background-size: 100% 100%;
     }
+
     .canCle-btn {
-        background: url("../../assets/images/suspension/btn_quxiao.png")
-            no-repeat center center;
+        background: url("../../assets/images/suspension/btn_quxiao.png") no-repeat center center;
     }
 }
 
@@ -373,6 +387,7 @@ export default defineComponent({
     display: flex;
     justify-content: center;
     width: 100%;
+
     .close-btn {
         cursor: pointer;
         display: flex;
@@ -383,11 +398,12 @@ export default defineComponent({
         line-height: 36px;
         text-align: center;
         font-size: 14px;
-        color: #ffffff;
+        color: #4370f5;
         background: rgba(255, 255, 255, 0.2);
         border-radius: 18px;
-        border: 1px solid #ffffff;
+        border: 1px solid #4370f5;
         margin-top: 20px;
+
         > span {
             margin-left: 4px;
         }
