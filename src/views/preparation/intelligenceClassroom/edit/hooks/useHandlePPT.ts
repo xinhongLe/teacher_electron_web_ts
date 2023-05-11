@@ -150,7 +150,14 @@ export default (windowCards: Ref<CardProps[]>, currentPageId: Ref<string>) => {
             ElMessage.warning("已下架的页, 暂不支持预览");
             return;
         }
-        previewIndex.value = type === 1 ? currentPage.Index - 1 : 0;
+        previewIndex.value = 0;
+        if (type === 1) {
+            let allPages: PageProps[] = [];
+            windowCards.value.forEach(item => {
+                allPages = allPages.concat(...item.PageList);
+            });
+            previewIndex.value = allPages.filter(item => item.State).findIndex(item => item.ID === currentPageId.value);
+        }
 
         currentPage.Json = editRef.getCurrentSlide();
 

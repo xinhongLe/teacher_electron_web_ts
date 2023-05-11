@@ -41,6 +41,10 @@ export default defineComponent({
         list: {
             type: Array as PropType<PageProps[]>,
             default: () => []
+        },
+        inline: {
+            type: Boolean,
+            default: true
         }
     },
     emits: ["closeOpenCard", "close"],
