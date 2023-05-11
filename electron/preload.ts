@@ -2,7 +2,7 @@ import { getCurrentWindow, app, dialog } from "@electron/remote";
 import electron, { OpenDialogOptions, remote, SaveDialogOptions } from "electron";
 import { isExistFile, mkdirs, store } from "./downloadFile";
 import path, { resolve, join } from "path";
-import ElectronLog from "electron-log";
+import logger from "@/utils/logger";
 import fs from "fs";
 import { parsePPT, pptParsePath } from "./parsePPT";
 import { execFile as execFileFromAsar, spawn } from "child_process";
@@ -121,7 +121,7 @@ window.electron = {
         const filePath = resolve(downloadsPath, fileName);
         return "file:///" + filePath.replaceAll("\\", "/");
     },
-    log: ElectronLog,
+    log: logger,
     getCacheFile: async (fileName: string) => {
         if (!fileName) return "";
         const filePath = resolve(downloadsPath, fileName);
@@ -134,7 +134,7 @@ window.electron = {
     readFile: (path: string, callback: (buffer: ArrayBuffer | string) => void) => {
         fs.readFile(path, (err, buffer) => {
             if (err) {
-                ElectronLog.error("读取资源文件失败：", err);
+                logger.error("读取资源文件失败：", err);
                 callback(err.message);
             } else {
                 callback(buffer);
@@ -144,7 +144,7 @@ window.electron = {
     savePutFile: (path: string, buffer: NodeJS.ArrayBufferView) => {
         fs.writeFile(path, buffer, (err) => {
             if (err) {
-                ElectronLog.error("写入资源文件失败：", err);
+                logger.error("写入资源文件失败：", err);
             }
         });
     },
@@ -203,6 +203,7 @@ window.electron = {
                         spawn(PATH_WhiteBoard);
                         return resolve(true);
                     }
+                    // eslint-disable-next-line prefer-promise-reject-errors
                     reject(false);
                 });
             })
@@ -226,6 +227,7 @@ window.electron = {
         };
 
         const aesDecrypt = (encrypted: string, key: string) => {
+            // eslint-disable-next-line node/no-deprecated-api
             const decipher = crypto.createDecipher("aes-128-ecb", key);
             let decrypted = decipher.update(encrypted, "hex", "utf8");
             decrypted += decipher.final("utf8");
@@ -306,6 +308,7 @@ window.electron = {
                 /[xy]/g,
                 function (c) {
                     const r = (Math.random() * 16) | 0;
+                    // eslint-disable-next-line eqeqeq
                     const v = c == "x" ? r : (r & 0x3) | 0x8;
                     return v.toString(16);
                 }
@@ -325,6 +328,7 @@ window.electron = {
         };
 
         const aesEncrypt = (data: string, key: string) => {
+            // eslint-disable-next-line node/no-deprecated-api
             const cipher = crypto.createCipher("aes-128-ecb", key);
             let crypted = cipher.update(data, "utf8", "hex");
             crypted += cipher.final("hex");
@@ -442,7 +446,7 @@ window.electron = {
                                 const zipBuffer = zip.toBuffer();
                                 resolve(zipBuffer);
                             } else {
-                                ElectronLog.error("压缩失败: ", err);
+                                logger.error("压缩失败: ", err);
                             }
                         });
                         // zip.writeZip(outputPath + `/${name}.zip`);
