@@ -7,7 +7,11 @@
                 height: contentHeight + 'px',
                 transform: `scale(${ scale })`
             }">
-
+            <div class="questions">
+                <div class="question-item" v-for="(item,index) in form.questionData" v-show="item && item.Data">
+                    {{ item.Data }}
+                </div>
+            </div>
             <div
                 :class="['shape-box', 'shape-active']"
                 @click.stop="() => null"
@@ -15,10 +19,12 @@
                     width: element.Size.Width + 'px',
                     height: element.Size.Height + 'px',
                     left: element.Position.x + 'px',
-                    top: element.Position.y + 'px',
+                    top: form.questionData.length * element.Position.y + 'px',
                     zIndex: element.zIndex || 0
                  }"
                 v-for="(element, i) in elements" :key="i"
+                v-show="element && element.Data"
+
             >
                 <div
                     class="shape-content"
@@ -64,10 +70,10 @@
                         class="shape__scale-point b"
                         @mousedown.stop="handlePointMousedown('b', $event, element)"
                     ></div>
-                    <div class="text_class" v-if="element.Type === 1">
+                    <div class="text_class">
                         {{ element.Data }}
                     </div>
-                    <img class="pic_class" v-if="element.Type === 0" :src="element.File.url" alt="">
+                    <!--                    <img class="pic_class" v-if="element.Type === 0" :src="element.File.url" alt="">-->
                 </div>
             </div>
 
@@ -86,38 +92,18 @@ export default defineComponent({
             type: Object,
             require: true,
             default: () => ({
-                leftData: [
+                questionData: [
                     {
-                        Type: 1,
                         Data: "",
-                        File: {
-                            url: "",
-                            Bucket: "",
-                            Name: "",
-                            FileName: "",
-                            FilePath: "",
-                            Extention: "",
-                            Type: 2,
-                        },
-                        Position: {x: 200, y: 200},
-                        Size: {Width: 240, Height: 100},
+                        // Position: {x: 200, y: 200},
+                        // Size: {Width: 240, Height: 100},
                     },
                 ],
-                rightData: [
+                itemData: [
                     {
-                        Type: 1,
                         Data: "",
-                        File: {
-                            url: "",
-                            Bucket: "",
-                            Name: "",
-                            FileName: "",
-                            FilePath: "",
-                            Extention: "",
-                            Type: 2,
-                        },
-                        Position: {x: 600, y: 200},
-                        Size: {Width: 240, Height: 100},
+                        Position: {x: 100, y: 600},
+                        Size: {Width: 240, Height: 80},
                     },
                 ]
             })
@@ -224,11 +210,11 @@ export default defineComponent({
 
         const initData = () => {
             state.elements = [];
-            props.newForm.leftData.forEach((option: any, index: number) => {
-                option.selectId = index;
-                state.elements.push(option);
-            });
-            props.newForm.rightData.forEach((option: any, index: number) => {
+            // props.newForm.questionData.forEach((option: any, index: number) => {
+            //     option.selectId = index;
+            //     state.elements.push(option);
+            // });
+            props.newForm.itemData.forEach((option: any, index: number) => {
                 option.selectId = index;
                 state.elements.push(option);
             });
@@ -268,6 +254,20 @@ export default defineComponent({
     border: 1px solid var(--el-border-color);
     transform-origin: 0 0;
     overflow: hidden;
+
+    .questions {
+        .question-item {
+            position: absolute;
+            top: 100px;
+            width: 70%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 32px;
+            border: 1px solid #5f626f;
+            padding: 42px;
+        }
+    }
+
 }
 
 .shape-box {

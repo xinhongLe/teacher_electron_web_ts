@@ -18,7 +18,6 @@
                 <div class="item-right">
                     <el-input
                         v-model="item.Data"
-                        maxlength="30"
                         placeholder="请输入"
                         show-word-limit
                         type="textarea"
@@ -27,13 +26,13 @@
             </div>
         </div>
         <div class="top items">
-            <p @click="addQuestion">添加选项 {{ form.itemData.length }}/5</p>
+            <p @click="addItem">添加选项 {{ form.itemData.length }}/5</p>
         </div>
         <div class="middle-items">
-            <div class="items-item">
+            <div class="items-item" v-for="(item,index) in form.itemData">
                 <div class="num">
                     <div class="text">
-                        序号1
+                        序号{{ index + 1 }}
                     </div>
                     <div class="del-icon" @click="deleteItem(index)">
                         <el-icon v-if="index > 0">
@@ -42,7 +41,7 @@
                     </div>
                 </div>
                 <div class="item">
-                    龙飞凤舞
+                    <el-input type="text" v-model="item.Data"></el-input>
                 </div>
             </div>
         </div>
@@ -71,15 +70,15 @@ export default defineComponent({
                 questionData: [
                     {
                         Data: "",
-                        // Position: {x: 200, y: 200},
-                        // Size: {Width: 240, Height: 100},
+                        Position: {x: 200, y: 200},
+                        Size: {Width: 240, Height: 100},
                     },
                 ],
                 itemData: [
                     {
                         Data: "",
-                        Position: {x: 600, y: 200},
-                        Size: {Width: 240, Height: 100},
+                        Position: {x: 100, y: 600},
+                        Size: {Width: 240, Height: 80},
                     },
                 ]
             }),
@@ -98,8 +97,8 @@ export default defineComponent({
         const addItem = () => {
             form.value.itemData.push({
                 Data: "",
-                Position: {x: form.value.itemData[form.value.itemData.length - 1].Position.x + 150, y: 200},
-                Size: {Width: 240, Height: 100},
+                Position: {x: form.value.itemData[form.value.itemData.length - 1].Position.x + 250, y: 600},
+                Size: {Width: 240, Height: 80},
             },)
         };
         //删除题目
@@ -178,8 +177,15 @@ export default defineComponent({
 
     .middle-items {
         display: flex;
+        flex-wrap: wrap;
 
         .items-item {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            margin-right: 10px;
+            margin-top: 8px;
+
             .num {
                 display: flex;
 
@@ -189,8 +195,7 @@ export default defineComponent({
                 }
 
                 .del-icon {
-                    width: 16px;
-                    padding-top: 2px;
+                    margin-left: 4px;
 
                     .el-icon {
                         font-size: 16px;
@@ -198,6 +203,18 @@ export default defineComponent({
                         cursor: pointer;
                     }
                 }
+            }
+
+            .item {
+                width: 200px;
+                height: 40px;
+                border: 1px solid #5f626f;
+                border-radius: 4px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin-top: 6px;
+
             }
 
 
