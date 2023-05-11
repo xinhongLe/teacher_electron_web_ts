@@ -239,6 +239,10 @@ export default defineComponent({
                     pages.push(find);
                 }
             }
+            if (pages.length === 0) {
+                ElMessage.warning("该弹卡已删除");
+                return;
+            }
             openCardShow.value = true;
             openCardList.value = pages;
         };

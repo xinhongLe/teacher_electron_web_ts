@@ -182,7 +182,9 @@ export default defineComponent({
             currentGame.id = valueGame.ID;
             currentGame.name = valueGame.Name;
             currentGame.src = valueGame.Url;
-            currentGame.ossSrc = await formatOssUrl(valueGame.File);
+            if (valueGame.File) {
+                currentGame.ossSrc = await formatOssUrl(valueGame.File);
+            }
             const slide = Object.assign(props.slide, {
                 game: currentGame
             });

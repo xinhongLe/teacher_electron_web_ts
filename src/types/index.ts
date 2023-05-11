@@ -9,6 +9,20 @@ import { LogFunctions } from "electron-log";
 import Store from "electron-store";
 import { IFileData } from "../../electron/exportWord";
 
+interface logProps {
+    info(...param: any[]): void;
+
+    warn(...param: any[]): void;
+
+    error(...param: any[]): void;
+
+    debug(...param: any[]): void;
+
+    silly(...param: any[]): void;
+
+    verbose(...param: any[]): void;
+}
+
 type Electron = typeof electron & {
     exportWord: (filePath: string, fileData: IFileData, styleType: number) => void;
     exit: () => void;
@@ -49,7 +63,7 @@ type Electron = typeof electron & {
     packCacheFiles: (cacheFiles: any, path: string) => Promise<string>;
     remote: Remote;
     store: Store;
-    log: LogFunctions;
+    log: logProps;
     convertVideoH264: (filePath: string) => Promise<Buffer>;
     sliceVideoZip: (filePath: string, name: string) => Promise<Buffer>;
     unZip: (path: string) => void;
