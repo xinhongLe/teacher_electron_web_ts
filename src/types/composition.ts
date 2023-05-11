@@ -27,8 +27,6 @@ export interface IdeleteArticle{
     Id: string | null;
 }
 
-/************************************* */
-
 export interface IdownLoadBatchImportModel{
     ClassId?: string | null;
 }
@@ -87,7 +85,7 @@ export interface IsaveAssessment{
 export interface IeditReportDetail{
     StudentCompositionId: string | null;
     SaveType?: number; // 保存信息类型(1-分数;2-评价等级;3-综合点评;4-优点;5-缺点;6-改进建议;)
-    SaveInfo?: string | null; //保存信息
+    SaveInfo?: string | null; // 保存信息
 }
 
 export interface IshareReportUrl{
@@ -150,7 +148,3 @@ export interface IsaveContent{
     Content?: string;
     OperatorId?: string;
 }
-
-// export interface IdeleteArticle{
-//     TitleId: string;
-// }
