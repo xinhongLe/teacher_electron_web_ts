@@ -424,8 +424,8 @@ window.electron = {
     sliceVideoZip: (filePath: string, name: string) => {
         return new Promise((resolve, reject) => {
             const outputPath = join(app.getPath("userData"), "files");
-            if (!fs.existsSync(outputPath + `/${name}`)) {
-                fs.mkdirSync(outputPath + `/${name}`);
+            if (!fs.existsSync(join(outputPath, name))) {
+                fs.mkdirSync(join(outputPath, name));
             }
             try {
                 ffmpeg(filePath)
@@ -433,7 +433,7 @@ window.electron = {
                     .format("hls") // 输出视频格式
                     .outputOptions("-hls_list_size 0") //  -hls_list_size n:设置播放列表保存的最多条目，设置为0会保存有所片信息，默认值为5
                     .outputOption("-hls_time 15") // -hls_time n: 设置每片的长度，默认值为2。单位为秒
-                    .output(outputPath + `/${name}/video.m3u8`) // 输出文件
+                    .output(join(outputPath, name, "video.m3u8")) // 输出文件
                     .on("progress", (progress) => {
                         // 监听切片进度
                     })
@@ -441,7 +441,7 @@ window.electron = {
                         // 监听结束
                         const zip = new AdmZip();
 
-                        zip.addLocalFolderAsync(outputPath + `/${name}`, (success, err) => {
+                        zip.addLocalFolderAsync(join(outputPath, name), (success, err) => {
                             if (success) {
                                 const zipBuffer = zip.toBuffer();
                                 resolve(zipBuffer);

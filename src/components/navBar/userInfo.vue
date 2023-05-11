@@ -4,6 +4,7 @@ import Feedback from "../feedback/index.vue";
 import { computed, defineAsyncComponent, ref, watch } from "vue";
 import isElectron from "is-electron";
 import useOutLogin from "@/hooks/useOutLogin";
+import { CaretBottom } from "@element-plus/icons-vue";
 
 const ClearCacheDialog = defineAsyncComponent(
     () => import("./clearCacheDialog.vue")

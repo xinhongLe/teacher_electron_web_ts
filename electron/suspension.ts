@@ -4,15 +4,15 @@ import {
     screen,
     app,
     remote,
-    powerMonitor
+    powerMonitor,
 } from "electron";
-import { createWindow } from "./createWindow";
+import {createWindow} from "./createWindow";
 import ElectronLog from "electron-log";
-import { checkWindowSupportNet } from "./util";
-import { spawn, exec, ChildProcessWithoutNullStreams } from "child_process";
-import path, { join } from "path";
+import {checkWindowSupportNet} from "./util";
+import {spawn, exec, ChildProcessWithoutNullStreams} from "child_process";
+import path, {join} from "path";
 import detect from "detect-port";
-import { Action, CallBack, SocketHelper } from "./socketHelper";
+import {Action, CallBack, SocketHelper} from "./socketHelper";
 
 const WIN_PATH_BALL = join(__dirname, "../extraResources/ball/");
 let suspensionWin: BrowserWindow | null;
@@ -38,7 +38,7 @@ let lastSpwan: ChildProcessWithoutNullStreams | null = null;
 let lastPort = 1122;
 let isFirstTime = true;
 let openTimes = -1;
-const lastOpenTime = new Date().getTime();
+let lastOpenTime = new Date().getTime();
 
 const timerURL =
     process.env.NODE_ENV === "development"
@@ -193,7 +193,7 @@ function createTimerWindow() {
         frame: false, // 要创建无边框窗口
         resizable: false, // 禁止窗口大小缩放
         height: 500,
-        useContentSize: true
+        useContentSize: true,
     });
     timerWin.on("ready-to-show", () => {
         timerWin && timerWin.show();
@@ -216,7 +216,7 @@ function createRollcall(allStudentList: []) {
         height: 600,
         alwaysOnTop: true,
         useContentSize: true,
-        maximizable: false
+        maximizable: false,
     });
 
     rollCallWin.on("ready-to-show", () => {
@@ -228,7 +228,6 @@ function createRollcall(allStudentList: []) {
         rollCallWin = null;
     });
 }
-
 function createUnfoldSuspensionWindow() {
     const size = screen.getPrimaryDisplay().workAreaSize; // 获取显示器的宽高
     const width = size.width > 545 ? 545 : size.width - 80;
@@ -243,7 +242,7 @@ function createUnfoldSuspensionWindow() {
         useContentSize: true,
         transparent: true, // 设置透明
         backgroundColor: "#00000000",
-        alwaysOnTop: true // 窗口是否总是显示在其他窗口之前
+        alwaysOnTop: true, // 窗口是否总是显示在其他窗口之前
     });
     // 设置黑板窗口位置
     const winSize = unfoldSuspensionWin.getSize(); // 获取窗口宽高
@@ -254,11 +253,12 @@ function createUnfoldSuspensionWindow() {
     // unfoldSuspensionWin.webContents.openDevTools(); //这是打开智课助手悬浮球打开窗口的的调试器
     unfoldSuspensionWin.once("ready-to-show", () => {
         unfoldSuspensionWin &&
-        unfoldSuspensionWin.setAlwaysOnTop(true, "pop-up-menu");
+            unfoldSuspensionWin.setAlwaysOnTop(true, "pop-up-menu");
     });
 
     unfoldSuspensionWin.on("closed", () => {
         unfoldSuspensionWin = null;
+        ElectronLog.info("unfoldSuspensionWin closed");
     });
 }
 
@@ -270,7 +270,7 @@ function createBlackboardWindow() {
         resizable: false,
         fullscreen: true,
         show: false,
-        useContentSize: true
+        useContentSize: true,
     });
     blackboardWin.once("ready-to-show", () => {
         blackboardWin && blackboardWin.show();
@@ -291,17 +291,17 @@ function createAnswerMachineWindow(allStudentList: []) {
     answerMachineWin = createWindow(answerMachineURL, {
         // width: 620,
         // height: 422,
-        fullscreen: true,
-        center: true,
         show: false,
-        useContentSize: true,
-        transparent: true,
-        backgroundColor: "#00000000",
-        type: "toolbar", // 创建的窗口类型为工具栏窗口
+        // transparent: true,
+        // backgroundColor: "#00000000",
+        width: 620,
         frame: false, // 要创建无边框窗口
+        resizable: false, // 是否允许窗口大小缩放
+        height: 550,
         alwaysOnTop: true,
-        resizable: false
+        maximizable: false,
     });
+    // answerMachineWin.webContents.openDevTools();
 
     answerMachineWin.on("ready-to-show", () => {
         answerMachineWin && answerMachineWin.show();
@@ -323,14 +323,23 @@ function createQuickAnswerWindow(allStudentList: [], isAnswer = false) {
     quickAnswerWin = createWindow(quickAnswerURL, {
         // width: 620,
         // height: 420,
-        fullscreen: true,
-        center: true,
-        show: false,
-        useContentSize: true,
-        transparent: true,
-        type: "toolbar", // 创建的窗口类型为工具栏窗口
+        // // fullscreen: true,
+        // center: true,
+        // show: false,
+        // useContentSize: true,
+        // transparent: true,
+        // type: "toolbar", // 创建的窗口类型为工具栏窗口
+        // frame: false, // 要创建无边框窗口
+        // alwaysOnTop: true,
+
+        // transparent: true,
+        width: 620,
         frame: false, // 要创建无边框窗口
-        alwaysOnTop: true
+        resizable: false, // 是否允许窗口大小缩放
+        height: 420,
+        alwaysOnTop: true,
+        useContentSize: true,
+        maximizable: false,
     });
     // quickAnswerWin.webContents.openDevTools(); //打开的抢答器调试器
 
@@ -362,7 +371,7 @@ function createProjectionWindow() {
         type: "toolbar", // 创建的窗口类型为工具栏窗口
         frame: false, // 要创建无边框窗口
         alwaysOnTop: true,
-        resizable: false
+        resizable: false,
     });
 
     projectionWin.once("ready-to-show", () => {
@@ -386,8 +395,8 @@ export function createLocalPreviewWindow(filePath: string) {
             nodeIntegration: true,
             contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
             preload: path.join(__dirname, "preload.js"),
-            devTools: !!process.env.WEBPACK_DEV_SERVER_URL
-        }
+            devTools: !!process.env.WEBPACK_DEV_SERVER_URL,
+        },
     });
     // win.webContents.openDevTools();
     win.once("ready-to-show", () => {
@@ -403,8 +412,8 @@ function createSubjectToolWindow(url: string, name: string) {
         show: false,
         title: `爱学仕学科工具《${name}》`,
         webPreferences: {
-            nodeIntegration: false
-        }
+            nodeIntegration: false,
+        },
     });
     win.once("ready-to-show", () => {
         win.show();
@@ -423,7 +432,7 @@ function checkIsUseBallEXE(callback: (T: boolean, env?: number) => void) {
             });
         });
     } else {
-        // eslint-disable-next-line standard/no-callback-literal
+        callback(false);
     }
 }
 
@@ -482,6 +491,7 @@ class CustomCallBack implements CallBack {
     OnConnected(): void {
         isFirstTime = false;
         openTimes = (new Date().getTime() - lastOpenTime) / 1000;
+        ElectronLog.log("isShowSuspension", isShowSuspension);
         if (isShowSuspension) {
             showSuspension();
         }
@@ -580,7 +590,7 @@ function createLocalSuspensionWindow() {
         useContentSize: true,
         transparent: true, // 设置透明
         backgroundColor: "#00000000",
-        alwaysOnTop: true // 窗口是否总是显示在其他窗口之前
+        alwaysOnTop: true, // 窗口是否总是显示在其他窗口之前
     });
     const size = screen.getPrimaryDisplay().workAreaSize; // 获取显示器的宽高
     const winSize = suspensionWin.getSize(); // 获取窗口宽高
@@ -596,6 +606,7 @@ function createLocalSuspensionWindow() {
     });
     suspensionWin.on("closed", () => {
         suspensionWin = null;
+        ElectronLog.info("suspensionWin closed");
     });
 
     suspensionWin.on("moved", () => {
@@ -688,15 +699,15 @@ function showSuspension() {
 }
 
 export function registerEvent() {
-    let winStartPosition = { x: 0, y: 0 };
-    let mouseStartPosition = { x: 0, y: 0 };
+    let winStartPosition = {x: 0, y: 0};
+    let mouseStartPosition = {x: 0, y: 0};
     let movingInterval: any = null;
     ipcMain.handle("window-move-open", (events, canMoving) => {
         if (canMoving) {
             if (!suspensionWin) return;
             // 读取原位置
             const winPosition = suspensionWin.getPosition();
-            winStartPosition = { x: winPosition[0], y: winPosition[1] };
+            winStartPosition = {x: winPosition[0], y: winPosition[1]};
             mouseStartPosition = screen.getCursorScreenPoint();
             // 清除
             if (movingInterval) {
@@ -726,6 +737,7 @@ export function registerEvent() {
 
     ipcMain.handle("openSuspension", () => {
         isShowSuspension = true;
+        console.log("open-isShowSuspension", isShowSuspension);
         if (socketHelper) {
             socketHelper.sendMessage(new Action("SMALLMENUSHOW", ""));
         } else {
@@ -735,6 +747,7 @@ export function registerEvent() {
 
     ipcMain.handle("closeSuspension", () => {
         isShowSuspension = false;
+        console.log("close-isShowSuspension", isShowSuspension);
         if (socketHelper) {
             socketHelper.sendMessage(new Action("SMALLMENUHIDE", ""));
         } else {
@@ -979,7 +992,7 @@ function createTeamCompetition() {
         height: 250,
         alwaysOnTop: true,
         useContentSize: true,
-        maximizable: false
+        maximizable: false,
     });
 
     teamCompetitionWin.on("ready-to-show", () => {

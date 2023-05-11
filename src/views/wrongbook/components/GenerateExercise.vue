@@ -169,7 +169,7 @@
             width="360px"
             custom-class="homeworkDialog"
         >
-            <template #title>
+            <template #header>
                 <span></span>
                 <span class="my-header">删除提示</span>
                 <span @click="dialogVisible = false">
@@ -203,7 +203,7 @@
             :show-close="false"
             width="360px"
         >
-            <template #title>
+            <template #header>
                 <span></span>
                 <span class="my-header">修改作业名称</span>
                 <span @click="editVisible = false">
@@ -228,7 +228,7 @@
 
         <!-- 选择学生 -->
         <el-dialog :show-close="false" v-model="studentVisible" width="70%">
-            <template #title>
+            <template #header>
                 <span></span>
                 <span class="my-header">选择学生-{{ props.gradeName }}</span>
                 <span @click="studentVisible = false">
