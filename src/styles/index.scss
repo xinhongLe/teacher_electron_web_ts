@@ -616,8 +616,8 @@ html {
 
 
 .el-message-box__status {
-  top: 0;
-  transform: none;
+  top: 0 !important;
+  transform: none !important;
 }
 
 .messageBox-title {
@@ -629,4 +629,12 @@ html {
 
 .el-message-box__content {
   padding-bottom: 32px;
+}
+
+.canvas-tool .left-handler {
+    position: fixed !important;
+    left: 26px !important;;
+    height: 56px !important;;
+    display: flex !important;;
+    align-items: center !important;;
 }

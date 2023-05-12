@@ -4,8 +4,6 @@ import { getOssToken } from "@/api";
 import { throttle } from "lodash";
 import { IOssPaths, IOssUploadRes } from "@/types/oss";
 
-
-
 // 上传
 export const cooOss = function (
     file: File & Blob,
@@ -28,7 +26,7 @@ export const cooOss = function (
                 accessKeyId: accessKeyId,
                 accessKeySecret: accessKeySecret,
                 stsToken: securityToken,
-                bucket: bucket,
+                bucket: bucket
             });
             return client
                 .multipartUpload(objectKey, buffer || file, {})
@@ -39,7 +37,7 @@ export const cooOss = function (
                         name: fileName,
                         fileExtension: fileExtension,
                         msg: "ok",
-                        md5: fileName,
+                        md5: fileName
                     });
                 })
                 .catch((err: Error) => {
@@ -61,7 +59,7 @@ export const cooOss = function (
                     accessKeyId: accessKeyId,
                     accessKeySecret: accessKeySecret,
                     stsToken: securityToken,
-                    bucket: bucket,
+                    bucket: bucket
                 });
                 return client
                     .multipartUpload(objectKey, buffer || file, {})
@@ -72,7 +70,7 @@ export const cooOss = function (
                             name: name,
                             fileExtension: fileExtension,
                             msg: "ok",
-                            md5,
+                            md5
                         });
                     })
                     .catch((err: Error) => {
@@ -105,7 +103,7 @@ export const cooOssv2 = function (
                 accessKeyId: accessKeyId,
                 accessKeySecret: accessKeySecret,
                 stsToken: securityToken,
-                bucket: bucket,
+                bucket: bucket
             });
             return client
                 .multipartUpload(objectKey, file, {})
@@ -116,7 +114,7 @@ export const cooOssv2 = function (
                         name: name,
                         fileExtension: fileExtension,
                         msg: "ok",
-                        md5,
+                        md5
                     });
                 })
                 .catch((err: Error) => {
@@ -148,26 +146,6 @@ const getToken = throttle(async function () {
         return JSON.parse(<string>localStorage.getItem("ossToken"));
     }
 }, 500);
-
-// const getToken = async() => {
-//     const time = Number(localStorage.getItem("ossTokenExpireTime") || 0);
-//     const currentTime = new Date().getTime();
-//     if (currentTime > time) {
-//         const res = await getOssToken();
-//         if (res.resultCode === 200) {
-//             localStorage.setItem("ossTokenExpireTime", new Date().getTime() + 3000000);
-//             localStorage.setItem(
-//                 "ossToken",
-//                 JSON.stringify(res.result.ossToken)
-//             );
-//             return res.result.ossToken;
-//         } else {
-//             return JSON.parse(localStorage.getItem('ossToken'));
-//         }
-//     } else {
-//         return JSON.parse(localStorage.getItem('ossToken'));
-//     }
-// }
 
 const fileMd5 = (file: File & Blob, callback: (md5: string) => void) => {
     const blobSlice = File.prototype.slice;
@@ -204,7 +182,7 @@ const fileMd5 = (file: File & Blob, callback: (md5: string) => void) => {
     loadNext();
 };
 
-const fileMD5v2 = (file: File & Blob, callback: (md5: string) => void)=>{
+const fileMD5v2 = (file: File & Blob, callback: (md5: string) => void) => {
     const fileReader = new FileReader();
     const spark = new SparkMD5(); // 创建md5对象（基于SparkMD5）
     if (file.size > 1024 * 1024 * 10) {
@@ -218,7 +196,7 @@ const fileMD5v2 = (file: File & Blob, callback: (md5: string) => void)=>{
         const md5 = spark.end();
         callback(md5);
     };
-}
+};
 
 // 下载
 export const getOssUrl = async (key: string, bucket: string) => {
@@ -233,8 +211,7 @@ export const getOssUrl = async (key: string, bucket: string) => {
         accessKeyId: accessKeyId,
         accessKeySecret: accessKeySecret,
         stsToken: securityToken,
-        bucket: bucket,
+        bucket: bucket
     });
-    const url = client.signatureUrl(key);
-    return url;
+    return client.signatureUrl(key);
 };

@@ -3,7 +3,7 @@ import { useStore } from "@/store";
 import isElectron from "is-electron";
 import useHome from "@/hooks/useHome";
 import TrackService, { EnumTrackEventType } from "@/utils/common";
-import { getWindowCards } from "@/views/preparation/intelligenceClassroom/api";
+import { getWindowCards, getWindowsElements } from "@/views/preparation/intelligenceClassroom/api";
 import { computed, InjectionKey, onDeactivated, reactive, ref, watch } from "vue";
 import { SchoolWindowInfo, SchoolWindowCardInfo, SchoolWindowPageInfo } from "@/types/preparation";
 import { pageTypeList } from "@/config";
@@ -47,27 +47,23 @@ const useWindowInfo = (isUseNetwork = true) => {
     const store = useStore();
 
     const getCardList = (WindowID: string, OriginType: number) => {
-        getWindowCards({
-            WindowID,
-            OriginType
-        }).then(res => {
-            if (res.success) {
-                // 返回页的数据originType全是0 这里先手动全部处理成 对应的originType
-                cardList.value = res.result.map(item => {
-                    const PageList = item.PageList.map(page => {
-                        return {
-                            ...page,
-                            OriginType: OriginType
-                        };
-                    });
+        getWindowCards({ WindowID, OriginType }).then(res => {
+            if (res.resultCode !== 200) return;
+            // 返回页的数据originType全是0 这里先手动全部处理成 对应的originType
+            cardList.value = res.result.map(item => {
+                const PageList = item.PageList.map(page => {
                     return {
-                        ...item,
-                        PageList: PageList.filter(page => page.State) // 预览过滤掉未上架页
+                        ...page,
+                        OriginType: OriginType
                     };
                 });
-                currentCardIndex.value = 0;
-                currentCard.value = cardList.value[0];
-            }
+                return {
+                    ...item,
+                    PageList: PageList.filter(page => page.State) // 预览过滤掉未上架页
+                };
+            });
+            currentCardIndex.value = 0;
+            currentCard.value = cardList.value[0];
         });
     };
 

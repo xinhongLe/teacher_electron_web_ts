@@ -60,7 +60,6 @@ export default defineComponent({
         };
 
         const onUserVideoAvailable = (userId: string, available: unknown) => {
-            window.electron.log.info(`onUserVideoAvailable available:${available}, roomId:${props.roomId}, userId: ${userId}`);
             if (available === 1) {
                 trtcCloud.startRemoteView(userId, viewRef.value!);
             }

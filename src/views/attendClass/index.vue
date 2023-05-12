@@ -149,7 +149,7 @@ export default defineComponent({
                         });
                     } else if (resource.ResourceShowType === 1) {
                         store.commit(MutationTypes.SET_FULLSCREEN_RESOURCE, {
-                            component: "Wincard",
+                            component: "WinCard",
                             resource: {
                                 id: resource.OldResourceId,
                                 isSystem: resource.IsSysFile === 1,

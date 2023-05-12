@@ -14,8 +14,7 @@ yarn-error.log*
 pnpm-debug.log*
 
 *Logs/
-package-lock.json
-yarn-lock.json
+*-lock.json
 
 # Editor directories and files
 .idea

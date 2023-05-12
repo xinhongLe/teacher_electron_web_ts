@@ -1,7 +1,6 @@
 import { OSS_PATH } from "@/config/filePath";
 import {
     PPTAudioElement,
-    PPTElement,
     PPTElementAction,
     IWin,
     PPTImageElement,
@@ -13,7 +12,7 @@ import {
     SlideBackground,
     PPTCard,
     PPTRelation,
-    PPTAnimation,
+    PPTAnimation
 } from "wincard";
 import { createRandomCode } from "@/utils/common";
 import { getVideoQuoteInfo } from "@/api/home";
@@ -65,16 +64,12 @@ interface IOldAction {
     TargetID: string;
 }
 
-export const dealOldData = async (
-    pageID: string,
-    originType: any,
-    oldSlide: IOldSlide
-) => {
+export const dealOldData = async (pageID: string, originType: any, oldSlide: IOldSlide) => {
     const slide: Slide = {
         id: pageID,
         type: "element",
         viewportRatio: 0.5625,
-        elements: [],
+        elements: []
     };
 
     slide.background = getSlideData(oldSlide.PageSetting || "{}");
@@ -100,7 +95,7 @@ const getSlideData = (slideBackgroundString: string) => {
     const setting = JSON.parse(slideBackgroundString);
     const background: SlideBackground = {
         type: "solid",
-        color: "#F6FFFB",
+        color: "#F6FFFB"
     };
     if (setting.BackColor) {
         // 纯色背景填充
@@ -135,11 +130,11 @@ const getElementActionsById = (events: IEvent[], id: string) => {
                 item.ActionType === 1
                     ? "show"
                     : item.ActionType === 2
-                    ? "hide"
-                    : item.ActionType === 3
-                    ? "toggle"
-                    : "none",
-            target: item.TargetID,
+                        ? "hide"
+                        : item.ActionType === 3
+                            ? "toggle"
+                            : "none",
+            target: item.TargetID
         };
     });
     return actions;
@@ -162,20 +157,20 @@ const getElementCustomById = (
                 return {
                     id: page.CardID,
                     name: page.CardName,
-                    type: page.Type,
+                    type: page.Type
                 };
             });
             return {
                 id: card.CardID,
                 name: card.CardName,
                 type: originType,
-                slides,
+                slides
             };
         });
 
         return {
             id: item.WindowID,
-            cards,
+            cards
         };
     });
     return win;
@@ -190,7 +185,7 @@ const getSlideStepData = (oldSteps: string[]) => {
             (action: IOldAction) => {
                 return {
                     type: ["none", "show", "hide", "toggle"][action.ActionType],
-                    target: action.TargetID,
+                    target: action.TargetID
                 };
             }
         );
@@ -256,7 +251,7 @@ const getElementsData = async (
                 elements.push({
                     ...(await dealVideo(oldElement)),
                     actions,
-                    wins,
+                    wins
                 });
                 break;
         }
@@ -303,7 +298,7 @@ const dealText = (oldText: IOldTextElement) => {
         rotate: 0,
         defaultFontName: "",
         defaultColor: "",
-        defaultFontSize: "",
+        defaultFontSize: ""
     };
     // LineHeight 不存在的情况
     oldText.LineHeight = oldText.LineHeight || 22;
@@ -407,7 +402,7 @@ const dealImage = (oldImage: IOldImageElement) => {
         rotate: 0,
         fixedRatio: true,
         stretch: 1,
-        src: "",
+        src: ""
     };
     element.id = oldImage.UUID;
     element.name = oldImage.Name;
@@ -455,7 +450,7 @@ const dealCircle = (oldCircle: IOldCircleElement) => {
         left: 0,
         top: 0,
         width: 0,
-        height: 0,
+        height: 0
     };
     element.id = oldCircle.UUID;
     element.name = oldCircle.Name;
@@ -505,7 +500,7 @@ const dealRect = (oldRect: IOldRectElement) => {
         left: 0,
         top: 0,
         width: 0,
-        height: 0,
+        height: 0
     };
     element.id = oldRect.UUID;
     element.name = oldRect.Name;
@@ -554,7 +549,7 @@ const dealLine = (oldLine: IOldLineElement) => {
         end: [0, 0],
         style: "solid",
         color: "",
-        points: ["", ""],
+        points: ["", ""]
     };
     oldLine.Angle = oldLine.Angle % 360;
     if (oldLine.Angle < 0) oldLine.Angle = 360 + oldLine.Angle;
@@ -568,11 +563,11 @@ const dealLine = (oldLine: IOldLineElement) => {
     element.display = oldLine.IsVisibility;
     element.start = [
         (oldLine.Width / 2) * (1 - Math.cos((oldLine.Angle * Math.PI) / 180)),
-        (-oldLine.Width / 2) * Math.sin((oldLine.Angle * Math.PI) / 180),
+        (-oldLine.Width / 2) * Math.sin((oldLine.Angle * Math.PI) / 180)
     ];
     element.end = [
         (oldLine.Width / 2) * (1 + Math.cos((oldLine.Angle * Math.PI) / 180)),
-        (oldLine.Width / 2) * Math.sin((oldLine.Angle * Math.PI) / 180),
+        (oldLine.Width / 2) * Math.sin((oldLine.Angle * Math.PI) / 180)
     ];
     return element;
 };
@@ -604,7 +599,7 @@ const dealAudio = (oldAudio: IOldAudio) => {
         width: 0,
         height: 0,
         src: "",
-        rotate: 0,
+        rotate: 0
     };
 
     element.id = oldAudio.UUID;
@@ -661,7 +656,7 @@ const dealVideo = async (oldVideo: IOldVideo) => {
         poster: "",
         icon: "",
         pauseList: [],
-        fileID: "",
+        fileID: ""
     };
 
     if (oldVideo.Type === 10 || oldVideo.Type === 13) {
@@ -697,8 +692,8 @@ const dealVideo = async (oldVideo: IOldVideo) => {
                 ? 0
                 : 1
             : oldVideo.Type === 7
-            ? 1
-            : 0;
+                ? 1
+                : 0;
     element.display = oldVideo.IsVisibility;
     element.autoPlay = oldVideo.IsAutoPlay;
     element.poster = oldVideo.OssCoverFileName
@@ -707,8 +702,8 @@ const dealVideo = async (oldVideo: IOldVideo) => {
     element.icon = oldVideo.OssImageFileName
         ? OSS_PATH + "/" + oldVideo.OssImageFileName
         : oldVideo.OssDisplayCoverFileNmae
-        ? OSS_PATH + "/" + oldVideo.OssDisplayCoverFileNmae
-        : "";
+            ? OSS_PATH + "/" + oldVideo.OssDisplayCoverFileNmae
+            : "";
     element.fileID = oldVideo.FileID ? oldVideo.FileID : "";
     return element;
 };
@@ -733,12 +728,12 @@ export const dealAnimationData = (slide: Slide) => {
         slide.animations = animations;
     }
 
-    slide.elements.forEach((element) => {
+    (slide.elements || []).forEach((element) => {
         element.actions = getAnimations(
             ((element.actions as unknown) || []) as PPTElementAction[]
         );
     });
-    slide.version = "";
+    slide.version = "2.0.0";
     return slide;
 };
 
@@ -754,9 +749,63 @@ const getAnimations = (actions: PPTElementAction[]) => {
             type: item.type === "show" ? type : "out",
             path: type === "in" ? item.inPath : item.outPath,
             duration: item.duration || 0,
-            aniDirection: (type === "in" ? item.inDuration : item.outDuration),
+            aniDirection: (type === "in" ? item.inDuration : item.outDuration) || 0,
             trigger: index === 0 ? "click" : "meantime",
+            audioName: item.audioName,
+            audioSrc: item.audioSrc
         });
     });
     return animations;
+};
+
+export const objIsEqual = (source: any, target: any) => {
+    for (const key in source) {
+        if (["pauseList", "clip", "points", "start", "end", "rowHeights"].includes(key)) {
+            if (JSON.stringify(source[key]) !== JSON.stringify(target[key])) return false;
+            continue;
+        }
+        if (Object.prototype.toString.call(source[key]) === "[object Array]") {
+            if (source[key].length !== target[key].length) return false;
+            const flag = arrIsEqual(source[key], target[key]);
+            if (!flag) return false;
+        }
+        if (Object.prototype.toString.call(source[key]) === "[object Object]") {
+            const flag = objIsEqual(source[key], target[key]);
+            if (!flag) return false;
+        }
+        if (["ossSrc", "Fold"].includes(key)) continue;
+        if (typeof source[key] === "string" && source[key] !== target[key]) return false;
+    }
+
+    return true;
+};
+
+// 判断两个对象是否相等
+export const arrIsEqual = (source: any, target: any) => {
+    if (source.length !== target.length) return false;
+    for (let i = 0; i < source.length; i++) {
+        const item = source[i];
+        if (Object.prototype.toString.call(item) === "[object Array]") {
+            const flag = arrIsEqual(item, target[i]);
+            if (!flag) return false;
+            continue;
+        }
+        const find = target.find((it: any) => {
+            if (it.ID) {
+                return item.ID === it.ID;
+            } else {
+                return item.id === it.id;
+            }
+        });
+        if (!find) return false;
+        if (Object.prototype.toString.call(item) === "[object Array]") {
+            const flag = arrIsEqual(item, find);
+            if (!flag) return false;
+        }
+        if (Object.prototype.toString.call(item) === "[object Object]") {
+            const flag = objIsEqual(item, find);
+            if (!flag) return false;
+        }
+    }
+    return true;
 };

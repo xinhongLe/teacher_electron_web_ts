@@ -1,8 +1,7 @@
-
 <template>
     <el-dialog v-model="visible" :title="currentGame.Name || ''" width="920px" center @close="close">
         <div v-if="currentComponent" class="page-type-box">
-           <component :is="currentComponent"  :slide="slide" @save="save"></component>
+            <component :is="currentComponent" :slide="slide" @save="save"></component>
         </div>
         <div v-else class="empty">
             该游戏暂不支持配置
@@ -11,11 +10,12 @@
 </template>
 
 <script lang="ts">
-import { Slide } from "wincard";
-import { computed, defineComponent, ref, nextTick, PropType, reactive, toRefs, watch } from "vue";
-import { getGameToolList } from "@/api/game.ts";
-import { IGameItem } from "@/types/game";
+import {Slide} from "wincard";
+import {computed, defineComponent, ref, nextTick, PropType, reactive, toRefs, watch} from "vue";
+import {getGameToolList} from "@/api/game.ts";
+import {IGameItem} from "@/types/game";
 import useHome from "./hook/useHome";
+
 interface State {
     listList: IGameItem[],
     currentGame: IGameItem
@@ -34,7 +34,7 @@ export default defineComponent({
         }
     },
     emits: ["update:modelValue", "addGame"],
-    setup(props, { emit }) {
+    setup(props, {emit}) {
         const state = reactive<State>({
             listList: [],
             currentGame: {} as IGameItem
@@ -43,17 +43,17 @@ export default defineComponent({
         const visible = computed(() => props.modelValue);
         const currentComponent = ref<any>("");
 
-        const { gameTypeList } = useHome();
+        const {gameTypeList} = useHome();
 
         watch(() => props.modelValue, (val) => {
             if (val) {
-                nextTick(async() => {
+                nextTick(async () => {
                     await _getGameToolList();
                 });
             }
-        }, { immediate: true });
+        }, {immediate: true});
 
-        const save = (valueGame:IGameItem) => {
+        const save = (valueGame: IGameItem) => {
             emit("addGame", valueGame);
             close();
         };
@@ -62,10 +62,11 @@ export default defineComponent({
         };
 
         const _getGameToolList = () => {
-            const data = { state: 2, name: "" };
-            getGameToolList(data).then(async (res:any) => {
+            const data = {state: 2, name: ""};
+            getGameToolList(data).then(async (res: any) => {
                 if (res.resultCode === 200) {
                     state.listList = res.result || [];
+                    console.log('props.slide')
                     state.currentGame = state.listList.find(item => item.ID === props.slide?.game?.id) || {} as IGameItem;
                     currentComponent.value = gameTypeList.value.find(item => state.currentGame?.Type === item.type)?.com;
                 }
@@ -84,14 +85,16 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-.page-type-box{
+.page-type-box {
     margin-left: 20px;
 }
-:deep(.el-form-item__label){
+
+:deep(.el-form-item__label) {
     font-size: 14px;
     font-weight: bold;
 }
-.empty{
+
+.empty {
     text-align: center;
     width: 100%;
     height: 400px;

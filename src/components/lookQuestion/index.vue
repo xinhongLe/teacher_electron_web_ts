@@ -55,7 +55,7 @@ import {
     PropType,
     provide,
     ref,
-    watch,
+    watch
 } from "vue";
 import Question from "./Question.vue";
 import PureQuestionDialog from "./PureQuestionDialog.vue";
@@ -63,32 +63,30 @@ import { checkPureQuestionByQuestionID } from "./api";
 import { MutationTypes, store } from "@/store";
 import isElectron from "is-electron";
 import { IViewResourceData } from "@/types/store";
+
 export default defineComponent({
     name: "LookQuestion",
     props: {
         dialog: {
             type: Boolean,
-            default: false,
+            default: false
         },
-
         close: {
             type: Function,
-            default: () => {},
+            default: () => {}
         },
-
         resource: {
             type: Object as PropType<IViewResourceData>,
-            required: true,
+            required: true
         },
-
         activeWindow: {
             type: Boolean,
-            default: false,
+            default: false
         },
         isshowbasket: {
             type: Boolean,
-            default: false,
-        },
+            default: false
+        }
     },
     setup(props) {
         const type = computed(() => props.resource.type);
@@ -99,7 +97,7 @@ export default defineComponent({
 
         const viewPureQuestion = async () => {
             const check = await checkPureQuestionByQuestionID({
-                questionID: nowQuestionID.value,
+                questionID: nowQuestionID.value
             });
             if (check.resultCode === 200) {
                 isHasSimilarQuestion.value = !!check.result;
@@ -115,7 +113,7 @@ export default defineComponent({
                 store.commit(MutationTypes.REMOVE_FULLSCREEN_RESOURCE, {
                     id: props.resource.id,
                     openMore: props.resource.openMore,
-                    type: "LookQuestion",
+                    type: "LookQuestion"
                 });
             });
         };
@@ -177,11 +175,11 @@ export default defineComponent({
             closeDialog,
             isMinimized,
             nowQuestionID,
-            dialogVisible,
+            dialogVisible
         };
     },
 
-    components: { Question, PureQuestionDialog },
+    components: { Question, PureQuestionDialog }
 });
 </script>
 
@@ -198,6 +196,7 @@ export default defineComponent({
     display: flex;
     flex-direction: column;
     top: 0;
+
     .question-header {
         p {
             font-size: 20px;
@@ -209,24 +208,29 @@ export default defineComponent({
             margin-bottom: 16px;
         }
     }
+
     &.dialog-type {
         width: 100%;
         height: 100%;
         position: relative;
     }
+
     .btn-list {
         display: flex;
     }
+
     .btn {
         width: 64px;
         height: 64px;
         cursor: pointer;
         margin-right: 20px;
+
         &.disabled {
             p {
                 color: #bdc0c5;
             }
         }
+
         p {
             text-align: center;
             font-size: 12px;
@@ -235,14 +239,17 @@ export default defineComponent({
             margin-top: 40px;
             font-weight: 550;
         }
+
         &:nth-child(1) {
             background: url("./../../assets/look/btn_tongleiti@2x.png");
             background-size: 100% 100%;
+
             &.disabled {
                 background: url("./../../assets/look/btn_tlt_disabled3@2x.png");
                 background-size: 100% 100%;
             }
         }
+
         &:nth-child(2) {
             background: url("./../../assets/look/btn_yichu@2x.png");
             background-size: 100% 100%;
