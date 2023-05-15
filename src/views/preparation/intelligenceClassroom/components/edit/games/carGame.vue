@@ -128,11 +128,12 @@
                               @click="addOprion(item.DuoxuanData?.Options)">
                             添加选项
                         </span>
-                        <el-form-item :label="'选项'+ (index2 + 1)" v-for="(data,index2) in item.DuoxuanData?.Options"
-                                      :prop="item.DuoxuanData.Type ? `Data[${index}].DuoxuanData.Options[${index2}].Text` : `Data[${index}].DuoxuanData.Options[${index2}].RightKey`"
+                        <el-form-item v-if="item.DuoxuanData.Type" :label="'选项'+ (index2 + 1)"
+                                      v-for="(data,index2) in item.DuoxuanData?.Options"
+                                      :prop="`Data[${index}].DuoxuanData.Options[${index2}].Text`"
                                       :rules="rules.Text" style="align-items: center">
                             <div style="display: flex;align-items: center;">
-                                <el-input v-if="item.DuoxuanData.Type" v-model="data.Text" maxlength="15"
+                                <el-input v-model="data.Text" maxlength="15"
                                           show-word-limit/>
                                 <el-checkbox style="padding: 0 10px" v-model="data.RightKey" :true-label="1"
                                              :false-label="0" label="正确答案"
@@ -145,7 +146,22 @@
                                     alt=""
                                 />
                             </div>
-
+                        </el-form-item>
+                        <el-form-item v-else :label="'选项'+ (index2 + 1)"
+                                      v-for="(data,index2) in item.DuoxuanData?.Options"
+                                      style="align-items: center">
+                            <div style="display: flex;align-items: center;">
+                                <el-checkbox style="padding: 0 10px" v-model="data.RightKey" :true-label="1"
+                                             :false-label="0" label="正确答案"
+                                             size="large"/>
+                                <img
+                                    v-if="index2 > 1"
+                                    class="del_img"
+                                    @click="delOption(item.DuoxuanData?.Options,index2)"
+                                    src="@/assets/projection/icon_delete.png"
+                                    alt=""
+                                />
+                            </div>
                         </el-form-item>
                     </div>
 
