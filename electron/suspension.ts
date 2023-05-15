@@ -281,8 +281,7 @@ function createBlackboardWindow() {
     blackboardWin.on("closed", () => {
         blackboardWin = null;
         isShowBlackboard = false;
-        suspensionWin &&
-        suspensionWin.webContents.send("hideSuspensionBlackboard");
+        suspensionWin && suspensionWin.webContents.send("hideSuspensionBlackboard");
         setSuspensionSize();
     });
 }
@@ -299,8 +298,10 @@ function createAnswerMachineWindow(allStudentList: []) {
         backgroundColor: "#00000000",
         type: "toolbar", // 创建的窗口类型为工具栏窗口
         frame: false, // 要创建无边框窗口
+        resizable: false, // 是否允许窗口大小缩放
+        height: 550,
         alwaysOnTop: true,
-        resizable: false
+        maximizable: false
     });
 
     answerMachineWin.on("ready-to-show", () => {
@@ -310,8 +311,7 @@ function createAnswerMachineWindow(allStudentList: []) {
     });
 
     answerMachineWin.once("ready-to-show", () => {
-        answerMachineWin &&
-        answerMachineWin.setAlwaysOnTop(true, "pop-up-menu");
+        answerMachineWin && answerMachineWin.setAlwaysOnTop(true, "pop-up-menu");
     });
 
     answerMachineWin.on("closed", () => {
@@ -323,14 +323,23 @@ function createQuickAnswerWindow(allStudentList: [], isAnswer = false) {
     quickAnswerWin = createWindow(quickAnswerURL, {
         // width: 620,
         // height: 420,
-        fullscreen: true,
-        center: true,
-        show: false,
-        useContentSize: true,
-        transparent: true,
-        type: "toolbar", // 创建的窗口类型为工具栏窗口
+        // // fullscreen: true,
+        // center: true,
+        // show: false,
+        // useContentSize: true,
+        // transparent: true,
+        // type: "toolbar", // 创建的窗口类型为工具栏窗口
+        // frame: false, // 要创建无边框窗口
+        // alwaysOnTop: true,
+
+        // transparent: true,
+        width: 620,
         frame: false, // 要创建无边框窗口
-        alwaysOnTop: true
+        alwaysOnTop: true,
+        resizable: false, // 是否允许窗口大小缩放
+        height: 420,
+        useContentSize: true,
+        maximizable: false
     });
     // quickAnswerWin.webContents.openDevTools(); //打开的抢答器调试器
 
@@ -362,7 +371,7 @@ function createProjectionWindow() {
         type: "toolbar", // 创建的窗口类型为工具栏窗口
         frame: false, // 要创建无边框窗口
         alwaysOnTop: true,
-        resizable: false
+        resizable: false,
     });
 
     projectionWin.once("ready-to-show", () => {
@@ -423,7 +432,7 @@ function checkIsUseBallEXE(callback: (T: boolean, env?: number) => void) {
             });
         });
     } else {
-        // eslint-disable-next-line standard/no-callback-literal
+        callback(false);
     }
 }
 
@@ -596,6 +605,7 @@ function createLocalSuspensionWindow() {
     });
     suspensionWin.on("closed", () => {
         suspensionWin = null;
+        ElectronLog.info("suspensionWin closed");
     });
 
     suspensionWin.on("moved", () => {
@@ -768,8 +778,7 @@ export function registerEvent() {
 
     ipcMain.handle("openBlackboard", () => {
         isShowBlackboard = false;
-        suspensionWin &&
-        suspensionWin.webContents.send("hideSuspensionBlackboard");
+        suspensionWin && suspensionWin.webContents.send("hideSuspensionBlackboard");
         showSuspension();
         setSuspensionSize();
         if (blackboardWin) {
@@ -797,8 +806,7 @@ export function registerEvent() {
         if (socketHelper) {
             socketHelper.sendMessage(new Action("BLACKBOARDHIDE", ""));
         } else {
-            suspensionWin &&
-            suspensionWin.webContents.send("blackboardMinimized");
+            suspensionWin && suspensionWin.webContents.send("blackboardMinimized");
         }
         if (process.platform === "darwin") {
             blackboardWin && blackboardWin.setFullScreen(false);
@@ -872,8 +880,7 @@ export function registerEvent() {
         if (socketHelper) {
             socketHelper.sendMessage(new Action("QUICKTIMEHIDE", time));
         } else {
-            suspensionWin &&
-            suspensionWin.webContents.send("timerWinHide", time);
+            suspensionWin && suspensionWin.webContents.send("timerWinHide", time);
         }
     });
 
