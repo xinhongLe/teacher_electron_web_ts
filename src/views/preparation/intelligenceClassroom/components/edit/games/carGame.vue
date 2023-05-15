@@ -476,8 +476,14 @@ export default defineComponent({
                 if (res.resultCode === 200 && res.result.Config) {
                     const files = res.result.Config.Data || [];
                     for (let i = 0; i < files.length; i++) {
-                        const fileInfo = await getOssUrl(`${files[i].PanduanData.File.FilePath}/${files[i].PanduanData.File.FileName}.${files[i].PanduanData.File.Extention}`, `${files[i].PanduanData.File.Bucket}`);
-                        files[i].PanduanData.File.url = fileInfo;
+                        if (files[i].QuestionType) {
+                            const fileInfo = await getOssUrl(`${files[i].DuoxuanData.File.FilePath}/${files[i].DuoxuanData.File.FileName}.${files[i].DuoxuanData.File.Extention}`, `${files[i].DuoxuanData.File.Bucket}`);
+                            files[i].DuoxuanData.File.url = fileInfo;
+                        } else {
+                            const fileInfo = await getOssUrl(`${files[i].PanduanData.File.FilePath}/${files[i].PanduanData.File.FileName}.${files[i].PanduanData.File.Extention}`, `${files[i].PanduanData.File.Bucket}`);
+                            files[i].PanduanData.File.url = fileInfo;
+
+                        }
                     }
                     state.form = {
                         Time: res.result.Config.Info.Time,
