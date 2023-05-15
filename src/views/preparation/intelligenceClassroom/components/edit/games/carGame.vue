@@ -70,7 +70,7 @@
                                 action=""
                                 accept=".jpg,.jpeg,.gif,.png"
                                 :auto-upload="false"
-                                :on-change="(file) => onChange(file, index)"
+                                :on-change="(file) => onChange(file, index,0)"
                                 :show-file-list="false"
                             >
                                 <img v-if="item.PanduanData.File.url" :src="item.PanduanData.File.url" class="avatar"/>
@@ -92,27 +92,55 @@
                         </el-form-item>
                     </div>
                     <div v-else>
-                        <el-form-item label="题目："
+                        <el-form-item label="素材：">
+                            <el-radio-group v-model="item.DuoxuanData.Type">
+                                <el-radio :label="1">文本</el-radio>
+                                <el-radio :label="0">图片</el-radio>
+                            </el-radio-group>
+                        </el-form-item>
+                        <el-form-item v-if="item.DuoxuanData.Type === 1" label="题目："
                                       :prop="`Data[${index}].DuoxuanData.Subject`"
                                       :rules="rules.Question">
                             <el-input v-model="item.DuoxuanData.Subject" maxlength="45" show-word-limit/>
                         </el-form-item>
+                        <el-form-item v-else label="题目：" :prop="`Data[${index}].DuoxuanData.File.url`"
+                                      :rules="rules.File">
+                            <el-upload
+                                class="avatar-uploader"
+                                action=""
+                                accept=".jpg,.jpeg,.gif,.png"
+                                :auto-upload="false"
+                                :on-change="(file) => onChange(file, index,1)"
+                                :show-file-list="false"
+                            >
+                                <img v-if="item.DuoxuanData.File.url" :src="item.DuoxuanData.File.url" class="avatar"/>
+                                <el-icon v-else class="avatar-uploader-icon">
+                                    <Plus/>
+                                </el-icon>
+                                <template #tip>
+                                    <div class="el-upload__tip">
+                                        <span>支持jpg.jpeg.gif.png</span>
+                                    </div>
+                                </template>
+                            </el-upload>
+                        </el-form-item>
                         <span style="color: #409eff;cursor: pointer;"
-                              @click="addOprion(item.DuoxuanData.Options)">
+                              @click="addOprion(item.DuoxuanData?.Options)">
                             添加选项
                         </span>
-                        <el-form-item :label="'选项'+ (index2 + 1)" v-for="(data,index2) in item.DuoxuanData.Options"
-                                      :prop="`Data[${index}].DuoxuanData.Options[${index2}].Text`"
-                                      :rules="rules.Text">
+                        <el-form-item :label="'选项'+ (index2 + 1)" v-for="(data,index2) in item.DuoxuanData?.Options"
+                                      :prop="item.DuoxuanData.Type ? `Data[${index}].DuoxuanData.Options[${index2}].Text` : `Data[${index}].DuoxuanData.Options[${index2}].RightKey`"
+                                      :rules="rules.Text" style="align-items: center">
                             <div style="display: flex;align-items: center;">
-                                <el-input v-model="data.Text" maxlength="15" show-word-limit/>
+                                <el-input v-if="item.DuoxuanData.Type" v-model="data.Text" maxlength="15"
+                                          show-word-limit/>
                                 <el-checkbox style="padding: 0 10px" v-model="data.RightKey" :true-label="1"
                                              :false-label="0" label="正确答案"
                                              size="large"/>
                                 <img
                                     v-if="index2 > 1"
                                     class="del_img"
-                                    @click="delOption(item.DuoxuanData.Options,index2)"
+                                    @click="delOption(item.DuoxuanData?.Options,index2)"
                                     src="@/assets/projection/icon_delete.png"
                                     alt=""
                                 />
@@ -190,6 +218,16 @@ export default defineComponent({
                                 Subject: "",//标题
                                 Answer: "",//答案
                                 OptionsCount: 0,//选项个数
+                                Type: 1,//题目类型 0 图片 1 文字
+                                File: {
+                                    url: "",
+                                    Bucket: "",
+                                    Name: "",
+                                    FileName: "",
+                                    FilePath: "",
+                                    Extention: "",
+                                    Type: 2
+                                },
                                 Options: [
                                     {
                                         Sort: 1,
@@ -225,6 +263,16 @@ export default defineComponent({
                                 Subject: "",//标题
                                 Answer: "",//答案
                                 OptionsCount: 0,//选项个数
+                                Type: 1,//题目类型 0 图片 1 文字
+                                File: {
+                                    url: "",
+                                    Bucket: "",
+                                    Name: "",
+                                    FileName: "",
+                                    FilePath: "",
+                                    Extention: "",
+                                    Type: 2
+                                },
                                 Options: [
                                     {
                                         Sort: 1,
@@ -275,6 +323,16 @@ export default defineComponent({
                             Subject: "",//标题
                             Answer: "",//答案
                             OptionsCount: 0,//选项个数
+                            Type: 1,//题目类型 0 图片 1 文字
+                            File: {
+                                url: "",
+                                Bucket: "",
+                                Name: "",
+                                FileName: "",
+                                FilePath: "",
+                                Extention: "",
+                                Type: 2
+                            },
                             Options: [
                                 {
                                     Sort: 1,
@@ -290,21 +348,34 @@ export default defineComponent({
             state.form.Data.splice(index, 1);
         };
 
-        const upload = async (file: any, index: number) => {
+        const upload = async (file: any, index: number, type: number) => {
             const filePath = await cooOss(file, get(STORAGE_TYPES.OSS_PATHS)?.["ElementFile"]);
             const fileInfo = await getOssUrl(filePath?.objectKey as string, get(STORAGE_TYPES.OSS_PATHS)?.["ElementFile"].Bucket);
-            state.form.Data[index].PanduanData.File = {
-                url: fileInfo,
-                Bucket: "axsfile",
-                FilePath: filePath?.objectKey.split("/")[0] || "ElementFile",
-                FileName: filePath?.name || "",
-                Name: filePath?.name || "",
-                Extention: filePath?.fileExtension || "",
-                Type: 2
-            };
+            if (!type) {
+                state.form.Data[index].PanduanData.File = {
+                    url: fileInfo,
+                    Bucket: "axsfile",
+                    FilePath: filePath?.objectKey.split("/")[0] || "ElementFile",
+                    FileName: filePath?.name || "",
+                    Name: filePath?.name || "",
+                    Extention: filePath?.fileExtension || "",
+                    Type: 2
+                };
+            } else {
+                state.form.Data[index].DuoxuanData.File = {
+                    url: fileInfo,
+                    Bucket: "axsfile",
+                    FilePath: filePath?.objectKey.split("/")[0] || "ElementFile",
+                    FileName: filePath?.name || "",
+                    Name: filePath?.name || "",
+                    Extention: filePath?.fileExtension || "",
+                    Type: 2
+                };
+            }
+
         };
 
-        const onChange = (file: any, index: number) => {
+        const onChange = (file: any, index: number, type: number) => {
             if (file) {
                 var reader = new FileReader();
                 reader.onload = function (event: any) {
@@ -317,7 +388,7 @@ export default defineComponent({
                         if (imgWidth > 420 || imgHeight > 520 || (file.raw.size / 1024) > 1024) {
                             return ElMessage.warning("图片像素不超过420 * 520，且文件大小不超过1M");
                         }
-                        upload(file.raw, index);
+                        upload(file.raw, index, type);
                     };
                 };
                 reader.readAsDataURL(file.raw);
