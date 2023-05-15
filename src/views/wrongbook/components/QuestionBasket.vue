@@ -90,7 +90,7 @@
         :append-to-body="true"
         custom-class="cus-basket-dialog"
     >
-        <template #title>
+        <template #header>
             <span></span>
             <span class="my-header">提示</span>
             <span @click="dialogVisible = false">
@@ -125,7 +125,7 @@
         width="360px"
         custom-class="homeworkDialog"
     >
-        <template #title>
+        <template #header>
             <span></span>
             <span class="my-header">删除提示</span>
             <span @click="delDialogVisible = false">

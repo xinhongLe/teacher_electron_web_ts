@@ -29,16 +29,23 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, provide, ref } from "vue";
+import {computed, defineComponent, provide, ref} from "vue";
 import StartAnswer from "./startAnswer.vue";
 import zhCn from "element-plus/es/locale/lang/zh-cn";
-import { Student } from "@/types/labelManage";
+import {Student} from "@/types/labelManage";
 import AnswerTimer from "./answerTimer.vue";
-import { getStudentAnswerEndInfo, MQTTInfoData, StudentAnswerInfo, getStudentQuestionResult, StudentAnswerInfoList} from "./api";
+import {
+    getStudentAnswerEndInfo,
+    MQTTInfoData,
+    StudentAnswerInfo,
+    getStudentQuestionResult,
+    StudentAnswerInfoList
+} from "./api";
 import AnswerResult from "./answerResult.vue";
-import { AnswerMode, MachineModeQuestionType, PADModeQuestionType } from "./enum";
-import { get, STORAGE_TYPES } from "@/utils/storage";
-import { IYunInfo } from "@/types/login";
+import {AnswerMode, MachineModeQuestionType, PADModeQuestionType} from "./enum";
+import {get, STORAGE_TYPES} from "@/utils/storage";
+import {IYunInfo} from "@/types/login";
+
 export default defineComponent({
     components: {
         StartAnswer,
@@ -66,7 +73,7 @@ export default defineComponent({
 
         provide("QuestionType", QuestionType);
 
-        const start = (studentList: Student[], data: MQTTInfoData, answerMachineID:string) => {
+        const start = (studentList: Student[], data: MQTTInfoData, answerMachineID: string) => {
             if (data.QuestionDetail?.length === 1) {
                 selectQuestionType.value = QuestionType.value[data.QuestionDetail[0].QuestionType];
             } else {
@@ -82,7 +89,7 @@ export default defineComponent({
             answerTime.value = time;
             mqttInfo.value!.IsEnd = true;
             // const res = await getStudentAnswerEndInfo(mqttInfo.value);
-            const res = await getStudentQuestionResult({ AnswerMachineID: AnswerMachineID.value });
+            const res = await getStudentQuestionResult({AnswerMachineID: AnswerMachineID.value});
             // const res = await getStudentQuestionResult({ AnswerMachineID: "C696DA084848C9E8B2D0A2CB00853504" });
             if (res.resultCode === 200) {
                 isShowTimer.value = false;
@@ -92,9 +99,9 @@ export default defineComponent({
         };
 
         window.electron.ipcRenderer.on("sendAllStudentList", (_, studentList) => {
-            allStudentList.value = studentList;
-            console.log(allStudentList.value, "allStudentList.value");
-        }
+                allStudentList.value = studentList;
+                console.log(allStudentList.value, "allStudentList.value");
+            }
         );
         return {
             locale: zhCn,
@@ -119,17 +126,19 @@ export default defineComponent({
 body {
     overflow: hidden;
     user-select: none;
+
     .el-button--primary {
         --el-button-background-color: #4b71ee;
         --el-button-border-color: #4b71ee;
     }
 }
-.answer-app{
+
+.answer-app {
     width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: rgba(0,0,0,0.4);
+    height: 100vh;
+    //display: flex;
+    //justify-content: center;
+    //align-items: center;
+    //background: rgba(0,0,0,0.4);
 }
 </style>

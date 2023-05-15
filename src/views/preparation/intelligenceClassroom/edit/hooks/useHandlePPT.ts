@@ -1,11 +1,12 @@
-import { Ref } from "vue";
-import { cloneDeep } from "lodash";
-import { v4 as uuidv4 } from "uuid";
-import { pageTypeList } from "@/config";
+import {Ref} from "vue";
+import {cloneDeep} from "lodash";
+import {v4 as uuidv4} from "uuid";
+import {pageTypeList} from "@/config";
 import messageBox from "@/utils/messageBox";
-import { initSlideData } from "@/utils/dataParsePage";
-import { ElMessage, ElMessageBox } from "element-plus";
-import { CardProps, PageProps } from "../../api/props";
+import {initSlideData} from "@/utils/dataParsePage";
+import {ElMessage, ElMessageBox} from "element-plus";
+import {CardProps, PageProps} from "../../api/props";
+import {addPage} from '@/api/home'
 
 export default (windowCards: Ref<CardProps[]>, currentPage: Ref<PageProps | null>, editRef: Ref) => {
     let backupPage: PageProps | null = null;
@@ -57,7 +58,26 @@ export default (windowCards: Ref<CardProps[]>, currentPage: Ref<PageProps | null
         if (pageType.value === 11) {
             name = "页" + (windowCards.value[index].PageList.length + 2);
         }
+        //互动页id
+        let hdid = "";
+        let sort = windowCards.value[index].PageList.length + 1
+        if ('ParentID' in data) {
+            sort = windowCards.value[index].PageList.findIndex(item => item.ID === data.ID) + 1
+        }
+        // if (pageType.value !== 11) {
+        //     const res = await addPage({
+        //         CardID: parentId,
+        //         Name: name,
+        //         Type: pageType.value,
+        //         Sort: sort
+        //     })
+        //     if (res.resultCode !== 200) return
+        //     hdid = res.result.ID
+        // }
+
+        console.log('hdid', hdid)
         const page = {
+            // ID: pageType.value === 11 ? id : hdid,
             ID: id,
             TeachPageRelationID: "",
             Name: name,
@@ -80,6 +100,7 @@ export default (windowCards: Ref<CardProps[]>, currentPage: Ref<PageProps | null
 
         insertWindowsCards(page, index, subIndex);
         sortWindowCards();
+        // currentPage.value = getPageById(pageType.value === 11 ? id : hdid);
         currentPage.value = getPageById(id);
     };
 
@@ -89,7 +110,7 @@ export default (windowCards: Ref<CardProps[]>, currentPage: Ref<PageProps | null
             inputPattern: /\S/,
             inputValue: data.Name,
             inputErrorMessage: "请填写名称！"
-        }).then(async ({ value }) => {
+        }).then(async ({value}) => {
             data.Name = value;
         });
     };

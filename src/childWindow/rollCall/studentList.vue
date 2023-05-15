@@ -8,11 +8,11 @@
             >
                 <div class="title" @click.stop="">
                     <div class="drag-area">
-                        <Drag />
+                        <Drag/>
                     </div>
                     点名学生清单
                     <div class="icon" @click="hideWindow" v-if="isPackUp">
-                        <DoubleRight />
+                        <DoubleRight/>
                     </div>
                 </div>
                 <div class="list">
@@ -25,11 +25,11 @@
                     </div>
                 </div>
                 <div class="open" v-if="isHide" @click.stop="showWindow">
-                    <DoubleLeft />
+                    <DoubleLeft/>
                 </div>
             </div>
 
-            <div class="student-list-content" v-show="!isPackUp">
+            <div class="student-list-content" v-show="!isPackUp">在·
                 <div
                     class="student-box"
                     :style="{
@@ -105,8 +105,8 @@
 </template>
 
 <script lang="ts">
-import { Student } from "@/types/labelManage";
-import { ElMessage, ElMessageBox } from "element-plus";
+import {Student} from "@/types/labelManage";
+import {ElMessage, ElMessageBox} from "element-plus";
 import {
     computed,
     defineComponent,
@@ -116,12 +116,12 @@ import {
     watch,
 } from "vue";
 import Avatar from "../../components/avatar/index.vue";
-import { DoubleLeft, Drag, DoubleRight } from "@icon-park/vue-next";
-import { startAudio } from "./startaudio";
-import { UserInfoState } from "@/types/store";
-import { get, STORAGE_TYPES } from "@/utils/storage";
-import { exportExcel, IExcel } from "mexcel";
-import { getCurrentSemesterRollCallLog, rollCallLog } from "@/api";
+import {DoubleLeft, Drag, DoubleRight} from "@icon-park/vue-next";
+import {startAudio} from "./startaudio";
+import {UserInfoState} from "@/types/store";
+import {get, STORAGE_TYPES} from "@/utils/storage";
+import {exportExcel, IExcel} from "mexcel";
+import {getCurrentSemesterRollCallLog, rollCallLog} from "@/api";
 
 export default defineComponent({
     components: {
@@ -304,9 +304,12 @@ export default defineComponent({
                         },
                     ],
                 })
-                .then(({ filePath, canceled }) => {
+                .then(({filePath, canceled}) => {
                     if (canceled) return;
-                    getCurrentSemesterRollCallLog({ TermCode: schoolTerm.code, TeacherId: currentUserInfo.userCenterUserID }).then((res) => {
+                    getCurrentSemesterRollCallLog({
+                        TermCode: schoolTerm.code,
+                        TeacherId: currentUserInfo.userCenterUserID
+                    }).then((res) => {
                         const data = res.result;
 
                         const excelData: IExcel = {
@@ -364,13 +367,13 @@ export default defineComponent({
                                             wrapText: true,
                                         },
                                         border: {
-                                            top: { style: "thin", color: {} },
-                                            right: { style: "thin", color: {} },
+                                            top: {style: "thin", color: {}},
+                                            right: {style: "thin", color: {}},
                                             bottom: {
                                                 style: "thin",
                                                 color: {},
                                             },
-                                            left: { style: "thin", color: {} },
+                                            left: {style: "thin", color: {}},
                                         },
                                     },
                                     titleStyle: {
@@ -386,13 +389,13 @@ export default defineComponent({
                                             wrapText: true,
                                         },
                                         border: {
-                                            top: { style: "thin", color: {} },
-                                            right: { style: "thin", color: {} },
+                                            top: {style: "thin", color: {}},
+                                            right: {style: "thin", color: {}},
                                             bottom: {
                                                 style: "thin",
                                                 color: {},
                                             },
-                                            left: { style: "thin", color: {} },
+                                            left: {style: "thin", color: {}},
                                         },
                                     },
                                 },
@@ -478,9 +481,9 @@ export default defineComponent({
                 font-weight: 600;
                 color: #848891;
                 background: linear-gradient(
-                    270deg,
-                    rgba(237, 244, 246, 0) 0%,
-                    #edf4f6 100%
+                        270deg,
+                        rgba(237, 244, 246, 0) 0%,
+                        #edf4f6 100%
                 );
                 position: relative;
 
@@ -615,6 +618,11 @@ export default defineComponent({
     .student-name {
         transform: scale(4.5);
         color: #fff;
+        width: 5vw;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: pre-wrap;
+        line-height: 12px;
     }
 }
 

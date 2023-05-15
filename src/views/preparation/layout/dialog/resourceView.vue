@@ -7,7 +7,7 @@
             :model-value="visible"
             @close="close()"
         >
-            <template #title>
+            <template #header>
                 <div class="resource-header">
                     <ResourceItem
                         :name="name"
