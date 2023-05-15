@@ -26,7 +26,8 @@ export const cooOss = function (
                 accessKeyId: accessKeyId,
                 accessKeySecret: accessKeySecret,
                 stsToken: securityToken,
-                bucket: bucket
+                bucket: bucket,
+                refreshSTSTokenInterval: 300000
             });
             return client
                 .multipartUpload(objectKey, buffer || file, {})
@@ -59,7 +60,8 @@ export const cooOss = function (
                     accessKeyId: accessKeyId,
                     accessKeySecret: accessKeySecret,
                     stsToken: securityToken,
-                    bucket: bucket
+                    bucket: bucket,
+                    refreshSTSTokenInterval: 300000
                 });
                 return client
                     .multipartUpload(objectKey, buffer || file, {})
@@ -103,7 +105,8 @@ export const cooOssv2 = function (
                 accessKeyId: accessKeyId,
                 accessKeySecret: accessKeySecret,
                 stsToken: securityToken,
-                bucket: bucket
+                bucket: bucket,
+                refreshSTSTokenInterval: 300000
             });
             return client
                 .multipartUpload(objectKey, file, {})
@@ -211,7 +214,8 @@ export const getOssUrl = async (key: string, bucket: string) => {
         accessKeyId: accessKeyId,
         accessKeySecret: accessKeySecret,
         stsToken: securityToken,
-        bucket: bucket
+        bucket: bucket,
+        refreshSTSTokenInterval: 300000
     });
     return client.signatureUrl(key);
 };
