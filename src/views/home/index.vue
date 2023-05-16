@@ -336,10 +336,12 @@ export default defineComponent({
         const reLayout = () => {
             if (classSchedule.value && route.path === "/home") {
                 const content_dom: HTMLElement = document.querySelector('.main .top .right .calendar .content .content-box') as HTMLElement;
+                const content_dom_out: HTMLElement = document.querySelector('.main .top .right .calendar .content') as HTMLElement;
                 const col_doms: any = content_dom.children;
                 if (col_doms.length) {
                     const colHeight = col_doms.length * col_doms[0].offsetHeight;
-                    const contentHeight = content_dom.offsetHeight;
+                    const contentHeight = content_dom_out.offsetHeight;
+                    // console.log('colHeight---contentHeight', colHeight, contentHeight);
                     if (colHeight > contentHeight + 1) {
                         layoutAdjust.value = true
                     } else {
