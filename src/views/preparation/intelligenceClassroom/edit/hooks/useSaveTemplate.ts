@@ -450,7 +450,7 @@ export default () => {
                 page.Json.elements = [];
             }
             const obj = data.data;
-            if ([2, 3].includes(obj.Type)) {
+            if ([0, 2, 3].includes(obj.Type)) {
                 const element = await getImageData(obj);
                 page.Json.elements.push(element);
             }

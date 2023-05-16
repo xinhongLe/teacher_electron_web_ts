@@ -255,7 +255,7 @@ import { VueDraggableNext } from "vue-draggable-next";
 
 export default defineComponent({
     components: { TemplateView, VueDraggableNext },
-    emits: ["insertData", "editTemplate", "checkoutTab"],
+    emits: ["insertData", "editTemplate", "checkoutTab", "insertTools"],
     props: {
         subjectID: {
             type: String,
