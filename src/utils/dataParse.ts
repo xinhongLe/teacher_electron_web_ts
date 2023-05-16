@@ -714,26 +714,24 @@ const converColor = (color: string) => {
 };
 
 export const dealAnimationData = (slide: Slide) => {
+    if (slide.version) return slide;
     if (slide.steps) {
         const steps = slide.steps;
         delete slide.steps;
 
         let animations: PPTAnimation[] = [];
         // 当步骤中存在进入与退出动画时，只管进入动画，舍弃退出动画
-        steps.forEach((actions) => {
+        steps.forEach(actions => {
             const _animation = getAnimations(actions || []);
             animations = animations.concat(_animation);
         });
-
+        slide.version = "2.0.0";
         slide.animations = animations;
     }
 
-    (slide.elements || []).forEach((element) => {
-        element.actions = getAnimations(
-            ((element.actions as unknown) || []) as PPTElementAction[]
-        );
+    (slide.elements || []).forEach(element => {
+        element.actions = getAnimations((element.actions as unknown || []) as PPTElementAction[]);
     });
-    slide.version = "2.0.0";
     return slide;
 };
 
@@ -741,7 +739,6 @@ const getAnimations = (actions: PPTElementAction[]) => {
     const animations: PPTAnimation[] = [];
     actions.forEach((item, index) => {
         const type = item.inAni ? "in" : item.outAni ? "out" : "in";
-        item.type = item.type === "toggle" ? "show" : item.type;
         animations.push({
             id: createRandomCode(),
             elId: item.target,
