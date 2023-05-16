@@ -38,10 +38,10 @@
             <screen-view
                 :inline="true"
                 ref="screenRef"
+                :isInit="isInit"
                 @pagePrev="pagePrev"
                 @pageNext="pageNext"
                 @openCard="openCard"
-                :isInit="index === 0"
                 :slide="currentSlide"
                 :is-show-pen-tools="false"
                 :keyDisabled="openCardShow"
@@ -166,11 +166,13 @@ export default defineComponent({
             screenRef.value && screenRef.value.execNext();
         };
 
+        const isInit = ref(true);
         const pagePrev = () => {
             if (props.index === 0) {
                 ElMessage.warning("已经第一页了");
                 return;
             }
+            isInit.value = false;
             const index = props.index - 1;
             emit("update:index", index);
         };
@@ -182,6 +184,8 @@ export default defineComponent({
                 return;
             }
             const index = props.index + 1;
+
+            isInit.value = true;
             emit("update:index", index);
         };
 
@@ -248,6 +252,7 @@ export default defineComponent({
         };
 
         return {
+            isInit,
             centerW,
             prevStep,
             nextStep,

@@ -3,7 +3,7 @@
         <ScreenView
             ref="screenRef"
             :slide="slide"
-            :isInit="index === 0"
+            :isInit="isInit"
             @openCard="openCard"
             @pagePrev="pagePrev()"
             @pageNext="pageNext()"
