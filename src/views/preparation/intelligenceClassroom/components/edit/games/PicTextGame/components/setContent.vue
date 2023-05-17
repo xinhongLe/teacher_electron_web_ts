@@ -1,7 +1,7 @@
 <template>
     <div class="content-detail">
         <div class="top">
-            <p @click="addPairing">添加配对 9/9</p>
+            <p @click="addPairing">添加配对 {{ form.leftData.length }}/9</p>
         </div>
         <div class="middle">
             <div class="middle-left">
@@ -13,12 +13,12 @@
                         <span>
                             类型：
                         </span>
-                        <el-radio-group v-model="leftType">
+                        <el-radio-group v-model="form.leftType">
                             <el-radio :label="1">文字</el-radio>
                             <el-radio :label="2">图片</el-radio>
                         </el-radio-group>
                     </div>
-                    <div class="content-text" v-if="leftType == 1">
+                    <div class="content-text" v-if="form.leftType == 1">
                         <div class="content-item" v-for="(item,index) in form.leftData">
                             <span>{{ index + 1 }}</span>
                             <el-input v-model="item.Data"></el-input>
@@ -30,7 +30,7 @@
 
                         </div>
                     </div>
-                    <div class="content-img" v-if="leftType == 2">
+                    <div class="content-img" v-if="form.leftType == 2">
                         <div class="content-item" v-for="(item,index) in form.leftData">
                             <el-upload
                                 ref="uploadRef"
@@ -71,12 +71,12 @@
                         <span>
                             类型：
                         </span>
-                        <el-radio-group v-model="rightType">
+                        <el-radio-group v-model="form.rightType">
                             <el-radio :label="1">文字</el-radio>
                             <el-radio :label="2">图片</el-radio>
                         </el-radio-group>
                     </div>
-                    <div class="content-text" v-if="rightType == 1">
+                    <div class="content-text" v-if="form.rightType == 1">
                         <div class="content-item" v-for="(item,index) in form.rightData">
                             <span>{{ index + 1 }}</span>
                             <el-input v-model="item.Data"></el-input>
@@ -88,7 +88,7 @@
 
                         </div>
                     </div>
-                    <div class="content-img" v-if="rightType == 2">
+                    <div class="content-img" v-if="form.rightType == 2">
                         <div class="content-item" v-for="(item,index) in form.rightData">
                             <el-upload
                                 ref="uploadRef"
@@ -143,6 +143,8 @@ export default defineComponent({
             type: Object,
             require: true,
             default: () => ({
+                leftType: 1,
+                rightType: 1,
                 leftData: [
                     {
                         Type: 1,
@@ -182,12 +184,13 @@ export default defineComponent({
     },
     setup(props, {emit}) {
         const form: any = computed(() => props.newForm);
-
-        const leftType = ref(1);
-        const rightType = ref(1);
+        //
+        // const leftType = ref(1);
+        // const rightType = ref(1);
 
         //添加配对
         const addPairing = () => {
+            if (form.value.leftData.length >= 9) return;
             form.value.leftData.push({
                 Type: 1,
                 Data: "",
@@ -219,7 +222,7 @@ export default defineComponent({
                 Size: {Width: 240, Height: 100},
             })
         };
-        watch(() => leftType.value, val => {
+        watch(() => form.value.leftType, val => {
             if (val === 1) {
                 form.value.leftData.forEach((item: any) => {
                     item.Type = 1
@@ -230,7 +233,7 @@ export default defineComponent({
                 })
             }
         });
-        watch(() => rightType.value, val => {
+        watch(() => form.value.rightType, val => {
             if (val === 1) {
                 form.value.rightData.forEach((item: any) => {
                     item.Type = 1
@@ -356,8 +359,8 @@ export default defineComponent({
         };
         return {
             form,
-            leftType,
-            rightType,
+            // leftType,
+            // rightType,
             addPairing,
             deleteLeftCon,
             onChange

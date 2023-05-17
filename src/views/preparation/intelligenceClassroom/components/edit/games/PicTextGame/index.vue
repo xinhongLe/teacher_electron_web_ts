@@ -43,6 +43,8 @@ export default defineComponent({
                 {name: "调整布局", value: 2}
             ],
             form: {
+                leftType: 1,
+                rightType: 1,
                 leftData: [
                     {
                         Type: 1,

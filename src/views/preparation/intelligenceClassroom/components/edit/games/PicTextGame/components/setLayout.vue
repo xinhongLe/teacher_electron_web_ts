@@ -86,6 +86,8 @@ export default defineComponent({
             type: Object,
             require: true,
             default: () => ({
+                leftType: 1,
+                rightType: 1,
                 leftData: [
                     {
                         Type: 1,
