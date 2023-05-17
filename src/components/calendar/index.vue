@@ -332,8 +332,8 @@ export default defineComponent({
     padding: 0 16px 16px;
 
     .col {
-        //min-height: 82px;
-        min-height: 35px;
+        min-height: 30px;
+        //min-height: 35px;
         display: flex;
         align-items: center;
         flex-shrink: 0;
