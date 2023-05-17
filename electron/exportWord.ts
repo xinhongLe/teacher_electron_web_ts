@@ -55,12 +55,12 @@ export const exportWord = (filePath:string, fileData:IFileData, styleType:number
         compression: "DEFLATE"
     });
 
+    const path = window.electron.getCachePath("");
     // 不存在文件夹要先创建文件夹
-    if (!fs.existsSync(resolve(filePath))) {
-        mkdir(resolve(filePath));
+    if (!fs.existsSync(path)) {
+        mkdir(path);
     }
-
-    fs.writeFileSync(resolve(filePath), buf);
+    fs.writeFileSync(filePath, buf);
     PATH = null;
     content = null;
     zip = null;

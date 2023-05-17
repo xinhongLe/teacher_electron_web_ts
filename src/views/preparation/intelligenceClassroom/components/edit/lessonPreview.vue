@@ -132,7 +132,7 @@ export default defineComponent({
                 list2: list2
             };
 
-            const fileName = `/${props.wordName}_教案设计_${new Date().getTime()}.docx`;
+            const fileName = `${props.wordName}_教案设计_${new Date().getTime()}.docx`;
 
             return {
                 fileData: fileData,
