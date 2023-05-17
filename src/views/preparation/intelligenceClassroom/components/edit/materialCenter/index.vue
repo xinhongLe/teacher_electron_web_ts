@@ -33,12 +33,11 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, markRaw, reactive, ref, toRefs, computed, watch, nextTick } from "vue";
+import { defineComponent, markRaw, reactive, ref, toRefs, computed, nextTick } from "vue";
 import materialTemplate from "./components/materialTemplate.vue";
 import myMaterial from "./components/myMaterial.vue";
 import materialResource from "./components/materialResource.vue";
 import { ITemplateSave } from "@/types/home";
-import { useRouter } from "vue-router";
 import { Rank } from "@element-plus/icons-vue";
 
 export default defineComponent({
@@ -55,7 +54,6 @@ export default defineComponent({
     },
     emits: ["insertData", "editTemplate", "insertTools"],
     setup(props, { emit }) {
-        const router = useRouter();
         const componentRef = ref();
         const state = reactive({
             isOpen: false,
@@ -152,7 +150,6 @@ export default defineComponent({
         };
 
         return {
-            router,
             currentComponent,
             ...toRefs(state),
             switchMenu,
