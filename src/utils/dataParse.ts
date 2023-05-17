@@ -1,4 +1,4 @@
-import { OSS_PATH } from "@/config/filePath";
+import {OSS_PATH} from "@/config/filePath";
 import {
     PPTAudioElement,
     PPTElementAction,
@@ -14,8 +14,8 @@ import {
     PPTRelation,
     PPTAnimation
 } from "wincard";
-import { createRandomCode } from "@/utils/common";
-import { getVideoQuoteInfo } from "@/api/home";
+import {createRandomCode} from "@/utils/common";
+import {getVideoQuoteInfo} from "@/api/home";
 
 interface IOldSlide {
     Elements: string[];
@@ -227,22 +227,22 @@ const getElementsData = async (
         );
         switch (oldElement.Type) {
             case 1:
-                elements.push({ ...dealText(oldElement), actions, wins });
+                elements.push({...dealText(oldElement), actions, wins});
                 break;
             case 2:
-                elements.push({ ...dealRect(oldElement), actions, wins });
+                elements.push({...dealRect(oldElement), actions, wins});
                 break;
             case 3:
-                elements.push({ ...dealCircle(oldElement), actions, wins });
+                elements.push({...dealCircle(oldElement), actions, wins});
                 break;
             case 4:
-                elements.push({ ...dealLine(oldElement), actions, wins });
+                elements.push({...dealLine(oldElement), actions, wins});
                 break;
             case 5:
-                elements.push({ ...dealImage(oldElement), actions, wins });
+                elements.push({...dealImage(oldElement), actions, wins});
                 break;
             case 6:
-                elements.push({ ...dealAudio(oldElement), actions, wins });
+                elements.push({...dealAudio(oldElement), actions, wins});
                 break;
             case 7:
             case 8:
@@ -661,7 +661,7 @@ const dealVideo = async (oldVideo: IOldVideo) => {
 
     if (oldVideo.Type === 10 || oldVideo.Type === 13) {
         if (oldVideo.FileID) {
-            await getVideoQuoteInfo({ FileIDs: [oldVideo.FileID] }).then(
+            await getVideoQuoteInfo({FileIDs: [oldVideo.FileID]}).then(
                 (res) => {
                     if (res.resultCode === 200 && res.result.length > 0) {
                         oldVideo.OssFileName =
