@@ -153,7 +153,18 @@ const routes: Array<RouteRecordRaw> = [
                 path: "pblstudy",
                 name: "PBL项目式学习",
                 component: () => import("@/views/pblStudy/index.vue"),
+                meta: {
+                    keepAlive: true
+                }
             },
+            {
+                path: "wincard",
+                name: "PBL项目式学习窗卡页",
+                component: () => import("@/views/pblStudy/wincard.vue"),
+                // meta: {
+                //     keepAlive: true
+                // }
+            }
 
         ],
     },

@@ -141,6 +141,20 @@ module.exports = {
             title: "键盘",
             chunks: ["virtualKeyBoard"],
         },
+        pblEditWinCard: {
+            entry: "src/childWindow/pblEditWinCard/main.ts",
+            template: "public/template.html",
+            filename: "pblEditWinCard.html",
+            title: "编辑",
+            chunks: ["pblEditWinCard"]
+        },
+        pblEditWinCardLesson: {
+            entry: "src/childWindow/pblEditWinCardLesson/main.ts",
+            template: "public/template.html",
+            filename: "pblEditWinCardLesson.html",
+            title: "编辑",
+            chunks: ["pblEditWinCardLesson"]
+        }
     },
     css: {
         loaderOptions: {

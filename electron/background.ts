@@ -12,6 +12,8 @@ import {
 import autoUpdater from "./autoUpdater";
 import { registerWinCardEvent } from "./wincard";
 import { registerVirtualKeyBoard, closeKeyBoard, setInput } from "./virtualKeyBoard";
+import { registerPblWinCardEvent } from "./pblWincard";
+import { registerPblWinCardLessonEvent } from "./pblWincardLesson";
 import SingalRHelper from "./singalr";
 import ElectronLog from "electron-log";
 import os from "os";
@@ -74,6 +76,8 @@ async function createWindow() {
     registerEvent();
     registerWinCardEvent();
     registerVirtualKeyBoard();
+    registerPblWinCardEvent();
+    registerPblWinCardLessonEvent();
 
     if (process.env.WEBPACK_DEV_SERVER_URL) {
         require("@electron/remote/main").enable(mainWindow.webContents);
