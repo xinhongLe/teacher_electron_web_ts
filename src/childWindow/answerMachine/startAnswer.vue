@@ -246,7 +246,7 @@ export default defineComponent({
         };
 
         const addRow = () => {
-            if (state.form.topicList.length === 10) return ElMessage.warning("最多添加10道题");
+            if (state.form.topicList.length === 40) return ElMessage.warning("最多添加40道题");
             state.form.topicList.push(cloneDeep({questionType: 0, selectSetting: [], option: []}));
         };
 
