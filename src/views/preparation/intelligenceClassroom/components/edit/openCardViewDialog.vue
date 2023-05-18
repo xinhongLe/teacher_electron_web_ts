@@ -1,190 +1,129 @@
 <template>
     <div class="card-dialog">
-        <ScreenView ref="screenRef" :inline="true" :isInit="isInit" :writeBoardVisible="writeBoardVisible"
-                    @pagePrev="execPrev" @pageNext="execNext" @closeWriteBoard="closeWriteBoard" :slide="slideView"
-                    :isShowPenTools="false" v-model:isCanUndo="isCanUndo" v-model:isCanRedo="isCanRedo"
-                    v-model:currentDrawColor="currentDrawColor" v-model:currentLineWidth="currentLineWidth"/>
-        <div class="cardLis-class">
-            <PageItem :pageList="cardList" :selected="selected" @selectPage="checkPage"/>
-            <!-- <div
-                class="me-page-item"
-                :class="selected === index && 'active'"
-                v-for="(item, index) in cardList"
-                @click="checkPage(index)"
-                :key="item.ID"
-            >
-                {{ item.Name }}
-            </div> -->
-        </div>
-        <Tools :cardClass="'card-dialog'" :isTKdialog="true" @prevStep="prevCard" @nextStep="nextCard"
-               @showWriteBoard="showWriteBoard" @hideWriteBoard="hideWriteBoard" @close="close" :dialog="true"
-               @openShape="openShape" :isShowFullscreen="false" :isFullScreenStatus="true" :isShowRemarkBtn="false"
-               :isShowClose="true" @openPaintTool="openPaintTool" @whiteboardOption="whiteboardOption" @redo="redo"
-               @undo="undo" :isCanUndo="isCanUndo" :isCanRedo="isCanRedo" :currentDrawColor="currentDrawColor"
-               :currentLineWidth="currentLineWidth"/>
+        <screen-view
+            :inline="true"
+            ref="screenRef"
+            @pagePrev="pagePrev"
+            @pageNext="pageNext"
+            :isInit="index === 0"
+            :slide="currentSlide"
+            :is-show-pen-tools="false"
+            v-model:isCanUndo="canUndo"
+            v-model:isCanRedo="canRedo"
+        />
+        <Tools
+            @redo="redo"
+            @undo="undo"
+            :dialog="false"
+            @close="handleClose"
+            @prevStep="prevStep"
+            @nextStep="nextStep"
+            :isCanUndo="canUndo"
+            :isCanRedo="canRedo"
+            @openShape="openShape"
+            :is-show-close="true"
+            @openPaintTool="openPaintTool"
+            @whiteboardOption="whiteboardOption"
+        />
     </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted, computed } from "vue";
-import useHome from "@/hooks/useHome";
-import { getWinCardDBData } from "@/utils/database";
-import { ElMessage } from "element-plus";
+import { defineComponent, ref, PropType, computed } from "vue";
 import Tools from "../preview/tools.vue";
-import PageItem from "../pageItem.vue";
-import { dealAnimationData } from "@/utils/dataParse";
+import { ElMessage } from "element-plus";
+import { PageProps } from "@/views/preparation/intelligenceClassroom/api/props";
 
 export default defineComponent({
-    name: "openCardViewDia",
-    emits: ["closeOpenCard"],
-    components: { Tools, PageItem },
+    name: "OpenCardViewDialog",
+    components: { Tools },
     props: {
-        dialogVisible: {
-            type: Boolean,
-            require: true
-        },
-        cardList: {
-            type: Array,
+        list: {
+            type: Array as PropType<PageProps[]>,
             default: () => []
         },
-        dialog: {
+        inline: {
             type: Boolean,
-            default: false
+            default: true
         }
     },
+    emits: ["closeOpenCard", "close"],
     setup(props, { emit }) {
-        const isCanUndo = ref(false);
-        const isCanRedo = ref(false);
-        const visible = computed(() => props.dialogVisible);
-        const slideView = ref({});
-        const cardList = ref<any[]>([]);
-        const selected = ref(0);
-        const isInit = ref(true);
-        const writeBoardVisible = ref(false);
         const screenRef = ref();
-        const { getPageDetail } = useHome();
-        onMounted(async () => {
-            cardList.value = props.cardList;
-            _getPageDetail(selected.value);
-        });
-        const execPrev = () => {
-            if (selected.value === 0) {
-                return ElMessage({ type: "warning", message: "已经是第一页" });
+        const canUndo = ref(false);
+        const canRedo = ref(false);
+
+        const currentSlide = computed(() => props.list[index.value]?.Json);
+
+        const index = ref(0);
+        const pagePrev = () => {
+            if (index.value === 0) {
+                ElMessage.warning("已经第一页了");
+                return;
             }
-            selected.value--;
-            isInit.value = false;
-            _getPageDetail(selected.value);
-        };
-        const execNext = () => {
-            if (selected.value === cardList.value.length - 1) {
-                return ElMessage({
-                    type: "warning",
-                    message: "已经是最后一页"
-                });
-            }
-            selected.value++;
-            isInit.value = true;
-            _getPageDetail(selected.value);
+            index.value--;
         };
 
-        const nextCard = () => {
+        const pageNext = () => {
+            if (index.value === props.list.length - 1) {
+                ElMessage.warning("已经最后一页了");
+                return;
+            }
+            index.value++;
+        };
+
+        const prevStep = () => {
+            screenRef.value.execPrev();
+        };
+
+        const nextStep = () => {
             screenRef.value.execNext();
+        };
+
+        // 退回
+        const redo = () => {
+            screenRef.value.redo();
+        };
+
+        // 撤回
+        const undo = () => {
+            screenRef.value.undo();
         };
 
         const openShape = (event: MouseEvent) => {
             screenRef.value.openShape(event);
         };
 
-        const prevCard = () => {
-            screenRef.value.execPrev();
-        };
-
-        const checkPage = async (index: number) => {
-            selected.value = index;
-            _getPageDetail(selected.value);
-        };
-        const _getPageDetail = async (index: number) => {
-            const dbResArr = await getWinCardDBData(cardList.value[index].ID);
-            if (dbResArr.length > 0) {
-                slideView.value = dealAnimationData(JSON.parse(dbResArr[0].result));
-                if (!cardList.value[index].update) {
-                    // 更新本地缓存弹卡信息
-                    await getPageDetail(
-                        cardList.value[index],
-                        0,
-                        (res: any) => {
-                            if (!res.from) {
-                                // 线上返回
-                                cardList.value[index].update = true; // 标识弹卡已经更新过
-                                if (dbResArr[0].result !== JSON.stringify(res)) {
-                                    slideView.value = dealAnimationData(res); // 本地缓存和线上不一致 重新赋值
-                                }
-                            }
-                        }
-                    );
-                }
-            } else {
-                await getPageDetail(cardList.value[index], 0, (res: any) => {
-                    slideView.value = dealAnimationData(res);
-                });
-            }
-        };
-        const showWriteBoard = () => {
-            writeBoardVisible.value = true;
-        };
-        const hideWriteBoard = () => {
-            writeBoardVisible.value = false;
-        };
-        const closeWriteBoard = () => {
-            writeBoardVisible.value = false;
-        };
-        const close = () => {
-            emit("closeOpenCard");
-        };
         // 工具栏-画笔
         const openPaintTool = (event: MouseEvent, type: string) => {
-            // console.log("previewSection.value", event, type);
-            screenRef.value && screenRef.value.openPaintTool(event, type);
+            screenRef.value.openPaintTool(event, type);
         };
-        const currentDrawColor = ref("#f60000");
-        const currentLineWidth = ref(2);
+
+        // 工具栏 画笔配置
         const whiteboardOption = (option: string, value?: number) => {
             screenRef.value.whiteboardOption(option, value);
         };
-        // 退回
-        const redo = () => {
-            screenRef.value.redo();
-        };
-        // 撤回
-        const undo = () => {
-            screenRef.value.undo();
+
+        const handleClose = () => {
+            emit("close");
         };
 
         return {
-            visible,
-            isInit,
-            slideView,
-            execPrev,
-            execNext,
-            selected,
-            checkPage,
-            showWriteBoard,
-            hideWriteBoard,
-            writeBoardVisible,
-            screenRef,
-            nextCard,
-            prevCard,
-            openShape,
-            closeWriteBoard,
-            close,
-            openPaintTool,
-            isCanUndo,
-            isCanRedo,
-            currentDrawColor,
-            currentLineWidth,
-            whiteboardOption,
             redo,
-            undo
+            undo,
+            index,
+            canUndo,
+            canRedo,
+            pagePrev,
+            pageNext,
+            nextStep,
+            prevStep,
+            screenRef,
+            openShape,
+            handleClose,
+            currentSlide,
+            openPaintTool,
+            whiteboardOption
         };
     }
 });

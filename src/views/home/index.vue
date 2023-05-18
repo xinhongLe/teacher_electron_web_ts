@@ -47,7 +47,7 @@
                             clicKBuryPoint('评测中心')
                         ">
                             <div class="item_div">
-                                <img src="../../assets/indexImages/pic_kaoshi_new.png" alt="" />
+                                <img src="../../assets/indexImages/pic_kaoshi_new.png" alt=""/>
                                 <span>测评中心</span>
                             </div>
                         </div>
@@ -55,7 +55,7 @@
                             go('wrongbook'), clicKBuryPoint('班级错题本')
                         ">
                             <div class="item_div">
-                                <img src="../../assets/indexImages/card_cuotiben.png" alt="" />
+                                <img src="../../assets/indexImages/card_cuotiben.png" alt=""/>
                                 <span>班级错题本</span>
                             </div>
                         </div>
@@ -63,13 +63,13 @@
                             go('class-manage'), clicKBuryPoint('班级管理')
                         ">
                             <div class="item_div">
-                                <img src="../../assets/indexImages/icon_xuesheng.png" alt="" />
+                                <img src="../../assets/indexImages/icon_xuesheng.png" alt=""/>
                                 <span>班级管理</span>
                             </div>
                         </div>
                         <div class="item" @click="go('more-content'), clicKBuryPoint('更多')">
                             <div class="item_div">
-                                <img src="../../assets/indexImages/icon_more.png" alt="" />
+                                <img src="../../assets/indexImages/icon_more.png" alt=""/>
                                 <span>更多</span>
                             </div>
                         </div>
@@ -81,7 +81,7 @@
                             <header class="header">
                                 <div @click="weekPre(), clicKBuryPoint('上周')" class="week flex-align-items">
                                     <el-icon :size="16">
-                                        <ArrowLeft />
+                                        <ArrowLeft/>
                                     </el-icon>
                                     上周
                                 </div>
@@ -89,7 +89,7 @@
                                 <div class="header-right">
                                     <div class="refresh flex-align-items" @click="slotProps.initSchedules">
                                         <el-icon :size="16" :style="{ marginRight: '4px' }">
-                                            <RefreshRight />
+                                            <RefreshRight/>
                                         </el-icon>
                                         刷新课表
                                     </div>
@@ -98,7 +98,7 @@
                                     " class="week flex-align-items">
                                         下周
                                         <el-icon :size="16">
-                                            <ArrowRight />
+                                            <ArrowRight/>
                                         </el-icon>
                                     </div>
                                 </div>
@@ -110,7 +110,7 @@
             <div class="bottom" v-if="!layoutAdjust">
                 <div class="item" @click="go('report-center'), clicKBuryPoint('报表中心')">
                     <div class="item_div">
-                        <img src="../../assets/indexImages/pic_baobiao_new.png" alt="" />
+                        <img src="../../assets/indexImages/pic_baobiao_new.png" alt=""/>
                         <span>报表中心</span>
                     </div>
                 </div>
@@ -120,31 +120,31 @@
                     @click="go('resource-center/' + platformId), clicKBuryPoint('资源中心')"
                 >
                     <div class="item_div">
-                        <img src="../../assets/indexImages/pic_zyzx.png" alt="" />
+                        <img src="../../assets/indexImages/pic_zyzx.png" alt=""/>
                         <span>资源中心</span>
                     </div>
                 </div>
                 <div class="item" @click="go('assessment-center'), clicKBuryPoint('评测中心')">
                     <div class="item_div">
-                        <img src="../../assets/indexImages/pic_kaoshi_new.png" alt="" />
+                        <img src="../../assets/indexImages/pic_kaoshi_new.png" alt=""/>
                         <span>测评中心</span>
                     </div>
                 </div>
                 <div class="item" @click="go('wrongbook'), clicKBuryPoint('班级错题本')">
                     <div class="item_div">
-                        <img src="../../assets/indexImages/card_cuotiben.png" alt="" />
+                        <img src="../../assets/indexImages/card_cuotiben.png" alt=""/>
                         <span>班级错题本</span>
                     </div>
                 </div>
                 <div class="item" @click="go('class-manage'), clicKBuryPoint('班级管理')">
                     <div class="item_div">
-                        <img src="../../assets/indexImages/icon_xuesheng.png" alt="" />
+                        <img src="../../assets/indexImages/icon_xuesheng.png" alt=""/>
                         <span>班级管理</span>
                     </div>
                 </div>
                 <div class="item" @click="go('more-content'), clicKBuryPoint('更多')">
                     <div class="item_div">
-                        <img src="../../assets/indexImages/icon_more.png" alt="" />
+                        <img src="../../assets/indexImages/icon_more.png" alt=""/>
                         <span>更多</span>
                     </div>
                 </div>
@@ -182,21 +182,21 @@
         </div>
     </div>
     <el-dialog v-model="moreVisible" width="30%" center :show-close="false" :close-on-click-modal="false"
-        class="home-cus-dialog" top="37vh">
+               class="home-cus-dialog" top="37vh">
         <div class="middle-con">
             <!-- <div class="con-card">
                 <img src="../../assets/indexImages/pci_jtbk.png" alt="" />
                 <p>集体备课</p>
             </div> -->
             <div class="con-card" @click="go(''), clicKBuryPoint('直播课堂')">
-                <img src="../../assets/indexImages/pic_zbkt.png" alt="" />
+                <img src="../../assets/indexImages/pic_zbkt.png" alt=""/>
                 <p>直播课堂</p>
             </div>
         </div>
         <template #footer>
             <span class="dialog-footer">
                 <div class="close-btn" @click="moreVisible = false">
-                    <img src="../../assets/indexImages/icon_close_white.png" alt="" />
+                    <img src="../../assets/indexImages/icon_close_white.png" alt=""/>
                     <span>关闭</span>
                 </div>
             </span>
@@ -222,7 +222,7 @@ import { UserInfoState } from "@/types/store";
 export default defineComponent({
     name: "Home",
     components: {
-        Calendar,
+        Calendar
     },
     setup() {
         const { createBuryingPointFn } = usePageEvent("首页");
@@ -234,7 +234,7 @@ export default defineComponent({
         const go = (val: string) => {
             if (val === "") {
                 ElMessage.warning({
-                    message: "功能建设中 敬请期待",
+                    message: "功能建设中 敬请期待"
                 });
             } else {
                 if (val == "more-content") {
@@ -284,7 +284,7 @@ export default defineComponent({
             getPlatformByOrgId([{ id }]).then(res => {
                 platformId.value = res.result.length > 0 ? res.result[0].platformId : "";
             });
-        }
+        };
 
         onMounted(() => {
             getPlatformIdByOrgId();
@@ -372,7 +372,7 @@ export default defineComponent({
             layoutAdjust,
             platformId
         };
-    },
+    }
 });
 </script>
 

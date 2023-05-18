@@ -9,7 +9,7 @@ import moment from "moment";
 
 const http = axios.create({
     baseURL: "/",
-    timeout: 300000,
+    timeout: 300000
 });
 
 let errMessageInstance: MessageHandler | undefined;
@@ -25,7 +25,7 @@ http.interceptors.request.use(
                 Authorization: "Bearer" + " " + get(STORAGE_TYPES.SET_TOKEN),
                 OrgId: store.state.userInfo.schoolId
                     ? store.state.userInfo.schoolId
-                    : get(STORAGE_TYPES.CURRENT_USER_INFO)?.schoolId,
+                    : get(STORAGE_TYPES.CURRENT_USER_INFO)?.schoolId
             };
         }
         if (!config.headers?.noLoading) {
@@ -45,9 +45,6 @@ http.interceptors.response.use(
     (response) => {
         if (!response.config.headers?.noLoading) loading.hide();
         const res = response.data;
-        window.electron.log.info(
-            `request url:${response.config.url}, request resultCode: ${res.resultCode}, request resultDesc: ${res.resultDesc}, request startTime:${response?.config?.headers?.startTime}`
-        );
         if (res.resultCode === 103) {
             if (!messageInterface) {
                 messageInterface = ElMessage({
@@ -56,7 +53,7 @@ http.interceptors.response.use(
                     duration: 5 * 1000,
                     onClose: () => {
                         messageInterface = null;
-                    },
+                    }
                 });
             }
             clear();
@@ -84,11 +81,11 @@ http.interceptors.response.use(
             initAllState();
         } else if (res.resultCode !== 200) {
             res.resultDesc &&
-                ElMessage({
-                    message: res.resultDesc,
-                    type: "error",
-                    duration: 5 * 1000,
-                });
+            ElMessage({
+                message: res.resultDesc,
+                type: "error",
+                duration: 5 * 1000
+            });
         }
         return response;
     },
@@ -104,20 +101,20 @@ http.interceptors.response.use(
                 duration: 5 * 1000,
                 onClose: () => {
                     errMessageInstance = undefined;
-                },
+                }
             });
         }
         return Promise.reject(error);
     }
 );
 
-interface IRequest<T> {
+interface IRequest<T>{
     baseURL: string | undefined;
     url: string;
     method: Method;
     headers?: AxiosRequestHeaders;
-    responseType?: any;
     data?: T;
+    responseType?: string;
 }
 
 interface Request<T, U> {
@@ -140,7 +137,7 @@ class Queue<T, U> {
         this.isRequesting = true;
         const [request] = this.requestList.splice(0, 1);
         try {
-            const res = await http(request.options);
+            const res = await http(request.options as any);
             request.callback(res.data);
         } catch (error) {
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment

@@ -2,13 +2,13 @@
     <div class="view-box">
         <ScreenView
             ref="screenRef"
-            :isInit="isInit"
             :slide="slide"
+            :isInit="isInit"
             @openCard="openCard"
             @pagePrev="pagePrev()"
             @pageNext="pageNext()"
             @offScreen="offScreen"
-            :keyDisabled="keyDisabled"
+            :keyDisabled="dialogVisible"
             @openMenu="showCollapse = !showCollapse"
         />
         <div class="right-fixed" v-if="showCollapse">
@@ -20,20 +20,14 @@
             </div>
         </div>
         <!-- 弹卡-->
-        <open-card-view-dialog
-            v-if="dialogVisible"
-            :cardList="cardList"
-            @closeOpenCard="closeOpenCard"
-            v-model:dialogVisible="dialogVisible"
-        />
+        <open-card-view-dialog v-if="dialogVisible" :list="cardList" @close="dialogVisible = false"/>
     </div>
 </template>
 
 <script lang="ts">
 import { ElMessage } from "element-plus";
-import { getCardDetail } from "@/api/home";
-import { computed, defineComponent, PropType, ref } from "vue";
 import OpenCardViewDialog from "./openCardViewDialog.vue";
+import { computed, defineComponent, PropType, ref } from "vue";
 import { CardProps, PageProps } from "@/views/preparation/intelligenceClassroom/api/props";
 
 export default defineComponent({
@@ -46,7 +40,7 @@ export default defineComponent({
         },
         activePageIndex: {
             type: Number,
-            default: () => 0
+            default: 0
         }
     },
     emits: ["offScreen"],
@@ -62,7 +56,7 @@ export default defineComponent({
             props.list.forEach(item => {
                 allPages = allPages.concat(...item.PageList);
             });
-            return allPages;
+            return allPages.filter(item => item.State);
         });
 
         const slide = computed(() => pageList.value[index.value].Json);
@@ -85,44 +79,36 @@ export default defineComponent({
         };
 
         const dialogVisible = ref(false);
-        const cardList = ref([]);
-        const openCard = async (wins: any) => {
-            if (!wins[0] || !wins[0].cards) return;
+        const cardList = ref<PageProps[]>([]);
+        const openCard = async (data: any) => {
+            if (!data[0] || !data[0].cards) return;
 
-            const cards = wins[0].cards;
-            let pages: any = [];
-            const newPages: any = [];
-            cards.map((card: any) => {
-                pages = pages.concat(card.slides.map((page: any) => {
-                    return {
-                        ID: page.id,
-                        Type: page.type,
-                        Name: page.name
-                    };
-                }));
+            const cards = [...data[0].cards];
+            let slides: any = [];
+
+            cards.forEach(item => {
+                slides = slides.concat(item.slides);
             });
-            if (pages.length === 0) return;
 
-            const pageIDs = pages.map((page: any) => page.ID);
-            const res = await getCardDetail({ pageIDs });
-            if (res.resultCode !== 200 || !res.result || res.result.length === 0) {
-                keyDisabled.value = false;
+            let allPages: PageProps[] = [];
+            props.list.forEach(item => {
+                allPages = allPages.concat(...item.PageList);
+            });
+
+            const pages: PageProps[] = [];
+            for (let i = 0; i < slides.length; i++) {
+                const find = allPages.find(item => item.Json.id === slides[i].id);
+                if (find) {
+                    pages.push(find);
+                }
+            }
+            if (pages.length === 0) {
+                ElMessage.warning("该弹卡已删除");
                 return;
             }
-
-            // 页名称可能会修改
-            pages.map((item: any) => {
-                const value = res.result.find((page: any) => page.ID === item.ID);
-                if (value) {
-                    newPages.push({ Type: item.Type, ID: item.ID, Name: value.Name });
-                } else {
-                    newPages.push({ Type: item.Type, ID: item.ID, Name: item.Name });
-                }
-            });
-
-            cardList.value = newPages;
+            console.log(pages);
             dialogVisible.value = true;
-            keyDisabled.value = true;
+            cardList.value = pages;
         };
 
         const closeOpenCard = () => {

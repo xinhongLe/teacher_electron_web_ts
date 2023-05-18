@@ -23,12 +23,13 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, toRefs, reactive, watch, PropType } from "vue";
+import { defineComponent, PropType, reactive, toRefs, watch } from "vue";
 import { ElMessage } from "element-plus";
 import { get, STORAGE_TYPES } from "@/utils/storage";
 import { cooOss, getOssUrl } from "@/utils/oss";
-import { ITemplateList, IFrom, ItemForm } from "@/types/lessonDesign.ts";
+import { IFrom, ItemForm } from "@/types/lessonDesign.ts";
 import { toChinesNum } from "@/utils/common";
+
 export default defineComponent({
     name: "lessonPreview",
     props: {
@@ -105,8 +106,7 @@ export default defineComponent({
             const endList = newData.splice(1, newData.length - 1);
 
             const list = firstList.map((j:any) => {
-                const item = transFormFileItemData(j);
-                return item;
+                return transFormFileItemData(j);
             });
 
             const cardValue = props.form.lessonBasicInfoList.find((item:ItemForm) => item.Name === "教学过程");

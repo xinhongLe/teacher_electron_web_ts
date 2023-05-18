@@ -296,7 +296,7 @@ export function getWindowStruct(data: IGetWindowCards): Promise<GetWindowStructR
         },
         method: "post",
         baseURL: WINDOW_CRAD_API,
-        data: Object.assign(data, { OriginType: originType })
+        data
     });
 }
 

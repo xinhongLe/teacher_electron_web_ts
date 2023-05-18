@@ -1,5 +1,4 @@
 import { IResourceItem } from "@/api/resource";
-import { Bread } from "@/components/navBar/interface";
 import mitt from "mitt";
 
 type Events = {

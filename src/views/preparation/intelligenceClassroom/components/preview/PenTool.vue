@@ -52,7 +52,6 @@
                     <template #reference>
                         <div class="btn">
                             <el-tooltip :hide-after="0" :show-after="0.5" placement="top" content="画笔颜色">
-                                <!-- <IconText class="icon" style="font-size: 20px; cursor: pointer" /> -->
                                 <img src="../../images/slices/icon_srwz.png" alt="">
                             </el-tooltip>
                         </div>

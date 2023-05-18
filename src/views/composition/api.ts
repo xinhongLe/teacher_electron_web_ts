@@ -16,7 +16,6 @@ any,
     });
 };
 
-
 // 获取所有文章
 export const fetchAllPassage: RequestFun<
     FetchAllPassage,
@@ -26,7 +25,7 @@ export const fetchAllPassage: RequestFun<
         baseURL: YUN_API_COMPOSITION,
         url: "/Api/App/index/GetAllPassage",
         headers: {
-            "ContentType": "application/json;charset=UTF-8"
+            ContentType: "application/json;charset=UTF-8"
         },
         method: "post",
         data
@@ -42,7 +41,7 @@ export const fetchAllPassageByPage: RequestFun<
         baseURL: YUN_API_COMPOSITION,
         url: "/Api/App/index/GetAllPassageform",
         headers: {
-            "ContentType": "application/json;charset=UTF-8"
+            ContentType: "application/json;charset=UTF-8"
         },
         method: "post",
         data
@@ -103,9 +102,6 @@ IdeleteArticle,
         data
     });
 };
-
-
-/*********************************************** */
 
 // // 下载批量导入模板
 // export const downLoadBatchImportModel: RequestFun<
@@ -260,12 +256,10 @@ IdownloadPDF,
         baseURL: YUN_API_COMPOSITION,
         url: "/Api/TeacherPlat/CompositionHandle/DownloadPDF",
         method: "post",
-        responseType:'blob',
+        responseType: "blob",
         data
     });
 };
-
-/***************************************************** */
 
 // 获取班级学生
 export const getStudentByClass: RequestFun<

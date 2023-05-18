@@ -88,7 +88,7 @@
         </div>
     </div>
 
-    <drawing-board :show="drawingShow" @closeWriteBoard="drawingShow = false" />
+    <drawing-board :show="drawingShow" @closeWriteBoard="drawingShow = false"/>
 </template>
 
 <script lang="ts">
@@ -101,7 +101,7 @@ import {
     nextTick,
     onUnmounted,
     PropType,
-    computed,
+    computed
 } from "vue";
 import isElectronFun from "is-electron";
 import { getFileAndPauseByFile } from "./api";
@@ -111,26 +111,25 @@ import { MutationTypes, store } from "@/store";
 import emitter from "@/utils/mitt";
 import { IViewResourceData } from "@/types/store";
 import DrawingBoard from "@/components/drawingBoard/index.vue";
+
 export default defineComponent({
     props: {
         dialog: {
             type: Boolean,
-            default: false,
+            default: false
         },
-
         close: {
             type: Function,
-            default: () => {},
+            default: () => {}
         },
-
         resource: {
             type: Object as PropType<IViewResourceData>,
-            required: true,
+            required: true
         },
         activeWindow: {
             type: Boolean,
-            default: false,
-        },
+            default: false
+        }
     },
     setup(props) {
         const isElectron = isElectronFun();
@@ -156,7 +155,7 @@ export default defineComponent({
             isVideoEnded,
             playPause,
             childRef,
-            replay,
+            replay
         } = useVideo();
 
         const brushHandle = () => {
@@ -179,7 +178,7 @@ export default defineComponent({
             store.commit(MutationTypes.REMOVE_FULLSCREEN_RESOURCE, {
                 id: props.resource.id,
                 openMore: props.resource.openMore,
-                type: "LookVideo",
+                type: "LookVideo"
             });
         };
 
@@ -209,7 +208,7 @@ export default defineComponent({
             lastId.value = id;
             childRef.value && childRef.value!.clearBrush();
             getFileAndPauseByFile({
-                fileID: id,
+                fileID: id
             }).then(async (res) => {
                 if (res.resultCode === 200) {
                     const { FilePauses, VideoFile } = res.result;
@@ -301,10 +300,10 @@ export default defineComponent({
             childRef,
             videoLoading,
             formateSeconds,
-            drawingShow,
+            drawingShow
         };
     },
-    components: { DrawingBoard },
+    components: { DrawingBoard }
 });
 </script>
 
@@ -313,6 +312,7 @@ export default defineComponent({
     border: 3px solid #4b71ee;
     border-radius: 10px;
 }
+
 .file-sn {
     position: absolute;
     left: 20px;
@@ -320,6 +320,7 @@ export default defineComponent({
     color: #999;
     font-size: 16px;
 }
+
 .look-video {
     width: 100vw;
     height: 100vh;
@@ -329,17 +330,20 @@ export default defineComponent({
     background: #fff;
     -webkit-app-region: no-drag;
     top: 0;
+
     &.dialog-type {
         width: 100%;
         height: 100%;
         position: relative;
     }
 }
+
 .warp {
     height: 100%;
     display: flex;
     flex-direction: column;
 }
+
 .frames-box {
     width: 100%;
     height: 100%;
@@ -348,6 +352,7 @@ export default defineComponent({
     flex-direction: column;
     align-items: center;
     position: relative;
+
     > p {
         font-size: 20px;
         font-weight: 600;
@@ -357,11 +362,13 @@ export default defineComponent({
         margin-top: 16px;
         margin-bottom: 16px;
     }
+
     .count {
         position: absolute;
         top: -50px;
         right: 0;
     }
+
     .content {
         flex: 1;
         height: 100%;
@@ -370,22 +377,26 @@ export default defineComponent({
         width: 100%;
         justify-content: center;
     }
+
     .material-box {
         width: 90%;
         flex: 1;
         position: relative;
+
         video {
             width: 100%;
             height: 100%;
             position: absolute;
         }
     }
+
     .progress {
         width: 94%;
         height: 40px;
         margin: 10px 0;
         z-index: 3;
         align-self: center;
+
         .time {
             width: 100%;
             display: flex;
@@ -393,6 +404,7 @@ export default defineComponent({
         }
     }
 }
+
 .dialog-footer {
     width: 100%;
     height: 80px;
@@ -401,11 +413,13 @@ export default defineComponent({
     display: flex;
     align-items: center;
     justify-content: center;
+
     > div {
         width: 64px;
         height: 64px;
         cursor: pointer;
         margin-right: 20px;
+
         p {
             text-align: center;
             font-size: 12px;
@@ -415,38 +429,48 @@ export default defineComponent({
             font-weight: 550;
         }
     }
+
     > div.pen {
         background: url("./../../assets/look/btn_huabi@2x.png");
         background-size: 100% 100%;
     }
+
     > div.close {
         background: url("./../../assets/look/btn_guanbi@2x.png");
         background-size: 100% 100%;
+
         p {
             color: #fff;
         }
     }
+
     > div.mini {
         background: url("./../../assets/look/btn_zuixiaohua@2x.png");
         background-size: 100% 100%;
     }
+
     .replay {
         background: url("./../../assets/look/btn_chongbo@2x.png");
         background-size: 100% 100%;
     }
+
     .play,
     .stop,
     .next {
         width: 120px;
+
         p {
             color: #fff;
         }
+
         background-image: url("./../../assets/look/btn_zanting@2x.png");
         background-size: 100% 100%;
     }
+
     .stop {
         background-image: url("./../../assets/look/btn_bofang@2x.png");
     }
+
     .next {
         background-image: url("./../../assets/look/btn_xiayibu@2x.png");
     }
