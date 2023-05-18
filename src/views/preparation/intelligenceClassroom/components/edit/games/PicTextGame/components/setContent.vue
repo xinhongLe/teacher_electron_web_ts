@@ -1,7 +1,7 @@
 <template>
     <div class="content-detail">
         <div class="top">
-            <p @click="addPairing">添加配对 {{ form.leftData.length }}/9</p>
+            <p @click="addPairing">添加配对 {{ form.LeftItems.Items.length }}/9</p>
         </div>
         <div class="middle">
             <div class="middle-left">
@@ -143,42 +143,64 @@ export default defineComponent({
             type: Object,
             require: true,
             default: () => ({
-                leftType: 1,
-                rightType: 1,
-                leftData: [
-                    {
-                        Type: 1,
-                        Data: "",
-                        File: {
-                            url: "",
-                            Bucket: "",
-                            Name: "",
-                            FileName: "",
-                            FilePath: "",
-                            Extention: "",
-                            Type: 2,
-                        },
-                        Position: {x: 200, y: 200},
-                        Size: {Width: 240, Height: 100},
-                    },
-                ],
-                rightData: [
-                    {
-                        Type: 1,
-                        Data: "",
-                        File: {
-                            url: "",
-                            Bucket: "",
-                            Name: "",
-                            FileName: "",
-                            FilePath: "",
-                            Extention: "",
-                            Type: 2,
-                        },
-                        Position: {x: 600, y: 200},
-                        Size: {Width: 240, Height: 100},
-                    },
-                ]
+                LeftItems: {
+                    Type: 0,
+                    Items: [
+                        {
+                            Id: "",
+                            Data: "",
+                            File: {
+                                ID: "",
+                                Name: "",
+                                SN: 0,
+                                FileName: "",
+                                Bucket: "",
+                                FilePath: "",
+                                Extention: "",
+                                FileMD5: "",
+                                Type: 0,
+                                StaffID: ""
+                            },
+                            Size: {
+                                Width: 0,
+                                Height: 0
+                            },
+                            Position: {
+                                x: 0,
+                                y: 0
+                            }
+                        }
+                    ]
+                },
+                RightItems: {
+                    Type: 0,
+                    Items: [
+                        {
+                            Id: "",
+                            Data: "",
+                            File: {
+                                ID: "",
+                                Name: "",
+                                SN: 0,
+                                FileName: "",
+                                Bucket: "",
+                                FilePath: "",
+                                Extention: "",
+                                FileMD5: "",
+                                Type: 0,
+                                StaffID: ""
+                            },
+                            Size: {
+                                Width: 0,
+                                Height: 0
+                            },
+                            Position: {
+                                x: 0,
+                                y: 0
+                            }
+                        }
+                    ]
+                }
             }),
         },
     },
@@ -190,64 +212,80 @@ export default defineComponent({
 
         //添加配对
         const addPairing = () => {
-            if (form.value.leftData.length >= 9) return;
-            form.value.leftData.push({
-                Type: 1,
-                Data: "",
-                File: {
-                    url: "",
-                    Bucket: "",
-                    Name: "",
-                    FileName: "",
-                    FilePath: "",
-                    Extention: "",
-                    Type: 2,
-                },
-                Position: {x: 200, y: form.value.leftData[form.value.leftData.length - 1].Position.y + 150},
-                Size: {Width: 240, Height: 100},
-            })
-            form.value.rightData.push({
-                Type: 1,
-                Data: "",
-                File: {
-                    url: "",
-                    Bucket: "",
-                    Name: "",
-                    FileName: "",
-                    FilePath: "",
-                    Extention: "",
-                    Type: 2,
-                },
-                Position: {x: 600, y: form.value.rightData[form.value.rightData.length - 1].Position.y + 150},
-                Size: {Width: 240, Height: 100},
-            })
+            if (form.value.LeftItems.Items.length >= 9) return;
+            form.value.LeftItems.Items.push(
+                {
+                    Id: "",
+                    Data: "",
+                    File: {
+                        ID: "",
+                        Name: "",
+                        SN: 0,
+                        FileName: "",
+                        Bucket: "",
+                        FilePath: "",
+                        Extention: "",
+                        FileMD5: "",
+                        Type: 0,
+                        StaffID: ""
+                    },
+                    Position: {
+                        x: 200,
+                        y: form.value.LeftItems.Items[form.value.LeftItems.Items.length - 1].Position.y + 150
+                    },
+                    Size: {Width: 240, Height: 100},
+                }
+            )
+            form.value.RightItems.Items.push(
+                {
+                    Id: "",
+                    Data: "",
+                    File: {
+                        ID: "",
+                        Name: "",
+                        SN: 0,
+                        FileName: "",
+                        Bucket: "",
+                        FilePath: "",
+                        Extention: "",
+                        FileMD5: "",
+                        Type: 0,
+                        StaffID: ""
+                    },
+                    Position: {
+                        x: 600,
+                        y: form.value.RightItems.Items[form.value.RightItems.Items.length - 1].Position.y + 150
+                    },
+                    Size: {Width: 240, Height: 100},
+                }
+            )
         };
-        watch(() => form.value.leftType, val => {
-            if (val === 1) {
-                form.value.leftData.forEach((item: any) => {
-                    item.Type = 1
-                })
-            } else {
-                form.value.leftData.forEach((item: any) => {
-                    item.Type = 0
-                })
-            }
-        });
-        watch(() => form.value.rightType, val => {
-            if (val === 1) {
-                form.value.rightData.forEach((item: any) => {
-                    item.Type = 1
-                })
-            } else {
-                form.value.rightData.forEach((item: any) => {
-                    item.Type = 0
-                })
-            }
-        });
+        // watch(() => form.value.leftType, val => {
+        //     if (val === 1) {
+        //         form.value.leftData.forEach((item: any) => {
+        //             item.Type = 1
+        //         })
+        //     } else {
+        //         form.value.leftData.forEach((item: any) => {
+        //             item.Type = 0
+        //         })
+        //     }
+        // });
+        // watch(() => form.value.rightType, val => {
+        //     if (val === 1) {
+        //         form.value.rightData.forEach((item: any) => {
+        //             item.Type = 1
+        //         })
+        //     } else {
+        //         form.value.rightData.forEach((item: any) => {
+        //             item.Type = 0
+        //         })
+        //     }
+        // });
         //删除左边
         const deleteLeftCon = (index: number) => {
-            form.value.leftData.splice(index, 1)
-            form.value.rightData.splice(index, 1)
+            form.value.LeftItems.Items.splice(index, 1)
+            form.value.RightItems.Items.splice(index, 1)
         };
         //上传图片
         const onChange = (file: any, index: number, type: number) => {
@@ -292,7 +330,7 @@ export default defineComponent({
                 get(STORAGE_TYPES.OSS_PATHS)?.["ElementFile"].Bucket
             );
             if (type === 1) {
-                form.value.leftData[index].File = {
+                form.value.LeftItems.Items[index].File = {
                     url: fileInfo,
                     Bucket: "axsfile",
                     FilePath:
@@ -302,13 +340,13 @@ export default defineComponent({
                     Extention: filePath?.fileExtension || "",
                     Type: 2,
                 };
-                form.value.leftData[index].Size = {
+                form.value.LeftItems.Items[index].Size = {
                     Width: imgWidth,
                     Height: imgHeight,
                 };
 
             } else {
-                form.value.rightData[index].File = {
+                form.value.RightItems.Items[index].File = {
                     url: fileInfo,
                     Bucket: "axsfile",
                     FilePath:
@@ -318,7 +356,7 @@ export default defineComponent({
                     Extention: filePath?.fileExtension || "",
                     Type: 2,
                 };
-                form.value.rightData[index].Size = {
+                form.value.RightItems.Items[index].Size = {
                     Width: imgWidth,
                     Height: imgHeight,
                 };

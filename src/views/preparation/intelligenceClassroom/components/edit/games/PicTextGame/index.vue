@@ -43,42 +43,64 @@ export default defineComponent({
                 {name: "调整布局", value: 2}
             ],
             form: {
-                leftType: 1,
-                rightType: 1,
-                leftData: [
-                    {
-                        Type: 1,
-                        Data: "",
-                        File: {
-                            url: "",
-                            Bucket: "",
-                            Name: "",
-                            FileName: "",
-                            FilePath: "",
-                            Extention: "",
-                            Type: 2,
-                        },
-                        Position: {x: 200, y: 200},
-                        Size: {Width: 240, Height: 100},
-                    },
-                ],
-                rightData: [
-                    {
-                        Type: 1,
-                        Data: "",
-                        File: {
-                            url: "",
-                            Bucket: "",
-                            Name: "",
-                            FileName: "",
-                            FilePath: "",
-                            Extention: "",
-                            Type: 2,
-                        },
-                        Position: {x: 600, y: 200},
-                        Size: {Width: 240, Height: 100},
-                    },
-                ]
+                LeftItems: {
+                    Type: 0,
+                    Items: [
+                        {
+                            Id: "",
+                            Data: "",
+                            File: {
+                                ID: "",
+                                Name: "",
+                                SN: 0,
+                                FileName: "",
+                                Bucket: "",
+                                FilePath: "",
+                                Extention: "",
+                                FileMD5: "",
+                                Type: 0,
+                                StaffID: ""
+                            },
+                            Size: {
+                                Width: 0,
+                                Height: 0
+                            },
+                            Position: {
+                                x: 0,
+                                y: 0
+                            }
+                        }
+                    ]
+                },
+                RightItems: {
+                    Type: 0,
+                    Items: [
+                        {
+                            Id: "",
+                            Data: "",
+                            File: {
+                                ID: "",
+                                Name: "",
+                                SN: 0,
+                                FileName: "",
+                                Bucket: "",
+                                FilePath: "",
+                                Extention: "",
+                                FileMD5: "",
+                                Type: 0,
+                                StaffID: ""
+                            },
+                            Size: {
+                                Width: 0,
+                                Height: 0
+                            },
+                            Position: {
+                                x: 0,
+                                y: 0
+                            }
+                        }
+                    ]
+                }
             }
         });
 
