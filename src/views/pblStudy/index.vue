@@ -14,7 +14,7 @@
 <script lang="ts">
 import { get, STORAGE_TYPES } from "@/utils/storage";
 import { defineComponent, onActivated, ref, onDeactivated } from "vue";
-import { PBL_WEB } from "@/config";
+import { PBL_WEB, systemId } from "@/config";
 import isElectron from "is-electron";
 // ts
 export default defineComponent({
@@ -88,7 +88,8 @@ export default defineComponent({
             // token 令牌
             const token = get(STORAGE_TYPES.SET_TOKEN);
             // webview地址
-            url.value = `${PBL_WEB}/home?token=${token}`;
+            url.value = `${PBL_WEB}/home?token=${token}&platformID=${systemId}`;
+            // url.value = `http://localhost:8081/home?token=${token}&platformID=${systemId}`;
             console.log("urlurlurlurlurl", url.value);
             console.log("token", token);
 

@@ -12,7 +12,7 @@ export function createWinCardWindow(title: string, windowUrl: string) {
         // useContentSize: true,
     });
 
-    // editWin && editWin.webContents.openDevTools(); // 打开调试器
+    editWin && editWin.webContents.openDevTools(); // 打开调试器
     editWin.maximize();
 }
 
