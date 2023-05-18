@@ -1,46 +1,47 @@
 import { BrowserWindow, ipcMain } from "electron";
 import { createWindow } from "./createWindow";
-let editWin: BrowserWindow | null;
-const wincardURL = process.env.NODE_ENV === "development" ? `${process.env.WEBPACK_DEV_SERVER_URL}pblEditWinCard.html` : `file://${__dirname}/pblEditWinCard.html`;
 
-export function createWinCardWindow(title: string) {
-    
-    editWin = createWindow(wincardURL + "?" + title, {
+export function createWinCardWindow(title: string, windowUrl: string) {
+
+    const editWin = createWindow(windowUrl + "?" + title, {
         autoHideMenuBar: true,
         alwaysOnTop: false,
         title: title,
         frame: false, // 要创建无边框窗口
-        resizable: true // 禁止窗口大小缩放
+        resizable: true, // 禁止窗口大小缩放
         // useContentSize: true,
     });
 
-    // editWin = new BrowserWindow({
-    //     title: title,
-    //     useContentSize: true,
-    //     autoHideMenuBar: true,
-    //     frame: false,
-    //     webPreferences: {
-    //         enableRemoteModule: true,
-    //         webviewTag: true,
-    //         webSecurity: false, // 取消跨域限制
-    //         nodeIntegration: true,
-    //         contextIsolation: false,
-    //     },
-    // });
-    editWin && editWin.webContents.openDevTools(); // 打开调试器
-    // require("@electron/remote/main").enable(editWin.webContents);
-    // editWin.loadURL(wincardURL);
+    // editWin && editWin.webContents.openDevTools(); // 打开调试器
     editWin.maximize();
 }
 
 export function registerPblWinCardEvent() {
+    const windowUrl = createUrl("pblEditWinCard.html");
     ipcMain.handle("openPblWinCardWin", (_, data) => {
-        createWinCardWindow(data);
+        createWinCardWindow(data, windowUrl);
     });
     // ipcMain.handle("closeWinCard", () => {
     //     console.log("sssss", 123123);
     // });
 }
-export function openWinCardWin() {
-    editWin && editWin.show();
+
+export function registerPblWinCardLessonEvent() {
+    const windowUrl = createUrl("pblEditWinCardLesson.html");
+    ipcMain.handle("openPblWinCardWinLesson", (_, data) => {
+        createWinCardWindow(data, windowUrl);
+    });
+}
+
+export function registerPreviewFileEvent() {
+    const windowUrl = createUrl("pblFilePreview.html");
+    ipcMain.handle("openPreviewFile", (_, data) => {
+        createWinCardWindow(data, windowUrl);
+    });
+}
+
+function createUrl(url: string) {
+    return process.env.NODE_ENV === "development"
+        ? `${process.env.WEBPACK_DEV_SERVER_URL}${url}`
+        : `file://${__dirname}/${url}`;
 }

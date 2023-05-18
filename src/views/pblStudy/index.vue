@@ -3,7 +3,7 @@
         <!--        <webview v-if="isElectron" class="iframe" :src="url"></webview>-->
         <iframe
             :src="url"
-            sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-top-navigation-by-user-activation"
+            sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-top-navigation-by-user-activation allow-downloads"
             class="iframe"
             id="pblStudy"
         />
@@ -29,6 +29,7 @@ export default defineComponent({
                 const typeObj: { [key: string]: string } = {
                     openWinCard: "openPblWinCardWin",
                     openPblWincardLesson: "openPblWinCardWinLesson",
+                    openPreviewFile: "openPreviewFile"
                 };
                 return window.electron.ipcRenderer.invoke(typeObj[type], name);
             }
@@ -67,21 +68,39 @@ export default defineComponent({
                 openPblWinCard("窗卡页预览", e.data.type);
             }
         };
+
+        const openPreviewFile = (e: any) => {
+            const iframe = document.getElementById(
+                "pblStudy"
+            ) as HTMLIFrameElement;
+            // 通过origin对消息进行过滤，避免遭到XSS攻击
+            if (
+                e.source === iframe.contentWindow &&
+                e.data.type === "openPreviewFile"
+            ) {
+                window.electron.store.set("windowPblInfoPreview", {
+                    ...e.data.data
+                });
+                openPblWinCard("文件预览", e.data.type);
+            }
+        };
         onActivated(() => {
             // token 令牌
             const token = get(STORAGE_TYPES.SET_TOKEN);
             // webview地址
-            url.value = `http://localhost:8081/home?token=${token}`;
+            url.value = `${PBL_WEB}/home?token=${token}`;
             console.log("urlurlurlurlurl", url.value);
             console.log("token", token);
 
             window.addEventListener("message", openWinCard, false);
             window.addEventListener("message", openWinCardLesson, false);
+            window.addEventListener("message", openPreviewFile, false);
         });
 
         onDeactivated(() => {
             window.removeEventListener("message", openWinCard);
             window.removeEventListener("message", openWinCardLesson);
+            window.removeEventListener("message", openPreviewFile);
         });
         return {
             url,

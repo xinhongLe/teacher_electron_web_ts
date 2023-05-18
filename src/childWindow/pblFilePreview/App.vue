@@ -31,13 +31,8 @@
 <script lang="ts" setup>
 import { onMounted, ref, nextTick } from "vue";
 import { CloseBold } from "@element-plus/icons-vue";
-import editWinCard from "../../views/pblStudy/wincard.vue";
+import editWinCard from "../../views/pblStudy/filePreview.vue";
 import isElectron from "is-electron";
-// onMounted(() => {
-//     window.electron.ipcRenderer.on("setTitle", (_, title) => {
-//         console.log("titles", title);
-//     });
-// });
 const editWinCardRef = ref();
 // 获取url中"?"符后的字串
 const name: string = window.location.search;

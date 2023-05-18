@@ -145,15 +145,22 @@ module.exports = {
             entry: "src/childWindow/pblEditWinCard/main.ts",
             template: "public/template.html",
             filename: "pblEditWinCard.html",
-            title: "编辑",
+            title: "pbl编辑",
             chunks: ["pblEditWinCard"]
         },
         pblEditWinCardLesson: {
             entry: "src/childWindow/pblEditWinCardLesson/main.ts",
             template: "public/template.html",
             filename: "pblEditWinCardLesson.html",
-            title: "编辑",
+            title: "pbl窗卡页预览",
             chunks: ["pblEditWinCardLesson"]
+        },
+        pblFilePreview: {
+            entry: "src/childWindow/pblFilePreview/main.ts",
+            template: "public/template.html",
+            filename: "pblFilePreview.html",
+            title: "pbl文件预览",
+            chunks: ["pblFilePreview"]
         }
     },
     css: {

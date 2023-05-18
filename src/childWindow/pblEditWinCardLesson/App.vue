@@ -33,13 +33,8 @@ import { onMounted, ref, nextTick } from "vue";
 import { CloseBold } from "@element-plus/icons-vue";
 import editWinCard from "../../views/pblStudy/wincardLesson.vue";
 import isElectron from "is-electron";
-// onMounted(() => {
-//     window.electron.ipcRenderer.on("setTitle", (_, title) => {
-//         console.log("titles", title);
-//     });
-// });
 const editWinCardRef = ref();
-//获取url中"?"符后的字串
+// 获取url中"?"符后的字串
 const name: string = window.location.search;
 console.log("window.location.search", decodeURIComponent(name.substring(1)));
 const currentTitle = ref(decodeURIComponent(name.substring(1)));

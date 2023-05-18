@@ -13,19 +13,6 @@ export function createWinCardWindow(title: string) {
         // useContentSize: true,
     });
 
-    // editWin = new BrowserWindow({
-    //     title: title,
-    //     useContentSize: true,
-    //     autoHideMenuBar: true,
-    //     frame: false,
-    //     webPreferences: {
-    //         enableRemoteModule: true,
-    //         webviewTag: true,
-    //         webSecurity: false, // 取消跨域限制
-    //         nodeIntegration: true,
-    //         contextIsolation: false,
-    //     },
-    // });
     editWin && editWin.webContents.openDevTools(); // 打开调试器
     // require("@electron/remote/main").enable(editWin.webContents);
     // editWin.loadURL(wincardURL);
@@ -36,9 +23,6 @@ export function registerPblWinCardLessonEvent() {
     ipcMain.handle("openPblWinCardWinLesson", (_, data) => {
         createWinCardWindow(data);
     });
-    // ipcMain.handle("closeWinCard", () => {
-    //     console.log("sssss", 123123);
-    // });
 }
 export function openWinCardWin() {
     editWin && editWin.show();

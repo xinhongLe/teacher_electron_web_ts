@@ -39,7 +39,7 @@ import isElectron from "is-electron";
 //     });
 // });
 const editWinCardRef = ref();
-//获取url中"?"符后的字串
+// 获取url中"?"符后的字串
 const name: string = window.location.search;
 console.log("window.location.search", decodeURIComponent(name.substring(1)));
 const currentTitle = ref(decodeURIComponent(name.substring(1)));

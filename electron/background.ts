@@ -1,6 +1,6 @@
 "use strict";
 
-import { app, protocol, BrowserWindow, ipcMain, Menu } from "electron";
+import { app, protocol, BrowserWindow, ipcMain, Menu, session } from "electron";
 import { createProtocol } from "vue-cli-plugin-electron-builder/lib";
 import { initialize } from "@electron/remote/main";
 import {
@@ -12,8 +12,7 @@ import {
 import autoUpdater from "./autoUpdater";
 import { registerWinCardEvent } from "./wincard";
 import { registerVirtualKeyBoard, closeKeyBoard, setInput } from "./virtualKeyBoard";
-import { registerPblWinCardEvent } from "./pblWincard";
-import { registerPblWinCardLessonEvent } from "./pblWincardLesson";
+import { registerPblWinCardEvent, registerPblWinCardLessonEvent, registerPreviewFileEvent } from "./pblWincard";
 import SingalRHelper from "./singalr";
 import ElectronLog from "electron-log";
 import os from "os";
@@ -78,6 +77,7 @@ async function createWindow() {
     registerVirtualKeyBoard();
     registerPblWinCardEvent();
     registerPblWinCardLessonEvent();
+    registerPreviewFileEvent();
 
     if (process.env.WEBPACK_DEV_SERVER_URL) {
         require("@electron/remote/main").enable(mainWindow.webContents);

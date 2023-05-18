@@ -15,20 +15,18 @@ import { get, STORAGE_TYPES } from "@/utils/storage";
 import { defineComponent, onMounted, ref } from "vue";
 import { PBL_WEB } from "@/config";
 import isElectron from "is-electron";
-import { useRouter, useRoute } from "vue-router";
 
 // ts
 export default defineComponent({
     name: "pblStudyWincard",
     setup() {
-        const route = useRoute();
         const url = ref("");
         onMounted(() => {
             // token 令牌
             const token = get(STORAGE_TYPES.SET_TOKEN);
-            const cardInfo = window.electron.store.get("windowPblInfoLesson") as any;
+            const cardInfo = window.electron.store.get("windowPblInfoPreview") as any;
             // webview地址
-            url.value = `${PBL_WEB}/wincard.html?token=${token}&resourceId=${cardInfo.resourceId}&`;
+            url.value = cardInfo.url;
             console.log("urlurlurlurlurl", url.value);
             console.log("token", token);
         });

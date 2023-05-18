@@ -30,7 +30,7 @@ export default defineComponent({
             const cardInfo = window.electron.store.get("windowPblInfo") as any;
             console.log("cardInfo", cardInfo);
             // webview地址
-            url.value = `http://localhost:8081/wincard?token=${token}&cardId=${cardInfo.cardId}&lessonId=${cardInfo.lessonId}&pageId=${cardInfo.pageId}`;
+            url.value = `${PBL_WEB}/wincard?token=${token}&cardId=${cardInfo.cardId}&lessonId=${cardInfo.lessonId}&pageId=${cardInfo.pageId}`;
             console.log("urlurlurlurlurl", url.value);
             console.log("token", token);
         });
