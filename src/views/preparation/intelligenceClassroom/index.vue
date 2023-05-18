@@ -59,8 +59,7 @@
         <SelectClassDialog v-if="selectClassVisible" v-model:class-visible="selectClassVisible"
                            :currentSlide="currentSlide" v-model:send-success="sharePageVisible"/>
         <!--        正在分享该页-->
-        <!--        暂时注释！！！！！-->
-        <!--        <ShareCurrentPage v-if="sharePageVisible" v-model:share-visible="sharePageVisible"></ShareCurrentPage>-->
+        <ShareCurrentPage v-if="sharePageVisible" v-model:share-visible="sharePageVisible"></ShareCurrentPage>
     </div>
 </template>
 
