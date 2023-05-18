@@ -50,7 +50,28 @@
             </div>
         </div>
         <div class="footer" v-if="!lessonId">
-            <el-button type="primary" @click="close">关闭</el-button>
+            <!--            <el-button @click="packUp">最小化</el-button>-->
+
+            <!--            <el-button type="primary" @click="close">关闭</el-button>-->
+
+            <el-button
+                type="default"
+                round
+                plain
+                class="min-btn"
+                @click="packUp"
+            >
+                最小化
+            </el-button>
+            <el-button
+                type="danger"
+                round
+                plain
+                class="close-btn"
+                @click="close"
+            >
+                关闭
+            </el-button>
         </div>
     </div>
 </template>
@@ -106,6 +127,9 @@ export default defineComponent({
         const close = () => {
             window.electron.destroyWindow();
         };
+        const packUp = () => {
+            window.electron.minimizeWindow();
+        }
 
         const handlePraiseStudent = async (value: any) => {
             const data = {
@@ -236,7 +260,8 @@ export default defineComponent({
             customColorMethod,
             handlePraiseStudent,
             width,
-            height
+            height,
+            packUp
         };
     }
 });
@@ -374,6 +399,7 @@ export default defineComponent({
         align-items: center;
         height: 72px;
         border-radius: 0px 0px 8px 8px;
+
     }
 }
 </style>
