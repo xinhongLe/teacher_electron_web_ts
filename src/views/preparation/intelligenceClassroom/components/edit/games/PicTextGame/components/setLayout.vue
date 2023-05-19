@@ -78,42 +78,52 @@ export default defineComponent({
             type: Object,
             require: true,
             default: () => ({
-                leftType: 1,
-                rightType: 1,
-                leftData: [
-                    {
-                        Type: 1,
-                        Data: "",
-                        File: {
-                            url: "",
-                            Bucket: "",
-                            Name: "",
-                            FileName: "",
-                            FilePath: "",
-                            Extention: "",
-                            Type: 2,
-                        },
-                        Position: {x: 200, y: 200},
-                        Size: {Width: 240, Height: 100},
-                    },
-                ],
-                rightData: [
-                    {
-                        Type: 1,
-                        Data: "",
-                        File: {
-                            url: "",
-                            Bucket: "",
-                            Name: "",
-                            FileName: "",
-                            FilePath: "",
-                            Extention: "",
-                            Type: 2,
-                        },
-                        Position: {x: 600, y: 200},
-                        Size: {Width: 240, Height: 100},
-                    },
-                ]
+                LeftItems: {
+                    Type: 1,
+                    Items: [
+                        {
+                            Id: "",
+                            Data: "",
+                            File: {
+                                ID: "",
+                                Name: "",
+                                SN: 0,
+                                FileName: "",
+                                Bucket: "",
+                                FilePath: "",
+                                Extention: "",
+                                FileMD5: "",
+                                Type: 0,
+                                StaffID: ""
+                            },
+                            Position: {x: 200, y: 200},
+                            Size: {Width: 240, Height: 100},
+                        }
+                    ]
+                },
+                RightItems: {
+                    Type: 0,
+                    Items: [
+                        {
+                            Id: "",
+                            Data: "",
+                            File: {
+                                ID: "",
+                                Name: "",
+                                SN: 0,
+                                FileName: "",
+                                Bucket: "",
+                                FilePath: "",
+                                Extention: "",
+                                FileMD5: "",
+                                Type: 0,
+                                StaffID: ""
+                            },
+                            Position: {x: 600, y: 200},
+                            Size: {Width: 240, Height: 100},
+                        }
+                    ]
+                }
             })
         }
     },
@@ -218,12 +228,14 @@ export default defineComponent({
 
         const initData = () => {
             state.elements = [];
-            props.newForm.leftData.forEach((option: any, index: number) => {
+            props.newForm.LeftItems.Items.forEach((option: any, index: number) => {
                 option.selectId = index;
+                option.Type = props.newForm.LeftItems.Type;
                 state.elements.push(option);
             });
-            props.newForm.rightData.forEach((option: any, index: number) => {
+            props.newForm.RightItems.Items.forEach((option: any, index: number) => {
                 option.selectId = index;
+                option.Type = props.newForm.RightItems.Type;
                 state.elements.push(option);
             });
         };
@@ -282,6 +294,9 @@ export default defineComponent({
     width: 100%;
     height: 100%;
     position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .shape__scale-point {

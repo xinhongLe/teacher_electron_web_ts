@@ -13,25 +13,25 @@
                         <span>
                             类型：
                         </span>
-                        <el-radio-group v-model="form.leftType">
+                        <el-radio-group v-model="form.LeftItems.Type">
                             <el-radio :label="1">文字</el-radio>
-                            <el-radio :label="2">图片</el-radio>
+                            <el-radio :label="0">图片</el-radio>
                         </el-radio-group>
                     </div>
-                    <div class="content-text" v-if="form.leftType == 1">
-                        <div class="content-item" v-for="(item,index) in form.leftData">
+                    <div class="content-text" v-if="form.LeftItems.Type == 1">
+                        <div class="content-item" v-for="(item,index) in form.LeftItems.Items">
                             <span>{{ index + 1 }}</span>
                             <el-input v-model="item.Data"></el-input>
                             <div class="del-icon" @click="deleteLeftCon(index)">
-                                <el-icon v-if="index > 1">
+                                <el-icon v-if="index > 0">
                                     <Delete/>
                                 </el-icon>
                             </div>
 
                         </div>
                     </div>
-                    <div class="content-img" v-if="form.leftType == 2">
-                        <div class="content-item" v-for="(item,index) in form.leftData">
+                    <div class="content-img" v-if="form.LeftItems.Type == 0">
+                        <div class="content-item" v-for="(item,index) in form.LeftItems.Items">
                             <el-upload
                                 ref="uploadRef"
                                 class="avatar-uploader"
@@ -54,7 +54,7 @@
                                 >
                             </el-upload>
                             <div class="del-icon" @click="deleteLeftCon(index)">
-                                <el-icon v-if="index > 1">
+                                <el-icon v-if="index > 0">
                                     <Delete/>
                                 </el-icon>
                             </div>
@@ -71,25 +71,25 @@
                         <span>
                             类型：
                         </span>
-                        <el-radio-group v-model="form.rightType">
+                        <el-radio-group v-model="form.RightItems.Type">
                             <el-radio :label="1">文字</el-radio>
-                            <el-radio :label="2">图片</el-radio>
+                            <el-radio :label="0">图片</el-radio>
                         </el-radio-group>
                     </div>
-                    <div class="content-text" v-if="form.rightType == 1">
-                        <div class="content-item" v-for="(item,index) in form.rightData">
+                    <div class="content-text" v-if="form.RightItems.Type == 1">
+                        <div class="content-item" v-for="(item,index) in form.RightItems.Items">
                             <span>{{ index + 1 }}</span>
                             <el-input v-model="item.Data"></el-input>
                             <div class="del-icon" @click="deleteLeftCon(index)">
-                                <el-icon v-if="index > 1">
+                                <el-icon v-if="index > 0">
                                     <Delete/>
                                 </el-icon>
                             </div>
 
                         </div>
                     </div>
-                    <div class="content-img" v-if="form.rightType == 2">
-                        <div class="content-item" v-for="(item,index) in form.rightData">
+                    <div class="content-img" v-if="form.RightItems.Type == 0">
+                        <div class="content-item" v-for="(item,index) in form.RightItems.Items">
                             <el-upload
                                 ref="uploadRef"
                                 class="avatar-uploader"
@@ -112,7 +112,7 @@
                                 >
                             </el-upload>
                             <div class="del-icon" @click="deleteLeftCon(index)">
-                                <el-icon v-if="index > 1">
+                                <el-icon v-if="index > 0">
                                     <Delete/>
                                 </el-icon>
                             </div>
@@ -122,8 +122,8 @@
             </div>
         </div>
         <div class="footer">
-            <el-button>取消</el-button>
-            <el-button type="primary">保存</el-button>
+            <!--            <el-button>取消</el-button>-->
+            <el-button type="primary" @click="handleComfirm">保存</el-button>
         </div>
     </div>
 </template>
@@ -144,7 +144,7 @@ export default defineComponent({
             require: true,
             default: () => ({
                 LeftItems: {
-                    Type: 0,
+                    Type: 1,
                     Items: [
                         {
                             Id: "",
@@ -161,14 +161,8 @@ export default defineComponent({
                                 Type: 0,
                                 StaffID: ""
                             },
-                            Size: {
-                                Width: 0,
-                                Height: 0
-                            },
-                            Position: {
-                                x: 0,
-                                y: 0
-                            }
+                            Position: {x: 200, y: 200},
+                            Size: {Width: 240, Height: 100},
                         }
                     ]
                 },
@@ -190,14 +184,8 @@ export default defineComponent({
                                 Type: 0,
                                 StaffID: ""
                             },
-                            Size: {
-                                Width: 0,
-                                Height: 0
-                            },
-                            Position: {
-                                x: 0,
-                                y: 0
-                            }
+                            Position: {x: 600, y: 200},
+                            Size: {Width: 240, Height: 100},
                         }
                     ]
                 }
@@ -395,13 +383,25 @@ export default defineComponent({
             //     console.log(form.value.classData, "form.value.classData");
             // }
         };
+        // const formRef = ref();
+        const handleComfirm = () => {
+            // formRef.value.validate((valid: boolean) => {
+            //     if (valid) {
+            //         console.log(form.value, "handleComfirm");
+            //         emit("save");
+            //     }
+            // });
+            console.log(form.value, "handleComfirm");
+            emit("save");
+        };
         return {
             form,
             // leftType,
             // rightType,
             addPairing,
             deleteLeftCon,
-            onChange
+            onChange,
+            handleComfirm
         }
     }
 })

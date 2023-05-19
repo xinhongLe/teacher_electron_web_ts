@@ -21,7 +21,7 @@
 import {defineComponent, markRaw, ref, reactive, toRefs, PropType, onMounted} from "vue";
 import SetContent from "./components/setContent.vue";
 import setLayout from "./components/setLayout.vue";
-import {classSet, getTeacherPageGameConfig} from "@/api/game";
+import {getTeacherPageGameConfig, UpdateImageTextConnectionOption} from "@/api/game";
 import {Slide} from "wincard";
 import {getOssUrl} from "@/utils/oss";
 
@@ -44,7 +44,7 @@ export default defineComponent({
             ],
             form: {
                 LeftItems: {
-                    Type: 0,
+                    Type: 1,
                     Items: [
                         {
                             Id: "",
@@ -61,14 +61,8 @@ export default defineComponent({
                                 Type: 0,
                                 StaffID: ""
                             },
-                            Size: {
-                                Width: 0,
-                                Height: 0
-                            },
-                            Position: {
-                                x: 0,
-                                y: 0
-                            }
+                            Position: {x: 200, y: 200},
+                            Size: {Width: 240, Height: 100},
                         }
                     ]
                 },
@@ -90,14 +84,8 @@ export default defineComponent({
                                 Type: 0,
                                 StaffID: ""
                             },
-                            Size: {
-                                Width: 0,
-                                Height: 0
-                            },
-                            Position: {
-                                x: 0,
-                                y: 0
-                            }
+                            Position: {x: 600, y: 200},
+                            Size: {Width: 240, Height: 100},
                         }
                     ]
                 }
@@ -116,11 +104,25 @@ export default defineComponent({
                 pageID: props.slide?.id as string,
                 gameID: props.slide?.game?.id as string,
                 config: {
-                    // ClassificationData: state.form.classData
+                    LeftItems: state.form.LeftItems,
+                    RightItems: state.form.RightItems
                 }
             };
 
             console.log(data, "ok----------");
+            UpdateImageTextConnectionOption(data).then(res => {
+                if (res.resultCode === 200) {
+                    // console.log('res---', res)
+                    const data = {
+                        ID: props.slide?.game?.id,
+                        Name: props.slide?.game?.name,
+                        Url: props.slide?.game?.src.includes("?pageId")
+                            ? `${props.slide?.game?.src.split("?pageId")[0]}?pageId=${props.slide?.id}&time=${new Date().getTime()}` : `${props.slide?.game?.src}?pageId=${props.slide?.id}&time=${new Date().getTime()}`
+                    };
+                    emit("save", data);
+                }
+            })
+
             // classSet(data).then(res => {
             //     if (res.resultCode === 200) {
             //         const data = {
@@ -135,31 +137,36 @@ export default defineComponent({
         };
 
         onMounted(async () => {
-            // getTeacherPageGameConfig({PageID: props.slide!.id}).then(async res => {
-            //     if (res.resultCode === 200 && res.result.Config) {
-            //         state.form.AutoJudge = res.result.Config.AutoJudge ? 1 : 0;
-            //         state.form.ThemeId = res.result.Config.ThemeId;
-            //         state.form.Type = res.result.Config.Type;
-            //         state.form.DefaultCount = res.result.Config.DefaultCount;
-            //         const data = res.result.Config.ClassificationData || [];
-            //         for (let i = 0; i < data.length; i++) {
-            //             if (data[i].Type === 0) {
-            //                 const fileInfo = await getOssUrl(`${data[i].File.FilePath}/${data[i].File.FileName}.${data[i].File.Extention}`, `${data[i].File.Bucket}`);
-            //                 data[i].File.url = fileInfo;
-            //             }
-            //
-            //             for (let j = 0; j < data[i].Item.length; j++) {
-            //                 if (data[i].Item[j].Type === 0) {
-            //                     const fileInfo = await getOssUrl(`${data[i].Item[j].File.FilePath}/${data[i].Item[j].File.FileName}.${data[i].Item[j].File.Extention}`, `${data[i].Item[j].File.Bucket}`);
-            //                     data[i].Item[j].File.url = fileInfo;
-            //                 }
-            //             }
-            //         }
-            //         state.form.classData = data;
-            //     }
-            // });
-        });
+            getTeacherPageGameConfig({PageID: props.slide!.id}).then(async res => {
+                if (res.resultCode === 200 && res.result.Config) {
+                    console.log('res-------------', res)
+                    // state.form.AutoJudge = res.result.Config.AutoJudge ? 1 : 0;
+                    // state.form.ThemeId = res.result.Config.ThemeId;
+                    // state.form.Type = res.result.Config.Type;
+                    // state.form.DefaultCount = res.result.Config.DefaultCount;
+                    state.form.LeftItems.Type = res.result.Config.LeftItems.Type;
+                    state.form.RightItems.Type = res.result.Config.RightItems.Type;
 
+                    const LeftItems = res.result.Config.LeftItems.Items || [];
+                    for (const item of LeftItems) {
+                        if (item.File.FilePath && item.File.FileName) {
+                            const fileInfo = await getOssUrl(`${item.File.FilePath}/${item.File.FileName}.${item.File.Extention}`, `${item.File.Bucket}`);
+                            item.File.url = fileInfo;
+                        }
+                    }
+                    state.form.LeftItems.Items = LeftItems;
+                    const RightItems = res.result.Config.RightItems.Items || [];
+                    for (const item of RightItems) {
+                        if (item.File.FilePath && item.File.FileName) {
+                            const fileInfo = await getOssUrl(`${item.File.FilePath}/${item.File.FileName}.${item.File.Extention}`, `${item.File.Bucket}`);
+                            item.File.url = fileInfo;
+                        }
+                    }
+                    state.form.RightItems.Items = RightItems;
+
+                }
+            });
+        });
         return {
             ...toRefs(state),
             currentComponent,
