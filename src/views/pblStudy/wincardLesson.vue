@@ -13,7 +13,7 @@
 <script lang="ts">
 import { get, STORAGE_TYPES } from "@/utils/storage";
 import { defineComponent, onMounted, ref } from "vue";
-import { PBL_WEB } from "@/config";
+import { PBL_WEB, systemId } from "@/config";
 import isElectron from "is-electron";
 import { useRouter, useRoute } from "vue-router";
 
@@ -28,7 +28,7 @@ export default defineComponent({
             const token = get(STORAGE_TYPES.SET_TOKEN);
             const cardInfo = window.electron.store.get("windowPblInfoLesson") as any;
             // webview地址
-            url.value = `${PBL_WEB}/wincard.html?token=${token}&resourceId=${cardInfo.resourceId}&`;
+            url.value = `${PBL_WEB}/wincard.html?token=${token}&resourceId=${cardInfo.resourceId}&platformID=${systemId}&`;
             // url.value = `http://localhost:8081/wincard.html?token=${token}&resourceId=${cardInfo.resourceId}&`;
             console.log("urlurlurlurlurl", url.value);
             console.log("token", token);

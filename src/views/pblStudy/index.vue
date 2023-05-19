@@ -85,6 +85,7 @@ export default defineComponent({
             }
         };
         onActivated(() => {
+            console.log(PBL_WEB + "/home");
             // token 令牌
             const token = get(STORAGE_TYPES.SET_TOKEN);
             // webview地址
