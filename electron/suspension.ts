@@ -4,15 +4,15 @@ import {
     screen,
     app,
     remote,
-    powerMonitor
+    powerMonitor,
 } from "electron";
-import { createWindow } from "./createWindow";
+import {createWindow} from "./createWindow";
 import ElectronLog from "electron-log";
-import { checkWindowSupportNet } from "./util";
-import { spawn, exec, ChildProcessWithoutNullStreams } from "child_process";
-import path, { join } from "path";
+import {checkWindowSupportNet} from "./util";
+import {spawn, exec, ChildProcessWithoutNullStreams} from "child_process";
+import path, {join} from "path";
 import detect from "detect-port";
-import { Action, CallBack, SocketHelper } from "./socketHelper";
+import {Action, CallBack, SocketHelper} from "./socketHelper";
 
 const WIN_PATH_BALL = join(__dirname, "../extraResources/ball/");
 let suspensionWin: BrowserWindow | null;
@@ -193,7 +193,7 @@ function createTimerWindow() {
         frame: false, // 要创建无边框窗口
         resizable: false, // 禁止窗口大小缩放
         height: 500,
-        useContentSize: true
+        useContentSize: true,
     });
     timerWin.on("ready-to-show", () => {
         timerWin && timerWin.show();
@@ -296,15 +296,12 @@ function createAnswerMachineWindow(allStudentList: []) {
         useContentSize: true,
         transparent: true,
         // backgroundColor: "#00000000",
-        type: "toolbar", // 创建的窗口类型为工具栏窗口
         frame: false, // 要创建无边框窗口
-        resizable: false, // 是否允许窗口大小缩放
         height: 552,
         alwaysOnTop: true,
-        maximizable: false
     });
 
-    answerMachineWin.webContents.openDevTools();
+    // answerMachineWin.webContents.openDevTools();
 
     answerMachineWin.on("ready-to-show", () => {
         answerMachineWin && answerMachineWin.show();
@@ -414,8 +411,8 @@ function createSubjectToolWindow(url: string, name: string) {
         show: false,
         title: `爱学仕学科工具《${name}》`,
         webPreferences: {
-            nodeIntegration: false
-        }
+            nodeIntegration: false,
+        },
     });
     win.once("ready-to-show", () => {
         win.show();
@@ -493,6 +490,7 @@ class CustomCallBack implements CallBack {
     OnConnected(): void {
         isFirstTime = false;
         openTimes = (new Date().getTime() - lastOpenTime) / 1000;
+        ElectronLog.log("isShowSuspension", isShowSuspension);
         if (isShowSuspension) {
             showSuspension();
         }
@@ -700,15 +698,15 @@ function showSuspension() {
 }
 
 export function registerEvent() {
-    let winStartPosition = { x: 0, y: 0 };
-    let mouseStartPosition = { x: 0, y: 0 };
+    let winStartPosition = {x: 0, y: 0};
+    let mouseStartPosition = {x: 0, y: 0};
     let movingInterval: any = null;
     ipcMain.handle("window-move-open", (events, canMoving) => {
         if (canMoving) {
             if (!suspensionWin) return;
             // 读取原位置
             const winPosition = suspensionWin.getPosition();
-            winStartPosition = { x: winPosition[0], y: winPosition[1] };
+            winStartPosition = {x: winPosition[0], y: winPosition[1]};
             mouseStartPosition = screen.getCursorScreenPoint();
             // 清除
             if (movingInterval) {
