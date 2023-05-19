@@ -221,7 +221,7 @@ function createRollcall(allStudentList: []) {
 
     rollCallWin.on("ready-to-show", () => {
         rollCallWin && rollCallWin.webContents.send("sendAllStudentList", allStudentList);
-        // rollCallWin && rollCallWin.webContents.openDevTools();
+        rollCallWin && rollCallWin.webContents.openDevTools();
     });
 
     rollCallWin.on("closed", () => {
@@ -292,17 +292,21 @@ function createAnswerMachineWindow(allStudentList: []) {
     answerMachineWin = createWindow(answerMachineURL, {
         // width: 620,
         // height: 422,
+        // fullscreen: true,
+        center: true,
         show: false,
-        // transparent: true,
+        useContentSize: true,
+        transparent: true,
         // backgroundColor: "#00000000",
-        width: 620,
+        type: "toolbar", // 创建的窗口类型为工具栏窗口
         frame: false, // 要创建无边框窗口
         resizable: false, // 是否允许窗口大小缩放
-        height: 550,
+        height: 552,
         alwaysOnTop: true,
-        maximizable: false,
+        maximizable: false
     });
-    // answerMachineWin.webContents.openDevTools();
+
+    answerMachineWin.webContents.openDevTools();
 
     answerMachineWin.on("ready-to-show", () => {
         answerMachineWin && answerMachineWin.show();
