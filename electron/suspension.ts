@@ -946,6 +946,8 @@ export function registerEvent() {
         showSuspension();
         if (!answerMachineWin) {
             createAnswerMachineWindow(allStudentList);
+        } else {
+            answerMachineWin && answerMachineWin.show();
         }
     });
 

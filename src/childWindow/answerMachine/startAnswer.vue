@@ -316,6 +316,7 @@ export default defineComponent({
                         classList = classList.concat(item.ClassList);
                     });
                     state.classList = classList;
+                    state.form.selectClass = state.classList[0].ClassId;
                     _getAnswerMachineQuestionList(); // 不传ClassID 获取上次的草稿记录
                 }
             });
