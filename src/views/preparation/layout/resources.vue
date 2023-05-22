@@ -121,9 +121,9 @@ import EditTip from "./dialog/editTip.vue";
 import ResourceVersion from "./dialog/resourceVersion.vue";
 import DeleteVideoTip from "./dialog/deleteVideoTip.vue";
 import ResourceView from "./dialog/resourceView.vue";
-import { getDomOffset, sleep } from "@/utils/common";
+import {getDomOffset, sleep} from "@/utils/common";
 import useDownloadFile from "@/hooks/useDownloadFile";
-import { RESOURCE_TYPE } from "@/config/resource";
+import {RESOURCE_TYPE} from "@/config/resource";
 import {
     addPreparationPackage,
     fetchResourceList,
@@ -132,15 +132,15 @@ import {
     logView,
     removePreparationPackage
 } from "@/api/resource";
-import { MutationTypes, useStore } from "@/store";
+import {MutationTypes, useStore} from "@/store";
 import emitter from "@/utils/mitt";
-import { getOssUrl } from "@/utils/oss";
-import { IViewResourceData } from "@/types/store";
-import { ElMessage } from "element-plus";
+import {getOssUrl} from "@/utils/oss";
+import {IViewResourceData} from "@/types/store";
+import {ElMessage} from "element-plus";
 import LocalCache from "@/utils/localcache";
 import isElectron from "is-electron";
-import { set, STORAGE_TYPES } from "@/utils/storage";
-import { IGetLessonBagOutDto } from "@/api/prepare";
+import {set, STORAGE_TYPES} from "@/utils/storage";
+import {IGetLessonBagOutDto} from "@/api/prepare";
 import useLessonPackage from "@/hooks/useLessonPackage";
 
 interface ICourse {
@@ -183,7 +183,7 @@ export default defineComponent({
         "toArrangeClass",
         "deleteLessonPackage"
     ],
-    setup(props, { expose, emit }) {
+    setup(props, {expose, emit}) {
         const {
             lessonPackageList,
             getMyLessonBagNew,
@@ -253,7 +253,7 @@ export default defineComponent({
 
         // 移出备课包
         const removePackage = async (data: IResourceItem) => {
-            const res = await removePreparationPackage({ id: data.BagId });
+            const res = await removePreparationPackage({id: data.BagId});
             if (res.success) {
                 data.IsBag = !data.IsBag;
                 emitter.emit("updatePackageCount", null);
@@ -268,7 +268,7 @@ export default defineComponent({
         };
 
         const loadingShow = ref(false);
-        const { download } = useDownloadFile();
+        const {download} = useDownloadFile();
         let localCache: any = null;
 
         const downloadFile = async (data: IResourceItem) => {
@@ -283,6 +283,7 @@ export default defineComponent({
                         const path = file.filePaths[0];
                         downloadProgress.value = 0;
                         showDownload.value = true;
+
                         localCache = new LocalCache({
                             cachingStatus: (status) => {
                                 console.log(`status: ${status}`);
@@ -290,12 +291,11 @@ export default defineComponent({
                                 if (status === 100 && showDownload.value) {
                                     showDownload.value = false;
                                     ElMessage.success("打包下载完成！");
-                                    logDownload({ id: data.ResourceId });
+                                    logDownload({id: data.ResourceId});
                                     data.DownloadNum++;
                                 }
                             }
                         });
-
                         localCache.doCache(
                             {
                                 WindowID: data.OldResourceId,
@@ -310,7 +310,7 @@ export default defineComponent({
                         );
                     }
                 }).catch(() => {
-                    ElMessage({ type: "error", message: "下载失败" });
+                    ElMessage({type: "error", message: "下载失败"});
                 });
                 return;
             }
@@ -326,7 +326,7 @@ export default defineComponent({
                 );
 
                 if (success) {
-                    logDownload({ id: data.ResourceId });
+                    logDownload({id: data.ResourceId});
                     data.DownloadNum++;
                 }
             }
@@ -421,7 +421,7 @@ export default defineComponent({
                             }
                         });
                     }
-                    logView({ id: data.ResourceId });
+                    logView({id: data.ResourceId});
                     data.BrowseNum++;
                     break;
                 case "property":
@@ -467,7 +467,7 @@ export default defineComponent({
                 });
             } else {
                 if (data.ResourceShowType === 2) {
-                    resourceData.value = { id: data.OldResourceId };
+                    resourceData.value = {id: data.OldResourceId};
                 } else if (data.ResourceShowType === 3) {
                     resourceData.value = {
                         id: data.OldResourceId,
@@ -515,7 +515,7 @@ export default defineComponent({
         onMounted(() => {
             const cart = document.getElementById("myCourseCart");
             if (cart) {
-                const { left, top } = getDomOffset(cart);
+                const {left, top} = getDomOffset(cart);
                 leftEnd.value = left + 20;
                 topEnd.value = top - 40;
             }
@@ -534,7 +534,7 @@ export default defineComponent({
         const schoolId = computed(() => store.state.userInfo.schoolId);
         const userId = computed(() => store.state.userInfo.userCenterUserID);
 
-        const { source, type, course, bookId, bagType } = toRefs(props);
+        const {source, type, course, bookId, bagType} = toRefs(props);
 
         watch(
             [source, type, course, schoolId, bookId],
@@ -542,17 +542,17 @@ export default defineComponent({
                 if (source.value === "me") return;
                 if (!course.value.lessonId) return;
                 update("");
-                await getMyLessonBagNew({ id: course.value.lessonId });
+                await getMyLessonBagNew({id: course.value.lessonId});
                 if (!lessonPackageList.value.length) {
                     setValueAddLessonBag(props.course);
                     addLessonBag.value.name = "备课包1";
                     const res = await addLessonPackage(addLessonBag.value);
                     if (res) {
-                        getMyLessonBagNew({ id: course.value.lessonId });
+                        getMyLessonBagNew({id: course.value.lessonId});
                     }
                 }
             },
-            { deep: true }
+            {deep: true}
         );
         watch(
             () => bagType.value,
@@ -560,7 +560,7 @@ export default defineComponent({
                 pageNumber.value = 1;
                 getResources(currentSelectBagIds.value, true);
             },
-            { deep: true }
+            {deep: true}
         );
         const update = (id: any) => {
             resourceList.value = [];
@@ -670,7 +670,7 @@ export default defineComponent({
             });
             const res = await addLessonPackage(addLessonBag.value);
             if (res) {
-                getMyLessonBagNew({ id: course.value.lessonId });
+                getMyLessonBagNew({id: course.value.lessonId});
             }
         };
         // 去排课
@@ -705,7 +705,7 @@ export default defineComponent({
         };
         // 资源移出备课包
         const handleRemoveLessonBag = async (data: IResourceItem) => {
-            const res = await delResourceLessonBag({ id: data.BagId });
+            const res = await delResourceLessonBag({id: data.BagId});
             if (res) {
                 emitter.emit("updatePackageCount", null);
                 update(currentSelectBagIds.value);

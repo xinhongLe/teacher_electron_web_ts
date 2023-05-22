@@ -6,7 +6,8 @@
                 width: contentWidth + 'px',
                 height: contentHeight + 'px',
                 transform: `scale(${ scale })`
-            }">
+            }"
+        >
 
             <div
                 :class="['shape-box', 'shape-active']"
@@ -238,6 +239,7 @@ export default defineComponent({
                 option.Type = props.newForm.RightItems.Type;
                 state.elements.push(option);
             });
+
         };
         const handleComfirm = () => {
             emit("save");

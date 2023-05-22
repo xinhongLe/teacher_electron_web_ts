@@ -3,21 +3,22 @@ import {
     getPageDetailRes,
     getVideoQuoteInfo,
     getWindowCards,
+    GetWindowsElements,
     IGetWindowCards,
 } from "@/api/home";
-import { pageType } from "@/config";
-import { store } from "@/store";
-import { IPageValue } from "@/types/home";
+import {pageType} from "@/config";
+import {store} from "@/store";
+import {IPageValue} from "@/types/home";
 import path from "path";
-import { PPTElement, Slide } from "wincard";
-import { dealOldData } from "./dataParse";
+import {PPTElement, Slide} from "wincard";
+import {dealOldData} from "./dataParse";
 import {
     dealOldDataGame,
     dealOldDataTeach,
     dealOldDataVideo,
     dealOldDataWord,
 } from "./dataParsePage";
-import { getOssUrl } from "./oss";
+import {getOssUrl} from "./oss";
 //文件不支持的特殊符号进行去除
 const sanitize = require("sanitize-filename");
 // new LocalCache({
@@ -36,6 +37,7 @@ const sanitize = require("sanitize-filename");
 export interface CacheCallback {
     cachingStatus(status: number): void;
 }
+
 export default class LocalCache {
     private readonly cacheCallback: CacheCallback;
 
@@ -70,12 +72,13 @@ export default class LocalCache {
 
     // 此处只拉取线上数据, 不使用本地缓存数据
     private async getPageDetail(page: IPageValue, originType: number) {
-        const data = { pageID: page.ID, OriginType: originType };
+        const data = {pageID: page.ID, OriginType: originType};
         const type: number = this.transformType(page.Type);
         if (type < 0) {
             return null;
         }
-        return await getPageDetailRes(data, type, () => {}, false);
+        return await getPageDetailRes(data, type, () => {
+        }, false);
     }
 
     private async cacheFile(src: string): Promise<string> {
@@ -219,7 +222,7 @@ export default class LocalCache {
                     );
                 });
                 const pageIDs = pages.map((page) => page.ID);
-                const res = await getCardDetail({ pageIDs: pageIDs }, true);
+                const res = await getCardDetail({pageIDs: pageIDs}, true);
                 if (
                     res.resultCode === 200 &&
                     res.result &&
@@ -255,53 +258,54 @@ export default class LocalCache {
         fail: () => void
     ) {
         if (this.isEnd) return;
-        let res = await this.getPageDetail(page, originType);
-        if (!res) {
-            return;
-        }
-        if (res.resultCode && res.resultCode === 200) {
-            pages.push({
-                id: page.ID,
-                result: res.result.Json || "{}",
-            });
-            let slide: Slide | null = null;
-            if (page.Type === pageType.element) {
-                const slideString = res.result.Json || "{}";
-                const oldSlide = JSON.parse(slideString);
-                slide = oldSlide.type
-                    ? {
-                          ...(await this.dealPauseVideo(
-                              oldSlide as Slide,
-                              fail
-                          )),
-                          id: page.ID,
-                      }
-                    : await dealOldData(page.ID, page.originType, oldSlide);
-            } else if (page.Type === pageType.listen) {
-                slide = dealOldDataWord(page.ID, res.result);
-            } else if (page.Type === pageType.follow) {
-                slide = dealOldDataVideo(page.ID, res.result);
-            } else if (page.Type === pageType.teach) {
-                slide = dealOldDataTeach(page.ID, res.result);
-            } else if (page.Type === pageType.game) {
-                slide = dealOldDataGame(page.ID, res.result);
-            }
-
-            if (slide !== null) {
-                slides.push(slide);
-                for (let element of slide.elements) {
-                    await this.getElementWinCards(
-                        element,
-                        originType,
-                        pages,
-                        slides,
+        // let res = await this.getPageDetail(page, originType);
+        //
+        // if (!res) {
+        //     return;
+        // }
+        // if (res.resultCode && res.resultCode === 200) {
+        pages.push({
+            id: page.ID,
+            result: page.Json || "{}",
+        });
+        let slide: Slide | null = null;
+        if (page.Type === pageType.element) {
+            const slideString = page.Json || "{}";
+            const oldSlide = JSON.parse(slideString);
+            slide = oldSlide.type
+                ? {
+                    ...(await this.dealPauseVideo(
+                        oldSlide as Slide,
                         fail
-                    );
+                    )),
+                    id: page.ID,
                 }
-            }
-        } else {
-            fail();
+                : await dealOldData(page.ID, page.originType, oldSlide);
+        } else if (page.Type === pageType.listen) {
+            slide = dealOldDataWord(page.ID, page);
+        } else if (page.Type === pageType.follow) {
+            slide = dealOldDataVideo(page.ID, page);
+        } else if (page.Type === pageType.teach) {
+            slide = dealOldDataTeach(page.ID, page);
+        } else if (page.Type === pageType.game) {
+            slide = dealOldDataGame(page.ID, page);
         }
+
+        if (slide !== null) {
+            slides.push(slide);
+            // for (let element of slide.elements) {
+            //     await this.getElementWinCards(
+            //         element,
+            //         originType,
+            //         pages,
+            //         slides,
+            //         fail
+            //     );
+            // }
+        }
+        // } else {
+        //     fail();
+        // }
     }
 
     async cancel() {
@@ -317,10 +321,11 @@ export default class LocalCache {
         this.isFail = false;
         this.isEnd = false;
         this.cacheCallback?.cachingStatus(0);
-        const res = await getWindowCards(winInfo);
+        const eleRes = await GetWindowsElements(winInfo);
+        // return;
         if (this.isEnd) return;
-        if (res.success) {
-            let cards = res.result;
+        if (eleRes.success) {
+            let cards = eleRes.result;
             let pages: Array<{ id: string; result: string }> = [];
             let cacheFiles: string[] = [];
             let slides: Array<Slide> = [];
@@ -385,7 +390,6 @@ export default class LocalCache {
                 userId: store.state.userInfo.id,
                 cacheFiles,
             };
-
             let fileName = await window.electron.packCacheFiles(
                 cacheData,
                 path

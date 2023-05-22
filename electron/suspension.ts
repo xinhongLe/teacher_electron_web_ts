@@ -228,6 +228,7 @@ function createRollcall(allStudentList: []) {
         rollCallWin = null;
     });
 }
+
 function createUnfoldSuspensionWindow() {
     const size = screen.getPrimaryDisplay().workAreaSize; // 获取显示器的宽高
     const width = size.width > 545 ? 545 : size.width - 80;
@@ -253,7 +254,7 @@ function createUnfoldSuspensionWindow() {
     // unfoldSuspensionWin.webContents.openDevTools(); //这是打开智课助手悬浮球打开窗口的的调试器
     unfoldSuspensionWin.once("ready-to-show", () => {
         unfoldSuspensionWin &&
-            unfoldSuspensionWin.setAlwaysOnTop(true, "pop-up-menu");
+        unfoldSuspensionWin.setAlwaysOnTop(true, "pop-up-menu");
     });
 
     unfoldSuspensionWin.on("closed", () => {
