@@ -128,7 +128,7 @@ export default defineComponent({
         });
 
         const page = computed(() => {
-            return props.pages[props.index];
+            return props.pages?.filter(item => item.State)[props.index];
         });
 
         const canUndo = ref(false);
