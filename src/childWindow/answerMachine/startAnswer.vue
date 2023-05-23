@@ -98,9 +98,9 @@
 <script lang="ts">
 import {computed, defineComponent, inject, PropType, reactive, ref, toRefs, watch} from "vue";
 import {Student} from "@/types/labelManage";
-import {groupBy, uniqBy, cloneDeep} from "lodash";
-import {MQTTInfoData, getAnswerMachineQuestionList, saveAnswerMachineQuestion} from "./api";
-import {AnswerMode, PADModeQuestionType, getChoiceQuestion} from "./enum";
+import {cloneDeep, groupBy, uniqBy} from "lodash";
+import {getAnswerMachineQuestionList, MQTTInfoData, saveAnswerMachineQuestion} from "./api";
+import {AnswerMode, getChoiceQuestion, PADModeQuestionType} from "./enum";
 import useStudentMachine from "@/hooks/useStudentMachine";
 import StudentList from "./studentList.vue";
 import Title from "./title.vue";
