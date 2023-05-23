@@ -42,7 +42,7 @@
                                     <img src="@/assets/edit/icon_shijian.png" alt="" v-if="checkIsHandle(1,page.Json)"/>
                                 </div>
                                 <div class="page-right" :class="{active:pageId === page.ID}">
-                                    <img class="cover" v-if="(page.Type === 20 || page.Type === 16) && page.Url" :src="page.Url"/>
+                                    <img class="cover" v-if="(page.Type === 20 || page.Type === 16) && page.Url" :src="page.Url" alt=""/>
                                     <template v-else>
                                         <thumbnail-slide
                                             :size="228"

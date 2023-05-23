@@ -13,7 +13,8 @@
                     <span>{{ folder.Name }}</span>
                 </div>
                 <div class="pages" v-if="folder.Fold">
-                    <div class="page" v-for="page in folder.PageList" :key="page.PageID" @click="handlePage(page.Index)">
+                    <div class="page" v-for="page in folder.PageList" :key="page.PageID"
+                         @click="handlePage(page.Index)">
                         <div class="page-left">{{ page.Index }}</div>
                         <div class="page-right" :class="{active: page.Index === index+1}">
                             <img
@@ -52,9 +53,9 @@
         <div class="right" v-if="rVisit">
             <remark
                 :resourceId="resource.id"
-                :teachProcess="teachProcess"
-                :design="currentSlide.design"
+                :design="page?.DesignIntent"
                 :isSystem="resource.isSystem"
+                :teachProcess="page?.AcademicPresupposition"
             />
         </div>
     </div>
@@ -126,10 +127,9 @@ export default defineComponent({
             const page = props.pages?.filter(item => item.State)[props.index];
             return page ? page.Json : {};
         });
-        const teachProcess = computed(() => {
-            const page = props.pages[props.index];
 
-            return page?.AcademicPresupposition || "";
+        const page = computed(() => {
+            return props.pages[props.index];
         });
 
         const canUndo = ref(false);
@@ -252,6 +252,7 @@ export default defineComponent({
         };
 
         return {
+            page,
             isInit,
             centerW,
             prevStep,
@@ -265,7 +266,6 @@ export default defineComponent({
             canRedo,
             handlePage,
             windowCards,
-            teachProcess,
             openCardShow,
             currentSlide,
             openCardList,
