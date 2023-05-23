@@ -288,16 +288,13 @@ function createBlackboardWindow() {
 
 function createAnswerMachineWindow(allStudentList: []) {
     answerMachineWin = createWindow(answerMachineURL, {
-        // width: 620,
-        // height: 422,
-        // fullscreen: true,
+        fullscreen: true,
         center: true,
         show: false,
         useContentSize: true,
         transparent: true,
         // backgroundColor: "#00000000",
         frame: false, // 要创建无边框窗口
-        height: 552,
         alwaysOnTop: true,
     });
 

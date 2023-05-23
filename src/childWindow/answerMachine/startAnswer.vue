@@ -348,7 +348,7 @@ export default defineComponent({
 <style lang="scss" scoped>
 $blue: #4b71ee;
 .main_bg {
-    height: 100%;
+    //height: 100%;
     border-radius: 8px;
     background: #fff;
     box-shadow: 0px 6px 16px -8px rgba(0, 0, 0, 0.12),
@@ -359,7 +359,7 @@ $blue: #4b71ee;
 
 .main {
     width: 620px;
-    height: 100%;
+    height: 552px;
     display: flex;
     flex-direction: column;
     padding-bottom: 24px;
