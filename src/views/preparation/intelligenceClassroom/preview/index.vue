@@ -129,7 +129,7 @@ export default defineComponent({
         });
 
         const page = computed(() => {
-            return props.pages[props.index];
+            return props.pages?.filter(item => item.State)[props.index];
         });
 
         const canUndo = ref(false);
@@ -238,7 +238,7 @@ export default defineComponent({
 
             const pages: PageProps[] = [];
             for (let i = 0; i < pageList.length; i++) {
-                const find = props.pages.find(item => item.Json.id === pageList[i].id);
+                const find = props.pages.find(item => item.ID === pageList[i].id);
                 if (find) {
                     pages.push(find);
                 }
