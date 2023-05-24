@@ -1,14 +1,14 @@
 <template>
     <div class="p-layout-menu">
-        <BookSelect @onChangeBook="(data) => onChangeBook(data)" />
+        <BookSelect @onChangeBook="(data) => onChangeBook(data)"/>
         <div class="p-tree-wrapper">
             <div class="p-tree-title">
-                <img src="@/assets/images/preparation/icon_ziyuan.png" alt="" />
+                <img src="@/assets/images/preparation/icon_ziyuan.png" alt=""/>
                 全部资源
             </div>
             <div class="tree-content">
                 <Tree @onTreeItemChange="selectedCourse" v-model:value="selectedID" :treeData="treeData"
-                    :tipTarget="tipTarget" :showClassArrangement="showClassArrangement" />
+                      :tipTarget="tipTarget" :showClassArrangement="showClassArrangement"/>
             </div>
         </div>
         <!-- <el-button
@@ -31,23 +31,25 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, ref } from "vue";
+import {defineComponent, PropType, ref} from "vue";
 import BookSelect from "./bookSelect.vue";
 import Tree from "./tree/index.vue";
-import { ITreeItem } from "./tree/types";
-import { MutationTypes, useStore } from "@/store";
-import { fetchCourseDataByBookId, ICustomBookItem } from "@/api/resource";
-import { get, set, STORAGE_TYPES } from "@/utils/storage";
+import {ITreeItem} from "./tree/types";
+import {MutationTypes, useStore} from "@/store";
+import {fetchCourseDataByBookId, ICustomBookItem} from "@/api/resource";
+import {get, set, STORAGE_TYPES} from "@/utils/storage";
 import usePageEvent from "@/hooks/usePageEvent"; //埋点事件hooks
-import { EVENT_TYPE } from "@/config/event";
+import {EVENT_TYPE} from "@/config/event";
+
 interface ICourse {
     chapterId: string;
     lessonId: string;
     lessonName: string;
     chapterName: string;
 }
+
 export default defineComponent({
-    components: { BookSelect, Tree },
+    components: {BookSelect, Tree},
     props: {
         showClassArrangement: {
             type: Boolean,
@@ -60,8 +62,8 @@ export default defineComponent({
         },
     },
     emits: ["update:showClassArrangement", "update:course", "update:bookId"],
-    setup(props, { emit }) {
-        const { createBuryingPointFn } = usePageEvent("备课");
+    setup(props, {emit}) {
+        const {createBuryingPointFn} = usePageEvent("备课");
         const store = useStore();
         const updateShowClassArrangement = (flag: boolean) => {
             emit("update:showClassArrangement", flag);
@@ -122,7 +124,7 @@ export default defineComponent({
                 store.commit(MutationTypes.SET_SELECT_LESSON_ID, "");
                 return;
             }
-            const res = await fetchCourseDataByBookId({ bookId });
+            const res = await fetchCourseDataByBookId({bookId});
             treeData.value = res.result;
 
             // selectedID.value = treeData.value[0].Children[0].Id;
@@ -150,6 +152,8 @@ export default defineComponent({
 
         const getFirstLessonId = () => {
             let hasLesson = false;
+            console.log('treeData.value', treeData.value)
+
             for (let i = 0; i < treeData.value.length; i++) {
                 if (
                     treeData.value[i].Children &&
