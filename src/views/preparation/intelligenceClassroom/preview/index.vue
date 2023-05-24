@@ -237,7 +237,7 @@ export default defineComponent({
 
             const pages: PageProps[] = [];
             for (let i = 0; i < pageList.length; i++) {
-                const find = props.pages.find(item => item.Json.id === pageList[i].id);
+                const find = props.pages.find(item => item.ID === pageList[i].id);
                 if (find) {
                     pages.push(find);
                 }

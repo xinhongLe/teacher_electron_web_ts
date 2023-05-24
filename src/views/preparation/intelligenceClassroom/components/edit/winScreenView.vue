@@ -97,7 +97,7 @@ export default defineComponent({
 
             const pages: PageProps[] = [];
             for (let i = 0; i < slides.length; i++) {
-                const find = allPages.find(item => item.Json.id === slides[i].id);
+                const find = allPages.find(item => item.ID === slides[i].id);
                 if (find) {
                     pages.push(find);
                 }
