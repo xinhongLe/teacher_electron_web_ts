@@ -39,7 +39,7 @@
             v-model:class-visible="selectClassVisible"
         />
         <!--正在分享该页-->
-        <share-current-page v-if="sharePageVisible" v-model:share-visible="sharePageVisible"/>
+        <!--        <share-current-page v-if="sharePageVisible" v-model:share-visible="sharePageVisible"/>-->
     </div>
 </template>
 
@@ -91,7 +91,7 @@ export default defineComponent({
             });
             return allPages;
         });
-        const currentSlide = computed(() => pages.value.filter((item => item.State))[index.value]);
+        const currentSlide = computed(() => pages.value.filter((item => item.State))[index.value].Json);
 
         const {transformPageDetail} = useHome();
 
@@ -212,7 +212,6 @@ export default defineComponent({
                         }
                     }
                 }
-                console.log(cardList);
                 winCards.value = cardList;
             });
         }
