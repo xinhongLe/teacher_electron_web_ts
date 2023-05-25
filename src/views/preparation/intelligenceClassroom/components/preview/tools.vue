@@ -214,16 +214,17 @@
 import emitter from "@/utils/mitt";
 import PenTool from "./PenTool.vue";
 import isElectron from "is-electron";
-import { sleep } from "@/utils/common";
-import { MutationTypes, store } from "@/store";
+import {sleep} from "@/utils/common";
+import {MutationTypes, store} from "@/store";
 import ResourceDialog from "./resourceDialog.vue";
-import { NextSettingType } from "@/types/preparation";
-import { STORAGE_TYPES, set, get } from "@/utils/storage";
-import { enterFullscreen, exitFullscreen, isFullscreen } from "@/utils/fullscreen";
-import { ref, defineComponent, watch, onMounted, onUnmounted, computed, onActivated, onDeactivated } from "vue";
+import {NextSettingType} from "@/types/preparation";
+import {STORAGE_TYPES, set, get} from "@/utils/storage";
+import {enterFullscreen, exitFullscreen, isFullscreen} from "@/utils/fullscreen";
+import {ref, defineComponent, watch, onMounted, onUnmounted, computed, onActivated, onDeactivated, inject} from "vue";
+import {windowInfoKey} from "@/hooks/useWindowInfo";
 
 export default defineComponent({
-    components: { ResourceDialog, PenTool },
+    components: {ResourceDialog, PenTool},
     props: {
         showRemark: {
             type: Boolean,
@@ -280,6 +281,9 @@ export default defineComponent({
         cardClass: {
             type: String,
             default: "intelligence"
+        },
+        currentSlide: {
+            type: Object
         }
     },
     emits: [
@@ -299,7 +303,7 @@ export default defineComponent({
         "clockFullScreen",
         "whiteboardOption"
     ],
-    setup(props, { emit }) {
+    setup(props, {emit}) {
         const isShowPen = ref(false);
         const isShowRulers = ref(false);
         const penLeft = ref(0);
@@ -366,12 +370,12 @@ export default defineComponent({
         ];
         const isTeach = ref(false);
         watch(
-            () => props.id,
+            () => props.currentSlide,
             (val: any) => {
                 const dom: HTMLElement = document.querySelector(".me-tools-set") as HTMLElement;
                 const dom2: HTMLElement = document.querySelector(".draw-content") as HTMLElement;
                 const dom3: HTMLElement = document.querySelector(".me-tools") as HTMLElement;
-                if (val.type === "teach") {
+                if (val.Json.type === "teach") {
                     isTeach.value = true;
                     if (isOpen.value) {
                         dom.style.width = "174px";
@@ -400,7 +404,7 @@ export default defineComponent({
                         }
                     }
                 }
-            }, { deep: true, immediate: true }
+            }, {deep: true, immediate: true}
         );
         const changeNextType = (type: NextSettingType) => {
             store.commit(MutationTypes.SET_SELECT_NEXT_TYPE, type);
@@ -501,7 +505,7 @@ export default defineComponent({
         const openPaintTool = (event: MouseEvent, type: string) => {
             if (type === "paint") {
                 const target = event.target as HTMLDivElement;
-                const { left, top } = target.getBoundingClientRect();
+                const {left, top} = target.getBoundingClientRect();
                 isShowPen.value = true;
                 penLeft.value = left;
                 penTop.value = top;
