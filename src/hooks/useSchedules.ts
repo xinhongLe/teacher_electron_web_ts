@@ -1,10 +1,20 @@
-import { fetchClassArrangement } from "@/api/resource";
-import { GetCurrentUserSchedulingInfo, IGetCurrentUserNewScheduleOutDto } from "@/api/prepare";
-import { fetchActiveTimetableID, fetchUserSchedules, IScheduleContent, fetchTermCodeBySchoolId, TableTime, IScheduleDetail, GetClassTimeDetail, ClassTimeDto, ClassTimeDetailDto } from "@/api/timetable";
-import { MutationTypes, store } from "@/store";
-import { computed, nextTick, ref, Ref, watch, watchEffect } from "vue";
-import { set } from "@/utils/storage";
-import { STORAGE_TYPES } from "@/utils/storage";
+import {fetchClassArrangement} from "@/api/resource";
+import {GetCurrentUserSchedulingInfo, IGetCurrentUserNewScheduleOutDto} from "@/api/prepare";
+import {
+    fetchActiveTimetableID,
+    fetchUserSchedules,
+    IScheduleContent,
+    fetchTermCodeBySchoolId,
+    TableTime,
+    IScheduleDetail,
+    GetClassTimeDetail,
+    ClassTimeDto,
+    ClassTimeDetailDto
+} from "@/api/timetable";
+import {MutationTypes, store} from "@/store";
+import {computed, nextTick, ref, Ref, watch, watchEffect} from "vue";
+import {set} from "@/utils/storage";
+import {STORAGE_TYPES} from "@/utils/storage";
 
 interface TeachClassSchedule extends IScheduleDetail {
     DateOfWeek: number;
@@ -60,8 +70,12 @@ export default (days: Ref<string[]>) => {
         semesterDataID.value = termCodeRes.result[0].SemesterDataId;
         termCode.value = termCodeRes.result[0].SemesterDataCode;
 
-        store.commit(MutationTypes.SET_TERM, { id: semesterDataID.value, code: termCode.value });
-        set(STORAGE_TYPES.SCHOOL_TERM, { id: semesterDataID.value, code: termCode.value, name: termCodeRes.result[0].Name });
+        store.commit(MutationTypes.SET_TERM, {id: semesterDataID.value, code: termCode.value});
+        set(STORAGE_TYPES.SCHOOL_TERM, {
+            id: semesterDataID.value,
+            code: termCode.value,
+            name: termCodeRes.result[0].Name
+        });
 
         if (termCodeRes.resultCode === 200 && semesterDataID.value) {
             const res = await GetClassTimeDetail({
@@ -128,7 +142,7 @@ export default (days: Ref<string[]>) => {
                 teachClassScheduleArr.value && teachClassScheduleArr.value.forEach(item => {
                     if (item.AmpmSectionIndex === AmpmSectionIndex) {
                         const week = item.DateOfWeek === 0 ? 6 : item.DateOfWeek! - 1;
-                        colData[week] = { ...item, ...colData[week] };
+                        colData[week] = {...item, ...colData[week]};
                     }
                 });
                 return {
@@ -138,9 +152,6 @@ export default (days: Ref<string[]>) => {
                 };
             });
         }
-
-        console.log('newSchedules.value--', newSchedules.value);
-
     };
 
     const initSchedules = async (resize?: () => void) => {

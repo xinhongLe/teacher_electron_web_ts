@@ -100,7 +100,6 @@ export default defineComponent({
 
         window.electron.ipcRenderer.on("sendAllStudentList", (_, studentList) => {
                 allStudentList.value = studentList;
-                console.log(allStudentList.value, "allStudentList.value");
             }
         );
         return {

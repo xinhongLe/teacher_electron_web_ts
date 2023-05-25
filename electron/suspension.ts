@@ -298,7 +298,7 @@ function createAnswerMachineWindow(allStudentList: []) {
         alwaysOnTop: true,
     });
 
-    // answerMachineWin.webContents.openDevTools();
+    answerMachineWin.webContents.openDevTools();
 
     answerMachineWin.on("ready-to-show", () => {
         answerMachineWin && answerMachineWin.show();
