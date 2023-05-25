@@ -14,7 +14,7 @@
                     <span class="text">摄像头:</span>
                     <el-select
                         placeholder="请选择摄像头"
-                        v-model="mediaStreamConstraints.deviceId"
+                        v-model="deviceId"
                     >
                         <el-option
                             v-for="item in videoList"
@@ -33,25 +33,25 @@
 
 <script lang="ts">
 import {ElMessageBox} from "element-plus";
-import {defineComponent, onMounted, reactive, ref, watch} from "vue";
+import {defineComponent, onMounted, ref, watch} from "vue";
 import zhCn from "element-plus/lib/locale/lang/zh-cn";
+let currentMediaStream: MediaStream | null = null;
 
 export default defineComponent({
     setup() {
         const videoRef = ref<HTMLVideoElement>();
         const videoList = ref<{ label: string; id: string }[]>([]);
-        const mediaStreamConstraints = reactive({
-            video: {
-                width: window.innerHeight - 10,
-                height: window.innerHeight - 10
-            },
-            deviceId: "",
-            audio: false
-        });
+        const deviceId = ref("");
 
         function gotLocalMediaStream(mediaStream: MediaStream) {
+            if (currentMediaStream) {
+                currentMediaStream.getTracks().forEach((track) => {
+                    track.stop();
+                });
+            }
             const localVideo = document.querySelector("video");
             localVideo!.srcObject = mediaStream;
+            currentMediaStream = mediaStream;
         }
 
         async function updateDeviceList() {
@@ -66,7 +66,7 @@ export default defineComponent({
                 }
             });
             videoList.value = list;
-            mediaStreamConstraints.deviceId = videoList.value[0]?.id || "";
+            deviceId.value = videoList.value[0]?.id || "";
         }
 
         const close = () => {
@@ -79,8 +79,15 @@ export default defineComponent({
             });
         };
 
-        watch(mediaStreamConstraints, (v) => {
-            navigator.mediaDevices.getUserMedia(v).then(gotLocalMediaStream);
+        watch(deviceId, (v) => {
+            navigator.mediaDevices.getUserMedia({
+                video: {
+                    width: { min: 1280, ideal: 1920 },
+                    height: { min: 720, ideal: 1080 },
+                    deviceId: v
+                },
+                audio: false
+            }).then(gotLocalMediaStream);
         });
 
         onMounted(async () => {
@@ -92,7 +99,7 @@ export default defineComponent({
 
         return {
             videoRef,
-            mediaStreamConstraints,
+            deviceId,
             videoList,
             locale: zhCn,
             close
