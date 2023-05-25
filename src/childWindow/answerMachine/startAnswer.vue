@@ -99,7 +99,13 @@
 import {computed, defineComponent, inject, PropType, reactive, ref, toRefs, watch} from "vue";
 import {Student} from "@/types/labelManage";
 import {cloneDeep, groupBy, uniqBy} from "lodash";
-import {getAnswerMachineQuestionList, MQTTInfoData, saveAnswerMachineQuestion} from "./api";
+import {
+    getAnswerMachineQuestionList,
+    MQTTInfoData,
+    saveAnswerMachineQuestion,
+    SaveTeacherSelectClassRecord,
+    GetLastSelectedClassIdByTeacherID
+} from "./api";
 import {AnswerMode, getChoiceQuestion, PADModeQuestionType} from "./enum";
 import useStudentMachine from "@/hooks/useStudentMachine";
 import StudentList from "./studentList.vue";
@@ -228,6 +234,7 @@ export default defineComponent({
                     LessonId: props.lessonId ? props.lessonId : null
                 });
                 if (res.resultCode === 200) {
+
                     if (type === 1) {
                         emit("start",
                             allStudentListMap.value[state.form.selectClass] || [],
@@ -237,6 +244,11 @@ export default defineComponent({
                     } else {
                         ElMessage.success("保存草稿成功");
                     }
+                    await SaveTeacherSelectClassRecord({
+                        TeacherID: props.currentUserInfo!.userCenterUserID,
+                        ClassID: state.form.selectClass
+                    })
+
                 }
             }
         };
@@ -308,7 +320,7 @@ export default defineComponent({
                 Base_OrgId: props.currentUserInfo!.schoolId,
                 TeacherId: props.currentUserInfo!.userCenterUserID
             };
-            getTeacherClassList(data).then(res => {
+            getTeacherClassList(data).then(async (res) => {
                 if (res.resultCode === 200) {
                     const gradeList = res.result || [];
                     let classList: IClassItem[] = [];
@@ -316,7 +328,11 @@ export default defineComponent({
                         classList = classList.concat(item.ClassList);
                     });
                     state.classList = classList;
+                    const classData = await GetLastSelectedClassIdByTeacherID({ID: data.TeacherId})
                     state.form.selectClass = state.classList[0].ClassId;
+                    if (classData.resultCode === 200) {
+                        state.form.selectClass = classData.result || state.classList[0].ClassId;
+                    }
                     _getAnswerMachineQuestionList(); // 不传ClassID 获取上次的草稿记录
                 }
             });

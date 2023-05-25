@@ -1,13 +1,13 @@
 import request from "@/utils/request";
-import { AI_XUE_SHI_API, YUN_API_ONECARD } from "@/config";
-import { RequestFun } from "@/types/response";
+import {AI_XUE_SHI_API, YUN_API_ONECARD} from "@/config";
+import {RequestFun} from "@/types/response";
 
 export interface MQTTInfoData {
     TeacherID: string;
     OrgID: string;
     ClassID: string;
-    Type:number,
-    SaveType:number,
+    Type: number,
+    SaveType: number,
     QuestionId: string;
     // QuestionType?: number;
     // QuestionOption?: string;
@@ -52,7 +52,7 @@ export interface StudentAnswerInfoList {
             OptionName: string,
             SelectUserCount: number,
             status?: boolean | undefined,
-            SelectStudent: {StudentID: string, StudentName: string}[]
+            SelectStudent: { StudentID: string, StudentName: string }[]
         }[]
     }[]
 }
@@ -60,7 +60,7 @@ export interface StudentAnswerInfoList {
 /**
  资源ID 放入课包的填写
  */
-export interface IAnswerMachineQuestionRes{
+export interface IAnswerMachineQuestionRes {
     TeacherID: string,
     OrgID: string,
     ClassID: string,
@@ -90,6 +90,16 @@ export interface ISaveAnswerMachineQuestionRes {
     }[]
 }
 
+export interface ISaveTeacherSelectClassRecord {
+    TeacherID: string,
+    ClassID: string
+}
+
+export interface IGetLastSelectedClassIdByTeacherID {
+    ID: string
+}
+
+
 // 获取答题器草稿
 export const getAnswerMachineQuestionList: RequestFun<IAnswerMachineQuestionRes, any> = (data) => {
     return request({
@@ -116,8 +126,34 @@ export const saveAnswerMachineQuestion: RequestFun<ISaveAnswerMachineQuestionRes
     });
 };
 
+//添加答题器教师选择的班级id
+export const SaveTeacherSelectClassRecord: RequestFun<ISaveTeacherSelectClassRecord, any> = (data) => {
+    return request({
+        baseURL: AI_XUE_SHI_API,
+        url: "/Api/V2/Teacher/Account/SaveTeacherSelectClassRecord",
+        headers: {
+            "Content-Type": "application/json-patch+json"
+        },
+        method: "post",
+        data
+    });
+};
+
+//获取教师答题器选择班级id
+export const GetLastSelectedClassIdByTeacherID: RequestFun<IGetLastSelectedClassIdByTeacherID, any> = (data) => {
+    return request({
+        baseURL: AI_XUE_SHI_API,
+        url: "Api/V2/Teacher/Account/GetLastSelectedClassIdByTeacherID",
+        headers: {
+            "Content-Type": "application/json-patch+json"
+        },
+        method: "post",
+        data
+    });
+};
+
 // 老师收题
-export const finishAnswerMachineQuestion: RequestFun<{TeacherID: string, AnswerMachineID: string, LessonId: string | null }, any> = (data) => {
+export const finishAnswerMachineQuestion: RequestFun<{ TeacherID: string, AnswerMachineID: string, LessonId: string | null }, any> = (data) => {
     return request({
         baseURL: YUN_API_ONECARD,
         url: "/Api/AnswerMachine/FinishAnswerMachineQuestion",
@@ -130,7 +166,7 @@ export const finishAnswerMachineQuestion: RequestFun<{TeacherID: string, AnswerM
 };
 
 // 获取学生答题结果
-export const getStudentQuestionResult: RequestFun<{AnswerMachineID: string }, any> = (data) => {
+export const getStudentQuestionResult: RequestFun<{ AnswerMachineID: string }, any> = (data) => {
     return request({
         baseURL: YUN_API_ONECARD,
         url: "/Api/AnswerMachine/GetStudentQuestionResult",
