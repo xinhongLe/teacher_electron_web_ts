@@ -295,7 +295,7 @@ function createAnswerMachineWindow(allStudentList: []) {
         transparent: true,
         // backgroundColor: "#00000000",
         frame: false, // 要创建无边框窗口
-        alwaysOnTop: true,
+        // alwaysOnTop: true,
     });
 
     answerMachineWin.webContents.openDevTools();
