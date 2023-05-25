@@ -67,6 +67,8 @@ export default defineComponent({
         const videoList = ref<{ label: string; id: string }[]>([]);
         const deviceId = ref("");
         const photoSrc = ref("");
+        let streamWidth = 1280;
+        let streamHeight = 720;
 
         nextTick(() => {
             if (photoCanvasRef.value) {
@@ -90,6 +92,8 @@ export default defineComponent({
             const localVideo = document.querySelector("video");
             localVideo!.srcObject = mediaStream;
             currentMediaStream = mediaStream;
+            streamWidth = mediaStream.getVideoTracks()[0].getSettings().width || 1280;
+            streamHeight = mediaStream.getVideoTracks()[0].getSettings().height || 720;
         }
 
         async function updateDeviceList() {
@@ -135,37 +139,44 @@ export default defineComponent({
                 return;
             }
             if (photoCanvasRef.value && photoContext.value && videoRef.value) {
-                photoContext.value.clearRect(
-                    0,
-                    0,
-                    photoCanvasRef.value.width,
-                    photoCanvasRef.value.height
-                );
-                const width = videoRef.value.clientWidth;
-                const height = videoRef.value.clientHeight;
-                photoCanvasRef.value.style.width = `${width}px`;
-                photoCanvasRef.value.style.height = `${height}px`;
+                const videoWidth = videoRef.value.clientWidth;
+                const videoHeight = videoRef.value.clientHeight;
+                const ratio = streamHeight / streamWidth;
+                let dw = streamWidth;
+                let dh = streamHeight;
+                // 宽度作为标准
+                if (videoWidth * ratio <= videoHeight) {
+                    dw = videoWidth;
+                    dh = videoHeight;
+                } else {
+                    dw = videoHeight / ratio;
+                    dh = videoHeight;
+                }
+
+                photoCanvasRef.value.style.width = `${dw}px`;
+                photoCanvasRef.value.style.height = `${dh}px`;
 
                 const dpr = window.devicePixelRatio;
-                photoCanvasRef.value.width = width * dpr;
-                photoCanvasRef.value.height = height * dpr;
+                photoCanvasRef.value.width = dw * dpr;
+                photoCanvasRef.value.height = dh * dpr;
                 photoContext.value = photoCanvasRef.value.getContext("2d", {
                     willReadFrequently: true
                 }) as CanvasRenderingContext2D;
                 photoContext.value.scale(dpr, dpr);
+                
                 photoContext.value.drawImage(
                     videoRef.value,
                     0,
                     0,
-                    videoRef.value.clientWidth,
-                    videoRef.value.clientHeight
+                    dw,
+                    dh
                 );
                 photoSrc.value = photoCanvasRef.value.toDataURL("image/png");
                 photoContext.value.clearRect(
                     0,
                     0,
-                    photoCanvasRef.value.width,
-                    photoCanvasRef.value.height
+                    dw,
+                    dh
                 );
 
                 closeCamera();
@@ -265,7 +276,10 @@ body {
 
             video {
                 width: 100%;
+                max-height: 100%;
                 position: absolute;
+                top: 50%;
+                transform: translateY(-50%);
             }
         }
     }
@@ -287,7 +301,11 @@ body {
         height: 100%;
         z-index: 101;
         background-color: #000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         img {
+            display: block;
             transform-origin: center center;
             user-select: none;
             -webkit-user-drag: none;
