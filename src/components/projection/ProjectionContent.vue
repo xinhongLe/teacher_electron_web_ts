@@ -2,9 +2,9 @@
     <div class="container">
         <div
             class="content-warp"
-            @touchstart="$event => touchStartListener($event)"
+            @touchstart="$event => touchStartListener($event,isCanMove)"
             @touchend="$event => touchEndListener($event)"
-            @touchmove="$event => touchMoveListener($event)"
+            @touchmove="$event => touchMoveListener($event,isCanMove)"
         >
             <div
                 class="img-warp"
@@ -24,7 +24,9 @@
                         @load="imgOnLoad"
                     /> -->
                     <div class="layout-block-box" :class="layoutType.type">
-                        <div class="layout-num-box view-layout-box" :class="viewImageIndex === index && 'view-image-dialog'" v-for="(num, index) in layoutType.num" :key="num">
+                        <div class="layout-num-box view-layout-box"
+                             :class="viewImageIndex === index && 'view-image-dialog'"
+                             v-for="(num, index) in layoutType.num" :key="num">
                             <img
                                 :src="layoutImages[index]"
                                 class="img"
@@ -64,19 +66,19 @@
         <div class="footer">
             <div class="left">
                 <div class="box" @click="onZoomIn">
-                    <img src="@/assets/projection/icon_big_rest@2x.png" />
+                    <img src="@/assets/projection/icon_big_rest@2x.png"/>
                     放大
                 </div>
                 <div class="box" @click="onZoomOut">
-                    <img src="@/assets/projection/icon_samll_rest@2x.png" />
+                    <img src="@/assets/projection/icon_samll_rest@2x.png"/>
                     缩小
                 </div>
                 <div class="box" @click="leftRotate">
-                    <img src="@/assets/projection/icon_left_rest@2x.png" />
+                    <img src="@/assets/projection/icon_left_rest@2x.png"/>
                     左旋
                 </div>
                 <div class="box" @click="rightRotate">
-                    <img src="@/assets/projection/icon_right_rest@2x.png" />
+                    <img src="@/assets/projection/icon_right_rest@2x.png"/>
                     右旋
                 </div>
                 <div class="box" @click="clickMouse">
@@ -189,7 +191,7 @@
                     橡皮
                 </div>
                 <div class="box" @click="clearBoard">
-                    <img src="@/assets/projection/icon_qingchu@2x.png" />
+                    <img src="@/assets/projection/icon_qingchu@2x.png"/>
                     清除
                 </div>
                 <div class="page">
@@ -235,7 +237,8 @@
                     tooltipEffect="dark"
                 >
                     <div class="layout-box">
-                        <div class="layout-block" :class="item.type === layoutType.type && 'active'" v-for="item in layoutTypes" :key="item.type" @click="setLayoutType(item)">
+                        <div class="layout-block" :class="item.type === layoutType.type && 'active'"
+                             v-for="item in layoutTypes" :key="item.type" @click="setLayoutType(item)">
                             <div class="layout-block-box" :class="item.type">
                                 <div class="layout-num-box" v-for="num in item.num" :key="num">
                                     {{ num }}
@@ -245,8 +248,10 @@
                     </div>
                     <template #reference>
                         <div class="box" :class="isLayoutPopover && 'active'">
-                            <img v-if="!isLayoutPopover" style="width: 24px;margin-top: 8px;" src="@/assets/projection/icon_bj@2x.png" />
-                            <img v-else style="width: 24px;margin-top: 8px;" src="@/assets/projection/icon_bj_green@2x.png" />
+                            <img v-if="!isLayoutPopover" style="width: 24px;margin-top: 8px;"
+                                 src="@/assets/projection/icon_bj@2x.png"/>
+                            <img v-else style="width: 24px;margin-top: 8px;"
+                                 src="@/assets/projection/icon_bj_green@2x.png"/>
                             布局
                         </div>
                     </template>
@@ -261,9 +266,10 @@
 
 <script lang="ts">
 import useTransform from "@/hooks/useTransform";
-import { nextTick } from "process";
-import { computed, defineComponent, PropType, ref, toRefs, watch } from "vue";
+import {nextTick} from "process";
+import {computed, defineComponent, PropType, ref, toRefs, watch} from "vue";
 import Brush from "../brush/index.vue";
+
 export default defineComponent({
     props: {
         index: {
@@ -276,6 +282,7 @@ export default defineComponent({
         }
     },
     setup(props) {
+        const isCanMove = ref(false);
         const imgList = computed(() => props.list);
         const currentIndex = ref(props.index);
         const isBrush = ref(false);
@@ -393,6 +400,7 @@ export default defineComponent({
             switchLayoutPage();
         };
         const brushHandle = () => {
+            isCanMove.value = false;
             activeIndex.value = 2;
             isBrush.value = true;
             brushRef.value!.brushOn();
@@ -401,11 +409,13 @@ export default defineComponent({
             brushRef.value!.clearBrush();
         };
         const eraserHandle = () => {
+            isCanMove.value = false;
             isBrush.value = true;
             activeIndex.value = 3;
             brushRef.value!.eraserOn();
         };
         const clickMouse = () => {
+            isCanMove.value = true;
             isBrush.value = false;
             activeIndex.value = 1;
         };
@@ -434,6 +444,7 @@ export default defineComponent({
         }
 
         return {
+            isCanMove,
             imgList,
             lastPage,
             nextPage,
@@ -477,7 +488,7 @@ export default defineComponent({
             ...toRefs(transform)
         };
     },
-    components: { Brush }
+    components: {Brush}
 });
 </script>
 
@@ -486,11 +497,13 @@ export default defineComponent({
     height: 100%;
     display: flex;
     flex-direction: column;
+
     .content-warp {
         background: #eef4ff;
         height: 100%;
         position: relative;
         overflow: hidden;
+
         .img-warp {
             height: 100%;
             flex: 1;
@@ -499,18 +512,21 @@ export default defineComponent({
             align-items: center;
             position: relative;
             overflow: hidden;
+
             .view-box {
                 position: relative;
                 transform-origin: center center;
                 height: 100%;
                 width: 100%;
             }
+
             .img {
                 max-width: 96%;
                 max-height: 96%;
                 display: block;
             }
         }
+
         .close-btn, .reset-btn {
             cursor: pointer;
             position: absolute;
@@ -525,6 +541,7 @@ export default defineComponent({
             padding: 10px 30px;
             font-size: 20px;
             bottom: 20px;
+
             .reset-img {
                 margin-right: 14px;
             }
@@ -534,6 +551,7 @@ export default defineComponent({
             bottom: 80px;
         }
     }
+
     .footer {
         height: 90px;
         background: #000000;
@@ -546,46 +564,54 @@ export default defineComponent({
         padding-right: 40px;
         position: relative;
         z-index: 10;
-    .left {
-        display: flex;
-        position: absolute;
-        left: 50%;
-        transform: translateX(-50%);
-        height: 100%;
-        padding: 6px 0;
-        .box {
+
+        .left {
             display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 86px;
-            justify-content: space-around;
-            cursor: pointer;
-            &:hover {
-                background: #191919;
-            }
-            img {
-                width: 40px;
-                &.small {
-                    width: 28px;
-                    margin-top: 8px;
-                }
-            }
-            &.active {
-                color: #4BEEE4;
-            }
-        }
-        .page {
-            display: flex;
-            .page-num {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            height: 100%;
+            padding: 6px 0;
+
+            .box {
                 display: flex;
                 flex-direction: column;
                 align-items: center;
-                justify-content: center;
-                min-width: 50px;
+                width: 86px;
+                justify-content: space-around;
+                cursor: pointer;
+
+                &:hover {
+                    background: #191919;
+                }
+
+                img {
+                    width: 40px;
+
+                    &.small {
+                        width: 28px;
+                        margin-top: 8px;
+                    }
+                }
+
+                &.active {
+                    color: #4BEEE4;
+                }
+            }
+
+            .page {
+                display: flex;
+
+                .page-num {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    min-width: 50px;
+                }
             }
         }
     }
-}
 }
 
 .set-layout {
@@ -604,6 +630,7 @@ export default defineComponent({
     width: 33.33%;
     height: 120px;
     padding: 10px;
+
     &.active .layout-block-box {
         outline: 1px solid #4BEEE4;
     }
@@ -633,11 +660,13 @@ export default defineComponent({
 
 .layout-three-three {
     flex-wrap: wrap;
+
     .layout-num-box {
         flex: auto;
         height: 50%;
         width: 50%;
     }
+
     .layout-num-box:first-child {
         width: 100%;
     }
@@ -646,11 +675,13 @@ export default defineComponent({
 .layout-three-four {
     flex-direction: column;
     flex-wrap: wrap;
+
     .layout-num-box {
         flex: auto;
         width: 66.66%;
         height: 50%;
     }
+
     .layout-num-box:first-child {
         height: 100%;
         width: 33.33%;
@@ -659,6 +690,7 @@ export default defineComponent({
 
 .layout-four-one {
     flex-wrap: wrap;
+
     .layout-num-box {
         flex: 50%;
         height: 50%;

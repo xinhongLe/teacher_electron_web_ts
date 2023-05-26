@@ -19,7 +19,7 @@ import ProjectionContent from "./ProjectionContent.vue";
 
 export default defineComponent({
     setup() {
-        const imgList = ref<string[]>([]);
+        const imgList = ref<string[]>([""]);
         const currentIndex = ref(0);
         const isShow = ref(false);
 
