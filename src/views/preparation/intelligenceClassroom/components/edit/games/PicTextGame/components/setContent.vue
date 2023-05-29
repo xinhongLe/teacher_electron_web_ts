@@ -134,6 +134,7 @@ import {Delete} from '@element-plus/icons-vue';
 import {ElMessage} from "element-plus";
 import {cooOss, getOssUrl} from "@/utils/oss";
 import {get, STORAGE_TYPES} from "@/utils/storage";
+import {createRandomCode} from "@/utils/common";
 
 export default defineComponent({
     name: "setContent",
@@ -201,9 +202,10 @@ export default defineComponent({
         //添加配对
         const addPairing = () => {
             if (form.value.LeftItems.Items.length >= 9) return;
+            const id: string = createRandomCode();
             form.value.LeftItems.Items.push(
                 {
-                    Id: "",
+                    Id: id,
                     Data: "",
                     File: {
                         ID: "",
@@ -226,7 +228,7 @@ export default defineComponent({
             )
             form.value.RightItems.Items.push(
                 {
-                    Id: "",
+                    Id: id,
                     Data: "",
                     File: {
                         ID: "",

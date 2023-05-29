@@ -24,6 +24,7 @@ import setLayout from "./components/setLayout.vue";
 import {getTeacherPageGameConfig, UpdateImageTextConnectionOption} from "@/api/game";
 import {Slide} from "wincard";
 import {getOssUrl} from "@/utils/oss";
+import {createRandomCode} from "@/utils/common";
 
 export default defineComponent({
     name: "classGame",
@@ -36,6 +37,7 @@ export default defineComponent({
     emits: ["save"],
     components: {SetContent, setLayout},
     setup(props, {emit}) {
+        const id: string = createRandomCode();
         const state = reactive({
             activeIndex: 1,
             tabList: [
@@ -47,7 +49,7 @@ export default defineComponent({
                     Type: 1,
                     Items: [
                         {
-                            Id: "",
+                            Id: id, //随机唯一id,
                             Data: "",
                             File: {
                                 ID: "",
@@ -70,7 +72,7 @@ export default defineComponent({
                     Type: 0,
                     Items: [
                         {
-                            Id: "",
+                            Id: id,
                             Data: "",
                             File: {
                                 ID: "",
