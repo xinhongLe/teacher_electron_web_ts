@@ -100,7 +100,7 @@ watch(() => props.course, async (val: ICourse) => {
         }
     } else {
         emitter.emit("updateResourceList", []);
-        // selectPackage(lessonPackageList.value[0])
+        selectPackage(lessonPackageList.value[0])
     }
 }, {deep: true, immediate: true})
 
