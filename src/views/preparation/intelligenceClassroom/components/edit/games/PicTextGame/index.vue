@@ -64,7 +64,7 @@ export default defineComponent({
                                 StaffID: ""
                             },
                             Position: {x: 200, y: 200},
-                            Size: {Width: 240, Height: 100},
+                            Size: {Width: 284, Height: 92},
                         }
                     ]
                 },
@@ -87,7 +87,7 @@ export default defineComponent({
                                 StaffID: ""
                             },
                             Position: {x: 600, y: 200},
-                            Size: {Width: 240, Height: 100},
+                            Size: {Width: 284, Height: 92},
                         }
                     ]
                 }

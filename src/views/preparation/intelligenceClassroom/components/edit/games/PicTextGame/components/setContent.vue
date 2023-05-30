@@ -163,7 +163,7 @@ export default defineComponent({
                                 StaffID: ""
                             },
                             Position: {x: 200, y: 200},
-                            Size: {Width: 240, Height: 100},
+                            Size: {Width: 284, Height: 92},
                         }
                     ]
                 },
@@ -186,7 +186,7 @@ export default defineComponent({
                                 StaffID: ""
                             },
                             Position: {x: 600, y: 200},
-                            Size: {Width: 240, Height: 100},
+                            Size: {Width: 284, Height: 92},
                         }
                     ]
                 }
@@ -223,7 +223,7 @@ export default defineComponent({
                         x: 200,
                         y: form.value.LeftItems.Items[form.value.LeftItems.Items.length - 1].Position.y + 150
                     },
-                    Size: {Width: 240, Height: 100},
+                    Size: {Width: 284, Height: 92},
                 }
             )
             form.value.RightItems.Items.push(
@@ -246,7 +246,7 @@ export default defineComponent({
                         x: 600,
                         y: form.value.RightItems.Items[form.value.RightItems.Items.length - 1].Position.y + 150
                     },
-                    Size: {Width: 240, Height: 100},
+                    Size: {Width: 284, Height: 92},
                 }
             )
         };

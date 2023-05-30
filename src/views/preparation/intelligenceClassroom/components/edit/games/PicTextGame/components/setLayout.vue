@@ -26,34 +26,42 @@
                     @mousedown.stop="handleMousedown($event, element)"
                 >
                     <div
+                        v-if="element.Type === 0"
                         class="shape__scale-point lt"
                         @mousedown.stop="handlePointMousedown('lt', $event, element)"
                     ></div>
                     <div
+                        v-if="element.Type === 0"
                         class="shape__scale-point rt"
                         @mousedown.stop="handlePointMousedown('rt', $event, element)"
                     ></div>
                     <div
+                        v-if="element.Type === 0"
                         class="shape__scale-point lb"
                         @mousedown.stop="handlePointMousedown('lb', $event, element)"
                     ></div>
                     <div
+                        v-if="element.Type === 0"
                         class="shape__scale-point rb"
                         @mousedown.stop="handlePointMousedown('rb', $event, element)"
                     ></div>
                     <div
+                        v-if="element.Type === 0"
                         class="shape__scale-point l"
                         @mousedown.stop="handlePointMousedown('l', $event, element)"
                     ></div>
                     <div
+                        v-if="element.Type === 0"
                         class="shape__scale-point r"
                         @mousedown.stop="handlePointMousedown('r', $event, element)"
                     ></div>
                     <div
+                        v-if="element.Type === 0"
                         class="shape__scale-point t"
                         @mousedown.stop="handlePointMousedown('t', $event, element)"
                     ></div>
                     <div
+                        v-if="element.Type === 0"
                         class="shape__scale-point b"
                         @mousedown.stop="handlePointMousedown('b', $event, element)"
                     ></div>
@@ -98,7 +106,7 @@ export default defineComponent({
                                 StaffID: ""
                             },
                             Position: {x: 200, y: 200},
-                            Size: {Width: 240, Height: 100},
+                            Size: {Width: 284, Height: 92},
                         }
                     ]
                 },
@@ -121,7 +129,7 @@ export default defineComponent({
                                 StaffID: ""
                             },
                             Position: {x: 600, y: 200},
-                            Size: {Width: 240, Height: 100},
+                            Size: {Width: 284, Height: 92},
                         }
                     ]
                 }
