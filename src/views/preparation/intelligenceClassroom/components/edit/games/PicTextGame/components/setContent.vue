@@ -1,130 +1,176 @@
 <template>
     <div class="content-detail">
-        <div class="top">
-            <p @click="addPairing">添加配对 {{ form.LeftItems.Items.length }}/9</p>
-        </div>
-        <div class="middle">
-            <div class="middle-left">
-                <div class="btn">
-                    <el-button round>左边</el-button>
-                </div>
-                <div class="content">
-                    <div class="types">
+        <el-form
+            ref="formRef"
+            :model="form"
+            :rules="rules"
+            label-position="right"
+        >
+            <div class="middle">
+                <div class="middle-left">
+                    <div class="top">
+                        <p @click="addLeft">添加 {{ form.LeftItems.Items.length }}/9</p>
+                    </div>
+                    <div class="btn">
+                        <el-button round>左边</el-button>
+                    </div>
+                    <div class="content">
+                        <div class="types">
                         <span>
                             类型：
                         </span>
-                        <el-radio-group v-model="form.LeftItems.Type">
-                            <el-radio :label="1">文字</el-radio>
-                            <el-radio :label="0">图片</el-radio>
-                        </el-radio-group>
-                    </div>
-                    <div class="content-text" v-if="form.LeftItems.Type == 1">
-                        <div class="content-item" v-for="(item,index) in form.LeftItems.Items">
-                            <span>{{ index + 1 }}</span>
-                            <el-input v-model="item.Data"></el-input>
-                            <div class="del-icon" @click="deleteLeftCon(index)">
-                                <el-icon v-if="index > 0">
-                                    <Delete/>
-                                </el-icon>
-                            </div>
+                            <el-radio-group v-model="form.LeftItems.Type">
+                                <el-radio :label="1">文字</el-radio>
+                                <el-radio :label="0">图片</el-radio>
+                            </el-radio-group>
+                        </div>
+                        <div class="content-text" v-if="form.LeftItems.Type == 1">
+                            <div class="content-item" v-for="(item,index) in form.LeftItems.Items">
+                                <span>{{ index + 1 }}</span>
+                                <el-form-item
+                                    label-width="0px"
+                                    :prop="`LeftItems.Items[${index}].Data`"
+                                    :rules="rules.Data"
+                                    style="margin: 0"
+                                >
+                                    <el-input
+                                        v-model="item.Data"
+                                        placeholder="请输入文字"
+                                        :maxlength="8"
+                                        show-word-limit
+                                    />
+                                </el-form-item>
+                                <div class="del-icon" @click="deleteLeftCon(index)">
+                                    <el-icon v-if="index > 0">
+                                        <Delete/>
+                                    </el-icon>
+                                </div>
 
+                            </div>
+                        </div>
+                        <div class="content-img" v-if="form.LeftItems.Type == 0">
+                            <div class="content-item" v-for="(item,index) in form.LeftItems.Items">
+                                <el-form-item
+                                    label-width="0px"
+                                    :prop="`LeftItems.Items[${index}].File.url`"
+                                    :rules="rules.File"
+                                >
+                                    <el-upload
+                                        ref="uploadRef"
+                                        class="avatar-uploader"
+                                        action=""
+                                        accept=".jpg,.jpeg,.gif,.png"
+                                        :auto-upload="false"
+                                        :on-change="(file) => onChange(file, index,1)"
+                                        :show-file-list="false"
+                                    >
+                                        <img
+                                            v-if="item.File.url"
+                                            :src="item.File.url"
+                                            class="avatar"
+                                        />
+                                        <el-icon v-else class="avatar-uploader-icon"
+                                        >
+                                            <Plus/>
+                                            上传图片
+                                        </el-icon
+                                        >
+                                    </el-upload>
+                                </el-form-item>
+                                <div class="del-icon" @click="deleteLeftCon(index)">
+                                    <el-icon v-if="index > 0">
+                                        <Delete/>
+                                    </el-icon>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="content-img" v-if="form.LeftItems.Type == 0">
-                        <div class="content-item" v-for="(item,index) in form.LeftItems.Items">
-                            <el-upload
-                                ref="uploadRef"
-                                class="avatar-uploader"
-                                action=""
-                                accept=".jpg,.jpeg,.gif,.png"
-                                :auto-upload="false"
-                                :on-change="(file) => onChange(file, index,1)"
-                                :show-file-list="false"
-                            >
-                                <img
-                                    v-if="item.File.url"
-                                    :src="item.File.url"
-                                    class="avatar"
-                                />
-                                <el-icon v-else class="avatar-uploader-icon"
+                </div>
+                <div class="middle-right">
+                    <div class="top">
+                        <p @click="addRight">添加 {{ form.RightItems.Items.length }}/9</p>
+                    </div>
+                    <div class="btn">
+                        <el-button round>右边</el-button>
+                    </div>
+                    <div class="content">
+                        <div class="types">
+                        <span>
+                            类型：
+                        </span>
+                            <el-radio-group v-model="form.RightItems.Type">
+                                <el-radio :label="1">文字</el-radio>
+                                <el-radio :label="0">图片</el-radio>
+                            </el-radio-group>
+                        </div>
+                        <div class="content-text" v-if="form.RightItems.Type == 1">
+                            <div class="content-item" v-for="(item,index) in form.RightItems.Items">
+                                <span>{{ index + 1 }}</span>
+                                <el-form-item
+                                    label-width="0px"
+                                    :prop="`RightItems.Items[${index}].Data`"
+                                    :rules="rules.Data"
+                                    style="margin: 0"
                                 >
-                                    <Plus/>
-                                    上传图片
-                                </el-icon
+                                    <el-input
+                                        v-model="item.Data"
+                                        placeholder="请输入文字"
+                                        :maxlength="8"
+                                        show-word-limit
+                                    />
+                                </el-form-item>
+                                <div class="del-icon" @click="deleteRightCon(index)">
+                                    <el-icon v-if="index > 0">
+                                        <Delete/>
+                                    </el-icon>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="content-img" v-if="form.RightItems.Type == 0">
+                            <div class="content-item" v-for="(item,index) in form.RightItems.Items">
+                                <el-form-item
+                                    label-width="0px"
+                                    :prop="`RightItems.Items[${index}].File.url`"
+                                    :rules="rules.File"
                                 >
-                            </el-upload>
-                            <div class="del-icon" @click="deleteLeftCon(index)">
-                                <el-icon v-if="index > 0">
-                                    <Delete/>
-                                </el-icon>
+                                    <el-upload
+                                        ref="uploadRef"
+                                        class="avatar-uploader"
+                                        action=""
+                                        accept=".jpg,.jpeg,.gif,.png"
+                                        :auto-upload="false"
+                                        :on-change="(file) => onChange(file, index,2)"
+                                        :show-file-list="false"
+                                    >
+                                        <img
+                                            v-if="item.File.url"
+                                            :src="item.File.url"
+                                            class="avatar"
+                                        />
+                                        <el-icon v-else class="avatar-uploader-icon"
+                                        >
+                                            <Plus/>
+                                            上传图片
+                                        </el-icon
+                                        >
+                                    </el-upload>
+                                </el-form-item>
+                                <div class="del-icon" @click="deleteRightCon(index)">
+                                    <el-icon v-if="index > 0">
+                                        <Delete/>
+                                    </el-icon>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="middle-right">
-                <div class="btn">
-                    <el-button round>右边</el-button>
-                </div>
-                <div class="content">
-                    <div class="types">
-                        <span>
-                            类型：
-                        </span>
-                        <el-radio-group v-model="form.RightItems.Type">
-                            <el-radio :label="1">文字</el-radio>
-                            <el-radio :label="0">图片</el-radio>
-                        </el-radio-group>
-                    </div>
-                    <div class="content-text" v-if="form.RightItems.Type == 1">
-                        <div class="content-item" v-for="(item,index) in form.RightItems.Items">
-                            <span>{{ index + 1 }}</span>
-                            <el-input v-model="item.Data"></el-input>
-                            <div class="del-icon" @click="deleteLeftCon(index)">
-                                <el-icon v-if="index > 0">
-                                    <Delete/>
-                                </el-icon>
-                            </div>
-
-                        </div>
-                    </div>
-                    <div class="content-img" v-if="form.RightItems.Type == 0">
-                        <div class="content-item" v-for="(item,index) in form.RightItems.Items">
-                            <el-upload
-                                ref="uploadRef"
-                                class="avatar-uploader"
-                                action=""
-                                accept=".jpg,.jpeg,.gif,.png"
-                                :auto-upload="false"
-                                :on-change="(file) => onChange(file, index,2)"
-                                :show-file-list="false"
-                            >
-                                <img
-                                    v-if="item.File.url"
-                                    :src="item.File.url"
-                                    class="avatar"
-                                />
-                                <el-icon v-else class="avatar-uploader-icon"
-                                >
-                                    <Plus/>
-                                    上传图片
-                                </el-icon
-                                >
-                            </el-upload>
-                            <div class="del-icon" @click="deleteLeftCon(index)">
-                                <el-icon v-if="index > 0">
-                                    <Delete/>
-                                </el-icon>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <div class="footer">
+                <!--            <el-button>取消</el-button>-->
+                <el-button type="primary" @click="handleComfirm">保存</el-button>
             </div>
-        </div>
-        <div class="footer">
-            <!--            <el-button>取消</el-button>-->
-            <el-button type="primary" @click="handleComfirm">保存</el-button>
-        </div>
+        </el-form>
     </div>
 </template>
 
@@ -194,13 +240,26 @@ export default defineComponent({
         },
     },
     setup(props, {emit}) {
+        const rules = {
+            Data: [
+                {required: true, message: "请输入", trigger: "blur"},
+                {max: 8, message: "最多8字符", trigger: "blur"}
+            ],
+            File: [
+                {
+                    required: true,
+                    message: "请上传图片",
+                    trigger: ["change", "blur"]
+                }
+            ]
+        };
         const form: any = computed(() => props.newForm);
         //
         // const leftType = ref(1);
         // const rightType = ref(1);
 
-        //添加配对
-        const addPairing = () => {
+        //添加左边
+        const addLeft = () => {
             if (form.value.LeftItems.Items.length >= 9) return;
             const id: string = createRandomCode();
             form.value.LeftItems.Items.push(
@@ -223,9 +282,14 @@ export default defineComponent({
                         x: 200,
                         y: form.value.LeftItems.Items[form.value.LeftItems.Items.length - 1].Position.y + 150
                     },
-                    Size: {Width: 284, Height: 92},
+                    Size: {Width: 284, Height: 92}
                 }
-            )
+            );
+        };
+        //添加右边
+        const addRight = () => {
+            if (form.value.RightItems.Items.length >= 9) return;
+            const id: string = createRandomCode();
             form.value.RightItems.Items.push(
                 {
                     Id: id,
@@ -246,36 +310,17 @@ export default defineComponent({
                         x: 600,
                         y: form.value.RightItems.Items[form.value.RightItems.Items.length - 1].Position.y + 150
                     },
-                    Size: {Width: 284, Height: 92},
+                    Size: {Width: 284, Height: 92}
                 }
-            )
+            );
         };
-        // watch(() => form.value.leftType, val => {
-        //     if (val === 1) {
-        //         form.value.leftData.forEach((item: any) => {
-        //             item.Type = 1
-        //         })
-        //     } else {
-        //         form.value.leftData.forEach((item: any) => {
-        //             item.Type = 0
-        //         })
-        //     }
-        // });
-        // watch(() => form.value.rightType, val => {
-        //     if (val === 1) {
-        //         form.value.rightData.forEach((item: any) => {
-        //             item.Type = 1
-        //         })
-        //     } else {
-        //         form.value.rightData.forEach((item: any) => {
-        //             item.Type = 0
-        //         })
-        //     }
-        // });
         //删除左边
         const deleteLeftCon = (index: number) => {
-            form.value.LeftItems.Items.splice(index, 1)
-            form.value.RightItems.Items.splice(index, 1)
+            form.value.LeftItems.Items.splice(index, 1);
+        };
+        //删除右边
+        const deleteRightCon = (index: number) => {
+            form.value.RightItems.Items.splice(index, 1);
         };
         //上传图片
         const onChange = (file: any, index: number, type: number) => {
@@ -290,12 +335,12 @@ export default defineComponent({
                         const imgWidth = img.width;
                         const imgHeight = img.height;
                         if (
-                            imgWidth > 240 ||
-                            imgHeight > 100 ||
-                            file.raw.size / 1024 > 1024
+                            imgWidth > 1920 ||
+                            imgHeight > 1080 ||
+                            file.raw.size / 2048 > 2048
                         ) {
                             return ElMessage.warning(
-                                "图片像素不超过240 * 100，且文件大小不超过1M"
+                                "图片像素不超过1920 * 1080，且文件大小不超过2M"
                             );
                         }
                         upload(file.raw, index, imgWidth, imgHeight, type);
@@ -351,57 +396,23 @@ export default defineComponent({
                     Height: imgHeight,
                 };
             }
-
-            // if (typeof i === "number") {
-            //     form.value.classData[index].Item[i].File = {
-            //         url: fileInfo,
-            //         Bucket: "axsfile",
-            //         FilePath:
-            //             filePath?.objectKey.split("/")[0] || "ElementFile",
-            //         FileName: filePath?.name || "",
-            //         Name: filePath?.name || "",
-            //         Extention: filePath?.fileExtension || "",
-            //         Type: 2,
-            //     };
-            //     form.value.classData[index].Item[i].Size = {
-            //         Width: imgWidth,
-            //         Height: imgHeight,
-            //     };
-            // } else {
-            //     form.value.classData[index].File = {
-            //         url: fileInfo,
-            //         Bucket: "axsfile",
-            //         FilePath:
-            //             filePath?.objectKey.split("/")[0] || "ElementFile",
-            //         FileName: filePath?.name || "",
-            //         Name: filePath?.name || "",
-            //         Extention: filePath?.fileExtension || "",
-            //         Type: 2,
-            //     };
-            //     form.value.classData[index].Size = {
-            //         Width: imgWidth,
-            //         Height: imgHeight,
-            //     };
-            //     console.log(form.value.classData, "form.value.classData");
-            // }
         };
-        // const formRef = ref();
+        const formRef = ref();
         const handleComfirm = () => {
-            // formRef.value.validate((valid: boolean) => {
-            //     if (valid) {
-            //         console.log(form.value, "handleComfirm");
-            //         emit("save");
-            //     }
-            // });
-            console.log(form.value, "handleComfirm");
-            emit("save");
+            formRef.value.validate((valid: boolean) => {
+                if (valid) {
+                    emit("save");
+                }
+            });
         };
         return {
             form,
-            // leftType,
-            // rightType,
-            addPairing,
+            rules,
+            formRef,
+            addRight,
+            addLeft,
             deleteLeftCon,
+            deleteRightCon,
             onChange,
             handleComfirm
         }
