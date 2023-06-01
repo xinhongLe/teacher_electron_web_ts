@@ -375,7 +375,7 @@ export default defineComponent({
                 const dom: HTMLElement = document.querySelector(".me-tools-set") as HTMLElement;
                 const dom2: HTMLElement = document.querySelector(".draw-content") as HTMLElement;
                 const dom3: HTMLElement = document.querySelector(".me-tools") as HTMLElement;
-                if (val.type === "teach") {
+                if (val.Json.type === "teach") {
                     isTeach.value = true;
                     if (isOpen.value) {
                         dom.style.width = "174px";
