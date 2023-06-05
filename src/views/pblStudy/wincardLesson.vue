@@ -26,10 +26,10 @@ export default defineComponent({
         onMounted(() => {
             // token 令牌
             const token = get(STORAGE_TYPES.SET_TOKEN);
-            const cardInfo = window.electron.store.get("windowPblInfoLesson") as any;
+            const cardInfo = window.electron.store.get("openPblWincardLesson") as any;
             // webview地址
             url.value = `${PBL_WEB}/wincard.html?token=${token}&resourceId=${cardInfo.resourceId}&platformID=${systemId}&`;
-            // url.value = `http://localhost:8081/wincard.html?token=${token}&resourceId=${cardInfo.resourceId}&`;
+            // url.value = `http://localhost:8081/wincard.html?token=${token}&resourceId=${cardInfo.resourceId}&platformID=${systemId}&`;
             console.log("urlurlurlurlurl", url.value);
             console.log("token", token);
         });

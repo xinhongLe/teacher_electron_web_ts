@@ -20,7 +20,7 @@ export function createWinCardWindow(title: string) {
 }
 
 export function registerPblWinCardLessonEvent() {
-    ipcMain.handle("openPblWinCardWinLesson", (_, data) => {
+    ipcMain.handle("openPblWincardLesson", (_, data) => {
         createWinCardWindow(data);
     });
 }

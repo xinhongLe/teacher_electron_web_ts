@@ -46,6 +46,7 @@ const currentTitle = ref(decodeURIComponent(name.substring(1)));
 document.title = currentTitle.value;
 
 const close = () => {
+    window.electron.ipcRenderer.invoke("closePblWincard", "closeWinCard");
     window.electron.destroyWindow();
 };
 const minimizeWindow = () => {

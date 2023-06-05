@@ -188,6 +188,9 @@ async function createWindow() {
         mainWindow && mainWindow.webContents.send("openWindow", data);
     });
 
+    ipcMain.handle("closePblWincard", (_, data) => {
+        mainWindow && mainWindow.webContents.send("closePblWincard", data);
+    });
     // ipcMain.handle("lookVideo", (_, data) => {
     //     mainWindow && mainWindow.webContents.send("lookVideo", data);
     // });

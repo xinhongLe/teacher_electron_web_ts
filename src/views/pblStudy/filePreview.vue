@@ -24,7 +24,7 @@ export default defineComponent({
         onMounted(() => {
             // token 令牌
             const token = get(STORAGE_TYPES.SET_TOKEN);
-            const cardInfo = window.electron.store.get("windowPblInfoPreview") as any;
+            const cardInfo = window.electron.store.get("openPreviewFile") as any;
             // webview地址
             url.value = cardInfo.url;
             console.log("urlurlurlurlurl", url.value);

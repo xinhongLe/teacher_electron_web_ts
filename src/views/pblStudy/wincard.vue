@@ -27,7 +27,7 @@ export default defineComponent({
             // token 令牌
             const token = get(STORAGE_TYPES.SET_TOKEN);
 
-            const cardInfo = window.electron.store.get("windowPblInfo") as any;
+            const cardInfo = window.electron.store.get("openWinCard") as any;
             console.log("cardInfo", cardInfo);
             // webview地址
             url.value = `${PBL_WEB}/wincard?token=${token}&cardId=${cardInfo.cardId}&lessonId=${cardInfo.lessonId}&pageId=${cardInfo.pageId}&platformID=${systemId}&`;

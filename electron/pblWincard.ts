@@ -18,7 +18,7 @@ export function createWinCardWindow(title: string, windowUrl: string) {
 
 export function registerPblWinCardEvent() {
     const windowUrl = createUrl("pblEditWinCard.html");
-    ipcMain.handle("openPblWinCardWin", (_, data) => {
+    ipcMain.handle("openWinCard", (_, data) => {
         createWinCardWindow(data, windowUrl);
     });
     // ipcMain.handle("closeWinCard", () => {
@@ -28,7 +28,7 @@ export function registerPblWinCardEvent() {
 
 export function registerPblWinCardLessonEvent() {
     const windowUrl = createUrl("pblEditWinCardLesson.html");
-    ipcMain.handle("openPblWinCardWinLesson", (_, data) => {
+    ipcMain.handle("openPblWincardLesson", (_, data) => {
         createWinCardWindow(data, windowUrl);
     });
 }
