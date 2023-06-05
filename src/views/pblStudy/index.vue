@@ -54,7 +54,7 @@ export default defineComponent({
             const iframe = document.getElementById("pblStudy") as HTMLIFrameElement;
             iframe?.contentWindow?.postMessage({
                 type: data
-            }, "http://localhost:8081");
+            }, PBL_WEB as string);
         };
 
         onActivated(() => {
@@ -71,6 +71,7 @@ export default defineComponent({
 
         onDeactivated(() => {
             window.removeEventListener("message", openWinCard);
+            window.electron.ipcRenderer.off("closePblWincard", closePblWincard);
         });
         return {
             url,
