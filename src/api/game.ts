@@ -1,7 +1,15 @@
 import request from "@/utils/request";
-import { IResponse } from "@/types/response";
-import { IDollSetRes, IGetGameToolList, IQuackDollSetRes, IWordSet, ICarSetRes, ITugOfWarSetRes, IClassSetRes } from "@/types/game";
-import { originType, WINDOW_CRAD_API } from "@/config";
+import {IResponse} from "@/types/response";
+import {
+    IDollSetRes,
+    IGetGameToolList,
+    IQuackDollSetRes,
+    IWordSet,
+    ICarSetRes,
+    ITugOfWarSetRes,
+    IClassSetRes
+} from "@/types/game";
+import {originType, WINDOW_CRAD_API} from "@/config";
 
 type IResult = IResponse<any>
 
@@ -14,7 +22,7 @@ export function getGameToolList(data: IGetGameToolList): Promise<IResult> {
         },
         method: "post",
         baseURL: WINDOW_CRAD_API,
-        data: Object.assign(data, { OriginType: originType })
+        data: Object.assign(data, {OriginType: originType})
     });
 }
 
@@ -27,7 +35,7 @@ export function dollSet(data: IDollSetRes): Promise<IResult> {
         },
         method: "post",
         baseURL: WINDOW_CRAD_API,
-        data: Object.assign(data, { OriginType: originType })
+        data: Object.assign(data, {OriginType: originType})
     });
 }
 
@@ -40,7 +48,7 @@ export function quackDollSet(data: IQuackDollSetRes): Promise<IResult> {
         },
         method: "post",
         baseURL: WINDOW_CRAD_API,
-        data: Object.assign(data, { OriginType: originType })
+        data: Object.assign(data, {OriginType: originType})
     });
 }
 
@@ -53,12 +61,12 @@ export function wordSet(data: IWordSet): Promise<IResult> {
         },
         method: "post",
         baseURL: WINDOW_CRAD_API,
-        data: Object.assign(data, { OriginType: originType })
+        data: Object.assign(data, {OriginType: originType})
     });
 }
 
 // 获取游戏配置
-export function getTeacherPageGameConfig(data: {PageID: string}): Promise<IResult> {
+export function getTeacherPageGameConfig(data: { PageID: string }): Promise<IResult> {
     return request({
         url: "/Api/WCP/Game/GetTeacherPageGameConfig",
         headers: {
@@ -66,7 +74,20 @@ export function getTeacherPageGameConfig(data: {PageID: string}): Promise<IResul
         },
         method: "post",
         baseURL: WINDOW_CRAD_API,
-        data: Object.assign(data, { OriginType: originType })
+        data: Object.assign(data, {OriginType: originType})
+    });
+}
+
+// 跑步游戏配置
+export function runningGameSet(data: ICarSetRes): Promise<IResult> {
+    return request({
+        url: "/Api/WCP/Game/UpdateRunningGameOption",
+        headers: {
+            "Content-Type": "application/json-patch+json"
+        },
+        method: "post",
+        baseURL: WINDOW_CRAD_API,
+        data: Object.assign(data, {OriginType: originType})
     });
 }
 
@@ -79,7 +100,7 @@ export function carSet(data: ICarSetRes): Promise<IResult> {
         },
         method: "post",
         baseURL: WINDOW_CRAD_API,
-        data: Object.assign(data, { OriginType: originType })
+        data: Object.assign(data, {OriginType: originType})
     });
 }
 
@@ -92,7 +113,7 @@ export function tugOfWarSet(data: ITugOfWarSetRes): Promise<IResult> {
         },
         method: "post",
         baseURL: WINDOW_CRAD_API,
-        data: Object.assign(data, { OriginType: originType })
+        data: Object.assign(data, {OriginType: originType})
     });
 }
 
@@ -105,6 +126,6 @@ export function classSet(data: IClassSetRes): Promise<IResult> {
         },
         method: "post",
         baseURL: WINDOW_CRAD_API,
-        data: Object.assign(data, { OriginType: originType })
+        data: Object.assign(data, {OriginType: originType})
     });
 }
