@@ -1,8 +1,8 @@
 
 <template>
-    <el-dialog :z-index="1000" width="470" v-model="dialogVisible" :close-on-click-modal="false" destroy-on-close center
-        :before-close="close">
-        <template #header>
+    <el-dialog :z-index="1000" width="34vw" style="min-width: 472px;" v-model="dialogVisible" :close-on-click-modal="false"
+        destroy-on-close center :before-close="close">
+        <template #title>
             <div class="title pl20">
                 {{ '批量导入文件' }}
             </div>
@@ -113,13 +113,13 @@ const getBlob = (url: string) => {
     });
 }
 
-const saveAs = (blob:any, filename:string) => {
-  var link = document.createElement('a');
-  link.href = window.URL.createObjectURL(blob);
-  link.download = filename;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+const saveAs = (blob: any, filename: string) => {
+    var link = document.createElement('a');
+    link.href = window.URL.createObjectURL(blob);
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 }
 
 // 下载模板
@@ -135,8 +135,8 @@ const download = () => {
                 ? `${FilePath}/${FileMD5}.${FileExtention}`
                 : `${FilePath}/${FileMD5}`;
             let objectUrl = await getOssUrl(key, FileBucket);
-            getBlob(objectUrl).then((blob:any)=>{
-                saveAs(blob,`${Name}.zip`)
+            getBlob(objectUrl).then((blob: any) => {
+                saveAs(blob, `${Name}.zip`)
             })
             // const a = document.createElement('a');
             // const filename = 'Name' + '.zip';
@@ -247,7 +247,6 @@ defineExpose({
             cursor: pointer;
             display: flex;
             align-items: center;
-            font-size: 12px;
             font-family: PingFangSC-Regular, PingFang SC;
             font-weight: 400;
             color: #4B71EE;
@@ -261,14 +260,12 @@ defineExpose({
         }
 
         .title {
-            font-size: 12px;
             font-family: PingFangSC-Regular, PingFang SC;
             font-weight: 400;
             color: #A7AAB4;
         }
 
         .desc {
-            font-size: 12px;
             font-family: PingFangSC-Regular, PingFang SC;
             font-weight: 400;
             color: #19203D;
@@ -276,11 +273,30 @@ defineExpose({
             margin-top: 6px;
         }
 
-        .pic {
-            margin-top: 12px;
-            height: 96px;
-            width: auto;
+        @media screen and (max-width: 1366px) {
+            .title,.desc,.download{
+                font-size: 12px;
+            }
+            .pic {
+                margin-top: 12px;
+                height: 96px;
+                width: auto;
+            }
+
         }
+
+        @media screen and(min-width: 1367px) {
+            .title,.desc,.download{
+                font-size: 13px;
+            }
+            .pic {
+                margin-top: 12px;
+                height: 130px;
+                width: auto;
+            }
+        }
+
+
 
         .tag {
             position: absolute;

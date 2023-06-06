@@ -7,7 +7,8 @@ import {
     IWordSet,
     ICarSetRes,
     ITugOfWarSetRes,
-    IClassSetRes
+    IClassSetRes,
+    IImageTextConnect
 } from "@/types/game";
 import {originType, WINDOW_CRAD_API} from "@/config";
 
@@ -129,3 +130,18 @@ export function classSet(data: IClassSetRes): Promise<IResult> {
         data: Object.assign(data, {OriginType: originType})
     });
 }
+
+// 更改图文连线游戏配置
+export function UpdateImageTextConnectionOption(data: IImageTextConnect): Promise<IResult> {
+    return request({
+        url: "/Api/WCP/Game/UpdateImageTextConnectionOption",
+        headers: {
+            "Content-Type": "application/json-patch+json"
+        },
+        method: "post",
+        baseURL: WINDOW_CRAD_API,
+        data: Object.assign(data, {OriginType: originType})
+    });
+}
+
+

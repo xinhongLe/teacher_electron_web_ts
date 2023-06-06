@@ -283,6 +283,7 @@ export default defineComponent({
                         const path = file.filePaths[0];
                         downloadProgress.value = 0;
                         showDownload.value = true;
+
                         localCache = new LocalCache({
                             cachingStatus: (status) => {
                                 console.log(`status: ${status}`);
@@ -295,7 +296,6 @@ export default defineComponent({
                                 }
                             }
                         });
-
                         localCache.doCache(
                             {
                                 WindowID: data.OldResourceId,

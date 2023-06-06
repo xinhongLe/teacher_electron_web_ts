@@ -11,16 +11,16 @@ export interface IGetGameToolList {
  * sort 序号
  * text 选项
  * rightKey 答案 0错误 1正确
-*/
+ */
 export interface IDollItem {
-    Sort? : number,
+    Sort?: number,
     Text: string,
     RightKey: number
 }
 
 export interface IFileItem {
-    Name?:string,
-    url?:string,
+    Name?: string,
+    url?: string,
     Bucket: string,
     FileName: string,
     FilePath: string,
@@ -33,15 +33,16 @@ export interface IFileItem {
  * answer 答案
  */
 export interface IDollSubject {
-    Sort? : number,
-    Subject : string,
-    Answer? : string,
+    Sort?: number,
+    Subject: string,
+    Answer?: string,
     Options: IDollItem[]
 }
+
 interface IWordItem {
-    sort? : number,
-    subject : string,
-    word : string,
+    sort?: number,
+    subject: string,
+    word: string,
     file: {
         bucket: string,
         filePath: string,
@@ -73,7 +74,7 @@ interface IPosition {
     y: number,
 }
 
-interface ISize{
+interface ISize {
     Width: number,
     Height: number,
 }
@@ -89,7 +90,7 @@ export interface IClassItem {
     Size: ISize
 }
 
-export interface IClassOption extends IClassItem{
+export interface IClassOption extends IClassItem {
     Item: IClassItem[]
 }
 
@@ -141,7 +142,7 @@ export interface ICarSetRes {
         },
         data: {
             Question?: string,
-            Select:number,
+            Select: number,
             File?: IFileItem
         }[]
     }
@@ -153,6 +154,46 @@ export interface IClassSetRes {
     config: {
         AutoJudge: boolean,
         ThemeId: number,
-        ClassificationData:IClassOption[]
+        ClassificationData: IClassOption[]
+    }
+}
+
+export interface ImageTextItem {
+    Id: string,
+    Data: string,
+    File: {
+        ID: string,
+        Name: string,
+        SN: number,
+        FileName: string,
+        Bucket: string,
+        FilePath: string,
+        Extention: string,
+        FileMD5: string,
+        Type: number,
+        StaffID: string
+    },
+    Size: {
+        Width: number,
+        Height: number
+    },
+    Position: {
+        x: number,
+        y: number
+    }
+}
+
+export interface IImageTextConnect {
+    pageID: string,
+    gameID: string,
+    config: {
+        LeftItems: {
+            Type: number,
+            Items: ImageTextItem[]
+        },
+        RightItems: {
+            Type: number,
+            Items: ImageTextItem[]
+        },
     }
 }

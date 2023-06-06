@@ -1,13 +1,36 @@
 import request from "@/utils/request";
-import { AI_XUE_SHI_API, YUN_API_COMPOSITION } from "@/config";
+import { YUN_API_COMPOSITION } from "@/config";
 import { RequestFun } from "@/types/response";
-import { FetchAllPassage, getClassStuCount, IAddArticle, IcompositionBatchImport, IcorrectWithOneKey, IdeleteArticle, IdeleteStudentEntry, IdownLoadBatchImportModel, IdownloadPDF, IeditReportDetail, IgetStatusCountByTeacherComId, IgetStudentByClass, IgetStudentByHasEntry, IgetStudentByUserInfo, IgetStudentComByTeacherComId, IlookContent, IoneStudentEntry, IresubmitCorrectComposition, IsaveContent, IsearchReportDetail, IsearchStudentListForCorrect, IsearchStudentListForReport, IsendReportWithOneKey, IshareReportUrl } from "@/types/composition";
+import {
+    FetchAllPassage,
+    getClassStuCount,
+    IAddArticle,
+    IcorrectWithOneKey,
+    IdeleteArticle,
+    IdeleteStudentEntry,
+    IdownLoadBatchImportModel,
+    IdownloadPDF,
+    IeditReportDetail,
+    IgetAssessDetail,
+    IgetStatusCountByTeacherComId,
+    IgetStudentByClass,
+    IgetStudentByHasEntry,
+    IgetStudentByUserInfo,
+    IgetStudentComByTeacherComId,
+    IlookContent,
+    IoneStudentEntry,
+    IresubmitCorrectComposition,
+    IsaveAssessment,
+    IsaveContent,
+    IsearchReportDetail,
+    IsearchStudentListForCorrect,
+    IsearchStudentListForReport,
+    IsendReportWithOneKey,
+    IshareReportUrl
+} from "@/types/composition";
 
 // 图像识别文字（针对于识别姓名
-export const picToWordByName: RequestFun<
-any,
-    any
-> = (data) => {
+export const picToWordByName: RequestFun<any, any> = (data) => {
     return request({
         baseURL: YUN_API_COMPOSITION,
         url: "/Api/App/CompositionEntry/PicToWordByName",
@@ -17,10 +40,7 @@ any,
 };
 
 // 获取所有文章
-export const fetchAllPassage: RequestFun<
-    FetchAllPassage,
-    any
-> = (data) => {
+export const fetchAllPassage: RequestFun<FetchAllPassage, any> = (data) => {
     return request({
         baseURL: YUN_API_COMPOSITION,
         url: "/Api/App/index/GetAllPassage",
@@ -33,10 +53,7 @@ export const fetchAllPassage: RequestFun<
 };
 
 // 获取所有文章(分页)
-export const fetchAllPassageByPage: RequestFun<
-    FetchAllPassage,
-    any
-> = (data) => {
+export const fetchAllPassageByPage: RequestFun<FetchAllPassage, any> = (data) => {
     return request({
         baseURL: YUN_API_COMPOSITION,
         url: "/Api/App/index/GetAllPassageform",
@@ -49,10 +66,7 @@ export const fetchAllPassageByPage: RequestFun<
 };
 
 // 查询老师在该组织下教授的班级信息及学生数量
-export const getClassStuCountByTeacher: RequestFun<
-getClassStuCount,
-    any
-> = (data) => {
+export const getClassStuCountByTeacher: RequestFun<getClassStuCount, any> = (data) => {
     return request({
         baseURL: YUN_API_COMPOSITION,
         url: "/Api/Management/UserManage/GetClassStudent",
@@ -65,10 +79,7 @@ getClassStuCount,
 };
 
 // 获取年级单元树
-export const getGradeChapterTree: RequestFun<
-any,
-    any
-> = (data) => {
+export const getGradeChapterTree: RequestFun<any, any> = (data) => {
     return request({
         baseURL: YUN_API_COMPOSITION,
         url: "/Api/Common/Basic/GetGradeChapterTree",
@@ -78,10 +89,7 @@ any,
 };
 
 // 新建批改
-export const addArticle: RequestFun<
-IAddArticle,
-    any
-> = (data) => {
+export const addArticle: RequestFun<IAddArticle, any> = (data) => {
     return request({
         baseURL: YUN_API_COMPOSITION,
         url: "/Api/App/index/Addpassage",
@@ -91,10 +99,7 @@ IAddArticle,
 };
 
 // 删除文章
-export const deleteArticle: RequestFun<
-IdeleteArticle,
-    any
-> = (data) => {
+export const deleteArticle: RequestFun<IdeleteArticle, any> = (data) => {
     return request({
         baseURL: YUN_API_COMPOSITION,
         url: "/Api/App/index/Delpassage",
@@ -103,25 +108,8 @@ IdeleteArticle,
     });
 };
 
-// // 下载批量导入模板
-// export const downLoadBatchImportModel: RequestFun<
-// IdownLoadBatchImportModel,
-//     any
-// > = (data) => {
-//     return request({
-//         baseURL: YUN_API_COMPOSITION,
-//         url: "/Api/TeacherPlat/CompositionHandle/DownLoadBatchImportModel",
-//         method: "post",
-//         responseType:'blob',
-//         data
-//     });
-// };
-
 // 下载批量导入模板
-export const downLoadBatchImportModel: RequestFun<
-IdownLoadBatchImportModel,
-    any
-> = (data) => {
+export const downLoadBatchImportModel: RequestFun<IdownLoadBatchImportModel, any> = (data) => {
     return request({
         baseURL: YUN_API_COMPOSITION,
         url: "/Api/App/CompositionEntry/GetClassTemplate",
@@ -131,10 +119,7 @@ IdownLoadBatchImportModel,
 };
 
 // 重新提交
-export const resubmitCorrectComposition: RequestFun<
-IresubmitCorrectComposition,
-    any
-> = (data) => {
+export const resubmitCorrectComposition: RequestFun<IresubmitCorrectComposition, any> = (data) => {
     return request({
         baseURL: YUN_API_COMPOSITION,
         url: "/Api/TeacherPlat/CompositionHandle/TeaResubmitCorrectComposition",
@@ -144,10 +129,7 @@ IresubmitCorrectComposition,
 };
 
 // 批量文件录入
-export const compositionBatchImport: RequestFun<
-any,
-    any
-> = (data) => {
+export const compositionBatchImport: RequestFun<any, any> = (data) => {
     return request({
         baseURL: YUN_API_COMPOSITION,
         url: "/Api/TeacherPlat/CompositionHandle/CompositionBatchImport",
@@ -157,10 +139,7 @@ any,
 };
 
 // 查询一键批改学生列表
-export const searchStudentListForCorrect: RequestFun<
-IsearchStudentListForCorrect,
-    any
-> = (data) => {
+export const searchStudentListForCorrect: RequestFun<IsearchStudentListForCorrect, any> = (data) => {
     return request({
         baseURL: YUN_API_COMPOSITION,
         url: "/Api/TeacherPlat/CompositionHandle/SeachStudentListForCorrect",
@@ -170,10 +149,7 @@ IsearchStudentListForCorrect,
 };
 
 // 查询一键发送报告学生列表
-export const searchStudentListForReport: RequestFun<
-IsearchStudentListForReport,
-    any
-> = (data) => {
+export const searchStudentListForReport: RequestFun<IsearchStudentListForReport, any> = (data) => {
     return request({
         baseURL: YUN_API_COMPOSITION,
         url: "/Api/TeacherPlat/CompositionHandle/SeachStudentListForReport",
@@ -183,10 +159,7 @@ IsearchStudentListForReport,
 };
 
 // 一键批改
-export const correctWithOneKey: RequestFun<
-IcorrectWithOneKey,
-    any
-> = (data) => {
+export const correctWithOneKey: RequestFun<IcorrectWithOneKey, any> = (data) => {
     return request({
         baseURL: YUN_API_COMPOSITION,
         url: "/Api/TeacherPlat/CompositionHandle/CorrectWithOneKey",
@@ -196,10 +169,7 @@ IcorrectWithOneKey,
 };
 
 // 一键发送报告
-export const sendReportWithOneKey: RequestFun<
-IsendReportWithOneKey,
-    any
-> = (data) => {
+export const sendReportWithOneKey: RequestFun<IsendReportWithOneKey, any> = (data) => {
     return request({
         baseURL: YUN_API_COMPOSITION,
         url: "/Api/TeacherPlat/CompositionHandle/SendReportWithOneKey",
@@ -209,10 +179,7 @@ IsendReportWithOneKey,
 };
 
 // 查询报告详情
-export const searchReportDetail: RequestFun<
-IsearchReportDetail,
-    any
-> = (data) => {
+export const searchReportDetail: RequestFun<IsearchReportDetail, any> = (data) => {
     return request({
         baseURL: YUN_API_COMPOSITION,
         url: "/Api/TeacherPlat/CompositionHandle/SeachReportDetail",
@@ -222,10 +189,7 @@ IsearchReportDetail,
 };
 
 // 编辑报告详情
-export const editReportDetail: RequestFun<
-IeditReportDetail,
-    any
-> = (data) => {
+export const editReportDetail: RequestFun<IeditReportDetail, any> = (data) => {
     return request({
         baseURL: YUN_API_COMPOSITION,
         url: "/Api/TeacherPlat/CompositionHandle/EditReportDetail",
@@ -235,10 +199,7 @@ IeditReportDetail,
 };
 
 // 分享指定教师作文的报告链接
-export const shareReportUrl: RequestFun<
-IshareReportUrl,
-    any
-> = (data) => {
+export const shareReportUrl: RequestFun<IshareReportUrl, any> = (data) => {
     return request({
         baseURL: YUN_API_COMPOSITION,
         url: "/Api/TeacherPlat/CompositionHandle/ShareReportUrl",
@@ -248,10 +209,7 @@ IshareReportUrl,
 };
 
 // 导出PDF
-export const downloadPDF: RequestFun<
-IdownloadPDF,
-    any
-> = (data) => {
+export const downloadPDF: RequestFun<IdownloadPDF, any> = (data) => {
     return request({
         baseURL: YUN_API_COMPOSITION,
         url: "/Api/TeacherPlat/CompositionHandle/DownloadPDF",
@@ -262,10 +220,7 @@ IdownloadPDF,
 };
 
 // 获取班级学生
-export const getStudentByClass: RequestFun<
-IgetStudentByClass,
-    any
-> = (data) => {
+export const getStudentByClass: RequestFun<IgetStudentByClass, any> = (data) => {
     return request({
         baseURL: YUN_API_COMPOSITION,
         url: "/Api/App/CompositionEntry/GetStudentByClass",
@@ -275,10 +230,7 @@ IgetStudentByClass,
 };
 
 // 获取教师指定作文未录入学生列表
-export const getStudentByHasEntry: RequestFun<
-IgetStudentByHasEntry,
-    any
-> = (data) => {
+export const getStudentByHasEntry: RequestFun<IgetStudentByHasEntry, any> = (data) => {
     return request({
         baseURL: YUN_API_COMPOSITION,
         url: "/Api/App/CompositionEntry/GetStudentByHasEntry",
@@ -288,10 +240,7 @@ IgetStudentByHasEntry,
 };
 
 // 获取班级中重名或模糊搜索的学生列表
-export const getStudentByUserInfo: RequestFun<
-IgetStudentByUserInfo,
-    any
-> = (data) => {
+export const getStudentByUserInfo: RequestFun<IgetStudentByUserInfo, any> = (data) => {
     return request({
         baseURL: YUN_API_COMPOSITION,
         url: "/Api/App/CompositionEntry/GetStudentByUserInfo",
@@ -301,12 +250,13 @@ IgetStudentByUserInfo,
 };
 
 // 指定教师作文的单一学生作文信息录入（单一学生补录
-export const oneStudentEntry: RequestFun<
-IoneStudentEntry,
-    any
-> = (data) => {
+export const oneStudentEntry: RequestFun<IoneStudentEntry, any> = (data) => {
     return request({
         baseURL: YUN_API_COMPOSITION,
+        headers: {
+            // "Content-Type": "application/json-patch+json",
+            noLoading: "true"
+        },
         url: "/Api/App/CompositionEntry/OneStudentEntry",
         method: "post",
         data
@@ -314,10 +264,7 @@ IoneStudentEntry,
 };
 
 // 删除指定教师作文的指定学生录入信息
-export const deleteStudentEntry: RequestFun<
-IdeleteStudentEntry,
-    any
-> = (data) => {
+export const deleteStudentEntry: RequestFun<IdeleteStudentEntry, any> = (data) => {
     return request({
         baseURL: YUN_API_COMPOSITION,
         url: "/Api/App/CompositionEntry/DeleteStudentEntry",
@@ -327,10 +274,7 @@ IdeleteStudentEntry,
 };
 
 // 查询指定教师作文的全部、录入批改等状态下列表信息
-export const getStudentComByTeacherComId: RequestFun<
-IgetStudentComByTeacherComId,
-    any
-> = (data) => {
+export const getStudentComByTeacherComId: RequestFun<IgetStudentComByTeacherComId, any> = (data) => {
     return request({
         baseURL: YUN_API_COMPOSITION,
         url: "/Api/App/CompositionEntry/GetStudentComByTeacherComId",
@@ -340,10 +284,7 @@ IgetStudentComByTeacherComId,
 };
 
 // 查询指定教师作文的录入批改等状态数量
-export const getStatusCountByTeacherComId: RequestFun<
-IgetStatusCountByTeacherComId,
-    any
-> = (data) => {
+export const getStatusCountByTeacherComId: RequestFun<IgetStatusCountByTeacherComId, any> = (data) => {
     return request({
         baseURL: YUN_API_COMPOSITION,
         url: "/Api/App/CompositionEntry/GetStatusCountByTeacherComId",
@@ -353,10 +294,7 @@ IgetStatusCountByTeacherComId,
 };
 
 // 查看原文
-export const lookContent: RequestFun<
-IlookContent,
-    any
-> = (data) => {
+export const lookContent: RequestFun<IlookContent, any> = (data) => {
     return request({
         baseURL: YUN_API_COMPOSITION,
         url: "/Api/App/CompositionEntry/LookContent",
@@ -366,10 +304,7 @@ IlookContent,
 };
 
 // 检查原文
-export const checkContent: RequestFun<
-IlookContent,
-    any
-> = (data) => {
+export const checkContent: RequestFun<IlookContent, any> = (data) => {
     return request({
         baseURL: YUN_API_COMPOSITION,
         url: "/Api/App/CompositionEntry/CheckContent",
@@ -379,10 +314,7 @@ IlookContent,
 };
 
 // 检查原文后保存修改
-export const saveContent: RequestFun<
-IsaveContent,
-    any
-> = (data) => {
+export const saveContent: RequestFun<IsaveContent, any> = (data) => {
     return request({
         baseURL: YUN_API_COMPOSITION,
         url: "/Api/App/CompositionEntry/SaveContent",
@@ -392,13 +324,60 @@ IsaveContent,
 };
 
 // 查看下一篇
-export const lookNextContent: RequestFun<
-IlookContent,
-    any
-> = (data) => {
+export const lookNextContent: RequestFun<IlookContent, any> = (data) => {
     return request({
         baseURL: YUN_API_COMPOSITION,
         url: "/Api/App/CompositionEntry/LookNextContent",
+        method: "post",
+        data
+    });
+};
+
+// 获取评价量规
+export const getAssessDetail: RequestFun<IgetAssessDetail, any> = (data) => {
+    return request({
+        baseURL: YUN_API_COMPOSITION,
+        url: "/Api/App/EvaluateGauges/GetEvaluateGauges",
+        method: "post",
+        data
+    });
+};
+
+// 保存老师使用的量规
+export const saveAssessment: RequestFun<IsaveAssessment, any> = (data) => {
+    return request({
+        baseURL: YUN_API_COMPOSITION,
+        url: "/Api/App/EvaluateGauges/SaveGaugesAndCorrect",
+        method: "post",
+        data
+    });
+};
+
+// 评价下一篇
+export const assessNextGauges: RequestFun<IgetAssessDetail, any> = (data) => {
+    return request({
+        baseURL: YUN_API_COMPOSITION,
+        url: "/Api/App/EvaluateGauges/EvaluateNextGauges",
+        method: "post",
+        data
+    });
+};
+
+// 获取切页栏
+export const getColumnPages: RequestFun<IsearchReportDetail, any> = (data) => {
+    return request({
+        baseURL: YUN_API_COMPOSITION,
+        url: "/Api/App/CompositionEntry/GetPageCuttingColumn",
+        method: "post",
+        data
+    });
+};
+
+// 获取作文识别结果（全部识别完返回，否则阻塞）
+export const getFinishResult: RequestFun<any, any> = (data) => {
+    return request({
+        baseURL: YUN_API_COMPOSITION,
+        url: "/Api/App/CompositionEntry/GetRecogiteStatus",
         method: "post",
         data
     });

@@ -15,7 +15,7 @@
                     <span class="label">班级已录入：</span>
                     <span class="num">{{ state.hasRecordCount }}/{{ state.allStuList.length }}人</span>
                 </div>
-                <div class="close align-center" @click="close">
+                <div class="close align-center" @click="judgeClose">
                     <img src="../../../assets/composition/icon_js@2x.png" alt="" />
                     结束
                 </div>
@@ -60,14 +60,28 @@
             </div>
 
             <div class="content">
-
-
                 <div class="start-scan" v-if="!isOpenScan">
-                    <img src="../../../assets/composition/pic@2x.png" alt="" />
-                    <!-- v-if="currentStudent" -->
-                    <el-button style="width: 146px;" color="#4B71EE" @click="startScan">
-                        开始扫描
-                    </el-button>
+                    <template v-if="deviceList.length > 0">
+                        <img src="../../../assets/composition/pic@2x.png" alt="" />
+                        <el-button style="width: 146px;" color="#4B71EE" @click="startScan">
+                            开始扫描
+                        </el-button>
+                    </template>
+                    <div class="none-device" v-else>
+                        <img src="../../../assets/composition/pic_nolive_2@2x.png" alt="" />
+                        <div class="none-tip align-center">
+                            <img src="../../../assets/composition/icon_zhuyi@2x.png" alt="" />
+                            当前未检测到高拍仪设备
+                        </div>
+                        <div class="opt align-center">
+                            <el-button color="#4B71EE" style="width:146px;" @click="getDevices">
+                                重新识别
+                            </el-button>
+                            <el-button color="#4B71EE" style="width:146px;" @click="importFile">
+                                文件夹导入
+                            </el-button>
+                        </div>
+                    </div>
                 <!-- <div class="opt align-center" v-else>
                         <el-button color="#4B71EE" @click="scanCode">
                             扫描二维码
@@ -75,7 +89,7 @@
                         <el-button color="#4B71EE" @click="scanName">
                             扫描姓名
                         </el-button>
-                                                            </div> -->
+                                                        </div> -->
                 </div>
                 <div class="scan" id="scan" v-else>
                     <div v-if="!currentStudent">
@@ -83,7 +97,17 @@
                             @decode="onDecode" @init="onInit"></QrStream>
                         <img class="line" src="../../../assets/composition/pic_saomiao@2x.png" alt="" />
                         <span class="down-tip toast" v-if="!isCodeMode">请对着学生名字，点击识别</span>
-                        <span class="down-tip toast" v-else>请先扫描学生二维码</span>
+                        <span class="down-tip toast align-center" v-else>
+                            请先扫描学生二维码
+                            <img @mouseenter.native="mouseenterEvent" src="../../../assets/composition/icon_wenhao@2x.png"
+                                alt="">
+                            <div class="code-jump" @mouseenter.native="mouseenterEvent"
+                                @mouseleave.native="state.showCodeJump = false" v-if="showCodeJump">
+                                <div class="bac">二维码打印地址：智慧云平台—工作台—班级管理</div>
+                                <img src="../../../assets/composition/arrow_down_black@2x.png" alt="">
+                            </div>
+                        </span>
+
                         <div class="switch-box align-center">
                             <div class="switch-item align-center">
                                 <span>识别二维码</span>
@@ -116,7 +140,7 @@
                         </div>
                         <div class="take-item" @click="switchToNextStu">
                             <img src="../../../assets/composition/icon_next@2x.png" alt="" />
-                            <span>{{ isSupply ? '完成' : '下一个学生' }}</span>
+                            <span>{{ isSupply ? '完成' : '提交并继续' }}</span>
                         </div>
                     </template>
 
@@ -142,11 +166,16 @@ import { cooOssv2, getOssUrl } from '@/utils/oss';
 import { get, STORAGE_TYPES } from '@/utils/storage';
 import moment from 'moment';
 import { QrStream, QrCapture } from 'vue3-qr-reader';
-import { getClassStuCountByTeacher, getStudentByClass, getStudentByHasEntry, getStudentByUserInfo, oneStudentEntry, picToWordByName } from '../api';
+import { getClassStuCountByTeacher, getFinishResult, getStudentByClass, getStudentByHasEntry, getStudentByUserInfo, oneStudentEntry, picToWordByName } from '../api';
+import { VUE_APP_YUN_API_COMPOSITION_MQTT, VUE_APP_YUN_PLATFORM } from "@/config";
 import { store } from '@/store';
 import { linkSync } from 'fs';
+import mqtt from "mqtt";
+
 //
 onMounted(() => {
+    // const yun_url = (VUE_APP_YUN_PLATFORM+'?appId=16546797131467015899014120925136')
+    // state.yunUrl = yun_url
     window.addEventListener('resize', listenResizeFn);
     getDevices()
 })
@@ -154,6 +183,15 @@ onMounted(() => {
 onBeforeUnmount(() => {
     window.removeEventListener('resize', listenResizeFn);
 })
+
+const mouseenterEvent = () => {
+    state.showCodeJump = true
+}
+
+// 获取二维码
+const jumpToGetCode = () => {
+    // window.electron.wakeUpWebPage(state.yunUrl);
+}
 
 const listenResizeFn = () => {
     let el = document.getElementById('scan')
@@ -179,7 +217,10 @@ const props = defineProps({
 //
 const dialogVisible = ref(false);
 const state = reactive({
+    yunUrl: '',
+    isModified: false,//是否有修改，无跳主列表页
     isUploading: false,
+    showCodeJump: false,
     qrcode: true,
     torchActive: false,
     camera: 'auto',
@@ -200,22 +241,20 @@ const state = reactive({
     allStuList: [] as any,
     waitRecordList: [] as any,
     repeatList: [] as any,
-    // classCount: 0,
+    calcCount: 0,
     deviceList: [] as any
 });
-const { device, isSupply, currentStudent, isCodeMode, isNameMode, photoList, deviceList, isOpenScan, boxMessage, isScanByHand } = toRefs(state);
+const { device, isSupply, showCodeJump, currentStudent, isCodeMode, isNameMode, photoList, deviceList, isOpenScan, boxMessage, isScanByHand } = toRefs(state);
 
 const emit = defineEmits(['cancel', 'save', 'openList']);
 
 // 互斥switch
 const codeSwitchChange = (e: any) => {
-    console.log(111, e);
     state.isNameMode = !e
     localStorage.setItem('isNameMode', e ? '0' : '1')
 }
 
 const nameSwitchChange = (e: any) => {
-    console.log(222, e);
     state.isCodeMode = !e
     localStorage.setItem('isNameMode', e ? '1' : '0')
 }
@@ -324,7 +363,7 @@ const onInit = async (promise: any) => {
 
 // 获取设备
 const getDevices = (e?: string) => {
-    navigator.mediaDevices.enumerateDevices().then(deviceList => {
+    navigator.mediaDevices?.enumerateDevices().then(deviceList => {
         state.deviceList = deviceList.filter(v => v.kind === 'videoinput')
         console.log('------devicesList', state.deviceList)
         if (!e) {
@@ -388,10 +427,13 @@ const switchToNextStu = () => {
             StudentCompositionFile: state.photoList
         }).then((res: any) => {
             if (res.success) {
+                //
+                state.isModified = true
+                //
                 if (state.isSupply) {
                     // 跳走到列表
-                    close()
-                    emit('openList', { TeacherCompositionId: state.TeacherCompositionId, Title: state.Title })
+                    judgeClose()
+                    emit('openList', { TeacherCompositionId: state.TeacherCompositionId, Title: state.Title, isTurnToWait: true })
                     return
                 }
                 // 到学生列表页选择学生
@@ -428,10 +470,15 @@ const getWaitRecordStudents = (cb?: any) => {
 
 // 关闭
 const close = () => {
+    console.log('是否修改：', state.isModified);
+
+    // console.log('-------------订阅-------');
+    // client.subscribe(getPublish(state.TeacherCompositionId || 'nothing'));
     state.isOpenScan = false
     state.boxMessage = '待扫描'
     state.showVideo = true
     clearStuInfo()
+    state.isScanByHand = false
     //
     getUserMedia((stream: any) => {
         let tracks = stream.getTracks()
@@ -442,7 +489,31 @@ const close = () => {
 
     //
     dialogVisible.value = false
-    emit('openList', { TeacherCompositionId: state.TeacherCompositionId, Title: state.Title })
+    // 点击结束后如果有新增的录入，自动跳转至列表的[待批改]分页，若无新增则回到作文功能首页。
+    if (state.isModified) {
+        emit('openList', { TeacherCompositionId: state.TeacherCompositionId, Title: state.Title, isTurnToWait: true })
+    }
+}
+
+const judgeClose = () => {
+    if (state.isModified) {
+        checkFinishStatus(() => {
+            close()
+        })
+    } else {
+        close()
+    }
+}
+
+// 结束检查录入识别--队列中是否还有进行中
+const checkFinishStatus = (cb?: any) => {
+    getFinishResult({ Id: state.TeacherCompositionId }).then((res: any) => {
+        if (res.success) {
+            if (cb) {
+                cb()
+            }
+        }
+    })
 }
 
 // 图片预览
@@ -518,13 +589,14 @@ const getUserMedia = (cb?: any) => {
             /* 使用这个 stream 传递到成功回调中 */
             if (cb) {
                 cb(stream)
-            }else{
+            } else {
                 success(stream)
             }
         })
         .catch(function (err) {
             /* 处理 error 信息 */
             console.log('getUserMedia-----error', err);
+            ElMessage.warning('无法启动视频源')
             // error(error)
         });
 }
@@ -643,12 +715,42 @@ const getAllStudents = (cb?: any) => {
     })
 }
 
+const client = mqtt.connect(VUE_APP_YUN_API_COMPOSITION_MQTT || "", {
+    port: 1883,
+    username: "u001",
+    password: "p001",
+    keepalive: 30
+});
+
+const connectClient = () => {
+    //
+    client && client.on("connect", function (err: any) {
+        window.electron.log.info("client connect answer", err);
+    });
+
+    client && client.on("error", (err: any) => {
+        window.electron.log.info("client error answer", err);
+    });
+
+    client && client.on("message", function (topic: any, message: any) {
+        // message is Buffer
+        const infoString = JSON.parse(message.toString());
+        console.log("====message=====", infoString);
+    });
+}
+
+const getPublish = (id: string) => {
+    return `CompositionEvaluation_Recognition_${id}`;
+};
+
 const openDialog = async (info?: any) => {
+    // 置空修改
+    state.isModified = false
     // console.log('scan-open-info:', info);
-    const { TeacherCompositionId, Title, classCount } = info
+    connectClient()
+    const { TeacherCompositionId, Title } = info
     state.TeacherCompositionId = TeacherCompositionId
     state.Title = Title
-    // state.classCount = classCount
     //
     getDevices()
     getAllStudents(() => {
@@ -695,15 +797,24 @@ defineExpose({
 }
 
 .toast {
+    position: relative;
     padding: 11px 24px;
     height: 40px;
-    background: #000000;
+    background: fade-out($color: #000000, $amount: 0.6);
     border-radius: 27px;
-    opacity: 0.4;
+    // opacity: 0.4;
     font-size: 14px;
     font-family: PingFangSC-Semibold, PingFang SC;
     font-weight: 600;
-    color: #FFFFFF;
+    color: fade-out($color: #FFFFFF, $amount: 0.6);
+
+    &>img {
+        width: 14px;
+        height: 14px;
+        margin-left: 4px;
+        cursor: pointer;
+        opacity: 0.9;
+    }
 }
 
 .align-center {
@@ -1016,6 +1127,40 @@ defineExpose({
                         bottom: 32px;
                         left: 50%;
                         transform: translateX(-50%);
+                        color: #fff;
+                    }
+
+                    .code-jump {
+                        position: absolute;
+                        z-index: 820;
+                        top: -38px;
+                        left: 0;
+                        transform: translateX(4px);
+                        // cursor: pointer;
+
+                        .bac {
+                            display: block;
+                            width: fit-content;
+                            padding: 0 12px;
+                            white-space: nowrap;
+                            height: 36px;
+                            background-color: #fff;
+                            border-radius: 5px;
+                            text-align: center;
+                            line-height: 36px;
+                            font-size: 13px;
+                            font-family: PingFangSC-Regular, PingFang SC;
+                            font-weight: 400;
+                            color: #4B71EE;
+                            text-decoration: none;
+                        }
+
+                        &>img {
+                            width: 11px;
+                            height: 6px;
+                            display: block;
+                            margin: auto;
+                        }
                     }
                 }
             }
@@ -1075,6 +1220,37 @@ defineExpose({
                     height: 157px;
                     display: block;
                     margin-bottom: 24px;
+                }
+
+                .none-device {
+                    width: fit-content;
+                    height: fit-content;
+                    margin: auto;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    align-items: center;
+
+                    &>img {
+                        width: 206px;
+                        height: 158px;
+                        display: block;
+                        margin-bottom: 16px;
+                    }
+
+                    .none-tip {
+                        font-size: 18px;
+                        font-family: PingFangSC-Regular, PingFang SC;
+                        font-weight: 400;
+                        color: #19203D;
+                        margin-bottom: 29px;
+
+                        &>img {
+                            width: 16px;
+                            height: 16px;
+                            margin-right: 4px;
+                        }
+                    }
                 }
             }
         }

@@ -38,7 +38,7 @@ let lastSpwan: ChildProcessWithoutNullStreams | null = null;
 let lastPort = 1122;
 let isFirstTime = true;
 let openTimes = -1;
-const lastOpenTime = new Date().getTime();
+let lastOpenTime = new Date().getTime();
 
 const timerURL =
     process.env.NODE_ENV === "development"
@@ -216,7 +216,7 @@ function createRollcall(allStudentList: []) {
         height: 600,
         alwaysOnTop: true,
         useContentSize: true,
-        maximizable: false
+        maximizable: false,
     });
 
     rollCallWin.on("ready-to-show", () => {
@@ -259,6 +259,7 @@ function createUnfoldSuspensionWindow() {
 
     unfoldSuspensionWin.on("closed", () => {
         unfoldSuspensionWin = null;
+        ElectronLog.info("unfoldSuspensionWin closed");
     });
 }
 
@@ -270,7 +271,7 @@ function createBlackboardWindow() {
         resizable: false,
         fullscreen: true,
         show: false,
-        useContentSize: true
+        useContentSize: true,
     });
     blackboardWin.once("ready-to-show", () => {
         blackboardWin && blackboardWin.show();
