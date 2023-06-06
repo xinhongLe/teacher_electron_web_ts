@@ -50,7 +50,7 @@ export default defineComponent({
             }
         };
         const closePblWincard = (_: any, data: string) => {
-            console.log("监听closePblWincardLesson");
+            console.log("监听closePblWincardLesson", data);
             const iframe = document.getElementById("pblStudy") as HTMLIFrameElement;
             iframe?.contentWindow?.postMessage({
                 type: data
@@ -70,6 +70,7 @@ export default defineComponent({
         });
 
         onDeactivated(() => {
+            console.log("onDeactivated");
             window.removeEventListener("message", openWinCard);
             window.electron.ipcRenderer.off("closePblWincard", closePblWincard);
         });
