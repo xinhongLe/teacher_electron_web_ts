@@ -8,11 +8,11 @@
 
 <script lang="ts">
 import isElectron from "is-electron";
-import {defineComponent, ref} from "vue";
+import {defineComponent, ref, onMounted, onUnmounted} from "vue";
 import {get, set, STORAGE_TYPES} from "./utils/storage";
 import UpdateDialog from './components/updateDialog/index.vue';
 import useUpdate from "./hooks/useUpdate";
-import {ENV} from "@/config";
+import {ENV} from "./config";
 
 export default defineComponent({
     setup() {
@@ -29,10 +29,11 @@ export default defineComponent({
         // 默认开启缓存
         set(STORAGE_TYPES.SET_ISCACHE, true);
 
-        // && ENV !== "development"
-        if (isElectron() && !window.electron.isMac()) {
+        if (isElectron() && !window.electron.isMac() && ENV !== "development") {
+            if (get(STORAGE_TYPES.IS_CANCLE)) return;
             getUpdateJson();
         }
+        ;
         return {
             isShowUpdate,
             newVersionView,

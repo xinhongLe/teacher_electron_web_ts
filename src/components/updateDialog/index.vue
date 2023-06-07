@@ -35,10 +35,23 @@
               </span>
         </template>
     </el-dialog>
+
+    <el-dialog v-model="isNewVersion" width="400px" center class="versionView" :show-close="false"
+               :close-on-click-modal="false">
+        <div class="content">
+            <img class="update-img" src="/img/pic_update@2x.png" alt="">
+            <div class="title">已经是最新版了！</div>
+            <div style="text-align: center;margin-top: 50px;">
+                <el-button style="width: 40%" type="primary" @click="cancleNewVersion">好的</el-button>
+            </div>
+        </div>
+    </el-dialog>
+
 </template>
 
 <script lang="ts">
-import {computed, defineComponent, ref} from "vue";
+import {computed, defineComponent} from "vue";
+import {set, STORAGE_TYPES} from "@/utils/storage";
 
 export default defineComponent({
     name: "UpdateDialog",
@@ -62,14 +75,19 @@ export default defineComponent({
             type: Boolean,
             default: false
         },
+        isNewVersion: {
+            type: Boolean,
+            default: false
+        }
     },
-    emits: ["downloadUpdate", "update:updateVisible", "update:newVersionView"],
+    emits: ["downloadUpdate", "update:updateVisible", "update:newVersionView", "update:isNewVersion"],
     setup(props, {emit}) {
 
         const updateVisibleDio = computed(() => props.updateVisible);
         console.log('updateVisibleDio', updateVisibleDio);
         const newVersionViewDio = computed(() => props.newVersionView);
         const downloadPercentDio = computed(() => props.downloadPercent);
+        const isNewVersion = computed(() => props.isNewVersion);
         //更新
         const handleUpdate = () => {
             emit("update:newVersionView", false)
@@ -79,14 +97,21 @@ export default defineComponent({
         };
         //取消更新
         const cancleUpdate = () => {
+            set(STORAGE_TYPES.IS_CANCLE, true);
             emit("update:newVersionView", false)
         };
+        //关闭最新版提示
+        const cancleNewVersion = () => {
+            emit("update:isNewVersion", false)
+        }
         return {
             updateVisibleDio,
             newVersionViewDio,
             downloadPercentDio,
+            isNewVersion,
             handleUpdate,
-            cancleUpdate
+            cancleUpdate,
+            cancleNewVersion
         }
     }
 

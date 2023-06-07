@@ -21,6 +21,7 @@ export default () => {
     const updateVisible = ref(false);
     const downloadPercent = ref(0);
     const newVersionView = ref(false);
+    const isNewVersion = ref(false);
     const ifShowCancelButton = ref(true);
     const showUpdateInfo = ref<string[]>([]);
     const newVersionNum = ref();
@@ -38,6 +39,9 @@ export default () => {
                 if (newVersionNum.value > version) {
                     console.log('data---', data)
                     showUpdateData(data);
+                    isNewVersion.value = false
+                } else {
+                    isNewVersion.value = true
                 }
             }
         };
@@ -152,6 +156,7 @@ export default () => {
         updateVisible,
         downloadPercent,
         newVersionView,
+        isNewVersion,
         ifShowCancelButton,
         showUpdateInfo,
         newVersionNum,
