@@ -1,10 +1,10 @@
 import router from "@/router";
-import { Homework } from "@/types/homework";
-import { LessonClasses, LessonSubject } from "@/types/login";
-import { get, STORAGE_TYPES } from "@/utils/storage";
+import {Homework} from "@/types/homework";
+import {LessonClasses, LessonSubject} from "@/types/login";
+import {get, STORAGE_TYPES} from "@/utils/storage";
 import moment from "moment";
-import { onActivated, reactive, ref, toRefs } from "vue";
-import { fetchClassHomeworkPaperList, fetchHomeworkDateByYear } from "../api";
+import {onActivated, reactive, ref, toRefs} from "vue";
+import {fetchClassHomeworkPaperList, fetchHomeworkDateByYear} from "../api";
 
 export default () => {
     const form = reactive({
@@ -32,14 +32,14 @@ export default () => {
         };
         const res = await fetchClassHomeworkPaperList(data);
         if (res.resultCode === 200) {
-            const detailList = res.result.map((item:any) => {
+            const detailList = res.result.map((item: any) => {
                 return {
                     ...item,
                     showPublish: moment(item.AnswerShowTime) > moment(new Date())
                 };
             });
             detailList.forEach(item => {
-                const { ClassID } = item;
+                const {ClassID} = item;
                 homeworkListMap.value[ClassID] ? homeworkListMap.value[ClassID].push(item) : (homeworkListMap.value[ClassID] = [item]);
             });
             console.log(detailList, "----");
@@ -76,7 +76,7 @@ export default () => {
     const initData = () => {
         const userInfo = get(STORAGE_TYPES.USER_INFO);
         subjectList.value = (userInfo.Subjects as LessonSubject[]).filter(
-            ({ Name }) => Name !== "拼音"
+            ({Name}) => Name !== "拼音"
         );
         classList.value = userInfo.Classes.reverse();
         !form.subject && (form.subject = subjectList.value[0] ? subjectList.value[0].ID : form.subject);
