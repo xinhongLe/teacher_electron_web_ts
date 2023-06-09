@@ -78,6 +78,8 @@ export default () => {
         subjectList.value = (userInfo.Subjects as LessonSubject[]).filter(
             ({Name}) => Name !== "拼音"
         );
+        console.log('userInfo---', userInfo)
+        console.log('subjectList.value', subjectList.value)
         classList.value = userInfo.Classes.reverse();
         !form.subject && (form.subject = subjectList.value[0] ? subjectList.value[0].ID : form.subject);
         !selectClassId.value && classList.value.length > 0 && (selectClassId.value = classList.value[0].ID);
