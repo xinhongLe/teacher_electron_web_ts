@@ -48,16 +48,16 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, inject, ref, watch } from "vue";
+import {computed, defineComponent, inject, ref, watch} from "vue";
 import useHome from "@/hooks/useHome";
 import OpenCardViewDialog from "./openCardViewDialog.vue";
-import { ElMessage } from "element-plus";
+import {ElMessage} from "element-plus";
 import PageItem from "@/views/preparation/intelligenceClassroom/components/pageItem.vue";
-import { windowInfoKey } from "@/hooks/useWindowInfo";
-import { SchoolWindowPageInfo } from "@/types/preparation";
-import { find } from "lodash";
-import { useStore } from "@/store";
-import { dealAnimationData } from "@/utils/dataParse";
+import {windowInfoKey} from "@/hooks/useWindowInfo";
+import {SchoolWindowPageInfo} from "@/types/preparation";
+import {find} from "lodash";
+import {useStore} from "@/store";
+import {dealAnimationData} from "@/utils/dataParse";
 
 export default defineComponent({
     props: {
@@ -74,10 +74,10 @@ export default defineComponent({
             default: false
         }
     },
-    components: { OpenCardViewDialog, PageItem },
-    setup(props, { emit }) {
+    components: {OpenCardViewDialog, PageItem},
+    setup(props, {emit}) {
         const store = useStore();
-        const { transformType } = useHome();
+        const {transformType} = useHome();
         const {
             currentCard,
             cardList,
@@ -112,9 +112,12 @@ export default defineComponent({
         watch(
             [pageList, currentCard],
             (newValues, prevValues) => {
+                console.log('newValues,', newValues)
+
                 const findPage = find(newValues[0], {
                     ID: currentPageInfo.value?.ID
                 });
+                console.log('findPage', findPage)
                 if (newValues[1]?.ID === prevValues[1]?.ID && findPage) {
                     return;
                 }
@@ -141,7 +144,7 @@ export default defineComponent({
             currentSlide.value.id &&
             canvasDataMap.set(currentSlide.value.id, elements);
             if (transformType(obj.Type) === -1) {
-                ElMessage({ type: "warning", message: "暂不支持该页面类型" });
+                ElMessage({type: "warning", message: "暂不支持该页面类型"});
                 currentSlide.value = {};
                 return false;
             }
@@ -156,6 +159,7 @@ export default defineComponent({
             //     });
             // }
             if (appjson.value.slides) {
+                console.log('appjson.value-----', appjson.value)
                 const slide = appjson.value.slides.find((p: any) => p.id === str);
                 currentSlide.value = dealAnimationData(slide);
             }

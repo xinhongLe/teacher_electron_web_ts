@@ -167,8 +167,9 @@ export default defineComponent({
 
         const handleExportWord = () => {
             const {fileData, fileName} = transFormFileData();
+            const newFileName = sanitize(fileName);
             window.electron.showSaveDialog({
-                defaultPath: fileName,
+                defaultPath: newFileName,
                 filters: [
                     {
                         name: "doc文件",
@@ -182,7 +183,7 @@ export default defineComponent({
             }).then(({filePath}) => {
                 window.electron.exportWord(filePath || "", fileData, state.styleType);
                 ElMessage.success("教案下载成功");
-                window.electron.deleteFile(filePath + fileName);
+                window.electron.deleteFile(filePath + newFileName);
             }).catch((err) => {
                 console.log(err);
             });

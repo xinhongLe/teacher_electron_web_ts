@@ -315,7 +315,6 @@ export default defineComponent({
             const dom: any = document.querySelector(".draw-content");
             const outdom: any = document.querySelector(".me-tools");
             const dominner: HTMLElement = document.querySelector(".me-tools-set") as HTMLElement;
-
             if (isTeach.value) {
                 if (outdom.style.width === "786px") {
                     isOpen.value = false;
@@ -375,7 +374,7 @@ export default defineComponent({
                 const dom: HTMLElement = document.querySelector(".me-tools-set") as HTMLElement;
                 const dom2: HTMLElement = document.querySelector(".draw-content") as HTMLElement;
                 const dom3: HTMLElement = document.querySelector(".me-tools") as HTMLElement;
-                if (val.Json.type === "teach") {
+                if (val && val.Json.type === "teach") {
                     isTeach.value = true;
                     if (isOpen.value) {
                         dom.style.width = "174px";
