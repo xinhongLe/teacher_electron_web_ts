@@ -37,7 +37,6 @@ export default () => {
                 newVersionNum.value = data[data.length - 1].version
                 console.log('newVersionNum.value  version', newVersionNum.value, version)
                 if (newVersionNum.value > version) {
-                    console.log('data---', data)
                     showUpdateData(data);
                     isNewVersion.value = false
                 } else {

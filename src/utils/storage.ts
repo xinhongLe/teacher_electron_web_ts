@@ -110,11 +110,6 @@ export enum STORAGE_TYPES {
      * 多个窗体下 赋值的窗卡页信息
      */
     WIN_COPY_VALUE = "WIN_COPY_VALUE",
-
-    /**
-     * 是否点击了取消更新
-     */
-    IS_CANCLE = "IS_CANCLE",
 }
 
 export const set = (

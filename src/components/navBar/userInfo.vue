@@ -64,7 +64,6 @@ const useLogout = () => {
 
 //检查更新emitter.emit
 const checkUpdate = () => {
-    console.log(11111)
     getUpdateJson()
 }
 </script>

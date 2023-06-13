@@ -51,8 +51,10 @@
 
 <script lang="ts">
 import {computed, defineComponent} from "vue";
-import {set, STORAGE_TYPES} from "@/utils/storage";
 
+const fs = require('fs');
+const path = require('path');
+const app = require('electron').remote.app;
 export default defineComponent({
     name: "UpdateDialog",
     props: {
@@ -90,6 +92,7 @@ export default defineComponent({
         const isNewVersion = computed(() => props.isNewVersion);
         //更新
         const handleUpdate = () => {
+            saveUserChoice('update');
             emit("update:newVersionView", false)
             emit("update:updateVisible", true)
             emit("downloadUpdate")
@@ -97,12 +100,18 @@ export default defineComponent({
         };
         //取消更新
         const cancleUpdate = () => {
-            set(STORAGE_TYPES.IS_CANCLE, true);
+            saveUserChoice('cancel');
             emit("update:newVersionView", false)
         };
         //关闭最新版提示
         const cancleNewVersion = () => {
+            saveUserChoice('cancel');
             emit("update:isNewVersion", false)
+        }
+        // 存储用户的更新选择
+        const saveUserChoice = (choice: string) => {
+            const filePath = path.join(app.getPath('userData'), 'userUpdateChoice.json');
+            fs.writeFileSync(filePath, choice); // 写入文件
         }
         return {
             updateVisibleDio,
@@ -111,6 +120,7 @@ export default defineComponent({
             isNewVersion,
             handleUpdate,
             cancleUpdate,
+            saveUserChoice,
             cancleNewVersion
         }
     }

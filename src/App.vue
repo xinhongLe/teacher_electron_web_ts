@@ -14,6 +14,9 @@ import UpdateDialog from './components/updateDialog/index.vue';
 import useUpdate from "./hooks/useUpdate";
 import {ENV} from "./config";
 
+const fs = require('fs');
+const path = require('path');
+const app = require('electron').remote.app;
 export default defineComponent({
     setup() {
         const isShowUpdate = ref(false);
@@ -28,12 +31,24 @@ export default defineComponent({
         } = useUpdate();
         // 默认开启缓存
         set(STORAGE_TYPES.SET_ISCACHE, true);
+        // 获取用户的选择
+        const getUserChoice = () => {
+            const filePath = path.join(app.getPath('userData'), 'userUpdateChoice.json');
+            if (fs.existsSync(filePath)) { // 判断文件是否存在
+                const data = fs.readFileSync(filePath, 'utf-8'); // 读取文件
+                console.log('data', data)
+                return data
+            }
+            return 'update';
+        }
 
         if (isElectron() && !window.electron.isMac() && ENV !== "development") {
-            if (get(STORAGE_TYPES.IS_CANCLE)) return;
+            const data = getUserChoice();
+            if (data === 'cancel') return;
             getUpdateJson();
         }
         ;
+
         return {
             isShowUpdate,
             newVersionView,
@@ -43,6 +58,7 @@ export default defineComponent({
             getUpdateJson,
             downloadUpdate,
             // handleUpdate,
+            getUserChoice,
             downloadPercent
         };
     },
