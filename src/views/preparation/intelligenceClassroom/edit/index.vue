@@ -262,6 +262,7 @@ export default defineComponent({
                 for (let i = 0; i < pages.length; i++) {
                     const item = pages[i];
                     item.ID = uuidv4();
+                    item.Json.id = item.ID;
                     item.TeachPageRelationID = "";
                 }
                 const index = windowCards.value.findIndex(item => item.ID === (data as PageProps).ParentID);

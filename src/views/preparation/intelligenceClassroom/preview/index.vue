@@ -48,6 +48,7 @@
                 :keyDisabled="openCardShow"
                 v-model:isCanUndo="canUndo"
                 v-model:isCanRedo="canRedo"
+                :canvasData="canvasData"
             />
         </div>
         <div class="right" v-if="rVisit">
@@ -64,18 +65,18 @@
 </template>
 
 <script lang=ts>
-import { cloneDeep } from "lodash";
-import { pageType } from "@/config";
-import { ElMessage } from "element-plus";
-import { IViewResourceData } from "@/types/store";
+import {cloneDeep} from "lodash";
+import {pageType} from "@/config";
+import {ElMessage} from "element-plus";
+import {IViewResourceData} from "@/types/store";
 import Remark from "../components/preview/remark.vue";
-import { computed, defineComponent, PropType, ref, watch } from "vue";
+import {computed, defineComponent, PropType, ref, watch} from "vue";
 import OpenCardViewDialog from "../components/edit/openCardViewDialog.vue";
-import { CardProps, PageProps } from "@/views/preparation/intelligenceClassroom/api/props";
+import {CardProps, PageProps} from "@/views/preparation/intelligenceClassroom/api/props";
 
 export default defineComponent({
     name: "WinPreview",
-    components: { OpenCardViewDialog, Remark },
+    components: {OpenCardViewDialog, Remark},
     props: {
         cards: {
             type: Array as PropType<CardProps[]>,
@@ -111,7 +112,7 @@ export default defineComponent({
         }
     },
     emits: ["update:index", "update:l-visit", "update:is-can-undo", "update:is-can-redo"],
-    setup(props, { emit }) {
+    setup(props, {emit}) {
         const windowCards = computed<CardProps[]>(() => {
             const list = cloneDeep<CardProps[]>(props.cards);
 
@@ -123,10 +124,22 @@ export default defineComponent({
 
             return list;
         });
+        const canvasDataMap = new Map();
+        const canvasData = computed(() => {
+            return (
+                canvasDataMap.get(
+                    currentSlide.value ? currentSlide.value.id : ""
+                ) || []
+            );
+        });
         const currentSlide = computed(() => {
             const page = props.pages?.filter(item => item.State)[props.index];
             return page ? page.Json : {};
         });
+        watch(() => currentSlide.value, (val, oldVal) => {
+            const elements = screenRef.value.whiteboard.getElements();
+            oldVal && canvasDataMap.set(oldVal.id, elements)
+        }, {deep: true})
 
         const page = computed(() => {
             return props.pages?.filter(item => item.State)[props.index];
@@ -262,6 +275,7 @@ export default defineComponent({
             pageType,
             openCard,
             screenRef,
+            canvasData,
             canUndo,
             canRedo,
             handlePage,
