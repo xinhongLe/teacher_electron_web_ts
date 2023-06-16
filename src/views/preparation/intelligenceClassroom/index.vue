@@ -3,7 +3,7 @@
         <win-preview
             :pages="pages"
             ref="previewRef"
-            :r-visit="rVisit"
+            v-model:r-visit="rVisit"
             :cards="winCards"
             :resource="resource"
             v-model:index="index"
@@ -59,6 +59,7 @@ import {ref, watchEffect, PropType, onUnmounted, computed, defineComponent, watc
 import {CardProps, PageProps} from "@/views/preparation/intelligenceClassroom/api/props";
 import {getOssUrl} from "@/utils/oss";
 import {getWindowStruct} from "@/api/home";
+import {useStore} from "@/store";
 
 export default defineComponent({
     name: "IntelligenceClassroom",
@@ -78,6 +79,7 @@ export default defineComponent({
         }
     },
     setup(props) {
+        const store = useStore();
         const lVisit = ref(true);
         const rVisit = ref(false);
         const index = ref(0);
@@ -119,6 +121,11 @@ export default defineComponent({
 
         const toggleRemark = () => {
             rVisit.value = !rVisit.value;
+            if (store.state.common.resourceIntoType == 1) {
+                store.state.common.currentBeikeResource = rVisit.value
+            } else {
+                store.state.common.currentKebiaoResource = rVisit.value
+            }
         };
 
         const prevStep = () => {

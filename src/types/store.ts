@@ -1,6 +1,6 @@
-import { IBookItem, ICustomBookItem, IResourceItem } from "@/api/resource";
-import { Class, ClassStudent } from "./myStudent";
-import { BookList } from "./preparation";
+import {IBookItem, ICustomBookItem, IResourceItem} from "@/api/resource";
+import {Class, ClassStudent} from "./myStudent";
+import {BookList} from "./preparation";
 
 export interface UserInfoState {
     name?: string;
@@ -127,7 +127,20 @@ export interface CommonState {
      * 当前选中的备课包数据
      */
     currentPackageData: any
+    /**
+     * 课表中进入课件资源
+     */
+    currentKebiaoResource: boolean
+    /**
+     * 备课进入课件资源
+     */
+    currentBeikeResource: boolean
+    /**
+     * 从哪儿进入的课件资源
+     */
+    resourceIntoType: number
 }
+
 export interface WrongBookState {
     questionBasket?: any[];
     baskTotal?: number;
@@ -139,6 +152,7 @@ export interface WrongBookState {
     currentSubjectId: string;
     currentPureQuestion: any;
 }
+
 export interface RootState {
     userInfo: UserInfoState;
     preparation: PreparationState;

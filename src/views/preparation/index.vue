@@ -29,6 +29,7 @@
                         @toArrangeClass="toArrangeClass"
                         @toMyLessonPackage="toMyLessonPackage"
                         :showClassArrangement="showClassArrangement"
+                        :resourceIntoType="1"
                     />
                 </div>
                 <div class="p-layout-right" v-if="showPackage && showClassArrangement">
@@ -43,15 +44,15 @@
 <script lang="ts">
 import HeadCom from "./layout/head.vue";
 import LeftMenu from "./layout/leftMenu.vue";
-import { IAddLessonBag } from "@/api/prepare";
+import {IAddLessonBag} from "@/api/prepare";
 import Resources from "./layout/resources.vue";
 import usePageEvent from "@/hooks/usePageEvent";
 import useClickDrag from "@/hooks/useClickDrag";
-import { RESOURCE_TYPE } from "@/config/resource";
+import {RESOURCE_TYPE} from "@/config/resource";
 import LessonPackage from "./layout/lessonPackage.vue";
 import useLessonPackage from "@/hooks/useLessonPackage";
 import ClassArrangement from "./classArrangement/index.vue";
-import { defineComponent, nextTick, watch, ref } from "vue";
+import {defineComponent, nextTick, watch, ref} from "vue";
 
 export default defineComponent({
     name: "Preparation",
@@ -63,10 +64,10 @@ export default defineComponent({
         ClassArrangement
     },
     setup() {
-        const { clickOutSide } = useClickDrag();
-        const { lessonPackageList, addLessonPackage, deleteLessonPackage } = useLessonPackage();
+        const {clickOutSide} = useClickDrag();
+        const {lessonPackageList, addLessonPackage, deleteLessonPackage} = useLessonPackage();
         // 埋点需求
-        const { createBuryingPointFn } = usePageEvent("备课", true);
+        const {createBuryingPointFn} = usePageEvent("备课", true);
         const showClassArrangement = ref(false);
         const showPackage = ref(false);
         const course = ref({
@@ -110,7 +111,7 @@ export default defineComponent({
             addLessonBag.value.chapterName = val.chapterName;
             addLessonBag.value.lessonId = val.lessonId;
             addLessonBag.value.lessonName = val.lessonName;
-        }, { deep: true });
+        }, {deep: true});
         // 去排课
         const toArrangeClass = async (data: any, type: number, ev?: TouchEvent) => {
             HeadRef.value && HeadRef.value.toMyLessonPackage();
@@ -122,7 +123,7 @@ export default defineComponent({
         // 刷新备课包中的资源列表
         const updateBagList = async () => {
             nextTick(() => {
-                LessonPackageRef.value.getMyLessonBagNew({ id: course.value.lessonId });
+                LessonPackageRef.value.getMyLessonBagNew({id: course.value.lessonId});
                 if (showPackage.value && showClassArrangement.value) {
                     ClassArrangementRef.value.success();
                 } else {
@@ -138,7 +139,7 @@ export default defineComponent({
                 showClassArrangement.value = false;
                 showPackage.value = false;
             }
-        }, { deep: true });
+        }, {deep: true});
         const LessonPackageRef = ref();
         // 去备课包排课
         const toLessonBagArrange = (data: any, type: number, ev?: TouchEvent) => {

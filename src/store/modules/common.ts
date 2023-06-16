@@ -1,6 +1,6 @@
-import { CommonState, IShowResourceFullScreen, RootState } from "@/types/store";
-import { Module, MutationTree } from "vuex";
-import { MutationTypes } from "..";
+import {CommonState, IShowResourceFullScreen, RootState} from "@/types/store";
+import {Module, MutationTree} from "vuex";
+import {MutationTypes} from "..";
 
 const initState = (): CommonState => ({
     isDragging: false,
@@ -9,10 +9,13 @@ const initState = (): CommonState => ({
     showResourceFullScreen: [],
     singleResourceFullScreen: {},
     activeWindow: "LookVideo",
-    currentPackageData:null
+    currentPackageData: null,
+    currentKebiaoResource: false,
+    currentBeikeResource: true,
+    resourceIntoType: 0
 });
 
-const mutations:MutationTree<CommonState> = {
+const mutations: MutationTree<CommonState> = {
     [MutationTypes.SET_IS_DRAGGING](state, flag) {
         state.isDragging = flag;
     },
@@ -22,7 +25,7 @@ const mutations:MutationTree<CommonState> = {
     [MutationTypes.COMMON_RESET_STATE](state) {
         Object.assign(state, initState());
     },
-    [MutationTypes.SET_IS_IFRAME](state, { flag }) {
+    [MutationTypes.SET_IS_IFRAME](state, {flag}) {
         state.isIframe = flag;
     },
     [MutationTypes.SET_FULLSCREEN_RESOURCE](state, data: IShowResourceFullScreen) {
@@ -43,7 +46,11 @@ const mutations:MutationTree<CommonState> = {
             }
         }
     },
-    [MutationTypes.REMOVE_FULLSCREEN_RESOURCE](state, { id, openMore, type }: { id: string; openMore: boolean, type?: string }) {
+    [MutationTypes.REMOVE_FULLSCREEN_RESOURCE](state, {
+        id,
+        openMore,
+        type
+    }: { id: string; openMore: boolean, type?: string }) {
         if (openMore) {
             const index = state.showResourceFullScreen.findIndex(item => item.resource.id === id);
             if (index > -1) state.showResourceFullScreen.splice(index, 1);
@@ -58,6 +65,15 @@ const mutations:MutationTree<CommonState> = {
     },
     [MutationTypes.SET_FULLSCREEN_RESOURCE_ACTIVE](state, type) {
         state.activeWindow = type;
+    },
+    [MutationTypes.SET_RESOURCE_INTO](state, type) {
+        state.resourceIntoType = type;
+    },
+    [MutationTypes.SET_KEBIAO_RESOURCE_INTO](state, type) {
+        state.currentKebiaoResource = type;
+    },
+    [MutationTypes.SET_BEIKE_RESOURCE_INTO](state, type) {
+        state.currentBeikeResource = type;
     }
 };
 
