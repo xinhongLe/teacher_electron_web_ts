@@ -266,13 +266,18 @@ function createUnfoldSuspensionWindow() {
 function createBlackboardWindow() {
     blackboardWin = createWindow(blackboardURL, {
         width: 1000,
-        height: 750,
+        height: 600,
         frame: false, // 要创建无边框窗口
-        resizable: false,
-        fullscreen: true,
+        resizable: true,
+        // resizable: false,
+        // fullscreen: true,
+        minWidth: 1000,
+        minHeight: 600,
         show: false,
         useContentSize: true,
     });
+    blackboardWin.webContents.openDevTools(); // 打开黑板调试
+
     blackboardWin.once("ready-to-show", () => {
         blackboardWin && blackboardWin.show();
         blackboardWin && blackboardWin.focus();

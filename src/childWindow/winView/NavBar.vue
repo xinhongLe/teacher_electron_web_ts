@@ -1,14 +1,16 @@
 <template>
     <div class="c-header">
         <div class="tab-item">
-            {{resourceName}}
+            {{ resourceName }}
         </div>
         <div class="header-right">
             <div class="header-window-control">
                 <div class="hwc-minimize" @click="useMinimizeWindow()"></div>
                 <div class="hwc-maximize" @click="useMaximizeWindow()"></div>
                 <div class="hwc-close" @click="close">
-                    <el-icon><CloseBold /></el-icon>
+                    <el-icon>
+                        <CloseBold/>
+                    </el-icon>
                 </div>
             </div>
         </div>
@@ -16,10 +18,10 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import {defineComponent} from "vue";
 import useMaximizeWindow from "@/hooks/useMaximizeWindow";
 import useMinimizeWindow from "@/hooks/useMinimizeWindow";
-import { CloseBold } from "@element-plus/icons-vue";
+import {CloseBold} from "@element-plus/icons-vue";
 
 export default defineComponent({
     name: "NavBar",
@@ -38,7 +40,7 @@ export default defineComponent({
             useMaximizeWindow
         };
     },
-    components: { CloseBold }
+    components: {CloseBold}
 });
 </script>
 
@@ -51,9 +53,11 @@ export default defineComponent({
     justify-content: space-between;
     -webkit-app-region: drag;
     overflow: hidden;
+
     .header-right {
         display: flex;
         flex-shrink: 0;
+
         .help-warp {
             display: flex;
             align-items: center;
@@ -62,10 +66,12 @@ export default defineComponent({
             margin-right: 40px;
             cursor: pointer;
             -webkit-app-region: no-drag;
+
             .help-icon {
                 margin-right: 6px;
             }
         }
+
         .line {
             align-self: center;
             width: 1px;
