@@ -45,24 +45,22 @@
 
 <script lang="ts">
 import mqtt from "mqtt";
-import {Slide} from "wincard";
+import { Slide } from "wincard";
 import useHome from "@/hooks/useHome";
-import {getWindowsElements} from "./api";
 import WinPreview from "./preview/index.vue";
-import {YUN_API_ONECARD_MQTT} from "@/config";
-import {IViewResourceData} from "@/types/store";
+import { YUN_API_ONECARD_MQTT } from "@/config";
+import { IViewResourceData } from "@/types/store";
 import Tools from "./components/preview/tools.vue";
-import {dealAnimationData} from "@/utils/dataParse";
-import ShareCurrentPage from "./components/preview/ShareCurrentPage.vue";
+import { dealAnimationData } from "@/utils/dataParse";
 import SelectClassDialog from "./components/preview/selectClassDialog.vue";
-import {ref, watchEffect, PropType, onUnmounted, computed, defineComponent, watch} from "vue";
-import {CardProps, PageProps} from "@/views/preparation/intelligenceClassroom/api/props";
-import {getOssUrl} from "@/utils/oss";
-import {getWindowStruct} from "@/api/home";
+import { ref, watchEffect, PropType, onUnmounted, computed, defineComponent } from "vue";
+import { CardProps, PageProps } from "@/views/preparation/intelligenceClassroom/api/props";
+import { getOssUrl } from "@/utils/oss";
+import { getWindowStruct } from "@/api/home";
 
 export default defineComponent({
     name: "IntelligenceClassroom",
-    components: {WinPreview, Tools, SelectClassDialog, ShareCurrentPage},
+    components: { WinPreview, Tools, SelectClassDialog },
     props: {
         dialog: {
             type: Boolean,
@@ -91,9 +89,9 @@ export default defineComponent({
             });
             return allPages;
         });
-        const currentSlide = computed(() => pages.value.filter((item => item.State))[index.value].Json);
+        const currentSlide = computed(() => pages.value.filter(item => item.State)[index.value].Json);
 
-        const {transformPageDetail} = useHome();
+        const { transformPageDetail } = useHome();
 
         // 教具页分享-选择班级
         const selectClassVisible = ref(false);
@@ -202,7 +200,7 @@ export default defineComponent({
                             const key = `${file?.FilePath}/${file?.FileMD5}.${file?.FileExtention || file?.Extention}`;
                             url = json?.ToolFileModel ? await getOssUrl(key, "axsfile") : "";
                         }
-                        const slide: Slide = await transformPageDetail({ID: page.ID, Type: page.Type}, json);
+                        const slide: Slide = await transformPageDetail({ ID: page.ID, Type: page.Type }, json);
                         page.Url = url;
 
                         page.Json = dealAnimationData(slide);

@@ -46,7 +46,6 @@
                     @updatePageSlide="updatePageSlide"
                     :subjectID="publication?.SubjectId || ''"
                     @applyBackgroundAllSlide="applyBackgroundAllSlide"
-                    v-if="!winScreenView"
                 />
             </div>
         </div>
@@ -94,27 +93,27 @@
 </template>
 
 <script lang="ts">
-import {useStore} from "@/store";
-import {Slide} from "wincard";
-import {cloneDeep} from "lodash";
-import {v4 as uuidv4} from "uuid";
-import {saveWindows} from "../api";
-import {getWindowStruct} from "@/api/home";
-import {arrIsEqual} from "@/utils/dataParse";
+import { useStore } from "@/store";
+import { Slide } from "wincard";
+import { cloneDeep } from "lodash";
+import { v4 as uuidv4 } from "uuid";
+import { saveWindows } from "../api";
+import { getWindowStruct } from "@/api/home";
+import { arrIsEqual } from "@/utils/dataParse";
 import useImportPPT from "@/hooks/useImportPPT";
 import useHandlePPT from "./hooks/useHandlePPT";
-import {pageType, pageTypeList} from "@/config";
-import {get, set, STORAGE_TYPES} from "@/utils/storage";
+import { pageType, pageTypeList } from "@/config";
+import { get, set, STORAGE_TYPES } from "@/utils/storage";
 import useSaveTemplate from "./hooks/useSaveTemplate";
-import {ElMessage, ElMessageBox} from "element-plus";
-import exitDialog, {ExitType} from "../edit/exitDialog";
+import { ElMessage, ElMessageBox } from "element-plus";
+import exitDialog, { ExitType } from "../edit/exitDialog";
 import CardPreview from "../components/edit/CardPreview.vue";
 import WinCardEdit from "../components/edit/winCardEdit.vue";
 import WinCardView from "../components/edit/winScreenView.vue";
 import AddPageDialog from "../components/edit/addPageDialog.vue";
-import {CardProps, MaterialProp, PageProps} from "../api/props";
+import { CardProps, MaterialProp, PageProps } from "../api/props";
 import materialCenter from "../components/edit/materialCenter/index.vue";
-import {computed, defineComponent, nextTick, ref, onMounted} from "vue";
+import { computed, defineComponent, nextTick, ref, onMounted } from "vue";
 
 export default defineComponent({
     name: "EditWinCard",
@@ -151,7 +150,14 @@ export default defineComponent({
             insertTool
         } = useSaveTemplate();
 
-        const currentPage = computed(() => handlePPT.getPageById(currentPageId.value));
+        const currentPage = computed(() => {
+            const page = handlePPT.getPageById(currentPageId.value);
+            if (!page) return undefined;
+            if (page.Type === 20 && handlePPT.winScreenView.value) {
+                return undefined;
+            }
+            return page;
+        });
 
         // 页面操作
         const pageAction = (type: 1 | 2) => {
@@ -221,7 +227,7 @@ export default defineComponent({
                 ElMessageBox.prompt("", "新建文件夹", {
                     inputPattern: /\S/,
                     inputErrorMessage: "请填写文件夹名称"
-                }).then(async ({value}) => {
+                }).then(async ({ value }) => {
                     const card = handlePPT.createFolder(value);
                     const page = await handlePPT.createPage(pageTypeList[0], card);
                     handlePPT.sortWindowCards();
@@ -240,7 +246,7 @@ export default defineComponent({
                     inputPattern: /\S/,
                     inputValue: data.Name,
                     inputErrorMessage: "请填写名称！"
-                }).then(async ({value}) => {
+                }).then(async ({ value }) => {
                     data.Name = value;
                 });
             }
@@ -481,7 +487,7 @@ export default defineComponent({
             ElMessageBox.prompt("", "保存模板", {
                 inputPattern: /\S/,
                 inputErrorMessage: "请填写模板名称"
-            }).then(async ({value}) => {
+            }).then(async ({ value }) => {
                 await saveWindowTemplate(
                     value,
                     cloneDeep(list),
