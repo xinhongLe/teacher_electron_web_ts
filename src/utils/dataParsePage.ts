@@ -1,6 +1,6 @@
-import { pageType } from "@/config";
-import { Slide, SlideBackground } from "wincard";
-import { PageProps } from "@/views/preparation/intelligenceClassroom/api/props";
+import {pageType} from "@/config";
+import {Slide, SlideBackground} from "wincard";
+import {PageProps} from "@/views/preparation/intelligenceClassroom/api/props";
 
 // import { createRandomCode } from "@/utils/common";
 
@@ -73,13 +73,14 @@ export const dealOldDataWord = (pageID: string, data: any) => {
 
 const getSlideWord = (words: any) => {
     if (!words || !(words instanceof Array)) return [];
+    console.log('words', words)
     return words.map((item: IOldWord) => {
         return {
             id: item.WordID,
             name: item.Name,
             pageWordID: item.PageWordID,
-            extention: item.File.Extention,
-            file: item.File.FilePath + "/" + item.File.FileName + "." + item.File.Extention
+            extention: item.File?.Extention,
+            file: item.File?.FilePath + "/" + item.File?.FileName + "." + item.File?.Extention
         };
     });
 };

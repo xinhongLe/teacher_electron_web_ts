@@ -98,7 +98,7 @@
         </div>
     </div>
 
-    <drawing-board :show="drawingShow" @closeWriteBoard="drawingShow = false"/>
+    <drawing-board :show="drawingShow" @closeWriteBoard="drawingShow = false" ref="drawingBoardRef"/>
 </template>
 
 <script lang="ts">
@@ -144,12 +144,12 @@ export default defineComponent({
         },
     },
     setup(props, {emit}) {
+        const drawingBoardRef = ref();
         const type = computed(() => props.resource.type);
         const btnType = ref(-1);
         const childRef = ref();
         const isElectron = isElectronFun();
         const noMinix = computed(() => !!props.resource.openMore);
-
         const questionID = inject("nowQuestionID") as Ref<string>;
         const {
             imageUrl,
@@ -217,11 +217,25 @@ export default defineComponent({
                 audioRef.value.play();
             }
         };
-
-        watch(nowQuestionID, (v) => {
+        const canvasDataMap = new Map();
+        const canvasData = ref();
+        watch(nowQuestionID, (v, ov) => {
+            canvasData.value = canvasDataMap.get(
+                v || ""
+            )
+            const elements = drawingBoardRef.value.whiteboard.getElements();
+            ov && canvasDataMap.set(ov, elements);
+            drawingBoardRef.value.whiteboard.clear();
             childRef.value?.clearBrush();
             emit("update:nowQuestionID", v);
         });
+
+        watch(() => canvasData.value, (v) => {
+            drawingBoardRef.value.whiteboard.reset();
+            drawingBoardRef.value.whiteboard.clear();
+            drawingBoardRef.value.whiteboard.setElements(v);
+            drawingBoardRef.value.whiteboard.render();
+        }, {deep: true})
 
         watch(questionSwitchValue, (v) => {
             set(STORAGE_TYPES.AUTO_PALY_QUESTION_SWITCH, String(v));
@@ -293,7 +307,9 @@ export default defineComponent({
             audioRef,
             isElectron,
             drawingShow,
-            keydownListener
+            keydownListener,
+            canvasData,
+            drawingBoardRef
         };
     },
     components: {DrawingBoard},
