@@ -271,13 +271,13 @@
                     <img src="./ico/close.png" alt=""/>
                     <span class="text">关闭</span>
                 </div>
-                <div class="btn-warp" @click="fullScreen" v-if="fullFlag">
-                    <!--                    <img src="../../images/slices/icon_qp.png" alt=""/>-->
-                    <span class="text">全屏</span>
-                </div>
-                <div class="btn-warp" @click="fillScreen" v-else>
-                    <!--                    <img src="../../images/slices/icon_suoxiao.png" alt=""/>-->
+                <div class="btn-warp" @click="fillScreen" v-if="fullFlag">
+                    <img src="./ico/off_screen.png" alt=""/>
                     <span class="text">退出全屏</span>
+                </div>
+                <div class="btn-warp" @click="fullScreen" v-else>
+                    <img src="./ico/full_screen.png" alt=""/>
+                    <span class="text">全屏</span>
                 </div>
             </div>
         </div>
@@ -287,7 +287,7 @@
 </template>
 
 <script lang="ts">
-import {computed, defineComponent, onMounted, ref, watch} from "vue";
+import {computed, defineComponent, nextTick, onMounted, ref, watch} from "vue";
 import BoardList from "./boardList.vue";
 import BoardHistoryList from "./boardHistoryList.vue";
 import useUploadFile from "@/hooks/useUploadFile";
@@ -300,8 +300,7 @@ import usePage from "./hooks/usePage";
 import useUndoOrRecover from "./hooks/useUndoOrRecover";
 import useClear from "./hooks/useClear";
 import {ActiveType, PenColorMap} from "./enum";
-import {debounce} from "lodash";
-import {nextTick} from "process";
+import {enterFullscreen, exitFullscreen, isFullscreen} from "@/utils/fullscreen";
 
 export default defineComponent({
     setup() {
@@ -347,6 +346,8 @@ export default defineComponent({
                 backgroundColor: blackColor,
                 width: Number(boxRef.value?.offsetWidth),
                 height: Number(boxRef.value?.offsetHeight)
+                // width:100%,
+                // height:100%
             });
             // 禁止橡皮擦除背景色
             fabCanvas.value.get("backgroundColor").set({erasable: false});
@@ -429,7 +430,17 @@ export default defineComponent({
                 currentState.value.push(JSON.stringify(json));
             });
             window.addEventListener("resize", () => {
-                init();
+                // init();
+                nextTick(() => {
+                    fabCanvas.value.setDimensions({
+                        width: boxRef.value?.offsetWidth,
+                        height: boxRef.value?.offsetHeight,
+                    });
+                    fabCanvas.value.get("backgroundColor").set({
+                        width: boxRef.value?.offsetWidth,
+                        height: boxRef.value?.offsetHeight,
+                    })
+                })
             });
         });
         watch(pageIndex, (v) => {
@@ -439,11 +450,13 @@ export default defineComponent({
         });
         // 全屏
         const fullScreen = () => {
-
+            enterFullscreen();
+            fullFlag.value = true;
         };
         // 退出全屏
         const fillScreen = () => {
-
+            exitFullscreen();
+            fullFlag.value = false;
         };
         return {
             isBlack,
@@ -487,7 +500,11 @@ export default defineComponent({
             touchMove,
             disabledRecoverBtn: computed(() => deleteState.value.length === 0),
             disabledUndoBtn: computed(() => currentState.value.length === 0),
-            fullFlag
+            fullFlag,
+            fullScreen,
+            fillScreen,
+            enterFullscreen,
+            exitFullscreen
         };
     },
     components: {BoardList, BoardHistoryList, CloseDialog}
@@ -519,6 +536,8 @@ export default defineComponent({
     .canvas-warp {
         position: relative;
         flex: 1;
+        width: 100%;
+        height: calc(100% - 60px);
     }
 
     * {
