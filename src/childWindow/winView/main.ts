@@ -11,6 +11,9 @@ import "@/styles/index.scss";
 
 const app = createApp(App);
 
+window.localWincard = true;
+
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 app.use(WinCard, process.env.VUE_APP_AI_XUE_SHI_API, "https://wincard.lyx-edu.com/swf2canvas.html", cacheFile)
     .use(ElementPlus, { locale: zhCn })

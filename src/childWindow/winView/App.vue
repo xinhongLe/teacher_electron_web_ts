@@ -39,7 +39,7 @@
                :showRemark="previewSectionRef?.showRemark" @toggleRemark="toggleRemark" @prevStep="prevStep"
                @nextStep="nextStep" @fullScreen="fullScreen" @clockFullScreen="clockFullScreen"
                @showWriteBoard="showWriteBoard" @openShape="openShape" @hideWriteBoard="hideWriteBoard"
-               @closeWincard="close"
+               @closeWinCard="closeWinCard"
                :isCanUndo="isCanUndo" :isCanRedo="isCanRedo" :isFullScreenStatus="true" @openPaintTool="openPaintTool"
                :currentDrawColor="currentDrawColor" :currentLineWidth="currentLineWidth"
                @whiteboardOption="whiteboardOption"
@@ -76,6 +76,7 @@ export default defineComponent({
         const previewOptions = ref({});
         provide("isShowCardList", isShowCardList);
         const windowInfo = useWindowInfo(false);
+        console.log('windowInfo', windowInfo)
         provide(windowInfoKey, windowInfo);
         const {cardList} = windowInfo;
         const appjson = ref<{
@@ -142,19 +143,20 @@ export default defineComponent({
 
         onMounted(async () => {
             const urlSearchParams = new URLSearchParams(
-                window.location.search.replace(/\&/g, "%26")
+                window.location.search.replace(/\\&/g, "%26")
             );
             const params = Object.fromEntries(urlSearchParams.entries());
             appjson.value = await window.electron.unpackCacheFile(params.file);
+            console.log(' appjson.value', appjson.value)
             if (appjson) {
                 winActiveId.value = appjson.value.windowId!;
                 WindowName.value = appjson.value.windowName!;
                 appjson.value.cards.forEach((c: any) => {
                     c.PageList = c.PageList.filter(
-                        (p: any) => p.State === true
+                        (p: any) => p.State
                     );
                 });
-                console.log(appjson.value);
+
                 cardList.value = appjson.value.cards;
                 document.title = WindowName.value;
                 await nextTick(() => {
@@ -163,7 +165,7 @@ export default defineComponent({
             }
         });
 
-        const close = () => {
+        const closeWinCard = () => {
             window.electron.remote.getCurrentWindow().close();
         };
         //工具栏-画笔
@@ -200,6 +202,7 @@ export default defineComponent({
             isShowCardList,
             clockFullScreen,
             toggleRemark,
+            closeWinCard,
             prevStep,
             nextStep,
             showWriteBoard,
@@ -210,7 +213,6 @@ export default defineComponent({
             previewOptions,
             winActiveId,
             WindowName,
-            close,
             isCanUndo,
             isCanRedo,
             openPaintTool,

@@ -1,17 +1,13 @@
 <template>
-    <ResourceViewList />
+    <ResourceViewList/>
 </template>
 
 <script lang="ts">
-import { defineComponent, onActivated, ref } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { defineComponent } from "vue";
 import ResourceViewList from "./resourceViewList.vue";
 
 export default defineComponent({
-    components: { ResourceViewList },
-    setup() {
-        const route = useRoute();
-    }
+    components: { ResourceViewList }
 });
 </script>
 

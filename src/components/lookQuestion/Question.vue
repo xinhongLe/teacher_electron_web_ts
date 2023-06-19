@@ -2,7 +2,7 @@
     <div class="warp">
         <div class="frames-box">
             <span class="file-sn" v-if="!dialog">{{ questionSn }}</span>
-            <slot name="title" />
+            <slot name="title"/>
             <div class="count">{{ number }} / {{ sum }}</div>
             <div class="material-box">
                 <audio
@@ -27,11 +27,11 @@
         <div class="dialog-footer">
             <div class="switch-box">
                 <div>
-                    <el-switch v-model="questionSwitchValue"> </el-switch>
+                    <el-switch v-model="questionSwitchValue"></el-switch>
                     <p>自动播放题音</p>
                 </div>
                 <div>
-                    <el-switch v-model="resolutionSwitchValue"> </el-switch>
+                    <el-switch v-model="resolutionSwitchValue"></el-switch>
                     <p>自动播放解析</p>
                 </div>
             </div>
@@ -98,7 +98,7 @@
         </div>
     </div>
 
-    <drawing-board :show="drawingShow" @closeWriteBoard="drawingShow = false" />
+    <drawing-board :show="drawingShow" @closeWriteBoard="drawingShow = false" ref="drawingBoardRef"/>
 </template>
 
 <script lang="ts">
@@ -115,10 +115,12 @@ import {
 } from "vue";
 import isElectronFun from "is-electron";
 import useDetail from "./hooks/useDetail";
-import { set, STORAGE_TYPES } from "@/utils/storage";
+import {set, STORAGE_TYPES} from "@/utils/storage";
 import emitter from "@/utils/mitt";
-import { IViewResourceData } from "@/types/store";
+import {IViewResourceData} from "@/types/store";
 import DrawingBoard from "@/components/drawingBoard/index.vue";
+import {KEYS} from "@/config/hotkey";
+
 export default defineComponent({
     props: {
         close: {
@@ -141,13 +143,13 @@ export default defineComponent({
             required: true,
         },
     },
-    setup(props, { emit }) {
+    setup(props, {emit}) {
+        const drawingBoardRef = ref();
         const type = computed(() => props.resource.type);
         const btnType = ref(-1);
         const childRef = ref();
         const isElectron = isElectronFun();
         const noMinix = computed(() => !!props.resource.openMore);
-
         const questionID = inject("nowQuestionID") as Ref<string>;
         const {
             imageUrl,
@@ -215,11 +217,25 @@ export default defineComponent({
                 audioRef.value.play();
             }
         };
-
-        watch(nowQuestionID, (v) => {
+        const canvasDataMap = new Map();
+        const canvasData = ref();
+        watch(nowQuestionID, (v, ov) => {
+            canvasData.value = canvasDataMap.get(
+                v || ""
+            )
+            const elements = drawingBoardRef.value.whiteboard.getElements();
+            ov && canvasDataMap.set(ov, elements);
+            drawingBoardRef.value.whiteboard.clear();
             childRef.value?.clearBrush();
             emit("update:nowQuestionID", v);
         });
+
+        watch(() => canvasData.value, (v) => {
+            drawingBoardRef.value.whiteboard.reset();
+            drawingBoardRef.value.whiteboard.clear();
+            drawingBoardRef.value.whiteboard.setElements(v);
+            drawingBoardRef.value.whiteboard.render();
+        }, {deep: true})
 
         watch(questionSwitchValue, (v) => {
             set(STORAGE_TYPES.AUTO_PALY_QUESTION_SWITCH, String(v));
@@ -230,14 +246,32 @@ export default defineComponent({
         });
 
         onMounted(() => {
+            document.addEventListener("keydown", keydownListener);
             if (!props.isPureQuestion) {
                 emitter.on("smallQuestion", smallQuestion);
             }
         });
 
         onUnmounted(() => {
+            document.removeEventListener("keydown", keydownListener);
             emitter.off("smallQuestion");
         });
+
+        // 快捷键翻页
+        const keydownListener = (e: KeyboardEvent) => {
+            const key = e.key.toUpperCase();
+            if (key === KEYS.UP || key === KEYS.PAGEUP || key === KEYS.LEFT) {
+                lastPage();
+            } else if (
+                key === KEYS.DOWN ||
+                key === KEYS.RIGHT ||
+                // key === KEYS.SPACE ||
+                // key === KEYS.ENTER ||
+                key === KEYS.PAGEDOWN) {
+                if (isNextBtn.value) return;
+                nextPage();
+            }
+        };
 
         const drawingShow = ref(false);
 
@@ -273,9 +307,12 @@ export default defineComponent({
             audioRef,
             isElectron,
             drawingShow,
+            keydownListener,
+            canvasData,
+            drawingBoardRef
         };
     },
-    components: { DrawingBoard },
+    components: {DrawingBoard},
 });
 </script>
 
@@ -284,11 +321,13 @@ export default defineComponent({
     border: 3px solid #4b71ee;
     border-radius: 10px;
 }
+
 .warp {
     height: 100%;
     display: flex;
     flex-direction: column;
 }
+
 .frames-box {
     width: 100%;
     height: 100%;
@@ -296,6 +335,7 @@ export default defineComponent({
     flex: 1;
     display: flex;
     flex-direction: column;
+
     .file-sn {
         position: absolute;
         left: 20px;
@@ -303,6 +343,7 @@ export default defineComponent({
         color: #999;
         font-size: 16px;
     }
+
     > p {
         font-size: 20px;
         font-weight: 600;
@@ -311,17 +352,20 @@ export default defineComponent({
         text-align: center;
         margin-top: 16px;
     }
+
     .count {
         position: absolute;
         top: 0px;
         right: 20px;
     }
+
     .material-box {
         width: 90%;
         margin: 36px auto 0;
         border: solid 1px #ccc;
         position: relative;
         flex: 1;
+
         .question-img {
             width: 100%;
             height: 100%;
@@ -329,6 +373,7 @@ export default defineComponent({
         }
     }
 }
+
 .dialog-footer {
     width: 100%;
     height: 80px;
@@ -337,30 +382,37 @@ export default defineComponent({
     display: flex;
     align-items: center;
     position: relative;
+
     .switch-box {
         margin-right: 100px;
+
         > div {
             display: inline-block;
             text-align: center;
             margin-right: 20px;
+
             p {
                 text-align: center;
                 margin-top: 10px;
             }
         }
     }
+
     .btn-warp {
         flex: 1;
         display: flex;
         justify-content: flex-end;
     }
+
     .btn-list {
         display: flex;
+
         .button {
             width: 64px;
             height: 64px;
             cursor: pointer;
             margin-right: 20px;
+
             p {
                 text-align: center;
                 font-size: 12px;
@@ -369,51 +421,64 @@ export default defineComponent({
                 margin-top: 40px;
                 font-weight: 550;
             }
+
             &:nth-child(1) {
                 background: url("./../../assets/look/btn_tiyin@2x.png");
                 background-size: 100% 100%;
             }
+
             &:nth-child(2) {
                 background: url("./../../assets/look/btn_jiexi@2x.png");
                 background-size: 100% 100%;
             }
+
             &.pen {
                 background: url("./../../assets/look/btn_huabi@2x.png");
                 background-size: 100% 100%;
             }
+
             &.close {
                 background: url("./../../assets/look/btn_guanbi@2x.png");
                 background-size: 100% 100%;
+
                 p {
                     color: #fff;
                 }
             }
+
             &.mini {
                 background: url("./../../assets/look/btn_zuixiaohua@2x.png");
                 background-size: 100% 100%;
             }
+
             &.prev {
                 background: url("./../../assets/look/btn_shangyiye@2x.png");
                 background-size: 100% 100%;
             }
+
             &.prev.disabled {
                 background: url("./../../assets/look/btn_shangyiye_disabled@2x.png");
                 background-size: 100% 100%;
+
                 p {
                     color: #4b71ee;
                 }
             }
+
             &.next {
                 background: url("./../../assets/look/btn_xiayiye@2x.png");
                 background-size: 100% 100%;
                 width: 120px;
+
                 p {
                     color: #fff;
                 }
             }
+
             &.next.disabled {
                 background: url("./../../assets/look/btn_xiayiye_disabled@2x.png");
                 background-size: 100% 100%;
+
                 p {
                     color: #4b71ee;
                 }

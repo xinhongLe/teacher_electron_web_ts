@@ -7,7 +7,7 @@
             top="30vh"
             :close-on-click-modal="false"
         >
-            <template #title>
+            <template #header>
                 <span>批量导入说明</span>
                 <div class="close-warp" @click="handleClose">
                     <el-icon :size="16"><close /></el-icon>

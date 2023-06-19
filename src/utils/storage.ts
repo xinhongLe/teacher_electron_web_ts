@@ -1,4 +1,4 @@
-import { decrypt, encrypt } from "./crypto";
+import {decrypt, encrypt} from "./crypto";
 import isElectron from "is-electron";
 
 const PREFIX = "VUE";

@@ -1,7 +1,7 @@
 <template>
     <div class="custom-dialog">
         <el-dialog center width="30vw" :model-value="hasLessonVisible" @close="close()">
-            <template #title>
+            <template #header>
                 <div class="custom-header">
                     提示
                 </div>

@@ -1,41 +1,25 @@
-import { Ref } from "vue";
+import { Ref, ref } from "vue";
+import { Slide } from "wincard";
 import { cloneDeep } from "lodash";
 import { v4 as uuidv4 } from "uuid";
+import useHome from "@/hooks/useHome";
+import { getOssUrl } from "@/utils/oss";
 import { pageTypeList } from "@/config";
+import { ElMessage } from "element-plus";
 import messageBox from "@/utils/messageBox";
-import { initSlideData } from "@/utils/dataParsePage";
-import { ElMessage, ElMessageBox } from "element-plus";
 import { CardProps, PageProps } from "../../api/props";
+import { dealAnimationData } from "@/utils/dataParse";
 
-export default (windowCards: Ref<CardProps[]>, currentPage: Ref<PageProps | null>, editRef: Ref) => {
-    let backupPage: PageProps | null = null;
+export default (windowCards: Ref<CardProps[]>, currentPageId: Ref<string>) => {
+    const { transformPageDetail } = useHome();
 
-    // 切换ppt页面
-    const handlePageClick = (data: PageProps, e?: KeyboardEvent) => {
-        if (e?.shiftKey || e?.ctrlKey) return;
-        if (data.ID === currentPage.value?.ID) return;
-
-        if (!editRef.value) return;
-        editRef.value.saveSlide();
-
-        currentPage.value = data;
-    };
-
-    // 教研设计
-    const handleOpenLessonDesign = () => {
-        if (!editRef.value) return;
-        editRef.value.openLessonDesign();
-    };
-
-    // 帮助按钮
-    const handleHelper = () => {
-        if (!editRef.value) return;
-        editRef.value.handleHelper();
-    };
+    const previewIndex = ref(0);
+    const winCardViewRef = ref();
+    const winScreenView = ref(false);
 
     // 创建文件夹
-    const createFolder = async (name: string) => {
-        const card = {
+    const createFolder = (name: string) => {
+        const card: CardProps = {
             ID: uuidv4(),
             TeachPageRelationID: "",
             Name: name,
@@ -44,75 +28,40 @@ export default (windowCards: Ref<CardProps[]>, currentPage: Ref<PageProps | null
             Fold: true
         };
         windowCards.value.push(card);
-        await createCardPage(pageTypeList[0], card);
+        return card;
     };
 
     // 新增空白页/互动页
-    const createCardPage = async (pageType: any, data: CardProps | PageProps) => {
-        const parentId = (data as PageProps).ParentID || data?.ID;
+    const createPage = async (pageType: any, data: CardProps | PageProps) => {
+        const parentId = ("ParentID" in data) ? data.ParentID : data.ID;
         const id = uuidv4();
-        const json = initSlideData(id, pageType.value);
+        const json = await transformPageDetail({ Type: pageType.value, ID: id }, {});
+
         const index = windowCards.value.findIndex(item => item.ID === parentId);
-        let name = pageType.name;
-        if (pageType.value === 11) {
-            name = "页" + (windowCards.value[index].PageList.length + 2);
-        }
+        const name = pageType.value !== 11 ? pageType.name : "页" + (windowCards.value[index].PageList.length + 1);
         const page = {
             ID: id,
-            TeachPageRelationID: "",
             Name: name,
             Height: 0,
             Width: 0,
-            Type: pageType.value,
             Sort: 1,
             State: 1,
-            AcademicPresupposition: "",
-            DesignIntent: "",
-            Json: json,
-            Index: 1,
             Url: "",
-            ParentID: parentId
+            Index: 1,
+            Json: json,
+            DesignIntent: "",
+            ParentID: parentId,
+            Type: pageType.value,
+            TeachPageRelationID: "",
+            AcademicPresupposition: ""
         };
-        let subIndex;
         if ("ParentID" in data) {
-            subIndex = windowCards.value[index].PageList.findIndex(item => item.ID === data.ID);
+            const subIndex = windowCards.value[index].PageList.findIndex(item => item.ID === data.ID);
+            windowCards.value[index].PageList.splice(subIndex + 1, 0, page);
+        } else {
+            windowCards.value[index].PageList.push(page);
         }
-
-        insertWindowsCards(page, index, subIndex);
-        sortWindowCards();
-        currentPage.value = getPageById(id);
-    };
-
-    // 重名名
-    const rename = (data: CardProps | PageProps) => {
-        ElMessageBox.prompt("", "重命名", {
-            inputPattern: /\S/,
-            inputValue: data.Name,
-            inputErrorMessage: "请填写名称！"
-        }).then(async ({ value }) => {
-            data.Name = value;
-        });
-    };
-
-    // 复制页
-    const copy = (data: PageProps) => {
-        backupPage = cloneDeep(data);
-        ElMessage.success("复制成功！");
-    };
-
-    // 粘贴页
-    const paste = async (data: CardProps) => {
-        if (!backupPage) {
-            ElMessage.warning("您还未复制素材");
-            return;
-        }
-        backupPage.ID = uuidv4();
-        backupPage.Name = backupPage.Name + "（新）";
-        const index = windowCards.value.findIndex(item => item.ID === data.ID);
-
-        insertWindowsCards(backupPage, index);
-
-        sortWindowCards();
+        return page;
     };
 
     // 删除
@@ -121,68 +70,56 @@ export default (windowCards: Ref<CardProps[]>, currentPage: Ref<PageProps | null
             content: "此操作将删除该数据, 是否继续?"
         }).then(async () => {
             const cardsList = windowCards.value;
+            const currentPage = getPageById(currentPageId.value);
             if (!("ParentID" in data)) {
                 const index = cardsList.findIndex(item => item.ID === data.ID);
-                const index1 = cardsList.findIndex(item => item.ID === currentPage.value?.ParentID);
+                const index1 = cardsList.findIndex(item => item.ID === currentPage.ParentID);
                 if (cardsList.length !== 1) {
                     if (index === index1) {
-                        currentPage.value = cardsList[1].PageList[0];
+                        currentPageId.value = cardsList[1].PageList[0].ID;
                     }
                     windowCards.value.splice(index, 1);
-                    sortWindowCards();
                 } else {
                     windowCards.value = [];
-                    await createFolder("文件夹一");
-                    currentPage.value = windowCards.value[0].PageList[0];
+                    const card = createFolder("文件夹一");
+                    const page = await createPage(pageTypeList[0], card);
+                    currentPageId.value = page.ID;
                 }
+                sortWindowCards();
                 return;
             }
             const index = cardsList.findIndex(item => item.ID === data.ParentID);
-            if (index === -1) return;
-
-            let page: PageProps | null = null;
             const pageList = cardsList[index].PageList;
-            const idx = pageList.findIndex(item => item.ID === data.ID);
-            if (currentPage.value?.ID === data.ID) {
-                if (pageList.length === 1) {
-                    const selectPageList = cardsList[length - 1]?.PageList;
-                    page = selectPageList ? selectPageList[selectPageList.length - 1] : null;
-                }
+            const subIndex = pageList.findIndex(item => item.ID === data.ID);
 
-                if (pageList.length > 1 && idx === pageList.length - 1) {
-                    page = pageList[idx - 1];
-                }
-                if (pageList.length > 1 && idx !== pageList.length - 1) {
-                    page = pageList[idx + 1];
-                }
-                if (pageList.length === 1) {
-                    const selectPageList = cardsList[index + 1]?.PageList;
-                    page = selectPageList ? selectPageList[0] : null;
-                }
-                if (index === 0 && pageList.length === 1) {
-                    const selectPageList = cardsList[index + 1]?.PageList;
-                    page = selectPageList ? selectPageList[0] : null;
-                }
-                if (index === cardsList.length - 1 && pageList.length === 1) {
-                    const selectPageList = cardsList[cardsList.length - 1]?.PageList;
-                    page = selectPageList ? selectPageList[selectPageList.length - 1] : null;
-                }
-                currentPage.value = page;
-            }
-
-            const flag = windowCards.value.length > 0 && windowCards.value[0].PageList.length > 1;
-            if (flag) {
-                if (pageList.length === 1) {
-                    cardsList.splice(index, 1);
-                } else {
-                    pageList.splice(idx, 1);
-                }
+            if (currentPageId.value !== data.ID) {
+                windowCards.value[index].PageList.splice(subIndex, 1);
                 sortWindowCards();
-            } else {
-                windowCards.value = [];
-                await createFolder("文件夹一");
-                currentPage.value = windowCards.value[0].PageList[0];
+                return;
             }
+            if (cardsList.length === 1 && pageList.length === 1) {
+                windowCards.value = [];
+                const card = createFolder("文件夹一");
+                const page = await createPage(pageTypeList[0], card);
+                currentPageId.value = page.ID;
+            }
+
+            if (cardsList.length > 1 && pageList.length === 1) {
+                if (index === cardsList.length - 1) {
+                    currentPageId.value = cardsList[index - 1].PageList[pageList.length - 1].ID;
+                } else {
+                    currentPageId.value = cardsList[index + 1].PageList[0].ID;
+                }
+                windowCards.value.splice(index, 1);
+            }
+
+            if (subIndex === pageList.length - 1) {
+                currentPageId.value = pageList[subIndex - 1].ID;
+            } else {
+                currentPageId.value = pageList[subIndex + 1].ID;
+            }
+            windowCards.value[index].PageList.splice(subIndex, 1);
+            sortWindowCards();
         });
     };
 
@@ -204,21 +141,56 @@ export default (windowCards: Ref<CardProps[]>, currentPage: Ref<PageProps | null
         windowCards.value = list;
     };
 
-    // 当前page替换
-    const replaceCurrentPage = async (page: PageProps) => {
-        const index = windowCards.value.findIndex(item => item.ID === page.ParentID);
-        const subIndex = windowCards.value[index].PageList.findIndex(item => item.ID === page.ID);
+    // 预览(1-当前页开始，2-第一页开始)
+    const preview = (type: 1 | 2, editRef: any) => {
+        if (!editRef) return;
 
-        windowCards.value[index].PageList.splice(subIndex, 1, page);
+        const currentPage = getPageById(currentPageId.value);
+        if (type === 1 && !currentPage.State) {
+            ElMessage.warning("已下架的页, 暂不支持预览");
+            return;
+        }
+        previewIndex.value = 0;
+        if (type === 1) {
+            let allPages: PageProps[] = [];
+            windowCards.value.forEach(item => {
+                allPages = allPages.concat(...item.PageList);
+            });
+            previewIndex.value = allPages.filter(item => item.State).findIndex(item => item.ID === currentPageId.value);
+        }
+
+        currentPage.Json = editRef.getCurrentSlide();
+
+        winScreenView.value = true;
+        window.electron.setFullScreen(true);
+        setTimeout(() => {
+            winCardViewRef.value.setScreening(true);
+        }, 20);
     };
 
-    // 往windowsCard插入或删除page数据
-    const insertWindowsCards = async (page: PageProps, index: number, subIndex?: number) => {
-        if (typeof subIndex === "number") {
-            windowCards.value[index].PageList.splice(subIndex + 1, 0, page);
-        } else {
-            windowCards.value[index].PageList.push(page);
+    // 关闭全屏预览
+    const offPreview = () => {
+        window.electron.setFullScreen(false);
+
+        winScreenView.value = false;
+        previewIndex.value = -1;
+    };
+
+    const applyBackgroundAllSlide = (data: any) => {
+        const list = cloneDeep<CardProps[]>(windowCards.value);
+        for (let i = 0; i < list.length; i++) {
+            const item = list[i];
+
+            for (let j = 0; j < item.PageList.length; j++) {
+                const it = item.PageList[j];
+
+                if (!it.Json.background) continue;
+
+                it.Json.background = data;
+            }
         }
+
+        windowCards.value = list;
     };
 
     const getPageById = (id: string): PageProps => {
@@ -229,19 +201,78 @@ export default (windowCards: Ref<CardProps[]>, currentPage: Ref<PageProps | null
         return allPages.find(item => item.ID === id) as PageProps;
     };
 
+    // 组装ppt列表数据
+    async function assembleCardData(arr: CardProps[]) {
+        const list = [];
+        let index = 1;
+
+        for (let i = 0; i < arr.length; i++) {
+            const item = arr[i];
+            const pageList: PageProps[] = [];
+
+            for (let j = 0; j < item.PageList.length; j++) {
+                const it = item.PageList[j];
+                if (!it) continue;
+
+                if (!currentPageId.value) {
+                    currentPageId.value = it.ID;
+                }
+
+                const json = JSON.parse(it.Json || "{}");
+                let url = it.Url || "";
+                if (!url && (it.Type === 20 || it.Type === 16)) {
+                    const file = json?.ToolFileModel?.File;
+                    const key = `${file?.FilePath}/${file?.FileMD5}.${file?.FileExtention || file?.Extention}`;
+                    url = json?.ToolFileModel ? await getOssUrl(key, "axsfile") : "";
+                }
+
+                const slide: Slide = await transformPageDetail(it, json);
+
+                const obj = {
+                    ID: it.ID,
+                    TeachPageRelationID: it.TeachPageRelationID,
+                    Name: it.Name,
+                    Height: it.Height,
+                    Width: it.Width,
+                    Type: it.Type,
+                    Sort: it.Sort,
+                    State: it.State,
+                    AcademicPresupposition: it.AcademicPresupposition,
+                    DesignIntent: it.DesignIntent,
+                    Json: dealAnimationData(slide),
+                    Index: index,
+                    Url: url,
+                    ParentID: item.ID
+                };
+
+                pageList.push(obj);
+                index++;
+            }
+            list.push({
+                ID: item.ID,
+                TeachPageRelationID: item.TeachPageRelationID,
+                Name: item.Name,
+                Sort: item.Sort,
+                PageList: pageList,
+                Fold: true
+            });
+        }
+        windowCards.value = list;
+        return cloneDeep(list);
+    }
+
     return {
-        copy,
-        paste,
         remove,
-        rename,
+        preview,
+        createPage,
+        offPreview,
         getPageById,
         createFolder,
-        handleHelper,
-        createCardPage,
+        previewIndex,
+        winScreenView,
+        winCardViewRef,
         sortWindowCards,
-        handlePageClick,
-        insertWindowsCards,
-        replaceCurrentPage,
-        handleOpenLessonDesign
+        assembleCardData,
+        applyBackgroundAllSlide
     };
 };

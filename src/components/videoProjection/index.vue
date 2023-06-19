@@ -49,7 +49,6 @@ export default defineComponent({
                     IsEnd: boolean;
                     roomID: string;
                 } = JSON.parse(infoString);
-            window.electron.log.info(`dealVideoProjectTopic roomID: ${info.roomID}, IsEnd: ${info.IsEnd}`);
             if (!info.IsEnd) {
                 roomId.value = info.roomID;
                 isShow.value = true;
@@ -59,7 +58,6 @@ export default defineComponent({
         };
 
         const dealHeartbeatTopic = () => {
-            window.electron.log.info("receive heartbeat");
             client.publish(getPublish(heartbeatResult.value), "");
         };
 

@@ -1,4 +1,4 @@
-import { Slide } from "wincard";
+import {Slide} from "wincard";
 
 /**
  素材页保存处理

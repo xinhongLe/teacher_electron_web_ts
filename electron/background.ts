@@ -1,8 +1,8 @@
 "use strict";
 
-import { app, protocol, BrowserWindow, ipcMain, Menu } from "electron";
-import { createProtocol } from "vue-cli-plugin-electron-builder/lib";
-import { initialize } from "@electron/remote/main";
+import {app, protocol, BrowserWindow, ipcMain, Menu} from "electron";
+import {createProtocol} from "vue-cli-plugin-electron-builder/lib";
+import {initialize} from "@electron/remote/main";
 import {
     createSuspensionWindow,
     createLocalPreviewWindow,
@@ -10,21 +10,22 @@ import {
     unfoldSuspensionWinSendMessage
 } from "./suspension";
 import autoUpdater from "./autoUpdater";
-import { registerWinCardEvent } from "./wincard";
-import { registerVirtualKeyBoard, closeKeyBoard, setInput } from "./virtualKeyBoard";
+import {createWinCardWindow} from "./wincard";
+import {registerVirtualKeyBoard, closeKeyBoard, setInput} from "./virtualKeyBoard";
 import SingalRHelper from "./singalr";
 import ElectronLog from "electron-log";
 import os from "os";
-import { exec } from "child_process";
+import {exec} from "child_process";
 import path from "path";
 import downloadFile from "./downloadFile";
 
 const isDevelopment = process.env.NODE_ENV !== "production";
+const editWinList = new Map<number, any>();
 
 initialize();
 
 protocol.registerSchemesAsPrivileged([
-    { scheme: "app", privileges: { secure: true, standard: true } },
+    {scheme: "app", privileges: {secure: true, standard: true}},
     {
         scheme: "http",
         privileges: {
@@ -72,7 +73,6 @@ async function createWindow() {
     }
 
     registerEvent();
-    registerWinCardEvent();
     registerVirtualKeyBoard();
 
     if (process.env.WEBPACK_DEV_SERVER_URL) {
@@ -86,7 +86,6 @@ async function createWindow() {
 
     mainWindow.on("ready-to-show", () => {
         mainWindow!.show();
-        ElectronLog.info("app show");
     });
 
     mainWindow.on("closed", () => {
@@ -194,19 +193,20 @@ async function createWindow() {
 
     // 上课消息通知
     ipcMain.on("attendClass", (e, to, data) => {
-        if (to === "unfoldSuspension")
+        if (to === "unfoldSuspension") {
             unfoldSuspensionWinSendMessage("attendClass", data);
+        }
         if (to === "main") mainWindow!.webContents.send("attendClass", data);
     });
 
-    //悬浮球点击消息通知事件
+    // 悬浮球点击消息通知事件
     ipcMain.on("suspensionClick", () => {
         // mainWindow!.show();
         // mainWindow!.maximize();
         mainWindow!.webContents.send("suspensionClick");
     });
 
-    //悬浮球点击事件
+    // 悬浮球点击事件
     ipcMain.handle("suspensionClick", () => {
         // mainWindow!.show();
         // mainWindow!.maximize();
@@ -222,19 +222,26 @@ async function createWindow() {
     ipcMain.handle("setInput", (event, data) => {
         setInput(data);
     });
-    // ipcMain.handle("openWinCardWin", () => {
-    //     openWinCardWin();
-    // });
+    ipcMain.on("closeWinCard", (event, data) => {
+        editWinList.delete(data);
+    });
+
+    ipcMain.handle("openWinCardWin", (_, data) => {
+        const editWin = createWinCardWindow(data);
+        editWinList.set(editWin.webContents.id, editWin);
+    });
+
+    ipcMain.on("replicated", () => {
+        for (const editWin of editWinList.values()) {
+            editWin.webContents.send("copy-end");
+        }
+    });
 }
 
 app.on("window-all-closed", () => {
     if (process.platform !== "darwin") {
         app.quit();
     }
-});
-
-app.on("will-quit", () => {
-    ElectronLog.info("app quit");
 });
 
 app.on("activate", () => {
@@ -260,7 +267,6 @@ let isOpenFile = false;
 app.on("will-finish-launching", () => {
     app.on("open-file", (event, path) => {
         isOpenFile = true;
-        ElectronLog.info(path);
         event.preventDefault();
         if (app.isReady()) {
             createLocalPreviewWindow(path);
@@ -275,7 +281,6 @@ app.on("will-finish-launching", () => {
 });
 
 app.on("ready", async () => {
-    ElectronLog.info("app ready", process.argv);
     createProtocol("app");
     let result = false;
     if (app.isPackaged) {
@@ -296,7 +301,7 @@ app.on("render-process-gone", (event, webContents, details) => {
 });
 
 app.on("child-process-gone", (event, details) => {
-    const { type, reason, exitCode, serviceName, name } = details;
+    const {type, reason, exitCode, serviceName, name} = details;
     ElectronLog.error(
         `child-process-gone, reason: ${reason}, exitCode: ${exitCode}, type:${type}, serviceName: ${serviceName}, name: ${name}`
     );
@@ -308,7 +313,6 @@ if (!gotTheLock) {
 } else {
     app.on("second-instance", (event, argv, workingDirectory) => {
         // 当运行第二个实例时,将会聚焦到mainWindow这个窗口
-        ElectronLog.info("second-args", argv);
         let result = false;
         if (app.isPackaged) {
             result = createLocalPreview(argv);
@@ -338,3 +342,7 @@ if (isDevelopment) {
         });
     }
 }
+
+process.on("uncaughtException", function (error) {
+    ElectronLog.error(error)
+});

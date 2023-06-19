@@ -7,6 +7,7 @@
                 </el-icon>
                 <span class="title">计时</span>
                 <span class="question-type">{{ questionType }}</span>
+                <span class="small" @click="packUp">最小化</span>
             </div>
             <div class="content-warp">
                 <span class="time">{{ showTime }}</span>
@@ -136,12 +137,17 @@ export default defineComponent({
             window.electron.setContentSize(383, 253);
             window.electron.setPositionWin(size.width - 24 - 383, 84);
         }
+        ;
+        const packUp = () => {
+            window.electron.minimizeWindow();
+        }
         return {
             showTime,
             endAnswer,
             QuestionType,
             answerStudents,
-            allAStudents
+            allAStudents,
+            packUp
         };
     }
 });
@@ -191,6 +197,14 @@ export default defineComponent({
             font-size: 14px;
             border: 1px solid #fff;
             margin: 10px 16px;
+        }
+
+        .small {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            font-size: 14px;
+            cursor: pointer;
         }
     }
 

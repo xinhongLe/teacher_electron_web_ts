@@ -1,6 +1,6 @@
 <template>
     <div class="whiteboard-box" :class="{ active: show }" ref="whiteboardBox">
-        <WhiteBoard :options="options" ref="whiteboard" />
+        <WhiteBoard :options="options" ref="whiteboard"/>
     </div>
 
     <WritingBoardTool
@@ -26,9 +26,10 @@ import {
     onMounted,
     watch,
     nextTick,
+    defineExpose
 } from "vue";
 import WritingBoardTool from "./WritingBoardTool.vue";
-import WhiteBoard, { OPTION_TYPE } from "mwhiteboard";
+import WhiteBoard, {OPTION_TYPE} from "mwhiteboard";
 
 const props = defineProps({
     show: {
@@ -89,7 +90,7 @@ const resize = () => {
     // 窗口发生变化重新计算距离
     setTimeout(() => {
         if (whiteboardBox.value) {
-            const { x, y } = whiteboardBox.value.getBoundingClientRect();
+            const {x, y} = whiteboardBox.value.getBoundingClientRect();
             options.value = {
                 offsetX: x,
                 offsetY: y,
@@ -110,7 +111,7 @@ watch(
 onMounted(() => {
     nextTick(() => {
         if (whiteboardBox.value) {
-            const { x, y } = whiteboardBox.value.getBoundingClientRect();
+            const {x, y} = whiteboardBox.value.getBoundingClientRect();
             options.value = {
                 offsetX: x,
                 offsetY: x == 0 && y == 0 ? y : y + 20, //初始化加载画笔偏移 + 20
@@ -119,6 +120,9 @@ onMounted(() => {
         window.addEventListener("resize", resize);
     });
 });
+
+defineExpose({whiteboard})
+
 </script>
 
 <style scoped lang="scss">

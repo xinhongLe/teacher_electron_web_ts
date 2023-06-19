@@ -2,9 +2,7 @@
     <div class="class-dialog">
         <el-dialog center width="710px" :model-value="classVisible" @close="close()">
             <template #title>
-                <div class="class-header">
-                    将本页发送至学生端
-                </div>
+                <div class="class-header">将本页发送至学生端</div>
             </template>
             <div class="is-class">
                 <el-form :model="form" label-width="120px" size="large">
@@ -18,49 +16,50 @@
                             />
                         </el-select>
                     </el-form-item>
-                    <el-form-item label="请选择类型：">
-                        <div class="btn-class" v-for="item in typeList" @click="currentType = item.QuestionId"
-                             :class="{isActive:currentType === item.QuestionId}">
-                            {{ item.QuestionName }}
-                        </div>
-                    </el-form-item>
-                    <el-form-item label="答题方式：" v-if="currentType === 6">
-                        <div class="btn-class" v-for="item in answerTypeList"
-                             @click="currentAnswerType = item.QuestionId"
-                             :class="{isActive:currentAnswerType === item.QuestionId}">
-                            {{ item.QuestionName }}
-                        </div>
-                    </el-form-item>
-                    <el-form-item label="选项个数：" v-if="currentType === 6 && currentAnswerType === 1">
-                        <el-select v-model="form.selectNum" placeholder="选项个数" style="width:100%">
-                            <el-option label="1" :value="1"/>
-                            <el-option label="2" :value="2"/>
-                            <el-option label="3" :value="3"/>
-                            <el-option label="4" :value="4"/>
-                            <el-option label="5" :value="5"/>
-                        </el-select>
-                    </el-form-item>
-                    <div v-if="currentType === 6 &&  currentAnswerType === 1 && form.selectNum">
-                        <el-form-item label="">
-                            <div class="num-calss" @click="curSelNumType = 1" :class="{isActive:curSelNumType === 1}">
-                                <div class="num-calss-left">
-                                    <div class="num-calss-item" v-for="item in ENList.slice(0,form.selectNum)">
-                                        {{ item }}
-                                    </div>
-                                </div>
-                                <img v-if="curSelNumType === 1" src="../../images/slices/icon_xuanzhong.png" alt=""/>
-                            </div>
-                            <div class="num-calss" @click="curSelNumType = 2" :class="{isActive:curSelNumType === 2}">
-                                <div class="num-calss-left">
-                                    <div class="num-calss-item" v-for="item in NUMList.slice(0,form.selectNum)">
-                                        {{ item }}
-                                    </div>
-                                </div>
+                    <!--                    暂时注释！！！！！-->
+                    <!--                    <el-form-item label="请选择类型：">-->
+                    <!--                        <div class="btn-class" v-for="item in typeList" @click="currentType = item.QuestionId"-->
+                    <!--                             :class="{isActive:currentType === item.QuestionId}">-->
+                    <!--                            {{ item.QuestionName }}-->
+                    <!--                        </div>-->
+                    <!--                    </el-form-item>-->
+                    <!--                    <el-form-item label="答题方式：" v-if="currentType === 6">-->
+                    <!--                        <div class="btn-class" v-for="item in answerTypeList"-->
+                    <!--                             @click="currentAnswerType = item.QuestionId"-->
+                    <!--                             :class="{isActive:currentAnswerType === item.QuestionId}">-->
+                    <!--                            {{ item.QuestionName }}-->
+                    <!--                        </div>-->
+                    <!--                    </el-form-item>-->
+                    <!--                    <el-form-item label="选项个数：" v-if="currentType === 6 && currentAnswerType === 1">-->
+                    <!--                        <el-select v-model="form.selectNum" placeholder="选项个数" style="width:100%">-->
+                    <!--                            <el-option label="1" :value="1"/>-->
+                    <!--                            <el-option label="2" :value="2"/>-->
+                    <!--                            <el-option label="3" :value="3"/>-->
+                    <!--                            <el-option label="4" :value="4"/>-->
+                    <!--                            <el-option label="5" :value="5"/>-->
+                    <!--                        </el-select>-->
+                    <!--                    </el-form-item>-->
+                    <!--                    <div v-if="currentType === 6 &&  currentAnswerType === 1 && form.selectNum">-->
+                    <!--                        <el-form-item label="">-->
+                    <!--                            <div class="num-calss" @click="curSelNumType = 1" :class="{isActive:curSelNumType === 1}">-->
+                    <!--                                <div class="num-calss-left">-->
+                    <!--                                    <div class="num-calss-item" v-for="item in ENList.slice(0,form.selectNum)">-->
+                    <!--                                        {{ item }}-->
+                    <!--                                    </div>-->
+                    <!--                                </div>-->
+                    <!--                                <img v-if="curSelNumType === 1" src="../../images/slices/icon_xuanzhong.png" alt=""/>-->
+                    <!--                            </div>-->
+                    <!--                            <div class="num-calss" @click="curSelNumType = 2" :class="{isActive:curSelNumType === 2}">-->
+                    <!--                                <div class="num-calss-left">-->
+                    <!--                                    <div class="num-calss-item" v-for="item in NUMList.slice(0,form.selectNum)">-->
+                    <!--                                        {{ item }}-->
+                    <!--                                    </div>-->
+                    <!--                                </div>-->
 
-                                <img v-if="curSelNumType === 2" src="../../images/slices/icon_xuanzhong.png" alt=""/>
-                            </div>
-                        </el-form-item>
-                    </div>
+                    <!--                                <img v-if="curSelNumType === 2" src="../../images/slices/icon_xuanzhong.png" alt=""/>-->
+                    <!--                            </div>-->
+                    <!--                        </el-form-item>-->
+                    <!--                    </div>-->
                 </el-form>
             </div>
             <template #footer>
@@ -212,11 +211,16 @@ export default defineComponent({
                 teachShareParams.value.timeStr = String(timeStr);
                 teachShareParams.value.ElementId = "element_" + timeStr;
                 teachShareParams.value.QuestionId = "question_" + timeStr;
+                console.log('teachShareParams', teachShareParams.value)
+                console.log('props.currentSlide', props.currentSlide)
+
+
                 teachShareParams.value.S3 = props.currentSlide?.teach.src;
                 teachShareParams.value.OssName = props.currentSlide?.id;
                 teachShareParams.value.Name = props.currentSlide?.teach.name;
                 teachShareParams.value.ClassID = form.value.checkedClass;
                 teachShareParams.value.Topic = "sharestudent_" + form.value.checkedClass;
+                console.log('teachShareParams', teachShareParams.value)
                 const res = await QuestionShare(teachShareParams.value)
                 if (res.success) {
                     ElMessage.success("发送成功");

@@ -5,7 +5,9 @@
                 <div class="me-remark-title">配套教案</div>
                 <div class="lesson-view" v-if="!hideLookAll" @click="openLessonDesign">
                     <span>查看全部</span>
-                    <el-icon><ArrowRight /></el-icon>
+                    <el-icon>
+                        <ArrowRight/>
+                    </el-icon>
                 </div>
             </div>
             <div class="me-remark-title" v-if="teachProcess">教学过程</div>
@@ -26,24 +28,22 @@
         </div>
     </div>
 
-    <lesson-preview v-model:previewDialog="previewDialog" :wordName="wordName" :form="form" ></lesson-preview>
+    <lesson-preview v-model:previewDialog="previewDialog" :wordName="wordName" :form="form"></lesson-preview>
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, reactive, ref } from "vue";
+import { defineComponent, reactive, ref } from "vue";
 import { ArrowRight } from "@element-plus/icons-vue";
 import { IFrom, ItemForm } from "@/types/lessonDesign";
 import { store } from "@/store";
 import { getLessonPlan } from "@/api/home";
 import LessonPreview from "@/views/preparation/intelligenceClassroom/components/edit/lessonPreview.vue";
+
 export default defineComponent({
+    name: "Remark",
     components: { ArrowRight, LessonPreview },
     props: ["teachProcess", "design", "resourceId", "isSystem", "hideLookAll"],
     setup(props) {
-        const teachProcess = computed(() => props.teachProcess);
-        const design = computed(() => props.design);
-        const hideLookAll = computed(() => !!props.hideLookAll);
-
         const form = reactive<IFrom>({
             templateType: "",
             lessonBasicInfoList: []
@@ -64,15 +64,15 @@ export default defineComponent({
             };
             return getLessonPlan(data).then(res => {
                 if (res.resultCode === 200) {
-                    const infoList:ItemForm[] = res.result.LessonPlanDetails.map((item:any) => {
+                    const infoList: ItemForm[] = res.result.LessonPlanDetails.map((item: any) => {
                         if (item.SelectType === 2 && item.LessonPlanDetailOptions.length === 0) {
                             item.LessonPlanDetailOptions = [{ ID: "", Value: "" }];
                         } else if (item.SelectType === 4 || item.SelectType === 6) {
-                            const selectValue = item.LessonPlanDetailOptions.find((item:any) => item.IsSelect === 1);
+                            const selectValue = item.LessonPlanDetailOptions.find((item: any) => item.IsSelect === 1);
                             item.isSelectId = selectValue ? selectValue.ID : "";
                         } else if (item.SelectType === 5) {
-                            const selectValue = item.LessonPlanDetailOptions.filter((item:any) => item.IsSelect);
-                            item.isSelectId = selectValue.map((i:any) => i.ID);
+                            const selectValue = item.LessonPlanDetailOptions.filter((item: any) => item.IsSelect);
+                            item.isSelectId = selectValue.map((i: any) => i.ID);
                         }
                         return item;
                     });
@@ -90,30 +90,30 @@ export default defineComponent({
             previewDialog,
             wordName,
             form,
-            openLessonDesign,
-            teachProcess,
-            design,
-            hideLookAll
+            openLessonDesign
         };
     }
 });
 </script>
 
 <style lang="scss" scoped>
-.lesson-set{
+.lesson-set {
     display: flex;
     justify-content: space-between;
     padding: 30px 20px 40px 0;
-    .lesson-view{
+
+    .lesson-view {
         display: flex;
         align-items: center;
         color: #4B71EE;
         cursor: pointer;
-        >span{
+
+        > span {
             margin-right: 4px;
         }
     }
 }
+
 .me-remark {
     width: 240px;
     background-color: #fff;
@@ -128,7 +128,8 @@ export default defineComponent({
     color: var(--app-color-dark);
     text-align: left;
     margin-left: 16px;
-    &::after{
+
+    &::after {
         display: block;
         content: "";
         position: absolute;
@@ -137,7 +138,7 @@ export default defineComponent({
         width: 8px;
         height: 8px;
         background: #4B71EE;
-        transform:rotate(45deg);
+        transform: rotate(45deg);
     }
 }
 
@@ -158,6 +159,7 @@ export default defineComponent({
     line-height: 20px;
     word-break: break-all;
     display: flex;
+
     .dot {
         width: 6px;
         height: 6px;

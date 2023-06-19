@@ -85,6 +85,7 @@ export interface IViewResourceData extends Partial<IResourceItem> {
     deleteQuestionIds?: string[];
     type?: number;
     openMore?: boolean;
+    isSystem?: number;
 }
 
 export interface IShowResourceFullScreen {

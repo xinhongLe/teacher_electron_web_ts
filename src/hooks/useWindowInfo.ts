@@ -1,12 +1,12 @@
-import { Slide } from "wincard";
-import { useStore } from "@/store";
+import {Slide} from "wincard";
+import {useStore} from "@/store";
 import isElectron from "is-electron";
 import useHome from "@/hooks/useHome";
-import TrackService, { EnumTrackEventType } from "@/utils/common";
-import { getWindowCards } from "@/views/preparation/intelligenceClassroom/api";
-import { computed, InjectionKey, onDeactivated, reactive, ref, watch } from "vue";
-import { SchoolWindowInfo, SchoolWindowCardInfo, SchoolWindowPageInfo } from "@/types/preparation";
-import { pageTypeList } from "@/config";
+import TrackService, {EnumTrackEventType} from "@/utils/common";
+import {getWindowCards, getWindowsElements} from "@/views/preparation/intelligenceClassroom/api";
+import {computed, InjectionKey, onDeactivated, reactive, ref, watch} from "vue";
+import {SchoolWindowInfo, SchoolWindowCardInfo, SchoolWindowPageInfo} from "@/types/preparation";
+import {pageTypeList} from "@/config";
 
 const dealCardData = (card: SchoolWindowCardInfo) => {
     const pages = card.PageList.map(page => {
@@ -22,7 +22,7 @@ const dealCardData = (card: SchoolWindowCardInfo) => {
 };
 
 const useWindowInfo = (isUseNetwork = true) => {
-    const { getPageDetail, transformType } = useHome();
+    const {getPageDetail, transformType} = useHome();
     const currentWindowInfo = reactive<SchoolWindowInfo>({
         LessonID: "",
         WindowID: "",
@@ -47,27 +47,23 @@ const useWindowInfo = (isUseNetwork = true) => {
     const store = useStore();
 
     const getCardList = (WindowID: string, OriginType: number) => {
-        getWindowCards({
-            WindowID,
-            OriginType
-        }).then(res => {
-            if (res.success) {
-                // 返回页的数据originType全是0 这里先手动全部处理成 对应的originType
-                cardList.value = res.result.map(item => {
-                    const PageList = item.PageList.map(page => {
-                        return {
-                            ...page,
-                            OriginType: OriginType
-                        };
-                    });
+        getWindowCards({WindowID, OriginType}).then(res => {
+            if (res.resultCode !== 200) return;
+            // 返回页的数据originType全是0 这里先手动全部处理成 对应的originType
+            cardList.value = res.result.map(item => {
+                const PageList = item.PageList.map(page => {
                     return {
-                        ...item,
-                        PageList: PageList.filter(page => page.State) // 预览过滤掉未上架页
+                        ...page,
+                        OriginType: OriginType
                     };
                 });
-                currentCardIndex.value = 0;
-                currentCard.value = cardList.value[0];
-            }
+                return {
+                    ...item,
+                    PageList: PageList.filter(page => page.State) // 预览过滤掉未上架页
+                };
+            });
+            currentCardIndex.value = 0;
+            currentCard.value = cardList.value[0];
         });
     };
 
@@ -99,7 +95,7 @@ const useWindowInfo = (isUseNetwork = true) => {
     }, {
         deep: true
     });
-    const { transformPageDetail } = useHome();
+    const {transformPageDetail} = useHome();
 
     const _getPageDetail: any = async () => {
         if (executePageList.length !== 0) {
@@ -109,7 +105,7 @@ const useWindowInfo = (isUseNetwork = true) => {
                 await getPageDetail(elem, elem.OriginType, async (res: any) => {
                     if (res && res.id && elem.ID === currentPageInfo.value?.ID) {
                         const type = pageTypeList.find(item => item.type === res.type)?.value;
-                        currentSlide.value = await transformPageDetail({ Type: type }, res);
+                        currentSlide.value = await transformPageDetail({Type: type}, res);
                     }
                 });
             }

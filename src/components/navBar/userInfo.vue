@@ -1,9 +1,10 @@
 <script lang="ts" setup>
-import { MutationTypes, store } from "@/store";
+import {MutationTypes, store} from "@/store";
 import Feedback from "../feedback/index.vue";
-import { computed, defineAsyncComponent, ref, watch } from "vue";
+import {computed, defineAsyncComponent, ref, watch} from "vue";
 import isElectron from "is-electron";
 import useOutLogin from "@/hooks/useOutLogin";
+import {CaretBottom} from "@element-plus/icons-vue";
 
 const ClearCacheDialog = defineAsyncComponent(
     () => import("./clearCacheDialog.vue")
@@ -20,7 +21,10 @@ const schoolName = computed(() => store.state.userInfo.schoolName);
 const setSelectedSchool = () => {
     if (!store.state.userInfo.schoolId && schoolList.value.length > 0) {
         const school = schoolList.value[0];
-        store.commit(MutationTypes.UPDATE_SELECTED_SCHOOL, { schoolId: school.UserCenterSchoolID, schoolName: school.Name });
+        store.commit(MutationTypes.UPDATE_SELECTED_SCHOOL, {
+            schoolId: school.UserCenterSchoolID,
+            schoolName: school.Name
+        });
     }
 };
 setSelectedSchool();
@@ -28,7 +32,8 @@ watch(schoolList, () => {
     setSelectedSchool();
 });
 const selectSchool = (school: { UserCenterSchoolID: string; Name: string; }) => {
-    store.commit(MutationTypes.UPDATE_SELECTED_SCHOOL, { schoolId: school.UserCenterSchoolID, schoolName: school.Name });
+    console.log('school----', school)
+    store.commit(MutationTypes.UPDATE_SELECTED_SCHOOL, {schoolId: school.UserCenterSchoolID, schoolName: school.Name});
 };
 const showCacheDialog = ref(false);
 
@@ -59,9 +64,11 @@ const useLogout = () => {
             <el-sub-menu index="user">
                 <template #title>
                     <div class="avatar-wrapper">
-                        <img src="./img/avator_small.svg" />
+                        <img src="./img/avator_small.svg"/>
                         <span class="name">{{ name || "匿名" }}</span>
-                        <el-icon class="icon"><CaretBottom /></el-icon>
+                        <el-icon class="icon">
+                            <CaretBottom/>
+                        </el-icon>
                     </div>
                 </template>
                 <el-menu-item index="user-info" class="nav-user-info-box">
@@ -99,13 +106,13 @@ const useLogout = () => {
                 <el-sub-menu index="school-list" class="user-list-item">
                     <template #title>
                         <div class="user-list-item">
-                            {{schoolName}}
+                            {{ schoolName }}
                         </div>
                     </template>
                     <el-menu-item :index="item.ID" v-for="item in schoolList" :key="item.ID">
                         <template #title>
                             <div class="user-list-item" @click="selectSchool(item)">
-                                {{item.Name}}
+                                {{ item.Name }}
                             </div>
                         </template>
                     </el-menu-item>
@@ -197,7 +204,7 @@ const useLogout = () => {
             </template>
         </el-dropdown> -->
     </div>
-    <Feedback ref="feedbackRef" />
+    <Feedback ref="feedbackRef"/>
     <Suspense v-if="isElectron()">
         <ClearCacheDialog
             v-if="showCacheDialog"
@@ -205,7 +212,7 @@ const useLogout = () => {
         />
     </Suspense>
     <Suspense v-if="isElectron()">
-        <AutoClearCache />
+        <AutoClearCache/>
     </Suspense>
 </template>
 
@@ -216,15 +223,18 @@ const useLogout = () => {
     align-items: center;
     -webkit-app-region: no-drag;
 }
+
 .avatar-wrapper {
     display: flex;
     align-items: center;
+
     .name {
         margin: 0 8px;
         font-size: 14px;
         color: #fff;
         text-align: center;
     }
+
     .icon {
         color: #fff;
     }
@@ -235,6 +245,7 @@ const useLogout = () => {
     line-height: 48px;
     border-bottom: 0;
     background-color: transparent !important;
+
     :deep(.el-sub-menu__title) {
         height: 48px;
         line-height: 48px;

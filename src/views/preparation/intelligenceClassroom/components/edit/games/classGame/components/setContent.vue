@@ -63,8 +63,8 @@
                 />
                 <span>添加分类</span>
                 <span
-                    >( <span class="num">{{ form.classData.length }}</span
-                    >/5 )</span
+                >( <span class="num">{{ form.classData.length }}</span
+                >/5 )</span
                 >
             </div>
             <div class="content-box">
@@ -121,7 +121,10 @@
                                         class="avatar"
                                     />
                                     <el-icon v-else class="avatar-uploader-icon"
-                                        ><Plus />上传图片</el-icon
+                                    >
+                                        <Plus/>
+                                        上传图片
+                                    </el-icon
                                     >
                                 </el-upload>
                             </el-form-item>
@@ -167,7 +170,10 @@
                                             <el-icon
                                                 v-else
                                                 class="avatar-uploader-icon"
-                                                ><Plus />上传图片</el-icon
+                                            >
+                                                <Plus/>
+                                                上传图片
+                                            </el-icon
                                             >
                                         </el-upload>
                                     </el-form-item>
@@ -198,7 +204,9 @@
                                 </div>
                             </div>
                             <div class="add-btn" @click="addOption(index)">
-                                <el-icon :size="22"><Plus /></el-icon>
+                                <el-icon :size="22">
+                                    <Plus/>
+                                </el-icon>
                             </div>
                         </div>
                     </div>
@@ -212,10 +220,11 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, toRefs, computed, ref } from "vue";
-import { ElMessage } from "element-plus";
-import { cooOss, getOssUrl } from "@/utils/oss";
-import { get, STORAGE_TYPES } from "@/utils/storage";
+import {defineComponent, reactive, toRefs, computed, ref} from "vue";
+import {ElMessage} from "element-plus";
+import {cooOss, getOssUrl} from "@/utils/oss";
+import {get, STORAGE_TYPES} from "@/utils/storage";
+
 export default defineComponent({
     name: "classGame",
     props: {
@@ -239,8 +248,8 @@ export default defineComponent({
                             Extention: "",
                             Type: 2,
                         },
-                        Position: { x: 200, y: 800 },
-                        Size: { Width: 240, Height: 168 },
+                        Position: {x: 200, y: 800},
+                        Size: {Width: 240, Height: 168},
                         Item: [
                             {
                                 Data: "",
@@ -253,8 +262,8 @@ export default defineComponent({
                                     Extention: "",
                                     Type: 2,
                                 },
-                                Position: { x: 200, y: 168 },
-                                Size: { Width: 240, Height: 168 },
+                                Position: {x: 200, y: 168},
+                                Size: {Width: 240, Height: 168},
                             },
                         ],
                     },
@@ -263,23 +272,23 @@ export default defineComponent({
         },
     },
     emits: ["save"],
-    setup(props, { emit }) {
+    setup(props, {emit}) {
         const state = reactive({
             typeList: [
-                { name: "文本+文本", value: 1 },
-                { name: "图片+文本", value: 2 },
-                { name: "图片+图片", value: 3 },
-                { name: "文本+图片", value: 4 },
+                {name: "文本+文本", value: 1},
+                {name: "图片+文本", value: 2},
+                {name: "图片+图片", value: 3},
+                {name: "文本+图片", value: 4},
             ],
             optionList: [
-                { name: "树林", value: 0 },
-                { name: "沙滩", value: 1 },
-                { name: "雪地", value: 2 },
+                {name: "树林", value: 0},
+                {name: "沙滩", value: 1},
+                {name: "雪地", value: 2},
             ],
             rules: {
                 Data: [
-                    { required: true, message: "请输入", trigger: "blur" },
-                    { max: 8, message: "最多8字符", trigger: "blur" },
+                    {required: true, message: "请输入", trigger: "blur"},
+                    {max: 8, message: "最多8字符", trigger: "blur"},
                 ],
                 File: [
                     {
@@ -308,8 +317,8 @@ export default defineComponent({
                         Extention: "",
                         Type: 2,
                     },
-                    Position: { x: 200, y: 600 },
-                    Size: { Width: 297, Height: 377 },
+                    Position: {x: 200, y: 600},
+                    Size: {Width: 297, Height: 377},
                     Item: [
                         {
                             Data: "",
@@ -325,8 +334,8 @@ export default defineComponent({
                                 FilePath: "",
                                 Extention: "",
                             },
-                            Position: { x: 200, y: 168 },
-                            Size: { Width: 240, Height: 168 },
+                            Position: {x: 200, y: 168},
+                            Size: {Width: 240, Height: 168},
                         },
                     ],
                 },
@@ -429,7 +438,7 @@ export default defineComponent({
                     x: 260 * (form.value.classData.length + 1),
                     y: 600,
                 },
-                Size: { Width: 297, Height: 377 },
+                Size: {Width: 297, Height: 377},
                 Item: [
                     {
                         Data: "",
@@ -450,7 +459,7 @@ export default defineComponent({
                             x: 200,
                             y: 168 * (form.value.classData.length + 1),
                         },
-                        Size: { Width: 240, Height: 168 },
+                        Size: {Width: 240, Height: 168},
                     },
                 ],
             });
@@ -480,7 +489,7 @@ export default defineComponent({
                     x: 200 * (form.value.classData[index].Item.length + 1),
                     y: 168 * (index + 1),
                 },
-                Size: { Width: 240, Height: 168 },
+                Size: {Width: 240, Height: 168},
             });
         };
 
@@ -520,16 +529,20 @@ export default defineComponent({
     height: 100%;
     overflow-y: auto;
 }
+
 .header {
     display: flex;
     align-items: center;
     justify-content: flex-start;
+
     .el-select {
         width: 120px;
     }
+
     .el-radio {
         margin-right: 20px;
     }
+
     .el-input-number {
         width: 110px;
     }
@@ -541,19 +554,23 @@ export default defineComponent({
     font-size: 16px;
     font-weight: 600;
     margin-bottom: 20px;
+
     img {
         cursor: pointer;
         width: 25px;
         height: 25px;
         padding-bottom: 4px;
     }
+
     span {
         margin-left: 4px;
     }
+
     .num {
         color: var(--el-color-primary);
     }
 }
+
 .content-box {
     .text {
         display: flex;
@@ -561,6 +578,7 @@ export default defineComponent({
         font-size: 14px;
         font-weight: 600;
         margin-bottom: 10px;
+
         img {
             cursor: pointer;
             width: 16px;
@@ -568,17 +586,21 @@ export default defineComponent({
             margin-right: 4px;
         }
     }
+
     .row {
         display: flex;
         justify-content: flex-start;
     }
+
     .asterisk-left {
         width: 126px;
         height: 94px;
     }
+
     .option-col {
         position: relative;
         margin-left: 10px;
+
         .del_img {
             width: 18px;
             height: 18px;
@@ -611,12 +633,14 @@ export default defineComponent({
 
 .avatar-uploader {
     line-height: 20px !important;
+
     .avatar {
         display: block;
         border-radius: 6px;
         width: 126px;
         height: 94px;
     }
+
     .el-upload {
         border-radius: 6px;
         cursor: pointer;
@@ -624,6 +648,7 @@ export default defineComponent({
         overflow: hidden;
         transition: var(--el-transition-duration-fast);
     }
+
     .el-icon.avatar-uploader-icon {
         border: 1px solid var(--el-border-color);
         font-size: 14px;

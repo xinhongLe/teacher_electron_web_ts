@@ -3,7 +3,7 @@
         <el-form ref="formRef" :model="form" :rules="rules" label-width="100px" label-position="right">
             <div class="header">
                 <el-form-item label="每题时间(秒)：" prop="Time" label-width="120px">
-                    <el-input v-model.number="form.Time" />
+                    <el-input v-model.number="form.Time"/>
                 </el-form-item>
                 <el-form-item label="两边题目模式：" label-width="120px">
                     <el-radio-group v-model="form.Mode">
@@ -19,14 +19,14 @@
                 </el-form-item>
             </div>
             <div class="add-box">
-                <img @click = addQuestion src="@/assets/projection/icon_add_btn.png" alt="">
+                <img @click=addQuestion src="@/assets/projection/icon_add_btn.png" alt="">
                 <span>新增分类</span>
-                <span>( <span class="num">{{form.Data.length}}</span>/10 )</span>
+                <span>( <span class="num">{{ form.Data.length }}</span>/10 )</span>
             </div>
             <div class="content-box">
                 <div v-for="(item, index) in form.Data" :key="index" class="content">
                     <div class="first-row">
-                        <div>{{index + 1}}</div>
+                        <div>{{ index + 1 }}</div>
                         <div v-if="index !== 0" class="text" @click="delQuestion(index)">移除</div>
                     </div>
                     <el-form-item label="题目类型：">
@@ -35,8 +35,9 @@
                             <el-radio :label="0">图片</el-radio>
                         </el-radio-group>
                     </el-form-item>
-                    <el-form-item v-if="item.Type === 1" label="题目：" :prop="`Data[${index}].Question`" :rules="rules.Question">
-                        <el-input v-model="item.Question"  :autosize="{ minRows: 4, maxRows: 4 }" type="textarea"/>
+                    <el-form-item v-if="item.Type === 1" label="题目：" :prop="`Data[${index}].Question`"
+                                  :rules="rules.Question">
+                        <el-input v-model="item.Question" :autosize="{ minRows: 4, maxRows: 4 }" type="textarea"/>
                     </el-form-item>
                     <el-form-item v-else label="题目：" :prop="`Data[${index}].File.url`" :rules="rules.File">
                         <el-upload
@@ -47,8 +48,10 @@
                             :on-change="(file) => onChange(file, index)"
                             :show-file-list="false"
                         >
-                            <img v-if="item.File.url" :src="item.File.url" class="avatar" />
-                            <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
+                            <img v-if="item.File.url" :src="item.File.url" class="avatar"/>
+                            <el-icon v-else class="avatar-uploader-icon">
+                                <Plus/>
+                            </el-icon>
                             <template #tip>
                                 <div class="el-upload__tip">
                                     <span>支持jpg.jpeg.gif.png</span>
@@ -72,12 +75,14 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, PropType, reactive, ref, toRefs } from "vue";
-import { cooOss, getOssUrl } from "@/utils/oss";
-import { carSet, getTeacherPageGameConfig } from "@/api/game";
-import { ElMessage } from "element-plus";
-import { Slide } from "wincard";
-import { get, STORAGE_TYPES } from "@/utils/storage";
+import {defineComponent, onMounted, PropType, reactive, ref, toRefs} from "vue";
+import {cooOss, getOssUrl} from "@/utils/oss";
+import {runningGameSet, getTeacherPageGameConfig} from "@/api/game";
+import {ElMessage} from "element-plus";
+import {Slide} from "wincard";
+import {get, STORAGE_TYPES} from "@/utils/storage";
+import runningGame from "@/views/preparation/intelligenceClassroom/components/edit/games/RunningGame.vue";
+
 export default defineComponent({
     name: "carGame",
     props: {
@@ -87,24 +92,34 @@ export default defineComponent({
         }
     },
     emits: ["save"],
-    setup(props, { emit }) {
+    setup(props, {emit}) {
         const state = reactive({
             rules: {
-                Time: [{ required: true, message: "请输入时间", trigger: "blur" }],
+                Time: [{required: true, message: "请输入时间", trigger: "blur"}],
                 Question: [
-                    { required: true, message: "请输入题目", trigger: "blur" },
-                    { max: 60, message: "最多60字符", trigger: "blur" }
+                    {required: true, message: "请输入题目", trigger: "blur"},
+                    {max: 60, message: "最多60字符", trigger: "blur"}
                 ],
-                Select: [{ required: true, message: "请选择答案", trigger: "blur" }],
-                File: [{ required: true, message: "请上传图片", trigger: ["change", "blur"] }]
+                Select: [{required: true, message: "请选择答案", trigger: "blur"}],
+                File: [{required: true, message: "请上传图片", trigger: ["change", "blur"]}]
             },
             form: {
                 Time: "",
                 Mode: 0,
                 Order: 0,
                 Data: [
-                    { Type: 1, Question: "", Select: "", File: { url: "", Bucket: "", Name: "", FileName: "", FilePath: "", Extention: "", Type: 2 } },
-                    { Type: 1, Question: "", Select: "", File: { url: "", Bucket: "", Name: "", FileName: "", FilePath: "", Extention: "", Type: 2 } }
+                    {
+                        Type: 1,
+                        Question: "",
+                        Select: "",
+                        File: {url: "", Bucket: "", Name: "", FileName: "", FilePath: "", Extention: "", Type: 2}
+                    },
+                    {
+                        Type: 1,
+                        Question: "",
+                        Select: "",
+                        File: {url: "", Bucket: "", Name: "", FileName: "", FilePath: "", Extention: "", Type: 2}
+                    }
                 ]
             }
         });
@@ -114,14 +129,19 @@ export default defineComponent({
                 return ElMessage.warning("最多只能新增10道题目");
             }
             state.form.Data.push(
-                { Type: 1, Question: "", Select: "", File: { url: "", Bucket: "", Name: "", FileName: "", FilePath: "", Extention: "", Type: 2 } }
+                {
+                    Type: 1,
+                    Question: "",
+                    Select: "",
+                    File: {url: "", Bucket: "", Name: "", FileName: "", FilePath: "", Extention: "", Type: 2}
+                }
             );
         };
-        const delQuestion = (index:number) => {
+        const delQuestion = (index: number) => {
             state.form.Data.splice(index, 1);
         };
 
-        const upload = async (file:any, index:number) => {
+        const upload = async (file: any, index: number) => {
             const filePath = await cooOss(file, get(STORAGE_TYPES.OSS_PATHS)?.["ElementFile"]);
             const fileInfo = await getOssUrl(filePath?.objectKey as string, get(STORAGE_TYPES.OSS_PATHS)?.["ElementFile"].Bucket);
             state.form.Data[index].File = {
@@ -135,10 +155,10 @@ export default defineComponent({
             };
         };
 
-        const onChange = (file:any, index:number) => {
+        const onChange = (file: any, index: number) => {
             if (file) {
                 var reader = new FileReader();
-                reader.onload = function (event:any) {
+                reader.onload = function (event: any) {
                     var base64 = event.target.result;
                     var img = document.createElement("img");
                     img.src = base64;
@@ -157,7 +177,7 @@ export default defineComponent({
 
         const formRef = ref();
         const handleComfirm = () => {
-            formRef.value.validate((valid:boolean) => {
+            formRef.value.validate((valid: boolean) => {
                 if (valid) {
                     const list = state.form.Data.map((item: any, index: number) => {
                         item.sort = index + 1;
@@ -181,8 +201,8 @@ export default defineComponent({
             });
         };
 
-        const _carSet = (data:any) => {
-            carSet(data).then(res => {
+        const _carSet = (data: any) => {
+            runningGameSet(data).then(res => {
                 if (res.resultCode === 200) {
                     const data = {
                         ID: props.slide?.game?.id,
@@ -196,7 +216,7 @@ export default defineComponent({
         };
 
         onMounted(() => {
-            getTeacherPageGameConfig({ PageID: props.slide!.id }).then(async res => {
+            getTeacherPageGameConfig({PageID: props.slide!.id}).then(async res => {
                 if (res.resultCode === 200 && res.result.Config) {
                     const files = res.result.Config.Data || [];
                     for (let i = 0; i < files.length; i++) {
@@ -227,46 +247,52 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-.m_r_14{
+.m_r_14 {
     margin-right: 14px;
 }
 
-.header{
+.header {
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    >div{
+
+    > div {
         margin-right: 20px;
     }
 }
-.add-box{
+
+.add-box {
     display: flex;
     align-items: center;
     font-size: 16px;
     font-weight: 600;
     margin-bottom: 20px;
-    img{
+
+    img {
         cursor: pointer;
         width: 25px;
         height: 25px;
         padding-bottom: 4px;
     }
-    span{
+
+    span {
         margin-left: 4px;
     }
-    .num{
+
+    .num {
         color: var(--el-color-primary);
     }
 }
 
-.content-box{
+.content-box {
     height: 600px;
     display: flex;
     justify-content: flex-start;
     flex-wrap: wrap;
     overflow-y: auto;
 }
-.content{
+
+.content {
     box-sizing: border-box;
     width: 390px;
     height: 300px;
@@ -274,25 +300,29 @@ export default defineComponent({
     padding: 24px;
     margin-bottom: 20px;
     margin-right: 20px;
-    .first-row{
+
+    .first-row {
         display: flex;
         justify-content: space-between;
         margin-bottom: 10px;
-        .text{
+
+        .text {
             color: var(--el-color-primary);
             cursor: pointer;
         }
     }
 }
 
-.avatar-uploader{
+.avatar-uploader {
     line-height: 20px !important;
+
     .avatar {
         display: block;
         border-radius: 6px;
         width: 96px;
         height: 96px;
     }
+
     .el-upload {
         border-radius: 6px;
         cursor: pointer;
@@ -300,6 +330,7 @@ export default defineComponent({
         overflow: hidden;
         transition: var(--el-transition-duration-fast);
     }
+
     .el-icon.avatar-uploader-icon {
         border: 1px solid var(--el-border-color);
         font-size: 28px;

@@ -90,6 +90,7 @@ const store = useStore();
 watch(() => props.course, async (val: ICourse) => {
     setValueAddLessonBag(props.course)
     await getMyLessonBagNew({id: val.lessonId});
+    if (!val.lessonId) return;
     if (!lessonPackageList.value.length) {
         addLessonBag.value.name = "备课包1";
         const res = await addLessonPackage(addLessonBag.value);
@@ -99,7 +100,7 @@ watch(() => props.course, async (val: ICourse) => {
         }
     } else {
         emitter.emit("updateResourceList", []);
-        // selectPackage(lessonPackageList.value[0])
+        selectPackage(lessonPackageList.value[0])
     }
 }, {deep: true, immediate: true})
 

@@ -7,7 +7,7 @@
             :before-close="close"
             :show-close="false"
         >
-            <template #title>
+            <template #header>
                 <p class="custitle-pure">
                     <span class="text">正在查看同类题</span>
                     <!-- 错题本添加试题篮 -->

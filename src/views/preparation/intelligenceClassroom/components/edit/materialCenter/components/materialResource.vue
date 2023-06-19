@@ -19,7 +19,9 @@
         <div class="material-con">
             <div class="tag-data" v-if="isShowTag && !isColInner">
                 <div class="tags">
-                    <el-icon @click="clearTag"><Close /></el-icon>
+                    <el-icon @click="clearTag">
+                        <Close/>
+                    </el-icon>
                     <span
                         v-for="(item, index) in (categoryData as any)"
                         :key="index"
@@ -40,7 +42,7 @@
                                 clickClassTag(item.Id);
                                 currentClassIndex = item.Id;
                             "
-                            >{{ item.Name }}</el-check-tag
+                        >{{ item.Name }}</el-check-tag
                         >
                         <!-- <span v-if="index !== categoryData.length - 1"> | </span> -->
                     </span>
@@ -84,7 +86,7 @@
                                     v-if="row.Materials?.length > 2"
                                     class="icon-box"
                                     @click="getAllList(row)"
-                                    >更多<el-icon><ArrowRight /></el-icon
+                                >更多<el-icon><ArrowRight/></el-icon
                                 ></span>
                             </div>
                             <div
@@ -94,8 +96,8 @@
                                 <span
                                     @click="goBackAllList"
                                     class="title back-text"
-                                    ><el-icon><ArrowLeft /></el-icon
-                                    >{{ row.Name }}</span
+                                ><el-icon><ArrowLeft/></el-icon
+                                >{{ row.Name }}</span
                                 >
                             </div>
                         </div>
@@ -138,11 +140,13 @@
                                     effect="dark"
                                     :hide-after="0"
                                 >
-                                    <el-image
-                                        :draggable="false"
-                                        :src="item.url"
-                                        fit="contain"
-                                    />
+                                    <div>
+                                        <el-image
+                                            :draggable="false"
+                                            :src="item.url"
+                                            fit="contain"
+                                        />
+                                    </div>
                                 </el-tooltip>
                             </div>
                         </div>
@@ -192,11 +196,13 @@
                                     effect="dark"
                                     :hide-after="0"
                                 >
-                                    <el-image
-                                        :draggable="false"
-                                        :src="item.url"
-                                        fit="contain"
-                                    />
+                                    <div>
+                                        <el-image
+                                            :draggable="false"
+                                            :src="item.url"
+                                            fit="contain"
+                                        />
+                                    </div>
                                 </el-tooltip>
                             </div>
                         </div>
@@ -238,12 +244,13 @@
                                     effect="dark"
                                     :hide-after="0"
                                 >
-                                    <el-image
-                                        :draggable="false"
-                                        v-if="item.url"
-                                        :src="item.url"
-                                        fit="cover"
-                                    />
+                                    <div>
+                                        <el-image
+                                            :draggable="false"
+                                            :src="item.url"
+                                            fit="contain"
+                                        />
+                                    </div>
                                 </el-tooltip>
 
                                 <p>{{ item.Name }}</p>
@@ -304,12 +311,13 @@
                                         effect="dark"
                                         :hide-after="0"
                                     >
-                                        <el-image
-                                            :draggable="false"
-                                            v-if="item.url"
-                                            :src="item.url"
-                                            fit="contain"
-                                        />
+                                        <div>
+                                            <el-image
+                                                :draggable="false"
+                                                :src="item.url"
+                                                fit="contain"
+                                            />
+                                        </div>
                                     </el-tooltip>
                                 </div>
                             </div>
@@ -340,12 +348,13 @@
                                         effect="dark"
                                         :hide-after="0"
                                     >
-                                        <el-image
-                                            :draggable="false"
-                                            v-if="item.url"
-                                            :src="item.url"
-                                            fit="cover"
-                                        />
+                                        <div>
+                                            <el-image
+                                                :draggable="false"
+                                                :src="item.url"
+                                                fit="contain"
+                                            />
+                                        </div>
                                     </el-tooltip>
                                     <p>{{ item.Name }}</p>
                                 </div>
@@ -418,11 +427,15 @@
                                         </video>
                                         <div class="playicon">
                                             <el-icon v-if="item.isPlay"
-                                                ><VideoPause
-                                            /></el-icon>
+                                            >
+                                                <VideoPause
+                                                />
+                                            </el-icon>
                                             <el-icon v-else
-                                                ><VideoPlay
-                                            /></el-icon>
+                                            >
+                                                <VideoPlay
+                                                />
+                                            </el-icon>
                                         </div>
                                         <span>
                                             {{ item.currentTime || "00:00" }} /
@@ -492,8 +505,8 @@
                                         {{ item.Name }}
                                     </div>
                                     <span class="gary-text">{{
-                                        item.Remarks
-                                    }}</span>
+                                            item.Remarks
+                                        }}</span>
                                 </div>
                             </div>
                         </div>
@@ -558,24 +571,25 @@ import { Search, VideoPause, VideoPlay, Close } from "@element-plus/icons-vue";
 import useSaveElements from "../hooks/useSaveElements";
 import useSaveTemplate from "@/views/preparation/intelligenceClassroom/edit/hooks/useSaveTemplate";
 import { ElMessageBox } from "element-plus";
+
 export default defineComponent({
     name: "materialResource",
     props: {
         subjectID: {
             type: String,
-            required: true,
+            required: true
         },
         lessonId: {
             type: String,
-            required: true,
-        },
+            required: true
+        }
     },
     emits: ["insertData", "insertTools"],
     components: {
         VideoPause,
         VideoPlay,
         Close,
-        TemplateView,
+        TemplateView
     },
     setup(props, { emit }) {
         const proxy = getCurrentInstance();
@@ -592,7 +606,7 @@ export default defineComponent({
             allPageListMap,
             queryToolList,
             toolList,
-            pager,
+            pager
         } = useSaveTemplate();
         const isShowTag = ref(false);
         // computed(() => {
@@ -609,14 +623,14 @@ export default defineComponent({
                     ChapterID: "",
                     LessonID: [props.lessonId],
                     SourceMaterialMainID: "",
-                    CollectionsMainID: "",
+                    CollectionsMainID: ""
                 },
                 Lable: "",
                 Pager: {
                     PageNumber: 1,
                     PageSize: 9,
-                    Total: 0,
-                },
+                    Total: 0
+                }
             },
             activeIndex: 0,
             isAllList: false,
@@ -627,7 +641,7 @@ export default defineComponent({
                 { name: "插画", value: 3 },
                 { name: "标题框", value: 4 },
                 { name: "视频", value: 5 },
-                { name: "音频", value: 6 },
+                { name: "音频", value: 6 }
                 // { name: '题目', value: 7 },
                 // { name: '工具', value: 8 }
             ],
@@ -639,20 +653,20 @@ export default defineComponent({
             collectionInnerData: {
                 Id: "",
                 Name: "",
-                Files: [],
+                Files: []
             }, //合计内页中插画文件列表
             currentAllType: 0,
             visibleView: false, //视频预览
             currentSelectTemplate: [], //当前选择的模板
             disabled: false, //是否终止滚动加载
-            loading: false,
+            loading: false
         });
         const contextMenuVisible = ref(false);
         const contextMenu = ref({
             rightClickItemIndex: null,
             rightClickItem: null,
             x: null,
-            y: null,
+            y: null
         });
         const noMore = computed(() => pager.value.IsLastPage); //不在显示更多
         const templateScollRef = ref(); //滚动区域
@@ -703,7 +717,7 @@ export default defineComponent({
                 if (isShowTag.value) {
                     queryCategoryByMaterialType({
                         Type: val,
-                        MaterialId: "",
+                        MaterialId: ""
                     });
                 }
                 materialList.value = [];
@@ -752,7 +766,7 @@ export default defineComponent({
                         materialList.value.unshift({
                             Materials: toolList.value,
                             Name: "教具",
-                            Type: 1,
+                            Type: 1
                         });
                     }
                 }
@@ -816,7 +830,7 @@ export default defineComponent({
                 isShowTag.value = true;
                 queryCategoryByMaterialType({
                     Type: row.Type,
-                    MaterialId: "",
+                    MaterialId: ""
                 });
             } else {
                 isShowTag.value = false;
@@ -842,7 +856,7 @@ export default defineComponent({
             //查询推荐合集
             const params = {
                 Id: item.Id,
-                Lable: state.currentClassIndex,
+                Lable: state.currentClassIndex
             };
             getAdviceCollection(params);
         };
@@ -854,7 +868,7 @@ export default defineComponent({
             } else {
                 emit("insertData", {
                     data,
-                    type: "elements",
+                    type: "elements"
                 });
             }
         };
@@ -864,11 +878,11 @@ export default defineComponent({
             ElMessageBox.confirm("确定要删除当前选择的组件吗？", "提示", {
                 confirmButtonText: "确定",
                 cancelButtonText: "取消",
-                type: "warning",
+                type: "warning"
             })
                 .then(async () => {
                     const res: any = await deleteSourceAssembly({
-                        Id: data.Id,
+                        Id: data.Id
                     });
                     if (res) {
                         materialList.value.forEach((li: any) => {
@@ -885,7 +899,8 @@ export default defineComponent({
                         // queryMaterialList();
                     }
                 })
-                .catch(() => {});
+                .catch(() => {
+                });
         };
         //标题框右击菜单
         const TContextmenus = (el: any, data: any) => {
@@ -952,7 +967,7 @@ export default defineComponent({
             const data = {
                 name: state.searchForm.Name,
                 bookID: "",
-                bookIDs: [] as string[],
+                bookIDs: [] as string[]
             };
             await queryToolList(data);
         };
@@ -1013,9 +1028,9 @@ export default defineComponent({
             insertJiaoJu,
             noMore,
             loadMore,
-            templateScollRef,
+            templateScollRef
         };
-    },
+    }
 });
 </script>
 
@@ -1025,6 +1040,7 @@ export default defineComponent({
     justify-content: flex-start;
     flex-wrap: wrap;
     margin-bottom: 20px;
+
     > div {
         display: flex;
         justify-content: center;
@@ -1037,34 +1053,42 @@ export default defineComponent({
         margin-right: 9px;
         font-size: 15px;
     }
+
     .active {
         background: #2e95ff;
         color: #fff;
     }
 }
+
 .material-con {
     display: flex;
     flex-direction: column;
     height: calc(100% - 120px);
+
     .tag-data {
         margin-top: 20px;
+
         .tags {
             display: flex;
             align-items: center;
             flex-wrap: wrap;
+
             .el-icon {
                 margin-right: 5px;
                 color: red;
                 cursor: pointer;
                 font-size: 14px;
             }
+
             .el-icon:hover {
                 opacity: 0.8;
             }
+
             span {
                 // padding-right: 5px;
                 margin-right: 5px;
             }
+
             :deep(.el-check-tag) {
                 font-size: 14px;
                 // font-weight: 600;
@@ -1085,6 +1109,7 @@ export default defineComponent({
             font-size: 14px;
             color: #90949e;
             margin: 24px 0 0px;
+
             .title {
                 display: flex;
                 align-items: center;
@@ -1092,11 +1117,13 @@ export default defineComponent({
                 font-weight: 600;
                 color: #212121;
             }
+
             .icon-box {
                 display: flex;
                 align-items: center;
                 cursor: pointer;
             }
+
             .back-text {
                 cursor: pointer;
             }
@@ -1120,10 +1147,12 @@ export default defineComponent({
             display: flex;
             align-items: center;
             cursor: pointer;
+
             img {
                 margin-left: 5px;
             }
         }
+
         .data-text {
             cursor: pointer;
             display: flex;
@@ -1131,14 +1160,17 @@ export default defineComponent({
             font-size: 14px;
             font-weight: 600;
             color: #212121;
+
             img {
                 margin-right: 5px;
             }
         }
+
         .row-content {
             display: flex;
             justify-content: flex-start;
             flex-wrap: wrap;
+
             > div {
                 width: 30.3%;
                 box-shadow: 0px 3px 7px 0px rgba(0, 0, 0, 0.1);
@@ -1148,21 +1180,25 @@ export default defineComponent({
                 padding: 10px;
                 text-align: center;
                 background: #f6f7f8;
+
                 .el-image {
                     width: 100%;
                     height: 130px;
                 }
             }
+
             .collection {
                 background: #fff;
                 border: 1px solid #d8dbdd;
                 position: relative;
                 border-bottom: 2px double #bfbfbf;
                 padding: 0;
+
                 .el-image {
                     width: 100%;
                     height: 120px;
                 }
+
                 .count {
                     position: absolute;
                     right: 3px;
@@ -1178,6 +1214,7 @@ export default defineComponent({
                     color: #ffffff;
                     z-index: 99;
                 }
+
                 p {
                     margin: 12px 0;
                     font-size: 14px;
@@ -1186,9 +1223,11 @@ export default defineComponent({
 
             .jiaoju {
                 padding: 0;
+
                 :deep(.el-image) {
                     height: 100px;
                 }
+
                 .title-text {
                     height: 26px;
                     line-height: 26px;
@@ -1218,10 +1257,12 @@ export default defineComponent({
                     width: 100%;
                     height: 100%;
                     position: relative;
+
                     video {
                         width: 100%;
                         height: 100%;
                     }
+
                     span {
                         position: absolute;
                         right: 4px;
@@ -1229,12 +1270,14 @@ export default defineComponent({
                         color: #fff;
                         font-size: 12px;
                     }
+
                     .playicon {
                         cursor: pointer;
                         position: absolute;
                         top: 50%;
                         left: 50%;
                         transform: translate(-50%, -50%);
+
                         .el-icon {
                             backdrop-filter: blur(5px);
                             font-size: 20px;
@@ -1242,14 +1285,17 @@ export default defineComponent({
                         }
                     }
                 }
+
                 .audio-img {
                     width: 100%;
                     height: 100%;
                     position: relative;
+
                     .el-image {
                         width: 100%;
                         height: 100%;
                     }
+
                     span {
                         position: absolute;
                         right: 4px;
@@ -1257,6 +1303,7 @@ export default defineComponent({
                         color: #fff;
                         font-size: 12px;
                     }
+
                     .lines {
                         cursor: pointer;
                         position: absolute;
@@ -1265,12 +1312,14 @@ export default defineComponent({
                         transform: translateX(-50%);
                         display: flex;
                         align-items: center;
+
                         .duan {
                             margin: 1px;
                             width: 2px;
                             height: 6px;
                             background-color: #fff;
                         }
+
                         .chang {
                             margin: 1px;
                             width: 2px;
@@ -1285,19 +1334,23 @@ export default defineComponent({
                 flex: 1;
                 flex-wrap: wrap;
             }
+
             // img {
             //   width: 96px;
             //   height: 72px;
             //   margin-right: 20px;
             // }
         }
+
         .row-video:hover {
             opacity: 0.8;
+
             .duan,
             .chang {
                 opacity: 0.5;
             }
         }
+
         .row-topic {
             display: flex;
             justify-content: space-between;
@@ -1306,17 +1359,20 @@ export default defineComponent({
             margin: 20px 0;
             padding: 20px 10px;
             background: #f6f7f8;
+
             .type-topic {
                 border-radius: 4px;
                 padding: 4px;
                 margin-right: 20px;
             }
+
             .type-topic-active {
                 color: #2e95ff;
                 border: 1px solid #2e95ff;
             }
         }
     }
+
     .nomore,
     .loadmore {
         margin-top: 10px;
@@ -1324,6 +1380,7 @@ export default defineComponent({
         margin-bottom: 10px;
         font-size: 12px;
     }
+
     .loadmore {
         cursor: pointer;
     }

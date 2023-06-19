@@ -28,28 +28,20 @@
                     ref="componentRef"
                 />
             </div>
-<!--            <div class="toresourse">-->
-<!--                <div class="text">-->
-<!--                    前往-->
-<!--                    <span @click="router.push('/resource-center')">【资源中心】</span>-->
-<!--                    搜索更多-->
-<!--                </div>-->
-<!--            </div>-->
         </div>
     </div>
 </template>
 
 <script lang="ts">
-import {defineComponent, markRaw, reactive, ref, toRefs, computed, watch, nextTick} from "vue";
+import { defineComponent, markRaw, reactive, ref, toRefs, computed, nextTick } from "vue";
 import materialTemplate from "./components/materialTemplate.vue";
 import myMaterial from "./components/myMaterial.vue";
 import materialResource from "./components/materialResource.vue";
-import {ITemplateSave} from "@/types/home";
-import {useRouter} from "vue-router";
-import {Rank} from "@element-plus/icons-vue";
+import { ITemplateSave } from "@/types/home";
+import { Rank } from "@element-plus/icons-vue";
 
 export default defineComponent({
-    components: {materialTemplate, myMaterial, materialResource, Rank},
+    components: { materialTemplate, myMaterial, materialResource, Rank },
     props: {
         subjectID: {
             type: String,
@@ -58,39 +50,28 @@ export default defineComponent({
         lessonId: {
             type: String,
             required: true
-        },
+        }
     },
     emits: ["insertData", "editTemplate", "insertTools"],
-    setup(props, {emit}) {
-        const router = useRouter();
+    setup(props, { emit }) {
         const componentRef = ref();
         const state = reactive({
             isOpen: false,
             activeName: 1,
             // currentComponent: materialTemplate,
             tabList: [
-                {label: "模版", name: 1},
-                {label: "素材", name: 2},
-                {label: "我的", name: 3}
+                { label: "模版", name: 1 },
+                { label: "素材", name: 2 },
+                { label: "我的", name: 3 }
             ],
             subjectID: computed(() => props.subjectID),
             lessonId: computed(() => props.lessonId)
         });
 
-        watch(
-            () => state.subjectID,
-            (curVal) => {
-                // state.subjectID = curVal;
-                // console.log("state.subjectID", state.subjectID);
-            },
-            {deep: true}
-        );
-
         const currentComponent = ref<any>(markRaw(materialTemplate));
 
         const switchMenu = () => {
             state.isOpen = !state.isOpen;
-            console.log(state.isOpen, "state.isOpen");
         };
 
         const handleClick = (value: number) => {
@@ -169,7 +150,6 @@ export default defineComponent({
         };
 
         return {
-            router,
             currentComponent,
             ...toRefs(state),
             switchMenu,

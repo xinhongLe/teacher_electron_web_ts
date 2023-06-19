@@ -2,11 +2,11 @@ import { getCurrentWindow, app, dialog } from "@electron/remote";
 import electron, { OpenDialogOptions, remote, SaveDialogOptions } from "electron";
 import { isExistFile, mkdirs, store } from "./downloadFile";
 import path, { resolve, join } from "path";
-import ElectronLog from "electron-log";
+import logger from "@/utils/logger";
 import fs from "fs";
 import { parsePPT, pptParsePath } from "./parsePPT";
 import { execFile as execFileFromAsar, spawn } from "child_process";
-import { darwinGetScreenPermissionGranted, darwinRequestScreenPermissionPopup, } from "./darwin";
+import { darwinGetScreenPermissionGranted, darwinRequestScreenPermissionPopup } from "./darwin";
 import { checkWindowSupportNet } from "./util";
 import { access, copyFile, mkdir, readFile, rm, stat, writeFile } from "fs/promises";
 import crypto from "crypto";
@@ -54,11 +54,11 @@ window.electron = {
     },
     isFullScreen: () => {
         const currentWindow = getCurrentWindow();
-        return currentWindow.isFullScreen();
+        return currentWindow.fullScreen;
     },
-    setFullScreen: () => {
+    setFullScreen: (flag: boolean) => {
         const currentWindow = getCurrentWindow();
-        currentWindow.setFullScreen(true);
+        currentWindow.setFullScreen(flag);
     },
     hideWindow: () => {
         const currentWindow = getCurrentWindow();
@@ -115,13 +115,13 @@ window.electron = {
         const filePath = resolve(downloadsPath, fileName);
         return new Promise(resolve => {
             access(filePath).then(() => resolve(true)).catch(() => resolve(false));
-        })
+        });
     },
     getFilePath: (fileName: string) => {
         const filePath = resolve(downloadsPath, fileName);
         return "file:///" + filePath.replaceAll("\\", "/");
     },
-    log: ElectronLog,
+    log: logger,
     getCacheFile: async (fileName: string) => {
         if (!fileName) return "";
         const filePath = resolve(downloadsPath, fileName);
@@ -131,10 +131,11 @@ window.electron = {
     getCachePath: (path: string) => {
         return resolve(downloadsPath, path);
     },
-    readFile: (path: string, callback: (buffer: ArrayBuffer) => void) => {
+    readFile: (path: string, callback: (buffer: ArrayBuffer | string) => void) => {
         fs.readFile(path, (err, buffer) => {
             if (err) {
-                ElectronLog.error("读取资源文件失败：", err);
+                logger.error("读取资源文件失败：", err);
+                callback(err.message);
             } else {
                 callback(buffer);
             }
@@ -143,7 +144,7 @@ window.electron = {
     savePutFile: (path: string, buffer: NodeJS.ArrayBufferView) => {
         fs.writeFile(path, buffer, (err) => {
             if (err) {
-                ElectronLog.error("写入资源文件失败：", err);
+                logger.error("写入资源文件失败：", err);
             }
         });
     },
@@ -202,6 +203,7 @@ window.electron = {
                         spawn(PATH_WhiteBoard);
                         return resolve(true);
                     }
+                    // eslint-disable-next-line prefer-promise-reject-errors
                     reject(false);
                 });
             })
@@ -225,13 +227,14 @@ window.electron = {
         };
 
         const aesDecrypt = (encrypted: string, key: string) => {
+            // eslint-disable-next-line node/no-deprecated-api
             const decipher = crypto.createDecipher("aes-128-ecb", key);
-            var decrypted = decipher.update(encrypted, "hex", "utf8");
+            let decrypted = decipher.update(encrypted, "hex", "utf8");
             decrypted += decipher.final("utf8");
             return decrypted;
         };
 
-        let downloadFiles = join(app.getPath("userData"), "files", "/");
+        const downloadFiles = join(app.getPath("userData"), "files", "/");
         await mkdirs(downloadFiles);
 
         if (!newpath) {
@@ -244,24 +247,24 @@ window.electron = {
             zipFileName: string,
             newpath: string
         ) => {
-            let zipPack = await readFile(zipFileName);
+            const zipPack = await readFile(zipFileName);
             let fileOffset = 0;
 
             const readFilesBuffer = async (zipFile: Buffer) => {
                 if (fileOffset > zipFile.length - 1) {
                     return;
                 }
-                let filenameLength = zipFile.readUInt8(fileOffset);
+                const filenameLength = zipFile.readUInt8(fileOffset);
                 fileOffset++;
-                let filename = zipFile.toString(
+                const filename = zipFile.toString(
                     "utf8",
                     fileOffset,
                     fileOffset + filenameLength
                 );
                 fileOffset += filenameLength;
-                let contentLength = zipFile.readUInt32BE(fileOffset);
+                const contentLength = zipFile.readUInt32BE(fileOffset);
                 fileOffset += 4;
-                let fileBuffer = zipFile.slice(
+                const fileBuffer = zipFile.slice(
                     fileOffset,
                     fileOffset + contentLength
                 );
@@ -280,7 +283,7 @@ window.electron = {
         try {
             await customUnZipFolder(zipFileName, newpath);
             let jsonFile = await readFile(newpath + `/${jsonFileName}`, {
-                encoding: "utf-8",
+                encoding: "utf-8"
             });
             jsonFile = aesDecrypt(jsonFile, "lyxpkg");
             return JSON.parse(jsonFile);
@@ -297,15 +300,16 @@ window.electron = {
             cards,
             pages,
             slides,
-            cacheFiles,
+            cacheFiles
         } = cacheData;
         const filePath = resolve(app.getPath("userData"), "files", windowName);
         const guid = () => {
             return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
                 /[xy]/g,
                 function (c) {
-                    var r = (Math.random() * 16) | 0,
-                        v = c == "x" ? r : (r & 0x3) | 0x8;
+                    const r = (Math.random() * 16) | 0;
+                    // eslint-disable-next-line eqeqeq
+                    const v = c == "x" ? r : (r & 0x3) | 0x8;
                     return v.toString(16);
                 }
             );
@@ -324,15 +328,16 @@ window.electron = {
         };
 
         const aesEncrypt = (data: string, key: string) => {
+            // eslint-disable-next-line node/no-deprecated-api
             const cipher = crypto.createCipher("aes-128-ecb", key);
-            var crypted = cipher.update(data, "utf8", "hex");
+            let crypted = cipher.update(data, "utf8", "hex");
             crypted += cipher.final("hex");
             return crypted;
         };
 
         try {
             await mkdirs(filePath);
-            let uuid = guid().replaceAll("-", "");
+            const uuid = guid().replaceAll("-", "");
             const jsonFileName = filePath + `/${uuid}app.json`;
             console.log("jsonFileName-------", jsonFileName);
 
@@ -346,7 +351,7 @@ window.electron = {
                         userId,
                         cards,
                         pages,
-                        slides,
+                        slides
                     }),
                     "lyxpkg"
                 )
@@ -362,19 +367,19 @@ window.electron = {
             }
 
             const customZipFolder = async (cacheFiles: Array<string>) => {
-                let fileArray = [];
-                for (let cacheFile of cacheFiles) {
-                    let fileName = cacheFile.replace("file:///", "");
-                    let item = await stat(fileName);
+                const fileArray = [];
+                for (const cacheFile of cacheFiles) {
+                    const fileName = cacheFile.replace("file:///", "");
+                    const item = await stat(fileName);
                     if (item.isFile()) {
-                        let nameLen = Buffer.alloc(1);
+                        const nameLen = Buffer.alloc(1);
                         nameLen.writeUInt8(path.basename(fileName).length);
-                        let name = Buffer.alloc(
+                        const name = Buffer.alloc(
                             path.basename(fileName).length,
                             path.basename(fileName)
                         );
-                        let content = fs.readFileSync(fileName);
-                        let contentLen = Buffer.alloc(4);
+                        const content = fs.readFileSync(fileName);
+                        const contentLen = Buffer.alloc(4);
                         contentLen.writeUInt32BE(content.length);
                         fileArray.push(nameLen);
                         fileArray.push(name);
@@ -387,9 +392,7 @@ window.electron = {
                 return _fileName;
             };
 
-            let customZipFile = await customZipFolder([...cacheFiles, jsonFileName]);
-
-            return customZipFile;
+            return await customZipFolder([...cacheFiles, jsonFileName]);
         } catch (e) {
             console.error("报错--", e);
             return "";
@@ -401,6 +404,9 @@ window.electron = {
         return new Promise((resolve, reject) => {
             const uuid = uuidv4();
             const outputPath = join(app.getPath("userData"), "files", `/${uuid}.mp4`);
+            if (!fs.existsSync(outputPath)) {
+                fs.mkdirSync(outputPath);
+            }
             try {
                 ffmpeg(filePath)
                     .videoCodec("libx264")
@@ -418,8 +424,8 @@ window.electron = {
     sliceVideoZip: (filePath: string, name: string) => {
         return new Promise((resolve, reject) => {
             const outputPath = join(app.getPath("userData"), "files");
-            if (!fs.existsSync(outputPath + `/${name}`)) {
-                fs.mkdirSync(outputPath + `/${name}`);
+            if (!fs.existsSync(join(outputPath, name))) {
+                fs.mkdirSync(join(outputPath, name));
             }
             try {
                 ffmpeg(filePath)
@@ -427,26 +433,22 @@ window.electron = {
                     .format("hls") // 输出视频格式
                     .outputOptions("-hls_list_size 0") //  -hls_list_size n:设置播放列表保存的最多条目，设置为0会保存有所片信息，默认值为5
                     .outputOption("-hls_time 15") // -hls_time n: 设置每片的长度，默认值为2。单位为秒
-                    .output(outputPath + `/${name}/video.m3u8`) // 输出文件
+                    .output(join(outputPath, name, "video.m3u8")) // 输出文件
                     .on("progress", (progress) => {
                         // 监听切片进度
-                        ElectronLog.info(name + ": Processing: " + progress.percent + "% done");
                     })
                     .on("end", () => {
                         // 监听结束
-                        ElectronLog.info(name + ": 视频切片完成");
                         const zip = new AdmZip();
 
-                        zip.addLocalFolderAsync(outputPath + `/${name}`, (success, err) => {
+                        zip.addLocalFolderAsync(join(outputPath, name), (success, err) => {
                             if (success) {
-                                ElectronLog.info("压缩" + name + "成功");
                                 const zipBuffer = zip.toBuffer();
                                 resolve(zipBuffer);
                             } else {
-                                ElectronLog.error("压缩失败: ", err);
+                                logger.error("压缩失败: ", err);
                             }
-                        })
-
+                        });
                         // zip.writeZip(outputPath + `/${name}.zip`);
 
                         // fs.readdir(outputPath + `/${name}`, (err, files) => {
@@ -475,5 +477,5 @@ window.electron = {
     },
     store: store,
     parsePPT,
-    ...electron,
+    ...electron
 };
