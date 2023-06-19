@@ -139,7 +139,7 @@
                             <span>拍照</span>
                         </div>
                         <div class="take-item" @click="switchToNextStu">
-                            <img src="../../../assets/composition/icon_next@2x.png" alt="" />
+                            <img src="../../../assets/composition/icon_finish@2x.png" alt="" />
                             <span>{{ isSupply ? '完成' : '提交并继续' }}</span>
                         </div>
                     </template>
@@ -430,7 +430,7 @@ const switchToNextStu = () => {
                 //
                 state.isModified = true
                 //
-                if (state.isSupply) {
+                if (state.isSupply) {7
                     // 跳走到列表
                     judgeClose()
                     emit('openList', { TeacherCompositionId: state.TeacherCompositionId, Title: state.Title, isTurnToWait: true })

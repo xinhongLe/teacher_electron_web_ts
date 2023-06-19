@@ -287,6 +287,10 @@ IgetStudentByHasEntry,
 > = (data) => {
     return request({
         baseURL: YUN_API_COMPOSITION,
+        headers: {
+            // "Content-Type": "application/json-patch+json",
+            noLoading: "true"
+        },
         url: "/Api/App/CompositionEntry/GetStudentByHasEntry",
         method: "post",
         data
