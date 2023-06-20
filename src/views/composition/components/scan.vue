@@ -692,6 +692,7 @@ const uploadImgToOss = async (data: any, type = 1, cb: any) => {
         let url = await getOssUrl(res.objectKey, bucketObj.Bucket);
         let newFile = { Name: res.name, FileMD5: res.md5, FileExtention: res.fileExtension, FileBucket: 'compositionevaluation', FilePath: 'pic', url }
         if (type === 1) {
+            ElMessage.success('拍照成功')
             state.photoList.push(newFile);
         }
         state.isUploading = false
