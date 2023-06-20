@@ -221,6 +221,8 @@ export default defineComponent({
             }
             // 工具栏-画笔
             if (data.type === 2) {
+                console.log('data.e, data.option', data.e, data.option);
+                console.log('screenref', screenRef.value)
                 screenRef.value.openPaintTool(data.e, data.option);
             }
             // 工具栏 画笔配置

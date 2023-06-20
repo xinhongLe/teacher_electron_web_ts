@@ -71,7 +71,7 @@
         "vue3-qr-reader": "^1.0.0",
         "vuedraggable": "^4.1.0",
         "vuex": "^4.0.2",
-        "wincard": "^5.1.4",
+        "wincard": "^5.1.5",
         "xlsx": "^0.17.5"
     },
     "devDependencies": {
