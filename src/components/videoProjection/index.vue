@@ -21,6 +21,7 @@ export default defineComponent({
     setup() {
         const isShow = ref(false);
         const client = mqtt.connect(YUN_API_VIDEO_PROJECT_MQTT || "", {
+            port: 8083,
             keepalive: 30
         });
         const noSignalCount = ref(0); // 没收到心跳的次数
