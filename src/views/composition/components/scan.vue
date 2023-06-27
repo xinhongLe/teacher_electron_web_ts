@@ -430,7 +430,7 @@ const switchToNextStu = () => {
                 //
                 state.isModified = true
                 //
-                if (state.isSupply) {7
+                if (state.isSupply) {
                     // 跳走到列表
                     judgeClose()
                     emit('openList', { TeacherCompositionId: state.TeacherCompositionId, Title: state.Title, isTurnToWait: true })
@@ -469,7 +469,10 @@ const getWaitRecordStudents = (cb?: any) => {
 
 
 // 关闭
-const close = () => {
+const close = (e?:any) => {
+    if(e && e.isModified){
+        state.isModified = true
+    }
     console.log('是否修改：', state.isModified);
 
     // console.log('-------------订阅-------');
