@@ -5,7 +5,7 @@
             ref="screenRef"
             @pagePrev="pagePrev"
             @pageNext="pageNext"
-            :isInit="index === 0"
+            :isInit="isInit"
             :slide="currentSlide"
             :is-show-pen-tools="false"
             v-model:isCanUndo="canUndo"
@@ -50,6 +50,7 @@ export default defineComponent({
     emits: ["closeOpenCard", "close"],
     setup(props, { emit }) {
         const screenRef = ref();
+        const isInit = ref(true);
         const canUndo = ref(false);
         const canRedo = ref(false);
 
@@ -61,6 +62,7 @@ export default defineComponent({
                 ElMessage.warning("已经第一页了");
                 return;
             }
+            isInit.value = false;
             index.value--;
         };
 
@@ -69,6 +71,7 @@ export default defineComponent({
                 ElMessage.warning("已经最后一页了");
                 return;
             }
+            isInit.value = true;
             index.value++;
         };
 
@@ -112,6 +115,7 @@ export default defineComponent({
             redo,
             undo,
             index,
+            isInit,
             canUndo,
             canRedo,
             pagePrev,

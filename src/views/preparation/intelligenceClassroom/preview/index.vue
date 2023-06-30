@@ -167,6 +167,7 @@ export default defineComponent({
             return `calc(100% - ${w}px)`;
         });
 
+        const isInit = ref(true);
         const handlePage = (index: number) => {
             isInit.value = true;
             emit("update:index", index - 1);
@@ -179,8 +180,6 @@ export default defineComponent({
         const nextStep = () => {
             screenRef.value && screenRef.value.execNext();
         };
-
-        const isInit = ref(true);
         const pagePrev = () => {
             if (props.index === 0) {
                 ElMessage.warning("已经第一页了");
