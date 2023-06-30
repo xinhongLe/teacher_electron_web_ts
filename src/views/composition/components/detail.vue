@@ -838,6 +838,7 @@ defineExpose({
                     color: #19203D;
                     line-height: 22px;
                     word-break: break-all;
+                    white-space: pre-wrap;
                 }
 
                 .input {
