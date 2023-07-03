@@ -208,6 +208,10 @@ export default defineComponent({
             if (obj.type === 6) {
                 saveTemplate(obj.params);
             }
+            // 键盘上下键
+            if (obj.type === 7) {
+                handlePPT.keyboardHandoff(obj.params.type, obj.params.data);
+            }
         };
 
         // 导入PPT

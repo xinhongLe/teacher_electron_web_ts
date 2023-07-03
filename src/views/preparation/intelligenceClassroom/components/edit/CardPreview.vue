@@ -31,6 +31,7 @@
                             <div
                                 class="page"
                                 :key="page.ID"
+                                :id="`page-${page.ID}`"
                                 v-for="page in folder.PageList"
                                 @click="handlePageClick($event,page)"
                                 v-contextmenu="() => contextMenus(page)"
@@ -42,7 +43,8 @@
                                     <img src="@/assets/edit/icon_shijian.png" alt="" v-if="checkIsHandle(1,page.Json)"/>
                                 </div>
                                 <div class="page-right" :class="{active:pageId === page.ID}">
-                                    <img class="cover" v-if="(page.Type === 20 || page.Type === 16) && page.Url" :src="page.Url" alt=""/>
+                                    <img class="cover" v-if="(page.Type === 20 || page.Type === 16) && page.Url"
+                                         :src="page.Url" alt=""/>
                                     <template v-else>
                                         <thumbnail-slide
                                             :size="228"
@@ -62,17 +64,21 @@
                                              v-if="[pageType.listen,pageType.element].includes(page.Type)">
                                             {{ page.Name }}
                                         </div>
-                                        <card-popover :data="page" add @handle="handleCartItem" class="handler-item add">
-                                            <img :id="`popover-add-${page.ID}`" src="@/assets/edit/icon_add_hover.png" alt=""/>
+                                        <card-popover :data="page" add @handle="handleCartItem"
+                                                      class="handler-item add">
+                                            <img :id="`popover-add-${page.ID}`" src="@/assets/edit/icon_add_hover.png"
+                                                 alt=""/>
                                         </card-popover>
 
                                         <card-popover :data="page" @handle="handleCartItem" class="handler-item more">
-                                            <img :id="`popover-more-${page.ID}`" src="@/assets/edit/icon_more_big.png" alt=""/>
+                                            <img :id="`popover-more-${page.ID}`" src="@/assets/edit/icon_more_big.png"
+                                                 alt=""/>
                                         </card-popover>
                                     </div>
                                 </div>
 
-                                <img v-if="selectPageIds.includes(page.ID)" class="select-icon" src="@/assets/edit/icon_clicked.png" alt=""/>
+                                <img v-if="selectPageIds.includes(page.ID)" class="select-icon"
+                                     src="@/assets/edit/icon_clicked.png" alt=""/>
                             </div>
                         </transition-group>
                     </vue-draggable-next>
@@ -208,6 +214,12 @@ export default defineComponent({
                 e.stopPropagation();
                 const key = e.code;
 
+                if (key === "ArrowDown") {
+                    emit("handle", { type: 7, params: { data: cardRef.value, type: "down" } });
+                }
+                if (key === "ArrowUp") {
+                    emit("handle", { type: 7, params: { data: cardRef.value, type: "up" } });
+                }
                 if (e.ctrlKey && key === "KeyC") {
                     emit("handle", { type: 3, params: { type: 6, data: currentPage.value } });
                 }
@@ -242,6 +254,10 @@ export default defineComponent({
     height: 100%;
     position: relative;
     transition: all 0.5s;
+
+    &:focus-visible {
+        outline: none;
+    }
 
     &.collapse {
         width: 0;
