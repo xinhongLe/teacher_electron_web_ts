@@ -1,27 +1,28 @@
 export interface PageProps {
+    Json: any;
     ID: string;
-    TeachPageRelationID: string;
+    Url: string;
     Name: string;
-    Height: number;
-    Width: number;
     Type: number;
     Sort: number;
+    Width: number;
     State: number;
-    AcademicPresupposition: string;
-    DesignIntent: string;
-    Json: any;
     Index: number;
-    Url: string;
+    Height: number;
+    Remark: string;
     ParentID: string;
+    DesignIntent: string;
+    TeachPageRelationID: string;
+    AcademicPresupposition: string;
 }
 
 export interface CardProps {
     ID: string;
-    TeachPageRelationID: string;
     Name: string;
     Sort: number;
-    PageList: PageProps[];
     Fold: boolean;
+    PageList: PageProps[];
+    TeachPageRelationID: string;
 }
 
 export interface MaterialProp {

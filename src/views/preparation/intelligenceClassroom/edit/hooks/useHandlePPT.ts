@@ -41,14 +41,15 @@ export default (windowCards: Ref<CardProps[]>, currentPageId: Ref<string>) => {
         const name = pageType.value !== 11 ? pageType.name : "页" + (windowCards.value[index].PageList.length + 1);
         const page = {
             ID: id,
-            Name: name,
-            Height: 0,
-            Width: 0,
             Sort: 1,
-            State: 1,
             Url: "",
+            Width: 0,
+            State: 1,
             Index: 1,
+            Height: 0,
             Json: json,
+            Remark: "",
+            Name: name,
             DesignIntent: "",
             ParentID: parentId,
             Type: pageType.value,
@@ -242,7 +243,8 @@ export default (windowCards: Ref<CardProps[]>, currentPageId: Ref<string>) => {
                     Json: dealAnimationData(slide),
                     Index: index,
                     Url: url,
-                    ParentID: item.ID
+                    ParentID: item.ID,
+                    Remark: ""
                 };
 
                 pageList.push(obj);

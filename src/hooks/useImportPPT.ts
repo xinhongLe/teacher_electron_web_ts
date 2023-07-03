@@ -62,6 +62,7 @@ export default () => {
                         Index: 0,
                         Height: 0,
                         Json: item,
+                        Remark: "",
                         ID: uuidv4(),
                         ParentID: "",
                         DesignIntent: "",

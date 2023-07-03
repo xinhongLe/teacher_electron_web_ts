@@ -113,7 +113,9 @@ export default defineComponent({
     },
     emits: ["update:index", "update:l-visit", "update:is-can-undo", "update:is-can-redo"],
     setup(props, { emit }) {
-        const windowCards = computed<CardProps[]>(() => {
+        const windowCards = ref<CardProps[]>([]);
+
+        watch(() => props.cards, () => {
             const list = cloneDeep<CardProps[]>(props.cards);
 
             for (let i = 0; i < list.length; i++) {
@@ -121,9 +123,9 @@ export default defineComponent({
 
                 list[i].PageList = pages.filter(item => item.State);
             }
+            windowCards.value = list;
+        }, { immediate: true, deep: true });
 
-            return list;
-        });
         const canvasDataMap = new Map();
         const canvasData = computed(() => {
             return (
@@ -134,7 +136,10 @@ export default defineComponent({
         });
         const currentSlide = computed(() => {
             const page = props.pages?.filter(item => item.State)[props.index];
-            return page ? page.Json : {};
+            const json = page ? page.Json : {};
+            json.design = page.DesignIntent;
+            json.remark = page.Remark;
+            return json;
         });
         watch(() => currentSlide.value, (val, oldVal) => {
             const elements = screenRef.value.whiteboard.getElements();

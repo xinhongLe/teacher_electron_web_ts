@@ -18,18 +18,30 @@ import {
     updateWindowsTemplateStatus
 } from "@/api/material";
 import { getToolList } from "@/api";
-import { IAdviceCol, ICategory, IClassRoom, IDAssembly, IDelTem, IGAssembly, IGetList, IGetMyList, IMaterialParams, IRecordSort, IUpdateSort, IUpdateStatus } from "@/types/material";
-import { ElMessage } from "element-plus";
-import useHome from "@/hooks/useHome";
+import {
+    IAdviceCol,
+    ICategory,
+    IClassRoom,
+    IDAssembly,
+    IDelTem,
+    IGAssembly,
+    IGetList,
+    IGetMyList,
+    IMaterialParams,
+    IRecordSort,
+    IUpdateSort,
+    IUpdateStatus
+} from "@/types/material";
 import { Slide } from "wincard";
-import { getOssUrl } from "@/utils/oss";
-import { CardProps, MaterialProp, PageProps } from "@/views/preparation/intelligenceClassroom/api/props";
-import { cloneDeep } from "lodash-es";
-import { dealAnimationData } from "@/utils/dataParse";
 import { v4 as uuidv4 } from "uuid";
 import { pageType } from "@/config";
+import useHome from "@/hooks/useHome";
+import { cloneDeep } from "lodash-es";
+import { getOssUrl } from "@/utils/oss";
+import { ElMessage } from "element-plus";
+import { dealAnimationData } from "@/utils/dataParse";
+import { CardProps, MaterialProp, PageProps } from "@/views/preparation/intelligenceClassroom/api/props";
 import { getImageSize } from "@/utils/image";
-import { getWindowStruct } from "@/api/home";
 
 export default () => {
     const { transformPageDetail } = useHome();
@@ -492,19 +504,20 @@ export default () => {
         });
         return {
             ID: id,
-            TeachPageRelationID: "",
-            Name: "教具页",
-            Height: 0,
-            Width: 0,
-            Type: pageType.teach,
             Sort: 0,
+            Width: 0,
             State: 1,
-            AcademicPresupposition: "",
-            DesignIntent: "",
             Index: 0,
-            Url: data.url,
+            Height: 0,
+            Json: json,
+            Remark: "",
             ParentID: "",
-            Json: json
+            Name: "教具页",
+            Url: data.url,
+            DesignIntent: "",
+            Type: pageType.teach,
+            TeachPageRelationID: "",
+            AcademicPresupposition: ""
         };
     };
 
