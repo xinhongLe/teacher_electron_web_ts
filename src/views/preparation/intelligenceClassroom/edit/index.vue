@@ -30,6 +30,7 @@
         </div>
         <div class="wrapper">
             <card-preview
+                :mode="previewMode"
                 :cards="windowCards"
                 :collapse="showCollapse"
                 :page-id="currentPage?.ID"
@@ -98,7 +99,7 @@ import { Slide } from "wincard";
 import { cloneDeep } from "lodash";
 import { v4 as uuidv4 } from "uuid";
 import { saveWindows } from "../api";
-import { getWindowStruct } from "@/api/home";
+import { getWindowStruct, setShowModel } from "@/api/home";
 import { arrIsEqual } from "@/utils/dataParse";
 import useImportPPT from "@/hooks/useImportPPT";
 import useHandlePPT from "./hooks/useHandlePPT";
@@ -132,6 +133,7 @@ export default defineComponent({
         const publication = computed(() => get(STORAGE_TYPES.SUBJECT_BOOK_INFO));
 
         const editRef = ref();
+        const previewMode = ref(true);
         const currentPageId = ref("");
         const showCollapse = ref(true);
         const addPageVisible = ref(false);
@@ -211,6 +213,17 @@ export default defineComponent({
             // 键盘上下键
             if (obj.type === 7) {
                 handlePPT.keyboardHandoff(obj.params.type, obj.params.data);
+            }
+            // 切换视图模式
+            if (obj.type === 8) {
+                setShowModel({
+                    Type: previewMode.value ? 1 : 0,
+                    WindowID: windowInfo.value.id
+                }).then(res => {
+                    if (res.resultCode !== 200) return;
+
+                    previewMode.value = obj.params;
+                });
             }
         };
 
@@ -510,13 +523,14 @@ export default defineComponent({
             }).then(async res => {
                 if (res.resultCode !== 200) return;
 
+                previewMode.value = !res.result.ShowType;
+
                 const list = res.result.CardData;
                 if (!list || list.length === 0) {
                     windowCards.value = [];
                     return;
                 }
                 cardSource = await handlePPT.assembleCardData(list);
-                console.log(windowCards.value);
             });
         }
 
@@ -545,6 +559,7 @@ export default defineComponent({
             windowInfo,
             handleSave,
             pageAction,
+            previewMode,
             currentPage,
             windowCards,
             publication,

@@ -1,6 +1,10 @@
 <template>
     <div class="left" tabindex="0" :class="{collapse:!collapse}" ref="cardRef">
         <div class="placeholder"/>
+        <div class="tabs">
+            <div class="tab" :class="{active :!mode}" @click="handleChangeMode()">大纲</div>
+            <div class="tab" :class="{active :mode}" @click="handleChangeMode()">幻灯片</div>
+        </div>
         <vue-draggable-next
             tag="div"
             id="card"
@@ -28,66 +32,89 @@
                         v-model="folder.PageList"
                     >
                         <transition-group name="page">
-                            <div
-                                class="page"
-                                :key="page.ID"
-                                :id="`page-${page.ID}`"
-                                v-for="page in folder.PageList"
-                                @click="handlePageClick($event,page)"
-                                v-contextmenu="() => contextMenus(page)"
-                                @mousedown="handleSelect($event,page.ID)"
-                            >
-                                <div class="page-left">
-                                    <p class="index">{{ page.Index }}</p>
-                                    <img src="@/assets/edit/icon_donghua.png" alt="" v-if="checkIsHandle(2,page.Json)"/>
-                                    <img src="@/assets/edit/icon_shijian.png" alt="" v-if="checkIsHandle(1,page.Json)"/>
-                                </div>
-                                <div class="page-right" :class="{active:pageId === page.ID}">
-                                    <img class="cover" v-if="(page.Type === 20 || page.Type === 16) && page.Url"
-                                         :src="page.Url" alt=""/>
-                                    <template v-else>
-                                        <thumbnail-slide
-                                            :size="228"
-                                            :slide="page.Json"
-                                            v-if="[pageType.listen,pageType.element].includes(page.Type)"
-                                        />
-                                        <div class="view-empty" v-else>{{ page.Name }}</div>
-                                    </template>
-
-                                    <template v-if="!page.State">
-                                        <img class="down" src="@/assets/edit/icon_yc1.png" alt=""/>
-                                        <div class="masks"></div>
-                                    </template>
-
-                                    <div class="handle">
-                                        <div class="name"
-                                             v-if="[pageType.listen,pageType.element].includes(page.Type)">
-                                            {{ page.Name }}
-                                        </div>
-                                        <card-popover :data="page" add @handle="handleCartItem"
-                                                      class="handler-item add">
-                                            <img :id="`popover-add-${page.ID}`" src="@/assets/edit/icon_add_hover.png"
-                                                 alt=""/>
-                                        </card-popover>
-
-                                        <card-popover :data="page" @handle="handleCartItem" class="handler-item more">
-                                            <img :id="`popover-more-${page.ID}`" src="@/assets/edit/icon_more_big.png"
-                                                 alt=""/>
-                                        </card-popover>
+                            <template v-if="mode">
+                                <div
+                                    class="page"
+                                    :key="page.ID"
+                                    :id="`page-${page.ID}`"
+                                    v-for="page in folder.PageList"
+                                    @click="handlePageClick($event,page)"
+                                    v-contextmenu="() => contextMenus(page)"
+                                    @mousedown="handleSelect($event,page.ID)"
+                                >
+                                    <div class="page-left">
+                                        <p class="index">{{ page.Index }}</p>
+                                        <img src="@/assets/edit/icon_donghua.png" alt=""
+                                             v-if="checkIsHandle(2,page.Json)"/>
+                                        <img src="@/assets/edit/icon_shijian.png" alt=""
+                                             v-if="checkIsHandle(1,page.Json)"/>
                                     </div>
-                                </div>
+                                    <div class="page-right" :class="{active:pageId === page.ID}">
+                                        <img class="cover" v-if="(page.Type === 20 || page.Type === 16) && page.Url"
+                                             :src="page.Url" alt=""/>
+                                        <template v-else>
+                                            <thumbnail-slide
+                                                :size="228"
+                                                :slide="page.Json"
+                                                v-if="[pageType.listen,pageType.element].includes(page.Type)"
+                                            />
+                                            <div class="view-empty" v-else>{{ page.Name }}</div>
+                                        </template>
 
-                                <img v-if="selectPageIds.includes(page.ID)" class="select-icon"
-                                     src="@/assets/edit/icon_clicked.png" alt=""/>
-                            </div>
+                                        <template v-if="!page.State">
+                                            <img class="down" src="@/assets/edit/icon_yc1.png" alt=""/>
+                                            <div class="masks"></div>
+                                        </template>
+
+                                        <div class="handle">
+                                            <div class="name"
+                                                 v-if="[pageType.listen,pageType.element].includes(page.Type)">
+                                                {{ page.Name }}
+                                            </div>
+                                            <card-popover :data="page" add @handle="handleCartItem"
+                                                          class="handler-item add">
+                                                <img :id="`popover-add-${page.ID}`"
+                                                     src="@/assets/edit/icon_add_hover.png"
+                                                     alt=""/>
+                                            </card-popover>
+
+                                            <card-popover :data="page" @handle="handleCartItem"
+                                                          class="handler-item more">
+                                                <img :id="`popover-more-${page.ID}`"
+                                                     src="@/assets/edit/icon_more_big.png"
+                                                     alt=""/>
+                                            </card-popover>
+                                        </div>
+                                    </div>
+
+                                    <img v-if="selectPageIds.includes(page.ID)" class="select-icon"
+                                         src="@/assets/edit/icon_clicked.png" alt=""/>
+                                </div>
+                            </template>
+                            <template v-else>
+                                <div class="row" :class="{active:page.ID === pageId}"
+                                     v-for="page in folder.PageList" :key="page.ID"
+                                     @click="handlePageClick($event,page)">
+                                    <span :class="{down:!page.State}">{{ page.Index }}、{{ page.Name }}</span>
+                                    <card-popover :data="page" add @handle="handleCartItem" class="add">
+                                        <img :id="`popover-add-${page.ID}`"
+                                             src="@/assets/edit/icon_add_hover.png" alt=""/>
+                                    </card-popover>
+
+                                    <card-popover :data="page" @handle="handleCartItem" class="more">
+                                        <img :id="`popover-more-${page.ID}`"
+                                             src="@/assets/edit/icon_more_big.png" alt=""/>
+                                    </card-popover>
+                                </div>
+                            </template>
                         </transition-group>
                     </vue-draggable-next>
                 </div>
             </transition-group>
         </vue-draggable-next>
-        <div class="pagination">
-            当前页{{ currentPage?.Index || 1 }}/{{ total }}
-        </div>
+        <!--        <div class="pagination">-->
+        <!--            当前页{{ currentPage?.Index || 1 }}/{{ total }}-->
+        <!--        </div>-->
         <div class="shrink" @click="toggleCollapse">
             <el-icon :style="{ transform:'rotate(' + (collapse ? 0 : 180) + 'deg)'}">
                 <ArrowLeft/>
@@ -123,6 +150,10 @@ export default defineComponent({
         selectPageIds: {
             type: Array as PropType<string[]>,
             default: () => []
+        },
+        mode: {
+            type: Boolean,
+            default: true
         }
     },
     setup(props, { emit }) {
@@ -206,6 +237,10 @@ export default defineComponent({
             emit("handle", { type: 5, params: id });
         };
 
+        const handleChangeMode = () => {
+            emit("handle", { type: 8, params: !props.mode });
+        };
+
         const cardRef = ref();
         onMounted(() => {
             if (!cardRef.value) return;
@@ -241,7 +276,8 @@ export default defineComponent({
             checkIsHandle,
             toggleCollapse,
             handleCartItem,
-            handlePageClick
+            handlePageClick,
+            handleChangeMode
 
         };
     }
@@ -268,8 +304,35 @@ export default defineComponent({
         box-shadow: inset 0px -1px 0px 0px #EBEFF1;
     }
 
+    .tabs {
+        height: 28px;
+        width: 124px;
+        background: #F1F3F5;
+        margin: 12px auto 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #414E65;
+        font-size: 12px;
+        border-radius: 4px;
+        cursor: pointer;
+
+        .tab {
+            width: 60px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            &.active {
+                background-color: #FFFFFF;
+                font-weight: bold;
+            }
+        }
+    }
+
     .card {
-        height: calc(100% - 96px);
+        height: calc(100% - 112px);
         overflow-y: auto;
 
         .folder {
@@ -326,6 +389,65 @@ export default defineComponent({
 
             & .page:last-child {
                 margin-bottom: 0;
+            }
+
+            .row {
+                height: 46px;
+                display: flex;
+                align-items: center;
+                padding-left: 30px;
+                cursor: pointer;
+                position: relative;
+
+                .down {
+                    color: rgb(192, 196, 204);
+                }
+
+                &.active {
+                    background-color: #ecf5ff;
+
+                    .add, .more {
+                        display: flex;
+                    }
+                }
+
+                &:hover {
+                    .add, .more {
+                        display: flex;
+                    }
+                }
+
+                .add {
+                    position: absolute;
+                    right: 36px;
+                    bottom: 0;
+                    justify-content: center;
+                    align-items: center;
+                    margin-right: 10px;
+                    display: none;
+
+                    img {
+                        width: 32px;
+                        height: 32px;
+                        display: block;
+                        z-index: 99;
+                    }
+                }
+
+                .more {
+                    position: absolute;
+                    right: 5px;
+                    justify-content: center;
+                    align-items: center;
+                    display: none;
+
+                    img {
+                        width: 15px;
+                        height: 3px;
+                        display: block;
+                        z-index: 99;
+                    }
+                }
             }
 
             .page {

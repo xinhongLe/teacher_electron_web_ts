@@ -5,6 +5,7 @@
             ref="previewRef"
             :r-visit="rVisit"
             :cards="winCards"
+            :mode="previewMode"
             :resource="resource"
             v-model:index="index"
             v-model:l-visit="lVisit"
@@ -23,13 +24,13 @@
             :isCanRedo="isCanRedo"
             @openShape="openShape"
             @fullScreen="fullScreen"
+            :currentSlide="currentSlide"
             @toggleRemark="toggleRemark"
             @openPaintTool="openPaintTool"
             @openClassDialog="openClassDialog"
             @clockFullScreen="clockFullScreen"
             @whiteboardOption="whiteboardOption"
             :isFullScreenStatus="isFullScreenStatus"
-            :currentSlide="currentSlide"
         />
         <!--页发送至 学生端-->
         <select-class-dialog
@@ -76,9 +77,10 @@ export default defineComponent({
         }
     },
     setup(props) {
+        const index = ref(0);
         const lVisit = ref(true);
         const rVisit = ref(false);
-        const index = ref(0);
+        const previewMode = ref(true);
         const isFullScreen = ref(false);
         const winCards = ref<CardProps[]>([]);
 
@@ -183,7 +185,7 @@ export default defineComponent({
                 OriginType
             }).then(async res => {
                 if (res.resultCode !== 200) return;
-
+                previewMode.value = !res.result.ShowType;
                 const cardList = res.result.CardData;
 
                 let index = 1;
@@ -249,6 +251,7 @@ export default defineComponent({
             isCanUndo,
             previewRef,
             fullScreen,
+            previewMode,
             currentSlide,
             isFullScreen,
             toggleRemark,

@@ -2,30 +2,37 @@
     <div class="shape-pool-warp" ref="shapePoolWarp" v-click-outside="hide">
         <div class="shape-pool">
             <div class="pen-radius-box">
-                <div class="pen-radius pen-radius-1" :class="{ active: penSize === 2 }" @click="setPenSize(2)" :style="{
-                    backgroundColor:
-                        penSize === 2 ? writingBoardColor : '#ccc'
-                }"></div>
-                <div class="pen-radius pen-radius-2" :class="{ active: penSize === 6 }" @click="setPenSize(6)" :style="{
-                    backgroundColor:
-                        penSize === 6 ? writingBoardColor : '#ccc'
-                }"></div>
-                <div class="pen-radius pen-radius-3" :class="{ active: penSize === 12 }" @click="setPenSize(12)" :style="{
-                    backgroundColor:
-                        penSize === 12 ? writingBoardColor : '#ccc'
-                }"></div>
-                <div class="pen-radius pen-radius-4" :class="{ active: penSize === 20 }" @click="setPenSize(20)" :style="{
-                    backgroundColor:
-                        penSize === 20 ? writingBoardColor : '#ccc'
-                }"></div>
-                <div class="pen-radius pen-radius-5" :class="{ active: penSize === 25 }" @click="setPenSize(25)" :style="{
-                    backgroundColor:
-                        penSize === 25 ? writingBoardColor : '#ccc'
-                }"></div>
-
+                <div
+                    @click="setPenSize(2)"
+                    class="pen-radius pen-radius-1"
+                    :class="{ active: penSize === 2 }"
+                    :style="{ backgroundColor:penSize === 2 ? writingBoardColor : '#ccc'}"
+                />
+                <div class="pen-radius pen-radius-2"
+                     @click="setPenSize(6)"
+                     :class="{ active: penSize === 6 }"
+                     :style="{ backgroundColor:penSize === 6 ? writingBoardColor : '#ccc'}"
+                />
+                <div
+                    @click="setPenSize(12)"
+                    class="pen-radius pen-radius-3"
+                    :class="{ active: penSize === 12 }"
+                    :style="{  backgroundColor: penSize === 12 ? writingBoardColor : '#ccc' }"
+                />
+                <div
+                    @click="setPenSize(20)"
+                    class="pen-radius pen-radius-4"
+                    :class="{ active: penSize === 20 }"
+                    :style="{  backgroundColor: penSize === 20 ? writingBoardColor : '#ccc' }"
+                />
+                <div
+                    @click="setPenSize(25)"
+                    class="pen-radius pen-radius-5"
+                    :class="{ active: penSize === 25 }"
+                    :style="{   backgroundColor:penSize === 25 ? writingBoardColor : '#ccc' }"
+                />
             </div>
-            <div class="pen-line">
-            </div>
+            <div class="pen-line"></div>
             <div class="pen-reundo">
                 <div @click="undo()">
                     <img v-if="canUndo" src="../../images/slices/icon_chexiao.png" alt="">
@@ -35,7 +42,6 @@
                     <img v-if="canRedo" src="../../images/slices/icon_huitui.png" alt="">
                     <img v-else src="../../images/slices/icon_huitui_disabled.png" alt="">
                 </div>
-
             </div>
             <div class="pen-line">
             </div>
@@ -45,10 +51,22 @@
         </div>
         <div class="shape-pool">
             <div class="colors">
-                <div class="color" :class="{ active: color === writingBoardColor }" v-for="color in writingBoardColors"
-                    :key="color" :style="{ backgroundColor: color }" @click="changeColor(color)"></div>
-                <el-popover v-model:visible="penColorVisible" :persistent="false" :teleported="false" :width="266"
-                    placement="top" trigger="click">
+                <div
+                    :key="color"
+                    class="color"
+                    @click="changeColor(color)"
+                    v-for="color in writingBoardColors"
+                    :style="{ backgroundColor: color }"
+                    :class="{ active: color === writingBoardColor }"
+                />
+                <el-popover
+                    :width="266"
+                    placement="top"
+                    trigger="click"
+                    :persistent="false"
+                    :teleported="false"
+                    v-model:visible="penColorVisible"
+                >
                     <template #reference>
                         <div class="btn">
                             <el-tooltip :hide-after="0" :show-after="0.5" placement="top" content="画笔颜色">
@@ -56,7 +74,10 @@
                             </el-tooltip>
                         </div>
                     </template>
-                    <ColorPicker :modelValue="writingBoardColor" @update:modelValue="(value: any) => changeColor(value)" />
+                    <ColorPicker
+                        :modelValue="writingBoardColor"
+                        @update:modelValue="value => changeColor(value)"
+                    />
                 </el-popover>
             </div>
             <div class="clears" @click="clear()">
@@ -223,7 +244,8 @@ export default defineComponent({
     .pen-radius-box {
         width: 170px;
         margin-right: 16px;
-        .pen-radius{
+
+        .pen-radius {
             &.active {
                 border: 2px solid #4BEEE4;
             }
@@ -270,7 +292,7 @@ export default defineComponent({
                 border: 2px solid #4BEEE4;
             }
 
-            &+.color {
+            & + .color {
                 margin-left: 8px;
             }
         }

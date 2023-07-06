@@ -6,32 +6,40 @@
             </el-icon>
         </div>
         <div class="left" v-if="lVisit">
-            <div class="folder" v-for="folder in windowCards" :key="folder.CardID">
+            <div class="folder" v-for="folder in windowCards" :key="folder.ID">
                 <div class="title" @click="folder.Fold = !folder.Fold">
                     <i class="triangle" :class="{rotate:!folder.Fold}"></i>
                     <img class="file-icon" src="@/assets/edit/icon_file.png" alt=""/>
                     <span>{{ folder.Name }}</span>
                 </div>
                 <div class="pages" v-if="folder.Fold">
-                    <div class="page" v-for="page in folder.PageList" :key="page.PageID"
-                         @click="handlePage(page.Index)">
-                        <div class="page-left">{{ page.Index }}</div>
-                        <div class="page-right" :class="{active: page.Index === index+1}">
-                            <img
-                                alt=""
-                                class="cover"
-                                v-if="(page.Type === 20 || page.Type === 16) && page.Url" :src="page.Url"
-                            />
-                            <template v-else>
-                                <thumbnail-slide
-                                    :size="228"
-                                    :slide="page.Json"
-                                    v-if="[pageType.listen,pageType.element].includes(page.Type)"
+                    <template v-if="mode">
+                        <div class="page" v-for="page in folder.PageList" :key="page.ID"
+                             @click="handlePage(page.Index)">
+                            <div class="page-left">{{ page.Index }}</div>
+                            <div class="page-right" :class="{active: page.Index === index+1}">
+                                <img
+                                    alt=""
+                                    class="cover"
+                                    v-if="(page.Type === 20 || page.Type === 16) && page.Url" :src="page.Url"
                                 />
-                                <div class="view-empty" v-else>{{ page.Name }}</div>
-                            </template>
+                                <template v-else>
+                                    <thumbnail-slide
+                                        :size="228"
+                                        :slide="page.Json"
+                                        v-if="[pageType.listen,pageType.element].includes(page.Type)"
+                                    />
+                                    <div class="view-empty" v-else>{{ page.Name }}</div>
+                                </template>
+                            </div>
                         </div>
-                    </div>
+                    </template>
+                    <template v-else>
+                        <div class="row" :class="{active:page.Index === index+1}" v-for="page in folder.PageList"
+                             :key="page.ID" @click="handlePage(page.Index)">
+                            <span>{{ page.Index }}、{{ page.Name }}</span>
+                        </div>
+                    </template>
                 </div>
             </div>
         </div>
@@ -109,6 +117,10 @@ export default defineComponent({
         resource: {
             type: Object as PropType<IViewResourceData>,
             required: true
+        },
+        mode: {
+            type: Boolean,
+            default: true
         }
     },
     emits: ["update:index", "update:l-visit", "update:is-can-undo", "update:is-can-redo"],
@@ -378,6 +390,25 @@ export default defineComponent({
 
     & .page:last-child {
         margin-bottom: 0;
+    }
+
+    .row {
+        height: 46px;
+        display: flex;
+        align-items: center;
+        padding-left: 30px;
+        cursor: pointer;
+        position: relative;
+
+        &.active {
+            background-color: #ecf5ff;
+        }
+
+        &:hover {
+            .add, .more {
+                display: flex;
+            }
+        }
     }
 
     .page {
