@@ -105,13 +105,13 @@
 </template>
 
 <script lang="ts">
-import { useStore } from "@/store";
-import { Slide } from "wincard";
-import { cloneDeep } from "lodash";
-import { v4 as uuidv4 } from "uuid";
-import { saveWindows } from "../api";
-import { getWindowStruct } from "@/api/home";
-import { arrIsEqual } from "@/utils/dataParse";
+import {useStore} from "@/store";
+import {Slide} from "wincard";
+import {cloneDeep} from "lodash";
+import {v4 as uuidv4} from "uuid";
+import {saveWindows} from "../api";
+import {getWindowStruct, setShowModel} from "@/api/home";
+import {arrIsEqual} from "@/utils/dataParse";
 import useImportPPT from "@/hooks/useImportPPT";
 import useHandlePPT from "./hooks/useHandlePPT";
 import {pageType, pageTypeList} from "@/config";

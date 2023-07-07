@@ -113,7 +113,6 @@ export default defineComponent({
             type: Object as PropType<IViewResourceData>,
             required: true
         },
-        },
         mode: {
             type: Boolean,
             default: true
