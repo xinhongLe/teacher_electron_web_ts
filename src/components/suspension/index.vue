@@ -61,7 +61,7 @@
             @touchstart="onmouseover"
             @mouseover="onmouseover"
         >
-            <img src="@/assets/images/suspension/pic_shouqi@2x_copy.png" />
+            <img src="@/assets/images/suspension/pic_shouqi@2x_copy.png"/>
         </div>
         <Suspense v-if="!isElectron">
             <transition name="slide">
@@ -82,6 +82,7 @@ import {
     ref
 } from "vue";
 import isElectron from "is-electron";
+
 export default defineComponent({
     components: {
         Helper: defineAsyncComponent(() => import("./helper.vue"))
@@ -115,7 +116,7 @@ export default defineComponent({
 
         const mouseDown = (event: MouseEvent) => {
             isStartMove.value = true;
-            const { clientX, clientY } = event;
+            const {clientX, clientY} = event;
             dragePosition.x = clientX;
             dragePosition.y = clientY;
             if (isElectron()) {
@@ -123,7 +124,7 @@ export default defineComponent({
             }
             document.onmousemove = (event) => {
                 if (isStartMove.value) {
-                    const { clientX, clientY } = event;
+                    const {clientX, clientY} = event;
                     const x = dragePosition.x - clientX;
                     const y = dragePosition.y - clientY;
                     if (x === 0 && y === 0) return;
@@ -287,9 +288,11 @@ export default defineComponent({
         background-position: center;
         background-size: contain;
         cursor: pointer;
+
         * {
             pointer-events: none;
         }
+
         .icon-close {
             display: inline-block;
             position: absolute;
@@ -303,6 +306,7 @@ export default defineComponent({
             -webkit-app-region: no-drag;
             pointer-events: all;
         }
+
         .icon-close::before,
         .icon-close::after {
             position: absolute;
@@ -313,13 +317,16 @@ export default defineComponent({
             width: 2px;
             height: 10px;
         }
+
         .icon-close::before {
             transform: rotate(45deg);
         }
+
         .icon-close::after {
             transform: rotate(-45deg);
         }
     }
+
     .timer {
         display: flex;
         justify-content: center;
@@ -330,21 +337,25 @@ export default defineComponent({
         top: 5px;
         left: 60px;
     }
+
     .video {
         background-image: url("../../assets/images/suspension/btn_video@2x.png");
         top: 57px;
         left: 10px;
     }
+
     .question {
         background-image: url("../../assets/images/suspension/btn_timu@2x.png");
         top: 122px;
         left: 0;
     }
+
     .blackboard {
         background-image: url("../../assets/images/suspension/btn_blackboard@2x.png");
         top: 0;
         right: 0;
     }
+
     .suspension {
         position: fixed;
         cursor: pointer;
@@ -357,11 +368,13 @@ export default defineComponent({
         display: flex;
         justify-content: center;
         align-items: center;
+
         .no-drag {
             -webkit-app-region: no-drag;
             width: 50%;
             height: 50%;
         }
+
         img {
             width: 100%;
             user-select: none;
@@ -369,21 +382,25 @@ export default defineComponent({
             position: absolute;
         }
     }
+
     .welt {
         position: fixed;
         right: 0;
         z-index: 9999;
         height: 85px;
         cursor: pointer;
+
         img {
             height: 100%;
         }
     }
 }
+
 .slide-enter-active,
 .slide-leave-active {
     transition: all 0.5s;
 }
+
 .slide-enter,
 .slide-leave-to {
     transform: translateY(100%);

@@ -251,7 +251,7 @@ function createUnfoldSuspensionWindow() {
         size.width - winSize[0] - 20,
         size.height - winSize[1]
     );
-    // unfoldSuspensionWin.webContents.openDevTools(); //这是打开智课助手悬浮球打开窗口的的调试器
+    unfoldSuspensionWin.webContents.openDevTools(); //这是打开智课助手悬浮球打开窗口的的调试器
     unfoldSuspensionWin.once("ready-to-show", () => {
         unfoldSuspensionWin &&
         unfoldSuspensionWin.setAlwaysOnTop(true, "pop-up-menu");
@@ -969,6 +969,7 @@ export function registerEvent() {
         unfoldSuspensionWin &&
         unfoldSuspensionWin.webContents.send("getCourseWares", data);
     });
+
 }
 
 export const unfoldSuspensionWinSendMessage = (
@@ -977,6 +978,9 @@ export const unfoldSuspensionWinSendMessage = (
 ) => {
     unfoldSuspensionWin && unfoldSuspensionWin.webContents.send(event, message);
 };
+export const setCourseSuspensio = (data: any) => {
+    unfoldSuspensionWin && unfoldSuspensionWin.webContents.send("setCourseSuspensio", data);
+}
 
 function createTeamCompetition() {
     teamCompetitionWin = createWindow(localTeamURL, {

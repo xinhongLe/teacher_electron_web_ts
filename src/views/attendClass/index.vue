@@ -9,7 +9,7 @@
                 @eventEmit="eventEmit"
             /> -->
             <Resources ref="resourcesRef" name="attendClass" @updateResourceList="updateResourceList" :course="course"
-                :source="source" :type="type" :bagType="type" :bookId="bookId" />
+                       :source="source" :type="type" :bagType="type" :bookId="bookId"/>
         </div>
         <div class="resource-filter">
             <el-radio-group class="custom-radio-two" v-model="type">
@@ -34,9 +34,9 @@
 </template>
 
 <script lang="ts">
-import { fetchResourceType, IResourceItem, logView } from "@/api/resource";
-import { MutationTypes, useStore } from "@/store";
-import { IpcRendererEvent } from "electron";
+import {fetchResourceType, IResourceItem, logView} from "@/api/resource";
+import {MutationTypes, useStore} from "@/store";
+import {IpcRendererEvent} from "electron";
 import isElectron from "is-electron";
 import {
     defineComponent,
@@ -47,11 +47,11 @@ import {
     provide,
     nextTick
 } from "vue";
-import { useRoute } from "vue-router";
+import {useRoute} from "vue-router";
 import Resources from "../preparation/layout/resources.vue";
 
 export default defineComponent({
-    components: { Resources },
+    components: {Resources},
     setup() {
         const resourceList = ref<IResourceItem[]>([]);
         const route = useRoute();
@@ -123,7 +123,7 @@ export default defineComponent({
                     window.electron.ipcRenderer.send(
                         "attendClass",
                         "unfoldSuspension",
-                        { type: "switchClass", switch: isSwitch.value }
+                        {type: "switchClass", switch: isSwitch.value}
                     );
                     sendResourceData();
                     break;
@@ -133,7 +133,7 @@ export default defineComponent({
                         // 断点视频
                         store.commit(MutationTypes.SET_FULLSCREEN_RESOURCE, {
                             component: "LookVideo",
-                            resource: { id: resource.OldResourceId, openMore: true }
+                            resource: {id: resource.OldResourceId, openMore: true}
                         });
                     } else if (resource.ResourceShowType === 3) {
                         // 练习卷
@@ -159,7 +159,7 @@ export default defineComponent({
                     } else if (resource.ResourceShowType === 0 || resource.ResourceShowType === 4) {
                         store.commit(MutationTypes.SET_FULLSCREEN_RESOURCE, {
                             component: "ScreenViewFile",
-                            resource: { ...resource, id: resource.OldResourceId, openMore: true }
+                            resource: {...resource, id: resource.OldResourceId, openMore: true}
                         });
                     } else if (resource.ResourceShowType === 5) {
                         store.commit(
@@ -175,7 +175,7 @@ export default defineComponent({
                             }
                         );
                     }
-                    logView({ id: resource.ResourceId });
+                    logView({id: resource.ResourceId});
                     break;
                 case "switchClass":
                     switchClass();
@@ -207,7 +207,7 @@ export default defineComponent({
             window.electron.ipcRenderer.send(
                 "attendClass",
                 "unfoldSuspension",
-                { type: "switchClass", switch: isSwitch.value }
+                {type: "switchClass", switch: isSwitch.value}
             );
             sendResourceData();
 

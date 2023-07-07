@@ -7,7 +7,7 @@ import {
     createSuspensionWindow,
     createLocalPreviewWindow,
     registerEvent,
-    unfoldSuspensionWinSendMessage
+    unfoldSuspensionWinSendMessage, setCourseSuspensio
 } from "./suspension";
 import autoUpdater from "./autoUpdater";
 import {createWinCardWindow} from "./wincard";
@@ -235,6 +235,13 @@ async function createWindow() {
         for (const editWin of editWinList.values()) {
             editWin.webContents.send("copy-end");
         }
+    });
+    // 课件大小化
+    ipcMain.on("setCourseMinimize", (e, to, data) => {
+        if (to === "min") {
+            setCourseSuspensio(data);
+        }
+        if (to === "max") mainWindow!.webContents.send("setCourseMaximize", data);
     });
 }
 

@@ -17,23 +17,39 @@
             v-model:isMinimized="isMinimized"
         >
             <template v-slot:footerBtn="slotProps">
-                <div class="btn-list">
-                    <div
-                        v-show="type !== 2 && slotProps.sum >= 1"
-                        class="btn"
-                        :class="!isHasSimilarQuestion && 'disabled'"
-                        @click.stop="openSimilarQuestion"
-                    >
-                        <p>同类题</p>
-                    </div>
-                    <div
-                        v-show="type !== 2"
-                        @click.stop="slotProps.removeQuestion"
-                        class="btn"
-                    >
-                        <p>移除题目</p>
+                <div class="me-tool-btn-new" v-show="type !== 2 && slotProps.sum >= 1"
+                     @click.stop="openSimilarQuestion">
+                    <div class="icon-text" :class="!isHasSimilarQuestion && 'disabled'">
+                        <img src="@/views/preparation/intelligenceClassroom/images/slices/icon_tlt.png"
+                             alt=""/>
+                        <span class="text">同类题</span>
                     </div>
                 </div>
+                <!-- 同移除题目-->
+                <div class="me-tool-btn-new" v-show="type !== 2" @click.stop="slotProps.removeQuestion">
+                    <div class="icon-text">
+                        <img src="@/views/preparation/intelligenceClassroom/images/slices/icon_yctm.png"
+                             alt=""/>
+                        <span class="text">移除题目</span>
+                    </div>
+                </div>
+                <!--                <div class="btn-list">-->
+                <!--                    <div-->
+                <!--                        v-show="type !== 2 && slotProps.sum >= 1"-->
+                <!--                        class="btn"-->
+                <!--                        :class="!isHasSimilarQuestion && 'disabled'"-->
+                <!--                        @click.stop="openSimilarQuestion"-->
+                <!--                    >-->
+                <!--                        <p>同类题</p>-->
+                <!--                    </div>-->
+                <!--                    <div-->
+                <!--                        v-show="type !== 2"-->
+                <!--                        @click.stop="slotProps.removeQuestion"-->
+                <!--                        class="btn"-->
+                <!--                    >-->
+                <!--                        <p>移除题目</p>-->
+                <!--                    </div>-->
+                <!--                </div>-->
             </template>
         </Question>
         <PureQuestionDialog
@@ -59,10 +75,10 @@ import {
 } from "vue";
 import Question from "./Question.vue";
 import PureQuestionDialog from "./PureQuestionDialog.vue";
-import { checkPureQuestionByQuestionID } from "./api";
-import { MutationTypes, store } from "@/store";
+import {checkPureQuestionByQuestionID} from "./api";
+import {MutationTypes, store} from "@/store";
 import isElectron from "is-electron";
-import { IViewResourceData } from "@/types/store";
+import {IViewResourceData} from "@/types/store";
 
 export default defineComponent({
     name: "LookQuestion",
@@ -73,7 +89,8 @@ export default defineComponent({
         },
         close: {
             type: Function,
-            default: () => {}
+            default: () => {
+            }
         },
         resource: {
             type: Object as PropType<IViewResourceData>,
@@ -179,7 +196,7 @@ export default defineComponent({
         };
     },
 
-    components: { Question, PureQuestionDialog }
+    components: {Question, PureQuestionDialog}
 });
 </script>
 
@@ -213,6 +230,41 @@ export default defineComponent({
         width: 100%;
         height: 100%;
         position: relative;
+    }
+
+    .me-tool-btn-new {
+        cursor: pointer;
+        width: 48px;
+        height: 48px;
+        background: #FFFFFF;
+        border-radius: 8px;
+        position: relative;
+        top: 0;
+        transition: all 0.1s;
+
+        .icon-text {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            align-items: center;
+            padding: 4px 0;
+
+            .text {
+                font-size: 9px;
+                font-family: HarmonyOS_Sans_SC_Medium;
+                color: #414E65;
+            }
+
+            img {
+                width: 18px;
+            }
+        }
+
+        &.issend {
+            width: 56px;
+        }
     }
 
     .btn-list {

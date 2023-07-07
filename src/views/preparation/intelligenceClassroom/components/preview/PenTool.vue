@@ -2,35 +2,48 @@
     <div class="shape-pool-warp" ref="shapePoolWarp" v-click-outside="hide">
         <div class="shape-pool">
             <div class="pen-radius-box">
-                <div
-                    @click="setPenSize(2)"
-                    class="pen-radius pen-radius-1"
-                    :class="{ active: penSize === 2 }"
-                    :style="{ backgroundColor:penSize === 2 ? writingBoardColor : '#ccc'}"
-                />
-                <div class="pen-radius pen-radius-2"
-                     @click="setPenSize(6)"
-                     :class="{ active: penSize === 6 }"
-                     :style="{ backgroundColor:penSize === 6 ? writingBoardColor : '#ccc'}"
-                />
-                <div
-                    @click="setPenSize(12)"
-                    class="pen-radius pen-radius-3"
-                    :class="{ active: penSize === 12 }"
-                    :style="{  backgroundColor: penSize === 12 ? writingBoardColor : '#ccc' }"
-                />
-                <div
-                    @click="setPenSize(20)"
-                    class="pen-radius pen-radius-4"
-                    :class="{ active: penSize === 20 }"
-                    :style="{  backgroundColor: penSize === 20 ? writingBoardColor : '#ccc' }"
-                />
-                <div
-                    @click="setPenSize(25)"
-                    class="pen-radius pen-radius-5"
-                    :class="{ active: penSize === 25 }"
-                    :style="{   backgroundColor:penSize === 25 ? writingBoardColor : '#ccc' }"
-                />
+                <div class="pen-radius pen-radius-1" :class="{ active: penSize === 2 }" @click="setPenSize(2)" :style="{
+                    backgroundColor:
+                        penSize === 2 ? writingBoardColor : '#ccc'
+                }"></div>
+                <div class="pen-radius pen-radius-2" :class="{ active: penSize === 6 }" @click="setPenSize(6)" :style="{
+                    backgroundColor:
+                        penSize === 6 ? writingBoardColor : '#ccc'
+                }"></div>
+                <div class="pen-radius pen-radius-3" :class="{ active: penSize === 12 }" @click="setPenSize(12)"
+                     :style="{
+                    backgroundColor:
+                        penSize === 12 ? writingBoardColor : '#ccc'
+                }"></div>
+                <div class="pen-radius pen-radius-4" :class="{ active: penSize === 20 }" @click="setPenSize(20)"
+                     :style="{
+                    backgroundColor:
+                        penSize === 20 ? writingBoardColor : '#ccc'
+                }"></div>
+                <div class="pen-radius pen-radius-5" :class="{ active: penSize === 25 }" @click="setPenSize(25)"
+                     :style="{
+                    backgroundColor:
+                        penSize === 25 ? writingBoardColor : '#ccc'
+                }"></div>
+
+                <el-popover v-model="penSizeVisible" :persistent="false" :teleported="false" :width="140"
+                            placement="top" trigger="hover">
+                    <el-input-number
+                        :min="2"
+                        :max="999"
+                        v-model="penSize"
+                        @change="handleChange"
+                        style="width: 125px"
+                    />
+                    <template #reference>
+                        <el-icon style="cursor: pointer" size="20" color="#fff">
+                            <Setting/>
+                        </el-icon>
+                    </template>
+                </el-popover>
+            </div>
+
+            <div class="pen-line">
             </div>
             <div class="pen-line"></div>
             <div class="pen-reundo">
@@ -45,28 +58,30 @@
             </div>
             <div class="pen-line">
             </div>
-            <div class="pen-eraser" @click="setEraser()">
-                <img src="../../images/slices/icon_xp_white.png" alt="">
-            </div>
+
+            <el-popover v-model="eraserSizeVisible" :persistent="false" :teleported="false" :width="140"
+                        placement="top" trigger="hover">
+                <el-input-number
+                    :min="2"
+                    :max="999"
+                    v-model="eraserSize"
+                    @change="eraserSizeChange"
+                    style="width: 125px"
+                />
+                <template #reference>
+                    <div class="pen-eraser" @click="setEraser()">
+                        <img src="../../images/slices/icon_xp_white.png" alt="">
+                    </div>
+                </template>
+            </el-popover>
+
         </div>
         <div class="shape-pool">
             <div class="colors">
-                <div
-                    :key="color"
-                    class="color"
-                    @click="changeColor(color)"
-                    v-for="color in writingBoardColors"
-                    :style="{ backgroundColor: color }"
-                    :class="{ active: color === writingBoardColor }"
-                />
-                <el-popover
-                    :width="266"
-                    placement="top"
-                    trigger="click"
-                    :persistent="false"
-                    :teleported="false"
-                    v-model:visible="penColorVisible"
-                >
+                <div class="color" :class="{ active: color === writingBoardColor }" v-for="color in writingBoardColors"
+                     :key="color" :style="{ backgroundColor: color }" @click="changeColor(color)"></div>
+                <el-popover v-model:visible="penColorVisible" :persistent="false" :teleported="false" :width="266"
+                            placement="top" trigger="click">
                     <template #reference>
                         <div class="btn">
                             <el-tooltip :hide-after="0" :show-after="0.5" placement="top" content="画笔颜色">
@@ -74,10 +89,8 @@
                             </el-tooltip>
                         </div>
                     </template>
-                    <ColorPicker
-                        :modelValue="writingBoardColor"
-                        @update:modelValue="value => changeColor(value)"
-                    />
+                    <ColorPicker :modelValue="writingBoardColor"
+                                 @update:modelValue="(value: any) => changeColor(value)"/>
                 </el-popover>
             </div>
             <div class="clears" @click="clear()">
@@ -88,7 +101,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, ref } from "vue";
+import {defineComponent, onMounted, ref} from "vue";
 
 export default defineComponent({
     name: "shape-pool",
@@ -102,7 +115,8 @@ export default defineComponent({
         "openTool",
         "undo",
         "redo",
-        "update:isShowPen"
+        "update:isShowPen",
+        "setEraserSize"
     ],
     props: {
         penLeft: {
@@ -128,9 +142,13 @@ export default defineComponent({
         canRedo: {
             type: Boolean,
             default: false
+        },
+        eraserLineWidth: {
+            type: Number,
+            default: 30
         }
     },
-    setup(props, { emit }) {
+    setup(props, {emit}) {
         const writingBoardColors = [
             "#FFFFFF",
             "#000000",
@@ -150,8 +168,11 @@ export default defineComponent({
             emit("update:isShowPen", false);
         };
         const penColorVisible = ref(false);
+        const penSizeVisible = ref(false);
         const penCardVisible = ref(false);
         const penSize = ref(props.currentLineWidth);
+        const eraserSize = ref(props.eraserLineWidth);
+        const eraserSizeVisible = ref((false));
         const setPenSize = (size: number) => {
             penSize.value = size;
             penCardVisible.value = false;
@@ -180,8 +201,25 @@ export default defineComponent({
         const clear = () => {
             emit("clear");
         };
+        // 改变画笔大小
+        const handleChange = (val: number) => {
+            penSizeVisible.value = false;
+            setPenSize(val)
+        };
+        // 橡皮大小改变
+        const eraserSizeChange = (val: number) => {
+            console.log('val', val)
+            penSizeVisible.value = false;
+            setEraserSize(val);
+        };
+        const setEraserSize = (size: number) => {
+            eraserSize.value = size;
+            penCardVisible.value = false;
+            emit("setEraserSize", size);
+        };
         onMounted(() => {
             if (shapePoolWarp.value) {
+                eraserSize.value = props.eraserLineWidth;
                 penSize.value = props.currentLineWidth;
                 writingBoardColor.value = props.currentDrawColor;
                 const width = shapePoolWarp.value.offsetWidth;
@@ -208,7 +246,13 @@ export default defineComponent({
             undo,
             redo,
             setEraser,
-            clear
+            clear,
+            handleChange,
+            penSizeVisible,
+            eraserSizeChange,
+            eraserSizeVisible,
+            eraserSize,
+            setEraserSize
         };
     }
 });
@@ -219,7 +263,7 @@ export default defineComponent({
     position: fixed;
     top: 0;
     left: 0;
-    z-index: 1000;
+    z-index: 100000;
     background: #fff;
     width: 350px;
     height: 90px;

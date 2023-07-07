@@ -24,88 +24,277 @@
                 />
             </div>
         </div>
-        <div class="dialog-footer">
-            <div class="switch-box">
-                <div>
-                    <el-switch v-model="questionSwitchValue"></el-switch>
-                    <p>自动播放题音</p>
-                </div>
-                <div>
-                    <el-switch v-model="resolutionSwitchValue"></el-switch>
-                    <p>自动播放解析</p>
-                </div>
-            </div>
-            <div class="btn-warp">
-                <slot
-                    name="footerBtn"
-                    :sum="sum"
-                    :removeQuestion="removeQuestion"
-                />
-                <div class="btn-list">
-                    <div @click.stop="playSounds(0)" class="button">
-                        <p>听题音</p>
-                    </div>
-                    <div @click.stop="playSounds(1)" class="button">
-                        <p>听解析</p>
-                    </div>
-                    <div @click.stop="drawingShow = true" class="button pen">
-                        <p>画笔</p>
-                    </div>
-                    <!--                    <div-->
-                    <!--                        :class="btnType == 2 ? 'active' : ''"-->
-                    <!--                        @click.stop="eraserHandle"-->
-                    <!--                        class="button"-->
-                    <!--                    >-->
-                    <!--                        <p>橡皮</p>-->
-                    <!--                    </div>-->
-                    <!--                    <div-->
-                    <!--                        :class="btnType == 3 ? 'active' : ''"-->
-                    <!--                        @click.stop="clearBoard"-->
-                    <!--                        class="button"-->
-                    <!--                    >-->
-                    <!--                        <p>清空</p>-->
-                    <!--                    </div>-->
-                    <div @click.stop="closeQuestion" class="button close">
-                        <p>关闭</p>
+        <!--        <div class="dialog-footer">-->
+        <!--            <div class="switch-box">-->
+        <!--                <div>-->
+        <!--                    <el-switch v-model="questionSwitchValue"></el-switch>-->
+        <!--                    <p>自动播放题音</p>-->
+        <!--                </div>-->
+        <!--                <div>-->
+        <!--                    <el-switch v-model="resolutionSwitchValue"></el-switch>-->
+        <!--                    <p>自动播放解析</p>-->
+        <!--                </div>-->
+        <!--            </div>-->
+        <!--            <div class="btn-warp">-->
+        <!--                <slot-->
+        <!--                    name="footerBtn"-->
+        <!--                    :sum="sum"-->
+        <!--                    :removeQuestion="removeQuestion"-->
+        <!--                />-->
+        <!--                <div class="btn-list">-->
+        <!--                    <div @click.stop="playSounds(0)" class="button">-->
+        <!--                        <p>听题音</p>-->
+        <!--                    </div>-->
+        <!--                    <div @click.stop="playSounds(1)" class="button">-->
+        <!--                        <p>听解析</p>-->
+        <!--                    </div>-->
+        <!--                    <div @click.stop="drawingShow = true" class="button pen">-->
+        <!--                        <p>画笔</p>-->
+        <!--                    </div>-->
+        <!--                    <div @click.stop="closeQuestion" class="button close">-->
+        <!--                        <p>关闭</p>-->
+        <!--                    </div>-->
+        <!--                    <div-->
+        <!--                        v-show="-->
+        <!--                            isElectron &&-->
+        <!--                            type != 2 &&-->
+        <!--                            !isPureQuestion &&-->
+        <!--                            !dialog &&-->
+        <!--                            !noMinix-->
+        <!--                        "-->
+        <!--                        @click.stop="smallQuestion"-->
+        <!--                        class="button mini"-->
+        <!--                    >-->
+        <!--                        <p>最小化</p>-->
+        <!--                    </div>-->
+        <!--                    <div v-if="isLastBtn" class="disabled button prev">-->
+        <!--                        <p>上一页</p>-->
+        <!--                    </div>-->
+        <!--                    <div v-else @click.stop="lastPage" class="button prev">-->
+        <!--                        <p>上一页</p>-->
+        <!--                    </div>-->
+        <!--                    <div v-if="isNextBtn" class="disabled button next">-->
+        <!--                        <p>下一页</p>-->
+        <!--                    </div>-->
+        <!--                    <div v-else @click.stop="nextPage" class="button next">-->
+        <!--                        <p>下一页</p>-->
+        <!--                    </div>-->
+        <!--                </div>-->
+        <!--            </div>-->
+        <!--        </div>-->
+        <div>
+            <div v-dragLine="'left'" class="nextpage">
+                <div class="me-tools-steps-new">
+                    <div class="me-tool-btn-new" @click="lastPage">
+                        <div class="icon-text">
+                            <img src="@/views/preparation/intelligenceClassroom/images/slices/arrow_left.png" alt=""/>
+                            <span class="text">上一页</span>
+                        </div>
                     </div>
                     <div
-                        v-show="
-                            isElectron &&
-                            type != 2 &&
-                            !isPureQuestion &&
-                            !dialog &&
-                            !noMinix
-                        "
-                        @click.stop="smallQuestion"
-                        class="button mini"
+                        @click="nextPage"
+                        class="me-tool-btn-new next-step"
                     >
-                        <p>最小化</p>
-                    </div>
-                    <div v-if="isLastBtn" class="disabled button prev">
-                        <p>上一页</p>
-                    </div>
-                    <div v-else @click.stop="lastPage" class="button prev">
-                        <p>上一页</p>
-                    </div>
-                    <div v-if="isNextBtn" class="disabled button next">
-                        <p>下一页</p>
-                    </div>
-                    <div v-else @click.stop="nextPage" class="button next">
-                        <p>下一页</p>
+                        <div class="icon-text">
+                            <div class="next-icon"></div>
+                            <span class="text">下一页</span>
+                        </div>
                     </div>
                 </div>
+            </div>
+            <div class="me-tools" ref="metools" v-drag>
+                <div class="me-tools-draw">
+                    <!-- 左边可收起的按钮 -->
+                    <div class="draw-content">
+                        <div style="display: flex">
+                            <!-- 展开后工具栏最左边按钮 -->
+                            <div class="me-tools-canvas">
+                                <slot
+                                    name="footerBtn"
+                                    :sum="sum"
+                                    :removeQuestion="removeQuestion"
+                                />
+                                <!-- 听题音-->
+                                <div class="me-tool-btn-new" @click.stop="playSounds(0)">
+                                    <div class="icon-text">
+                                        <img src="@/views/preparation/intelligenceClassroom/images/slices/icon_tyy.png"
+                                             alt=""/>
+                                        <span class="text">听题音</span>
+                                    </div>
+                                </div>
+                                <!-- 听解析-->
+                                <div class="me-tool-btn-new" @click.stop="playSounds(1)">
+                                    <div class="icon-text">
+                                        <img src="@/views/preparation/intelligenceClassroom/images/slices/icon_tjx.png"
+                                             alt=""/>
+                                        <span class="text">听解析</span>
+                                    </div>
+                                </div>
+                                <div class="me-tool-btn-line"></div>
+
+                                <el-popover
+                                    :width="140"
+                                    placement="top" trigger="click">
+                                    <el-input-number
+                                        :min="2"
+                                        :max="999"
+                                        v-model="eraserLineWidth"
+                                        @change="setEraserSize"
+                                        style="width: 125px"
+                                    />
+                                    <template #reference>
+                                        <div
+                                            class="me-tool-btn-new"
+                                            :class="toolType === 'eraser' && 'btn-active'"
+                                            @click="openPaintTool($event, 'eraser'),(toolType = 'eraser')"
+                                        >
+                                            <div class="icon-text">
+                                                <img v-if="toolType !== 'eraser'"
+                                                     src="@/views/preparation/intelligenceClassroom/images/slices/icon_xp.png"
+                                                     alt=""/>
+                                                <img v-if="toolType === 'eraser'"
+                                                     src="@/views/preparation/intelligenceClassroom/images/slices/icon_xp_white.png"
+                                                     alt=""/>
+                                                <span class="text">橡皮</span>
+                                            </div>
+                                        </div>
+                                    </template>
+                                </el-popover>
+                                <!-- 橡皮擦 -->
+
+                                <!-- 尺规:三合一-->
+                                <div
+                                    class="me-tool-btn-new"
+                                    :class="toolType === 'rulers' && 'btn-active'"
+                                    @click="openPaintTool($event, 'rulers'),(toolType = 'rulers')"
+                                >
+                                    <div class="icon-text">
+                                        <img v-if="toolType !== 'rulers'"
+                                             src="@/views/preparation/intelligenceClassroom/images/slices/icon_cg.png"
+                                             alt=""/>
+                                        <img v-if="toolType === 'rulers'"
+                                             src="@/views/preparation/intelligenceClassroom/images/slices/icon_cg_white.png"
+                                             alt=""/>
+                                        <span class="text">尺规</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 右边固定展开的按钮 -->
+                    <div class="me-tools-righttool">
+                        <!-- 展开/收起 -->
+                        <div @click.prevent.stop="showDrawToos" class="arrows">
+                            <img v-if="!isOpen"
+                                 src="@/views/preparation/intelligenceClassroom/images/slices/icon_zhankai.png" alt=""/>
+                            <img v-else src="@/views/preparation/intelligenceClassroom/images/slices/icon_shouqi.png"
+                                 alt=""/>
+                            <span class="text" v-if="!isOpen">展开</span>
+                            <span class="text" v-else>收起</span>
+                        </div>
+                        <div class="me-tool-btn-line"></div>
+                        <!-- 鼠标 -->
+                        <div
+                            class="me-tool-btn-new"
+                            :class="toolType === 'mouse' && 'btn-active'"
+                            @click="openPaintTool($event, 'mouse'),(toolType = 'mouse')"
+                        >
+                            <div class="icon-text">
+                                <img v-if="toolType !== 'mouse'"
+                                     src="@/views/preparation/intelligenceClassroom/images/slices/icon_shubiao.png"
+                                     alt=""/>
+                                <img v-if="toolType === 'mouse'"
+                                     src="@/views/preparation/intelligenceClassroom/images/slices/icon_shubiao_white.png"
+                                     alt=""/>
+                                <span class="text">鼠标</span>
+                            </div>
+                        </div>
+                        <!-- 画笔 -->
+                        <div
+                            class="me-tool-btn-new"
+                            :class="toolType === 'pen' && 'btn-active'"
+                            @click="openPaintTool($event, 'paint'),(toolType = 'pen')"
+                        >
+                            <div class="icon-text">
+                                <img v-if="toolType !== 'pen'"
+                                     src="@/views/preparation/intelligenceClassroom/images/slices/icon_hb.png" alt=""/>
+                                <img v-if="toolType === 'pen'"
+                                     src="@/views/preparation/intelligenceClassroom/images/slices/icon_hb_white.png"
+                                     alt=""/>
+                                <span class="text">画笔</span>
+                            </div>
+                        </div>
+                        <!-- 上一页 -->
+                        <div class="me-tool-btn-new" @click="lastPage">
+                            <div class="icon-text">
+                                <img src="@/views/preparation/intelligenceClassroom/images/slices/arrow_left.png"
+                                     alt=""/>
+                                <span class="text">上一页</span>
+                            </div>
+                        </div>
+                        <!-- 下一页 -->
+                        <div
+                            @click="nextPage"
+
+                            style="width: 90px;"
+                            class="me-tool-btn-new next-step"
+                        >
+                            <div class="icon-text">
+                                <div class="next-icon"></div>
+                                <span class="text">下一页</span>
+                            </div>
+                        </div>
+                        <!-- 关闭 -->
+                        <div class="me-tool-btn-new" @click="closeQuestion">
+                            <div class="icon-text">
+                                <img src="@/views/preparation/intelligenceClassroom/images/slices/close.png" alt=""/>
+                                <span class="text">关闭</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
 
-    <drawing-board :show="drawingShow" @closeWriteBoard="drawingShow = false" ref="drawingBoardRef"/>
+    <PenTool
+        @undo="undo()"
+        @redo="redo()"
+        :penTop="penTop"
+        v-if="isShowPen"
+        :penLeft="penLeft"
+        :canUndo="isCanUndo"
+        :canRedo="isCanRedo"
+        v-model:isShowPen="isShowPen"
+        :currentDrawColor="currentDrawColor"
+        :currentLineWidth="currentLineWidth"
+        :eraserLineWidth="eraserLineWidth"
+        @clear="whiteboardOption('clear')"
+        @setEraser="whiteboardOption('setEraser')"
+        @setEraserSize="setEraserSize"
+        @setPenSize="(value) => whiteboardOption('setPenSize', value)"
+        @setPenColor="(value) => whiteboardOption('setPenColor', value)"
+    />
+    <RulersTool
+        v-if="isShowRulers"
+        :rulersTop="rulersTop"
+        :rulersLeft="rulersLeft"
+        @setRulersTool="setRulersTool"
+        v-model:isShowRulers="isShowRulers"
+    />
+    <drawing-board :show="drawingShow" @closeWriteBoard="drawingShow = false" :isOldTool="false" ref="drawingBoardRef"
+                   v-model:isCanUndo="isCanUndo" v-model:isCanRedo="isCanRedo"
+                   v-model:currentDrawColor="currentDrawColor"
+                   v-model:currentLineWidth="currentLineWidth"
+                   v-model:eraserLineWidth="eraserLineWidth"/>
 </template>
 
 <script lang="ts">
 import {
     computed,
     defineComponent,
-    inject,
+    inject, nextTick,
     onMounted,
     onUnmounted,
     PropType,
@@ -120,6 +309,8 @@ import emitter from "@/utils/mitt";
 import {IViewResourceData} from "@/types/store";
 import DrawingBoard from "@/components/drawingBoard/index.vue";
 import {KEYS} from "@/config/hotkey";
+import PenTool from "@/views/preparation/intelligenceClassroom/components/preview/PenTool.vue";
+import RulersTool from "@/views/preparation/intelligenceClassroom/components/preview/RulersTool.vue";
 
 export default defineComponent({
     props: {
@@ -151,6 +342,18 @@ export default defineComponent({
         const isElectron = isElectronFun();
         const noMinix = computed(() => !!props.resource.openMore);
         const questionID = inject("nowQuestionID") as Ref<string>;
+        const toolType = ref("mouse");
+        const isShowRulers = ref(false);
+        const rulersLeft = ref(0);
+        const rulersTop = ref(0);
+        const isShowPen = ref(false);
+        const penLeft = ref(0);
+        const penTop = ref(0);
+        const isCanUndo = ref(false);
+        const isCanRedo = ref(false);
+        const currentDrawColor = ref("#f60000");
+        const currentLineWidth = ref(2);
+        const eraserLineWidth = ref(30);
         const {
             imageUrl,
             voiceUrl,
@@ -274,6 +477,77 @@ export default defineComponent({
         };
 
         const drawingShow = ref(false);
+        const isOpen = ref(false);
+        const showDrawToos = () => {
+            const dom: HTMLElement = document.querySelector(".draw-content") as HTMLElement;
+            const outdom: HTMLElement = document.querySelector(".me-tools") as HTMLElement;
+            if (outdom?.style.width === "786px") {
+                isOpen.value = false;
+                outdom.style.width = "378px";
+            } else {
+                isOpen.value = true;
+                outdom.style.width = "786px";
+            }
+            const width2 = 786 - 378;
+            if (dom?.style.width === width2 + "px") {
+                dom.style.width = "0px";
+            } else {
+                dom.style.width = width2 + "px";
+            }
+        };
+
+        // 工具栏
+        const openPaintTool = (event: MouseEvent, type: string) => {
+            const target = event.target as HTMLDivElement;
+            const {left, top} = target.getBoundingClientRect();
+            if (type === "paint") {
+                drawingShow.value = true;
+                isShowPen.value = true;
+                penLeft.value = left;
+                penTop.value = top;
+            }
+            if (type === "eraser") {
+                drawingShow.value = true;
+                nextTick(() => {
+                    drawingBoardRef.value.whiteboardOption("setEraser")
+                })
+            }
+            if (type === "mouse") {
+                drawingShow.value = false;
+                drawingBoardRef.value.whiteboardOption("setMouse")
+            }
+            if (type === "rulers") {
+                drawingShow.value = true;
+                isShowRulers.value = true;
+                rulersLeft.value = left;
+                rulersTop.value = top;
+            }
+
+        };
+        // 尺规工具点击回调
+        const setRulersTool = (value: any) => {
+            console.log('value', value)
+            isShowRulers.value = true;
+            drawingBoardRef.value.whiteboardOption("openTool", value)
+        };
+        // 撤销
+        const undo = () => {
+            drawingBoardRef.value.undo()
+        };
+        // 回退
+        const redo = () => {
+            drawingBoardRef.value.redo()
+        };
+        // 画笔其它配置
+        const whiteboardOption = (option: string, value?: number) => {
+            // emit("whiteboardOption", option, value);
+            console.log('option,value', option, value)
+            drawingBoardRef.value.whiteboardOption(option, value)
+        };
+        const setEraserSize = (value: number) => {
+            console.log('value', value)
+            drawingBoardRef.value.whiteboardOption("setEraserSize", value)
+        };
 
         return {
             noMinix,
@@ -309,10 +583,31 @@ export default defineComponent({
             drawingShow,
             keydownListener,
             canvasData,
-            drawingBoardRef
+            drawingBoardRef,
+            showDrawToos,
+            isOpen,
+            openPaintTool,
+            toolType,
+            setRulersTool,
+            isShowRulers,
+            rulersLeft,
+            rulersTop,
+
+            isShowPen,
+            penLeft,
+            penTop,
+            whiteboardOption,
+            undo,
+            redo,
+            isCanUndo,
+            isCanRedo,
+            currentDrawColor,
+            currentLineWidth,
+            eraserLineWidth,
+            setEraserSize
         };
     },
-    components: {DrawingBoard},
+    components: {DrawingBoard, PenTool, RulersTool}
 });
 </script>
 
@@ -485,5 +780,275 @@ export default defineComponent({
             }
         }
     }
+}
+
+// 左边-新的按钮样式
+.nextpage {
+    cursor: move;
+    position: fixed;
+    left: 3vw;
+    bottom: 4vh;
+    z-index: 99999;
+
+    .me-tools-steps-new {
+        width: 116px;
+        height: 64px;
+        background: rgba(15, 39, 91, 0.15);
+        border-radius: 12px;
+        display: flex;
+        justify-content: space-evenly;
+        align-items: center;
+    }
+}
+
+.me-tool-btn-new {
+    cursor: pointer;
+    width: 48px;
+    height: 48px;
+    background: #FFFFFF;
+    border-radius: 8px;
+    position: relative;
+    top: 0;
+    transition: all 0.1s;
+
+    .icon-text {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+        align-items: center;
+        padding: 4px 0;
+
+        .text {
+            font-size: 9px;
+            font-family: HarmonyOS_Sans_SC_Medium;
+            color: #414E65;
+        }
+
+        img {
+            width: 18px;
+        }
+    }
+
+    &.issend {
+        width: 56px;
+    }
+}
+
+
+.me-tool-btn-line {
+    width: 1px;
+    height: 48px;
+    background: rgba(65, 78, 101, 0.1);
+    margin: 0px 5px;
+}
+
+.next-step {
+    background: #F8F9FF;
+    border: 2px solid #4B71EE;
+
+    .icon-text {
+        .next-icon {
+            width: 18px;
+            height: 18px;
+            background: url("~@/views/preparation/intelligenceClassroom/images/slices/arrow_right_blue.png");
+            background-size: 100% 100%;
+        }
+    }
+
+    .text {
+        color: #4B71EE !important;
+    }
+}
+
+.next-step:active {
+    .icon-text {
+        .next-icon {
+            background: url("~@/views/preparation/intelligenceClassroom/images/slices/arrow_right_white.png");
+        }
+    }
+
+    background: #4B71EE;
+
+    .text {
+        color: #fff !important;
+    }
+}
+
+.me-tool-btn-new:active {
+    top: 2px;
+    box-shadow: 0 0 0 !important;
+}
+
+.me-tool-btn-new.btn-active {
+    background: #4B71EE;
+
+    .text {
+        color: #fff;
+    }
+}
+
+.me-tools {
+    // background: rgba(15, 39, 91, 0.15);
+    border-radius: 12px;
+
+    // border-radius: 40px;
+    // background: rgba(255, 255, 255, 0.3);
+    z-index: 99999;
+    cursor: move;
+    height: 64px;
+    display: flex;
+    overflow: auto;
+    bottom: 4vh;
+    right: 6vw;
+    width: 378px;
+    transition: width 0.5s, transform 0.5s;
+    overflow-y: hidden;
+
+    // width: 80%;
+    .me-tools-draw {
+        display: flex;
+        position: relative;
+        width: 100%;
+        background: rgba(15, 39, 91, 0.15);
+
+        .draw-content {
+            display: flex;
+            position: absolute;
+            width: 0;
+            overflow: hidden;
+            right: 378px;
+            height: 100%;
+            transition: width 0.5s, transform 0.5s;
+        }
+
+        .me-tools-righttool {
+            position: absolute;
+            right: 0;
+            width: 378px;
+            height: 64px;
+            // background: rgba(15, 39, 91, 0.15);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-evenly;
+
+            .el-icon {
+                cursor: pointer;
+                font-size: 32px;
+                display: flex;
+                align-items: center;
+                // color: #e0e2e7;
+            }
+
+            .arrows {
+                cursor: pointer;
+                font-size: 20px;
+                display: flex;
+                align-items: center;
+                flex-direction: column;
+                justify-content: center;
+                height: 100%;
+
+                .text {
+                    padding-top: 8px;
+                    font-size: 9px;
+                    color: #414E65;
+                }
+            }
+        }
+    }
+
+    &.tools-fullSrceen {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+
+        .me-tools-set {
+            transform: none;
+
+            .setting {
+                position: absolute;
+            }
+        }
+    }
+
+    .me-tools-set {
+        position: relative;
+        width: 118px;
+        justify-content: space-evenly;
+        align-items: center;
+
+        .setting {
+            position: fixed;
+            top: -55px;
+            left: 10px;
+            color: #fff;
+            background: #000;
+            width: max-content;
+            z-index: 1;
+
+            .setting-item {
+                padding: 0 16px;
+                height: 50px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+            }
+
+            .setting-sub-menu {
+                position: absolute;
+                right: -10px;
+                transform: translateX(100%);
+                bottom: 10px;
+
+                .menu {
+                    height: 40px;
+                    padding: 0 16px;
+                    color: #fff;
+                    background: #000;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    cursor: pointer;
+                    border-bottom: 1px solid #fff;
+
+                    &:last-child {
+                        border-bottom: none;
+                    }
+                }
+            }
+        }
+
+        .setting-btn {
+            display: flex;
+            justify-content: center;
+            color: #254d98;
+            font-weight: 700;
+
+            span {
+                position: absolute;
+                bottom: 0;
+            }
+        }
+    }
+}
+
+.me-tools-canvas {
+    flex: 1;
+    width: 406px;
+    align-items: center;
+    // margin-left: 24px;
+    justify-content: space-evenly;
+}
+
+.me-tools-canvas,
+.me-tools-screen,
+.me-tools-system,
+.me-tools-set {
+    display: flex;
 }
 </style>

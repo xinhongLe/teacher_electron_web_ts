@@ -14,9 +14,20 @@
                     <img src="@/assets/edit/icon_start2.png" alt=""/>
                     从头开始
                 </div>
-                <div class="btn" @click="importPPT">
-                    <img src="@/assets/edit/icon_export.png" alt=""/>
-                    导入ppt
+                <!--                <div class="btn" @click="importPPT">-->
+                <!--                    <img src="@/assets/edit/icon_export.png" alt=""/>-->
+                <!--                    导入ppt-->
+                <!--                </div>-->
+                <div class="btn">
+                    <el-upload
+                        :auto-upload="false"
+                        :show-file-list="false"
+                        :on-change="importPPT"
+                        accept=".pptx"
+                    >
+                        <img src="@/assets/edit/icon_export.png" alt=""/>
+                        导入ppt
+                    </el-upload>
                 </div>
                 <div class="btn" @click="pageAction(1)">
                     <img src="@/assets/edit/icon_design.png" alt=""/>
@@ -99,22 +110,22 @@ import { Slide } from "wincard";
 import { cloneDeep } from "lodash";
 import { v4 as uuidv4 } from "uuid";
 import { saveWindows } from "../api";
-import { getWindowStruct, setShowModel } from "@/api/home";
+import { getWindowStruct } from "@/api/home";
 import { arrIsEqual } from "@/utils/dataParse";
 import useImportPPT from "@/hooks/useImportPPT";
 import useHandlePPT from "./hooks/useHandlePPT";
-import { pageType, pageTypeList } from "@/config";
-import { get, set, STORAGE_TYPES } from "@/utils/storage";
+import {pageType, pageTypeList} from "@/config";
+import {get, set, STORAGE_TYPES} from "@/utils/storage";
 import useSaveTemplate from "./hooks/useSaveTemplate";
-import { ElMessage, ElMessageBox } from "element-plus";
-import exitDialog, { ExitType } from "../edit/exitDialog";
+import {ElMessage, ElMessageBox} from "element-plus";
+import exitDialog, {ExitType} from "../edit/exitDialog";
 import CardPreview from "../components/edit/CardPreview.vue";
 import WinCardEdit from "../components/edit/winCardEdit.vue";
 import WinCardView from "../components/edit/winScreenView.vue";
 import AddPageDialog from "../components/edit/addPageDialog.vue";
-import { CardProps, MaterialProp, PageProps } from "../api/props";
+import {CardProps, MaterialProp, PageProps} from "../api/props";
 import materialCenter from "../components/edit/materialCenter/index.vue";
-import { computed, defineComponent, nextTick, ref, onMounted } from "vue";
+import {computed, defineComponent, nextTick, ref, onMounted} from "vue";
 
 export default defineComponent({
     name: "EditWinCard",
@@ -228,8 +239,8 @@ export default defineComponent({
         };
 
         // 导入PPT
-        const importPPT = () => {
-            handleImport.importByElectron((pages, name) => {
+        const importPPT = (file: any) => {
+            handleImport.importByElectron(file, (pages, name) => {
                 const card = handlePPT.createFolder(name);
                 card.PageList = pages;
                 handlePPT.sortWindowCards();
@@ -244,7 +255,7 @@ export default defineComponent({
                 ElMessageBox.prompt("", "新建文件夹", {
                     inputPattern: /\S/,
                     inputErrorMessage: "请填写文件夹名称"
-                }).then(async ({ value }) => {
+                }).then(async ({value}) => {
                     const card = handlePPT.createFolder(value);
                     const page = await handlePPT.createPage(pageTypeList[0], card);
                     handlePPT.sortWindowCards();
@@ -263,7 +274,7 @@ export default defineComponent({
                     inputPattern: /\S/,
                     inputValue: data.Name,
                     inputErrorMessage: "请填写名称！"
-                }).then(async ({ value }) => {
+                }).then(async ({value}) => {
                     data.Name = value;
                 });
             }
@@ -504,7 +515,7 @@ export default defineComponent({
             ElMessageBox.prompt("", "保存模板", {
                 inputPattern: /\S/,
                 inputErrorMessage: "请填写模板名称"
-            }).then(async ({ value }) => {
+            }).then(async ({value}) => {
                 await saveWindowTemplate(
                     value,
                     cloneDeep(list),

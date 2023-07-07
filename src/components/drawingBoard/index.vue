@@ -4,7 +4,7 @@
     </div>
 
     <WritingBoardTool
-        v-show="show"
+        v-show="show && isOldTool"
         @close="closeWriteBoard()"
         @clear="whiteboardOption('clear')"
         @setPenSize="(value) => whiteboardOption('setPenSize', value)"
@@ -36,9 +36,17 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
+    isOldTool: {
+        type: Boolean,
+        default: true,
+    },
+    eraserLineWidth: {
+        type: Number,
+        default: 30,
+    }
 });
 
-const emits = defineEmits(["closeWriteBoard"]);
+const emits = defineEmits(["closeWriteBoard", "update:isCanUndo", "update:isCanRedo", "update:currentDrawColor", "update:currentLineWidth", "update:eraserLineWidth"]);
 
 const writingBoardNotMouse = ref(true);
 
@@ -59,10 +67,12 @@ const whiteboardOption = (option: string, value?: number) => {
     } else if (option === "setPenSize") {
         whiteboard.value.setOptionType(OPTION_TYPE.PEN);
         whiteboard.value.setLineWidth(value);
+        emits("update:currentLineWidth", value);
         writingBoardNotMouse.value = true;
     } else if (option === "setPenColor") {
         whiteboard.value.setOptionType(OPTION_TYPE.PEN);
         whiteboard.value.setDrawColor(value);
+        emits("update:currentDrawColor", value);
         writingBoardNotMouse.value = true;
     } else if (option === "setEraser") {
         whiteboard.value.setOptionType(OPTION_TYPE.ERASER);
@@ -71,7 +81,12 @@ const whiteboardOption = (option: string, value?: number) => {
         writingBoardNotMouse.value = false;
     } else if (option === "openTool") {
         writingBoardNotMouse.value = true;
-        whiteboard.value.setOptionType(value);
+        whiteboard.value.setToolTypes(value);
+    } else if (option === "setEraserSize") {
+        whiteboard.value.setOptionType(OPTION_TYPE.ERASER);
+        whiteboard.value.setEraserLinWidth(value);
+        emits("update:eraserLineWidth", value);
+        writingBoardNotMouse.value = true;
     }
 };
 
@@ -85,6 +100,13 @@ const redo = () => {
 
 const canUndo = computed(() => whiteboard.value && whiteboard.value.canUndo);
 const canRedo = computed(() => whiteboard.value && whiteboard.value.canRedo);
+
+watch(() => canUndo.value, (val: boolean) => {
+    emits("update:isCanUndo", val)
+});
+watch(() => canRedo.value, (val: boolean) => {
+    emits("update:isCanRedo", val)
+});
 
 const resize = () => {
     // 窗口发生变化重新计算距离
@@ -121,7 +143,7 @@ onMounted(() => {
     });
 });
 
-defineExpose({whiteboard})
+defineExpose({whiteboard, whiteboardOption, undo, redo})
 
 </script>
 

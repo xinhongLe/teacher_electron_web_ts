@@ -27,8 +27,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
-import { useStore } from "@/store";
+import {computed} from "vue";
+import {useStore} from "@/store";
 import WinCard from "./wincard.vue";
 import ScreenViewFile from "./screenViewFile.vue";
 import LookVideo from "@/components/lookVideo/index.vue";
@@ -46,6 +46,7 @@ const viewComponents = {
 const store = useStore();
 const activeWindow = computed(() => store.state.common.activeWindow);
 const resourceList = computed(() => store.state.common.showResourceFullScreen);
+console.log('resourceList', resourceList)
 const videoResource = computed(() => store.state.common.singleResourceFullScreen.video);
 const questionResource = computed(() => store.state.common.singleResourceFullScreen.question);
 </script>

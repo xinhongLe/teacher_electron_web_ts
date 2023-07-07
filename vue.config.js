@@ -1,4 +1,4 @@
-const { NormalModuleReplacementPlugin } = require("webpack");
+const {NormalModuleReplacementPlugin} = require("webpack");
 
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 
@@ -259,7 +259,7 @@ module.exports = {
         electronBuilder: {
             nodeIntegration: true,
             mainProcessFile: "electron/background.ts",
-            preload: { preload: "electron/preload.ts" },
+            preload: {preload: "electron/preload.ts"},
             mainProcessWatch: ["electron/**/*"],
             files: ["dist_electron/**/*"],
             builderOptions: {
@@ -329,24 +329,24 @@ module.exports = {
                             ]
                         }
                     ],
-                    extraFiles: [
-                        {
-                            from: "node_modules/trtc-electron-sdk/build/Release/",
-                            to: "./resources",
-                            filter: ["**/*"]
-                        }
-                    ]
+                    // extraFiles: [
+                    //     {
+                    //         from: "node_modules/trtc-electron-sdk/build/Release/",
+                    //         to: "./resources",
+                    //         filter: ["**/*"]
+                    //     }
+                    // ]
                 },
                 mac: {
                     icon: "./public/icon.icns",
                     target: ["dmg", "zip"],
-                    extraFiles: [
-                        {
-                            from: "node_modules/trtc-electron-sdk/build/Release/",
-                            to: "./Resources",
-                            filter: ["**/*"]
-                        }
-                    ],
+                    // extraFiles: [
+                    //     {
+                    //         from: "node_modules/trtc-electron-sdk/build/Release/",
+                    //         to: "./Resources",
+                    //         filter: ["**/*"]
+                    //     }
+                    // ],
                     fileAssociations: [
                         {
                             ext: "lyxpkg",
@@ -354,9 +354,9 @@ module.exports = {
                         }
                     ]
                 },
-                extraFiles: [
-                    "node_modules/trtc-electron-sdk/build/Release/trtc_electron_sdk.node"
-                ]
+                // extraFiles: [
+                //     "node_modules/trtc-electron-sdk/build/Release/trtc_electron_sdk.node"
+                // ]
             },
             externals: [
                 "clipboard",
