@@ -4,9 +4,11 @@ module.exports = {
         node: true
     },
     globals: {
-        electron: true,
         MathJax: true,
-        defineProps: true
+        electron: true,
+        defineProps: true,
+        defineEmits: true,
+        defineExpose: true
     },
     extends: [
         "plugin:vue/vue3-essential",
