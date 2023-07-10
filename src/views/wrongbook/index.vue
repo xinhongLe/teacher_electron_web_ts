@@ -23,19 +23,32 @@
                                 : ''
                         "
                     >
-                        <div
+                        <!--                        <div-->
+                        <!--                            @click="switchClass(item)"-->
+                        <!--                            class="class-item"-->
+                        <!--                            :key="item.ID"-->
+                        <!--                            :class="-->
+                        <!--                                item.ID == state.currentClassId-->
+                        <!--                                    ? 'isActive'-->
+                        <!--                                    : ''-->
+                        <!--                            "-->
+                        <!--                            v-for="item in fourClassList"-->
+                        <!--                        >-->
+
+                        <!--                            <span>{{ item.Name }}</span>-->
+                        <!--                        </div>-->
+                        <el-button
                             @click="switchClass(item)"
-                            class="class-item"
                             :key="item.ID"
                             :class="
                                 item.ID == state.currentClassId
                                     ? 'isActive'
                                     : ''
                             "
-                            v-for="item in (fourClassList as any)"
+                            v-for="item in fourClassList"
+                        >{{ item.Name }}
+                        </el-button
                         >
-                            <span>{{ item.Name }}</span>
-                        </div>
                     </div>
                 </div>
                 <div
@@ -93,7 +106,8 @@
                         :class="{
                             dateActive: item.id == state.currentDateIndex,
                         }"
-                        >{{ item.name }}</el-button
+                    >{{ item.name }}
+                    </el-button
                     >
                     <!-- <el-button  @click="toFormatDate(1)"
                         >今日</el-button
@@ -117,7 +131,22 @@
         <main class="wrongbook-main">
             <header class="top-search">
                 <div class="left-btn">
-                    <el-button
+                    <!--                    <el-button-->
+                    <!--                        v-for="item in state.wrongTypeButtonList"-->
+                    <!--                        :key="item.id"-->
+                    <!--                        @click="-->
+                    <!--                            state.currentWrongType = item.id;-->
+                    <!--                            state.currentWrongTypeIndex = item.id;-->
+                    <!--                        "-->
+                    <!--                        :class="{-->
+                    <!--                            isActive: item.id == state.currentWrongTypeIndex,-->
+                    <!--                        }"-->
+                    <!--                    >{{ item.name }}-->
+                    <!--                    </el-button-->
+                    <!--                    >-->
+
+                    <div
+                        class="class-item"
                         v-for="item in state.wrongTypeButtonList"
                         :key="item.id"
                         @click="
@@ -127,8 +156,9 @@
                         :class="{
                             isActive: item.id == state.currentWrongTypeIndex,
                         }"
-                        >{{ item.name }}</el-button
                     >
+                        <span>{{ item.name }}</span>
+                    </div>
                 </div>
                 <div class="right-sel">
                     <span
@@ -384,14 +414,14 @@ import LessonList from "./components/LessonList.vue";
 import WrongDetails from "./components/WrongDetails.vue";
 import QuestionBasket from "./components/QuestionBasket.vue";
 import GenerateExercise from "./components/GenerateExercise.vue";
-import { get, STORAGE_TYPES } from "@/utils/storage";
-import { getFormatDate } from "@/utils";
-import { fetchGradeClassStudents } from "@/views/assignHomework/api";
-import { useRoute } from "vue-router";
+import {get, STORAGE_TYPES} from "@/utils/storage";
+import {getFormatDate} from "@/utils";
+import {fetchGradeClassStudents} from "@/views/assignHomework/api";
+import {useRoute} from "vue-router";
 import useWrongBook from "./hooks/useWrongBook";
-import { store } from "@/store";
+import {store} from "@/store";
 
-const { questionTypeList, frequencyList } = useWrongBook();
+const {questionTypeList, frequencyList} = useWrongBook();
 const route = useRoute();
 const classList = get(STORAGE_TYPES.USER_INFO).Classes;
 const gradeId = ref(classList.length ? classList[0]?.GradeID : "");
@@ -554,7 +584,7 @@ watch(
     (val) => {
         console.log("currentHomeworkBookId", val);
     },
-    { deep: true }
+    {deep: true}
 );
 
 //监听日期区间
@@ -574,7 +604,7 @@ watch(
             searchForm.value.EndTime = value[1];
         }
     },
-    { deep: true }
+    {deep: true}
 );
 watch(
     () => state.currentWrongType,
@@ -634,7 +664,7 @@ watch(
 
         filterClassStudent(val);
     },
-    { deep: true }
+    {deep: true}
 );
 //过滤班级学生
 const filterClassStudent = (val: any) => {
@@ -776,14 +806,17 @@ const onBackWrongBook = () => {
         display: flex;
         justify-content: space-between;
         align-items: center;
+
         .header-left-con {
             // max-width: 40%;
             display: flex;
             justify-content: space-between;
             align-items: center;
+
             .fixedBox {
                 flex: 1;
                 overflow: hidden;
+
                 .header-left {
                     display: flex;
                     height: 100%;
@@ -793,33 +826,55 @@ const onBackWrongBook = () => {
                     font-size: 14px;
                     color: #a7aab4;
                     font-family: HarmonyOS_Sans_SC;
-                    .class-item {
-                        transition: all 0.3s ease;
 
-                        margin-right: 32px;
-                        cursor: pointer;
-                        white-space: nowrap;
-                    }
-
-                    .isActive {
-                        font-size: 16px;
+                    :deep(.el-button) {
+                        min-width: 88px;
+                        background: #f3f7ff;
+                        border-radius: 4px;
+                        border: none;
+                        // border: 1px solid rgba(75, 113, 238, 0.5);
                         color: #19203d;
-                        font-weight: bold;
-                        transition: 0.2s;
+                        font-size: 13px;
                     }
 
-                    .isActive::after {
-                        content: "";
-                        display: block;
-                        position: relative;
-                        width: 100%;
-                        height: 3px;
-                        background: #4b71ee;
-                        bottom: -16px;
-                        /* left: -74px; */
-                        right: 0;
-                        transition: 0.2s;
+                    :deep(.el-button.isActive) {
+                        color: #4b71ee;
+                        border: 1px solid rgba(75, 113, 238, 0.5);
                     }
+
+                    :deep(.el-button:focus, .el-button:hover, .isActive) {
+                        color: #4b71ee;
+                        border: 1px solid rgba(75, 113, 238, 0.5);
+                    }
+
+                    //.class-item {
+                    //    transition: all 0.3s ease;
+                    //
+                    //    margin-right: 32px;
+                    //    cursor: pointer;
+                    //    white-space: nowrap;
+                    //}
+                    //
+                    //
+                    //.isActive {
+                    //    font-size: 16px;
+                    //    color: #19203d;
+                    //    font-weight: bold;
+                    //    transition: 0.2s;
+                    //}
+                    //
+                    //.isActive::after {
+                    //    content: "";
+                    //    display: block;
+                    //    position: relative;
+                    //    width: 100%;
+                    //    height: 3px;
+                    //    background: #4b71ee;
+                    //    bottom: -16px;
+                    //    /* left: -74px; */
+                    //    right: 0;
+                    //    transition: 0.2s;
+                    //}
                 }
             }
         }
@@ -828,11 +883,13 @@ const onBackWrongBook = () => {
             // flex: 1;
             display: flex;
             justify-content: flex-end;
+
             :deep(.el-button:focus, .el-button:hover),
             :deep(.el-button-group) {
                 span {
                     font-size: 12px;
                 }
+
                 .el-button.dateActive {
                     background-color: #f3f7ff;
                     border: 1px solid rgba(75, 113, 238, 0.5);
@@ -856,29 +913,61 @@ const onBackWrongBook = () => {
             padding: 0 16px;
 
             .left-btn {
-                :deep(.el-button) {
-                    min-width: 88px;
-                    background: #f3f7ff;
-                    border-radius: 4px;
-                    border: none;
-                    // border: 1px solid rgba(75, 113, 238, 0.5);
+                display: flex;
+                .class-item {
+                    transition: all 0.3s ease;
+
+                    margin-right: 32px;
+                    cursor: pointer;
+                    white-space: nowrap;
+                }
+
+
+                .isActive {
+                    font-size: 16px;
                     color: #19203d;
-                    font-size: 13px;
+                    font-weight: bold;
+                    transition: 0.2s;
                 }
 
-                :deep(.el-button.isActive) {
-                    color: #4b71ee;
-                    border: 1px solid rgba(75, 113, 238, 0.5);
+                .isActive::after {
+                    content: "";
+                    display: block;
+                    position: relative;
+                    width: 100%;
+                    height: 3px;
+                    background: #4b71ee;
+                    bottom: -16px;
+                    /* left: -74px; */
+                    right: 0;
+                    transition: 0.2s;
                 }
 
-                :deep(.el-button:focus, .el-button:hover, .isActive) {
-                    color: #4b71ee;
-                    border: 1px solid rgba(75, 113, 238, 0.5);
-                }
+                //:deep(.el-button) {
+                //    min-width: 88px;
+                //    background: #f3f7ff;
+                //    border-radius: 4px;
+                //    border: none;
+                //    // border: 1px solid rgba(75, 113, 238, 0.5);
+                //    color: #19203d;
+                //    font-size: 13px;
+                //}
+                //
+                //:deep(.el-button.isActive) {
+                //    color: #4b71ee;
+                //    border: 1px solid rgba(75, 113, 238, 0.5);
+                //}
+                //
+                //:deep(.el-button:focus, .el-button:hover, .isActive) {
+                //    color: #4b71ee;
+                //    border: 1px solid rgba(75, 113, 238, 0.5);
+                //}
             }
+
             .right-sel {
                 .tagtypelist {
                     margin-left: 20px;
+
                     :deep(.el-select .el-input) {
                         box-shadow: none;
 

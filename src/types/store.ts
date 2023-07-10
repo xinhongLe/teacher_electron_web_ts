@@ -14,6 +14,9 @@ export interface UserInfoState {
     schoolName: string;
     userCenterUserID: string;
     id: string;
+    currentSelectClass: {},
+    classList: []
+
 }
 
 export interface MyStudentState {

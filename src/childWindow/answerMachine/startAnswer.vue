@@ -114,6 +114,7 @@ import {UserInfoState} from "@/types/store";
 import {getTeacherClassList} from "@/views/login/api";
 import {IClassItem, IGradeItem} from "@/types/quickAnswer";
 import {ElMessage} from "element-plus";
+import {get, STORAGE_TYPES} from "@/utils/storage";
 
 export default defineComponent({
     components: {
@@ -315,7 +316,16 @@ export default defineComponent({
                 }
             });
         };
-        const _getTeacherClassList = () => {
+        const _getTeacherClassList = async () => {
+            // state.classList = get(STORAGE_TYPES.USER_INFO).Classes;
+            // console.log('state.classList ', state.classList)
+            // const classData = await GetLastSelectedClassIdByTeacherID({ID: props.currentUserInfo!.userCenterUserID})
+            // state.form.selectClass = state.classList[0].ClassId;
+            // if (classData.resultCode === 200) {
+            //     state.form.selectClass = classData.result || state.classList[0].ClassId;
+            // }
+            // _getAnswerMachineQuestionList(); // 不传ClassID 获取上次的草稿记录
+
             const data = {
                 Base_OrgId: props.currentUserInfo!.schoolId,
                 TeacherId: props.currentUserInfo!.userCenterUserID

@@ -32,7 +32,6 @@ watch(schoolList, () => {
     setSelectedSchool();
 });
 const selectSchool = (school: { UserCenterSchoolID: string; Name: string; }) => {
-    console.log('school----', school)
     store.commit(MutationTypes.UPDATE_SELECTED_SCHOOL, {schoolId: school.UserCenterSchoolID, schoolName: school.Name});
 };
 const showCacheDialog = ref(false);

@@ -3,8 +3,9 @@ import {Homework} from "@/types/homework";
 import {LessonClasses, LessonSubject} from "@/types/login";
 import {get, STORAGE_TYPES} from "@/utils/storage";
 import moment from "moment";
-import {onActivated, reactive, ref, toRefs} from "vue";
+import {computed, onActivated, reactive, ref, toRefs, watch} from "vue";
 import {fetchClassHomeworkPaperList, fetchHomeworkDateByYear} from "../api";
+import {store} from "@/store";
 
 export default () => {
     const form = reactive({
@@ -12,7 +13,7 @@ export default () => {
         date: ""
     });
     const subjectList = ref<LessonSubject[]>([]);
-    const classList = ref<LessonClasses[]>([]);
+    // const classList = ref<{ ClassName: string, ClassId: string }[]>([]);
     const dateList = ref<string[]>([]);
     const homeworkListMap = ref<Record<string, Homework[]>>({});
     const selectClassId = ref("");
@@ -73,19 +74,24 @@ export default () => {
         }
     };
 
+    const classList: any = computed(() => store.state.userInfo.classList);
+
     const initData = () => {
         const userInfo = get(STORAGE_TYPES.USER_INFO);
         subjectList.value = (userInfo.Subjects as LessonSubject[]).filter(
             ({Name}) => Name !== "拼音"
         );
-        console.log('userInfo---', userInfo)
-        console.log('subjectList.value', subjectList.value)
-        classList.value = userInfo.Classes.reverse();
         !form.subject && (form.subject = subjectList.value[0] ? subjectList.value[0].ID : form.subject);
-        !selectClassId.value && classList.value.length > 0 && (selectClassId.value = classList.value[0].ID);
-
+        const currentClass: any = store.state.userInfo.currentSelectClass;
+        console.log('currentClass----', currentClass)
+        selectClassId.value = currentClass?.ClassId || classList.value[0]?.ClassId;
         getHasTaskDate();
     };
+    watch(() => store.state.userInfo.currentSelectClass, (val: any) => {
+        console.log('111val', val)
+        if (!val.ClassId) return;
+        initData()
+    }, {deep: true})
 
     onActivated(() => {
         initData();

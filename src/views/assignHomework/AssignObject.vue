@@ -3,8 +3,9 @@
         <p class="title-class">布置对象</p>
         <div class="class-wrapper">
             <el-button size="large" plain @click="openDialog">{{
-                classList.length > 0 ? "重选" : "选择"
-            }}</el-button>
+                    classList.length > 0 ? "重选" : "选择"
+                }}
+            </el-button>
             <div class="class-content">
                 <p v-for="(item, index) in classList" :key="index">
                     {{ item.ClassName }}
@@ -12,21 +13,26 @@
                 </p>
             </div>
         </div>
-        <ClassDialog
-            v-if="dialogVisible"
-            v-model:dialogVisible="dialogVisible"
-            v-model:classList="classList"
-        />
+        <!--        <ClassDialog-->
+        <!--            v-if="dialogVisible"-->
+        <!--            v-model:dialogVisible="dialogVisible"-->
+        <!--            v-model:classList="classList"-->
+        <!--        />-->
+
     </div>
+    <SelectAttendClass v-model:classVisible="dialogVisible" v-model:classList="classList" v-if="dialogVisible">
+    </SelectAttendClass>
 </template>
 
 <script lang="ts">
-import { ClassData } from "@/types/assignHomework";
-import { ElMessage, ElMessageBox } from "element-plus";
-import { defineComponent, ref, watch } from "vue";
-import ClassDialog from "./ClassDialog.vue";
+import {ClassData} from "@/types/assignHomework";
+import {ElMessage, ElMessageBox} from "element-plus";
+import {defineComponent, ref, watch} from "vue";
+// import ClassDialog from "./ClassDialog.vue";
+import SelectAttendClass from "@/components/navBar/selectAttendClass.vue";
+
 export default defineComponent({
-    setup(props, { emit }) {
+    setup(props, {emit}) {
         const classList = ref<ClassData[]>([]);
         const dialogVisible = ref(false);
 
@@ -61,7 +67,7 @@ export default defineComponent({
             (v) => {
                 emit("updateClassList", v);
             },
-            { deep: true }
+            {deep: true}
         );
 
         return {
@@ -71,7 +77,7 @@ export default defineComponent({
             dialogVisible,
         };
     },
-    components: { ClassDialog },
+    components: {SelectAttendClass},
 });
 </script>
 
@@ -79,6 +85,7 @@ export default defineComponent({
 .container {
     display: flex;
     margin-bottom: 30px;
+
     .title-class {
         width: 100px;
         font-size: 20px;
@@ -88,10 +95,13 @@ export default defineComponent({
         margin-right: 20px;
         padding-top: 8px;
     }
+
     .class-wrapper {
         flex: 1;
+
         .class-content {
             margin-top: 10px;
+
             > p {
                 width: 100%;
                 height: 56px;
@@ -100,6 +110,7 @@ export default defineComponent({
                 border-radius: 4px;
                 padding: 0 20px;
                 margin-bottom: 10px;
+
                 span {
                     display: inline-block;
                     margin-left: 40px;
