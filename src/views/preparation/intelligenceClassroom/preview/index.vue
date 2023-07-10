@@ -76,18 +76,18 @@
 </template>
 
 <script lang=ts>
-import {cloneDeep} from "lodash";
-import {pageType} from "@/config";
-import {ElMessage} from "element-plus";
-import {IViewResourceData} from "@/types/store";
+import { cloneDeep } from "lodash";
+import { pageType } from "@/config";
+import { ElMessage } from "element-plus";
+import { IViewResourceData } from "@/types/store";
 import Remark from "../components/preview/remark.vue";
-import {computed, defineComponent, PropType, ref, watch} from "vue";
+import { computed, defineComponent, PropType, ref, watch } from "vue";
 import OpenCardViewDialog from "../components/edit/openCardViewDialog.vue";
-import {CardProps, PageProps} from "@/views/preparation/intelligenceClassroom/api/props";
+import { CardProps, PageProps } from "@/views/preparation/intelligenceClassroom/api/props";
 
 export default defineComponent({
     name: "WinPreview",
-    components: {OpenCardViewDialog, Remark},
+    components: { OpenCardViewDialog, Remark },
     props: {
         cards: {
             type: Array as PropType<CardProps[]>,
@@ -119,7 +119,7 @@ export default defineComponent({
         }
     },
     emits: ["update:index", "update:l-visit", "update:is-can-undo", "update:is-can-redo", "update:currentDrawColor", "update:currentLineWidth", "update:eraserLineWidth"],
-    setup(props, {emit}) {
+    setup(props, { emit }) {
         const windowCards = ref<CardProps[]>([]);
         const currentDrawColor = ref("#f60000");
         const currentLineWidth = ref(2);
@@ -152,7 +152,7 @@ export default defineComponent({
                 list[i].PageList = pages.filter(item => item.State);
             }
             windowCards.value = list;
-        }, {immediate: true, deep: true});
+        }, { immediate: true, deep: true });
 
         const canvasDataMap = new Map();
         const canvasData = computed(() => {
@@ -172,7 +172,7 @@ export default defineComponent({
         watch(() => currentSlide.value, (val, oldVal) => {
             const elements = screenRef.value.whiteboard.getElements();
             oldVal && canvasDataMap.set(oldVal.id, elements);
-        }, {deep: true});
+        }, { deep: true });
 
         const page = computed(() => {
             return props.pages?.filter(item => item.State)[props.index];
@@ -180,7 +180,6 @@ export default defineComponent({
 
         const canUndo = ref(false);
         const canRedo = ref(false);
-
 
         watch(() => canUndo.value, val => {
             emit("update:is-can-undo", val);
