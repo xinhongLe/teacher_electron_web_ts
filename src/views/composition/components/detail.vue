@@ -1,7 +1,7 @@
 <template>
     <!-- <el-dialog class="custom-fullscreen-dialog" :top="'0vh'" :append-to-body="true" v-model="dialogVisible" title=""
         width="100%" center :close-on-click-modal="false" :show-close="false"> -->
-        <div class="detail" style="height: 100%;" v-if="dialogVisible">
+    <div class="detail" style="height: 100%;" v-if="dialogVisible">
         <div class="upper align-center">
             <div class="back" @click="close">
                 <img src="../../../assets/composition/icon_back@2x.png" alt="" />
@@ -60,7 +60,10 @@
             </div>
             <div class="right">
                 <div class="head align-center">
-                    <span>{{ state.author }}的评价报告</span>
+                    <div class="left-wrapper">
+                        <div class="auth">{{ state.author }}的评价报告</div>
+                        <div class="time" v-if="state.reportUpdateTime">最近修改：{{ state.reportUpdateTime }}</div>
+                    </div>
                     <div class="round">
                         <div class="block" :style="`transform: rotate(${state.deg}deg);transition:all 1.5s`"></div>
                         <p>
@@ -111,9 +114,9 @@
             <div class="export" @click="reAssess">重新生成</div>
             <div class="export" @click="exportPDF">导出为pdf</div>
         </div>
-        </div>
-        <!-- 查看原文 -->
-        <Article ref="articleRef" @view-report="closeArticle" />
+    </div>
+    <!-- 查看原文 -->
+    <Article ref="articleRef" @view-report="closeArticle" />
     <!-- </el-dialog> -->
 </template>
 <script setup lang="ts">
@@ -192,6 +195,7 @@ const state = reactive({
     title: '',
     content: '',
     updateTime: null,
+    reportUpdateTime: null,
     tabName: '照片',
     author: '',
     stuList: [],
@@ -204,7 +208,7 @@ const emit = defineEmits(['close', 'save', 'reAssess']);
 const { gradeList, photoList, columnPager, mainPic, active, score, grade, stuList, title, lineList, assessList, assess, popoverVisible } = toRefs(state)
 
 const handleCurrentChange = (val: number) => {
-    getDetail(state.columnPageList[val-1], true)
+    getDetail(state.columnPageList[val - 1], true, false)
 }
 // 获取分页
 const loadAllPages = () => {
@@ -228,8 +232,8 @@ const switchPic = (item: any, idx: number) => {
 }
 
 const reAssess = () => {
-    emit('reAssess', { StudentCompositionId: state.StudentCompositionId })
-    close()
+    emit('reAssess', { StudentCompositionId: state.StudentCompositionId, isFromDetail: true })
+    // close()
 }
 
 /**
@@ -237,7 +241,7 @@ const reAssess = () => {
  */
 const viewNext = () => {
     if (state.IsHaveNext) {
-        getDetail(state.NextStudentCompositionId, true)
+        getDetail(state.NextStudentCompositionId, false, true)
     } else {
         ElMessage.error('当前为最后一篇')
     }
@@ -325,15 +329,18 @@ const openDialog = async (info?: any) => {
     state.StudentCompositionId = StudentCompositionId
     //
     loadAllPages()
-    getDetail(StudentCompositionId, false)
+    getDetail(StudentCompositionId, false, false)
 }
 
-const getDetail = (id: string, isRequestNext?: boolean) => {
-    if (isRequestNext) {
+const getDetail = (id: string, isCurrentChange?: boolean, isRequestNext?: boolean) => {
+    if (isRequestNext || isCurrentChange) {
         state.StudentCompositionId = id
     }
     searchReportDetail({ StudentCompositionId: id }).then(async (res: any) => {
         if (res.success) {
+            if (isRequestNext) {
+                state.columnPager.current = state.columnPager.current + 1
+            }
             //FileList
             let result = res.result
             state.score = result.Score
@@ -345,6 +352,7 @@ const getDetail = (id: string, isRequestNext?: boolean) => {
             state.title = result.Title
             state.content = result.Content
             state.updateTime = result.UpdateTime || null
+            state.reportUpdateTime = result.ReportUpdateTime || null
             state.lineList.forEach((ele: any) => {
                 ele.content = result[ele.key]
             })
@@ -381,6 +389,8 @@ const judgeScore = (score: number) => {
 
 defineExpose({
     openDialog,
+    getDetail,
+    close
 })
 </script>
 <style lang="scss">
@@ -518,6 +528,7 @@ defineExpose({
 }
 
 .upper {
+    position: relative;
     justify-content: center;
     width: 100%;
     height: 56px;
@@ -749,12 +760,23 @@ defineExpose({
             position: relative;
             justify-content: space-between;
 
-            &>span {
-                font-size: 20px;
-                font-family: PingFangSC-Semibold, PingFang SC;
-                font-weight: 600;
-                color: #19203D;
+            .left-wrapper {
+                .auth {
+                    font-size: 20px;
+                    font-family: PingFangSC-Semibold, PingFang SC;
+                    font-weight: 600;
+                    color: #19203D;
+                }
+
+                .time {
+                    font-size: 14px;
+                    font-family: PingFangSC-Regular, PingFang SC;
+                    font-weight: 400;
+                    color: #A7AAB4;
+                    margin-top: 12px;
+                }
             }
+
 
             .edit {
                 position: absolute;
