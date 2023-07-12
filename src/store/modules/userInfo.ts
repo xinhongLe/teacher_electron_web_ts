@@ -11,7 +11,11 @@ const initState = (): UserInfoState => ({
     account: "",
     userCenterUserID: "",
     id: "",
-    currentSelectClass: {},
+    currentSelectClass: {
+        ClassAixueshiId: "",
+        ClassUserCenterId: "",
+        ClassName: ""
+    },
     classList: []
 });
 

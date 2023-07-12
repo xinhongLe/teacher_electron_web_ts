@@ -5,11 +5,15 @@
                 <div class="header">
                     <span>班级：</span>
                     <el-select v-model="currentClass" placeholder="请选择">
+                        <!--                        <el-option-->
+                        <!--                            v-for="item in classList"-->
+                        <!--                            :key="item.ClassId"-->
+                        <!--                            :label="item.ClassName"-->
+                        <!--                            :value="item.ClassId"-->
+                        <!--                        />-->
                         <el-option
-                            v-for="item in classList"
-                            :key="item.ClassId"
-                            :label="item.ClassName"
-                            :value="item.ClassId"
+                            :label="classList.ClassName"
+                            :value="classList.ClassUserCenterId"
                         />
                     </el-select>
                 </div>
@@ -108,8 +112,15 @@ export default defineComponent({
     name: "quickAnswerDetail",
     props: {
         classList: {
-            type: Array as PropType<IClassItem[]>,
-            default: () => [],
+            // type: Array as PropType<IClassItem[]>,
+            // default: () => [],
+            type: Object,
+            default: () => {
+            },
+        },
+        selectClass: {
+            type: String,
+            default: "",
         },
         currentUserInfo: {
             type: Object as PropType<UserInfoState>,
@@ -127,15 +138,25 @@ export default defineComponent({
             },
             imgSrc: "",
         });
+        // watch(
+        //     () => props.classList,
+        //     (val) => {
+        //         if (val?.length > 0) {
+        //             state.currentClass = val[0].ClassId;
+        //         }
+        //     },
+        //     {immediate: true}
+        // );
         watch(
-            () => props.classList,
+            () => props.selectClass,
             (val) => {
-                if (val?.length > 0) {
-                    state.currentClass = val[0].ClassId;
+                if (val) {
+                    state.currentClass = val;
                 }
             },
             {immediate: true}
         );
+
 
         const client = mqtt.connect(YUN_API_ONECARD_MQTT || "", {
             port: 1883,
@@ -177,6 +198,7 @@ export default defineComponent({
         });
 
         const handlePraiseStudent = async () => {
+            console.log('props.classList', props.classList)
             const data = {
                 Type: 1,
                 SchoolID: props.currentUserInfo!.schoolId,
@@ -187,10 +209,10 @@ export default defineComponent({
                         StudentID: state.studentInfo.id,
                         StudentName: state.studentInfo.name,
                         ClassID: state.currentClass,
-                        ClassName:
-                            props.classList?.find(
-                                (item) => item.ClassId === state.currentClass
-                            )?.ClassId || "",
+                        ClassName: props.classList.ClassName
+                        // props.classList?.find(
+                        //     (item) => item.ClassId === state.currentClass
+                        // )?.ClassId || "",
                     },
                 ],
                 LabelList: [

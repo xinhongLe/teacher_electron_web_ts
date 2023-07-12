@@ -3,9 +3,14 @@
         <div class="quick-answer-app">
             <!-- 抢答页面-->
             <div class="quickAnswer" v-if="isAnswer">
-                <select-class v-if="showSelectClass" :yunInfo="yunInfo" :currentUserInfo="currentUserInfo"
-                              @openQuickAnswer="openQuickAnswer"></select-class>
-                <quick-answer-detail v-if="showQuickAnswer" :classList="classList"
+                <!--                <select-class v-if="showSelectClass" :yunInfo="yunInfo" :currentUserInfo="currentUserInfo"-->
+                <!--                              @openQuickAnswer="openQuickAnswer"></select-class>-->
+                <SelectAttendClass v-model:classVisible="showSelectClass" v-model:currentClassList="currentClassList"
+                                   v-if="showSelectClass"
+                                   @close="close" @confirm="openQuickAnswer">
+                </SelectAttendClass>
+
+                <quick-answer-detail v-if="showQuickAnswer" :classList="currentClassList" :selectClass="selectClass"
                                      :currentUserInfo="currentUserInfo"></quick-answer-detail>
             </div>
 
@@ -30,27 +35,27 @@ import {fetchUserSchedules} from "@/api/timetable";
 import moment from "moment";
 import {UserInfoState} from "@/types/store";
 import {IClassItem} from "@/types/quickAnswer";
+import SelectAttendClass from "@/components/navBar/selectAttendClass.vue";
 
 export default defineComponent({
-    components: {LockScreen, QuickAnswerDetail, SelectClass},
+    components: {LockScreen, QuickAnswerDetail, SelectClass, SelectAttendClass},
     setup() {
         const currentUserInfo: UserInfoState = get(STORAGE_TYPES.CURRENT_USER_INFO);
         const userInfo = get(STORAGE_TYPES.USER_INFO);
         const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
         const allStudentList = ref<Student[]>([]);
-        console.log(userInfo, "userInfo");
-        console.log(yunInfo, "yunInfo");
-        console.log(currentUserInfo, "currentUserInfo");
-
         const state = reactive({
             isAnswer: true,
             showSelectClass: false,
             showQuickAnswer: false,
-            classList: [] as IClassItem[]
+            classList: [] as IClassItem[],
+            currentClassList: get(STORAGE_TYPES.CURRENT_SELECT_CLASS) || {},
+            selectClass: ""
         });
 
-        const openQuickAnswer = (classList: IClassItem[]) => {
-            state.classList = classList;
+        const openQuickAnswer = (selectClass: string) => {
+            console.log('currentClassList', state.currentClassList)
+            state.selectClass = selectClass;
             state.showSelectClass = false;
             state.showQuickAnswer = true;
         };
@@ -120,5 +125,10 @@ export default defineComponent({
 .quickAnswer {
     width: 100%;
     height: 100%;
+
+    #attend-class {
+        width: 100%;
+        height: 100%;
+    }
 }
 </style>

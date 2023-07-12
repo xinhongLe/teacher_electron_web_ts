@@ -29,8 +29,8 @@
                         <el-option
                             v-for="item in classList"
                             :label="item.ClassName"
-                            :value="item.ClassId"
-                            :key="item.ClassId"
+                            :value="item.ClassAixueshiId"
+                            :key="item.ClassAixueshiId"
                         >
                         </el-option>
                     </el-select>
@@ -72,7 +72,7 @@ import SelectAttendClass from "./selectAttendClass.vue";
 import UserInfo from "./userInfo.vue";
 import {get, set, STORAGE_TYPES} from "@/utils/storage";
 import {MutationTypes, store} from "@/store";
-import {getTeacherClassList} from "@/views/login/api";
+import {getMyClassByOrgId, IMyClassResponse} from "@/api/home";
 import {IClassItem, IGradeItem} from "@/types/quickAnswer";
 import {GetLastSelectedClassIdByTeacherID} from "@/childWindow/answerMachine/api";
 import {UserInfoState} from "@/types/store";
@@ -119,6 +119,12 @@ export default defineComponent({
                 window.electron.ipcRenderer.on("exitApp", () => {
                     visible.value = true;
                 });
+                window.electron.ipcRenderer.on("updateSelectClass", (e, v) => {
+                    const data = JSON.parse(v);
+                    currentSelectClass.value = data.ClassAixueshiId;
+                    store.state.userInfo.currentSelectClass = data;
+                    set(STORAGE_TYPES.CURRENT_SELECT_CLASS, data);
+                });
             }
         });
         // 当前用户信息
@@ -127,40 +133,30 @@ export default defineComponent({
             if (val) {
                 _getTeacherClassList()
             }
-        }, {deep: true})
+        }, {deep: true});
+        watch(() => store.state.userInfo.currentSelectClass, (val: any) => {
+            currentSelectClass.value = val.ClassAixueshiId || ""
+        }, {deep: true});
         //查询统一班级的接口
         const _getTeacherClassList = () => {
-            const data = {
-                Base_OrgId: store.state.userInfo.schoolId,
-                TeacherId: store.state.userInfo.userCenterUserID
-            };
-            getTeacherClassList(data).then(async (res) => {
+            getMyClassByOrgId().then(async (res) => {
                 if (res.resultCode === 200) {
-                    const gradeList = res.result || [];
-                    let classData: IClassItem[] = [];
-                    gradeList.forEach((item: IGradeItem) => {
-                        item.ClassList.forEach((item2: any) => {
-                            classData.push(item2)
-                        })
-                    });
-                    classList.value = classData;
-                    console.log('classList.value', classList.value)
-                    currentSelectClass.value = classList.value.length ? classList.value[0].ClassId : "";
+                    classList.value = res.result;
+                    currentSelectClass.value = classList.value.length ? classList.value[0].ClassAixueshiId : "";
                     const currentClass = classList.value.length ? classList.value[0] : null;
-                    store.state.userInfo.currentSelectClass = currentClass;
                     store.state.userInfo.classList = classList.value;
                     set(STORAGE_TYPES.CLASS_LIST, classList.value);
+                    store.state.userInfo.currentSelectClass = currentClass;
                     set(STORAGE_TYPES.CURRENT_SELECT_CLASS, currentClass);
                 }
             });
         };
         //统一切换班级
         const handleClassChange = (val: string) => {
-            const classData = classList.value.find((item: any) => item.ClassId === val);
-            // currentSelectClass.value = classData;
+            const classData = classList.value.find((item: any) => item.ClassAixueshiId === val);
             set(STORAGE_TYPES.CURRENT_SELECT_CLASS, classData);
             store.state.userInfo.currentSelectClass = classData;
-        }
+        };
         return {
             isElectron,
             breadList,

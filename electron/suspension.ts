@@ -221,7 +221,7 @@ function createRollcall(allStudentList: []) {
 
     rollCallWin.on("ready-to-show", () => {
         rollCallWin && rollCallWin.webContents.send("sendAllStudentList", allStudentList);
-        // rollCallWin && rollCallWin.webContents.openDevTools();
+        rollCallWin && rollCallWin.webContents.openDevTools();
     });
 
     rollCallWin.on("closed", () => {
@@ -330,15 +330,15 @@ function createQuickAnswerWindow(allStudentList: [], isAnswer = false) {
         // alwaysOnTop: true,
 
         // transparent: true,
-        width: 620,
+        width: 800,
         frame: false, // 要创建无边框窗口
         alwaysOnTop: true,
         resizable: false, // 是否允许窗口大小缩放
-        height: 420,
+        height: 600,
         useContentSize: true,
         maximizable: false
     });
-    // quickAnswerWin.webContents.openDevTools(); //打开的抢答器调试器
+    quickAnswerWin.webContents.openDevTools(); //打开的抢答器调试器
 
     quickAnswerWin.on("ready-to-show", () => {
         quickAnswerWin && quickAnswerWin.show();

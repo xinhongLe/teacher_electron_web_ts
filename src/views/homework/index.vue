@@ -47,12 +47,12 @@
             <p
                 v-for="(item, index) in classList"
                 :key="index"
-                :class="selectClassId === item.ClassId ? 'active' : ''"
-                @click="selectClassId = item.ClassId"
+                :class="selectClassId === item.ClassAixueshiId ? 'active' : ''"
+                @click="changeSelectClass(item)"
             >
                 {{
                     item.ClassName
-                }}<span>({{ homeworkListMap[item.ClassId]?.length || 0 }})</span>
+                }}<span>({{ homeworkListMap[item.ClassAixueshiId]?.length || 0 }})</span>
             </p>
         </div>
         <div class="homework-content">
@@ -104,7 +104,9 @@ import {useRouter} from "vue-router";
 import useHomework from "./hooks/useHomework";
 import HomeworkItem from "./homeworkItem.vue";
 import {ElMessage} from "element-plus";
-import {Tickets, Refresh} from "@element-plus/icons-vue";
+import {Refresh, Tickets} from "@element-plus/icons-vue";
+import {store} from "@/store";
+import {set, STORAGE_TYPES} from "@/utils/storage";
 
 export default defineComponent({
     name: "Homework",
@@ -124,6 +126,11 @@ export default defineComponent({
         const subjectName = computed(
             () => subjectList.value.find(({ID}) => ID === form.subject)?.Name
         );
+        const changeSelectClass = (item: any) => {
+            selectClassId.value = item.ClassAixueshiId;
+            store.state.userInfo.currentSelectClass = item;
+            set(STORAGE_TYPES.CURRENT_SELECT_CLASS, item)
+        };
         const handleClick = () => {
             if (!form.subject || !subjectName.value)
                 return ElMessage.warning("你还没有没有科目");
@@ -146,6 +153,7 @@ export default defineComponent({
             handleClick,
             getHasTaskDate,
             subjectName,
+            changeSelectClass
         };
     },
     components: {HomeworkItem},

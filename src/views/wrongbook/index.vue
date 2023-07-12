@@ -14,6 +14,7 @@
                 </div>
                 <div class="fixedBox" ref="fixedBoxRef">
                     <div
+                        v-if="fourClassList.length"
                         class="header-left"
                         :style="
                             classList.length > 4
@@ -23,30 +24,16 @@
                                 : ''
                         "
                     >
-                        <!--                        <div-->
-                        <!--                            @click="switchClass(item)"-->
-                        <!--                            class="class-item"-->
-                        <!--                            :key="item.ID"-->
-                        <!--                            :class="-->
-                        <!--                                item.ID == state.currentClassId-->
-                        <!--                                    ? 'isActive'-->
-                        <!--                                    : ''-->
-                        <!--                            "-->
-                        <!--                            v-for="item in fourClassList"-->
-                        <!--                        >-->
-
-                        <!--                            <span>{{ item.Name }}</span>-->
-                        <!--                        </div>-->
                         <el-button
                             @click="switchClass(item)"
-                            :key="item.ID"
+                            :key="item.ClassAixueshiId"
                             :class="
-                                item.ID == state.currentClassId
+                                item.ClassAixueshiId == state.currentClassId
                                     ? 'isActive'
                                     : ''
                             "
                             v-for="item in fourClassList"
-                        >{{ item.Name }}
+                        >{{ item.ClassName }}
                         </el-button
                         >
                     </div>
@@ -397,15 +384,7 @@
 </template>
 
 <script lang="ts" setup>
-import {
-    reactive,
-    ref,
-    watch,
-    onMounted,
-    nextTick,
-    onActivated,
-    onDeactivated,
-} from "vue";
+import {nextTick, onActivated, onDeactivated, onMounted, reactive, ref, watch,} from "vue";
 import LeftOne from "./components/LeftOne.vue";
 import LeftTwo from "./components/LeftTwo.vue";
 import LeftThree from "./components/LeftThree.vue";
@@ -414,7 +393,7 @@ import LessonList from "./components/LessonList.vue";
 import WrongDetails from "./components/WrongDetails.vue";
 import QuestionBasket from "./components/QuestionBasket.vue";
 import GenerateExercise from "./components/GenerateExercise.vue";
-import {get, STORAGE_TYPES} from "@/utils/storage";
+import {set, STORAGE_TYPES} from "@/utils/storage";
 import {getFormatDate} from "@/utils";
 import {fetchGradeClassStudents} from "@/views/assignHomework/api";
 import {useRoute} from "vue-router";
@@ -423,8 +402,9 @@ import {store} from "@/store";
 
 const {questionTypeList, frequencyList} = useWrongBook();
 const route = useRoute();
-const classList = get(STORAGE_TYPES.USER_INFO).Classes;
-const gradeId = ref(classList.length ? classList[0]?.GradeID : "");
+const classList = ref(store.state.userInfo.classList);
+const currentClass = ref(store.state.userInfo.currentSelectClass);
+const gradeId = ref(currentClass.value?.ClassAixueshiId ? currentClass.value?.GradeId : classList.value.length ? classList.value[0]?.GradeId : "");
 const isActivited = ref(false);
 const state = reactive({
     tagTypeList: [
@@ -447,10 +427,8 @@ const state = reactive({
     ],
     //顶部时间选择区间
     dateRange: getFormatDate(1) || [],
-    //顶部年级列表
-    classList: "",
     //当前选中的班级
-    currentClassId: classList.length ? classList[0]?.ID : "",
+    currentClassId: currentClass.value?.ClassAixueshiId ? currentClass.value?.ClassAixueshiId : classList.value.length ? classList.value[0]?.ClassAixueshiId : "",
     //当前班级的所有学生
     currentClassStudents: [],
     //显示内容：1列表 2详情 3练习
@@ -550,7 +528,7 @@ const state = reactive({
             value: 2,
         },
     ],
-    gradeName: classList.length ? classList[0]?.Name : "",
+    gradeName: currentClass.value?.GradeId ? currentClass.value.GradeId : classList.value.length ? classList.value[0]?.GradeName : "",
     exerciseData: [],
 });
 //分层筛选
@@ -579,6 +557,16 @@ const sortDataName = ref({
     currentSortConName: "平均错误率",
 });
 console.log("错题本页面.......");
+const fixedBoxRef = ref();
+const fourClassList: any = ref([]);
+const isShowIcon = ref(false);
+//初始化判断是否可以向右滚动
+const initgoRightArrow = () => {
+    fourClassList.value =
+        classList.value.length > 4 ? classList.value?.slice(0, 4) : classList.value;
+    isShowIcon.value = classList.value.length > 4 ? true : false;
+
+};
 watch(
     () => state.currentHomeworkBookId,
     (val) => {
@@ -587,6 +575,22 @@ watch(
     {deep: true}
 );
 
+//监听选择的全局班级
+watch(() => store.state.userInfo.currentSelectClass, (val) => {
+    if (!val.ClassAixueshiId) return;
+    state.currentClassId = val.ClassAixueshiId;
+    switchClass(val)
+}, {deep: true})
+
+//监听全局班级列表
+watch(() => store.state.userInfo.classList, (val) => {
+    if (val.length) {
+        classList.value = val
+        initgoRightArrow();
+    } else {
+        classList.value = []
+    }
+}, {deep: true})
 //监听日期区间
 watch(
     () => state.dateRange,
@@ -687,10 +691,10 @@ const basketGenerateExercise = async (type: number) => {
     state.preContent = type;
     // state.exerciseData = store.state.wrongbook.questionBasket as any;
 };
+
 onMounted(() => {
     nextTick(() => {
         isActivited.value = true;
-
         setTimeout(() => {
             initgoRightArrow();
         });
@@ -702,22 +706,6 @@ onActivated(() => {
 onDeactivated(() => {
     isActivited.value = false;
 });
-const fixedBoxRef = ref();
-const fourClassList = ref([]);
-const isShowIcon = ref(false);
-//初始化判断是否可以向右滚动
-const initgoRightArrow = () => {
-    fourClassList.value =
-        classList.length > 4 ? classList?.slice(0, 4) : classList;
-    isShowIcon.value = classList.length > 4 ? true : false;
-    // const currentScrollWidth = fixedBoxRef.value.clientWidth;
-    // const canNumber = Math.floor(currentScrollWidth / signleWidth.value); //可以放下的个数
-    // //如果最后一个流程图标已经展示出来，则停止滚动
-    // if (currentClickNumber.value + canNumber >= classList.length) {
-    //     noScrollRight.value = false;
-    //     return;
-    // }
-};
 //点击左滑
 const fnPrev = () => {
     if (currentClickNumber.value > 0) {
@@ -734,13 +722,13 @@ const fnNext = () => {
     const currentScrollWidth = fixedBoxRef.value.clientWidth;
     const canNumber = Math.floor(currentScrollWidth / signleWidth.value); //可以放下的个数
     //如果最后一个流程图标已经展示出来，则停止滚动
-    if (currentClickNumber.value + canNumber >= classList.length) {
+    if (currentClickNumber.value + canNumber >= classList.value.length) {
         return;
     }
     //说明放不下有滚动条
-    if (classList.length > canNumber) {
+    if (classList.value.length > canNumber) {
         currentClickNumber.value += 1;
-        if (currentClickNumber.value + canNumber >= classList.length) {
+        if (currentClickNumber.value + canNumber >= classList.value.length) {
             noScrollRight.value = false;
         }
         fnScrollWidth("add");
@@ -767,22 +755,22 @@ const toFormatDate = (type: number) => {
 };
 //顶部表单搜索项
 const searchForm = ref({
-    ClassId: classList.length ? classList[0]?.ID : "", //班级Id
+    ClassId: classList.value.length ? classList.value[0]?.ClassAixueshiId : "", //班级Id
     EndTime: state.dateRange[1],
     StartTime: state.dateRange[0], //日期范围
 });
 //切换顶部选中的班级
 const switchClass = (value: any) => {
     console.log("选中的班级", value);
-
-    state.currentClassId = value.ID;
-    searchForm.value.ClassId = value.ID;
+    state.currentClassId = value.ClassAixueshiId;
+    searchForm.value.ClassId = value.ClassAixueshiId;
     filterClassStudent(allClassStudents.value);
-
     //传年级id
     gradeId.value = value.GradeID;
-    state.gradeName = value.Name;
-    console.log("gradeId.value", gradeId.value);
+    state.gradeName = value.GradeName;
+    // 改变全局选择的班级
+    store.state.userInfo.currentSelectClass = value;
+    set(STORAGE_TYPES.CURRENT_SELECT_CLASS, value)
 };
 //返回到班级错题本页面
 const onBackWrongBook = () => {
@@ -914,6 +902,7 @@ const onBackWrongBook = () => {
 
             .left-btn {
                 display: flex;
+
                 .class-item {
                     transition: all 0.3s ease;
 

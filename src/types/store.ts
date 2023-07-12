@@ -2,6 +2,14 @@ import {IBookItem, ICustomBookItem, IResourceItem} from "@/api/resource";
 import {Class, ClassStudent} from "./myStudent";
 import {BookList} from "./preparation";
 
+export interface ICurrentSelectClass {
+    ClassAixueshiId?: string;
+    ClassUserCenterId?: string;
+    ClassName?: string;
+    GradeId?: string;
+    GradeName?: string;
+}
+
 export interface UserInfoState {
     name?: string;
     account?: string;
@@ -14,9 +22,8 @@ export interface UserInfoState {
     schoolName: string;
     userCenterUserID: string;
     id: string;
-    currentSelectClass: {},
-    classList: []
-
+    currentSelectClass: ICurrentSelectClass;
+    classList: ICurrentSelectClass[]
 }
 
 export interface MyStudentState {

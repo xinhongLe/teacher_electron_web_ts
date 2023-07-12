@@ -243,6 +243,10 @@ async function createWindow() {
         }
         if (to === "max") mainWindow!.webContents.send("setCourseMaximize", data);
     });
+    //
+    ipcMain.on('updateSelectClass', (e, v) => {
+        mainWindow!.webContents.send('updateSelectClass', v)
+    })
 }
 
 app.on("window-all-closed", () => {

@@ -1,10 +1,10 @@
 import request from "@/utils/request";
-import { IResponse } from "@/types/response";
-import { ICardList, ITreeList } from "@/types/home";
-import { Slide } from "wincard";
-import { WINDOW_CRAD_API, originType, API_CENTER_USER_MANAGE } from "@/config/index";
-import { getWinCardDBData, WinCardData } from "@/utils/database";
-import { CardProps } from "@/views/preparation/intelligenceClassroom/api/props";
+import {IResponse} from "@/types/response";
+import {ICardList, ITreeList} from "@/types/home";
+import {Slide} from "wincard";
+import {WINDOW_CRAD_API, originType, API_CENTER_USER_MANAGE, AI_XUE_SHI_API} from "@/config/index";
+import {getWinCardDBData, WinCardData} from "@/utils/database";
+import {CardProps} from "@/views/preparation/intelligenceClassroom/api/props";
 
 type BookListResponse = IResponse<ITreeList[]>
 
@@ -259,7 +259,7 @@ export function getChaptersVideo(data: IGetChaptersVideo): Promise<GetPageRespon
         baseURL: WINDOW_CRAD_API,
         url: "/API/W4/Card/GetChapters",
         method: "post",
-        data: Object.assign(data, { OriginType: originType })
+        data: Object.assign(data, {OriginType: originType})
     });
 }
 
@@ -269,7 +269,7 @@ export function getElementsVideo(data: IElementsVideo): Promise<GetPageResponse>
         url: "/API/W4/Chapter/GetElements",
         method: "post",
         baseURL: WINDOW_CRAD_API,
-        data: Object.assign(data, { OriginType: originType })
+        data: Object.assign(data, {OriginType: originType})
     });
 }
 
@@ -346,7 +346,7 @@ export async function getPageDetailRes(data: IGetPageData, type: number, callbac
         request({
             url: urlList[type],
             baseURL: WINDOW_CRAD_API,
-            headers: { DeviceID: "Franchisee", ...{ noLoading: "ok" } },
+            headers: {DeviceID: "Franchisee", ...{noLoading: "ok"}},
             method: "post",
             data
         }).then((res: any) => {
@@ -382,10 +382,10 @@ export function updatePageRes(data: Slide, type: number): Promise<GetPageRespons
     ];
     return request({
         url: urlList[type],
-        headers: { DeviceID: "Franchisee" },
+        headers: {DeviceID: "Franchisee"},
         method: "post",
         baseURL: WINDOW_CRAD_API,
-        data: Object.assign(data, { OriginType: originType })
+        data: Object.assign(data, {OriginType: originType})
     });
 }
 
@@ -393,10 +393,10 @@ export function updatePageRes(data: Slide, type: number): Promise<GetPageRespons
 export function UpdatePageRemark(data: Remark): Promise<GetPageResponse> {
     return request({
         url: "/Api/WCP/Window/UpdatePageRemark",
-        headers: { DeviceID: "Franchisee" },
+        headers: {DeviceID: "Franchisee"},
         method: "post",
         baseURL: WINDOW_CRAD_API,
-        data: Object.assign(data, { OriginType: originType })
+        data: Object.assign(data, {OriginType: originType})
     });
 }
 
@@ -404,10 +404,10 @@ export function UpdatePageRemark(data: Remark): Promise<GetPageResponse> {
 export function deleteCardOrPage(data: IDelCardOrPage): Promise<GetPageResponse> {
     return request({
         url: "/Api/WCP/Window/DelCardOrPage",
-        headers: { DeviceID: "Franchisee" },
+        headers: {DeviceID: "Franchisee"},
         method: "post",
         baseURL: WINDOW_CRAD_API,
-        data: Object.assign(data, { OriginType: originType })
+        data: Object.assign(data, {OriginType: originType})
     });
 }
 
@@ -415,10 +415,10 @@ export function deleteCardOrPage(data: IDelCardOrPage): Promise<GetPageResponse>
 export function addCard(data: IAddCard): Promise<GetPageResponse> {
     return request({
         url: "/Api/WCP/Window/AddCard",
-        headers: { DeviceID: "Franchisee" },
+        headers: {DeviceID: "Franchisee"},
         method: "post",
         baseURL: WINDOW_CRAD_API,
-        data: Object.assign(data, { OriginType: originType })
+        data: Object.assign(data, {OriginType: originType})
     });
 }
 
@@ -426,10 +426,10 @@ export function addCard(data: IAddCard): Promise<GetPageResponse> {
 export function addPage(data: IAddPage): Promise<GetPageResponse> {
     return request({
         url: "/Api/WCP/Window/AddPage",
-        headers: { DeviceID: "Franchisee" },
+        headers: {DeviceID: "Franchisee"},
         method: "post",
         baseURL: WINDOW_CRAD_API,
-        data: Object.assign(data, { OriginType: originType })
+        data: Object.assign(data, {OriginType: originType})
     });
 }
 
@@ -437,10 +437,10 @@ export function addPage(data: IAddPage): Promise<GetPageResponse> {
 export function copyPage(data: ICopyPage): Promise<GetPageResponse> {
     return request({
         url: "/Api/WCP/Window/CopyPage",
-        headers: { DeviceID: "Franchisee" },
+        headers: {DeviceID: "Franchisee"},
         method: "post",
         baseURL: WINDOW_CRAD_API,
-        data: Object.assign(data, { OriginType: originType })
+        data: Object.assign(data, {OriginType: originType})
     });
 }
 
@@ -448,10 +448,10 @@ export function copyPage(data: ICopyPage): Promise<GetPageResponse> {
 export function renameCardOrPage(data: IRenameCardOrPage): Promise<GetPageResponse> {
     return request({
         url: "/Api/WCP/Window/EditCardOrPageName",
-        headers: { DeviceID: "Franchisee" },
+        headers: {DeviceID: "Franchisee"},
         method: "post",
         baseURL: WINDOW_CRAD_API,
-        data: Object.assign(data, { OriginType: originType })
+        data: Object.assign(data, {OriginType: originType})
     });
 }
 
@@ -459,10 +459,10 @@ export function renameCardOrPage(data: IRenameCardOrPage): Promise<GetPageRespon
 export function getVideoQuoteInfo(data: IVideoQuoteInfo): Promise<GetPageResponse> {
     return request({
         url: "Api/WCP/Window/GetVideoQuoteInfo",
-        headers: { DeviceID: "Franchisee", noLoading: "true" },
+        headers: {DeviceID: "Franchisee", noLoading: "true"},
         method: "post",
         baseURL: WINDOW_CRAD_API,
-        data: Object.assign(data, { OriginType: originType })
+        data: Object.assign(data, {OriginType: originType})
     });
 }
 
@@ -470,10 +470,10 @@ export function getVideoQuoteInfo(data: IVideoQuoteInfo): Promise<GetPageRespons
 export function updateCardSort(data: ICardSortRes): Promise<GetPageResponse> {
     return request({
         url: "Api/WCP/Window/UpdateCardSort",
-        headers: { DeviceID: "Franchisee" },
+        headers: {DeviceID: "Franchisee"},
         method: "post",
         baseURL: WINDOW_CRAD_API,
-        data: Object.assign(data, { OriginType: originType })
+        data: Object.assign(data, {OriginType: originType})
     });
 }
 
@@ -481,10 +481,10 @@ export function updateCardSort(data: ICardSortRes): Promise<GetPageResponse> {
 export function movePage(data: IMovePage): Promise<GetPageResponse> {
     return request({
         url: "/Api/WCP/Window/MovePage",
-        headers: { DeviceID: "Franchisee" },
+        headers: {DeviceID: "Franchisee"},
         method: "post",
         baseURL: WINDOW_CRAD_API,
-        data: Object.assign(data, { OriginType: originType })
+        data: Object.assign(data, {OriginType: originType})
     });
 }
 
@@ -492,7 +492,7 @@ export function movePage(data: IMovePage): Promise<GetPageResponse> {
 export function getCardDetail(data: { pageIDs: string[] }, noLoading = false): Promise<GetPageResponse> {
     return request({
         url: "/Api/WCP/Window/GetPageInfos",
-        headers: { DeviceID: "Franchisee", ...{ noLoading: (noLoading ? "true" : "") } },
+        headers: {DeviceID: "Franchisee", ...{noLoading: (noLoading ? "true" : "")}},
         method: "post",
         baseURL: WINDOW_CRAD_API,
         data
@@ -505,7 +505,7 @@ export function setCardOrPageState(data: ICardOrPageState): Promise<GetPageRespo
         url: "/Api/WCP/Window/SetCardOrPageState",
         method: "post",
         baseURL: WINDOW_CRAD_API,
-        data: Object.assign(data, { OriginType: originType })
+        data: Object.assign(data, {OriginType: originType})
     });
 }
 
@@ -513,10 +513,10 @@ export function setCardOrPageState(data: ICardOrPageState): Promise<GetPageRespo
 export function getLessonPlan(data: IGetLessonPlan): Promise<GetPageResponse> {
     return request({
         url: "/Api/WCP/LessonPlan/GetLessonPlanMain",
-        headers: { DeviceID: "Franchisee" },
+        headers: {DeviceID: "Franchisee"},
         method: "post",
         baseURL: WINDOW_CRAD_API,
-        data: Object.assign({ OriginType: originType }, data) // 不能调换Object.assign合并的顺序
+        data: Object.assign({OriginType: originType}, data) // 不能调换Object.assign合并的顺序
     });
 }
 
@@ -524,10 +524,10 @@ export function getLessonPlan(data: IGetLessonPlan): Promise<GetPageResponse> {
 export function saveLessonPlan(data: ISaveLessonPlan): Promise<IResponse<unknown>> {
     return request({
         url: "/Api/WCP/LessonPlan/SaveLessonPlanMain",
-        headers: { DeviceID: "Franchisee" },
+        headers: {DeviceID: "Franchisee"},
         method: "post",
         baseURL: WINDOW_CRAD_API,
-        data: Object.assign(data, { OriginType: originType })
+        data: Object.assign(data, {OriginType: originType})
     });
 }
 
@@ -535,10 +535,10 @@ export function saveLessonPlan(data: ISaveLessonPlan): Promise<IResponse<unknown
 export function getLessonPlanTemplate(data: { FranchiseeID: string }): Promise<GetPageResponse> {
     return request({
         url: "/Api/WCP/LessonPlan/GetLessonPlanTemplate",
-        headers: { DeviceID: "Franchisee" },
+        headers: {DeviceID: "Franchisee"},
         method: "post",
         baseURL: WINDOW_CRAD_API,
-        data: Object.assign(data, { OriginType: originType })
+        data: Object.assign(data, {OriginType: originType})
     });
 }
 
@@ -546,10 +546,10 @@ export function getLessonPlanTemplate(data: { FranchiseeID: string }): Promise<G
 export function addLessonPlanTemplate(data: ILessonCommonData): Promise<GetPageResponse> {
     return request({
         url: "/Api/WCP/LessonPlan/AddLessonPlanTemplate",
-        headers: { DeviceID: "Franchisee" },
+        headers: {DeviceID: "Franchisee"},
         method: "post",
         baseURL: WINDOW_CRAD_API,
-        data: Object.assign(data, { OriginType: originType })
+        data: Object.assign(data, {OriginType: originType})
     });
 }
 
@@ -557,10 +557,10 @@ export function addLessonPlanTemplate(data: ILessonCommonData): Promise<GetPageR
 export function updateLessonPlanTemplate(data: any): Promise<GetPageResponse> {
     return request({
         url: "/Api/WCP/LessonPlan/UpdateLessonPlanTemplate",
-        headers: { DeviceID: "Franchisee" },
+        headers: {DeviceID: "Franchisee"},
         method: "post",
         baseURL: WINDOW_CRAD_API,
-        data: Object.assign(data, { OriginType: originType })
+        data: Object.assign(data, {OriginType: originType})
     });
 }
 
@@ -568,10 +568,10 @@ export function updateLessonPlanTemplate(data: any): Promise<GetPageResponse> {
 export function delLessonPlanTemplate(data: { ID: string, TeacherID: string }): Promise<GetPageResponse> {
     return request({
         url: "/Api/WCP/LessonPlan/DeleteLessonPlanTemplate",
-        headers: { DeviceID: "Franchisee" },
+        headers: {DeviceID: "Franchisee"},
         method: "post",
         baseURL: WINDOW_CRAD_API,
-        data: Object.assign(data, { OriginType: originType })
+        data: Object.assign(data, {OriginType: originType})
     });
 }
 
@@ -579,10 +579,10 @@ export function delLessonPlanTemplate(data: { ID: string, TeacherID: string }): 
 export function changeLessonPlanTemplate(data: { LessonPlanTemplateMainID: string, TeachPageID: string, TeacherID: string, FranchiseeID: string }): Promise<GetPageResponse> {
     return request({
         url: "/Api/WCP/LessonPlan/ChangeTeachPageTemplate",
-        headers: { DeviceID: "Franchisee" },
+        headers: {DeviceID: "Franchisee"},
         method: "post",
         baseURL: WINDOW_CRAD_API,
-        data: Object.assign(data, { OriginType: originType })
+        data: Object.assign(data, {OriginType: originType})
     });
 }
 
@@ -590,10 +590,10 @@ export function changeLessonPlanTemplate(data: { LessonPlanTemplateMainID: strin
 export function getLessonPlanTemplateDetail(data: { LessonPlanTemplateID: string }): Promise<GetPageResponse> {
     return request({
         url: "/Api/WCP/LessonPlan/GetLessonPlanTemplateDetail",
-        headers: { DeviceID: "Franchisee" },
+        headers: {DeviceID: "Franchisee"},
         method: "post",
         baseURL: WINDOW_CRAD_API,
-        data: Object.assign(data, { OriginType: originType })
+        data: Object.assign(data, {OriginType: originType})
     });
 }
 
@@ -601,10 +601,10 @@ export function getLessonPlanTemplateDetail(data: { LessonPlanTemplateID: string
 export function addTemplateField(data: IAddTemplateFieldRes): Promise<IResponse<GetPageResponse>> {
     return request({
         url: "/Api/WCP/LessonPlan/AddLessonPlanTemplateField",
-        headers: { DeviceID: "Franchisee" },
+        headers: {DeviceID: "Franchisee"},
         method: "post",
         baseURL: WINDOW_CRAD_API,
-        data: Object.assign(data, { OriginType: originType })
+        data: Object.assign(data, {OriginType: originType})
     });
 }
 
@@ -612,10 +612,10 @@ export function addTemplateField(data: IAddTemplateFieldRes): Promise<IResponse<
 export function editTemplateField(data: any): Promise<IResponse<unknown>> {
     return request({
         url: "/Api/WCP/LessonPlan/UpdateLessonPlanTemplateField",
-        headers: { DeviceID: "Franchisee" },
+        headers: {DeviceID: "Franchisee"},
         method: "post",
         baseURL: WINDOW_CRAD_API,
-        data: Object.assign(data, { OriginType: originType })
+        data: Object.assign(data, {OriginType: originType})
     });
 }
 
@@ -623,10 +623,10 @@ export function editTemplateField(data: any): Promise<IResponse<unknown>> {
 export function delTemplateField(data: { ID: string }): Promise<IResponse<unknown>> {
     return request({
         url: "/Api/WCP/LessonPlan/DeleteLessonPlanTemplateField",
-        headers: { DeviceID: "Franchisee" },
+        headers: {DeviceID: "Franchisee"},
         method: "post",
         baseURL: WINDOW_CRAD_API,
-        data: Object.assign(data, { OriginType: originType })
+        data: Object.assign(data, {OriginType: originType})
     });
 }
 
@@ -660,5 +660,22 @@ export function getPlatformByOrgId(data: IOrgId[]): Promise<IResponse<IPlatformR
         url: "/platform-org-relation/getByOrgIds",
         method: "post",
         data
+    });
+}
+
+export interface IMyClassResponse {
+    ClassAixueshiId: string;
+    ClassName: string;
+    ClassUserCenterId: string;
+    GradeId: string
+}
+
+// 获取统一班级列表
+export function getMyClassByOrgId(): Promise<IResponse<IMyClassResponse>> {
+    return request({
+        url: "/Api/V2/Teacher/Class/GetMyClassByOrgId",
+        headers: {noLoading: "true"},
+        method: "post",
+        baseURL: AI_XUE_SHI_API,
     });
 }

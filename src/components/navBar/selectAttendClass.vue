@@ -6,8 +6,8 @@
                 点击选择上课班级
             </div>
             <div class="close-icon" @click="close">
-                <el-icon :size="14" color="#9C9FAA">
-                    <close/>
+                <el-icon :size="14">
+                    <close style="width:30px;height:30px"/>
                 </el-icon>
             </div>
         </div>
@@ -24,8 +24,17 @@
             <!--                </div>-->
             <!--            </div>-->
             <div class="right">
-                <el-checkbox @change="handleChangeClass(item)" v-for="(item, i) in classList" :key="i"
-                             v-model="item.check" :label="item.ClassName" size="large"/>
+                <el-checkbox-group v-if="isCheck" v-model="checkClassList" @change="handleChangeClass">
+                    <el-checkbox v-for="(item, i) in classList" :key="i"
+                                 :label="item.ClassUserCenterId" size="large">{{ item.ClassName }}
+                    </el-checkbox>
+                </el-checkbox-group>
+                <el-radio-group v-else v-model="checkedClass" @change="handleChangeRadioClass">
+                    <el-radio v-for="(item, i) in classList" :key="i"
+                              :label="item.ClassUserCenterId" size="large">{{ item.ClassName }}
+                    </el-radio>
+                </el-radio-group>
+
             </div>
         </div>
         <div class="footer">
@@ -35,19 +44,16 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, onMounted, PropType, reactive, ref, toRefs} from "vue";
+import {defineComponent, onMounted, ref, watch} from "vue";
 
 import {ElMessage} from "element-plus";
-import {getTeacherClassList} from "@/views/login/api";
 import {IClassItem, IGradeItem} from "@/types/quickAnswer";
-import {UserInfoState} from "@/types/store";
-import {get, STORAGE_TYPES} from "@/utils/storage";
+import {ICurrentSelectClass, UserInfoState} from "@/types/store";
+import {get, set, STORAGE_TYPES} from "@/utils/storage";
 import {store} from "@/store";
 
 interface State {
-    activeIndex: number,
-    gradeList: IGradeItem[],
-    classList: IClassItem[]
+    classList: ICurrentSelectClass[]
 }
 
 export default defineComponent({
@@ -56,52 +62,74 @@ export default defineComponent({
         classVisible: {
             type: Boolean,
             require: false
-        }
+        },
+        currentClassList: {
+            type: Array,
+            require: []
+        },
+        isCheck: {
+            type: Boolean,
+            require: false
+        },
     },
-    emits: ["update:classVisible"],
+    emits: ["update:classVisible", "update:currentClassList", "close", "confirm"],
     setup(props, {emit}) {
+        //已经选择的班级列表
+        const checkClassList: any = ref([]);
+        //已经选择的班级
+        const checkedClass: any = ref("");
+        //班级列表
+        const classList = ref([]);
         const currentUserInfo = ref<UserInfoState>(get(STORAGE_TYPES.CURRENT_USER_INFO));
-
-        const state = reactive<State>({
-            activeIndex: 0,
-            gradeList: [],
-            classList: []
-        });
         const confirm = () => {
-            let selectClass: IClassItem[] = [];
-            state.gradeList.forEach((item: IGradeItem) => {
-                const arr = item.ClassList.filter((j: IClassItem) => j.check);
-                selectClass = selectClass.concat(arr);
-            });
-
-            if (selectClass.length === 0) {
-                return ElMessage.warning("请至少选择一个班级");
+            if (props.isCheck) {
+                if (checkClassList.value.length === 0) {
+                    return ElMessage.warning("请至少选择一个班级");
+                } else {
+                    const classData: any = [];
+                    checkClassList.value.forEach((item: any) => {
+                        classList.value.forEach((j: any) => {
+                            if (item === j.ClassUserCenterId) {
+                                classData.push(j)
+                            }
+                        })
+                    })
+                    emit("update:currentClassList", classData);
+                    emit("confirm", checkClassList.value);
+                    emit("update:classVisible", false);
+                }
+            } else {
+                if (!checkedClass.value) {
+                    return ElMessage.warning("请至少选择一个班级");
+                } else {
+                    const classData: any = classList.value.find((item: any) => item.ClassUserCenterId === checkedClass.value);
+                    emit("update:currentClassList", classData);
+                    emit("confirm", checkedClass.value);
+                    emit("update:classVisible", false);
+                }
             }
-
-            console.log('selectClass', selectClass)
         };
-
-        const handleRow = (i: number) => {
-            state.activeIndex = i;
-            state.classList = state.gradeList[i].ClassList;
-        };
-
         const handleChangeGrade = (item: IGradeItem) => {
             item.ClassList.forEach((i: IClassItem) => {
                 i.check = item.check;
             });
         };
 
-        const handleChangeClass = (item: IClassItem) => {
-            state.gradeList.some((i: IGradeItem) => {
-                const currentGrade = i.ClassList.find((j: IClassItem) => j.ClassId === item.ClassId);
-                if (currentGrade) {
-                    i.check = i.ClassList.length === i.ClassList.filter((j: IClassItem) => j.check).length;
-                }
-                return currentGrade;
-            });
+        const handleChangeClass = () => {
+            // console.log('val', val);
+            // state.gradeList.some((i: IGradeItem) => {
+            //     const currentGrade = i.ClassList.find((j: IClassItem) => j.ClassId === item.ClassId);
+            //     if (currentGrade) {
+            //         i.check = i.ClassList.length === i.ClassList.filter((j: IClassItem) => j.check).length;
+            //     }
+            //     return currentGrade;
+            // });
         };
-
+        const handleChangeRadioClass = (val: string) => {
+            console.log('val', val);
+            const classData: any = classList.value.find((item: ICurrentSelectClass) => item.ClassUserCenterId === val);
+            window.electron.ipcRenderer.send('updateSelectClass', JSON.stringify(classData));
+        };
         const _getTeacherClassList = () => {
             // const data = {
             //     Base_OrgId: currentUserInfo.value!.schoolId,
@@ -110,28 +138,42 @@ export default defineComponent({
             // getTeacherClassList(data).then(res => {
             //     if (res.resultCode === 200) {
             //         state.gradeList = res.result;
-            //         state.classList = state.gradeList.length > 0 ? state.gradeList[0].ClassList : [];
+            //         classList.value = state.gradeList.length > 0 ? state.gradeList[0].ClassList : [];
             //     }
             // });
-            state.classList = store.state.userInfo.classList;
+            classList.value = store.state.userInfo.classList.length ? store.state.userInfo.classList : get(STORAGE_TYPES.CLASS_LIST);
         };
 
         const close = () => {
-            emit("update:classVisible", false)
+            emit("close");
+            emit("update:classVisible", false);
+            checkClassList.value = [];
+            checkedClass.value = "";
         };
 
         onMounted(() => {
             _getTeacherClassList();
         });
 
+        watch(() => props.currentClassList, (val: any) => {
+            if (val.ClassUserCenterId) {
+                if (!props.isCheck) {
+                    checkedClass.value = val.ClassUserCenterId
+                }
+            }
+        }, {immediate: true})
+
         return {
-            ...toRefs(state),
+            classList,
+            currentUserInfo,
+            checkClassList,
+            checkedClass,
             handleChangeGrade,
             handleChangeClass,
-            handleRow,
+            handleChangeRadioClass,
             confirm,
             close,
-            currentUserInfo
+
         };
     }
 });
@@ -173,6 +215,7 @@ export default defineComponent({
         }
 
         .close-icon {
+            color: #9C9FAA;
             cursor: pointer;
             -webkit-app-region: no-drag;
             width: 30px;
@@ -182,6 +225,12 @@ export default defineComponent({
             display: flex;
             align-items: center;
             justify-content: center;
+
+            .el-icon {
+                width: 30px;
+                height: 30px;
+                color: #9C9FAA;
+            }
         }
     }
 
@@ -225,11 +274,54 @@ export default defineComponent({
             }
         }
 
-        .right {
+        :deep(.right) {
             flex: 1;
             min-widths: 0;
-            padding: 20px;
+            padding: 32px;
             overflow-y: auto;
+
+            .el-checkbox {
+                .el-checkbox__input {
+                    .el-checkbox__inner {
+                        width: 18px;
+                        height: 18px;
+                    }
+
+                    .el-checkbox__inner::after {
+                        height: 12px;
+                        left: 6px;
+                        position: absolute;
+                        top: 0px;
+                        width: 4px;
+                    }
+                }
+
+                .el-checkbox__label {
+                    font-size: 18px;
+                }
+
+            }
+
+            .el-radio {
+                .el-radio__input {
+                    .el-radio__inner {
+                        width: 18px;
+                        height: 18px;
+                    }
+
+                    .el-radio__inner::after {
+                        height: 6px;
+                        left: 8px;
+                        position: absolute;
+                        top: 8px;
+                        width: 6px;
+                    }
+                }
+
+                .el-radio__label {
+                    font-size: 18px;
+                }
+            }
         }
     }
 

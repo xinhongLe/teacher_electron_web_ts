@@ -5,9 +5,9 @@ import electron, {
     OpenDialogReturnValue,
     Remote
 } from "electron";
-import { LogFunctions } from "electron-log";
+import {LogFunctions} from "electron-log";
 import Store from "electron-store";
-import { IFileData } from "../../electron/exportWord";
+import {IFileData} from "../../electron/exportWord";
 
 interface logProps {
     info(...param: any[]): void;

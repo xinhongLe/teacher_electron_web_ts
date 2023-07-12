@@ -3,8 +3,8 @@ import {Homework} from "@/types/homework";
 import {LessonClasses, LessonSubject} from "@/types/login";
 import {get, STORAGE_TYPES} from "@/utils/storage";
 import moment from "moment";
-import {computed, onActivated, reactive, ref, toRefs, watch} from "vue";
-import {fetchClassHomeworkPaperList, fetchHomeworkDateByYear} from "../api";
+import {computed, nextTick, onActivated, reactive, ref, toRefs, watch} from "vue";
+import {fetchClassHomeworkPaperList, fetchHomeworkDateByYear, GetMySubjectByOrgId} from "../api";
 import {store} from "@/store";
 
 export default () => {
@@ -43,8 +43,6 @@ export default () => {
                 const {ClassID} = item;
                 homeworkListMap.value[ClassID] ? homeworkListMap.value[ClassID].push(item) : (homeworkListMap.value[ClassID] = [item]);
             });
-            console.log(detailList, "----");
-            console.log(homeworkListMap.value, "----");
         }
     };
 
@@ -76,19 +74,32 @@ export default () => {
 
     const classList: any = computed(() => store.state.userInfo.classList);
 
-    const initData = () => {
+    const initData = async () => {
         const userInfo = get(STORAGE_TYPES.USER_INFO);
-        subjectList.value = (userInfo.Subjects as LessonSubject[]).filter(
-            ({Name}) => Name !== "拼音"
-        );
-        !form.subject && (form.subject = subjectList.value[0] ? subjectList.value[0].ID : form.subject);
-        const currentClass: any = store.state.userInfo.currentSelectClass;
-        console.log('currentClass----', currentClass)
-        selectClassId.value = currentClass?.ClassId || classList.value[0]?.ClassId;
-        getHasTaskDate();
+        const subData = await GetMySubjectByOrgId();
+        if (subData.success && subData.resultCode === 200) {
+            console.log('subData', subData)
+            // subjectList.value = (userInfo.Subjects as LessonSubject[]).filter(
+            //     ({Name}) => Name !== "拼音"
+            // );
+            subjectList.value = subData.result;
+            form.subject = subjectList.value.length ? subjectList.value[0].ID : "";
+            const currentClass: any = store.state.userInfo.currentSelectClass;
+            selectClassId.value = currentClass?.ClassAixueshiId || classList.value[0]?.ClassAixueshiId;
+            console.log('selectClassId', selectClassId.value)
+            getHasTaskDate();
+        }
     };
+    // 当前用户信息
+    const currentUserInfoSchoolId = computed(() => store.state.userInfo.schoolId);
+    watch(() => currentUserInfoSchoolId.value, (val: any) => {
+        if (val) {
+            setTimeout(() => {
+                initData()
+            }, 200)
+        }
+    }, {deep: true});
     watch(() => store.state.userInfo.currentSelectClass, (val: any) => {
-        console.log('111val', val)
         if (!val.ClassId) return;
         initData()
     }, {deep: true})

@@ -1,7 +1,7 @@
-import { IBookItem, ICustomBookItem } from "@/api/resource";
-import { PreparationState, RootState } from "@/types/store";
-import { Module, MutationTree } from "vuex";
-import { MutationTypes } from "..";
+import {IBookItem, ICustomBookItem} from "@/api/resource";
+import {PreparationState, RootState} from "@/types/store";
+import {Module, MutationTree} from "vuex";
+import {MutationTypes} from "..";
 
 const initState = (): PreparationState => ({
     isViewCourseDetailIng: false,
@@ -63,6 +63,7 @@ const mutations: MutationTree<PreparationState> = {
         state,
         bookList: IBookItem[]
     ) {
+        console.log('bookList', bookList)
         state.subjectPublisherBookList = bookList;
     },
     [MutationTypes.SET_TERM](state, term: { id: string; code: string }) {

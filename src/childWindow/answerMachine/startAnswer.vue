@@ -14,15 +14,20 @@
                 <div class="select-warp">
                     <span class="label p_b_20">请选择班级：</span>
                     <el-form-item label="" prop="selectClass">
-                        <el-select popper-class="answer-select" v-model="form.selectClass"
-                                   @change="_getAnswerMachineQuestionList">
-                            <el-option
-                                v-for="item in classList"
-                                :key="item.ClassId"
-                                :label="item.ClassName"
-                                :value="item.ClassId"
-                            />
-                        </el-select>
+                        <!--                        <el-select popper-class="answer-select" v-model="form.selectClass"-->
+                        <!--                                   @change="_getAnswerMachineQuestionList">-->
+                        <!--                            <el-option-->
+                        <!--                                v-for="item in classList"-->
+                        <!--                                :key="item.ClassUserCenterId"-->
+                        <!--                                :label="item.ClassName"-->
+                        <!--                                :value="item.ClassUserCenterId"-->
+                        <!--                            />-->
+                        <!--                        </el-select>-->
+                        <el-radio-group v-model="form.selectClass" @change="_getAnswerMachineQuestionList">
+                            <el-radio v-for="(item, i) in classList" :key="i"
+                                      :label="item.ClassUserCenterId" size="large">{{ item.ClassName }}
+                            </el-radio>
+                        </el-radio-group>
                     </el-form-item>
                     <span class="view-btn" v-show="answerMode === AnswerMode.AnswerMachine"
                           @click="isShowStudentList = true">查看</span>
@@ -110,11 +115,12 @@ import {AnswerMode, getChoiceQuestion, PADModeQuestionType} from "./enum";
 import useStudentMachine from "@/hooks/useStudentMachine";
 import StudentList from "./studentList.vue";
 import Title from "./title.vue";
-import {UserInfoState} from "@/types/store";
+import {ICurrentSelectClass, UserInfoState} from "@/types/store";
 import {getTeacherClassList} from "@/views/login/api";
 import {IClassItem, IGradeItem} from "@/types/quickAnswer";
 import {ElMessage} from "element-plus";
-import {get, STORAGE_TYPES} from "@/utils/storage";
+import {get, set, STORAGE_TYPES} from "@/utils/storage";
+import {store} from "@/store";
 
 export default defineComponent({
     components: {
@@ -162,7 +168,7 @@ export default defineComponent({
                 selectClass: "",
                 topicList: [{questionType: 0, selectSetting: [], option: []}]
             },
-            classList: [] as IClassItem[]
+            classList: [] as ICurrentSelectClass[]
         });
         const {studentMachineListByClassIdMap, getStudentMachineListMap, studentMachineListMap} = useStudentMachine();
 
@@ -295,6 +301,7 @@ export default defineComponent({
             }
         };
         const _getAnswerMachineQuestionList = () => {
+
             const data = {
                 TeacherID: props.currentUserInfo!.userCenterUserID,
                 OrgID: props.currentUserInfo!.schoolId,
@@ -315,6 +322,9 @@ export default defineComponent({
                     if (res.result && res.result.ClassID) state.form.selectClass = res.result.ClassID;
                 }
             });
+            const classData: any = state.classList.find(item => item.ClassUserCenterId === state.form.selectClass);
+            if (!classData.ClassUserCenterId) return;
+            window.electron.ipcRenderer.send('updateSelectClass', JSON.stringify(classData));
         };
         const _getTeacherClassList = async () => {
             // state.classList = get(STORAGE_TYPES.USER_INFO).Classes;
@@ -325,27 +335,20 @@ export default defineComponent({
             //     state.form.selectClass = classData.result || state.classList[0].ClassId;
             // }
             // _getAnswerMachineQuestionList(); // 不传ClassID 获取上次的草稿记录
-
+            //
             const data = {
                 Base_OrgId: props.currentUserInfo!.schoolId,
                 TeacherId: props.currentUserInfo!.userCenterUserID
             };
-            getTeacherClassList(data).then(async (res) => {
-                if (res.resultCode === 200) {
-                    const gradeList = res.result || [];
-                    let classList: IClassItem[] = [];
-                    gradeList.forEach((item: IGradeItem) => {
-                        classList = classList.concat(item.ClassList);
-                    });
-                    state.classList = classList;
-                    const classData = await GetLastSelectedClassIdByTeacherID({ID: data.TeacherId})
-                    state.form.selectClass = state.classList[0].ClassId;
-                    if (classData.resultCode === 200) {
-                        state.form.selectClass = classData.result || state.classList[0].ClassId;
-                    }
-                    _getAnswerMachineQuestionList(); // 不传ClassID 获取上次的草稿记录
-                }
-            });
+            state.classList = get(STORAGE_TYPES.CLASS_LIST);
+            const currentClass = get(STORAGE_TYPES.CURRENT_SELECT_CLASS).ClassUserCenterId;
+            const classData = await GetLastSelectedClassIdByTeacherID({ID: data.TeacherId})
+            state.form.selectClass = currentClass;
+            if (classData.resultCode === 200) {
+                state.form.selectClass = classData.result || currentClass;
+            }
+            _getAnswerMachineQuestionList(); // 不传ClassID 获取上次的草稿记录
+
         };
 
         _getTeacherClassList();

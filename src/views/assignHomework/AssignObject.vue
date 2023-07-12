@@ -13,22 +13,22 @@
                 </p>
             </div>
         </div>
-        <!--        <ClassDialog-->
-        <!--            v-if="dialogVisible"-->
-        <!--            v-model:dialogVisible="dialogVisible"-->
-        <!--            v-model:classList="classList"-->
-        <!--        />-->
+        <ClassDialog
+            v-if="dialogVisible"
+            v-model:dialogVisible="dialogVisible"
+            v-model:classList="classList"
+        />
 
     </div>
-    <SelectAttendClass v-model:classVisible="dialogVisible" v-model:classList="classList" v-if="dialogVisible">
-    </SelectAttendClass>
+    <!--    <SelectAttendClass v-model:classVisible="dialogVisible" v-model:currentClassList="classList" v-if="dialogVisible">-->
+    <!--    </SelectAttendClass>-->
 </template>
 
 <script lang="ts">
 import {ClassData} from "@/types/assignHomework";
 import {ElMessage, ElMessageBox} from "element-plus";
 import {defineComponent, ref, watch} from "vue";
-// import ClassDialog from "./ClassDialog.vue";
+import ClassDialog from "./ClassDialog.vue";
 import SelectAttendClass from "@/components/navBar/selectAttendClass.vue";
 
 export default defineComponent({
@@ -65,6 +65,7 @@ export default defineComponent({
         watch(
             classList,
             (v) => {
+                console.log('v--', v)
                 emit("updateClassList", v);
             },
             {deep: true}
@@ -77,7 +78,7 @@ export default defineComponent({
             dialogVisible,
         };
     },
-    components: {SelectAttendClass},
+    components: {SelectAttendClass, ClassDialog},
 });
 </script>
 
