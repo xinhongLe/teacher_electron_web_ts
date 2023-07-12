@@ -214,6 +214,8 @@ const createNewReport = () => {
                     if (state.nextResult) {
                         state.StudentCompositionId = state.nextResult?.Composition?.StudentCompositionId
                         afterFuc(state.nextResult)
+                        //
+                        state.columnPager.current = state.columnPager.current + 1
                     } else {
                         ElMessage.error('当前已是最后一篇！')
                     }
