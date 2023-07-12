@@ -339,7 +339,14 @@ module.exports = {
                 },
                 mac: {
                     icon: "./public/icon.icns",
-                    target: ["dmg", "zip"],
+                    target: [
+                        {
+                            "target": "dmg",
+                            "arch": [
+                                "x64"
+                            ]
+                        }
+                    ],
                     extraFiles: [
                         {
                             from: "node_modules/trtc-electron-sdk/build/Release/",

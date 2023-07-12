@@ -285,7 +285,7 @@ defineExpose({
 
         }
 
-        @media screen and(min-width: 1367px) {
+        @media screen and (min-width: 1367px) {
             .title,.desc,.download{
                 font-size: 13px;
             }
