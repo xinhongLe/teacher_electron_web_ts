@@ -34,6 +34,9 @@
                     v-model:isShowHistoryBroadList="isShowHistoryBroadList"
                 />
             </transition>
+            <!--            <div>-->
+            <!--                <img src="./ico/view.jpg" alt="">-->
+            <!--            </div>-->
         </div>
         <div class="btn-bar">
             <div
@@ -261,6 +264,13 @@
                             isBlack ? "切换白板" : "切换黑板"
                         }}</span>
                 </div>
+                <div class="btn-warp" @click="changeTianZiOrLineGrid">
+                    <img src="./ico/icon_qiehuan.png" alt="" v-if="!isTzOrLine || isTzOrLine === 'TZ'"/>
+                    <img src="./ico/icon_qiehuan_selected.png" alt="" v-else/>
+                    <span class="text">{{
+                            (isTzOrLine === "TZ" || !isTzOrLine) ? "田字格" : "四线格"
+                        }}</span>
+                </div>
             </div>
             <div class="btn-container">
                 <div class="btn-warp" @click="smallClick">
@@ -279,6 +289,7 @@
                     <img src="./ico/full_screen.png" alt=""/>
                     <span class="text">全屏</span>
                 </div>
+
             </div>
         </div>
         <CloseDialog v-if="isShowCloseDialog" v-model:isShowCloseDialog="isShowCloseDialog"
@@ -313,6 +324,7 @@ export default defineComponent({
         const isBlack = ref(true);
         const blackColor = "#0C3E31";
         const whiteColor = "#F5F6FA";
+        const isTzOrLine = ref("");
         const isShowHistoryBroadList = ref(false);
         const {uploadFile} = useUploadFile("TeacherBlackboardFile");
         const isShowCloseDialog = ref(false);
@@ -345,7 +357,7 @@ export default defineComponent({
             fabCanvas.value = new window.fabric.Canvas(canvasRef.value, {
                 backgroundColor: blackColor,
                 width: Number(boxRef.value?.offsetWidth),
-                height: Number(boxRef.value?.offsetHeight)
+                height: Number(boxRef.value?.offsetHeight),
                 // width:100%,
                 // height:100%
             });
@@ -369,7 +381,28 @@ export default defineComponent({
             isShowHistoryBroadList.value = false;
         };
 
+        // 切换田字格/四线格
+        const changeTianZiOrLineGrid = () => {
+            // isTzOrLine.value = !isTzOrLine.value ? "TZ" : isTzOrLine.value === "TZ" ? "LINE" : "TZ";
+
+            if (!isTzOrLine.value || isTzOrLine.value === "TZ") {
+                boxRef.value!.style.backgroundImage = "url(" + require("./ico/view.jpg") + ")";
+                isTzOrLine.value = "LINE"
+            } else {
+                boxRef.value!.style.backgroundImage = "url(" + require("./ico/line.jpg") + ")";
+                isTzOrLine.value = "TZ"
+
+            }
+            fabCanvas.value.setBackgroundColor(
+                "transparent"
+            );
+            fabCanvas.value.get("backgroundColor").set({erasable: false});
+            fabCanvas.value.renderAll();
+            penColor.value = PenColorMap.Black;
+        }
+
         const changeBoard = () => {
+            console.log('fabCanvas.value', fabCanvas.value)
             fabCanvas.value.setBackgroundColor(
                 isBlack.value ? whiteColor : blackColor
             );
@@ -414,6 +447,7 @@ export default defineComponent({
         onMounted(() => {
             init();
             fabCanvas.value.on("object:added", function (e: any) {
+                console.log('123')
                 if (isAction.value) {
                     return;
                 }
@@ -504,7 +538,9 @@ export default defineComponent({
             fullScreen,
             fillScreen,
             enterFullscreen,
-            exitFullscreen
+            exitFullscreen,
+            changeTianZiOrLineGrid,
+            isTzOrLine
         };
     },
     components: {BoardList, BoardHistoryList, CloseDialog}
@@ -538,6 +574,19 @@ export default defineComponent({
         flex: 1;
         width: 100%;
         height: calc(100% - 60px);
+        background-image: url("~@/childWindow/blackboard/ico/view.jpg");
+        //background-image: url("~@/childWindow/blackboard/ico/line.jpg");
+
+
+        background-size: contain;
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
     }
 
     * {
