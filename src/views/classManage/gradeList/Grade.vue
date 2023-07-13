@@ -24,7 +24,7 @@
 <script lang="ts">
 import {MutationTypes, store} from "@/store";
 import {Class} from "@/types/myStudent";
-import {computed, defineComponent, PropType} from "vue";
+import {computed, defineComponent, PropType, watch} from "vue";
 import usePageEvent from "@/hooks/usePageEvent"; //埋点事件hooks
 import {EVENT_TYPE} from "@/config/event";
 import {set, STORAGE_TYPES} from "@/utils/storage";
@@ -57,6 +57,12 @@ export default defineComponent({
         const clicKBuryPoint = (name: string) => {
             createBuryingPointFn(EVENT_TYPE.PageClick, name, name);
         };
+        // 监听全局班级改变
+        watch(() => store.state.userInfo.currentSelectClass, (newVal) => {
+            if (newVal.ClassAixueshiId === props.grade.ID) {
+                updateClassId(props.grade)
+            }
+        }, {deep: true})
         return {
             isSelect: computed(
                 () =>

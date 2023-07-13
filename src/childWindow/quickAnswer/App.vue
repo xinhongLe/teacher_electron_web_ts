@@ -10,7 +10,7 @@
                                    @close="close" @confirm="openQuickAnswer">
                 </SelectAttendClass>
 
-                <quick-answer-detail v-if="showQuickAnswer" :classList="currentClassList" :selectClass="selectClass"
+                <quick-answer-detail v-if="showQuickAnswer" :classList="classList" :selectClass="selectClass"
                                      :currentUserInfo="currentUserInfo"></quick-answer-detail>
             </div>
 
@@ -48,8 +48,8 @@ export default defineComponent({
             isAnswer: true,
             showSelectClass: false,
             showQuickAnswer: false,
-            classList: [] as IClassItem[],
-            currentClassList: get(STORAGE_TYPES.CURRENT_SELECT_CLASS) || {},
+            classList: get(STORAGE_TYPES.CLASS_LIST),
+            currentClassList: get(STORAGE_TYPES.CURRENT_SELECT_CLASS),
             selectClass: ""
         });
 
@@ -76,8 +76,9 @@ export default defineComponent({
                         const currentSchedule = teacherCourseList[0].ScheduleDetailData;
                         const ifHaveClass = currentSchedule.find(item => (item.StartTime <= time && time <= item.EndTime)); // 是否正在上课
                         if (ifHaveClass) {
-                            state.classList = [{ClassName: ifHaveClass!.ClassName, ClassId: ifHaveClass!.ClassID}];
+                            // state.classList = [{ClassName: ifHaveClass!.ClassName, ClassId: ifHaveClass!.ClassID}];
                             state.showQuickAnswer = true;
+                            state.selectClass = ifHaveClass!.ClassID;
                         } else {
                             state.showSelectClass = true;
                         }

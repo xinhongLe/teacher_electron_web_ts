@@ -102,7 +102,7 @@
                     </div>
                 </div>
             </div>
-            <div class="me-tools" ref="metools" v-drag>
+            <div class="me-tools" :class="toolClass" ref="metools" v-drag>
                 <div class="me-tools-draw">
                     <!-- 左边可收起的按钮 -->
                     <div class="draw-content">
@@ -184,7 +184,7 @@
                     <!-- 右边固定展开的按钮 -->
                     <div class="me-tools-righttool">
                         <!-- 展开/收起 -->
-                        <div @click.prevent.stop="showDrawToos" class="arrows">
+                        <div @click="showDrawToos" class="arrows">
                             <img v-if="!isOpen"
                                  src="@/views/preparation/intelligenceClassroom/images/slices/icon_zhankai.png" alt=""/>
                             <img v-else src="@/views/preparation/intelligenceClassroom/images/slices/icon_shouqi.png"
@@ -333,6 +333,11 @@ export default defineComponent({
             type: Object as PropType<IViewResourceData>,
             required: true,
         },
+
+        toolClass: {
+            type: String,
+            default: 'question'
+        }
     },
     setup(props, {emit}) {
         const drawingBoardRef = ref();
@@ -479,8 +484,9 @@ export default defineComponent({
         const drawingShow = ref(false);
         const isOpen = ref(false);
         const showDrawToos = () => {
-            const dom: HTMLElement = document.querySelector(".draw-content") as HTMLElement;
-            const outdom: HTMLElement = document.querySelector(".me-tools") as HTMLElement;
+            const dom: HTMLElement = document.querySelector(`.${props.toolClass} .draw-content`) as HTMLElement;
+            const outdom: HTMLElement = document.querySelector(`.${props.toolClass}.me-tools`) as HTMLElement;
+            console.log('dom,outdom', dom, outdom)
             if (outdom?.style.width === "786px") {
                 isOpen.value = false;
                 outdom.style.width = "378px";
@@ -503,6 +509,10 @@ export default defineComponent({
             if (type === "paint") {
                 drawingShow.value = true;
                 isShowPen.value = true;
+                nextTick(() => {
+                    whiteboardOption("setPenSize", currentLineWidth.value);
+                    whiteboardOption("setPenColor", currentDrawColor.value);
+                })
                 penLeft.value = left;
                 penTop.value = top;
             }
@@ -539,7 +549,7 @@ export default defineComponent({
             drawingBoardRef.value.redo()
         };
         // 画笔其它配置
-        const whiteboardOption = (option: string, value?: number) => {
+        const whiteboardOption = (option: string, value?: number | string) => {
             // emit("whiteboardOption", option, value);
             console.log('option,value', option, value)
             drawingBoardRef.value.whiteboardOption(option, value)

@@ -1,34 +1,34 @@
 <template>
     <div class="grade-list">
         <div class="empty" v-if="classList.length === 0">
-            <img src="@/assets/my-student/pic_wubanji@2x.png" />
+            <img src="@/assets/my-student/pic_wubanji@2x.png"/>
             <p>您还没有班级</p>
             <p>您可以点击下方【创建班级】</p>
         </div>
         <div class="list" v-else>
-            <Grade v-for="item in classList" :grade="item" :key="item.ID" />
+            <Grade v-for="item in classList" :grade="item" :key="item.ID"/>
         </div>
 
         <!-- <div class="add-btn" @click="showDialog">
             <img src="@/assets/my-student/icon_add_rest@2x.png" />
             <span>创建班级</span>
         </div> -->
-        <AddOrEditClass v-if="isShowClassDialog" />
+        <AddOrEditClass v-if="isShowClassDialog"/>
     </div>
 </template>
 
 <script lang="ts">
-import { store, MutationTypes, ActionTypes } from "@/store";
-import { computed, defineComponent } from "vue";
+import {store, MutationTypes, ActionTypes} from "@/store";
+import {computed, defineComponent} from "vue";
 import Grade from "./Grade.vue";
 import AddOrEditClass from "../addOrEditClass/index.vue";
 import usePageEvent from "@/hooks/usePageEvent"; //埋点事件hooks
-import { EVENT_TYPE } from "@/config/event";
+import {EVENT_TYPE} from "@/config/event";
 
 export default defineComponent({
     name: "GradeList",
     setup() {
-        const { createBuryingPointFn } = usePageEvent("班级管理");
+        const {createBuryingPointFn} = usePageEvent("班级管理");
         store.dispatch(ActionTypes.FETCH_CLASS_LIST, true);
         //班级管理页面点击埋点事件
         const clicKBuryPoint = (name: string) => {
@@ -46,7 +46,7 @@ export default defineComponent({
             clicKBuryPoint,
         };
     },
-    components: { Grade, AddOrEditClass },
+    components: {Grade, AddOrEditClass},
 });
 </script>
 
@@ -61,6 +61,7 @@ export default defineComponent({
     position: relative;
     justify-content: space-between;
     flex-shrink: 0;
+
     .add-btn {
         display: flex;
         justify-content: center;
@@ -68,11 +69,13 @@ export default defineComponent({
         height: 52px;
         border-top: 1px solid #f5f6fa;
         cursor: pointer;
+
         img {
             width: 20px;
             height: 20px;
             margin-right: 8px;
         }
+
         span {
             font-size: 16px;
             font-weight: 600;
@@ -80,16 +83,19 @@ export default defineComponent({
             line-height: 22px;
         }
     }
+
     .empty {
         flex: 1;
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
+
         img {
             width: 136px;
             height: 85px;
         }
+
         p:nth-of-type(1) {
             margin-top: 24px;
             font-size: 18px;
@@ -98,6 +104,7 @@ export default defineComponent({
             line-height: 25px;
             text-align: center;
         }
+
         p:nth-of-type(2) {
             margin-top: 6px;
             font-size: 16px;
@@ -106,6 +113,7 @@ export default defineComponent({
             text-align: center;
         }
     }
+
     .list {
         display: flex;
         flex-direction: column;
