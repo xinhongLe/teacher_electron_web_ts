@@ -17,7 +17,8 @@ import ElectronLog from "electron-log";
 import os from "os";
 import {exec} from "child_process";
 import path from "path";
-import downloadFile from "./downloadFile";
+import downloadFile, { store } from "./downloadFile";
+import { STORAGE_TYPES } from "@/utils/storage";
 
 const isDevelopment = process.env.NODE_ENV !== "production";
 const editWinList = new Map<number, any>();
@@ -77,11 +78,11 @@ async function createWindow() {
 
     if (process.env.WEBPACK_DEV_SERVER_URL) {
         require("@electron/remote/main").enable(mainWindow.webContents);
-        mainWindow.loadURL(process.env.WEBPACK_DEV_SERVER_URL);
+        mainWindow.loadURL(isOpenUrl ? `${process.env.WEBPACK_DEV_SERVER_URL}home` : process.env.WEBPACK_DEV_SERVER_URL);
         if (!process.env.IS_TEST) mainWindow.webContents.openDevTools();
     } else {
         require("@electron/remote/main").enable(mainWindow.webContents);
-        mainWindow.loadURL("app://./index.html");
+        mainWindow.loadURL(isOpenUrl ? "app://./index.html/#/home" : "app://./index.html/#/login");
     }
 
     mainWindow.on("ready-to-show", () => {
@@ -263,6 +264,7 @@ function createLocalPreview(args: Array<string>) {
 }
 
 let isOpenFile = false;
+let isOpenUrl = false;
 
 app.on("will-finish-launching", () => {
     app.on("open-file", (event, path) => {
@@ -280,9 +282,24 @@ app.on("will-finish-launching", () => {
     });
 });
 
+app.on("open-url", (_event, url) => {
+    if (url.indexOf("login") > -1) {
+        // 登录
+        const search = url.substring(url.indexOf("?"), url.length);
+        const params = new URLSearchParams(search);
+        const token = params.get("token") || "";
+        const record = store.get(`VUE_${STORAGE_TYPES.RECORD_LOGIN_LIST}`);
+        store.clear();
+        store.set(`VUE_${STORAGE_TYPES.SET_TOKEN}`, token);
+        record && store.set(`VUE_${STORAGE_TYPES.RECORD_LOGIN_LIST}`, record);
+        isOpenUrl = true;
+    }
+});
+
 app.on("ready", async () => {
     createProtocol("app");
     let result = false;
+    ElectronLog.log("==== 唤起应用", process.argv);
     if (app.isPackaged) {
         result = createLocalPreview(process.argv);
     }
