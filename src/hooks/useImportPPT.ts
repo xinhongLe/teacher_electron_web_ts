@@ -1,14 +1,14 @@
-import {Slide} from "wincard";
-import {cooOss} from "@/utils/oss";
+import { Slide } from "wincard";
+import { cooOss } from "@/utils/oss";
 import isElectron from "is-electron";
-import {ElMessage} from "element-plus";
-import {computed, ref, watch} from "vue";
-import {createRandomCode} from "@/utils/common";
-import {get, STORAGE_TYPES} from "@/utils/storage";
-import {pageType} from "@/config";
-import {v4 as uuidv4} from "uuid";
-import {PageProps} from "@/views/preparation/intelligenceClassroom/api/props";
-import {parsePPTX} from "@/api/parsePPT";
+import { ElMessage } from "element-plus";
+import { computed, ref, watch } from "vue";
+import { createRandomCode } from "@/utils/common";
+import { get, STORAGE_TYPES } from "@/utils/storage";
+import { pageType } from "@/config";
+import { v4 as uuidv4 } from "uuid";
+import { PageProps } from "@/views/preparation/intelligenceClassroom/api/props";
+import { parsePPTX } from "@/api/parsePPT";
 
 interface Slides {
     size: {
@@ -45,8 +45,8 @@ export default () => {
                 loading.value = false;
                 return ElMessage({
                     message: res.msg,
-                    type: 'error'
-                })
+                    type: "error"
+                });
             }
             const result = res.result;
             pptPages.value = result.slides.length;
@@ -73,7 +73,7 @@ export default () => {
             });
             loading.value = false;
             callback(pageList, name[name.length - 1]);
-            ElMessage({type: "success", message: "导入成功"});
+            ElMessage({ type: "success", message: "导入成功" });
         }
         // }).catch((err: any) => {
         //     loading.value = false;

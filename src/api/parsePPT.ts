@@ -1,8 +1,8 @@
-import axios, {AxiosRequestConfig, AxiosRequestHeaders, Method} from "axios";
+import axios, { AxiosRequestConfig, AxiosRequestHeaders, Method } from "axios";
 
 const httpPPt = axios.create({
-    baseURL: 'https://ppt-parse.aixueshi.top',
-})
+    baseURL: "https://ppt-parse.aixueshi.top"
+});
 
 interface IRequest<T> {
     baseURL?: string | undefined;
@@ -28,9 +28,9 @@ export function parsePPTX(pptxFile: any): Promise<any> {
     formData.append("file", pptxFile);
     return request({
         url: "/ppt-parse",
-        method: 'POST',
+        method: "POST",
         data: formData,
         contentType: false,
-        enctype: 'multipart/form-data',
-    })
+        enctype: "multipart/form-data"
+    });
 }
