@@ -6,7 +6,9 @@ module.exports = {
     globals: {
         electron: true,
         MathJax: true,
-        defineProps: true
+        defineProps: true,
+        defineEmits: true,
+        defineExpose: true
     },
     extends: [
         "plugin:vue/vue3-essential",
@@ -30,6 +32,7 @@ module.exports = {
         "no-unmodified-loop-condition": "off",
         "no-tabs": "off",
         "@typescript-eslint/no-explicit-any": "off",
-        "no-unused-expressions": "off"
+        "no-unused-expressions": "off",
+        "camelcase": "off"
     }
 };
