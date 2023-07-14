@@ -6,7 +6,7 @@ import { getOssUrl } from "./oss";
 const noZipCache: string[] = [];
 
 const getFilePath = (key: string, resolve: (path: string) => void) => {
-    const fileName = key.replace(/(.*\/)*([^.]+).*/ig,"$2");
+    const fileName = key.replace(/(.*\/)*([^.]+)/ig, "$2");
     if (fileName === "ElementFile/" || fileName === "null") return resolve("");
     return window.electron.isExistFile(fileName).then((isExist) => {
         if (isExist) {
@@ -18,7 +18,7 @@ const getFilePath = (key: string, resolve: (path: string) => void) => {
             } else {
                 getOssUrl(key, "axsfile").then(filePath => {
                     window.electron.ipcRenderer.invoke("downloadFile", filePath, fileName).then(path => {
-                        resolve(encodeURI(path ? "file://" + path : ""))
+                        resolve(encodeURI(path ? "file://" + path : ""));
                     }).catch(() => {
                         resolve(encodeURI(""));
                     });
@@ -62,9 +62,9 @@ export const cacheFile = (key: string) => {
                                         }
                                     }).catch(() => {
                                         getFilePath(key, resolve);
-                                    });;
+                                    });
                                 });
-                            }                            
+                            }
                         }
                     });
                 }

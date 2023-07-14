@@ -1,45 +1,33 @@
-"use strict";
-
-import {app, protocol, BrowserWindow, ipcMain, Menu} from "electron";
-import {createProtocol} from "vue-cli-plugin-electron-builder/lib";
-import {initialize} from "@electron/remote/main";
-import {
-    createSuspensionWindow,
-    createLocalPreviewWindow,
-    registerEvent,
-    unfoldSuspensionWinSendMessage
-} from "./suspension";
-import autoUpdater from "./autoUpdater";
-import {createWinCardWindow} from "./wincard";
-import {registerVirtualKeyBoard, closeKeyBoard, setInput} from "./virtualKeyBoard";
+import os from "os";
+import path from "path";
+import { exec } from "child_process";
 import SingalRHelper from "./singalr";
 import ElectronLog from "electron-log";
-import os from "os";
-import {exec} from "child_process";
-import path from "path";
+import autoUpdater from "./autoUpdater";
 import downloadFile from "./downloadFile";
+import { createWinCardWindow } from "./wincard";
+import { initialize } from "@electron/remote/main";
+import { createProtocol } from "vue-cli-plugin-electron-builder/lib";
+import { app, protocol, BrowserWindow, ipcMain, Menu } from "electron";
+import { registerVirtualKeyBoard, closeKeyBoard, setInput } from "./virtualKeyBoard";
+import { createSuspensionWindow, createLocalPreviewWindow, registerEvent, unfoldSuspensionWinSendMessage } from "./suspension";
 
-const isDevelopment = process.env.NODE_ENV !== "production";
 const editWinList = new Map<number, any>();
+const isDevelopment = process.env.NODE_ENV !== "production";
 
 initialize();
 
 protocol.registerSchemesAsPrivileged([
-    {scheme: "app", privileges: {secure: true, standard: true}},
+    { scheme: "app", privileges: { secure: true, standard: true } },
     {
         scheme: "http",
-        privileges: {
-            bypassCSP: true,
-            secure: true,
-            supportFetchAPI: true,
-            corsEnabled: true
-        }
+        privileges: { bypassCSP: true, secure: true, supportFetchAPI: true, corsEnabled: true }
     }
 ]);
 
-let mainWindow: BrowserWindow | null;
-let singalr: SingalRHelper | null;
 let isCreateWindow = false;
+let singalr: SingalRHelper | null;
+let mainWindow: BrowserWindow | null;
 
 async function createWindow() {
     if (!process.env.WEBPACK_DEV_SERVER_URL) {
@@ -47,26 +35,27 @@ async function createWindow() {
         Menu.setApplicationMenu(menu);
     }
     mainWindow = new BrowserWindow({
-        height: 520,
-        useContentSize: true,
         width: 750,
+        height: 520,
+        show: false,
         frame: false,
         minWidth: 750,
         minHeight: 520,
-        show: false,
+        useContentSize: true,
         webPreferences: {
-            enableRemoteModule: true,
             webviewTag: true,
             webSecurity: false, // 取消跨域限制
             nodeIntegration: true,
-            contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
+            enableRemoteModule: true,
             preload: path.join(__dirname, "preload.js"),
-            devTools: !!process.env.WEBPACK_DEV_SERVER_URL
+            devTools: !!process.env.WEBPACK_DEV_SERVER_URL,
+            contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION
         }
     });
-    // mainWindow.setContentProtection(true);
+
     downloadFile();
     autoUpdater(mainWindow!);
+
     if (!isCreateWindow) {
         createSuspensionWindow();
         isCreateWindow = true;
@@ -183,14 +172,6 @@ async function createWindow() {
         mainWindow && mainWindow.webContents.send("openWindow", data);
     });
 
-    // ipcMain.handle("lookVideo", (_, data) => {
-    //     mainWindow && mainWindow.webContents.send("lookVideo", data);
-    // });
-
-    // ipcMain.handle("lookQuestions", (_, data) => {
-    //     mainWindow && mainWindow.webContents.send("lookQuestions", data);
-    // });
-
     // 上课消息通知
     ipcMain.on("attendClass", (e, to, data) => {
         if (to === "unfoldSuspension") {
@@ -301,7 +282,7 @@ app.on("render-process-gone", (event, webContents, details) => {
 });
 
 app.on("child-process-gone", (event, details) => {
-    const {type, reason, exitCode, serviceName, name} = details;
+    const { type, reason, exitCode, serviceName, name } = details;
     ElectronLog.error(
         `child-process-gone, reason: ${reason}, exitCode: ${exitCode}, type:${type}, serviceName: ${serviceName}, name: ${name}`
     );
@@ -344,5 +325,5 @@ if (isDevelopment) {
 }
 
 process.on("uncaughtException", function (error) {
-    ElectronLog.error(error)
+    ElectronLog.error(error);
 });

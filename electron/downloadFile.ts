@@ -1,18 +1,17 @@
-import { app, ipcMain } from "electron";
-import { resolve } from "path";
-import { access, mkdir } from "fs/promises";
 import Axios from "Axios";
-import { createWriteStream, createReadStream } from "fs";
+import { resolve } from "path";
 import Store from "electron-store";
+import { app, ipcMain } from "electron";
+import { access, mkdir } from "fs/promises";
+import { createWriteStream, createReadStream } from "fs";
 
 const crypto = require("crypto");
 type func = (value: unknown) => void;
 
-export const store = new Store({
-    watch: true
-});
+export const store = new Store({ watch: true });
 const downloadingFileList: string[] = []; // 下载中的文件列表
 const downloadSuccessCallbackMap = new Map<string, func[]>();
+
 export const isExistFile = (filePath: string): Promise<boolean> => {
     return new Promise((resolve) => {
         access(filePath)
@@ -88,7 +87,7 @@ export const downloadFileAxios = async (url: string, fileName: string) => {
             writer.on("finish", () => {
                 resolve(true);
             });
-            writer.on("error", (err) => {
+            writer.on("error", () => {
                 resolve(false);
             });
             writer.on("close", () => {
@@ -105,23 +104,14 @@ export const downloadFileAxios = async (url: string, fileName: string) => {
     }
 };
 
-export const downloadFileToPath = async (
-    url: string,
-    fileName: string,
-    path: string
-): Promise<boolean> => {
+export const downloadFileToPath = async (url: string, fileName: string, path: string): Promise<boolean> => {
     const writer = createWriteStream(path);
-    const response = await Axios({
-        url,
-        method: "GET",
-        responseType: "stream"
-    });
+    const response = await Axios({ url, method: "GET", responseType: "stream" });
     if (response.status === 200) {
         response.data.pipe(writer);
     } else {
         writer.destroy();
     }
-
     return new Promise((resolve) => {
         writer.on("finish", () => {
             resolve(true);
@@ -155,10 +145,7 @@ export default () => {
         return new Promise(resolve => {
             if (downloadSuccessCallbackMap.has(fileName)) {
                 const callbackList = downloadSuccessCallbackMap.get(fileName) || [];
-                downloadSuccessCallbackMap.set(fileName, [
-                    ...callbackList,
-                    resolve
-                ]);
+                downloadSuccessCallbackMap.set(fileName, [...callbackList, resolve]);
             } else {
                 downloadSuccessCallbackMap.set(fileName, [resolve]);
                 downloadFile(url, fileName);
