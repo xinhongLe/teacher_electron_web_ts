@@ -62,7 +62,7 @@ async function createWindow() {
             nodeIntegration: true,
             contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
             preload: path.join(__dirname, "preload.js"),
-            devTools: !!process.env.WEBPACK_DEV_SERVER_URL
+            devTools: true
         }
     });
     // mainWindow.setContentProtection(true);
@@ -83,6 +83,7 @@ async function createWindow() {
     } else {
         require("@electron/remote/main").enable(mainWindow.webContents);
         mainWindow.loadURL(isOpenUrl ? "app://./index.html/#/home" : "app://./index.html/#/login");
+        mainWindow.webContents.openDevTools();
     }
 
     mainWindow.on("ready-to-show", () => {
@@ -282,7 +283,7 @@ app.on("will-finish-launching", () => {
     });
 });
 
-app.on("open-url", (_event, url) => {
+const webOpenUrl = (url: string) => {
     if (url.indexOf("login") > -1) {
         // 登录
         const search = url.substring(url.indexOf("?"), url.length);
@@ -294,15 +295,24 @@ app.on("open-url", (_event, url) => {
         record && store.set(`VUE_${STORAGE_TYPES.RECORD_LOGIN_LIST}`, record);
         isOpenUrl = true;
     }
+};
+
+app.on("open-url", (_event, url) => {
+    webOpenUrl(url);
 });
 
 app.on("ready", async () => {
     createProtocol("app");
     let result = false;
-    ElectronLog.log("==== 唤起应用", process.argv);
-    if (app.isPackaged) {
+    if (process.argv.length > 1) {
+        const url = process.argv[1];
+        webOpenUrl(url);
+    }
+
+    if (app.isPackaged && isOpenFile) {
         result = createLocalPreview(process.argv);
     }
+
     if (!result && !isOpenFile) {
         createWindow();
     }
