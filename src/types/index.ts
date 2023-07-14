@@ -67,6 +67,7 @@ type Electron = typeof electron & {
     convertVideoH264: (filePath: string) => Promise<Buffer>;
     sliceVideoZip: (filePath: string, name: string) => Promise<Buffer>;
     unZip: (path: string) => void;
+    getWindowImg: () => Promise<string>;
 };
 
 declare global {

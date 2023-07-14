@@ -1,5 +1,5 @@
 import { getCurrentWindow, app, dialog } from "@electron/remote";
-import electron, { OpenDialogOptions, remote, SaveDialogOptions } from "electron";
+import electron, { desktopCapturer, OpenDialogOptions, remote, SaveDialogOptions } from "electron";
 import { isExistFile, mkdirs, store } from "./downloadFile";
 import path, { resolve, join } from "path";
 import logger from "@/utils/logger";
@@ -339,7 +339,6 @@ window.electron = {
             await mkdirs(filePath);
             const uuid = guid().replaceAll("-", "");
             const jsonFileName = filePath + `/${uuid}app.json`;
-            console.log("jsonFileName-------", jsonFileName);
 
             // 生成JSON文件
             await writeFile(
@@ -356,7 +355,6 @@ window.electron = {
                     "lyxpkg"
                 )
             );
-            console.log("cacheFiles-------", cacheFiles);
 
             for (let cacheFile of cacheFiles) {
                 cacheFile = cacheFile.replace("file:///", "");
@@ -474,6 +472,33 @@ window.electron = {
         const zip = new AdmZip(path);
         const dirName = path.replace(/(.*[\/\\])*([^.]+)/i, "$2").replace(".zip", "");
         zip.extractAllToAsync(downloadsPath + dirName, true);
+    },
+    getWindowImg: () => {
+        return new Promise(resolve => {
+            const currentWindow = getCurrentWindow();
+            const bound = currentWindow.getBounds();
+            desktopCapturer.getSources({
+                types: ["window"],
+                // thumbnailSize: {
+                //     width: bound.width,
+                //     height: bound.height,
+                // }
+            }).then(sources => {
+                const selectSource = sources[0];
+                const buffer = selectSource.thumbnail.toPNG({
+                    scaleFactor: 0.1
+                });
+
+                const outputPath = join(app.getPath("userData"), "files", "thumbnails");
+                if (!fs.existsSync(outputPath)) {
+                    fs.mkdirSync(outputPath);
+                }
+
+                const filePath = join(outputPath, `${new Date().getTime()}.png`);
+                fs.writeFileSync(filePath, buffer);
+                resolve(filePath);
+            });
+        });
     },
     store: store,
     parsePPT,
