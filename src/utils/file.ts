@@ -6,7 +6,7 @@ import { getOssUrl } from "./oss";
 const noZipCache: string[] = [];
 
 const getFilePath = (key: string, resolve: (path: string) => void) => {
-    const fileName = key.replace(/(.*\/)*([^.]+).*/ig,"$2");
+    const fileName = key.replace(/(.*\/)*([^.]+).*/ig, "$2");
     if (fileName === "ElementFile/" || fileName === "null") return resolve("");
     return window.electron.isExistFile(fileName).then((isExist) => {
         if (isExist) {
