@@ -40,9 +40,6 @@
                         </div>
                     </div>
                 </div>
-                <div class="right-template" v-if="false">
-
-                </div>
             </div>
 
         </el-dialog>
@@ -60,9 +57,8 @@
             @close="closeView"
         >
             <div class="template-view">
-
+                <img v-if="" src="@/assets/images/preparation/pic_,muban1.png" alt="">
             </div>
-
         </el-dialog>
     </div>
 
