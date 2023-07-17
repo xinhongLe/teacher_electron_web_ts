@@ -88,16 +88,41 @@
         <el-dialog
             class="custom-dialog"
             v-model="uploadResourceOpen"
+            align-center
             center
             :title="currentEditType === 'edit' ? '编辑资源' : '上传资源'"
             width="550px"
             :destroy-on-close="true"
         >
             <el-form class="custom-form" :model="form" label-width="100px">
+                <el-form-item label="类型：" required>
+                    <el-radio-group class="custom-radio" v-model="form.type">
+                        <el-radio-button
+                            v-for="item in typeList.slice(1)"
+                            :disabled="
+                                [
+                                    RESOURCE_TYPE.TEACHING_AIDS,
+                                    RESOURCE_TYPE.TOOL,
+                                ].indexOf(item.Id) > -1
+                            "
+                            :key="item.Id"
+                            :label="item"
+                        >
+                            {{ item.Name }}
+                        </el-radio-button>
+                    </el-radio-group>
+                </el-form-item>
+                <el-form-item
+                    label="资源名称："
+                    required
+                    v-if="form.files.length < 2"
+                >
+                    <el-input v-model="form.name" size="large"/>
+                </el-form-item>
                 <el-form-item
                     label="资源："
                     required
-                    v-if="!isWincard || currentEditType === 'add'"
+                    v-if="form.type.Name !== '导学案' && (!isWincard || currentEditType === 'add')"
                 >
                     <el-upload
                         ref="upload"
@@ -124,6 +149,48 @@
                         </el-button>
                     </el-upload>
                 </el-form-item>
+                <el-form-item
+                    label="资源："
+                    required
+                    v-if="form.type.Name === '导学案' && (!isWincard || currentEditType === 'add')"
+                >
+                    <el-radio-group v-model="form.sourceType">
+                        <el-radio :label="1">本地上传</el-radio>
+                        <el-radio :label="2">在线设计</el-radio>
+                    </el-radio-group>
+                </el-form-item>
+
+                <el-form-item
+                    label=""
+                    v-if="form.type.Name === '导学案' && form.sourceType === 1"
+                >
+                    <el-upload
+                        ref="upload"
+                        action=""
+                        :accept="acceptList"
+                        :show-file-list="true"
+                        :before-remove="beforeRemove"
+                        :before-upload="beforeUpload"
+                        :http-request="(e: { file: File & Blob & { uid: number; }; }) => uploadSuccess(e, index)"
+                        :file-list="fileList"
+                        :limit="
+                            currentEditType === 'edit' && form.files.length > 0
+                                ? 1
+                                : 5
+                        "
+                        :on-exceed="onExceed"
+                    >
+                        <el-button type="primary" style="font-size: 13px">
+                            &nbsp;&nbsp;&nbsp;
+                            <el-icon :size="14">
+                                <upload/>
+                            </el-icon>
+                            &nbsp;上&nbsp;传&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        </el-button>
+                    </el-upload>
+
+                </el-form-item>
+
                 <!-- <el-form-item label="资源文件：" v-else>
                     <el-button
                         type="primary"
@@ -135,30 +202,6 @@
                         &nbsp;编&nbsp;辑&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     </el-button>
                 </el-form-item> -->
-                <el-form-item
-                    label="资源名称："
-                    required
-                    v-if="form.files.length < 2"
-                >
-                    <el-input v-model="form.name" size="large"/>
-                </el-form-item>
-                <el-form-item label="类型：" required>
-                    <el-radio-group class="custom-radio" v-model="form.type">
-                        <el-radio-button
-                            v-for="item in typeList.slice(1)"
-                            :disabled="
-                                [
-                                    RESOURCE_TYPE.TEACHING_AIDS,
-                                    RESOURCE_TYPE.TOOL,
-                                ].indexOf(item.Id) > -1
-                            "
-                            :key="item.Id"
-                            :label="item"
-                        >
-                            {{ item.Name }}
-                        </el-radio-button>
-                    </el-radio-group>
-                </el-form-item>
                 <el-form-item label="目录：" required>
                     <div
                         class="select-box"
@@ -314,7 +357,7 @@ import {
     watch,
     nextTick
 } from "vue";
-import { Plus, Refresh, Upload, Edit } from "@element-plus/icons-vue";
+import {Plus, Refresh, Upload, Edit} from "@element-plus/icons-vue";
 import {
     editResource,
     fetchMyPackageNum,
@@ -325,18 +368,18 @@ import {
     uploadResource
 } from "@/api/resource";
 import CustomSelect from "./customSelect.vue";
-import { ElMessage } from "element-plus";
+import {ElMessage} from "element-plus";
 import useUploadFile from "@/hooks/useUploadFile";
 import emitter from "@/utils/mitt";
-import { MutationTypes, useStore } from "@/store";
-import { getOssUrl } from "@/utils/oss";
-import { useRouter } from "vue-router";
+import {MutationTypes, useStore} from "@/store";
+import {getOssUrl} from "@/utils/oss";
+import {useRouter} from "vue-router";
 import moment from "moment";
 import usePageEvent from "@/hooks/usePageEvent"; //埋点事件hooks
-import { EVENT_TYPE } from "@/config/event";
-import { RESOURCE_TYPE } from "@/config/resource";
+import {EVENT_TYPE} from "@/config/event";
+import {RESOURCE_TYPE} from "@/config/resource";
 import isElectron from "is-electron";
-import { exportExcel, IExcel } from "mexcel";
+import {exportExcel, IExcel} from "mexcel";
 import Loading from "@/components/loading/Loading.vue";
 import useLessonPackage from "@/hooks/useLessonPackage";
 
@@ -376,6 +419,7 @@ interface IForm {
     files: IFile[];
     isSchool: boolean;
     isShelf: boolean;
+    sourceType: number
 }
 
 interface ICourse {
@@ -402,11 +446,11 @@ export default defineComponent({
             required: true
         }
     },
-    components: { Plus, Refresh, Upload, CustomSelect, Edit, Loading },
-    emits: ["update:source", "update:type", "updateBagList"],
-    setup(props, { emit }) {
-        const { createBuryingPointFn } = usePageEvent("备课"); //备课埋点
-        const { getPrepareGetMyBagCountNew, packageCount } = useLessonPackage();
+    components: {Plus, Refresh, Upload, CustomSelect, Edit, Loading},
+    emits: ["update:source", "update:type", "updateBagList", "learnPlanDesign"],
+    setup(props, {emit}) {
+        const {createBuryingPointFn} = usePageEvent("备课"); //备课埋点
+        const {getPrepareGetMyBagCountNew, packageCount} = useLessonPackage();
 
         const store = useStore();
         const userId = computed(() => store.state.userInfo.userCenterUserID);
@@ -414,7 +458,7 @@ export default defineComponent({
             () => store.state.preparation.subjectPublisherBookValue
         );
         const schoolId = store.state.userInfo.schoolId;
-        const { course } = toRefs(props);
+        const {course} = toRefs(props);
         let isInit = true;
         watch(course, () => {
             getMyPackageNum();
@@ -574,19 +618,20 @@ export default defineComponent({
             },
             directorys: [
                 {
-                    schoolSection: { id: "", name: "" },
-                    subject: { id: "", name: "" },
-                    version: { id: "", name: "" },
-                    grade: { id: "", name: "" },
-                    chapter: { id: "", name: "" },
-                    lesson: { id: "", name: "" }
+                    schoolSection: {id: "", name: ""},
+                    subject: {id: "", name: ""},
+                    version: {id: "", name: ""},
+                    grade: {id: "", name: ""},
+                    chapter: {id: "", name: ""},
+                    lesson: {id: "", name: ""}
                 }
             ],
             degree: "3",
             knowledge: "",
             files: [],
             isSchool: false,
-            isShelf: true
+            isShelf: true,
+            sourceType: 0
         };
         const form = reactive<IForm>(JSON.parse(JSON.stringify(formEmpty)));
 
@@ -624,12 +669,12 @@ export default defineComponent({
         // 新增目录
         const addDirectory = () => {
             form.directorys.push({
-                schoolSection: { id: "", name: "" },
-                subject: { id: "", name: "" },
-                version: { id: "", name: "" },
-                grade: { id: "", name: "" },
-                chapter: { id: "", name: "" },
-                lesson: { id: "", name: "" }
+                schoolSection: {id: "", name: ""},
+                subject: {id: "", name: ""},
+                version: {id: "", name: ""},
+                grade: {id: "", name: ""},
+                chapter: {id: "", name: ""},
+                lesson: {id: "", name: ""}
             });
         };
 
@@ -640,104 +685,108 @@ export default defineComponent({
 
         // 确认上传
         const sureUpload = async () => {
-            if (form.files.length === 0 && !isWincard.value)
-                return ElMessage.warning("请上传资源文件！");
-            if (!form.name && form.files.length < 2)
-                return ElMessage.warning("资源名称不能为空！");
-            if (!form.type.Id) return ElMessage.warning("请选择资源类型！");
-            if (form.directorys.length === 0)
-                return ElMessage.warning("请选择资源目录！");
-            if (form.directorys.length > 0) {
-                let empty = false;
-                for (let i = 0; i < form.directorys.length; i++) {
-                    if (
-                        !form.directorys[i].schoolSection.id ||
-                        !form.directorys[i].subject.id ||
-                        !form.directorys[i].version.id ||
-                        !form.directorys[i].grade.id ||
-                        !form.directorys[i].chapter.id
-                    ) {
-                        empty = true;
-                    }
-                }
-                if (empty) return ElMessage.warning("请将资源目录补充完整！");
-            }
-            const schoolName = store.state.userInfo.schoolName;
-            const lessonTrees = form.directorys.map((item) => {
-                return {
-                    acaSectionId: item.schoolSection.id,
-                    acaSectionName: item.schoolSection.name,
-                    subjectID: item.subject.id,
-                    subjectName: item.subject.name,
-                    publisherID: item.version.id,
-                    publisherName: item.version.name,
-                    bookId: item.grade.bookId as string,
-                    albumID: item.grade.id,
-                    albumName: item.grade.name,
-                    chapterID: item.chapter.id,
-                    chapterName: item.chapter.name,
-                    lessonID: item.lesson
-                        ? item.lesson.id
-                        : props.course.lessonId,
-                    lessonName: item.lesson
-                        ? item.lesson.name
-                        : props.course.lessonName
-                };
-            });
-            const resourceFiles = form.files.map((item) => {
-                return {
-                    fileName: item.fileName,
-                    mD5: item.md5,
-                    size: item.size
-                };
-            });
-
-            let res;
-            if (currentEditType.value === "add") {
-                res = await uploadResource({
-                    lessonTrees,
-                    rescourceTypeId: form.type.Id,
-                    rescourceTypeName: form.type.Name,
-                    name: form.name,
-                    schoolId: schoolId,
-                    schoolName: schoolName,
-                    degree: form.degree,
-                    resourceFiles,
-                    isSchool: form.isSchool ? 1 : 2,
-                    isShelf: form.isSchool ? (form.isShelf ? 1 : 2) : 2,
-                    knowledgePonitId: []
-                });
+            if (form.type.Name === '导学案' && form.sourceType == 2) {
+                emit("learnPlanDesign", true)
             } else {
-                res = await editResource({
-                    resourceId: form.resourceId,
-                    lessonTrees,
-                    rescourceTypeId: form.type.Id,
-                    rescourceTypeName: form.type.Name,
-                    name: form.name,
-                    schoolId: schoolId,
-                    schoolName: schoolName,
-                    degree: form.degree,
-                    resourceFile: resourceFiles[0],
-                    isSchool: form.isSchool ? 1 : 2,
-                    isShelf: form.isSchool ? (form.isShelf ? 1 : 2) : 2,
-                    knowledgePonitId: [],
-                    toCourseware: false,
-                    userId: userId.value
+                if (form.files.length === 0 && !isWincard.value)
+                    return ElMessage.warning("请上传资源文件！");
+                if (!form.name && form.files.length < 2)
+                    return ElMessage.warning("资源名称不能为空！");
+                if (!form.type.Id) return ElMessage.warning("请选择资源类型！");
+                if (form.directorys.length === 0)
+                    return ElMessage.warning("请选择资源目录！");
+                if (form.directorys.length > 0) {
+                    let empty = false;
+                    for (let i = 0; i < form.directorys.length; i++) {
+                        if (
+                            !form.directorys[i].schoolSection.id ||
+                            !form.directorys[i].subject.id ||
+                            !form.directorys[i].version.id ||
+                            !form.directorys[i].grade.id ||
+                            !form.directorys[i].chapter.id
+                        ) {
+                            empty = true;
+                        }
+                    }
+                    if (empty) return ElMessage.warning("请将资源目录补充完整！");
+                }
+                const schoolName = store.state.userInfo.schoolName;
+                const lessonTrees = form.directorys.map((item) => {
+                    return {
+                        acaSectionId: item.schoolSection.id,
+                        acaSectionName: item.schoolSection.name,
+                        subjectID: item.subject.id,
+                        subjectName: item.subject.name,
+                        publisherID: item.version.id,
+                        publisherName: item.version.name,
+                        bookId: item.grade.bookId as string,
+                        albumID: item.grade.id,
+                        albumName: item.grade.name,
+                        chapterID: item.chapter.id,
+                        chapterName: item.chapter.name,
+                        lessonID: item.lesson
+                            ? item.lesson.id
+                            : props.course.lessonId,
+                        lessonName: item.lesson
+                            ? item.lesson.name
+                            : props.course.lessonName
+                    };
                 });
-            }
+                const resourceFiles = form.files.map((item) => {
+                    return {
+                        fileName: item.fileName,
+                        mD5: item.md5,
+                        size: item.size
+                    };
+                });
 
-            if (res.success) {
-                uploadResourceOpen.value = false;
+                let res;
                 if (currentEditType.value === "add") {
-                    type.value = "";
-                    source.value = "4";
-                    emit("update:type", type.value);
-                    emit("update:source", source.value);
+                    res = await uploadResource({
+                        lessonTrees,
+                        rescourceTypeId: form.type.Id,
+                        rescourceTypeName: form.type.Name,
+                        name: form.name,
+                        schoolId: schoolId,
+                        schoolName: schoolName,
+                        degree: form.degree,
+                        resourceFiles,
+                        isSchool: form.isSchool ? 1 : 2,
+                        isShelf: form.isSchool ? (form.isShelf ? 1 : 2) : 2,
+                        knowledgePonitId: []
+                    });
                 } else {
-                    emitter.emit(
-                        "updateResourceList",
-                        currentEditType.value === "add" ? "" : form.resourceId
-                    );
+                    res = await editResource({
+                        resourceId: form.resourceId,
+                        lessonTrees,
+                        rescourceTypeId: form.type.Id,
+                        rescourceTypeName: form.type.Name,
+                        name: form.name,
+                        schoolId: schoolId,
+                        schoolName: schoolName,
+                        degree: form.degree,
+                        resourceFile: resourceFiles[0],
+                        isSchool: form.isSchool ? 1 : 2,
+                        isShelf: form.isSchool ? (form.isShelf ? 1 : 2) : 2,
+                        knowledgePonitId: [],
+                        toCourseware: false,
+                        userId: userId.value
+                    });
+                }
+
+                if (res.success) {
+                    uploadResourceOpen.value = false;
+                    if (currentEditType.value === "add") {
+                        type.value = "";
+                        source.value = "4";
+                        emit("update:type", type.value);
+                        emit("update:source", source.value);
+                    } else {
+                        emitter.emit(
+                            "updateResourceList",
+                            currentEditType.value === "add" ? "" : form.resourceId
+                        );
+                    }
                 }
             }
         };
@@ -753,7 +802,7 @@ export default defineComponent({
         const acceptList =
             ".ppt,.pptx,.doc,.docx,.xls,.xlsx,.pdf,.mp3,.mp4,.gif,.jpg,.png,.jpeg,.wav";
 
-        const beforeUpload = ({ name }: { name: string }) => {
+        const beforeUpload = ({name}: { name: string }) => {
             const fileType = name.substring(name.lastIndexOf(".") + 1);
             const whiteList = [
                 "ppt",
@@ -781,14 +830,14 @@ export default defineComponent({
 
         const fileList = ref<{ name: string; url: string }[]>([]);
 
-        const { uploadFile, loadingShow } = useUploadFile("RescourceFile");
+        const {uploadFile, loadingShow} = useUploadFile("RescourceFile");
 
         const uploadSuccess = async ({
                                          file
                                      }: {
             file: File & Blob & { uid: number };
         }) => {
-            const res = await uploadFile({ file });
+            const res = await uploadFile({file});
             form.files.push({
                 extension: res.fileExtension,
                 md5: res.md5,
@@ -982,7 +1031,7 @@ export default defineComponent({
                         }
                     ]
                 })
-                .then(({ filePath, canceled }) => {
+                .then(({filePath, canceled}) => {
                     if (canceled) return;
                     getCartOptionList({
                         lessonId: course.value.lessonId,
@@ -1073,13 +1122,13 @@ export default defineComponent({
                                             wrapText: true
                                         },
                                         border: {
-                                            top: { style: "thin", color: {} },
-                                            right: { style: "thin", color: {} },
+                                            top: {style: "thin", color: {}},
+                                            right: {style: "thin", color: {}},
                                             bottom: {
                                                 style: "thin",
                                                 color: {}
                                             },
-                                            left: { style: "thin", color: {} }
+                                            left: {style: "thin", color: {}}
                                         }
                                     },
                                     titleStyle: {
@@ -1095,13 +1144,13 @@ export default defineComponent({
                                             wrapText: true
                                         },
                                         border: {
-                                            top: { style: "thin", color: {} },
-                                            right: { style: "thin", color: {} },
+                                            top: {style: "thin", color: {}},
+                                            right: {style: "thin", color: {}},
                                             bottom: {
                                                 style: "thin",
                                                 color: {}
                                             },
-                                            left: { style: "thin", color: {} }
+                                            left: {style: "thin", color: {}}
                                         }
                                     }
                                 }
