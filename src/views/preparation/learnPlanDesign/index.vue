@@ -22,8 +22,8 @@
                             </div>
                             <img src="@/assets/images/preparation/pic_muban1.png" alt="">
                             <div class="template-hover">
-                                <div class="view">预览模板</div>
-                                <div class="use">直接使用</div>
+                                <div class="view" @click="reviewTemplate(1)">预览模板</div>
+                                <div class="use" @click="useTemplate(1)">直接使用</div>
                             </div>
                         </div>
                         <div class="template-img-2" style="margin-right: 0">
@@ -34,8 +34,8 @@
                             <img src="@/assets/images/preparation/pic_muban2.png" alt="">
 
                             <div class="template-hover">
-                                <div class="view">预览模板</div>
-                                <div class="use">直接使用</div>
+                                <div class="view" @click="reviewTemplate(2)">预览模板</div>
+                                <div class="use" @click="useTemplate(2)">直接使用</div>
                             </div>
                         </div>
                     </div>
@@ -43,6 +43,24 @@
                 <div class="right-template" v-if="false">
 
                 </div>
+            </div>
+
+        </el-dialog>
+
+        <!--模板预览界面-->
+        <el-dialog
+            v-if="viewVisible"
+            class="custom-dialog"
+            v-model="viewVisible"
+            :title="currentTitle"
+            width="790px"
+            align-center
+            center
+            :destroy-on-close="true"
+            @close="closeView"
+        >
+            <div class="template-view">
+
             </div>
 
         </el-dialog>
@@ -73,13 +91,35 @@ export default defineComponent({
     },
     emits: ["update:learnSelectVisible"],
     setup(props, {emit}) {
-
+        // 预览弹框
+        const viewVisible = ref(false);
+        // 当前模板标题
+        const currentTitle = ref("");
+        // 关闭弹框
         const close = () => {
             emit("update:learnSelectVisible")
         }
+        // 预览模板
+        const reviewTemplate = (type: number) => {
+            viewVisible.value = true;
+            currentTitle.value = `模板${type === 1 ? '一' : '二'}`
+        }
+        // 直接使用模板
+        const useTemplate = (type: number) => {
+
+        }
+        // 关闭预览弹框
+        const closeView = () => {
+            viewVisible.value = false
+        }
 
         return {
-            close
+            close,
+            reviewTemplate,
+            useTemplate,
+            currentTitle,
+            viewVisible,
+            closeView
         }
     }
 })
