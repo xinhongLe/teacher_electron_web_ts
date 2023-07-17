@@ -81,9 +81,10 @@ import { pageType } from "@/config";
 import { ElMessage } from "element-plus";
 import { IViewResourceData } from "@/types/store";
 import Remark from "../components/preview/remark.vue";
-import { computed, defineComponent, PropType, ref, watch } from "vue";
+import {computed, defineComponent, onMounted, PropType, ref, watch} from "vue";
 import OpenCardViewDialog from "../components/edit/openCardViewDialog.vue";
-import { CardProps, PageProps } from "@/views/preparation/intelligenceClassroom/api/props";
+import {CardProps, PageProps} from "@/views/preparation/intelligenceClassroom/api/props";
+import {useStore} from "@/store";
 
 export default defineComponent({
     name: "WinPreview",
@@ -187,7 +188,17 @@ export default defineComponent({
         watch(() => canRedo.value, val => {
             emit("update:is-can-redo", val);
         });
-
+        // watch(() => store.state.common.currentResourceInto, (val) => {
+        //     console.log('store.state.common.currentResourceInto', store.state.common.currentResourceInto)
+        // }, {deep: true})
+        onMounted(() => {
+            console.log('store.state.common.resourceIntoType', store.state.common.resourceIntoType)
+            if (store.state.common.resourceIntoType == 1) {
+                emit("update:r-visit", store.state.common.currentBeikeResource);
+            } else {
+                emit("update:r-visit", store.state.common.currentKebiaoResource);
+            }
+        })
         const centerW = computed(() => {
             let w = 0;
             if (props.lVisit) {

@@ -28,12 +28,13 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, inject, ref, toRefs, watch } from "vue";
+import {computed, defineComponent, inject, onMounted, ref, toRefs, watch} from "vue";
 import preventRemark from "../../views/preparation/intelligenceClassroom/hooks/previewRemark";
 import Remark from "../../views/preparation/intelligenceClassroom/components/preview/remark.vue";
 import PageList from "./pageList.vue";
-import { windowInfoKey } from "@/hooks/useWindowInfo";
-import { isEmpty } from "lodash";
+import {windowInfoKey} from "@/hooks/useWindowInfo";
+import {isEmpty} from "lodash";
+
 export default defineComponent({
     props: {
         resourceId: {
@@ -61,9 +62,9 @@ export default defineComponent({
         Remark,
         PageList,
     },
-    setup(props, { emit }) {
-        const { data, showRemark, toggleRemark } = preventRemark(props.dialog);
-        const { currentPageIndex, currentCard } = inject(windowInfoKey)!;
+    setup(props, {emit}) {
+        const {data, showRemark, toggleRemark} = preventRemark(props.dialog);
+        const {currentPageIndex, currentCard} = inject(windowInfoKey)!;
         const teachProcess = computed(
             () =>
                 !isEmpty(currentCard.value?.PageList) &&
@@ -77,6 +78,7 @@ export default defineComponent({
                     ?.DesignIntent
         );
         const pageListRef = ref();
+
         const changeWinSize = () => {
             emit("changeWinSize"); // 切换窗口大小，清除缓存的笔记列表
         };
@@ -186,7 +188,7 @@ export default defineComponent({
             whiteboardOption,
             redo,
             undo
-        
+
         };
     },
 });
@@ -200,6 +202,7 @@ export default defineComponent({
     top: 0;
     right: 0;
 }
+
 .me-preview {
     flex: 1;
     display: flex;
@@ -207,6 +210,7 @@ export default defineComponent({
     overflow: hidden;
     background-color: #f5f6fb;
 }
+
 .mep-container {
     min-width: 0;
     flex: 1;
@@ -214,11 +218,13 @@ export default defineComponent({
     min-height: 0;
     margin: 0;
     justify-content: space-between;
+
     div {
         margin: 0;
         padding: 0;
     }
 }
+
 .fade-enter-active,
 .fade-leave-active {
     transition-property: width, padding;

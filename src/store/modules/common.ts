@@ -10,6 +10,9 @@ const initState = (): CommonState => ({
     singleResourceFullScreen: {},
     activeWindow: "LookVideo",
     currentPackageData: null,
+    currentKebiaoResource: false,
+    currentBeikeResource: true,
+    resourceIntoType: 0
 });
 
 const mutations: MutationTree<CommonState> = {
@@ -34,8 +37,6 @@ const mutations: MutationTree<CommonState> = {
                 const resource = state.showResourceFullScreen.splice(index, 1);
                 state.showResourceFullScreen.push(resource[0]);
             }
-            console.log('state.showResourceFullScreen', state.showResourceFullScreen)
-
         } else {
             state.activeWindow = data.component;
             if (data.component === "LookVideo") {
@@ -65,6 +66,15 @@ const mutations: MutationTree<CommonState> = {
     [MutationTypes.SET_FULLSCREEN_RESOURCE_ACTIVE](state, type) {
         state.activeWindow = type;
     },
+    [MutationTypes.SET_RESOURCE_INTO](state, type) {
+        state.resourceIntoType = type;
+    },
+    [MutationTypes.SET_KEBIAO_RESOURCE_INTO](state, type) {
+        state.currentKebiaoResource = type;
+    },
+    [MutationTypes.SET_BEIKE_RESOURCE_INTO](state, type) {
+        state.currentBeikeResource = type;
+    }
 };
 
 const common: Module<CommonState, RootState> = {

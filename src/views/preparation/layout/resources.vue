@@ -175,6 +175,11 @@ export default defineComponent({
         bagType: {
             type: String,
             default: ""
+        },
+        // 进入备件预览的 类型
+        resourceIntoType: {
+            type: Number,
+            default: 0
         }
     },
     emits: [
@@ -391,6 +396,7 @@ export default defineComponent({
                         });
                     }
                     if (data.ResourceShowType === 1) {
+                        store.commit(MutationTypes.SET_RESOURCE_INTO, props.resourceIntoType);
                         store.commit(MutationTypes.SET_FULLSCREEN_RESOURCE, {
                             component: "WinCard",
                             resource: {

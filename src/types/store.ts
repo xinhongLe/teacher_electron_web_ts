@@ -137,8 +137,19 @@ export interface CommonState {
      * 当前选中的备课包数据
      */
     currentPackageData: any
+    /**
+     * 课表中进入课件资源
+     */
+    currentKebiaoResource: boolean
+    /**
+     * 备课进入课件资源
+     */
+    currentBeikeResource: boolean
+    /**
+     * 从哪儿进入的课件资源
+     */
+    resourceIntoType: number
 }
-
 export interface WrongBookState {
     questionBasket?: any[];
     baskTotal?: number;

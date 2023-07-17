@@ -9,7 +9,7 @@
                 @eventEmit="eventEmit"
             /> -->
             <Resources ref="resourcesRef" name="attendClass" @updateResourceList="updateResourceList" :course="course"
-                       :source="source" :type="type" :bagType="type" :bookId="bookId"/>
+                       :source="source" :type="type" :bagType="type" :bookId="bookId" :resourceIntoType="2"/>
         </div>
         <div class="resource-filter">
             <el-radio-group class="custom-radio-two" v-model="type">

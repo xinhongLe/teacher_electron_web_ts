@@ -135,6 +135,18 @@ export const enum MutationTypes {
      */
     SET_QUESTION_BASKET = "SET_QUESTION_BASKET",
     SET_QUESTION_BASKET_TOTAL = "SET_QUESTION_BASKET_TOTAL",
+    /**
+     * 当前课表中进入课件预览
+     */
+    SET_KEBIAO_RESOURCE_INTO = "SET_KEBIAO_RESOURCE_INTO",
+    /**
+     * 当前备课中进入课件预览
+     */
+    SET_BEIKE_RESOURCE_INTO = "SET_BEIKE_RESOURCE_INTO",
+    /**
+     * 当前备课中进入课件预览
+     */
+    SET_RESOURCE_INTO = "SET_RESOURCE_INTO",
 }
 
 export const enum ActionTypes {
