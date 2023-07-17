@@ -68,17 +68,46 @@
                     <div class="me-tools-canvas">
 
                         <!-- 橡皮擦 -->
-                        <div
-                            class="me-tool-btn-new"
-                            :class="type === 'eraser' && 'btn-active'"
-                            @click="openPaintTool($event, 'eraser'),(type = 'eraser')"
-                        >
-                            <div class="icon-text">
-                                <img v-if="type !== 'eraser'" src="../../images/slices/icon_xp.png" alt=""/>
-                                <img v-if="type === 'eraser'" src="../../images/slices/icon_xp_white.png" alt=""/>
-                                <span class="text">橡皮</span>
-                            </div>
-                        </div>
+                        <!--                        <div-->
+                        <!--                            class="me-tool-btn-new"-->
+                        <!--                            :class="type === 'eraser' && 'btn-active'"-->
+                        <!--                            @click="openPaintTool($event, 'eraser'),(type = 'eraser')"-->
+                        <!--                        >-->
+                        <!--                            <div class="icon-text">-->
+                        <!--                                <img v-if="type !== 'eraser'" src="../../images/slices/icon_xp.png" alt=""/>-->
+                        <!--                                <img v-if="type === 'eraser'" src="../../images/slices/icon_xp_white.png" alt=""/>-->
+                        <!--                                <span class="text">橡皮</span>-->
+                        <!--                            </div>-->
+                        <!--                        </div>-->
+
+                        <el-popover
+                            :width="140"
+                            placement="top" trigger="click">
+                            <el-input-number
+                                :min="2"
+                                :max="999"
+                                v-model="toolEraserLineWidth"
+                                @change="setEraserSize"
+                                style="width: 125px"
+                            />
+                            <template #reference>
+                                <div
+                                    class="me-tool-btn-new"
+                                    :class="type === 'eraser' && 'btn-active'"
+                                    @click="openPaintTool($event, 'eraser'),(type = 'eraser')"
+                                >
+                                    <div class="icon-text">
+                                        <img v-if="type !== 'eraser'"
+                                             src="@/views/preparation/intelligenceClassroom/images/slices/icon_xp.png"
+                                             alt=""/>
+                                        <img v-if="type === 'eraser'"
+                                             src="@/views/preparation/intelligenceClassroom/images/slices/icon_xp_white.png"
+                                             alt=""/>
+                                        <span class="text">橡皮</span>
+                                    </div>
+                                </div>
+                            </template>
+                        </el-popover>
                         <!-- 尺规:三合一-->
                         <div
                             class="me-tool-btn-new"
@@ -211,7 +240,7 @@
         v-model:isShowPen="isShowPen"
         :currentDrawColor="currentDrawColor"
         :currentLineWidth="currentLineWidth"
-        :eraserLineWidth="eraserLineWidth"
+        :eraserLineWidth="toolEraserLineWidth"
         @clear="whiteboardOption('clear')"
         @setEraser="whiteboardOption('setEraser')"
         @setEraserSize="setEraserSize"
@@ -224,16 +253,16 @@
 import emitter from "@/utils/mitt";
 import PenTool from "./PenTool.vue";
 import isElectron from "is-electron";
-import { sleep } from "@/utils/common";
-import { MutationTypes, store } from "@/store";
+import {sleep} from "@/utils/common";
+import {MutationTypes, store} from "@/store";
 import ResourceDialog from "./resourceDialog.vue";
-import { NextSettingType } from "@/types/preparation";
-import { STORAGE_TYPES, set, get } from "@/utils/storage";
-import { enterFullscreen, exitFullscreen, isFullscreen } from "@/utils/fullscreen";
-import { ref, defineComponent, watch, onMounted, onUnmounted, computed, onActivated, onDeactivated } from "vue";
+import {NextSettingType} from "@/types/preparation";
+import {STORAGE_TYPES, set, get} from "@/utils/storage";
+import {enterFullscreen, exitFullscreen, isFullscreen} from "@/utils/fullscreen";
+import {ref, defineComponent, watch, onMounted, onUnmounted, computed, onActivated, onDeactivated} from "vue";
 
 export default defineComponent({
-    components: { ResourceDialog, PenTool },
+    components: {ResourceDialog, PenTool},
     props: {
         showRemark: {
             type: Boolean,
@@ -318,7 +347,7 @@ export default defineComponent({
         "handleMinSize",
         "setEraserSize"
     ],
-    setup(props, { emit }) {
+    setup(props, {emit}) {
         const isShowPen = ref(false);
         const isShowRulers = ref(false);
         const penLeft = ref(0);
@@ -326,6 +355,7 @@ export default defineComponent({
         const rulersLeft = ref(0);
         const rulersTop = ref(0);
         const isOpen = ref(false);
+        const toolEraserLineWidth = computed(() => props.eraserLineWidth);
         const showDrawToos = () => {
             const dom: any = document.querySelector(".draw-content");
             const outdom: any = document.querySelector(".me-tools");
@@ -419,7 +449,7 @@ export default defineComponent({
                         }
                     }
                 }
-            }, { deep: true, immediate: true }
+            }, {deep: true, immediate: true}
         );
         const changeNextType = (type: NextSettingType) => {
             store.commit(MutationTypes.SET_SELECT_NEXT_TYPE, type);
@@ -520,7 +550,7 @@ export default defineComponent({
         const openPaintTool = (event: MouseEvent, type: string) => {
             if (type === "paint") {
                 const target = event.target as HTMLDivElement;
-                const { left, top } = target.getBoundingClientRect();
+                const {left, top} = target.getBoundingClientRect();
                 isShowPen.value = true;
                 penLeft.value = left;
                 penTop.value = top;
@@ -599,6 +629,7 @@ export default defineComponent({
             rulersLeft,
             rulersTop,
             isTeach,
+            toolEraserLineWidth,
             toggleRemark,
             showResourceDialog,
             prevStep,

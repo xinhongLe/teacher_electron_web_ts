@@ -409,9 +409,16 @@ export default defineComponent({
             fabCanvas.value.get("backgroundColor").set({erasable: false});
             fabCanvas.value.renderAll();
             isBlack.value = !isBlack.value;
+            console.log('isBlack.value', isBlack.value, penColor.value)
             if (!isBlack.value && penColor.value === PenColorMap.White) {
                 penColor.value = PenColorMap.Black;
+            } else {
+                penColor.value = PenColorMap.White;
+
             }
+            // if (!isBlack.value && penColor.value === PenColorMap.White) {
+            //     penColor.value = PenColorMap.Black;
+            // }
         };
 
         const smallClick = () => {

@@ -65,7 +65,7 @@ import {ref, watchEffect, PropType, onUnmounted, computed, defineComponent} from
 import {CardProps, PageProps} from "@/views/preparation/intelligenceClassroom/api/props";
 import {getOssUrl} from "@/utils/oss";
 import {getWindowStruct} from "@/api/home";
-import {useStore} from "@/store";
+import {store, useStore} from "@/store";
 
 export default defineComponent({
     name: "IntelligenceClassroom",
