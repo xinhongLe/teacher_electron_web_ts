@@ -11,19 +11,19 @@
 </template>
 
 <script lang="ts">
-import { get, STORAGE_TYPES } from "@/utils/storage";
-import { defineComponent, onActivated, onDeactivated } from "vue";
-import { RESOURCE_WEB, systemId } from "@/config";
-import { IYunInfo } from "@/types/login";
+import {get, STORAGE_TYPES} from "@/utils/storage";
+import {defineComponent, onActivated, onDeactivated} from "vue";
+import {RESOURCE_WEB, systemId} from "@/config";
+import {IYunInfo} from "@/types/login";
 import usePageEvent from "@/hooks/usePageEvent";
 import isElectron from "is-electron";
-import { useRoute } from "vue-router";
+import {useRoute} from "vue-router";
 
 // ts
 export default defineComponent({
     name: "assessmentCenter",
     setup() {
-        const { createBuryingPointFn } = usePageEvent("资源中心", true);
+        const {createBuryingPointFn} = usePageEvent("资源中心", true);
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         window.onmessage = (e: any, d: any) => {
@@ -51,9 +51,9 @@ export default defineComponent({
         //userType  用户类型：3.管理员 2.教师 1.学生 0.访客
         const userType = 2;
         //schoolId 学校id
-        const schoolId = userInfo.Schools[0].UserCenterSchoolID;
+        const schoolId = userInfo.schoolId;
         //schoolName 学校名称
-        const schoolName = userInfo.Schools[0].Name;
+        const schoolName = userInfo.schoolName;
         //platType 平台码
         const platType = systemId;
 
