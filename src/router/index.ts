@@ -69,7 +69,7 @@ const routes: Array<RouteRecordRaw> = [
                 component: () =>
                     import(
                         "@/views/preparation/intelligenceClassroom/edit/index.vue"
-                    ),
+                        ),
                 meta: {
                     keepAlive: true,
                 },

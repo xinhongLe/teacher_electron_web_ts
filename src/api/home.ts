@@ -2,7 +2,7 @@ import request from "@/utils/request";
 import {IResponse} from "@/types/response";
 import {ICardList, ITreeList} from "@/types/home";
 import {Slide} from "wincard";
-import {WINDOW_CRAD_API, originType, API_CENTER_USER_MANAGE} from "@/config/index";
+import {WINDOW_CRAD_API, originType, API_CENTER_USER_MANAGE, AI_XUE_SHI_API} from "@/config/index";
 import {getWinCardDBData, WinCardData} from "@/utils/database";
 import {CardProps} from "@/views/preparation/intelligenceClassroom/api/props";
 
@@ -41,8 +41,7 @@ interface Remark {
 
 type GetWindowCardsResponse = IResponse<ICardList[]>
 
-
-type GetWindowStructResponse = IResponse<{ WindowID: string, CardData: any }>
+type GetWindowStructResponse = IResponse<{ WindowID: string, CardData: any, ShowType: 0 | 1 }>
 
 type GetPageResponse = IResponse<any>
 
@@ -306,6 +305,20 @@ export function getWindowStruct(data: IGetWindowCards): Promise<GetWindowStructR
         url: "Api/WCP/Window/GetAllWindowsStructData",
         headers: {
             "Content-Type": "application/json-patch+json"
+        },
+        method: "post",
+        baseURL: WINDOW_CRAD_API,
+        data
+    });
+}
+
+// ppt视图切换
+export function setShowModel(data: any): Promise<IResponse<any>> {
+    return request({
+        url: "Api/WCP/Window/SetShowModel",
+        headers: {
+            "Content-Type": "application/json-patch+json",
+            noLoading: "true"
         },
         method: "post",
         baseURL: WINDOW_CRAD_API,
@@ -647,5 +660,22 @@ export function getPlatformByOrgId(data: IOrgId[]): Promise<IResponse<IPlatformR
         url: "/platform-org-relation/getByOrgIds",
         method: "post",
         data
+    });
+}
+
+export interface IMyClassResponse {
+    ClassAixueshiId: string;
+    ClassName: string;
+    ClassUserCenterId: string;
+    GradeId: string
+}
+
+// 获取统一班级列表
+export function getMyClassByOrgId(): Promise<IResponse<IMyClassResponse>> {
+    return request({
+        url: "/Api/V2/Teacher/Class/GetMyClassByOrgId",
+        headers: {noLoading: "true"},
+        method: "post",
+        baseURL: AI_XUE_SHI_API,
     });
 }

@@ -21,7 +21,7 @@
                     :class="{ disabled: !canUndo }"
                     @click="undo()"
                 >
-                    <IconBack class="icon" />
+                    <IconBack class="icon"/>
                 </div>
             </a-tooltip>
             <a-tooltip
@@ -35,7 +35,7 @@
                     :class="{ disabled: !canRedo }"
                     @click="redo()"
                 >
-                    <IconNext class="icon" />
+                    <IconNext class="icon"/>
                 </div>
             </a-tooltip>
             <a-tooltip
@@ -49,17 +49,22 @@
                     :class="{ active: writingBoardModel === 'mouse' }"
                     @click="changeMouse()"
                 >
-                    <IconMove class="icon" />
+                    <IconMove class="icon"/>
                 </div>
             </a-tooltip>
             <a-popover v-model:visible="penCardVisible" title="画笔" trigger="click">
                 <template #content>
                     <div class="pen-radius-box">
-                        <div class="pen-radius pen-radius-1" @click="setPenSize(2)" :style="{ backgroundColor: penSize === 2 ? writingBoardColor : '#ccc' }"></div>
-                        <div class="pen-radius pen-radius-2" @click="setPenSize(6)" :style="{ backgroundColor: penSize === 6 ? writingBoardColor : '#ccc' }"></div>
-                        <div class="pen-radius pen-radius-3" @click="setPenSize(12)" :style="{ backgroundColor: penSize === 12 ? writingBoardColor : '#ccc' }"></div>
-                        <div class="pen-radius pen-radius-4" @click="setPenSize(20)" :style="{ backgroundColor: penSize === 20 ? writingBoardColor : '#ccc' }"></div>
-                        <div class="pen-radius pen-radius-5" @click="setPenSize(25)" :style="{ backgroundColor: penSize === 25 ? writingBoardColor : '#ccc' }"></div>
+                        <div class="pen-radius pen-radius-1" @click="setPenSize(2)"
+                             :style="{ backgroundColor: penSize === 2 ? writingBoardColor : '#ccc' }"></div>
+                        <div class="pen-radius pen-radius-2" @click="setPenSize(6)"
+                             :style="{ backgroundColor: penSize === 6 ? writingBoardColor : '#ccc' }"></div>
+                        <div class="pen-radius pen-radius-3" @click="setPenSize(12)"
+                             :style="{ backgroundColor: penSize === 12 ? writingBoardColor : '#ccc' }"></div>
+                        <div class="pen-radius pen-radius-4" @click="setPenSize(20)"
+                             :style="{ backgroundColor: penSize === 20 ? writingBoardColor : '#ccc' }"></div>
+                        <div class="pen-radius pen-radius-5" @click="setPenSize(25)"
+                             :style="{ backgroundColor: penSize === 25 ? writingBoardColor : '#ccc' }"></div>
                     </div>
                 </template>
                 <a-tooltip
@@ -73,7 +78,7 @@
                         :class="{ active: writingBoardModel === 'pen' }"
                         @click="changePen()"
                     >
-                        <IconWrite class="icon" />
+                        <IconWrite class="icon"/>
                     </div>
                 </a-tooltip>
             </a-popover>
@@ -89,7 +94,7 @@
                     :class="{ active: writingBoardModel === 'eraser' }"
                     @click="changeEraser()"
                 >
-                    <IconErase class="icon" />
+                    <IconErase class="icon"/>
                 </div>
             </a-tooltip>
 
@@ -100,7 +105,7 @@
                 overlayClassName="tipZIndex"
             >
                 <div class="btn" @click="clearCanvas()">
-                    <IconClear class="icon" />
+                    <IconClear class="icon"/>
                 </div>
             </a-tooltip>
 
@@ -111,7 +116,7 @@
                 overlayClassName="tipZIndex"
             >
                 <div class="btn" @click="openTool(OPTION_TYPE.RULER)">
-                    <IconRuler class="icon" />
+                    <IconRuler class="icon"/>
                 </div>
             </a-tooltip>
 
@@ -122,7 +127,7 @@
                 overlayClassName="tipZIndex"
             >
                 <div class="btn" @click="openTool(OPTION_TYPE.PROTRACTOR)">
-                    <IconProtractor class="icon" />
+                    <IconProtractor class="icon"/>
                 </div>
             </a-tooltip>
 
@@ -133,7 +138,7 @@
                 overlayClassName="tipZIndex"
             >
                 <div class="btn" @click="openTool(OPTION_TYPE.COMPASS)">
-                    <IconCompass class="icon" />
+                    <IconCompass class="icon"/>
                 </div>
             </a-tooltip>
             <!-- <a-tooltip :mouseLeaveDelay="0" :mouseEnterDelay="0.3" title="黑板" overlayClassName="tipZIndex">
@@ -162,7 +167,7 @@
                 overlayClassName="tipZIndex"
             >
                 <div class="btn" @click="closeWritingBoard()">
-                    <IconClose class="icon" />
+                    <IconClose class="icon"/>
                 </div>
             </a-tooltip>
         </div>
@@ -170,8 +175,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from "vue";
-import { OPTION_TYPE } from "mwhiteboard";
+import {defineComponent, ref} from "vue";
+import {OPTION_TYPE} from "mwhiteboard";
 
 const writingBoardColors = [
     "#000000",
@@ -198,7 +203,7 @@ export default defineComponent({
             default: false
         }
     },
-    setup(props, { emit }) {
+    setup(props, {emit}) {
         const writingBoardColor = ref("#f60000");
         const writingBoardModel = ref("pen");
         const blackboard = ref(false);
@@ -250,15 +255,15 @@ export default defineComponent({
         };
 
         let isMouseDown = false;
-        let lastPos = { x: 0, y: 0 };
-        const writingBoardPosition = ref({ x: window.innerWidth / 2 - 100, y: 120 });
+        let lastPos = {x: 0, y: 0};
+        const writingBoardPosition = ref({x: window.innerWidth / 2 - 100, y: 120});
 
         const handleMousedown = (e: MouseEvent | TouchEvent) => {
             const x = e instanceof MouseEvent ? e.pageX : e.changedTouches[0].pageX;
             const y = e instanceof MouseEvent ? e.pageY : e.changedTouches[0].pageY;
 
             isMouseDown = true;
-            lastPos = { x, y };
+            lastPos = {x, y};
         };
 
         const handleMousemove = (e: MouseEvent | TouchEvent) => {
@@ -268,14 +273,14 @@ export default defineComponent({
                 const moveX = x - lastPos.x;
                 const moveY = y - lastPos.y;
                 handleMove(moveX, moveY);
-                lastPos = { x, y };
+                lastPos = {x, y};
             }
         };
 
         const handleMove = (x: number, y: number) => {
             const changeX = writingBoardPosition.value.x + x;
             const changeY = writingBoardPosition.value.y - y;
-            writingBoardPosition.value = { x: changeX, y: changeY };
+            writingBoardPosition.value = {x: changeX, y: changeY};
         };
 
         const handleMouseup = () => {
@@ -337,6 +342,7 @@ $themeColor: #1890ff;
         cursor: move;
         z-index: 99999;
     }
+
     .btn {
         padding: 5px 10px;
         cursor: pointer;
@@ -344,22 +350,27 @@ $themeColor: #1890ff;
         &:hover {
             color: $themeColor;
         }
+
         &.active {
             background-color: rgba($color: $themeColor, $alpha: 0.5);
             color: #fff;
         }
+
         &.disabled {
             color: #aaa;
             cursor: not-allowed;
         }
     }
+
     .icon {
         font-size: 20px;
     }
+
     .colors {
         display: flex;
         padding: 0 10px;
     }
+
     .color {
         width: 16px;
         height: 16px;
@@ -369,6 +380,7 @@ $themeColor: #1890ff;
         &:hover {
             transform: scale(1.15);
         }
+
         &.active {
             transform: scale(1.3);
         }
@@ -379,15 +391,16 @@ $themeColor: #1890ff;
     }
 }
 
-:deep(.ant-popover){
-    z-index: 10001!important;
+:deep(.ant-popover) {
+    z-index: 10001 !important;
 }
 </style>
 
 <style lang="scss">
-    .ant-popover{
-        z-index: 999999!important;
-    }
+.ant-popover {
+    z-index: 999999 !important;
+}
+
 .tipZIndex {
     z-index: 10001;
 }
@@ -397,6 +410,7 @@ $themeColor: #1890ff;
     align-items: center;
     justify-content: space-between;
 }
+
 .pen-radius, .eraser-radius {
     width: 8px;
     height: 8px;
@@ -404,38 +418,47 @@ $themeColor: #1890ff;
     background: #ccc;
     cursor: pointer;
 }
+
 .pen-radius-2 {
     width: 12px;
     height: 12px;
 }
+
 .pen-radius-3 {
     width: 16px;
     height: 16px;
 }
+
 .pen-radius-4 {
     width: 20px;
     height: 20px;
 }
+
 .pen-radius-5 {
     width: 24px;
     height: 24px;
 }
+
 .eraser-radius-1 {
     width: 8px;
     height: 8px;
 }
+
 .eraser-radius-2 {
     width: 16px;
     height: 16px;
 }
+
 .eraser-radius-3 {
     width: 24px;
     height: 24px;
 }
+
 .eraser-radius-4 {
     width: 32px;
     height: 32px;
 }
+
 .eraser-radius-5 {
     width: 40px;
     height: 40px;

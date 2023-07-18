@@ -202,6 +202,61 @@ export default (windowCards: Ref<CardProps[]>, currentPageId: Ref<string>) => {
         return allPages.find(item => item.ID === id) as PageProps;
     };
 
+    // 键盘上下键切换
+    const keyboardHandoff = (type: "up" | "down", cardListRef: HTMLElement) => {
+        const page = getPageById(currentPageId.value);
+        const cardDom = document.getElementById("card");
+        const { top, bottom } = cardListRef.getBoundingClientRect();
+
+        if (!page || !cardDom) return;
+
+        const index = windowCards.value.findIndex(item => item.ID === page.ParentID);
+        const subIndex = windowCards.value[index].PageList.findIndex(item => item.ID === page.ID);
+
+        if (type === "up") {
+            if (index === 0 && subIndex === 0) {
+                ElMessage.warning("已经第一页了");
+                return;
+            }
+            if (index !== 0 && subIndex === 0) {
+                const card = windowCards.value[index - 1];
+                currentPageId.value = card.PageList[card.PageList.length - 1].ID;
+            }
+            if (subIndex !== 0) {
+                const card = windowCards.value[index];
+                currentPageId.value = card.PageList[subIndex - 1].ID;
+            }
+        }
+        if (type === "down") {
+            const length = windowCards.value.length - 1;
+            const subLength = windowCards.value[index].PageList.length - 1;
+            if (index === length && subIndex === subLength) {
+                ElMessage.warning("已经最后一页了");
+                return;
+            }
+            if (index !== length && subIndex === subLength) {
+                const card = windowCards.value[index + 1];
+                currentPageId.value = card.PageList[0].ID;
+            }
+            if (subIndex !== subLength) {
+                const card = windowCards.value[index];
+                currentPageId.value = card.PageList[subIndex + 1].ID;
+            }
+        }
+        const pageDom = document.getElementById(`page-${currentPageId.value}`);
+        if (!pageDom) return;
+
+        const height = pageDom.clientHeight;
+        const pageTop = pageDom.getBoundingClientRect().top;
+
+        if (type === "down" && pageTop + height > bottom) {
+            cardDom.scrollTop = pageDom.offsetHeight + cardDom.scrollTop + 16;
+        }
+        if (type === "up" && pageTop - height > top) {
+            cardDom.scrollTop = cardDom.scrollTop - pageDom.offsetHeight - 16;
+        }
+    };
+
     // 组装ppt列表数据
     async function assembleCardData(arr: CardProps[]) {
         const list = [];
@@ -274,6 +329,7 @@ export default (windowCards: Ref<CardProps[]>, currentPageId: Ref<string>) => {
         winScreenView,
         winCardViewRef,
         sortWindowCards,
+        keyboardHandoff,
         assembleCardData,
         applyBackgroundAllSlide
     };

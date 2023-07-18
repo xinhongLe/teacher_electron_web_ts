@@ -8,12 +8,9 @@
                         <div class="names">
                             {{ course.lessonName || course.chapterName || "课包一" }}
                         </div>
-                        <img @click.stop.prevent="deletenPackage(item.Id)"
-                             src="@/assets/images/preparation/icon_delete_beike.png" alt="">
+                        <img @click.stop.prevent="deletenPackage(item.Id)" src="@/assets/images/preparation/icon_delete_beike.png" alt="">
                     </div>
-                    <div class="items">
-                        {{ item.Name }}
-                    </div>
+                    <div class="items">{{ item.Name }}</div>
                     <div class="item-footer">
                         <div class="item-button" :class="{ isPaike: item.IsSchedule }"
                              @mousedown.stop.prevent="isMouseDrag ? startDrag($event, course, item) : null"
@@ -70,11 +67,12 @@ const props = defineProps({
         default: true
     }
 });
+
 const emits = defineEmits(["toArrangeClass", "updateSchedules", "closeCalendar"]);
 const deleteVisible = ref(false);
 const deleteTargetId = ref("");
 const currentTouchEvent = ref<TouchEvent>();
-const store = useStore();
+
 watch(() => props.course, async (val: ICourse) => {
     setValueAddLessonBag(props.course);
     await getMyLessonBagNew({ id: val.lessonId });
@@ -298,7 +296,7 @@ defineExpose({
         justify-content: center;
         align-items: center;
         font-size: 14px;
-        font-family: PingFangSC-Regular, PingFang SC;
+        font-family: PingFangSC-Regular, PingFang SC,serif;
         font-weight: 400;
         color: #4B71EE;
         margin: auto;
@@ -308,11 +306,6 @@ defineExpose({
         span {
             padding-left: 8px;
         }
-
-        // img {
-        //     width: 30px;
-        //     height: 30px;
-        // }
     }
 }
 </style>

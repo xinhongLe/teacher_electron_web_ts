@@ -3,10 +3,9 @@
 </template>
 
 <script lang="ts" setup>
-import { reactive, ref, onMounted } from "vue";
+import { reactive, ref, defineProps, onMounted } from "vue";
 import Keyboard from "simple-keyboard";
 import "simple-keyboard/build/css/index.css";
-// import layout from 'simple-keyboard-layouts/build/layouts/chinese' // 中文输入法
 
 const props = defineProps({
     keyboardClass: {
@@ -17,7 +16,6 @@ const props = defineProps({
     maxLength: { default: "" }
 });
 const keyboard = ref<any>(null);
-const emit = defineEmits(["onChange", "onKeyPress"]);
 const displayDefault = reactive({
     "{bksp}": "backspace",
     "{lock}": "caps",

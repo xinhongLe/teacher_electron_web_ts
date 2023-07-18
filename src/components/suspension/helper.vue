@@ -5,7 +5,7 @@
                 class="exit"
                 v-if="isElectron"
                 @click="clicKBuryPoint('退出程序'), exitApp()"
-                >退出程序</span
+            >退出程序</span
             >
             <img
                 src="@/assets/images/suspension/pic_tittle_zhike@2x.png"
@@ -16,8 +16,10 @@
                     :size="18"
                     class="refresh"
                     @click="clicKBuryPoint('刷新'), getGradeList()"
-                    ><RefreshRight
-                /></el-icon>
+                >
+                    <RefreshRight
+                    />
+                </el-icon>
                 <div
                     class="right-btn"
                     @click="clicKBuryPoint('最小化'), close()"
@@ -49,6 +51,30 @@
             >
                 <el-collapse-item
                     name="0"
+                    v-if="courseData?.id"
+                    @click="currentClickCol('0', '上课')"
+                >
+                    <template #title>
+                        <div class="collapse-header">
+                            <div class="collapse-title">
+                                <img src="@/assets/images/suspension/icon_sk.png" alt=""/>
+                                已打开的课件
+                            </div>
+                        </div>
+                    </template>
+                    <div class="resource-list">
+                        <div
+                            class="resource-item"
+                            @click.stop="maxCourse()"
+                        >
+                            <div class="resource-left-title">
+                                <span>{{ courseData?.name || '课件' }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </el-collapse-item>
+                <el-collapse-item
+                    name="1"
                     v-if="resourceList.length > 0"
                     @click="currentClickCol('0', '上课')"
                 >
@@ -79,7 +105,9 @@
                                 <img :src="iconResources.selfStudy[resource.ResourceType]" alt=""/>
                                 <span>{{ resource.Name }}</span>
                                 <span class="tool-text">
-                                    {{resource.ToolInfo ? `共${ resource.ToolInfo.QuestionCount }题 ( ${ resource.ToolInfo.QuestionTypeName })` : ""}}
+                                    {{
+                                        resource.ToolInfo ? `共${resource.ToolInfo.QuestionCount}题 ( ${resource.ToolInfo.QuestionTypeName})` : ""
+                                    }}
                                 </span>
                             </div>
                             <div
@@ -91,7 +119,7 @@
                     </div>
                 </el-collapse-item>
                 <el-collapse-item
-                    name="1"
+                    name="2"
                     @click="currentClickCol('1', '工具')"
                 >
                     <template #title>
@@ -119,7 +147,7 @@
                             <div class="blackboard-text">黑板</div>
                             <!-- <div class="blackboard-btn" @click="openBlackboard()">打开</div> -->
                         </div>
-                         <div
+                        <div
                             class="blackboard-box"
                             @click.stop="
                                 clicKBuryPoint('答题器'),
@@ -168,7 +196,7 @@
                             />
                             <div class="blackboard-text">点名</div>
                         </div>
-                         <div
+                        <div
                             class="blackboard-box"
                             @click.stop="
                                 clicKBuryPoint('抢答'), openQuickAnswer(true)
@@ -232,7 +260,7 @@
                     </div>
                 </el-collapse-item>
                 <el-collapse-item
-                    name="2"
+                    name="3"
                     @click="currentClickCol('2', '教学助手')"
                 >
                     <template #title>
@@ -281,7 +309,7 @@
                                     src="@/assets/images/suspension/empty_tool.png"
                                 />
                                 <span
-                                    >本书册下暂无教具，可切换为“全部”查看更多教具内容</span
+                                >本书册下暂无教具，可切换为“全部”查看更多教具内容</span
                                 >
                             </div>
                             <div v-else class="teach-content-warp">
@@ -295,7 +323,7 @@
                                     "
                                 >
                                     <div class="img-warp">
-                                        <img :src="item.imgUrl" />
+                                        <img :src="item.imgUrl"/>
                                     </div>
                                     <p>{{ item.name }}</p>
                                 </div>
@@ -316,25 +344,26 @@ import {
     ref,
     watch
 } from "vue";
-import { Game } from "./interface";
-import { getToolList } from "@/api/index";
-import { getOssUrl } from "@/utils/oss";
+import {Game} from "./interface";
+import {getToolList} from "@/api/index";
+import {getOssUrl} from "@/utils/oss";
 import isElectron from "is-electron";
-import { ElMessage } from "element-plus";
-import { BookList } from "@/types/preparation";
-import { get, set, STORAGE_TYPES, storeChange } from "@/utils/storage";
-import { fetchAllStudents } from "@/views/labelManage/api";
-import { IpcRendererEvent } from "electron";
-import { iconResources, textResources, typeResources } from "@/config/resource";
+import {ElMessage} from "element-plus";
+import {BookList} from "@/types/preparation";
+import {get, set, STORAGE_TYPES, storeChange} from "@/utils/storage";
+import {fetchAllStudents} from "@/views/labelManage/api";
+import {IpcRendererEvent} from "electron";
+import {iconResources, textResources, typeResources} from "@/config/resource";
 import usePageEvent from "@/hooks/usePageEvent";
-import { EVENT_TYPE } from "@/config/event";
-import { IYunInfo } from "@/types/login";
-import { UserInfoState } from "@/types/store";
-import { Search, RefreshRight } from "@element-plus/icons-vue";
+import {EVENT_TYPE} from "@/config/event";
+import {IYunInfo} from "@/types/login";
+import {UserInfoState} from "@/types/store";
+import {Search, RefreshRight} from "@element-plus/icons-vue";
+
 export default defineComponent({
-    components: { RefreshRight },
-    setup(props, { emit }) {
-        const { createBuryingPointFn } = usePageEvent("智课助手");
+    components: {RefreshRight},
+    setup(props, {emit}) {
+        const {createBuryingPointFn} = usePageEvent("智课助手");
         const gameList = ref<Game[]>([]);
         const initBookList = [
             {
@@ -355,6 +384,8 @@ export default defineComponent({
         const allStudentList = ref<unknown[]>([]);
         let userInfo = get(STORAGE_TYPES.USER_INFO);
         const userId = ref(userInfo.userCenterUserID);
+        const courseData = ref(null);
+
         const openBlackboard = () => {
             if (isElectron()) {
                 return window.electron.ipcRenderer.invoke("openBlackboard");
@@ -381,25 +412,25 @@ export default defineComponent({
                 data.bookIDs =
                     subjectPublisherBookList.value
                         .find((item) => item.Value === selectBookList.value[0])
-                        ?.Children?.flatMap((x) => x.Children || { Value: "" })
+                        ?.Children?.flatMap((x) => x.Children || {Value: ""})
                         .map((x) => x?.Value || "") || [];
             } else if (selectBookList.value.length === 2) {
                 data.bookIDs =
                     subjectPublisherBookList.value
                         .find((item) => item.Value === selectBookList.value[0])
                         ?.Children?.find(
-                            (item) => item.Value === selectBookList.value[1]
-                        )
+                        (item) => item.Value === selectBookList.value[1]
+                    )
                         ?.Children?.map((x) => x?.Value || "") || [];
             } else {
                 data.bookID = selectBookList.value[2];
             }
             const res = await getToolList(data);
             if (res.resultCode === 200) {
-                const list = res.result.filter(({ Url }) => Url);
+                const list = res.result.filter(({Url}) => Url);
                 const imgListPromise = list.map((item) => {
-                    const { File } = item;
-                    const { FileName, Bucket, FilePath, Extention } = File;
+                    const {File} = item;
+                    const {FileName, Bucket, FilePath, Extention} = File;
                     const key = `${FilePath}/${FileName}.${Extention}`;
                     return getOssUrl(key, Bucket);
                 });
@@ -502,7 +533,7 @@ export default defineComponent({
             }
         };
         const uncultivated = () => {
-            ElMessage({ type: "warning", message: "功能暂未开发" });
+            ElMessage({type: "warning", message: "功能暂未开发"});
         };
         const exitApp = () => {
             window.electron.ipcRenderer.invoke("exitApp");
@@ -574,7 +605,6 @@ export default defineComponent({
                 name
             );
         };
-
         onMounted(async () => {
             getBookList();
             if (userInfo) {
@@ -599,8 +629,17 @@ export default defineComponent({
                 });
 
                 window.electron.ipcRenderer.on("attendClass", onResources);
+
+                window.electron.ipcRenderer.on("setCourseSuspensio", (_, data) => {
+                    courseData.value = data
+                });
+                window.electron.ipcRenderer.send("setCourseMinimize", "max", JSON.stringify(courseData.value));
             }
         });
+        const maxCourse = () => {
+            window.electron.ipcRenderer.send("setCourseMinimize", "max", JSON.stringify(courseData.value));
+            courseData.value = null
+        };
 
         onUnmounted(() => {
             window.electron.ipcRenderer.off("attendClass", onResources);
@@ -621,6 +660,7 @@ export default defineComponent({
                 type: "switchClass"
             });
         };
+
 
         watch(selectBookList, getGradeList);
         return {
@@ -659,7 +699,9 @@ export default defineComponent({
             currentClickCol,
             openPainting,
             openTeamCompetition,
-            openTeamCompetition2
+            openTeamCompetition2,
+            courseData,
+            maxCourse
         };
     }
 });
@@ -707,6 +749,7 @@ export default defineComponent({
                 color: #ffffff;
                 margin-right: 20px;
                 cursor: pointer;
+
                 svg {
                     width: 24px;
                     height: 24px;
@@ -852,6 +895,7 @@ export default defineComponent({
     :deep(.el-collapse-item__header) {
         background: var(--app-color-dark);
     }
+
     :deep(.el-collapse-item__wrap) {
         background: var(--app-color-dark);
     }
@@ -916,7 +960,8 @@ export default defineComponent({
                     display: block;
                     margin-right: 5px;
                 }
-                .tool-text{
+
+                .tool-text {
                     margin-left: 6px;
                     font-size: 12px;
                 }
@@ -932,6 +977,7 @@ export default defineComponent({
                 font-size: 12px;
                 margin: 0 10px 0 10px;
                 white-space: nowrap;
+
                 &.p-r-0 {
                     color: var(--app-resource-type-jiaoan);
                     border: 1px solid var(--app-resource-type-jiaoan);
@@ -1008,13 +1054,13 @@ export default defineComponent({
     :deep(.el-input__wrapper) {
         background: var(--app-color-dark);
     }
+
     :deep(.el-input.is-focus .el-input__wrapper) {
-        box-shadow: 0 0 0 1px
-            var(--el-input-border-color, var(--el-border-color)) inset;
+        box-shadow: 0 0 0 1px var(--el-input-border-color, var(--el-border-color)) inset;
     }
+
     :deep(.el-input__wrapper.is-focus) {
-        box-shadow: 0 0 0 1px
-            var(--el-input-border-color, var(--el-border-color)) inset;
+        box-shadow: 0 0 0 1px var(--el-input-border-color, var(--el-border-color)) inset;
     }
 
     :deep(.el-input__inner) {

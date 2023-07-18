@@ -221,7 +221,7 @@ function createRollcall(allStudentList: []) {
 
     rollCallWin.on("ready-to-show", () => {
         rollCallWin && rollCallWin.webContents.send("sendAllStudentList", allStudentList);
-        // rollCallWin && rollCallWin.webContents.openDevTools();
+        rollCallWin && rollCallWin.webContents.openDevTools();
     });
 
     rollCallWin.on("closed", () => {
@@ -251,7 +251,7 @@ function createUnfoldSuspensionWindow() {
         size.width - winSize[0] - 20,
         size.height - winSize[1]
     );
-    // unfoldSuspensionWin.webContents.openDevTools(); //这是打开智课助手悬浮球打开窗口的的调试器
+    unfoldSuspensionWin.webContents.openDevTools(); //这是打开智课助手悬浮球打开窗口的的调试器
     unfoldSuspensionWin.once("ready-to-show", () => {
         unfoldSuspensionWin &&
         unfoldSuspensionWin.setAlwaysOnTop(true, "pop-up-menu");
@@ -266,13 +266,18 @@ function createUnfoldSuspensionWindow() {
 function createBlackboardWindow() {
     blackboardWin = createWindow(blackboardURL, {
         width: 1000,
-        height: 750,
+        height: 600,
         frame: false, // 要创建无边框窗口
-        resizable: false,
-        fullscreen: true,
+        resizable: true,
+        // resizable: false,
+        // fullscreen: true,
+        minWidth: 1000,
+        minHeight: 600,
         show: false,
         useContentSize: true,
     });
+    blackboardWin.webContents.openDevTools(); // 打开黑板调试
+
     blackboardWin.once("ready-to-show", () => {
         blackboardWin && blackboardWin.show();
         blackboardWin && blackboardWin.focus();
@@ -330,15 +335,15 @@ function createQuickAnswerWindow(allStudentList: [], isAnswer = false) {
         // alwaysOnTop: true,
 
         // transparent: true,
-        width: 620,
+        width: 800,
         frame: false, // 要创建无边框窗口
         alwaysOnTop: true,
         resizable: false, // 是否允许窗口大小缩放
-        height: 420,
+        height: 600,
         useContentSize: true,
         maximizable: false
     });
-    // quickAnswerWin.webContents.openDevTools(); //打开的抢答器调试器
+    quickAnswerWin.webContents.openDevTools(); //打开的抢答器调试器
 
     quickAnswerWin.on("ready-to-show", () => {
         quickAnswerWin && quickAnswerWin.show();
@@ -969,6 +974,7 @@ export function registerEvent() {
         unfoldSuspensionWin &&
         unfoldSuspensionWin.webContents.send("getCourseWares", data);
     });
+
 }
 
 export const unfoldSuspensionWinSendMessage = (
@@ -977,6 +983,9 @@ export const unfoldSuspensionWinSendMessage = (
 ) => {
     unfoldSuspensionWin && unfoldSuspensionWin.webContents.send(event, message);
 };
+export const setCourseSuspensio = (data: any) => {
+    unfoldSuspensionWin && unfoldSuspensionWin.webContents.send("setCourseSuspensio", data);
+}
 
 function createTeamCompetition() {
     teamCompetitionWin = createWindow(localTeamURL, {

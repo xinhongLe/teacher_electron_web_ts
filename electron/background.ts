@@ -15,7 +15,7 @@ import {
     createSuspensionWindow,
     createLocalPreviewWindow,
     registerEvent,
-    unfoldSuspensionWinSendMessage
+    unfoldSuspensionWinSendMessage, setCourseSuspensio
 } from "./suspension";
 
 const editWinList = new Map<number, any>();
@@ -224,6 +224,17 @@ async function createWindow() {
             editWin.webContents.send("copy-end");
         }
     });
+    // 课件大小化
+    ipcMain.on("setCourseMinimize", (e, to, data) => {
+        if (to === "min") {
+            setCourseSuspensio(data);
+        }
+        if (to === "max") mainWindow!.webContents.send("setCourseMaximize", data);
+    });
+    //
+    ipcMain.on('updateSelectClass', (e, v) => {
+        mainWindow!.webContents.send('updateSelectClass', v)
+    })
 }
 
 app.on("window-all-closed", () => {

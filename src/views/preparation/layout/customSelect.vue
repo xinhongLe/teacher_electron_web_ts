@@ -21,8 +21,8 @@
 </template>
 
 <script lang="ts">
-import { fetchCourseDataByBookId, IBookItem } from "@/api/resource";
-import { useStore } from "@/store";
+import {fetchCourseDataByBookId, IBookItem} from "@/api/resource";
+import {useStore} from "@/store";
 import {
     computed,
     defineComponent,
@@ -62,7 +62,7 @@ export default defineComponent({
         },
     },
     emits: ["update:directory"],
-    setup(props, { emit }) {
+    setup(props, {emit}) {
         // 处理书册数据 注意最后一级不是去Id 而是取bookId
         const dealCascader = (data: IBookItem[]): IOption[] => {
             return data.map((item) => {
@@ -70,7 +70,7 @@ export default defineComponent({
                 return {
                     value: item.Id,
                     label: item.Name,
-                    ...(!item.Children ? {} : { children }),
+                    ...(!item.Children ? {} : {children}),
                 };
             });
         };
@@ -81,6 +81,7 @@ export default defineComponent({
                 store.state.preparation.subjectPublisherBookList
             );
         });
+        console.log('bookList', bookList)
         const chapterList = ref<IOption[]>([]);
         let storeChapterList: IBookItem[] = [];
         const form = reactive<{ chapterAndLesson: string[]; book: string[] }>({
@@ -107,7 +108,7 @@ export default defineComponent({
         watch(
             () => props.directory,
             () => init,
-            { deep: true }
+            {deep: true}
         );
 
         onMounted(() => {
@@ -124,10 +125,10 @@ export default defineComponent({
             const C = B?.Children?.find((item) => item.Id === form.book[2]);
             const D = C?.Children?.find((item) => item.Id === form.book[3]);
             return [
-                { id: A?.Id, name: A?.Name },
-                { id: B?.Id, name: B?.Name },
-                { id: C?.Id, name: C?.Name },
-                { id: D?.Id, name: D?.Name, bookId: D?.BookId },
+                {id: A?.Id, name: A?.Name},
+                {id: B?.Id, name: B?.Name},
+                {id: C?.Id, name: C?.Name},
+                {id: D?.Id, name: D?.Name, bookId: D?.BookId},
             ];
         };
 
@@ -138,12 +139,12 @@ export default defineComponent({
             const lesson =
                 chapter && chapter.Children
                     ? chapter.Children.find(
-                          (item) => item.Id === form.chapterAndLesson[1]
-                      )
-                    : { Id: "", Name: "" };
+                        (item) => item.Id === form.chapterAndLesson[1]
+                    )
+                    : {Id: "", Name: ""};
             return [
-                { id: chapter?.Id, name: chapter?.Name },
-                { id: lesson?.Id, name: lesson?.Name },
+                {id: chapter?.Id, name: chapter?.Name},
+                {id: lesson?.Id, name: lesson?.Name},
             ];
         };
 
@@ -168,8 +169,8 @@ export default defineComponent({
                 subject: book[1],
                 version: book[2],
                 grade: book[3],
-                chapter: { name: "", id: "" },
-                lesson: { name: "", id: "" },
+                chapter: {name: "", id: ""},
+                lesson: {name: "", id: ""},
             });
             form.chapterAndLesson = ["", ""];
             getChapterAndLessonTree();
