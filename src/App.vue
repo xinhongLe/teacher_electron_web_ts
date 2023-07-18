@@ -1,5 +1,5 @@
 <template>
-    <router-view />
+    <router-view/>
     <UpdateDialog
         v-model:updateVisible="updateVisible"
         v-model:newVersionView="newVersionView"
@@ -12,16 +12,17 @@
 
 <script lang="ts" setup>
 import isElectron from "is-electron";
-import { onMounted } from "vue";
-import { set, STORAGE_TYPES } from "./utils/storage";
+import {onMounted} from "vue";
+import {set, STORAGE_TYPES} from "./utils/storage";
 import UpdateDialog from "./components/updateDialog/index.vue";
 import useUpdate from "./hooks/useUpdate";
-import { ENV } from "./config";
+import {ENV} from "./config";
 
 const {
     updateVisible,
     downloadPercent,
     newVersionView,
+
     ifShowCancelButton,
     showUpdateInfo,
     getUpdateJson,
@@ -31,11 +32,12 @@ const {
 set(STORAGE_TYPES.SET_ISCACHE, true);
 
 onMounted(() => {
-    if (isElectron() && ENV !== "development") {
+
+    if (isElectron()) {
         // 检查选择
-        const data = window.electron.getUpdateUserChoice();
+        const data: any = window.electron.getUpdateUserChoice();
         // 取消更新则终止
-        if (data !== "cancel") {
+        if (data.value !== "cancel" && ENV !== "development") {
             // 否则检查更新
             getUpdateJson();
         }

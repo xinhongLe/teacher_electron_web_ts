@@ -3,39 +3,18 @@ import crypto from "crypto";
 import AdmZip from "adm-zip";
 import ffmpeg from "fluent-ffmpeg";
 import logger from "@/utils/logger";
-import { v4 as uuidv4 } from "uuid";
-import path, { resolve, join } from "path";
-import { checkWindowSupportNet } from "./util";
-import { exportWord, IFileData } from "./exportWord";
-import { isExistFile, mkdirs, store } from "./downloadFile";
-import remote, {
-    getCurrentWindow,
-    app,
-    dialog,
-    globalShortcut
-} from "@electron/remote";
-import { execFile as execFileFromAsar, spawn } from "child_process";
-import {
-    access,
-    copyFile,
-    mkdir,
-    readFile,
-    rm,
-    stat,
-    writeFile,
-} from "fs/promises";
-import {
-    darwinGetScreenPermissionGranted,
-    darwinRequestScreenPermissionPopup,
-} from "./darwin";
-import {
-    desktopCapturer,
-    OpenDialogOptions,
-    SaveDialogOptions,
-    ipcRenderer,
-    shell
-} from "electron";
+import {v4 as uuidv4} from "uuid";
+import path, {join, resolve} from "path";
+import {checkWindowSupportNet} from "./util";
+import {exportWord, IFileData} from "./exportWord";
+import {isExistFile, mkdirs, store} from "./downloadFile";
+import remote, {app, dialog, getCurrentWindow, globalShortcut} from "@electron/remote";
+import {execFile as execFileFromAsar, spawn} from "child_process";
+import {access, copyFile, mkdir, readFile, rm, stat, writeFile,} from "fs/promises";
+import {darwinGetScreenPermissionGranted, darwinRequestScreenPermissionPopup,} from "./darwin";
+import {desktopCapturer, ipcRenderer, OpenDialogOptions, SaveDialogOptions, shell} from "electron";
 import * as https from "https";
+import {get, set, STORAGE_TYPES} from "@/utils/storage";
 
 const downloadsPath = join(app.getPath("userData"), "files", "/");
 const PATH_WhiteBoard = join(
@@ -356,7 +335,7 @@ window.electron = {
                 access(dirname)
                     .then(() => resolve(dirname))
                     .catch(() =>
-                        mkdir(dirname, { recursive: true })
+                        mkdir(dirname, {recursive: true})
                             .then(() => resolve(dirname))
                             .catch(() => resolve(""))
                     );
@@ -431,7 +410,7 @@ window.electron = {
             console.error("报错--", e);
             return "";
         } finally {
-            await rm(filePath, { recursive: true, force: true });
+            await rm(filePath, {recursive: true, force: true});
         }
     },
     unpackCacheFile: async (zipFileName, newpath = "") => {
@@ -440,7 +419,7 @@ window.electron = {
                 access(dirname)
                     .then(() => resolve(dirname))
                     .catch(() =>
-                        mkdir(dirname, { recursive: true })
+                        mkdir(dirname, {recursive: true})
                             .then(() => resolve(dirname))
                             .catch(() => resolve(""))
                     );
@@ -537,23 +516,18 @@ window.electron = {
         });
     },
     getUpdateUserChoice: () => {
-        const filePath = path.join(
-            app.getPath("userData"),
-            "userUpdateChoice.json"
-        );
-        if (fs.existsSync(filePath)) {
-            // 判断文件是否存在
-            const data = fs.readFileSync(filePath, "utf-8"); // 读取文件
+        const currentVersion = window.electron.getVersion();
+        const data = get(STORAGE_TYPES.USER_UPDATE_CHOICE) || {version: currentVersion, value: 'update'};
+        if (currentVersion !== data.version) {
+            return {
+                version: currentVersion, value: 'update'
+            }
+        } else {
             return data;
         }
-        return "update";
     },
-    saveUpdateUserChoice: (choice: string) => {
-        const filePath = path.join(
-            app.getPath("userData"),
-            "userUpdateChoice.json"
-        );
-        fs.writeFileSync(filePath, choice); // 写入文件
+    saveUpdateUserChoice: (choice) => {
+        set(STORAGE_TYPES.USER_UPDATE_CHOICE, choice)
     },
     downloadNewApp: (
         version: string,
@@ -579,7 +553,7 @@ window.electron = {
             } else if (process.platform === "linux") {
                 shell.openPath(filePath);
             }
-            
+
             app.quit(); // 退出旧的程序
             return;
         }
@@ -591,13 +565,13 @@ window.electron = {
                 downloadedBytes += chunk.length;
                 // 更新下载进度
                 onProgress &&
-                    onProgress(
-                        Math.round((downloadedBytes / totalBytes) * 100)
-                    );
+                onProgress(
+                    Math.round((downloadedBytes / totalBytes) * 100)
+                );
             });
             response.pipe(fileStream, fileName);
             fileStream.on("finish", () => {
-                fileStream.close();                
+                fileStream.close();
                 // 启动安装程序
                 if (process.platform === "darwin") {
                     shell.openPath(filePath);
@@ -609,7 +583,7 @@ window.electron = {
                 } else if (process.platform === "linux") {
                     shell.openPath(filePath);
                 }
-                
+
                 app.quit(); // 退出旧的程序
                 fileStream.destroy();
             });

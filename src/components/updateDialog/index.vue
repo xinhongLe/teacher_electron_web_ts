@@ -23,7 +23,7 @@
         :close-on-click-modal="false"
     >
         <div class="content">
-            <img class="update-img" src="/img/pic_update@2x.png" alt="" />
+            <img class="update-img" src="/img/pic_update@2x.png" alt=""/>
             <div class="title">检测到有新的版本</div>
             <div class="info-list">
                 <div v-for="(item, index) in showUpdateInfo" :key="index">
@@ -39,13 +39,13 @@
                     style="width: 40%"
                     v-if="ifShowCancelButton"
                     @click="cancleUpdate"
-                    >取消</el-button
+                >取消</el-button
                 >
                 <el-button
                     style="width: 40%"
                     type="primary"
                     @click="handleUpdate"
-                    >更新</el-button
+                >更新</el-button
                 >
             </span>
         </template>
@@ -60,14 +60,15 @@
         :close-on-click-modal="false"
     >
         <div class="content">
-            <img class="update-img" src="/img/pic_update@2x.png" alt="" />
+            <img class="update-img" src="/img/pic_update@2x.png" alt=""/>
             <div class="title">已经是最新版了！</div>
             <div style="text-align: center; margin-top: 50px">
                 <el-button
                     style="width: 40%"
                     type="primary"
                     @click="cancleNewVersion"
-                    >好的</el-button
+                >好的
+                </el-button
                 >
             </div>
         </div>
@@ -75,7 +76,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, ref, watch } from "vue";
+import {computed, defineComponent, ref, watch} from "vue";
 
 export default defineComponent({
     name: "UpdateDialog",
@@ -110,7 +111,7 @@ export default defineComponent({
         "update:newVersionView",
         "update:isNewVersion",
     ],
-    setup(props, { emit }) {
+    setup(props, {emit}) {
         const updateVisibleDio = ref(props.updateVisible);
         const newVersionViewDio = ref(props.newVersionView);
         const isNewVersion = ref(props.isNewVersion);
@@ -124,6 +125,10 @@ export default defineComponent({
         watch(() => props.isNewVersion, () => {
             isNewVersion.value = props.isNewVersion;
         });
+        const updateInfo: any = ref({
+            version: window.electron.getVersion(),
+            value: ''
+        })
         //更新
         const handleUpdate = () => {
             saveUserChoice("update");
@@ -143,13 +148,15 @@ export default defineComponent({
         };
         // 存储用户的更新选择
         const saveUserChoice = (choice: string) => {
-            window.electron.saveUpdateUserChoice(choice);
+            updateInfo.value.value = choice;
+            window.electron.saveUpdateUserChoice(updateInfo.value);
         };
         return {
             updateVisibleDio,
             newVersionViewDio,
             downloadPercentDio,
             isNewVersion,
+            updateInfo,
             handleUpdate,
             cancleUpdate,
             saveUserChoice,

@@ -1,7 +1,8 @@
-import { ref } from "vue";
-import { getOssPaths } from "@/api";
-import { set, STORAGE_TYPES } from "@/utils/storage";
+import {ref} from "vue";
+import {getOssPaths} from "@/api";
+import {set, STORAGE_TYPES} from "@/utils/storage";
 import isElectron from "is-electron";
+
 interface IVersion {
     version: string;
     force: boolean;
