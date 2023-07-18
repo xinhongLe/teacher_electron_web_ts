@@ -74,7 +74,7 @@ const checkUpdate = () => {
 
 <template>
     <div class="userInfo">
-        <el-menu class="avatar-container" :ellipsis="false" mode="horizontal">
+        <el-menu class="avatar-container" menu-trigger="click" :ellipsis="false" mode="horizontal">
             <el-sub-menu index="user">
                 <template #title>
                     <div class="avatar-wrapper">
@@ -291,6 +291,10 @@ const checkUpdate = () => {
         line-height: 48px;
         background-color: transparent !important;
         border-bottom: 0 !important;
+    }
+
+    :deep(.el-sub-menu__icon-arrow) {
+        display: none;
     }
 }
 </style>

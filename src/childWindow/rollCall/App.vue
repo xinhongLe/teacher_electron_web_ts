@@ -1,5 +1,8 @@
 <template>
-    <div class="roll-call" :style="{'background-color': chooseFlag ? '#fff' : '#efefef'}">
+    <div
+        class="roll-call"
+        :style="{ 'background-color': chooseFlag ? '#fff' : '#efefef' }"
+    >
         <!--        <div class="roll-call-header" v-if="chooseFlag">-->
         <!--            <div class="rch-center">-->
         <!--                <span v-if="chooseFlag">选择班级</span>-->
@@ -40,34 +43,38 @@
         <!--            </div>-->
         <!--        </div>-->
 
-        <SelectAttendClass v-model:classVisible="chooseFlag" v-model:currentClassList="currentClassList"
-                           v-if="chooseFlag"
-                           @close="close" @confirm="submit">
+        <SelectAttendClass
+            v-model:classVisible="chooseFlag"
+            v-model:currentClassList="currentClassList"
+            v-if="chooseFlag"
+            @close="close"
+            @confirm="submit"
+        >
         </SelectAttendClass>
-        <StudentList :studentList="checkStudentList" v-else/>
+        <StudentList :studentList="checkStudentList" v-else />
     </div>
 </template>
 
 <script lang="ts">
-import {Student} from "@/types/labelManage";
-import {IYunInfo, LessonClasses} from "@/types/login";
-import {get, STORAGE_TYPES} from "@/utils/storage";
-import {ElMessage} from "element-plus";
-import {defineComponent, reactive, ref, toRefs} from "vue";
+import { Student } from "@/types/labelManage";
+import { IYunInfo, LessonClasses } from "@/types/login";
+import { get, STORAGE_TYPES } from "@/utils/storage";
+import { ElMessage } from "element-plus";
+import { defineComponent, reactive, ref, toRefs } from "vue";
 import StudentList from "./studentList.vue";
-import {getTeacherClassList} from "@/views/login/api";
-import {UserInfoState} from "@/types/store";
-import {IClassItem, IGradeItem} from "@/types/quickAnswer";
+import { getTeacherClassList } from "@/views/login/api";
+import { UserInfoState } from "@/types/store";
+import { IClassItem, IGradeItem } from "@/types/quickAnswer";
 import SelectAttendClass from "@/components/navBar/selectAttendClass.vue";
 
 interface State {
-    activeIndex: number,
-    gradeList: IGradeItem[],
-    classList: IClassItem[],
-    allStudentList: Student[],
-    checkStudentList: Student[],
-    lastCheckGradeId: string,
-    currentClassList: any
+    activeIndex: number;
+    gradeList: IGradeItem[];
+    classList: IClassItem[];
+    allStudentList: Student[];
+    checkStudentList: Student[];
+    lastCheckGradeId: string;
+    currentClassList: any;
 }
 
 export default defineComponent({
@@ -81,7 +88,9 @@ export default defineComponent({
         // const treeProps = { label: "Name", children: "classData" };
         // const userInfo = get(STORAGE_TYPES.USER_INFO);
         const chooseFlag = ref(true);
-        const currentUserInfo: UserInfoState = get(STORAGE_TYPES.CURRENT_USER_INFO);
+        const currentUserInfo: UserInfoState = get(
+            STORAGE_TYPES.CURRENT_USER_INFO
+        );
 
         // const map = new Map();
         // const classList = userInfo?.Classes as LessonClasses[];
@@ -158,13 +167,16 @@ export default defineComponent({
             //     const arr = item.ClassList.filter((j: IClassItem) => j.check).map((v: IClassItem) => v.ClassId);
             //     selectClass = selectClass.concat(arr);
             // });
-            console.log('value', value, state.allStudentList)
+            console.log("value", value, state.allStudentList);
             if (!selectClass) {
                 return ElMessage.warning("请至少选择一个班级");
             }
 
-            state.checkStudentList = state.allStudentList.filter(student => selectClass === student.ClassID);
-            const size = window.electron.remote.screen.getPrimaryDisplay().workAreaSize;
+            state.checkStudentList = state.allStudentList.filter(
+                (student) => selectClass === student.ClassID
+            );
+            const size =
+                window.electron.remote.screen.getPrimaryDisplay().workAreaSize;
             const width = size.width > 1200 ? 1200 : size.width;
             const height = size.height > 800 ? 800 : size.height;
             window.electron.setContentSize(width, height);
@@ -200,19 +212,26 @@ export default defineComponent({
 
         const handleChangeClass = (item: IClassItem) => {
             // 和上次选中的年做比较 如选中年级不同 取消上次选中的年级、班级
-            if (state.lastCheckGradeId && state.lastCheckGradeId !== item.GradeId) {
-                const lastGradeList = state.gradeList.find((i: IGradeItem) => state.lastCheckGradeId === i.GradeId);
+            if (
+                state.lastCheckGradeId &&
+                state.lastCheckGradeId !== item.GradeId
+            ) {
+                const lastGradeList = state.gradeList.find(
+                    (i: IGradeItem) => state.lastCheckGradeId === i.GradeId
+                );
                 if (lastGradeList) {
                     lastGradeList.check = false;
                     lastGradeList.ClassList.forEach((j: IClassItem) => {
-                        j.check = false
+                        j.check = false;
                     });
                 }
             }
             state.lastCheckGradeId = item.GradeId || "";
             state.gradeList.some((i: IGradeItem) => {
                 if (item.GradeId === i.GradeId) {
-                    i.check = i.ClassList.length === i.ClassList.filter((j: IClassItem) => j.check).length;
+                    i.check =
+                        i.ClassList.length ===
+                        i.ClassList.filter((j: IClassItem) => j.check).length;
                     return true;
                 }
             });
@@ -244,9 +263,12 @@ export default defineComponent({
             window.electron.destroyWindow();
         };
 
-        window.electron.ipcRenderer.on("sendAllStudentList", (_, studentList) => {
-            state.allStudentList = studentList;
-        });
+        window.electron.ipcRenderer.on(
+            "sendAllStudentList",
+            (_, studentList) => {
+                state.allStudentList = studentList;
+            }
+        );
         return {
             ...toRefs(state),
             // classTreeList,
@@ -260,10 +282,10 @@ export default defineComponent({
             handleChangeGrade,
             handleChangeClass,
             _getTeacherClassList,
-            currentUserInfo
+            currentUserInfo,
         };
     },
-    components: {StudentList, SelectAttendClass}
+    components: { StudentList, SelectAttendClass },
 });
 </script>
 
@@ -375,7 +397,7 @@ body {
         height: 100%;
         overflow-y: auto;
         padding: 20px 0;
-        border-right: 1px solid #E9ECF0;;
+        border-right: 1px solid #e9ecf0;
 
         .leftRow {
             display: flex;
@@ -387,7 +409,7 @@ body {
             .text {
                 margin-left: 6px;
                 font-size: 14px;
-                color: #19203D;
+                color: #19203d;
             }
 
             &:hover {
@@ -396,10 +418,10 @@ body {
         }
 
         .active {
-            background: #E6ECFF;
+            background: #e6ecff;
 
             :deep(.el-checkbox__label) {
-                color: #4B71EE;
+                color: #4b71ee;
             }
         }
     }
@@ -421,5 +443,4 @@ body {
         width: 100px;
     }
 }
-
 </style>
