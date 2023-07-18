@@ -86,7 +86,6 @@ export default defineComponent({
     setup(props, {emit}) {
 
         const updateVisibleDio = computed(() => props.updateVisible);
-        console.log('updateVisibleDio', updateVisibleDio);
         const newVersionViewDio = computed(() => props.newVersionView);
         const downloadPercentDio = computed(() => props.downloadPercent);
         const isNewVersion = computed(() => props.isNewVersion);

@@ -31,7 +31,7 @@ export default defineComponent({
         } = useUpdate();
         // 默认开启缓存
         set(STORAGE_TYPES.SET_ISCACHE, true);
-        // 获取用户的选择
+        // 获取用户的选择是否选择的了取消更新
         const getUserChoice = () => {
             const filePath = path.join(app.getPath('userData'), 'userUpdateChoice.json');
             if (fs.existsSync(filePath)) { // 判断文件是否存在
@@ -43,8 +43,11 @@ export default defineComponent({
         }
 
         if (isElectron() && !window.electron.isMac() && ENV !== "development") {
+            // 检查选择
             const data = getUserChoice();
+            // 取消更新则终止
             if (data === 'cancel') return;
+            // 否则检查更新
             getUpdateJson();
         }
         ;

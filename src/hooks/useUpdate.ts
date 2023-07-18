@@ -35,7 +35,6 @@ export default () => {
                 const data: IVersion[] = res ? JSON.parse(res) : [];
                 const version = window.electron.getVersion();
                 newVersionNum.value = data[data.length - 1].version
-                console.log('newVersionNum.value  version', newVersionNum.value, version)
                 if (newVersionNum.value > version) {
                     showUpdateData(data);
                     isNewVersion.value = false
