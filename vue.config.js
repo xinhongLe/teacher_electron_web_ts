@@ -329,35 +329,25 @@ module.exports = {
                                 "ia32" // 32位
                             ]
                         }
-                    ],
-                    // extraFiles: [
-                    //     {
-                    //         from: "node_modules/trtc-electron-sdk/build/Release/",
-                    //         to: "./resources",
-                    //         filter: ["**/*"]
-                    //     }
-                    // ]
+                    ]
                 },
                 mac: {
                     icon: "./public/icon.icns",
-                    target: ["dmg", "zip"],
-                    // extraFiles: [
-                    //     {
-                    //         from: "node_modules/trtc-electron-sdk/build/Release/",
-                    //         to: "./Resources",
-                    //         filter: ["**/*"]
-                    //     }
-                    // ],
+                    target: [
+                        {
+                            "target": "dmg",
+                            "arch": [
+                                "x64"
+                            ]
+                        }
+                    ],
                     fileAssociations: [
                         {
                             ext: "lyxpkg",
                             icon: "./public/lyxpkg.icns"
                         }
                     ]
-                },
-                // extraFiles: [
-                //     "node_modules/trtc-electron-sdk/build/Release/trtc_electron_sdk.node"
-                // ]
+                }
             },
             externals: [
                 "clipboard",
