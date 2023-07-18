@@ -3,9 +3,8 @@ import path from "path";
 import {exec} from "child_process";
 import SingalRHelper from "./singalr";
 import ElectronLog from "electron-log";
-// import autoUpdater from "./autoUpdater";
-import downloadFile, { store } from "./downloadFile";
-import { STORAGE_TYPES } from "@/utils/storage";
+import downloadFile, {store} from "./downloadFile";
+import {STORAGE_TYPES} from "@/utils/storage";
 import {createWinCardWindow} from "./wincard";
 import {initialize} from "@electron/remote/main";
 import {createProtocol} from "vue-cli-plugin-electron-builder/lib";
@@ -60,8 +59,6 @@ async function createWindow() {
     });
 
     downloadFile();
-    // autoUpdater(mainWindow!);
-
     if (!isCreateWindow) {
         createSuspensionWindow();
         isCreateWindow = true;
