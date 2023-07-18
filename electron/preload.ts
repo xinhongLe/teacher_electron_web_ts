@@ -559,11 +559,27 @@ window.electron = {
         version: string,
         onProgress: (progress: number) => void
     ) => {
-        const fileName = process.env["VUE_APP_PRODUCT_NAME "] || "爱学仕校园教师端" + "-" + (version + process.platform === "darwin" ? ".dmg" : ".exe");
+        const fileName = (process.env["VUE_APP_PRODUCT_NAME "] || "爱学仕校园教师端") + "-" + version + (process.platform === "darwin" ? ".dmg" : ".exe");
         const updataUrl = "https://app-v.oss-cn-shanghai.aliyuncs.com/teacherElectron/build/" + fileName;
         const request = https.request(updataUrl);
         // request.setHeader("Range", `bytes=${0}-${updateInfo.files[0].size - 1}`);
         const filePath = path.join(app.getPath("temp"), fileName);
+        // 先验证文件是否已经下载
+        if (fs.existsSync(filePath)) {
+            onProgress(100);
+            // 启动安装程序
+            if (process.platform === "darwin") {
+                shell.openPath(filePath);
+            } else if (process.platform === "win32") {
+                spawn(path.resolve(filePath), ["/interactive"], {
+                    detached: true,
+                    shell: true,
+                });
+            }
+            
+            app.quit(); // 退出旧的程序
+            return;
+        }
         const fileStream = fs.createWriteStream(filePath);
         request.on("response", (response: any) => {
             const totalBytes = parseInt(response.headers["content-length"], 10);
@@ -578,12 +594,17 @@ window.electron = {
             });
             response.pipe(fileStream, fileName);
             fileStream.on("finish", () => {
-                fileStream.close();
+                fileStream.close();                
                 // 启动安装程序
-                spawn(path.resolve(filePath), ["/interactive"], {
-                    detached: true,
-                    shell: true,
-                });
+                if (process.platform === "darwin") {
+                    shell.openPath(filePath);
+                } else if (process.platform === "win32") {
+                    spawn(path.resolve(filePath), ["/interactive"], {
+                        detached: true,
+                        shell: true,
+                    });
+                }
+                
                 app.quit(); // 退出旧的程序
                 fileStream.destroy();
             });
