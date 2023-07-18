@@ -1,4 +1,4 @@
-<template xmlns="">
+<template>
     <router-view />
     <UpdateDialog
         v-model:updateVisible="updateVisible"
@@ -10,49 +10,36 @@
     ></UpdateDialog>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
 import isElectron from "is-electron";
-import { defineComponent, ref, onMounted, onUnmounted } from "vue";
-import { get, set, STORAGE_TYPES } from "./utils/storage";
+import { onMounted } from "vue";
+import { set, STORAGE_TYPES } from "./utils/storage";
 import UpdateDialog from "./components/updateDialog/index.vue";
 import useUpdate from "./hooks/useUpdate";
 import { ENV } from "./config";
 
-export default defineComponent({
-    setup() {
-        const isShowUpdate = ref(false);
-        const {
-            updateVisible,
-            downloadPercent,
-            newVersionView,
-            ifShowCancelButton,
-            showUpdateInfo,
-            getUpdateJson,
-            downloadUpdate,
-        } = useUpdate();
-        // 默认开启缓存
-        set(STORAGE_TYPES.SET_ISCACHE, true);
+const {
+    updateVisible,
+    downloadPercent,
+    newVersionView,
+    ifShowCancelButton,
+    showUpdateInfo,
+    getUpdateJson,
+    downloadUpdate,
+} = useUpdate();
+// 默认开启缓存
+set(STORAGE_TYPES.SET_ISCACHE, true);
 
-        if (isElectron() && ENV !== "development") {
-            // 检查选择
-            const data = window.electron.getUpdateUserChoice();
-            // 取消更新则终止
-            if (data === "cancel") return;
+onMounted(() => {
+    if (isElectron() && ENV !== "development") {
+        // 检查选择
+        const data = window.electron.getUpdateUserChoice();
+        // 取消更新则终止
+        if (data !== "cancel") {
             // 否则检查更新
             getUpdateJson();
         }
-        return {
-            isShowUpdate,
-            newVersionView,
-            updateVisible,
-            ifShowCancelButton,
-            showUpdateInfo,
-            getUpdateJson,
-            downloadUpdate,
-            downloadPercent,
-        };
-    },
-    components: { UpdateDialog }
+    }
 });
 </script>
 

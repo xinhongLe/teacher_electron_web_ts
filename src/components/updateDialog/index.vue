@@ -75,7 +75,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent } from "vue";
+import { computed, defineComponent, ref, watch } from "vue";
 
 export default defineComponent({
     name: "UpdateDialog",
@@ -111,10 +111,19 @@ export default defineComponent({
         "update:isNewVersion",
     ],
     setup(props, { emit }) {
-        const updateVisibleDio = computed(() => props.updateVisible);
-        const newVersionViewDio = computed(() => props.newVersionView);
+        const updateVisibleDio = ref(props.updateVisible);
+        const newVersionViewDio = ref(props.newVersionView);
+        const isNewVersion = ref(props.isNewVersion);
         const downloadPercentDio = computed(() => props.downloadPercent);
-        const isNewVersion = computed(() => props.isNewVersion);
+        watch(() => props.updateVisible, () => {
+            updateVisibleDio.value = props.updateVisible;
+        });
+        watch(() => props.newVersionView, () => {
+            newVersionViewDio.value = props.newVersionView;
+        });
+        watch(() => props.isNewVersion, () => {
+            isNewVersion.value = props.isNewVersion;
+        });
         //更新
         const handleUpdate = () => {
             saveUserChoice("update");
