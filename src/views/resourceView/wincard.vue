@@ -32,9 +32,10 @@ const setMinimize = (data: any) => {
     couresData.value = params;
     nextTick(() => {
         if (isElectron()) {
-            window.electron.ipcRenderer.send(
-                "setCourseMinimize", "min", params
-            );
+            // window.electron.ipcRenderer.send(
+            //     "setCourseMinimize", "min", params
+            // );
+            window.electron.ipcRenderer.invoke("courseMinimize", params);
         }
     })
 };
@@ -45,9 +46,10 @@ onMounted(() => {
             isMinimized.value = false;
         }
         if (!data && couresData.value) {
-            window.electron.ipcRenderer.send(
-                "setCourseMinimize", "min", couresData.value
-            );
+            // window.electron.ipcRenderer.send(
+            //     "setCourseMinimize", "min", couresData.value
+            // );
+            window.electron.ipcRenderer.invoke("courseMinimize", couresData.value);
         }
         // console.log('e,data', e, data)
     })

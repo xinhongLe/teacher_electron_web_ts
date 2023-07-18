@@ -29,6 +29,8 @@ let isShowTimer = false; // 悬浮球是否显示时间
 let isShowVideo = false; // 悬浮球是否显示视频图标
 let isShowBlackboard = false; // 悬浮球是否显示黑板图标
 let isShowQuestion = false; // 悬浮球是否显示题目图标
+let isShowCourse = false; // 悬浮球是否显示课件图标
+
 let socketHelper: SocketHelper;
 let socketHelperHeartbeatInterval: any = -1;
 let socketHelperHeartbeatCheckInterval: any = -1;
@@ -171,6 +173,7 @@ function hideSuspensionIcon() {
     isShowVideo = false;
     isShowQuestion = false;
     isShowBlackboard = false;
+    isShowCourse = false;
     if (suspensionWin) {
         suspensionWin.webContents.send("timerWinClose");
         suspensionWin.webContents.send("hideSuspensionVideo");
@@ -886,6 +889,19 @@ export function registerEvent() {
             suspensionWin && suspensionWin.webContents.send("timerWinHide", time);
         }
     });
+    // 课件最小化
+    ipcMain.handle("courseMinimize", (_, data) => {
+        showSuspension();
+        isShowCourse = true;
+        setSuspensionSize();
+        if (socketHelper) {
+            console.log('QUICKTIMEHIDE', data)
+            socketHelper.sendMessage(new Action("COURSEWARE1HIDE", `https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg,${data.name}`));
+        } else {
+            suspensionWin && suspensionWin.webContents.send("courseWinHide", data.name);
+        }
+    });
+
 
     ipcMain.handle("timeChange", (_, time) => {
         if (socketHelper) {
@@ -983,9 +999,6 @@ export const unfoldSuspensionWinSendMessage = (
 ) => {
     unfoldSuspensionWin && unfoldSuspensionWin.webContents.send(event, message);
 };
-export const setCourseSuspensio = (data: any) => {
-    unfoldSuspensionWin && unfoldSuspensionWin.webContents.send("setCourseSuspensio", data);
-}
 
 function createTeamCompetition() {
     teamCompetitionWin = createWindow(localTeamURL, {
