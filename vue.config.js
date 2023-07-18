@@ -309,7 +309,8 @@ module.exports = {
                     installerHeaderIcon: "./public/icon.ico", // 安装时头部图标
                     createDesktopShortcut: true, // 创建桌面图标
                     createStartMenuShortcut: true, // 创建开始菜单图标
-                    shortcutName: process.env.VUE_APP_PRODUCT_NAME // 图标名称
+                    shortcutName: process.env.VUE_APP_PRODUCT_NAME, // 图标名称
+                    include: "installer.nsh"
                 },
                 win: {
                     // win相关配置
@@ -363,7 +364,11 @@ module.exports = {
                 },
                 extraFiles: [
                     "node_modules/trtc-electron-sdk/build/Release/trtc_electron_sdk.node"
-                ]
+                ],
+                protocols: [{
+                    name: "lyxteacher",
+                    schemes: ["lyxteacher"]
+                }]
             },
             externals: [
                 "clipboard",

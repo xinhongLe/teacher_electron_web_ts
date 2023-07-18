@@ -4,6 +4,7 @@ import useLogin from "@/hooks/useLogin";
 import isElectron from "is-electron";
 import { store } from "@/store";
 import useUserInfo from "@/hooks/useUserInfo";
+import { LoginForCloud } from "./views/login/api";
 
 const { queryUserInfo } = useUserInfo();
 
@@ -36,12 +37,14 @@ router.beforeEach(async(to, from, next) => {
                 next({ path: "/login" });
             } else {
                 if ((!get(STORAGE_TYPES.USER_INFO) || !store.state.userInfo.id) && to.path !== "/login") {
-                    await queryUserInfo().then(success => {
-                        // 获取到用户信息, 开始配置全局监听器
-                        if (success) {
-                            isElectron() && window.electron.ipcRenderer.send("startSingalR", store.state.userInfo.id);
-                        }
-                    });
+                    const cloudRes = await LoginForCloud(hasToken);
+                    set(STORAGE_TYPES.YUN_INFO, cloudRes.result);
+
+                    const success = await queryUserInfo();
+                    // 获取到用户信息, 开始配置全局监听器
+                    if (success) {
+                        isElectron() && window.electron.ipcRenderer.send("startSingalR", store.state.userInfo.id);
+                    }
                 }
                 next();
             }

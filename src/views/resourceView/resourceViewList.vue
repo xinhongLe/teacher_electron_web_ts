@@ -36,7 +36,7 @@
                 <img v-else src="@/views/preparation/intelligenceClassroom/images/quanping_rest.png" alt=""/>
 
             </div>
-            <div class="close" @click="close">
+            <div class="close" @click="close()">
                 <p>关闭</p>
             </div>
         </div>
