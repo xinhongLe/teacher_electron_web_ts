@@ -438,7 +438,48 @@ function checkIsUseBallEXE(callback: (T: boolean, env?: number) => void) {
     }
 }
 
+function createLinuxBall() {
+    let ballname = "linux/winball";
+    const newEnv = Object.create(process.env);
+    newEnv.LD_LIBRARY_PATH = join(WIN_PATH_BALL, 'linux/lib');
+
+    return new Promise((resolve) => {
+        try {
+            if (lastSpwan) {
+                lastSpwan.kill();
+                lastSpwan.pid && process.kill(lastSpwan.pid);
+            }
+        } catch (e) {}
+        try {
+            lastSpwan = spawn(
+                join(WIN_PATH_BALL, ballname),
+                [lastPort.toString()], {
+                    env: newEnv
+                }
+            );
+            lastSpwan.stdout.on("data", (data) => {
+                console.log(`stdout: ${data}`);
+            });
+
+            lastSpwan.stderr.on("data", (data) => {
+                console.error(`stderr: ${data}`);
+            });
+
+            lastSpwan.on("close", (code) => {
+                console.log(`child process exited with code ${code}`);
+            });
+        } catch (e) {}
+        setTimeout(() => {
+            resolve(true);
+        }, 3000);
+    });
+}
+
+
 function createBall(forcec = false) {
+    if (process.platform === "linux"){
+        return createLinuxBall();
+    }
     let ballname = "winball/winball.exe";
     let cballname = "ball.exe";
     return new Promise((resolve) => {

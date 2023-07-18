@@ -559,7 +559,8 @@ window.electron = {
         version: string,
         onProgress: (progress: number) => void
     ) => {
-        const fileName = (process.env["VUE_APP_PRODUCT_NAME "] || "爱学仕校园教师端") + "-" + version + (process.platform === "darwin" ? ".dmg" : ".exe");
+        const extension = process.platform === "darwin" ? ".dmg" : process.platform === "linux" ? ".deb" : ".exe"
+        const fileName = (process.env["VUE_APP_PRODUCT_NAME "] || "爱学仕校园教师端") + "-" + version + extension;
         const updataUrl = "https://app-v.oss-cn-shanghai.aliyuncs.com/teacherElectron/build/" + fileName;
         const request = https.request(updataUrl);
         // request.setHeader("Range", `bytes=${0}-${updateInfo.files[0].size - 1}`);
@@ -575,6 +576,8 @@ window.electron = {
                     detached: true,
                     shell: true,
                 });
+            } else if (process.platform === "linux") {
+                shell.openPath(filePath);
             }
             
             app.quit(); // 退出旧的程序
@@ -603,6 +606,8 @@ window.electron = {
                         detached: true,
                         shell: true,
                     });
+                } else if (process.platform === "linux") {
+                    shell.openPath(filePath);
                 }
                 
                 app.quit(); // 退出旧的程序

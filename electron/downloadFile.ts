@@ -1,4 +1,4 @@
-import Axios from "Axios";
+import Axios from "axios";
 import { resolve } from "path";
 import Store from "electron-store";
 import { app, ipcMain } from "electron";
