@@ -29,7 +29,6 @@ if (!isElectron()) {
         isExistFile: () => {},
         destroyWindow: () => {},
         showWindow: () => {},
-        parsePPT: () => {},
         setCenter: () => {},
         getCachePath: () => {},
         setPath: () => {},
@@ -45,7 +44,6 @@ if (!isElectron()) {
             send: () => {},
             off: () => {},
             removeAllListeners: () => {}
-        },
-        getPPTPath: () => {}
+        }
     } as any;
 }

@@ -1,20 +1,11 @@
-import {ref} from "vue";
-import {getOssPaths} from "@/api";
-import {set, STORAGE_TYPES} from "@/utils/storage";
+import { ref } from "vue";
+import { getOssPaths } from "@/api";
+import { set, STORAGE_TYPES } from "@/utils/storage";
 import isElectron from "is-electron";
-
-import {remote} from 'electron';
-import * as fs from 'fs';
-import * as path from 'path';
-import * as https from 'https';
-import {spawn} from 'child_process';
-import {ENV} from "@/config";
-import {exec} from "child_process";
-
 interface IVersion {
-    version: string,
-    force: boolean,
-    desc: string[],
+    version: string;
+    force: boolean;
+    desc: string[];
 }
 
 export default () => {
@@ -34,12 +25,12 @@ export default () => {
                 const res = xhr.response;
                 const data: IVersion[] = res ? JSON.parse(res) : [];
                 const version = window.electron.getVersion();
-                newVersionNum.value = data[data.length - 1].version
+                newVersionNum.value = data[data.length - 1].version;
                 if (newVersionNum.value > version) {
                     showUpdateData(data);
-                    isNewVersion.value = false
+                    isNewVersion.value = false;
                 } else {
-                    isNewVersion.value = true
+                    isNewVersion.value = true;
                 }
             }
         };
@@ -47,12 +38,16 @@ export default () => {
     };
     const showUpdateData = (data: IVersion[]) => {
         const version = window.electron.getVersion();
-        const upVersionList = data.filter((item: IVersion) => item.version > version);
+        const upVersionList = data.filter(
+            (item: IVersion) => item.version > version
+        );
         const mustUpdate = upVersionList.find((item: IVersion) => item.force);
         if (mustUpdate) ifShowCancelButton.value = false;
-        if (upVersionList.length > 0) showUpdateInfo.value = upVersionList[upVersionList.length - 1]?.desc;
+        if (upVersionList.length > 0)
+            showUpdateInfo.value =
+                upVersionList[upVersionList.length - 1]?.desc;
         newVersionView.value = true;
-        console.log('newVersionView', newVersionView.value)
+        console.log("newVersionView", newVersionView.value);
     };
 
     // const handleUpdate = () => {
@@ -112,37 +107,9 @@ export default () => {
 
     //下载文件
     const downloadUpdate = () => {
-        const fileName = process.env["VUE_APP_PRODUCT_NAME "] || "爱学仕校园教师端" + "-" + newVersionNum.value + ".exe";
-        const updataUrl = "https://app-v.oss-cn-shanghai.aliyuncs.com/teacherElectron/build/" + fileName
-        const request = https.request(updataUrl);
-        // request.setHeader("Range", `bytes=${0}-${updateInfo.files[0].size - 1}`);
-        const filePath = path.join(remote.app.getPath("temp"), fileName);
-        const fileStream = fs.createWriteStream(filePath);
-        request.on("response", (response: any) => {
-            const totalBytes = parseInt(response.headers["content-length"], 10);
-            let downloadedBytes = 0;
-            response.on("data", (chunk: any) => {
-                downloadedBytes += chunk.length;
-                // 更新下载进度
-                downloadPercent.value = Math.round((downloadedBytes / totalBytes) * 100);
-            });
-            response.pipe(fileStream, fileName);
-            fileStream.on("finish", () => {
-                fileStream.close();
-                // 启动安装程序
-                spawn(path.resolve(filePath), ['/interactive'], {detached: true, shell: true});
-                remote.app.quit(); // 退出旧的程序
-                fileStream.destroy();
-            });
-
-            fileStream.on("error", (error: any) => {
-                console.error(`Failed to save downloaded file: ${error}`);
-            });
+        window.electron.downloadNewApp(newVersionNum.value, (progress) => {
+            downloadPercent.value = progress;
         });
-        request.on("error", error => {
-            fileStream.destroy();
-        });
-        request.end();
     };
     if (isElectron()) {
         window.electron.registerEscKeyUp(() => {
@@ -159,6 +126,6 @@ export default () => {
         showUpdateInfo,
         newVersionNum,
         getUpdateJson,
-        downloadUpdate
+        downloadUpdate,
     };
 };

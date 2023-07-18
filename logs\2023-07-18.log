@@ -1,0 +1,34 @@
+[2023-07-18 13:29:54] [error] [
+  "TypeError: Cannot read properties of undefined (reading 'app')\n" +
+    '    at Object.saveUpdateUserChoice (webpack:///./electron/preload.ts?:479:98)\n' +
+    '    at saveUserChoice (http://localhost:8080/js/index.js:227450:23)\n' +
+    '    at handleUpdate (http://localhost:8080/js/index.js:227432:7)\n' +
+    '    at callWithErrorHandling (http://localhost:8080/js/index.js:175045:18)\n' +
+    '    at callWithAsyncErrorHandling (http://localhost:8080/js/index.js:175053:17)\n' +
+    '    at emit (http://localhost:8080/js/index.js:175549:5)\n' +
+    '    at http://localhost:8080/js/index.js:182277:45\n' +
+    '    at handleClick (http://localhost:8080/js/index.js:243796:5)\n' +
+    '    at callWithErrorHandling (http://localhost:8080/js/index.js:175045:18)\n' +
+    '    at callWithAsyncErrorHandling (http://localhost:8080/js/index.js:175053:17)'
+]
+[2023-07-18 13:30:10] [error] [
+  "TypeError: Cannot read properties of undefined (reading 'app')\n" +
+    '    at Object.saveUpdateUserChoice (webpack:///./electron/preload.ts?:479:98)\n' +
+    '    at saveUserChoice (http://localhost:8080/js/index.js:227450:23)\n' +
+    '    at handleUpdate (http://localhost:8080/js/index.js:227432:7)\n' +
+    '    at callWithErrorHandling (http://localhost:8080/js/index.js:175045:18)\n' +
+    '    at callWithAsyncErrorHandling (http://localhost:8080/js/index.js:175053:17)\n' +
+    '    at emit (http://localhost:8080/js/index.js:175549:5)\n' +
+    '    at http://localhost:8080/js/index.js:182277:45\n' +
+    '    at handleClick (http://localhost:8080/js/index.js:243796:5)\n' +
+    '    at callWithErrorHandling (http://localhost:8080/js/index.js:175045:18)\n' +
+    '    at callWithAsyncErrorHandling (http://localhost:8080/js/index.js:175053:17)'
+]
+[2023-07-18 13:35:19] [error] [
+  "TypeError: Cannot read properties of null (reading 'style')\n" +
+    '    at http://localhost:8080/js/35.js:1174:16'
+]
+[2023-07-18 13:35:47] [error] [
+  "TypeError: Cannot read properties of null (reading 'style')\n" +
+    '    at http://localhost:8080/js/35.js:1174:16'
+]

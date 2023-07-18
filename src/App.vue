@@ -1,22 +1,23 @@
 <template xmlns="">
-    <router-view/>
-    <UpdateDialog v-model:updateVisible="updateVisible" v-model:newVersionView="newVersionView"
-                  :showUpdateInfo="showUpdateInfo"
-                  :downloadPercent="downloadPercent" :ifShowCancelButton="ifShowCancelButton"
-                  @downloadUpdate="downloadUpdate"></UpdateDialog>
+    <router-view />
+    <UpdateDialog
+        v-model:updateVisible="updateVisible"
+        v-model:newVersionView="newVersionView"
+        :showUpdateInfo="showUpdateInfo"
+        :downloadPercent="downloadPercent"
+        :ifShowCancelButton="ifShowCancelButton"
+        @downloadUpdate="downloadUpdate"
+    ></UpdateDialog>
 </template>
 
 <script lang="ts">
 import isElectron from "is-electron";
-import {defineComponent, ref, onMounted, onUnmounted} from "vue";
-import {get, set, STORAGE_TYPES} from "./utils/storage";
-import UpdateDialog from './components/updateDialog/index.vue';
+import { defineComponent, ref, onMounted, onUnmounted } from "vue";
+import { get, set, STORAGE_TYPES } from "./utils/storage";
+import UpdateDialog from "./components/updateDialog/index.vue";
 import useUpdate from "./hooks/useUpdate";
-import {ENV} from "./config";
+import { ENV } from "./config";
 
-const fs = require('fs');
-const path = require('path');
-const app = require('electron').remote.app;
 export default defineComponent({
     setup() {
         const isShowUpdate = ref(false);
@@ -27,31 +28,19 @@ export default defineComponent({
             ifShowCancelButton,
             showUpdateInfo,
             getUpdateJson,
-            downloadUpdate
+            downloadUpdate,
         } = useUpdate();
         // 默认开启缓存
         set(STORAGE_TYPES.SET_ISCACHE, true);
-        // 获取用户的选择是否选择的了取消更新
-        const getUserChoice = () => {
-            const filePath = path.join(app.getPath('userData'), 'userUpdateChoice.json');
-            if (fs.existsSync(filePath)) { // 判断文件是否存在
-                const data = fs.readFileSync(filePath, 'utf-8'); // 读取文件
-                console.log('data', data)
-                return data
-            }
-            return 'update';
-        }
 
-        if (isElectron() && !window.electron.isMac() && ENV !== "development") {
+        if (isElectron() && ENV !== "development") {
             // 检查选择
-            const data = getUserChoice();
+            const data = window.electron.getUpdateUserChoice();
             // 取消更新则终止
-            if (data === 'cancel') return;
+            if (data === "cancel") return;
             // 否则检查更新
             getUpdateJson();
         }
-        ;
-
         return {
             isShowUpdate,
             newVersionView,
@@ -60,12 +49,10 @@ export default defineComponent({
             showUpdateInfo,
             getUpdateJson,
             downloadUpdate,
-            // handleUpdate,
-            getUserChoice,
-            downloadPercent
+            downloadPercent,
         };
     },
-    components: {UpdateDialog},
+    components: { UpdateDialog }
 });
 </script>
 
@@ -98,6 +85,4 @@ img {
 .el-message--warning {
     z-index: 9999999 !important;
 }
-
-
 </style>
