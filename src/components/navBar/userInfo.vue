@@ -4,6 +4,8 @@ import Feedback from "../feedback/index.vue";
 import {computed, defineAsyncComponent, ref, watch} from "vue";
 import isElectron from "is-electron";
 import useOutLogin from "@/hooks/useOutLogin";
+import useUpdate from "@/hooks/useUpdate";
+import UpdateDialog from '@/components/updateDialog/index.vue';
 import {CaretBottom} from "@element-plus/icons-vue";
 
 const ClearCacheDialog = defineAsyncComponent(
@@ -12,7 +14,16 @@ const ClearCacheDialog = defineAsyncComponent(
 const AutoClearCache = defineAsyncComponent(
     () => import("./autoClearCache.vue")
 );
-
+const {
+    updateVisible,
+    downloadPercent,
+    newVersionView,
+    isNewVersion,
+    ifShowCancelButton,
+    showUpdateInfo,
+    getUpdateJson,
+    downloadUpdate
+} = useUpdate();
 const feedbackRef = ref<InstanceType<typeof Feedback>>();
 const account = computed(() => store.state.userInfo.account);
 const name = computed(() => store.state.userInfo.name);
@@ -32,7 +43,6 @@ watch(schoolList, () => {
     setSelectedSchool();
 });
 const selectSchool = (school: { UserCenterSchoolID: string; Name: string; }) => {
-    console.log('school----', school)
     store.commit(MutationTypes.UPDATE_SELECTED_SCHOOL, {schoolId: school.UserCenterSchoolID, schoolName: school.Name});
 };
 const showCacheDialog = ref(false);
@@ -52,6 +62,11 @@ const useLogout = () => {
         });
     }
 };
+
+//检查更新emitter.emit
+const checkUpdate = () => {
+    getUpdateJson()
+}
 </script>
 
 <template>
@@ -128,6 +143,13 @@ const useLogout = () => {
                     <template #title>
                         <div class="user-list-item" @click="showCacheDialog = true">
                             清理缓存
+                        </div>
+                    </template>
+                </el-menu-item>
+                <el-menu-item index="update" class="user-list-item">
+                    <template #title>
+                        <div class="user-list-item" @click="checkUpdate">
+                            检查更新
                         </div>
                     </template>
                 </el-menu-item>
@@ -214,6 +236,10 @@ const useLogout = () => {
     <Suspense v-if="isElectron()">
         <AutoClearCache/>
     </Suspense>
+    <UpdateDialog v-model:updateVisible="updateVisible" v-model:newVersionView="newVersionView"
+                  :showUpdateInfo="showUpdateInfo"
+                  :downloadPercent="downloadPercent" :ifShowCancelButton="ifShowCancelButton"
+                  @downloadUpdate="downloadUpdate" v-model:isNewVersion="isNewVersion"></UpdateDialog>
 </template>
 
 <style lang="scss" scoped>

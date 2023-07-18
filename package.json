@@ -40,6 +40,7 @@
     "echarts": "^5.1.2",
     "electron-store": "^8.0.1",
     "element-plus": "^2.2.21",
+    "extract-zip": "^2.0.1",
     "file-saver": "^2.0.5",
     "fluent-ffmpeg": "git+https://gitee.com/suniv/node-fluent-ffmpeg.git",
     "html2canvas": "^1.4.0",
@@ -71,7 +72,7 @@
     "vue3-qr-reader": "^1.0.0",
     "vuedraggable": "^4.1.0",
     "vuex": "^4.0.2",
-    "wincard": "^5.1.4",
+    "wincard": "^5.0.6",
     "xlsx": "^0.17.5"
   },
   "devDependencies": {

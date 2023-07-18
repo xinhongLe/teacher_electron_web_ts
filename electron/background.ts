@@ -18,7 +18,7 @@ const isDevelopment = process.env.NODE_ENV !== "production";
 initialize();
 
 protocol.registerSchemesAsPrivileged([
-    { scheme: "app", privileges: { secure: true, standard: true } },
+    {scheme: "app", privileges: {secure: true, standard: true}},
     {
         scheme: "http",
         privileges: { bypassCSP: true, secure: true, supportFetchAPI: true, corsEnabled: true }
