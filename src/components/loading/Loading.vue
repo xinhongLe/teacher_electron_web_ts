@@ -1,35 +1,15 @@
 <template>
     <div class="loading-container" v-show="show">
-        <div class="book">
-            <img :src="loadingImg" alt="">
-        </div>
+        <div class="book"></div>
     </div>
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, watch } from "vue";
-
-const props = defineProps({
+defineProps({
     show: {
-        type: Boolean
-    }
+        type: Boolean,
+    },
 });
-
-const loadingIndex = ref(0);
-const loadingImg = computed(() => require(`../../assets/images/loading/${loadingIndex.value}.png`));
-
-const startLoading = () => {
-    if (loadingIndex.value === 26) {
-        loadingIndex.value = 0;
-    } else {
-        loadingIndex.value++;
-    }
-    if (props.show) setTimeout(startLoading, 50);
-};
-
-startLoading();
-
-watch(() => props.show, startLoading);
 </script>
 
 <style lang="scss" scoped>
@@ -53,9 +33,18 @@ watch(() => props.show, startLoading);
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    img {
-        display: block;
-        width: 100%;
+    background: url("~@/assets/images/loading/loading.png") no-repeat;
+    background-size: 100%;
+    animation-name: swim;
+    animation-duration: 2s;
+    animation-timing-function: steps(27, end);
+    animation-iteration-count: infinite;
+    animation-fill-mode: backwards;
+}
+
+@keyframes swim {
+    100% {
+        background-position: 0px -5400px;
     }
 }
 </style>
