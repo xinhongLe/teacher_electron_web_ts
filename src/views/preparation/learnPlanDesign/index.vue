@@ -57,8 +57,17 @@
             @close="closeView"
         >
             <div class="template-view">
-                <img v-if="" src="@/assets/images/preparation/pic_,muban1.png" alt="">
+                <img v-if="reviewType === 1" src="@/assets/images/preparation/pic_,muban1.png" alt="">
+                <img v-else src="@/assets/images/preparation/pic_,muban2.png" alt="">
             </div>
+            <template #footer>
+                  <span class="dialog-footer">
+                    <el-button @click="dialogFormVisible = false">Cancel</el-button>
+                    <el-button type="primary" @click="dialogFormVisible = false">
+                      Confirm
+                    </el-button>
+                  </span>
+            </template>
         </el-dialog>
     </div>
 
@@ -95,8 +104,11 @@ export default defineComponent({
         const close = () => {
             emit("update:learnSelectVisible")
         }
+        // 模板类型
+        const reviewType = ref(0);
         // 预览模板
         const reviewTemplate = (type: number) => {
+            reviewType.value = type;
             viewVisible.value = true;
             currentTitle.value = `模板${type === 1 ? '一' : '二'}`
         }
@@ -110,11 +122,12 @@ export default defineComponent({
         }
 
         return {
+            currentTitle,
+            viewVisible,
+            reviewType,
             close,
             reviewTemplate,
             useTemplate,
-            currentTitle,
-            viewVisible,
             closeView
         }
     }
@@ -142,8 +155,9 @@ export default defineComponent({
 
         .el-dialog__body {
             background: #F5F6FA !important;
-            padding-top: 72px;
-            padding-bottom: 72px;
+            min-height: 406px;
+            max-height: 80vh;
+            overflow: auto;
         }
     }
 }
@@ -154,6 +168,7 @@ export default defineComponent({
     display: flex;
     justify-content: center;
     align-items: center;
+    min-height: 351px;
 
     .left-template {
 
@@ -182,6 +197,7 @@ export default defineComponent({
                 .top {
                     margin-bottom: 16px;
                     display: flex;
+                    align-items: center;
 
                     span {
                         padding-left: 2px;
@@ -246,5 +262,9 @@ export default defineComponent({
     .right-template {
     }
 
+}
+
+.template-view {
+    text-align: center;
 }
 </style>
