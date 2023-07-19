@@ -33,11 +33,11 @@ set(STORAGE_TYPES.SET_ISCACHE, true);
 
 onMounted(() => {
 
-    if (isElectron()) {
+    if (isElectron() && ENV !== "development") {
         // 检查选择
         const data: any = window.electron.getUpdateUserChoice();
         // 取消更新则终止
-        if (data.value !== "cancel" && ENV !== "development") {
+        if (data.value !== "cancel") {
             // 否则检查更新
             getUpdateJson();
         }
