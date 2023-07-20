@@ -1,7 +1,7 @@
-import { Ref } from "vue";
+import {Ref} from "vue";
 
 export default (fabCanvas: Ref<any>) => {
-    const origin = { x: 0, y: 0 };
+    const origin = {x: 0, y: 0};
     let isMoving = false;
 
     const onMove = (x: number, y: number) => {
@@ -23,14 +23,14 @@ export default (fabCanvas: Ref<any>) => {
     };
 
     const touchStart = (e: TouchEvent) => {
-        const { clientX, clientY } = e.changedTouches[0];
+        const {clientX, clientY} = e.changedTouches[0];
         origin.x = clientX;
         origin.y = clientY;
         isMoving = true;
     };
 
     const touchMove = (e: TouchEvent) => {
-        const { clientX, clientY } = e.changedTouches[0];
+        const {clientX, clientY} = e.changedTouches[0];
         onMove(clientX, clientY);
     };
 

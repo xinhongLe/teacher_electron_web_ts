@@ -1,8 +1,5 @@
-import {pageType} from "@/config";
-import {Slide, SlideBackground} from "wincard";
-import {PageProps} from "@/views/preparation/intelligenceClassroom/api/props";
-
-// import { createRandomCode } from "@/utils/common";
+import { pageType } from "@/config";
+import { Slide, SlideBackground } from "wincard";
 
 interface IFile {
     ID: string,
@@ -73,7 +70,6 @@ export const dealOldDataWord = (pageID: string, data: any) => {
 
 const getSlideWord = (words: any) => {
     if (!words || !(words instanceof Array)) return [];
-    console.log('words', words)
     return words.map((item: IOldWord) => {
         return {
             id: item.WordID,
@@ -119,12 +115,11 @@ const getSlideVideo = (oldSlide: IOldVideo) => {
             time: item.split(".")[0]
         };
     }) : [];
-    const follow = {
+    return {
         id: oldSlide.VideoFile.ID,
         src: oldSlide.VideoFile.FilePath + "/" + oldSlide.VideoFile.FileName + "." + oldSlide.VideoFile.Extention,
         pauseList: pauses
     };
-    return follow;
 };
 
 /**

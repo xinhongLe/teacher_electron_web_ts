@@ -14,9 +14,20 @@
                     <img src="@/assets/edit/icon_start2.png" alt=""/>
                     从头开始
                 </div>
-                <div class="btn" @click="importPPT">
-                    <img src="@/assets/edit/icon_export.png" alt=""/>
-                    导入ppt
+                <!--                <div class="btn" @click="importPPT">-->
+                <!--                    <img src="@/assets/edit/icon_export.png" alt=""/>-->
+                <!--                    导入ppt-->
+                <!--                </div>-->
+                <div class="btn">
+                    <el-upload
+                        :auto-upload="false"
+                        :show-file-list="false"
+                        :on-change="importPPT"
+                        accept=".pptx"
+                    >
+                        <img src="@/assets/edit/icon_export.png" alt=""/>
+                        导入ppt
+                    </el-upload>
                 </div>
                 <div class="btn" @click="pageAction(1)">
                     <img src="@/assets/edit/icon_design.png" alt=""/>
@@ -30,6 +41,7 @@
         </div>
         <div class="wrapper">
             <card-preview
+                :mode="previewMode"
                 :cards="windowCards"
                 :collapse="showCollapse"
                 :page-id="currentPage?.ID"
@@ -98,7 +110,7 @@ import { Slide } from "wincard";
 import { cloneDeep } from "lodash";
 import { v4 as uuidv4 } from "uuid";
 import { saveWindows } from "../api";
-import { getWindowStruct } from "@/api/home";
+import { getWindowStruct, setShowModel } from "@/api/home";
 import { arrIsEqual } from "@/utils/dataParse";
 import useImportPPT from "@/hooks/useImportPPT";
 import useHandlePPT from "./hooks/useHandlePPT";
@@ -132,6 +144,7 @@ export default defineComponent({
         const publication = computed(() => get(STORAGE_TYPES.SUBJECT_BOOK_INFO));
 
         const editRef = ref();
+        const previewMode = ref(true);
         const currentPageId = ref("");
         const showCollapse = ref(true);
         const addPageVisible = ref(false);
@@ -208,11 +221,26 @@ export default defineComponent({
             if (obj.type === 6) {
                 saveTemplate(obj.params);
             }
+            // 键盘上下键
+            if (obj.type === 7) {
+                handlePPT.keyboardHandoff(obj.params.type, obj.params.data);
+            }
+            // 切换视图模式
+            if (obj.type === 8) {
+                setShowModel({
+                    Type: previewMode.value ? 1 : 0,
+                    WindowID: windowInfo.value.id
+                }).then(res => {
+                    if (res.resultCode !== 200) return;
+
+                    previewMode.value = obj.params;
+                });
+            }
         };
 
         // 导入PPT
-        const importPPT = () => {
-            handleImport.importByElectron((pages, name) => {
+        const importPPT = (file: any) => {
+            handleImport.importByElectron(file, (pages, name) => {
                 const card = handlePPT.createFolder(name);
                 card.PageList = pages;
                 handlePPT.sortWindowCards();
@@ -506,13 +534,14 @@ export default defineComponent({
             }).then(async res => {
                 if (res.resultCode !== 200) return;
 
+                previewMode.value = !res.result.ShowType;
+
                 const list = res.result.CardData;
                 if (!list || list.length === 0) {
                     windowCards.value = [];
                     return;
                 }
                 cardSource = await handlePPT.assembleCardData(list);
-                console.log(windowCards.value);
             });
         }
 
@@ -541,6 +570,7 @@ export default defineComponent({
             windowInfo,
             handleSave,
             pageAction,
+            previewMode,
             currentPage,
             windowCards,
             publication,

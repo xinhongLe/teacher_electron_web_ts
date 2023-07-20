@@ -5,7 +5,7 @@
                 <p>计时器</p>
                 <div class="rightbox">
                     <span class="minimize" @click.stop="minimizeHandle"
-                        >最小化</span
+                    >最小化</span
                     >
                     <span class="colse" @click.stop="close"></span>
                 </div>
@@ -14,12 +14,12 @@
                 <span
                     :class="activeIndex == 0 ? 'active' : ''"
                     @click="activeIndex = 0"
-                    >倒计时</span
+                >倒计时</span
                 >
                 <span
                     :class="activeIndex == 1 ? 'active' : ''"
                     @click="activeIndex = 1"
-                    >计时器</span
+                >计时器</span
                 >
             </div>
             <div style="margin: auto" v-if="activeIndex == 0">
@@ -82,9 +82,9 @@
 
 <script lang="ts">
 import isElectron from "is-electron";
-import { computed, defineComponent, ref, watch } from "vue";
+import {computed, defineComponent, ref, watch} from "vue";
 
-const { setInterval, clearInterval } = require("timers");
+const {setInterval, clearInterval} = require("timers");
 export default defineComponent({
     setup() {
         const activeIndex = ref(0);
@@ -169,7 +169,7 @@ export default defineComponent({
                 (second.value -
                     countDownList.value[0] * 600 -
                     countDownList.value[1] * 60) /
-                    10
+                10
             );
             countDownList.value[3] =
                 second.value -
@@ -300,17 +300,20 @@ export default defineComponent({
     height: 100vh;
     -webkit-app-region: drag;
 }
+
 .me-timer-dialog {
     width: 100%;
     height: 100%;
     background: rgb(22, 18, 53);
 }
+
 .me-timer-header {
     width: 100%;
     height: 100%;
     display: flex;
     flex-direction: column;
 }
+
 .me-timer-little {
     background: rgb(44, 10, 122);
     display: flex;
@@ -320,14 +323,17 @@ export default defineComponent({
     align-items: center;
     justify-content: space-between;
 }
+
 .me-timer-little > p {
     font-size: 16px;
     text-align: center;
     color: #ffffff;
 }
+
 .rightbox {
     display: flex;
 }
+
 .colse {
     display: inline-block;
     position: relative;
@@ -337,6 +343,7 @@ export default defineComponent({
     cursor: pointer;
     -webkit-app-region: no-drag;
 }
+
 .colse::before,
 .colse::after {
     position: absolute;
@@ -347,9 +354,11 @@ export default defineComponent({
     width: 2px;
     height: 20px;
 }
+
 .colse::before {
     transform: rotate(45deg);
 }
+
 .colse::after {
     transform: rotate(-45deg);
 }
@@ -376,6 +385,7 @@ export default defineComponent({
     justify-content: space-between;
     border-radius: 4px;
 }
+
 .me-timer-tab span {
     width: 45%;
     display: block;
@@ -387,16 +397,19 @@ export default defineComponent({
     cursor: pointer;
     -webkit-app-region: no-drag;
 }
+
 .me-timer-tab .active {
     color: #fff;
     background: #2a59da;
 }
+
 .me-timer-count-down {
     width: 480px;
     display: flex;
     height: 180px;
     margin: auto;
 }
+
 .me-timer-count-down-num {
     display: flex;
     justify-content: space-between;
@@ -404,12 +417,13 @@ export default defineComponent({
     width: 100px;
     align-items: center;
     background: linear-gradient(
-        180deg,
-        rgba(238, 238, 238, 0) 0%,
-        #2c294d 49%,
-        rgba(13, 25, 58, 0) 100%
+            180deg,
+            rgba(238, 238, 238, 0) 0%,
+            #2c294d 49%,
+            rgba(13, 25, 58, 0) 100%
     );
 }
+
 .me-timer-count-down-num div:nth-of-type(1),
 .me-timer-count-down-num div:nth-of-type(3) {
     width: 48px;
@@ -424,6 +438,7 @@ export default defineComponent({
     cursor: pointer;
     -webkit-app-region: no-drag;
 }
+
 .me-timer-count-down-num div:nth-of-type(2) {
     flex: 1;
     user-select: none;
@@ -444,6 +459,7 @@ export default defineComponent({
     text-align: center;
     color: #ffffff;
 }
+
 .me-timer-btns {
     height: 80px;
     display: flex;
@@ -452,11 +468,13 @@ export default defineComponent({
     padding: 0 200px;
     background: rgb(44, 10, 122);
 }
+
 .resetbox {
     flex: 1;
     display: flex;
     justify-content: space-between;
 }
+
 .me-timer-btns span {
     display: inline-block;
     width: 120px;
@@ -469,6 +487,7 @@ export default defineComponent({
     -webkit-app-region: no-drag;
     line-height: 40px;
 }
+
 .me-timer-btns i {
     border: 1px solid rgba(0, 0, 0, 0.1);
     border-radius: 50%;
@@ -487,10 +506,12 @@ export default defineComponent({
     padding-bottom: 20px;
     box-sizing: border-box;
 }
+
 .me-timer .me-timer-num {
     font-size: 92px;
     color: #f8f6f6;
 }
+
 .me-timer .spot {
     font-size: 70px;
     margin-top: -15px;

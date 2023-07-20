@@ -5,9 +5,9 @@ import electron, {
     OpenDialogReturnValue,
     Remote
 } from "electron";
-import { LogFunctions } from "electron-log";
+import {LogFunctions} from "electron-log";
 import Store from "electron-store";
-import { IFileData } from "../../electron/exportWord";
+import {IFileData} from "../../electron/exportWord";
 
 interface logProps {
     info(...param: any[]): void;
@@ -67,6 +67,7 @@ type Electron = typeof electron & {
     convertVideoH264: (filePath: string) => Promise<Buffer>;
     sliceVideoZip: (filePath: string, name: string) => Promise<Buffer>;
     unZip: (path: string) => void;
+    getWindowImg: () => Promise<string>;
 };
 
 declare global {

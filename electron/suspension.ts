@@ -29,6 +29,8 @@ let isShowTimer = false; // 悬浮球是否显示时间
 let isShowVideo = false; // 悬浮球是否显示视频图标
 let isShowBlackboard = false; // 悬浮球是否显示黑板图标
 let isShowQuestion = false; // 悬浮球是否显示题目图标
+let isShowCourse = false; // 悬浮球是否显示课件图标
+
 let socketHelper: SocketHelper;
 let socketHelperHeartbeatInterval: any = -1;
 let socketHelperHeartbeatCheckInterval: any = -1;
@@ -39,6 +41,7 @@ let lastPort = 1122;
 let isFirstTime = true;
 let openTimes = -1;
 let lastOpenTime = new Date().getTime();
+let currentCourseData: any = null;
 
 const timerURL =
     process.env.NODE_ENV === "development"
@@ -123,7 +126,7 @@ function setSuspensionSize(isResetPosition = true, isCloseWelt = false) {
     }
     let width = 120;
     let height = 120;
-    if (isShowTimer || isShowVideo || isShowBlackboard || isShowQuestion) {
+    if (isShowTimer || isShowVideo || isShowBlackboard || isShowQuestion || isShowCourse) {
         width = 200;
         height = 200;
     }
@@ -171,6 +174,7 @@ function hideSuspensionIcon() {
     isShowVideo = false;
     isShowQuestion = false;
     isShowBlackboard = false;
+    isShowCourse = false;
     if (suspensionWin) {
         suspensionWin.webContents.send("timerWinClose");
         suspensionWin.webContents.send("hideSuspensionVideo");
@@ -221,7 +225,7 @@ function createRollcall(allStudentList: []) {
 
     rollCallWin.on("ready-to-show", () => {
         rollCallWin && rollCallWin.webContents.send("sendAllStudentList", allStudentList);
-        // rollCallWin && rollCallWin.webContents.openDevTools();
+        rollCallWin && rollCallWin.webContents.openDevTools();
     });
 
     rollCallWin.on("closed", () => {
@@ -251,7 +255,7 @@ function createUnfoldSuspensionWindow() {
         size.width - winSize[0] - 20,
         size.height - winSize[1]
     );
-    // unfoldSuspensionWin.webContents.openDevTools(); //这是打开智课助手悬浮球打开窗口的的调试器
+    unfoldSuspensionWin.webContents.openDevTools(); //这是打开智课助手悬浮球打开窗口的的调试器
     unfoldSuspensionWin.once("ready-to-show", () => {
         unfoldSuspensionWin &&
         unfoldSuspensionWin.setAlwaysOnTop(true, "pop-up-menu");
@@ -266,13 +270,18 @@ function createUnfoldSuspensionWindow() {
 function createBlackboardWindow() {
     blackboardWin = createWindow(blackboardURL, {
         width: 1000,
-        height: 750,
+        height: 600,
         frame: false, // 要创建无边框窗口
-        resizable: false,
-        fullscreen: true,
+        resizable: true,
+        // resizable: false,
+        // fullscreen: true,
+        minWidth: 1000,
+        minHeight: 600,
         show: false,
         useContentSize: true,
     });
+    blackboardWin.webContents.openDevTools(); // 打开黑板调试
+
     blackboardWin.once("ready-to-show", () => {
         blackboardWin && blackboardWin.show();
         blackboardWin && blackboardWin.focus();
@@ -330,15 +339,15 @@ function createQuickAnswerWindow(allStudentList: [], isAnswer = false) {
         // alwaysOnTop: true,
 
         // transparent: true,
-        width: 620,
+        width: 800,
         frame: false, // 要创建无边框窗口
         alwaysOnTop: true,
         resizable: false, // 是否允许窗口大小缩放
-        height: 420,
+        height: 600,
         useContentSize: true,
         maximizable: false
     });
-    // quickAnswerWin.webContents.openDevTools(); //打开的抢答器调试器
+    quickAnswerWin.webContents.openDevTools(); //打开的抢答器调试器
 
     quickAnswerWin.on("ready-to-show", () => {
         quickAnswerWin && quickAnswerWin.show();
@@ -572,7 +581,24 @@ class CustomCallBack implements CallBack {
             case "PONG":
                 socketHelperHeartbeatTime = new Date().getTime();
                 break;
+            case "COURSEWARE1SHOW":
+                isShowCourse = true;
+                socketHelper.sendMessage(new Action("COURSEWARE1SHOW", ""));
+                ipcMain.emit("setCourseMaximize", currentCourseData);
+                break;
+            case "COURSEWARE1HIDE":
+                ipcMain.emit("closeCourse");
+                isShowCourse = false;
+                // timerWin && timerWin.destroy();
+                break;
         }
+    }
+}
+
+export function courseShow() {
+    if (socketHelper) {
+        isShowCourse = true;
+        socketHelper.sendMessage(new Action("COURSEWARE1SHOW", ""));
     }
 }
 
@@ -589,11 +615,12 @@ function createLocalSuspensionWindow() {
         backgroundColor: "#00000000",
         alwaysOnTop: true // 窗口是否总是显示在其他窗口之前
     });
+    suspensionWin.webContents.openDevTools();
     const size = screen.getPrimaryDisplay().workAreaSize; // 获取显示器的宽高
     const winSize = suspensionWin.getSize(); // 获取窗口宽高
     suspensionWin.setPosition(
         size.width - winSize[0] - 80,
-        size.height - winSize[1] - 50,
+        size.height - winSize[1] - 350,
         false
     );
 
@@ -882,6 +909,20 @@ export function registerEvent() {
         }
     });
 
+    // 课件最小化
+    ipcMain.handle("courseMinimize", (_, data) => {
+        showSuspension();
+        isShowCourse = true;
+        currentCourseData = data;
+        setSuspensionSize();
+        if (socketHelper) {
+            socketHelper.sendMessage(new Action("COURSEWARE1HIDE", `https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg,${data.name}`));
+        } else {
+            suspensionWin && suspensionWin.webContents.send("courseWinHide", data);
+        }
+    });
+
+
     ipcMain.handle("timeChange", (_, time) => {
         if (socketHelper) {
             socketHelper.sendMessage(new Action("QUICKTIMEHIDEINTERVAL", time));
@@ -969,6 +1010,7 @@ export function registerEvent() {
         unfoldSuspensionWin &&
         unfoldSuspensionWin.webContents.send("getCourseWares", data);
     });
+
 }
 
 export const unfoldSuspensionWinSendMessage = (

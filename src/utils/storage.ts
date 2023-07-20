@@ -110,6 +110,16 @@ export enum STORAGE_TYPES {
      * 多个窗体下 赋值的窗卡页信息
      */
     WIN_COPY_VALUE = "WIN_COPY_VALUE",
+
+    /**
+     * 统一选择的班级
+     */
+    CURRENT_SELECT_CLASS = "CURRENT_SELECT_CLASS",
+
+    /**
+     * 统一班级列表
+     */
+    CLASS_LIST = "CLASS_LIST"
 }
 
 export const set = (

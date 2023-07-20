@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
+import { createRouter, createWebHashHistory, createWebHistory, RouteRecordRaw } from "vue-router";
 
 const routes: Array<RouteRecordRaw> = [
     {
@@ -69,7 +69,7 @@ const routes: Array<RouteRecordRaw> = [
                 component: () =>
                     import(
                         "@/views/preparation/intelligenceClassroom/edit/index.vue"
-                    ),
+                        ),
                 meta: {
                     keepAlive: true,
                 },
@@ -154,7 +154,7 @@ const routes: Array<RouteRecordRaw> = [
 ];
 
 const router = createRouter({
-    history: createWebHistory(),
+    history: createWebHashHistory(),
     routes,
 });
 

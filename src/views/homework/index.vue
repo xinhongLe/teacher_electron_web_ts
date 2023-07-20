@@ -33,23 +33,26 @@
                     :icon="Tickets"
                     @click="handleClick"
                     size="large"
-                    >布置作业</el-button
+                >布置作业
+                </el-button
                 >
                 <el-button size="large" plain :icon="Refresh" @click="initData"
-                    >刷新</el-button
+                >刷新
+                </el-button
                 >
             </div>
         </header>
-        <div class="row-line" />
+        <div class="row-line"/>
         <div class="class-list">
             <p
                 v-for="(item, index) in classList"
                 :key="index"
-                :class="selectClassId === item.ID ? 'active' : ''"
-                @click="selectClassId = item.ID"
+                :class="selectClassId === item.ClassAixueshiId ? 'active' : ''"
+                @click="changeSelectClass(item)"
             >
-                {{ item.Name
-                }}<span>({{ homeworkListMap[item.ID]?.length || 0 }})</span>
+                {{
+                    item.ClassName
+                }}<span>({{ homeworkListMap[item.ClassAixueshiId]?.length || 0 }})</span>
             </p>
         </div>
         <div class="homework-content">
@@ -87,7 +90,7 @@
             </div>
             <div v-else class="table-list-no">
                 <div>
-                    <img src="@/assets/images/homeworkNew/pic@2x.png" alt="" />
+                    <img src="@/assets/images/homeworkNew/pic@2x.png" alt=""/>
                     <p>您还没有科目</p>
                 </div>
             </div>
@@ -96,12 +99,15 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent } from "vue";
-import { useRouter } from "vue-router";
+import {computed, defineComponent} from "vue";
+import {useRouter} from "vue-router";
 import useHomework from "./hooks/useHomework";
 import HomeworkItem from "./homeworkItem.vue";
-import { ElMessage } from "element-plus";
-import { Tickets, Refresh } from "@element-plus/icons-vue";
+import {ElMessage} from "element-plus";
+import {Refresh, Tickets} from "@element-plus/icons-vue";
+import {store} from "@/store";
+import {set, STORAGE_TYPES} from "@/utils/storage";
+
 export default defineComponent({
     name: "Homework",
     setup() {
@@ -118,8 +124,13 @@ export default defineComponent({
             getHasTaskDate,
         } = useHomework();
         const subjectName = computed(
-            () => subjectList.value.find(({ ID }) => ID === form.subject)?.Name
+            () => subjectList.value.find(({ID}) => ID === form.subject)?.Name
         );
+        const changeSelectClass = (item: any) => {
+            selectClassId.value = item.ClassAixueshiId;
+            store.state.userInfo.currentSelectClass = item;
+            set(STORAGE_TYPES.CURRENT_SELECT_CLASS, item)
+        };
         const handleClick = () => {
             if (!form.subject || !subjectName.value)
                 return ElMessage.warning("你还没有没有科目");
@@ -142,9 +153,10 @@ export default defineComponent({
             handleClick,
             getHasTaskDate,
             subjectName,
+            changeSelectClass
         };
     },
-    components: { HomeworkItem },
+    components: {HomeworkItem},
 });
 </script>
 
@@ -155,14 +167,17 @@ export default defineComponent({
     display: flex;
     flex: 1;
     flex-direction: column;
+
     header {
         padding: 20px;
     }
+
     .row-line {
         height: 10px;
         background-color: #f5f6fa;
         flex-shrink: 0;
     }
+
     .class-list {
         padding: 20px;
         overflow: hidden;
@@ -170,6 +185,7 @@ export default defineComponent({
         display: flex;
         overflow-x: auto;
         flex-shrink: 0;
+
         p {
             display: flex;
             height: 40px;
@@ -182,16 +198,19 @@ export default defineComponent({
             border-radius: 4px;
             cursor: pointer;
             flex-shrink: 0;
+
             &.active {
                 color: #fff;
                 background: #4b71ee;
             }
+
             span {
                 font-size: 12px;
                 margin-left: 4px;
             }
         }
     }
+
     .homework-content {
         flex: 1;
         overflow-y: overlay;
@@ -199,6 +218,7 @@ export default defineComponent({
         padding: 0 20px;
         position: relative;
         overflow-x: auto;
+
         .no-assign-homework {
             img {
                 width: 240px;
@@ -207,6 +227,7 @@ export default defineComponent({
                 margin: auto;
                 margin-top: 20vh;
             }
+
             p {
                 margin-top: 16px;
                 font-size: 20px;
@@ -215,18 +236,22 @@ export default defineComponent({
                 text-align: center;
             }
         }
+
         .table-list {
             min-width: 1300px;
         }
+
         .table-list-no {
             position: absolute;
             left: 50%;
             top: 50%;
             transform: translate(-50%, -50%);
+
             img {
                 width: 240px;
                 height: 160px;
             }
+
             p {
                 color: #5f626f;
                 font-size: 20px;

@@ -3,13 +3,17 @@
         <win-preview
             :pages="pages"
             ref="previewRef"
-            :r-visit="rVisit"
+            v-model:r-visit="rVisit"
             :cards="winCards"
+            :mode="previewMode"
             :resource="resource"
             v-model:index="index"
             v-model:l-visit="lVisit"
             v-model:isCanUndo="isCanUndo"
             v-model:isCanRedo="isCanRedo"
+            v-model:currentDrawColor="currentDrawColor"
+            v-model:currentLineWidth="currentLineWidth"
+            v-model:eraserLineWidth="eraserLineWidth"
         />
         <Tools
             @redo="redo"
@@ -30,6 +34,10 @@
             @whiteboardOption="whiteboardOption"
             :isFullScreenStatus="isFullScreenStatus"
             :currentSlide="currentSlide"
+            @handleMinSize="handleMinSize"
+            :currentDrawColor="currentDrawColor"
+            :currentLineWidth="currentLineWidth"
+            :eraserLineWidth="eraserLineWidth"
         />
         <!--页发送至 学生端-->
         <select-class-dialog
@@ -45,22 +53,23 @@
 
 <script lang="ts">
 import mqtt from "mqtt";
-import { Slide } from "wincard";
+import {Slide} from "wincard";
 import useHome from "@/hooks/useHome";
 import WinPreview from "./preview/index.vue";
-import { YUN_API_ONECARD_MQTT } from "@/config";
-import { IViewResourceData } from "@/types/store";
+import {YUN_API_ONECARD_MQTT} from "@/config";
+import {IViewResourceData} from "@/types/store";
 import Tools from "./components/preview/tools.vue";
-import { dealAnimationData } from "@/utils/dataParse";
+import {dealAnimationData} from "@/utils/dataParse";
 import SelectClassDialog from "./components/preview/selectClassDialog.vue";
-import { ref, watchEffect, PropType, onUnmounted, computed, defineComponent } from "vue";
-import { CardProps, PageProps } from "@/views/preparation/intelligenceClassroom/api/props";
-import { getOssUrl } from "@/utils/oss";
-import { getWindowStruct } from "@/api/home";
+import {ref, watchEffect, PropType, onUnmounted, computed, defineComponent} from "vue";
+import {CardProps, PageProps} from "@/views/preparation/intelligenceClassroom/api/props";
+import {getOssUrl} from "@/utils/oss";
+import {getWindowStruct} from "@/api/home";
+import {store, useStore} from "@/store";
 
 export default defineComponent({
     name: "IntelligenceClassroom",
-    components: { WinPreview, Tools, SelectClassDialog },
+    components: {WinPreview, Tools, SelectClassDialog},
     props: {
         dialog: {
             type: Boolean,
@@ -75,13 +84,17 @@ export default defineComponent({
             default: false
         }
     },
-    setup(props) {
+    emits: ["setMinimize"],
+    setup(props, {emit}) {
+        const index = ref(0);
         const lVisit = ref(true);
         const rVisit = ref(false);
-        const index = ref(0);
+        const previewMode = ref(true);
         const isFullScreen = ref(false);
         const winCards = ref<CardProps[]>([]);
-
+        const currentDrawColor = ref("#f60000");
+        const currentLineWidth = ref(2);
+        const eraserLineWidth = ref(30);
         const pages = computed(() => {
             let allPages: PageProps[] = [];
             winCards.value.forEach(item => {
@@ -91,7 +104,7 @@ export default defineComponent({
         });
         const currentSlide = computed(() => pages.value.filter(item => item.State)[index.value].Json);
 
-        const { transformPageDetail } = useHome();
+        const {transformPageDetail} = useHome();
 
         // 教具页分享-选择班级
         const selectClassVisible = ref(false);
@@ -117,6 +130,11 @@ export default defineComponent({
 
         const toggleRemark = () => {
             rVisit.value = !rVisit.value;
+            if (store.state.common.resourceIntoType == 1) {
+                store.state.common.currentBeikeResource = rVisit.value
+            } else {
+                store.state.common.currentKebiaoResource = rVisit.value
+            }
         };
 
         const prevStep = () => {
@@ -175,6 +193,13 @@ export default defineComponent({
         const openClassDialog = () => {
             selectClassVisible.value = true;
         };
+        const currentCouresData = ref();
+        // 最小化课件
+        const handleMinSize = () => {
+            // window.electron.hideWindow();
+            // window.electron.ipcRenderer.invoke("timerWinHide", showTime.value);
+            emit("setMinimize", currentCouresData.value)
+        };
 
         function getWinCardData() {
             const OriginType = (props.resource.isSystem as number) === 1 ? 0 : 1;
@@ -183,7 +208,8 @@ export default defineComponent({
                 OriginType
             }).then(async res => {
                 if (res.resultCode !== 200) return;
-
+                previewMode.value = !res.result.ShowType;
+                currentCouresData.value = res.result;
                 const cardList = res.result.CardData;
 
                 let index = 1;
@@ -200,7 +226,7 @@ export default defineComponent({
                             const key = `${file?.FilePath}/${file?.FileMD5}.${file?.FileExtention || file?.Extention}`;
                             url = json?.ToolFileModel ? await getOssUrl(key, "axsfile") : "";
                         }
-                        const slide: Slide = await transformPageDetail({ ID: page.ID, Type: page.Type }, json);
+                        const slide: Slide = await transformPageDetail({ID: page.ID, Type: page.Type}, json);
                         page.Url = url;
 
                         page.Json = dealAnimationData(slide);
@@ -249,6 +275,7 @@ export default defineComponent({
             isCanUndo,
             previewRef,
             fullScreen,
+            previewMode,
             currentSlide,
             isFullScreen,
             toggleRemark,
@@ -257,7 +284,12 @@ export default defineComponent({
             clockFullScreen,
             whiteboardOption,
             sharePageVisible,
-            selectClassVisible
+            selectClassVisible,
+            handleMinSize,
+            currentDrawColor,
+            currentLineWidth,
+            eraserLineWidth,
+            currentCouresData
         };
     }
 });

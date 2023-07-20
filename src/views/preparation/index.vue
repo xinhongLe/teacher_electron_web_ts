@@ -30,6 +30,7 @@
                         @toArrangeClass="toArrangeClass"
                         @toMyLessonPackage="toMyLessonPackage"
                         :showClassArrangement="showClassArrangement"
+                        :resourceIntoType="1"
                     />
                 </div>
                 <div class="p-layout-right" v-if="showPackage && showClassArrangement">

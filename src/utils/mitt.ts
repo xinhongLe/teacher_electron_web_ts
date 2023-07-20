@@ -20,6 +20,7 @@ type Events = {
     clearErrorBookList: any;
     toMyResource: any;
     closeTool: any;
+    checkUpdate: any
 };
 
 const emitter = mitt<Events>();

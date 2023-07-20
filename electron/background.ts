@@ -1,26 +1,24 @@
-"use strict";
-
-import {app, protocol, BrowserWindow, ipcMain, Menu} from "electron";
-import {createProtocol} from "vue-cli-plugin-electron-builder/lib";
+import os from "os";
+import path from "path";
+import {exec} from "child_process";
+import SingalRHelper from "./singalr";
+import ElectronLog from "electron-log";
+import downloadFile, {store} from "./downloadFile";
+import {STORAGE_TYPES} from "@/utils/storage";
+import {createWinCardWindow} from "./wincard";
 import {initialize} from "@electron/remote/main";
+import {createProtocol} from "vue-cli-plugin-electron-builder/lib";
+import {app, protocol, BrowserWindow, ipcMain, Menu} from "electron";
+import {registerVirtualKeyBoard, closeKeyBoard, setInput} from "./virtualKeyBoard";
 import {
     createSuspensionWindow,
     createLocalPreviewWindow,
     registerEvent,
-    unfoldSuspensionWinSendMessage
+    unfoldSuspensionWinSendMessage, courseShow
 } from "./suspension";
-import autoUpdater from "./autoUpdater";
-import {createWinCardWindow} from "./wincard";
-import {registerVirtualKeyBoard, closeKeyBoard, setInput} from "./virtualKeyBoard";
-import SingalRHelper from "./singalr";
-import ElectronLog from "electron-log";
-import os from "os";
-import {exec} from "child_process";
-import path from "path";
-import downloadFile from "./downloadFile";
 
-const isDevelopment = process.env.NODE_ENV !== "production";
 const editWinList = new Map<number, any>();
+const isDevelopment = process.env.NODE_ENV !== "production";
 
 initialize();
 
@@ -28,18 +26,13 @@ protocol.registerSchemesAsPrivileged([
     {scheme: "app", privileges: {secure: true, standard: true}},
     {
         scheme: "http",
-        privileges: {
-            bypassCSP: true,
-            secure: true,
-            supportFetchAPI: true,
-            corsEnabled: true
-        }
+        privileges: {bypassCSP: true, secure: true, supportFetchAPI: true, corsEnabled: true}
     }
 ]);
 
-let mainWindow: BrowserWindow | null;
-let singalr: SingalRHelper | null;
 let isCreateWindow = false;
+let singalr: SingalRHelper | null;
+let mainWindow: BrowserWindow | null;
 
 async function createWindow() {
     if (!process.env.WEBPACK_DEV_SERVER_URL) {
@@ -47,26 +40,25 @@ async function createWindow() {
         Menu.setApplicationMenu(menu);
     }
     mainWindow = new BrowserWindow({
-        height: 520,
-        useContentSize: true,
         width: 750,
+        height: 520,
+        show: false,
         frame: false,
         minWidth: 750,
         minHeight: 520,
-        show: false,
+        useContentSize: true,
         webPreferences: {
-            enableRemoteModule: true,
             webviewTag: true,
             webSecurity: false, // 取消跨域限制
             nodeIntegration: true,
-            contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
+            enableRemoteModule: true,
             preload: path.join(__dirname, "preload.js"),
-            devTools: !!process.env.WEBPACK_DEV_SERVER_URL
+            devTools: !!process.env.WEBPACK_DEV_SERVER_URL,
+            contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION
         }
     });
-    // mainWindow.setContentProtection(true);
+
     downloadFile();
-    autoUpdater(mainWindow!);
     if (!isCreateWindow) {
         createSuspensionWindow();
         isCreateWindow = true;
@@ -77,11 +69,12 @@ async function createWindow() {
 
     if (process.env.WEBPACK_DEV_SERVER_URL) {
         require("@electron/remote/main").enable(mainWindow.webContents);
-        mainWindow.loadURL(process.env.WEBPACK_DEV_SERVER_URL);
+        mainWindow.loadURL(isOpenUrl ? `${process.env.WEBPACK_DEV_SERVER_URL}home` : process.env.WEBPACK_DEV_SERVER_URL);
         if (!process.env.IS_TEST) mainWindow.webContents.openDevTools();
     } else {
         require("@electron/remote/main").enable(mainWindow.webContents);
-        mainWindow.loadURL("app://./index.html");
+        mainWindow.loadURL(isOpenUrl ? "app://./index.html/#/home" : "app://./index.html/#/login");
+        mainWindow.webContents.openDevTools();
     }
 
     mainWindow.on("ready-to-show", () => {
@@ -183,14 +176,6 @@ async function createWindow() {
         mainWindow && mainWindow.webContents.send("openWindow", data);
     });
 
-    // ipcMain.handle("lookVideo", (_, data) => {
-    //     mainWindow && mainWindow.webContents.send("lookVideo", data);
-    // });
-
-    // ipcMain.handle("lookQuestions", (_, data) => {
-    //     mainWindow && mainWindow.webContents.send("lookQuestions", data);
-    // });
-
     // 上课消息通知
     ipcMain.on("attendClass", (e, to, data) => {
         if (to === "unfoldSuspension") {
@@ -236,6 +221,25 @@ async function createWindow() {
             editWin.webContents.send("copy-end");
         }
     });
+    ipcMain.on('updateSelectClass', (e, v) => {
+        mainWindow!.webContents.send('updateSelectClass', v)
+    })
+    ipcMain.on('closeCourse', (e, v) => {
+        mainWindow!.webContents.send('closeCourse', v)
+    })
+    ipcMain.handle("closeCourse", () => {
+        mainWindow!.webContents.send("closeCourse");
+    });
+
+    ipcMain.on('setCourseMaximize', (v) => {
+        mainWindow!.webContents.send('setCourseMaximize', v)
+    })
+    ipcMain.handle("setCourseMaximize", (v, data) => {
+        console.log('setCourseMaximize', data)
+        mainWindow!.webContents.send("setCourseMaximize", JSON.parse(data));
+        courseShow()
+    });
+
 }
 
 app.on("window-all-closed", () => {
@@ -263,6 +267,7 @@ function createLocalPreview(args: Array<string>) {
 }
 
 let isOpenFile = false;
+let isOpenUrl = false;
 
 app.on("will-finish-launching", () => {
     app.on("open-file", (event, path) => {
@@ -280,12 +285,36 @@ app.on("will-finish-launching", () => {
     });
 });
 
+const webOpenUrl = (url: string) => {
+    if (url.indexOf("login") > -1) {
+        // 登录
+        const search = url.substring(url.indexOf("?"), url.length);
+        const params = new URLSearchParams(search);
+        const token = params.get("token") || "";
+        const record = store.get(`VUE_${STORAGE_TYPES.RECORD_LOGIN_LIST}`);
+        store.clear();
+        store.set(`VUE_${STORAGE_TYPES.SET_TOKEN}`, token);
+        record && store.set(`VUE_${STORAGE_TYPES.RECORD_LOGIN_LIST}`, record);
+        isOpenUrl = true;
+    }
+};
+
+app.on("open-url", (_event, url) => {
+    webOpenUrl(url);
+});
+
 app.on("ready", async () => {
     createProtocol("app");
     let result = false;
-    if (app.isPackaged) {
+    if (process.argv.length > 1) {
+        const url = process.argv[1];
+        webOpenUrl(url);
+    }
+
+    if (app.isPackaged && isOpenFile) {
         result = createLocalPreview(process.argv);
     }
+
     if (!result && !isOpenFile) {
         createWindow();
     }
@@ -344,5 +373,5 @@ if (isDevelopment) {
 }
 
 process.on("uncaughtException", function (error) {
-    ElectronLog.error(error)
+    ElectronLog.error(error);
 });

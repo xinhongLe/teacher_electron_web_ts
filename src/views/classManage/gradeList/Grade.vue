@@ -8,7 +8,9 @@
         <p class="name">{{ grade.GradeAlbum + grade.Name }}</p>
         <p class="count">学生： {{ grade.StudentCount }}</p>
         <div class="info flex-align-items" @click.stop="openDialog(), clicKBuryPoint('班级信息')">
-            <el-icon><Warning /></el-icon>
+            <el-icon>
+                <Warning/>
+            </el-icon>
             班级信息
         </div>
         <img
@@ -20,11 +22,13 @@
 </template>
 
 <script lang="ts">
-import { MutationTypes, store } from "@/store";
-import { Class } from "@/types/myStudent";
-import { computed, defineComponent, PropType } from "vue";
+import {MutationTypes, store} from "@/store";
+import {Class} from "@/types/myStudent";
+import {computed, defineComponent, PropType, watch} from "vue";
 import usePageEvent from "@/hooks/usePageEvent"; //埋点事件hooks
-import { EVENT_TYPE } from "@/config/event";
+import {EVENT_TYPE} from "@/config/event";
+import {set, STORAGE_TYPES} from "@/utils/storage";
+
 export default defineComponent({
     props: {
         grade: {
@@ -33,7 +37,7 @@ export default defineComponent({
         },
     },
     setup(props) {
-        const { createBuryingPointFn } = usePageEvent("班级管理");
+        const {createBuryingPointFn} = usePageEvent("班级管理");
         const openDialog = () => {
             store.commit(MutationTypes.SHOW_CLASS_DIALOG, {
                 info: props.grade,
@@ -44,11 +48,21 @@ export default defineComponent({
         const updateClassId = (grade: Class) => {
             store.commit(MutationTypes.UPDATE_SELECT_CLASS_INFO, grade);
             store.commit(MutationTypes.UPDATE_SEARCH_STUDENT, "");
+
+            const classData: any = store.state.userInfo.classList?.find(item => item.ClassAixueshiId === grade.ID);
+            store.state.userInfo.currentSelectClass = classData;
+            set(STORAGE_TYPES.CURRENT_SELECT_CLASS, classData)
         };
         //班级管理页面点击埋点事件-班级信息
         const clicKBuryPoint = (name: string) => {
             createBuryingPointFn(EVENT_TYPE.PageClick, name, name);
         };
+        // 监听全局班级改变
+        watch(() => store.state.userInfo.currentSelectClass, (newVal) => {
+            if (newVal.ClassAixueshiId === props.grade.ID) {
+                updateClassId(props.grade)
+            }
+        }, {deep: true})
         return {
             isSelect: computed(
                 () =>
@@ -74,6 +88,7 @@ export default defineComponent({
     border: 1px solid #e0e2e7;
     margin-bottom: 16px;
     cursor: pointer;
+
     .name {
         font-size: 18px;
         font-weight: 600;
@@ -83,6 +98,7 @@ export default defineComponent({
         text-overflow: ellipsis;
         white-space: nowrap;
     }
+
     .count {
         margin-top: 12px;
         font-size: 14px;
@@ -91,6 +107,7 @@ export default defineComponent({
         display: flex;
         justify-content: space-between;
     }
+
     .info {
         font-size: 14px;
         font-weight: 500;
@@ -100,20 +117,25 @@ export default defineComponent({
         display: flex;
         justify-content: center;
         align-items: center;
+
         i {
             margin-right: 4px;
         }
     }
+
     &.active {
         background: #4b71ee;
         position: relative;
+
         .name,
         .info {
             color: #fff;
         }
+
         .count {
             color: rgba(255, 255, 255, 0.6);
         }
+
         .arrow {
             position: absolute;
             top: 0;

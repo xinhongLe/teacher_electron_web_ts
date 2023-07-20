@@ -175,6 +175,11 @@ export default defineComponent({
         bagType: {
             type: String,
             default: ""
+        },
+        // 进入备件预览的 类型
+        resourceIntoType: {
+            type: Number,
+            default: 0
         }
     },
     emits: [
@@ -391,14 +396,24 @@ export default defineComponent({
                         });
                     }
                     if (data.ResourceShowType === 1) {
-                        store.commit(MutationTypes.SET_FULLSCREEN_RESOURCE, {
-                            component: "WinCard",
-                            resource: {
+                        if (store.state.common.showResourceFullScreen.length) {
+                            const params = {
                                 id: data.OldResourceId,
-                                isSystem: data.IsSysFile,
-                                openMore: true
-                            }
-                        });
+                                name: data.Name,
+                                isMinimized: false
+                            };
+                            window.electron.ipcRenderer.invoke("setCourseMaximize", JSON.stringify(params));
+                        } else {
+                            store.commit(MutationTypes.SET_RESOURCE_INTO, props.resourceIntoType);
+                            store.commit(MutationTypes.SET_FULLSCREEN_RESOURCE, {
+                                component: "WinCard",
+                                resource: {
+                                    id: data.OldResourceId,
+                                    isSystem: data.IsSysFile,
+                                    openMore: true
+                                }
+                            });
+                        }
                     }
                     if (data.ResourceShowType === 0 || data.ResourceShowType === 4) {
                         store.commit(MutationTypes.SET_FULLSCREEN_RESOURCE, {

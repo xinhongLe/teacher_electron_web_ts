@@ -66,30 +66,48 @@
                     </div>
                     <!-- 展开后工具栏中间四个按钮 -->
                     <div class="me-tools-canvas">
-                        <!-- 鼠标 -->
-                        <div
-                            class="me-tool-btn-new"
-                            :class="type === 'mouse' && 'btn-active'"
-                            @click="hideWriteBoard(),openPaintTool($event, 'mouse'),(type = 'mouse')"
-                        >
-                            <div class="icon-text">
-                                <img v-if="type !== 'mouse'" src="../../images/slices/icon_shubiao.png" alt=""/>
-                                <img v-if="type === 'mouse'" src="../../images/slices/icon_shubiao_white.png" alt=""/>
-                                <span class="text">鼠标</span>
-                            </div>
-                        </div>
+
                         <!-- 橡皮擦 -->
-                        <div
-                            class="me-tool-btn-new"
-                            :class="type === 'eraser' && 'btn-active'"
-                            @click="openPaintTool($event, 'eraser'),(type = 'eraser')"
-                        >
-                            <div class="icon-text">
-                                <img v-if="type !== 'eraser'" src="../../images/slices/icon_xp.png" alt=""/>
-                                <img v-if="type === 'eraser'" src="../../images/slices/icon_xp_white.png" alt=""/>
-                                <span class="text">橡皮</span>
-                            </div>
-                        </div>
+                        <!--                        <div-->
+                        <!--                            class="me-tool-btn-new"-->
+                        <!--                            :class="type === 'eraser' && 'btn-active'"-->
+                        <!--                            @click="openPaintTool($event, 'eraser'),(type = 'eraser')"-->
+                        <!--                        >-->
+                        <!--                            <div class="icon-text">-->
+                        <!--                                <img v-if="type !== 'eraser'" src="../../images/slices/icon_xp.png" alt=""/>-->
+                        <!--                                <img v-if="type === 'eraser'" src="../../images/slices/icon_xp_white.png" alt=""/>-->
+                        <!--                                <span class="text">橡皮</span>-->
+                        <!--                            </div>-->
+                        <!--                        </div>-->
+
+                        <el-popover
+                            :width="140"
+                            placement="top" trigger="click">
+                            <el-input-number
+                                :min="2"
+                                :max="999"
+                                v-model="toolEraserLineWidth"
+                                @change="setEraserSize"
+                                style="width: 125px"
+                            />
+                            <template #reference>
+                                <div
+                                    class="me-tool-btn-new"
+                                    :class="type === 'eraser' && 'btn-active'"
+                                    @click="openPaintTool($event, 'eraser'),(type = 'eraser')"
+                                >
+                                    <div class="icon-text">
+                                        <img v-if="type !== 'eraser'"
+                                             src="@/views/preparation/intelligenceClassroom/images/slices/icon_xp.png"
+                                             alt=""/>
+                                        <img v-if="type === 'eraser'"
+                                             src="@/views/preparation/intelligenceClassroom/images/slices/icon_xp_white.png"
+                                             alt=""/>
+                                        <span class="text">橡皮</span>
+                                    </div>
+                                </div>
+                            </template>
+                        </el-popover>
                         <!-- 尺规:三合一-->
                         <div
                             class="me-tool-btn-new"
@@ -126,6 +144,18 @@
                     <span class="text" v-else>收起</span>
                 </div>
                 <div class="me-tool-btn-line"></div>
+                <!-- 鼠标 -->
+                <div
+                    class="me-tool-btn-new"
+                    :class="type === 'mouse' && 'btn-active'"
+                    @click="hideWriteBoard(),openPaintTool($event, 'mouse'),(type = 'mouse')"
+                >
+                    <div class="icon-text">
+                        <img v-if="type !== 'mouse'" src="../../images/slices/icon_shubiao.png" alt=""/>
+                        <img v-if="type === 'mouse'" src="../../images/slices/icon_shubiao_white.png" alt=""/>
+                        <span class="text">鼠标</span>
+                    </div>
+                </div>
                 <!-- 画笔 -->
                 <div
                     class="me-tool-btn-new"
@@ -174,6 +204,12 @@
                     </div>
                 </template>
                 <!-- 关闭 -->
+                <div class="me-tool-btn-new" @click="handleMinSize">
+                    <div class="icon-text">
+                        <img src="../../images/slices/icon_zxh.png" alt=""/>
+                        <span class="text">最小化</span>
+                    </div>
+                </div>
                 <div class="me-tool-btn-new" v-if="isShowClose" @click="handleClose">
                     <div class="icon-text">
                         <img src="../../images/slices/close.png" alt=""/>
@@ -191,23 +227,26 @@
 
         <ResourceDialog v-if="showResourceDialog" v-model="showResourceDialog"/>
 
-        <PenTool
-            @undo="undo()"
-            @redo="redo()"
-            :penTop="penTop"
-            v-if="isShowPen"
-            :penLeft="penLeft"
-            :canUndo="isCanUndo"
-            :canRedo="isCanRedo"
-            v-model:isShowPen="isShowPen"
-            :currentDrawColor="currentDrawColor"
-            :currentLineWidth="currentLineWidth"
-            @clear="whiteboardOption('clear')"
-            @setEraser="whiteboardOption('setEraser')"
-            @setPenSize="(value) => whiteboardOption('setPenSize', value)"
-            @setPenColor="(value) => whiteboardOption('setPenColor', value)"
-        />
+
     </div>
+    <PenTool
+        @undo="undo()"
+        @redo="redo()"
+        :penTop="penTop"
+        v-if="isShowPen"
+        :penLeft="penLeft"
+        :canUndo="isCanUndo"
+        :canRedo="isCanRedo"
+        v-model:isShowPen="isShowPen"
+        :currentDrawColor="currentDrawColor"
+        :currentLineWidth="currentLineWidth"
+        :eraserLineWidth="toolEraserLineWidth"
+        @clear="whiteboardOption('clear')"
+        @setEraser="whiteboardOption('setEraser')"
+        @setEraserSize="setEraserSize"
+        @setPenSize="(value) => whiteboardOption('setPenSize', value)"
+        @setPenColor="(value) => whiteboardOption('setPenColor', value)"
+    />
 </template>
 
 <script lang="ts">
@@ -220,8 +259,7 @@ import ResourceDialog from "./resourceDialog.vue";
 import {NextSettingType} from "@/types/preparation";
 import {STORAGE_TYPES, set, get} from "@/utils/storage";
 import {enterFullscreen, exitFullscreen, isFullscreen} from "@/utils/fullscreen";
-import {ref, defineComponent, watch, onMounted, onUnmounted, computed, onActivated, onDeactivated, inject} from "vue";
-import {windowInfoKey} from "@/hooks/useWindowInfo";
+import {ref, defineComponent, watch, onMounted, onUnmounted, computed, onActivated, onDeactivated} from "vue";
 
 export default defineComponent({
     components: {ResourceDialog, PenTool},
@@ -274,6 +312,10 @@ export default defineComponent({
             type: Number,
             default: 2
         },
+        eraserLineWidth: {
+            type: Number,
+            default: 30
+        },
         isTKdialog: {
             type: Boolean,
             default: false
@@ -301,7 +343,9 @@ export default defineComponent({
         "hideWriteBoard",
         "openClassDialog",
         "clockFullScreen",
-        "whiteboardOption"
+        "whiteboardOption",
+        "handleMinSize",
+        "setEraserSize"
     ],
     setup(props, {emit}) {
         const isShowPen = ref(false);
@@ -311,34 +355,35 @@ export default defineComponent({
         const rulersLeft = ref(0);
         const rulersTop = ref(0);
         const isOpen = ref(false);
+        const toolEraserLineWidth = computed(() => props.eraserLineWidth);
         const showDrawToos = () => {
             const dom: any = document.querySelector(".draw-content");
             const outdom: any = document.querySelector(".me-tools");
             const dominner: HTMLElement = document.querySelector(".me-tools-set") as HTMLElement;
             if (isTeach.value) {
-                if (outdom.style.width === "786px") {
+                if (outdom.style.width === "834px") {
                     isOpen.value = false;
-                    outdom.style.width = "378px";
+                    outdom.style.width = "478px";
                 } else {
                     isOpen.value = true;
-                    outdom.style.width = "786px";
+                    outdom.style.width = "834px";
                 }
-                const width2 = 786 - 378;
+                const width2 = 834 - 478;
                 if (dom.style.width === width2 + "px") {
                     dom.style.width = 0;
                 } else {
                     dom.style.width = width2 + "px";
                 }
-                dominner.style.width = "174px";
+                dominner.style.width = "180px";
             } else {
-                if (outdom.style.width === "730px") {
+                if (outdom.style.width === "778px") {
                     isOpen.value = false;
-                    outdom.style.width = "378px";
+                    outdom.style.width = "478px";
                 } else {
                     isOpen.value = true;
-                    outdom.style.width = "730px";
+                    outdom.style.width = "778px";
                 }
-                const width2 = 730 - 378;
+                const width2 = 778 - 478;
                 if (dom.style.width === width2 + "px") {
                     dom.style.width = 0;
                 } else {
@@ -374,23 +419,24 @@ export default defineComponent({
                 const dom: HTMLElement = document.querySelector(".me-tools-set") as HTMLElement;
                 const dom2: HTMLElement = document.querySelector(".draw-content") as HTMLElement;
                 const dom3: HTMLElement = document.querySelector(".me-tools") as HTMLElement;
-                if (val && val.Json.type === "teach") {
+                console.log('val', val)
+                if (val && val.type === "teach") {
                     isTeach.value = true;
                     if (isOpen.value) {
-                        dom.style.width = "174px";
-                        dom2.style.width = "406px";
-                        dom3.style.width = "786px";
+                        dom.style.width = "180px";
+                        dom2.style.width = "356px";
+                        dom3.style.width = "834px";
                     } else {
-                        dom.style.width = "118px";
-                        dom2.style.width = "352px";
-                        dom3.style.width = "378px";
+                        dom.style.width = "0px";
+                        dom2.style.width = "0px";
+                        dom3.style.width = "478px";
                     }
                 } else {
                     isTeach.value = false;
                     if (isOpen.value) {
                         dom.style.width = "118px";
-                        dom2.style.width = "352px";
-                        dom3.style.width = "730px";
+                        dom2.style.width = "300px";
+                        dom3.style.width = "778px";
                     } else {
                         if (dom) {
                             dom.style.width = "0px";
@@ -399,7 +445,7 @@ export default defineComponent({
                             dom2.style.width = "0px";
                         }
                         if (dom3) {
-                            dom3.style.width = "378px";
+                            dom3.style.width = "478px";
                         }
                     }
                 }
@@ -534,6 +580,7 @@ export default defineComponent({
                 id: props.id,
                 openMore: true
             });
+            window.electron.ipcRenderer.invoke("closeCourse");
             emit("closeWinCard");
         };
         // 更多设置时 改变固定定位位置
@@ -551,6 +598,9 @@ export default defineComponent({
         const whiteboardOption = (option: string, value?: number) => {
             emit("whiteboardOption", option, value);
         };
+        const setEraserSize = (value: number) => {
+            emit("whiteboardOption", "setEraserSize", value);
+        };
         const undo = () => {
             emit("undo");
         };
@@ -560,6 +610,10 @@ export default defineComponent({
 
         const handleClose = () => {
             emit("close");
+        };
+        // 最小化
+        const handleMinSize = () => {
+            emit("handleMinSize");
         };
 
         return {
@@ -576,6 +630,7 @@ export default defineComponent({
             rulersLeft,
             rulersTop,
             isTeach,
+            toolEraserLineWidth,
             toggleRemark,
             showResourceDialog,
             prevStep,
@@ -598,7 +653,9 @@ export default defineComponent({
             undo,
             redo,
             handleClose,
-            sendTeachTool
+            sendTeachTool,
+            handleMinSize,
+            setEraserSize
         };
     }
 });
@@ -654,11 +711,6 @@ export default defineComponent({
     }
 }
 
-.me-tool-btn-img {
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-}
 
 .me-tool-btn-line {
     width: 1px;
@@ -712,11 +764,6 @@ export default defineComponent({
     }
 }
 
-.me-tool-btn-img:active {
-    top: 2px;
-    box-shadow: 0 0 0 !important;
-}
-
 .me-tools {
     // background: rgba(15, 39, 91, 0.15);
     border-radius: 12px;
@@ -728,9 +775,9 @@ export default defineComponent({
     height: 64px;
     display: flex;
     overflow: auto;
-    bottom: 9vh;
+    bottom: 4vh;
     right: 6vw;
-    width: 378px;
+    width: 478px;
     transition: width 0.5s, transform 0.5s;
     overflow-y: hidden;
 
@@ -746,7 +793,7 @@ export default defineComponent({
             position: absolute;
             width: 0;
             overflow: hidden;
-            right: 378px;
+            right: 478px;
             height: 100%;
             transition: width 0.5s, transform 0.5s;
         }
@@ -754,7 +801,7 @@ export default defineComponent({
         .me-tools-righttool {
             position: absolute;
             right: 0;
-            width: 378px;
+            width: 478px;
             height: 64px;
             // background: rgba(15, 39, 91, 0.15);
             border-radius: 12px;
@@ -867,7 +914,7 @@ export default defineComponent({
 
 .me-tools-canvas {
     flex: 1;
-    width: 230px;
+    width: 176px;
     align-items: center;
     // margin-left: 24px;
     justify-content: space-evenly;
@@ -876,154 +923,7 @@ export default defineComponent({
 .me-tools-canvas,
 .me-tools-screen,
 .me-tools-system,
-.me-tools-set,
-.me-tools-steps {
+.me-tools-set {
     display: flex;
-}
-
-.me-tools-steps {
-    // flex: 1;
-    // margin-left: 50px;
-}
-
-.me-tool-btn {
-    // margin: 0 10px;
-    margin: 10px 10px;
-    border: 2px solid #77a1ed;
-    box-sizing: border-box;
-    border-radius: 14px;
-    overflow: hidden;
-    box-shadow: 0 3px 0 #77a1ed;
-    cursor: pointer;
-    position: relative;
-    top: 0;
-    transition: all 0.1s;
-
-    width: 59px;
-    height: 59px;
-}
-
-.me-tool-btn.next-step {
-    border: 2px solid #2f4fd8;
-    box-shadow: 0 3px 0 #2f4fd8;
-    height: 55px;
-    width: 110px;
-}
-
-.me-tool-btn.next-step img {
-    width: auto;
-    position: relative;
-    top: -1px;
-    left: -1px;
-}
-
-.me-tool-btn.close {
-    border: 2px solid #f04141;
-    box-shadow: 0 3px 0 #f04141;
-}
-
-.me-tool-btn:active {
-    top: 2px;
-    box-shadow: 0 0 0 !important;
-}
-
-.me-tool-btn[disabled="disabled"] {
-    top: 0;
-    border: 2px solid #bdc0c5 !important;
-    box-shadow: 0 3px 0 #bdc0c5 !important;
-}
-
-.me-tool-btn img {
-    display: block;
-    width: 55px;
-    height: 55px;
-}
-
-.me-draw-board {
-    position: fixed;
-    z-index: 100;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    /* transform: translate(83px, -43px); */
-    margin: auto;
-}
-
-.me-tool-btn.active {
-    border-color: #4b71ee;
-    box-shadow: 0 3px 0 #4b71ee;
-}
-
-.me-tool-btn {
-    .icon-text {
-        background: #e5eeff;
-        width: 55px;
-        height: 55px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: space-around;
-        padding: 4px 0;
-
-        .i-icon {
-            font-size: 28px;
-        }
-
-        .text {
-            font-size: 9px;
-            font-weight: bold;
-            color: #4467a9;
-        }
-
-        &.disabled {
-            color: #aaa;
-            cursor: not-allowed;
-        }
-    }
-}
-
-.me-draw-board.move {
-    pointer-events: none;
-}
-
-.me-draw-board.cursor-pen {
-    cursor: url("../../images/mouse_pic.png"), auto;
-}
-
-.me-draw-board.cursor-eraser {
-    cursor: url("../../images/mouse_xiangpi.png"), auto;
-}
-
-.invoking-btn-warp {
-    display: flex;
-    width: 180px;
-    height: 64px;
-    border-color: #2085ef;
-    box-shadow: 0 3px 0 #2085ef;
-    margin-left: 20px;
-
-    img {
-        width: 180px;
-        height: 64px;
-    }
-}
-
-.close-button {
-    background: url("~@/assets/look/btn_guanbi@2x.png");
-    background-size: 100% 100%;
-    box-sizing: content-box;
-    width: 55px;
-    height: 55px;
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-
-    p {
-        color: #fff;
-        font-size: 12px;
-        font-weight: 600;
-        margin-bottom: 5px;
-    }
 }
 </style>
