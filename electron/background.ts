@@ -103,7 +103,7 @@ async function createWindow() {
     mainWindow = new BrowserWindow({
         width: size.width,
         height: size.height,
-        show: false,
+        show: true,
         frame: false,
         minWidth: 750,
         minHeight: 520,
@@ -363,6 +363,10 @@ app.on("will-finish-launching", () => {
             });
         }
     });
+
+    app.on("open-url", (_event, url) => {
+        webOpenUrl(url);
+    });
 });
 
 const webOpenUrl = (url: string) => {
@@ -376,14 +380,8 @@ const webOpenUrl = (url: string) => {
         store.set(`VUE_${STORAGE_TYPES.SET_TOKEN}`, token);
         record && store.set(`VUE_${STORAGE_TYPES.RECORD_LOGIN_LIST}`, record);
         isOpenUrl = true;
-
-        createWindow();
     }
 };
-
-app.on("open-url", (_event, url) => {
-    webOpenUrl(url);
-});
 
 app.on("ready", async () => {
     createProtocol("app");
@@ -396,6 +394,10 @@ app.on("ready", async () => {
 
     if (app.isPackaged && isOpenFile) {
         result = createLocalPreview(process.argv);
+    }
+
+    if (isOpenUrl) {
+        createWindow();
     }
 
     if (!result && !isOpenFile && !isOpenUrl) {
