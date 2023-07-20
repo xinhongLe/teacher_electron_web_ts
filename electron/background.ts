@@ -300,7 +300,7 @@ const onReady = () => {
     ipcMain.handle("closeKeyBoard", () => {
         closeKeyBoard();
     });
-};
+    
     ipcMain.on('updateSelectClass', (e, v) => {
         mainWindow!.webContents.send('updateSelectClass', v)
     })
@@ -320,7 +320,7 @@ const onReady = () => {
         courseShow()
     });
 
-}
+};
 
 app.on("window-all-closed", () => {
     if (process.platform !== "darwin") {

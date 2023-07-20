@@ -26,7 +26,7 @@ import useTagList from "@/hooks/useTagList";
 import { MutationTypes, store } from "@/store";
 import Projection from "./projection/index.vue";
 import { set, STORAGE_TYPES } from "@/utils/storage";
-import { GetGradeClassTree } from "@/views/login/api";
+import { GetGradeClassTree } from "@/api/login";
 import { IGradeClassTreeResponse } from "@/types/login";
 import ResourceFullScreen from "@/views/resourceView/resourceFullScreen.vue";
 import { computed, defineComponent, defineAsyncComponent, ref, watch, onUnmounted, onMounted } from "vue";

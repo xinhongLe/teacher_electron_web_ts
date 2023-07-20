@@ -62,7 +62,7 @@ import { get, STORAGE_TYPES } from "@/utils/storage";
 import { ElMessage } from "element-plus";
 import { defineComponent, reactive, ref, toRefs } from "vue";
 import StudentList from "./studentList.vue";
-import { getTeacherClassList } from "@/views/login/api";
+import { getTeacherClassList } from "@/api/login";
 import { UserInfoState } from "@/types/store";
 import { IClassItem, IGradeItem } from "@/types/quickAnswer";
 import SelectAttendClass from "@/components/navBar/selectAttendClass.vue";

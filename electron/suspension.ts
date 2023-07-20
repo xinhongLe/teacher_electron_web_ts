@@ -217,7 +217,7 @@ function createRollcall(allStudentList: []) {
     rollCallWin.on("ready-to-show", () => {
         rollCallWin &&
             rollCallWin.webContents.send("sendAllStudentList", allStudentList);
-        rollCallWin && rollCallWin.webContents.openDevTools();
+        // rollCallWin && rollCallWin.webContents.openDevTools();
     });
 
     rollCallWin.on("closed", () => {
@@ -247,7 +247,7 @@ function createUnfoldSuspensionWindow() {
         size.width - winSize[0] - 20,
         size.height - winSize[1]
     );
-    unfoldSuspensionWin.webContents.openDevTools(); //这是打开智课助手悬浮球打开窗口的的调试器
+    // unfoldSuspensionWin.webContents.openDevTools(); //这是打开智课助手悬浮球打开窗口的的调试器
     unfoldSuspensionWin.once("ready-to-show", () => {
         unfoldSuspensionWin &&
             unfoldSuspensionWin.setAlwaysOnTop(true, "pop-up-menu");
@@ -272,7 +272,7 @@ function createBlackboardWindow() {
         show: false,
         useContentSize: true,
     });
-    blackboardWin.webContents.openDevTools(); // 打开黑板调试
+    // blackboardWin.webContents.openDevTools(); // 打开黑板调试
 
     blackboardWin.once("ready-to-show", () => {
         blackboardWin && blackboardWin.show();
@@ -301,7 +301,7 @@ function createAnswerMachineWindow(allStudentList: []) {
         // alwaysOnTop: true,
     });
 
-    answerMachineWin.webContents.openDevTools();
+    // answerMachineWin.webContents.openDevTools();
 
     answerMachineWin.on("ready-to-show", () => {
         answerMachineWin && answerMachineWin.show();
@@ -345,7 +345,7 @@ function createQuickAnswerWindow(allStudentList: [], isAnswer = false) {
         useContentSize: true,
         maximizable: false,
     });
-    quickAnswerWin.webContents.openDevTools(); //打开的抢答器调试器
+    // quickAnswerWin.webContents.openDevTools(); //打开的抢答器调试器
 
     quickAnswerWin.on("ready-to-show", () => {
         quickAnswerWin && quickAnswerWin.show();
@@ -652,7 +652,7 @@ function createLocalSuspensionWindow() {
         backgroundColor: "#00000000",
         alwaysOnTop: true, // 窗口是否总是显示在其他窗口之前
     });
-    suspensionWin.webContents.openDevTools();
+    // suspensionWin.webContents.openDevTools();
     const size = screen.getPrimaryDisplay().workAreaSize; // 获取显示器的宽高
     const winSize = suspensionWin.getSize(); // 获取窗口宽高
     suspensionWin.setPosition(

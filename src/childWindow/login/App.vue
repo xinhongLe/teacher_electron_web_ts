@@ -154,7 +154,7 @@ import useLogin from "@/hooks/useLogin";
 import { ILoginData } from "@/types/login";
 import { STORAGE_TYPES, get, set, clear } from "@/utils/storage";
 import isElectron from "is-electron";
-import { sendMsg } from "./api";
+import { sendMsg } from "@/api/login";
 import "simple-keyboard/build/css/index.css"; // 导入simple-keyboard的CSS样式
 
 export default defineComponent({
