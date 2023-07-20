@@ -1,12 +1,12 @@
 <script lang="ts" setup>
-import {MutationTypes, store} from "@/store";
+import { MutationTypes, store } from "@/store";
 import Feedback from "../feedback/index.vue";
-import {computed, defineAsyncComponent, ref, watch} from "vue";
+import { computed, defineAsyncComponent, ref, watch } from "vue";
 import isElectron from "is-electron";
 import useOutLogin from "@/hooks/useOutLogin";
 import useUpdate from "@/hooks/useUpdate";
-import UpdateDialog from '@/components/updateDialog/index.vue';
-import {CaretBottom} from "@element-plus/icons-vue";
+import UpdateDialog from "@/components/updateDialog/index.vue";
+import { CaretBottom } from "@element-plus/icons-vue";
 
 const ClearCacheDialog = defineAsyncComponent(
     () => import("./clearCacheDialog.vue")
@@ -22,7 +22,7 @@ const {
     ifShowCancelButton,
     showUpdateInfo,
     getUpdateJson,
-    downloadUpdate
+    downloadUpdate,
 } = useUpdate();
 const feedbackRef = ref<InstanceType<typeof Feedback>>();
 const account = computed(() => store.state.userInfo.account);
@@ -34,7 +34,7 @@ const setSelectedSchool = () => {
         const school = schoolList.value[0];
         store.commit(MutationTypes.UPDATE_SELECTED_SCHOOL, {
             schoolId: school.UserCenterSchoolID,
-            schoolName: school.Name
+            schoolName: school.Name,
         });
     }
 };
@@ -42,8 +42,11 @@ setSelectedSchool();
 watch(schoolList, () => {
     setSelectedSchool();
 });
-const selectSchool = (school: { UserCenterSchoolID: string; Name: string; }) => {
-    store.commit(MutationTypes.UPDATE_SELECTED_SCHOOL, {schoolId: school.UserCenterSchoolID, schoolName: school.Name});
+const selectSchool = (school: { UserCenterSchoolID: string; Name: string }) => {
+    store.commit(MutationTypes.UPDATE_SELECTED_SCHOOL, {
+        schoolId: school.UserCenterSchoolID,
+        schoolName: school.Name,
+    });
 };
 const showCacheDialog = ref(false);
 
@@ -58,31 +61,27 @@ const useLogout = () => {
         // 退出登录清空智课助手里的资源
         window.electron.ipcRenderer.send("attendClass", "unfoldSuspension", {
             type: "sysData",
-            resources: "[]"
+            resources: "[]",
         });
     }
 };
 
 //检查更新emitter.emit
 const checkUpdate = () => {
-    getUpdateJson()
-}
+    getUpdateJson();
+};
 </script>
 
 <template>
     <div class="userInfo">
-        <el-menu
-            class="avatar-container"
-            :ellipsis="false"
-            mode="horizontal"
-        >
+        <el-menu class="avatar-container" menu-trigger="click" :ellipsis="false" mode="horizontal">
             <el-sub-menu index="user">
                 <template #title>
                     <div class="avatar-wrapper">
-                        <img src="./img/avator_small.svg"/>
+                        <img src="./img/avator_small.svg" />
                         <span class="name">{{ name || "匿名" }}</span>
                         <el-icon class="icon">
-                            <CaretBottom/>
+                            <CaretBottom />
                         </el-icon>
                     </div>
                 </template>
@@ -124,9 +123,16 @@ const checkUpdate = () => {
                             {{ schoolName }}
                         </div>
                     </template>
-                    <el-menu-item :index="item.ID" v-for="item in schoolList" :key="item.ID">
+                    <el-menu-item
+                        :index="item.ID"
+                        v-for="item in schoolList"
+                        :key="item.ID"
+                    >
                         <template #title>
-                            <div class="user-list-item" @click="selectSchool(item)">
+                            <div
+                                class="user-list-item"
+                                @click="selectSchool(item)"
+                            >
                                 {{ item.Name }}
                             </div>
                         </template>
@@ -141,7 +147,10 @@ const checkUpdate = () => {
                 </el-menu-item>
                 <el-menu-item index="clear" class="user-list-item">
                     <template #title>
-                        <div class="user-list-item" @click="showCacheDialog = true">
+                        <div
+                            class="user-list-item"
+                            @click="showCacheDialog = true"
+                        >
                             清理缓存
                         </div>
                     </template>
@@ -226,7 +235,7 @@ const checkUpdate = () => {
             </template>
         </el-dropdown> -->
     </div>
-    <Feedback ref="feedbackRef"/>
+    <Feedback ref="feedbackRef" />
     <Suspense v-if="isElectron()">
         <ClearCacheDialog
             v-if="showCacheDialog"
@@ -234,12 +243,17 @@ const checkUpdate = () => {
         />
     </Suspense>
     <Suspense v-if="isElectron()">
-        <AutoClearCache/>
+        <AutoClearCache />
     </Suspense>
-    <UpdateDialog v-model:updateVisible="updateVisible" v-model:newVersionView="newVersionView"
-                  :showUpdateInfo="showUpdateInfo"
-                  :downloadPercent="downloadPercent" :ifShowCancelButton="ifShowCancelButton"
-                  @downloadUpdate="downloadUpdate" v-model:isNewVersion="isNewVersion"></UpdateDialog>
+    <UpdateDialog
+        v-model:updateVisible="updateVisible"
+        v-model:newVersionView="newVersionView"
+        :showUpdateInfo="showUpdateInfo"
+        :downloadPercent="downloadPercent"
+        :ifShowCancelButton="ifShowCancelButton"
+        @downloadUpdate="downloadUpdate"
+        v-model:isNewVersion="isNewVersion"
+    ></UpdateDialog>
 </template>
 
 <style lang="scss" scoped>
@@ -277,6 +291,10 @@ const checkUpdate = () => {
         line-height: 48px;
         background-color: transparent !important;
         border-bottom: 0 !important;
+    }
+
+    :deep(.el-sub-menu__icon-arrow) {
+        display: none;
     }
 }
 </style>

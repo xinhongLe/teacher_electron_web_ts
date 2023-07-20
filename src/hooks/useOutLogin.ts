@@ -5,7 +5,6 @@ import { remove } from "@/utils/storage";
 import { isNavigationFailure } from "vue-router";
 let cancelAfterEach: () => void;
 export default () => {
-    router.push("/login");
     cancelAfterEach = router.afterEach((to, from, failure) => {
         if (isNavigationFailure(failure)) return;
         remove("SET_TOKEN");
@@ -19,4 +18,7 @@ export default () => {
         emitter.off("logout");
         cancelAfterEach();
     });
+
+    window.electron.ipcRenderer.invoke("closeSuspension");
+    window.electron.ipcRenderer.invoke("logout");
 };

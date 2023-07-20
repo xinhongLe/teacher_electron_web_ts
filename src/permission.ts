@@ -4,7 +4,7 @@ import useLogin from "@/hooks/useLogin";
 import isElectron from "is-electron";
 import { store } from "@/store";
 import useUserInfo from "@/hooks/useUserInfo";
-import { LoginForCloud } from "./views/login/api";
+import { LoginForCloud } from "./api/login";
 
 const { queryUserInfo } = useUserInfo();
 

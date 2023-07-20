@@ -70,12 +70,9 @@ import {Bread} from "./interface";
 import ExitDialog from "./ExitDialog.vue";
 import SelectAttendClass from "./selectAttendClass.vue";
 import UserInfo from "./userInfo.vue";
-import {get, set, STORAGE_TYPES} from "@/utils/storage";
-import {MutationTypes, store} from "@/store";
-import {getMyClassByOrgId, IMyClassResponse} from "@/api/home";
-import {IClassItem, IGradeItem} from "@/types/quickAnswer";
-import {GetLastSelectedClassIdByTeacherID} from "@/childWindow/answerMachine/api";
-import {UserInfoState} from "@/types/store";
+import {set, STORAGE_TYPES} from "@/utils/storage";
+import {store} from "@/store";
+import {getMyClassByOrgId} from "@/api/home";
 
 export default defineComponent({
     name: "NavBar",

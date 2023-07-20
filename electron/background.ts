@@ -1,20 +1,25 @@
 import os from "os";
 import path from "path";
-import {exec} from "child_process";
+import { exec } from "child_process";
 import SingalRHelper from "./singalr";
 import ElectronLog from "electron-log";
-import downloadFile, {store} from "./downloadFile";
-import {STORAGE_TYPES} from "@/utils/storage";
-import {createWinCardWindow} from "./wincard";
-import {initialize} from "@electron/remote/main";
-import {createProtocol} from "vue-cli-plugin-electron-builder/lib";
-import {app, protocol, BrowserWindow, ipcMain, Menu} from "electron";
-import {registerVirtualKeyBoard, closeKeyBoard, setInput} from "./virtualKeyBoard";
+import downloadFile, { store } from "./downloadFile";
+import { STORAGE_TYPES } from "@/utils/storage";
+import { createWinCardWindow } from "./wincard";
+import { initialize, enable } from "@electron/remote/main";
+import { createProtocol } from "vue-cli-plugin-electron-builder/lib";
+import { app, protocol, BrowserWindow, ipcMain, Menu, screen } from "electron";
+import {
+    registerVirtualKeyBoard,
+    closeKeyBoard,
+    setInput,
+} from "./virtualKeyBoard";
 import {
     createSuspensionWindow,
     createLocalPreviewWindow,
     registerEvent,
-    unfoldSuspensionWinSendMessage, courseShow
+    unfoldSuspensionWinSendMessage,
+    courseShow
 } from "./suspension";
 
 const editWinList = new Map<number, any>();
@@ -23,23 +28,37 @@ const isDevelopment = process.env.NODE_ENV !== "production";
 initialize();
 
 protocol.registerSchemesAsPrivileged([
-    {scheme: "app", privileges: {secure: true, standard: true}},
+    { scheme: "app", privileges: { secure: true, standard: true } },
     {
         scheme: "http",
-        privileges: {bypassCSP: true, secure: true, supportFetchAPI: true, corsEnabled: true}
-    }
+        privileges: {
+            bypassCSP: true,
+            secure: true,
+            supportFetchAPI: true,
+            corsEnabled: true,
+        },
+    },
 ]);
 
 let isCreateWindow = false;
 let singalr: SingalRHelper | null;
 let mainWindow: BrowserWindow | null;
+let loginWindow: BrowserWindow | null;
 
-async function createWindow() {
-    if (!process.env.WEBPACK_DEV_SERVER_URL) {
-        const menu = Menu.buildFromTemplate([]);
-        Menu.setApplicationMenu(menu);
-    }
-    mainWindow = new BrowserWindow({
+if (!process.env.WEBPACK_DEV_SERVER_URL) {
+    const menu = Menu.buildFromTemplate([]);
+    Menu.setApplicationMenu(menu);
+}
+
+registerVirtualKeyBoard();
+
+async function createLoginWindow() {
+    const loginUrl =
+        process.env.NODE_ENV === "development"
+            ? `${process.env.WEBPACK_DEV_SERVER_URL}login.html`
+            : `file://${__dirname}/login.html`;
+
+    loginWindow = new BrowserWindow({
         width: 750,
         height: 520,
         show: false,
@@ -51,30 +70,62 @@ async function createWindow() {
             webviewTag: true,
             webSecurity: false, // 取消跨域限制
             nodeIntegration: true,
-            enableRemoteModule: true,
+            // enableRemoteModule: true,
             preload: path.join(__dirname, "preload.js"),
             devTools: !!process.env.WEBPACK_DEV_SERVER_URL,
-            contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION
-        }
+            contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
+        },
     });
 
-    downloadFile();
-    if (!isCreateWindow) {
-        createSuspensionWindow();
-        isCreateWindow = true;
+    if (process.env.WEBPACK_DEV_SERVER_URL) {
+        enable(loginWindow.webContents);
+        loginWindow.loadURL(loginUrl);
+        if (!process.env.IS_TEST) loginWindow.webContents.openDevTools();
+    } else {
+        enable(loginWindow.webContents);
+        loginWindow.loadURL(loginUrl);
     }
 
-    registerEvent();
-    registerVirtualKeyBoard();
+    loginWindow.on("ready-to-show", () => {
+        loginWindow!.show();
+    });
+
+    loginWindow.on("closed", () => {
+        if (process.platform !== "darwin") {
+            app.quit();
+        }
+        loginWindow = null;
+    });
+}
+
+async function createWindow() {
+    const size = screen.getPrimaryDisplay().workAreaSize;
+    mainWindow = new BrowserWindow({
+        width: size.width,
+        height: size.height,
+        show: false,
+        frame: false,
+        minWidth: 750,
+        minHeight: 520,
+        useContentSize: true,
+        webPreferences: {
+            webviewTag: true,
+            webSecurity: false, // 取消跨域限制
+            nodeIntegration: true,
+            // enableRemoteModule: true,
+            preload: path.join(__dirname, "preload.js"),
+            devTools: !!process.env.WEBPACK_DEV_SERVER_URL,
+            contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
+        },
+    });
 
     if (process.env.WEBPACK_DEV_SERVER_URL) {
-        require("@electron/remote/main").enable(mainWindow.webContents);
-        mainWindow.loadURL(isOpenUrl ? `${process.env.WEBPACK_DEV_SERVER_URL}home` : process.env.WEBPACK_DEV_SERVER_URL);
+        enable(mainWindow.webContents);
+        mainWindow.loadURL(`${process.env.WEBPACK_DEV_SERVER_URL}#/home`);
         if (!process.env.IS_TEST) mainWindow.webContents.openDevTools();
     } else {
-        require("@electron/remote/main").enable(mainWindow.webContents);
-        mainWindow.loadURL(isOpenUrl ? "app://./index.html/#/home" : "app://./index.html/#/login");
-        mainWindow.webContents.openDevTools();
+        enable(mainWindow.webContents);
+        mainWindow.loadURL("app://./index.html/#/home");
     }
 
     mainWindow.on("ready-to-show", () => {
@@ -86,6 +137,21 @@ async function createWindow() {
             app.quit();
         }
         mainWindow = null;
+    });
+}
+
+const onReady = () => {
+    downloadFile();
+    if (!isCreateWindow) {
+        createSuspensionWindow();
+        isCreateWindow = true;
+    }
+
+    registerEvent();
+
+    ipcMain.handle("logout", () => {
+        createLoginWindow();
+        mainWindow && mainWindow.close();
     });
 
     ipcMain.on("startSingalR", (e, data) => {
@@ -197,16 +263,7 @@ async function createWindow() {
         // mainWindow!.maximize();
         mainWindow!.webContents.send("suspensionClick");
     });
-    ipcMain.on("data-to-password", (event, data) => {
-        // 在这里处理数据
-        mainWindow!.webContents.send("dataToPassword", data);
-    });
-    ipcMain.handle("closeKeyBoard", () => {
-        closeKeyBoard();
-    });
-    ipcMain.handle("setInput", (event, data) => {
-        setInput(data);
-    });
+
     ipcMain.on("closeWinCard", (event, data) => {
         editWinList.delete(data);
     });
@@ -221,6 +278,29 @@ async function createWindow() {
             editWin.webContents.send("copy-end");
         }
     });
+
+    ipcMain.on("updateSelectClass", (e, v) => {
+        mainWindow!.webContents.send("updateSelectClass", v);
+    });
+
+    ipcMain.on("data-to-password", (event, data) => {
+        // 在这里处理数据
+        loginWindow!.webContents.send("dataToPassword", data);
+    });
+
+    ipcMain.handle("setInput", (event, data) => {
+        setInput(data);
+    });
+
+    ipcMain.handle("loginSuccess", () => {
+        createWindow();
+        loginWindow && loginWindow.close();
+    });
+
+    ipcMain.handle("closeKeyBoard", () => {
+        closeKeyBoard();
+    });
+    
     ipcMain.on('updateSelectClass', (e, v) => {
         mainWindow!.webContents.send('updateSelectClass', v)
     })
@@ -240,7 +320,7 @@ async function createWindow() {
         courseShow()
     });
 
-}
+};
 
 app.on("window-all-closed", () => {
     if (process.platform !== "darwin") {
@@ -249,7 +329,7 @@ app.on("window-all-closed", () => {
 });
 
 app.on("activate", () => {
-    if (BrowserWindow.getAllWindows().length === 0) createWindow();
+    if (BrowserWindow.getAllWindows().length === 0) createLoginWindow();
 });
 
 function createLocalPreview(args: Array<string>) {
@@ -296,6 +376,8 @@ const webOpenUrl = (url: string) => {
         store.set(`VUE_${STORAGE_TYPES.SET_TOKEN}`, token);
         record && store.set(`VUE_${STORAGE_TYPES.RECORD_LOGIN_LIST}`, record);
         isOpenUrl = true;
+
+        createWindow();
     }
 };
 
@@ -305,6 +387,7 @@ app.on("open-url", (_event, url) => {
 
 app.on("ready", async () => {
     createProtocol("app");
+    onReady();
     let result = false;
     if (process.argv.length > 1) {
         const url = process.argv[1];
@@ -315,8 +398,8 @@ app.on("ready", async () => {
         result = createLocalPreview(process.argv);
     }
 
-    if (!result && !isOpenFile) {
-        createWindow();
+    if (!result && !isOpenFile && !isOpenUrl) {
+        createLoginWindow();
     }
     // createLocalPreview(["/Users/admin/Desktop/识字1《春夏秋冬》第一课时(副本).lyxpkg"])
 });
@@ -330,7 +413,7 @@ app.on("render-process-gone", (event, webContents, details) => {
 });
 
 app.on("child-process-gone", (event, details) => {
-    const {type, reason, exitCode, serviceName, name} = details;
+    const { type, reason, exitCode, serviceName, name } = details;
     ElectronLog.error(
         `child-process-gone, reason: ${reason}, exitCode: ${exitCode}, type:${type}, serviceName: ${serviceName}, name: ${name}`
     );
@@ -352,7 +435,7 @@ if (!gotTheLock) {
                 mainWindow.focus();
                 mainWindow.show();
             } else {
-                createWindow();
+                createLoginWindow();
             }
         }
     });

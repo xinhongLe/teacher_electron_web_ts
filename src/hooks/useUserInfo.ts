@@ -1,7 +1,7 @@
 import {MutationTypes, store} from "@/store";
 import {ILessonManagerResult} from "@/types/login";
 import {set, STORAGE_TYPES} from "@/utils/storage";
-import {LessonManager} from "@/views/login/api";
+import {LessonManager} from "@/api/login";
 import {lessonManagerByTeacherId} from "@/views/classManage/api";
 
 const dealUserInfo = async (useInfo: ILessonManagerResult) => {
