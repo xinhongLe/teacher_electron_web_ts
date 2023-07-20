@@ -347,7 +347,11 @@ module.exports = {
                             icon: "./public/lyxpkg.icns"
                         }
                     ]
-                }
+                },
+                protocols: [{
+                    name: "lyxteacher",
+                    schemes: ["lyxteacher"]
+                }]
             },
             externals: [
                 "clipboard",
