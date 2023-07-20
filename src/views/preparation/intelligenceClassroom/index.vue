@@ -67,6 +67,7 @@ import {getOssUrl} from "@/utils/oss";
 import {getWindowStruct} from "@/api/home";
 import {store, useStore} from "@/store";
 import html2canvas from 'html2canvas';
+import useUploadFile from "@/hooks/useUploadFile";
 
 export default defineComponent({
     name: "IntelligenceClassroom",
@@ -87,6 +88,8 @@ export default defineComponent({
     },
     emits: ["setMinimize"],
     setup(props, {emit}) {
+        const {loadingShow, fileInfo, uploadFile, resetFileInfo} =
+            useUploadFile("ElementFile");
         const index = ref(0);
         const lVisit = ref(true);
         const rVisit = ref(false);
@@ -196,20 +199,25 @@ export default defineComponent({
         };
         const currentCouresData = ref();
         // 最小化课件
-        const handleMinSize = () => {
-            captureElement();
+        const handleMinSize = async () => {
             // window.electron.hideWindow();
             // window.electron.ipcRenderer.invoke("timerWinHide", showTime.value);
-            emit("setMinimize", currentCouresData.value)
+            const data = await captureElement();
+            emit("setMinimize", currentCouresData.value, data);
+
         };
+
+        // 课件截图
         const captureElement = async () => {
             const element = document.querySelector('.intelligence') as HTMLElement;
             const canvas = await html2canvas(element)
-
             // 将Canvas导出为图片
             const dataURL = canvas.toDataURL('image/png');
-            console.log('dataURL', dataURL)
-
+            // console.log('dataURL', dataURL)
+            const fileInfo: any = await uploadFile({file: new File([Buffer.from(dataURL, "base64")], `${currentCouresData.value.Name}.png`)});
+            const url = await getOssUrl(fileInfo.objectKey, fileInfo.bucket);
+            console.log('fileInfo', fileInfo, url)
+            return url
         }
 
         function getWinCardData() {
