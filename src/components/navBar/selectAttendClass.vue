@@ -156,7 +156,7 @@ export default defineComponent({
         });
 
         watch(() => props.currentClassList, (val: any) => {
-            if (val.ClassUserCenterId) {
+            if (val && val.ClassUserCenterId) {
                 if (!props.isCheck) {
                     checkedClass.value = val.ClassUserCenterId
                 }
