@@ -41,6 +41,7 @@ let lastPort = 1122;
 let isFirstTime = true;
 let openTimes = -1;
 let lastOpenTime = new Date().getTime();
+let currentCourseData: any = null;
 
 const timerURL =
     process.env.NODE_ENV === "development"
@@ -125,7 +126,7 @@ function setSuspensionSize(isResetPosition = true, isCloseWelt = false) {
     }
     let width = 120;
     let height = 120;
-    if (isShowTimer || isShowVideo || isShowBlackboard || isShowQuestion) {
+    if (isShowTimer || isShowVideo || isShowBlackboard || isShowQuestion || isShowCourse) {
         width = 200;
         height = 200;
     }
@@ -580,7 +581,24 @@ class CustomCallBack implements CallBack {
             case "PONG":
                 socketHelperHeartbeatTime = new Date().getTime();
                 break;
+            case "COURSEWARE1SHOW":
+                isShowCourse = true;
+                socketHelper.sendMessage(new Action("COURSEWARE1SHOW", ""));
+                ipcMain.emit("setCourseMaximize", currentCourseData);
+                break;
+            case "COURSEWARE1HIDE":
+                ipcMain.emit("closeCourse");
+                isShowCourse = false;
+                // timerWin && timerWin.destroy();
+                break;
         }
+    }
+}
+
+export function courseShow() {
+    if (socketHelper) {
+        isShowCourse = true;
+        socketHelper.sendMessage(new Action("COURSEWARE1SHOW", ""));
     }
 }
 
@@ -597,11 +615,12 @@ function createLocalSuspensionWindow() {
         backgroundColor: "#00000000",
         alwaysOnTop: true // 窗口是否总是显示在其他窗口之前
     });
+    suspensionWin.webContents.openDevTools();
     const size = screen.getPrimaryDisplay().workAreaSize; // 获取显示器的宽高
     const winSize = suspensionWin.getSize(); // 获取窗口宽高
     suspensionWin.setPosition(
         size.width - winSize[0] - 80,
-        size.height - winSize[1] - 50,
+        size.height - winSize[1] - 350,
         false
     );
 
@@ -889,16 +908,17 @@ export function registerEvent() {
             suspensionWin && suspensionWin.webContents.send("timerWinHide", time);
         }
     });
+
     // 课件最小化
     ipcMain.handle("courseMinimize", (_, data) => {
         showSuspension();
         isShowCourse = true;
+        currentCourseData = data;
         setSuspensionSize();
         if (socketHelper) {
-            console.log('QUICKTIMEHIDE', data)
             socketHelper.sendMessage(new Action("COURSEWARE1HIDE", `https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg,${data.name}`));
         } else {
-            suspensionWin && suspensionWin.webContents.send("courseWinHide", data.name);
+            suspensionWin && suspensionWin.webContents.send("courseWinHide", data);
         }
     });
 

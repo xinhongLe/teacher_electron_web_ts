@@ -14,7 +14,7 @@ import {
     createSuspensionWindow,
     createLocalPreviewWindow,
     registerEvent,
-    unfoldSuspensionWinSendMessage
+    unfoldSuspensionWinSendMessage, courseShow
 } from "./suspension";
 
 const editWinList = new Map<number, any>();
@@ -224,6 +224,22 @@ async function createWindow() {
     ipcMain.on('updateSelectClass', (e, v) => {
         mainWindow!.webContents.send('updateSelectClass', v)
     })
+    ipcMain.on('closeCourse', (e, v) => {
+        mainWindow!.webContents.send('closeCourse', v)
+    })
+    ipcMain.handle("closeCourse", () => {
+        mainWindow!.webContents.send("closeCourse");
+    });
+
+    ipcMain.on('setCourseMaximize', (v) => {
+        mainWindow!.webContents.send('setCourseMaximize', v)
+    })
+    ipcMain.handle("setCourseMaximize", (v, data) => {
+        console.log('setCourseMaximize', data)
+        mainWindow!.webContents.send("setCourseMaximize", JSON.parse(data));
+        courseShow()
+    });
+
 }
 
 app.on("window-all-closed", () => {
