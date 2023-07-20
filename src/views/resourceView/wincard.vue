@@ -22,22 +22,20 @@ const props = defineProps({
     }
 });
 const couresData: any = ref(null);
-const setMinimize = async (data: any,) => {
-
-    isMinimized.value = true
+const setMinimize = async (data: any) => {
+    const url = await window.electron.getWindowImg();
     const params = {
         id: data.WindowID,
         name: data.Name,
         isMinimized: true,
-        url: await window.electron.getWindowImg()
+        url
     };
     console.log('params', params)
     couresData.value = params;
-    nextTick(() => {
-        if (isElectron()) {
-            window.electron.ipcRenderer.invoke("courseMinimize", JSON.stringify(params));
-        }
-    })
+    isMinimized.value = true
+    if (isElectron()) {
+        window.electron.ipcRenderer.invoke("courseMinimize", JSON.stringify(params));
+    }
 
 };
 

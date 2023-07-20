@@ -27,9 +27,10 @@
                     : { bottom: `${bottom + 120}px`, right: `${right + 120}px` }
             "
             @mousedown="mouseDown"
-            class="course icon"
+            class="icon course"
             ref="courseRef"
         >
+            <img :src="'file:///'+courseData?.url" alt="">
             <i class="icon-close" ref="iconCourseCloseRef"></i>
         </div>
         <!--        </el-tooltip>-->
@@ -269,7 +270,8 @@ export default defineComponent({
                     }
                 );
                 window.electron.ipcRenderer.on("courseWinHide", (_, data) => {
-                    courseData.value = data
+                    courseData.value = JSON.parse(data)
+                    console.log('courseData.value', courseData.value)
                     isShowCourse.value = true;
                 });
             }
@@ -287,6 +289,7 @@ export default defineComponent({
             susDom,
             timerRef,
             courseRef,
+            iconCourseCloseRef,
             videoRef,
             questionRef,
             iconQuestionCloseRef,
@@ -374,9 +377,15 @@ export default defineComponent({
     }
 
     .course {
-        background-image: url("../../assets/images/suspension/btn_clock@2x.png");
         top: 42px;
         left: 28px;
+        box-shadow: 0px 1px 3px #adadad;
+
+        img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+        }
     }
 
     .video {

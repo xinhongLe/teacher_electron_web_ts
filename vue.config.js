@@ -53,13 +53,13 @@ module.exports = {
         },
         suspension: {
             entry: "src/childWindow/suspension/main.ts",
-            template: "public/index.html",
+            template: "public/suspension.html",
             filename: "suspension.html",
             chunks: ["suspension"]
         },
         unfoldSuspension: {
             entry: "src/childWindow/unfoldSuspension/main.ts",
-            template: "public/index.html",
+            template: "public/unfoldSuspension.html",
             filename: "unfoldSuspension.html",
             chunks: ["unfoldSuspension"]
         },

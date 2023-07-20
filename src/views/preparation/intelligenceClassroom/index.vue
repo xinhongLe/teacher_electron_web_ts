@@ -198,6 +198,7 @@ export default defineComponent({
         const handleMinSize = async () => {
             // window.electron.hideWindow();
             // window.electron.ipcRenderer.invoke("timerWinHide", showTime.value);
+            // const url: string = await window.electron.getWindowImg()
             emit("setMinimize", currentCouresData.value);
 
         };

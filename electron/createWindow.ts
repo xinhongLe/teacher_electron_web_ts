@@ -1,4 +1,5 @@
-import { BrowserWindow, BrowserWindowConstructorOptions } from "electron";
+import {BrowserWindow, BrowserWindowConstructorOptions} from "electron";
+
 const path = require("path");
 
 export const createWindow = (url: string, option: BrowserWindowConstructorOptions) => {
