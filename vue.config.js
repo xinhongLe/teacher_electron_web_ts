@@ -51,6 +51,12 @@ module.exports = {
             entry: "src/main.ts",
             template: "public/index.html"
         },
+        login: {
+            entry: "src/childWindow/login/main.ts",
+            template: "public/index.html",
+            filename: "login.html",
+            chunks: ["login"]
+        },
         suspension: {
             entry: "src/childWindow/suspension/main.ts",
             template: "public/index.html",

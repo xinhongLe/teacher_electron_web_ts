@@ -1,22 +1,34 @@
 <template>
-    <div class="login-content" :class="{web: !isElectron}">
+    <div class="login-content" :class="{ web: !isElectron }">
         <div class="left-content">
             <div class="version-text">版本: {{ version }}</div>
         </div>
         <div class="right-content">
             <div class="login-logo">
-                <img src="@/assets/images/login/logo.png" alt=""/>
+                <img src="@/assets/images/login/logo.png" alt="" />
                 <p>爱学仕校园</p>
             </div>
             <el-form :model="form" label-width="0px" size="large">
                 <el-form-item>
-                    <el-input class="zh-class" v-model.trim="form.account" placeholder="请输入手机号码" maxlength="11"
-                              @focus="focusInput(0)">
+                    <el-input
+                        class="zh-class"
+                        v-model.trim="form.account"
+                        placeholder="请输入手机号码"
+                        maxlength="11"
+                        @focus="focusInput(0)"
+                    >
                         <template #prefix>
-                            <img src="@/assets/images/login/icon_zhanghao.png" alt=""/>
+                            <img
+                                src="@/assets/images/login/icon_zhanghao.png"
+                                alt=""
+                            />
                         </template>
                     </el-input>
-                    <el-select v-model="form.account" @change="handleChange" popper-class="login-select-class">
+                    <el-select
+                        v-model="form.account"
+                        @change="handleChange"
+                        popper-class="login-select-class"
+                    >
                         <el-option
                             v-for="(item, index) in recordAccountList"
                             :key="index"
@@ -24,51 +36,101 @@
                             :value="item.account"
                         >
                             <span style="float: left">{{ item.account }}</span>
-                            <span style="float: right; color: #8492a6; font-size: 13px;">
-                                <el-icon @click.stop="delAccount(index)"><Close/></el-icon>
+                            <span
+                                style="
+                                    float: right;
+                                    color: #8492a6;
+                                    font-size: 13px;
+                                "
+                            >
+                                <el-icon @click.stop="delAccount(index)"><Close /></el-icon>
                             </span>
                         </el-option>
                     </el-select>
                 </el-form-item>
                 <el-form-item v-if="isPassWordLogin">
-                    <el-input type="password" v-model="form.password" placeholder="请输入密码" @focus="focusInput(1)">
+                    <el-input
+                        type="password"
+                        v-model="form.password"
+                        placeholder="请输入密码"
+                        @focus="focusInput(1)"
+                    >
                         <template #prefix>
-                            <img src="@/assets/images/login/icon_password.png" alt=""/>
+                            <img
+                                src="@/assets/images/login/icon_password.png"
+                                alt=""
+                            />
                         </template>
                         <template #suffix v-if="isElectron">
-                            <img src="@/assets/images/login/icon_keyboard.png" alt=""
-                                 class="key-board-img" @click="openVirtualKeyBoard"/>
+                            <img
+                                src="@/assets/images/login/icon_keyboard.png"
+                                alt=""
+                                class="key-board-img"
+                                @click="openVirtualKeyBoard"
+                            />
                         </template>
                     </el-input>
                 </el-form-item>
                 <el-form-item v-else>
-                    <el-input type="text" v-model="form.code" placeholder="请输入验证码">
+                    <el-input
+                        type="text"
+                        v-model="form.code"
+                        placeholder="请输入验证码"
+                    >
                         <template #prefix>
-                            <img src="@/assets/images/login/icon_yzm.png" alt=""/>
+                            <img
+                                src="@/assets/images/login/icon_yzm.png"
+                                alt=""
+                            />
                         </template>
                         <template #suffix>
-                            <span class="get-code-btn" @click="getCode" v-if="codeTime === 0">获取验证码</span>
-                            <span class="get-code-btn" v-else>{{ `${codeTime}秒后重发` }}</span>
+                            <span
+                                class="get-code-btn"
+                                @click="getCode"
+                                v-if="codeTime === 0"
+                                >获取验证码</span
+                            >
+                            <span class="get-code-btn" v-else>{{
+                                `${codeTime}秒后重发`
+                            }}</span>
                         </template>
                     </el-input>
                 </el-form-item>
                 <el-form-item>
-                    <el-button :loading="loading" style="width: 100%" type="primary" @click="login">登录</el-button>
+                    <el-button
+                        :loading="loading"
+                        style="width: 100%"
+                        type="primary"
+                        @click="login"
+                        >登录</el-button
+                    >
                 </el-form-item>
             </el-form>
             <div class="login-method">
                 <template v-if="isPassWordLogin">
-                    <img src="@/assets/images/login/icon_yanzhengma.png" alt="" :width="13">
-                    <span @click="isPassWordLogin = false" class="text">验证码登录</span>
+                    <img
+                        src="@/assets/images/login/icon_yanzhengma.png"
+                        alt=""
+                        :width="13"
+                    />
+                    <span @click="isPassWordLogin = false" class="text"
+                        >验证码登录</span
+                    >
                 </template>
                 <template v-else>
-                    <img src="@/assets/images/login/icon_mima.png" alt="" :width="12">
-                    <span @click="isPassWordLogin = true" class="text">密码登录</span>
+                    <img
+                        src="@/assets/images/login/icon_mima.png"
+                        alt=""
+                        :width="12"
+                    />
+                    <span @click="isPassWordLogin = true" class="text"
+                        >密码登录</span
+                    >
                 </template>
             </div>
             <div class="close-icon" v-if="isElectron" @click="close">
                 <el-icon :size="16">
-                    <Close/>
+                    <Close />
                 </el-icon>
             </div>
             <div class="prompt-text">
@@ -81,56 +143,61 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, onMounted, onUnmounted, reactive, ref, watch} from "vue";
+import {
+    defineComponent,
+    onMounted,
+    onUnmounted,
+    reactive,
+    ref
+} from "vue";
 import useLogin from "@/hooks/useLogin";
-import {useRouter, useRoute} from "vue-router";
-import {ILoginData} from "@/types/login";
-import {STORAGE_TYPES, get, set, clear} from "@/utils/storage";
+import { ILoginData } from "@/types/login";
+import { STORAGE_TYPES, get, set, clear } from "@/utils/storage";
 import isElectron from "is-electron";
-import {sendMsg} from "./api";
-import Keyboard from 'simple-keyboard';
-import 'simple-keyboard/build/css/index.css'; // 导入simple-keyboard的CSS样式
+import { sendMsg } from "./api";
+import "simple-keyboard/build/css/index.css"; // 导入simple-keyboard的CSS样式
 
 export default defineComponent({
     setup() {
-        const router = useRouter();
-        const route = useRoute();
         const isAccount = ref(false);
         const form = reactive({
             account: "",
             code: "",
-            password: ""
+            password: "",
         });
 
         const loading = ref(false);
-        const recordAccountList = ref([]);
+        const recordAccountList = ref<ILoginData[]>([]);
         const isPassWordLogin = ref(true);
         const codeTime = ref(0);
         let timer: any;
-        recordAccountList.value = get(STORAGE_TYPES.RECORD_LOGIN_LIST, true) || [];
+        recordAccountList.value =
+            get(STORAGE_TYPES.RECORD_LOGIN_LIST, true) || [];
 
-        const {userLogin} = useLogin();
+        const { userLogin } = useLogin();
 
         const login = async () => {
-            const {account, password, code} = form;
-            if ((isPassWordLogin.value && (account.length === 0 || password.length === 0)) || (!isPassWordLogin.value && (account.length === 0 || code.length === 0))) return false;
+            const { account, password, code } = form;
+            if (
+                (isPassWordLogin.value &&
+                    (account.length === 0 || password.length === 0)) ||
+                (!isPassWordLogin.value &&
+                    (account.length === 0 || code.length === 0))
+            )
+                return false;
             clear();
             loading.value = true;
-            const loginSuccess = await userLogin({account, password, code, isPassWordLogin: isPassWordLogin.value});
+            const loginSuccess = await userLogin({
+                account,
+                password,
+                code,
+                isPassWordLogin: isPassWordLogin.value,
+            });
             loading.value = false;
             window.electron.ipcRenderer.invoke("closeKeyBoard");
             if (!loginSuccess) return;
-            const redirect: any = route.redirectedFrom;
-            if (redirect && redirect.path !== "/" && !isElectron()) {
-                const params: any = redirect?.query;
-                router.push({
-                    path: redirect.path,
-                    query: Object.keys(params).length > 0 ? params : ""
-                });
-            } else {
-                set(STORAGE_TYPES.SET_ISCACHE, true);
-                router.push("/home");
-            }
+            set(STORAGE_TYPES.SET_ISCACHE, true);
+            window.electron.ipcRenderer.invoke("loginSuccess");
         };
         const handleChange = (account: string) => {
             recordAccountList.value.forEach((item: ILoginData) => {
@@ -154,13 +221,11 @@ export default defineComponent({
         };
         const openVirtualKeyBoard = () => {
             window.electron.ipcRenderer.invoke("openVirtualKeyBoardWin", "");
-            // window.electron.ipcRenderer.invoke("openVirtualKeyBoard");
-            // showKeyboard()
         };
         const getCode = async () => {
             if (!form.account) return;
             const res = await sendMsg({
-                phone: form.account
+                phone: form.account,
             });
             if (res.resultCode === 200) {
                 codeTime.value = 60;
@@ -184,26 +249,26 @@ export default defineComponent({
                     form.password = data;
                 }
             });
-            document.addEventListener("keyup", onEnter)
+            document.addEventListener("keyup", onEnter);
         });
 
         onUnmounted(() => {
             document.removeEventListener("keyup", onEnter);
         });
 
-        if (isElectron()) {
-            window.electron.ipcRenderer.invoke("closeSuspension");
-            window.electron.setContentSize(750, 520);
-            window.electron.unmaximizeWindow();
-            window.electron.setCenter();
-        }
         const focusInput = (type: number) => {
             if (type) {
                 isAccount.value = false;
-                window.electron.ipcRenderer.invoke("setInput", form.password ? form.password : "");
+                window.electron.ipcRenderer.invoke(
+                    "setInput",
+                    form.password ? form.password : ""
+                );
             } else {
                 isAccount.value = true;
-                window.electron.ipcRenderer.invoke("setInput", form.account ? form.account : "");
+                window.electron.ipcRenderer.invoke(
+                    "setInput",
+                    form.account ? form.account : ""
+                );
             }
         };
 
@@ -222,9 +287,9 @@ export default defineComponent({
             codeTime,
             isPassWordLogin,
             isElectron: isElectron(),
-            focusInput
+            focusInput,
         };
-    }
+    },
 });
 </script>
 
@@ -248,7 +313,7 @@ $btn_color: #4b71ee;
 .login-content {
     display: flex;
     width: 100%;
-    height: 100%;
+    height: 100vh;
 
     &.web {
         .right-content {
@@ -269,13 +334,13 @@ $btn_color: #4b71ee;
                     }
                 }
             }
-
         }
     }
 
     .left-content {
         width: 50%;
-        background: url("../../assets/images/login/bg_login.png") no-repeat center center;
+        background: url("../../assets/images/login/bg_login.png") no-repeat
+            center center;
         background-size: cover;
         -webkit-app-region: drag;
         position: relative;
@@ -376,7 +441,8 @@ $btn_color: #4b71ee;
                     padding-left: 10px;
                 }
 
-                .el-input__prefix, .el-input__suffix-inner {
+                .el-input__prefix,
+                .el-input__suffix-inner {
                     display: flex;
                     justify-content: center;
                     align-items: center;

@@ -91,7 +91,6 @@ export default defineComponent({
         if (isElectron()) {
             window.electron.ipcRenderer.on("answer-jection", answerjection);
             window.electron.ipcRenderer.invoke("openSuspension");
-            window.electron.maximizeWindow();
         }
 
         onMounted(() => {

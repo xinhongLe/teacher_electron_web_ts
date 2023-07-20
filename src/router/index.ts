@@ -2,11 +2,6 @@ import { createRouter, createWebHashHistory, createWebHistory, RouteRecordRaw } 
 
 const routes: Array<RouteRecordRaw> = [
     {
-        path: "/login",
-        name: "Login",
-        component: () => import("@/views/login/index.vue"),
-    },
-    {
         path: "/:catchAll(.*)",
         redirect: "/",
     },
