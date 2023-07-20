@@ -55,7 +55,7 @@ import { fileTypeMap } from "@/config";
 import useUploadFile from "@/hooks/useUploadFile";
 import { Lesson, Material } from "@/types/preparation";
 import { addMaterial, editMaterial } from "@/views/preparation/api";
-import { ElMessage } from "element-plus";
+import { ElMessage } from "element-plus";z
 import { computed, defineComponent, PropType, ref, watchEffect } from "vue";
 import FileType from "@/components/fileType/index.vue";
 export default defineComponent({

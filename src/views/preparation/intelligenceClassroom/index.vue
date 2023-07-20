@@ -66,6 +66,7 @@ import {CardProps, PageProps} from "@/views/preparation/intelligenceClassroom/ap
 import {getOssUrl} from "@/utils/oss";
 import {getWindowStruct} from "@/api/home";
 import {store, useStore} from "@/store";
+import html2canvas from 'html2canvas';
 
 export default defineComponent({
     name: "IntelligenceClassroom",
@@ -196,10 +197,20 @@ export default defineComponent({
         const currentCouresData = ref();
         // 最小化课件
         const handleMinSize = () => {
+            captureElement();
             // window.electron.hideWindow();
             // window.electron.ipcRenderer.invoke("timerWinHide", showTime.value);
             emit("setMinimize", currentCouresData.value)
         };
+        const captureElement = async () => {
+            const element = document.querySelector('.intelligence') as HTMLElement;
+            const canvas = await html2canvas(element)
+
+            // 将Canvas导出为图片
+            const dataURL = canvas.toDataURL('image/png');
+            console.log('dataURL', dataURL)
+
+        }
 
         function getWinCardData() {
             const OriginType = (props.resource.isSystem as number) === 1 ? 0 : 1;
@@ -289,7 +300,8 @@ export default defineComponent({
             currentDrawColor,
             currentLineWidth,
             eraserLineWidth,
-            currentCouresData
+            currentCouresData,
+            captureElement
         };
     }
 });
