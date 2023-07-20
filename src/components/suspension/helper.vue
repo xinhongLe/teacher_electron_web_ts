@@ -51,30 +51,6 @@
             >
                 <el-collapse-item
                     name="0"
-                    v-if="courseData?.id"
-                    @click="currentClickCol('0', '上课')"
-                >
-                    <template #title>
-                        <div class="collapse-header">
-                            <div class="collapse-title">
-                                <img src="@/assets/images/suspension/icon_sk.png" alt=""/>
-                                已打开的课件
-                            </div>
-                        </div>
-                    </template>
-                    <div class="resource-list">
-                        <div
-                            class="resource-item"
-                            @click.stop="maxCourse()"
-                        >
-                            <div class="resource-left-title">
-                                <span>{{ courseData?.name || '课件' }}</span>
-                            </div>
-                        </div>
-                    </div>
-                </el-collapse-item>
-                <el-collapse-item
-                    name="1"
                     v-if="resourceList.length > 0"
                     @click="currentClickCol('0', '上课')"
                 >
@@ -119,7 +95,7 @@
                     </div>
                 </el-collapse-item>
                 <el-collapse-item
-                    name="2"
+                    name="1"
                     @click="currentClickCol('1', '工具')"
                 >
                     <template #title>
@@ -260,7 +236,7 @@
                     </div>
                 </el-collapse-item>
                 <el-collapse-item
-                    name="3"
+                    name="2"
                     @click="currentClickCol('2', '教学助手')"
                 >
                     <template #title>
@@ -384,8 +360,6 @@ export default defineComponent({
         const allStudentList = ref<unknown[]>([]);
         let userInfo = get(STORAGE_TYPES.USER_INFO);
         const userId = ref(userInfo.userCenterUserID);
-        const courseData = ref(null);
-
         const openBlackboard = () => {
             if (isElectron()) {
                 return window.electron.ipcRenderer.invoke("openBlackboard");
@@ -629,17 +603,8 @@ export default defineComponent({
                 });
 
                 window.electron.ipcRenderer.on("attendClass", onResources);
-
-                window.electron.ipcRenderer.on("setCourseSuspensio", (_, data) => {
-                    courseData.value = data
-                });
-                window.electron.ipcRenderer.send("setCourseMinimize", "max", JSON.stringify(courseData.value));
             }
         });
-        const maxCourse = () => {
-            window.electron.ipcRenderer.send("setCourseMinimize", "max", JSON.stringify(courseData.value));
-            courseData.value = null
-        };
 
         onUnmounted(() => {
             window.electron.ipcRenderer.off("attendClass", onResources);
@@ -700,8 +665,6 @@ export default defineComponent({
             openPainting,
             openTeamCompetition,
             openTeamCompetition2,
-            courseData,
-            maxCourse
         };
     }
 });

@@ -14,6 +14,25 @@
             <span>{{ time }}</span>
             <i class="icon-close" ref="iconCloseRef"></i>
         </div>
+        <!--        <el-tooltip-->
+        <!--            effect="light"-->
+        <!--            :content="courseData?.name || ''"-->
+        <!--            placement="top"-->
+        <!--        >-->
+        <div
+            v-show="isShowCourse && !isShowWelt"
+            :style="
+                isElectron
+                    ? undefined
+                    : { bottom: `${bottom + 120}px`, right: `${right + 120}px` }
+            "
+            @mousedown="mouseDown"
+            class="course icon"
+            ref="courseRef"
+        >
+            <i class="icon-close" ref="iconCourseCloseRef"></i>
+        </div>
+        <!--        </el-tooltip>-->
         <div
             class="video icon"
             v-show="isShowVideo && !isShowWelt"
@@ -102,6 +121,8 @@ export default defineComponent({
         const susDom = ref(null);
         const time = ref();
         const timerRef = ref<HTMLDivElement>();
+        const courseRef = ref<HTMLDivElement>();
+        const iconCourseCloseRef = ref<HTMLDivElement>();
         const videoRef = ref<HTMLDivElement>();
         const questionRef = ref<HTMLDivElement>();
         const blackboardRef = ref<HTMLDivElement>();
@@ -113,7 +134,8 @@ export default defineComponent({
         const isShowQuestion = ref(false);
         const isShowBlackBoard = ref(false);
         const showNoDrag = ref(process.platform !== "darwin");
-
+        const isShowCourse = ref(false);
+        const courseData: any = ref(null);
         const mouseDown = (event: MouseEvent) => {
             isStartMove.value = true;
             const {clientX, clientY} = event;
@@ -171,6 +193,12 @@ export default defineComponent({
                             event.target === iconQuestionCloseRef.value
                         ) {
                             window.electron.ipcRenderer.invoke("closeQuestion");
+                        } else if (event.target === courseRef.value) {
+                            window.electron.ipcRenderer.invoke("setCourseMaximize", JSON.stringify(courseData.value));
+                            isShowCourse.value = false
+                        } else if (event.target === iconCourseCloseRef.value) {
+                            window.electron.ipcRenderer.invoke("closeCourse");
+                            isShowCourse.value = false
                         } else {
                             window.electron.ipcRenderer.invoke(
                                 "openUnfoldSuspension"
@@ -240,6 +268,10 @@ export default defineComponent({
                         isShowBlackBoard.value = false;
                     }
                 );
+                window.electron.ipcRenderer.on("courseWinHide", (_, data) => {
+                    courseData.value = data
+                    isShowCourse.value = true;
+                });
             }
         });
         return {
@@ -254,6 +286,7 @@ export default defineComponent({
             isShowTimer,
             susDom,
             timerRef,
+            courseRef,
             videoRef,
             questionRef,
             iconQuestionCloseRef,
@@ -267,7 +300,9 @@ export default defineComponent({
             isShowQuestion,
             isShowVideo,
             time,
-            showNoDrag
+            showNoDrag,
+            isShowCourse,
+            courseData
         };
     }
 });
@@ -336,6 +371,12 @@ export default defineComponent({
         font-size: 16px;
         top: 5px;
         left: 60px;
+    }
+
+    .course {
+        background-image: url("../../assets/images/suspension/btn_clock@2x.png");
+        top: 42px;
+        left: 28px;
     }
 
     .video {

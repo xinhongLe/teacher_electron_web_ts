@@ -580,6 +580,7 @@ export default defineComponent({
                 id: props.id,
                 openMore: true
             });
+            window.electron.ipcRenderer.invoke("closeCourse");
             emit("closeWinCard");
         };
         // 更多设置时 改变固定定位位置
