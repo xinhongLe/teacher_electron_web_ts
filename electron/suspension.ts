@@ -29,6 +29,8 @@ let isShowTimer = false; // 悬浮球是否显示时间
 let isShowVideo = false; // 悬浮球是否显示视频图标
 let isShowBlackboard = false; // 悬浮球是否显示黑板图标
 let isShowQuestion = false; // 悬浮球是否显示题目图标
+let isShowCourse = false; // 悬浮球是否显示课件图标
+
 let socketHelper: SocketHelper;
 let socketHelperHeartbeatInterval: any = -1;
 let socketHelperHeartbeatCheckInterval: any = -1;
@@ -39,6 +41,7 @@ let lastPort = 1122;
 let isFirstTime = true;
 let openTimes = -1;
 let lastOpenTime = new Date().getTime();
+let currentCourseData: any = null;
 
 const timerURL =
     process.env.NODE_ENV === "development"
@@ -123,7 +126,7 @@ function setSuspensionSize(isResetPosition = true, isCloseWelt = false) {
     }
     let width = 120;
     let height = 120;
-    if (isShowTimer || isShowVideo || isShowBlackboard || isShowQuestion) {
+    if (isShowTimer || isShowVideo || isShowBlackboard || isShowQuestion || isShowCourse) {
         width = 200;
         height = 200;
     }
@@ -171,6 +174,7 @@ function hideSuspensionIcon() {
     isShowVideo = false;
     isShowQuestion = false;
     isShowBlackboard = false;
+    isShowCourse = false;
     if (suspensionWin) {
         suspensionWin.webContents.send("timerWinClose");
         suspensionWin.webContents.send("hideSuspensionVideo");
@@ -577,7 +581,24 @@ class CustomCallBack implements CallBack {
             case "PONG":
                 socketHelperHeartbeatTime = new Date().getTime();
                 break;
+            case "COURSEWARE1SHOW":
+                isShowCourse = true;
+                socketHelper.sendMessage(new Action("COURSEWARE1SHOW", ""));
+                ipcMain.emit("setCourseMaximize", currentCourseData);
+                break;
+            case "COURSEWARE1HIDE":
+                ipcMain.emit("closeCourse");
+                isShowCourse = false;
+                // timerWin && timerWin.destroy();
+                break;
         }
+    }
+}
+
+export function courseShow() {
+    if (socketHelper) {
+        isShowCourse = true;
+        socketHelper.sendMessage(new Action("COURSEWARE1SHOW", ""));
     }
 }
 
@@ -594,11 +615,12 @@ function createLocalSuspensionWindow() {
         backgroundColor: "#00000000",
         alwaysOnTop: true // 窗口是否总是显示在其他窗口之前
     });
+    suspensionWin.webContents.openDevTools();
     const size = screen.getPrimaryDisplay().workAreaSize; // 获取显示器的宽高
     const winSize = suspensionWin.getSize(); // 获取窗口宽高
     suspensionWin.setPosition(
         size.width - winSize[0] - 80,
-        size.height - winSize[1] - 50,
+        size.height - winSize[1] - 350,
         false
     );
 
@@ -887,6 +909,20 @@ export function registerEvent() {
         }
     });
 
+    // 课件最小化
+    ipcMain.handle("courseMinimize", (_, data) => {
+        showSuspension();
+        isShowCourse = true;
+        currentCourseData = data;
+        setSuspensionSize();
+        if (socketHelper) {
+            socketHelper.sendMessage(new Action("COURSEWARE1HIDE", `https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg,${data.name}`));
+        } else {
+            suspensionWin && suspensionWin.webContents.send("courseWinHide", data);
+        }
+    });
+
+
     ipcMain.handle("timeChange", (_, time) => {
         if (socketHelper) {
             socketHelper.sendMessage(new Action("QUICKTIMEHIDEINTERVAL", time));
@@ -983,9 +1019,6 @@ export const unfoldSuspensionWinSendMessage = (
 ) => {
     unfoldSuspensionWin && unfoldSuspensionWin.webContents.send(event, message);
 };
-export const setCourseSuspensio = (data: any) => {
-    unfoldSuspensionWin && unfoldSuspensionWin.webContents.send("setCourseSuspensio", data);
-}
 
 function createTeamCompetition() {
     teamCompetitionWin = createWindow(localTeamURL, {
