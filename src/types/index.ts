@@ -65,6 +65,7 @@ type Electron = {
         screen: Electron.Screen;
         getCurrentWindow: () => Electron.BrowserWindow;
         app: Electron.App;
+        dialog: Electron.Dialog;
     };
     ipcRenderer: Electron.IpcRenderer;
     shell: Electron.Shell;

@@ -3,18 +3,42 @@ import crypto from "crypto";
 import AdmZip from "adm-zip";
 import ffmpeg from "fluent-ffmpeg";
 import logger from "@/utils/logger";
-import {v4 as uuidv4} from "uuid";
-import path, {join, resolve} from "path";
-import {checkWindowSupportNet} from "./util";
-import {exportWord, IFileData} from "./exportWord";
-import {isExistFile, mkdirs, store} from "./downloadFile";
-import remote, {app, dialog, getCurrentWindow, globalShortcut} from "@electron/remote";
-import {execFile as execFileFromAsar, spawn} from "child_process";
-import {access, copyFile, mkdir, readFile, rm, stat, writeFile,} from "fs/promises";
-import {darwinGetScreenPermissionGranted, darwinRequestScreenPermissionPopup,} from "./darwin";
-import {desktopCapturer, ipcRenderer, OpenDialogOptions, SaveDialogOptions, shell} from "electron";
+import { v4 as uuidv4 } from "uuid";
+import path, { join, resolve } from "path";
+import { checkWindowSupportNet } from "./util";
+import { exportWord, IFileData } from "./exportWord";
+import { isExistFile, mkdirs, store } from "./downloadFile";
+import {
+    app,
+    dialog,
+    getCurrentWindow,
+    globalShortcut,
+    getCurrentWebContents
+} from "@electron/remote";
+import { execFile as execFileFromAsar, spawn } from "child_process";
+import {
+    access,
+    copyFile,
+    mkdir,
+    readFile,
+    rm,
+    stat,
+    writeFile
+} from "fs/promises";
+import {
+    darwinGetScreenPermissionGranted,
+    darwinRequestScreenPermissionPopup,
+} from "./darwin";
+import {
+    desktopCapturer,
+    ipcRenderer,
+    OpenDialogOptions,
+    SaveDialogOptions,
+    shell,
+    screen
+} from "electron";
 import * as https from "https";
-import {get, set, STORAGE_TYPES} from "@/utils/storage";
+import { get, set, STORAGE_TYPES } from "@/utils/storage";
 
 const downloadsPath = join(app.getPath("userData"), "files", "/");
 const PATH_WhiteBoard = join(
@@ -35,7 +59,13 @@ ffmpeg.setFfmpegPath(PATH_FFMPEG);
 window.electron = {
     store,
     log: logger,
-    remote,
+    remote: {
+        app,
+        dialog,
+        getCurrentWindow,
+        screen,
+        getCurrentWebContents,
+    },
     ipcRenderer,
     shell,
     exit: () => {
@@ -335,7 +365,7 @@ window.electron = {
                 access(dirname)
                     .then(() => resolve(dirname))
                     .catch(() =>
-                        mkdir(dirname, {recursive: true})
+                        mkdir(dirname, { recursive: true })
                             .then(() => resolve(dirname))
                             .catch(() => resolve(""))
                     );
@@ -410,7 +440,7 @@ window.electron = {
             console.error("报错--", e);
             return "";
         } finally {
-            await rm(filePath, {recursive: true, force: true});
+            await rm(filePath, { recursive: true, force: true });
         }
     },
     unpackCacheFile: async (zipFileName, newpath = "") => {
@@ -419,7 +449,7 @@ window.electron = {
                 access(dirname)
                     .then(() => resolve(dirname))
                     .catch(() =>
-                        mkdir(dirname, {recursive: true})
+                        mkdir(dirname, { recursive: true })
                             .then(() => resolve(dirname))
                             .catch(() => resolve(""))
                     );
@@ -517,25 +547,40 @@ window.electron = {
     },
     getUpdateUserChoice: () => {
         const currentVersion = window.electron.getVersion();
-        const data = get(STORAGE_TYPES.USER_UPDATE_CHOICE) || {version: currentVersion, value: 'update'};
+        const data = get(STORAGE_TYPES.USER_UPDATE_CHOICE) || {
+            version: currentVersion,
+            value: "update",
+        };
         if (currentVersion !== data.version) {
             return {
-                version: currentVersion, value: 'update'
-            }
+                version: currentVersion,
+                value: "update",
+            };
         } else {
             return data;
         }
     },
     saveUpdateUserChoice: (choice) => {
-        set(STORAGE_TYPES.USER_UPDATE_CHOICE, choice)
+        set(STORAGE_TYPES.USER_UPDATE_CHOICE, choice);
     },
     downloadNewApp: (
         version: string,
         onProgress: (progress: number) => void
     ) => {
-        const extension = process.platform === "darwin" ? ".dmg" : process.platform === "linux" ? ".deb" : ".exe"
-        const fileName = (process.env["VUE_APP_PRODUCT_NAME "] || "爱学仕校园教师端") + "-" + version + extension;
-        const updataUrl = "https://app-v.oss-cn-shanghai.aliyuncs.com/teacherElectron/build/" + fileName;
+        const extension =
+            process.platform === "darwin"
+                ? ".dmg"
+                : process.platform === "linux"
+                ? ".deb"
+                : ".exe";
+        const fileName =
+            (process.env["VUE_APP_PRODUCT_NAME "] || "爱学仕校园教师端") +
+            "-" +
+            version +
+            extension;
+        const updataUrl =
+            "https://app-v.oss-cn-shanghai.aliyuncs.com/teacherElectron/build/" +
+            fileName;
         const request = https.request(updataUrl);
         // request.setHeader("Range", `bytes=${0}-${updateInfo.files[0].size - 1}`);
         const filePath = path.join(app.getPath("temp"), fileName);
@@ -565,9 +610,9 @@ window.electron = {
                 downloadedBytes += chunk.length;
                 // 更新下载进度
                 onProgress &&
-                onProgress(
-                    Math.round((downloadedBytes / totalBytes) * 100)
-                );
+                    onProgress(
+                        Math.round((downloadedBytes / totalBytes) * 100)
+                    );
             });
             response.pipe(fileStream, fileName);
             fileStream.on("finish", () => {
