@@ -53,6 +53,7 @@ if (!process.env.WEBPACK_DEV_SERVER_URL) {
 registerVirtualKeyBoard();
 
 async function createLoginWindow() {
+    ElectronLog.info("进入登录界面");
     const loginUrl =
         process.env.NODE_ENV === "development"
             ? `${process.env.WEBPACK_DEV_SERVER_URL}login.html`
@@ -99,6 +100,7 @@ async function createLoginWindow() {
 }
 
 async function createWindow() {
+    ElectronLog.info("进入主界面");
     const size = screen.getPrimaryDisplay().workAreaSize;
     mainWindow = new BrowserWindow({
         width: size.width,
@@ -396,10 +398,11 @@ app.on("ready", async () => {
     createProtocol("app");
     onReady();
     let result = false;
+    console.log(process.argv);
     if (process.argv.length > 1) {
         const url = process.argv[1];
         webOpenUrl(url);
-        createWindow();
+        if (isOpenUrl) createWindow();
     }
 
     if (app.isPackaged && isOpenFile) {
@@ -409,7 +412,7 @@ app.on("ready", async () => {
     if (!result && !isOpenFile && !isOpenUrl) {
         createLoginWindow();
     }
-    // createLocalPreview(["/Users/admin/Desktop/识字1《春夏秋冬》第一课时(副本).lyxpkg"])
+    // createLocalPreview(["/Users/moneyinto/Desktop/第一课时.lyxpkg"])
 });
 
 app.on("render-process-gone", (event, webContents, details) => {

@@ -53,7 +53,7 @@ module.exports = {
         },
         login: {
             entry: "src/childWindow/login/main.ts",
-            template: "public/index.html",
+            template: "public/login.html",
             filename: "login.html",
             chunks: ["login"]
         },
