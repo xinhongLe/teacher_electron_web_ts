@@ -3,17 +3,17 @@ import crypto from "crypto";
 import AdmZip from "adm-zip";
 import ffmpeg from "fluent-ffmpeg";
 import logger from "@/utils/logger";
-import { v4 as uuidv4 } from "uuid";
-import path, { resolve, join } from "path";
-import { checkWindowSupportNet } from "./util";
-import { parsePPT, pptParsePath } from "./parsePPT";
-import { exportWord, IFileData } from "./exportWord";
-import { isExistFile, mkdirs, store } from "./downloadFile";
-import { getCurrentWindow, app, dialog } from "@electron/remote";
-import { execFile as execFileFromAsar, spawn } from "child_process";
-import { access, copyFile, mkdir, readFile, rm, stat, writeFile } from "fs/promises";
-import { darwinGetScreenPermissionGranted, darwinRequestScreenPermissionPopup } from "./darwin";
-import electron, { desktopCapturer, OpenDialogOptions, remote, SaveDialogOptions } from "electron";
+import {v4 as uuidv4} from "uuid";
+import path, {resolve, join} from "path";
+import {checkWindowSupportNet} from "./util";
+import {parsePPT, pptParsePath} from "./parsePPT";
+import {exportWord, IFileData} from "./exportWord";
+import {isExistFile, mkdirs, store} from "./downloadFile";
+import {getCurrentWindow, app, dialog} from "@electron/remote";
+import {execFile as execFileFromAsar, spawn} from "child_process";
+import {access, copyFile, mkdir, readFile, rm, stat, writeFile} from "fs/promises";
+import {darwinGetScreenPermissionGranted, darwinRequestScreenPermissionPopup} from "./darwin";
+import electron, {desktopCapturer, OpenDialogOptions, remote, SaveDialogOptions} from "electron";
 
 const downloadsPath = join(app.getPath("userData"), "files", "/");
 const PATH_WhiteBoard = join(__dirname, "../extraResources/whiteboard/Aixueshi.Whiteboard.exe");
@@ -51,7 +51,9 @@ window.electron = {
             desktopCapturer.getSources({
                 types: ["window"]
             }).then(sources => {
-                const selectSource = sources[0];
+                console.log('sources', sources)
+                const index = sources.findIndex(source => source.name === "爱学仕校园教师端");
+                const selectSource = sources[index];
                 const buffer = selectSource.thumbnail.toPNG({
                     scaleFactor: 0.1
                 });
@@ -307,7 +309,7 @@ window.electron = {
                 access(dirname)
                     .then(() => resolve(dirname))
                     .catch(() =>
-                        mkdir(dirname, { recursive: true })
+                        mkdir(dirname, {recursive: true})
                             .then(() => resolve(dirname))
                             .catch(() => resolve(""))
                     );
@@ -382,7 +384,7 @@ window.electron = {
             console.error("报错--", e);
             return "";
         } finally {
-            await rm(filePath, { recursive: true, force: true });
+            await rm(filePath, {recursive: true, force: true});
         }
     },
     unpackCacheFile: async (zipFileName, newpath = "") => {
@@ -391,7 +393,7 @@ window.electron = {
                 access(dirname)
                     .then(() => resolve(dirname))
                     .catch(() =>
-                        mkdir(dirname, { recursive: true })
+                        mkdir(dirname, {recursive: true})
                             .then(() => resolve(dirname))
                             .catch(() => resolve(""))
                     );

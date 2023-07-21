@@ -916,7 +916,7 @@ export function registerEvent() {
         currentCourseData = data;
         setSuspensionSize();
         if (socketHelper) {
-            socketHelper.sendMessage(new Action("COURSEWARE1HIDE", `https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg,${data.name}`));
+            socketHelper.sendMessage(new Action("COURSEWARE1HIDE", `${data.url},${data.name}`));
         } else {
             suspensionWin && suspensionWin.webContents.send("courseWinHide", data);
         }

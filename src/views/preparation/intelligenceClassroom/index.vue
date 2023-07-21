@@ -195,10 +195,12 @@ export default defineComponent({
         };
         const currentCouresData = ref();
         // 最小化课件
-        const handleMinSize = () => {
+        const handleMinSize = async () => {
             // window.electron.hideWindow();
             // window.electron.ipcRenderer.invoke("timerWinHide", showTime.value);
-            emit("setMinimize", currentCouresData.value)
+            // const url: string = await window.electron.getWindowImg()
+            emit("setMinimize", currentCouresData.value);
+
         };
 
         function getWinCardData() {
@@ -289,7 +291,7 @@ export default defineComponent({
             currentDrawColor,
             currentLineWidth,
             eraserLineWidth,
-            currentCouresData
+            currentCouresData,
         };
     }
 });

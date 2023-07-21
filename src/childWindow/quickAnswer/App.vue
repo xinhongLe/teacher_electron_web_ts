@@ -30,7 +30,7 @@ import zhCn from "element-plus/es/locale/lang/zh-cn";
 import QuickAnswerDetail from "@/childWindow/quickAnswer/quickAnswerDetail.vue";
 import LockScreen from "@/childWindow/quickAnswer/lockScreen.vue";
 import {get, STORAGE_TYPES} from "@/utils/storage";
-import {IYunInfo} from "@/types/login";
+// import {IYunInfo} from "@/types/login";
 import {fetchUserSchedules} from "@/api/timetable";
 import moment from "moment";
 import {UserInfoState} from "@/types/store";
@@ -42,7 +42,8 @@ export default defineComponent({
     setup() {
         const currentUserInfo: UserInfoState = get(STORAGE_TYPES.CURRENT_USER_INFO);
         const userInfo = get(STORAGE_TYPES.USER_INFO);
-        const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
+        const schoolTerm = get(STORAGE_TYPES.SCHOOL_TERM);
+        // const yunInfo: IYunInfo = get(STORAGE_TYPES.YUN_INFO);
         const allStudentList = ref<Student[]>([]);
         const state = reactive({
             isAnswer: true,
@@ -64,7 +65,7 @@ export default defineComponent({
             const data = {
                 StartTime: moment().format("YYYY-MM-DD"),
                 EndTime: moment().format("YYYY-MM-DD"),
-                TermCode: yunInfo.TermCode,
+                TermCode: schoolTerm.code,
                 SchoolID: currentUserInfo.schoolId,
                 TeacherID: currentUserInfo.userCenterUserID
             };
@@ -104,7 +105,6 @@ export default defineComponent({
             locale: zhCn,
             currentUserInfo,
             userInfo,
-            yunInfo,
             ...toRefs(state),
             openQuickAnswer,
             close

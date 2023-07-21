@@ -14,6 +14,7 @@ import isElectron from "is-electron";
 
 const isMinimized = ref(false);
 const store = useStore();
+
 const props = defineProps({
     index: {
         type: Number,
@@ -21,21 +22,23 @@ const props = defineProps({
     }
 });
 const couresData: any = ref(null);
-const setMinimize = (data: any) => {
-    isMinimized.value = true
-    console.log(data);
+const setMinimize = async (data: any) => {
+    const url = await window.electron.getWindowImg();
     const params = {
         id: data.WindowID,
         name: data.Name,
-        isMinimized: true
+        isMinimized: true,
+        url
     };
+    console.log('params', params)
     couresData.value = params;
-    nextTick(() => {
-        if (isElectron()) {
-            window.electron.ipcRenderer.invoke("courseMinimize", params);
-        }
-    })
+    isMinimized.value = true
+    if (isElectron()) {
+        window.electron.ipcRenderer.invoke("courseMinimize", JSON.stringify(params));
+    }
+
 };
+
 const resource = computed(() => store.state.common.showResourceFullScreen[props.index]?.resource);
 onMounted(() => {
     ipcRenderer.on('setCourseMaximize', (e, data) => {
