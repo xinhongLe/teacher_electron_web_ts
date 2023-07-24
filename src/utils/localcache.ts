@@ -86,7 +86,7 @@ export default class LocalCache {
             const fileName = src.replace(/(.*\/)*([^.]+)/i, "$2");
             if (fileName === "ElementFile/" || fileName === "null")
                 return resolve("");
-            return window.electron.isExistFile(fileName).then((isExist) => {
+            return window.electron.isExistCacheFile(fileName).then((isExist) => {
                 if (isExist) {
                     resolve(window.electron.getFilePath(fileName));
                 } else {
@@ -312,6 +312,10 @@ export default class LocalCache {
         this.isEnd = true;
     }
 
+    destory() {
+        this.isEnd = true;
+    }
+
     async doCache(
         winInfo: IGetWindowCards,
         cacheFileName: string,
@@ -321,7 +325,7 @@ export default class LocalCache {
         this.isFail = false;
         this.isEnd = false;
         this.cacheCallback?.cachingStatus(0);
-        const eleRes = await GetWindowsElements(winInfo);
+        const eleRes = await GetWindowsElements(winInfo, true);
         // return;
         if (this.isEnd) return;
         if (eleRes.success) {

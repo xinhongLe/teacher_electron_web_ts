@@ -107,8 +107,7 @@ async function createWindow() {
         height: size.height,
         show: false,
         frame: false,
-        minWidth: 750,
-        minHeight: 520,
+        minWidth: 1280,
         useContentSize: true,
         webPreferences: {
             webviewTag: true,
@@ -317,7 +316,6 @@ const onReady = () => {
         mainWindow!.webContents.send('setCourseMaximize', v)
     })
     ipcMain.handle("setCourseMaximize", (v, data) => {
-        console.log('setCourseMaximize', data)
         mainWindow!.webContents.send("setCourseMaximize", JSON.parse(data));
         courseShow()
     });
@@ -398,7 +396,6 @@ app.on("ready", async () => {
     createProtocol("app");
     onReady();
     let result = false;
-    console.log(process.argv);
     if (process.argv.length > 1) {
         const url = process.argv[1];
         webOpenUrl(url);

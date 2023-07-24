@@ -13,7 +13,7 @@ import {
     dialog,
     getCurrentWindow,
     globalShortcut,
-    getCurrentWebContents
+    getCurrentWebContents,
 } from "@electron/remote";
 import { execFile as execFileFromAsar, spawn } from "child_process";
 import {
@@ -23,7 +23,7 @@ import {
     readFile,
     rm,
     stat,
-    writeFile
+    writeFile,
 } from "fs/promises";
 import {
     darwinGetScreenPermissionGranted,
@@ -35,10 +35,11 @@ import {
     OpenDialogOptions,
     SaveDialogOptions,
     shell,
-    screen
+    screen,
 } from "electron";
 import * as https from "https";
 import { get, set, STORAGE_TYPES } from "@/utils/storage";
+import Axios, { CancelTokenSource } from "axios";
 
 const downloadsPath = join(app.getPath("userData"), "files", "/");
 const PATH_WhiteBoard = join(
@@ -68,6 +69,36 @@ window.electron = {
     },
     ipcRenderer,
     shell,
+    downloadFile: (
+        url: string,
+        path: string,
+        callback: (progress: number) => void,
+        cancelCallBack: (cancelToken: CancelTokenSource) => void
+    ): Promise<Boolean> => {
+        return new Promise((resolve) => {
+            const CancelToken = Axios.CancelToken;
+            const source = CancelToken.source();
+            cancelCallBack(source);
+            Axios({
+                url,
+                method: "GET",
+                responseType: "arraybuffer",
+                onDownloadProgress: (evt) => {
+                    callback((evt.loaded / evt.total) * 100);
+                },
+                cancelToken: source.token
+            }).then((response) => {
+                if (response.status === 200) {
+                    const buffer = Buffer.from(response.data);
+                    fs.writeFile(path, buffer, (err) => {
+                        resolve(!err);
+                    });
+                } else {
+                    resolve(false);
+                }
+            }).catch(() => {});
+        });
+    },
     exit: () => {
         app.quit();
     },
@@ -89,15 +120,19 @@ window.electron = {
         return new Promise((resolve) => {
             const currentWindow = getCurrentWindow();
             const bound = currentWindow.getBounds();
-            desktopCapturer.getSources({
-                types: ["window"]
-            }).then(sources => {
-                console.log('sources', sources)
-                const index = sources.findIndex(source => source.name === "爱学仕校园教师端");
-                const selectSource = sources[index];
-                const buffer = selectSource.thumbnail.toPNG({
-                    scaleFactor: 0.1
-                });
+            desktopCapturer
+                .getSources({
+                    types: ["window"],
+                })
+                .then((sources) => {
+                    console.log("sources", sources);
+                    const index = sources.findIndex(
+                        (source) => source.name === "爱学仕校园教师端"
+                    );
+                    const selectSource = sources[index];
+                    const buffer = selectSource.thumbnail.toPNG({
+                        scaleFactor: 0.1,
+                    });
 
                     const outputPath = join(
                         app.getPath("userData"),
@@ -260,9 +295,12 @@ window.electron = {
             }
         });
     },
-    isExistFile: async (fileName: string) => {
+    isExistCacheFile: async (fileName: string) => {
         const filePath = resolve(downloadsPath, fileName);
         return isExistFile(filePath);
+    },
+    isExistFile: (filePath: string) => {
+        return fs.existsSync(filePath);
     },
     setPositionWin: (x, y, ani?: boolean) => {
         const currentWindow = getCurrentWindow();

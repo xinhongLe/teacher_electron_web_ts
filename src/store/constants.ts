@@ -147,6 +147,18 @@ export const enum MutationTypes {
      * 当前备课中进入课件预览
      */
     SET_RESOURCE_INTO = "SET_RESOURCE_INTO",
+    /**
+     * 下载列表
+     */
+    SET_DOWNLOAD_LIST = "SET_DOWNLOAD_LIST",
+    /**
+     * 初始化下载列表
+     */
+    INIT_DOWNLOADING = "INIT_DOWNLOADING",
+    /**
+     * 移除下载列表中的元素
+     */
+    MOVE_DOWNLOADING = "MOVE_DOWNLOADING"
 }
 
 export const enum ActionTypes {
