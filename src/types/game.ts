@@ -197,3 +197,51 @@ export interface IImageTextConnect {
         },
     }
 }
+
+export interface IhitMouseSetRes {
+    pageID: string,
+    gameID: string,
+    config: {
+        Title: string,
+        Model: number,
+        Speed: number,
+        Time: number | string,
+        holeSet?: number,
+        HoleRow?: number,
+        HoleCol?: number,
+        Correct: string[],
+        Interfere: string[]
+    }
+}
+
+export interface IbasketSetRes {
+    pageID: string,
+    gameID: string,
+    config: {
+        Model: number,
+        Data: { GroupName: string, inputVisible: boolean, inputValue: string, Answer: string[]}[]
+    }
+}
+
+export interface IlinkSetRes {
+    pageID: string,
+    gameID: string,
+    config: {
+        Model: number,
+        TimeModel: number,
+        Time: string,
+        Title: string,
+        Data: {
+            ItemA: {
+                Type: number,
+                Text: string,
+                File: IFileItem
+            },
+            ItemB: {
+                Type: number,
+                Text: string,
+                File: IFileItem
+            }
+        }[]
+    }
+}
