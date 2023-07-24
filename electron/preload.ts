@@ -14,6 +14,8 @@ import {
     getCurrentWindow,
     globalShortcut,
     getCurrentWebContents,
+    desktopCapturer,
+    screen
 } from "@electron/remote";
 import { execFile as execFileFromAsar, spawn } from "child_process";
 import {
@@ -30,12 +32,11 @@ import {
     darwinRequestScreenPermissionPopup,
 } from "./darwin";
 import {
-    desktopCapturer,
     ipcRenderer,
+    nativeImage,
     OpenDialogOptions,
     SaveDialogOptions,
-    shell,
-    screen,
+    shell
 } from "electron";
 import * as https from "https";
 import { get, set, STORAGE_TYPES } from "@/utils/storage";
@@ -120,36 +121,39 @@ window.electron = {
         return new Promise((resolve) => {
             const currentWindow = getCurrentWindow();
             const bound = currentWindow.getBounds();
-            desktopCapturer
-                .getSources({
-                    types: ["window"],
-                })
-                .then((sources) => {
-                    console.log("sources", sources);
-                    const index = sources.findIndex(
-                        (source) => source.name === "爱学仕校园教师端"
-                    );
-                    const selectSource = sources[index];
-                    const buffer = selectSource.thumbnail.toPNG({
-                        scaleFactor: 0.1,
-                    });
-
-                    const outputPath = join(
-                        app.getPath("userData"),
-                        "files",
-                        "thumbnails"
-                    );
-                    if (!fs.existsSync(outputPath)) {
-                        fs.mkdirSync(outputPath);
-                    }
-
-                    const filePath = join(
-                        outputPath,
-                        `${new Date().getTime()}.png`
-                    );
-                    fs.writeFileSync(filePath, buffer);
-                    resolve(filePath);
+            desktopCapturer.getSources({
+                types: ["screen"]
+            }).then(sources => {
+                // console.log('sources', sources)
+                // const index = sources.findIndex(source => source.name === "爱学仕校园教师端");
+                const selectSource = sources[0];
+                const buffer = selectSource.thumbnail.toPNG({
+                    scaleFactor: 0.1
                 });
+
+                const newBuffer = nativeImage.createFromBuffer(buffer).resize({
+                    width: 200,
+                    height: 200
+                }).toPNG();
+
+                const outputPath = join(
+                    app.getPath("userData"),
+                    "files",
+                    "thumbnails"
+                );
+                if (!fs.existsSync(outputPath)) {
+                    fs.mkdirSync(outputPath);
+                }
+
+                const filePath = join(
+                    outputPath,
+                    `${new Date().getTime()}.png`
+                );
+                fs.writeFileSync(filePath, newBuffer);
+                resolve(filePath);
+            }).catch(err => {
+                console.error(err);
+            });
         });
     },
     isFullScreen: () => {
@@ -609,8 +613,8 @@ window.electron = {
             process.platform === "darwin"
                 ? ".dmg"
                 : process.platform === "linux"
-                ? ".deb"
-                : ".exe";
+                    ? ".deb"
+                    : ".exe";
         const fileName =
             (process.env["VUE_APP_PRODUCT_NAME "] || "爱学仕校园教师端") +
             "-" +

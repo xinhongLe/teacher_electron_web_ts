@@ -92,7 +92,7 @@ async function createLoginWindow() {
     });
 
     loginWindow.on("closed", () => {
-        if (process.platform !== "darwin") {
+        if (!mainWindow && process.platform !== "darwin") {
             app.quit();
         }
         loginWindow = null;
@@ -134,7 +134,7 @@ async function createWindow() {
     });
 
     mainWindow.on("closed", () => {
-        if (process.platform !== "darwin") {
+        if (!loginWindow && process.platform !== "darwin") {
             app.quit();
         }
         mainWindow = null;

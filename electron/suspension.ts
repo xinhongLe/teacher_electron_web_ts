@@ -949,12 +949,14 @@ export function registerEvent() {
 
     // 课件最小化
     ipcMain.handle("courseMinimize", (_, data) => {
+        data = JSON.parse(data);
         showSuspension();
         isShowCourse = true;
         currentCourseData = data;
         setSuspensionSize();
         if (socketHelper) {
-            socketHelper.sendMessage(new Action("COURSEWARE1HIDE", `${data.url},${data.name}`));
+            console.error(data);
+            socketHelper.sendMessage(new Action("COURSEWARE1HIDE", `${path.resolve(data.url)},${data.name}`));
         } else {
             suspensionWin && suspensionWin.webContents.send("courseWinHide", data);
         }
