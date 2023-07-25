@@ -5,6 +5,8 @@ import { IResourceItem } from "@/api/resource";
 import { STORAGE_TYPES, get, set } from "@/utils/storage";
 import emitter, { EmitterEvents } from "@/utils/emitter";
 import { ElMessage } from "element-plus";
+//文件不支持的特殊符号进行去除
+import sanitize from "sanitize-filename";
 
 const initState = (): CommonState => ({
     isDragging: false,
@@ -83,7 +85,7 @@ const mutations: MutationTree<CommonState> = {
     [MutationTypes.SET_DOWNLOAD_LIST](state, { type, data } : { type: string, data: IResourceItem }) {
         const downloadObj = {
             id: data.ResourceId,
-            name: data.Name,
+            name: type === "wincard" ? `${sanitize(data.Name)}.lyxpkg` : `${data.Name}.${data.File.FileExtention}`,
             type,
             data,
             timestamp: new Date().getTime(),

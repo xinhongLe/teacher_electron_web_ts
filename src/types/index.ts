@@ -32,6 +32,7 @@ type Electron = {
     isFullScreen: () => boolean;
     setFullScreen: (flag: boolean) => void;
     getVersion: () => string;
+    getFileName: (path: string, fileName: string, i: number) => string;
     downloadFile: (url: string, path: string, callback: (progress: number) => void, cancelCallBack: (cancelToken: CancelTokenSource) => void) => Promise<Boolean>;
     isMac: () => boolean;
     registerEscKeyUp: (callback: () => void) => void;

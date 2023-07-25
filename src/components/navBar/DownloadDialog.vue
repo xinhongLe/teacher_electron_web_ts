@@ -199,10 +199,21 @@ const downloadList = ref<IDownload[]>([]);
 const downloadingList = ref<IDownloading[]>([]);
 const downLoadingProgress = ref<IProgress[]>([]);
 
+const updateHistoryFileName = (item: IDownloading, fileName: string) => {
+    // 修改历史记录里的名字
+    const history = (get(STORAGE_TYPES.DOWNLOAD_HISTORY) || []) as IDownloading[];
+    const index = history.findIndex(v => v.id === item.id && v.timestamp === item.timestamp);
+    history[index].name = fileName;
+    set(STORAGE_TYPES.DOWNLOAD_HISTORY, history);
+    searchHistory();
+};
+
 const startDownload = async (item: IDownloading) => {
     downloadingList.value.push(item);
     const path = window.electron.getPath("downloads");
     if (item.type === "wincard") {
+        const fileName = window.electron.getFileName(path, item.name, 0);
+        updateHistoryFileName(item, fileName);
         const localCache = new LocalCache({
             cachingStatus: (status) => {
                 // console.log(`status: ${status}`);
@@ -211,7 +222,7 @@ const startDownload = async (item: IDownloading) => {
                 );
                 if (index > -1) downLoadingProgress.value[index].progress = status;
                 if (status === 100) {
-                    ElMessage.success(`打包下载 ${item.name} 完成！`);
+                    ElMessage.success(`下载 ${fileName} 完成！`);
                     downloadNext(item.id, 2);
                 }
             },
@@ -226,10 +237,10 @@ const startDownload = async (item: IDownloading) => {
                 WindowID: item.data.OldResourceId,
                 OriginType: item.data.IsSysFile === 1 ? 0 : 1,
             },
-            item.data.Name,
+            fileName,
             path,
             () => {
-                ElMessage.error(`网络异常，打包 ${item.name} 下载失败！`);
+                ElMessage.error(`网络异常，${fileName} 下载失败！`);
                 downloadNext(item.id, 4);
             }
         );
@@ -239,10 +250,12 @@ const startDownload = async (item: IDownloading) => {
             item.data.File.FileBucket
         );
 
+        const fileName = window.electron.getFileName(path, item.name, 0);
+        updateHistoryFileName(item, fileName);
         window.electron
             .downloadFile(
                 url,
-                `${path}/${item.data.File.FileName}.${item.data.File.FileExtention}`,
+                `${path}/${fileName}`,
                 (progress: number) => {
                     // console.log(`progress: ${progress}`);
                     const index = downLoadingProgress.value.findIndex(
@@ -260,10 +273,10 @@ const startDownload = async (item: IDownloading) => {
             )
             .then((isOk) => {
                 if (isOk) {
-                    ElMessage.success(`打包下载 ${item.name} 完成！`);
+                    ElMessage.success(`下载 ${fileName} 完成！`);
                     downloadNext(item.id, 2);
                 } else {
-                    ElMessage.error(`网络异常，打包 ${item.name} 下载失败！`);
+                    ElMessage.error(`网络异常，${fileName} 下载失败！`);
                     downloadNext(item.id, 4);
                 }
             });
@@ -329,19 +342,7 @@ const initHistory = async () => {
 initHistory();
 
 emitter.on(EmitterEvents.DOWNLOAD_CHANGE, (downList: IDownloading[]) => {
-    const list: IDownload[] = [];
-    for (const item of downList) {
-        const time = moment(item.timestamp).format("YYYY年M月D日");
-        if (list.length > 0 && list[list.length - 1].time === time) {
-            list[list.length - 1].list.push(item);
-        } else {
-            list.push({
-                time,
-                list: [item],
-            });
-        }
-    }
-    downloadList.value = list;
+    searchHistory();
 
     const storeDownloading = store.state.common.downloading;
     if (
@@ -361,11 +362,7 @@ emitter.on(EmitterEvents.DOWNLOAD_CHANGE, (downList: IDownloading[]) => {
 
 const showInFolder = async (file: IDownloading) => {
     const path = window.electron.getPath("downloads");
-
-    const fileUrl =
-        file.type === "wincard"
-            ? `${path}/${file.name}.lyxpkg`
-            : `${path}/${file.data.File.FileName}.${file.data.File.FileExtention}`;
+    const fileUrl = `${path}/${file.name}`;
     const isExist = await window.electron.isExistFile(fileUrl);
     if (isExist) {
         window.electron.shell.showItemInFolder(fileUrl);
@@ -376,10 +373,7 @@ const showInFolder = async (file: IDownloading) => {
 
 const openFile = async (file: IDownloading) => {
     const path = window.electron.getPath("downloads");
-    const fileUrl =
-        file.type === "wincard"
-            ? `${path}/${file.name}.lyxpkg`
-            : `${path}/${file.data.File.FileName}.${file.data.File.FileExtention}`;
+    const fileUrl = `${path}/${file.name}`;
     const isExist = await window.electron.isExistFile(fileUrl);
     if (isExist) {
         window.electron.shell.openPath(fileUrl);
@@ -475,23 +469,7 @@ const closeDownload = (file: IDownloading) => {
                 history.splice(index, 1);
                 set(STORAGE_TYPES.DOWNLOAD_HISTORY, history);
 
-                const list: IDownload[] = [];
-                for (const item of history) {
-                    if (item.name.indexOf(keywards.value) > -1 || keywards.value.length === 0) {
-                        const time = moment(item.timestamp).format("YYYY年M月D日");
-
-                        if (list.length > 0 && list[list.length - 1].time === time) {
-                            list[list.length - 1].list.push(item);
-                        } else {
-                            list.push({
-                                time,
-                                list: [item],
-                            });
-                        }
-                    }
-                }
-
-                downloadList.value = list;
+                searchHistory();
             }
         }
     ).catch(() => {});
@@ -533,6 +511,10 @@ const closeDownload = (file: IDownloading) => {
         min-height: 0;
         position: relative;
         overflow-y: auto;
+        &::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
         .download-no-content {
             position: absolute;
             top: 50%;
