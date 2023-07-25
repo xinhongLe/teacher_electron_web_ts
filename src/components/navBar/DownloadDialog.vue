@@ -362,7 +362,7 @@ emitter.on(EmitterEvents.DOWNLOAD_CHANGE, (downList: IDownloading[]) => {
 
 const showInFolder = async (file: IDownloading) => {
     const path = window.electron.getPath("downloads");
-    const fileUrl = `${path}/${file.name}`;
+    const fileUrl = window.electron.path.join(path, file.name);
     const isExist = await window.electron.isExistFile(fileUrl);
     if (isExist) {
         window.electron.shell.showItemInFolder(fileUrl);
@@ -373,7 +373,7 @@ const showInFolder = async (file: IDownloading) => {
 
 const openFile = async (file: IDownloading) => {
     const path = window.electron.getPath("downloads");
-    const fileUrl = `${path}/${file.name}`;
+    const fileUrl = window.electron.path.join(path, file.name);
     const isExist = await window.electron.isExistFile(fileUrl);
     if (isExist) {
         window.electron.shell.openPath(fileUrl);

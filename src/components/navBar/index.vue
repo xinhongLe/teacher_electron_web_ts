@@ -241,6 +241,7 @@ export default defineComponent({
             margin-right: 20px;
             cursor: pointer;
             position: relative;
+            -webkit-app-region: no-drag;
             &:after {
                 content: attr(num);
                 display: block;

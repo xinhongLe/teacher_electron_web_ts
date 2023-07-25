@@ -70,6 +70,7 @@ window.electron = {
     },
     ipcRenderer,
     shell,
+    path,
     getFileName: (path: string, fileName: string, i: number) => {
         const name = (i === 0 ? fileName : fileName.replace(/([^.]+).([^.]+)/gi, `$1(${i}).$2`));
         if (window.electron.isExistFile(path + "/" + name)) return window.electron.getFileName(path, fileName, i + 1);
